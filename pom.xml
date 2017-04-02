@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.parallelsymmetry.pom</groupId>
+		<artifactId>jar</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath></relativePath>
+	</parent>
+
+	<groupId>com.parallelsymmetry</groupId>
+	<artifactId>essence</artifactId>
+	<packaging>jar</packaging>
+
+	<name>Essence Framework</name>
+
+	<repositories>
+		<repository>
+			<id>psm</id>
+			<url>http://code.parallelsymmetry.com/repo/psm</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<product-name>Essence</product-name>
+		<product-identifier>essence</product-identifier>
+		<package-stage-folder>program</package-stage-folder>
+		<project.build.timestamp>${maven.build.timestamp}</project.build.timestamp>
+
+		<slf4j.version>1.7.25</slf4j.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<resources>
+			<resource>
+				<directory>source/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/product.xml</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>source/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/product.xml</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>9</source>
+					<target>9</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+							<!-- <goal>sign</goal> -->
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<archive>
+						<!-- Indexing the jar breaks the use of the Class-Path entry. -->
+						<!-- <index>true</index> -->
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>com.parallelsymmetry.essence.Program</mainClass>
+							<classpathLayoutType>custom</classpathLayoutType>
+							<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}
+							</customClasspathLayout>
+						</manifest>
+						<manifestEntries>
+							<SplashScreen-Image>splash.png</SplashScreen-Image>
+						</manifestEntries>
+					</archive>
+					<verify>true</verify>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+</project>
