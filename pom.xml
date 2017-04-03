@@ -70,27 +70,28 @@
 
 		<plugins>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>9</source>
-					<target>9</target>
-				</configuration>
-			</plugin>
+			<!--<plugin>-->
+				<!--<groupId>org.apache.maven.plugins</groupId>-->
+				<!--<artifactId>maven-compiler-plugin</artifactId>-->
+				<!--<configuration>-->
+					<!--<source>9</source>-->
+					<!--<target>9</target>-->
+				<!--</configuration>-->
+			<!--</plugin>-->
 
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-							<!-- <goal>sign</goal> -->
-						</goals>
-					</execution>
-				</executions>
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<id>jar</id>-->
+						<!--<phase>package</phase>-->
+						<!--<goals>-->
+							<!--<goal>jar</goal>-->
+							<!--&lt;!&ndash; <goal>sign</goal> &ndash;&gt;-->
+						<!--</goals>-->
+					<!--</execution>-->
+				<!--</executions>-->
 				<configuration>
 					<archive>
 						<!-- Indexing the jar breaks the use of the Class-Path entry. -->
@@ -98,15 +99,14 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>com.parallelsymmetry.essence.Program</mainClass>
-							<classpathLayoutType>custom</classpathLayoutType>
-							<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}
-							</customClasspathLayout>
+							<!--<classpathLayoutType>custom</classpathLayoutType>-->
+							<!--<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}-->
+							<!--</customClasspathLayout>-->
 						</manifest>
 						<manifestEntries>
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
 						</manifestEntries>
 					</archive>
-					<verify>true</verify>
 				</configuration>
 			</plugin>
 

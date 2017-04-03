@@ -12,7 +12,8 @@ import java.util.concurrent.Executors;
 
 public class Program extends Application {
 
-	private static final Logger log = LoggerFactory.getLogger( Program.class );
+	// FIXME Logger causes problem when launching from command line.
+	//private static final Logger log = LoggerFactory.getLogger( "com.parallelsymmetry.essence.Program" );
 
 	private static String title;
 
@@ -20,10 +21,10 @@ public class Program extends Application {
 
 	private ExecutorService executorService;
 
-	//	public static void main( String commands ) {
-	//		System.out.println( "Main method before launch" );
-	//		//launch(commands);
-	//	}
+	public static void main( String[] commands ) {
+		System.out.println( "Main method before launch" );
+		launch( commands );
+	}
 
 	public Program() {
 		// Create the ExecutorService
@@ -34,14 +35,14 @@ public class Program extends Application {
 
 	@Override
 	public void init() throws Exception {
-		log.info( "Initialize the program" );
+		//log.info( "Initialize the program" );
 
 		title = "Essence";
 	}
 
 	@Override
 	public void start( Stage primaryStage ) throws Exception {
-		log.info( "Start the program" );
+		//log.info( "Start the program" );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( title ).show();
@@ -52,7 +53,7 @@ public class Program extends Application {
 
 	@Override
 	public void stop() throws Exception {
-		log.info( "Stop the program" );
+		//log.info( "Stop the program" );
 
 		executorService.submit( new ShutdownTask() );
 		executorService.shutdown();
@@ -62,15 +63,16 @@ public class Program extends Application {
 
 	private void process() {
 		try {
-			log.info( "Starting process..." );
+			//log.info( "Starting process..." );
 			Thread.sleep( 500 );
-			log.info( "Process complete." );
+			//log.info( "Process complete." );
 		} catch( InterruptedException exception ) {
-			log.error( "Thread interrupted", exception );
+			//log.error( "Thread interrupted", exception );
 		}
 	}
 
 	private void showProgram( Stage stage ) {
+		// FIXME Not specifying the location allows the OS to choose
 		stage.show();
 	}
 
