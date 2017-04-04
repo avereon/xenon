@@ -71,26 +71,26 @@
 		<plugins>
 
 			<!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-compiler-plugin</artifactId>-->
-				<!--<configuration>-->
-					<!--<source>9</source>-->
-					<!--<target>9</target>-->
-				<!--</configuration>-->
+			<!--<groupId>org.apache.maven.plugins</groupId>-->
+			<!--<artifactId>maven-compiler-plugin</artifactId>-->
+			<!--<configuration>-->
+			<!--<source>9</source>-->
+			<!--<target>9</target>-->
+			<!--</configuration>-->
 			<!--</plugin>-->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<!--<executions>-->
-					<!--<execution>-->
-						<!--<id>jar</id>-->
-						<!--<phase>package</phase>-->
-						<!--<goals>-->
-							<!--<goal>jar</goal>-->
-							<!--&lt;!&ndash; <goal>sign</goal> &ndash;&gt;-->
-						<!--</goals>-->
-					<!--</execution>-->
+				<!--<execution>-->
+				<!--<id>jar</id>-->
+				<!--<phase>package</phase>-->
+				<!--<goals>-->
+				<!--<goal>jar</goal>-->
+				<!--&lt;!&ndash; <goal>sign</goal> &ndash;&gt;-->
+				<!--</goals>-->
+				<!--</execution>-->
 				<!--</executions>-->
 				<configuration>
 					<archive>
@@ -106,6 +106,29 @@
 						<manifestEntries>
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
 						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.parallelsymmetry.essence.Program</mainClass>
+						</manifest>
 					</archive>
 				</configuration>
 			</plugin>
