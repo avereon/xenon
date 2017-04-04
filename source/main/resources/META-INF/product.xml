@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<product version="1">
+
+	<group>${project.groupId}</group>
+	<artifact>${project.artifactId}</artifact>
+	<version>${project.version}</version>
+	<timestamp>${timestamp}</timestamp>
+
+	<icon uri="http://www.parallelsymmetry.com/images/icons/essence.png"/>
+
+	<name>${project.name}</name>
+	<provider>${project.organization.name}</provider>
+	<inception>${project.inceptionYear}</inception>
+
+	<contributors>
+		<name>Mark Soderquist</name>
+	</contributors>
+
+	<summary>Java application framework</summary>
+	<description>Essence is a Java application framework for developing modular cross-platform applications.</description>
+
+	<copyright>
+		<notice>All rights reserved.</notice>
+	</copyright>
+
+	<license>
+		<summary>Essence comes with ABSOLUTELY NO WARRANTY. This is open
+			software, and you are welcome to redistribute it under certain
+			conditions.
+		</summary>
+	</license>
+
+	<resources>
+		<java version="1.9"/>
+		<pack uri="http://www.parallelsymmetry.com/download/product/essence/product.zip"/>
+	</resources>
+
+	<source uri="http://www.parallelsymmetry.com/download/product/essence/product.xml"/>
+
+</product>

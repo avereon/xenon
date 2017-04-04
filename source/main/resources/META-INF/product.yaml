@@ -1,0 +1,2 @@
+group: ${project.groupId}
+artifact: ${project.artifactId}

@@ -4,9 +4,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,18 +39,24 @@ public class Program extends Application {
 	public void init() throws Exception {
 		log.info( "Initialize the program" );
 
+//		String product = IOUtils.toString( getClass().getResource( "/META-INF/product.yaml" ), "utf-8" );
+//		System.out.println( product );
+		Yaml yaml = new Yaml();
+		Map<String,  String> values = (Map<String,  String>)yaml.load( getClass().getResourceAsStream( "/META-INF/product.yaml" ) );
+		System.out.println( values.get("group"));
+
 		title = "Essence";
 	}
 
 	@Override
-	public void start( Stage primaryStage ) throws Exception {
+	public void start( Stage stage ) throws Exception {
 		log.info( "Start the program" );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( title ).show();
 
 		// Submit the startup task
-		executorService.submit( new StartupTask( primaryStage ) );
+		executorService.submit( new StartupTask( stage ) );
 	}
 
 	@Override
@@ -56,14 +65,12 @@ public class Program extends Application {
 
 		executorService.submit( new ShutdownTask() );
 		executorService.shutdown();
-
-		super.stop();
 	}
 
 	private void process() {
 		try {
 			log.info( "Starting process..." );
-			Thread.sleep( 500 );
+			Thread.sleep( 800 );
 			log.info( "Process complete." );
 		} catch( InterruptedException exception ) {
 			//log.error( "Thread interrupted", exception );
@@ -71,7 +78,7 @@ public class Program extends Application {
 	}
 
 	private void showProgram( Stage stage ) {
-		// FIXME Not specifying the location allows the OS to choose
+		FxUtil.centerStage( stage, 400, 250 );
 		stage.show();
 	}
 
@@ -88,16 +95,21 @@ public class Program extends Application {
 			// TODO Start the SettingsManager
 			// TODO Start the ResourceManager
 			// TODO Start the UpdateManager
+
+			Platform.runLater( () -> splashScreen.setSteps( 3 ) );
+
 			process();
 			Platform.runLater( () -> splashScreen.update() );
+
 			process();
 			Platform.runLater( () -> splashScreen.update() );
+
 			process();
 			Platform.runLater( () -> splashScreen.update() );
-			process();
-			Platform.runLater( () -> splashScreen.update() );
-			process();
-			Platform.runLater( () -> splashScreen.update() );
+
+			Thread.sleep( 500 );
+			Platform.runLater( () -> splashScreen.done() );
+
 			return null;
 		}
 
