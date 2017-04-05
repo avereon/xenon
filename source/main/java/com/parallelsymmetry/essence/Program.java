@@ -4,11 +4,11 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,13 +39,11 @@ public class Program extends Application {
 	public void init() throws Exception {
 		log.info( "Initialize the program" );
 
-//		String product = IOUtils.toString( getClass().getResource( "/META-INF/product.yaml" ), "utf-8" );
-//		System.out.println( product );
-		Yaml yaml = new Yaml();
-		Map<String,  String> values = (Map<String,  String>)yaml.load( getClass().getResourceAsStream( "/META-INF/product.yaml" ) );
-		System.out.println( values.get("group"));
+		// Load the product descriptor. This is done before showing
+		// the splash screen so it must be done quickly.
+		ProductMetadata metadata = new ProductMetadata();
 
-		title = "Essence";
+		title = metadata.getName();
 	}
 
 	@Override

@@ -1,2 +1,25 @@
 group: ${project.groupId}
 artifact: ${project.artifactId}
+version: ${project.version}
+timestamp: ${timestamp}
+
+name: ${project.name}
+provider: ${project.organization.name}
+inception: ${project.inceptionYear}
+
+summary: "Java application framework"
+description: "Essence is a Java application framework for developing modular cross-platform applications."
+
+icon: "http://www.parallelsymmetry.com/images/icons/essence.png"
+
+contributors:
+  - "Mark Soderquist"
+
+copyright:
+  summary: "All rights reserved."
+
+license: "Essence comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions."
+
+resources:
+  head: "http://www.parallelsymmetry.com/download/product/essence/product.xml"
+  pack: "http://www.parallelsymmetry.com/download/product/essence/product.zip"
