@@ -90,6 +90,7 @@
 
 		<plugins>
 
+			<!-- Force to back up to Java 8 due to incompatibility with Lombok -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
