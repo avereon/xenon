@@ -23,7 +23,7 @@ public class ProductMetadata {
 
 	private String provider;
 
-	private String inception;
+	private int inception;
 
 	private String summary;
 
@@ -36,14 +36,14 @@ public class ProductMetadata {
 		this.group = (String)values.get( "group" );
 		this.artifact = (String)values.get( "artifact" );
 		this.version = (String)values.get( "version" );
-//		this.timestamp = (String)values.get( "timestamp" );
+		this.timestamp = (String)values.get( "timestamp" );
 
 		this.name = (String)values.get( "name" );
-//		this.provider = (String)values.get( "provider" );
-//		this.inception = (String)values.get( "inception" );
-//
-//		this.summary = (String)values.get( "summary" );
-//		this.description = (String)values.get( "description" );
+		this.provider = (String)values.get( "provider" );
+		this.inception = (Integer)values.get( "inception" );
+
+		this.summary = (String)values.get( "summary" );
+		this.description = (String)values.get( "description" );
 	}
 
 	public String getGroup() {
@@ -94,11 +94,11 @@ public class ProductMetadata {
 		this.provider = provider;
 	}
 
-	public String getInception() {
+	public int getInception() {
 		return inception;
 	}
 
-	public void setInception( String inception ) {
+	public void setInception( int inception ) {
 		this.inception = inception;
 	}
 

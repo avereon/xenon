@@ -26,11 +26,12 @@
 	</repositories>
 
 	<properties>
-		<product-name>Essence</product-name>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss Z</maven.build.timestamp.format>
+		<project.timestamp>${maven.build.timestamp}</project.timestamp>
+
+		<product-name>${project.name}</product-name>
 		<product-identifier>essence</product-identifier>
 		<package-stage-folder>program</package-stage-folder>
-		<project.build.timestamp>${maven.build.timestamp}</project.build.timestamp>
-
 		<slf4j.version>1.7.25</slf4j.version>
 	</properties>
 
@@ -82,16 +83,6 @@
 		</resources>
 
 		<plugins>
-
-			<!-- Force to back up to Java 8 due to incompatibility with Lombok -->
-			<!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-compiler-plugin</artifactId>-->
-				<!--<configuration>-->
-					<!--<source>8</source>-->
-					<!--<target>8</target>-->
-				<!--</configuration>-->
-			<!--</plugin>-->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

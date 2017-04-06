@@ -44,6 +44,19 @@ public class Program extends Application {
 		ProductMetadata metadata = new ProductMetadata();
 
 		title = metadata.getName();
+
+		System.err.println( metadata.getGroup() );
+		System.err.println( metadata.getArtifact() );
+		System.err.println( metadata.getVersion() );
+		System.err.println( metadata.getTimestamp() );
+
+		System.err.println( metadata.getName() );
+		System.err.println( metadata.getProvider() );
+		System.err.println( metadata.getInception() );
+
+		System.err.println( metadata.getSummary() );
+		System.err.println( metadata.getDescription() );
+
 	}
 
 	@Override

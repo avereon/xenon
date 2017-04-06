@@ -1,7 +1,8 @@
 group: ${project.groupId}
 artifact: ${project.artifactId}
 version: ${project.version}
-timestamp: ${timestamp}
+
+timestamp: ${project.timestamp}
 
 name: ${project.name}
 provider: ${project.organization.name}
