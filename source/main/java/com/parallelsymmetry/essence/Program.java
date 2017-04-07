@@ -44,7 +44,7 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void init() throws Exception {
-		//log.info( "Initialize the program" );
+		log.info( "Initialize the program" );
 
 		// Load the product metadata. This must be done quickly because it is
 		// loaded before the splash screen is displayed.
@@ -52,19 +52,6 @@ public class Program extends Application implements Product {
 		title = metadata.getName();
 
 		System.out.println( System.currentTimeMillis() - startTimestamp );
-
-//		System.err.println( metadata.getGroup() );
-//		System.err.println( metadata.getArtifact() );
-//		System.err.println( metadata.getVersion() );
-//		System.err.println( metadata.getTimestamp() );
-//
-//		System.err.println( metadata.getName() );
-//		System.err.println( metadata.getProvider() );
-//		System.err.println( metadata.getInception() );
-//
-//		System.err.println( metadata.getSummary() );
-//		System.err.println( metadata.getDescription() );
-
 	}
 
 	@Override
@@ -94,7 +81,7 @@ public class Program extends Application implements Product {
 	private void process() {
 		try {
 			log.info( "Starting process..." );
-			Thread.sleep( 800 );
+			Thread.sleep( 200 );
 			log.info( "Process complete." );
 		} catch( InterruptedException exception ) {
 			//log.error( "Thread interrupted", exception );
@@ -120,19 +107,22 @@ public class Program extends Application implements Product {
 			// TODO Start the ResourceManager
 			// TODO Start the UpdateManager
 
-			Platform.runLater( () -> splashScreen.setSteps( 3 ) );
+			// Set the number of startup steps
+			Platform.runLater( () -> splashScreen.setSteps( 10 ) );
 
-			process();
-			Platform.runLater( () -> splashScreen.update() );
+			for( int index = 0; index < 10; index++ ) {
+				// Do something time consuming
+				process();
 
-			process();
-			Platform.runLater( () -> splashScreen.update() );
+				// Update the splash screen
+				Platform.runLater( () -> splashScreen.update() );
+			}
 
-			process();
-			Platform.runLater( () -> splashScreen.update() );
-
-			Thread.sleep( 500 );
+			// Finish the splash screen
 			Platform.runLater( () -> splashScreen.done() );
+
+			// Give the slash screen time to finalize
+			Thread.sleep( 500 );
 
 			return null;
 		}
