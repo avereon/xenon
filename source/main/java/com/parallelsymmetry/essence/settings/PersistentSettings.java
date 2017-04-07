@@ -25,14 +25,14 @@ public class PersistentSettings implements WritableSettings {
 	private static Logger log = LoggerFactory.getLogger( PersistentSettings.class );
 
 	/**
-	 * Data will be persisted at least this often.
-	 */
-	private static final long highPersistLimit = 1000;
-
-	/**
 	 * Data will be persisted at most this fast.
 	 */
-	private static final long lowPersistLimit = 50;
+	public static final long MIN_PERSIST_LIMIT = 50;
+
+	/**
+	 * Data will be persisted at least this often.
+	 */
+	public static final long MAX_PERSIST_LIMIT = 5000;
 
 	private final Object taskLock = new Object();
 
@@ -77,7 +77,7 @@ public class PersistentSettings implements WritableSettings {
 		}
 
 		lastValueTime.set( System.currentTimeMillis() );
-		if( lastDirtyTime.get() < lastStoreTime.get() ) lastDirtyTime.set( lastValueTime.get() );
+		if( lastDirtyTime.get() <= lastStoreTime.get() ) lastDirtyTime.set( lastValueTime.get() );
 		scheduleSave();
 	}
 
@@ -106,13 +106,16 @@ public class PersistentSettings implements WritableSettings {
 	}
 
 	/**
-	 * Force the settings to be persisted. It is not recommended to
-	 * call this method often but to allow the PersistentSettings class
-	 * automatically manage when to persist.
-	 *
-	 * @throws IOException
+	 * Requests the settings get persisted. This method will block until the
+	 * settings have been stored. It is not recommended to call this method
+	 * unless it is necessary to persist the settings (e.g. when the program
+	 * exits).
 	 */
-	public void save() throws IOException {
+	public void flush() throws Exception {
+		executor.submit( PersistentSettings.this::persist ).get();
+	}
+
+	private void save() throws IOException {
 		// If the last store time is greater than the last value time there is no need to save
 		if( lastStoreTime.get() > lastDirtyTime.get() ) return;
 
@@ -168,27 +171,22 @@ public class PersistentSettings implements WritableSettings {
 			long storeTime = lastStoreTime.get();
 			long dirtyTime = lastDirtyTime.get();
 
+			// If there are no changes since the last store time just return
 			if( dirtyTime < storeTime ) return;
 
-			// Now we know we have to save, eventually
-
 			long valueTime = lastValueTime.get();
-			long softNext = valueTime + lowPersistLimit;
-			long hardNext = dirtyTime + highPersistLimit;
+			long softNext = valueTime + MIN_PERSIST_LIMIT;
+			long hardNext = dirtyTime + MAX_PERSIST_LIMIT;
+			long nextTime = Math.min( softNext, hardNext );
 			long taskTime = task == null ? 0 : task.scheduledExecutionTime();
 
-			// If task time is sooner than the next hard time...let it run?
+			// If the existing task time is already set to the next time just return
+			if( taskTime == nextTime ) return;
 
-
-//			long nextTime = Math.min( nextSoft, nextHard );
-//
-//			if( taskTime <= nextTime ) return;
-//
-//
-//			// If now is more than last save time plus
-//			SaveTask task = new SaveTask();
-//			timer.schedule( task, delay );
-
+			// Cancel the existing task and schedule a new one
+			if( task != null ) task.cancel();
+			task = new SaveTask();
+			timer.schedule( task, new Date( nextTime ) );
 		}
 	}
 
