@@ -1,27 +1,34 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.product.Product;
+import com.parallelsymmetry.essence.product.ProductMetadata;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.InputStream;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Program extends Application {
+public class Program extends Application implements Product {
 
 	private static final Logger log = LoggerFactory.getLogger( Program.class );
+
+	private static final long startTimestamp;
 
 	private static String title;
 
 	private SplashScreen splashScreen;
 
 	private ExecutorService executorService;
+
+	private ProductMetadata metadata;
+
+	static {
+		startTimestamp = System.currentTimeMillis();
+	}
 
 	public static void main( String[] commands ) {
 		log.info( "Main method before launch" );
@@ -37,25 +44,26 @@ public class Program extends Application {
 
 	@Override
 	public void init() throws Exception {
-		log.info( "Initialize the program" );
+		//log.info( "Initialize the program" );
 
-		// Load the product descriptor. This is done before showing
-		// the splash screen so it must be done quickly.
-		ProductMetadata metadata = new ProductMetadata();
-
+		// Load the product metadata. This must be done quickly because it is
+		// loaded before the splash screen is displayed.
+		metadata = new ProductMetadata();
 		title = metadata.getName();
 
-		System.err.println( metadata.getGroup() );
-		System.err.println( metadata.getArtifact() );
-		System.err.println( metadata.getVersion() );
-		System.err.println( metadata.getTimestamp() );
+		System.out.println( System.currentTimeMillis() - startTimestamp );
 
-		System.err.println( metadata.getName() );
-		System.err.println( metadata.getProvider() );
-		System.err.println( metadata.getInception() );
-
-		System.err.println( metadata.getSummary() );
-		System.err.println( metadata.getDescription() );
+//		System.err.println( metadata.getGroup() );
+//		System.err.println( metadata.getArtifact() );
+//		System.err.println( metadata.getVersion() );
+//		System.err.println( metadata.getTimestamp() );
+//
+//		System.err.println( metadata.getName() );
+//		System.err.println( metadata.getProvider() );
+//		System.err.println( metadata.getInception() );
+//
+//		System.err.println( metadata.getSummary() );
+//		System.err.println( metadata.getDescription() );
 
 	}
 
@@ -76,6 +84,11 @@ public class Program extends Application {
 
 		executorService.submit( new ShutdownTask() );
 		executorService.shutdown();
+	}
+
+	@Override
+	public ProductMetadata getMetadata() {
+		return metadata;
 	}
 
 	private void process() {

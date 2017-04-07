@@ -16,7 +16,19 @@
 	<packaging>jar</packaging>
 
 	<name>Essence</name>
+	<description>A Java application platform for developing modular cross-platform applications.</description>
 	<inceptionYear>2017</inceptionYear>
+
+	<developers>
+		<developer>
+			<name>Mark Soderquist</name>
+			<organization>Parallel Symmetry</organization>
+			<email>mark@parallelsymmetry.com</email>
+			<roles>
+				<role>Architect</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<repositories>
 		<repository>
@@ -26,7 +38,6 @@
 	</repositories>
 
 	<properties>
-		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss Z</maven.build.timestamp.format>
 		<project.timestamp>${maven.build.timestamp}</project.timestamp>
 
 		<product-name>${project.name}</product-name>

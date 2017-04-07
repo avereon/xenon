@@ -1,25 +1,32 @@
 group: ${project.groupId}
 artifact: ${project.artifactId}
 version: ${project.version}
-
 timestamp: ${project.timestamp}
 
+icon: http://www.parallelsymmetry.com/images/icons/essence.png
 name: ${project.name}
 provider: ${project.organization.name}
 inception: ${project.inceptionYear}
 
-summary: "Java application framework"
-description: "Essence is a Java application framework for developing modular cross-platform applications."
+summary: Java application platform
+description: ${project.description}
+copyright:
+  summary: All rights reserved.
+license:
+  summary: Essence comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
 
-icon: "http://www.parallelsymmetry.com/images/icons/essence.png"
+maintainers:
+  - !!com.parallelsymmetry.essence.person.Maintainer
+    name: Mark Soderquist
+    email: mark@parallelsymmetry.com
+    roles:
+      - Architect
+    organization: Parallel Symmetry
+    organizationUrl: http://parallelsymmetry.com/
 
 contributors:
-  - "Mark Soderquist"
-
-copyright:
-  summary: "All rights reserved."
-
-license: "Essence comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions."
+  - !!com.parallelsymmetry.essence.person.Contributor
+    name: Dan Langford
 
 resources:
   head: "http://www.parallelsymmetry.com/download/product/essence/product.xml"

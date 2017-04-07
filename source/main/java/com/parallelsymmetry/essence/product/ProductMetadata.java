@@ -1,8 +1,11 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.product;
 
+import com.parallelsymmetry.essence.person.Contributor;
+import com.parallelsymmetry.essence.person.Maintainer;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +22,8 @@ public class ProductMetadata {
 
 	private String timestamp;
 
+	private String icon;
+
 	private String name;
 
 	private String provider;
@@ -29,6 +34,14 @@ public class ProductMetadata {
 
 	private String description;
 
+	private String copyrightSummary;
+
+	private String licenseSummary;
+
+	private List<Maintainer> maintainers;
+
+	private List<Contributor> contributors;
+
 	public ProductMetadata() {
 		InputStream stream = getClass().getResourceAsStream( "/META-INF/product.yaml" );
 		Map<String, Object> values = (Map<String, Object>)new Yaml().load( stream );
@@ -38,12 +51,18 @@ public class ProductMetadata {
 		this.version = (String)values.get( "version" );
 		this.timestamp = (String)values.get( "timestamp" );
 
+		this.icon = (String)values.get( "icon" );
 		this.name = (String)values.get( "name" );
 		this.provider = (String)values.get( "provider" );
 		this.inception = (Integer)values.get( "inception" );
 
 		this.summary = (String)values.get( "summary" );
 		this.description = (String)values.get( "description" );
+		this.copyrightSummary = (String)values.get( "copyright.summary" );
+		this.licenseSummary = (String)values.get( "license.summary" );
+
+		this.maintainers = (List<Maintainer>)values.get( "maintainers" );
+		this.contributors = (List<Contributor>)values.get( "contributors" );
 	}
 
 	public String getGroup() {
@@ -76,6 +95,14 @@ public class ProductMetadata {
 
 	public void setTimestamp( String timestamp ) {
 		this.timestamp = timestamp;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon( String icon ) {
+		this.icon = icon;
 	}
 
 	public String getName() {
@@ -116,5 +143,37 @@ public class ProductMetadata {
 
 	public void setDescription( String description ) {
 		this.description = description;
+	}
+
+	public String getCopyrightSummary() {
+		return copyrightSummary;
+	}
+
+	public void setCopyrightSummary( String copyrightSummary ) {
+		this.copyrightSummary = copyrightSummary;
+	}
+
+	public String getLicenseSummary() {
+		return licenseSummary;
+	}
+
+	public void setLicenseSummary( String licenseSummary ) {
+		this.licenseSummary = licenseSummary;
+	}
+
+	public List<Maintainer> getMaintainers() {
+		return maintainers;
+	}
+
+	public void setMaintainers( List<Maintainer> maintainers ) {
+		this.maintainers = maintainers;
+	}
+
+	public List<Contributor> getContributors() {
+		return contributors;
+	}
+
+	public void setContributors( List<Contributor> contributors ) {
+		this.contributors = contributors;
 	}
 }
