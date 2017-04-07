@@ -98,13 +98,6 @@ public class PersistentSettings implements WritableSettings {
 		this.listeners.remove( listener );
 	}
 
-	// NEXT FINISH
-	private void fireEvent( SettingsPersistedEvent event ) {
-		for( ProgramEventListener listener : listeners ) {
-			listener.eventOccurred( event );
-		}
-	}
-
 	/**
 	 * Requests the settings get persisted. This method will block until the
 	 * settings have been stored. It is not recommended to call this method
@@ -187,6 +180,12 @@ public class PersistentSettings implements WritableSettings {
 			if( task != null ) task.cancel();
 			task = new SaveTask();
 			timer.schedule( task, new Date( nextTime ) );
+		}
+	}
+
+	private void fireEvent( SettingsPersistedEvent event ) {
+		for( ProgramEventListener listener : listeners ) {
+			listener.eventOccurred( event );
 		}
 	}
 
