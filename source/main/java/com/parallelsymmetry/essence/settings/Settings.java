@@ -4,4 +4,6 @@ public interface Settings {
 
 	String get(String key );
 
+	int size();
+
 }

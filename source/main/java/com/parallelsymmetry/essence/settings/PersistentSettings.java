@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,13 +35,13 @@ public class PersistentSettings implements WritableSettings {
 
 	private Map<String, String> map = new ConcurrentHashMap<>();
 
-	private File file;
+	private AtomicLong lastValueTime = new AtomicLong();
+
+	private AtomicLong lastStoreTime = new AtomicLong();
 
 	private ExecutorService executor;
 
-	private AtomicLong lastValueTime;
-
-	private AtomicLong lastStoreTime;
+	private File file;
 
 	public PersistentSettings( ExecutorService executor, File file ) throws IOException {
 		this.executor = executor;
@@ -63,6 +65,15 @@ public class PersistentSettings implements WritableSettings {
 		}
 	}
 
+	@Override
+	public int size() {
+		return map.size();
+	}
+
+	public Set<String> keySet() {
+		return new HashSet<>( map.keySet() );
+	}
+
 	public void save() throws IOException {
 		synchronized( fileLock ) {
 			// Populate the properties from the map
@@ -82,8 +93,10 @@ public class PersistentSettings implements WritableSettings {
 		synchronized( fileLock ) {
 			// Load the properties from the file
 			Properties properties = new Properties();
-			FileReader reader = new FileReader( file );
-			properties.load( reader );
+			if( file.exists() ) {
+				FileReader reader = new FileReader( file );
+				properties.load( reader );
+			}
 
 			// Populate the map from the properties
 			for( Object keyObject : properties.keySet() ) {
