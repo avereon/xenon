@@ -26,6 +26,8 @@ public class Program extends Application implements Product {
 
 	private ProductMetadata metadata;
 
+	private ProgramEventWatcher watcher;
+
 	static {
 		startTimestamp = System.currentTimeMillis();
 	}
@@ -36,6 +38,8 @@ public class Program extends Application implements Product {
 	}
 
 	public Program() {
+		watcher = new ProgramEventWatcher();
+
 		// Create the ExecutorService
 		int executorThreadCount = Runtime.getRuntime().availableProcessors();
 		if( executorThreadCount < 2 ) executorThreadCount = 2;
@@ -103,7 +107,7 @@ public class Program extends Application implements Product {
 
 		@Override
 		protected Void call() throws Exception {
-			// TODO Start the SettingsManager
+			// TODO Start the SettingsManager and tie to the EventWatcher
 			// TODO Start the ResourceManager
 			// TODO Start the UpdateManager
 

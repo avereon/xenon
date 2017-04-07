@@ -9,16 +9,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class PersistentSettingsTest {
 
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	@Test
-	public void testConstructorWithFile() throws IOException {
-		File file = new File( "target/settings.properties" );
+	private File file = new File( "target/settings.properties" );
 
+	@Test
+	public void testConstructorWithMissingFile() throws IOException {
 		// Ensure the file does not exist
 		FileUtils.forceDelete( file );
 		if( file.exists() ) throw new IllegalStateException( "Settings file still exists but should not for test" );
@@ -31,7 +32,6 @@ public class PersistentSettingsTest {
 
 	@Test
 	public void testConstructorWithPreexistingFile() throws IOException {
-		File file = new File( "target/settings.properties" );
 
 		// Create the settings file
 		PrintWriter writer = new UnixPrintWriter( new FileWriter( file ) );
@@ -47,4 +47,31 @@ public class PersistentSettingsTest {
 		assertThat( settings.get( "path/to/setting" ), is( "42" ) );
 	}
 
+	@Test
+	public void testPutAndGet() throws Exception {
+		PersistentSettings settings = new PersistentSettings( executor, file );
+
+		// Check that the setting is null first
+		assertThat( settings.get( "setting/test/a" ), is( nullValue() ) );
+
+		// Set the setting and check the value
+		settings.put( "setting/test/a", "a" );
+		assertThat( settings.get( "setting/test/a" ), is( "a" ) );
+
+		// Check that the setting is null again
+		settings.put( "setting/test/a", null );
+		assertThat( settings.get( "setting/test/a" ), is( nullValue() ) );
+	}
+
+	@Test
+	public void testSize() throws Exception {
+		PersistentSettings settings = new PersistentSettings( executor, file );
+
+		int count = 50;
+		for( int index = 0; index < count; index++ ) {
+			settings.put( "setting/" + index, String.valueOf( index ) );
+		}
+
+		assertThat( settings.size(), is( count ) );
+	}
 }
