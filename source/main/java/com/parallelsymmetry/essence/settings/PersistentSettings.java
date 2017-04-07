@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.settings;
 
+import com.parallelsymmetry.essence.ProgramEvent;
 import com.parallelsymmetry.essence.ProgramEventListener;
 import com.parallelsymmetry.essence.event.SettingsPersistedEvent;
 import org.slf4j.Logger;
@@ -124,7 +125,7 @@ public class PersistentSettings implements WritableSettings {
 			// Set the last store time
 			lastStoreTime.set( System.currentTimeMillis() );
 
-			fireEvent( new SettingsPersistedEvent() );
+			fireEvent( new SettingsPersistedEvent( this ) );
 		}
 	}
 
@@ -183,7 +184,7 @@ public class PersistentSettings implements WritableSettings {
 		}
 	}
 
-	private void fireEvent( SettingsPersistedEvent event ) {
+	private void fireEvent( ProgramEvent event ) {
 		for( ProgramEventListener listener : listeners ) {
 			listener.eventOccurred( event );
 		}

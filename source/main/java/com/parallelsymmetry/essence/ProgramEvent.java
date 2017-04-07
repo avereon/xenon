@@ -1,6 +1,15 @@
 package com.parallelsymmetry.essence;
 
-/**
- * Created by SoderquistMV on 4/7/2017.
- */
-public class ProgramEvent {}
+public class ProgramEvent {
+
+	private Object source;
+
+	public ProgramEvent(Object source ) {
+		this.source = source;
+	}
+
+	public Object getSource() {
+		return source;
+	}
+
+}

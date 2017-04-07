@@ -1,5 +1,9 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.event.ProgramStartedEvent;
+import com.parallelsymmetry.essence.event.ProgramStartingEvent;
+import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
+import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import javafx.application.Application;
@@ -9,12 +13,14 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Program extends Application implements Product {
 
-	private static final Logger log = LoggerFactory.getLogger( Program.class );
+	private Logger log = LoggerFactory.getLogger( Program.class );
 
 	private static final long startTimestamp;
 
@@ -28,27 +34,35 @@ public class Program extends Application implements Product {
 
 	private ProgramEventWatcher watcher;
 
+	private Set<ProgramEventListener> listeners;
+
 	static {
 		startTimestamp = System.currentTimeMillis();
+		System.setProperty("java.util.logging.SimpleFormatter.format","%1$tF %1$tT %4$s %2$s %5$s%6$s%n");
 	}
 
 	public static void main( String[] commands ) {
-		log.info( "Main method before launch" );
+		//log.info( "Main method before launch" );
 		launch( commands );
 	}
 
 	public Program() {
-		watcher = new ProgramEventWatcher();
-
 		// Create the ExecutorService
 		int executorThreadCount = Runtime.getRuntime().availableProcessors();
 		if( executorThreadCount < 2 ) executorThreadCount = 2;
 		executorService = Executors.newFixedThreadPool( executorThreadCount );
+
+		// Create the listeners set
+		listeners = new CopyOnWriteArraySet<>();
+
+		// Create the event watcher
+		watcher = new ProgramEventWatcher();
+		addEventListener( watcher );
 	}
 
 	@Override
 	public void init() throws Exception {
-		log.info( "Initialize the program" );
+		//log.info( "Initialize the program" );
 
 		// Load the product metadata. This must be done quickly because it is
 		// loaded before the splash screen is displayed.
@@ -60,7 +74,8 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		log.info( "Start the program" );
+		//log.info( "Start the program" );
+		fireEvent( new ProgramStartingEvent( this ) );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( title ).show();
@@ -71,10 +86,14 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void stop() throws Exception {
-		log.info( "Stop the program" );
+		//log.info( "Stop the program" );
+		fireEvent( new ProgramStoppingEvent( this ) );
 
 		executorService.submit( new ShutdownTask() );
 		executorService.shutdown();
+
+		fireEvent( new ProgramStoppedEvent( this ) );
+		removeEventListener( watcher );
 	}
 
 	@Override
@@ -82,11 +101,23 @@ public class Program extends Application implements Product {
 		return metadata;
 	}
 
+	public long getStartTime() {
+		return startTimestamp;
+	}
+
+	public void addEventListener( ProgramEventListener listener ) {
+		this.listeners.add( listener );
+	}
+
+	public void removeEventListener( ProgramEventListener listener ) {
+		this.listeners.remove( listener );
+	}
+
 	private void process() {
 		try {
-			log.info( "Starting process..." );
+			//log.info( "Starting process..." );
 			Thread.sleep( 200 );
-			log.info( "Process complete." );
+			//log.info( "Process complete." );
 		} catch( InterruptedException exception ) {
 			//log.error( "Thread interrupted", exception );
 		}
@@ -95,6 +126,13 @@ public class Program extends Application implements Product {
 	private void showProgram( Stage stage ) {
 		FxUtil.centerStage( stage, 400, 250 );
 		stage.show();
+		fireEvent( new ProgramStartedEvent( this ) );
+	}
+
+	private void fireEvent( ProgramEvent event ) {
+		for( ProgramEventListener listener : listeners ) {
+			listener.eventOccurred( event );
+		}
 	}
 
 	private class StartupTask extends Task<Void> {
