@@ -1,18 +1,18 @@
 package com.parallelsymmetry.essence;
 
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SplashScreen extends Canvas {
+public class SplashScreen extends Pane {
 
 	private static final Logger log = LoggerFactory.getLogger( SplashScreen.class );
 
@@ -24,19 +24,30 @@ public class SplashScreen extends Canvas {
 
 	private int progress;
 
+	private Rectangle progressBar;
+
 	public SplashScreen( String title ) {
-		super( 320, 180 );
 		this.title = title;
 
-		paint();
+		progressBar = new Rectangle( 0, 170, 0, 180 );
+		progressBar.setFill( new Color( 0.7, 0.7, 0.7, 1.0 ) );
+
+		Text titleText = new Text( 20, 100, title );
+		titleText.setFill( new Color( 0.9, 0.9, 0.9, 1.0 ) );
+		titleText.setFont( new Font( 40 ) );
+
+		getChildren().add( new Circle( -40, 80, 160, new Color( 0.5, 0.5, 0.6, 0.5 ) ) );
+		getChildren().add( new Circle( 80, -200, 360, new Color( 0.5, 0.6, 0.6, 0.5 ) ) );
+		getChildren().add( titleText );
+		getChildren().add( progressBar );
 
 		stage = new Stage( StageStyle.UTILITY );
 		stage.setTitle( title );
 		stage.setResizable( false );
 		stage.setAlwaysOnTop( true );
-		stage.setScene( new Scene( new BorderPane( this ) ) );
-
-		FxUtil.centerStage( stage, getWidth(), getHeight() );
+		stage.setScene( new Scene( this, 320, 180, Color.GRAY.darker() ) );
+		stage.sizeToScene();
+		stage.centerOnScreen();
 	}
 
 	public void setSteps( int steps ) {
@@ -55,39 +66,13 @@ public class SplashScreen extends Canvas {
 
 	public void update() {
 		progress++;
-		paint();
+		progressBar.setWidth( getWidth() * ((double)progress / (double)steps) );
 	}
 
 	public void done() {
 		progress = steps;
-		paint();
-	}
-
-	private void paint() {
-		double w = getWidth();
-		double h = getHeight();
-		double p = w * ((double)progress / (double)steps);
-
-		GraphicsContext gc = getGraphicsContext2D();
-
-		// Background
-		gc.setFill( Color.GRAY.darker() );
-		gc.fillRect( 0, 0, w, h );
-
-		// Scenery
-		gc.setFill( new Color( 0.5, 0.5, 0.6, 0.5 ) );
-		gc.fillArc( -160, -160, 320, 320, 0, 360, ArcType.CHORD );
-		gc.setFill( new Color( 0.5, 0.6, 0.6, 0.5 ) );
-		gc.fillArc( -60, -240, 320, 320, 0, 360, ArcType.CHORD );
-
-		// Title
-		gc.setFont( new Font( 40 ) );
-		gc.setFill( new Color( 0.9, 0.9, 0.9, 1.0 ) );
-		gc.fillText( title, 20, 100 );
-
-		// Progress bar
-		gc.setFill( progress == steps ? Color.WHITE : Color.GRAY );
-		gc.fillRect( 0, h - 10, p, h );
+		progressBar.setWidth( getWidth() );
+		progressBar.setFill( Color.WHITE );
 	}
 
 }

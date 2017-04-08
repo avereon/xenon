@@ -2,7 +2,8 @@ package com.parallelsymmetry.essence.settings;
 
 import com.parallelsymmetry.essence.ProgramEvent;
 import com.parallelsymmetry.essence.ProgramEventListener;
-import com.parallelsymmetry.essence.event.SettingsPersistedEvent;
+import com.parallelsymmetry.essence.event.SettingsLoadedEvent;
+import com.parallelsymmetry.essence.event.SettingsSavedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,7 @@ public class PersistentSettings implements WritableSettings {
 			// Set the last store time
 			lastStoreTime.set( System.currentTimeMillis() );
 
-			fireEvent( new SettingsPersistedEvent( this ) );
+			fireEvent( new SettingsSavedEvent( this, file ) );
 		}
 	}
 
@@ -136,6 +137,7 @@ public class PersistentSettings implements WritableSettings {
 			if( file.exists() ) {
 				FileReader reader = new FileReader( file );
 				properties.load( reader );
+				fireEvent( new SettingsLoadedEvent( this, file ) );
 			}
 
 			// Populate the map from the properties
