@@ -7,6 +7,7 @@ import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.settings.PersistentSettings;
+import com.parallelsymmetry.essence.settings.WritableSettings;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -94,6 +95,8 @@ public class Program extends Application implements Product {
 	public void stop() throws Exception {
 		fireEvent( new ProgramStoppingEvent( this ) );
 
+		settings.removeEventListener( watcher );
+
 		executor.submit( new ShutdownTask() );
 		executor.shutdown();
 
@@ -123,38 +126,7 @@ public class Program extends Application implements Product {
 	}
 
 	private void showProgram( Stage stage ) {
-		FxUtil.centerStage( stage, 400, 250 );
-
-		stage.xProperty().addListener( new ChangeListener<Number>() {
-
-			@Override
-			public void changed( ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth ) {
-				System.out.println( "X: " + newSceneWidth );
-				settings.put("program/windows/0/x", String.valueOf( newSceneWidth ) );
-			}
-		} );
-		stage.yProperty().addListener( new ChangeListener<Number>() {
-
-			@Override
-			public void changed( ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight ) {
-				System.out.println( "Y: " + newSceneHeight );
-			}
-		} );
-		stage.widthProperty().addListener( new ChangeListener<Number>() {
-
-			@Override
-			public void changed( ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth ) {
-				System.out.println( "W: " + newSceneWidth );
-			}
-		} );
-		stage.heightProperty().addListener( new ChangeListener<Number>() {
-
-			@Override
-			public void changed( ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight ) {
-				System.out.println( "H: " + newSceneHeight );
-			}
-		} );
-
+		stage.centerOnScreen();
 		stage.show();
 		fireEvent( new ProgramStartedEvent( this ) );
 	}
@@ -187,7 +159,13 @@ public class Program extends Application implements Product {
 			// Create the setting manager
 			File settingsFile = new File( programDataFolder, "settings.properties" );
 			settings = new PersistentSettings( executor, settingsFile );
+			settings.addEventListener( watcher );
 			Platform.runLater( () -> splashScreen.update() );
+
+			// TODO Restore the workspace
+			// WorkspaceReader.readFromSettings( settings, workspace );
+			stage.setWidth( 800 );
+			stage.setHeight( 600 );
 
 			// Finish the splash screen
 			Platform.runLater( () -> splashScreen.done() );
