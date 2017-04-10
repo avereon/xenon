@@ -85,7 +85,8 @@ public class Program extends Application implements Product {
 		fireEvent( new ProgramStartingEvent( this ) );
 
 		// Show the splash screen
-		splashScreen = new SplashScreen( programTitle ).show();
+		splashScreen = new SplashScreen( programTitle );
+		splashScreen.show();
 
 		// Submit the startup task
 		executor.submit( new StartupTask( stage ) );
@@ -151,7 +152,8 @@ public class Program extends Application implements Product {
 			// TODO Start the ResourceManager
 			// TODO Start the UpdateManager
 
-			Thread.sleep( 100 );
+			// Give the slash screen time to render and the user to see it
+			Thread.sleep( 500 );
 
 			// Set the number of startup steps
 			Platform.runLater( () -> splashScreen.setSteps( 1 ) );
@@ -170,8 +172,8 @@ public class Program extends Application implements Product {
 			// Finish the splash screen
 			Platform.runLater( () -> splashScreen.done() );
 
-			// Give the slash screen time to finalize and the user to see it
-			Thread.sleep( 400 );
+			// Give the slash screen time to render and the user to see it
+			Thread.sleep( 500 );
 
 			return null;
 		}
