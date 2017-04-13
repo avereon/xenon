@@ -108,8 +108,8 @@ public class Workspace {
 		stage.setY( configuration.getDouble( "y" ) );
 		stage.setWidth( configuration.getDouble( "w" ) );
 		stage.setHeight( configuration.getDouble( "h" ) );
-		stage.setMaximized( configuration.getBoolean( "maximized" ) );
-		setActive( configuration.getBoolean( "active" ));
+		stage.setMaximized( configuration.getBoolean( "maximized", false ) );
+		setActive( configuration.getBoolean( "active", false ));
 
 		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			configuration.setProperty( "maximized", newValue );

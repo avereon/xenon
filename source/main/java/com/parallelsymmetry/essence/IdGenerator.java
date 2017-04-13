@@ -17,11 +17,10 @@ public class IdGenerator {
 		return toString( RANDOM.nextLong() ^ System.currentTimeMillis() );
 	}
 
-	// FIXME This only creates an 8 char id but it can create a 16 char id
 	public static String toString( long value ) {
 		StringBuilder builder = new StringBuilder();
 
-		for( int count = 0; count < 8; count++ ) {
+		for( int count = 0; count < 16; count++ ) {
 			builder.append( convertDigit( (int)(value & 0xF) ) );
 			value >>= 4;
 		}

@@ -10,15 +10,15 @@ public class IdGeneratorTest {
 	@Test
 	public void testGetId() {
 		String id = IdGenerator.getId();
-		assertThat( id.length(), is( 8 ) );
+		assertThat( id.length(), is( 16 ) );
 	}
 
 	@Test
 	public void testConvertLong() {
-		assertThat( IdGenerator.toString( 0x00000000 ), is( "mmmmmmmm" ) );
-		assertThat( IdGenerator.toString( 0x55555555 ), is( "cccccccc" ) );
-		assertThat( IdGenerator.toString( 0xAAAAAAAA ), is( "xxxxxxxx" ) );
-		assertThat( IdGenerator.toString( 0xFFFFFFFF ), is( "ssssssss" ) );
+		assertThat( IdGenerator.toString( 0x0000000000000000L ), is( "mmmmmmmmmmmmmmmm" ) );
+		assertThat( IdGenerator.toString( 0x5555555555555555L ), is( "cccccccccccccccc" ) );
+		assertThat( IdGenerator.toString( 0xaaaaaaaaaaaaaaaaL ), is( "xxxxxxxxxxxxxxxx" ) );
+		assertThat( IdGenerator.toString( 0xffffffffffffffffL ), is( "ssssssssssssssss" ) );
 	}
 
 }

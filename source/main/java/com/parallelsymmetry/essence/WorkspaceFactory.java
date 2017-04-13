@@ -66,6 +66,7 @@ public class WorkspaceFactory {
 		configuration.setProperty( "w", 800 );
 		configuration.setProperty( "h", 600 );
 		configuration.setProperty( "active", true );
+		configuration.setProperty( "maximized", true );
 
 		Workspace workspace = new Workspace( program );
 		workspace.setConfiguration( configuration );
@@ -251,13 +252,10 @@ public class WorkspaceFactory {
 	}
 
 	private File getConfigurationFile( Prefix prefix, String id ) {
-		return new File( paths.get( prefix ), prefix.name().toLowerCase() + "-" + id + ".properties" );
+		return new File( paths.get( prefix ), id + ".properties" );
 	}
 
 	private Configuration getConfiguration( File file ) throws Exception {
-		// If parent folder does not exist create it
-		if( !file.getParentFile().exists() ) file.getParentFile().mkdirs();
-
 		PropertiesBuilderParameters params = new Parameters().properties();
 		params.setFile( file );
 
