@@ -9,7 +9,7 @@ public class IdGenerator {
 	private static char[] map;
 
 	static {
-		// List of consonant letters with no descenders
+		// List of consonant letters with no descenders in no particular order
 		map = "mhnflcdtvkxzrwbs".toCharArray();
 	}
 
@@ -17,6 +17,7 @@ public class IdGenerator {
 		return toString( RANDOM.nextLong() ^ System.currentTimeMillis() );
 	}
 
+	// FIXME This only creates an 8 char id but it can create a 16 char id
 	public static String toString( long value ) {
 		StringBuilder builder = new StringBuilder();
 
