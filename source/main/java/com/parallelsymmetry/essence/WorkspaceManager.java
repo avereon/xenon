@@ -8,7 +8,9 @@ public class WorkspaceManager {
 
 	private Set<Workspace> workspaces;
 
-	public WorkspaceManager() {
+	private Workspace activeWorkspace;
+
+	public WorkspaceManager( Program program ) {
 		workspaces = new CopyOnWriteArraySet<>();
 	}
 
@@ -23,4 +25,24 @@ public class WorkspaceManager {
 	public void removeWorkspace( Workspace workspace ) {
 		workspaces.remove( workspace );
 	}
+
+	public void setActiveWorkspace( Workspace workspace ) {
+		// If the workspace is not already added, add it
+		if( !workspaces.contains( workspace ) ) addWorkspace( workspace );
+
+		if( activeWorkspace != null ) {
+			activeWorkspace.setActive( false );
+		}
+
+		activeWorkspace = workspace;
+
+		if( activeWorkspace != null) {
+			activeWorkspace.setActive( true );
+		}
+	}
+
+	public Workspace getActiveWorkspace() {
+		return activeWorkspace;
+	}
+
 }

@@ -282,7 +282,7 @@ public class OperatingSystem {
 				break;
 			}
 			default: {
-				folder = new File( System.getProperty( "user.home" ) );
+				folder = new File( System.getProperty( "user.home" ), ".config" );
 				break;
 			}
 		}
@@ -315,7 +315,7 @@ public class OperatingSystem {
 				break;
 			}
 			default: {
-				folder = new File( getUserProgramDataFolder(), "." + identifier );
+				folder = new File( getUserProgramDataFolder(), identifier );
 				break;
 			}
 		}

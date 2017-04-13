@@ -7,12 +7,9 @@ import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.settings.PersistentSettings;
-import com.parallelsymmetry.essence.settings.WritableSettings;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -41,6 +38,8 @@ public class Program extends Application implements Product {
 	private File programDataFolder;
 
 	private PersistentSettings settings;
+
+	private WorkspaceManager workspaceManager;
 
 	private ProgramEventWatcher watcher;
 
@@ -89,7 +88,7 @@ public class Program extends Application implements Product {
 		splashScreen.show();
 
 		// Submit the startup task
-		executor.submit( new StartupTask( stage ) );
+		executor.submit( new StartupTask() );
 	}
 
 	@Override
@@ -122,12 +121,16 @@ public class Program extends Application implements Product {
 		this.listeners.add( listener );
 	}
 
+	public WorkspaceManager getWorkspaceManager() {
+		return workspaceManager;
+	}
+
 	public void removeEventListener( ProgramEventListener listener ) {
 		this.listeners.remove( listener );
 	}
 
-	private void showProgram( Stage stage ) {
-		stage.centerOnScreen();
+	private void showProgram() {
+		Stage stage = workspaceManager.getActiveWorkspace().getStage();
 		stage.show();
 		fireEvent( new ProgramStartedEvent( this ) );
 	}
@@ -142,10 +145,6 @@ public class Program extends Application implements Product {
 
 		private Stage stage;
 
-		public StartupTask( Stage stage ) {
-			this.stage = stage;
-		}
-
 		@Override
 		protected Void call() throws Exception {
 			// TODO Start the SettingsManager and tie to the EventWatcher
@@ -155,8 +154,21 @@ public class Program extends Application implements Product {
 			// Give the slash screen time to render and the user to see it
 			Thread.sleep( 500 );
 
+			// Create the workspace manager
+			workspaceManager = new WorkspaceManager( Program.this );
+
+			WorkspaceFactory factory = new WorkspaceFactory( Program.this );
+			File[] workspaceFiles = factory.getWorkspaceConfigurationFiles();
+			File[] workareaFiles = factory.getWorkareaConfigurationFiles();
+			File[] worktoolFiles = factory.getWorktoolConfigurationFiles();
+
+			int workspaceCount = workspaceFiles.length;
+			int workareaCount = workareaFiles.length;
+			int worktoolCount = worktoolFiles.length;
+
 			// Set the number of startup steps
-			Platform.runLater( () -> splashScreen.setSteps( 1 ) );
+			final int steps = 1 + factory.getWorkObjectsToRestoreCount();
+			Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 			// Create the setting manager
 			File settingsFile = new File( programDataFolder, "settings.properties" );
@@ -164,10 +176,12 @@ public class Program extends Application implements Product {
 			settings.addEventListener( watcher );
 			Platform.runLater( () -> splashScreen.update() );
 
-			// TODO Restore the workspace
-			// WorkspaceReader.readFromSettings( settings, workspace );
-			stage.setWidth( 800 );
-			stage.setHeight( 600 );
+			// Restore the workspace
+			Platform.runLater( () -> factory.restoreWorkspaceObjects( splashScreen ) );
+
+			// Create the resource manager
+			//resourceManager = new ResourceManager(Program.this );
+			//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
 
 			// Finish the splash screen
 			Platform.runLater( () -> splashScreen.done() );
@@ -181,7 +195,7 @@ public class Program extends Application implements Product {
 		@Override
 		protected void succeeded() {
 			splashScreen.hide();
-			showProgram( stage );
+			showProgram();
 		}
 
 		@Override
