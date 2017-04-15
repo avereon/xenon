@@ -23,6 +23,7 @@ public class SplashScreen extends Stage {
 	private Rectangle progressBar;
 
 	public SplashScreen( String title ) {
+		// Utility windows are automatically centered
 		super( StageStyle.UTILITY );
 
 		setTitle( title );
@@ -42,7 +43,6 @@ public class SplashScreen extends Stage {
 
 		setScene( new Scene( pane, 320, 180, Color.GRAY.darker() ) );
 		sizeToScene();
-		centerOnScreen();
 	}
 
 	public void setSteps( int steps ) {

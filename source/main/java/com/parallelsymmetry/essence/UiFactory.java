@@ -1,13 +1,17 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.event.SettingsLoadedEvent;
+import com.parallelsymmetry.essence.event.SettingsSavedEvent;
 import com.parallelsymmetry.essence.tool.WorkTool;
 import com.parallelsymmetry.essence.work.Workarea;
 import com.parallelsymmetry.essence.work.Workpane;
+import com.parallelsymmetry.essence.work.Workspace;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.ConfigurationBuilderEvent;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
+import org.apache.commons.configuration2.event.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WorkspaceFactory {
+public class UiFactory {
 
 	enum Prefix {
 		WORKSPACE,
@@ -25,11 +29,11 @@ public class WorkspaceFactory {
 		WORKTOOL
 	}
 
-	private static Logger log = LoggerFactory.getLogger( WorkspaceFactory.class );
+	private static final String UI_SETTINGS_PATH = "settings/ui";
+
+	private static Logger log = LoggerFactory.getLogger( UiFactory.class );
 
 	private Program program;
-
-	private File uiSettingsPath;
 
 	private Map<Prefix, File> paths;
 
@@ -41,88 +45,26 @@ public class WorkspaceFactory {
 
 	private Map<String, WorkTool> worktools = new HashMap<>();
 
-	public WorkspaceFactory( Program program ) {
+	public UiFactory( Program program ) {
 		this.program = program;
-		uiSettingsPath = new File( program.getProgramDataFolder(), "settings" );
-
 		paths = new ConcurrentHashMap<>();
-		paths.put( Prefix.WORKSPACE, new File( uiSettingsPath, Prefix.WORKSPACE.name().toLowerCase() ) );
-		paths.put( Prefix.WORKAREA, new File( uiSettingsPath, Prefix.WORKAREA.name().toLowerCase() ) );
-		paths.put( Prefix.WORKPANE, new File( uiSettingsPath, Prefix.WORKPANE.name().toLowerCase() ) );
-		paths.put( Prefix.WORKTOOL, new File( uiSettingsPath, Prefix.WORKTOOL.name().toLowerCase() ) );
+
+		File uiSettingsFolder = new File( program.getProgramDataFolder(), UI_SETTINGS_PATH );
+		paths.put( Prefix.WORKSPACE, new File( uiSettingsFolder, Prefix.WORKSPACE.name().toLowerCase() ) );
+		paths.put( Prefix.WORKAREA, new File( uiSettingsFolder, Prefix.WORKAREA.name().toLowerCase() ) );
+		paths.put( Prefix.WORKPANE, new File( uiSettingsFolder, Prefix.WORKPANE.name().toLowerCase() ) );
+		paths.put( Prefix.WORKTOOL, new File( uiSettingsFolder, Prefix.WORKTOOL.name().toLowerCase() ) );
 	}
 
-	private String newId() {
-		return IdGenerator.getId();
+	public int getUiObjectCount() {
+		int s = getConfigurationFiles(Prefix.WORKSPACE).length;
+		int a = getConfigurationFiles(Prefix.WORKAREA).length;
+		int p = getConfigurationFiles(Prefix.WORKPANE).length;
+		int t = getConfigurationFiles(Prefix.WORKTOOL).length;
+		return Math.max( 2, s + a + p + t );
 	}
 
-	public Workspace newWorkspace() throws Exception {
-		String id = newId();
-
-		Configuration configuration = getConfiguration( Prefix.WORKSPACE, id );
-		configuration.setProperty( "id", id );
-		configuration.setProperty( "x", 0 );
-		configuration.setProperty( "y", 0 );
-		configuration.setProperty( "w", 800 );
-		configuration.setProperty( "h", 600 );
-		configuration.setProperty( "active", true );
-		configuration.setProperty( "maximized", true );
-
-		Workspace workspace = new Workspace( program );
-		workspace.setConfiguration( configuration );
-		return workspace;
-	}
-
-	public Workarea newWorkarea() throws Exception {
-		String id = newId();
-
-		Configuration configuration = getConfiguration( Prefix.WORKAREA, id );
-		configuration.setProperty( "id", id );
-		configuration.setProperty( "name", "Default" );
-		configuration.setProperty( "active", true );
-
-		Workarea workarea = new Workarea();
-		workarea.setConfiguration( configuration );
-		return workarea;
-	}
-
-	public File[] getConfigurationFiles( Prefix prefix ) {
-		File[] files = paths.get( prefix ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
-	@Deprecated
-	public File[] getWorkspaceConfigurationFiles() {
-		File[] files = paths.get( Prefix.WORKSPACE ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
-	@Deprecated
-	public File[] getWorkareaConfigurationFiles() {
-		File[] files = paths.get( Prefix.WORKAREA ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
-	@Deprecated
-	public File[] getWorkpaneConfigurationFiles() {
-		File[] files = paths.get( Prefix.WORKPANE ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
-	@Deprecated
-	public File[] getWorktoolConfigurationFiles() {
-		File[] files = paths.get( Prefix.WORKTOOL ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
-	public int getWorkObjectsToRestoreCount() {
-		int s = getWorkspaceConfigurationFiles().length;
-		int a = getWorkareaConfigurationFiles().length;
-		int t = getWorktoolConfigurationFiles().length;
-		return Math.max( 2, s + a + t );
-	}
-
-	public void restoreWorkspaceObjects( SplashScreen splashScreen ) {
+	public void restoreUi( SplashScreen splashScreen ) {
 		File[] workspaceFiles = getConfigurationFiles( Prefix.WORKSPACE );
 		File[] workareaFiles = getConfigurationFiles( Prefix.WORKAREA );
 		File[] workpaneFiles = getConfigurationFiles( Prefix.WORKPANE );
@@ -178,6 +120,41 @@ public class WorkspaceFactory {
 		workpanes.clear();
 		workareas.clear();
 		workspaces.clear();
+	}
+
+	private File[] getConfigurationFiles( Prefix prefix ) {
+		File[] files = paths.get( prefix ).listFiles();
+		return files == null ? new File[ 0 ] : files;
+	}
+
+	private Workspace newWorkspace() throws Exception {
+		String id = IdGenerator.getId();
+
+		Configuration configuration = getConfiguration( Prefix.WORKSPACE, id );
+		configuration.setProperty( "id", id );
+		configuration.setProperty( "x", 0 );
+		configuration.setProperty( "y", 0 );
+		configuration.setProperty( "w", 800 );
+		configuration.setProperty( "h", 600 );
+		configuration.setProperty( "active", true );
+		configuration.setProperty( "maximized", true );
+
+		Workspace workspace = new Workspace( program );
+		workspace.setConfiguration( configuration );
+		return workspace;
+	}
+
+	private Workarea newWorkarea() throws Exception {
+		String id = IdGenerator.getId();
+
+		Configuration configuration = getConfiguration( Prefix.WORKAREA, id );
+		configuration.setProperty( "id", id );
+		configuration.setProperty( "name", "Default" );
+		configuration.setProperty( "active", true );
+
+		Workarea workarea = new Workarea();
+		workarea.setConfiguration( configuration );
+		return workarea;
 	}
 
 	private Workspace restoreWorkspace( File file ) {
@@ -259,10 +236,32 @@ public class WorkspaceFactory {
 		PropertiesBuilderParameters params = new Parameters().properties();
 		params.setFile( file );
 
-		FileBasedConfigurationBuilder<PropertiesConfiguration> builder = new SoftFileConfigurationBuilder<>( PropertiesConfiguration.class, null, true );
+		ConfigurationEventWatcher watcher = new ConfigurationEventWatcher( file );
+		SettingsConfiguration<PropertiesConfiguration> builder = new SettingsConfiguration<>( PropertiesConfiguration.class, null, true, program.getExecutor() );
+		builder.addEventListener( SettingsConfiguration.LOAD, watcher );
+		builder.addEventListener( SettingsConfiguration.SAVE, watcher );
 		builder.configure( params );
 		builder.setAutoSave( true );
+
 		return builder.getConfiguration();
+	}
+
+	private class ConfigurationEventWatcher implements EventListener<ConfigurationBuilderEvent> {
+
+		private File file;
+
+		public ConfigurationEventWatcher( File file ) {
+			this.file = file;
+		}
+
+		@Override
+		public void onEvent( ConfigurationBuilderEvent configurationEvent ) {
+			if( configurationEvent.getEventType() == SettingsConfiguration.SAVE ) {
+				program.dispatchEvent( new SettingsSavedEvent( configurationEvent.getSource(), file ) );
+			} else if( configurationEvent.getEventType() == SettingsConfiguration.LOAD ) {
+				program.dispatchEvent( new SettingsLoadedEvent( configurationEvent.getSource(), file ) );
+			}
+		}
 	}
 
 }

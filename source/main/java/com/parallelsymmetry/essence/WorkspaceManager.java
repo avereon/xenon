@@ -1,5 +1,7 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.work.Workspace;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;

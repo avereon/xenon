@@ -1,6 +1,5 @@
 package com.parallelsymmetry.essence.work;
 
-import com.parallelsymmetry.essence.Workspace;
 import org.apache.commons.configuration2.Configuration;
 
 import java.beans.PropertyChangeEvent;
@@ -75,6 +74,8 @@ public class Workarea {
 	}
 
 	public void setConfiguration( Configuration configuration ) {
+		if( this.configuration != null ) return;
+
 		this.configuration = configuration;
 
 		id = configuration.getString( "id" );

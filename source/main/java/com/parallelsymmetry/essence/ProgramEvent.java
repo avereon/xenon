@@ -12,4 +12,10 @@ public class ProgramEvent {
 		return source;
 	}
 
+	public String toString() {
+		String sourceClass = getSource().getClass().getSimpleName();
+		String eventClass = getClass().getSimpleName();
+		return( sourceClass + ":" + eventClass );
+	}
+
 }

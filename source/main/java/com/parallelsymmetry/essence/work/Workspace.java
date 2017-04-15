@@ -1,7 +1,6 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.work;
 
 import com.parallelsymmetry.essence.product.Product;
-import com.parallelsymmetry.essence.work.Workarea;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
 
@@ -101,6 +100,8 @@ public class Workspace {
 	}
 
 	public void setConfiguration( Configuration configuration ) {
+		if( this.configuration != null ) return;
+
 		this.configuration = configuration;
 
 		id = configuration.getString( "id" );

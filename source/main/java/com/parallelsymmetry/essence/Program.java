@@ -6,7 +6,6 @@ import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
-import com.parallelsymmetry.essence.settings.PersistentSettings;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -37,7 +36,7 @@ public class Program extends Application implements Product {
 
 	private File programDataFolder;
 
-	private PersistentSettings settings;
+	// private PersistentSettings settings;
 
 	private WorkspaceManager workspaceManager;
 
@@ -57,16 +56,14 @@ public class Program extends Application implements Product {
 
 	public Program() {
 		// Create the ExecutorService
-		int executorThreadCount = Runtime.getRuntime().availableProcessors();
-		if( executorThreadCount < 2 ) executorThreadCount = 2;
-		executor = Executors.newFixedThreadPool( executorThreadCount, new ProgramThreadFactory() );
+		int processorCount = Runtime.getRuntime().availableProcessors();
+		executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
 
 		// Create the event watcher
-		watcher = new ProgramEventWatcher();
-		addEventListener( watcher );
+		addEventListener( watcher = new ProgramEventWatcher() );
 	}
 
 	@Override
@@ -81,7 +78,7 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		fireEvent( new ProgramStartingEvent( this ) );
+		dispatchEvent( new ProgramStartingEvent( this ) );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( programTitle );
@@ -93,14 +90,14 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void stop() throws Exception {
-		fireEvent( new ProgramStoppingEvent( this ) );
+		dispatchEvent( new ProgramStoppingEvent( this ) );
 
-		settings.removeEventListener( watcher );
+		//settings.removeEventListener( watcher );
 
 		executor.submit( new ShutdownTask() );
 		executor.shutdown();
 
-		fireEvent( new ProgramStoppedEvent( this ) );
+		dispatchEvent( new ProgramStoppedEvent( this ) );
 		removeEventListener( watcher );
 	}
 
@@ -117,12 +114,26 @@ public class Program extends Application implements Product {
 		return programDataFolder;
 	}
 
-	public void addEventListener( ProgramEventListener listener ) {
-		this.listeners.add( listener );
+	public ExecutorService getExecutor() {
+		return executor;
 	}
 
 	public WorkspaceManager getWorkspaceManager() {
 		return workspaceManager;
+	}
+
+	public void dispatchEvent( ProgramEvent event ) {
+		for( ProgramEventListener listener : listeners ) {
+			listener.eventOccurred( event );
+		}
+	}
+
+	public void addEventListener( ProgramEventListener listener ) {
+		this.listeners.add( listener );
+	}
+
+	public ProgramEventWatcher getEventWatcher() {
+		return watcher;
 	}
 
 	public void removeEventListener( ProgramEventListener listener ) {
@@ -132,13 +143,7 @@ public class Program extends Application implements Product {
 	private void showProgram() {
 		Stage stage = workspaceManager.getActiveWorkspace().getStage();
 		stage.show();
-		fireEvent( new ProgramStartedEvent( this ) );
-	}
-
-	private void fireEvent( ProgramEvent event ) {
-		for( ProgramEventListener listener : listeners ) {
-			listener.eventOccurred( event );
-		}
+		dispatchEvent( new ProgramStartedEvent( this ) );
 	}
 
 	private class StartupTask extends Task<Void> {
@@ -155,29 +160,21 @@ public class Program extends Application implements Product {
 			Thread.sleep( 500 );
 
 			// Create the workspace manager
+			UiFactory factory = new UiFactory( Program.this );
 			workspaceManager = new WorkspaceManager( Program.this );
 
-			WorkspaceFactory factory = new WorkspaceFactory( Program.this );
-			File[] workspaceFiles = factory.getWorkspaceConfigurationFiles();
-			File[] workareaFiles = factory.getWorkareaConfigurationFiles();
-			File[] worktoolFiles = factory.getWorktoolConfigurationFiles();
-
-			int workspaceCount = workspaceFiles.length;
-			int workareaCount = workareaFiles.length;
-			int worktoolCount = worktoolFiles.length;
-
 			// Set the number of startup steps
-			final int steps = 1 + factory.getWorkObjectsToRestoreCount();
+			final int steps = 1 + factory.getUiObjectCount();
 			Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 			// Create the setting manager
 			File settingsFile = new File( programDataFolder, "settings.properties" );
-			settings = new PersistentSettings( executor, settingsFile );
-			settings.addEventListener( watcher );
+			//			settings = new PersistentSettings( executor, settingsFile );
+			//			settings.addEventListener( watcher );
 			Platform.runLater( () -> splashScreen.update() );
 
 			// Restore the workspace
-			Platform.runLater( () -> factory.restoreWorkspaceObjects( splashScreen ) );
+			Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 
 			// Create the resource manager
 			//resourceManager = new ResourceManager(Program.this );

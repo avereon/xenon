@@ -9,9 +9,7 @@ public class ProgramEventWatcher implements ProgramEventListener {
 
 	@Override
 	public void eventOccurred( ProgramEvent event ) {
-		String sourceClass = event.getSource().getClass().getSimpleName();
-		String eventClass = event.getClass().getSimpleName();
-		log.info( sourceClass + ":" + eventClass );
+		log.info( event.toString() );
 	}
 
 }

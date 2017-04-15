@@ -13,7 +13,8 @@ public class SettingsSavedEvent extends ProgramEvent {
 		this.file = file;
 	}
 
+	@Override
 	public String toString() {
-		return super.toString() + " " + file;
+		return super.toString() + ":" + file.getName();
 	}
 }
