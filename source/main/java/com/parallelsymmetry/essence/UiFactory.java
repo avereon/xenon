@@ -121,7 +121,7 @@ class UiFactory {
 	private Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKSPACE, id ) );
+		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
 		settings.addProgramEventListener( program.getEventWatcher() );
 		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
@@ -140,7 +140,7 @@ class UiFactory {
 	private Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKAREA, id ) );
+		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
 		settings.addProgramEventListener( program.getEventWatcher() );
 		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
@@ -156,7 +156,7 @@ class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Settings settings = new Settings( program.getExecutor(), file );
+			Settings settings = new Settings( program.getExecutor(), file, Prefix.WORKSPACE.name() );
 			settings.addProgramEventListener( program.getEventWatcher() );
 			Configuration configuration = settings.getConfiguration();
 			workspace.setConfiguration( configuration );
@@ -179,7 +179,7 @@ class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-			Settings settings = new Settings( program.getExecutor(), file );
+			Settings settings = new Settings( program.getExecutor(), file, Prefix.WORKAREA.name() );
 			settings.addProgramEventListener( program.getEventWatcher() );
 			Configuration configuration = settings.getConfiguration();
 			workarea.setConfiguration( configuration );

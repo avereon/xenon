@@ -8,13 +8,29 @@ public class SettingsSavedEvent extends ProgramEvent {
 
 	private File file;
 
+	private String id;
+
 	public SettingsSavedEvent( Object source, File file ) {
+		this( source, file, null );
+	}
+
+	public SettingsSavedEvent( Object source, File file, String id ) {
 		super( source );
 		this.file = file;
+		this.id = id;
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() + ":" + file.getName();
+		StringBuilder builder = new StringBuilder(super.toString());
+		if( id != null ) {
+			builder.append( ":" );
+			builder.append( id );
+		}
+		if( file != null ) {
+			builder.append( ":" );
+			builder.append( file.getName() );
+		}
+		return builder.toString();
 	}
 }

@@ -42,6 +42,8 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 
 	private ExecutorService executor;
 
+	private String id;
+
 	private SaveTask task;
 
 	private final Object taskLock = new Object();
@@ -49,9 +51,14 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 	private Set<ProgramEventListener> listeners;
 
 	public Settings( ExecutorService executor, File file ) {
+		this( executor, file, null );
+	}
+
+	public Settings( ExecutorService executor, File file, String id ) {
 		super( PropertiesConfiguration.class, null, true );
 		this.executor = executor;
 		this.listeners = new CopyOnWriteArraySet<>();
+		this.id = id;
 
 		configure( new Parameters().properties().setFile( file ) );
 		setAutoSave( true );
@@ -110,7 +117,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 			executor.submit( () -> {
 				try {
 					Settings.super.save();
-					new SettingsSavedEvent( this, getFileHandler().getFile() ).dispatch( listeners );
+					new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).dispatch( listeners );
 
 					lastStoreTime.set( System.currentTimeMillis() );
 				} catch( ConfigurationException exception ) {

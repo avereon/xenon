@@ -128,13 +128,13 @@ public class Workspace {
 			if( stage.isMaximized() ) return;
 			configuration.setProperty( "y", newValue );
 		} );
-		stage.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
+		scene.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( stage.isMaximized() ) return;
-			configuration.setProperty( "w", scene.getWidth() );
+			configuration.setProperty( "w", newValue );
 		} );
-		stage.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
+		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( stage.isMaximized() ) return;
-			configuration.setProperty( "h", scene.getHeight() );
+			configuration.setProperty( "h", newValue );
 		} );
 	}
 
