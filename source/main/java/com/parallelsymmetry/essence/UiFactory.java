@@ -1,17 +1,10 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.event.SettingsLoadedEvent;
-import com.parallelsymmetry.essence.event.SettingsSavedEvent;
 import com.parallelsymmetry.essence.tool.WorkTool;
 import com.parallelsymmetry.essence.work.Workarea;
 import com.parallelsymmetry.essence.work.Workpane;
 import com.parallelsymmetry.essence.work.Workspace;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.ConfigurationBuilderEvent;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
-import org.apache.commons.configuration2.event.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +22,7 @@ public class UiFactory {
 		WORKTOOL
 	}
 
-	private static final String UI_SETTINGS_PATH = "settings/ui";
+	private static final String UI_SETTINGS_PATH = "ui";
 
 	private static Logger log = LoggerFactory.getLogger( UiFactory.class );
 
@@ -49,7 +42,7 @@ public class UiFactory {
 		this.program = program;
 		paths = new ConcurrentHashMap<>();
 
-		File uiSettingsFolder = new File( program.getProgramDataFolder(), UI_SETTINGS_PATH );
+		File uiSettingsFolder = new File( program.getProgramSettingsFolder(), UI_SETTINGS_PATH );
 		paths.put( Prefix.WORKSPACE, new File( uiSettingsFolder, Prefix.WORKSPACE.name().toLowerCase() ) );
 		paths.put( Prefix.WORKAREA, new File( uiSettingsFolder, Prefix.WORKAREA.name().toLowerCase() ) );
 		paths.put( Prefix.WORKPANE, new File( uiSettingsFolder, Prefix.WORKPANE.name().toLowerCase() ) );
@@ -161,7 +154,7 @@ public class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Configuration configuration = getConfiguration( file );
+			Configuration configuration = SettingsConfiguration.getConfiguration( program, file );
 			workspace.setConfiguration( configuration );
 
 			if( workspace.isActive() ) {
@@ -182,7 +175,7 @@ public class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-			Configuration configuration = getConfiguration( file );
+			Configuration configuration = SettingsConfiguration.getConfiguration( program, file );
 			workarea.setConfiguration( configuration );
 
 			Workspace workspace = workspaces.get( configuration.getString( "workspaceId" ) );
@@ -225,43 +218,11 @@ public class UiFactory {
 	}
 
 	private Configuration getConfiguration( Prefix prefix, String id ) throws Exception {
-		return getConfiguration( getConfigurationFile( prefix, id ) );
+		return SettingsConfiguration.getConfiguration( program, getConfigurationFile( prefix, id ) );
 	}
 
 	private File getConfigurationFile( Prefix prefix, String id ) {
 		return new File( paths.get( prefix ), id + ".properties" );
-	}
-
-	private Configuration getConfiguration( File file ) throws Exception {
-		PropertiesBuilderParameters params = new Parameters().properties();
-		params.setFile( file );
-
-		ConfigurationEventWatcher watcher = new ConfigurationEventWatcher( file );
-		SettingsConfiguration<PropertiesConfiguration> builder = new SettingsConfiguration<>( PropertiesConfiguration.class, null, true, program.getExecutor() );
-		builder.addEventListener( SettingsConfiguration.LOAD, watcher );
-		builder.addEventListener( SettingsConfiguration.SAVE, watcher );
-		builder.configure( params );
-		builder.setAutoSave( true );
-
-		return builder.getConfiguration();
-	}
-
-	private class ConfigurationEventWatcher implements EventListener<ConfigurationBuilderEvent> {
-
-		private File file;
-
-		public ConfigurationEventWatcher( File file ) {
-			this.file = file;
-		}
-
-		@Override
-		public void onEvent( ConfigurationBuilderEvent configurationEvent ) {
-			if( configurationEvent.getEventType() == SettingsConfiguration.SAVE ) {
-				program.dispatchEvent( new SettingsSavedEvent( configurationEvent.getSource(), file ) );
-			} else if( configurationEvent.getEventType() == SettingsConfiguration.LOAD ) {
-				program.dispatchEvent( new SettingsLoadedEvent( configurationEvent.getSource(), file ) );
-			}
-		}
 	}
 
 }

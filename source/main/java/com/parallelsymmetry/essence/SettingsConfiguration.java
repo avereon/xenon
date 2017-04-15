@@ -1,14 +1,22 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.event.SettingsLoadedEvent;
+import com.parallelsymmetry.essence.event.SettingsSavedEvent;
+import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.ConfigurationBuilderEvent;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
 import org.apache.commons.configuration2.event.Event;
+import org.apache.commons.configuration2.event.EventListener;
 import org.apache.commons.configuration2.event.EventType;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
@@ -50,6 +58,20 @@ public class SettingsConfiguration<T extends FileBasedConfiguration> extends Fil
 
 	private final Object taskLock = new Object();
 
+	public static Configuration getConfiguration( Program program,  File file ) throws Exception {
+		PropertiesBuilderParameters params = new Parameters().properties();
+		params.setFile( file );
+
+		ConfigurationEventWatcher watcher = new ConfigurationEventWatcher( program, file );
+		SettingsConfiguration<PropertiesConfiguration> builder = new SettingsConfiguration<>( PropertiesConfiguration.class, null, true, program.getExecutor() );
+		builder.addEventListener( SettingsConfiguration.LOAD, watcher );
+		builder.addEventListener( SettingsConfiguration.SAVE, watcher );
+		builder.configure( params );
+		builder.setAutoSave( true );
+
+		return builder.getConfiguration();
+	}
+
 	public SettingsConfiguration( Class<? extends T> resCls, Map<String, Object> params, boolean allowFailOnInit, ExecutorService executor ) {
 		super( resCls, params, allowFailOnInit );
 		this.executor = executor;
@@ -90,7 +112,6 @@ public class SettingsConfiguration<T extends FileBasedConfiguration> extends Fil
 			if( task != null ) task.cancel();
 			task = new SaveTask();
 			timer.schedule( task, new Date( nextTime ) );
-			System.out.println( "Next time: " + (nextTime - System.currentTimeMillis()) );
 		}
 	}
 
@@ -111,5 +132,26 @@ public class SettingsConfiguration<T extends FileBasedConfiguration> extends Fil
 		}
 
 	}
+	private static class ConfigurationEventWatcher implements EventListener<ConfigurationBuilderEvent> {
+
+		private Program program;
+
+		private File file;
+
+		public ConfigurationEventWatcher( Program program, File file ) {
+			this.program = program;
+			this.file = file;
+		}
+
+		@Override
+		public void onEvent( ConfigurationBuilderEvent configurationEvent ) {
+			if( configurationEvent.getEventType() == SettingsConfiguration.SAVE ) {
+				program.dispatchEvent( new SettingsSavedEvent( configurationEvent.getSource(), file ) );
+			} else if( configurationEvent.getEventType() == SettingsConfiguration.LOAD ) {
+				program.dispatchEvent( new SettingsLoadedEvent( configurationEvent.getSource(), file ) );
+			}
+		}
+	}
+
 
 }

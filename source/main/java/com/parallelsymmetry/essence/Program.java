@@ -11,6 +11,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
+import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,9 @@ public class Program extends Application implements Product {
 
 	private File programDataFolder;
 
-	// private PersistentSettings settings;
+	private File programSettingsFolder;
+
+	private Configuration settings;
 
 	private WorkspaceManager workspaceManager;
 
@@ -72,6 +75,7 @@ public class Program extends Application implements Product {
 		metadata = new ProductMetadata();
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() );
+		programSettingsFolder = new File( programDataFolder, "settings" );
 
 		log.info( "Platform init time: " + (System.currentTimeMillis() - startTimestamp) );
 	}
@@ -114,6 +118,10 @@ public class Program extends Application implements Product {
 		return programDataFolder;
 	}
 
+	public File getProgramSettingsFolder() {
+		return programSettingsFolder;
+	}
+
 	public ExecutorService getExecutor() {
 		return executor;
 	}
@@ -152,10 +160,6 @@ public class Program extends Application implements Product {
 
 		@Override
 		protected Void call() throws Exception {
-			// TODO Start the SettingsManager and tie to the EventWatcher
-			// TODO Start the ResourceManager
-			// TODO Start the UpdateManager
-
 			// Give the slash screen time to render and the user to see it
 			Thread.sleep( 500 );
 
@@ -168,17 +172,18 @@ public class Program extends Application implements Product {
 			Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 			// Create the setting manager
-			File settingsFile = new File( programDataFolder, "settings.properties" );
-			//			settings = new PersistentSettings( executor, settingsFile );
-			//			settings.addEventListener( watcher );
+			File settingsFile = new File( programSettingsFolder, "program.properties" );
+			settings = SettingsConfiguration.getConfiguration( Program.this, settingsFile );
 			Platform.runLater( () -> splashScreen.update() );
 
 			// Restore the workspace
 			Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 
-			// Create the resource manager
+			// TODO Create the resource manager
 			//resourceManager = new ResourceManager(Program.this );
 			//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
+
+			// TODO Start the update manager
 
 			// Finish the splash screen
 			Platform.runLater( () -> splashScreen.done() );
