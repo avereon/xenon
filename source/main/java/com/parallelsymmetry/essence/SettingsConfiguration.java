@@ -1,17 +1,14 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.event.SettingsErrorEvent;
 import com.parallelsymmetry.essence.event.SettingsLoadedEvent;
 import com.parallelsymmetry.essence.event.SettingsSavedEvent;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.ConfigurationBuilderEvent;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
-import org.apache.commons.configuration2.event.Event;
-import org.apache.commons.configuration2.event.EventListener;
-import org.apache.commons.configuration2.event.EventType;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +33,6 @@ public class SettingsConfiguration<T extends FileBasedConfiguration> extends Fil
 	 */
 	public static final long MAX_PERSIST_LIMIT = 5000;
 
-	public static final EventType<ConfigurationBuilderEvent> LOAD = new EventType<>( Event.ANY, "SETTINGS_LOAD" );
-
-	public static final EventType<ConfigurationBuilderEvent> SAVE = new EventType<>( Event.ANY, "SETTINGS_SAVE" );
-
-	public static final EventType<ConfigurationBuilderEvent> SAVE_ERROR = new EventType<>( Event.ANY, "SETTINGS_SAVE_ERROR" );
-
 	private static Logger log = LoggerFactory.getLogger( SettingsConfiguration.class );
 
 	private static Timer timer = new Timer( SettingsConfiguration.class.getSimpleName(), true );
@@ -52,35 +43,35 @@ public class SettingsConfiguration<T extends FileBasedConfiguration> extends Fil
 
 	private AtomicLong lastStoreTime = new AtomicLong();
 
+	private Program program;
+
 	private ExecutorService executor;
 
 	private SaveTask task;
 
 	private final Object taskLock = new Object();
 
-	public static Configuration getConfiguration( Program program,  File file ) throws Exception {
+	public static Configuration getConfiguration( Program program, File file ) throws Exception {
 		PropertiesBuilderParameters params = new Parameters().properties();
 		params.setFile( file );
 
-		ConfigurationEventWatcher watcher = new ConfigurationEventWatcher( program, file );
-		SettingsConfiguration<PropertiesConfiguration> builder = new SettingsConfiguration<>( PropertiesConfiguration.class, null, true, program.getExecutor() );
-		builder.addEventListener( SettingsConfiguration.LOAD, watcher );
-		builder.addEventListener( SettingsConfiguration.SAVE, watcher );
+		SettingsConfiguration<PropertiesConfiguration> builder = new SettingsConfiguration<>( PropertiesConfiguration.class, null, true, program );
 		builder.configure( params );
 		builder.setAutoSave( true );
 
 		return builder.getConfiguration();
 	}
 
-	public SettingsConfiguration( Class<? extends T> resCls, Map<String, Object> params, boolean allowFailOnInit, ExecutorService executor ) {
+	public SettingsConfiguration( Class<? extends T> resCls, Map<String, Object> params, boolean allowFailOnInit, Program program ) {
 		super( resCls, params, allowFailOnInit );
-		this.executor = executor;
+		this.program = program;
+		this.executor = program.getExecutor();
 	}
 
 	@Override
 	public T getConfiguration() throws ConfigurationException {
 		T config = super.getConfiguration();
-		fireBuilderEvent( new ConfigurationBuilderEvent( this, LOAD ) );
+		program.dispatchEvent( new SettingsLoadedEvent( this, getFileHandler().getFile() ) );
 		return config;
 	}
 
@@ -122,36 +113,16 @@ public class SettingsConfiguration<T extends FileBasedConfiguration> extends Fil
 			executor.submit( () -> {
 				try {
 					SettingsConfiguration.super.save();
-					fireBuilderEvent( new ConfigurationBuilderEvent( SettingsConfiguration.this, SAVE ) );
+					program.dispatchEvent( new SettingsSavedEvent( this, getFileHandler().getFile() ) );
+
 					lastStoreTime.set( System.currentTimeMillis() );
 				} catch( ConfigurationException exception ) {
 					log.error( "Error saving settings file: " + getFileHandler().getFileName(), exception );
-					fireBuilderEvent( new ConfigurationBuilderEvent( SettingsConfiguration.this, SAVE_ERROR ) );
+					program.dispatchEvent( new SettingsErrorEvent( this, getFileHandler().getFile() ) );
 				}
 			} );
 		}
 
 	}
-	private static class ConfigurationEventWatcher implements EventListener<ConfigurationBuilderEvent> {
-
-		private Program program;
-
-		private File file;
-
-		public ConfigurationEventWatcher( Program program, File file ) {
-			this.program = program;
-			this.file = file;
-		}
-
-		@Override
-		public void onEvent( ConfigurationBuilderEvent configurationEvent ) {
-			if( configurationEvent.getEventType() == SettingsConfiguration.SAVE ) {
-				program.dispatchEvent( new SettingsSavedEvent( configurationEvent.getSource(), file ) );
-			} else if( configurationEvent.getEventType() == SettingsConfiguration.LOAD ) {
-				program.dispatchEvent( new SettingsLoadedEvent( configurationEvent.getSource(), file ) );
-			}
-		}
-	}
-
 
 }
