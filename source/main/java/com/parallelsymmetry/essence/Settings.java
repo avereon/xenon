@@ -67,7 +67,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 	@Override
 	public PropertiesConfiguration getConfiguration() throws ConfigurationException {
 		PropertiesConfiguration config = super.getConfiguration();
-		new SettingsLoadedEvent( this, getFileHandler().getFile() ).dispatch( listeners );
+		new SettingsLoadedEvent( this, getFileHandler().getFile(), id ).dispatch( listeners );
 		return config;
 	}
 
