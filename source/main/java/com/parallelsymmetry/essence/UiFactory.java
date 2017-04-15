@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class UiFactory {
+class UiFactory {
 
 	enum Prefix {
 		WORKSPACE,
@@ -21,8 +21,6 @@ public class UiFactory {
 		WORKPANE,
 		WORKTOOL
 	}
-
-	private static final String UI_SETTINGS_PATH = "ui";
 
 	private static Logger log = LoggerFactory.getLogger( UiFactory.class );
 
@@ -42,7 +40,7 @@ public class UiFactory {
 		this.program = program;
 		paths = new ConcurrentHashMap<>();
 
-		File uiSettingsFolder = new File( program.getProgramSettingsFolder(), UI_SETTINGS_PATH );
+		File uiSettingsFolder = new File( program.getProgramDataFolder(), ProgramSettings.UI );
 		paths.put( Prefix.WORKSPACE, new File( uiSettingsFolder, Prefix.WORKSPACE.name().toLowerCase() ) );
 		paths.put( Prefix.WORKAREA, new File( uiSettingsFolder, Prefix.WORKAREA.name().toLowerCase() ) );
 		paths.put( Prefix.WORKPANE, new File( uiSettingsFolder, Prefix.WORKPANE.name().toLowerCase() ) );

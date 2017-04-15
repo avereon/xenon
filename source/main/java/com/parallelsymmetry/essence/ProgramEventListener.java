@@ -1,6 +1,8 @@
 package com.parallelsymmetry.essence;
 
-public interface ProgramEventListener {
+import java.util.EventListener;
+
+public interface ProgramEventListener extends EventListener {
 
 	void eventOccurred(ProgramEvent event);
 

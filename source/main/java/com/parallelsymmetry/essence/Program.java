@@ -36,8 +36,6 @@ public class Program extends Application implements Product {
 
 	private File programDataFolder;
 
-	private File programSettingsFolder;
-
 	private Settings settings;
 
 	private WorkspaceManager workspaceManager;
@@ -57,15 +55,15 @@ public class Program extends Application implements Product {
 	}
 
 	public Program() {
-		// Create the ExecutorService
-		int processorCount = Runtime.getRuntime().availableProcessors();
-		executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
-
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
 
 		// Create the event watcher
 		addEventListener( watcher = new ProgramEventWatcher() );
+	}
+
+	protected void finalize() {
+		removeEventListener( watcher );
 	}
 
 	@Override
@@ -74,9 +72,6 @@ public class Program extends Application implements Product {
 		metadata = new ProductMetadata();
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() );
-		programSettingsFolder = new File( programDataFolder, "settings" );
-
-		log.info( "Platform init time: " + (System.currentTimeMillis() - startTimestamp) );
 	}
 
 	@Override
@@ -88,6 +83,10 @@ public class Program extends Application implements Product {
 		splashScreen.initOwner( stage );
 		splashScreen.show();
 
+		// Create the executor service
+		int processorCount = Runtime.getRuntime().availableProcessors();
+		executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
+
 		// Submit the startup task
 		executor.submit( new StartupTask() );
 	}
@@ -96,11 +95,11 @@ public class Program extends Application implements Product {
 	public void stop() throws Exception {
 		new ProgramStoppingEvent( this ).dispatch( listeners );
 
+		// Submit the shutdown task
 		executor.submit( new ShutdownTask() );
-		executor.shutdown();
 
-		new ProgramStoppedEvent( this ).dispatch( listeners );
-		removeEventListener( watcher );
+		// Stop the executor service
+		executor.shutdown();
 	}
 
 	@Override
@@ -114,10 +113,6 @@ public class Program extends Application implements Product {
 
 	public File getProgramDataFolder() {
 		return programDataFolder;
-	}
-
-	public File getProgramSettingsFolder() {
-		return programSettingsFolder;
 	}
 
 	public ExecutorService getExecutor() {
@@ -164,8 +159,8 @@ public class Program extends Application implements Product {
 			Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 			// Create the setting manager
-			File settingsFile = new File( programSettingsFolder, "program.properties" );
-			settings = new Settings( executor, settingsFile );
+			File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
+			settings = new Settings( executor, new File( programSettingsFolder, "program.properties" ) );
 			Platform.runLater( () -> splashScreen.update() );
 
 			// Restore the workspace
@@ -212,10 +207,11 @@ public class Program extends Application implements Product {
 			// TODO Stop the UpdateManager
 			// TODO Stop the ResourceManager
 
-			// TODO Stop the settings manager
+			// Disconnect the settings listener
 			settings.removeProgramEventListener( watcher );
 
-			// TODO Stop the ExecutorService
+			new ProgramStoppedEvent( this ).dispatch( listeners );
+
 			return null;
 		}
 
