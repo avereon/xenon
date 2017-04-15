@@ -123,7 +123,9 @@ public class UiFactory {
 	private Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
-		Configuration configuration = getConfiguration( Prefix.WORKSPACE, id );
+		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKSPACE, id ) );
+		settings.addProgramEventListener( program.getEventWatcher() );
+		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
 		configuration.setProperty( "x", 0 );
 		configuration.setProperty( "y", 0 );
@@ -140,7 +142,9 @@ public class UiFactory {
 	private Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
-		Configuration configuration = getConfiguration( Prefix.WORKAREA, id );
+		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKAREA, id ) );
+		settings.addProgramEventListener( program.getEventWatcher() );
+		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
 		configuration.setProperty( "name", "Default" );
 		configuration.setProperty( "active", true );
@@ -154,7 +158,9 @@ public class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Configuration configuration = SettingsConfiguration.getConfiguration( program, file );
+			Settings settings = new Settings( program.getExecutor(), file );
+			settings.addProgramEventListener( program.getEventWatcher() );
+			Configuration configuration = settings.getConfiguration();
 			workspace.setConfiguration( configuration );
 
 			if( workspace.isActive() ) {
@@ -175,7 +181,9 @@ public class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-			Configuration configuration = SettingsConfiguration.getConfiguration( program, file );
+			Settings settings = new Settings( program.getExecutor(), file );
+			settings.addProgramEventListener( program.getEventWatcher() );
+			Configuration configuration = settings.getConfiguration();
 			workarea.setConfiguration( configuration );
 
 			Workspace workspace = workspaces.get( configuration.getString( "workspaceId" ) );
@@ -215,10 +223,6 @@ public class UiFactory {
 		//			log.error( "Error restoring worktool", exception );
 		//		}
 		return null;
-	}
-
-	private Configuration getConfiguration( Prefix prefix, String id ) throws Exception {
-		return SettingsConfiguration.getConfiguration( program, getConfigurationFile( prefix, id ) );
 	}
 
 	private File getConfigurationFile( Prefix prefix, String id ) {

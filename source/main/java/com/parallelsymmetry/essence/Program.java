@@ -11,7 +11,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
-import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ public class Program extends Application implements Product {
 
 	private File programSettingsFolder;
 
-	private Configuration settings;
+	private Settings settings;
 
 	private WorkspaceManager workspaceManager;
 
@@ -82,7 +81,7 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		dispatchEvent( new ProgramStartingEvent( this ) );
+		new ProgramStartingEvent( this ).dispatch( listeners );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( programTitle );
@@ -95,14 +94,12 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void stop() throws Exception {
-		dispatchEvent( new ProgramStoppingEvent( this ) );
-
-		//settings.removeEventListener( watcher );
+		new ProgramStoppingEvent( this ).dispatch( listeners );
 
 		executor.submit( new ShutdownTask() );
 		executor.shutdown();
 
-		dispatchEvent( new ProgramStoppedEvent( this ) );
+		new ProgramStoppedEvent( this ).dispatch( listeners );
 		removeEventListener( watcher );
 	}
 
@@ -131,12 +128,6 @@ public class Program extends Application implements Product {
 		return workspaceManager;
 	}
 
-	public void dispatchEvent( ProgramEvent event ) {
-		for( ProgramEventListener listener : listeners ) {
-			listener.eventOccurred( event );
-		}
-	}
-
 	public void addEventListener( ProgramEventListener listener ) {
 		this.listeners.add( listener );
 	}
@@ -152,7 +143,7 @@ public class Program extends Application implements Product {
 	private void showProgram() {
 		Stage stage = workspaceManager.getActiveWorkspace().getStage();
 		stage.show();
-		dispatchEvent( new ProgramStartedEvent( this ) );
+		new ProgramStartedEvent( this ).dispatch( listeners );
 	}
 
 	private class StartupTask extends Task<Void> {
@@ -174,7 +165,7 @@ public class Program extends Application implements Product {
 
 			// Create the setting manager
 			File settingsFile = new File( programSettingsFolder, "program.properties" );
-			settings = SettingsConfiguration.getConfiguration( Program.this, settingsFile );
+			settings = new Settings( executor, settingsFile );
 			Platform.runLater( () -> splashScreen.update() );
 
 			// Restore the workspace
@@ -220,7 +211,10 @@ public class Program extends Application implements Product {
 		protected Void call() throws Exception {
 			// TODO Stop the UpdateManager
 			// TODO Stop the ResourceManager
-			// TODO Stop the SettingsManager
+
+			// TODO Stop the settings manager
+			settings.removeProgramEventListener( watcher );
+
 			// TODO Stop the ExecutorService
 			return null;
 		}
