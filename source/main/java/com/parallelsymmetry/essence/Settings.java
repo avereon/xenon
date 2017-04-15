@@ -67,7 +67,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 	@Override
 	public PropertiesConfiguration getConfiguration() throws ConfigurationException {
 		PropertiesConfiguration config = super.getConfiguration();
-		new SettingsLoadedEvent( this, getFileHandler().getFile(), id ).dispatch( listeners );
+		new SettingsLoadedEvent( this, getFileHandler().getFile(), id ).fire( listeners );
 		return config;
 	}
 
@@ -117,7 +117,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 			executor.submit( () -> {
 				try {
 					Settings.super.save();
-					new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).dispatch( listeners );
+					new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).fire( listeners );
 
 					lastStoreTime.set( System.currentTimeMillis() );
 				} catch( ConfigurationException exception ) {

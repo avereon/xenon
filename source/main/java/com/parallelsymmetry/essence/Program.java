@@ -76,7 +76,7 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		new ProgramStartingEvent( this ).dispatch( listeners );
+		new ProgramStartingEvent( this ).fire( listeners );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( programTitle );
@@ -93,7 +93,7 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void stop() throws Exception {
-		new ProgramStoppingEvent( this ).dispatch( listeners );
+		new ProgramStoppingEvent( this ).fire( listeners );
 
 		// Submit the shutdown task
 		executor.submit( new ShutdownTask() );
@@ -138,7 +138,7 @@ public class Program extends Application implements Product {
 	private void showProgram() {
 		Stage stage = workspaceManager.getActiveWorkspace().getStage();
 		stage.show();
-		new ProgramStartedEvent( this ).dispatch( listeners );
+		new ProgramStartedEvent( this ).fire( listeners );
 	}
 
 	private class StartupTask extends Task<Void> {
@@ -210,7 +210,7 @@ public class Program extends Application implements Product {
 			// Disconnect the settings listener
 			settings.removeProgramEventListener( watcher );
 
-			new ProgramStoppedEvent( this ).dispatch( listeners );
+			new ProgramStoppedEvent( this ).fire( listeners );
 
 			return null;
 		}

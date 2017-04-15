@@ -25,7 +25,7 @@ public class ProgramEvent {
 		return( sourceClass + ":" + eventClass );
 	}
 
-	public void dispatch( Set<? extends ProgramEventListener> listeners ){
+	public void fire( Set<? extends ProgramEventListener> listeners ){
 		for( ProgramEventListener listener : listeners ) {
 			try {
 				listener.eventOccurred( this );

@@ -48,10 +48,10 @@ class UiFactory {
 	}
 
 	public int getUiObjectCount() {
-		int s = getConfigurationFiles(Prefix.WORKSPACE).length;
-		int a = getConfigurationFiles(Prefix.WORKAREA).length;
-		int p = getConfigurationFiles(Prefix.WORKPANE).length;
-		int t = getConfigurationFiles(Prefix.WORKTOOL).length;
+		int s = getConfigurationFiles( Prefix.WORKSPACE ).length;
+		int a = getConfigurationFiles( Prefix.WORKAREA ).length;
+		int p = getConfigurationFiles( Prefix.WORKPANE ).length;
+		int t = getConfigurationFiles( Prefix.WORKTOOL ).length;
 		return Math.max( 2, s + a + p + t );
 	}
 
@@ -125,10 +125,10 @@ class UiFactory {
 		settings.addProgramEventListener( program.getEventWatcher() );
 		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
-		configuration.setProperty( "x", 0 );
-		configuration.setProperty( "y", 0 );
-		configuration.setProperty( "w", 800 );
-		configuration.setProperty( "h", 600 );
+		// Intentionally do not set the x property
+		// Intentionally do not set the y property
+		configuration.setProperty( "w", 400 );
+		configuration.setProperty( "h", 250 );
 		configuration.setProperty( "active", true );
 		configuration.setProperty( "maximized", true );
 
