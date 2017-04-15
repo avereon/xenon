@@ -1,6 +1,8 @@
 package com.parallelsymmetry.essence.work;
 
 import com.parallelsymmetry.essence.product.Product;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
 
@@ -15,6 +17,8 @@ public class Workspace {
 	private Product product;
 
 	private Stage stage;
+
+	private Scene scene;
 
 	private boolean active;
 
@@ -35,6 +39,7 @@ public class Workspace {
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
 
 		stage = new Stage();
+		stage.setScene( scene = new Scene( new Pane() ) );
 	}
 
 	public String getId() {
@@ -110,22 +115,26 @@ public class Workspace {
 		stage.setWidth( configuration.getDouble( "w" ) );
 		stage.setHeight( configuration.getDouble( "h" ) );
 		stage.setMaximized( configuration.getBoolean( "maximized", false ) );
-		setActive( configuration.getBoolean( "active", false ));
+		setActive( configuration.getBoolean( "active", false ) );
 
 		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			configuration.setProperty( "maximized", newValue );
 		} );
 		stage.xProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "x", newValue );
+			if( stage.isMaximized() ) return;
+			configuration.setProperty( "x", newValue );
 		} );
 		stage.yProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "y", newValue );
+			if( stage.isMaximized() ) return;
+			configuration.setProperty( "y", newValue );
 		} );
-		stage.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "w", newValue );
+		scene.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
+			if( stage.isMaximized() ) return;
+			configuration.setProperty( "w", newValue );
 		} );
-		stage.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "h", newValue );
+		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
+			if( stage.isMaximized() ) return;
+			configuration.setProperty( "h", newValue );
 		} );
 	}
 
