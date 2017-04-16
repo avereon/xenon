@@ -2,7 +2,11 @@ package com.parallelsymmetry.essence.work;
 
 import com.parallelsymmetry.essence.product.Product;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
 
@@ -12,6 +16,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * The workspace manages the menu bar, tool bar and workareas.
+ */
 public class Workspace {
 
 	private Product product;
@@ -21,6 +28,12 @@ public class Workspace {
 	private Scene scene;
 
 	private boolean active;
+
+	private Pane menubarContainer;
+
+	private MenuBar menubar;
+
+	private ToolBar toolbar;
 
 	private Set<Workarea> workareas;
 
@@ -39,6 +52,66 @@ public class Workspace {
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
 
 		stage = new Stage();
+
+		// MENUBAR
+
+		menubar = new MenuBar();
+
+		Menu file = new Menu( "File" );
+		file.getItems().add( new MenuItem( "A" ) );
+		file.getItems().add( new MenuItem( "B" ) );
+		file.getItems().add( new MenuItem( "C" ) );
+		file.getItems().add( new MenuItem( "D" ) );
+		Menu edit = new Menu( "Edit" );
+		edit.getItems().add( new MenuItem( "A" ) );
+		edit.getItems().add( new MenuItem( "B" ) );
+		edit.getItems().add( new MenuItem( "C" ) );
+		edit.getItems().add( new MenuItem( "D" ) );
+		Menu view = new Menu( "View" );
+		view.getItems().add( new MenuItem( "A" ) );
+		view.getItems().add( new MenuItem( "B" ) );
+		view.getItems().add( new MenuItem( "C" ) );
+		view.getItems().add( new MenuItem( "D" ) );
+		Menu help = new Menu( "Help" );
+		help.getItems().add( new MenuItem( "A" ) );
+		help.getItems().add( new MenuItem( "B" ) );
+		help.getItems().add( new MenuItem( "C" ) );
+
+		Menu spacer = new Menu( "" );
+		spacer.setDisable( true );
+		spacer.setStyle( "-fx-padding: 0 0 0 200" );
+
+		Menu workareaMenu = new Menu( "Workarea" );
+		workareaMenu.getItems().add( new MenuItem( "New" ) );
+		workareaMenu.getItems().add( new SeparatorMenuItem() );
+		workareaMenu.getItems().add( new MenuItem( "Rename" ) );
+		workareaMenu.getItems().add( new SeparatorMenuItem() );
+		workareaMenu.getItems().add( new MenuItem( "Close" ) );
+		//view.getItems().add( 0, workareaMenu );
+
+		ComboBox<String> workareaSelector = new ComboBox<>();
+		workareaSelector.getItems().add( "Default" );
+		workareaSelector.getSelectionModel().select( 0 );
+
+		//		MenuBar workareaMenubar = new MenuBar();
+		//		workareaMenubar.getMenus().add( workareaMenu );
+
+		//		Pane workareaSelectorContainer = new Pane();
+		//		workareaSelectorContainer.getStyleClass().add( "menu-bar" );
+		//		workareaSelectorContainer.getChildren().addAll( workareaSelector );
+		SplitMenuButton splitbutton = new SplitMenuButton();
+		splitbutton.setText( "Default" );
+
+		menubarContainer = new HBox();
+		menubarContainer.getChildren().addAll( menubar );
+		HBox.setHgrow( menubar, Priority.SOMETIMES );
+
+		menubar.getMenus().addAll( file, edit, view, help, workareaMenu );
+
+		// TOOLBAR
+
+		toolbar = new ToolBar();
+		toolbar.getItems().addAll( workareaSelector, splitbutton );
 	}
 
 	public String getId() {
@@ -99,7 +172,12 @@ public class Workspace {
 		if( activeWorkarea != null ) {
 			activeWorkarea.setActive( true );
 			activeWorkarea.addPropertyChangeListener( activeWorkareaWatcher );
+
 			setStageTitle( activeWorkarea.getName() );
+
+			// TODO Set the menu bar
+			// TODO Set the tool bar
+			// TODO Set the workpane
 		}
 	}
 
@@ -114,8 +192,11 @@ public class Workspace {
 		Double w = configuration.getDouble( "w" );
 		Double h = configuration.getDouble( "h" );
 
+		VBox pane = new VBox();
+		pane.getChildren().addAll( menubarContainer, toolbar );
+
 		// Create the scene using the width and height
-		stage.setScene( scene = new Scene( new Pane(), w, h ) );
+		stage.setScene( scene = new Scene( pane, w, h ) );
 		stage.centerOnScreen();
 
 		// Position the stage if x and y are specified
