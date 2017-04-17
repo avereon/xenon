@@ -36,6 +36,7 @@ public class Workarea {
 	public void setName( String newName ) {
 		String oldName = name;
 		name = newName;
+		configuration.setProperty( "name", newName );
 		firePropertyChange( "name", oldName, newName );
 	}
 
@@ -45,6 +46,7 @@ public class Workarea {
 
 	public void setActive( boolean active ) {
 		this.active = active;
+		configuration.setProperty( "active", active );
 	}
 
 	public Workspace getWorkspace() {
@@ -80,7 +82,12 @@ public class Workarea {
 
 		id = configuration.getString( "id" );
 		setName( configuration.getString( "name" ) );
-		setActive( configuration.getBoolean( "active" ) );
+		setActive( configuration.getBoolean( "active", false ) );
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 	private void firePropertyChange( String property, Object oldValue, Object newValue ) {

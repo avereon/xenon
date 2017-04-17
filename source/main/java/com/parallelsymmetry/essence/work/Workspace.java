@@ -1,12 +1,16 @@
 package com.parallelsymmetry.essence.work;
 
-import com.parallelsymmetry.essence.product.Product;
+import com.parallelsymmetry.essence.Program;
+import com.parallelsymmetry.essence.action.NewWorkareaAction;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
 
@@ -14,14 +18,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
 public class Workspace {
 
-	private Product product;
+	private Program program;
 
 	private Stage stage;
 
@@ -31,11 +34,16 @@ public class Workspace {
 
 	private Pane menubarContainer;
 
+	private HBox toolbarContainer;
+
 	private MenuBar menubar;
 
 	private ToolBar toolbar;
 
-	private Set<Workarea> workareas;
+	private ComboBox<Workarea> workareaSelector;
+
+	//private Set<Workarea> workareas;
+	ObservableList<Workarea> workareas;
 
 	private Workarea activeWorkarea;
 
@@ -45,10 +53,12 @@ public class Workspace {
 
 	private String id;
 
-	public Workspace( Product product ) {
-		this.product = product;
+	private Workarea event;
 
-		workareas = new CopyOnWriteArraySet<>();
+	public Workspace( Program program ) {
+		this.program = program;
+
+		workareas = FXCollections.observableArrayList();
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
 
 		stage = new Stage();
@@ -79,39 +89,50 @@ public class Workspace {
 
 		Menu spacer = new Menu( "" );
 		spacer.setDisable( true );
-		spacer.setStyle( "-fx-padding: 0 0 0 200" );
 
-		Menu workareaMenu = new Menu( "Workarea" );
-		workareaMenu.getItems().add( new MenuItem( "New" ) );
+		MenuItem newWorkareaMenuItem = new MenuItem( "New" );
+		newWorkareaMenuItem.setOnAction( new NewWorkareaAction( program ) );
+
+		ContextMenu workareaMenu = new ContextMenu();
+		workareaMenu.getItems().add( newWorkareaMenuItem );
 		workareaMenu.getItems().add( new SeparatorMenuItem() );
 		workareaMenu.getItems().add( new MenuItem( "Rename" ) );
 		workareaMenu.getItems().add( new SeparatorMenuItem() );
 		workareaMenu.getItems().add( new MenuItem( "Close" ) );
-		//view.getItems().add( 0, workareaMenu );
 
-		ComboBox<String> workareaSelector = new ComboBox<>();
-		workareaSelector.getItems().add( "Default" );
-		workareaSelector.getSelectionModel().select( 0 );
-
-		//		MenuBar workareaMenubar = new MenuBar();
-		//		workareaMenubar.getMenus().add( workareaMenu );
-
-		//		Pane workareaSelectorContainer = new Pane();
-		//		workareaSelectorContainer.getStyleClass().add( "menu-bar" );
-		//		workareaSelectorContainer.getChildren().addAll( workareaSelector );
-		SplitMenuButton splitbutton = new SplitMenuButton();
-		splitbutton.setText( "Default" );
-
-		menubarContainer = new HBox();
-		menubarContainer.getChildren().addAll( menubar );
-		HBox.setHgrow( menubar, Priority.SOMETIMES );
-
-		menubar.getMenus().addAll( file, edit, view, help, workareaMenu );
+		menubar.getMenus().addAll( file, edit, view, help );
 
 		// TOOLBAR
+		Button newButton = new Button( "N" );
+		Button openButton = new Button( "O" );
+		Button saveButton = new Button( "S" );
+
+		// Toolbar spring
+		Region spring = new Region();
+		HBox.setHgrow( spring, Priority.ALWAYS );
+
+		// Workarea label
+		Background hoverBackground = new Background( new BackgroundFill( Color.RED, CornerRadii.EMPTY, Insets.EMPTY ) );
+
+		Label workareaLabel = new Label( "Workarea: " );
+		workareaLabel.setId( "workarea-label" );
+		workareaLabel.setContextMenu( workareaMenu );
+		workareaLabel.setOnMousePressed( (event -> workareaMenu.show( workareaLabel, Side.BOTTOM, 0, 0 )) );
+		//		Background normalBackground = workareaLabel.getBackground();
+		//		workareaLabel.setOnMouseEntered( (event -> workareaLabel.setBackground( hoverBackground )) );
+		//		workareaLabel.setOnMouseExited( (event -> workareaLabel.setBackground( normalBackground )) );
+
+		// Workarea selector
+		workareaSelector = new ComboBox<>();
+		workareaSelector.setItems( workareas );
+		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
 		toolbar = new ToolBar();
-		toolbar.getItems().addAll( workareaSelector, splitbutton );
+		toolbar.getItems().addAll( newButton, openButton, saveButton, spring, workareaLabel, workareaSelector );
+	}
+
+	private void selectWorkarea( ActionEvent event  ) {
+
 	}
 
 	public String getId() {
@@ -171,9 +192,9 @@ public class Workspace {
 		// Connect the new active work area
 		if( activeWorkarea != null ) {
 			activeWorkarea.setActive( true );
-			activeWorkarea.addPropertyChangeListener( activeWorkareaWatcher );
-
 			setStageTitle( activeWorkarea.getName() );
+			workareaSelector.getSelectionModel().select( activeWorkarea );
+			activeWorkarea.addPropertyChangeListener( activeWorkareaWatcher );
 
 			// TODO Set the menu bar
 			// TODO Set the tool bar
@@ -193,7 +214,7 @@ public class Workspace {
 		Double h = configuration.getDouble( "h" );
 
 		VBox pane = new VBox();
-		pane.getChildren().addAll( menubarContainer, toolbar );
+		pane.getChildren().addAll( menubar, toolbar );
 
 		// Create the scene using the width and height
 		stage.setScene( scene = new Scene( pane, w, h ) );
@@ -225,7 +246,7 @@ public class Workspace {
 	}
 
 	private void setStageTitle( String name ) {
-		stage.setTitle( name + " - " + product.getMetadata().getName() );
+		stage.setTitle( name + " - " + program.getMetadata().getName() );
 	}
 
 	private class WorkareaPropertyWatcher implements PropertyChangeListener {

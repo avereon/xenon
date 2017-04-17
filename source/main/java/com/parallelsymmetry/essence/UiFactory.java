@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class UiFactory {
+public class UiFactory {
 
 	enum Prefix {
 		WORKSPACE,
@@ -65,11 +65,13 @@ class UiFactory {
 			try {
 				// Create the default workspace
 				Workspace workspace = newWorkspace();
+				workspace.getStage().setMaximized( true );
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
 				splashScreen.update();
 
 				// Create the default workarea
 				Workarea workarea = newWorkarea();
+				workarea.setName( "Default" );
 				workspace.setActiveWorkarea( workarea );
 				splashScreen.update();
 
@@ -118,7 +120,7 @@ class UiFactory {
 		return files == null ? new File[ 0 ] : files;
 	}
 
-	private Workspace newWorkspace() throws Exception {
+	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
 		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
@@ -129,23 +131,19 @@ class UiFactory {
 		// Intentionally do not set the y property
 		configuration.setProperty( "w", 400 );
 		configuration.setProperty( "h", 250 );
-		configuration.setProperty( "active", true );
-		configuration.setProperty( "maximized", true );
 
 		Workspace workspace = new Workspace( program );
 		workspace.setConfiguration( configuration );
 		return workspace;
 	}
 
-	private Workarea newWorkarea() throws Exception {
+	public Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
 		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
 		settings.addProgramEventListener( program.getEventWatcher() );
 		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
-		configuration.setProperty( "name", "Default" );
-		configuration.setProperty( "active", true );
 
 		Workarea workarea = new Workarea();
 		workarea.setConfiguration( configuration );
