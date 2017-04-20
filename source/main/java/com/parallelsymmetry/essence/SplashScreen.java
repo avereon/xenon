@@ -14,6 +14,10 @@ import org.slf4j.LoggerFactory;
 
 public class SplashScreen extends Stage {
 
+	private static final int WIDTH = 320;
+
+	private static final int HEIGHT = 180;
+
 	private static final Logger log = LoggerFactory.getLogger( SplashScreen.class );
 
 	private int steps;
@@ -28,6 +32,9 @@ public class SplashScreen extends Stage {
 
 		setTitle( title );
 
+		Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
+		background.setFill( Color.GRAY.darker() );
+
 		progressBar = new Rectangle( 0, 170, 0, 180 );
 		progressBar.setFill( new Color( 0.7, 0.7, 0.7, 1.0 ) );
 
@@ -36,12 +43,13 @@ public class SplashScreen extends Stage {
 		titleText.setFont( new Font( 40 ) );
 
 		Pane pane = new Pane();
+		pane.getChildren().add( background );
 		pane.getChildren().add( new Circle( -40, 80, 160, new Color( 0.5, 0.5, 0.6, 0.5 ) ) );
 		pane.getChildren().add( new Circle( 80, -200, 360, new Color( 0.5, 0.6, 0.6, 0.5 ) ) );
 		pane.getChildren().add( titleText );
 		pane.getChildren().add( progressBar );
 
-		setScene( new Scene( pane, 320, 180, Color.GRAY.darker() ) );
+		setScene( new Scene( pane, WIDTH, HEIGHT, Color.BLACK ) );
 		sizeToScene();
 	}
 
