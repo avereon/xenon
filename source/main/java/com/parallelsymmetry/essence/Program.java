@@ -72,6 +72,7 @@ public class Program extends Application implements Product {
 		metadata = new ProductMetadata();
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() );
+		printHeader();
 	}
 
 	@Override
@@ -133,6 +134,16 @@ public class Program extends Application implements Product {
 
 	public void removeEventListener( ProgramEventListener listener ) {
 		this.listeners.remove( listener );
+	}
+
+	private void printHeader() {
+		System.out.println( metadata.getName() + " " + metadata.getVersion() );
+		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
+		System.out.println( System.getProperty( "os.name" ) + " " + System.getProperty( "os.version" ) );
+
+//		for( Object key : System.getProperties().keySet() ) {
+//			System.out.println( key.toString() + " = " + System.getProperty( key.toString() ) );
+//		}
 	}
 
 	private void showProgram() {
