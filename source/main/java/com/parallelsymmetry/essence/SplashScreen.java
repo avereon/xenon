@@ -32,6 +32,7 @@ public class SplashScreen extends Stage {
 
 		setTitle( title );
 
+		// The background is a workaround to the stage color changing on Windows
 		Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
 		background.setFill( Color.GRAY.darker() );
 

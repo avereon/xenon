@@ -136,14 +136,13 @@ public class Program extends Application implements Product {
 		this.listeners.remove( listener );
 	}
 
+	public void fireEvent( ProgramEvent event ) {
+		event.fire( listeners );
+	}
+
 	private void printHeader() {
 		System.out.println( metadata.getName() + " " + metadata.getVersion() );
 		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
-		System.out.println( System.getProperty( "os.name" ) + " " + System.getProperty( "os.version" ) );
-
-//		for( Object key : System.getProperties().keySet() ) {
-//			System.out.println( key.toString() + " = " + System.getProperty( key.toString() ) );
-//		}
 	}
 
 	private void showProgram() {

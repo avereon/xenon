@@ -2,6 +2,7 @@ package com.parallelsymmetry.essence.work;
 
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.action.NewWorkareaAction;
+import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -177,6 +178,8 @@ public class Workspace {
 	}
 
 	public void setActiveWorkarea( Workarea workarea ) {
+		if( activeWorkarea == workarea ) return;
+
 		// If the workarea is not already added, add it
 		if( !workareas.contains( workarea ) ) addWorkArea( workarea );
 
@@ -200,6 +203,9 @@ public class Workspace {
 			// TODO Set the tool bar
 			// TODO Set the workpane
 		}
+
+		// Send a program event when active area changes
+		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea) );
 	}
 
 	public void setConfiguration( Configuration configuration ) {
