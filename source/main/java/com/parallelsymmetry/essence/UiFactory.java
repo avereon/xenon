@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.tool.WorkTool;
+import com.parallelsymmetry.essence.work.WorkTool;
 import com.parallelsymmetry.essence.work.Workarea;
 import com.parallelsymmetry.essence.work.Workpane;
 import com.parallelsymmetry.essence.work.Workspace;
