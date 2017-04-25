@@ -77,6 +77,8 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		System.out.println( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp ));
+
 		new ProgramStartingEvent( this ).fire( listeners );
 
 		// Show the splash screen
@@ -124,20 +126,20 @@ public class Program extends Application implements Product {
 		return workspaceManager;
 	}
 
-	public void addEventListener( ProgramEventListener listener ) {
-		this.listeners.add( listener );
+	public void fireEvent( ProgramEvent event ) {
+		event.fire( listeners );
 	}
 
-	public ProgramEventWatcher getEventWatcher() {
-		return watcher;
+	public void addEventListener( ProgramEventListener listener ) {
+		this.listeners.add( listener );
 	}
 
 	public void removeEventListener( ProgramEventListener listener ) {
 		this.listeners.remove( listener );
 	}
 
-	public void fireEvent( ProgramEvent event ) {
-		event.fire( listeners );
+	public ProgramEventWatcher getEventWatcher() {
+		return watcher;
 	}
 
 	private void printHeader() {
@@ -165,8 +167,12 @@ public class Program extends Application implements Product {
 			workspaceManager = new WorkspaceManager( Program.this );
 
 			// Set the number of startup steps
-			final int steps = 1 + factory.getUiObjectCount();
+			final int steps = 2 + factory.getUiObjectCount();
 			Platform.runLater( () -> splashScreen.setSteps( steps ) );
+
+			// Update the product metadata
+			metadata.loadContributors();
+			Platform.runLater( () -> splashScreen.update() );
 
 			// Create the setting manager
 			File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );

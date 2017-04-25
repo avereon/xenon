@@ -4,9 +4,11 @@ import com.parallelsymmetry.essence.person.Contributor;
 import com.parallelsymmetry.essence.person.Maintainer;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This class must load the product metadata very quickly.
@@ -42,25 +44,54 @@ public class ProductMetadata {
 
 	private List<Contributor> contributors;
 
-	public ProductMetadata() {
+	public ProductMetadata() throws IOException {
+		InputStream stream = getClass().getResourceAsStream( "/META-INF/product.properties" );
+		Properties values = new Properties();
+		values.load( stream );
+
+		this.group = values.getProperty( "group" );
+		this.artifact = values.getProperty( "artifact" );
+		this.version = values.getProperty( "version" );
+		this.timestamp = values.getProperty( "timestamp" );
+
+		this.icon = values.getProperty( "icon" );
+		this.name = values.getProperty( "name" );
+		this.provider = values.getProperty( "provider" );
+		this.inception = Integer.parseInt( values.getProperty( "inception" ) );
+
+		this.summary = values.getProperty( "summary" );
+		this.description = values.getProperty( "description" );
+		this.copyrightSummary = values.getProperty( "copyright" );
+		this.licenseSummary = values.getProperty( "license" );
+	}
+
+	//	public ProductMetadata() {
+	//		InputStream stream = getClass().getResourceAsStream( "/META-INF/product.yaml" );
+	//		Map<String, Object> values = (Map<String, Object>)new Yaml().load( stream );
+	//
+	//		this.group = (String)values.get( "group" );
+	//		this.artifact = (String)values.get( "artifact" );
+	//		this.version = (String)values.get( "version" );
+	//		this.timestamp = (String)values.get( "timestamp" );
+	//
+	//		this.icon = (String)values.get( "icon" );
+	//		this.name = (String)values.get( "name" );
+	//		this.provider = (String)values.get( "provider" );
+	//		this.inception = (Integer)values.get( "inception" );
+	//
+	//		this.summary = (String)values.get( "summary" );
+	//		this.description = (String)values.get( "description" );
+	//		this.copyrightSummary = (String)values.get( "copyright.summary" );
+	//		this.licenseSummary = (String)values.get( "license.summary" );
+	//
+	//		this.maintainers = (List<Maintainer>)values.get( "maintainers" );
+	//		this.contributors = (List<Contributor>)values.get( "contributors" );
+	//	}
+
+	@SuppressWarnings( "unchecked" )
+	public void loadContributors() {
 		InputStream stream = getClass().getResourceAsStream( "/META-INF/product.yaml" );
 		Map<String, Object> values = (Map<String, Object>)new Yaml().load( stream );
-
-		this.group = (String)values.get( "group" );
-		this.artifact = (String)values.get( "artifact" );
-		this.version = (String)values.get( "version" );
-		this.timestamp = (String)values.get( "timestamp" );
-
-		this.icon = (String)values.get( "icon" );
-		this.name = (String)values.get( "name" );
-		this.provider = (String)values.get( "provider" );
-		this.inception = (Integer)values.get( "inception" );
-
-		this.summary = (String)values.get( "summary" );
-		this.description = (String)values.get( "description" );
-		this.copyrightSummary = (String)values.get( "copyright.summary" );
-		this.licenseSummary = (String)values.get( "license.summary" );
-
 		this.maintainers = (List<Maintainer>)values.get( "maintainers" );
 		this.contributors = (List<Contributor>)values.get( "contributors" );
 	}

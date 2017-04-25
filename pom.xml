@@ -99,14 +99,16 @@
 				<directory>source/main/resources</directory>
 				<filtering>false</filtering>
 				<excludes>
-					<exclude>**/product.yaml</exclude>
+					<exclude>**/*.properties</exclude>
+					<exclude>**/*.yaml</exclude>
 				</excludes>
 			</resource>
 			<resource>
 				<directory>source/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
-					<include>**/product.yaml</include>
+					<include>**/*.properties</include>
+					<include>**/*.yaml</include>
 				</includes>
 			</resource>
 		</resources>
