@@ -4,6 +4,9 @@ import com.parallelsymmetry.essence.product.ProductMetadata;
 import javafx.stage.Stage;
 import org.testfx.framework.junit.ApplicationTest;
 
+/**
+ * Tests based on TextFx: https://github.com/TestFX/TestFX
+ */
 public abstract class ProgramBaseTest extends ApplicationTest {
 
 	protected Program program = new Program();
