@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.product.ProductMetadata;
+import com.parallelsymmetry.essence.util.OperatingSystem;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,11 +21,15 @@ import static org.junit.Assert.assertThat;
 @RunWith( JavaFxTestRunner.class )
 public class ProgramTest {
 
-	Program program = new Program();
+	private Program program;
+
+	private ProductMetadata metadata;
 
 	@Before
 	public void setup() throws Exception {
+		program = new Program();
 		program.init();
+		metadata = program.getMetadata();
 	}
 
 	@Test
@@ -44,7 +49,6 @@ public class ProgramTest {
 
 		String timestampRegex = "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]";
 
-		ProductMetadata metadata = program.getMetadata();
 		assertThat( metadata.getGroup(), is( groupId ) );
 		assertThat( metadata.getArtifact(), is( artifactId ) );
 		assertThat( metadata.getVersion(), is( version ) );
@@ -60,6 +64,11 @@ public class ProgramTest {
 		assertThat( metadata.getDescription(), is( description ) );
 		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved."));
 		assertThat( metadata.getLicenseSummary(), is( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions."));
+	}
+
+	@Test
+	public void testProgramDataFolder() {
+		assertThat( program.getProgramDataFolder(), is( OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() ) ) );
 	}
 
 }

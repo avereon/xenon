@@ -46,7 +46,7 @@ public class Program extends Application implements Product {
 
 	static {
 		startTimestamp = System.currentTimeMillis();
-		System.setProperty( "java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %2$s %5$s%6$s%n" );
+		System.setProperty( "java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %2$s %5$s %6$s%n" );
 	}
 
 	public static void main( String[] commands ) {
@@ -72,11 +72,11 @@ public class Program extends Application implements Product {
 		metadata = new ProductMetadata();
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() );
-		printHeader();
 	}
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		printHeader();
 		System.out.println( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp ));
 
 		new ProgramStartingEvent( this ).fire( listeners );
