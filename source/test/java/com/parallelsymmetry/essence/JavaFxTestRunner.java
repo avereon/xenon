@@ -8,7 +8,7 @@ import org.junit.runners.model.InitializationError;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * This runner can be used to run JUnit-Tests on the JavaFx-Thread. This class
+ * This runner can be used to run JUnit tests on the JavaFx thread. This class
  * can be used as a parameter to the {@link RunWith} annotation. Example:
  * <p>
  * <pre>
@@ -40,9 +40,7 @@ public class JavaFxTestRunner extends BlockJUnit4ClassRunner {
 
 	private static void setupJavaFX() throws InterruptedException {
 		final CountDownLatch latch = new CountDownLatch( 1 );
-		Platform.startup( () -> {} );
-		//Platform.startup( latch::countDown );
-		latch.countDown();
+		Platform.startup( latch::countDown );
 		latch.await();
 	}
 

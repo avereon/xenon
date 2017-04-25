@@ -83,7 +83,7 @@ public class Program extends Application implements Product {
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( programTitle );
-		splashScreen.initOwner( stage );
+		//splashScreen.initOwner( stage );
 		splashScreen.show();
 
 		// Create the executor service

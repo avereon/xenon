@@ -29,8 +29,20 @@ public class ProgramTest {
 	public void setup() throws Exception {
 		program = new Program();
 		program.init();
+		//program.start( new Stage() );
 		metadata = program.getMetadata();
 	}
+
+//	@After
+//	public void teardown() throws Exception {
+//		Platform.runLater( () -> {
+//			try {
+//				program.stop();
+//			} catch( Exception e ) {
+//				e.printStackTrace();
+//			}
+//		} );
+//	}
 
 	@Test
 	public void testProgramMetadata() throws Exception {
@@ -44,7 +56,7 @@ public class ProgramTest {
 		String version = (String)xpath.evaluate( "/project/parent/version", pom, XPathConstants.STRING );
 		String name = (String)xpath.evaluate( "/project/name", pom, XPathConstants.STRING );
 		String provider = (String)xpath.evaluate( "/project/organization/name", pom, XPathConstants.STRING );
-		int inception = Integer.parseInt((String)xpath.evaluate( "/project/inceptionYear", pom, XPathConstants.STRING ) );
+		int inception = Integer.parseInt( (String)xpath.evaluate( "/project/inceptionYear", pom, XPathConstants.STRING ) );
 		String description = (String)xpath.evaluate( "/project/description", pom, XPathConstants.STRING );
 
 		String timestampRegex = "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]";
@@ -62,8 +74,8 @@ public class ProgramTest {
 
 		assertThat( metadata.getSummary(), is( "Java application platform" ) );
 		assertThat( metadata.getDescription(), is( description ) );
-		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved."));
-		assertThat( metadata.getLicenseSummary(), is( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions."));
+		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved." ) );
+		assertThat( metadata.getLicenseSummary(), is( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." ) );
 	}
 
 	@Test
