@@ -1,11 +1,10 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.product.ProductMetadata;
+import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,33 +15,22 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-@RunWith( JavaFxTestRunner.class )
-public class ProgramTest {
+public class ProgramTest extends ProgramBaseTest {
 
-	private Program program;
+	@Test
+	public void testSomething() throws Exception {
+		assertNotNull( program );
 
-	private ProductMetadata metadata;
+		// Wait for the program to start
+		waitForEvent( ProgramStartedEvent.class, 10000 );
 
-	@Before
-	public void setup() throws Exception {
-		program = new Program();
-		program.init();
-		//program.start( new Stage() );
-		metadata = program.getMetadata();
+		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
+
+		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), Matchers.is( workareaName + " - " + metadata.getName() ) );
 	}
-
-//	@After
-//	public void teardown() throws Exception {
-//		Platform.runLater( () -> {
-//			try {
-//				program.stop();
-//			} catch( Exception e ) {
-//				e.printStackTrace();
-//			}
-//		} );
-//	}
 
 	@Test
 	public void testProgramMetadata() throws Exception {

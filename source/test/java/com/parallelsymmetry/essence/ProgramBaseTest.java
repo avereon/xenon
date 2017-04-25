@@ -1,20 +1,14 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import javafx.stage.Stage;
-import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+public abstract class ProgramBaseTest extends ApplicationTest {
 
-public class ProgramBaseTest extends ApplicationTest {
+	protected Program program = new Program();
 
-	private Program program = new Program();
-
-	private ProductMetadata metadata;
+	protected ProductMetadata metadata;
 
 	@Override
 	public void start( Stage stage ) throws Exception {
@@ -28,40 +22,25 @@ public class ProgramBaseTest extends ApplicationTest {
 		program.stop();
 	}
 
-	@Test
-	public void testSomething() throws Exception {
-		assertNotNull( program );
-
-		// Wait for the program to start
-		new ProgramStartWatcher( program ).waitFor( 10000 );
-
-		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
-
-		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), is( workareaName + " - " + metadata.getName() ) );
+	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		new ProgramStartWatcher( program, clazz ).waitFor( 10000 );
 	}
-
-	//	@Test
-	//	public void testSomethingElse() {
-	//		assertNotNull( program );
-	//	}
-	//
-	//	@Test
-	//	public void testYetSomethingElse() {
-	//		assertNotNull( program );
-	//	}
 
 	private class ProgramStartWatcher implements ProgramEventListener {
 
 		private Program program;
 
-		public ProgramStartWatcher( Program program ) {
+		private Class<? extends ProgramEvent> eventType;
+
+		public ProgramStartWatcher( Program program,Class<? extends ProgramEvent> eventType ) {
 			this.program = program;
+			this.eventType  = eventType;
 			program.addEventListener( this );
 		}
 
 		@Override
 		public void eventOccurred( ProgramEvent event ) {
-			if( event instanceof ProgramStartedEvent ) {
+			if( eventType == event.getClass() ) {
 				synchronized( this ) {
 					this.notifyAll();
 					program.removeEventListener( this );
