@@ -1,8 +1,8 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
+import com.parallelsymmetry.essence.event.ProgramStartingEvent;
 import com.parallelsymmetry.essence.util.OperatingSystem;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -15,25 +15,14 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class ProgramTest extends ProgramBaseTest {
 
 	@Test
-	public void testSomething() throws Exception {
-		assertNotNull( program );
-
-		// Wait for the program to start
-		waitForEvent( ProgramStartedEvent.class, 10000 );
-
-		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
-
-		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), Matchers.is( workareaName + " - " + metadata.getName() ) );
-	}
-
-	@Test
 	public void testProgramMetadata() throws Exception {
+		waitForEvent( ProgramStartingEvent.class );
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = dbf.newDocumentBuilder();
 		Document pom = builder.parse( new File( "pom.xml" ) );
@@ -67,8 +56,18 @@ public class ProgramTest extends ProgramBaseTest {
 	}
 
 	@Test
-	public void testProgramDataFolder() {
+	public void testProgramDataFolder() throws Exception {
+		waitForEvent( ProgramStartingEvent.class );
+
 		assertThat( program.getProgramDataFolder(), is( OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() ) ) );
+	}
+
+	@Test
+	public void testWorkspaceWindowTitle() throws Exception {
+		waitForEvent( ProgramStartedEvent.class );
+
+		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
+		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), is( workareaName + " - " + metadata.getName() ) );
 	}
 
 }

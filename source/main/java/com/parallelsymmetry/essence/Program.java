@@ -24,9 +24,9 @@ public class Program extends Application implements Product {
 
 	private Logger log = LoggerFactory.getLogger( Program.class );
 
-	private static final long startTimestamp;
+	private long startTimestamp;
 
-	private static String programTitle;
+	private String programTitle;
 
 	private SplashScreen splashScreen;
 
@@ -45,7 +45,6 @@ public class Program extends Application implements Product {
 	private Set<ProgramEventListener> listeners;
 
 	static {
-		startTimestamp = System.currentTimeMillis();
 		System.setProperty( "java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %2$s %5$s %6$s%n" );
 	}
 
@@ -55,6 +54,8 @@ public class Program extends Application implements Product {
 	}
 
 	public Program() {
+		startTimestamp = System.currentTimeMillis();
+
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
 

@@ -4,17 +4,28 @@ import com.parallelsymmetry.essence.product.ProductMetadata;
 import javafx.stage.Stage;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Tests based on TextFx: https://github.com/TestFX/TestFX
  */
 public abstract class ProgramBaseTest extends ApplicationTest {
 
-	protected Program program = new Program();
+	private static final long DEFAULT_WAIT_TIMEOUT = 10000;
+
+	protected Program program;
 
 	protected ProductMetadata metadata;
 
+	private ProgramWatcher watcher;
+
 	@Override
 	public void start( Stage stage ) throws Exception {
+		program = new Program();
+		watcher = new ProgramWatcher();
+		program.addEventListener( watcher );
+
 		program.init();
 		program.start( stage );
 		metadata = program.getMetadata();
@@ -25,36 +36,48 @@ public abstract class ProgramBaseTest extends ApplicationTest {
 		program.stop();
 	}
 
-	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
-		new ProgramStartWatcher( program, clazz ).waitFor( 10000 );
+	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
+		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	private class ProgramStartWatcher implements ProgramEventListener {
+	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		watcher.waitFor( clazz, timeout );
+	}
 
-		private Program program;
+	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
+		waitForNextEvent( clazz, DEFAULT_WAIT_TIMEOUT );
+	}
 
-		private Class<? extends ProgramEvent> eventType;
+	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		watcher.waitForNext( clazz, timeout );
+	}
 
-		public ProgramStartWatcher( Program program,Class<? extends ProgramEvent> eventType ) {
-			this.program = program;
-			this.eventType  = eventType;
-			program.addEventListener( this );
+	private class ProgramWatcher implements ProgramEventListener {
+
+		private Map<Class<? extends ProgramEvent>, ProgramEvent> events;
+
+		public ProgramWatcher() {
+			this.events = new ConcurrentHashMap<>();
 		}
 
 		@Override
-		public void eventOccurred( ProgramEvent event ) {
-			if( eventType == event.getClass() ) {
-				synchronized( this ) {
-					this.notifyAll();
-					program.removeEventListener( this );
-				}
+		public synchronized void eventOccurred( ProgramEvent event ) {
+			events.put( event.getClass(), event );
+			this.notifyAll();
+		}
+
+		public synchronized void waitFor( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+			long start = System.currentTimeMillis();
+			long duration = 0;
+			while( duration < timeout && events.get( clazz ) == null ) {
+				duration = System.currentTimeMillis() - start;
+				wait( timeout - duration );
 			}
 		}
 
-		public void waitFor( long timeout ) throws InterruptedException {
-			synchronized( this ) {
-				wait( timeout );
-			}
+		public synchronized void waitForNext( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+			events.remove( clazz );
+			waitFor( clazz, timeout );
 		}
 
 	}
