@@ -1,10 +1,17 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.event.ProgramStartedEvent;
+import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
+import com.parallelsymmetry.essence.util.OperatingSystem;
+import javafx.application.Platform;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.testfx.api.FxToolkit;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class ProgramBaseTest {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 10000;
+	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
 	protected Program program;
 
@@ -21,10 +28,18 @@ public abstract class ProgramBaseTest {
 
 	private ProgramWatcher watcher;
 
+	@BeforeClass
+	public static void prepare() throws Exception {
+		ProductMetadata metadata = new ProductMetadata();
+		String prefix = Program.EXECMODE_PREFIX_TEST;
+		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		if( programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
+	}
+
 	@Before
 	public void setup() throws Exception {
 		FxToolkit.registerPrimaryStage();
-		program = (Program)FxToolkit.setupApplication( Program.class, "" );
+		program = (Program)FxToolkit.setupApplication( Program.class, "--execmode=test" );
 		watcher = new ProgramWatcher();
 		program.addEventListener( watcher );
 		metadata = program.getMetadata();
@@ -32,7 +47,15 @@ public abstract class ProgramBaseTest {
 
 	@After
 	public void cleanup() throws Exception {
-		FxToolkit.cleanupApplication( program );
+		waitForEvent( ProgramStartedEvent.class );
+		Platform.runLater( () -> {
+			try {
+				program.stop();
+			} catch( Exception e ) {
+				e.printStackTrace();
+			}
+		} );
+		waitForEvent( ProgramStoppedEvent.class );
 	}
 
 	//	@Override
@@ -82,11 +105,13 @@ public abstract class ProgramBaseTest {
 		}
 
 		public synchronized void waitFor( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+			boolean shouldWait = timeout > 0;
 			long start = System.currentTimeMillis();
-			long duration = 0;
-			while( duration < timeout && events.get( clazz ) == null ) {
-				duration = System.currentTimeMillis() - start;
-				wait( timeout - duration );
+
+			while( shouldWait && events.get( clazz ) == null ) {
+				long duration = System.currentTimeMillis() - start;
+				shouldWait = duration < timeout;
+				if( shouldWait ) wait( timeout - duration );
 			}
 		}
 

@@ -77,10 +77,7 @@ public class Program extends Application implements Product {
 		metadata = new ProductMetadata();
 
 		// Determine execmode prefix
-		String prefix = "";
-		String execmode = getParameters().getNamed().get( ProgramParameter.EXECMODE );
-		if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = EXECMODE_PREFIX_DEVL;
-		if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = EXECMODE_PREFIX_TEST;
+		String prefix = getExecmodePrefix();
 
 		// Set program values
 		programTitle = metadata.getName();
@@ -158,6 +155,22 @@ public class Program extends Application implements Product {
 	private void printHeader() {
 		System.out.println( metadata.getName() + " " + metadata.getVersion() );
 		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
+	}
+
+	private String getExecmodePrefix() {
+		String prefix = "";
+
+		Parameters parameters = getParameters();
+		if( parameters != null ) {
+			String execmode = getParameters().getNamed().get( ProgramParameter.EXECMODE );
+			if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = EXECMODE_PREFIX_DEVL;
+			if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = EXECMODE_PREFIX_TEST;
+		} else {
+			// WORKAROUND When testing with TestFX the parameters are null because of an incompatibility with Java 9.
+			prefix = EXECMODE_PREFIX_TEST;
+		}
+
+		return prefix;
 	}
 
 	private void showProgram() {

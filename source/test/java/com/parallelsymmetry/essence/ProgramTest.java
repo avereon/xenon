@@ -1,9 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
-import com.parallelsymmetry.essence.event.ProgramStartingEvent;
 import com.parallelsymmetry.essence.util.OperatingSystem;
-import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -16,12 +14,13 @@ import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ProgramTest extends ProgramBaseTest {
 
 	@Test
 	public void testProgramMetadata() throws Exception {
-		waitForEvent( ProgramStartingEvent.class );
+		waitForEvent( ProgramStartedEvent.class );
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -41,7 +40,7 @@ public class ProgramTest extends ProgramBaseTest {
 		assertThat( metadata.getGroup(), is( groupId ) );
 		assertThat( metadata.getArtifact(), is( artifactId ) );
 		assertThat( metadata.getVersion(), is( version ) );
-		Assert.assertTrue( "Incorrect timestamp format: " + metadata.getTimestamp(), metadata.getTimestamp().matches( timestampRegex ) );
+		assertTrue( "Incorrect timestamp format: " + metadata.getTimestamp(), metadata.getTimestamp().matches( timestampRegex ) );
 
 		assertThat( metadata.getName(), is( name ) );
 		assertThat( metadata.getIcon(), is( "http://www.parallelsymmetry.com/images/icons/essence.png" ) );
@@ -57,15 +56,15 @@ public class ProgramTest extends ProgramBaseTest {
 
 	@Test
 	public void testProgramDataFolder() throws Exception {
-		waitForEvent( ProgramStartingEvent.class );
-
-		assertThat( program.getProgramDataFolder(), is( OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() ) ) );
+		waitForEvent( ProgramStartedEvent.class );
+		String prefix = Program.EXECMODE_PREFIX_TEST;
+		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		assertThat( program.getProgramDataFolder(), is( programDataFolder ) );
 	}
 
 	@Test
 	public void testWorkspaceWindowTitle() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );
-
 		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
 		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), is( workareaName + " - " + metadata.getName() ) );
 	}

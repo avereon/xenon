@@ -114,7 +114,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 
 		@Override
 		public void run() {
-			executor.submit( () -> {
+			if( !executor.isShutdown() ) executor.submit( () -> {
 				try {
 					Settings.super.save();
 					new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).fire( listeners );

@@ -15,6 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UiFactory {
 
+	public static final int DEFAULT_WIDTH = 960;
+
+	public static final int DEFAULT_HEIGHT = 540;
+
 	enum Prefix {
 		WORKSPACE,
 		WORKAREA,
@@ -65,7 +69,6 @@ public class UiFactory {
 			try {
 				// Create the default workspace
 				Workspace workspace = newWorkspace();
-				workspace.getStage().setMaximized( true );
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
 				splashScreen.update();
 
@@ -129,8 +132,8 @@ public class UiFactory {
 		configuration.setProperty( "id", id );
 		// Intentionally do not set the x property
 		// Intentionally do not set the y property
-		configuration.setProperty( "w", 400 );
-		configuration.setProperty( "h", 250 );
+		configuration.setProperty( "w", DEFAULT_WIDTH );
+		configuration.setProperty( "h", DEFAULT_HEIGHT );
 
 		Workspace workspace = new Workspace( program );
 		workspace.setConfiguration( configuration );
