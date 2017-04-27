@@ -71,14 +71,21 @@ public class Program extends Application implements Product {
 	public void init() throws Exception {
 		// Load the product metadata.
 		metadata = new ProductMetadata();
+
+		// Determine execmode prefix
+		String execmode = getParameters().getNamed().get( "execmode" );
+		String prefix = "";
+		if( "devl".equals( execmode ) ) prefix = "#";
+		if( "test".equals( execmode ) ) prefix = "$";
+
 		programTitle = metadata.getName();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact(), metadata.getName() );
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 	}
 
 	@Override
 	public void start( Stage stage ) throws Exception {
 		printHeader();
-		System.out.println( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp ));
+		System.out.println( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp) );
 
 		new ProgramStartingEvent( this ).fire( listeners );
 
