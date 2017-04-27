@@ -22,6 +22,10 @@ import java.util.concurrent.Executors;
 
 public class Program extends Application implements Product {
 
+	public static final String EXECMODE_PREFIX_DEVL = "#";
+
+	public static final String EXECMODE_PREFIX_TEST = "$";
+
 	private Logger log = LoggerFactory.getLogger( Program.class );
 
 	private long startTimestamp;
@@ -73,11 +77,12 @@ public class Program extends Application implements Product {
 		metadata = new ProductMetadata();
 
 		// Determine execmode prefix
-		String execmode = getParameters().getNamed().get( "execmode" );
 		String prefix = "";
-		if( "devl".equals( execmode ) ) prefix = "#";
-		if( "test".equals( execmode ) ) prefix = "$";
+		String execmode = getParameters().getNamed().get( ProgramParameter.EXECMODE );
+		if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = EXECMODE_PREFIX_DEVL;
+		if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = EXECMODE_PREFIX_TEST;
 
+		// Set program values
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 	}
@@ -85,7 +90,7 @@ public class Program extends Application implements Product {
 	@Override
 	public void start( Stage stage ) throws Exception {
 		printHeader();
-		System.out.println( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp) );
+		log.info( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp) );
 
 		new ProgramStartingEvent( this ).fire( listeners );
 

@@ -1,8 +1,9 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.product.ProductMetadata;
-import javafx.stage.Stage;
-import org.testfx.framework.junit.ApplicationTest;
+import org.junit.After;
+import org.junit.Before;
+import org.testfx.api.FxToolkit;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Tests based on TextFx: https://github.com/TestFX/TestFX
  */
-public abstract class ProgramBaseTest extends ApplicationTest {
+public abstract class ProgramBaseTest {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 10000;
 
@@ -20,21 +21,35 @@ public abstract class ProgramBaseTest extends ApplicationTest {
 
 	private ProgramWatcher watcher;
 
-	@Override
-	public void start( Stage stage ) throws Exception {
-		program = new Program();
+	@Before
+	public void setup() throws Exception {
+		FxToolkit.registerPrimaryStage();
+		program = (Program)FxToolkit.setupApplication( Program.class, "" );
 		watcher = new ProgramWatcher();
 		program.addEventListener( watcher );
-
-		program.init();
-		program.start( stage );
 		metadata = program.getMetadata();
 	}
 
-	@Override
-	public void stop() throws Exception {
-		program.stop();
+	@After
+	public void cleanup() throws Exception {
+		FxToolkit.cleanupApplication( program );
 	}
+
+	//	@Override
+	//	public void start( Stage stage ) throws Exception {
+	//		program = new Program();
+	//		watcher = new ProgramWatcher();
+	//		program.addEventListener( watcher );
+	//
+	//		program.init();
+	//		program.start( stage );
+	//		metadata = program.getMetadata();
+	//	}
+	//
+	//	@Override
+	//	public void stop() throws Exception {
+	//		program.stop();
+	//	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
