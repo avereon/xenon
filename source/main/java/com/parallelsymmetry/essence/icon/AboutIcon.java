@@ -7,7 +7,15 @@ import javafx.scene.shape.StrokeLineCap;
 
 public class AboutIcon extends IconRenderer {
 
-	public void paint( GraphicsContext gfx ) {
+	public AboutIcon() {
+		super();
+	}
+
+	public AboutIcon( double size ) {
+		super( size );
+	}
+
+	protected void render( GraphicsContext gfx ) {
 		gfx.setStroke( Color.RED.darker() );
 		gfx.setLineCap( StrokeLineCap.ROUND );
 		gfx.setLineWidth( 8 );

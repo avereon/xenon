@@ -7,7 +7,15 @@ import javafx.scene.shape.StrokeLineCap;
 
 public class BrokenIcon extends IconRenderer {
 
-	public void paint( GraphicsContext gfx ) {
+	public BrokenIcon() {
+		super();
+	}
+
+	public BrokenIcon( double size ) {
+		super( size );
+	}
+
+	protected void render( GraphicsContext gfx) {
 		double stroke = scale( 3d / 16d );
 		double min = scale( 2d / 8d );
 		double max = scale( 6d / 8d );

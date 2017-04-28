@@ -1,38 +1,48 @@
 package com.parallelsymmetry.essence;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-public abstract class IconRenderer {
+import java.awt.image.BufferedImage;
 
-	private ThreadLocal<Integer> size = new ThreadLocal<>();
+public abstract class IconRenderer extends Canvas {
 
-	public abstract void paint( GraphicsContext gfx );
+	private static final int DEFAULT_SIZE = 24;
 
-	public Image getImage( int size ) {
-		this.size.set( size );
+	private static final SnapshotParameters snapshotParameters;
 
-		// Create and paint the canvas
-		Canvas canvas = new Canvas( size, size );
-		paint( canvas.getGraphicsContext2D() );
-
-		// Create the snapshot parameters
-		SnapshotParameters snapshotParameters = new SnapshotParameters();
+	static {
+		snapshotParameters = new SnapshotParameters();
 		snapshotParameters.setFill( Color.TRANSPARENT );
-
-		// Create and render the image
-		WritableImage image = new WritableImage( size, size );
-		canvas.snapshot( snapshotParameters, image );
-
-		return image;
 	}
 
+	public IconRenderer() {
+		this( DEFAULT_SIZE );
+	}
+
+	public IconRenderer( double size ) {
+		widthProperty().addListener( ( property, oldValue, newValue ) -> render() );
+		heightProperty().addListener( ( property, oldValue, newValue ) -> render() );
+		setSize( size );
+	}
+
+	public void setSize( double size ) {
+		setWidth( size );
+		setHeight( size );
+	}
+
+	protected abstract void render( GraphicsContext gfx );
+
 	protected int scale( double value ) {
-		return (int)(size.get() * value);
+		return (int)(Math.min( getWidth(), getHeight() ) * value);
 	}
 
 	protected int scale8( double value ) {
@@ -45,6 +55,29 @@ public abstract class IconRenderer {
 
 	protected int scale32( double value ) {
 		return scale( value / 32d );
+	}
+
+	static Image getImage( IconRenderer renderer, int size ) {
+		renderer.setSize( size );
+
+		// WORKAROUND
+		// FIXME This workaround does work. It's not very pretty. Can it be cleaned up?
+		Pane pane = new Pane(renderer);
+		pane.setBackground( Background.EMPTY );
+		Scene scene = new Scene( pane );
+		scene.setFill( Color.TRANSPARENT );
+
+		BufferedImage buffer = new BufferedImage( size, size, BufferedImage.TYPE_INT_ARGB );
+		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( size, size ) ), buffer );
+		return SwingFXUtils.toFXImage( buffer, new WritableImage( size, size ) );
+
+		//return renderer.snapshot( snapshotParameters, null );
+	}
+
+	private void render() {
+		GraphicsContext gfx = getGraphicsContext2D();
+		gfx.clearRect( 0, 0, getWidth(), getHeight() );
+		render( gfx );
 	}
 
 }

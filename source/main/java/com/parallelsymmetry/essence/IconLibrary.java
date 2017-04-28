@@ -12,26 +12,54 @@ public class IconLibrary {
 
 	public static final String BROKEN = "broken";
 
-	private Map<String, IconRenderer> icons;
-
-	private IconRenderer brokenIcon;
+	private Map<String, Class<? extends IconRenderer>> icons;
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( BROKEN, new BrokenIcon() );
+		register( BROKEN, BrokenIcon.class );
 	}
 
-	public Image getIcon( String id ) {
-		return getIcon( id, DEFAULT_SIZE );
+	public IconRenderer getIcon( String id ) {
+		Class<? extends IconRenderer> renderer = icons.get( id );
+
+		IconRenderer icon;
+		try {
+			icon = renderer.newInstance();
+		} catch( Exception e ) {
+			icon = new BrokenIcon();
+		}
+
+		return icon;
 	}
 
-	public Image getIcon( String id, int size ) {
-		IconRenderer icon = icons.get( id );
-		if( icon == null ) icon = icons.get( BROKEN );
-		return icon.getImage( size );
+	public IconRenderer getIcon( String id, double size ) {
+		IconRenderer icon = getIcon( id );
+		icon.setWidth( size );
+		icon.setHeight( size );
+		return icon;
 	}
 
-	public void register( String id, IconRenderer icon ) {
+	public Image getIconImage( String id ) {
+		return getIconImage( id, DEFAULT_SIZE );
+	}
+
+	public Image getIconImage( String id, int size ) {
+		return IconRenderer.getImage( getIcon( id ), size );
+	}
+
+	public Image[] getIconImages( String id ) {
+		return getIconImages( id, 16, 24, 32, 48, 64, 128, 256 );
+	}
+
+	public Image[] getIconImages( String id, int... sizes ) {
+		Image[] images = new Image[ sizes.length ];
+		for( int index = 0; index < sizes.length; index++ ) {
+			images[ index ] = getIconImage( id, sizes[ index ] );
+		}
+		return images;
+	}
+
+	public void register( String id, Class<? extends IconRenderer> icon ) {
 		icons.put( id, icon );
 	}
 
