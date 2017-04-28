@@ -7,10 +7,6 @@ import javafx.scene.shape.StrokeLineCap;
 
 public class AboutIcon extends ProgramIcon {
 
-	public AboutIcon( int size ) {
-		super( size );
-	}
-
 	public void paint( GraphicsContext gfx ) {
 		gfx.setStroke( Color.RED.darker() );
 		gfx.setLineCap( StrokeLineCap.ROUND );

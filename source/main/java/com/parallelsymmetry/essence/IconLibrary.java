@@ -8,20 +8,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
+	private static final int DEFAULT_SIZE = 16;
+
 	private Map<String, ProgramIcon> icons;
 
 	private ProgramIcon brokenIcon;
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		brokenIcon = new BrokenIcon( 24 );
+		register( "broken", new BrokenIcon() );
 	}
 
 	public Image getIcon( String id ) {
+		return getIcon( id, DEFAULT_SIZE );
+	}
+
+	public Image getIcon( String id, int size ) {
 		ProgramIcon icon = icons.get( id );
 		if( icon == null ) icon = brokenIcon;
-		System.out.println( "Found icon: " + id + "=" + icon );
-		return icon.getImage();
+		return icon.getImage( size );
 	}
 
 	public void register( String id, ProgramIcon icon ) {

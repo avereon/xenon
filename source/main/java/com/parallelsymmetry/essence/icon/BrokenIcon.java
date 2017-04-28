@@ -7,20 +7,20 @@ import javafx.scene.shape.StrokeLineCap;
 
 public class BrokenIcon extends ProgramIcon {
 
-	public BrokenIcon( int size ) {
-		super( size );
-	}
-
 	public void paint( GraphicsContext gfx ) {
-		gfx.setFill( Color.RED );
+		gfx.setFill( Color.TRANSPARENT );
 		gfx.fillRect( 0, 0, scale( 1 ), scale( 1 ) );
+
+		double stroke = scale( 3d / 16d );
+		double min = scale( 2d / 8d );
+		double max = scale( 6d / 8d );
 
 		gfx.setStroke( Color.RED.darker() );
 		gfx.setLineCap( StrokeLineCap.ROUND );
-		gfx.setLineWidth( scale( 1d / 16d ) );
+		gfx.setLineWidth( stroke );
 
-		gfx.strokeLine( scale( 1d / 8d ), scale( 1d / 8d ), scale( 7d / 8d ), scale( 7d / 8d ) );
-		gfx.strokeLine( scale( 7d / 8d ), scale( 1d / 8d ), scale( 1d / 8d ), scale( 7d / 8d ) );
+		gfx.strokeLine( min, min, max, max );
+		gfx.strokeLine( max, min, min, max );
 	}
 
 }
