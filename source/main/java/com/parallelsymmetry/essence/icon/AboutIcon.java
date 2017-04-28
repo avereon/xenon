@@ -1,11 +1,11 @@
 package com.parallelsymmetry.essence.icon;
 
-import com.parallelsymmetry.essence.ProgramIcon;
+import com.parallelsymmetry.essence.IconRenderer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class AboutIcon extends ProgramIcon {
+public class AboutIcon extends IconRenderer {
 
 	public void paint( GraphicsContext gfx ) {
 		gfx.setStroke( Color.RED.darker() );

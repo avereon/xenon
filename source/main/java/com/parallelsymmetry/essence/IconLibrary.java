@@ -10,13 +10,15 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	private Map<String, ProgramIcon> icons;
+	public static final String BROKEN = "broken";
 
-	private ProgramIcon brokenIcon;
+	private Map<String, IconRenderer> icons;
+
+	private IconRenderer brokenIcon;
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( "broken", new BrokenIcon() );
+		register( BROKEN, new BrokenIcon() );
 	}
 
 	public Image getIcon( String id ) {
@@ -24,12 +26,12 @@ public class IconLibrary {
 	}
 
 	public Image getIcon( String id, int size ) {
-		ProgramIcon icon = icons.get( id );
-		if( icon == null ) icon = brokenIcon;
+		IconRenderer icon = icons.get( id );
+		if( icon == null ) icon = icons.get( BROKEN );
 		return icon.getImage( size );
 	}
 
-	public void register( String id, ProgramIcon icon ) {
+	public void register( String id, IconRenderer icon ) {
 		icons.put( id, icon );
 	}
 

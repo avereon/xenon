@@ -7,23 +7,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
-public abstract class ProgramIcon {
+public abstract class IconRenderer {
 
-	private static final int DEFAULT_SIZE = 256;
-
-	private int size;
-
-	public ProgramIcon() {
-		this.size = DEFAULT_SIZE;
-	}
+	private ThreadLocal<Integer> size = new ThreadLocal<>();
 
 	public abstract void paint( GraphicsContext gfx );
 
-	public Image getImage() {
-		return getImage( this.size );
-	}
-
 	public Image getImage( int size ) {
+		this.size.set( size );
+
 		// Create and paint the canvas
 		Canvas canvas = new Canvas( size, size );
 		paint( canvas.getGraphicsContext2D() );
@@ -40,7 +32,7 @@ public abstract class ProgramIcon {
 	}
 
 	protected int scale( double value ) {
-		return (int)(size * value);
+		return (int)(size.get() * value);
 	}
 
 	protected int scale8( double value ) {
