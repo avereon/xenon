@@ -42,6 +42,10 @@ public class Program extends Application implements Product {
 
 	private Settings settings;
 
+	private IconLibrary iconLibrary;
+
+	private ActionLibrary actionLibrary;
+
 	private WorkspaceManager workspaceManager;
 
 	private ProgramEventWatcher watcher;
@@ -132,6 +136,14 @@ public class Program extends Application implements Product {
 		return executor;
 	}
 
+	public IconLibrary getIconLibrary() {
+		return iconLibrary;
+	}
+
+	public ActionLibrary getActionLibrary() {
+		return actionLibrary;
+	}
+
 	public WorkspaceManager getWorkspaceManager() {
 		return workspaceManager;
 	}
@@ -188,9 +200,17 @@ public class Program extends Application implements Product {
 			// Give the slash screen time to render and the user to see it
 			Thread.sleep( 500 );
 
+			// Create the icon library
+			iconLibrary = new IconLibrary();
+
+			// Create the action library
+			actionLibrary = new ActionLibrary();
+
 			// Create the workspace manager
-			UiFactory factory = new UiFactory( Program.this );
 			workspaceManager = new WorkspaceManager( Program.this );
+
+			// Create the UI factory
+			UiFactory factory = new UiFactory( Program.this );
 
 			// Set the number of startup steps
 			final int steps = 2 + factory.getUiObjectCount();

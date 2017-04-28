@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -63,6 +64,7 @@ public class Workspace {
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
 
 		stage = new Stage();
+		stage.getIcons().addAll( program.getIconLibrary().getIcon( "program" ) );
 
 		// MENUBAR
 
@@ -128,11 +130,14 @@ public class Workspace {
 		workareaSelector.setItems( workareas );
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
+		ImageView imageView = new ImageView();
+		imageView.setImage( program.getIconLibrary().getIcon( "program" ) );
+
 		toolbar = new ToolBar();
-		toolbar.getItems().addAll( newButton, openButton, saveButton, spring, workareaLabel, workareaSelector );
+		toolbar.getItems().addAll( imageView, newButton, openButton, saveButton, spring, workareaLabel, workareaSelector );
 	}
 
-	private void selectWorkarea( ActionEvent event  ) {
+	private void selectWorkarea( ActionEvent event ) {
 
 	}
 
@@ -205,7 +210,7 @@ public class Workspace {
 		}
 
 		// Send a program event when active area changes
-		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea) );
+		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
 	}
 
 	public void setConfiguration( Configuration configuration ) {
