@@ -10,8 +10,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -45,8 +43,7 @@ public class Workspace {
 
 	private ComboBox<Workarea> workareaSelector;
 
-	//private Set<Workarea> workareas;
-	ObservableList<Workarea> workareas;
+	private ObservableList<Workarea> workareas;
 
 	private Workarea activeWorkarea;
 
@@ -64,22 +61,8 @@ public class Workspace {
 		workareas = FXCollections.observableArrayList();
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
 
-		Image icon512 = new Image( "/java.png" );
-		Image icon256 = program.getIconLibrary().getIconImage( "program", 256 );
-		Image icon32 = program.getIconLibrary().getIconImage( "program", 32 );
-		Image icon16 = program.getIconLibrary().getIconImage( "program", 16 );
-
-		ImageView a = new ImageView(icon256);
-		a.getImage();
-
-		System.out.println( "Image: " + icon512 );
-		System.out.println( "Image: " + icon256 );
-		System.out.println( "Image: " + icon32 );
-
 		stage = new Stage();
-		// FIXME Icon not showing on application window
-		stage.getIcons().addAll( a.getImage(), icon32, icon16 );
-		//stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
+		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 
 		// MENUBAR
 
@@ -146,7 +129,7 @@ public class Workspace {
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
 		toolbar = new ToolBar();
-		toolbar.getItems().addAll( new ImageView( icon32 ), newButton, openButton, saveButton, spring, workareaLabel, workareaSelector );
+		toolbar.getItems().addAll( newButton, openButton, saveButton, spring, workareaLabel, workareaSelector );
 	}
 
 	private void selectWorkarea( ActionEvent event ) {

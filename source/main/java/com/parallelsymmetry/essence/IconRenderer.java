@@ -58,20 +58,29 @@ public abstract class IconRenderer extends Canvas {
 	}
 
 	static Image getImage( IconRenderer renderer, int size ) {
-		renderer.setSize( size );
+		// Apparently images created from the snapshot method are not usable as
+		// application icons. The following workaround creates an image that is
+		// usable as an application icon. It may be more efficient to create
+		// images differently if they are not needed for application icons.
 
-		// WORKAROUND
-		// FIXME This workaround does work. It's not very pretty. Can it be cleaned up?
-		Pane pane = new Pane(renderer);
+		Pane pane = new Pane( renderer );
 		pane.setBackground( Background.EMPTY );
 		Scene scene = new Scene( pane );
 		scene.setFill( Color.TRANSPARENT );
 
+		// Just for research, set different color backgrounds per size
+		if( size == 16 ) scene.setFill( Color.PURPLE );
+		if( size == 24 ) scene.setFill( Color.BLUE );
+		if( size == 32 ) scene.setFill( Color.GREEN );
+		if( size == 64 ) scene.setFill( Color.YELLOW );
+		if( size == 128 ) scene.setFill( Color.ORANGE );
+		if( size == 256 ) scene.setFill( Color.RED );
+
+		renderer.setSize( size );
+
 		BufferedImage buffer = new BufferedImage( size, size, BufferedImage.TYPE_INT_ARGB );
 		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( size, size ) ), buffer );
 		return SwingFXUtils.toFXImage( buffer, new WritableImage( size, size ) );
-
-		//return renderer.snapshot( snapshotParameters, null );
 	}
 
 	private void render() {
