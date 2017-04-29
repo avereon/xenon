@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
 
 public abstract class IconRenderer extends Canvas {
 
-	private static final int DEFAULT_SIZE = 24;
+	private static final int DEFAULT_SIZE = 16;
 
 	private static final SnapshotParameters snapshotParameters;
 
@@ -39,6 +39,32 @@ public abstract class IconRenderer extends Canvas {
 		setHeight( size );
 	}
 
+	public static Image getImage( IconRenderer renderer, int size ) {
+		// Apparently images created from the snapshot method are not usable as
+		// application icons. The following workaround creates an image that is
+		// usable as an application icon. It may be more efficient to create
+		// images differently if they are not needed for application icons.
+
+		renderer.setSize( size );
+
+		Pane pane = new Pane( renderer );
+		pane.setBackground( Background.EMPTY );
+		Scene scene = new Scene( pane );
+		scene.setFill( Color.TRANSPARENT );
+
+		// Just for research, set different color backgrounds per size
+		if( size == 16 ) scene.setFill( Color.PURPLE );
+		if( size == 24 ) scene.setFill( Color.BLUE );
+		if( size == 32 ) scene.setFill( Color.GREEN );
+		if( size == 64 ) scene.setFill( Color.YELLOW );
+		if( size == 128 ) scene.setFill( Color.ORANGE );
+		if( size == 256 ) scene.setFill( Color.RED );
+
+		BufferedImage buffer = new BufferedImage( size, size, BufferedImage.TYPE_INT_ARGB );
+		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( size, size ) ), buffer );
+		return SwingFXUtils.toFXImage( buffer, new WritableImage( size, size ) );
+	}
+
 	protected abstract void render( GraphicsContext gfx );
 
 	protected int scale( double value ) {
@@ -55,32 +81,6 @@ public abstract class IconRenderer extends Canvas {
 
 	protected int scale32( double value ) {
 		return scale( value / 32d );
-	}
-
-	static Image getImage( IconRenderer renderer, int size ) {
-		// Apparently images created from the snapshot method are not usable as
-		// application icons. The following workaround creates an image that is
-		// usable as an application icon. It may be more efficient to create
-		// images differently if they are not needed for application icons.
-
-		Pane pane = new Pane( renderer );
-		pane.setBackground( Background.EMPTY );
-		Scene scene = new Scene( pane );
-		scene.setFill( Color.TRANSPARENT );
-
-		// Just for research, set different color backgrounds per size
-		if( size == 16 ) scene.setFill( Color.PURPLE );
-		if( size == 24 ) scene.setFill( Color.BLUE );
-		if( size == 32 ) scene.setFill( Color.GREEN );
-		if( size == 64 ) scene.setFill( Color.YELLOW );
-		if( size == 128 ) scene.setFill( Color.ORANGE );
-		if( size == 256 ) scene.setFill( Color.RED );
-
-		renderer.setSize( size );
-
-		BufferedImage buffer = new BufferedImage( size, size, BufferedImage.TYPE_INT_ARGB );
-		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( size, size ) ), buffer );
-		return SwingFXUtils.toFXImage( buffer, new WritableImage( size, size ) );
 	}
 
 	private void render() {
