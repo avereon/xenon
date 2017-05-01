@@ -1,5 +1,7 @@
 package com.parallelsymmetry.essence;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -20,7 +22,9 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String name;
 
-	private String mnemonic;
+	private int mnemonic = -1;
+
+	private StringProperty mnemonicName = new SimpleStringProperty();
 
 	private String shortcut;
 
@@ -45,33 +49,38 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	}
 
 	public String getName() {
-		return name;
+		return mnemonicName.get();
 	}
 
 	public void setName( String name ) {
 		this.name = name;
+		updateMnemonicName();
 	}
 
-	public String getMnemonic() {
+	public int getMnemonic() {
 		return mnemonic;
 	}
 
-	public void setMnemonic( String mnemonic ) {
+	public void setMnemonic( int mnemonic ) {
 		this.mnemonic = mnemonic;
+		updateMnemonicName();
 	}
 
 	public String getShortcut() {
 		return shortcut;
 	}
 
-
 	public void setShortcut( String shortcut ) {
 		this.shortcut = shortcut;
 	}
 
+	public StringProperty getMnemonicNameValue() {
+		return mnemonicName;
+	}
+
 	public void pushAction( ProgramAction action ) {
 		pullAction( action );
-		actionStack.push(action);
+		actionStack.push( action );
 	}
 
 	public void pullAction( ProgramAction action ) {
@@ -84,4 +93,16 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 		ProgramAction action = actionStack.peek();
 		action.handle( event );
 	}
+
+	private void updateMnemonicName() {
+		if( name == null ) {
+			mnemonicName.set( null );
+		} else if( mnemonic < 0 ) {
+			mnemonicName.set( name );
+		} else {
+			int index = mnemonic;
+			mnemonicName.set( name.substring( 0, index ) + "_" + name.substring( index ) );
+		}
+	}
+
 }

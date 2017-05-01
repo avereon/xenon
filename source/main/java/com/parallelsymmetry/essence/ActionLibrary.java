@@ -19,6 +19,11 @@ public class ActionLibrary {
 		this.icons = icons;
 
 		register( bundle, icons, "file" );
+		register( bundle, icons, "new" );
+		register( bundle, icons, "open" );
+		register( bundle, icons, "save" );
+		register( bundle, icons, "close" );
+		register( bundle, icons, "exit" );
 		register( bundle, icons, "edit" );
 		register( bundle, icons, "view" );
 		register( bundle, icons, "workarea-new" );
@@ -27,7 +32,9 @@ public class ActionLibrary {
 	}
 
 	public ActionProxy getAction( String id ) {
-		return actions.get( id );
+		ActionProxy proxy = actions.get( id );
+		if( proxy == null ) log.warn( "Action proxy not found: " + id );
+		return proxy;
 	}
 
 	public void register( ProductBundle bundle, IconLibrary icons, String id ) {
@@ -39,10 +46,17 @@ public class ActionLibrary {
 		String mnemonic = bundle.getActionString( id + ".mnemonic" );
 		String shortcut = bundle.getActionString( id + ".shortcut" );
 
+		int mnemonicValue = -1;
+		try {
+			mnemonicValue = Integer.parseInt( mnemonic );
+		} catch( NumberFormatException exception ) {
+			// Intentionally ignore exception
+		}
+
 		proxy.setId( id );
 		proxy.setIcon( icon );
 		proxy.setName( name );
-		proxy.setMnemonic( mnemonic );
+		proxy.setMnemonic( mnemonicValue );
 		proxy.setShortcut( shortcut );
 
 		actions.put( id, proxy );

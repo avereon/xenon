@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.work;
 
 import com.parallelsymmetry.essence.ActionLibrary;
+import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.action.NewWorkareaAction;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
@@ -70,25 +71,28 @@ public class Workspace {
 
 		ActionLibrary actions = program.getActionLibrary();
 
-		Menu file = new Menu( actions.getAction( "file" ).getName() );
-		file.getItems().add( new MenuItem( "A" ) );
-		file.getItems().add( new MenuItem( "B" ) );
-		file.getItems().add( new MenuItem( "C" ) );
-		file.getItems().add( new MenuItem( "D" ) );
-		Menu edit = new Menu( actions.getAction( "edit" ).getName() );
+		Menu file = Actions.createMenu( program, "file" );
+		file.getItems().add( Actions.createMenuItem( program, "new" ) );
+		file.getItems().add( Actions.createMenuItem( program, "open" ) );
+		file.getItems().add( Actions.createMenuItem( program, "save" ) );
+		file.getItems().add( Actions.createMenuItem( program, "close" ) );
+		file.getItems().add( new SeparatorMenuItem() );
+		file.getItems().add( Actions.createMenuItem( program, "exit" ) );
+		Menu edit = Actions.createMenu( program, "edit" );
 		edit.getItems().add( new MenuItem( "A" ) );
 		edit.getItems().add( new MenuItem( "B" ) );
 		edit.getItems().add( new MenuItem( "C" ) );
 		edit.getItems().add( new MenuItem( "D" ) );
-		Menu view = new Menu( actions.getAction( "view" ).getName() );
+		Menu view = Actions.createMenu( program, "view" );
 		view.getItems().add( new MenuItem( "A" ) );
 		view.getItems().add( new MenuItem( "B" ) );
 		view.getItems().add( new MenuItem( "C" ) );
 		view.getItems().add( new MenuItem( "D" ) );
-		Menu help = new Menu( actions.getAction( "help" ).getName() );
+		Menu help = Actions.createMenu( program, "help" );
 		help.getItems().add( new MenuItem( "A" ) );
 		help.getItems().add( new MenuItem( "B" ) );
-		help.getItems().add( new MenuItem( actions.getAction( "about" ).getName() ) );
+
+		help.getItems().add( Actions.createMenuItem( program, "about" ) );
 
 		Menu spacer = new Menu( "" );
 		spacer.setDisable( true );
