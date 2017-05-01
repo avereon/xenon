@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.work;
 
+import com.parallelsymmetry.essence.ActionLibrary;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.action.NewWorkareaAction;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
@@ -65,28 +66,29 @@ public class Workspace {
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 
 		// MENUBAR
-
 		menubar = new MenuBar();
 
-		Menu file = new Menu( "File" );
+		ActionLibrary actions = program.getActionLibrary();
+
+		Menu file = new Menu( actions.getAction( "file" ).getName() );
 		file.getItems().add( new MenuItem( "A" ) );
 		file.getItems().add( new MenuItem( "B" ) );
 		file.getItems().add( new MenuItem( "C" ) );
 		file.getItems().add( new MenuItem( "D" ) );
-		Menu edit = new Menu( "Edit" );
+		Menu edit = new Menu( actions.getAction( "edit" ).getName() );
 		edit.getItems().add( new MenuItem( "A" ) );
 		edit.getItems().add( new MenuItem( "B" ) );
 		edit.getItems().add( new MenuItem( "C" ) );
 		edit.getItems().add( new MenuItem( "D" ) );
-		Menu view = new Menu( "View" );
+		Menu view = new Menu( actions.getAction( "view" ).getName() );
 		view.getItems().add( new MenuItem( "A" ) );
 		view.getItems().add( new MenuItem( "B" ) );
 		view.getItems().add( new MenuItem( "C" ) );
 		view.getItems().add( new MenuItem( "D" ) );
-		Menu help = new Menu( "Help" );
+		Menu help = new Menu( actions.getAction( "help" ).getName() );
 		help.getItems().add( new MenuItem( "A" ) );
 		help.getItems().add( new MenuItem( "B" ) );
-		help.getItems().add( new MenuItem( "C" ) );
+		help.getItems().add( new MenuItem( actions.getAction( "about" ).getName() ) );
 
 		Menu spacer = new Menu( "" );
 		spacer.setDisable( true );

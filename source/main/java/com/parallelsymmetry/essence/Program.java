@@ -44,6 +44,8 @@ public class Program extends Application implements Product {
 
 	private IconLibrary iconLibrary;
 
+	private ProductBundle productBundle;
+
 	private ActionLibrary actionLibrary;
 
 	private WorkspaceManager workspaceManager;
@@ -169,12 +171,21 @@ public class Program extends Application implements Product {
 		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
 	}
 
+	private String getLocaleParameter() {
+		String locale = null;
+
+		Parameters parameters = getParameters();
+		if( parameters != null ) locale = parameters.getNamed().get(ProgramParameter.LOCALE );
+
+		return locale;
+	}
+
 	private String getExecmodePrefix() {
 		String prefix = "";
 
 		Parameters parameters = getParameters();
 		if( parameters != null ) {
-			String execmode = getParameters().getNamed().get( ProgramParameter.EXECMODE );
+			String execmode = parameters.getNamed().get( ProgramParameter.EXECMODE );
 			if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = EXECMODE_PREFIX_DEVL;
 			if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = EXECMODE_PREFIX_TEST;
 		} else {
@@ -186,8 +197,7 @@ public class Program extends Application implements Product {
 	}
 
 	private void showProgram() {
-		Stage stage = workspaceManager.getActiveWorkspace().getStage();
-		stage.show();
+		workspaceManager.getActiveWorkspace().getStage().show();
 		new ProgramStartedEvent( this ).fire( listeners );
 	}
 
@@ -200,11 +210,14 @@ public class Program extends Application implements Product {
 			// Give the slash screen time to render and the user to see it
 			Thread.sleep( 500 );
 
+			// Create the product bundle
+			productBundle = new ProductBundle( getClass().getClassLoader(),getLocaleParameter() );
+
 			// Create the icon library
 			iconLibrary = new IconLibrary();
 
 			// Create the action library
-			actionLibrary = new ActionLibrary();
+			actionLibrary = new ActionLibrary( productBundle, iconLibrary );
 
 			// Create the workspace manager
 			workspaceManager = new WorkspaceManager( Program.this );

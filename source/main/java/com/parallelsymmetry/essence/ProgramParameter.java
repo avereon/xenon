@@ -8,4 +8,6 @@ public interface ProgramParameter {
 
 	String EXECMODE_TEST = "test";
 
+	String LOCALE = "locale";
+
 }
