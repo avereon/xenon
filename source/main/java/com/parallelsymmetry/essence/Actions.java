@@ -1,10 +1,14 @@
 package com.parallelsymmetry.essence;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class Actions {
 
@@ -34,6 +38,7 @@ public class Actions {
 	public static MenuItem createMenuItem( ActionProxy action ) {
 		MenuItem item = new MenuItem();
 
+		item.setOnAction( action );
 		item.setMnemonicParsing( true );
 		item.setText( action.getName() );
 		item.setGraphic( action.getIcon() );
@@ -44,23 +49,50 @@ public class Actions {
 		return item;
 	}
 
+	public static Button createToolBarButton( Program program, String id ) {
+		return createToolBarButton( program.getActionLibrary().getAction( id ) );
+	}
+
+	public static Button createToolBarButton( ActionProxy action ) {
+		Button button = new Button();
+
+		button.setOnAction( action );
+		button.setGraphic( action.getIcon() );
+
+		return button;
+	}
+
+	public static Region createSpring() {
+		Region spring = new Region();
+		HBox.setHgrow( spring, Priority.ALWAYS );
+		return spring;
+	}
+
 	private static KeyCombination parseShortcut( String shortcut ) {
 		if( shortcut == null ) return null;
 
+		// Make sure the shortcut definition is in upper case
 		shortcut = shortcut.toUpperCase();
-
-		System.out.println( "Parsing shortcut: " + shortcut );
 
 		// Split the shortcut if it contains a dash
 		String key = shortcut;
 		String modifiers = "";
 		if( shortcut.contains( SHORTCUT_SEPARATOR ) ) {
 			modifiers = shortcut.substring( 0, shortcut.indexOf( SHORTCUT_SEPARATOR ) );
-			key = shortcut.substring( shortcut.indexOf( SHORTCUT_SEPARATOR ) +1 );
+			key = shortcut.substring( shortcut.indexOf( SHORTCUT_SEPARATOR ) + 1 );
 		}
+
+		// If there is no key, there is no shortcut
 		if( "".equals( key ) ) return null;
+
+		// If there are no modifiers, the shortcut is just a key
 		if( "".equals( modifiers ) ) new KeyCodeCombination( KeyCode.getKeyCode( key ) );
 
+		// If there are modifiers, then it's a compound key combination
+		return new KeyCodeCombination( KeyCode.getKeyCode( key ), parseModifiers( modifiers ) );
+	}
+
+	private static KeyCombination.Modifier[] parseModifiers( String modifiers ) {
 		KeyCombination.Modifier[] modifierList = new KeyCombination.Modifier[ modifiers.length() ];
 		int index = 0;
 		for( char modifierLetter : modifiers.toCharArray() ) {
@@ -88,10 +120,7 @@ public class Actions {
 			}
 			index++;
 		}
-
-		System.out.println( "Key code: " + KeyCode.getKeyCode( key ) );
-
-		return new KeyCodeCombination( KeyCode.getKeyCode( key ), modifierList );
+		return modifierList;
 	}
 
 }

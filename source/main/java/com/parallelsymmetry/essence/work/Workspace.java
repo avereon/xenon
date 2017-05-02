@@ -1,6 +1,5 @@
 package com.parallelsymmetry.essence.work;
 
-import com.parallelsymmetry.essence.ActionLibrary;
 import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.action.NewWorkareaAction;
@@ -8,12 +7,12 @@ import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
 
@@ -69,8 +68,6 @@ public class Workspace {
 		// MENUBAR
 		menubar = new MenuBar();
 
-		ActionLibrary actions = program.getActionLibrary();
-
 		Menu file = Actions.createMenu( program, "file" );
 		file.getItems().add( Actions.createMenuItem( program, "new" ) );
 		file.getItems().add( Actions.createMenuItem( program, "open" ) );
@@ -94,40 +91,26 @@ public class Workspace {
 
 		help.getItems().add( Actions.createMenuItem( program, "about" ) );
 
-		Menu spacer = new Menu( "" );
-		spacer.setDisable( true );
-
-		MenuItem newWorkareaMenuItem = new MenuItem( "New" );
-		newWorkareaMenuItem.setOnAction( new NewWorkareaAction( program ) );
-
-		ContextMenu workareaMenu = new ContextMenu();
-		workareaMenu.getItems().add( newWorkareaMenuItem );
-		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( new MenuItem( "Rename" ) );
-		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( new MenuItem( "Close" ) );
-
 		menubar.getMenus().addAll( file, edit, view, help );
 
 		// TOOLBAR
-		Button newButton = new Button( null, program.getIconLibrary().getIcon( "new" ) );
-		Button openButton = new Button( null, program.getIconLibrary().getIcon( "open" ) );
-		Button saveButton = new Button( null, program.getIconLibrary().getIcon( "save" ) );
 
-		// Toolbar spring
-		Region spring = new Region();
-		HBox.setHgrow( spring, Priority.ALWAYS );
+		Menu workareaMenu = Actions.createMenu( program, "workarea" );
+		workareaMenu.getItems().add( Actions.createMenuItem( program, "workarea-new" ) );
+		workareaMenu.getItems().add( new SeparatorMenuItem() );
+		workareaMenu.getItems().add( Actions.createMenuItem( program, "workarea-rename" ) );
+		workareaMenu.getItems().add( new SeparatorMenuItem() );
+		workareaMenu.getItems().add( Actions.createMenuItem( program, "workarea-close" ) );
 
-		// Workarea label
-		Background hoverBackground = new Background( new BackgroundFill( Color.RED, CornerRadii.EMPTY, Insets.EMPTY ) );
+		MenuBar workareaMenuBar = new MenuBar();
+		workareaMenuBar.getMenus().add( workareaMenu );
+		workareaMenuBar.setBackground( Background.EMPTY );
 
-		Label workareaLabel = new Label( "Workarea: " );
-		workareaLabel.setId( "workarea-label" );
-		workareaLabel.setContextMenu( workareaMenu );
-		workareaLabel.setOnMousePressed( (event -> workareaMenu.show( workareaLabel, Side.BOTTOM, 0, 0 )) );
-		//		Background normalBackground = workareaLabel.getBackground();
-		//		workareaLabel.setOnMouseEntered( (event -> workareaLabel.setBackground( hoverBackground )) );
-		//		workareaLabel.setOnMouseExited( (event -> workareaLabel.setBackground( normalBackground )) );
+		// Set the workarea actions
+		program.getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( program ) );
+		// TODO Finish implementing workarea actions
+		//program.getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( program ) );
+		//program.getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( program ) );
 
 		// Workarea selector
 		workareaSelector = new ComboBox<>();
@@ -135,7 +118,21 @@ public class Workspace {
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
 		toolbar = new ToolBar();
-		toolbar.getItems().addAll( newButton, openButton, saveButton, spring, workareaLabel, workareaSelector );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "new" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "open" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "save" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
+
+		toolbar.getItems().add( Actions.createSpring() );
+
+		toolbar.getItems().add( workareaMenuBar );
+		toolbar.getItems().add( workareaSelector );
 	}
 
 	private void selectWorkarea( ActionEvent event ) {

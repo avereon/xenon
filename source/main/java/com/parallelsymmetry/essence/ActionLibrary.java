@@ -41,8 +41,8 @@ public class ActionLibrary {
 		register( bundle, icons, "settings" );
 
 		register( bundle, icons, "view" );
-//		register( bundle, icons, "window-new" );
-//		register( bundle, icons, "tool-new" );
+		//		register( bundle, icons, "window-new" );
+		//		register( bundle, icons, "tool-new" );
 		//		register( bundle, icons, "view-default" );
 		//		register( bundle, icons, "view-split-horizontal" );
 		//		register( bundle, icons, "view-split-vertical" );
@@ -63,10 +63,10 @@ public class ActionLibrary {
 		//		register( bundle, icons, "workers" );
 		//		register( bundle, icons, "restart" );
 
-		//		register( bundle, icons, "workarea" );
-		//		register( bundle, icons, "workarea-new" );
-		//		register( bundle, icons, "workarea-copy" );
-		//		register( bundle, icons, "workarea-close" );
+		register( bundle, icons, "workarea" );
+		register( bundle, icons, "workarea-new" );
+		register( bundle, icons, "workarea-rename" );
+		register( bundle, icons, "workarea-close" );
 	}
 
 	public ActionProxy getAction( String id ) {
@@ -84,7 +84,7 @@ public class ActionLibrary {
 		String mnemonic = bundle.getActionString( id + ".mnemonic" );
 		String shortcut = bundle.getActionString( id + ".shortcut" );
 
-		int mnemonicValue = -1;
+		int mnemonicValue = ActionProxy.NO_MNEMONIC;
 		try {
 			mnemonicValue = Integer.parseInt( mnemonic );
 		} catch( NumberFormatException exception ) {

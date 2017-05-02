@@ -138,6 +138,10 @@ public class Program extends Application implements Product {
 		return executor;
 	}
 
+	public ProductBundle getProductBundle() {
+		return productBundle;
+	}
+
 	public IconLibrary getIconLibrary() {
 		return iconLibrary;
 	}
@@ -175,7 +179,7 @@ public class Program extends Application implements Product {
 		String locale = null;
 
 		Parameters parameters = getParameters();
-		if( parameters != null ) locale = parameters.getNamed().get(ProgramParameter.LOCALE );
+		if( parameters != null ) locale = parameters.getNamed().get( ProgramParameter.LOCALE );
 
 		return locale;
 	}
@@ -211,7 +215,7 @@ public class Program extends Application implements Product {
 			Thread.sleep( 500 );
 
 			// Create the product bundle
-			productBundle = new ProductBundle( getClass().getClassLoader(),getLocaleParameter() );
+			productBundle = new ProductBundle( getClass().getClassLoader(), getLocaleParameter() );
 
 			// Create the icon library
 			iconLibrary = new IconLibrary();

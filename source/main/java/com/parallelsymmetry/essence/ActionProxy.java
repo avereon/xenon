@@ -16,21 +16,27 @@ import java.util.Stack;
  */
 public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
+	public static final int NO_MNEMONIC = -1;
+
 	private String id;
 
 	private IconRenderer icon;
 
 	private String name;
 
-	private int mnemonic = -1;
+	private int mnemonic;
 
-	private StringProperty mnemonicName = new SimpleStringProperty();
+	private StringProperty mnemonicName;
 
 	private String shortcut;
 
 	private Stack<ProgramAction> actionStack;
 
-	public ActionProxy() {}
+	public ActionProxy() {
+		mnemonic = NO_MNEMONIC;
+		mnemonicName = new SimpleStringProperty();
+		actionStack = new Stack<>();
+	}
 
 	public String getId() {
 		return id;
@@ -89,9 +95,8 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	@Override
 	public void handle( T event ) {
-		// TODO Get the head of the stack and execute
-		ProgramAction action = actionStack.peek();
-		action.handle( event );
+		if( actionStack.size() == 0 ) return;
+		actionStack.peek().handle( event );
 	}
 
 	private void updateMnemonicName() {

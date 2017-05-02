@@ -118,11 +118,6 @@ public class UiFactory {
 		workspaces.clear();
 	}
 
-	private File[] getConfigurationFiles( Prefix prefix ) {
-		File[] files = paths.get( prefix ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
 	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
@@ -222,6 +217,11 @@ public class UiFactory {
 		//			log.error( "Error restoring worktool", exception );
 		//		}
 		return null;
+	}
+
+	private File[] getConfigurationFiles( Prefix prefix ) {
+		File[] files = paths.get( prefix ).listFiles();
+		return files == null ? new File[ 0 ] : files;
 	}
 
 	private File getConfigurationFile( Prefix prefix, String id ) {
