@@ -30,7 +30,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String shortcut;
 
-	private Stack<ProgramAction> actionStack;
+	private Stack<ProgramActionHandler> actionStack;
 
 	public ActionProxy() {
 		mnemonic = NO_MNEMONIC;
@@ -84,12 +84,12 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 		return mnemonicName;
 	}
 
-	public void pushAction( ProgramAction action ) {
+	public void pushAction( ProgramActionHandler action ) {
 		pullAction( action );
 		actionStack.push( action );
 	}
 
-	public void pullAction( ProgramAction action ) {
+	public void pullAction( ProgramActionHandler action ) {
 		actionStack.remove( action );
 	}
 

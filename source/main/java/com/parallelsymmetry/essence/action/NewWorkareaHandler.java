@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.action;
 
 import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.ProgramAction;
+import com.parallelsymmetry.essence.ProgramActionHandler;
 import com.parallelsymmetry.essence.UiFactory;
 import com.parallelsymmetry.essence.work.Workarea;
 import javafx.event.ActionEvent;
@@ -11,12 +11,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class NewWorkareaAction extends ProgramAction<ActionEvent> {
+public class NewWorkareaHandler extends ProgramActionHandler<ActionEvent> {
 
-	private static Logger log = LoggerFactory.getLogger( NewWorkareaAction.class );
+	private static Logger log = LoggerFactory.getLogger( NewWorkareaHandler.class );
 
-	public NewWorkareaAction( Program program ) {
+	public NewWorkareaHandler( Program program ) {
 		super( program );
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
 	}
 
 	@Override

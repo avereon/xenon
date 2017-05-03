@@ -138,7 +138,7 @@ public class Program extends Application implements Product {
 		return executor;
 	}
 
-	public ProductBundle getProductBundle() {
+	public ProductBundle getResourceBundle() {
 		return productBundle;
 	}
 

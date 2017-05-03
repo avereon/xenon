@@ -2,7 +2,9 @@ package com.parallelsymmetry.essence.work;
 
 import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.action.NewWorkareaAction;
+import com.parallelsymmetry.essence.action.CloseWorkareaHandler;
+import com.parallelsymmetry.essence.action.NewWorkareaHandler;
+import com.parallelsymmetry.essence.action.RenameWorkareaHandler;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -107,10 +109,9 @@ public class Workspace {
 		workareaMenuBar.setBackground( Background.EMPTY );
 
 		// Set the workarea actions
-		program.getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( program ) );
-		// TODO Finish implementing workarea actions
-		//program.getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( program ) );
-		//program.getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( program ) );
+		program.getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaHandler( program ) );
+		program.getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaHandler( program ) );
+		program.getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaHandler( program ) );
 
 		// Workarea selector
 		workareaSelector = new ComboBox<>();
@@ -121,13 +122,13 @@ public class Workspace {
 		toolbar.getItems().add( Actions.createToolBarButton( program, "new" ) );
 		toolbar.getItems().add( Actions.createToolBarButton( program, "open" ) );
 		toolbar.getItems().add( Actions.createToolBarButton( program, "save" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
+//		toolbar.getItems().add( new Separator() );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
+//		toolbar.getItems().add( new Separator() );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
 
 		toolbar.getItems().add( Actions.createSpring() );
 

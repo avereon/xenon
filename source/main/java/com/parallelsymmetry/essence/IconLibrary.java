@@ -21,11 +21,12 @@ public class IconLibrary {
 
 	public IconRenderer getIcon( String id ) {
 		Class<? extends IconRenderer> renderer = icons.get( id );
+		if( renderer == null ) return new BrokenIcon();
 
 		IconRenderer icon;
 		try {
 			icon = renderer.newInstance();
-		} catch( Exception e ) {
+		} catch( Exception exception ) {
 			icon = new BrokenIcon();
 		}
 

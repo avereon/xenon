@@ -29,16 +29,16 @@ public class ActionLibrary {
 		register( bundle, icons, "exit" );
 
 		register( bundle, icons, "edit" );
-		register( bundle, icons, "undo" );
-		register( bundle, icons, "redo" );
-		register( bundle, icons, "cut" );
-		register( bundle, icons, "copy" );
-		register( bundle, icons, "paste" );
-		register( bundle, icons, "delete" );
-		register( bundle, icons, "indent" );
-		register( bundle, icons, "unindent" );
-		register( bundle, icons, "properties" );
-		register( bundle, icons, "settings" );
+//		register( bundle, icons, "undo" );
+//		register( bundle, icons, "redo" );
+//		register( bundle, icons, "cut" );
+//		register( bundle, icons, "copy" );
+//		register( bundle, icons, "paste" );
+//		register( bundle, icons, "delete" );
+//		register( bundle, icons, "indent" );
+//		register( bundle, icons, "unindent" );
+//		register( bundle, icons, "properties" );
+//		register( bundle, icons, "settings" );
 
 		register( bundle, icons, "view" );
 		//		register( bundle, icons, "window-new" );
