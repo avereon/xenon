@@ -23,25 +23,24 @@ public class ActionLibrary {
 		register( bundle, icons, "new" );
 		register( bundle, icons, "open" );
 		register( bundle, icons, "save" );
-		//register( bundle, icons, "save-as" );
-		//register( bundle, icons, "copy-as" );
+		register( bundle, icons, "save-as" );
+		register( bundle, icons, "copy-as" );
 		register( bundle, icons, "close" );
 		register( bundle, icons, "exit" );
 
 		register( bundle, icons, "edit" );
-//		register( bundle, icons, "undo" );
-//		register( bundle, icons, "redo" );
-//		register( bundle, icons, "cut" );
-//		register( bundle, icons, "copy" );
-//		register( bundle, icons, "paste" );
-//		register( bundle, icons, "delete" );
-//		register( bundle, icons, "indent" );
-//		register( bundle, icons, "unindent" );
-//		register( bundle, icons, "properties" );
-//		register( bundle, icons, "settings" );
+		register( bundle, icons, "undo" );
+		register( bundle, icons, "redo" );
+		register( bundle, icons, "cut" );
+		register( bundle, icons, "copy" );
+		register( bundle, icons, "paste" );
+		register( bundle, icons, "delete" );
+		register( bundle, icons, "indent" );
+		register( bundle, icons, "unindent" );
+		register( bundle, icons, "settings" );
 
 		register( bundle, icons, "view" );
-		//		register( bundle, icons, "window-new" );
+				register( bundle, icons, "workspace-new" );
 		//		register( bundle, icons, "tool-new" );
 		//		register( bundle, icons, "view-default" );
 		//		register( bundle, icons, "view-split-horizontal" );
@@ -50,12 +49,14 @@ public class ActionLibrary {
 		//		register( bundle, icons, "view-merge-south" );
 		//		register( bundle, icons, "view-merge-east" );
 		//		register( bundle, icons, "view-merge-west" );
+		register( bundle, icons, "statusbar-show" );
 
 		register( bundle, icons, "help" );
-		//		register( bundle, icons, "welcome" );
+		register( bundle, icons, "welcome" );
+		register( bundle, icons, "help-content" );
 		//		register( bundle, icons, "system-properties" );
 		//		register( bundle, icons, "products" );
-		//		register( bundle, icons, "updates" );
+		register( bundle, icons, "update" );
 		register( bundle, icons, "about" );
 
 		//		register( bundle, icons, "development" );

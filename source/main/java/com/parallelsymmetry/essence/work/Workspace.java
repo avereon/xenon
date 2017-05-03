@@ -74,23 +74,37 @@ public class Workspace {
 		file.getItems().add( Actions.createMenuItem( program, "new" ) );
 		file.getItems().add( Actions.createMenuItem( program, "open" ) );
 		file.getItems().add( Actions.createMenuItem( program, "save" ) );
+		file.getItems().add( Actions.createMenuItem( program, "save-as" ) );
+		file.getItems().add( Actions.createMenuItem( program, "copy-as" ) );
 		file.getItems().add( Actions.createMenuItem( program, "close" ) );
 		file.getItems().add( new SeparatorMenuItem() );
 		file.getItems().add( Actions.createMenuItem( program, "exit" ) );
-		Menu edit = Actions.createMenu( program, "edit" );
-		edit.getItems().add( new MenuItem( "A" ) );
-		edit.getItems().add( new MenuItem( "B" ) );
-		edit.getItems().add( new MenuItem( "C" ) );
-		edit.getItems().add( new MenuItem( "D" ) );
-		Menu view = Actions.createMenu( program, "view" );
-		view.getItems().add( new MenuItem( "A" ) );
-		view.getItems().add( new MenuItem( "B" ) );
-		view.getItems().add( new MenuItem( "C" ) );
-		view.getItems().add( new MenuItem( "D" ) );
-		Menu help = Actions.createMenu( program, "help" );
-		help.getItems().add( new MenuItem( "A" ) );
-		help.getItems().add( new MenuItem( "B" ) );
 
+		Menu edit = Actions.createMenu( program, "edit" );
+		edit.getItems().add( Actions.createMenuItem( program, "undo" ) );
+		edit.getItems().add( Actions.createMenuItem( program, "redo" ) );
+		edit.getItems().add( new SeparatorMenuItem() );
+		edit.getItems().add( Actions.createMenuItem( program, "cut" ) );
+		edit.getItems().add( Actions.createMenuItem( program, "copy" ) );
+		edit.getItems().add( Actions.createMenuItem( program, "paste" ) );
+		edit.getItems().add( Actions.createMenuItem( program, "delete" ) );
+		edit.getItems().add( new SeparatorMenuItem() );
+		edit.getItems().add( Actions.createMenuItem( program, "indent" ) );
+		edit.getItems().add( Actions.createMenuItem( program, "unindent" ) );
+		edit.getItems().add( new SeparatorMenuItem() );
+		edit.getItems().add( Actions.createMenuItem( program, "settings" ) );
+
+		Menu view = Actions.createMenu( program, "view" );
+		view.getItems().add( Actions.createMenuItem( program, "workspace-new" ) );
+		view.getItems().add( new SeparatorMenuItem() );
+		view.getItems().add( Actions.createMenuItem( program, "statusbar-show" ) );
+
+		Menu help = Actions.createMenu( program, "help" );
+		//help.getItems().add( Actions.createMenuItem( program, "welcome" ) );
+		help.getItems().add( new SeparatorMenuItem() );
+		help.getItems().add( Actions.createMenuItem( program, "help-content" ) );
+		help.getItems().add( new SeparatorMenuItem() );
+		//help.getItems().add( Actions.createMenuItem( program, "update" ) );
 		help.getItems().add( Actions.createMenuItem( program, "about" ) );
 
 		menubar.getMenus().addAll( file, edit, view, help );
@@ -122,13 +136,13 @@ public class Workspace {
 		toolbar.getItems().add( Actions.createToolBarButton( program, "new" ) );
 		toolbar.getItems().add( Actions.createToolBarButton( program, "open" ) );
 		toolbar.getItems().add( Actions.createToolBarButton( program, "save" ) );
-//		toolbar.getItems().add( new Separator() );
-//		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
-//		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
-//		toolbar.getItems().add( new Separator() );
-//		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
-//		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
-//		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
+		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
 
 		toolbar.getItems().add( Actions.createSpring() );
 

@@ -86,10 +86,10 @@ public class Actions {
 		if( "".equals( key ) ) return null;
 
 		// If there are no modifiers, the shortcut is just a key
-		if( "".equals( modifiers ) ) new KeyCodeCombination( KeyCode.getKeyCode( key ) );
+		if( "".equals( modifiers ) ) new KeyCodeCombination( KeyCode.valueOf( key ) );
 
 		// If there are modifiers, then it's a compound key combination
-		return new KeyCodeCombination( KeyCode.getKeyCode( key ), parseModifiers( modifiers ) );
+		return new KeyCodeCombination( KeyCode.valueOf( key ), parseModifiers( modifiers ) );
 	}
 
 	private static KeyCombination.Modifier[] parseModifiers( String modifiers ) {
