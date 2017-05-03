@@ -67,6 +67,8 @@ public class Workspace {
 		stage = new Stage();
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 
+		// FIXME Should this default setup be defined in config files or something else?
+
 		// MENUBAR
 		menubar = new MenuBar();
 
@@ -100,11 +102,11 @@ public class Workspace {
 		view.getItems().add( Actions.createMenuItem( program, "statusbar-show" ) );
 
 		Menu help = Actions.createMenu( program, "help" );
-		//help.getItems().add( Actions.createMenuItem( program, "welcome" ) );
+		help.getItems().add( Actions.createMenuItem( program, "welcome" ) );
 		help.getItems().add( new SeparatorMenuItem() );
 		help.getItems().add( Actions.createMenuItem( program, "help-content" ) );
 		help.getItems().add( new SeparatorMenuItem() );
-		//help.getItems().add( Actions.createMenuItem( program, "update" ) );
+		help.getItems().add( Actions.createMenuItem( program, "update" ) );
 		help.getItems().add( Actions.createMenuItem( program, "about" ) );
 
 		menubar.getMenus().addAll( file, edit, view, help );
