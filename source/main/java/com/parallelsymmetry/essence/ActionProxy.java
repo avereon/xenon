@@ -28,6 +28,8 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private StringProperty mnemonicName;
 
+	private String type;
+
 	private String shortcut;
 
 	private Stack<ProgramActionHandler> actionStack;
@@ -55,12 +57,16 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	}
 
 	public String getName() {
-		return mnemonicName.get();
+		return name;
 	}
 
 	public void setName( String name ) {
 		this.name = name;
 		updateMnemonicName();
+	}
+
+	public String getMnemonicName() {
+		return mnemonicName.get();
 	}
 
 	public int getMnemonic() {
@@ -70,6 +76,14 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	public void setMnemonic( int mnemonic ) {
 		this.mnemonic = mnemonic;
 		updateMnemonicName();
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType( String type ) {
+		this.type = type;
 	}
 
 	public String getShortcut() {

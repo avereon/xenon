@@ -5,7 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class BrokenIcon extends IconRenderer {
+public class MissingIcon extends IconRenderer {
 
 	protected void render( GraphicsContext gfx ) {
 		double stroke = scale16( 3d );
@@ -19,5 +19,6 @@ public class BrokenIcon extends IconRenderer {
 		gfx.strokeLine( min, min, max, max );
 		gfx.strokeLine( max, min, min, max );
 	}
+
 
 }

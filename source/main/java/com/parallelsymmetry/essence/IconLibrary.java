@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.icon.BrokenIcon;
+import com.parallelsymmetry.essence.icon.*;
 import javafx.scene.image.Image;
 
 import java.util.Map;
@@ -10,18 +10,18 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	public static final String BROKEN = "broken";
-
 	private Map<String, Class<? extends IconRenderer>> icons;
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( BROKEN, BrokenIcon.class );
+		register( "program", ProgramIcon.class );
+		register( "close", CloseIcon.class );
+		register( "about", AboutIcon.class );
 	}
 
 	public IconRenderer getIcon( String id ) {
 		Class<? extends IconRenderer> renderer = icons.get( id );
-		if( renderer == null ) return new BrokenIcon();
+		if( renderer == null ) return new MissingIcon();
 
 		IconRenderer icon;
 		try {
@@ -45,7 +45,7 @@ public class IconLibrary {
 	}
 
 	public Image getIconImage( String id, int size ) {
-		return IconRenderer.getImage( getIcon( id ), size );
+		return IconRenderer.getImage( getIcon( id ).setSize( size ) );
 	}
 
 	public Image[] getIconImages( String id ) {

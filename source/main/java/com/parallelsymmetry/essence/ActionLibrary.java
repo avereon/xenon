@@ -40,7 +40,7 @@ public class ActionLibrary {
 		register( bundle, icons, "settings" );
 
 		register( bundle, icons, "view" );
-				register( bundle, icons, "workspace-new" );
+		register( bundle, icons, "workspace-new" );
 		//		register( bundle, icons, "tool-new" );
 		//		register( bundle, icons, "view-default" );
 		//		register( bundle, icons, "view-split-horizontal" );
@@ -80,8 +80,9 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		IconRenderer icon = icons.getIcon( id + ".icon" );
+		String icon = bundle.getActionString( id + ".icon" );
 		String name = bundle.getActionString( id + ".name" );
+		String type = bundle.getActionString( id + ".type" );
 		String mnemonic = bundle.getActionString( id + ".mnemonic" );
 		String shortcut = bundle.getActionString( id + ".shortcut" );
 
@@ -93,8 +94,9 @@ public class ActionLibrary {
 		}
 
 		proxy.setId( id );
-		proxy.setIcon( icon );
+		proxy.setIcon( icons.getIcon( icon ) );
 		proxy.setName( name );
+		proxy.setType( type );
 		proxy.setMnemonic( mnemonicValue );
 		proxy.setShortcut( shortcut );
 

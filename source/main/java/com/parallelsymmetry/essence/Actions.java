@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
@@ -22,7 +23,7 @@ public class Actions {
 		Menu item = new Menu();
 
 		item.setMnemonicParsing( true );
-		item.setText( action.getName() );
+		item.setText( action.getMnemonicName() );
 		//item.setGraphic( action.getIcon() );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
@@ -36,11 +37,24 @@ public class Actions {
 	}
 
 	public static MenuItem createMenuItem( ActionProxy action ) {
-		MenuItem item = new MenuItem();
+		String type = action.getType();
+		if( type == null ) type = "normal";
+
+		MenuItem item;
+		switch( type ) {
+			case "checkbox": {
+				item = new CheckMenuItem();
+				break;
+			}
+			default: {
+				item = new MenuItem();
+				break;
+			}
+		}
 
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
-		item.setText( action.getName() );
+		item.setText( action.getMnemonicName() );
 		item.setGraphic( action.getIcon() );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
@@ -58,6 +72,7 @@ public class Actions {
 
 		button.setOnAction( action );
 		button.setGraphic( action.getIcon() );
+		button.setText( action.getName().substring( 0, 1 ) );
 
 		return button;
 	}
