@@ -71,8 +71,9 @@ public class Actions {
 		Button button = new Button();
 
 		button.setOnAction( action );
-		button.setGraphic( action.getIcon() );
-		button.setText( action.getName().substring( 0, 1 ) );
+		//button.setGraphic( action.getIcon() );
+		button.setGraphic( new TestIcon() );
+		//button.setText( action.getName().substring( 0, 1 ) );
 
 		return button;
 	}

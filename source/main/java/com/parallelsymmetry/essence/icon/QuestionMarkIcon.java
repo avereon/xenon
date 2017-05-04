@@ -5,16 +5,16 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class AppProgramIcon extends ProgramIcon {
+public class QuestionMarkIcon extends ProgramIcon {
 
 	@Override
 	protected void render( GraphicsContext gfx ) {
-		double stroke = scale16( 4d );
+		double stroke = scale16( 3d );
 		double min = scale8( 2d );
 		double max = scale8( 6d );
 
 		gfx.setStroke( Color.CORNFLOWERBLUE );
-		gfx.setLineCap( StrokeLineCap.SQUARE );
+		gfx.setLineCap( StrokeLineCap.ROUND );
 		gfx.setLineWidth( stroke );
 
 		//gfx.strokeLine( min, min, max, max );

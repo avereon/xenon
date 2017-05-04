@@ -14,30 +14,17 @@ public class IconLibrary {
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( "program", AppProgramIcon.class );
-		register( "close", CloseProgramIcon.class );
-		register( "about", AboutProgramIcon.class );
+		register( "program", AppIcon.class );
+		register( "close", CloseIcon.class );
+		register( "about", ExclamationIcon.class );
 	}
 
 	public ProgramIcon getIcon( String id ) {
-		Class<? extends ProgramIcon> renderer = icons.get( id );
-		if( renderer == null ) return new MissingProgramIcon();
-
-		ProgramIcon icon;
-		try {
-			icon = renderer.newInstance();
-		} catch( Exception exception ) {
-			icon = new BrokenProgramIcon();
-		}
-
-		return icon;
+		return getIcon( id, DEFAULT_SIZE );
 	}
 
 	public ProgramIcon getIcon( String id, double size ) {
-		ProgramIcon icon = getIcon( id );
-		icon.setWidth( size );
-		icon.setHeight( size );
-		return icon;
+		return getIconRenderer( id ).setSize( size );
 	}
 
 	public Image getIconImage( String id ) {
@@ -62,6 +49,20 @@ public class IconLibrary {
 
 	public void register( String id, Class<? extends ProgramIcon> icon ) {
 		icons.put( id, icon );
+	}
+
+	private ProgramIcon getIconRenderer( String id ) {
+		Class<? extends ProgramIcon> renderer = icons.get( id );
+		if( renderer == null ) return new MissingIcon();
+
+		ProgramIcon icon;
+		try {
+			icon = renderer.newInstance();
+		} catch( Exception exception ) {
+			icon = new BrokenIcon();
+		}
+
+		return icon;
 	}
 
 }

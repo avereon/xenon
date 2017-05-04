@@ -5,14 +5,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class CloseProgramIcon extends ProgramIcon {
+public class BrokenIcon extends ProgramIcon {
 
 	protected void render( GraphicsContext gfx ) {
 		double stroke = scale16( 3d );
 		double min = scale8( 2d );
 		double max = scale8( 6d );
 
-		gfx.setStroke( Color.RED.darker() );
+		gfx.setStroke( Color.MAGENTA );
 		gfx.setLineCap( StrokeLineCap.ROUND );
 		gfx.setLineWidth( stroke );
 
