@@ -14,7 +14,7 @@ import javafx.scene.shape.StrokeLineCap;
 
 import java.awt.image.BufferedImage;
 
-public abstract class IconRenderer extends Canvas {
+public abstract class ProgramIcon extends Canvas {
 
 	private static final int DEFAULT_SIZE = 16;
 
@@ -25,23 +25,23 @@ public abstract class IconRenderer extends Canvas {
 		snapshotParameters.setFill( Color.TRANSPARENT );
 	}
 
-	public IconRenderer() {
+	public ProgramIcon() {
 		this( DEFAULT_SIZE );
 	}
 
-	public IconRenderer( double size ) {
+	public ProgramIcon( double size ) {
 		widthProperty().addListener( ( property, oldValue, newValue ) -> render() );
 		heightProperty().addListener( ( property, oldValue, newValue ) -> render() );
 		setSize( size );
 	}
 
-	public IconRenderer setSize( double size ) {
+	public ProgramIcon setSize( double size ) {
 		setWidth( size );
 		setHeight( size );
 		return this;
 	}
 
-	public static Image getImage( IconRenderer renderer ) {
+	public static Image getImage( ProgramIcon renderer ) {
 		// Apparently images created from the snapshot method are not usable as
 		// application icons. The following workaround creates an image that is
 		// usable as an application icon. It may be more efficient to create

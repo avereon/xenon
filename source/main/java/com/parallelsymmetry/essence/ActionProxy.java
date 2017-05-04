@@ -20,7 +20,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String id;
 
-	private IconRenderer icon;
+	private ProgramIcon icon;
 
 	private String name;
 
@@ -48,11 +48,11 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 		this.id = id;
 	}
 
-	public IconRenderer getIcon() {
+	public ProgramIcon getIcon() {
 		return icon;
 	}
 
-	public void setIcon( IconRenderer icon ) {
+	public void setIcon( ProgramIcon icon ) {
 		this.icon = icon;
 	}
 

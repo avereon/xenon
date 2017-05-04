@@ -10,31 +10,31 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	private Map<String, Class<? extends IconRenderer>> icons;
+	private Map<String, Class<? extends ProgramIcon>> icons;
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( "program", ProgramIcon.class );
-		register( "close", CloseIcon.class );
-		register( "about", AboutIcon.class );
+		register( "program", AppProgramIcon.class );
+		register( "close", CloseProgramIcon.class );
+		register( "about", AboutProgramIcon.class );
 	}
 
-	public IconRenderer getIcon( String id ) {
-		Class<? extends IconRenderer> renderer = icons.get( id );
-		if( renderer == null ) return new MissingIcon();
+	public ProgramIcon getIcon( String id ) {
+		Class<? extends ProgramIcon> renderer = icons.get( id );
+		if( renderer == null ) return new MissingProgramIcon();
 
-		IconRenderer icon;
+		ProgramIcon icon;
 		try {
 			icon = renderer.newInstance();
 		} catch( Exception exception ) {
-			icon = new BrokenIcon();
+			icon = new BrokenProgramIcon();
 		}
 
 		return icon;
 	}
 
-	public IconRenderer getIcon( String id, double size ) {
-		IconRenderer icon = getIcon( id );
+	public ProgramIcon getIcon( String id, double size ) {
+		ProgramIcon icon = getIcon( id );
 		icon.setWidth( size );
 		icon.setHeight( size );
 		return icon;
@@ -45,7 +45,7 @@ public class IconLibrary {
 	}
 
 	public Image getIconImage( String id, int size ) {
-		return IconRenderer.getImage( getIcon( id ).setSize( size ) );
+		return ProgramIcon.getImage( getIcon( id ).setSize( size ) );
 	}
 
 	public Image[] getIconImages( String id ) {
@@ -60,7 +60,7 @@ public class IconLibrary {
 		return images;
 	}
 
-	public void register( String id, Class<? extends IconRenderer> icon ) {
+	public void register( String id, Class<? extends ProgramIcon> icon ) {
 		icons.put( id, icon );
 	}
 
