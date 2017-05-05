@@ -14,6 +14,7 @@ import javafx.scene.shape.StrokeLineCap;
 
 import java.awt.image.BufferedImage;
 
+@Deprecated
 public abstract class OldProgramIcon extends Canvas {
 
 	public static final double A = 0;

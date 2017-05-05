@@ -24,7 +24,7 @@ public class BrokenIcon extends ProgramIcon {
 		b.setStrokeWidth( stroke );
 		b.setStroke( Color.MAGENTA );
 
-		add( a, b );
+		add( getBoundingBox(), a, b );
 	}
 
 }

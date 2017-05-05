@@ -10,6 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,13 +84,26 @@ public abstract class ProgramIcon extends StackPane {
 
 	public static final double ZP = 0.96875;
 
-	private Logger log = LoggerFactory.getLogger( ProgramIcon.class );
+	private static final double FT = 1.0 / 32.0;
+
+	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
+
+	private static double DEFAULT_STROKE_WIDTH = 1.0 / 32.0;
+
+	private static Color DEFAULT_STROKE_COLOR = new Color( 0.2, 0.2, 0.2, 1.0 );
+
+	private static Color DEFAULT_FILL_COLOR = new Color( 0.8, 0.8, 0.8, 1.0 );
 
 	private Group group;
 
+	private double strokeWidth = DEFAULT_STROKE_WIDTH;
+
+	private Color strokeColor = DEFAULT_STROKE_COLOR;
+
+	private Color fillColor = DEFAULT_FILL_COLOR;
+
 	public ProgramIcon() {
-		group = new Group();
-		super.getChildren().add( group );
+		getChildren().add( group = new Group() );
 
 		setIconWidth( 16 );
 		setIconHeight( 16 );
@@ -101,7 +115,7 @@ public abstract class ProgramIcon extends StackPane {
 		ProgramIcon icon = null;
 
 		try {
-			icon= getClass().newInstance();
+			icon = getClass().newInstance();
 			icon.setIconWidth( getIconWidth() );
 			icon.setIconHeight( getIconHeight() );
 		} catch( Exception exception ) {
@@ -183,6 +197,26 @@ public abstract class ProgramIcon extends StackPane {
 
 	protected double g32( double value ) {
 		return value / 32;
+	}
+
+	protected double getStrokeWidth() {
+		return strokeWidth;
+	}
+
+	protected Color getStrokeColor() {
+		return strokeColor;
+	}
+
+	protected Color getFillColor() {
+		return fillColor;
+	}
+
+	protected Node getBoundingBox() {
+		Rectangle box = new Rectangle( 0, 0, 1, 1 );
+		//box.setStroke( Color.RED.darker() );
+		//box.setStrokeWidth( g32( 1 ) );
+		box.setFill( Color.RED );
+		return box;
 	}
 
 }
