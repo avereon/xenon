@@ -21,7 +21,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String id;
 
-	private Node icon;
+	private ProgramIcon icon;
 
 	private String name;
 
@@ -50,7 +50,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	}
 
 	public Node getIcon() {
-		return icon;
+		return icon.clone();
 	}
 
 	public void setIcon( ProgramIcon icon ) {

@@ -2,6 +2,7 @@ package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.icon.AppIcon;
 import com.parallelsymmetry.essence.icon.BrokenIcon;
+import com.parallelsymmetry.essence.icon.ExclamationIcon;
 import javafx.scene.image.Image;
 
 import java.util.Map;
@@ -16,6 +17,8 @@ public class IconLibrary {
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
 		register( "program", AppIcon.class );
+		register( "new", ExclamationIcon.class );
+
 		//register( "close", CloseIcon.class );
 		//register( "about", ExclamationIcon.class );
 	}
