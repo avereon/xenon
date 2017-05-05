@@ -94,7 +94,7 @@ public class ActionLibrary {
 		}
 
 		proxy.setId( id );
-		proxy.setIcon( icons.getIcon( icon ) );
+		proxy.setIcon( icon );
 		proxy.setName( name );
 		proxy.setType( type );
 		proxy.setMnemonic( mnemonicValue );

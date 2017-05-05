@@ -4,7 +4,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 
 import java.util.Stack;
 
@@ -21,7 +20,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String id;
 
-	private ProgramIcon icon;
+	private String icon;
 
 	private String name;
 
@@ -49,11 +48,11 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 		this.id = id;
 	}
 
-	public Node getIcon() {
-		return icon.clone();
+	public String getIcon() {
+		return icon;
 	}
 
-	public void setIcon( ProgramIcon icon ) {
+	public void setIcon( String icon ) {
 		this.icon = icon;
 	}
 

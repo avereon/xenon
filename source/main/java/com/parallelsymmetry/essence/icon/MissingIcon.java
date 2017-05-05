@@ -1,24 +1,21 @@
 package com.parallelsymmetry.essence.icon;
 
-import com.parallelsymmetry.essence.OldProgramIcon;
-import javafx.scene.canvas.GraphicsContext;
+import com.parallelsymmetry.essence.ProgramIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class MissingIcon extends OldProgramIcon {
+public class MissingIcon extends ProgramIcon {
 
-	protected void render( GraphicsContext gfx ) {
-		double stroke = scale16( 3d );
-		double min = scale8( 2d );
-		double max = scale8( 6d );
+	protected void render() {
+		double min = g8( 2 );
+		double max = g8( 6 );
 
-		gfx.setStroke( Color.MAGENTA );
-		gfx.setLineCap( StrokeLineCap.ROUND );
-		gfx.setLineWidth( stroke );
+		setStroke( Color.ORANGE );
+		setLineCap( StrokeLineCap.ROUND );
+		setLineWidth( g16( 3d ) );
 
-		gfx.strokeLine( min, min, max, max );
-		gfx.strokeLine( max, min, min, max );
+		drawLine( min, min, max, max );
+		drawLine( max, min, min, max );
 	}
-
 
 }

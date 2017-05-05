@@ -1,8 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.icon.AppIcon;
-import com.parallelsymmetry.essence.icon.BrokenIcon;
-import com.parallelsymmetry.essence.icon.ExclamationIcon;
+import com.parallelsymmetry.essence.icon.*;
 import javafx.scene.image.Image;
 
 import java.util.Map;
@@ -19,8 +17,8 @@ public class IconLibrary {
 		register( "program", AppIcon.class );
 		register( "new", ExclamationIcon.class );
 
-		//register( "close", CloseIcon.class );
-		//register( "about", ExclamationIcon.class );
+		register( "close", CloseIcon.class );
+		register( "about", ExclamationIcon.class );
 	}
 
 	public ProgramIcon getIcon( String id ) {
@@ -57,12 +55,13 @@ public class IconLibrary {
 
 	private ProgramIcon getIconRenderer( String id ) {
 		Class<? extends ProgramIcon> renderer = icons.get( id );
-		//if( renderer == null ) return new MissingIcon();
+		if( renderer == null ) return new MissingIcon().setSize( DEFAULT_SIZE );
 
 		ProgramIcon icon;
 		try {
 			icon = renderer.newInstance();
 		} catch( Exception exception ) {
+			// FIXME The size 24 is hard coded
 			icon = new BrokenIcon().setSize(24);
 		}
 

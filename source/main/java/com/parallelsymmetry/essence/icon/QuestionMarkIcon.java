@@ -1,24 +1,23 @@
 package com.parallelsymmetry.essence.icon;
 
-import com.parallelsymmetry.essence.OldProgramIcon;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
+import com.parallelsymmetry.essence.ProgramIcon;
 
-public class QuestionMarkIcon extends OldProgramIcon {
+public class QuestionMarkIcon extends ProgramIcon {
 
 	@Override
-	protected void render( GraphicsContext gfx ) {
-		double stroke = scale16( 3d );
-		double min = scale8( 2d );
-		double max = scale8( 6d );
+	protected void render() {
+		beginPath();
+		moveTo( C, ZB );
+		bezierCurveTo( ZG, ZB, ZG, K, ZG, ZE );
+		bezierCurveTo( ZG, ZG, ZG, ZJ, C, ZJ );
+		bezierCurveTo( ZJ, ZJ, ZJ, ZG, ZJ, ZE );
+		bezierCurveTo( ZJ, K, ZJ, ZB, C, ZB );
+		closePath();
+		fill();
+		draw();
 
-		gfx.setStroke( Color.CORNFLOWERBLUE );
-		gfx.setLineCap( StrokeLineCap.ROUND );
-		gfx.setLineWidth( stroke );
-
-		//gfx.strokeLine( min, min, max, max );
-		gfx.strokeLine( max, min, min, max );
+		fillOval( ZG, ZL, K, K );
+		drawOval( ZG, ZL, K, K );
 	}
 
 }

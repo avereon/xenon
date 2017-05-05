@@ -24,7 +24,7 @@ public class Actions {
 
 		item.setMnemonicParsing( true );
 		item.setText( action.getMnemonicName() );
-		//item.setGraphic( action.getIcon() );
+		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.getMnemonicNameValue().addListener( ( event ) -> item.setText( action.getName() ) );
@@ -33,10 +33,10 @@ public class Actions {
 	}
 
 	public static MenuItem createMenuItem( Program program, String id ) {
-		return createMenuItem( program.getActionLibrary().getAction( id ) );
+		return createMenuItem( program, program.getActionLibrary().getAction( id ) );
 	}
 
-	public static MenuItem createMenuItem( ActionProxy action ) {
+	public static MenuItem createMenuItem( Program program, ActionProxy action ) {
 		String type = action.getType();
 		if( type == null ) type = "normal";
 
@@ -55,7 +55,7 @@ public class Actions {
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
 		item.setText( action.getMnemonicName() );
-		item.setGraphic( action.getIcon() );
+		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ));
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.getMnemonicNameValue().addListener( ( event ) -> item.setText( action.getName() ) );
@@ -64,14 +64,14 @@ public class Actions {
 	}
 
 	public static Button createToolBarButton( Program program, String id ) {
-		return createToolBarButton( program.getActionLibrary().getAction( id ) );
+		return createToolBarButton( program, program.getActionLibrary().getAction( id ) );
 	}
 
-	public static Button createToolBarButton( ActionProxy action ) {
+	public static Button createToolBarButton( Program program, ActionProxy action ) {
 		Button button = new Button();
 
 		button.setOnAction( action );
-		button.setGraphic( action.getIcon() );
+		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//button.setText( action.getName().substring( 0, 1 ) );
 
 		return button;
