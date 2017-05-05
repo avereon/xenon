@@ -10,7 +10,7 @@ public class MissingIcon extends ProgramIcon {
 		double min = g8( 2 );
 		double max = g8( 6 );
 
-		setStroke( Color.ORANGE );
+		setDrawPaint( Color.MAGENTA );
 		setLineCap( StrokeLineCap.ROUND );
 		setLineWidth( g16( 3d ) );
 

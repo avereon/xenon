@@ -7,8 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.paint.*;
 import javafx.scene.shape.StrokeLineCap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +85,12 @@ public abstract class ProgramIcon extends Canvas {
 
 	public static final double ZP = 0.96875;
 
+	private enum GradientShade {
+		LIGHT,
+		MEDIUM,
+		DARK
+	}
+
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
 
 	private static double DEFAULT_STROKE_WIDTH = 1.0 / 32.0;
@@ -94,9 +99,9 @@ public abstract class ProgramIcon extends Canvas {
 
 	private static Paint DEFAULT_FILL_PAINT = new Color( 0.8, 0.8, 0.8, 1.0 );
 
-	private double strokeWidth = DEFAULT_STROKE_WIDTH;
+	private double drawWidth = DEFAULT_STROKE_WIDTH;
 
-	private Paint strokePaint = DEFAULT_STROKE_PAINT;
+	private Paint drawPaint = DEFAULT_STROKE_PAINT;
 
 	private Paint fillPaint = DEFAULT_FILL_PAINT;
 
@@ -132,14 +137,14 @@ public abstract class ProgramIcon extends Canvas {
 		Scene scene = new Scene( pane );
 		scene.setFill( Color.TRANSPARENT );
 
-//				// Just for research, set different color backgrounds per scale
-//				int scale = Math.min( width, height );
-//				if( scale == 16 ) scene.setFill( Color.PURPLE );
-//				if( scale == 24 ) scene.setFill( Color.BLUE );
-//				if( scale == 32 ) scene.setFill( Color.GREEN );
-//				if( scale == 64 ) scene.setFill( Color.YELLOW );
-//				if( scale == 128 ) scene.setFill( Color.ORANGE );
-//				if( scale == 256 ) scene.setFill( Color.RED );
+		//				// Just for research, set different color backgrounds per scale
+		//				int scale = Math.min( width, height );
+		//				if( scale == 16 ) scene.setFillPaint( Color.PURPLE );
+		//				if( scale == 24 ) scene.setFillPaint( Color.BLUE );
+		//				if( scale == 32 ) scene.setFillPaint( Color.GREEN );
+		//				if( scale == 64 ) scene.setFillPaint( Color.YELLOW );
+		//				if( scale == 128 ) scene.setFillPaint( Color.ORANGE );
+		//				if( scale == 256 ) scene.setFillPaint( Color.RED );
 
 		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
 		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
@@ -154,6 +159,14 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected void moveTo( double x, double y ) {
 		getGraphicsContext2D().moveTo( scale( x ), scale( y ) );
+	}
+
+	protected void lineTo( double x, double y ) {
+		getGraphicsContext2D().lineTo( scale( x ), scale( y ) );
+	}
+
+	protected void arcTo( double x1, double y1, double x2, double y2, double radius ) {
+		getGraphicsContext2D().arcTo( scale( x1 ), scale( y1 ), scale( x2 ), scale( y2 ), scale( radius ) );
 	}
 
 	protected void bezierCurveTo( double xc1, double yc1, double xc2, double yc2, double x1, double y1 ) {
@@ -172,20 +185,47 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().setLineCap( cap );
 	}
 
-	protected void setStroke( Paint paint ) {
+	protected void setDrawPaint( Paint paint ) {
 		getGraphicsContext2D().setStroke( paint );
 	}
 
-	protected void setFill( Paint paint ) {
+	protected void setFillPaint( Paint paint ) {
 		getGraphicsContext2D().setFill( paint );
+	}
+
+	protected void fillAndDraw() {
+		fill();
+		draw();
+	}
+
+	protected void fillAndDraw( Paint fillPaint ) {
+		fill( fillPaint );
+		draw();
+	}
+
+	protected void fillAndDraw( Paint fillPaint, Paint drawPaint ) {
+		fill( fillPaint );
+		draw( drawPaint );
 	}
 
 	protected void fill() {
 		getGraphicsContext2D().fill();
 	}
 
+	protected void fill( Paint paint ) {
+		getGraphicsContext2D().setFill( paint );
+		getGraphicsContext2D().fill();
+		getGraphicsContext2D().setFill( getIconFillPaint() );
+	}
+
 	protected void draw() {
 		getGraphicsContext2D().stroke();
+	}
+
+	protected void draw( Paint paint ) {
+		getGraphicsContext2D().setStroke( paint );
+		getGraphicsContext2D().stroke();
+		getGraphicsContext2D().setStroke( getIconDrawPaint() );
 	}
 
 	protected void fillOval( double x, double y, double w, double h ) {
@@ -208,6 +248,14 @@ public abstract class ProgramIcon extends Canvas {
 		return scale * value;
 	}
 
+	protected double g2( double value ) {
+		return value / 2d;
+	}
+
+	protected double g4( double value ) {
+		return value / 4d;
+	}
+
 	protected double g8( double value ) {
 		return value / 8d;
 	}
@@ -220,16 +268,48 @@ public abstract class ProgramIcon extends Canvas {
 		return value / 32d;
 	}
 
-	protected double getIconStrokeWidth() {
-		return strokeWidth;
+	protected double getIconDrawWidth() {
+		return drawWidth;
 	}
 
-	protected Paint getIconStrokePaint() {
-		return strokePaint;
+	protected Paint getIconDrawPaint() {
+		return drawPaint;
 	}
 
 	protected Paint getIconFillPaint() {
 		return fillPaint;
+	}
+
+	private Paint getIconFillPaint( GradientShade shade ) {
+		double a = 1;
+		double b = 0;
+
+		switch( shade ) {
+			case LIGHT : {
+				a = 0.5;
+				b = 1;
+				break;
+			}
+			case MEDIUM : {
+				a = 0.375;
+				b = 0.875;
+				break;
+			}
+			case DARK : {
+				a = 0.25;
+				b = 0.75;
+				break;
+			}
+		}
+
+		return null;
+	}
+
+	private Paint getGradientPaint( Color a, Color b ) {
+		LinearGradient paint = new LinearGradient( 0, 0, scale( 1 ), scale( 1 ), false, CycleMethod.NO_CYCLE );
+		paint.getStops().add( new Stop( 0, a ) );
+		paint.getStops().add( new Stop( 1, b ) );
+		return paint;
 	}
 
 	private void fireRender() {
@@ -237,21 +317,21 @@ public abstract class ProgramIcon extends Canvas {
 
 		// Set the defaults
 		setLineCap( StrokeLineCap.ROUND );
-		setLineWidth( getIconStrokeWidth() );
-		setStroke( getIconStrokePaint() );
-		setFill( getIconFillPaint() );
+		setLineWidth( getIconDrawWidth() );
+		setDrawPaint( getIconDrawPaint() );
+		setFillPaint( getIconFillPaint() );
 
 		// Start rendering by clearing the icon area
 		clearRect( 0, 0, 1, 1 );
 
 		//		// Just for research, set different color backgrounds per scale
 		//		double scale = Math.min( getWidth(), getHeight() );
-		//		if( scale == 16 ) protected void setFill( Color.PURPLE );
-		//		if( scale == 24 ) protected void setFill( Color.BLUE );
-		//		if( scale == 32 ) protected void setFill( Color.GREEN );
-		//		if( scale == 64 ) protected void setFill( Color.YELLOW );
-		//		if( scale == 128 ) protected void setFill( Color.ORANGE );
-		//		if( scale == 256 ) protected void setFill( Color.RED );
+		//		if( scale == 16 ) protected void setFillPaint( Color.PURPLE );
+		//		if( scale == 24 ) protected void setFillPaint( Color.BLUE );
+		//		if( scale == 32 ) protected void setFillPaint( Color.GREEN );
+		//		if( scale == 64 ) protected void setFillPaint( Color.YELLOW );
+		//		if( scale == 128 ) protected void setFillPaint( Color.ORANGE );
+		//		if( scale == 256 ) protected void setFillPaint( Color.RED );
 		//		protected void fillRect( 0, 0, getWidth(), getHeight() );
 
 		render();

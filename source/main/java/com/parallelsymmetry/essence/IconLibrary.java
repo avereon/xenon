@@ -14,10 +14,11 @@ public class IconLibrary {
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( "program", AppIcon.class );
-		register( "new", ExclamationIcon.class );
+		register( "program", CircleSlashIcon.class );
+		register( "new", DocumentIcon.class );
+		register( "exit", BigRedXIcon.class );
 
-		register( "close", CloseIcon.class );
+		register( "help-content", QuestionMarkIcon.class );
 		register( "about", ExclamationIcon.class );
 	}
 
@@ -62,7 +63,7 @@ public class IconLibrary {
 			icon = renderer.newInstance();
 		} catch( Exception exception ) {
 			// FIXME The size 24 is hard coded
-			icon = new BrokenIcon().setSize(24);
+			icon = new BrokenIcon().setSize( 24 );
 		}
 
 		return icon;

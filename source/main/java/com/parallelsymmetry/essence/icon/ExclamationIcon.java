@@ -13,8 +13,7 @@ public class ExclamationIcon extends ProgramIcon {
 		bezierCurveTo( ZJ, ZJ, ZJ, ZG, ZJ, ZE );
 		bezierCurveTo( ZJ, K, ZJ, ZB, C, ZB );
 		closePath();
-		fill();
-		draw();
+		fillAndDraw();
 
 		fillOval( ZG, ZL, K, K );
 		drawOval( ZG, ZL, K, K );
