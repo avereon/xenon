@@ -1,23 +1,30 @@
 package com.parallelsymmetry.essence.icon;
 
 import com.parallelsymmetry.essence.ProgramIcon;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
 
 public class BrokenIcon extends ProgramIcon {
 
-	protected void render( GraphicsContext gfx ) {
-		double stroke = scale16( 3d );
-		double min = scale8( 2d );
-		double max = scale8( 6d );
+	protected void configure( Group group ) {
+		double stroke = g16( 3d );
+		double min = g8( 2d );
+		double max = g8( 6d );
 
-		gfx.setStroke( Color.MAGENTA );
-		gfx.setLineCap( StrokeLineCap.ROUND );
-		gfx.setLineWidth( stroke );
+		Line a = new Line( min, min, max, max );
+		Line b = new Line( min, max, max, min );
 
-		gfx.strokeLine( min, min, max, max );
-		gfx.strokeLine( max, min, min, max );
+		a.setStrokeLineCap( StrokeLineCap.ROUND );
+		a.setStrokeWidth( stroke );
+		a.setStroke( Color.MAGENTA );
+
+		b.setStrokeLineCap( StrokeLineCap.ROUND );
+		b.setStrokeWidth( stroke );
+		b.setStroke( Color.MAGENTA );
+
+		add( a, b );
 	}
 
 }

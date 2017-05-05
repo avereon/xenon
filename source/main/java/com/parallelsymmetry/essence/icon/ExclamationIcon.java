@@ -1,10 +1,10 @@
 package com.parallelsymmetry.essence.icon;
 
-import com.parallelsymmetry.essence.ProgramIcon;
+import com.parallelsymmetry.essence.OldProgramIcon;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class ExclamationIcon extends ProgramIcon {
+public class ExclamationIcon extends OldProgramIcon {
 
 	public ExclamationIcon() {
 	}

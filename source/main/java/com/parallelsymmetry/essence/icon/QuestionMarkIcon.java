@@ -1,11 +1,11 @@
 package com.parallelsymmetry.essence.icon;
 
-import com.parallelsymmetry.essence.ProgramIcon;
+import com.parallelsymmetry.essence.OldProgramIcon;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class QuestionMarkIcon extends ProgramIcon {
+public class QuestionMarkIcon extends OldProgramIcon {
 
 	@Override
 	protected void render( GraphicsContext gfx ) {

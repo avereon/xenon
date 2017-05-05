@@ -1,11 +1,11 @@
 package com.parallelsymmetry.essence.icon;
 
-import com.parallelsymmetry.essence.ProgramIcon;
+import com.parallelsymmetry.essence.OldProgramIcon;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class CloseIcon extends ProgramIcon {
+public class CloseIcon extends OldProgramIcon {
 
 	protected void render( GraphicsContext gfx ) {
 		double stroke = scale16( 3d );

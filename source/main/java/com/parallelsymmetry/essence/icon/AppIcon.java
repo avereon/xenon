@@ -1,24 +1,23 @@
 package com.parallelsymmetry.essence.icon;
 
 import com.parallelsymmetry.essence.ProgramIcon;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Line;
 
 public class AppIcon extends ProgramIcon {
 
 	@Override
-	protected void render( GraphicsContext gfx ) {
-		double stroke = scale16( 4d );
-		double min = scale8( 2d );
-		double max = scale8( 6d );
+	protected void configure( Group group ) {
+		Line line = new Line( g8( 1 ), g8( 7 ), g8( 7 ), g8( 1 ) );
+		line.setStrokeWidth( g16( 3 ) );
+		line.setStroke( Color.CORNFLOWERBLUE );
 
-		gfx.setStroke( Color.CORNFLOWERBLUE );
-		gfx.setLineCap( StrokeLineCap.SQUARE );
-		gfx.setLineWidth( stroke );
+		Ellipse circle = new Ellipse( 0.5, 0.5, 0.5, 0.5 );
+		circle.setFill( Color.BLUE.darker() );
 
-		//gfx.strokeLine( min, min, max, max );
-		gfx.strokeLine( max, min, min, max );
+		add( circle, line );
 	}
 
 }
