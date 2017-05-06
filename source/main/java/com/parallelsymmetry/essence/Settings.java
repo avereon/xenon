@@ -86,6 +86,17 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 		listeners.remove( listener );
 	}
 
+	private void persist() {
+		try {
+			Settings.super.save();
+			new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).fire( listeners );
+
+			lastStoreTime.set( System.currentTimeMillis() );
+		} catch( ConfigurationException exception ) {
+			log.error( "Error saving settings file: " + getFileHandler().getFileName(), exception );
+		}
+	}
+
 	private void scheduleSave() {
 		synchronized( taskLock ) {
 			long storeTime = lastStoreTime.get();
@@ -114,16 +125,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 
 		@Override
 		public void run() {
-			if( !executor.isShutdown() ) executor.submit( () -> {
-				try {
-					Settings.super.save();
-					new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).fire( listeners );
-
-					lastStoreTime.set( System.currentTimeMillis() );
-				} catch( ConfigurationException exception ) {
-					log.error( "Error saving settings file: " + getFileHandler().getFileName(), exception );
-				}
-			} );
+			if( !executor.isShutdown() ) executor.submit( Settings.this::persist );
 		}
 
 	}

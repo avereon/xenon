@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.util.Colors;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -85,7 +86,7 @@ public abstract class ProgramIcon extends Canvas {
 
 	public static final double ZP = 0.96875;
 
-	private enum GradientShade {
+	protected enum GradientShade {
 		LIGHT,
 		MEDIUM,
 		DARK
@@ -95,15 +96,15 @@ public abstract class ProgramIcon extends Canvas {
 
 	private static double DEFAULT_STROKE_WIDTH = 1.0 / 32.0;
 
-	private static Paint DEFAULT_STROKE_PAINT = new Color( 0.2, 0.2, 0.2, 1.0 );
+	private static Color DEFAULT_STROKE_COLOR = new Color( 0.2, 0.2, 0.2, 1.0 );
 
-	private static Paint DEFAULT_FILL_PAINT = new Color( 0.8, 0.8, 0.8, 1.0 );
+	private static Color DEFAULT_FILL_COLOR = new Color( 0.8, 0.8, 0.8, 1.0 );
 
 	private double drawWidth = DEFAULT_STROKE_WIDTH;
 
-	private Paint drawPaint = DEFAULT_STROKE_PAINT;
+	private Color drawColor = DEFAULT_STROKE_COLOR;
 
-	private Paint fillPaint = DEFAULT_FILL_PAINT;
+	private Color fillColor = DEFAULT_FILL_COLOR;
 
 	private double scale;
 
@@ -139,12 +140,12 @@ public abstract class ProgramIcon extends Canvas {
 
 		//				// Just for research, set different color backgrounds per scale
 		//				int scale = Math.min( width, height );
-		//				if( scale == 16 ) scene.setFillPaint( Color.PURPLE );
-		//				if( scale == 24 ) scene.setFillPaint( Color.BLUE );
-		//				if( scale == 32 ) scene.setFillPaint( Color.GREEN );
-		//				if( scale == 64 ) scene.setFillPaint( Color.YELLOW );
-		//				if( scale == 128 ) scene.setFillPaint( Color.ORANGE );
-		//				if( scale == 256 ) scene.setFillPaint( Color.RED );
+		//				if( scale == 16 ) scene.setFillColor( Color.PURPLE );
+		//				if( scale == 24 ) scene.setFillColor( Color.BLUE );
+		//				if( scale == 32 ) scene.setFillColor( Color.GREEN );
+		//				if( scale == 64 ) scene.setFillColor( Color.YELLOW );
+		//				if( scale == 128 ) scene.setFillColor( Color.ORANGE );
+		//				if( scale == 256 ) scene.setFillColor( Color.RED );
 
 		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
 		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
@@ -169,7 +170,11 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().arcTo( scale( x1 ), scale( y1 ), scale( x2 ), scale( y2 ), scale( radius ) );
 	}
 
-	protected void bezierCurveTo( double xc1, double yc1, double xc2, double yc2, double x1, double y1 ) {
+	protected void curveTo( double xc, double yc, double x1, double y1 ) {
+		getGraphicsContext2D().quadraticCurveTo( scale( xc ), scale( yc ), scale( x1 ), scale( y1 ) );
+	}
+
+	protected void curveTo( double xc1, double yc1, double xc2, double yc2, double x1, double y1 ) {
 		getGraphicsContext2D().bezierCurveTo( scale( xc1 ), scale( yc1 ), scale( xc2 ), scale( yc2 ), scale( x1 ), scale( y1 ) );
 	}
 
@@ -272,44 +277,44 @@ public abstract class ProgramIcon extends Canvas {
 		return drawWidth;
 	}
 
-	protected Paint getIconDrawPaint() {
-		return drawPaint;
+	protected Color getIconDrawPaint() {
+		return drawColor;
 	}
 
-	protected Paint getIconFillPaint() {
-		return fillPaint;
+	protected Color getIconFillPaint() {
+		return fillColor;
 	}
 
-	private Paint getIconFillPaint( GradientShade shade ) {
+	protected Paint getIconFillPaint( GradientShade shade ) {
 		double a = 1;
 		double b = 0;
 
 		switch( shade ) {
-			case LIGHT : {
+			case LIGHT: {
+				a = 0.8;
+				b = 0.5;
+				break;
+			}
+			case MEDIUM: {
+				a = 0.65;
+				b = 0.35;
+				break;
+			}
+			case DARK: {
 				a = 0.5;
-				b = 1;
-				break;
-			}
-			case MEDIUM : {
-				a = 0.375;
-				b = 0.875;
-				break;
-			}
-			case DARK : {
-				a = 0.25;
-				b = 0.75;
+				b = 0.2;
 				break;
 			}
 		}
 
-		return null;
+		Color colorA = Colors.getShade( getIconFillPaint(), a );
+		Color colorB = Colors.getShade( getIconFillPaint(), b );
+
+		return getGradientPaint( colorA, colorB );
 	}
 
 	private Paint getGradientPaint( Color a, Color b ) {
-		LinearGradient paint = new LinearGradient( 0, 0, scale( 1 ), scale( 1 ), false, CycleMethod.NO_CYCLE );
-		paint.getStops().add( new Stop( 0, a ) );
-		paint.getStops().add( new Stop( 1, b ) );
-		return paint;
+		return new LinearGradient( 0, 0, scale( 1 ), scale( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
 	}
 
 	private void fireRender() {
@@ -319,19 +324,19 @@ public abstract class ProgramIcon extends Canvas {
 		setLineCap( StrokeLineCap.ROUND );
 		setLineWidth( getIconDrawWidth() );
 		setDrawPaint( getIconDrawPaint() );
-		setFillPaint( getIconFillPaint() );
+		setFillPaint( getIconFillPaint( GradientShade.LIGHT ) );
 
 		// Start rendering by clearing the icon area
 		clearRect( 0, 0, 1, 1 );
 
 		//		// Just for research, set different color backgrounds per scale
 		//		double scale = Math.min( getWidth(), getHeight() );
-		//		if( scale == 16 ) protected void setFillPaint( Color.PURPLE );
-		//		if( scale == 24 ) protected void setFillPaint( Color.BLUE );
-		//		if( scale == 32 ) protected void setFillPaint( Color.GREEN );
-		//		if( scale == 64 ) protected void setFillPaint( Color.YELLOW );
-		//		if( scale == 128 ) protected void setFillPaint( Color.ORANGE );
-		//		if( scale == 256 ) protected void setFillPaint( Color.RED );
+		//		if( scale == 16 ) protected void setFillColor( Color.PURPLE );
+		//		if( scale == 24 ) protected void setFillColor( Color.BLUE );
+		//		if( scale == 32 ) protected void setFillColor( Color.GREEN );
+		//		if( scale == 64 ) protected void setFillColor( Color.YELLOW );
+		//		if( scale == 128 ) protected void setFillColor( Color.ORANGE );
+		//		if( scale == 256 ) protected void setFillColor( Color.RED );
 		//		protected void fillRect( 0, 0, getWidth(), getHeight() );
 
 		render();

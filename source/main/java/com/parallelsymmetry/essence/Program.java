@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.event.ProgramStartingEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
+import com.parallelsymmetry.essence.product.ProductBundle;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;

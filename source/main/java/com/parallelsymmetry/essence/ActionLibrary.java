@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.product.ProductBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

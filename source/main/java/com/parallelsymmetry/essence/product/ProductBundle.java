@@ -1,4 +1,4 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.product;
 
 import com.parallelsymmetry.essence.util.Utf8Control;
 

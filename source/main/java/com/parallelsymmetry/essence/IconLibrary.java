@@ -18,7 +18,7 @@ public class IconLibrary {
 		register( "new", DocumentIcon.class );
 		register( "exit", BigRedXIcon.class );
 
-		register( "help-content", QuestionMarkIcon.class );
+		register( "help-content", QuestionIcon.class );
 		register( "about", ExclamationIcon.class );
 	}
 

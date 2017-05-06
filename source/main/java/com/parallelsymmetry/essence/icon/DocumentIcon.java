@@ -1,7 +1,6 @@
 package com.parallelsymmetry.essence.icon;
 
 import com.parallelsymmetry.essence.ProgramIcon;
-import javafx.scene.paint.Color;
 
 public class DocumentIcon extends ProgramIcon {
 
@@ -21,7 +20,7 @@ public class DocumentIcon extends ProgramIcon {
 		lineTo( ZJ, ZB );
 		lineTo( ZJ, ZF );
 		closePath();
-		fillAndDraw( new Color( 0.6, 0.6, 0.6, 1.0 ) );
+		fillAndDraw( getIconFillPaint( GradientShade.DARK ) );
 	}
 
 }
