@@ -16,6 +16,7 @@ public class IconLibrary {
 		icons = new ConcurrentHashMap<>();
 		register( "program", CircleSlashIcon.class );
 		register( "new", DocumentIcon.class );
+		register( "save", SaveIcon.class );
 		register( "exit", BigRedXIcon.class );
 
 		register( "help-content", QuestionIcon.class );

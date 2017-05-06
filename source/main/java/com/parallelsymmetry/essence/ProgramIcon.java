@@ -237,11 +237,27 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().fillOval( scale( x ), scale( y ), scale( w ), scale( h ) );
 	}
 
+	protected void fillCenteredOval( double cx, double cy, double rx, double ry ) {
+		double x = cx - rx;
+		double y = cy - ry;
+		double w = rx * 2;
+		double h = ry * 2;
+		getGraphicsContext2D().fillOval( scale( x ), scale( y ), scale( w ), scale( h ) );
+	}
+
 	protected void drawLine( double x1, double y1, double x2, double y2 ) {
 		getGraphicsContext2D().strokeLine( scale( x1 ), scale( y1 ), scale( x2 ), scale( y2 ) );
 	}
 
 	protected void drawOval( double x, double y, double w, double h ) {
+		getGraphicsContext2D().strokeOval( scale( x ), scale( y ), scale( w ), scale( h ) );
+	}
+
+	protected void drawCenteredOval( double cx, double cy, double rx, double ry ) {
+		double x = cx - rx;
+		double y = cy - ry;
+		double w = rx * 2;
+		double h = ry * 2;
 		getGraphicsContext2D().strokeOval( scale( x ), scale( y ), scale( w ), scale( h ) );
 	}
 
@@ -251,6 +267,10 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected double scale( double value ) {
 		return scale * value;
+	}
+
+	protected double g( double value, double grid ) {
+		return value / grid;
 	}
 
 	protected double g2( double value ) {
