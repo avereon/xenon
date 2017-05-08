@@ -65,8 +65,7 @@ public class IconLibrary {
 		try {
 			icon = renderer.newInstance();
 		} catch( Exception exception ) {
-			// FIXME The size 24 is hard coded
-			icon = new BrokenIcon().setSize( 24 );
+			icon = new BrokenIcon().setSize( DEFAULT_SIZE );
 		}
 
 		return icon;
