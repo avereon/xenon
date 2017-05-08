@@ -35,7 +35,7 @@ public class ProductBundle {
 	}
 
 	public String getString( String bundleKey, String valueKey, String... values ) {
-		// TODO Might be able to optimize this
+		// TODO Might be able to optimize ProductBundle.getString()
 		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, locale, loader, new Utf8Control() );
 		if( !bundle.containsKey( valueKey ) ) return null;
 		String string = bundle.getString( valueKey );
