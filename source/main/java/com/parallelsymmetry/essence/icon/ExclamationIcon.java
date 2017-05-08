@@ -21,4 +21,8 @@ public class ExclamationIcon extends ProgramIcon {
 		drawOval( ZG, ZL, K, K );
 	}
 
+	public static void main( String[] commands ) {
+		proof( new ExclamationIcon() );
+	}
+
 }

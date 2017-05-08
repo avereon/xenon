@@ -1,15 +1,18 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.util.Colors;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,9 +90,7 @@ public abstract class ProgramIcon extends Canvas {
 	public static final double ZP = 0.96875;
 
 	protected enum GradientShade {
-		LIGHT,
-		MEDIUM,
-		DARK
+		LIGHT, MEDIUM, DARK
 	}
 
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
@@ -116,6 +117,21 @@ public abstract class ProgramIcon extends Canvas {
 		widthProperty().addListener( ( property, oldValue, newValue ) -> fireRender() );
 		heightProperty().addListener( ( property, oldValue, newValue ) -> fireRender() );
 		setSize( size );
+	}
+
+	@Override
+	public ProgramIcon clone() {
+		ProgramIcon clone = null;
+
+		try {
+			clone = getClass().getDeclaredConstructor().newInstance();
+			clone.setWidth( getWidth() );
+			clone.setHeight( getHeight() );
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+
+		return clone;
 	}
 
 	public ProgramIcon setSize( double size ) {
@@ -188,6 +204,10 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected void setLineCap( StrokeLineCap cap ) {
 		getGraphicsContext2D().setLineCap( cap );
+	}
+
+	protected void setLineJoin( StrokeLineJoin join ) {
+		getGraphicsContext2D().setLineJoin( join );
 	}
 
 	protected void setDrawPaint( Paint paint ) {
@@ -333,6 +353,50 @@ public abstract class ProgramIcon extends Canvas {
 		return getGradientPaint( colorA, colorB );
 	}
 
+	protected static void proof( ProgramIcon icon ) {
+		Platform.startup( () -> {
+			String title = icon.getClass().getSimpleName();
+
+			ImageView imageView16 = new ImageView( resample( icon.clone().setSize( 16 ).getImage(), 16 ) );
+			ImageView imageView32 = new ImageView( resample( icon.clone().setSize( 32 ).getImage(), 8 ) );
+
+			GridPane pane = new GridPane();
+			pane.add( icon, 1, 1 );
+			pane.add( imageView16, 2, 1 );
+			pane.add( imageView32, 2, 2 );
+
+			Stage stage = new Stage();
+			stage.setTitle( title );
+			stage.setScene( new Scene( pane ) );
+
+			stage.show();
+		} );
+	}
+
+	private static Image resample( Image input, int scale ) {
+		final int W = (int)input.getWidth();
+		final int H = (int)input.getHeight();
+		final int S = scale;
+
+		WritableImage output = new WritableImage( W * S, H * S );
+
+		PixelReader reader = input.getPixelReader();
+		PixelWriter writer = output.getPixelWriter();
+
+		for( int y = 0; y < H; y++ ) {
+			for( int x = 0; x < W; x++ ) {
+				final int argb = reader.getArgb( x, y );
+				for( int dy = 0; dy < S; dy++ ) {
+					for( int dx = 0; dx < S; dx++ ) {
+						writer.setArgb( x * S + dx, y * S + dy, argb );
+					}
+				}
+			}
+		}
+
+		return output;
+	}
+
 	private Paint getGradientPaint( Color a, Color b ) {
 		return new LinearGradient( 0, 0, scale( 1 ), scale( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
 	}
@@ -342,6 +406,7 @@ public abstract class ProgramIcon extends Canvas {
 
 		// Set the defaults
 		setLineCap( StrokeLineCap.ROUND );
+		setLineJoin( StrokeLineJoin.ROUND );
 		setLineWidth( getIconDrawWidth() );
 		setDrawPaint( getIconDrawPaint() );
 		setFillPaint( getIconFillPaint( GradientShade.LIGHT ) );

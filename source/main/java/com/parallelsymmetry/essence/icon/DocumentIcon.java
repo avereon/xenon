@@ -13,14 +13,34 @@ public class DocumentIcon extends ProgramIcon {
 		lineTo( ZN, ZF );
 		lineTo( ZJ, ZB );
 		closePath();
-		fillAndDraw();
+		fill();
 
 		beginPath();
-		moveTo( ZN, ZF );
-		lineTo( ZJ, ZB );
+		moveTo( ZJ, ZB );
 		lineTo( ZJ, ZF );
+		lineTo( ZN, ZF );
 		closePath();
-		fillAndDraw( getIconFillPaint( GradientShade.DARK ) );
+		fill( getIconFillPaint( GradientShade.DARK ) );
+
+		beginPath();
+		moveTo( ZC, ZB );
+		lineTo( ZC, ZO );
+		lineTo( ZN, ZO );
+		lineTo( ZN, ZF );
+		lineTo( ZJ, ZB );
+		closePath();
+		draw();
+
+		beginPath();
+		moveTo( ZJ, ZB );
+		lineTo( ZJ, ZF );
+		lineTo( ZN, ZF );
+		// Intentionally don't close path
+		draw();
+	}
+
+	public static void main( String[] commands ) {
+		proof( new DocumentIcon() );
 	}
 
 }
