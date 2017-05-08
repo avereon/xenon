@@ -1,5 +1,9 @@
 package com.parallelsymmetry.essence.work;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.apache.commons.configuration2.Configuration;
 
 import java.beans.PropertyChangeEvent;
@@ -7,35 +11,43 @@ import java.beans.PropertyChangeListener;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Workarea {
+// FIXME Observable was implemented in hopes the name would be updated in the workarea selector
+public class Workarea implements Observable {
 
 	private String id;
 
-	private String name;
+	private StringProperty name = new SimpleStringProperty();
 
 	private boolean active;
 
 	private Workspace workspace;
 
-	private Set<PropertyChangeListener> listeners;
+	private Set<PropertyChangeListener> propertyChangeListeners;
+
+	private Set<InvalidationListener> invalidationListeners;
 
 	private Configuration configuration;
 
 	public Workarea() {
-		listeners = new CopyOnWriteArraySet<>();
+		propertyChangeListeners = new CopyOnWriteArraySet<>();
+		invalidationListeners = new CopyOnWriteArraySet<>();
 	}
 
 	public String getId() {
 		return id;
 	}
 
-	public String getName() {
+	public StringProperty getNameValue() {
 		return name;
 	}
 
+	public String getName() {
+		return name.get();
+	}
+
 	public void setName( String newName ) {
-		String oldName = name;
-		name = newName;
+		String oldName = name.get();
+		name.set( newName );
 		configuration.setProperty( "name", newName );
 		firePropertyChange( "name", oldName, newName );
 	}
@@ -68,11 +80,11 @@ public class Workarea {
 	}
 
 	public void addPropertyChangeListener( PropertyChangeListener listener ) {
-		listeners.add( listener );
+		propertyChangeListeners.add( listener );
 	}
 
 	public void removePropertyChangeListener( PropertyChangeListener listener ) {
-		listeners.remove( listener );
+		propertyChangeListeners.remove( listener );
 	}
 
 	public void setConfiguration( Configuration configuration ) {
@@ -87,14 +99,31 @@ public class Workarea {
 
 	@Override
 	public String toString() {
-		return name;
+		return getName();
 	}
 
 	private void firePropertyChange( String property, Object oldValue, Object newValue ) {
 		PropertyChangeEvent event = new PropertyChangeEvent( this, property, oldValue, newValue );
-		for( PropertyChangeListener listener : listeners ) {
+		for( PropertyChangeListener listener : propertyChangeListeners ) {
 			listener.propertyChange( event );
 		}
+		fireInvalidated();
+	}
+
+	private void fireInvalidated() {
+		for( InvalidationListener listener : invalidationListeners ) {
+			listener.invalidated( this );
+		}
+	}
+
+	@Override
+	public void addListener( InvalidationListener listener ) {
+		invalidationListeners.add( listener );
+	}
+
+	@Override
+	public void removeListener( InvalidationListener listener ) {
+		invalidationListeners.remove( listener );
 	}
 
 }

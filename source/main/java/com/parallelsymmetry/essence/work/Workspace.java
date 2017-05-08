@@ -185,12 +185,14 @@ public class Workspace {
 	}
 
 	public void removeWorkArea( Workarea workarea ) {
+		// If there is only one workarea, don't close it
+		if( workareas.size() == 1 ) return;
+
 		// Handle the situation where the work area is active
+		if( workarea.isActive() ) setActiveWorkarea( determineNextActiveWorkarea() );
 
 		workareas.remove( workarea );
 		workarea.setWorkspace( null );
-
-		// If needed set the active work area
 	}
 
 	public Workarea getActiveWorkarea() {
@@ -273,6 +275,11 @@ public class Workspace {
 
 	private void setStageTitle( String name ) {
 		stage.setTitle( name + " - " + program.getMetadata().getName() );
+	}
+
+	private Workarea determineNextActiveWorkarea() {
+		int index = workareas.indexOf( getActiveWorkarea() );
+		return workareas.get( index == 0 ? 1 : index - 1 );
 	}
 
 	private class WorkareaPropertyWatcher implements PropertyChangeListener {

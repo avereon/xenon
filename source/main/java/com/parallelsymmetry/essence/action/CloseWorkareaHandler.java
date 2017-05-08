@@ -6,10 +6,14 @@ import com.parallelsymmetry.essence.work.Workarea;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class CloseWorkareaHandler extends ProgramActionHandler {
+
+	private static Logger log = LoggerFactory.getLogger( CloseWorkareaHandler.class );
 
 	public CloseWorkareaHandler( Program program ) {
 		super( program );
@@ -35,8 +39,7 @@ public class CloseWorkareaHandler extends ProgramActionHandler {
 	}
 
 	private void closeWorkarea( Workarea workarea ) {
-		// TODO Implement CloseWorkareaHandler.closeWorkarea()
-		System.out.println( "Close the current workarea: " + workarea.getName() );
+		program.getWorkspaceManager().getActiveWorkspace().removeWorkArea( workarea );
 	}
 
 }

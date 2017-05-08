@@ -28,9 +28,9 @@ public class NewWorkareaHandler extends ProgramActionHandler<ActionEvent> {
 	public void handle( ActionEvent event ) {
 		TextInputDialog dialog = new TextInputDialog();
 		dialog.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
-		dialog.setTitle( "New Workarea" );
-		dialog.setHeaderText( "Let's create a new workarea" );
-		dialog.setContentText( "Workarea name:" );
+		dialog.setTitle( program.getResourceBundle().getString( "workarea", "workarea.new.title" ) );
+		dialog.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.new.message" ) );
+		dialog.setContentText( program.getResourceBundle().getString( "workarea", "workarea.new.prompt" ) );
 
 		Optional<String> result = dialog.showAndWait();
 		result.ifPresent( this::createNewWorkarea );
