@@ -49,7 +49,7 @@ public class Workarea implements Observable {
 		String oldName = name.get();
 		name.set( newName );
 		configuration.setProperty( "name", newName );
-		firePropertyChange( "name", oldName, newName );
+		if( isActive() ) firePropertyChange( "name", oldName, newName );
 	}
 
 	public boolean isActive() {

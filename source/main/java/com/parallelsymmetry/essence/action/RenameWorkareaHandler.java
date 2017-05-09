@@ -15,13 +15,17 @@ public class RenameWorkareaHandler extends ProgramActionHandler {
 
 	private static Logger log = LoggerFactory.getLogger( RenameWorkareaHandler.class );
 
+	private Workarea workarea;
+
 	public RenameWorkareaHandler( Program program ) {
 		super( program );
 	}
 
 	@Override
 	public void handle( Event event ) {
-		TextInputDialog dialog = new TextInputDialog();
+		workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
+
+		TextInputDialog dialog = new TextInputDialog( workarea.getName() );
 		dialog.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
 		dialog.setTitle( program.getResourceBundle().getString( "workarea", "workarea.rename.title" ) );
 		dialog.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.rename.message" ) );
@@ -34,8 +38,6 @@ public class RenameWorkareaHandler extends ProgramActionHandler {
 	private void renameWorkarea( String name ) {
 		UiFactory uiFactory = new UiFactory( program );
 		try {
-			Workarea workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
-			// FIXME Simply setting the name does not change the workarea selector
 			workarea.setName( name );
 		} catch( Exception exception ) {
 			log.error( "Error creating new workarea: " + name, exception );

@@ -8,7 +8,6 @@ import com.parallelsymmetry.essence.action.RenameWorkareaHandler;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
@@ -132,6 +131,7 @@ public class Workspace {
 		// Workarea selector
 		workareaSelector = new ComboBox<>();
 		workareaSelector.setItems( workareas );
+		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
 		toolbar = new ToolBar();
@@ -150,10 +150,6 @@ public class Workspace {
 
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
-	}
-
-	private void selectWorkarea( ActionEvent event ) {
-
 	}
 
 	public String getId() {
@@ -288,10 +284,22 @@ public class Workspace {
 		public void propertyChange( PropertyChangeEvent event ) {
 			switch( event.getPropertyName() ) {
 				case "name": {
+					//workareaSelector.setValue( getActiveWorkarea() );
 					setStageTitle( event.getNewValue().toString() );
 					break;
 				}
 			}
+		}
+
+	}
+
+	public static class WorkareaPropertyCell extends ListCell<Workarea> {
+
+		@Override
+		protected void updateItem( Workarea item, boolean empty ) {
+			super.updateItem( item, empty );
+			textProperty().unbind();
+			if( item != null && !empty ) textProperty().bind( item.getNameValue() );
 		}
 
 	}
