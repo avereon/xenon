@@ -331,18 +331,18 @@ public abstract class ProgramIcon extends Canvas {
 
 		switch( shade ) {
 			case LIGHT: {
-				a = 0.8;
+				a = 0.9;
 				b = 0.5;
 				break;
 			}
 			case MEDIUM: {
-				a = 0.65;
-				b = 0.35;
+				a = 0.7;
+				b = 0.3;
 				break;
 			}
 			case DARK: {
 				a = 0.5;
-				b = 0.2;
+				b = 0.1;
 				break;
 			}
 		}
@@ -412,7 +412,7 @@ public abstract class ProgramIcon extends Canvas {
 		setLineJoin( StrokeLineJoin.ROUND );
 		setLineWidth( getIconDrawWidth() );
 		setDrawPaint( getIconDrawPaint() );
-		setFillPaint( getIconFillPaint( GradientShade.LIGHT ) );
+		setFillPaint( getIconFillPaint( GradientShade.MEDIUM ) );
 
 		// Start rendering by clearing the icon area
 		clearRect( 0, 0, 1, 1 );

@@ -19,7 +19,7 @@ public class IconLibrary {
 		register( "open", FolderIcon.class );
 		register( "save", SaveIcon.class );
 		register( "close", CloseIcon.class );
-		register( "exit", BigRedXIcon.class );
+		register( "exit", ExitIcon.class );
 
 		register( "help-content", QuestionIcon.class );
 		register( "about", ExclamationIcon.class );
