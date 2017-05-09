@@ -8,12 +8,10 @@ import com.parallelsymmetry.essence.action.RenameWorkareaHandler;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
 
@@ -122,6 +120,8 @@ public class Workspace {
 		MenuBar workareaMenuBar = new MenuBar();
 		workareaMenuBar.getMenus().add( workareaMenu );
 		workareaMenuBar.setBackground( Background.EMPTY );
+		workareaMenuBar.setPadding( Insets.EMPTY );
+		workareaMenuBar.setBorder( Border.EMPTY );
 
 		// Set the workarea actions
 		program.getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaHandler( program ) );
