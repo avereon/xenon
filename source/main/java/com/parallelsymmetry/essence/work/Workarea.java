@@ -1,7 +1,5 @@
 package com.parallelsymmetry.essence.work;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import org.apache.commons.configuration2.Configuration;
@@ -11,8 +9,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-// FIXME Observable was implemented in hopes the name would be updated in the workarea selector
-public class Workarea implements Observable {
+public class Workarea {
 
 	private String id;
 
@@ -24,13 +21,10 @@ public class Workarea implements Observable {
 
 	private Set<PropertyChangeListener> propertyChangeListeners;
 
-	private Set<InvalidationListener> invalidationListeners;
-
 	private Configuration configuration;
 
 	public Workarea() {
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
-		invalidationListeners = new CopyOnWriteArraySet<>();
 	}
 
 	public String getId() {
@@ -107,23 +101,6 @@ public class Workarea implements Observable {
 		for( PropertyChangeListener listener : propertyChangeListeners ) {
 			listener.propertyChange( event );
 		}
-		fireInvalidated();
-	}
-
-	private void fireInvalidated() {
-		for( InvalidationListener listener : invalidationListeners ) {
-			listener.invalidated( this );
-		}
-	}
-
-	@Override
-	public void addListener( InvalidationListener listener ) {
-		invalidationListeners.add( listener );
-	}
-
-	@Override
-	public void removeListener( InvalidationListener listener ) {
-		invalidationListeners.remove( listener );
 	}
 
 }
