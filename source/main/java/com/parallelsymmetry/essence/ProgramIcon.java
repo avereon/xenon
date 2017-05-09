@@ -369,6 +369,9 @@ public abstract class ProgramIcon extends Canvas {
 			stage.setTitle( title );
 			stage.setScene( new Scene( pane ) );
 
+			stage.setResizable( false );
+			//stage.centerOnScreen();
+			//stage.sizeToScene();
 			stage.show();
 		} );
 	}
