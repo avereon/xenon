@@ -8,22 +8,13 @@ public class QuestionIcon extends ProgramIcon {
 	protected void render() {
 		// Squiggle
 		beginPath();
-		moveTo( ZE, ZD );
-		curveTo( ZE, ZF, G, ZF );
-		curveTo( ZH, ZF, ZH, ZE );
-
-		curveTo( ZH, D, C, D );
-		curveTo( ZI, D, ZI, ZE );
+		moveTo( ZE, ZE );
+		arc( G, ZE, ZB, J, 180, 180 );
+		arc( C, ZE, ZA, ZA, 180, -180 );
 		curveTo( ZI, ZG, ZG, ZF, ZG, ZI );
-
-		curveTo( ZG, ZJ, C, ZJ );
-		curveTo( ZJ, ZJ, ZJ, ZI );
-
+		arc( C, ZI, ZB, J, 180, 180 );
 		curveTo( ZJ, ZG, ZL, ZG, ZL, ZE );
-
-		curveTo( ZL, ZB, C, ZB );
-		curveTo( ZE, ZB, ZE, ZD );
-
+		arc( C, ZE, ZD, K, 0, 180 );
 		closePath();
 		fillAndDraw();
 
