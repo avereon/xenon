@@ -11,7 +11,7 @@ public class RedoIcon extends ProgramIcon {
 		lineTo( ZO, ZG );
 		lineTo( ZI, ZJ );
 		closePath();
-		fillAndDraw();
+		fillAndDraw( GradientShade.LIGHT );
 
 		beginPath();
 		arc( ZI, ZJ, M, D, 90, 180 );

@@ -11,14 +11,14 @@ public class UndoIcon extends ProgramIcon {
 		lineTo( ZB, ZG );
 		lineTo( ZH, ZJ );
 		closePath();
-		fillAndDraw();
+		fillAndDraw( GradientShade.LIGHT );
 
 		beginPath();
 		arc( ZH, ZJ, M, D, 90, -180 );
 		arc( ZH, ZK, L, K, 270, 180 );
 		closePath();
 
-		fillAndDraw();
+		fillAndDraw(GradientShade.MEDIUM);
 	}
 
 	public static void main( String[] commands ) {

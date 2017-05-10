@@ -234,8 +234,17 @@ public abstract class ProgramIcon extends Canvas {
 		draw();
 	}
 
+	protected void fillAndDraw( GradientShade shade ) {
+		fillAndDraw( getIconFillPaint( shade ) );
+	}
+
 	protected void fillAndDraw( Paint fillPaint, Paint drawPaint ) {
 		fill( fillPaint );
+		draw( drawPaint );
+	}
+
+	protected void fillAndDraw( GradientShade shade, Paint drawPaint ) {
+		fill( getIconFillPaint( shade ) );
 		draw( drawPaint );
 	}
 
@@ -247,6 +256,10 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().setFill( paint );
 		getGraphicsContext2D().fill();
 		getGraphicsContext2D().setFill( getIconFillPaint() );
+	}
+
+	protected void fill( GradientShade shade ) {
+		fill( getIconFillPaint( shade ) );
 	}
 
 	protected void draw() {
@@ -327,8 +340,12 @@ public abstract class ProgramIcon extends Canvas {
 		return drawColor;
 	}
 
-	protected Color getIconFillPaint() {
+	protected Color getIconFillColor() {
 		return fillColor;
+	}
+
+	protected Paint getIconFillPaint() {
+		return getIconFillPaint( GradientShade.MEDIUM );
 	}
 
 	protected Paint getIconFillPaint( GradientShade shade ) {
@@ -353,8 +370,8 @@ public abstract class ProgramIcon extends Canvas {
 			}
 		}
 
-		Color colorA = Colors.getShade( getIconFillPaint(), a );
-		Color colorB = Colors.getShade( getIconFillPaint(), b );
+		Color colorA = Colors.getShade( getIconFillColor(), a );
+		Color colorB = Colors.getShade( getIconFillColor(), b );
 
 		return getGradientPaint( colorA, colorB );
 	}
