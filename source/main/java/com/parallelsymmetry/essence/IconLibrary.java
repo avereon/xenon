@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
-	private static final int DEFAULT_SIZE = 16;
+	private static final int DEFAULT_SIZE = 24;
 
 	private Map<String, Class<? extends ProgramIcon>> icons;
 
@@ -23,6 +23,14 @@ public class IconLibrary {
 
 		register( "undo", UndoIcon.class );
 		register( "redo", RedoIcon.class );
+//		register( "cut", CutIcon.class );
+//		register( "copy", CopyIcon.class );
+//		register( "paste", PasteIcon.class );
+//		register( "delete", DelteIcon.class );
+//		register( "indent", IndentIcon.class );
+//		register( "unindent", UnindentIcon.class );
+
+//		register( "settings", SettingsIcon.class );
 
 		//register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
@@ -64,16 +72,15 @@ public class IconLibrary {
 
 	private ProgramIcon getIconRenderer( String id ) {
 		Class<? extends ProgramIcon> renderer = icons.get( id );
-		if( renderer == null ) return new MissingIcon().setSize( DEFAULT_SIZE );
 
 		ProgramIcon icon;
 		try {
 			icon = renderer.newInstance();
 		} catch( Exception exception ) {
-			icon = new BrokenIcon().setSize( DEFAULT_SIZE );
+			icon = new BrokenIcon();
 		}
 
-		return icon;
+		return icon.setSize( DEFAULT_SIZE );
 	}
 
 }
