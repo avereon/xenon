@@ -8,6 +8,7 @@ public class ExitIcon extends ProgramIcon {
 	protected void render() {
 		double radius = Math.sqrt( 2 * (J * J) );
 
+		// FIXME Use arc() instead of arcTo()
 		beginPath();
 		moveTo( C, G );
 		lineTo( O, K );
