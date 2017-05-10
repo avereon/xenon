@@ -21,7 +21,12 @@ public class IconLibrary {
 		register( "close", CloseIcon.class );
 		register( "exit", ExitIcon.class );
 
+		register( "undo", UndoIcon.class );
+		register( "redo", RedoIcon.class );
+
+		//register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
+		//register( "updates", UpdatesIcon.class );
 		register( "about", ExclamationIcon.class );
 	}
 

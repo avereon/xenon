@@ -90,7 +90,9 @@ public abstract class ProgramIcon extends Canvas {
 	public static final double ZP = 0.96875;
 
 	protected enum GradientShade {
-		LIGHT, MEDIUM, DARK
+		LIGHT,
+		MEDIUM,
+		DARK
 	}
 
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
@@ -180,6 +182,10 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected void lineTo( double x, double y ) {
 		getGraphicsContext2D().lineTo( scale( x ), scale( y ) );
+	}
+
+	protected void arc( double cx, double cy, double rx, double ry, double start, double extent ) {
+		getGraphicsContext2D().arc( scale( cx ), scale( cy ), scale( rx ), scale( ry ), start, extent );
 	}
 
 	protected void arcTo( double x1, double y1, double x2, double y2, double radius ) {
