@@ -23,8 +23,8 @@ public class IconLibrary {
 
 		register( "undo", UndoIcon.class );
 		register( "redo", RedoIcon.class );
-//		register( "cut", CutIcon.class );
-//		register( "copy", CopyIcon.class );
+		register( "cut", CutIcon.class );
+		register( "copy", CopyIcon.class );
 //		register( "paste", PasteIcon.class );
 //		register( "delete", DelteIcon.class );
 //		register( "indent", IndentIcon.class );

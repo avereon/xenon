@@ -10,6 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
+import javafx.scene.shape.FillRule;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
@@ -90,9 +91,7 @@ public abstract class ProgramIcon extends Canvas {
 	public static final double ZP = 0.96875;
 
 	protected enum GradientShade {
-		LIGHT,
-		MEDIUM,
-		DARK
+		LIGHT, MEDIUM, DARK
 	}
 
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
@@ -109,7 +108,11 @@ public abstract class ProgramIcon extends Canvas {
 
 	private Color fillColor = DEFAULT_FILL_COLOR;
 
-	private double scale;
+	private double size;
+
+	private double xOffset;
+
+	private double yOffset;
 
 	public ProgramIcon() {
 		this( DEFAULT_SIZE );
@@ -156,14 +159,14 @@ public abstract class ProgramIcon extends Canvas {
 		Scene scene = new Scene( pane );
 		scene.setFill( Color.TRANSPARENT );
 
-		//				// Just for research, set different color backgrounds per scale
-		//				int scale = Math.min( width, height );
-		//				if( scale == 16 ) scene.setFillColor( Color.PURPLE );
-		//				if( scale == 24 ) scene.setFillColor( Color.BLUE );
-		//				if( scale == 32 ) scene.setFillColor( Color.GREEN );
-		//				if( scale == 64 ) scene.setFillColor( Color.YELLOW );
-		//				if( scale == 128 ) scene.setFillColor( Color.ORANGE );
-		//				if( scale == 256 ) scene.setFillColor( Color.RED );
+		//				// Just for research, set different color backgrounds per xformX
+		//				int xformX = Math.min( width, height );
+		//				if( xformX == 16 ) scene.setFillColor( Color.PURPLE );
+		//				if( xformX == 24 ) scene.setFillColor( Color.BLUE );
+		//				if( xformX == 32 ) scene.setFillColor( Color.GREEN );
+		//				if( xformX == 64 ) scene.setFillColor( Color.YELLOW );
+		//				if( xformX == 128 ) scene.setFillColor( Color.ORANGE );
+		//				if( xformX == 256 ) scene.setFillColor( Color.RED );
 
 		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
 		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
@@ -172,32 +175,42 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected abstract void render();
 
+	protected void reset() {
+		xOffset = 0;
+		yOffset = 0;
+	}
+
+	protected void move( double x, double y ) {
+		xOffset = x;
+		yOffset = y;
+	}
+
 	protected void beginPath() {
 		getGraphicsContext2D().beginPath();
 	}
 
 	protected void moveTo( double x, double y ) {
-		getGraphicsContext2D().moveTo( scale( x ), scale( y ) );
+		getGraphicsContext2D().moveTo( xformX( x ), xformY( y ) );
 	}
 
 	protected void lineTo( double x, double y ) {
-		getGraphicsContext2D().lineTo( scale( x ), scale( y ) );
+		getGraphicsContext2D().lineTo( xformX( x ), xformY( y ) );
 	}
 
 	protected void arc( double cx, double cy, double rx, double ry, double start, double extent ) {
-		getGraphicsContext2D().arc( scale( cx ), scale( cy ), scale( rx ), scale( ry ), start, extent );
+		getGraphicsContext2D().arc( xformX( cx ), xformY( cy ), xformX( rx ), xformY( ry ), start, extent );
 	}
 
 	protected void arcTo( double x1, double y1, double x2, double y2, double radius ) {
-		getGraphicsContext2D().arcTo( scale( x1 ), scale( y1 ), scale( x2 ), scale( y2 ), scale( radius ) );
+		getGraphicsContext2D().arcTo( xformX( x1 ), xformY( y1 ), xformX( x2 ), xformY( y2 ), xform( radius ) );
 	}
 
 	protected void curveTo( double xc, double yc, double x1, double y1 ) {
-		getGraphicsContext2D().quadraticCurveTo( scale( xc ), scale( yc ), scale( x1 ), scale( y1 ) );
+		getGraphicsContext2D().quadraticCurveTo( xformX( xc ), xformY( yc ), xformX( x1 ), xformY( y1 ) );
 	}
 
 	protected void curveTo( double xc1, double yc1, double xc2, double yc2, double x1, double y1 ) {
-		getGraphicsContext2D().bezierCurveTo( scale( xc1 ), scale( yc1 ), scale( xc2 ), scale( yc2 ), scale( x1 ), scale( y1 ) );
+		getGraphicsContext2D().bezierCurveTo( xformX( xc1 ), xformY( yc1 ), xformX( xc2 ), xformY( yc2 ), xformX( x1 ), xformY( y1 ) );
 	}
 
 	protected void closePath() {
@@ -205,7 +218,7 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	protected void setLineWidth( double width ) {
-		getGraphicsContext2D().setLineWidth( scale( width ) );
+		getGraphicsContext2D().setLineWidth( xformX( width ) );
 	}
 
 	protected void setLineCap( StrokeLineCap cap ) {
@@ -222,6 +235,10 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected void setFillPaint( Paint paint ) {
 		getGraphicsContext2D().setFill( paint );
+	}
+
+	protected void setFillRule( FillRule rule ) {
+		getGraphicsContext2D().setFillRule( FillRule.EVEN_ODD );
 	}
 
 	protected void fillAndDraw() {
@@ -272,8 +289,13 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().setStroke( getIconDrawPaint() );
 	}
 
+	protected void drawDot( double x, double y ) {
+		double offset = 0.5 * getIconDrawWidth();
+		drawOval( x - offset, y - offset, offset * 2, offset * 2 );
+	}
+
 	protected void fillOval( double x, double y, double w, double h ) {
-		getGraphicsContext2D().fillOval( scale( x ), scale( y ), scale( w ), scale( h ) );
+		getGraphicsContext2D().fillOval( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
 	protected void fillCenteredOval( double cx, double cy, double rx, double ry ) {
@@ -281,15 +303,15 @@ public abstract class ProgramIcon extends Canvas {
 		double y = cy - ry;
 		double w = rx * 2;
 		double h = ry * 2;
-		getGraphicsContext2D().fillOval( scale( x ), scale( y ), scale( w ), scale( h ) );
+		getGraphicsContext2D().fillOval( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
 	protected void drawLine( double x1, double y1, double x2, double y2 ) {
-		getGraphicsContext2D().strokeLine( scale( x1 ), scale( y1 ), scale( x2 ), scale( y2 ) );
+		getGraphicsContext2D().strokeLine( xformX( x1 ), xformY( y1 ), xformX( x2 ), xformY( y2 ) );
 	}
 
 	protected void drawOval( double x, double y, double w, double h ) {
-		getGraphicsContext2D().strokeOval( scale( x ), scale( y ), scale( w ), scale( h ) );
+		getGraphicsContext2D().strokeOval( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
 	protected void drawCenteredOval( double cx, double cy, double rx, double ry ) {
@@ -297,15 +319,23 @@ public abstract class ProgramIcon extends Canvas {
 		double y = cy - ry;
 		double w = rx * 2;
 		double h = ry * 2;
-		getGraphicsContext2D().strokeOval( scale( x ), scale( y ), scale( w ), scale( h ) );
+		getGraphicsContext2D().strokeOval( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
 	protected void clearRect( double x, double y, double w, double h ) {
-		getGraphicsContext2D().clearRect( scale( x ), scale( y ), scale( w ), scale( h ) );
+		getGraphicsContext2D().clearRect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
-	protected double scale( double value ) {
-		return scale * value;
+	protected double xform( double value ) {
+		return size * value;
+	}
+
+	protected double xformX( double value ) {
+		return xOffset + size * value;
+	}
+
+	protected double xformY( double value ) {
+		return yOffset + size * value;
 	}
 
 	protected double g( double value, double grid ) {
@@ -424,11 +454,11 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	private Paint getGradientPaint( Color a, Color b ) {
-		return new LinearGradient( 0, 0, scale( 1 ), scale( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
+		return new LinearGradient( 0, 0, xformX( 1 ), xformX( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
 	}
 
 	private void fireRender() {
-		scale = Math.min( getWidth(), getHeight() );
+		size = Math.min( getWidth(), getHeight() );
 
 		// Set the defaults
 		setLineCap( StrokeLineCap.ROUND );
@@ -436,18 +466,19 @@ public abstract class ProgramIcon extends Canvas {
 		setLineWidth( getIconDrawWidth() );
 		setDrawPaint( getIconDrawPaint() );
 		setFillPaint( getIconFillPaint( GradientShade.MEDIUM ) );
+		setFillRule( FillRule.EVEN_ODD );
 
 		// Start rendering by clearing the icon area
 		clearRect( 0, 0, 1, 1 );
 
-		//		// Just for research, set different color backgrounds per scale
-		//		double scale = Math.min( getWidth(), getHeight() );
-		//		if( scale == 16 ) protected void setFillColor( Color.PURPLE );
-		//		if( scale == 24 ) protected void setFillColor( Color.BLUE );
-		//		if( scale == 32 ) protected void setFillColor( Color.GREEN );
-		//		if( scale == 64 ) protected void setFillColor( Color.YELLOW );
-		//		if( scale == 128 ) protected void setFillColor( Color.ORANGE );
-		//		if( scale == 256 ) protected void setFillColor( Color.RED );
+		//		// Just for research, set different color backgrounds per xformX
+		//		double xformX = Math.min( getWidth(), getHeight() );
+		//		if( xformX == 16 ) protected void setFillColor( Color.PURPLE );
+		//		if( xformX == 24 ) protected void setFillColor( Color.BLUE );
+		//		if( xformX == 32 ) protected void setFillColor( Color.GREEN );
+		//		if( xformX == 64 ) protected void setFillColor( Color.YELLOW );
+		//		if( xformX == 128 ) protected void setFillColor( Color.ORANGE );
+		//		if( xformX == 256 ) protected void setFillColor( Color.RED );
 		//		protected void fillRect( 0, 0, getWidth(), getHeight() );
 
 		render();
