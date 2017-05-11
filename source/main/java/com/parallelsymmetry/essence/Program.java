@@ -253,6 +253,8 @@ public class Program extends Application implements Product {
 			settings = new Settings( executor, new File( programSettingsFolder, "program.properties" ) );
 			Platform.runLater( () -> splashScreen.update() );
 
+			// TODO Create the tool manager
+
 			// Restore the workspace
 			Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 
@@ -296,6 +298,7 @@ public class Program extends Application implements Product {
 		protected Void call() throws Exception {
 			// TODO Stop the UpdateManager
 			// TODO Stop the ResourceManager
+			// TODO Stop the ToolManager
 
 			// Disconnect the settings listener
 			settings.removeProgramEventListener( watcher );
