@@ -21,7 +21,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 
 public class Program extends Application implements Product {
 
@@ -54,7 +53,7 @@ public class Program extends Application implements Product {
 	private Set<ProgramEventListener> listeners;
 
 	static {
-		System.setProperty( "java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %2$s %5$s %6$s%n" );
+		//System.setProperty( "java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %2$s %5$s %6$s%n" );
 	}
 
 	public static void main( String[] commands ) {
@@ -172,14 +171,17 @@ public class Program extends Application implements Product {
 	}
 
 	private void configureLogging() {
+		//SimpleLogger.DEFAULT_LOG_LEVEL_KEY
+		System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "trace" );
+
 		// NEXT Figure out how to set the console log level
-		java.util.logging.Logger globalLogger = java.util.logging.Logger.getLogger( "global" );
-		Handler[] handlers = globalLogger.getHandlers();
-		System.out.println( "Handler count: " + handlers.length );
-		for( Handler handler : handlers ) {
-			//globalLogger.removeHandler(handler);
-			System.out.println( "Handler: " + handler.getLevel() );
-		}
+//		java.util.logging.Logger globalLogger = java.util.logging.Logger.getLogger( "global" );
+//		Handler[] handlers = globalLogger.getHandlers();
+//		System.out.println( "Handler count: " + handlers.length );
+//		for( Handler handler : handlers ) {
+//			//globalLogger.removeHandler(handler);
+//			System.out.println( "Handler: " + handler.getLevel() );
+//		}
 	}
 
 	private void printHeader() {
