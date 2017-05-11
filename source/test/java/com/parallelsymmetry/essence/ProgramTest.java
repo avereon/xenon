@@ -57,7 +57,7 @@ public class ProgramTest extends ProgramBaseTest {
 	@Test
 	public void testProgramDataFolder() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );
-		String prefix = Program.EXECMODE_PREFIX_TEST;
+		String prefix = ExecMode.TEST.getPrefix();
 		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		assertThat( program.getProgramDataFolder(), is( programDataFolder ) );
 	}

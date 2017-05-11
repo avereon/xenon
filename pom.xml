@@ -43,7 +43,7 @@
 		<product-name>${project.name}</product-name>
 		<product-identifier>essence</product-identifier>
 		<package-stage-folder>program</package-stage-folder>
-		<slf4j.version>1.7.25</slf4j.version>
+		<slf4j.version>1.8.0-alpha2</slf4j.version>
 	</properties>
 
 	<dependencies>

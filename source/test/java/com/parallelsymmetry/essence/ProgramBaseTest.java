@@ -31,7 +31,7 @@ public abstract class ProgramBaseTest {
 	@BeforeClass
 	public static void prepare() throws Exception {
 		ProductMetadata metadata = new ProductMetadata();
-		String prefix = Program.EXECMODE_PREFIX_TEST;
+		String prefix = ExecMode.TEST.getPrefix();
 		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		if( programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
 	}
