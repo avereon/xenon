@@ -24,10 +24,6 @@ import java.util.logging.Handler;
 
 public class Program extends Application implements Product {
 
-	public static final String EXECMODE_PREFIX_DEVL = "#";
-
-	public static final String EXECMODE_PREFIX_TEST = "$";
-
 	private Logger log = LoggerFactory.getLogger( Program.class );
 
 	private long startTimestamp;
@@ -176,10 +172,10 @@ public class Program extends Application implements Product {
 
 	private void configureLogging() {
 		// NEXT Figure out how to set the console log level
-		java.util.logging.Logger globalLogger = java.util.logging.Logger.getLogger("global");
+		java.util.logging.Logger globalLogger = java.util.logging.Logger.getLogger( "global" );
 		Handler[] handlers = globalLogger.getHandlers();
 		System.out.println( "Handler count: " + handlers.length );
-		for(Handler handler : handlers) {
+		for( Handler handler : handlers ) {
 			//globalLogger.removeHandler(handler);
 			System.out.println( "Handler: " + handler.getLevel() );
 		}
@@ -205,11 +201,11 @@ public class Program extends Application implements Product {
 		Parameters parameters = getParameters();
 		if( parameters != null ) {
 			String execmode = parameters.getNamed().get( ProgramParameter.EXECMODE );
-			if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = EXECMODE_PREFIX_DEVL;
-			if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = EXECMODE_PREFIX_TEST;
+			if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = ExecMode.DEVL.getPrefix();
+			if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = ExecMode.TEST.getPrefix();
 		} else {
 			// WORKAROUND When testing with TestFX the parameters are null because of an incompatibility with Java 9.
-			prefix = EXECMODE_PREFIX_TEST;
+			prefix = ExecMode.TEST.getPrefix();
 		}
 
 		return prefix;
