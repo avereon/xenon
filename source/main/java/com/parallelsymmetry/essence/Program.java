@@ -16,11 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 public class Program extends Application implements Product {
 
@@ -53,7 +56,11 @@ public class Program extends Application implements Product {
 	private Set<ProgramEventListener> listeners;
 
 	static {
-		//System.setProperty( "java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$s %2$s %5$s %6$s%n" );
+		try {
+			LogManager.getLogManager().readConfiguration( Program.class.getResourceAsStream( "/logging.properties" ) );
+		} catch( IOException exception ) {
+			exception.printStackTrace( System.err );
+		}
 	}
 
 	public static void main( String[] commands ) {
@@ -171,17 +178,18 @@ public class Program extends Application implements Product {
 	}
 
 	private void configureLogging() {
-		//SimpleLogger.DEFAULT_LOG_LEVEL_KEY
-		System.setProperty( "org.slf4j.simpleLogger.defaultLogLevel", "trace" );
+		// The default logging configuration is in the logging.properties resource
 
-		// NEXT Figure out how to set the console log level
-//		java.util.logging.Logger globalLogger = java.util.logging.Logger.getLogger( "global" );
-//		Handler[] handlers = globalLogger.getHandlers();
-//		System.out.println( "Handler count: " + handlers.length );
-//		for( Handler handler : handlers ) {
-//			//globalLogger.removeHandler(handler);
-//			System.out.println( "Handler: " + handler.getLevel() );
-//		}
+		// Set all the program loggers to log at the specified level
+		String logLevel = getParameter( ProgramParameter.LOG_LEVEL );
+
+		// NEXT Parse the logLevel parameter
+
+		String packageName = getClass().getPackageName();
+		for( String name : Collections.list( LogManager.getLogManager().getLoggerNames() ) ) {
+			if( name.startsWith( packageName ) ) System.out.println( "  Logger name: " + name );
+			java.util.logging.Logger.getLogger( name ).setLevel( Level.ALL );
+		}
 	}
 
 	private void printHeader() {
@@ -189,29 +197,20 @@ public class Program extends Application implements Product {
 		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
 	}
 
-	private String getLocaleParameter() {
-		String locale = null;
-
-		Parameters parameters = getParameters();
-		if( parameters != null ) locale = parameters.getNamed().get( ProgramParameter.LOCALE );
-
-		return locale;
-	}
-
 	private String getExecmodePrefix() {
 		String prefix = "";
 
-		Parameters parameters = getParameters();
-		if( parameters != null ) {
-			String execmode = parameters.getNamed().get( ProgramParameter.EXECMODE );
-			if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = ExecMode.DEVL.getPrefix();
-			if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = ExecMode.TEST.getPrefix();
-		} else {
-			// WORKAROUND When testing with TestFX the parameters are null because of an incompatibility with Java 9.
-			prefix = ExecMode.TEST.getPrefix();
-		}
+		String execmode = getParameter( ProgramParameter.EXECMODE );
+		if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = ExecMode.DEVL.getPrefix();
+		if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = ExecMode.TEST.getPrefix();
 
 		return prefix;
+	}
+
+	private String getParameter( String key ) {
+		Parameters parameters = getParameters();
+		if( parameters != null ) return null;
+		return parameters.getNamed().get( key );
 	}
 
 	private void showProgram() {
@@ -229,7 +228,7 @@ public class Program extends Application implements Product {
 			Thread.sleep( 500 );
 
 			// Create the product bundle
-			productBundle = new ProductBundle( getClass().getClassLoader(), getLocaleParameter() );
+			productBundle = new ProductBundle( getClass().getClassLoader(), getParameter( ProgramParameter.LOCALE ) );
 
 			// Create the icon library
 			iconLibrary = new IconLibrary();
