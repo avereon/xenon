@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
-	private static final int DEFAULT_SIZE = 24;
+	private static final int DEFAULT_SIZE = 16;
 
 	private Map<String, Class<? extends ProgramIcon>> icons;
 
