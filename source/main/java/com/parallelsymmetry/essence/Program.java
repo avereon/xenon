@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Handler;
 
 public class Program extends Application implements Product {
 
@@ -80,6 +81,8 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void init() throws Exception {
+		configureLogging();
+
 		// Load the product metadata.
 		metadata = new ProductMetadata();
 
@@ -169,6 +172,17 @@ public class Program extends Application implements Product {
 
 	public ProgramEventWatcher getEventWatcher() {
 		return watcher;
+	}
+
+	private void configureLogging() {
+		// NEXT Figure out how to set the console log level
+		java.util.logging.Logger globalLogger = java.util.logging.Logger.getLogger("global");
+		Handler[] handlers = globalLogger.getHandlers();
+		System.out.println( "Handler count: " + handlers.length );
+		for(Handler handler : handlers) {
+			//globalLogger.removeHandler(handler);
+			System.out.println( "Handler: " + handler.getLevel() );
+		}
 	}
 
 	private void printHeader() {
