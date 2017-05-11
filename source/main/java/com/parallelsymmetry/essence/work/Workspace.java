@@ -141,10 +141,10 @@ public class Workspace {
 		toolbar.getItems().add( new Separator() );
 		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
 		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
+//		toolbar.getItems().add( new Separator() );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
+//		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
 
 		toolbar.getItems().add( Actions.createSpring() );
 
