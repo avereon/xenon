@@ -1,10 +1,8 @@
 package com.parallelsymmetry.essence.event;
 
-import com.parallelsymmetry.essence.ProgramEvent;
-
 import java.io.File;
 
-public class SettingsLoadedEvent extends ProgramEvent {
+public class SettingsLoadedEvent extends SettingsEvent {
 
 	private File file;
 
