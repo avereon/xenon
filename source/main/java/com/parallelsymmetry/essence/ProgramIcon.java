@@ -91,7 +91,9 @@ public abstract class ProgramIcon extends Canvas {
 	public static final double ZP = 0.96875;
 
 	protected enum GradientShade {
-		LIGHT, MEDIUM, DARK
+		LIGHT,
+		MEDIUM,
+		DARK
 	}
 
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
@@ -331,11 +333,11 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	protected double xformX( double value ) {
-		return xOffset + size * value;
+		return size * (value + xOffset);
 	}
 
 	protected double xformY( double value ) {
-		return yOffset + size * value;
+		return size * (value + yOffset);
 	}
 
 	protected double g( double value, double grid ) {

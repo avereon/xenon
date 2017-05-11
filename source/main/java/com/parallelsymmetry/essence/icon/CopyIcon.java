@@ -10,13 +10,13 @@ public class CopyIcon extends ProgramIcon {
 		//setColorMode( ColorMode.SECONDARYA );
 		fillAndDraw( GradientShade.DARK );
 
-		//getGraphicsContext2D().translate( D,F );
 		move( D, F );
 
-		// NEXT Second page not rendering in CopyIcon
 		renderPage();
 		//setColorMode( ColorMode.PRIMARY );
 		fillAndDraw();
+
+		reset();
 	}
 
 	private void renderPage() {
