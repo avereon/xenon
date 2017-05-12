@@ -30,6 +30,9 @@ public abstract class ProgramBaseTest {
 
 	@BeforeClass
 	public static void prepare() throws Exception {
+		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
+		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+
 		ProductMetadata metadata = new ProductMetadata();
 		String prefix = ExecMode.TEST.getPrefix();
 		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );

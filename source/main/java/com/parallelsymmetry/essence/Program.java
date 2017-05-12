@@ -213,7 +213,10 @@ public class Program extends Application implements Product {
 
 	private String getParameter( String key ) {
 		Parameters parameters = getParameters();
-		if( parameters == null ) return null;
+		if( parameters == null ) {
+			// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
+			return System.getProperty( key );
+		}
 		return parameters.getNamed().get( key );
 	}
 
