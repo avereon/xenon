@@ -180,15 +180,19 @@ public class Program extends Application implements Product {
 	private void configureLogging() {
 		// The default logging configuration is in the logging.properties resource
 
+		// Parse the log level parameter
+		Level level = Level.INFO;
+		try {
+			level = Level.parse( getParameter( ProgramParameter.LOG_LEVEL ).toUpperCase() );
+		} catch( Exception exception ) {
+			// Intentionally ignore exception
+		}
+
 		// Set all the program loggers to log at the specified level
-		String logLevel = getParameter( ProgramParameter.LOG_LEVEL );
-
-		// NEXT Parse the logLevel parameter
-
 		String packageName = getClass().getPackageName();
 		for( String name : Collections.list( LogManager.getLogManager().getLoggerNames() ) ) {
 			if( name.startsWith( packageName ) ) System.out.println( "  Logger name: " + name );
-			java.util.logging.Logger.getLogger( name ).setLevel( Level.ALL );
+			java.util.logging.Logger.getLogger( name ).setLevel( level );
 		}
 	}
 
@@ -209,7 +213,7 @@ public class Program extends Application implements Product {
 
 	private String getParameter( String key ) {
 		Parameters parameters = getParameters();
-		if( parameters != null ) return null;
+		if( parameters == null ) return null;
 		return parameters.getNamed().get( key );
 	}
 

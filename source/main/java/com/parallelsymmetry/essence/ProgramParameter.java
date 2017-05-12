@@ -10,6 +10,6 @@ public interface ProgramParameter {
 
 	String LOCALE = "locale";
 
-	String LOG_LEVEL = "log.level";
+	String LOG_LEVEL = "log-level";
 
 }
