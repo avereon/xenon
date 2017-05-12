@@ -6,45 +6,43 @@ public class PasteIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-//		Path board = new Path();
-//		board.moveTo( ZC, ZD );
-//		board.lineTo( ZC, ZM );
-//		board.lineTo( ZD, ZN );
-//		board.lineTo( ZM, ZN );
-//		board.lineTo( ZN, ZM );
-//		board.lineTo( ZN, ZD );
-//		board.lineTo( ZM, ZC );
-//		board.lineTo( ZD, ZC );
-//		board.closePath();
-//
-//		Path page = new Path();
-//		page.moveTo( ZG, ZE );
-//		page.lineTo( ZG, ZN );
-//		page.lineTo( ZN, ZN );
-//		page.lineTo( ZN, ZE );
-//		page.closePath();
-//
-//		Path clip = new Path();
-//		clip.moveTo( ZE, ZE );
-//		clip.lineTo( ZE, ZF );
-//		clip.lineTo( ZL, ZF );
-//		clip.lineTo( ZL, ZE );
-//		clip.append( new Arc( ZE, ZB, M, ZF, 0, 180, Arc.OPEN ), true );
-//		clip.closePath();
-//
-//		Path slot = new Path();
-//		slot.moveTo( M, ZD );
-//		slot.lineTo( N, ZD );
-//
-//		fill( board, GradientType.DARK );
-//		draw( board );
-//
-//		fill( page );
-//		draw( page );
-//
-//		fill( clip );
-//		draw( clip );
-//		draw( slot );
+		beginPath();
+		moveTo( ZC, ZD );
+		lineTo( ZC, ZM );
+		lineTo( ZD, ZN );
+		lineTo( ZM, ZN );
+		lineTo( ZN, ZM );
+		lineTo( ZN, ZD );
+		lineTo( ZM, ZC );
+		lineTo( ZD, ZC );
+		closePath();
+		fillAndDraw();
+
+		beginPath();
+		moveTo( ZG, ZE );
+		lineTo( ZG, ZN );
+		lineTo( ZN, ZN );
+		lineTo( ZN, ZE );
+		closePath();
+		fillAndDraw( GradientShade.LIGHT );
+
+		beginPath();
+		moveTo( ZE, ZE );
+		lineTo( ZE, ZF );
+		lineTo( ZL, ZF );
+		lineTo( ZL, ZE );
+		arc( C, ZD, M / 2, ZF / 2, 0, 180 );
+		closePath();
+		fillAndDraw();
+
+		// TODO Finish PasteIcon
+		beginPath();
+		moveTo( M,ZD );
+		lineTo( N,ZD );
+		arc(C,ZD,ZC,ZB, 0,180);
+		//drawLine( M, ZD, N, ZD );
+		closePath();
+		fillAndDraw(GradientShade.DARK);
 	}
 
 	public static void main( String[] commands ) {
