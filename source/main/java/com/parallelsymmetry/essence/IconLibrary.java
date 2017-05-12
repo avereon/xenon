@@ -26,7 +26,7 @@ public class IconLibrary {
 		register( "cut", CutIcon.class );
 		register( "copy", CopyIcon.class );
 		register( "paste", PasteIcon.class );
-//		register( "delete", DelteIcon.class );
+		register( "delete", DeleteIcon.class );
 //		register( "indent", IndentIcon.class );
 //		register( "unindent", UnindentIcon.class );
 
