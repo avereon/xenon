@@ -387,16 +387,16 @@ public abstract class ProgramIcon extends Canvas {
 		switch( shade ) {
 			case LIGHT: {
 				a = 0.9;
-				b = 0.5;
+				b = 0.7;
 				break;
 			}
 			case MEDIUM: {
-				a = 0.7;
-				b = 0.3;
+				a = 0.8;
+				b = 0.2;
 				break;
 			}
 			case DARK: {
-				a = 0.5;
+				a = 0.3;
 				b = 0.1;
 				break;
 			}

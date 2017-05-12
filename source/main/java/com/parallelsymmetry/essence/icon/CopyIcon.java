@@ -8,13 +8,13 @@ public class CopyIcon extends ProgramIcon {
 	protected void render() {
 		renderPage();
 		//setColorMode( ColorMode.SECONDARYA );
-		fillAndDraw( GradientShade.DARK );
+		fillAndDraw();
 
 		move( D, F );
 
 		renderPage();
 		//setColorMode( ColorMode.PRIMARY );
-		fillAndDraw();
+		fillAndDraw( GradientShade.LIGHT );
 
 		reset();
 	}
