@@ -8,24 +8,19 @@ public class ExitIcon extends ProgramIcon {
 	protected void render() {
 		double radius = Math.sqrt( 2 * (J * J) );
 
-		// FIXME Use arc() instead of arcTo()
 		beginPath();
 		moveTo( C, G );
 		lineTo( O, K );
-		arcTo( E, F, P, K, radius );
-		arcTo( I, D, P, L, radius );
+		arc( E, D, radius, radius, 135, -180 );
 		lineTo( H, C );
 		lineTo( P, O );
-		arcTo( I, E, P, P, radius );
-		arcTo( E, I, O, P, radius );
+		arc( E, E, radius, radius, 45, -180 );
 		lineTo( C, H );
 		lineTo( L, P );
-		arcTo( D, I, K, P, radius );
-		arcTo( F, E, K, O, radius );
+		arc( D, E, radius, radius, 315, -180 );
 		lineTo( G, C );
 		lineTo( K, L );
-		arcTo( F, D, K, K, radius );
-		arcTo( D, F, L, K, radius );
+		arc( D, D, radius, radius, 225, -180 );
 		closePath();
 
 		fillAndDraw();
