@@ -6,43 +6,41 @@ public class PasteIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
+		// Board
 		beginPath();
-		moveTo( ZC, ZD );
-		lineTo( ZC, ZM );
-		lineTo( ZD, ZN );
-		lineTo( ZM, ZN );
-		lineTo( ZN, ZM );
-		lineTo( ZN, ZD );
-		lineTo( ZM, ZC );
-		lineTo( ZD, ZC );
+		arc( g32( 7 ), g32( 25 ), g16( 1 ), g16( 1 ), 180, 90 );
+		lineTo( g32( 25 ), g32( 27 ) );
+		arc( g32( 25 ), g32( 25 ), g16( 1 ), g16( 1 ), 270, 90 );
+		lineTo( g32( 27 ), g32( 7 ) );
+		arc( g32( 25 ), g32( 7 ), g16( 1 ), g16( 1 ), 0, 90 );
+		lineTo( g32( 7 ), g32( 5 ) );
+		arc( g32( 7 ), g32( 7 ), g16( 1 ), g16( 1 ), 90, 90 );
 		closePath();
 		fillAndDraw();
 
+		// Page
 		beginPath();
-		moveTo( ZG, ZE );
-		lineTo( ZG, ZN );
-		lineTo( ZN, ZN );
-		lineTo( ZN, ZE );
+		moveTo( g32( 13 ), g32( 9 ) );
+		lineTo( g32( 13 ), g32( 27 ) );
+		lineTo( g32( 27 ), g32( 27 ) );
+		lineTo( g32( 27 ), g32( 9 ) );
 		closePath();
 		fillAndDraw( GradientShade.LIGHT );
 
+		// Clip
 		beginPath();
-		moveTo( ZE, ZE );
-		lineTo( ZE, ZF );
-		lineTo( ZL, ZF );
-		lineTo( ZL, ZE );
-		arc( C, ZD, M / 2, ZF / 2, 0, 180 );
+		moveTo( g32( 9 ), g32( 9 ) );
+		lineTo( g32( 9 ), g32( 11 ) );
+		lineTo( g32( 23 ), g32( 11 ) );
+		lineTo( g32( 23 ), g32( 9 ) );
+		arc( g2( 1 ), g32( 7 ), g32( 7 ), g16( 3 ), 0, 180 );
+		lineTo( g32( 9 ), g32( 9 ) );
+		// Hole
+		moveTo( g32( 13 ), g32( 7 ) );
+		lineTo( g32( 19 ), g32( 7 ) );
+		arc( g2( 1 ), g32( 7 ), g32( 3 ), g16( 1 ), 0, 180 );
 		closePath();
 		fillAndDraw();
-
-		// TODO Finish PasteIcon
-		beginPath();
-		moveTo( M,ZD );
-		lineTo( N,ZD );
-		arc(C,ZD,ZC,ZB, 0,180);
-		//drawLine( M, ZD, N, ZD );
-		closePath();
-		fillAndDraw(GradientShade.DARK);
 	}
 
 	public static void main( String[] commands ) {
