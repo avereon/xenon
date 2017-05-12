@@ -191,7 +191,6 @@ public class Program extends Application implements Product {
 		// Set all the program loggers to log at the specified level
 		String packageName = getClass().getPackageName();
 		for( String name : Collections.list( LogManager.getLogManager().getLoggerNames() ) ) {
-			if( name.startsWith( packageName ) ) System.out.println( "  Logger name: " + name );
 			java.util.logging.Logger.getLogger( name ).setLevel( level );
 		}
 	}
