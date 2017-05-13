@@ -8,17 +8,17 @@ public class ExclamationIcon extends ProgramIcon {
 	protected void render() {
 		// Bar
 		beginPath();
-		moveTo( C, ZB );
-		curveTo( ZG, ZB, ZG, K, ZG, ZE );
-		curveTo( ZG, ZG, ZG, ZJ, C, ZJ );
-		curveTo( ZJ, ZJ, ZJ, ZG, ZJ, ZE );
-		curveTo( ZJ, K, ZJ, ZB, C, ZB );
+		moveTo( g( 16 ), g( 3 ) );
+		curveTo( g( 13 ), g( 3 ), g( 13 ), g( 6 ), g( 13 ), g( 9 ) );
+		curveTo( g( 13 ), g( 13 ), g( 13 ), g( 19 ), g( 16 ), g( 19 ) );
+		curveTo( g( 19 ), g( 19 ), g( 19 ), g( 13 ), g( 19 ), g( 9 ) );
+		curveTo( g( 19 ), g( 6 ), g( 19 ), g( 3 ), g( 16 ), g( 3 ) );
 		closePath();
 		fillAndDraw();
 
 		// Dot
-		fillOval( ZG, ZL, K, K );
-		drawOval( ZG, ZL, K, K );
+		fillOval( g( 13 ), g( 23 ), g( 6 ), g( 6 ) );
+		drawOval( g( 13 ), g( 23 ), g( 6 ), g( 6 ) );
 	}
 
 	public static void main( String[] commands ) {

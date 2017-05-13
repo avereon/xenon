@@ -6,13 +6,17 @@ public class CloseIcon extends DocumentIcon {
 		super.render();
 
 		beginPath();
-		moveTo( ZF, ZH );
-		lineTo( ZK, ZM );
-		moveTo( ZK, ZH );
-		lineTo( ZF, ZM );
+		moveTo( g( 11 ), g( 15 ) );
+		lineTo( g( 21 ), g( 25 ) );
+		moveTo( g( 21 ), g( 15 ) );
+		lineTo( g( 11 ), g( 25 ) );
 
-		setLineWidth( g( 1, 16 ) );
+		setLineWidth( g( 2 ) );
 		draw();
+	}
+
+	public static void main( String[] commands ) {
+		proof( new CloseIcon() );
 	}
 
 }

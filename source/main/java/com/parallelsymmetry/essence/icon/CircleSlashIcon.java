@@ -7,11 +7,15 @@ public class CircleSlashIcon extends ProgramIcon {
 
 	protected void render() {
 		setFillPaint( Color.BLUE );
-		fillOval( 0, 0, 1, 1 );
+		fillOval( g( 2 ), g( 2 ), g( 30 ), g( 30 ) );
 
-		setLineWidth( g16( 3 ) );
+		setLineWidth( g( 6 ) );
 		setDrawPaint( Color.CORNFLOWERBLUE );
-		drawLine( g8( 1 ), g8( 7 ), g8( 7 ), g8( 1 ) );
+		drawLine( g( 4 ), g( 28 ), g( 28 ), g( 4 ) );
+	}
+
+	public static void main( String[] commands ) {
+		proof( new CircleSlashIcon() );
 	}
 
 }

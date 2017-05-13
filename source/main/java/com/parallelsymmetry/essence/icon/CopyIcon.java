@@ -10,7 +10,7 @@ public class CopyIcon extends ProgramIcon {
 		//setColorMode( ColorMode.SECONDARYA );
 		fillAndDraw();
 
-		move( D, F );
+		move( g( 8 ), g( 4 ) );
 
 		renderPage();
 		//setColorMode( ColorMode.PRIMARY );
@@ -21,10 +21,10 @@ public class CopyIcon extends ProgramIcon {
 
 	private void renderPage() {
 		beginPath();
-		moveTo( ZC, ZC );
-		lineTo( ZC, ZL );
-		lineTo( ZJ, ZL );
-		lineTo( ZJ, ZC );
+		moveTo( g( 5 ), g( 5 ) );
+		lineTo( g( 5 ), g( 23 ) );
+		lineTo( g( 19 ), g( 23 ) );
+		lineTo( g( 19 ), g( 5 ) );
 		closePath();
 	}
 

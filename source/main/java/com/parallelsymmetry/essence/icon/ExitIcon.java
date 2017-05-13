@@ -6,21 +6,21 @@ public class ExitIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-		double radius = Math.sqrt( 2 * (J * J) );
+		double radius = Math.sqrt( 2 * (g( 2 ) * g( 2 )) );
 
 		beginPath();
-		moveTo( C, G );
-		lineTo( O, K );
-		arc( E, D, radius, radius, 135, -180 );
-		lineTo( H, C );
-		lineTo( P, O );
-		arc( E, E, radius, radius, 45, -180 );
-		lineTo( C, H );
-		lineTo( L, P );
-		arc( D, E, radius, radius, 315, -180 );
-		lineTo( G, C );
-		lineTo( K, L );
-		arc( D, D, radius, radius, 225, -180 );
+		moveTo( g( 16 ), g( 12 ) );
+		lineTo( g( 22 ), g( 6 ) );
+		arc( g( 24 ), g(8), radius, radius, 135, -180 );
+		lineTo( g( 20 ), g( 16 ) );
+		lineTo( g(26), g( 22 ) );
+		arc( g( 24 ), g( 24 ), radius, radius, 45, -180 );
+		lineTo( g( 16 ), g( 20 ) );
+		lineTo( g(10), g(26) );
+		arc( g(8), g( 24 ), radius, radius, 315, -180 );
+		lineTo( g( 12 ), g( 16 ) );
+		lineTo( g( 6 ), g(10) );
+		arc( g(8), g(8), radius, radius, 225, -180 );
 		closePath();
 
 		fillAndDraw();

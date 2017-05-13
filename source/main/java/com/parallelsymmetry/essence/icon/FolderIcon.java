@@ -2,34 +2,35 @@ package com.parallelsymmetry.essence.icon;
 
 import com.parallelsymmetry.essence.ProgramIcon;
 
-/**
- * Created by ecco on 5/5/17.
- */
 public class FolderIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
 		// Back
 		beginPath();
-		moveTo( ZD, ZD );
-		lineTo( ZC, ZE );
-		lineTo( ZC, ZM );
-		lineTo( ZN, ZM );
-		lineTo( ZN, ZF );
-		lineTo( ZM, ZE );
-		lineTo( ZH, ZE );
-		lineTo( ZG, ZD );
+		moveTo( g(7), g(7) );
+		lineTo( g(5), g(9) );
+		lineTo( g(5), g(25) );
+		lineTo( g(27), g(25) );
+		lineTo( g(27), g(11) );
+		lineTo( g(25), g(9) );
+		lineTo( g(15), g(9) );
+		lineTo( g(13), g(7) );
 		closePath();
 		fillAndDraw();
 
 		// Front
 		beginPath();
-		moveTo( ZB, ZH );
-		lineTo( ZC, ZM );
-		lineTo( ZN, ZM );
-		lineTo( ZM, ZH );
+		moveTo( g(3), g(15) );
+		lineTo( g(5), g(25) );
+		lineTo( g(27), g(25) );
+		lineTo( g(25), g(15) );
 		closePath();
 		fillAndDraw( getIconFillPaint( GradientShade.DARK ) );
+	}
+
+	public static void main( String[] commands ) {
+		proof( new FolderIcon() );
 	}
 
 }

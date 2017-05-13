@@ -8,19 +8,20 @@ public class QuestionIcon extends ProgramIcon {
 	protected void render() {
 		// Squiggle
 		beginPath();
-		moveTo( ZE, ZE );
-		arc( G, ZE, ZB, J, 180, 180 );
-		arc( C, ZE, ZA, ZA, 180, -180 );
-		curveTo( ZI, ZG, ZG, ZF, ZG, ZI );
-		arc( C, ZI, ZB, J, 180, 180 );
-		curveTo( ZJ, ZG, ZL, ZG, ZL, ZE );
-		arc( C, ZE, ZD, K, 0, 180 );
+		moveTo( g( 9 ), g( 9 ) );
+		arc( g( 12 ), g( 9 ), g( 3 ), g( 2 ), 180, 180 );
+		arc( g( 16 ), g( 9 ), g( 1 ), g( 1 ), 180, -180 );
+		curveTo( g( 17 ), g( 13 ), g( 13 ), g( 11 ), g( 13 ), g( 17 ) );
+		arc( g( 16 ), g( 17 ), g( 3 ), g( 2 ), 180, 180 );
+
+		curveTo( g( 19 ), g( 13 ), g( 23 ), g( 13 ), g( 23 ), g( 9 ) );
+		arc( g( 16 ), g( 9 ), g( 7 ), g( 6 ), 0, 180 );
 		closePath();
 		fillAndDraw();
 
 		// Dot
-		fillOval( ZG, ZL, K, K );
-		drawOval( ZG, ZL, K, K );
+		fillOval( g( 13 ), g( 23 ), g( 6 ), g( 6 ) );
+		drawOval( g( 13 ), g( 23 ), g( 6 ), g( 6 ) );
 	}
 
 	public static void main( String[] commands ) {

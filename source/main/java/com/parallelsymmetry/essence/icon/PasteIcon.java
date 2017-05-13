@@ -8,37 +8,37 @@ public class PasteIcon extends ProgramIcon {
 	protected void render() {
 		// Board
 		beginPath();
-		arc( g32( 7 ), g32( 25 ), g16( 1 ), g16( 1 ), 180, 90 );
-		lineTo( g32( 25 ), g32( 27 ) );
-		arc( g32( 25 ), g32( 25 ), g16( 1 ), g16( 1 ), 270, 90 );
-		lineTo( g32( 27 ), g32( 7 ) );
-		arc( g32( 25 ), g32( 7 ), g16( 1 ), g16( 1 ), 0, 90 );
-		lineTo( g32( 7 ), g32( 5 ) );
-		arc( g32( 7 ), g32( 7 ), g16( 1 ), g16( 1 ), 90, 90 );
+		arc( g( 7 ), g( 25 ), g( 2 ), g( 2 ), 180, 90 );
+		lineTo( g( 25 ), g( 27 ) );
+		arc( g( 25 ), g( 25 ), g( 2 ), g( 2 ), 270, 90 );
+		lineTo( g( 27 ), g( 7 ) );
+		arc( g( 25 ), g( 7 ), g( 2 ), g( 2 ), 0, 90 );
+		lineTo( g( 7 ), g( 5 ) );
+		arc( g( 7 ), g( 7 ), g( 2 ), g( 2 ), 90, 90 );
 		closePath();
 		fillAndDraw();
 
 		// Page
 		beginPath();
-		moveTo( g32( 13 ), g32( 9 ) );
-		lineTo( g32( 13 ), g32( 27 ) );
-		lineTo( g32( 27 ), g32( 27 ) );
-		lineTo( g32( 27 ), g32( 9 ) );
+		moveTo( g( 13 ), g( 9 ) );
+		lineTo( g( 13 ), g( 27 ) );
+		lineTo( g( 27 ), g( 27 ) );
+		lineTo( g( 27 ), g( 9 ) );
 		closePath();
 		fillAndDraw( GradientShade.LIGHT );
 
 		// Clip
 		beginPath();
-		moveTo( g32( 9 ), g32( 9 ) );
-		lineTo( g32( 9 ), g32( 11 ) );
-		lineTo( g32( 23 ), g32( 11 ) );
-		lineTo( g32( 23 ), g32( 9 ) );
-		arc( g2( 1 ), g32( 7 ), g32( 7 ), g16( 3 ), 0, 180 );
-		lineTo( g32( 9 ), g32( 9 ) );
+		moveTo( g( 9 ), g( 9 ) );
+		lineTo( g( 9 ), g( 11 ) );
+		lineTo( g( 23 ), g( 11 ) );
+		lineTo( g( 23 ), g( 9 ) );
+		arc( g( 16 ), g( 7 ), g( 7 ), g( 6 ), 0, 180 );
+		lineTo( g( 9 ), g( 9 ) );
 		// Hole
-		moveTo( g32( 13 ), g32( 7 ) );
-		lineTo( g32( 19 ), g32( 7 ) );
-		arc( g2( 1 ), g32( 7 ), g32( 3 ), g16( 1 ), 0, 180 );
+		moveTo( g( 13 ), g( 7 ) );
+		lineTo( g( 19 ), g( 7 ) );
+		arc( g( 16 ), g( 7 ), g( 3 ), g( 2 ), 0, 180 );
 		closePath();
 		fillAndDraw();
 	}

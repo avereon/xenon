@@ -7,14 +7,14 @@ public class DeleteIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		beginPath();
-		arc( g2( 1 ), g4( 3 ), g32( 9 ), g32( 3 ), 180, 180 );
-		lineTo( g32( 25 ), g4( 1 ) );
-		lineTo( g32( 7 ), g4( 1 ) );
+		arc( g( 16 ), g( 24 ), g( 9 ), g( 3 ), 180, 180 );
+		lineTo( g( 25 ), g( 8 ) );
+		lineTo( g( 7 ), g( 8 ) );
 		closePath();
-		fillAndDraw();
+		fillAndDraw( GradientShade.LIGHT );
 
 		beginPath();
-		arc( g2( 1 ), g4( 1 ), g32( 9 ), g32( 3 ), 0, 360 );
+		arc( g( 16 ), g( 8 ), g( 9 ), g( 3 ), 0, 360 );
 		fillAndDraw( GradientShade.DARK );
 	}
 
