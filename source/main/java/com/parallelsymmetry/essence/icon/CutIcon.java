@@ -6,41 +6,65 @@ public class CutIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-		double a = 0.2265625;
-		double b = 0.296875;
-		double c = 0.578125;
-		double d = 0.703125;
-		double r = g( 2 );
-
-		// Left scissor
+		// Bottom Scissor
 		beginPath();
-		moveTo( g( 11 ), g( 3 ) );
-		curveTo( g( 11 ), a, g( 12 ), g( 13 ), g( 14 ), g( 17 ) );
-		curveTo( g( 16 ), g( 21 ), g( 15 ), g( 29 ), g( 21 ), g( 29 ) );
-		curveTo( g( 23 ), g( 29 ), g( 25 ), g( 27 ), g( 25 ), g( 25 ) );
-		curveTo( g( 25 ), g( 21 ), g( 19 ), g( 19 ), g( 18 ), g( 17 ) );
-		lineTo( g( 11 ), g( 3 ) );
-		moveTo( c + g( 4 ), d + r );
-		arc( c + r, d + r, r, r, 0, 360 );
+		moveTo( g( 17 ), g( 16 ) );
+		lineTo( g( 3 ), g( 9 ) );
+		curveTo( g( 5 ), g( 13 ), g( 7 ), g( 15 ), g( 11 ), g( 17 ) );
+		curveTo( g( 15 ), g( 19 ), g( 19 ), g( 19 ), g( 23 ), g( 21 ) );
+		curveTo( g( 25 ), g( 22 ), g( 27 ), g( 23 ), g( 29 ), g( 23 ) );
+		arc( g( 29 ), g( 21 ), g( 2 ), g( 2 ), 270, 90 );
+		arc( g( 27 ), g( 21 ), g( 4 ), g( 4 ), 0, 90 );
+		curveTo( g( 23 ), g( 17 ), g( 19 ), g( 17 ), g( 17 ), g( 16 ) );
+		// Bottom Handle
+		moveTo( g( 23 ), g( 20 ) );
+		curveTo( g( 25 ), g( 21 ), g( 27 ), g( 22 ), g( 29 ), g( 22 ) );
+		arc( g( 29 ), g( 21 ), g( 1 ), g( 1 ), 270, 90 );
+		arc( g( 27 ), g( 21 ), g( 3 ), g( 3 ), 0, 90 );
+		lineTo( g( 25 ), g( 18 ) );
+		arc( g( 25 ), g( 20 ), g( 2 ), g( 2 ), 90, 90 );
 		closePath();
 		fillAndDraw();
 
-		// Right scissor
+		// Left Wave
 		beginPath();
-		moveTo( g( 21 ), g( 3 ) );
-		lineTo( g( 14 ), g( 17 ) );
-		curveTo( g( 13 ), g( 19 ), g( 7 ), g( 21 ), g( 7 ), g( 25 ) );
-		curveTo( g( 7 ), g( 27 ), g( 9 ), g( 29 ), g( 11 ), g( 29 ) );
-		curveTo( g( 17 ), g( 29 ), g( 16 ), g( 21 ), g( 18 ), g( 17 ) );
-		curveTo( g( 20 ), g( 13 ), g( 21 ), a, g( 21 ), g( 3 ) );
-		lineTo( g( 21 ), g( 3 ) );
-		moveTo( b + g( 4 ), d + r );
-		arc( b + r, d + r, r, r, 0, 360 );
+		moveTo( g( 3 ), g( 17 ) );
+		curveTo( g( 9 ), g( 17 ), g( 11 ), g( 5 ), g( 19 ), g( 5 ) );
+		curveTo( g( 13 ), g( 5 ), g( 11 ), g( 17 ), g( 3 ), g( 17 ) );
 		closePath();
-		fillAndDraw( GradientShade.LIGHT );
+		fillAndDraw();
+
+		// Right Wave
+		beginPath();
+		moveTo( g( 5 ), g( 19 ) );
+		curveTo( g( 11 ), g( 19 ), g( 13 ), g( 7 ), g( 21 ), g( 7 ) );
+		curveTo( g( 15 ), g( 7 ), g( 13 ), g( 19 ), g( 5 ), g( 19 ) );
+		closePath();
+		fillAndDraw();
+
+		// Top Scissor
+		beginPath();
+		moveTo( g( 16 ), g( 17 ) );
+		lineTo( g( 9 ), g( 3 ) );
+		curveTo( g( 13 ), g( 5 ), g( 15 ), g( 7 ), g( 17 ), g( 11 ) );
+		curveTo( g( 19 ), g( 15 ), g( 19 ), g( 19 ), g( 21 ), g( 23 ) );
+		curveTo( g( 22 ), g( 25 ), g( 23 ), g( 27 ), g( 23 ), g( 29 ) );
+		arc( g( 21 ), g( 29 ), g( 2 ), g( 2 ), 0, -90 );
+		arc( g( 21 ), g( 27 ), g( 4 ), g( 4 ), 270, -90 );
+		curveTo( g( 17 ), g( 23 ), g( 17 ), g( 19 ), g( 16 ), g( 17 ) );
+		// Top Handle
+		moveTo( g( 20 ), g( 23 ) );
+		curveTo(g(21),g(25),g(22),g(27),g(22),g(29));
+		arc( g( 21 ), g( 29 ), g( 1 ), g( 1 ), 0, -90 );
+		arc( g( 21 ), g( 27 ), g( 3 ), g( 3 ), 270, -90 );
+		lineTo(g(18),g(25));
+		arc(g(20),g(25),g(2),g(2),180,-90);
+		closePath();
+		fillAndDraw(GradientShade.LIGHT);
 
 		// Hinge
-		drawDot( g( 16 ), g( 17 ) );
+		double p = 17.75;
+		drawLine( g(p),g(p),g(p),g(p) );
 	}
 
 	public static void main( String[] commands ) {
