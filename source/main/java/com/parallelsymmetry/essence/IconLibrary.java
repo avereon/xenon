@@ -34,7 +34,7 @@ public class IconLibrary {
 
 		register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
-		register( "updates", UpdatesIcon.class );
+		register( "update", UpdateIcon.class );
 		register( "about", ExclamationIcon.class );
 
 		//register( "workarea-new", SquareIcon.class);

@@ -6,7 +6,8 @@ public class WelcomeIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-		// TODO Implement WelcomeIcon.render()
+		fillOval( g( 5 ), g( 5 ), g( 22 ), g( 22 ) );
+		drawOval( g( 5 ), g( 5 ), g( 22 ), g( 22 ) );
 	}
 
 	public static void main( String[] commands ) {
