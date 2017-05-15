@@ -27,15 +27,19 @@ public class IconLibrary {
 		register( "copy", CopyIcon.class );
 		register( "paste", PasteIcon.class );
 		register( "delete", DeleteIcon.class );
-//		register( "indent", IndentIcon.class );
-//		register( "unindent", UnindentIcon.class );
+		register( "indent", IndentIcon.class );
+		register( "unindent", UnindentIcon.class );
 
-//		register( "settings", SettingsIcon.class );
+		register( "settings", SettingsIcon.class );
 
-		//register( "welcome", WelcomeIcon.class );
+		register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
-		//register( "updates", UpdatesIcon.class );
+		register( "updates", UpdatesIcon.class );
 		register( "about", ExclamationIcon.class );
+
+		//register( "workarea-new", SquareIcon.class);
+		//register( "workarea-rename", SquareIcon.class);
+		//register( "workarea-close", SquareIcon.class);
 	}
 
 	public ProgramIcon getIcon( String id ) {
