@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.action.ExitProgramHandler;
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStartingEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
@@ -55,6 +56,8 @@ public class Program extends Application implements Product {
 
 	private Set<ProgramEventListener> listeners;
 
+	private ExitProgramHandler exitActionHandler;
+
 	static {
 		try {
 			LogManager.getLogManager().readConfiguration( Program.class.getResourceAsStream( "/logging.properties" ) );
@@ -70,6 +73,9 @@ public class Program extends Application implements Product {
 
 	public Program() {
 		startTimestamp = System.currentTimeMillis();
+
+		// Create program action handlers
+		exitActionHandler = new ExitProgramHandler( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -224,6 +230,18 @@ public class Program extends Application implements Product {
 		new ProgramStartedEvent( this ).fire( listeners );
 	}
 
+	private void registerIcons() {}
+
+	private void unregisterIcons() {}
+
+	private void registerActionHandlers() {
+		getActionLibrary().getAction( "exit" ).pushAction( exitActionHandler );
+	}
+
+	private void unregisterActionHandlers() {
+		getActionLibrary().getAction( "exit" ).pullAction( exitActionHandler );
+	}
+
 	private class StartupTask extends Task<Void> {
 
 		private Stage stage;
@@ -238,9 +256,11 @@ public class Program extends Application implements Product {
 
 			// Create the icon library
 			iconLibrary = new IconLibrary();
+			registerIcons();
 
 			// Create the action library
 			actionLibrary = new ActionLibrary( productBundle, iconLibrary );
+			registerActionHandlers();
 
 			// Create the workspace manager
 			workspaceManager = new WorkspaceManager( Program.this );
@@ -310,6 +330,12 @@ public class Program extends Application implements Product {
 
 			// Disconnect the settings listener
 			settings.removeProgramEventListener( watcher );
+
+			// Unregister action handlers
+			unregisterActionHandlers();
+
+			// Unregister icons
+			unregisterIcons();
 
 			new ProgramStoppedEvent( this ).fire( listeners );
 
