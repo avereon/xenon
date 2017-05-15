@@ -25,9 +25,7 @@ public abstract class ProgramIcon extends Canvas {
 	private static final int DEFAULT_SIZE = 256;
 
 	protected enum GradientShade {
-		LIGHT,
-		MEDIUM,
-		DARK
+		LIGHT, MEDIUM, DARK
 	}
 
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
@@ -230,6 +228,10 @@ public abstract class ProgramIcon extends Canvas {
 		drawOval( x - offset, y - offset, offset * 2, offset * 2 );
 	}
 
+	protected void fillRect( double x, double y, double w, double h ) {
+		getGraphicsContext2D().fillRect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
+	}
+
 	protected void fillOval( double x, double y, double w, double h ) {
 		getGraphicsContext2D().fillOval( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
@@ -244,6 +246,10 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected void drawLine( double x1, double y1, double x2, double y2 ) {
 		getGraphicsContext2D().strokeLine( xformX( x1 ), xformY( y1 ), xformX( x2 ), xformY( y2 ) );
+	}
+
+	protected void drawRect( double x, double y, double w, double h ) {
+		getGraphicsContext2D().strokeRect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
 	protected void drawOval( double x, double y, double w, double h ) {

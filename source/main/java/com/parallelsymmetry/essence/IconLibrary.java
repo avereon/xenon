@@ -37,9 +37,9 @@ public class IconLibrary {
 		register( "update", UpdateIcon.class );
 		register( "about", ExclamationIcon.class );
 
-		//register( "workarea-new", SquareIcon.class);
-		//register( "workarea-rename", SquareIcon.class);
-		//register( "workarea-close", SquareIcon.class);
+		register( "workarea-new", WorkareaIcon.class);
+		register( "workarea-rename", WorkareaRenameIcon.class);
+		register( "workarea-close", WorkareaCloseIcon.class);
 	}
 
 	public ProgramIcon getIcon( String id ) {
