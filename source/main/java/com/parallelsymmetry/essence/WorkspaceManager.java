@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.work.Workspace;
+import javafx.application.Platform;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,6 +46,12 @@ public class WorkspaceManager {
 
 	public Workspace getActiveWorkspace() {
 		return activeWorkspace;
+	}
+
+	public void closeWorkspace( Workspace workspace ) {
+		// TODO If the user desires, prompt to exit the program
+
+		if( workspaces.size() == 1 ) Platform.exit();
 	}
 
 }

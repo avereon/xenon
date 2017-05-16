@@ -59,6 +59,7 @@ public class Program extends Application implements Product {
 	private ExitProgramHandler exitActionHandler;
 
 	static {
+		Platform.setImplicitExit( false );
 		try {
 			LogManager.getLogManager().readConfiguration( Program.class.getResourceAsStream( "/logging.properties" ) );
 		} catch( IOException exception ) {

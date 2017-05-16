@@ -12,7 +12,7 @@ public class ExitProgramHandler extends ProgramActionHandler {
 
 	@Override
 	public void handle( Event event ) {
-
+		program.getWorkspaceManager().closeWorkspace( program.getWorkspaceManager().getActiveWorkspace() );
 	}
 
 }
