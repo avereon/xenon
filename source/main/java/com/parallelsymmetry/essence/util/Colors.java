@@ -4,15 +4,6 @@ import javafx.scene.paint.Color;
 
 public class Colors {
 
-	public static Color getShade( Color color, double factor ) {
-		if( factor < 0 ) factor = 0;
-		if( factor > 1 ) factor = 1;
-
-		double d = Math.abs(0.5-factor )/0.5;
-
-		return mix( color, new Color( factor, factor, factor, color.getOpacity() ), d );
-	}
-
 	public static Color mix( Color color, Color mixer, double factor ) {
 		if( color == null || mixer == null ) return null;
 
@@ -37,6 +28,34 @@ public class Colors {
 		double a = colorA + (diffA * factor);
 
 		return new Color( r, g, b, a );
+	}
+
+	public static Color getShade( Color color, double factor ) {
+		if( factor < 0 ) factor = 0;
+		if( factor > 1 ) factor = 1;
+
+		double d = Math.abs(0.5-factor )/0.5;
+
+		return mix( color, new Color( factor, factor, factor, color.getOpacity() ), d );
+	}
+
+	/**
+	 * Get the intensity of the specified color.
+	 * <p>
+	 * Derived from: http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+	 *
+	 * @param color
+	 * @return
+	 */
+	public static double getLuminance( Color color ) {
+		double r = color.getRed();
+		double g = color.getGreen();
+		double b = color.getBlue();
+
+		//float y = (float)Math.sqrt(0.299 * r*r + 0.587 * g*g + 0.114 * b*b);
+		double y = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+
+		return y;
 	}
 
 	private static float clamp( float value ) {

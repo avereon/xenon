@@ -25,7 +25,9 @@ public abstract class ProgramIcon extends Canvas {
 	private static final int DEFAULT_SIZE = 256;
 
 	protected enum GradientShade {
-		LIGHT, MEDIUM, DARK
+		LIGHT,
+		MEDIUM,
+		DARK
 	}
 
 	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
@@ -36,17 +38,28 @@ public abstract class ProgramIcon extends Canvas {
 
 	private static Color DEFAULT_FILL_COLOR = new Color( 0.8, 0.8, 0.8, 1.0 );
 
-	private double drawWidth = DEFAULT_STROKE_WIDTH;
+	private static double drawWidth = DEFAULT_STROKE_WIDTH;
 
-	private Color drawColor = DEFAULT_STROKE_COLOR;
+	private static Color themeDrawColor;
 
-	private Color fillColor = DEFAULT_FILL_COLOR;
+	private static Color themeFillColor;
+
+	private static Color drawColor;
+
+	private static Color fillColor;
+
+	private static ColorTheme theme;
 
 	private double size;
 
 	private double xOffset;
 
 	private double yOffset;
+
+	static {
+		setColorTheme( new ColorTheme( new Color( 0.8, 0.8, 0.8, 1.0 ) ) );
+		//setColorTheme( new ColorTheme( Color.GRAY.darker() ) );
+	}
 
 	public ProgramIcon() {
 		this( DEFAULT_SIZE );
@@ -58,19 +71,27 @@ public abstract class ProgramIcon extends Canvas {
 		setSize( size );
 	}
 
-	@Override
-	public ProgramIcon clone() {
-		ProgramIcon clone = null;
+	public static void setColorTheme( ColorTheme theme ) {
+		ProgramIcon.theme = theme;
+		themeFillColor = theme.getPrimary();
 
-		try {
-			clone = getClass().getDeclaredConstructor().newInstance();
-			clone.setWidth( getWidth() );
-			clone.setHeight( getHeight() );
-		} catch( Exception e ) {
-			e.printStackTrace();
+		// A luminance greater than 0.5 is "bright"
+		// A luminance less than 0.5 is "dark"
+		double y = Colors.getLuminance( theme.getPrimary() );
+		System.out.println( "Luminance: " + y );
+		if( y < 0.5 ) {
+			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 1.5, 1 );
+		} else {
+			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 0.25, 1 );
 		}
+	}
 
-		return clone;
+	public static void setDrawColor( Color color ) {
+		drawColor = color;
+	}
+
+	public static void setFillColor( Color color ) {
+		fillColor = color;
 	}
 
 	public ProgramIcon setSize( double size ) {
@@ -289,11 +310,11 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	protected Color getIconDrawPaint() {
-		return drawColor;
+		return drawColor == null ? themeDrawColor : drawColor;
 	}
 
 	protected Color getIconFillColor() {
-		return fillColor;
+		return fillColor == null ? themeFillColor : fillColor;
 	}
 
 	protected Paint getIconFillPaint() {
@@ -332,8 +353,8 @@ public abstract class ProgramIcon extends Canvas {
 		Platform.startup( () -> {
 			String title = icon.getClass().getSimpleName();
 
-			ImageView imageView16 = new ImageView( resample( icon.clone().setSize( 16 ).getImage(), 16 ) );
-			ImageView imageView32 = new ImageView( resample( icon.clone().setSize( 32 ).getImage(), 8 ) );
+			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
+			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
 
 			GridPane pane = new GridPane();
 			pane.add( icon, 1, 1 );
@@ -349,6 +370,20 @@ public abstract class ProgramIcon extends Canvas {
 			//stage.sizeToScene();
 			stage.show();
 		} );
+	}
+
+	private ProgramIcon copy() {
+		ProgramIcon clone = null;
+
+		try {
+			clone = getClass().getDeclaredConstructor().newInstance();
+			clone.setWidth( getWidth() );
+			clone.setHeight( getHeight() );
+		} catch( Exception e ) {
+			e.printStackTrace();
+		}
+
+		return clone;
 	}
 
 	private static Image resample( Image input, int scale ) {
