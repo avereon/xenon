@@ -53,8 +53,6 @@ public class Workspace {
 
 	private String id;
 
-	private Workarea event;
-
 	public Workspace( Program program ) {
 		this.program = program;
 
@@ -63,7 +61,10 @@ public class Workspace {
 
 		stage = new Stage();
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
-		stage.setOnCloseRequest( e -> program.getWorkspaceManager().closeWorkspace( this ) );
+		stage.setOnCloseRequest( event -> {
+			program.getWorkspaceManager().closeWorkspace( this );
+			event.consume();
+		} );
 
 		// FIXME Should this default setup be defined in config files or something else?
 

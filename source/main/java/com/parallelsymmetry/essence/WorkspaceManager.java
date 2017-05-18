@@ -1,7 +1,6 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.work.Workspace;
-import javafx.application.Platform;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,11 +8,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class WorkspaceManager {
 
+	private Program program;
+
 	private Set<Workspace> workspaces;
 
 	private Workspace activeWorkspace;
 
 	public WorkspaceManager( Program program ) {
+		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
 	}
 
@@ -49,9 +51,7 @@ public class WorkspaceManager {
 	}
 
 	public void closeWorkspace( Workspace workspace ) {
-		// TODO If the user desires, prompt to exit the program
-
-		if( workspaces.size() == 1 ) Platform.exit();
+		if( workspaces.size() == 1 ) program.requestExit();
 	}
 
 }

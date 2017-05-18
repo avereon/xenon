@@ -12,6 +12,8 @@ import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
@@ -133,6 +136,20 @@ public class Program extends Application implements Product {
 
 		// Stop the executor service
 		executor.shutdown();
+	}
+
+	public void requestExit() {
+		// TODO If the user desires, prompt to exit the program
+		Stage stage = getWorkspaceManager().getActiveWorkspace().getStage();
+
+		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+		alert.initOwner( getWorkspaceManager().getActiveWorkspace().getStage() );
+		alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
+		alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
+		alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if( result.get() == ButtonType.YES ) Platform.exit();
 	}
 
 	@Override
@@ -253,7 +270,7 @@ public class Program extends Application implements Product {
 			Thread.sleep( 500 );
 
 			// Create the product bundle
-			productBundle = new ProductBundle( getClass().getClassLoader(), getParameter( ProgramParameter.LOCALE ) );
+			productBundle = new ProductBundle( getClass().getClassLoader() );
 
 			// Create the icon library
 			iconLibrary = new IconLibrary();
@@ -310,6 +327,7 @@ public class Program extends Application implements Product {
 
 		@Override
 		protected void cancelled() {
+			log.warn( "Startup task cancelled" );
 			splashScreen.hide();
 		}
 

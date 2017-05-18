@@ -16,18 +16,14 @@ public class ProductBundle {
 		ACTION
 	}
 
-	private Locale locale;
-
 	private ClassLoader loader;
 
 	private Map<Key, ResourceBundle> bundles;
 
-	public ProductBundle( ClassLoader loader, String localeTag ) throws Exception {
+	public ProductBundle( ClassLoader loader ) throws Exception {
 		this.loader = loader;
-		this.locale = localeTag == null ? Locale.getDefault() : Locale.forLanguageTag( localeTag );
-
 		bundles = new ConcurrentHashMap<>();
-		bundles.put( Key.ACTION, getBundle( "bundles/actions", locale, loader, new Utf8Control() ) );
+		bundles.put( Key.ACTION, getBundle( "bundles/actions", Locale.getDefault(), loader, new Utf8Control() ) );
 	}
 
 	public String getActionString( String key, String... values ) {
@@ -36,7 +32,7 @@ public class ProductBundle {
 
 	public String getString( String bundleKey, String valueKey, String... values ) {
 		// TODO Might be able to optimize ProductBundle.getString()
-		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, locale, loader, new Utf8Control() );
+		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader, new Utf8Control() );
 		if( !bundle.containsKey( valueKey ) ) return null;
 		String string = bundle.getString( valueKey );
 		return format( string, values );

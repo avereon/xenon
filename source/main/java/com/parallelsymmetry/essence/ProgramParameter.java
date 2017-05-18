@@ -8,8 +8,6 @@ public interface ProgramParameter {
 
 	String EXECMODE_TEST = "test";
 
-	String LOCALE = "locale";
-
 	String LOG_LEVEL = "log-level";
 
 }
