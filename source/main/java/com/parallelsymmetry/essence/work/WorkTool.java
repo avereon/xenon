@@ -1,6 +1,21 @@
 package com.parallelsymmetry.essence.work;
 
+import com.parallelsymmetry.essence.Resource;
+import javafx.scene.control.Control;
+
 /**
- * Created by ecco on 4/9/17.
+ * The WorkTool class is a control that "works on" a resource.
  */
-public class WorkTool {}
+public abstract class WorkTool extends Control {
+
+	private Resource resource;
+
+	public WorkTool( Resource resource ) {
+		this.resource = resource;
+	}
+
+	public Resource getResource() {
+		return resource;
+	}
+
+}
