@@ -78,7 +78,6 @@ public abstract class ProgramIcon extends Canvas {
 		// A luminance greater than 0.5 is "bright"
 		// A luminance less than 0.5 is "dark"
 		double y = Colors.getLuminance( theme.getPrimary() );
-		System.out.println( "Luminance: " + y );
 		if( y < 0.5 ) {
 			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 1.5, 1 );
 		} else {
