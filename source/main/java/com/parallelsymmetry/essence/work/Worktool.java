@@ -4,13 +4,13 @@ import com.parallelsymmetry.essence.Resource;
 import javafx.scene.control.Control;
 
 /**
- * The WorkTool class is a control that "works on" a resource.
+ * The Worktool class is a control that "works on" a resource.
  */
-public abstract class WorkTool extends Control {
+public abstract class Worktool extends Control {
 
 	private Resource resource;
 
-	public WorkTool( Resource resource ) {
+	public Worktool( Resource resource ) {
 		this.resource = resource;
 	}
 

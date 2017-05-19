@@ -1,5 +1,7 @@
 package com.parallelsymmetry.essence.work;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import org.apache.commons.configuration2.Configuration;
@@ -15,7 +17,7 @@ public class Workarea {
 
 	private StringProperty name = new SimpleStringProperty();
 
-	private boolean active;
+	private BooleanProperty active = new SimpleBooleanProperty();
 
 	private Workspace workspace;
 
@@ -31,10 +33,6 @@ public class Workarea {
 		return id;
 	}
 
-	public StringProperty getNameValue() {
-		return name;
-	}
-
 	public String getName() {
 		return name.get();
 	}
@@ -46,13 +44,21 @@ public class Workarea {
 		if( isActive() ) firePropertyChange( "name", oldName, newName );
 	}
 
+	public StringProperty getNameValue() {
+		return name;
+	}
+
 	public boolean isActive() {
-		return active;
+		return active.get();
 	}
 
 	public void setActive( boolean active ) {
-		this.active = active;
+		this.active.set( active );
 		configuration.setProperty( "active", active );
+	}
+
+	public BooleanProperty getActiveValue() {
+		return active;
 	}
 
 	public Workspace getWorkspace() {
