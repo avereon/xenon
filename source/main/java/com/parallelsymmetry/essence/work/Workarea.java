@@ -21,11 +21,15 @@ public class Workarea {
 
 	private Workspace workspace;
 
+	private Workpane workpane;
+
 	private Set<PropertyChangeListener> propertyChangeListeners;
 
 	private Configuration configuration;
 
 	public Workarea() {
+		workpane = new Workpane();
+
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
 	}
 
