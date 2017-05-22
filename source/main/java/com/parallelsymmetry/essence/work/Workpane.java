@@ -1167,9 +1167,98 @@ public class Workpane extends Pane {
 		return 0;
 	}
 
-	private boolean merge( Edge edge, Side side ) {
-		// NEXT Implement Workpane.merge()
-		return false;
+	private boolean merge( Edge edge, Side direction ) {
+		if( !canMerge( edge, direction, false ) ) return false;
+
+		Set<ToolView> sources = edge.getViews( getReverseDirection( direction ) );
+		Set<ToolView> targets = edge.getViews( direction );
+
+		// Notify the listeners the views will merge.
+		try {
+			for( ToolView source : sources ) {
+				fireViewWillMerge( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source, null ) );
+			}
+		} catch( WorkpaneVetoException exception ) {
+			return false;
+		}
+
+		// Get needed objects.
+		Edge farEdge = targets.iterator().next().getEdge( direction );
+
+		// Extend the source views and edges.
+		for( ToolView source : sources ) {
+			source.setEdge( direction, farEdge );
+
+			if( source.getEdge( getLeftDirection( direction ) ).getEdge( direction ) == edge ) {
+				source.getEdge( getLeftDirection( direction ) ).setEdge( direction, farEdge );
+			}
+			if( source.getEdge( getRightDirection( direction ) ).getEdge( direction ) == edge ) {
+				source.getEdge( getRightDirection( direction ) ).setEdge( direction, farEdge );
+			}
+			farEdge.getViews( getReverseDirection( direction ) ).add( source );
+		}
+
+		// Process the target views and edges.
+		for( ToolView target : targets ) {
+			ToolView closestSource = getClosest( sources, target, getPerpendicularDirectionOrientation( direction ) );
+
+			// Check for default view.
+			if( target.isDefault() ) setDefaultView( closestSource );
+
+			// Check for active view.
+			if( target.isActive() ) setActiveView( closestSource );
+
+			// Check for tools.
+			for( Tool tool : target.getTools() ) {
+				removeTool( tool, false );
+				addTool( tool, closestSource );
+			}
+
+			// Clean up target edges.
+			cleanupTargetEdge( target, direction );
+			cleanupTargetEdge( target, getReverseDirection( direction ) );
+			cleanupTargetEdge( target, getLeftDirection( direction ) );
+			cleanupTargetEdge( target, getRightDirection( direction ) );
+
+			// Remove the target view.
+			removeView( target );
+		}
+
+		// Remove the edge.
+		edge.setEdge( direction, null );
+		edge.setEdge( getReverseDirection( direction ), null );
+		edge.setEdge( getLeftDirection( direction ), null );
+		edge.setEdge( getRightDirection( direction ), null );
+		edge.getWorkpane().removeEdge( edge );
+
+		return true;
+	}
+
+	private ToolView getClosest( Set<ToolView> views, ToolView target, Orientation orientation ) {
+		ToolView result = null;
+		double distance = Double.MAX_VALUE;
+		double resultDistance = Double.MAX_VALUE;
+		double targetCenter = target.getCenter( orientation );
+
+		for( ToolView view : views ) {
+			distance = Math.abs( targetCenter - view.getCenter( orientation ) );
+			if( distance < resultDistance ) {
+				result = view;
+				resultDistance = distance;
+			}
+		}
+
+		return result;
+	}
+
+	private void cleanupTargetEdge( ToolView target, Side direction ) {
+		Edge edge = target.getEdge( direction );
+
+		// Remove the target from the edge.
+		edge.getViews( getReverseDirection( direction ) ).remove( target );
+
+		// If there are no more associated views, remove the edge.
+		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
 	private class Edge extends Control {
