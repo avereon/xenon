@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Worktool class is a control that "works on" a resource.
+ * The Tool class is a control that "works on" a resource.
  */
-public abstract class Worktool extends Control {
+public abstract class Tool extends Control {
 
-	private static final Logger log = LoggerFactory.getLogger( Worktool.class );
+	private static final Logger log = LoggerFactory.getLogger( Tool.class );
 
 	private ObjectProperty<Node> graphicProperty;
 
@@ -22,13 +22,13 @@ public abstract class Worktool extends Control {
 
 	private Resource resource;
 
-	private Workpane.View parent;
+	private Workpane.ToolView parent;
 
 	private boolean allocated;
 
 	private boolean displayed;
 
-	public Worktool( Resource resource ) {
+	public Tool( Resource resource ) {
 		this.titleProperty = new SimpleStringProperty();
 		this.resource = resource;
 	}
@@ -61,11 +61,11 @@ public abstract class Worktool extends Control {
 		return resource;
 	}
 
-	public Workpane.View getToolView() {
+	public Workpane.ToolView getToolView() {
 		return parent;
 	}
 
-	public void setToolView( Workpane.View parent ) {
+	public void setToolView( Workpane.ToolView parent ) {
 		this.parent = parent;
 	}
 

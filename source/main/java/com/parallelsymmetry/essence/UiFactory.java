@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.work.Worktool;
+import com.parallelsymmetry.essence.work.Tool;
 import com.parallelsymmetry.essence.work.Workarea;
 import com.parallelsymmetry.essence.work.Workpane;
 import com.parallelsymmetry.essence.work.Workspace;
@@ -38,7 +38,7 @@ public class UiFactory {
 
 	private Map<String, Workpane> workpanes = new HashMap<>();
 
-	private Map<String, Worktool> worktools = new HashMap<>();
+	private Map<String, Tool> worktools = new HashMap<>();
 
 	public UiFactory( Program program ) {
 		this.program = program;
@@ -210,7 +210,7 @@ public class UiFactory {
 		return null;
 	}
 
-	private Worktool restoreWorktool( File file ) {
+	private Tool restoreWorktool( File file ) {
 		//		try {
 		//			return loadWorktool( file );
 		//		}catch( Exception exception ) {
