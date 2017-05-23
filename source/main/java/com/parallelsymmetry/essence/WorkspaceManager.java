@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.work.Workspace;
+import com.parallelsymmetry.essence.workarea.Workspace;
 
 import java.util.HashSet;
 import java.util.Set;

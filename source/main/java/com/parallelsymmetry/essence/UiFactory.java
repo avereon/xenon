@@ -1,9 +1,9 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.work.Tool;
-import com.parallelsymmetry.essence.work.Workarea;
-import com.parallelsymmetry.essence.work.Workpane;
-import com.parallelsymmetry.essence.work.Workspace;
+import com.parallelsymmetry.essence.worktool.Tool;
+import com.parallelsymmetry.essence.workarea.Workarea;
+import com.parallelsymmetry.essence.workarea.Workpane;
+import com.parallelsymmetry.essence.workarea.Workspace;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +78,7 @@ public class UiFactory {
 				workspace.setActiveWorkarea( workarea );
 				splashScreen.update();
 
-				// TODO Create default work panes
+				// TODO Create default workarea panes
 
 				// TODO Create default tools
 

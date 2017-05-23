@@ -3,7 +3,7 @@ package com.parallelsymmetry.essence.action;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.ProgramActionHandler;
 import com.parallelsymmetry.essence.UiFactory;
-import com.parallelsymmetry.essence.work.Workarea;
+import com.parallelsymmetry.essence.workarea.Workarea;
 import javafx.event.Event;
 import javafx.scene.control.TextInputDialog;
 import org.slf4j.Logger;

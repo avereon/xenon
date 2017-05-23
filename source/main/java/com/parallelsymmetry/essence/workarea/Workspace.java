@@ -1,4 +1,4 @@
-package com.parallelsymmetry.essence.work;
+package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
@@ -186,7 +186,7 @@ public class Workspace {
 		// If there is only one workarea, don't close it
 		if( workareas.size() == 1 ) return;
 
-		// Handle the situation where the work area is active
+		// Handle the situation where the workarea area is active
 		if( workarea.isActive() ) setActiveWorkarea( determineNextActiveWorkarea() );
 
 		workareas.remove( workarea );
@@ -203,16 +203,16 @@ public class Workspace {
 		// If the workarea is not already added, add it
 		if( !workareas.contains( workarea ) ) addWorkArea( workarea );
 
-		// Disconnect the old active work area
+		// Disconnect the old active workarea area
 		if( activeWorkarea != null ) {
 			activeWorkarea.removePropertyChangeListener( activeWorkareaWatcher );
 			activeWorkarea.setActive( false );
 		}
 
-		// Swap the work area on the stage
+		// Swap the workarea area on the stage
 		activeWorkarea = workarea;
 
-		// Connect the new active work area
+		// Connect the new active workarea area
 		if( activeWorkarea != null ) {
 			activeWorkarea.setActive( true );
 			setStageTitle( activeWorkarea.getName() );

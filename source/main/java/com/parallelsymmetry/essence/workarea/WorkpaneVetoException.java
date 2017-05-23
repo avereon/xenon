@@ -1,4 +1,4 @@
-package com.parallelsymmetry.essence.work;
+package com.parallelsymmetry.essence.workarea;
 
 public class WorkpaneVetoException extends Exception {
 

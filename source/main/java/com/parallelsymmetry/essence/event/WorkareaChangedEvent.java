@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.event;
 
 import com.parallelsymmetry.essence.ProgramEvent;
-import com.parallelsymmetry.essence.work.Workarea;
+import com.parallelsymmetry.essence.workarea.Workarea;
 
 public class WorkareaChangedEvent extends ProgramEvent {
 

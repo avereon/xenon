@@ -1,5 +1,9 @@
-package com.parallelsymmetry.essence.work;
+package com.parallelsymmetry.essence.workarea;
 
+import com.parallelsymmetry.essence.worktool.CloseOperation;
+import com.parallelsymmetry.essence.worktool.Tool;
+import com.parallelsymmetry.essence.worktool.ToolEvent;
+import com.parallelsymmetry.essence.worktool.ToolVetoException;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -25,6 +29,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Workpane extends Pane {
+
+	public enum Placement {
+		DEFAULT, ACTIVE, LARGEST, SMART
+	}
 
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
 
@@ -1153,6 +1161,112 @@ public class Workpane extends Pane {
 		int weight = directions.get( 0 ).getWeight();
 
 		return weight == 0 ? null : directions.get( 0 ).getDirection();
+	}
+
+	public Tool addTool( Tool tool ) {
+		return addTool( tool, true );
+	}
+
+	public Tool addTool( Tool tool, boolean select ) {
+		ToolView view = null;
+
+		switch( tool.getPlacement() ) {
+			case DEFAULT: {
+				view = getDefaultView();
+				break;
+			}
+			case ACTIVE: {
+				view = getActiveView();
+				break;
+			}
+			case LARGEST: {
+				view = getLargestView();
+				break;
+			}
+			case SMART: {
+				view = getSmartView();
+				break;
+			}
+		}
+
+		return addTool( tool, view, select );
+	}
+
+	public Tool addTool( Tool tool, ToolView view ) {
+		return addTool( tool, view, true );
+	}
+
+	public Tool addTool( Tool tool, ToolView view, boolean select ) {
+		return addTool( tool, view, view.getTools().size(), select );
+	}
+
+	public Tool addTool( Tool tool, ToolView view, int index, boolean select ) {
+		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
+
+		try {
+			startOperation();
+			view.addTool( tool, index );
+
+			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
+
+			if( select ) setActiveTool( tool );
+		} finally {
+			finishOperation( true );
+		}
+
+		return tool;
+	}
+	public Tool removeTool( Tool tool ) {
+		return removeTool( tool, true );
+	}
+
+	public Tool removeTool( Tool tool, boolean automerge ) {
+		ToolView view = tool.getToolView();
+		if( view == null ) return tool;
+
+		try {
+			startOperation();
+			view.removeTool( tool );
+
+			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_REMOVED, this, view, tool ) );
+
+			// Try to auto merge the view.
+			if( automerge ) pullMerge( view );
+		} finally {
+			finishOperation( true );
+		}
+
+		return tool;
+	}
+
+	public Tool closeTool( Tool tool ) {
+		return closeTool( tool, true );
+	}
+
+	public Tool closeTool( Tool tool, boolean autoMerge ) {
+		if( tool == null ) return null;
+
+		startOperation();
+		try {
+			// Notify view listeners of attempt to close.
+			try {
+				tool.fireToolClosingEvent( new ToolEvent( this, ToolEvent.Type.TOOL_CLOSING, tool ) );
+			} catch( ToolVetoException exception ) {
+				return tool;
+			}
+
+			// Check the tool close operation.
+			if( tool.getCloseOperation() == CloseOperation.NOTHING ) return tool;
+
+			removeTool( tool, autoMerge );
+
+			// Notify view listeners of view closure.
+			tool.fireToolClosedEvent( new ToolEvent( this, ToolEvent.Type.TOOL_CLOSED, tool ) );
+		} finally {
+			finishOperation( true );
+		}
+
+		return tool;
 	}
 
 	// NEXT Continue implementing Workpane class methods

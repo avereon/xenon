@@ -1,4 +1,6 @@
-package com.parallelsymmetry.essence.work;
+package com.parallelsymmetry.essence.workarea;
+
+import com.parallelsymmetry.essence.worktool.Tool;
 
 import java.util.EventObject;
 
