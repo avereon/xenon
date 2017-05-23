@@ -31,7 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Workpane extends Pane {
 
 	public enum Placement {
-		DEFAULT, ACTIVE, LARGEST, SMART
+		DEFAULT,
+		ACTIVE,
+		LARGEST,
+		SMART
 	}
 
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
@@ -176,6 +179,7 @@ public class Workpane extends Pane {
 		if( tool != null ) {
 			ToolView view = tool.getToolView();
 			if( view == null || !getViews().contains( view ) ) return;
+			view.setActiveTool( tool );
 		}
 
 		doSetActiveTool( tool, true );
@@ -409,7 +413,7 @@ public class Workpane extends Pane {
 			}
 
 			// Change the active tool.
-			setActiveTool( tool );
+			if( view != null && getViews().contains( view ) ) view.setActiveTool( tool );
 
 			if( view != null ) {
 				view.setActiveTool( tool );
@@ -1216,6 +1220,7 @@ public class Workpane extends Pane {
 
 		return tool;
 	}
+
 	public Tool removeTool( Tool tool ) {
 		return removeTool( tool, true );
 	}

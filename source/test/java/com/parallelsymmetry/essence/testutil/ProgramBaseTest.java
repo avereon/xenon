@@ -1,55 +1,66 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.testutil;
 
+import com.parallelsymmetry.essence.*;
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.testfx.api.FxToolkit;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tests based on TextFx: https://github.com/TestFX/TestFX
  */
-public abstract class ProgramBaseTest {
+public abstract class ProgramBaseTest extends FxTestCase {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	protected Program program;
-
 	protected ProductMetadata metadata;
+
+	protected Program program;
 
 	private ProgramWatcher watcher;
 
-	@BeforeClass
-	public static void prepare() throws Exception {
+	static {
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
-		ProductMetadata metadata = new ProductMetadata();
-		String prefix = ExecMode.TEST.getPrefix();
-		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-		if( programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
+		try {
+			ProductMetadata metadata = new ProductMetadata();
+			String prefix = ExecMode.TEST.getPrefix();
+			File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+			if( programDataFolder != null && programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
+		} catch( IOException exception ) {
+			throw new RuntimeException( exception );
+		}
 	}
 
-	@Before
-	public void setup() throws Exception {
-		FxToolkit.registerPrimaryStage();
-		program = (Program)FxToolkit.setupApplication( Program.class, "--execmode=test" );
+	public void setUp() throws Exception {
+		super.setUp();
+		System.out.println( "ProgramBaseTest setup called..." );
+		program = new Program();
+		program.init();
+		Platform.runLater( () -> {
+			try {
+				program.start( new Stage() );
+			} catch( Exception e ) {
+				e.printStackTrace();
+			}
+		} );
+
 		watcher = new ProgramWatcher();
 		program.addEventListener( watcher );
 		metadata = program.getMetadata();
 	}
 
-	@After
-	public void cleanup() throws Exception {
+	public void tearDown() throws Exception {
+		super.tearDown();
 		waitForEvent( ProgramStartedEvent.class );
 		Platform.runLater( () -> {
 			try {
@@ -60,22 +71,6 @@ public abstract class ProgramBaseTest {
 		} );
 		waitForEvent( ProgramStoppedEvent.class );
 	}
-
-	//	@Override
-	//	public void start( Stage stage ) throws Exception {
-	//		program = new Program();
-	//		watcher = new ProgramWatcher();
-	//		program.addEventListener( watcher );
-	//
-	//		program.init();
-	//		program.start( stage );
-	//		metadata = program.getMetadata();
-	//	}
-	//
-	//	@Override
-	//	public void stop() throws Exception {
-	//		program.stop();
-	//	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );

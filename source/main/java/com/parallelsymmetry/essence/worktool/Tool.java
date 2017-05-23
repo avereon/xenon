@@ -118,12 +118,36 @@ public abstract class Tool extends Control {
 		return titleProperty;
 	}
 
+	/**
+	 * Check if this tool is the active tool in the tool view. If this tool has
+	 * not been added to a tool view then this method returns false.
+	 *
+	 * @return
+	 */
+	public boolean isActiveInToolView() {
+		Workpane.ToolView view = getToolView();
+		return view != null && view.getActiveTool() == this;
+	}
+
+	/**
+	 * Set this tool as the active tool in the tool view.
+	 */
+	public void setActiveInToolView() {
+		Workpane.ToolView view = getToolView();
+		if( view != null ) view.setActiveTool( this );
+	}
+
 	public Workpane.ToolView getToolView() {
 		return parent;
 	}
 
 	public void setToolView( Workpane.ToolView parent ) {
 		this.parent = parent;
+	}
+
+	public Workpane getWorkpane() {
+		Workpane.ToolView view = getToolView();
+		return view == null ? null : view.getWorkPane();
 	}
 
 	public boolean isAllocated() {

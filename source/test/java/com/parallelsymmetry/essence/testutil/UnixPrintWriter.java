@@ -1,4 +1,4 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.testutil;
 
 import java.io.*;
 

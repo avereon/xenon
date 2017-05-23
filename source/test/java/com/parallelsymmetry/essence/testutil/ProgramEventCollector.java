@@ -1,4 +1,7 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.testutil;
+
+import com.parallelsymmetry.essence.ProgramEvent;
+import com.parallelsymmetry.essence.ProgramEventListener;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

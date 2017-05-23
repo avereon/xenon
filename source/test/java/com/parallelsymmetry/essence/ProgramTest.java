@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
+import com.parallelsymmetry.essence.testutil.ProgramBaseTest;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -14,7 +15,6 @@ import java.io.File;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class ProgramTest extends ProgramBaseTest {
 

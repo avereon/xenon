@@ -29,7 +29,6 @@ public class Workarea {
 
 	public Workarea() {
 		workpane = new Workpane();
-
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
 	}
 
