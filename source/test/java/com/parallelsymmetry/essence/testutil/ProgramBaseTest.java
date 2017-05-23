@@ -68,6 +68,7 @@ public abstract class ProgramBaseTest extends FxTestCase {
 		waitForEvent( ProgramStartedEvent.class );
 		Platform.runLater( () -> {
 			try {
+				// NEXT Figure out why calling stop() does not close the windows
 				program.stop();
 				// Don't use requestExit because it calls Platform.exit()
 			} catch( Exception e ) {
