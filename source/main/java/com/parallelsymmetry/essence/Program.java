@@ -62,7 +62,9 @@ public class Program extends Application implements Product {
 	private ExitProgramHandler exitActionHandler;
 
 	static {
-		Platform.setImplicitExit( false );
+		// This will require Platform.exit() to be called
+		//Platform.setImplicitExit( false );
+
 		try {
 			LogManager.getLogManager().readConfiguration( Program.class.getResourceAsStream( "/logging.properties" ) );
 		} catch( IOException exception ) {
@@ -139,17 +141,23 @@ public class Program extends Application implements Product {
 	}
 
 	public void requestExit() {
+		requestExit( false );
+	}
+
+	public void requestExit( boolean force ) {
 		// TODO If the user desires, prompt to exit the program
-		Stage stage = getWorkspaceManager().getActiveWorkspace().getStage();
+		if( !force ) {
+			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+			alert.initOwner( getWorkspaceManager().getActiveWorkspace().getStage() );
+			alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
+			alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
+			alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
 
-		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-		alert.initOwner( getWorkspaceManager().getActiveWorkspace().getStage() );
-		alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
-		alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
-		alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
+			Optional<ButtonType> result = alert.showAndWait();
+			if( result.isPresent() && result.get() != ButtonType.YES ) return;
+		}
 
-		Optional<ButtonType> result = alert.showAndWait();
-		if( result.get() == ButtonType.YES ) Platform.exit();
+		Platform.exit();
 	}
 
 	@Override
@@ -343,6 +351,9 @@ public class Program extends Application implements Product {
 
 		@Override
 		protected Void call() throws Exception {
+			// TODO Stop the WorkspaceManager
+			workspaceManager.shutdown();
+
 			// TODO Stop the UpdateManager
 			// TODO Stop the ResourceManager
 			// TODO Stop the ToolManager

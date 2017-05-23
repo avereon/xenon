@@ -8,6 +8,8 @@ import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +43,7 @@ public abstract class ProgramBaseTest extends FxTestCase {
 		}
 	}
 
+	@Before
 	public void setUp() throws Exception {
 		super.setUp();
 		System.out.println( "ProgramBaseTest setup called..." );
@@ -54,22 +57,25 @@ public abstract class ProgramBaseTest extends FxTestCase {
 			}
 		} );
 
+		metadata = program.getMetadata();
 		watcher = new ProgramWatcher();
 		program.addEventListener( watcher );
-		metadata = program.getMetadata();
 	}
 
+	@After
 	public void tearDown() throws Exception {
 		super.tearDown();
 		waitForEvent( ProgramStartedEvent.class );
 		Platform.runLater( () -> {
 			try {
 				program.stop();
+				// Don't use requestExit because it calls Platform.exit()
 			} catch( Exception e ) {
 				e.printStackTrace();
 			}
 		} );
 		waitForEvent( ProgramStoppedEvent.class );
+		assertFalse( program.getWorkspaceManager().getActiveWorkspace().getStage().isShowing() );
 	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {

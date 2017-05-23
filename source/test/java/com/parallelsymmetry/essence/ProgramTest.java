@@ -67,6 +67,7 @@ public class ProgramTest extends ProgramBaseTest {
 		waitForEvent( ProgramStartedEvent.class );
 		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
 		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), is( workareaName + " - " + metadata.getName() ) );
+		System.out.println( "All good in the window title test" );
 	}
 
 }

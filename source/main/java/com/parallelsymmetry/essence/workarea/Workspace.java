@@ -62,7 +62,7 @@ public class Workspace {
 		stage = new Stage();
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 		stage.setOnCloseRequest( event -> {
-			program.getWorkspaceManager().closeWorkspace( this );
+			program.getWorkspaceManager().requestCloseWorkspace( this );
 			event.consume();
 		} );
 
