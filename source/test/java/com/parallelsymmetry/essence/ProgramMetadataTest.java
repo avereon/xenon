@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
-import com.parallelsymmetry.essence.testutil.ProgramBaseTest;
+import com.parallelsymmetry.essence.testutil.FxTestCase;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -13,10 +13,21 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-public class ProgramTest extends ProgramBaseTest {
+public class ProgramMetadataTest extends FxTestCase {
+
+//	@Test
+//	public void testA() {
+//		Assert.assertEquals( "Essence", program.getMetadata().getName() );
+//	}
+//
+//	@Test
+//	public void testB() {
+//		Assert.assertEquals( "Essence", program.getMetadata().getName() );
+//	}
 
 	@Test
 	public void testProgramMetadata() throws Exception {
@@ -59,14 +70,6 @@ public class ProgramTest extends ProgramBaseTest {
 		String prefix = ExecMode.TEST.getPrefix();
 		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		assertThat( program.getProgramDataFolder(), is( programDataFolder ) );
-	}
-
-	@Test
-	public void testWorkspaceWindowTitle() throws Exception {
-		waitForEvent( ProgramStartedEvent.class );
-		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
-		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), is( workareaName + " - " + metadata.getName() ) );
-		System.out.println( "All good in the window title test" );
 	}
 
 }
