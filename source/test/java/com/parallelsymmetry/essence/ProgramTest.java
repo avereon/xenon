@@ -31,7 +31,7 @@ public class ProgramTest extends ProgramBaseTest {
 		String artifactId = (String)xpath.evaluate( "/project/artifactId", pom, XPathConstants.STRING );
 		String version = (String)xpath.evaluate( "/project/parent/version", pom, XPathConstants.STRING );
 		String name = (String)xpath.evaluate( "/project/name", pom, XPathConstants.STRING );
-		String provider = (String)xpath.evaluate( "/project/organization/name", pom, XPathConstants.STRING );
+		// Provider is specified in the parent pom so the value from the child pom is not valuable
 		int inception = Integer.parseInt( (String)xpath.evaluate( "/project/inceptionYear", pom, XPathConstants.STRING ) );
 		String description = (String)xpath.evaluate( "/project/description", pom, XPathConstants.STRING );
 
@@ -44,8 +44,7 @@ public class ProgramTest extends ProgramBaseTest {
 
 		assertThat( metadata.getName(), is( name ) );
 		assertThat( metadata.getIcon(), is( "http://www.parallelsymmetry.com/images/icons/essence.png" ) );
-		// Provider is specified in parent pom
-		//assertThat( metadata.getProvider(), is( provider ) );
+		assertThat( metadata.getProvider(), is( "Parallel Symmetry" ) );
 		assertThat( metadata.getInception(), is( inception ) );
 
 		assertThat( metadata.getSummary(), is( "Java application platform" ) );

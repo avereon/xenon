@@ -107,23 +107,25 @@ public class Program extends Application implements Product {
 		// Set program values
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+
+		printHeader();
+
+		// Create the executor service
+		int processorCount = Runtime.getRuntime().availableProcessors();
+		log.trace( "Starting executor service..." );
+		executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
+		log.debug( "Executor service started." );
 	}
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		printHeader();
 		log.info( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp) );
 
 		new ProgramStartingEvent( this ).fire( listeners );
 
 		// Show the splash screen
 		splashScreen = new SplashScreen( programTitle );
-		//splashScreen.initOwner( stage );
 		splashScreen.show();
-
-		// Create the executor service
-		int processorCount = Runtime.getRuntime().availableProcessors();
-		executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
 
 		// Submit the startup task
 		executor.submit( new StartupTask() );
@@ -135,9 +137,6 @@ public class Program extends Application implements Product {
 
 		// Submit the shutdown task
 		executor.submit( new ShutdownTask() );
-
-		// Stop the executor service
-		executor.shutdown();
 	}
 
 	public void requestExit() {
@@ -289,7 +288,9 @@ public class Program extends Application implements Product {
 			registerActionHandlers();
 
 			// Create the workspace manager
+			log.trace( "Starting workspace manager..." );
 			workspaceManager = new WorkspaceManager( Program.this );
+			log.debug( "Workspace manager started." );
 
 			// Create the UI factory
 			UiFactory factory = new UiFactory( Program.this );
@@ -303,18 +304,20 @@ public class Program extends Application implements Product {
 			Platform.runLater( () -> splashScreen.update() );
 
 			// Create the setting manager
+			log.trace( "Starting settings manager..." );
 			File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
 			settings = new Settings( executor, new File( programSettingsFolder, "program.properties" ) );
 			Platform.runLater( () -> splashScreen.update() );
+			log.debug( "Settings manager started." );
 
 			// TODO Create the tool manager
-
-			// Restore the workspace
-			Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 
 			// TODO Create the resource manager
 			//resourceManager = new ResourceManager(Program.this );
 			//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
+
+			// Restore the workspace
+			Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 
 			// TODO Start the update manager
 
@@ -325,6 +328,7 @@ public class Program extends Application implements Product {
 			Thread.sleep( 500 );
 
 			return null;
+			// If all was successful then the succeeded() method will be called next
 		}
 
 		@Override
@@ -352,14 +356,18 @@ public class Program extends Application implements Product {
 		@Override
 		protected Void call() throws Exception {
 			// TODO Stop the WorkspaceManager
+			log.trace( "Stopping workspace manager..." );
 			workspaceManager.shutdown();
+			log.debug( "Workspace manager stopped." );
 
 			// TODO Stop the UpdateManager
 			// TODO Stop the ResourceManager
 			// TODO Stop the ToolManager
 
 			// Disconnect the settings listener
+			log.trace( "Stopping settings manager..." );
 			settings.removeProgramEventListener( watcher );
+			log.debug( "Settings manager stopped." );
 
 			// Unregister action handlers
 			unregisterActionHandlers();
@@ -368,6 +376,11 @@ public class Program extends Application implements Product {
 			unregisterIcons();
 
 			new ProgramStoppedEvent( this ).fire( listeners );
+
+			// Stop the executor service
+			log.trace( "Stopping executor service..." );
+			executor.shutdown();
+			log.debug( "Executor service stopped." );
 
 			return null;
 		}

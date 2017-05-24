@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import com.parallelsymmetry.essence.workarea.Workspace;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
@@ -13,8 +14,12 @@ import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
 
 /**
  * Tests based on TextFx: https://github.com/TestFX/TestFX
@@ -51,6 +56,7 @@ public abstract class ProgramBaseTest extends FxTestCase {
 		program.init();
 		Platform.runLater( () -> {
 			try {
+				// FIXME Not getting called on subsequent starts
 				program.start( new Stage() );
 			} catch( Exception e ) {
 				e.printStackTrace();
@@ -66,17 +72,15 @@ public abstract class ProgramBaseTest extends FxTestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 		waitForEvent( ProgramStartedEvent.class );
-		Platform.runLater( () -> {
-			try {
-				// NEXT Figure out why calling stop() does not close the windows
-				program.stop();
-				// Don't use requestExit because it calls Platform.exit()
-			} catch( Exception e ) {
-				e.printStackTrace();
-			}
-		} );
+		program.stop();
 		waitForEvent( ProgramStoppedEvent.class );
-		assertFalse( program.getWorkspaceManager().getActiveWorkspace().getStage().isShowing() );
+
+		int count = 0;
+		for( Workspace workspace : program.getWorkspaceManager().getWorkspaces() ) {
+			if( workspace.getStage().isShowing() ) count++;
+		}
+
+		assertThat( "Not all the program windows are closed", count, is( 0 ) );
 	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
@@ -109,6 +113,16 @@ public abstract class ProgramBaseTest extends FxTestCase {
 			this.notifyAll();
 		}
 
+		/**
+		 * Wait for an event of a specific type to occur. If the event has already
+		 * occurred this method will return immediately. If the event has not
+		 * already occurred then this method waits until the next event occurs, or
+		 * the specified timeout, whichever comes first.
+		 *
+		 * @param clazz
+		 * @param timeout
+		 * @throws InterruptedException
+		 */
 		public synchronized void waitFor( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
 			boolean shouldWait = timeout > 0;
 			long start = System.currentTimeMillis();
@@ -120,6 +134,15 @@ public abstract class ProgramBaseTest extends FxTestCase {
 			}
 		}
 
+		/**
+		 * Wait for an event of a specific type to occur. This method always waits
+		 * until the next event occurs, or the specified timeout, whichever comes
+		 * first.
+		 *
+		 * @param clazz
+		 * @param timeout
+		 * @throws InterruptedException
+		 */
 		public synchronized void waitForNext( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
 			events.remove( clazz );
 			waitFor( clazz, timeout );
