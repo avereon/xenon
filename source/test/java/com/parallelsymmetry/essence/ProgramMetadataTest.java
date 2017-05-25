@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
-import com.parallelsymmetry.essence.testutil.FxTestCase;
+import com.parallelsymmetry.essence.testutil.FxApplicationTestCase;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class ProgramMetadataTest extends FxTestCase {
+public class ProgramMetadataTest extends FxApplicationTestCase {
 
 	@Test
 	public void testProgramMetadata() throws Exception {

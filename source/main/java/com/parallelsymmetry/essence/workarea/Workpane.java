@@ -1380,7 +1380,7 @@ public class Workpane extends Pane {
 		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
-	private class Edge extends Control {
+	public class Edge extends Control {
 
 		Orientation orientation;
 
