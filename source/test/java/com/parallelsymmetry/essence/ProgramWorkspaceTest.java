@@ -10,16 +10,6 @@ import static org.junit.Assert.assertThat;
 
 public class ProgramWorkspaceTest extends FxTestCase {
 
-	//	@Test
-	//	public void testA() {
-	//		Assert.assertEquals( "Essence", program.getMetadata().getName() );
-	//	}
-	//
-	//	@Test
-	//	public void testB() {
-	//		Assert.assertEquals( "Essence", program.getMetadata().getName() );
-	//	}
-
 	@Test
 	public void testWorkspaceDefaultWindowSize() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );

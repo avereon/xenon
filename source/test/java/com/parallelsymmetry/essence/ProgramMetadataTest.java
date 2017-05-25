@@ -19,16 +19,6 @@ import static org.junit.Assert.assertTrue;
 
 public class ProgramMetadataTest extends FxTestCase {
 
-//	@Test
-//	public void testA() {
-//		Assert.assertEquals( "Essence", program.getMetadata().getName() );
-//	}
-//
-//	@Test
-//	public void testB() {
-//		Assert.assertEquals( "Essence", program.getMetadata().getName() );
-//	}
-
 	@Test
 	public void testProgramMetadata() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );
