@@ -15,11 +15,8 @@ public class ProgramWorkspaceTest extends FxTestCase {
 		waitForEvent( ProgramStartedEvent.class );
 		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 
-		double w = stage.getScene().getWidth();
-		double h = stage.getScene().getHeight();
-
-		assertThat( w, is( 960d ) );
-		assertThat( h, is( 540d ) );
+		assertThat( stage.getScene().getWidth(), is( 960d ) );
+		assertThat( stage.getScene().getHeight(), is( 540d ) );
 	}
 
 	@Test
