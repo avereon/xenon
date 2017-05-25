@@ -11,12 +11,15 @@ import static org.junit.Assert.assertThat;
 public class ProgramWorkspaceTest extends FxTestCase {
 
 	@Test
-	public void testWorkspaceDefaultWindowSize() throws Exception {
+	public void testWorkspaceDefaultSceneSize() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );
 		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 
-		assertThat( stage.getWidth(), is( 960d ) );
-		assertThat( stage.getHeight(), is( 540d ) );
+		double w = stage.getScene().getWidth();
+		double h = stage.getScene().getHeight();
+
+		assertThat( w, is( 960d ) );
+		assertThat( h, is( 540d ) );
 	}
 
 	@Test
