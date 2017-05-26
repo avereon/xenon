@@ -12,8 +12,6 @@ import javafx.geometry.*;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -31,10 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Workpane extends Pane {
 
 	public enum Placement {
-		DEFAULT,
-		ACTIVE,
-		LARGEST,
-		SMART
+		DEFAULT, ACTIVE, LARGEST, SMART
 	}
 
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
@@ -100,8 +95,6 @@ public class Workpane extends Pane {
 
 		// Create the initial view
 		ToolView view = new ToolView();
-		setDefaultView( view );
-		setActiveView( view );
 
 		// Add the view to the wall edges
 		northEdge.southViews.add( view );
@@ -115,8 +108,10 @@ public class Workpane extends Pane {
 		view.westEdge = westEdge;
 		view.eastEdge = eastEdge;
 
-		// Add the view to the workpane
-		getChildren().add( view );
+		// Add the initial view
+		addView( view );
+		setActiveView( view );
+		setDefaultView( view );
 	}
 
 	/**
@@ -176,12 +171,6 @@ public class Workpane extends Pane {
 	}
 
 	public void setActiveTool( Tool tool ) {
-		if( tool != null ) {
-			ToolView view = tool.getToolView();
-			if( view == null || !getViews().contains( view ) ) return;
-			view.setActiveTool( tool );
-		}
-
 		doSetActiveTool( tool, true );
 	}
 
@@ -190,7 +179,7 @@ public class Workpane extends Pane {
 	}
 
 	void setActiveView( ToolView view ) {
-		activeViewProperty.set( view );
+		doSetActiveView( view, true );
 	}
 
 	ObjectProperty<ToolView> activeViewProperty() {
@@ -223,13 +212,13 @@ public class Workpane extends Pane {
 		return maximizedViewProperty;
 	}
 
-	public Tool getActiveWorktool() {
-		return activeWorktoolProperty.get();
-	}
+//	public Tool getActiveWorktool() {
+//		return activeWorktoolProperty.get();
+//	}
 
-	public void setActiveWorktool( Tool worktool ) {
-		activeWorktoolProperty.set( worktool );
-	}
+//	public void setActiveWorktool( Tool worktool ) {
+//		activeWorktoolProperty.set( worktool );
+//	}
 
 	public ObjectProperty<Tool> activeWorktoolProperty() {
 		return activeWorktoolProperty;
@@ -402,28 +391,35 @@ public class Workpane extends Pane {
 	}
 
 	private void doSetActiveTool( Tool tool, boolean setView ) {
+//		if( tool != null ) {
+//			ToolView view = tool.getToolView();
+//			if( view != null && getViews().contains( view ) ) {
+//				view.setActiveTool( tool );
+//				return;
+//			}
+//		}
+		Tool activeTool = getActiveTool();
+
 		startOperation();
 		try {
-			ToolView view = tool == null ? null : tool.getToolView();
-			Tool activeTool = getActiveTool();
 
 			if( activeTool != null ) {
-				activeTool.callDeactivate();
+				//activeTool.callDeactivate();
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
 			}
 
 			// Change the active tool.
-			if( view != null && getViews().contains( view ) ) view.setActiveTool( tool );
-
+			ToolView view = tool == null ? null : tool.getToolView();
 			if( view != null ) {
+				if( getViews().contains( view ) ) view.setActiveTool( tool );
 				view.setActiveTool( tool );
 				if( setView && view != getActiveView() ) doSetActiveView( view, false );
 			}
+			activeWorktoolProperty.set( tool );
 
-			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
-				activeTool.callActivate();
+				//activeTool.callActivate();
 			}
 		} finally {
 			finishOperation( true );
@@ -440,7 +436,7 @@ public class Workpane extends Pane {
 			}
 
 			// Change the active view.
-			setActiveView( view );
+			activeViewProperty.set( view );
 
 			if( setTool ) doSetActiveTool( view.getActiveTool(), false );
 
@@ -1210,9 +1206,7 @@ public class Workpane extends Pane {
 		try {
 			startOperation();
 			view.addTool( tool, index );
-
 			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
-
 			if( select ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
@@ -1582,228 +1576,6 @@ public class Workpane extends Pane {
 			}
 
 			return null;
-		}
-
-	}
-
-	/**
-	 * ToolView is not intended to be a public class.
-	 */
-	public class ToolView extends Pane {
-
-		Edge northEdge;
-
-		Edge southEdge;
-
-		Edge westEdge;
-
-		Edge eastEdge;
-
-		private TabPane tools;
-
-		private Workpane parent;
-
-		private Tool activeTool;
-
-		public ToolView() {
-			setOpacity( 0 );
-
-			tools = new TabPane();
-			getChildren().add( tools );
-
-			// TODO Escape had a special border to highlight the active view, do I want the same?
-		}
-
-		/**
-		 * Get an unmodifiable list of the tools in the view.
-		 *
-		 * @return A list of the tools in the view.
-		 */
-		public List<Tool> getTools() {
-			List<Tool> toolList = new ArrayList<Tool>();
-
-			for( Tab tab : tools.getTabs() ) {
-				toolList.add( (Tool)tab.getContent() );
-			}
-
-			return Collections.unmodifiableList( toolList );
-		}
-
-		public Tool addTool( Tool tool ) {
-			return addTool( tool, tools.getTabs().size() );
-		}
-
-		public Tool addTool( Tool tool, int index ) {
-			if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
-
-			tool.setToolView( this );
-			tools.getTabs().add( index, new Tab( tool.getTitle(), tool ) );
-
-			Tab tab = new Tab( tool.getTitle(), tool );
-			tab.textProperty().bind( tool.titleProperty() );
-
-			tool.callAllocate();
-
-			if( tools.getTabs().size() == 1 ) setActiveTool( tool );
-
-			return tool;
-		}
-
-		public Tool removeTool( Tool tool ) {
-			Tool next = null;
-			boolean isActiveTool = tool == activeTool;
-
-			if( isActiveTool ) {
-				// Determine the next tool for the view.
-				if( tools.getTabs().size() > 1 ) {
-					int index = getToolIndex( tool );
-					if( index < tools.getTabs().size() - 1 ) {
-						next = (Tool)tools.getTabs().get( index + 1 ).getContent();
-					} else if( index >= 1 ) {
-						next = (Tool)tools.getTabs().get( index - 1 ).getContent();
-					}
-				}
-
-				// If the tool is the active tool set the active tool to null.
-				if( parent != null ) parent.setActiveWorktool( null );
-			}
-
-			// If the tool is currently displayed, call conceal.
-			if( tool.isDisplayed() ) tool.callConceal();
-
-			tool.callDeallocate();
-
-			// Remove the tool.
-			tools.getTabs().remove( getToolIndex( tool ) );
-			tool.setToolView( null );
-			if( activeTool == tool ) activeTool = null;
-
-			// Set the active tool.
-			if( isActiveTool && parent != null ) parent.setActiveWorktool( next );
-
-			return tool;
-		}
-
-		public Tool getActiveTool() {
-			return activeTool;
-		}
-
-		public void setActiveTool( Tool tool ) {
-			if( tool == activeTool ) return;
-
-			if( activeTool != null ) {
-				if( activeTool.isDisplayed() ) activeTool.callConceal();
-			}
-
-			activeTool = tool;
-
-			if( activeTool != null ) {
-				tools.getSelectionModel().select( getToolIndex( tool ) );
-				activeTool.callDisplay();
-			}
-		}
-
-		public int getToolIndex( Tool tool ) {
-			int index = 0;
-
-			for( Tab tab : tools.getTabs() ) {
-				if( tab.getContent() == tool ) return index;
-				index++;
-			}
-
-			return -1;
-		}
-
-		public boolean isActive() {
-			return parent != null && parent.getActiveView() == this;
-		}
-
-		public boolean isDefault() {
-			return parent != null && parent.getDefaultView() == this;
-		}
-
-		public boolean isMaximized() {
-			return parent != null && parent.getMaximizedView() == this;
-		}
-
-		public Edge getEdge( Side direction ) {
-
-			switch( direction ) {
-				case TOP: {
-					return northEdge;
-				}
-				case BOTTOM: {
-					return southEdge;
-				}
-				case LEFT: {
-					return westEdge;
-				}
-				case RIGHT: {
-					return eastEdge;
-				}
-			}
-
-			return null;
-		}
-
-		public void setEdge( Side direction, Edge edge ) {
-			switch( direction ) {
-				case TOP: {
-					northEdge = edge;
-					northEdge.southViews.add( this );
-					break;
-				}
-				case BOTTOM: {
-					southEdge = edge;
-					southEdge.northViews.add( this );
-					break;
-				}
-				case LEFT: {
-					westEdge = edge;
-					westEdge.eastViews.add( this );
-					break;
-				}
-				case RIGHT: {
-					eastEdge = edge;
-					eastEdge.westViews.add( this );
-					break;
-				}
-			}
-		}
-
-		public double getCenter( Orientation orientation ) {
-			switch( orientation ) {
-				case HORIZONTAL: {
-					return (westEdge.getPosition() + eastEdge.getPosition()) / 2;
-				}
-				case VERTICAL: {
-					return (northEdge.getPosition() + southEdge.getPosition()) / 2;
-				}
-			}
-
-			return Double.NaN;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-
-			builder.append( super.toString() );
-			builder.append( "(" );
-			builder.append( System.identityHashCode( this ) );
-			builder.append( ")" );
-
-			return builder.toString();
-		}
-
-		public Workpane getWorkPane() {
-			return parent;
-		}
-
-		void setWorkPane( Workpane parent ) {
-			this.parent = parent;
-			// TODO Should workpanes have icons? If so, update them.
-			//if( parent != null ) updateIcons();
 		}
 
 	}

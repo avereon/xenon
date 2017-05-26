@@ -89,9 +89,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		}
 
 		/**
-		 * Wait for an type of a specific type to occur. If the type has already
-		 * occurred this method will return immediately. If the type has not
-		 * already occurred then this method waits until the next type occurs, or
+		 * Wait for an name of a specific name to occur. If the name has already
+		 * occurred this method will return immediately. If the name has not
+		 * already occurred then this method waits until the next name occurs, or
 		 * the specified timeout, whichever comes first.
 		 *
 		 * @param clazz
@@ -110,8 +110,8 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		}
 
 		/**
-		 * Wait for an type of a specific type to occur. This method always waits
-		 * until the next type occurs, or the specified timeout, whichever comes
+		 * Wait for an name of a specific name to occur. This method always waits
+		 * until the next name occurs, or the specified timeout, whichever comes
 		 * first.
 		 *
 		 * @param clazz

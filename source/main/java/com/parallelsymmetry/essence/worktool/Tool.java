@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.worktool;
 
 import com.parallelsymmetry.essence.Resource;
+import com.parallelsymmetry.essence.workarea.ToolView;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -33,7 +34,7 @@ public abstract class Tool extends Control {
 
 	private Resource resource;
 
-	private Workpane.ToolView parent;
+	private ToolView parent;
 
 	private boolean allocated;
 
@@ -130,7 +131,7 @@ public abstract class Tool extends Control {
 	 * @return
 	 */
 	public boolean isActiveInToolView() {
-		Workpane.ToolView view = getToolView();
+		ToolView view = getToolView();
 		return view != null && view.getActiveTool() == this;
 	}
 
@@ -138,20 +139,20 @@ public abstract class Tool extends Control {
 	 * Set this tool as the active tool in the tool view.
 	 */
 	public void setActiveInToolView() {
-		Workpane.ToolView view = getToolView();
+		ToolView view = getToolView();
 		if( view != null ) view.setActiveTool( this );
 	}
 
-	public Workpane.ToolView getToolView() {
+	public ToolView getToolView() {
 		return parent;
 	}
 
-	public void setToolView( Workpane.ToolView parent ) {
+	public void setToolView( ToolView parent ) {
 		this.parent = parent;
 	}
 
 	public Workpane getWorkpane() {
-		Workpane.ToolView view = getToolView();
+		ToolView view = getToolView();
 		return view == null ? null : view.getWorkPane();
 	}
 
@@ -193,10 +194,9 @@ public abstract class Tool extends Control {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( super.toString() );
-		builder.append( "(" );
-		builder.append( System.identityHashCode( this ) );
-		builder.append( ")" );
+		builder.append( "title=\"" );
+		builder.append( getTitle() );
+		builder.append( "\"" );
 
 		return builder.toString();
 	}

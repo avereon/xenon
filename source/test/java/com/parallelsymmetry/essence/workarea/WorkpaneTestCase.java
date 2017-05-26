@@ -11,7 +11,7 @@ public class WorkpaneTestCase extends FxTestCase {
 
 	protected Workpane workpane;
 
-	protected Workpane.ToolView view;
+	protected ToolView view;
 
 	@Override
 	@Before
