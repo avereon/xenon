@@ -1665,7 +1665,7 @@ public class Workpane extends Pane {
 				}
 
 				// If the tool is the active tool set the active tool to null.
-				parent.setActiveWorktool( null );
+				if( parent != null ) parent.setActiveWorktool( null );
 			}
 
 			// If the tool is currently displayed, call conceal.
@@ -1679,7 +1679,7 @@ public class Workpane extends Pane {
 			if( activeTool == tool ) activeTool = null;
 
 			// Set the active tool.
-			if( isActiveTool ) parent.setActiveWorktool( next );
+			if( isActiveTool && parent != null ) parent.setActiveWorktool( next );
 
 			return tool;
 		}

@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.Resource;
+import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.geometry.Side;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.FeatureMatcher;
@@ -9,7 +10,7 @@ import org.junit.Test;
 
 import java.net.URI;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WorkpaneTest extends WorkpaneTestCase {
@@ -36,17 +37,14 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		workpane.addTool( tool, false );
 		assertThat( tool.getEvents().size(), is( 2 ) );
 
-		assertThat( tool, hasEvent( 14, ofType( MockTool.ALLOCATE ) ) );
-		assertThat( tool, hasEvent( 1, ofType( MockTool.DISPLAY ) ) );
+		assertThat( tool, hasEvent( index++, ofType( MockTool.ALLOCATE ) ) );
+		assertThat( tool, hasEvent( index++, ofType( MockTool.DISPLAY ) ) );
 
-		//		assertToolEvent( index++, tool, MockTool.ALLOCATE );
-		//		assertToolEvent( index++, tool, MockTool.DISPLAY );
-		//
-		//		// Remove the tool.
-		//		workarea.removeTool( tool );
-		//		assertEquals( 4, MockTool.events.size() );
-		//		assertToolEvent( index++, tool, MockTool.CONCEAL );
-		//		assertToolEvent( index++, tool, MockTool.DEALLOCATE );
+		// Remove the tool.
+		workpane.removeTool( tool );
+		assertThat( tool.getEvents().size(), is( 4 ) );
+		assertThat( tool, hasEvent( index++, ofType( MockTool.CONCEAL ) ) );
+		assertThat( tool, hasEvent( index++, ofType( MockTool.DEALLOCATE ) ) );
 	}
 
 	//	// FIXME Turn this into matchers
@@ -56,31 +54,24 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	//		assertEquals( "Event mismatch", type, datum.type );
 	//	}
 
-//	public static <T> Matcher<MockTool> hasEvent( int index ) {
-//
-//	}
+	//	public static <T> Matcher<MockTool> hasEvent( int index ) {
+	//
+	//	}
 
-//	public static <T> Matcher<MockTool.ToolEvent> ofType( String type ) {
-//		return new FeatureMatcher<MockTool.ToolEvent, T>( null, "", "" ) {
-//
-//			@Override
-//			@SuppressWarnings( "unchecked" )
-//			protected T featureValueOf( MockTool.ToolEvent data ) {
-//				return (T)data.type;
-//			}
-//
-//		};
-//	}
+	//	public static <T> Matcher<MockTool.ToolEvent> ofType( String type ) {
+	//		return new FeatureMatcher<MockTool.ToolEvent, T>( null, "", "" ) {
+	//
+	//			@Override
+	//			@SuppressWarnings( "unchecked" )
+	//			protected T featureValueOf( MockTool.ToolEvent data ) {
+	//				return (T)data.type;
+	//			}
+	//
+	//		};
+	//	}
 
-	public static Matcher<MockTool.ToolEvent> ofType( String pattern ) {
-		return new CustomTypeSafeMatcher<>( "matching type " + pattern ) {
-
-			@Override
-			protected boolean matchesSafely( MockTool.ToolEvent item ) {
-				return item != null && item.type.equals( pattern );
-			}
-
-		};
+	public static Matcher<MockTool> hasEvent( int index ) {
+		return hasEvent( index, not( nullValue() ) );
 	}
 
 	public static <T> Matcher<MockTool> hasEvent( int index, Matcher<T> valueMatcher ) {
@@ -94,6 +85,28 @@ public class WorkpaneTest extends WorkpaneTestCase {
 				} catch( ArrayIndexOutOfBoundsException exceptino ) {
 					return null;
 				}
+			}
+
+		};
+	}
+
+	public static Matcher<MockTool.ToolEvent> ofType( String type ) {
+		return new CustomTypeSafeMatcher<>( "matching type " + type ) {
+
+			@Override
+			protected boolean matchesSafely( MockTool.ToolEvent event ) {
+				return event != null && event.type.equals( type );
+			}
+
+		};
+	}
+
+	public static Matcher<MockTool.ToolEvent> withTool( Tool tool ) {
+		return new CustomTypeSafeMatcher<>( "matching tool " + tool ) {
+
+			@Override
+			protected boolean matchesSafely( MockTool.ToolEvent event ) {
+				return event != null && event.tool == tool;
 			}
 
 		};
