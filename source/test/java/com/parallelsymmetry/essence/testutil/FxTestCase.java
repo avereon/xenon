@@ -1,31 +1,34 @@
 package com.parallelsymmetry.essence.testutil;
 
 import javafx.application.Platform;
-import junit.framework.TestCase;
+import javafx.stage.Stage;
+import org.junit.After;
 import org.junit.Before;
+import org.testfx.framework.junit.ApplicationTest;
 
 import java.util.concurrent.CountDownLatch;
 
-public abstract class FxTestCase extends TestCase {
+public abstract class FxTestCase extends ApplicationTest {
 
 	@Before
-	public void setUp() {
+	public void setup() throws Exception {
 		initializeFx();
 	}
 
-	private static boolean initializeFx() {
-		if( isFxInitialized() ) return true;
-		try {
-			final CountDownLatch latch = new CountDownLatch( 1 );
-			Platform.startup( latch::countDown );
-			latch.await();
-			return true;
-		} catch( InterruptedException exception ) {
-			return false;
-		}
+	@After
+	public void cleanup() throws Exception {}
+
+	@Override
+	public void start( Stage stage ) throws Exception {}
+
+	protected void initializeFx() throws Exception {
+		if( isFxInitialized() ) return;
+		final CountDownLatch latch = new CountDownLatch( 1 );
+		Platform.startup( latch::countDown );
+		latch.await();
 	}
 
-	protected static boolean isFxInitialized() {
+	protected boolean isFxInitialized() {
 		try {
 			Platform.runLater( () -> {} );
 			return true;

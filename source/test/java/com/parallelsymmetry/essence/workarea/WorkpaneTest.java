@@ -16,8 +16,8 @@ public class WorkpaneTest extends FxTestCase {
 	private Workpane pane;
 
 	@Before
-	public void setUp() {
-		super.setUp();
+	public void setup() throws Exception {
+		super.setup();
 		pane = new Workpane();
 	}
 

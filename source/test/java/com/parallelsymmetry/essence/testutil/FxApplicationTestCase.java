@@ -3,19 +3,17 @@ package com.parallelsymmetry.essence.testutil;
 import com.parallelsymmetry.essence.*;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
-import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.testfx.api.FxToolkit;
-import org.testfx.framework.junit.ApplicationTest;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FxApplicationTestCase extends ApplicationTest {
+public abstract class FxApplicationTestCase extends FxTestCase {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
@@ -29,9 +27,10 @@ public class FxApplicationTestCase extends ApplicationTest {
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
+		// Remove the existing program data folder
 		try {
-			ProductMetadata metadata = new ProductMetadata();
 			String prefix = ExecMode.TEST.getPrefix();
+			ProductMetadata metadata = new ProductMetadata();
 			File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 			if( programDataFolder != null && programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
 		} catch( IOException exception ) {
@@ -39,20 +38,24 @@ public class FxApplicationTestCase extends ApplicationTest {
 		}
 	}
 
-	@Override
-	public void start( Stage stage ) throws Exception {}
-
 	@Before
+	@Override
 	public void setup() throws Exception {
-		FxToolkit.setupApplication( () -> program = new Program() );
+		initializeFx(  );
 		metadata = program.getMetadata();
-		watcher = new ProgramWatcher();
+		watcher = new FxApplicationTestCase.ProgramWatcher();
 		program.addEventListener( watcher );
 	}
 
 	@After
+	@Override
 	public void cleanup() throws Exception {
 		FxToolkit.cleanupApplication( program );
+	}
+
+	@Override
+	protected void initializeFx() throws Exception {
+		FxToolkit.setupApplication( () -> program = new Program() );
 	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
