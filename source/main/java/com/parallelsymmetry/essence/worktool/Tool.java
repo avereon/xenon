@@ -42,8 +42,13 @@ public abstract class Tool extends Control {
 	private Set<ToolListener> listeners;
 
 	public Tool( Resource resource ) {
+		this( resource, null );
+	}
+
+	public Tool( Resource resource, String title ) {
 		this.titleProperty = new SimpleStringProperty();
 		this.resource = resource;
+		setTitle( title );
 	}
 
 	public Resource getResource() {
