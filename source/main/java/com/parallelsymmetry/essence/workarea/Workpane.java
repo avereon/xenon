@@ -167,7 +167,7 @@ public class Workpane extends Pane {
 	}
 
 	public Tool getActiveTool() {
-		return getActiveView().getActiveTool();
+		return activeWorktoolProperty.get();
 	}
 
 	public void setActiveTool( Tool tool ) {
@@ -398,28 +398,29 @@ public class Workpane extends Pane {
 //				return;
 //			}
 //		}
+
 		Tool activeTool = getActiveTool();
 
 		startOperation();
 		try {
-
 			if( activeTool != null ) {
-				//activeTool.callDeactivate();
+				activeTool.callDeactivate();
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
 			}
 
 			// Change the active tool.
 			ToolView view = tool == null ? null : tool.getToolView();
 			if( view != null ) {
-				if( getViews().contains( view ) ) view.setActiveTool( tool );
+				//if( getViews().contains( view ) ) view.setActiveTool( tool );
 				view.setActiveTool( tool );
 				if( setView && view != getActiveView() ) doSetActiveView( view, false );
 			}
 			activeWorktoolProperty.set( tool );
+			activeTool = getActiveTool();
 
 			if( activeTool != null ) {
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
-				//activeTool.callActivate();
+				activeTool.callActivate();
 			}
 		} finally {
 			finishOperation( true );

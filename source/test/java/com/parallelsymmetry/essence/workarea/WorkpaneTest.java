@@ -34,18 +34,23 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 		// Add the tool but do not set it active.
 		workpane.addTool( tool, false );
-		//assertThat( tool.getEvents().size(), is( 2 ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.ALLOCATE ) ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.DISPLAY ) ) );
-		assertThat( tool, hasEvent( index++, ofType( MockTool.ACTIVATE ) ) );
+		// Didn't choose to select the tool, so no activate event
+
+		// Even though the tool was not activated, it is still the active tool in the view
+		assertThat( tool.getToolView().getActiveTool(), is( tool ) );
 
 		// Remove the tool.
+		ToolView view = tool.getToolView();
 		workpane.removeTool( tool );
-		tool.listEvents();
-		//assertThat( tool.getEvents().size(), is( 4 ) );
-		assertThat( tool, hasEvent( index++, ofType( MockTool.DEACTIVATE ) ) );
+		// Didn't choose to select the tool, so no deactivate event
 		assertThat( tool, hasEvent( index++, ofType( MockTool.CONCEAL ) ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.DEALLOCATE ) ) );
+
+		// The active tool in the view should now be null
+		assertThat( tool.getToolView(), is( nullValue() ) );
+		assertThat( view.getActiveTool(), is( nullValue() ) );
 	}
 
 	@Test
@@ -57,18 +62,25 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 		// Add the tool and set it active.
 		workpane.addTool( tool, true );
-		tool.listEvents();
 		assertThat( tool.getEvents().size(), is( 3 ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.ALLOCATE ) ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.DISPLAY ) ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.ACTIVATE ) ) );
 
+		// Even though the tool was not activated, it is still the active tool in the view
+		assertThat( tool.getToolView().getActiveTool(), is( tool ) );
+
+		// Remove the tool.
+		ToolView view = tool.getToolView();
 		workpane.removeTool( tool );
-		tool.listEvents();
 		assertThat( tool.getEvents().size(), is( 6 ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.DEACTIVATE ) ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.CONCEAL ) ) );
 		assertThat( tool, hasEvent( index++, ofType( MockTool.DEALLOCATE ) ) );
+
+		// The active tool in the view should now be null
+		assertThat( tool.getToolView(), is( nullValue() ) );
+		assertThat( view.getActiveTool(), is( nullValue() ) );
 	}
 
 	public static Matcher<MockTool> hasEvent( int index ) {

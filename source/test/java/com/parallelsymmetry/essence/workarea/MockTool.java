@@ -47,8 +47,6 @@ public class MockTool extends Tool {
 
 	@Override
 	public void deactivate() {
-		new Throwable( this.toString() ).printStackTrace(System.out);
-
 		events.add( new MethodCall(  DEACTIVATE ) );
 	}
 

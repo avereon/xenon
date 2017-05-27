@@ -72,9 +72,9 @@ public class ToolView extends Pane {
 	}
 
 	public Tool removeTool( Tool tool ) {
-		Tool next = null;
 		boolean isActiveTool = tool == activeTool;
 
+		Tool next = null;
 		if( isActiveTool ) {
 			// Determine the next tool for the view.
 			if( tools.getTabs().size() > 1 ) {
@@ -114,10 +114,7 @@ public class ToolView extends Pane {
 		if( tool == activeTool ) return;
 
 		if( activeTool != null ) {
-			if( activeTool.isDisplayed() ) {
-				activeTool.callDeactivate();
-				activeTool.callConceal();
-			}
+			if( activeTool.isDisplayed() ) activeTool.callConceal();
 		}
 
 		activeTool = tool;
@@ -125,7 +122,6 @@ public class ToolView extends Pane {
 		if( activeTool != null ) {
 			tools.getSelectionModel().select( getToolIndex( tool ) );
 			activeTool.callDisplay();
-			activeTool.callActivate();
 		}
 	}
 
