@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence.workarea;
 
-import com.parallelsymmetry.essence.testutil.FxApplicationTestCase;
+import com.parallelsymmetry.essence.testutil.FxTestCase;
 import org.apache.commons.configuration2.BaseConfiguration;
 import org.apache.commons.configuration2.Configuration;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WorkareaTest extends FxApplicationTestCase {
+public class WorkareaTest extends FxTestCase {
 
 	private Configuration configuration = new BaseConfiguration();
 
