@@ -11,7 +11,8 @@ public class WorkpaneTestCase extends FxTestCase {
 
 	protected Workpane workpane;
 
-	protected ToolView view;
+	// TODO Rename to toolview when tests are complete
+	protected ToolView toolview;
 
 	@Override
 	@Before
@@ -19,17 +20,17 @@ public class WorkpaneTestCase extends FxTestCase {
 		super.setup();
 
 		workpane = new Workpane();
-		view = workpane.getDefaultView();
+		toolview = workpane.getActiveView();
 
-		assertThat( view.getEdge( Side.TOP ).isWall(), is( true ) );
-		assertThat( view.getEdge( Side.BOTTOM ).isWall(), is( true ) );
-		assertThat( view.getEdge( Side.LEFT ).isWall(), is( true ) );
-		assertThat( view.getEdge( Side.RIGHT ).isWall(), is( true ) );
+		assertThat( toolview.getEdge( Side.TOP ).isWall(), is( true ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).isWall(), is( true ) );
+		assertThat( toolview.getEdge( Side.LEFT ).isWall(), is( true ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).isWall(), is( true ) );
 
-		assertThat( view.getEdge( Side.TOP ).getPosition(), is( 0d ) );
-		assertThat( view.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
-		assertThat( view.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
-		assertThat( view.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 	}
 
 }

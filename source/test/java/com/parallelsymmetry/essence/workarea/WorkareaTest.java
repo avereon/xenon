@@ -25,7 +25,7 @@ public class WorkareaTest extends FxApplicationTestCase {
 		Workarea area = new Workarea();
 		area.setConfiguration( configuration );
 
-		// Set the name
+		// Set the method
 		area.setName( name );
 
 		// Assertions

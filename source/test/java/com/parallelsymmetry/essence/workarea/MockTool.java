@@ -26,38 +26,40 @@ public class MockTool extends Tool {
 
 	private List<MethodCall> events = new CopyOnWriteArrayList<>();
 
+	private int eventIndex;
+
 	public MockTool( Resource resource ) {
 		super( resource, "MockTool-" + counter.getAndIncrement() );
 	}
 
 	@Override
 	public void allocate() {
-		events.add( new MethodCall(  ALLOCATE ) );
+		events.add( new MethodCall( ALLOCATE ) );
 	}
 
 	@Override
 	public void display() {
-		events.add( new MethodCall(  DISPLAY ) );
+		events.add( new MethodCall( DISPLAY ) );
 	}
 
 	@Override
 	public void activate() {
-		events.add( new MethodCall(  ACTIVATE ) );
+		events.add( new MethodCall( ACTIVATE ) );
 	}
 
 	@Override
 	public void deactivate() {
-		events.add( new MethodCall(  DEACTIVATE ) );
+		events.add( new MethodCall( DEACTIVATE ) );
 	}
 
 	@Override
 	public void conceal() {
-		events.add( new MethodCall(  CONCEAL ) );
+		events.add( new MethodCall( CONCEAL ) );
 	}
 
 	@Override
 	public void deallocate() {
-		events.add( new MethodCall(  DEALLOCATE ) );
+		events.add( new MethodCall( DEALLOCATE ) );
 	}
 
 	@Override
@@ -69,23 +71,27 @@ public class MockTool extends Tool {
 		return Collections.unmodifiableList( events );
 	}
 
+	public MethodCall getNextEvent() {
+		return events.get( eventIndex++ );
+	}
+
 	public void listEvents() {
 		for( MethodCall event : events ) {
-			System.out.println( getTitle() + " " + event.name + "() called" );
+			System.out.println( getTitle() + " " + event.method + "() called" );
 		}
 	}
 
 	public static final class MethodCall {
 
-		public final String name;
+		public final String method;
 
-		public MethodCall(  String name ) {
-			this.name = name;
+		public MethodCall( String method ) {
+			this.method = method;
 		}
 
 		@Override
 		public String toString() {
-			return name;
+			return method;
 		}
 
 	}

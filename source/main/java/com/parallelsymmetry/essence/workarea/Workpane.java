@@ -32,6 +32,10 @@ public class Workpane extends Pane {
 		DEFAULT, ACTIVE, LARGEST, SMART
 	}
 
+	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
+
+	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.25;
+
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
 
 	private Edge northEdge;
@@ -391,18 +395,11 @@ public class Workpane extends Pane {
 	}
 
 	private void doSetActiveTool( Tool tool, boolean setView ) {
-//		if( tool != null ) {
-//			ToolView view = tool.getToolView();
-//			if( view != null && getViews().contains( view ) ) {
-//				view.setActiveTool( tool );
-//				return;
-//			}
-//		}
-
-		Tool activeTool = getActiveTool();
+		Tool activeTool;
 
 		startOperation();
 		try {
+			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
@@ -410,14 +407,13 @@ public class Workpane extends Pane {
 
 			// Change the active tool.
 			ToolView view = tool == null ? null : tool.getToolView();
-			if( view != null ) {
-				//if( getViews().contains( view ) ) view.setActiveTool( tool );
+			if( view != null && getViews().contains( view ) ) {
 				view.setActiveTool( tool );
 				if( setView && view != getActiveView() ) doSetActiveView( view, false );
 			}
 			activeWorktoolProperty.set( tool );
-			activeTool = getActiveTool();
 
+			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
 				activeTool.callActivate();
@@ -540,6 +536,115 @@ public class Workpane extends Pane {
 	public boolean canSplit( ToolView target, Side direction ) {
 		if( target == null ) return false;
 		return getMaximizedView() == null;
+	}
+
+	/**
+	 * Split the workpane using the space in the specified direction to make a new
+	 * tool view along the entire edge of the workpane.
+	 *
+	 * @param direction
+	 * @return
+	 */
+	public ToolView split( Side direction ) {
+		return split( direction, DEFAULT_WALL_SPLIT_RATIO );
+	}
+
+	/**
+	 * Split the workpane using the space in the specified direction to make a new
+	 * tool view along the entire edge of the workpane. The new tool view is
+	 * created using the specified percentage of the original space.
+	 *
+	 * @param direction
+	 * @param percent
+	 * @return
+	 */
+	public ToolView split( Side direction, double percent ) {
+		ToolView result = null;
+		startOperation();
+		try {
+			// Calculate the location of the split.
+			switch( direction ) {
+				case TOP: {
+					result = splitNorth( percent );
+					break;
+				}
+				case BOTTOM: {
+					result = splitSouth( percent );
+					break;
+				}
+				case LEFT: {
+					result = splitWest( percent );
+					break;
+				}
+				case RIGHT: {
+					result = splitEast( percent );
+					break;
+				}
+			}
+			// TODO Does workpane maintain icons?
+			//result.updateIcons();
+
+			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, null, null ) );
+		} finally {
+			finishOperation( true );
+		}
+
+		return result;
+	}
+
+	/**
+	 * Split an existing tool view using the space in the specified direction to
+	 * create a new tool view.
+	 *
+	 * @param view
+	 * @param direction
+	 * @return
+	 */
+	public ToolView split( ToolView view, Side direction ) {
+		return split( view, direction, DEFAULT_VIEW_SPLIT_RATIO );
+	}
+
+	/**
+	 * Split an existing tool view using the space in the specified direction to
+	 * create a new tool view. The new tool view is created using the specified
+	 * percentage of the original space.
+	 *
+	 * @param view
+	 * @param direction
+	 * @param percent
+	 * @return
+	 */
+	public ToolView split( ToolView view, Side direction, double percent ) {
+		ToolView result = null;
+		startOperation();
+		try {
+			// Calculate the location of the split.
+			switch( direction ) {
+				case TOP: {
+					result = splitNorth( view, percent );
+					break;
+				}
+				case BOTTOM: {
+					result = splitSouth( view, percent );
+					break;
+				}
+				case LEFT: {
+					result = splitWest( view, percent );
+					break;
+				}
+				case RIGHT: {
+					result = splitEast( view, percent );
+					break;
+				}
+			}
+			// TODO Does workpane maintain icons?
+			//result.updateIcons();
+			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, view, null ) );
+		} finally {
+			finishOperation( true );
+		}
+
+		return result;
 	}
 
 	/**
