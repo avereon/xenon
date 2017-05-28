@@ -29,7 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Workpane extends Pane {
 
 	public enum Placement {
-		DEFAULT, ACTIVE, LARGEST, SMART
+		DEFAULT,
+		ACTIVE,
+		LARGEST,
+		SMART
 	}
 
 	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
@@ -119,15 +122,22 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Returns an unmodifiable list of the views.
+	 * Returns an unmodifiable list of the edges.
 	 *
 	 * @return
 	 */
 	public Set<Edge> getEdges() {
 		Set<Edge> edges = new HashSet<>();
+
+		// Count the edges that are not walls
 		for( Node node : getChildren() ) {
 			if( node instanceof Edge ) edges.add( (Edge)node );
 		}
+		edges.remove( northEdge );
+		edges.remove( southEdge );
+		edges.remove( westEdge );
+		edges.remove( eastEdge );
+
 		return Collections.unmodifiableSet( edges );
 	}
 
@@ -216,13 +226,13 @@ public class Workpane extends Pane {
 		return maximizedViewProperty;
 	}
 
-//	public Tool getActiveWorktool() {
-//		return activeWorktoolProperty.get();
-//	}
+	//	public Tool getActiveWorktool() {
+	//		return activeWorktoolProperty.get();
+	//	}
 
-//	public void setActiveWorktool( Tool worktool ) {
-//		activeWorktoolProperty.set( worktool );
-//	}
+	//	public void setActiveWorktool( Tool worktool ) {
+	//		activeWorktoolProperty.set( worktool );
+	//	}
 
 	public ObjectProperty<Tool> activeWorktoolProperty() {
 		return activeWorktoolProperty;
@@ -496,24 +506,6 @@ public class Workpane extends Pane {
 		return view;
 	}
 
-	public Edge addEdge( Edge edge ) {
-		if( edge == null ) return edge;
-
-		edge.setWorkpane( this );
-		getChildren().add( edge );
-
-		return edge;
-	}
-
-	public Edge removeEdge( Edge edge ) {
-		if( edge == null ) return edge;
-
-		getChildren().remove( edge );
-		edge.setWorkpane( null );
-
-		return edge;
-	}
-
 	public Edge getWallEdge( Side direction ) {
 		switch( direction ) {
 			case TOP: {
@@ -531,6 +523,24 @@ public class Workpane extends Pane {
 		}
 
 		return null;
+	}
+
+	public Edge addEdge( Edge edge ) {
+		if( edge == null ) return edge;
+
+		edge.setWorkpane( this );
+		getChildren().add( edge );
+
+		return edge;
+	}
+
+	public Edge removeEdge( Edge edge ) {
+		if( edge == null ) return edge;
+
+		getChildren().remove( edge );
+		edge.setWorkpane( null );
+
+		return edge;
 	}
 
 	public boolean canSplit( ToolView target, Side direction ) {

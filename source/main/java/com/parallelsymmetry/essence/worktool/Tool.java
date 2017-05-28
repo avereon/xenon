@@ -4,6 +4,7 @@ import com.parallelsymmetry.essence.Resource;
 import com.parallelsymmetry.essence.workarea.ToolView;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * The Tool class is a control that "works on" a resource.
@@ -47,8 +49,12 @@ public abstract class Tool extends Control {
 	}
 
 	public Tool( Resource resource, String title ) {
-		this.titleProperty = new SimpleStringProperty();
 		this.resource = resource;
+		this.graphicProperty = new SimpleObjectProperty<>();
+		this.titleProperty = new SimpleStringProperty();
+		this.closeOperation = new SimpleObjectProperty<>();
+		this.listeners = new CopyOnWriteArraySet<>();
+
 		setTitle( title );
 	}
 

@@ -1,8 +1,11 @@
 package com.parallelsymmetry.essence.workarea;
 
+import com.parallelsymmetry.essence.Resource;
 import com.parallelsymmetry.essence.testutil.FxTestCase;
 import javafx.geometry.Side;
 import org.junit.Before;
+
+import java.net.URI;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,6 +16,8 @@ public class WorkpaneTestCase extends FxTestCase {
 
 	// TODO Rename to toolview when tests are complete
 	protected ToolView toolview;
+
+	protected Resource resource = new Resource( URI.create( "" ) );
 
 	@Override
 	@Before

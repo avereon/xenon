@@ -17,8 +17,6 @@ import static org.junit.Assert.assertThat;
 
 public class WorkpaneTest extends WorkpaneTestCase {
 
-	private Resource resource = new Resource( URI.create( "" ) );
-
 	@Test
 	public void testAddRemoveToolEvents() {
 		int index = 0;
