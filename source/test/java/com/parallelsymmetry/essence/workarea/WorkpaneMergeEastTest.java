@@ -23,8 +23,6 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
 	}
 
-	// TODO Continue implementing WorkpaneMergeEast tests
-
 	@Test
 	public void testCanPushMergeEastSingleTargetMultipleSource() throws Exception {
 		ToolView east = workpane.split( toolview, Side.RIGHT );
@@ -87,6 +85,8 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 		assertThat( workpane.getViews().size(), is( 8 ) );
 		assertFalse( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
 	}
+
+	// TODO Continue implementing WorkpaneMergeEast tests
 
 	//	@Test
 	//	public void testPushMergeEastSingleTargetSingleSource() throws Exception {

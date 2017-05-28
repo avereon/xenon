@@ -24,70 +24,70 @@ public class WorkpaneMergeSouthTest extends WorkpaneTestCase {
 		assertFalse( workpane.canPushMerge( view, Side.BOTTOM, false ) );
 	}
 
+	@Test
+	public void testCanPushMergeSouthSingleTargetMultipleSource() throws Exception {
+		ToolView north = workpane.split( toolview, Side.BOTTOM );
+		assertThat( workpane.getViews().size(), is( 2 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		workpane.split( north, Side.LEFT );
+		workpane.split( north, Side.RIGHT );
+		assertThat( workpane.getViews().size(), is( 4 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+	}
+
+	@Test
+	public void testCanPushMergeSouthMultipleTargetSingleSource() throws Exception {
+		workpane.split( toolview, Side.BOTTOM );
+		assertThat( workpane.getViews().size(), is( 2 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		workpane.split( toolview, Side.LEFT );
+		workpane.split( toolview, Side.RIGHT );
+		assertThat( workpane.getViews().size(), is( 4 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+	}
+
+	@Test
+	public void testCanPushMergeSouthMultipleTargetMultipleSource() throws Exception {
+		ToolView north = workpane.split( toolview, Side.BOTTOM );
+		assertThat( workpane.getViews().size(), is( 2 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		workpane.split( north, Side.LEFT );
+		workpane.split( north, Side.RIGHT );
+		assertThat( workpane.getViews().size(), is( 4 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		workpane.split( toolview, Side.LEFT );
+		workpane.split( toolview, Side.RIGHT );
+		assertThat( workpane.getViews().size(), is( 6 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+	}
+
+	@Test
+	public void testCanPushMergeSouthComplex() throws Exception {
+		ToolView north = workpane.split( toolview, Side.BOTTOM );
+		assertThat( workpane.getViews().size(), is( 2 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		ToolView northwest = workpane.split( north, Side.LEFT );
+		ToolView northeast = workpane.split( north, Side.RIGHT );
+		assertThat( workpane.getViews().size(), is( 4 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		workpane.split( toolview, Side.LEFT );
+		workpane.split( toolview, Side.RIGHT );
+		assertThat( workpane.getViews().size(), is( 6 ) );
+		assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+
+		workpane.split( northwest, Side.TOP );
+		workpane.split( northeast, Side.TOP );
+		assertThat( workpane.getViews().size(), is( 8 ) );
+		assertFalse( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
+	}
+
 	// TODO Continue implementing WorkpaneMergeSouth tests
-
-		@Test
-		public void testCanPushMergeSouthSingleTargetMultipleSource() throws Exception {
-			ToolView north = workpane.split( toolview, Side.BOTTOM );
-			assertThat( workpane.getViews().size(), is( 2 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			workpane.split( north, Side.LEFT );
-			workpane.split( north, Side.RIGHT );
-			assertThat( workpane.getViews().size(), is( 4 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-		}
-
-		@Test
-		public void testCanPushMergeSouthMultipleTargetSingleSource() throws Exception {
-			workpane.split( toolview, Side.BOTTOM );
-			assertThat( workpane.getViews().size(), is( 2 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			workpane.split( toolview, Side.LEFT );
-			workpane.split( toolview, Side.RIGHT );
-			assertThat( workpane.getViews().size(), is( 4 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-		}
-
-		@Test
-		public void testCanPushMergeSouthMultipleTargetMultipleSource() throws Exception {
-			ToolView north = workpane.split( toolview, Side.BOTTOM );
-			assertThat( workpane.getViews().size(), is( 2 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			workpane.split( north, Side.LEFT );
-			workpane.split( north, Side.RIGHT );
-			assertThat( workpane.getViews().size(), is( 4 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			workpane.split( toolview, Side.LEFT );
-			workpane.split( toolview, Side.RIGHT );
-			assertThat( workpane.getViews().size(), is( 6 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-		}
-
-		@Test
-		public void testCanPushMergeSouthComplex() throws Exception {
-			ToolView north = workpane.split( toolview, Side.BOTTOM );
-			assertThat( workpane.getViews().size(), is( 2 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			ToolView northwest = workpane.split( north, Side.LEFT );
-			ToolView northeast = workpane.split( north, Side.RIGHT );
-			assertThat( workpane.getViews().size(), is( 4 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			workpane.split( toolview, Side.LEFT );
-			workpane.split( toolview, Side.RIGHT );
-			assertThat( workpane.getViews().size(), is( 6 ) );
-			assertTrue( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-
-			workpane.split( northwest, Side.TOP );
-			workpane.split( northeast, Side.TOP );
-			assertThat( workpane.getViews().size(), is( 8 ) );
-			assertFalse( workpane.canPushMerge( toolview, Side.BOTTOM, false ) );
-		}
 
 	//	@Test
 	//	public void testPushMergeSouthSingleTargetSingleSource() throws Exception {
