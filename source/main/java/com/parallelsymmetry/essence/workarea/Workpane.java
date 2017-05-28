@@ -302,6 +302,16 @@ public class Workpane extends Pane {
 		updateComponentTree( changed );
 	}
 
+	// TODO Rename to addWorkpaneListener
+	public void addWorkPaneListener( WorkpaneListener listener ) {
+		listeners.add( listener );
+	}
+
+	// TODO Rename to removeWorkpaneListener
+	public void removeWorkPaneListener( WorkpaneListener listener ) {
+		listeners.remove( listener );
+	}
+
 	void fireViewWillSplit( WorkpaneEvent event ) throws WorkpaneVetoException {
 		WorkpaneVetoException exception = null;
 
@@ -1391,7 +1401,7 @@ public class Workpane extends Pane {
 		Bounds bounds = getLayoutBounds();
 	}
 
-	private double moveEdge( Edge edge, double delta ) {
+	public double moveEdge( Edge edge, double delta ) {
 		// NEXT Implement Workpane.moveEdge()
 		return 0;
 	}
