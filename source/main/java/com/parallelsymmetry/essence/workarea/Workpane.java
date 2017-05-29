@@ -205,6 +205,7 @@ public class Workpane extends Pane {
 	}
 
 	void setDefaultView( ToolView view ) {
+		if( getDefaultView() == view ) return;
 		defaultViewProperty.set( view );
 		updateComponentTree( true );
 	}
@@ -218,6 +219,7 @@ public class Workpane extends Pane {
 	}
 
 	void setMaximizedView( ToolView view ) {
+		if( getMaximizedView() == view ) return;
 		maximizedViewProperty.set( view );
 		updateComponentTree( true );
 	}
@@ -414,36 +416,9 @@ public class Workpane extends Pane {
 		}
 	}
 
-	private void doSetActiveTool( Tool tool, boolean setView ) {
-		Tool activeTool;
-
-		startOperation();
-		try {
-			activeTool = getActiveTool();
-			if( activeTool != null ) {
-				activeTool.callDeactivate();
-				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
-			}
-
-			// Change the active tool.
-			ToolView view = tool == null ? null : tool.getToolView();
-			if( view != null && getViews().contains( view ) ) {
-				view.setActiveTool( tool );
-				if( setView && view != getActiveView() ) doSetActiveView( view, false );
-			}
-			activeWorktoolProperty.set( tool );
-
-			activeTool = getActiveTool();
-			if( activeTool != null ) {
-				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
-				activeTool.callActivate();
-			}
-		} finally {
-			finishOperation( true );
-		}
-	}
-
 	private void doSetActiveView( ToolView view, boolean setTool ) {
+		if( view != null && ( view == getActiveView() || !getViews().contains( view ) ) ) return;
+
 		startOperation();
 		try {
 			ToolView activeToolView = getActiveView();
@@ -452,15 +427,51 @@ public class Workpane extends Pane {
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView, null ) );
 			}
 
-			// Change the active view.
-			activeViewProperty.set( view );
+			// Change the active view
+			activeViewProperty().set( view );
 
+			// Change the active tool
 			if( setTool ) doSetActiveTool( view.getActiveTool(), false );
 
-			// Handle the new active view.
+			// Handle the new active view
 			activeToolView = getActiveView();
 			if( activeToolView != null ) {
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView, null ) );
+			}
+		} finally {
+			finishOperation( true );
+		}
+	}
+
+	private void doSetActiveTool( Tool tool, boolean setView ) {
+		if( tool != null ) {
+			ToolView view = tool.getToolView();
+			if( view == null || !getViews().contains( view ) ) return;
+		}
+
+		Tool activeTool;
+		startOperation();
+		try {
+			activeTool = getActiveTool();
+			if( activeTool != null ) {
+				activeTool.callDeactivate();
+				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
+			}
+
+			// Change the active view
+			ToolView view = tool == null ? null : tool.getToolView();
+			if( view != null && getViews().contains( view ) ) {
+				view.setActiveTool( tool );
+				if( setView && view != getActiveView() ) doSetActiveView( view, false );
+			}
+
+			// Change the active tool
+			activeWorktoolProperty().set( tool );
+
+			activeTool = getActiveTool();
+			if( activeTool != null ) {
+				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
+				activeTool.callActivate();
 			}
 		} finally {
 			finishOperation( true );

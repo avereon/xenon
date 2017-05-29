@@ -1,6 +1,5 @@
 package com.parallelsymmetry.essence.workarea;
 
-import com.parallelsymmetry.essence.Resource;
 import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
@@ -9,8 +8,6 @@ import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.junit.Test;
-
-import java.net.URI;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -27,6 +24,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool, nextEvent( isMethod( MockTool.ALLOCATE ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.DISPLAY ) ) );
 		// Didn't choose to select the tool, so no activate event
+		assertThat( tool.getEvents().size(), is( 2 ) );
 
 		// Even though the tool was not activated, it is still the active tool in the toolview
 		assertThat( tool.getToolView().getActiveTool(), is( tool ) );
@@ -37,6 +35,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		// Didn't choose to select the tool, so no deactivate event
 		assertThat( tool, nextEvent( isMethod( MockTool.CONCEAL ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.DEALLOCATE ) ) );
+		assertThat( tool.getEvents().size(), is( 4 ) );
 
 		// The active tool in the toolview should now be null
 		assertThat( tool.getToolView(), is( nullValue() ) );
@@ -54,6 +53,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool, nextEvent( isMethod( MockTool.ALLOCATE ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.DISPLAY ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.ACTIVATE ) ) );
+		assertThat( tool.getEvents().size(), is( 3 ) );
 
 		// Even though the tool was not activated, it is still the active tool in the toolview
 		assertThat( tool.getToolView().getActiveTool(), is( tool ) );
@@ -64,6 +64,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool, nextEvent( isMethod( MockTool.DEACTIVATE ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.CONCEAL ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.DEALLOCATE ) ) );
+		assertThat( tool.getEvents().size(), is( 6 ) );
 
 		// The active tool in the toolview should now be null
 		assertThat( tool.getToolView(), is( nullValue() ) );
@@ -87,34 +88,42 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		workpane.addTool( tool1, false );
 		assertThat( tool1, nextEvent( isMethod( MockTool.ALLOCATE ) ) );
 		assertThat( tool1, nextEvent( isMethod( MockTool.DISPLAY ) ) );
+		assertThat( tool1.getEvents().size(), is( 2 ) );
 
 		// Add tool two but do not activate it.
 		workpane.addTool( tool2, false );
 		assertThat( tool2, nextEvent( isMethod( MockTool.ALLOCATE ) ) );
+		assertThat( tool2.getEvents().size(), is( 1 ) );
 
 		// Add tool three and activate it.
 		workpane.addTool( tool3, true );
 		assertThat( tool1, nextEvent( isMethod( MockTool.CONCEAL ) ) );
+		assertThat( tool1.getEvents().size(), is( 3 ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.ALLOCATE ) ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.DISPLAY ) ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.ACTIVATE ) ) );
+		assertThat( tool3.getEvents().size(), is( 3 ) );
 
 		// Try to set tool three active again.
 		workpane.setActiveTool( tool3 );
 		assertThat( tool3, nextEvent( isMethod( MockTool.DEACTIVATE ) ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.ACTIVATE ) ) );
+		assertThat( tool3.getEvents().size(), is( 5 ) );
 
 		// Set tool two active.
 		workpane.setActiveTool( tool2 );
 		assertThat( tool3, nextEvent( isMethod( MockTool.DEACTIVATE ) ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.CONCEAL ) ) );
+		assertThat( tool3.getEvents().size(), is( 7 ) );
 		assertThat( tool2, nextEvent( isMethod( MockTool.DISPLAY ) ) );
 		assertThat( tool2, nextEvent( isMethod( MockTool.ACTIVATE ) ) );
+		assertThat( tool2.getEvents().size(), is( 3 ) );
 
 		// Remove tool one.
 		// This tests the removal of an inactive tool.
 		workpane.removeTool( tool1 );
 		assertThat( tool1, nextEvent( isMethod( MockTool.DEALLOCATE ) ) );
+		assertThat( tool1.getEvents().size(), is( 4 ) );
 
 		// Remove tool two.
 		// This tests the removal of an active tool when there is more than one tool.
@@ -122,8 +131,10 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool2, nextEvent( isMethod( MockTool.DEACTIVATE ) ) );
 		assertThat( tool2, nextEvent( isMethod( MockTool.CONCEAL ) ) );
 		assertThat( tool2, nextEvent( isMethod( MockTool.DEALLOCATE ) ) );
+		assertThat( tool2.getEvents().size(), is( 6 ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.DISPLAY ) ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.ACTIVATE ) ) );
+		assertThat( tool3.getEvents().size(), is( 9 ) );
 	}
 
 	@Test
