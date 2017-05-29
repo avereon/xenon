@@ -30,7 +30,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool.getToolView().getActiveTool(), is( tool ) );
 
 		// Remove the tool.
-		ToolView view = tool.getToolView();
+		WorkpaneView view = tool.getToolView();
 		workpane.removeTool( tool );
 		// Didn't choose to select the tool, so no deactivate event
 		assertThat( tool, nextEvent( isMethod( MockTool.CONCEAL ) ) );
@@ -59,7 +59,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool.getToolView().getActiveTool(), is( tool ) );
 
 		// Remove the tool.
-		ToolView view = tool.getToolView();
+		WorkpaneView view = tool.getToolView();
 		workpane.removeTool( tool );
 		assertThat( tool, nextEvent( isMethod( MockTool.DEACTIVATE ) ) );
 		assertThat( tool, nextEvent( isMethod( MockTool.CONCEAL ) ) );
@@ -158,7 +158,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitNorth() throws Exception {
-		ToolView view1 = workpane.split( Side.TOP );
+		WorkpaneView view1 = workpane.split( Side.TOP );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -174,7 +174,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitSouth() throws Exception {
-		ToolView view1 = workpane.split( Side.BOTTOM );
+		WorkpaneView view1 = workpane.split( Side.BOTTOM );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1 - Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -188,7 +188,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitWest() throws Exception {
-		ToolView view1 = workpane.split( Side.LEFT );
+		WorkpaneView view1 = workpane.split( Side.LEFT );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
@@ -202,7 +202,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitEast() throws Exception {
-		ToolView view1 = workpane.split( Side.RIGHT );
+		WorkpaneView view1 = workpane.split( Side.RIGHT );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -216,7 +216,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitNorthCompound() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.LEFT );
+		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
@@ -227,7 +227,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.westEdge.getPosition(), is( 0d ) );
 		assertThat( view1.eastEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 
-		ToolView view2 = workpane.split( Side.TOP );
+		WorkpaneView view2 = workpane.split( Side.TOP );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
@@ -246,7 +246,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitSouthCompound() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.LEFT );
+		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
@@ -257,7 +257,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.westEdge.getPosition(), is( 0d ) );
 		assertThat( view1.eastEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 
-		ToolView view2 = workpane.split( Side.BOTTOM );
+		WorkpaneView view2 = workpane.split( Side.BOTTOM );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1 - Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
@@ -276,7 +276,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitEastCompound() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.TOP );
+		WorkpaneView view1 = workpane.split( toolview, Side.TOP );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -287,7 +287,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.westEdge.getPosition(), is( 0d ) );
 		assertThat( view1.eastEdge.getPosition(), is( 1d ) );
 
-		ToolView view2 = workpane.split( Side.RIGHT );
+		WorkpaneView view2 = workpane.split( Side.RIGHT );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -306,7 +306,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitWestCompound() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.TOP );
+		WorkpaneView view1 = workpane.split( toolview, Side.TOP );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -317,7 +317,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.westEdge.getPosition(), is( 0d ) );
 		assertThat( view1.eastEdge.getPosition(), is( 1d ) );
 
-		ToolView view2 = workpane.split( Side.LEFT );
+		WorkpaneView view2 = workpane.split( Side.LEFT );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
@@ -336,7 +336,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitViewNorth() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.TOP );
+		WorkpaneView view1 = workpane.split( toolview, Side.TOP );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -351,7 +351,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	public void testSplitViewNorthWithSize() throws Exception {
 		double size = 0.31;
-		ToolView view1 = workpane.split( toolview, Side.TOP, size );
+		WorkpaneView view1 = workpane.split( toolview, Side.TOP, size );
 		assertThat( toolview.northEdge.getPosition(), is( size ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -365,7 +365,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitViewSouth() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.BOTTOM );
+		WorkpaneView view1 = workpane.split( toolview, Side.BOTTOM );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1 - Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -380,7 +380,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	public void testSplitViewSouthWithSize() throws Exception {
 		double size = 0.33;
-		ToolView view1 = workpane.split( toolview, Side.BOTTOM, size );
+		WorkpaneView view1 = workpane.split( toolview, Side.BOTTOM, size );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1 - size ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -394,7 +394,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitViewWest() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.LEFT );
+		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
@@ -409,7 +409,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	public void testSplitViewWestWithSize() throws Exception {
 		double size = 0.35;
-		ToolView view1 = workpane.split( toolview, Side.LEFT, size );
+		WorkpaneView view1 = workpane.split( toolview, Side.LEFT, size );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( size ) );
@@ -423,7 +423,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
 	public void testSplitViewEast() throws Exception {
-		ToolView view1 = workpane.split( toolview, Side.RIGHT );
+		WorkpaneView view1 = workpane.split( toolview, Side.RIGHT );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -438,7 +438,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	public void testSplitViewEastWithSize() throws Exception {
 		double size = 0.37;
-		ToolView view1 = workpane.split( toolview, Side.RIGHT, size );
+		WorkpaneView view1 = workpane.split( toolview, Side.RIGHT, size );
 		assertThat( toolview.northEdge.getPosition(), is( 0d ) );
 		assertThat( toolview.southEdge.getPosition(), is( 1d ) );
 		assertThat( toolview.westEdge.getPosition(), is( 0d ) );
@@ -450,7 +450,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.eastEdge.getPosition(), is( 1d ) );
 	}
 
-	private Tool getActiveTool( ToolView view ) throws Exception {
+	private Tool getActiveTool( WorkpaneView view ) throws Exception {
 		TabPane pane = (TabPane)view.getChildren().get( 0 );
 
 		int selectedIndex = pane.getSelectionModel().getSelectedIndex();

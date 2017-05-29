@@ -15,7 +15,7 @@ public class WorkpaneTestCase extends FxTestCase {
 	protected Workpane workpane;
 
 	// TODO Rename to toolview when tests are complete
-	protected ToolView toolview;
+	protected WorkpaneView toolview;
 
 	protected Resource resource = new Resource( URI.create( "" ) );
 

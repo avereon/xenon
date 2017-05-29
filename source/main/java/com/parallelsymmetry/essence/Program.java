@@ -62,14 +62,16 @@ public class Program extends Application implements Product {
 	private ExitProgramHandler exitActionHandler;
 
 	static {
-		// This will require Platform.exit() to be called
-		//Platform.setImplicitExit( false );
+		// Initialize the logging
 
 		try {
 			LogManager.getLogManager().readConfiguration( Program.class.getResourceAsStream( "/logging.properties" ) );
 		} catch( IOException exception ) {
 			exception.printStackTrace( System.err );
 		}
+
+		// This will require Platform.exit() to be called
+		//Platform.setImplicitExit( false );
 	}
 
 	public static void main( String[] commands ) {
@@ -108,8 +110,6 @@ public class Program extends Application implements Product {
 		programTitle = metadata.getName();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 
-		printHeader();
-
 		// Create the executor service
 		int processorCount = Runtime.getRuntime().availableProcessors();
 		log.trace( "Starting executor service..." );
@@ -119,6 +119,8 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		printHeader();
+
 		log.info( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp) );
 
 		new ProgramStartingEvent( this ).fire( listeners );
@@ -128,7 +130,7 @@ public class Program extends Application implements Product {
 		splashScreen.show();
 
 		// Submit the startup task
-		executor.submit( new StartupTask() );
+		executor.submit( new Startup() );
 	}
 
 	@Override
@@ -136,7 +138,7 @@ public class Program extends Application implements Product {
 		new ProgramStoppingEvent( this ).fire( listeners );
 
 		// Submit the shutdown task
-		executor.submit( new ShutdownTask() );
+		executor.submit( this::doShutdownTasks );
 	}
 
 	public void requestExit() {
@@ -241,23 +243,99 @@ public class Program extends Application implements Product {
 		return prefix;
 	}
 
-	private String getParameter( String key ) {
-		Parameters parameters = getParameters();
-		if( parameters == null ) {
-			// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
-			return System.getProperty( key );
-		}
-		return parameters.getNamed().get( key );
+	private void doStartupTasks() throws Exception {
+		// Give the slash screen time to render and the user to see it
+		Thread.sleep( 500 );
+
+		// Create the product bundle
+		productBundle = new ProductBundle( getClass().getClassLoader() );
+
+		// Create the icon library
+		iconLibrary = new IconLibrary();
+		registerIcons();
+
+		// Create the action library
+		actionLibrary = new ActionLibrary( productBundle, iconLibrary );
+		registerActionHandlers();
+
+		// Create the workspace manager
+		log.trace( "Starting workspace manager..." );
+		workspaceManager = new WorkspaceManager( Program.this );
+		log.debug( "Workspace manager started." );
+
+		// Create the UI factory
+		UiFactory factory = new UiFactory( Program.this );
+
+		// Set the number of startup steps
+		final int steps = 2 + factory.getUiObjectCount();
+		Platform.runLater( () -> splashScreen.setSteps( steps ) );
+
+		// Update the product metadata
+		metadata.loadContributors();
+		Platform.runLater( () -> splashScreen.update() );
+
+		// Create the setting manager
+		log.trace( "Starting settings manager..." );
+		File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
+		settings = new Settings( executor, new File( programSettingsFolder, "program.properties" ) );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Settings manager started." );
+
+		// TODO Create the tool manager
+
+		// TODO Create the resource manager
+		//resourceManager = new ResourceManager(Program.this );
+		//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
+
+		// Restore the workspace
+		Platform.runLater( () -> factory.restoreUi( splashScreen ) );
+
+		// TODO Start the update manager
+
+		// Finish the splash screen
+		Platform.runLater( () -> splashScreen.done() );
+
+		// Give the slash screen time to render and the user to see it
+		Thread.sleep( 500 );
 	}
+
+	private void registerIcons() {}
+
+	private void unregisterIcons() {}
 
 	private void showProgram() {
 		workspaceManager.getActiveWorkspace().getStage().show();
 		new ProgramStartedEvent( this ).fire( listeners );
 	}
 
-	private void registerIcons() {}
+	private void doShutdownTasks() {
+		// TODO Stop the WorkspaceManager
+		log.trace( "Stopping workspace manager..." );
+		workspaceManager.shutdown();
+		log.debug( "Workspace manager stopped." );
 
-	private void unregisterIcons() {}
+		// TODO Stop the UpdateManager
+		// TODO Stop the ResourceManager
+		// TODO Stop the ToolManager
+
+		// Disconnect the settings listener
+		log.trace( "Stopping settings manager..." );
+		settings.removeProgramEventListener( watcher );
+		log.debug( "Settings manager stopped." );
+
+		// Unregister action handlers
+		unregisterActionHandlers();
+
+		// Unregister icons
+		unregisterIcons();
+
+		new ProgramStoppedEvent( this ).fire( listeners );
+
+		// Stop the executor service
+		log.trace( "Stopping executor service..." );
+		executor.shutdown();
+		log.debug( "Executor service stopped." );
+	}
 
 	private void registerActionHandlers() {
 		getActionLibrary().getAction( "exit" ).pushAction( exitActionHandler );
@@ -267,68 +345,23 @@ public class Program extends Application implements Product {
 		getActionLibrary().getAction( "exit" ).pullAction( exitActionHandler );
 	}
 
-	private class StartupTask extends Task<Void> {
+	private String getParameter( String key ) {
+		Parameters parameters = getParameters();
+		if( parameters == null ) {
+			// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
+			return System.getProperty( key );
+		}
+		return parameters.getNamed().get( key );
+	}
+
+	private class Startup extends Task<Void> {
 
 		private Stage stage;
 
 		@Override
 		protected Void call() throws Exception {
-			// Give the slash screen time to render and the user to see it
-			Thread.sleep( 500 );
-
-			// Create the product bundle
-			productBundle = new ProductBundle( getClass().getClassLoader() );
-
-			// Create the icon library
-			iconLibrary = new IconLibrary();
-			registerIcons();
-
-			// Create the action library
-			actionLibrary = new ActionLibrary( productBundle, iconLibrary );
-			registerActionHandlers();
-
-			// Create the workspace manager
-			log.trace( "Starting workspace manager..." );
-			workspaceManager = new WorkspaceManager( Program.this );
-			log.debug( "Workspace manager started." );
-
-			// Create the UI factory
-			UiFactory factory = new UiFactory( Program.this );
-
-			// Set the number of startup steps
-			final int steps = 2 + factory.getUiObjectCount();
-			Platform.runLater( () -> splashScreen.setSteps( steps ) );
-
-			// Update the product metadata
-			metadata.loadContributors();
-			Platform.runLater( () -> splashScreen.update() );
-
-			// Create the setting manager
-			log.trace( "Starting settings manager..." );
-			File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
-			settings = new Settings( executor, new File( programSettingsFolder, "program.properties" ) );
-			Platform.runLater( () -> splashScreen.update() );
-			log.debug( "Settings manager started." );
-
-			// TODO Create the tool manager
-
-			// TODO Create the resource manager
-			//resourceManager = new ResourceManager(Program.this );
-			//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
-
-			// Restore the workspace
-			Platform.runLater( () -> factory.restoreUi( splashScreen ) );
-
-			// TODO Start the update manager
-
-			// Finish the splash screen
-			Platform.runLater( () -> splashScreen.done() );
-
-			// Give the slash screen time to render and the user to see it
-			Thread.sleep( 500 );
-
+			doStartupTasks();
 			return null;
-			// If all was successful then the succeeded() method will be called next
 		}
 
 		@Override
@@ -339,50 +372,14 @@ public class Program extends Application implements Product {
 
 		@Override
 		protected void cancelled() {
-			log.warn( "Startup task cancelled" );
 			splashScreen.hide();
+			log.warn( "Startup task cancelled" );
 		}
 
 		@Override
 		protected void failed() {
-			log.error( "Error during startup task", getException() );
 			splashScreen.hide();
-		}
-
-	}
-
-	private class ShutdownTask extends Task<Void> {
-
-		@Override
-		protected Void call() throws Exception {
-			// TODO Stop the WorkspaceManager
-			log.trace( "Stopping workspace manager..." );
-			workspaceManager.shutdown();
-			log.debug( "Workspace manager stopped." );
-
-			// TODO Stop the UpdateManager
-			// TODO Stop the ResourceManager
-			// TODO Stop the ToolManager
-
-			// Disconnect the settings listener
-			log.trace( "Stopping settings manager..." );
-			settings.removeProgramEventListener( watcher );
-			log.debug( "Settings manager stopped." );
-
-			// Unregister action handlers
-			unregisterActionHandlers();
-
-			// Unregister icons
-			unregisterIcons();
-
-			new ProgramStoppedEvent( this ).fire( listeners );
-
-			// Stop the executor service
-			log.trace( "Stopping executor service..." );
-			executor.shutdown();
-			log.debug( "Executor service stopped." );
-
-			return null;
+			log.error( "Error during startup task", getException() );
 		}
 
 	}

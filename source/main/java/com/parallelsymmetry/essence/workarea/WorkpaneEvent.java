@@ -30,13 +30,13 @@ public class WorkpaneEvent  extends EventObject {
 
 	private Tool tool;
 
-	private ToolView view;
+	private WorkpaneView view;
 
 	public WorkpaneEvent( Object source, Type type, Workpane workpane ) {
 		this( source, type, workpane, null, null );
 	}
 
-	public WorkpaneEvent( Object source, Type type, Workpane workpane, ToolView view, Tool tool ) {
+	public WorkpaneEvent( Object source, Type type, Workpane workpane, WorkpaneView view, Tool tool ) {
 		super( source );
 		this.type = type;
 		this.pane = workpane;
@@ -53,7 +53,7 @@ public class WorkpaneEvent  extends EventObject {
 	}
 
 	@Deprecated
-	public ToolView getToolView() {
+	public WorkpaneView getToolView() {
 		return view;
 	}
 

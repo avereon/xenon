@@ -4,17 +4,9 @@ import com.parallelsymmetry.essence.worktool.CloseOperation;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolEvent;
 import com.parallelsymmetry.essence.worktool.ToolVetoException;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.*;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
-import javafx.scene.control.SkinBase;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -44,23 +36,23 @@ public class Workpane extends Pane {
 
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
 
-	private Edge northEdge;
+	private WorkpaneEdge northEdge;
 
-	private Edge southEdge;
+	private WorkpaneEdge southEdge;
 
-	private Edge westEdge;
+	private WorkpaneEdge westEdge;
 
-	private Edge eastEdge;
+	private WorkpaneEdge eastEdge;
 
 	private DoubleProperty edgeSize;
 
-	private ObjectProperty<ToolView> activeViewProperty;
+	private ObjectProperty<WorkpaneView> activeViewProperty;
 
-	private ObjectProperty<ToolView> defaultViewProperty;
+	private ObjectProperty<WorkpaneView> defaultViewProperty;
 
-	private ObjectProperty<ToolView> maximizedViewProperty;
+	private ObjectProperty<WorkpaneView> maximizedViewProperty;
 
-	private ObjectProperty<Tool> activeWorktoolProperty;
+	private ObjectProperty<Tool> activeToolProperty;
 
 	private AtomicInteger operation;
 
@@ -73,17 +65,17 @@ public class Workpane extends Pane {
 		activeViewProperty = new SimpleObjectProperty<>();
 		defaultViewProperty = new SimpleObjectProperty<>();
 		maximizedViewProperty = new SimpleObjectProperty<>();
-		activeWorktoolProperty = new SimpleObjectProperty<>();
+		activeToolProperty = new SimpleObjectProperty<>();
 
 		operation = new AtomicInteger();
 		events = new LinkedList<WorkpaneEvent>();
 		listeners = new CopyOnWriteArraySet<>();
 
 		// Create the wall edges
-		northEdge = new Edge( Orientation.HORIZONTAL, true );
-		southEdge = new Edge( Orientation.HORIZONTAL, true );
-		westEdge = new Edge( Orientation.VERTICAL, true );
-		eastEdge = new Edge( Orientation.VERTICAL, true );
+		northEdge = new WorkpaneEdge( Orientation.HORIZONTAL, true );
+		southEdge = new WorkpaneEdge( Orientation.HORIZONTAL, true );
+		westEdge = new WorkpaneEdge( Orientation.VERTICAL, true );
+		eastEdge = new WorkpaneEdge( Orientation.VERTICAL, true );
 
 		// Set the workpane on the edges
 		northEdge.setWorkpane( this );
@@ -104,7 +96,7 @@ public class Workpane extends Pane {
 		getChildren().add( eastEdge );
 
 		// Create the initial view
-		ToolView view = new ToolView();
+		WorkpaneView view = new WorkpaneView();
 
 		// Add the view to the wall edges
 		northEdge.southViews.add( view );
@@ -132,12 +124,12 @@ public class Workpane extends Pane {
 	 *
 	 * @return
 	 */
-	public Set<Edge> getEdges() {
-		Set<Edge> edges = new HashSet<>();
+	public Set<WorkpaneEdge> getEdges() {
+		Set<WorkpaneEdge> edges = new HashSet<>();
 
 		// Count the edges that are not walls
 		for( Node node : getChildren() ) {
-			if( node instanceof Edge ) edges.add( (Edge)node );
+			if( node instanceof WorkpaneEdge ) edges.add( (WorkpaneEdge)node );
 		}
 		edges.remove( northEdge );
 		edges.remove( southEdge );
@@ -152,10 +144,10 @@ public class Workpane extends Pane {
 	 *
 	 * @return
 	 */
-	public Set<ToolView> getViews() {
-		Set<ToolView> views = new HashSet<>();
+	public Set<WorkpaneView> getViews() {
+		Set<WorkpaneView> views = new HashSet<>();
 		for( Node node : getChildren() ) {
-			if( node instanceof ToolView ) views.add( (ToolView)node );
+			if( node instanceof WorkpaneView ) views.add( (WorkpaneView)node );
 		}
 		return Collections.unmodifiableSet( views );
 	}
@@ -167,7 +159,7 @@ public class Workpane extends Pane {
 	 */
 	public Set<Tool> getTools() {
 		Set<Tool> tools = new HashSet<Tool>();
-		for( ToolView view : getViews() ) {
+		for( WorkpaneView view : getViews() ) {
 			tools.addAll( view.getTools() );
 		}
 		return Collections.unmodifiableSet( tools );
@@ -179,7 +171,7 @@ public class Workpane extends Pane {
 
 	public void setEdgeSize( double size ) {
 		edgeSize.set( size );
-		layoutChildren();
+		updateComponentTree( true );
 	}
 
 	public DoubleProperty edgeSize() {
@@ -187,69 +179,61 @@ public class Workpane extends Pane {
 	}
 
 	public Tool getActiveTool() {
-		return activeWorktoolProperty.get();
+		return activeToolProperty.get();
 	}
 
 	public void setActiveTool( Tool tool ) {
 		doSetActiveTool( tool, true );
 	}
 
-	ToolView getActiveView() {
+	public ReadOnlyObjectProperty<Tool> activeToolProperty() {
+		return activeToolProperty;
+	}
+
+	public WorkpaneView getActiveView() {
 		return activeViewProperty.get();
 	}
 
-	void setActiveView( ToolView view ) {
+	public void setActiveView( WorkpaneView view ) {
 		doSetActiveView( view, true );
 	}
 
-	ObjectProperty<ToolView> activeViewProperty() {
+	public ReadOnlyObjectProperty<WorkpaneView> activeViewProperty() {
 		return activeViewProperty;
 	}
 
-	ToolView getDefaultView() {
+	public WorkpaneView getDefaultView() {
 		return defaultViewProperty.get();
 	}
 
-	void setDefaultView( ToolView view ) {
+	public void setDefaultView( WorkpaneView view ) {
 		if( getDefaultView() == view ) return;
 		defaultViewProperty.set( view );
 		updateComponentTree( true );
 	}
 
-	ObjectProperty<ToolView> defaultViewProperty() {
+	public ReadOnlyObjectProperty<WorkpaneView> defaultViewProperty() {
 		return defaultViewProperty;
 	}
 
-	ToolView getMaximizedView() {
+	WorkpaneView getMaximizedView() {
 		return maximizedViewProperty.get();
 	}
 
-	void setMaximizedView( ToolView view ) {
+	void setMaximizedView( WorkpaneView view ) {
 		if( getMaximizedView() == view ) return;
 		maximizedViewProperty.set( view );
 		updateComponentTree( true );
 	}
 
-	ObjectProperty<ToolView> maximizedViewProperty() {
+	public ReadOnlyObjectProperty<WorkpaneView> maximizedViewProperty() {
 		return maximizedViewProperty;
 	}
 
-	//	public Tool getActiveWorktool() {
-	//		return activeWorktoolProperty.get();
-	//	}
+	public WorkpaneView getLargestView() {
+		WorkpaneView view = null;
 
-	//	public void setActiveWorktool( Tool worktool ) {
-	//		activeWorktoolProperty.set( worktool );
-	//	}
-
-	public ObjectProperty<Tool> activeWorktoolProperty() {
-		return activeWorktoolProperty;
-	}
-
-	public ToolView getLargestView() {
-		ToolView view = null;
-
-		for( ToolView testView : getViews() ) {
+		for( WorkpaneView testView : getViews() ) {
 			if( compareViewArea( testView, view ) > 0 ) view = testView;
 		}
 
@@ -259,20 +243,20 @@ public class Workpane extends Pane {
 	/**
 	 * Find a view with the following rules:
 	 * <ol>
-	 * <li>Use a singular large view</li>
+	 * <li>Use a single large view (has double the area of any other view)</li>
 	 * <li>Use the active view</li>
 	 * <li>Use the default view</li>
 	 * </ol>
 	 *
 	 * @return
 	 */
-	private ToolView getSmartView() {
+	public WorkpaneView getSmartView() {
 		// Collect the view areas
 		int index = 0;
 		double maxArea = 0;
-		ToolView largest = null;
+		WorkpaneView largest = null;
 		double[] areas = new double[ getViews().size() ];
-		for( ToolView view : getViews() ) {
+		for( WorkpaneView view : getViews() ) {
 			Bounds size = view.getBoundsInLocal();
 			double area = size.getWidth() * size.getHeight();
 			if( area > maxArea ) {
@@ -290,7 +274,7 @@ public class Workpane extends Pane {
 		}
 
 		// If there is only one large view, use it, otherwise get the active view
-		ToolView view = count == 1 ? largest : getActiveView();
+		WorkpaneView view = count == 1 ? largest : getActiveView();
 
 		// If there was not definite large view and no active view just use the default view
 		return view != null ? view : getDefaultView();
@@ -350,17 +334,10 @@ public class Workpane extends Pane {
 
 	protected void updateComponentTree( boolean changed ) {
 		if( isOperationActive() ) return;
+
 		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.Type.CHANGED, this ) );
 
-		// CLEANUP ?
-		//		synchronized( getTreeLock() ) {
-		//			validateTree();
-		//		}
-		//		revalidate();
-		//		repaint();
 		layoutChildren();
-
-
 		dispatchEvents();
 	}
 
@@ -424,19 +401,19 @@ public class Workpane extends Pane {
 		}
 	}
 
-	private void doSetActiveView( ToolView view, boolean setTool ) {
+	private void doSetActiveView( WorkpaneView view, boolean setTool ) {
 		if( view != null && (view == getActiveView() || !getViews().contains( view )) ) return;
 
 		startOperation();
 		try {
-			ToolView activeToolView = getActiveView();
+			WorkpaneView activeToolView = getActiveView();
 
 			if( activeToolView != null ) {
 				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView, null ) );
 			}
 
 			// Change the active view
-			activeViewProperty().set( view );
+			activeViewProperty.set( view );
 
 			// Change the active tool
 			if( setTool ) doSetActiveTool( view.getActiveTool(), false );
@@ -453,7 +430,7 @@ public class Workpane extends Pane {
 
 	private void doSetActiveTool( Tool tool, boolean setView ) {
 		if( tool != null ) {
-			ToolView view = tool.getToolView();
+			WorkpaneView view = tool.getToolView();
 			if( view == null || !getViews().contains( view ) ) return;
 		}
 
@@ -467,14 +444,14 @@ public class Workpane extends Pane {
 			}
 
 			// Change the active view
-			ToolView view = tool == null ? null : tool.getToolView();
+			WorkpaneView view = tool == null ? null : tool.getToolView();
 			if( view != null && getViews().contains( view ) ) {
 				view.setActiveTool( tool );
 				if( setView && view != getActiveView() ) doSetActiveView( view, false );
 			}
 
 			// Change the active tool
-			activeWorktoolProperty().set( tool );
+			activeToolProperty.set( tool );
 
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
@@ -486,7 +463,7 @@ public class Workpane extends Pane {
 		}
 	}
 
-	private double compareViewArea( ToolView view1, ToolView view2 ) {
+	private double compareViewArea( WorkpaneView view1, WorkpaneView view2 ) {
 		Bounds size1 = view1.getBoundsInLocal();
 		Bounds size2 = view2.getBoundsInLocal();
 		double area1 = size1.getWidth() * size1.getHeight();
@@ -494,7 +471,7 @@ public class Workpane extends Pane {
 		return area1 - area2;
 	}
 
-	private ToolView addView( ToolView view ) {
+	private WorkpaneView addView( WorkpaneView view ) {
 		if( view == null ) return view;
 
 		startOperation();
@@ -509,7 +486,7 @@ public class Workpane extends Pane {
 		return view;
 	}
 
-	public ToolView removeView( ToolView view ) {
+	public WorkpaneView removeView( WorkpaneView view ) {
 		if( view == null ) return view;
 
 		try {
@@ -535,7 +512,7 @@ public class Workpane extends Pane {
 		return view;
 	}
 
-	public Edge getWallEdge( Side direction ) {
+	public WorkpaneEdge getWallEdge( Side direction ) {
 		switch( direction ) {
 			case TOP: {
 				return northEdge;
@@ -554,7 +531,7 @@ public class Workpane extends Pane {
 		return null;
 	}
 
-	public Edge addEdge( Edge edge ) {
+	public WorkpaneEdge addEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return edge;
 
 		edge.setWorkpane( this );
@@ -563,7 +540,7 @@ public class Workpane extends Pane {
 		return edge;
 	}
 
-	public Edge removeEdge( Edge edge ) {
+	public WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return edge;
 
 		getChildren().remove( edge );
@@ -572,7 +549,7 @@ public class Workpane extends Pane {
 		return edge;
 	}
 
-	public boolean canSplit( ToolView target, Side direction ) {
+	public boolean canSplit( WorkpaneView target, Side direction ) {
 		if( target == null ) return false;
 		return getMaximizedView() == null;
 	}
@@ -584,7 +561,7 @@ public class Workpane extends Pane {
 	 * @param direction
 	 * @return
 	 */
-	public ToolView split( Side direction ) {
+	public WorkpaneView split( Side direction ) {
 		return split( direction, DEFAULT_WALL_SPLIT_RATIO );
 	}
 
@@ -597,8 +574,8 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	public ToolView split( Side direction, double percent ) {
-		ToolView result = null;
+	public WorkpaneView split( Side direction, double percent ) {
+		WorkpaneView result = null;
 		startOperation();
 		try {
 			// Calculate the location of the split.
@@ -639,7 +616,7 @@ public class Workpane extends Pane {
 	 * @param direction
 	 * @return
 	 */
-	public ToolView split( ToolView view, Side direction ) {
+	public WorkpaneView split( WorkpaneView view, Side direction ) {
 		return split( view, direction, DEFAULT_VIEW_SPLIT_RATIO );
 	}
 
@@ -653,8 +630,8 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	public ToolView split( ToolView view, Side direction, double percent ) {
-		ToolView result = null;
+	public WorkpaneView split( WorkpaneView view, Side direction, double percent ) {
+		WorkpaneView result = null;
 		startOperation();
 		try {
 			// Calculate the location of the split.
@@ -693,23 +670,23 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	private ToolView splitNorth( double percent ) {
+	private WorkpaneView splitNorth( double percent ) {
 		// Check the parameters.
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge(  Orientation.HORIZONTAL );
 		newEdge.westEdge = westEdge;
 		newEdge.eastEdge = eastEdge;
 		newEdge.setPosition( percent );
 		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
-		for( ToolView view : northEdge.southViews ) {
+		for( WorkpaneView view : northEdge.southViews ) {
 			northEdge.southViews.remove( view );
 			newEdge.southViews.add( view );
 			view.northEdge = newEdge;
@@ -728,7 +705,7 @@ public class Workpane extends Pane {
 		eastEdge.westViews.add( newView );
 
 		// Connect the old edges to the new edge.
-		for( Edge edge : getEdges() ) {
+		for( WorkpaneEdge edge : getEdges() ) {
 			if( edge.northEdge != northEdge ) continue;
 			edge.northEdge = newEdge;
 		}
@@ -743,23 +720,23 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	private ToolView splitSouth( double percent ) {
+	private WorkpaneView splitSouth( double percent ) {
 		// Check the parameters.
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge(  Orientation.HORIZONTAL );
 		newEdge.westEdge = westEdge;
 		newEdge.eastEdge = eastEdge;
 		newEdge.setPosition( 1.0 - percent );
 		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
-		for( ToolView view : southEdge.northViews ) {
+		for( WorkpaneView view : southEdge.northViews ) {
 			southEdge.northViews.remove( view );
 			newEdge.northViews.add( view );
 			view.southEdge = newEdge;
@@ -778,7 +755,7 @@ public class Workpane extends Pane {
 		eastEdge.westViews.add( newView );
 
 		// Connect the old edges to the new edge.
-		for( Edge edge : getEdges() ) {
+		for( WorkpaneEdge edge : getEdges() ) {
 			if( edge.southEdge != southEdge ) continue;
 			edge.southEdge = newEdge;
 		}
@@ -793,23 +770,23 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	private ToolView splitWest( double percent ) {
+	private WorkpaneView splitWest( double percent ) {
 		// Check the parameters.
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge(  Orientation.VERTICAL );
 		newEdge.northEdge = northEdge;
 		newEdge.southEdge = southEdge;
 		newEdge.setPosition( percent );
 		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
-		for( ToolView view : westEdge.eastViews ) {
+		for( WorkpaneView view : westEdge.eastViews ) {
 			westEdge.eastViews.remove( view );
 			newEdge.eastViews.add( view );
 			view.westEdge = newEdge;
@@ -828,7 +805,7 @@ public class Workpane extends Pane {
 		southEdge.northViews.add( newView );
 
 		// Connect the old edges to the new edge.
-		for( Edge edge : getEdges() ) {
+		for( WorkpaneEdge edge : getEdges() ) {
 			if( edge.westEdge != westEdge ) continue;
 			edge.westEdge = newEdge;
 		}
@@ -843,23 +820,23 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	private ToolView splitEast( double percent ) {
+	private WorkpaneView splitEast( double percent ) {
 		// Check the parameters.
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
 		newEdge.northEdge = northEdge;
 		newEdge.southEdge = southEdge;
 		newEdge.setPosition( 1.0 - percent );
 		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
-		for( ToolView view : eastEdge.westViews ) {
+		for( WorkpaneView view : eastEdge.westViews ) {
 			eastEdge.westViews.remove( view );
 			newEdge.westViews.add( view );
 			view.eastEdge = newEdge;
@@ -878,7 +855,7 @@ public class Workpane extends Pane {
 		southEdge.northViews.add( newView );
 
 		// Connect the old edges to the new edge.
-		for( Edge edge : getEdges() ) {
+		for( WorkpaneEdge edge : getEdges() ) {
 			if( edge.eastEdge != eastEdge ) continue;
 			edge.eastEdge = newEdge;
 		}
@@ -894,9 +871,9 @@ public class Workpane extends Pane {
 	 * @param percent
 	 * @return
 	 */
-	private ToolView splitNorth( ToolView source, double percent ) {
+	private WorkpaneView splitNorth( WorkpaneView source, double percent ) {
 		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "ToolView cannot be null." );
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Fire the will split event.
@@ -907,11 +884,11 @@ public class Workpane extends Pane {
 		}
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
 		newEdge.westEdge = source.westEdge;
 		newEdge.eastEdge = source.eastEdge;
 		addEdge( newEdge );
@@ -943,9 +920,9 @@ public class Workpane extends Pane {
 		return newView;
 	}
 
-	private ToolView splitSouth( ToolView source, double percent ) {
+	private WorkpaneView splitSouth( WorkpaneView source, double percent ) {
 		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "ToolView cannot be null." );
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Fire the will split event.
@@ -956,11 +933,11 @@ public class Workpane extends Pane {
 		}
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
 		newEdge.westEdge = source.westEdge;
 		newEdge.eastEdge = source.eastEdge;
 		addEdge( newEdge );
@@ -992,9 +969,9 @@ public class Workpane extends Pane {
 		return newView;
 	}
 
-	private ToolView splitWest( ToolView source, double percent ) {
+	private WorkpaneView splitWest( WorkpaneView source, double percent ) {
 		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "ToolView cannot be null." );
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Fire the will split event.
@@ -1005,11 +982,11 @@ public class Workpane extends Pane {
 		}
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
 		newEdge.northEdge = source.northEdge;
 		newEdge.southEdge = source.southEdge;
 		addEdge( newEdge );
@@ -1041,9 +1018,9 @@ public class Workpane extends Pane {
 		return newView;
 	}
 
-	private ToolView splitEast( ToolView source, double percent ) {
+	private WorkpaneView splitEast( WorkpaneView source, double percent ) {
 		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "ToolView cannot be null." );
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Fire the will split event.
@@ -1054,11 +1031,11 @@ public class Workpane extends Pane {
 		}
 
 		// Create the new view.
-		ToolView newView = new ToolView();
+		WorkpaneView newView = new WorkpaneView();
 		addView( newView );
 
 		// Create the new edge.
-		Edge newEdge = new Edge( Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
 		newEdge.northEdge = source.northEdge;
 		newEdge.southEdge = source.southEdge;
 		addEdge( newEdge );
@@ -1169,7 +1146,7 @@ public class Workpane extends Pane {
 	 * @param target
 	 * @return
 	 */
-	public boolean pullMerge( ToolView target ) {
+	public boolean pullMerge( WorkpaneView target ) {
 		Side direction = getPullMergeDirection( target, true );
 		if( direction == null ) return false;
 		return pullMerge( target, direction );
@@ -1182,7 +1159,7 @@ public class Workpane extends Pane {
 	 * @param direction
 	 * @return
 	 */
-	public boolean pullMerge( ToolView target, Side direction ) {
+	public boolean pullMerge( WorkpaneView target, Side direction ) {
 		// Check the parameters.
 		if( target == null ) return false;
 
@@ -1205,7 +1182,7 @@ public class Workpane extends Pane {
 	 * @param direction
 	 * @return
 	 */
-	public boolean pushMerge( ToolView source, Side direction ) {
+	public boolean pushMerge( WorkpaneView source, Side direction ) {
 		// Check the parameters.
 		if( source == null ) return false;
 
@@ -1221,11 +1198,11 @@ public class Workpane extends Pane {
 		return result;
 	}
 
-	public boolean canPushMerge( ToolView source, Side direction, boolean auto ) {
+	public boolean canPushMerge( WorkpaneView source, Side direction, boolean auto ) {
 		return canMerge( source.getEdge( direction ), direction, auto );
 	}
 
-	public boolean canPullMerge( ToolView target, Side direction, boolean auto ) {
+	public boolean canPullMerge( WorkpaneView target, Side direction, boolean auto ) {
 		return canMerge( target.getEdge( getReverseDirection( direction ) ), direction, auto );
 	}
 
@@ -1247,13 +1224,13 @@ public class Workpane extends Pane {
 	 * @param auto Check if views can automatically be merged.
 	 * @return
 	 */
-	private boolean canMerge( Edge edge, Side direction, boolean auto ) {
+	private boolean canMerge( WorkpaneEdge edge, Side direction, boolean auto ) {
 		if( edge == null ) return false;
 
 		// Check for end edge.
 		if( edge.isWall() ) return false;
 
-		Set<ToolView> targets = null;
+		Set<WorkpaneView> targets = null;
 		switch( direction ) {
 			case TOP: {
 				targets = edge.northViews;
@@ -1273,8 +1250,8 @@ public class Workpane extends Pane {
 			}
 		}
 
-		Edge commonBackEdge = null;
-		for( ToolView target : targets ) {
+		WorkpaneEdge commonBackEdge = null;
+		for( WorkpaneView target : targets ) {
 			// Check for the default view in targets.
 			if( target == getDefaultView() ) return false;
 
@@ -1289,7 +1266,7 @@ public class Workpane extends Pane {
 		return true;
 	}
 
-	private Side getPullMergeDirection( ToolView target, boolean auto ) {
+	private Side getPullMergeDirection( WorkpaneView target, boolean auto ) {
 		List<MergeDirection> directions = new ArrayList<MergeDirection>( 4 );
 
 		directions.add( new MergeDirection( target, Side.TOP ) );
@@ -1313,7 +1290,7 @@ public class Workpane extends Pane {
 	}
 
 	public Tool addTool( Tool tool, boolean select ) {
-		ToolView view = null;
+		WorkpaneView view = null;
 
 		switch( tool.getPlacement() ) {
 			case DEFAULT: {
@@ -1337,15 +1314,15 @@ public class Workpane extends Pane {
 		return addTool( tool, view, select );
 	}
 
-	public Tool addTool( Tool tool, ToolView view ) {
+	public Tool addTool( Tool tool, WorkpaneView view ) {
 		return addTool( tool, view, true );
 	}
 
-	public Tool addTool( Tool tool, ToolView view, boolean select ) {
+	public Tool addTool( Tool tool, WorkpaneView view, boolean select ) {
 		return addTool( tool, view, view.getTools().size(), select );
 	}
 
-	public Tool addTool( Tool tool, ToolView view, int index, boolean select ) {
+	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean select ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
 		try {
@@ -1365,7 +1342,7 @@ public class Workpane extends Pane {
 	}
 
 	public Tool removeTool( Tool tool, boolean automerge ) {
-		ToolView view = tool.getToolView();
+		WorkpaneView view = tool.getToolView();
 		if( view == null ) return tool;
 
 		try {
@@ -1419,19 +1396,19 @@ public class Workpane extends Pane {
 
 		//System.out.println( "Layout pane: w=" + bounds.getWidth() + " h=" + bounds.getHeight() );
 
-		ToolView maximizedView = getMaximizedView();
+		WorkpaneView maximizedView = getMaximizedView();
 		if( maximizedView == null ) {
 			for( Node node : getChildren() ) {
-				if( node instanceof ToolView ) {
-					layoutView( bounds, (ToolView)node );
-				} else if( node instanceof Edge ) {
-					layoutEdge( bounds, (Edge)node );
+				if( node instanceof WorkpaneView ) {
+					layoutView( bounds, (WorkpaneView)node );
+				} else if( node instanceof WorkpaneEdge ) {
+					layoutEdge( bounds, (WorkpaneEdge)node );
 				}
 			}
 		} else {
 			for( Node node : getChildren() ) {
 				if( node == maximizedView ) {
-					layoutMaximized( bounds, (ToolView)node );
+					layoutMaximized( bounds, (WorkpaneView)node );
 				} else {
 					node.setVisible( false );
 				}
@@ -1439,7 +1416,7 @@ public class Workpane extends Pane {
 		}
 	}
 
-	private void layoutView( Bounds bounds, ToolView view ) {
+	private void layoutView( Bounds bounds, WorkpaneView view ) {
 		if( bounds.getWidth() == 0 | bounds.getHeight() == 0 ) return;
 
 		Insets insets = getInsets();
@@ -1481,7 +1458,7 @@ public class Workpane extends Pane {
 		view.setVisible( true );
 	}
 
-	private void layoutEdge( Bounds bounds, Edge edge ) {
+	private void layoutEdge( Bounds bounds, WorkpaneEdge edge ) {
 		if( bounds.getWidth() == 0 | bounds.getHeight() == 0 ) return;
 
 		Insets insets = getInsets();
@@ -1530,7 +1507,7 @@ public class Workpane extends Pane {
 		edge.setVisible( true );
 	}
 
-	private void layoutMaximized( Bounds bounds, ToolView view ) {
+	private void layoutMaximized( Bounds bounds, WorkpaneView view ) {
 		Insets insets = getInsets();
 
 		double x = insets.getLeft();
@@ -1551,7 +1528,7 @@ public class Workpane extends Pane {
 	 * @param offset
 	 * @return
 	 */
-	public double moveEdge( Edge edge, double offset ) {
+	public double moveEdge( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 ) return 0;
 
 		double result = 0;
@@ -1579,7 +1556,7 @@ public class Workpane extends Pane {
 	 * may be called from other edges that need to move as part of the bump and
 	 * slide effect.
 	 */
-	private double moveVertical( Edge edge, double offset ) {
+	private double moveVertical( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 || edge.isWall() ) return 0;
 
 		double delta = 0;
@@ -1597,7 +1574,7 @@ public class Workpane extends Pane {
 		edge.setPosition( edge.getPosition() + (delta / (bounds.getHeight() - insets.getTop() - insets.getBottom())) );
 
 		//		// Resize the north views.
-		//		for( ToolView view : edge.northViews ) {
+		//		for( WorkpaneView view : edge.northViews ) {
 		//			if( view.westEdge != null && view.westEdge.southEdge == edge ) {
 		//				view.westEdge.invalidate();
 		//			}
@@ -1608,7 +1585,7 @@ public class Workpane extends Pane {
 		//		}
 		//
 		//		// Resize the south views.
-		//		for( ToolView view : edge.southViews ) {
+		//		for( WorkpaneView view : edge.southViews ) {
 		//			if( view.westEdge != null && view.westEdge.northEdge == edge ) {
 		//				view.westEdge.invalidate();
 		//			}
@@ -1628,7 +1605,7 @@ public class Workpane extends Pane {
 	 * may be called from other edges that need to move as part of the bump and
 	 * slide effect.
 	 */
-	private double moveHorizontal( Edge edge, double offset ) {
+	private double moveHorizontal( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 || edge.isWall() ) return 0;
 
 		double delta = offset;
@@ -1646,7 +1623,7 @@ public class Workpane extends Pane {
 		edge.setPosition( edge.getPosition() + (delta / (bounds.getWidth() - insets.getLeft() - insets.getRight())) );
 
 		//		// Resize the west views and edges.
-		//		for( ToolView view : edge.westViews ) {
+		//		for( WorkpaneView view : edge.westViews ) {
 		//			if( view.northEdge != null && view.northEdge.eastEdge == edge ) {
 		//				view.northEdge.invalidate();
 		//			}
@@ -1657,7 +1634,7 @@ public class Workpane extends Pane {
 		//		}
 		//
 		//		// Resize the east views and edges.
-		//		for( ToolView view : edge.eastViews ) {
+		//		for( WorkpaneView view : edge.eastViews ) {
 		//			if( view.northEdge != null && view.northEdge.westEdge == edge ) {
 		//				view.northEdge.invalidate();
 		//			}
@@ -1672,13 +1649,13 @@ public class Workpane extends Pane {
 		return delta;
 	}
 
-	private double checkMoveNorth( Edge edge, double offset ) {
+	private double checkMoveNorth( WorkpaneEdge edge, double offset ) {
 		double delta = offset;
 		//Dimension viewSize = null;
-		Edge blockingEdge = null;
+		WorkpaneEdge blockingEdge = null;
 
 		// Check the north views.
-		for( ToolView view : edge.northViews ) {
+		for( WorkpaneView view : edge.northViews ) {
 			double height = view.getHeight();
 			if( height < -delta ) {
 				blockingEdge = view.northEdge;
@@ -1697,12 +1674,12 @@ public class Workpane extends Pane {
 		return delta;
 	}
 
-	private double checkMoveSouth( Edge edge, double offset ) {
+	private double checkMoveSouth( WorkpaneEdge edge, double offset ) {
 		double delta = offset;
-		Edge blockingEdge = null;
+		WorkpaneEdge blockingEdge = null;
 
 		// Check the south views.
-		for( ToolView view : edge.southViews ) {
+		for( WorkpaneView view : edge.southViews ) {
 			double height = view.getHeight();
 			if( height < delta ) {
 				blockingEdge = view.southEdge;
@@ -1721,12 +1698,12 @@ public class Workpane extends Pane {
 		return delta;
 	}
 
-	private double checkMoveWest( Edge edge, double offset ) {
+	private double checkMoveWest( WorkpaneEdge edge, double offset ) {
 		double delta = offset;
-		Edge blockingEdge = null;
+		WorkpaneEdge blockingEdge = null;
 
 		// Check the west views.
-		for( ToolView view : edge.westViews ) {
+		for( WorkpaneView view : edge.westViews ) {
 			double width = view.getWidth();
 			if( width < -delta ) {
 				blockingEdge = view.westEdge;
@@ -1745,12 +1722,12 @@ public class Workpane extends Pane {
 		return delta;
 	}
 
-	private double checkMoveEast( Edge edge, double offset ) {
+	private double checkMoveEast( WorkpaneEdge edge, double offset ) {
 		double delta = offset;
-		Edge blockingEdge = null;
+		WorkpaneEdge blockingEdge = null;
 
 		// Check the east views.
-		for( ToolView view : edge.eastViews ) {
+		for( WorkpaneView view : edge.eastViews ) {
 			double width = view.getWidth();
 			if( width < delta ) {
 				blockingEdge = view.eastEdge;
@@ -1769,15 +1746,15 @@ public class Workpane extends Pane {
 		return delta;
 	}
 
-	private boolean merge( Edge edge, Side direction ) {
+	private boolean merge( WorkpaneEdge edge, Side direction ) {
 		if( !canMerge( edge, direction, false ) ) return false;
 
-		Set<ToolView> sources = edge.getViews( getReverseDirection( direction ) );
-		Set<ToolView> targets = edge.getViews( direction );
+		Set<WorkpaneView> sources = edge.getViews( getReverseDirection( direction ) );
+		Set<WorkpaneView> targets = edge.getViews( direction );
 
 		// Notify the listeners the views will merge.
 		try {
-			for( ToolView source : sources ) {
+			for( WorkpaneView source : sources ) {
 				fireViewWillMerge( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source, null ) );
 			}
 		} catch( WorkpaneVetoException exception ) {
@@ -1785,10 +1762,10 @@ public class Workpane extends Pane {
 		}
 
 		// Get needed objects.
-		Edge farEdge = targets.iterator().next().getEdge( direction );
+		WorkpaneEdge farEdge = targets.iterator().next().getEdge( direction );
 
 		// Extend the source views and edges.
-		for( ToolView source : sources ) {
+		for( WorkpaneView source : sources ) {
 			source.setEdge( direction, farEdge );
 
 			if( source.getEdge( getLeftDirection( direction ) ).getEdge( direction ) == edge ) {
@@ -1801,8 +1778,8 @@ public class Workpane extends Pane {
 		}
 
 		// Process the target views and edges.
-		for( ToolView target : targets ) {
-			ToolView closestSource = getClosest( sources, target, getPerpendicularDirectionOrientation( direction ) );
+		for( WorkpaneView target : targets ) {
+			WorkpaneView closestSource = getClosest( sources, target, getPerpendicularDirectionOrientation( direction ) );
 
 			// Check for default view.
 			if( target.isDefault() ) setDefaultView( closestSource );
@@ -1836,13 +1813,13 @@ public class Workpane extends Pane {
 		return true;
 	}
 
-	private ToolView getClosest( Set<ToolView> views, ToolView target, Orientation orientation ) {
-		ToolView result = null;
+	private WorkpaneView getClosest( Set<WorkpaneView> views, WorkpaneView target, Orientation orientation ) {
+		WorkpaneView result = null;
 		double distance = Double.MAX_VALUE;
 		double resultDistance = Double.MAX_VALUE;
 		double targetCenter = target.getCenter( orientation );
 
-		for( ToolView view : views ) {
+		for( WorkpaneView view : views ) {
 			distance = Math.abs( targetCenter - view.getCenter( orientation ) );
 			if( distance < resultDistance ) {
 				result = view;
@@ -1853,8 +1830,8 @@ public class Workpane extends Pane {
 		return result;
 	}
 
-	private void cleanupTargetEdge( ToolView target, Side direction ) {
-		Edge edge = target.getEdge( direction );
+	private void cleanupTargetEdge( WorkpaneView target, Side direction ) {
+		WorkpaneEdge edge = target.getEdge( direction );
 
 		// Remove the target from the edge.
 		edge.getViews( getReverseDirection( direction ) ).remove( target );
@@ -1863,217 +1840,13 @@ public class Workpane extends Pane {
 		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
-	private class EdgeSkin extends SkinBase<Edge> {
-
-		/**
-		 * Constructor for all SkinBase instances.
-		 *
-		 * @param control The control for which this Skin should attach to.
-		 */
-		protected EdgeSkin( Edge control ) {
-			super( control );
-		}
-
-	}
-
-	public class Edge extends Control {
-
-		Orientation orientation;
-
-		Edge northEdge;
-
-		Edge southEdge;
-
-		Edge westEdge;
-
-		Edge eastEdge;
-
-		Set<ToolView> northViews;
-
-		Set<ToolView> southViews;
-
-		Set<ToolView> westViews;
-
-		Set<ToolView> eastViews;
-
-		/**
-		 * <p>Represents the location where the divider should ideally be
-		 * positioned, between 0.0 and 1.0 (inclusive) when the position is
-		 * relative. 0.0 represents the left- or top-most point, and 1.0 represents
-		 * the right- or bottom-most point (depending on the orientation property).
-		 * <p>
-		 * <p>As the user drags the edge around this property will be updated to
-		 * always represent its current location.
-		 */
-		private DoubleProperty position;
-
-		private boolean absolute;
-
-		private boolean wall;
-
-		private Set<ToolView> viewsA;
-
-		private Set<ToolView> viewsB;
-
-		private Workpane parent;
-
-		public Edge( Orientation orientation ) {
-			this( orientation, false );
-		}
-
-		public Edge( Orientation orientation, boolean wall ) {
-			this.position = new SimpleDoubleProperty( this, "position", 0 );
-			this.orientation = orientation;
-			this.wall = wall;
-
-			// Create the view lists.
-			viewsA = new CopyOnWriteArraySet<ToolView>();
-			viewsB = new CopyOnWriteArraySet<ToolView>();
-			northViews = viewsA;
-			southViews = viewsB;
-			westViews = viewsA;
-			eastViews = viewsB;
-
-			// Set the control cursor
-			setCursor( orientation == Orientation.VERTICAL ? Cursor.H_RESIZE : Cursor.V_RESIZE );
-
-			// Set the default background
-			setBackground( new Background( new BackgroundFill( Color.RED, CornerRadii.EMPTY, Insets.EMPTY ) ) );
-
-			// Register the mouse handlers
-			onMouseDraggedProperty().set( this::mouseDragged );
-		}
-
-		@Override
-		protected Skin<Edge> createDefaultSkin() {
-			return new EdgeSkin( this );
-		}
-
-		private void mouseDragged( MouseEvent event ) {
-			Point2D point = localToParent( event.getX(), event.getY() );
-			switch( orientation ) {
-				case VERTICAL: {
-					moveEdge( this, point.getX() - ( getPosition() * parent.getWidth() ) );
-					break;
-				}
-				case HORIZONTAL: {
-					moveEdge( this, point.getY() - ( getPosition() * parent.getHeight() ) );
-					break;
-				}
-			}
-		}
-
-		public final boolean isWall() {
-			return wall;
-		}
-
-		public final Orientation getOrientation() {
-			return orientation;
-		}
-
-		public final double getPosition() {
-			return position == null ? 0.5F : position.get();
-		}
-
-		public final void setPosition( double value ) {
-			positionProperty().set( value );
-		}
-
-		public final DoubleProperty positionProperty() {
-			return position;
-		}
-
-		Workpane getWorkpane() {
-			return parent;
-		}
-
-		void setWorkpane( Workpane parent ) {
-			this.parent = parent;
-		}
-
-		public Edge getEdge( Side direction ) {
-
-			switch( direction ) {
-				case TOP: {
-					return northEdge;
-				}
-				case BOTTOM: {
-					return southEdge;
-				}
-				case LEFT: {
-					return westEdge;
-				}
-				case RIGHT: {
-					return eastEdge;
-				}
-			}
-
-			return null;
-		}
-
-		public void setEdge( Side direction, Edge edge ) {
-			switch( direction ) {
-				case TOP: {
-					northEdge = edge;
-					break;
-				}
-				case BOTTOM: {
-					southEdge = edge;
-					break;
-				}
-				case LEFT: {
-					westEdge = edge;
-					break;
-				}
-				case RIGHT: {
-					eastEdge = edge;
-					break;
-				}
-			}
-		}
-
-		public Set<ToolView> getViews( Side direction ) {
-			switch( direction ) {
-				case TOP: {
-					return northViews;
-				}
-				case BOTTOM: {
-					return southViews;
-				}
-				case LEFT: {
-					return westViews;
-				}
-				case RIGHT: {
-					return eastViews;
-				}
-			}
-
-			return null;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder( getClass().getSimpleName() );
-
-			builder.append( " orientation=" );
-			builder.append( getOrientation() );
-			builder.append( " position=" );
-			builder.append( getPosition() );
-			builder.append( " wall=" );
-			builder.append( isWall() );
-
-			return builder.toString();
-		}
-
-	}
-
 	private static class MergeDirection implements Comparable<MergeDirection> {
 
 		Side direction;
 
 		int weight;
 
-		public MergeDirection( ToolView target, Side direction ) {
+		public MergeDirection( WorkpaneView target, Side direction ) {
 			this.direction = direction;
 			this.weight = getMergeWeight( target, direction );
 			log.trace( "Direction: " + direction + "  Weight: " + weight );
@@ -2115,10 +1888,10 @@ public class Workpane extends Pane {
 			return 0;
 		}
 
-		private int getMergeWeight( ToolView target, Side side ) {
-			Edge edge = null;
-			Set<ToolView> sourceViews = null;
-			Set<ToolView> targetViews = null;
+		private int getMergeWeight( WorkpaneView target, Side side ) {
+			WorkpaneEdge edge = null;
+			Set<WorkpaneView> sourceViews = null;
+			Set<WorkpaneView> targetViews = null;
 
 			switch( side ) {
 				case TOP: {

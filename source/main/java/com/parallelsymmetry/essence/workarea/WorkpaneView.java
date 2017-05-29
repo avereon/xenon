@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ToolView extends BorderPane {
+public class WorkpaneView extends BorderPane {
 
-	Workpane.Edge northEdge;
+	WorkpaneEdge northEdge;
 
-	Workpane.Edge southEdge;
+	WorkpaneEdge southEdge;
 
-	Workpane.Edge westEdge;
+	WorkpaneEdge westEdge;
 
-	Workpane.Edge eastEdge;
+	WorkpaneEdge eastEdge;
 
 	private TabPane tools;
 
@@ -27,11 +27,8 @@ public class ToolView extends BorderPane {
 
 	private Tool activeTool;
 
-	ToolView() {
-		tools = new TabPane();
-		setCenter( tools );
-
-		// TODO Escape had a special border to highlight the active view, do I want the same?
+	WorkpaneView() {
+		setCenter( tools = new TabPane() );
 	}
 
 	/**
@@ -146,7 +143,7 @@ public class ToolView extends BorderPane {
 		return parent != null && parent.getMaximizedView() == this;
 	}
 
-	public Workpane.Edge getEdge( Side direction ) {
+	public WorkpaneEdge getEdge( Side direction ) {
 
 		switch( direction ) {
 			case TOP: {
@@ -166,7 +163,7 @@ public class ToolView extends BorderPane {
 		return null;
 	}
 
-	public void setEdge( Side direction, Workpane.Edge edge ) {
+	public void setEdge( Side direction, WorkpaneEdge edge ) {
 		switch( direction ) {
 			case TOP: {
 				northEdge = edge;

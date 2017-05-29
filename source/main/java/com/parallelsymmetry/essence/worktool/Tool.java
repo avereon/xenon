@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.worktool;
 
 import com.parallelsymmetry.essence.Resource;
-import com.parallelsymmetry.essence.workarea.ToolView;
+import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -37,7 +37,7 @@ public abstract class Tool extends Control {
 
 	private Resource resource;
 
-	private ToolView parent;
+	private WorkpaneView parent;
 
 	private boolean allocated;
 
@@ -138,7 +138,7 @@ public abstract class Tool extends Control {
 	 * @return
 	 */
 	public boolean isActiveInToolView() {
-		ToolView view = getToolView();
+		WorkpaneView view = getToolView();
 		return view != null && view.getActiveTool() == this;
 	}
 
@@ -146,20 +146,20 @@ public abstract class Tool extends Control {
 	 * Set this tool as the active tool in the tool view.
 	 */
 	public void setActiveInToolView() {
-		ToolView view = getToolView();
+		WorkpaneView view = getToolView();
 		if( view != null ) view.setActiveTool( this );
 	}
 
-	public ToolView getToolView() {
+	public WorkpaneView getToolView() {
 		return parent;
 	}
 
-	public void setToolView( ToolView parent ) {
+	public void setToolView( WorkpaneView parent ) {
 		this.parent = parent;
 	}
 
 	public Workpane getWorkpane() {
-		ToolView view = getToolView();
+		WorkpaneView view = getToolView();
 		return view == null ? null : view.getWorkPane();
 	}
 

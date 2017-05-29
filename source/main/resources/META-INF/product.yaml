@@ -3,7 +3,7 @@ artifact: ${project.artifactId}
 version: ${project.version}
 timestamp: ${project.timestamp}
 
-icon: http://www.parallelsymmetry.com/images/icons/essence.png
+icon: http://www.parallelsymmetry.com/images/icons/${project.artifactId}.png
 name: ${project.name}
 provider: ${project.organization.name}
 inception: ${project.inceptionYear}
