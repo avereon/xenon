@@ -2,6 +2,7 @@ package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
+import com.parallelsymmetry.essence.UiFactory;
 import com.parallelsymmetry.essence.action.CloseWorkareaHandler;
 import com.parallelsymmetry.essence.action.NewWorkareaHandler;
 import com.parallelsymmetry.essence.action.RenameWorkareaHandler;
@@ -33,6 +34,8 @@ public class Workspace {
 
 	private boolean active;
 
+	private BorderPane layout;
+
 	private Pane menubarContainer;
 
 	private HBox toolbarContainer;
@@ -40,6 +43,8 @@ public class Workspace {
 	private MenuBar menubar;
 
 	private ToolBar toolbar;
+
+	private Pane workpaneContainer;
 
 	private ComboBox<Workarea> workareaSelector;
 
@@ -58,13 +63,6 @@ public class Workspace {
 
 		workareas = FXCollections.observableArrayList();
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
-
-		stage = new Stage();
-		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
-		stage.setOnCloseRequest( event -> {
-			program.getWorkspaceManager().requestCloseWorkspace( this );
-			event.consume();
-		} );
 
 		// FIXME Should this default setup be defined in config files or something else?
 
@@ -152,6 +150,25 @@ public class Workspace {
 
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
+
+		// Workarea Container
+		workpaneContainer = new StackPane();
+
+		VBox pane = new VBox();
+		pane.getChildren().addAll( menubar, toolbar );
+
+		layout = new BorderPane();
+		layout.setTop( pane );
+		layout.setCenter( workpaneContainer );
+
+		// Create the scene
+		stage = new Stage();
+		stage.setScene( scene = new Scene( layout, UiFactory.DEFAULT_WIDTH, UiFactory.DEFAULT_HEIGHT ) );
+		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
+		stage.setOnCloseRequest( event -> {
+			program.getWorkspaceManager().requestCloseWorkspace( this );
+			event.consume();
+		} );
 	}
 
 	public String getId() {
@@ -175,14 +192,14 @@ public class Workspace {
 		return new HashSet<Workarea>( workareas );
 	}
 
-	public void addWorkArea( Workarea workarea ) {
+	public void addWorkarea( Workarea workarea ) {
 		Workspace oldWorkspace = workarea.getWorkspace();
-		if( oldWorkspace != null ) oldWorkspace.removeWorkArea( workarea );
+		if( oldWorkspace != null ) oldWorkspace.removeWorkarea( workarea );
 		workareas.add( workarea );
 		workarea.setWorkspace( this );
 	}
 
-	public void removeWorkArea( Workarea workarea ) {
+	public void removeWorkarea( Workarea workarea ) {
 		// If there is only one workarea, don't close it
 		if( workareas.size() == 1 ) return;
 
@@ -201,12 +218,13 @@ public class Workspace {
 		if( activeWorkarea == workarea ) return;
 
 		// If the workarea is not already added, add it
-		if( !workareas.contains( workarea ) ) addWorkArea( workarea );
+		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
 
 		// Disconnect the old active workarea area
 		if( activeWorkarea != null ) {
 			activeWorkarea.removePropertyChangeListener( activeWorkareaWatcher );
 			activeWorkarea.setActive( false );
+			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 		}
 
 		// Swap the workarea area on the stage
@@ -214,6 +232,7 @@ public class Workspace {
 
 		// Connect the new active workarea area
 		if( activeWorkarea != null ) {
+			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
 			activeWorkarea.setActive( true );
 			setStageTitle( activeWorkarea.getName() );
 			workareaSelector.getSelectionModel().select( activeWorkarea );
@@ -239,13 +258,8 @@ public class Workspace {
 		Double w = configuration.getDouble( "w" );
 		Double h = configuration.getDouble( "h" );
 
-		VBox pane = new VBox();
-		pane.getChildren().addAll( menubar, toolbar );
-
-		// Create the scene using the width and height
-		stage.setScene( scene = new Scene( pane, w, h ) );
-		stage.centerOnScreen();
-
+		stage.setWidth( w );
+		stage.setHeight( h );
 		// Position the stage if x and y are specified
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
@@ -255,7 +269,7 @@ public class Workspace {
 
 		// Add the property listeners
 		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			configuration.setProperty( "maximized", newValue );
+			if( stage.isShowing() ) configuration.setProperty( "maximized", newValue );
 		} );
 		stage.xProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) configuration.setProperty( "x", newValue );

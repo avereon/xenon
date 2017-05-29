@@ -64,6 +64,10 @@ public class Workarea {
 		return active;
 	}
 
+	public Workpane getWorkpane() {
+		return workpane;
+	}
+
 	public Workspace getWorkspace() {
 		return workspace;
 	}

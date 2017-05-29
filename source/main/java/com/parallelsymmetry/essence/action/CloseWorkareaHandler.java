@@ -39,7 +39,7 @@ public class CloseWorkareaHandler extends ProgramActionHandler {
 	}
 
 	private void closeWorkarea( Workarea workarea ) {
-		program.getWorkspaceManager().getActiveWorkspace().removeWorkArea( workarea );
+		program.getWorkspaceManager().getActiveWorkspace().removeWorkarea( workarea );
 	}
 
 }

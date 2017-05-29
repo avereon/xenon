@@ -1394,16 +1394,367 @@ public class Workpane extends Pane {
 		return tool;
 	}
 
-	// NEXT Continue implementing Workpane class methods
-
 	@Override
 	protected void layoutChildren() {
 		Bounds bounds = getLayoutBounds();
+
+		ToolView maximizedView = getMaximizedView();
+
+		if( maximizedView == null ) {
+			for( Node node : getChildren() ) {
+				if( node instanceof ToolView ) {
+					layoutView( (ToolView)node );
+				} else if( node instanceof Edge ) {
+					layoutEdge( (Edge)node );
+				}
+			}
+		} else {
+			for( Node node : getChildren() ) {
+				if( node == maximizedView ) {
+					layoutMaximized( (ToolView)node );
+				} else {
+					node.setVisible( false );
+				}
+			}
+		}
 	}
 
-	public double moveEdge( Edge edge, double delta ) {
-		// NEXT Implement Workpane.moveEdge()
-		return 0;
+	private void layoutView( ToolView view ) {
+		Bounds size = getBoundsInLocal();
+		if( size.getWidth() == 0 | size.getHeight() == 0 ) return;
+
+		Insets insets = getInsets();
+		size = new BoundingBox( 0, 0, size.getWidth() - insets.getLeft() - insets.getRight(), size.getHeight() - insets.getTop() - insets.getBottom() );
+
+		double edgeSize = getEdgeSize();
+		double edgeHalf = edgeSize / 2;
+		double edgeRest = edgeSize - edgeHalf;
+
+		double x1 = view.westEdge.getPosition();
+		double y1 = view.northEdge.getPosition();
+		double x2 = view.eastEdge.getPosition();
+		double y2 = view.southEdge.getPosition();
+
+		double x = 0;
+		double y = 0;
+		double w = 0;
+		double h = 0;
+
+		x = Math.floor( x1 * size.getWidth() );
+		y = Math.floor( y1 * size.getHeight() );
+		w = Math.floor( x2 * size.getWidth() ) - x;
+		h = Math.floor( y2 * size.getHeight() ) - y;
+
+		// Leave space for the edges.
+		double north = 0;
+		double south = 0;
+		double east = 0;
+		double west = 0;
+
+		if( !view.northEdge.isWall() ) north = edgeRest;
+		if( !view.southEdge.isWall() ) south = edgeHalf;
+		if( !view.westEdge.isWall() ) west = edgeRest;
+		if( !view.eastEdge.isWall() ) east = edgeHalf;
+
+		x += west + insets.getLeft();
+		y += north + insets.getTop();
+		w -= (west + east);
+		h -= (north + south);
+
+		//log.trace( "Layout view bounds: X: " + x + " Y: " + y + " W: " + w + " H: " + h );
+
+		layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		view.setVisible( true );
+	}
+
+	private void layoutEdge( Edge edge ) {
+		Bounds size = getBoundsInLocal();
+		if( size.getWidth() == 0 | size.getHeight() == 0 ) return;
+
+		Insets insets = getInsets();
+		size = new BoundingBox( 0, 0, size.getWidth() - insets.getLeft() - insets.getRight(), size.getHeight() - insets.getTop() - insets.getBottom() );
+
+		double edgeSize = edge.isWall() ? 0 : getEdgeSize();
+		double edgeHalf = edgeSize / 2;
+		double edgeRest = edgeSize - edgeHalf;
+		double position = edge.getPosition();
+
+		double x = 0;
+		double y = 0;
+		double w = 0;
+		double h = 0;
+
+		if( edge.getOrientation() == Orientation.VERTICAL ) {
+			x = (int)Math.floor( position * size.getWidth() - edgeHalf );
+			y = (int)Math.floor( edge.northEdge == null ? 0 : edge.northEdge.getPosition() * size.getHeight() );
+			w = edgeSize;
+			h = (int)Math.floor( edge.southEdge == null ? 1 : edge.southEdge.getPosition() * size.getHeight() ) - y;
+
+			double north = edge.northEdge == null ? 0 : edge.northEdge.isWall() ? 0 : edgeRest;
+			double south = edge.southEdge == null ? 0 : edge.southEdge.isWall() ? 0 : edgeHalf;
+
+			y += north;
+			h -= (north + south);
+		} else {
+			x = (int)Math.floor( edge.westEdge == null ? 0 : edge.westEdge.getPosition() * size.getWidth() );
+			y = (int)Math.floor( position * size.getHeight() - edgeHalf );
+			w = (int)Math.floor( edge.eastEdge == null ? 1 : edge.eastEdge.getPosition() * size.getWidth() ) - x;
+			h = edgeSize;
+
+			double west = edge.westEdge == null ? 0 : edge.westEdge.isWall() ? 0 : edgeRest;
+			double east = edge.eastEdge == null ? 0 : edge.eastEdge.isWall() ? 0 : edgeHalf;
+
+			x += west;
+			w -= (west + east);
+		}
+
+		x += insets.getLeft();
+		y += insets.getTop();
+
+		//log.trace( "Layout edge bounds: X: " + x + " Y: " + y + " W: " + w + " H: " + h );
+
+		layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+
+		edge.setVisible( true );
+	}
+
+	private void layoutMaximized( ToolView component ) {
+		//		Rectangle bounds = container.getBounds();
+		//		Insets insets = container.getInsets();
+		//
+		//		int x = insets.left;
+		//		int y = insets.top;
+		//		int w = bounds.width - insets.left - insets.right;
+		//		int h = bounds.height - insets.top - insets.bottom;
+		//
+		//		component.setBounds( x, y, w, h );
+		//		component.setVisible( true );
+		//Log.write( Log.DETAIL, "Layout max bounds: X: " + x + " Y: " + y + " W: " + w + " H: " + h );
+	}
+
+	/**
+	 * Move the specified edge the specified offset in pixels.
+	 *
+	 * @param edge
+	 * @param offset
+	 * @return
+	 */
+	public double moveEdge( Edge edge, double offset ) {
+		if( offset == 0 ) return 0;
+
+		double result = 0;
+		startOperation();
+		try {
+			switch( edge.getOrientation() ) {
+				case HORIZONTAL: {
+					result = moveVertical( edge, offset );
+					break;
+				}
+				case VERTICAL: {
+					result = moveHorizontal( edge, offset );
+					break;
+				}
+			}
+		} finally {
+			finishOperation( result != 0 );
+		}
+
+		return result;
+	}
+
+	/**
+	 * Move the edge vertically because its orientation is horizontal. This method
+	 * may be called from other edges that need to move as part of the bump and
+	 * slide effect.
+	 */
+	private double moveVertical( Edge edge, double offset ) {
+		if( offset == 0 || edge.isWall() ) return 0;
+
+		double delta = 0;
+
+		// Check for room to move.
+		if( offset < 0 ) {
+			delta = checkMoveNorth( edge, offset );
+		} else if( offset > 0 ) {
+			delta = checkMoveSouth( edge, offset );
+		}
+
+		// Move the edge.
+		Insets insets = getInsets();
+		Bounds bounds = getBoundsInLocal();
+		edge.setPosition( edge.getPosition() + (delta / (bounds.getHeight() - insets.getTop() - insets.getBottom())) );
+
+		//		// Resize the north views.
+		//		for( ToolView view : edge.northViews ) {
+		//			if( view.westEdge != null && view.westEdge.southEdge == edge ) {
+		//				view.westEdge.invalidate();
+		//			}
+		//			if( view.eastEdge != null && view.eastEdge.southEdge == edge ) {
+		//				view.eastEdge.invalidate();
+		//			}
+		//			view.invalidate();
+		//		}
+		//
+		//		// Resize the south views.
+		//		for( ToolView view : edge.southViews ) {
+		//			if( view.westEdge != null && view.westEdge.northEdge == edge ) {
+		//				view.westEdge.invalidate();
+		//			}
+		//			if( view.eastEdge != null && view.eastEdge.northEdge == edge ) {
+		//				view.eastEdge.invalidate();
+		//			}
+		//			view.invalidate();
+		//		}
+		//
+		//		edge.invalidate();
+
+		return delta;
+	}
+
+	/**
+	 * Move the edge horizontally because its orientation is vertical. This method
+	 * may be called from other edges that need to move as part of the bump and
+	 * slide effect.
+	 */
+	private double moveHorizontal( Edge edge, double offset ) {
+		if( offset == 0 || edge.isWall() ) return 0;
+
+		double delta = offset;
+
+		// Check for room to move.
+		if( offset < 0 ) {
+			delta = checkMoveWest( edge, offset );
+		} else if( offset > 0 ) {
+			delta = checkMoveEast( edge, offset );
+		}
+
+		// Move the edge.
+		Insets insets = getInsets();
+		Bounds bounds = getBoundsInLocal();
+		edge.setPosition( edge.getPosition() + (delta / (bounds.getWidth() - insets.getLeft() - insets.getRight())) );
+
+		//		// Resize the west views and edges.
+		//		for( ToolView view : edge.westViews ) {
+		//			if( view.northEdge != null && view.northEdge.eastEdge == edge ) {
+		//				view.northEdge.invalidate();
+		//			}
+		//			if( view.southEdge != null && view.southEdge.eastEdge == edge ) {
+		//				view.southEdge.invalidate();
+		//			}
+		//			view.invalidate();
+		//		}
+		//
+		//		// Resize the east views and edges.
+		//		for( ToolView view : edge.eastViews ) {
+		//			if( view.northEdge != null && view.northEdge.westEdge == edge ) {
+		//				view.northEdge.invalidate();
+		//			}
+		//			if( view.southEdge != null && view.southEdge.westEdge == edge ) {
+		//				view.southEdge.invalidate();
+		//			}
+		//			view.invalidate();
+		//		}
+		//
+		//		edge.invalidate();
+
+		return delta;
+	}
+
+	private double checkMoveNorth( Edge edge, double offset ) {
+		double delta = offset;
+		//Dimension viewSize = null;
+		Edge blockingEdge = null;
+
+		// Check the north views.
+		for( ToolView view : edge.northViews ) {
+			double height = view.getHeight();
+			if( height < -delta ) {
+				blockingEdge = view.northEdge;
+				delta = -height;
+			}
+		}
+
+		// If could move not the entire distance, try and move the next edge over.
+		if( offset - delta < 0 ) {
+			if( !blockingEdge.isWall() ) {
+				double result = moveVertical( blockingEdge, offset - delta );
+				delta += result;
+			}
+		}
+
+		return delta;
+	}
+
+	private double checkMoveSouth( Edge edge, double offset ) {
+		double delta = offset;
+		Edge blockingEdge = null;
+
+		// Check the south views.
+		for( ToolView view : edge.southViews ) {
+			double height = view.getHeight();
+			if( height < delta ) {
+				blockingEdge = view.southEdge;
+				delta = height;
+			}
+		}
+
+		// If could move not the entire distance, try and move the next edge over.
+		if( offset - delta > 0 ) {
+			if( !blockingEdge.isWall() ) {
+				double result = moveVertical( blockingEdge, offset - delta );
+				delta += result;
+			}
+		}
+
+		return delta;
+	}
+
+	private double checkMoveWest( Edge edge, double offset ) {
+		double delta = offset;
+		Edge blockingEdge = null;
+
+		// Check the west views.
+		for( ToolView view : edge.westViews ) {
+			double width = view.getWidth();
+			if( width < -delta ) {
+				blockingEdge = view.westEdge;
+				delta = -width;
+			}
+		}
+
+		// If could move not the entire distance, try and move the next edge over.
+		if( offset - delta < 0 ) {
+			if( !blockingEdge.isWall() ) {
+				double result = moveHorizontal( blockingEdge, offset - delta );
+				delta += result;
+			}
+		}
+
+		return delta;
+	}
+
+	private double checkMoveEast( Edge edge, double offset ) {
+		double delta = offset;
+		Edge blockingEdge = null;
+
+		// Check the east views.
+		for( ToolView view : edge.eastViews ) {
+			double width = view.getWidth();
+			if( width < delta ) {
+				blockingEdge = view.eastEdge;
+				delta = width;
+			}
+		}
+
+		// If could move not the entire distance, try and move the next edge over.
+		if( offset - delta > 0 ) {
+			if( !blockingEdge.isWall() ) {
+				double result = moveHorizontal( blockingEdge, offset - delta );
+				delta += result;
+			}
+		}
+
+		return delta;
 	}
 
 	private boolean merge( Edge edge, Side direction ) {
@@ -1702,6 +2053,20 @@ public class Workpane extends Pane {
 			}
 
 			return null;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder( getClass().getSimpleName() );
+
+			builder.append( " orientation=" );
+			builder.append( getOrientation() );
+			builder.append( " position=" );
+			builder.append( getPosition() );
+			builder.append( " wall=" );
+			builder.append( isWall() );
+
+			return builder.toString();
 		}
 
 	}

@@ -184,7 +184,7 @@ public class UiFactory {
 			if( workarea.isActive() ) {
 				workspace.setActiveWorkarea( workarea );
 			} else {
-				workspace.addWorkArea( workarea );
+				workspace.addWorkarea( workarea );
 			}
 
 			workareas.put( configuration.getString( "id" ), workarea );

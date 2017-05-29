@@ -43,8 +43,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	public void setup() throws Exception {
 		initializeFx(  );
 		metadata = program.getMetadata();
-		watcher = new FxApplicationTestCase.ProgramWatcher();
-		program.addEventListener( watcher );
+		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );
 	}
 
 	@After
@@ -78,7 +77,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 		private Map<Class<? extends ProgramEvent>, ProgramEvent> events;
 
-		public ProgramWatcher() {
+		ProgramWatcher() {
 			this.events = new ConcurrentHashMap<>();
 		}
 
@@ -94,18 +93,19 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		 * already occurred then this method waits until the next name occurs, or
 		 * the specified timeout, whichever comes first.
 		 *
-		 * @param clazz
-		 * @param timeout
-		 * @throws InterruptedException
+		 * @param clazz The event class to wait for
+		 * @param timeout How long, in milliseconds, to wait for the event
+		 * @throws InterruptedException If the timeout is exceeded
 		 */
-		public synchronized void waitFor( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		synchronized void waitFor( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
 			boolean shouldWait = timeout > 0;
 			long start = System.currentTimeMillis();
+			long duration = 0;
 
 			while( shouldWait && events.get( clazz ) == null ) {
-				long duration = System.currentTimeMillis() - start;
+				wait( timeout - duration );
+				duration = System.currentTimeMillis() - start;
 				shouldWait = duration < timeout;
-				if( shouldWait ) wait( timeout - duration );
 			}
 		}
 
@@ -114,11 +114,11 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		 * until the next name occurs, or the specified timeout, whichever comes
 		 * first.
 		 *
-		 * @param clazz
-		 * @param timeout
-		 * @throws InterruptedException
+		 * @param clazz The event class to wait for
+		 * @param timeout How long, in milliseconds, to wait for the event
+		 * @throws InterruptedException If the timeout is exceeded
 		 */
-		public synchronized void waitForNext( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		synchronized void waitForNext( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
 			events.remove( clazz );
 			waitFor( clazz, timeout );
 		}

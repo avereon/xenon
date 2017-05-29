@@ -4,6 +4,8 @@ import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolEvent;
 import com.parallelsymmetry.essence.worktool.ToolListener;
 import javafx.geometry.Side;
+import javafx.scene.Scene;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -14,14 +16,24 @@ import static org.junit.Assert.assertThat;
 
 public class WorkPaneEventTest extends WorkpaneTestCase {
 
-	@Test
-	public void testMoveEdge() {
-		Workpane workpane = new Workpane();
+	private Workpane workpane;
+
+	@Before
+	public void setup() throws Exception {
+		super.setup();
+		workpane = new Workpane();
 
 		// Workpane size must be set for move methods to work correctly.
-		//		workpane.setPrefWidth( 1000000 );
-		//		workpane.setPrefHeight( 1000000 );
+		Scene scene = new Scene( workpane, 1000000, 1000000 );
+		assertThat( workpane.getWidth(), is( 1000000d ) );
+		assertThat( workpane.getHeight(), is( 1000000d ) );
 
+		// Layout the workpane
+		workpane.layout();
+	}
+
+	@Test
+	public void testMoveEdge() {
 		ToolView west = workpane.split( Side.LEFT );
 		Workpane.Edge edge = west.getEdge( Side.RIGHT );
 
@@ -33,18 +45,19 @@ public class WorkPaneEventTest extends WorkpaneTestCase {
 		assertThat( workAreaEventCounter.events.size(), is( 1 ) );
 	}
 
-	//	public void testMoveEdgeNowhere() {
-	//		Workpane area = new Workpane();
-	//		ToolView west = area.split( Workpane.WEST );
-	//		Edge edge = west.getEdge( Workpane.EAST );
-	//
-	//		WorkPaneEventCounter workAreaEventCounter = new WorkPaneEventCounter();
-	//		area.addWorkPaneListener( workAreaEventCounter );
-	//
-	//		area.moveEdge( edge, 0 );
-	//		assertEquals( 0, workAreaEventCounter.events.size() );
-	//	}
-	//
+	@Test
+	public void testMoveEdgeNowhere() {
+		Workpane area = new Workpane();
+		ToolView west = area.split( Side.LEFT );
+		Workpane.Edge edge = west.getEdge( Side.RIGHT );
+
+		WorkPaneEventCounter workAreaEventCounter = new WorkPaneEventCounter();
+		area.addWorkPaneListener( workAreaEventCounter );
+
+		area.moveEdge( edge, 0 );
+		assertThat( workAreaEventCounter.events.size(), is( 0 ) );
+	}
+
 	//	public void testSetActiveView() {
 	//		Workpane area = new Workpane();
 	//		ToolView south = area.getDefaultView();

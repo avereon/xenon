@@ -13,8 +13,9 @@ public class ProgramWorkspaceTest extends FxApplicationTestCase {
 	@Test
 	public void testWorkspaceDefaultSceneSize() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 
+		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getScene().getWidth(), is( 960d ) );
 		assertThat( stage.getScene().getHeight(), is( 540d ) );
 	}
@@ -22,8 +23,11 @@ public class ProgramWorkspaceTest extends FxApplicationTestCase {
 	@Test
 	public void testWorkspaceWindowTitle() throws Exception {
 		waitForEvent( ProgramStartedEvent.class );
+
+		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
-		assertThat( program.getWorkspaceManager().getActiveWorkspace().getStage().getTitle(), is( workareaName + " - " + metadata.getName() ) );
+		assertThat( stage.isShowing(), is( true ) );
+		assertThat( stage.getTitle(), is( workareaName + " - " + metadata.getName() ) );
 	}
 
 }
