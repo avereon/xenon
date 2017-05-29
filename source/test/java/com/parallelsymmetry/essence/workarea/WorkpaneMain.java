@@ -15,7 +15,7 @@ public class WorkpaneMain extends Application {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		Scene scene = new Scene( getConfig2(), 960, 540 );
+		Scene scene = new Scene( getConfig0(), 640, 360 );
 		stage.setScene( scene );
 		stage.show();
 	}

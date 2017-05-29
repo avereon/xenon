@@ -5,13 +5,13 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ToolView extends Pane {
+public class ToolView extends BorderPane {
 
 	Workpane.Edge northEdge;
 
@@ -29,7 +29,7 @@ public class ToolView extends Pane {
 
 	ToolView() {
 		tools = new TabPane();
-		getChildren().add( tools );
+		setCenter( tools );
 
 		// TODO Escape had a special border to highlight the active view, do I want the same?
 	}

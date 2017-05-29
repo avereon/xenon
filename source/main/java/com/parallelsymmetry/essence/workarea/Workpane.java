@@ -14,7 +14,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -40,6 +39,8 @@ public class Workpane extends Pane {
 	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
 
 	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.25;
+
+	public static final double DEFAULT_EDGE_SIDE = 7;
 
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
 
@@ -68,7 +69,7 @@ public class Workpane extends Pane {
 	private Collection<WorkpaneListener> listeners;
 
 	public Workpane() {
-		edgeSize = new SimpleDoubleProperty();
+		edgeSize = new SimpleDoubleProperty( DEFAULT_EDGE_SIDE );
 		activeViewProperty = new SimpleObjectProperty<>();
 		defaultViewProperty = new SimpleObjectProperty<>();
 		maximizedViewProperty = new SimpleObjectProperty<>();
@@ -357,6 +358,8 @@ public class Workpane extends Pane {
 		//		}
 		//		revalidate();
 		//		repaint();
+		layoutChildren();
+
 
 		dispatchEvents();
 	}
@@ -1451,15 +1454,10 @@ public class Workpane extends Pane {
 		double x2 = view.eastEdge.getPosition();
 		double y2 = view.southEdge.getPosition();
 
-		double x = 0;
-		double y = 0;
-		double w = 0;
-		double h = 0;
-
-		x = Math.floor( x1 * bounds.getWidth() );
-		y = Math.floor( y1 * bounds.getHeight() );
-		w = Math.floor( x2 * bounds.getWidth() ) - x;
-		h = Math.floor( y2 * bounds.getHeight() ) - y;
+		double x = x1 * bounds.getWidth();
+		double y = y1 * bounds.getHeight();
+		double w = x2 * bounds.getWidth() - x;
+		double h = y2 * bounds.getHeight() - y;
 
 		// Leave space for the edges.
 		double north = 0;
@@ -1477,7 +1475,7 @@ public class Workpane extends Pane {
 		w -= (west + east);
 		h -= (north + south);
 
-		System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
+		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
 		layoutInArea( view, x, y, w, h, 0, HPos.LEFT, VPos.TOP );
 		view.setVisible( true );
@@ -1490,7 +1488,7 @@ public class Workpane extends Pane {
 		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
 
 		double edgeSize = edge.isWall() ? 0 : getEdgeSize();
-		double edgeHalf = edgeSize / 2;
+		double edgeHalf = 0.5 * edgeSize;
 		double edgeRest = edgeSize - edgeHalf;
 		double position = edge.getPosition();
 
@@ -1500,10 +1498,10 @@ public class Workpane extends Pane {
 		double h = 0;
 
 		if( edge.getOrientation() == Orientation.VERTICAL ) {
-			x = (int)Math.floor( position * bounds.getWidth() - edgeHalf );
-			y = (int)Math.floor( edge.northEdge == null ? 0 : edge.northEdge.getPosition() * bounds.getHeight() );
+			x = position * bounds.getWidth() - edgeHalf;
+			y = edge.northEdge == null ? 0 : edge.northEdge.getPosition() * bounds.getHeight();
 			w = edgeSize;
-			h = (int)Math.floor( edge.southEdge == null ? 1 : edge.southEdge.getPosition() * bounds.getHeight() ) - y;
+			h = edge.southEdge == null ? 1 : edge.southEdge.getPosition() * bounds.getHeight() - y;
 
 			double north = edge.northEdge == null ? 0 : edge.northEdge.isWall() ? 0 : edgeRest;
 			double south = edge.southEdge == null ? 0 : edge.southEdge.isWall() ? 0 : edgeHalf;
@@ -1511,9 +1509,9 @@ public class Workpane extends Pane {
 			y += north;
 			h -= (north + south);
 		} else {
-			x = (int)Math.floor( edge.westEdge == null ? 0 : edge.westEdge.getPosition() * bounds.getWidth() );
-			y = (int)Math.floor( position * bounds.getHeight() - edgeHalf );
-			w = (int)Math.floor( edge.eastEdge == null ? 1 : edge.eastEdge.getPosition() * bounds.getWidth() ) - x;
+			x = edge.westEdge == null ? 0 : edge.westEdge.getPosition() * bounds.getWidth();
+			y = position * bounds.getHeight() - edgeHalf;
+			w = edge.eastEdge == null ? 1 : edge.eastEdge.getPosition() * bounds.getWidth() - x;
 			h = edgeSize;
 
 			double west = edge.westEdge == null ? 0 : edge.westEdge.isWall() ? 0 : edgeRest;
@@ -1529,7 +1527,6 @@ public class Workpane extends Pane {
 		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
 		layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
-
 		edge.setVisible( true );
 	}
 
@@ -1920,8 +1917,6 @@ public class Workpane extends Pane {
 
 		private Workpane parent;
 
-		private Point2D anchor;
-
 		public Edge( Orientation orientation ) {
 			this( orientation, false );
 		}
@@ -1940,14 +1935,12 @@ public class Workpane extends Pane {
 			eastViews = viewsB;
 
 			// Set the control cursor
-			setCursor( orientation == Orientation.VERTICAL ? Cursor.V_RESIZE : Cursor.H_RESIZE );
+			setCursor( orientation == Orientation.VERTICAL ? Cursor.H_RESIZE : Cursor.V_RESIZE );
 
 			// Set the default background
 			setBackground( new Background( new BackgroundFill( Color.RED, CornerRadii.EMPTY, Insets.EMPTY ) ) );
 
 			// Register the mouse handlers
-			onMousePressedProperty().set( this::mousePressed );
-			onMouseReleasedProperty().set( this::mouseReleased );
 			onMouseDraggedProperty().set( this::mouseDragged );
 		}
 
@@ -1956,48 +1949,18 @@ public class Workpane extends Pane {
 			return new EdgeSkin( this );
 		}
 
-		private void mousePressed( MouseEvent event ) {
-			// If the mouse button is not the primary button don't process the event.
-			if( event.getButton() != MouseButton.PRIMARY ) return;
-
-			// TODO Should the workpane dividers request the input focus?
-			// Request the focus
-			parent.requestFocus();
-
-			// Calculate the anchor point
-			anchor = localToParent( event.getX(), event.getY() );
-		}
-
-		private void mouseReleased( MouseEvent event ) {
-			// If the mouse button is not the primary button, don't process the event.
-			if( event.getButton() != MouseButton.PRIMARY ) return;
-			anchor = null;
-		}
-
 		private void mouseDragged( MouseEvent event ) {
-			// If there is not an anchor point, don't process the event.
-			if( anchor == null ) return;
-
-			double delta = 0;
-			double movement = 0;
 			Point2D point = localToParent( event.getX(), event.getY() );
-
 			switch( orientation ) {
 				case VERTICAL: {
-					delta = point.getX() - anchor.getX();
-					movement = parent.moveEdge( this, delta );
-					if( movement != delta ) point.add( movement - delta, 0 );
+					moveEdge( this, point.getX() - ( getPosition() * parent.getWidth() ) );
 					break;
 				}
 				case HORIZONTAL: {
-					delta = point.getY() - anchor.getY();
-					movement = parent.moveEdge( this, delta );
-					if( movement != delta ) point.add( 0, movement - delta );
+					moveEdge( this, point.getY() - ( getPosition() * parent.getHeight() ) );
 					break;
 				}
 			}
-
-			anchor = point;
 		}
 
 		public final boolean isWall() {
