@@ -12,6 +12,8 @@ import javafx.geometry.*;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
+import javafx.scene.control.SkinBase;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -119,6 +121,9 @@ public class Workpane extends Pane {
 		addView( view );
 		setActiveView( view );
 		setDefaultView( view );
+
+		// TODO Set a better default background
+		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 
 	/**
@@ -417,7 +422,7 @@ public class Workpane extends Pane {
 	}
 
 	private void doSetActiveView( ToolView view, boolean setTool ) {
-		if( view != null && ( view == getActiveView() || !getViews().contains( view ) ) ) return;
+		if( view != null && (view == getActiveView() || !getViews().contains( view )) ) return;
 
 		startOperation();
 		try {
@@ -1409,20 +1414,21 @@ public class Workpane extends Pane {
 	protected void layoutChildren() {
 		Bounds bounds = getLayoutBounds();
 
-		ToolView maximizedView = getMaximizedView();
+		//System.out.println( "Layout pane: w=" + bounds.getWidth() + " h=" + bounds.getHeight() );
 
+		ToolView maximizedView = getMaximizedView();
 		if( maximizedView == null ) {
 			for( Node node : getChildren() ) {
 				if( node instanceof ToolView ) {
-					layoutView( (ToolView)node );
+					layoutView( bounds, (ToolView)node );
 				} else if( node instanceof Edge ) {
-					layoutEdge( (Edge)node );
+					layoutEdge( bounds, (Edge)node );
 				}
 			}
 		} else {
 			for( Node node : getChildren() ) {
 				if( node == maximizedView ) {
-					layoutMaximized( (ToolView)node );
+					layoutMaximized( bounds, (ToolView)node );
 				} else {
 					node.setVisible( false );
 				}
@@ -1430,12 +1436,11 @@ public class Workpane extends Pane {
 		}
 	}
 
-	private void layoutView( ToolView view ) {
-		Bounds size = getBoundsInLocal();
-		if( size.getWidth() == 0 | size.getHeight() == 0 ) return;
+	private void layoutView( Bounds bounds, ToolView view ) {
+		if( bounds.getWidth() == 0 | bounds.getHeight() == 0 ) return;
 
 		Insets insets = getInsets();
-		size = new BoundingBox( 0, 0, size.getWidth() - insets.getLeft() - insets.getRight(), size.getHeight() - insets.getTop() - insets.getBottom() );
+		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
 
 		double edgeSize = getEdgeSize();
 		double edgeHalf = edgeSize / 2;
@@ -1451,10 +1456,10 @@ public class Workpane extends Pane {
 		double w = 0;
 		double h = 0;
 
-		x = Math.floor( x1 * size.getWidth() );
-		y = Math.floor( y1 * size.getHeight() );
-		w = Math.floor( x2 * size.getWidth() ) - x;
-		h = Math.floor( y2 * size.getHeight() ) - y;
+		x = Math.floor( x1 * bounds.getWidth() );
+		y = Math.floor( y1 * bounds.getHeight() );
+		w = Math.floor( x2 * bounds.getWidth() ) - x;
+		h = Math.floor( y2 * bounds.getHeight() ) - y;
 
 		// Leave space for the edges.
 		double north = 0;
@@ -1472,18 +1477,17 @@ public class Workpane extends Pane {
 		w -= (west + east);
 		h -= (north + south);
 
-		//log.trace( "Layout view bounds: X: " + x + " Y: " + y + " W: " + w + " H: " + h );
+		System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		layoutInArea( view, x, y, w, h, 0, HPos.LEFT, VPos.TOP );
 		view.setVisible( true );
 	}
 
-	private void layoutEdge( Edge edge ) {
-		Bounds size = getBoundsInLocal();
-		if( size.getWidth() == 0 | size.getHeight() == 0 ) return;
+	private void layoutEdge( Bounds bounds, Edge edge ) {
+		if( bounds.getWidth() == 0 | bounds.getHeight() == 0 ) return;
 
 		Insets insets = getInsets();
-		size = new BoundingBox( 0, 0, size.getWidth() - insets.getLeft() - insets.getRight(), size.getHeight() - insets.getTop() - insets.getBottom() );
+		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
 
 		double edgeSize = edge.isWall() ? 0 : getEdgeSize();
 		double edgeHalf = edgeSize / 2;
@@ -1496,10 +1500,10 @@ public class Workpane extends Pane {
 		double h = 0;
 
 		if( edge.getOrientation() == Orientation.VERTICAL ) {
-			x = (int)Math.floor( position * size.getWidth() - edgeHalf );
-			y = (int)Math.floor( edge.northEdge == null ? 0 : edge.northEdge.getPosition() * size.getHeight() );
+			x = (int)Math.floor( position * bounds.getWidth() - edgeHalf );
+			y = (int)Math.floor( edge.northEdge == null ? 0 : edge.northEdge.getPosition() * bounds.getHeight() );
 			w = edgeSize;
-			h = (int)Math.floor( edge.southEdge == null ? 1 : edge.southEdge.getPosition() * size.getHeight() ) - y;
+			h = (int)Math.floor( edge.southEdge == null ? 1 : edge.southEdge.getPosition() * bounds.getHeight() ) - y;
 
 			double north = edge.northEdge == null ? 0 : edge.northEdge.isWall() ? 0 : edgeRest;
 			double south = edge.southEdge == null ? 0 : edge.southEdge.isWall() ? 0 : edgeHalf;
@@ -1507,9 +1511,9 @@ public class Workpane extends Pane {
 			y += north;
 			h -= (north + south);
 		} else {
-			x = (int)Math.floor( edge.westEdge == null ? 0 : edge.westEdge.getPosition() * size.getWidth() );
-			y = (int)Math.floor( position * size.getHeight() - edgeHalf );
-			w = (int)Math.floor( edge.eastEdge == null ? 1 : edge.eastEdge.getPosition() * size.getWidth() ) - x;
+			x = (int)Math.floor( edge.westEdge == null ? 0 : edge.westEdge.getPosition() * bounds.getWidth() );
+			y = (int)Math.floor( position * bounds.getHeight() - edgeHalf );
+			w = (int)Math.floor( edge.eastEdge == null ? 1 : edge.eastEdge.getPosition() * bounds.getWidth() ) - x;
 			h = edgeSize;
 
 			double west = edge.westEdge == null ? 0 : edge.westEdge.isWall() ? 0 : edgeRest;
@@ -1522,25 +1526,25 @@ public class Workpane extends Pane {
 		x += insets.getLeft();
 		y += insets.getTop();
 
-		//log.trace( "Layout edge bounds: X: " + x + " Y: " + y + " W: " + w + " H: " + h );
+		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
 		layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
 
 		edge.setVisible( true );
 	}
 
-	private void layoutMaximized( ToolView component ) {
-		//		Rectangle bounds = container.getBounds();
-		//		Insets insets = container.getInsets();
-		//
-		//		int x = insets.left;
-		//		int y = insets.top;
-		//		int w = bounds.width - insets.left - insets.right;
-		//		int h = bounds.height - insets.top - insets.bottom;
-		//
-		//		component.setBounds( x, y, w, h );
-		//		component.setVisible( true );
-		//Log.write( Log.DETAIL, "Layout max bounds: X: " + x + " Y: " + y + " W: " + w + " H: " + h );
+	private void layoutMaximized( Bounds bounds, ToolView view ) {
+		Insets insets = getInsets();
+
+		double x = insets.getLeft();
+		double y = insets.getTop();
+		double w = bounds.getWidth() - insets.getLeft() - insets.getRight();
+		double h = bounds.getHeight() - insets.getTop() - insets.getBottom();
+
+		//System.out.println( "Layout view max: x=" + x + " y=" + y + " w=" + w + " h=" + h );
+
+		layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		view.setVisible( true );
 	}
 
 	/**
@@ -1862,6 +1866,19 @@ public class Workpane extends Pane {
 		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
+	private class EdgeSkin extends SkinBase<Edge> {
+
+		/**
+		 * Constructor for all SkinBase instances.
+		 *
+		 * @param control The control for which this Skin should attach to.
+		 */
+		protected EdgeSkin( Edge control ) {
+			super( control );
+		}
+
+	}
+
 	public class Edge extends Control {
 
 		Orientation orientation;
@@ -1926,12 +1943,17 @@ public class Workpane extends Pane {
 			setCursor( orientation == Orientation.VERTICAL ? Cursor.V_RESIZE : Cursor.H_RESIZE );
 
 			// Set the default background
-			setBackground( new Background( new BackgroundFill( Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY ) ) );
+			setBackground( new Background( new BackgroundFill( Color.RED, CornerRadii.EMPTY, Insets.EMPTY ) ) );
 
 			// Register the mouse handlers
 			onMousePressedProperty().set( this::mousePressed );
 			onMouseReleasedProperty().set( this::mouseReleased );
 			onMouseDraggedProperty().set( this::mouseDragged );
+		}
+
+		@Override
+		protected Skin<Edge> createDefaultSkin() {
+			return new EdgeSkin( this );
 		}
 
 		private void mousePressed( MouseEvent event ) {

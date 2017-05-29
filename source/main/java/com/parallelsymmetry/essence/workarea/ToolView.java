@@ -28,8 +28,6 @@ public class ToolView extends Pane {
 	private Tool activeTool;
 
 	ToolView() {
-		setOpacity( 0 );
-
 		tools = new TabPane();
 		getChildren().add( tools );
 

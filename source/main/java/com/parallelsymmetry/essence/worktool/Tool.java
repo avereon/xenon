@@ -9,6 +9,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,6 +181,11 @@ public abstract class Tool extends Control {
 
 	public void removeToolListener( ToolListener listener ) {
 		listeners.remove( listener );
+	}
+
+	@Override
+	protected Skin<Tool> createDefaultSkin() {
+		return new ToolSkin( this );
 	}
 
 	@Override

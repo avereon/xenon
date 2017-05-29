@@ -2,6 +2,11 @@ package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.Resource;
 import com.parallelsymmetry.essence.worktool.Tool;
+import javafx.geometry.Insets;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +35,7 @@ public class MockTool extends Tool {
 
 	public MockTool( Resource resource ) {
 		super( resource, "MockTool-" + counter.getAndIncrement() );
+		setBackground( new Background( new BackgroundFill( Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 
 	@Override
