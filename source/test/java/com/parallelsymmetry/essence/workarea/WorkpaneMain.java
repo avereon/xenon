@@ -5,6 +5,8 @@ import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.application.Application;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.net.URI;
@@ -15,14 +17,19 @@ public class WorkpaneMain extends Application {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		Scene scene = new Scene( getConfig0(), 640, 360 );
+		Workpane pane = getConfig0();
+		Image image = new Image( getClass().getResourceAsStream( "/purple-sunset-wallpaper@2x.jpg" ) );
+		BackgroundSize backgroundSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
+		pane.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
+
+		Scene scene = new Scene( pane, 640, 360 );
 		stage.setScene( scene );
 		stage.show();
 	}
 
 	private static Workpane getConfig0() {
 		Workpane pane = new Workpane();
-		ToolView view0 = pane.getActiveView();
+		WorkpaneView view0 = pane.getActiveView();
 
 		pane.split( Side.TOP, 0.25 );
 		pane.split( Side.BOTTOM, 0.25 );
@@ -34,7 +41,7 @@ public class WorkpaneMain extends Application {
 		pane.split( view0, Side.RIGHT, 1 / ((1 / sidePercent) - 1) );
 		pane.split( view0, Side.TOP, 0.25f );
 		pane.split( view0, Side.BOTTOM, 1 / 3f );
-		ToolView view1 = pane.split( view0, Side.RIGHT, 0.5f );
+		WorkpaneView view1 = pane.split( view0, Side.RIGHT, 0.5f );
 
 		pane.addTool( new MockTool( resource ), view0 );
 		pane.addTool( new MockTool( resource ), view1 );
@@ -44,9 +51,9 @@ public class WorkpaneMain extends Application {
 
 	private static Workpane getConfig1() {
 		Workpane pane = new Workpane();
-		ToolView view0 = pane.getActiveView();
+		WorkpaneView view0 = pane.getActiveView();
 
-		ToolView west = pane.split( Side.LEFT, 0.2 );
+		WorkpaneView west = pane.split( Side.LEFT, 0.2 );
 		pane.split( west, Side.TOP, 0.2 );
 		pane.addTool( new MockTool( resource ), view0 );
 		pane.addTool( new MockTool( resource ), view0 );
@@ -56,9 +63,9 @@ public class WorkpaneMain extends Application {
 
 	private static Workpane getConfig2() {
 		Workpane pane = new Workpane();
-		ToolView view0 = pane.getDefaultView();
+		WorkpaneView view0 = pane.getDefaultView();
 
-		ToolView view1 = pane.split( view0, Side.LEFT );
+		WorkpaneView view1 = pane.split( view0, Side.LEFT );
 		view1.getProperties().put( "name", "view1" );
 
 		Tool tool0 = new MockTool( resource );
