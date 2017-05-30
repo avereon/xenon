@@ -157,7 +157,7 @@ public class Workspace {
 
 		// TODO Remove the development background image
 		// The following background image is for development purposes.
-		Image image = new Image( getClass().getResourceAsStream( "/purple-sunset-wallpaper@2x.jpg" ) );
+		Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
 		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
