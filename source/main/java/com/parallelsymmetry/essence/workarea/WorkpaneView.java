@@ -28,6 +28,7 @@ public class WorkpaneView extends BorderPane {
 	private Tool activeTool;
 
 	WorkpaneView() {
+		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
 	}
 

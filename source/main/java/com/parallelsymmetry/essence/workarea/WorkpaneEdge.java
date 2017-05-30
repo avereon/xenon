@@ -8,7 +8,6 @@ import javafx.css.converter.EnumConverter;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
-import javafx.scene.Cursor;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
@@ -72,13 +71,10 @@ public class WorkpaneEdge extends Control {
 	}
 
 	public WorkpaneEdge( Orientation orientation, boolean wall ) {
-		this.position = new SimpleDoubleProperty( this, "position", 0 );
-		this.wall = wall;
-
+		getStyleClass().add( "workpane-edge" );
 		setOrientation( orientation );
-
-		// Set the style class
-		getStyleClass().add( "workpane-divider" );
+		setPosition( 0 );
+		this.wall = wall;
 
 		// Create the view lists.
 		viewsA = new CopyOnWriteArraySet<WorkpaneView>();
@@ -88,9 +84,6 @@ public class WorkpaneEdge extends Control {
 		westViews = viewsA;
 		eastViews = viewsB;
 
-		// Set the control cursor
-		setCursor( orientation == Orientation.VERTICAL ? Cursor.H_RESIZE : Cursor.V_RESIZE );
-
 		// Register the mouse handlers
 		onMouseDraggedProperty().set( this::mouseDragged );
 	}
@@ -98,20 +91,6 @@ public class WorkpaneEdge extends Control {
 	@Override
 	protected Skin<WorkpaneEdge> createDefaultSkin() {
 		return new EdgeSkin( this );
-	}
-
-	private void mouseDragged( MouseEvent event ) {
-		Point2D point = localToParent( event.getX(), event.getY() );
-		switch( getOrientation() ) {
-			case VERTICAL: {
-				parent.moveEdge( this, point.getX() - (getPosition() * parent.getWidth()) );
-				break;
-			}
-			case HORIZONTAL: {
-				parent.moveEdge( this, point.getY() - (getPosition() * parent.getHeight()) );
-				break;
-			}
-		}
 	}
 
 	public final boolean isWall() {
@@ -184,6 +163,7 @@ public class WorkpaneEdge extends Control {
 	}
 
 	public final DoubleProperty positionProperty() {
+		if( position == null ) position = new SimpleDoubleProperty( this, "position", 0 );
 		return position;
 	}
 
@@ -270,6 +250,20 @@ public class WorkpaneEdge extends Control {
 		builder.append( ">" );
 
 		return builder.toString();
+	}
+
+	private void mouseDragged( MouseEvent event ) {
+		Point2D point = localToParent( event.getX(), event.getY() );
+		switch( getOrientation() ) {
+			case VERTICAL: {
+				parent.moveEdge( this, point.getX() - (getPosition() * parent.getWidth()) );
+				break;
+			}
+			case HORIZONTAL: {
+				parent.moveEdge( this, point.getY() - (getPosition() * parent.getHeight()) );
+				break;
+			}
+		}
 	}
 
 	private static class StyleableProperties {

@@ -32,7 +32,7 @@ public class Workpane extends Pane {
 
 	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.25;
 
-	public static final double DEFAULT_EDGE_SIDE = 7;
+	public static final double DEFAULT_EDGE_SIDE = 5;
 
 	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
 
@@ -61,6 +61,8 @@ public class Workpane extends Pane {
 	private Collection<WorkpaneListener> listeners;
 
 	public Workpane() {
+		getStyleClass().add( "workpane" );
+
 		edgeSize = new SimpleDoubleProperty( DEFAULT_EDGE_SIDE );
 		activeViewProperty = new SimpleObjectProperty<>();
 		defaultViewProperty = new SimpleObjectProperty<>();

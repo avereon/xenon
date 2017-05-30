@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.apache.commons.configuration2.Configuration;
@@ -153,6 +154,13 @@ public class Workspace {
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
+
+		// TODO Remove the development background image
+		// The following background image is for development purposes.
+		Image image = new Image( getClass().getResourceAsStream( "/purple-sunset-wallpaper@2x.jpg" ) );
+		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
+		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
+
 
 		VBox pane = new VBox();
 		pane.getChildren().addAll( menubar, toolbar );

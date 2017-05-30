@@ -4,16 +4,27 @@
 
 /* Workpane */
 
-.workpane-divider {
+.workpane {
+	/* Don't set the opacity to zero, otherwise the entire workpane is not visible */
+	-fx-background-color: transparent;
+}
+
+.workpane-view {
+	/* Don't set the opacity to zero, otherwise the entire workpane-view is not visible */
+	-fx-background-color: transparent;
+}
+
+.workpane-edge {
+	/* Don't set the opacity to zero, otherwise the entire workpane-edge is not visible */
 	-fx-opacity: 0.5;
-	-fx-edge-border: -fx-box-border;
+	-fx-focus-traversable: false;
+	-fx-background-color: -fx-box-border;
 }
 
-.workpane-divider:horizontal {
-   -fx-background-color: -fx-edge-border;
+.workpane-edge:horizontal {
+	-fx-cursor: v-resize;
 }
 
-.workpane-divider:vertical {
-   -fx-background-color: -fx-edge-border;
+.workpane-edge:vertical {
+	-fx-cursor: h-resize;
 }
-
