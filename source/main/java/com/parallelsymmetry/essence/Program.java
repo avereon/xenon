@@ -247,7 +247,7 @@ public class Program extends Application implements Product {
 
 	private void doStartupTasks() throws Exception {
 		// Give the slash screen time to render and the user to see it
-		Thread.sleep( 500 );
+		//Thread.sleep( 1000 );
 
 		// Create the product bundle
 		productBundle = new ProductBundle( getClass().getClassLoader() );
@@ -298,7 +298,7 @@ public class Program extends Application implements Product {
 		Platform.runLater( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it
-		Thread.sleep( 500 );
+		Thread.sleep( 1000 );
 	}
 
 	private void registerIcons() {}
