@@ -161,7 +161,6 @@ public class Workspace {
 		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
-
 		VBox pane = new VBox();
 		pane.getChildren().addAll( menubar, toolbar );
 
@@ -169,12 +168,8 @@ public class Workspace {
 		layout.setTop( pane );
 		layout.setCenter( workpaneContainer );
 
-		scene = new Scene( layout, UiFactory.DEFAULT_WIDTH, UiFactory.DEFAULT_HEIGHT );
-		scene.getStylesheets().add( Program.STYLESHEET );
-
 		// Create the scene
 		stage = new Stage();
-		stage.setScene( scene );
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
@@ -266,11 +261,19 @@ public class Workspace {
 
 		Double x = configuration.getDouble( "x", null );
 		Double y = configuration.getDouble( "y", null );
-		Double w = configuration.getDouble( "w" );
-		Double h = configuration.getDouble( "h" );
+		Double w = configuration.getDouble( "w", UiFactory.DEFAULT_WIDTH );
+		Double h = configuration.getDouble( "h", UiFactory.DEFAULT_HEIGHT );
 
-		stage.setWidth( w );
-		stage.setHeight( h );
+		/*
+		There is a bit of a dance here between the scene and stage bounds. This is
+		due to some differences between operating systems and the choice to use the
+		scene bounds for the width and height and the stage bounds for x and y is
+		intentional.
+		 */
+		scene = new Scene( layout, w, h );
+		scene.getStylesheets().add( Program.STYLESHEET );
+		stage.setScene( scene );
+
 		// Position the stage if x and y are specified
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
@@ -288,10 +291,10 @@ public class Workspace {
 		stage.yProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) configuration.setProperty( "y", newValue );
 		} );
-		stage.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
+		scene.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) configuration.setProperty( "w", newValue );
 		} );
-		stage.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
+		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) configuration.setProperty( "h", newValue );
 		} );
 	}
