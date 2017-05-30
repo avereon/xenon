@@ -19,10 +19,11 @@ public class WorkpaneMain extends Application {
 	public void start( Stage stage ) throws Exception {
 		Workpane pane = getConfig0();
 		Image image = new Image( getClass().getResourceAsStream( "/purple-sunset-wallpaper@2x.jpg" ) );
-		BackgroundSize backgroundSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
+		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		pane.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
 		Scene scene = new Scene( pane, 640, 360 );
+		scene.getStylesheets().add( "style.css" );
 		stage.setScene( scene );
 		stage.show();
 	}

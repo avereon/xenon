@@ -1,0 +1,19 @@
+/*
+ * This style sheet is intentionally coded to refer to the modena.css properties
+ */
+
+/* Workpane */
+
+.workpane-divider {
+	-fx-opacity: 0.5;
+	-fx-edge-border: -fx-box-border;
+}
+
+.workpane-divider:horizontal {
+   -fx-background-color: -fx-edge-border;
+}
+
+.workpane-divider:vertical {
+   -fx-background-color: -fx-edge-border;
+}
+

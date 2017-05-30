@@ -161,9 +161,12 @@ public class Workspace {
 		layout.setTop( pane );
 		layout.setCenter( workpaneContainer );
 
+		scene = new Scene( layout, UiFactory.DEFAULT_WIDTH, UiFactory.DEFAULT_HEIGHT );
+		scene.getStylesheets().add( Program.STYLESHEET );
+
 		// Create the scene
 		stage = new Stage();
-		stage.setScene( scene = new Scene( layout, UiFactory.DEFAULT_WIDTH, UiFactory.DEFAULT_HEIGHT ) );
+		stage.setScene( scene );
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );

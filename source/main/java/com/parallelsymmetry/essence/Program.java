@@ -31,6 +31,8 @@ import java.util.logging.LogManager;
 
 public class Program extends Application implements Product {
 
+	public static final String STYLESHEET = "style.css";
+
 	private Logger log = LoggerFactory.getLogger( Program.class );
 
 	private long startTimestamp;

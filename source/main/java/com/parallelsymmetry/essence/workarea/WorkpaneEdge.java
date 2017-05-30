@@ -1,8 +1,10 @@
 package com.parallelsymmetry.essence.workarea;
 
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Insets;
+import javafx.css.*;
+import javafx.css.converter.EnumConverter;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
@@ -10,11 +12,10 @@ import javafx.scene.Cursor;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -23,7 +24,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class WorkpaneEdge extends Control {
 
-	Orientation orientation;
+	private static final PseudoClass HORIZONTAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "horizontal" );
+
+	private static final PseudoClass VERTICAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "vertical" );
+
+	private ObjectProperty<Orientation> orientation;
 
 	WorkpaneEdge northEdge;
 
@@ -68,8 +73,12 @@ public class WorkpaneEdge extends Control {
 
 	public WorkpaneEdge( Orientation orientation, boolean wall ) {
 		this.position = new SimpleDoubleProperty( this, "position", 0 );
-		this.orientation = orientation;
 		this.wall = wall;
+
+		setOrientation( orientation );
+
+		// Set the style class
+		getStyleClass().add( "workpane-divider" );
 
 		// Create the view lists.
 		viewsA = new CopyOnWriteArraySet<WorkpaneView>();
@@ -82,10 +91,6 @@ public class WorkpaneEdge extends Control {
 		// Set the control cursor
 		setCursor( orientation == Orientation.VERTICAL ? Cursor.H_RESIZE : Cursor.V_RESIZE );
 
-		// Set the default background
-		// TODO The colors should be set by the style sheet
-		setBackground( new Background( new BackgroundFill( Color.DARKGRAY, CornerRadii.EMPTY, Insets.EMPTY ) ) );
-
 		// Register the mouse handlers
 		onMouseDraggedProperty().set( this::mouseDragged );
 	}
@@ -97,7 +102,7 @@ public class WorkpaneEdge extends Control {
 
 	private void mouseDragged( MouseEvent event ) {
 		Point2D point = localToParent( event.getX(), event.getY() );
-		switch( orientation ) {
+		switch( getOrientation() ) {
 			case VERTICAL: {
 				parent.moveEdge( this, point.getX() - (getPosition() * parent.getWidth()) );
 				break;
@@ -113,7 +118,60 @@ public class WorkpaneEdge extends Control {
 		return wall;
 	}
 
+	/**
+	 * <p>This property controls how the WorkpaneEdge should be displayed to the
+	 * user. {@link javafx.geometry.Orientation#HORIZONTAL} will result in
+	 * a horizontal divider, while {@link javafx.geometry.Orientation#VERTICAL}
+	 * will result in a vertical divider.</p>
+	 *
+	 * @param value the orientation value
+	 */
+	public final void setOrientation( Orientation value ) {
+		orientationProperty().set( value );
+	}
+
+	/**
+	 * The orientation for the WorkpaneEdge.
+	 *
+	 * @return The orientation for the WorkpaneEdge.
+	 */
 	public final Orientation getOrientation() {
+		return orientation == null ? Orientation.VERTICAL : orientation.get();
+	}
+
+	/**
+	 * The orientation property for the WorkpaneEdge.
+	 *
+	 * @return the orientation property for the WorkpaneEdge
+	 */
+	public final ObjectProperty<Orientation> orientationProperty() {
+		if( orientation == null ) {
+			orientation = new StyleableObjectProperty<Orientation>( null ) {
+
+				@Override
+				public void invalidated() {
+					final boolean isHorizontal = (get() == Orientation.HORIZONTAL);
+					pseudoClassStateChanged( HORIZONTAL_PSEUDOCLASS_STATE, isHorizontal );
+					pseudoClassStateChanged( VERTICAL_PSEUDOCLASS_STATE, !isHorizontal );
+				}
+
+				@Override
+				public CssMetaData<WorkpaneEdge, Orientation> getCssMetaData() {
+					return WorkpaneEdge.StyleableProperties.ORIENTATION;
+				}
+
+				@Override
+				public Object getBean() {
+					return WorkpaneEdge.this;
+				}
+
+				@Override
+				public String getName() {
+					return "orientation";
+				}
+			};
+		}
+
 		return orientation;
 	}
 
@@ -199,16 +257,49 @@ public class WorkpaneEdge extends Control {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder( getClass().getSimpleName() );
+		StringBuilder builder = new StringBuilder();
 
+		builder.append( "<" );
+		builder.append( getClass().getSimpleName() );
 		builder.append( " orientation=" );
 		builder.append( getOrientation() );
 		builder.append( " position=" );
 		builder.append( getPosition() );
 		builder.append( " wall=" );
 		builder.append( isWall() );
+		builder.append( ">" );
 
 		return builder.toString();
+	}
+
+	private static class StyleableProperties {
+
+		private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+
+		private static final CssMetaData<WorkpaneEdge, Orientation> ORIENTATION = new CssMetaData<WorkpaneEdge, Orientation>( "-fx-orientation", new EnumConverter<Orientation>( Orientation.class ), Orientation.HORIZONTAL ) {
+
+			@Override
+			public Orientation getInitialValue( WorkpaneEdge edge ) {
+				return edge.getOrientation();
+			}
+
+			@Override
+			public boolean isSettable( WorkpaneEdge edge ) {
+				return edge.orientation == null || !edge.orientation.isBound();
+			}
+
+			@Override
+			public StyleableProperty<Orientation> getStyleableProperty( WorkpaneEdge edge ) {
+				return (StyleableProperty<Orientation>)edge.orientationProperty();
+			}
+		};
+
+		static {
+			final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<CssMetaData<? extends Styleable, ?>>( Control.getClassCssMetaData() );
+			styleables.add( ORIENTATION );
+			STYLEABLES = Collections.unmodifiableList( styleables );
+		}
+
 	}
 
 }
