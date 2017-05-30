@@ -292,7 +292,6 @@ public class Workspace {
 			if( !stage.isMaximized() ) configuration.setProperty( "w", newValue );
 		} );
 		stage.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			System.out.println( "Stage height=" + newValue );
 			if( !stage.isMaximized() ) configuration.setProperty( "h", newValue );
 		} );
 	}
