@@ -3,9 +3,9 @@ package com.parallelsymmetry.essence.workarea;
 import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.UiFactory;
-import com.parallelsymmetry.essence.action.CloseWorkareaHandler;
-import com.parallelsymmetry.essence.action.NewWorkareaHandler;
-import com.parallelsymmetry.essence.action.RenameWorkareaHandler;
+import com.parallelsymmetry.essence.action.CloseWorkarea;
+import com.parallelsymmetry.essence.action.NewWorkarea;
+import com.parallelsymmetry.essence.action.RenameWorkarea;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -123,11 +123,6 @@ public class Workspace {
 		workareaMenuBar.setBackground( Background.EMPTY );
 		workareaMenuBar.setPadding( Insets.EMPTY );
 		workareaMenuBar.setBorder( Border.EMPTY );
-
-		// Set the workarea actions
-		program.getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaHandler( program ) );
-		program.getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaHandler( program ) );
-		program.getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaHandler( program ) );
 
 		// Workarea selector
 		workareaSelector = new ComboBox<>();

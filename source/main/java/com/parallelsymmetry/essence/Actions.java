@@ -27,7 +27,7 @@ public class Actions {
 		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		action.getMnemonicNameValue().addListener( ( event ) -> item.setText( action.getName() ) );
+		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
 	}
@@ -54,11 +54,13 @@ public class Actions {
 
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
+		item.setDisable( !action.isEnabled() );
 		item.setText( action.getMnemonicName() );
 		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ));
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		action.getMnemonicNameValue().addListener( ( event ) -> item.setText( action.getName() ) );
+		action.enabledProperty().addListener( (event)-> item.setDisable( !action.isEnabled() ) );
+		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
 	}
@@ -71,8 +73,10 @@ public class Actions {
 		Button button = new Button();
 
 		button.setOnAction( action );
+		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
-		//button.setText( action.getName().substring( 0, 1 ) );
+
+		action.enabledProperty().addListener( (event)-> button.setDisable( !action.isEnabled() ) );
 
 		return button;
 	}

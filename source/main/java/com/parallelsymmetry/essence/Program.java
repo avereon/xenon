@@ -1,6 +1,9 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.action.ExitProgramHandler;
+import com.parallelsymmetry.essence.action.CloseWorkarea;
+import com.parallelsymmetry.essence.action.Exit;
+import com.parallelsymmetry.essence.action.NewWorkarea;
+import com.parallelsymmetry.essence.action.RenameWorkarea;
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStartingEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
@@ -61,7 +64,7 @@ public class Program extends Application implements Product {
 
 	private Set<ProgramEventListener> listeners;
 
-	private ExitProgramHandler exitActionHandler;
+	private Exit exitActionHandler;
 
 	static {
 		// Initialize the logging
@@ -85,7 +88,7 @@ public class Program extends Application implements Product {
 		startTimestamp = System.currentTimeMillis();
 
 		// Create program action handlers
-		exitActionHandler = new ExitProgramHandler( this );
+		exitActionHandler = new Exit( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -307,6 +310,12 @@ public class Program extends Application implements Product {
 
 	private void showProgram() {
 		workspaceManager.getActiveWorkspace().getStage().show();
+
+		// Set the workarea actions
+		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkarea( this ) );
+		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkarea( this ) );
+		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkarea( this ) );
+
 		new ProgramStartedEvent( this ).fire( listeners );
 	}
 

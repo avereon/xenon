@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.action;
 
 import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.ProgramActionHandler;
+import com.parallelsymmetry.essence.Action;
 import com.parallelsymmetry.essence.workarea.Workarea;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class CloseWorkareaHandler extends ProgramActionHandler {
+public class CloseWorkarea extends Action {
 
-	private static Logger log = LoggerFactory.getLogger( CloseWorkareaHandler.class );
+	private static Logger log = LoggerFactory.getLogger( CloseWorkarea.class );
 
-	public CloseWorkareaHandler( Program program ) {
+	public CloseWorkarea( Program program ) {
 		super( program );
 	}
 

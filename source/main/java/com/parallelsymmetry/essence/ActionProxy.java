@@ -1,7 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -32,12 +31,15 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String shortcut;
 
-	private Stack<ProgramActionHandler> actionStack;
+	private Stack<Action> actionStack;
+
+	private BooleanProperty enabledProperty;
 
 	public ActionProxy() {
 		mnemonic = NO_MNEMONIC;
 		mnemonicName = new SimpleStringProperty();
 		actionStack = new Stack<>();
+		enabledProperty = new SimpleBooleanProperty();
 	}
 
 	public String getId() {
@@ -69,6 +71,10 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 		return mnemonicName.get();
 	}
 
+	public ReadOnlyStringProperty mnemonicNameProperty() {
+		return mnemonicName;
+	}
+
 	public int getMnemonic() {
 		return mnemonic;
 	}
@@ -94,23 +100,38 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 		this.shortcut = shortcut;
 	}
 
-	public StringProperty getMnemonicNameValue() {
-		return mnemonicName;
+	public boolean isEnabled() {
+		return enabledProperty.get();
 	}
 
-	public void pushAction( ProgramActionHandler action ) {
-		pullAction( action );
-		actionStack.push( action );
+	public void setEnabled( boolean enabled ) {
+		enabledProperty.set( enabled );
 	}
 
-	public void pullAction( ProgramActionHandler action ) {
-		actionStack.remove( action );
+	public ReadOnlyBooleanProperty enabledProperty() {
+		return enabledProperty;
 	}
 
 	@Override
 	public void handle( T event ) {
 		if( actionStack.size() == 0 ) return;
 		actionStack.peek().handle( event );
+	}
+
+	public void pushAction( Action action ) {
+		pullAction( action );
+		actionStack.push( action );
+		updateEnabled();
+	}
+
+	public void pullAction( Action action ) {
+		actionStack.remove( action );
+		updateEnabled();
+	}
+
+	private void updateEnabled() {
+		Action action = actionStack.size() == 0 ? null : actionStack.peek();
+		setEnabled( action != null && action.isEnabled() );
 	}
 
 	private void updateMnemonicName() {

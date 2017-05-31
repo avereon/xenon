@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.action;
 
 import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.ProgramActionHandler;
+import com.parallelsymmetry.essence.Action;
 import com.parallelsymmetry.essence.UiFactory;
 import com.parallelsymmetry.essence.workarea.Workarea;
 import javafx.event.Event;
@@ -11,14 +11,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class RenameWorkareaHandler extends ProgramActionHandler {
+public class RenameWorkarea extends Action {
 
-	private static Logger log = LoggerFactory.getLogger( RenameWorkareaHandler.class );
+	private static Logger log = LoggerFactory.getLogger( RenameWorkarea.class );
 
 	private Workarea workarea;
 
-	public RenameWorkareaHandler( Program program ) {
+	public RenameWorkarea( Program program ) {
 		super( program );
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() != null;
 	}
 
 	@Override
