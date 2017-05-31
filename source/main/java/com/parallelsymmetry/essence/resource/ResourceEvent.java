@@ -1,7 +1,5 @@
 package com.parallelsymmetry.essence.resource;
 
-import com.parallelsymmetry.essence.Resource;
-
 import java.util.EventObject;
 
 public class ResourceEvent extends EventObject {

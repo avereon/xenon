@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence.workarea;
 
-import com.parallelsymmetry.essence.Resource;
+import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;

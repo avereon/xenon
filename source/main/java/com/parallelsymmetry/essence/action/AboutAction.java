@@ -2,7 +2,7 @@ package com.parallelsymmetry.essence.action;
 
 import com.parallelsymmetry.essence.Action;
 import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.Resource;
+import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.event.Event;
 

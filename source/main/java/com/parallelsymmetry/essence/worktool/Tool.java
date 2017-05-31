@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence.worktool;
 
-import com.parallelsymmetry.essence.Resource;
+import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import javafx.beans.property.ObjectProperty;

@@ -257,16 +257,17 @@ public class Workspace {
 		Double h = configuration.getDouble( "h", UiFactory.DEFAULT_HEIGHT );
 
 		/*
-		There is a bit of a dance here between the scene and stage bounds. This is
-		due to some differences between operating systems and the choice to use the
-		scene bounds for the width and height and the stage bounds for x and y is
-		intentional.
+		Due to differences in how FX handles stage size (width and height) on
+		different operating systems, the width and height from the scene, not the
+		stage, are used. This includes the listeners for the width and height
+		properties below.
 		 */
 		scene = new Scene( layout, w, h );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.setScene( scene );
 
 		// Position the stage if x and y are specified
+		// If not specified the stage is centered on the screen
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
 

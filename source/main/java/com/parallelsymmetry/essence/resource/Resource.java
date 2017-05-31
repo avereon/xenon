@@ -1,7 +1,4 @@
-package com.parallelsymmetry.essence;
-
-import com.parallelsymmetry.essence.resource.ResourceListener;
-import com.parallelsymmetry.essence.resource.ResourceType;
+package com.parallelsymmetry.essence.resource;
 
 import java.net.URI;
 import java.util.Set;

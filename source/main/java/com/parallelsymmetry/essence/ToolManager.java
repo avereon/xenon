@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.product.Product;
+import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceType;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolMetadataComparator;
