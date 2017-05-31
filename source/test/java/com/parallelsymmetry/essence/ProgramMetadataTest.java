@@ -59,7 +59,7 @@ public class ProgramMetadataTest extends FxApplicationTestCase {
 		waitForEvent( ProgramStartedEvent.class );
 		String prefix = ExecMode.TEST.getPrefix();
 		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-		assertThat( program.getProgramDataFolder(), is( programDataFolder ) );
+		assertThat( program.getDataFolder(), is( programDataFolder ) );
 	}
 
 }

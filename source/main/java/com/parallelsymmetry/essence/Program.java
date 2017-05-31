@@ -57,6 +57,8 @@ public class Program extends Application implements Product {
 
 	private ToolManager toolManager;
 
+	private ResourceManager resourceManager;
+
 	private WorkspaceManager workspaceManager;
 
 	private ProgramEventWatcher watcher;
@@ -182,7 +184,7 @@ public class Program extends Application implements Product {
 		return startTimestamp;
 	}
 
-	public File getProgramDataFolder() {
+	public File getDataFolder() {
 		return programDataFolder;
 	}
 
@@ -198,12 +200,16 @@ public class Program extends Application implements Product {
 		return actionLibrary;
 	}
 
-	public WorkspaceManager getWorkspaceManager() {
-		return workspaceManager;
-	}
-
 	public ToolManager getToolManager() {
 		return toolManager;
+	}
+
+	public ResourceManager getResourceManager() {
+		return resourceManager;
+	}
+
+	public WorkspaceManager getWorkspaceManager() {
+		return workspaceManager;
 	}
 
 	public void fireEvent( ProgramEvent event ) {

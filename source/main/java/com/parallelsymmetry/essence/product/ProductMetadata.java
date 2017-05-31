@@ -16,6 +16,8 @@ import java.util.Properties;
 // TODO Use Lombok when it is supported in Java 9
 public class ProductMetadata {
 
+	private String productKey;
+
 	private String group;
 
 	private String artifact;
@@ -94,6 +96,10 @@ public class ProductMetadata {
 		Map<String, Object> values = (Map<String, Object>)new Yaml().load( stream );
 		this.maintainers = (List<Maintainer>)values.get( "maintainers" );
 		this.contributors = (List<Contributor>)values.get( "contributors" );
+	}
+
+	public String getProductKey() {
+		return productKey;
 	}
 
 	public String getGroup() {
@@ -207,4 +213,15 @@ public class ProductMetadata {
 	public void setContributors( List<Contributor> contributors ) {
 		this.contributors = contributors;
 	}
+
+	private void updateKey() {
+		/*
+		 * The use of '.' as the separator is the most benign of the characters
+		 * tested. Changing the separator to a different character will most likely
+		 * result in invalid file paths, setting paths, and other undesired side
+		 * effects.
+		 */
+		productKey = group + "." + artifact;
+	}
+
 }

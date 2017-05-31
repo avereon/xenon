@@ -44,7 +44,7 @@ public class UiFactory {
 		this.program = program;
 		paths = new ConcurrentHashMap<>();
 
-		File uiSettingsFolder = new File( program.getProgramDataFolder(), ProgramSettings.UI );
+		File uiSettingsFolder = new File( program.getDataFolder(), ProgramSettings.UI );
 		paths.put( Prefix.WORKSPACE, new File( uiSettingsFolder, Prefix.WORKSPACE.name().toLowerCase() ) );
 		paths.put( Prefix.WORKAREA, new File( uiSettingsFolder, Prefix.WORKAREA.name().toLowerCase() ) );
 		paths.put( Prefix.WORKPANE, new File( uiSettingsFolder, Prefix.WORKPANE.name().toLowerCase() ) );
