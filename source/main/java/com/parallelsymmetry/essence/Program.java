@@ -1,9 +1,6 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.action.CloseWorkarea;
-import com.parallelsymmetry.essence.action.Exit;
-import com.parallelsymmetry.essence.action.NewWorkarea;
-import com.parallelsymmetry.essence.action.RenameWorkarea;
+import com.parallelsymmetry.essence.action.*;
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStartingEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
@@ -64,7 +61,9 @@ public class Program extends Application implements Product {
 
 	private Set<ProgramEventListener> listeners;
 
-	private Exit exitActionHandler;
+	private ExitAction exitAction;
+
+	private AboutAction aboutAction;
 
 	static {
 		// Initialize the logging
@@ -88,7 +87,8 @@ public class Program extends Application implements Product {
 		startTimestamp = System.currentTimeMillis();
 
 		// Create program action handlers
-		exitActionHandler = new Exit( this );
+		exitAction = new ExitAction( this );
+		aboutAction = new AboutAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -312,9 +312,9 @@ public class Program extends Application implements Product {
 		workspaceManager.getActiveWorkspace().getStage().show();
 
 		// Set the workarea actions
-		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkarea( this ) );
-		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkarea( this ) );
-		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkarea( this ) );
+		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( this ) );
+		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( this ) );
+		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( this ) );
 
 		new ProgramStartedEvent( this ).fire( listeners );
 	}
@@ -349,11 +349,13 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "exit" ).pushAction( exitActionHandler );
+		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
+		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
 	}
 
 	private void unregisterActionHandlers() {
-		getActionLibrary().getAction( "exit" ).pullAction( exitActionHandler );
+		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
+		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 	}
 
 	private String getParameter( String key ) {

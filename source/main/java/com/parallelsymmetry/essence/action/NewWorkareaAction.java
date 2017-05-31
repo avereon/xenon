@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class NewWorkarea extends Action<ActionEvent> {
+public class NewWorkareaAction extends Action<ActionEvent> {
 
-	private static Logger log = LoggerFactory.getLogger( NewWorkarea.class );
+	private static Logger log = LoggerFactory.getLogger( NewWorkareaAction.class );
 
-	public NewWorkarea( Program program ) {
+	public NewWorkareaAction( Program program ) {
 		super( program );
 	}
 

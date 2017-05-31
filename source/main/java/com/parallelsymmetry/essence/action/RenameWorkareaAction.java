@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class RenameWorkarea extends Action {
+public class RenameWorkareaAction extends Action {
 
-	private static Logger log = LoggerFactory.getLogger( RenameWorkarea.class );
+	private static Logger log = LoggerFactory.getLogger( RenameWorkareaAction.class );
 
 	private Workarea workarea;
 
-	public RenameWorkarea( Program program ) {
+	public RenameWorkareaAction( Program program ) {
 		super( program );
 	}
 

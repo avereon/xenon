@@ -1,12 +1,12 @@
 package com.parallelsymmetry.essence.action;
 
-import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.Action;
+import com.parallelsymmetry.essence.Program;
 import javafx.event.Event;
 
-public class Exit extends Action {
+public class AboutAction extends Action {
 
-	public Exit( Program program ) {
+	public AboutAction( Program program ) {
 		super( program );
 	}
 
@@ -17,7 +17,7 @@ public class Exit extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		program.requestExit();
+		// TODO Open the about tool
 	}
 
 }

@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-public class CloseWorkarea extends Action {
+public class CloseWorkareaAction extends Action {
 
-	private static Logger log = LoggerFactory.getLogger( CloseWorkarea.class );
+	private static Logger log = LoggerFactory.getLogger( CloseWorkareaAction.class );
 
-	public CloseWorkarea( Program program ) {
+	public CloseWorkareaAction( Program program ) {
 		super( program );
 	}
 
