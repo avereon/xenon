@@ -55,6 +55,8 @@ public class Program extends Application implements Product {
 
 	private ActionLibrary actionLibrary;
 
+	private ToolManager toolManager;
+
 	private WorkspaceManager workspaceManager;
 
 	private ProgramEventWatcher watcher;
@@ -171,6 +173,11 @@ public class Program extends Application implements Product {
 		return metadata;
 	}
 
+	@Override
+	public ProductBundle getResourceBundle() {
+		return productBundle;
+	}
+
 	public long getStartTime() {
 		return startTimestamp;
 	}
@@ -183,10 +190,6 @@ public class Program extends Application implements Product {
 		return executor;
 	}
 
-	public ProductBundle getResourceBundle() {
-		return productBundle;
-	}
-
 	public IconLibrary getIconLibrary() {
 		return iconLibrary;
 	}
@@ -197,6 +200,10 @@ public class Program extends Application implements Product {
 
 	public WorkspaceManager getWorkspaceManager() {
 		return workspaceManager;
+	}
+
+	public ToolManager getToolManager() {
+		return toolManager;
 	}
 
 	public void fireEvent( ProgramEvent event ) {
@@ -272,7 +279,7 @@ public class Program extends Application implements Product {
 		UiFactory factory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
-		final int steps = 2 + factory.getUiObjectCount();
+		final int steps = 3 + factory.getUiObjectCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product metadata
@@ -286,7 +293,11 @@ public class Program extends Application implements Product {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Settings manager started." );
 
-		// TODO Create the tool manager
+		// Create the tool manager
+		log.trace( "Starting tool manager..." );
+		toolManager = new ToolManager( this );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Tool manager started." );
 
 		// TODO Create the resource manager
 		//resourceManager = new ResourceManager(Program.this );
@@ -326,8 +337,11 @@ public class Program extends Application implements Product {
 		log.debug( "Workspace manager stopped." );
 
 		// TODO Stop the UpdateManager
+
 		// TODO Stop the ResourceManager
+
 		// TODO Stop the ToolManager
+		toolManager.shutdown();
 
 		// Disconnect the settings listener
 		log.trace( "Stopping settings manager..." );

@@ -4,4 +4,6 @@ public interface Product {
 
 	ProductMetadata getMetadata();
 
+	ProductBundle getResourceBundle();
+
 }

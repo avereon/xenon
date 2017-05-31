@@ -1,8 +1,8 @@
 package com.parallelsymmetry.essence.worktool;
 
 import com.parallelsymmetry.essence.Resource;
-import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import com.parallelsymmetry.essence.workarea.Workpane;
+import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -184,11 +184,6 @@ public abstract class Tool extends Control {
 	}
 
 	@Override
-	protected Skin<Tool> createDefaultSkin() {
-		return new ToolSkin( this );
-	}
-
-	@Override
 	public Tool clone() {
 		Tool tool = null;
 		Class<? extends Tool> clazz = getClass();
@@ -211,6 +206,11 @@ public abstract class Tool extends Control {
 		builder.append( "\"" );
 
 		return builder.toString();
+	}
+
+	@Override
+	protected Skin<Tool> createDefaultSkin() {
+		return new ToolSkin( this );
 	}
 
 	/**

@@ -38,8 +38,8 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	public ActionProxy() {
 		mnemonic = NO_MNEMONIC;
 		mnemonicName = new SimpleStringProperty();
-		actionStack = new Stack<>();
 		enabledProperty = new SimpleBooleanProperty();
+		actionStack = new Stack<>();
 	}
 
 	public String getId() {

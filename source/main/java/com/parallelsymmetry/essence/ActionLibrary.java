@@ -81,11 +81,11 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = bundle.getActionString( id + ".icon" );
-		String name = bundle.getActionString( id + ".name" );
-		String type = bundle.getActionString( id + ".type" );
-		String mnemonic = bundle.getActionString( id + ".mnemonic" );
-		String shortcut = bundle.getActionString( id + ".shortcut" );
+		String icon = bundle.getString( "action", id + ".icon" );
+		String name = bundle.getString( "action",id + ".name" );
+		String type = bundle.getString( "action",id + ".type" );
+		String mnemonic = bundle.getString( "action",id + ".mnemonic" );
+		String shortcut = bundle.getString( "action",id + ".shortcut" );
 
 		int mnemonicValue = ActionProxy.NO_MNEMONIC;
 		try {
