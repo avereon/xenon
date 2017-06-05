@@ -338,7 +338,9 @@ public class Resource {
 	@Override
 	public String toString() {
 		URI uri = getUri();
-		return uri == null ? getType().getName() : uri.toString();
+		ResourceType type = getType();
+		String resourceTypeName = type == null? "Unknown resource type" : type.getName();
+		return uri == null ? resourceTypeName : uri.toString();
 	}
 
 	protected void fireResourceOpened( ResourceEvent event ) {
