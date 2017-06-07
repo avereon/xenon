@@ -1,4 +1,7 @@
-package com.parallelsymmetry.essence.data;
+package com.parallelsymmetry.essence.data.event;
+
+import com.parallelsymmetry.essence.data.DataEvent;
+import com.parallelsymmetry.essence.data.DataNode;
 
 public class DataChildEvent extends DataValueEvent {
 
@@ -6,7 +9,7 @@ public class DataChildEvent extends DataValueEvent {
 
 	private DataNode child;
 
-	public DataChildEvent( Action action, DataNode sender, DataNode parent, int index, DataNode child ) {
+	public DataChildEvent( DataEvent.Action action, DataNode sender, DataNode parent, int index, DataNode child ) {
 		super( DataEvent.Type.DATA_CHILD, action, sender, parent );
 		this.index = index;
 		this.child = child;

@@ -1,5 +1,9 @@
 package com.parallelsymmetry.essence.data;
 
+import com.parallelsymmetry.essence.data.event.DataAttributeEvent;
+import com.parallelsymmetry.essence.data.event.DataChangedEvent;
+import com.parallelsymmetry.essence.data.event.DataChildEvent;
+import com.parallelsymmetry.essence.data.event.MetaAttributeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

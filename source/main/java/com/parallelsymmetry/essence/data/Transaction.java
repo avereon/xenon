@@ -1,5 +1,9 @@
 package com.parallelsymmetry.essence.data;
 
+import com.parallelsymmetry.essence.data.event.DataChangedEvent;
+import com.parallelsymmetry.essence.data.event.DataValueEvent;
+import com.parallelsymmetry.essence.data.event.MetaAttributeEvent;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -154,6 +158,7 @@ public class Transaction {
 			// Go through each operation result and collect the events for each node.
 			for( OperationResult operationResult : operationResults ) {
 				DataNode node = operationResult.getOperation().getData();
+				// TODO Collect operation events
 				//getResultCollector( node ).events.addAll( operationResult.getEvents() );
 				//getResultCollector( node ).modified.addAll( operationResult.getMetaValueEvents() );
 			}
@@ -203,11 +208,7 @@ public class Transaction {
 
 	private ResultCollector getResultCollector( DataNode node ) {
 		Integer key = System.identityHashCode( node );
-		ResultCollector collector = collectors.get( key );
-		if( collector == null ) {
-			collector = new ResultCollector();
-			collectors.put( key, collector );
-		}
+		ResultCollector collector = collectors.computeIfAbsent( key, k -> new ResultCollector() );
 		return collector;
 	}
 
@@ -221,11 +222,12 @@ public class Transaction {
 		if( parent != null ) {
 			boolean parentOldModified = parent.isModified();
 			if( modifiedChanged ) {
-//				if( parent instanceof DataList ) {
-//					( (DataList<?>)parent ).listNodeChildModified( newModified );
-//				} else {
-					parent.dataNodeModified( newModified );
-//				}
+				// TODO Set modified flag on data node and/or children
+				//if( parent instanceof DataList ) {
+				//	( (DataList<?>)parent ).listNodeChildModified( newModified );
+				//} else {
+				parent.dataNodeModified( newModified );
+				//}
 			}
 			boolean parentNewModified = parent.isModified();
 
@@ -239,11 +241,7 @@ public class Transaction {
 	private void storeModifiedEvent( MetaAttributeEvent event ) {
 		// Remove any previously added modified events.
 		List<MetaAttributeEvent> events = getResultCollector( event.getSender() ).modified;
-		Iterator<MetaAttributeEvent> iterator = events.iterator();
-		while( iterator.hasNext() ) {
-			MetaAttributeEvent metaValueEvent = iterator.next();
-			if( DataNode.MODIFIED.equals( metaValueEvent.getAttributeName() ) ) iterator.remove();
-		}
+		events.removeIf( metaValueEvent -> DataNode.MODIFIED.equals( metaValueEvent.getAttributeName() ) );
 
 		// Add the new modified event.
 		getResultCollector( event.getSender() ).modified.add( event );

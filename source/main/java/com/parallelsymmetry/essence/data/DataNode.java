@@ -1,5 +1,9 @@
 package com.parallelsymmetry.essence.data;
 
+import com.parallelsymmetry.essence.data.event.DataAttributeEvent;
+import com.parallelsymmetry.essence.data.event.DataChangedEvent;
+import com.parallelsymmetry.essence.data.event.MetaAttributeEvent;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;

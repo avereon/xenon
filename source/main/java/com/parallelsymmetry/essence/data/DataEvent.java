@@ -40,7 +40,7 @@ public abstract class DataEvent {
 		return isClone;
 	}
 
-	DataEvent setClone( boolean isClone ) {
+	protected DataEvent setClone( boolean isClone ) {
 		this.isClone = isClone;
 		return this;
 	}

@@ -1,5 +1,7 @@
 package com.parallelsymmetry.essence.data;
 
+import com.parallelsymmetry.essence.data.event.DataAttributeEvent;
+
 import java.util.Objects;
 
 public class TransactionTest {

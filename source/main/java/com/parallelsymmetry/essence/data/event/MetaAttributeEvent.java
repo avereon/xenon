@@ -1,4 +1,7 @@
-package com.parallelsymmetry.essence.data;
+package com.parallelsymmetry.essence.data.event;
+
+import com.parallelsymmetry.essence.data.DataEvent;
+import com.parallelsymmetry.essence.data.DataNode;
 
 public class MetaAttributeEvent extends DataEvent {
 
