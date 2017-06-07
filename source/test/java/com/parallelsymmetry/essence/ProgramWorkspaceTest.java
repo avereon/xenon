@@ -17,6 +17,8 @@ public class ProgramWorkspaceTest extends FxApplicationTestCase {
 		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getScene().getWidth(), is( 960d ) );
+
+		// FIXME This is a little big on Linux, it ended up 512.5
 		assertThat( stage.getScene().getHeight(), is( 540d ) );
 	}
 

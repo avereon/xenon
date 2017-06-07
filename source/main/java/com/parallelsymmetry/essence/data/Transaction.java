@@ -154,8 +154,8 @@ public class Transaction {
 			// Go through each operation result and collect the events for each node.
 			for( OperationResult operationResult : operationResults ) {
 				DataNode node = operationResult.getOperation().getData();
-				getResultCollector( node ).events.addAll( operationResult.getEvents() );
-				getResultCollector( node ).modified.addAll( operationResult.getMetaValueEvents() );
+				//getResultCollector( node ).events.addAll( operationResult.getEvents() );
+				//getResultCollector( node ).modified.addAll( operationResult.getMetaValueEvents() );
 			}
 
 			// Send the events for each data node.
@@ -221,11 +221,11 @@ public class Transaction {
 		if( parent != null ) {
 			boolean parentOldModified = parent.isModified();
 			if( modifiedChanged ) {
-				if( parent instanceof DataList ) {
-					( (DataList<?>)parent ).listNodeChildModified( newModified );
-				} else {
+//				if( parent instanceof DataList ) {
+//					( (DataList<?>)parent ).listNodeChildModified( newModified );
+//				} else {
 					parent.dataNodeModified( newModified );
-				}
+//				}
 			}
 			boolean parentNewModified = parent.isModified();
 

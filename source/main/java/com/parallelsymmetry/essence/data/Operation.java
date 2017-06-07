@@ -2,13 +2,13 @@ package com.parallelsymmetry.essence.data;
 
 public abstract class Operation {
 
-	protected Object source;
+	protected DataNode source;
 
-	public Operation( Object source ) {
+	public Operation( DataNode source ) {
 		this.source = source;
 	}
 
-	public Object getSource() {
+	public DataNode getData() {
 		return source;
 	}
 

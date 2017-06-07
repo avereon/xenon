@@ -11,26 +11,28 @@ public class OperationTest {
 
 	@Test
 	public void testGetSource() throws Exception {
-		Object source = new Object();
+		//Object source = new Object();
+		DataNode source = new MockDataNode();
 		MockOperation operation = new MockOperation( source );
-		assertThat( operation.getSource(), is( source ));
+		assertThat( operation.getData(), is( source ) );
 	}
 
 	@Test
 	public void testProcess() throws Exception {
-		Object source = new Object();
+		//Object source = new Object();
+		DataNode source = new MockDataNode();
 		MockOperation operation = new MockOperation( source );
 		OperationResult result = operation.process();
 
 		assertThat( result.getOperation(), is( operation ) );
-		assertThat( result.getEvents().size(), is( 1 ));
+		assertThat( result.getEvents().size(), is( 1 ) );
 	}
 
 	private class MockOperation extends Operation {
 
 		boolean processed;
 
-		public MockOperation( Object source ) {
+		public MockOperation( DataNode source ) {
 			super( source );
 		}
 

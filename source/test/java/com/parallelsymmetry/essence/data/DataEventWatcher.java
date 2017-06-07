@@ -1,12 +1,14 @@
 package com.parallelsymmetry.essence.data;
 
-import com.parallelsymmetry.utility.data.*;
-import com.parallelsymmetry.utility.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataEventWatcher implements DataListener {
+
+	private static Logger log = LoggerFactory.getLogger(DataEventWatcher.class);
 
 	private String name;
 
@@ -32,35 +34,35 @@ public class DataEventWatcher implements DataListener {
 
 	@Override
 	public void dataChanged( DataChangedEvent event ) {
-		Log.write( Log.TRACE, name, ": Data change event received." );
+		log.trace( name, ": Data change event received." );
 		dataChangedEvents.add( event );
 		events.add( event );
 	}
 
 	@Override
 	public void metaAttributeChanged( MetaAttributeEvent event ) {
-		Log.write( Log.TRACE, name, ": Meta attribute change event received." );
+		log.trace( name, ": Meta attribute change event received." );
 		metaAttributeEvents.add( event );
 		events.add( event );
 	}
 
 	@Override
 	public void dataAttributeChanged( DataAttributeEvent event ) {
-		Log.write( Log.TRACE, name, ": Data attribute change event received." );
+		log.trace( name, ": Data attribute change event received." );
 		dataAttributeEvents.add( event );
 		events.add( event );
 	}
 
 	@Override
 	public void childInserted( DataChildEvent event ) {
-		Log.write( Log.TRACE, name, ": Child inserted event received." );
+		log.trace( name, ": Child inserted event received." );
 		childInsertedEvents.add( event );
 		events.add( event );
 	}
 
 	@Override
 	public void childRemoved( DataChildEvent event ) {
-		Log.write( Log.TRACE, name, ": Child removed event received." );
+		log.trace( name, ": Child removed event received." );
 		childRemovedEvents.add( event );
 		events.add( event );
 	}

@@ -24,7 +24,7 @@ class SetAttributeOperation extends Operation {
 		DataEvent.Action type = DataEvent.Action.MODIFY;
 		type = oldValue == null ? DataEvent.Action.INSERT : type;
 		type = newValue == null ? DataEvent.Action.REMOVE : type;
-		result.addEvent( new DataAttributeEvent( type, data, data, name, oldValue, newValue ) );
+		//result.addEvent( new DataAttributeEvent( type, data, data, name, oldValue, newValue ) );
 
 		return result;
 	}

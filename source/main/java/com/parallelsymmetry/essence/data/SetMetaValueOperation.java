@@ -24,7 +24,7 @@ public class SetMetaValueOperation extends Operation {
 		DataEvent.Action type = DataEvent.Action.MODIFY;
 		type = oldValue == null ? DataEvent.Action.INSERT : type;
 		type = newValue == null ? DataEvent.Action.REMOVE : type;
-		result.addMetaValueEvent( new MetaAttributeEvent( type, data, name, oldValue, newValue ) );
+		//result.addMetaValueEvent( new MetaAttributeEvent( type, data, name, oldValue, newValue ) );
 
 		return result;
 	}
