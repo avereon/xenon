@@ -18,14 +18,14 @@ public class EdgeTest {
 	public void setup() {
 		source = new Node();
 		target = new Node();
-		edge = source.link( target );
+		edge = source.add( target );
 	}
 
 	@Test
 	public void testFields() {
 		assertThat( edge.getSource(), is( source ) );
 		assertThat( edge.getTarget(), is( target ) );
-		assertThat( edge.isBidirectional(), is( false ) );
+		assertThat( edge.isDirected(), is( false ) );
 	}
 
 	@Test

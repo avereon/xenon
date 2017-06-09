@@ -11,14 +11,14 @@ public class Edge {
 
 	private Node target;
 
-	private boolean bidirectional;
+	private boolean directed;
 
-	Edge( Node source, Node target, boolean bidirectional ) {
+	Edge( Node source, Node target, boolean directed ) {
 		if( source == null ) throw new NullPointerException( "Source cannot be null" );
 		if( target == null ) throw new NullPointerException( "Target cannot be null" );
 		this.source = source;
 		this.target = target;
-		this.bidirectional = bidirectional;
+		this.directed = directed;
 	}
 
 	public Node getSource() {
@@ -29,12 +29,12 @@ public class Edge {
 		return target;
 	}
 
-	public boolean isBidirectional() {
-		return bidirectional;
+	public boolean isDirected() {
+		return directed;
 	}
 
-	public void setBidirectional( boolean bidirectional ) {
-		this.bidirectional = bidirectional;
+	public void setDirected( boolean directed ) {
+		this.directed = directed;
 	}
 
 	public void setValue( String key, Object value ) {
