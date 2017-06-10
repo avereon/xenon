@@ -23,7 +23,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 	protected ProductMetadata metadata;
 
-	static {
+	@Before
+	@Override
+	public void setup() throws Exception {
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
@@ -36,12 +38,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
 		}
-	}
 
-	@Before
-	@Override
-	public void setup() throws Exception {
 		initializeFx(  );
+
 		metadata = program.getMetadata();
 		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );
 	}
