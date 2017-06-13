@@ -81,7 +81,7 @@ public class Node {
 		}
 
 		System.out.println( "lastHash=" +lastUnmodifiedStateHash + " stateHash=" + calculateStateHash() );
-		doSetModified( calculateStateHash() == lastUnmodifiedStateHash );
+		doSetModified( calculateStateHash() != lastUnmodifiedStateHash );
 
 		// TODO Add event to send
 		//if( !Objects.equals( oldValue, newValue )) addValueChangedEvent( key, oldValue, newValue );
