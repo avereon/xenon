@@ -96,7 +96,7 @@ public class TransactionTest {
 //	@Test
 //	public void testRollbackWithNoTransaction() throws Exception {
 //		try {
-//			Transaction.rollback();
+//			Transaction.revert();
 //			fail( "NullPointerException should be thrown." );
 //		} catch( NullPointerException exception ) {
 //			assertEquals( "Transaction must be created first.", exception.getMessage() );

@@ -1,10 +1,18 @@
 package com.parallelsymmetry.essence.node;
 
+import com.parallelsymmetry.essence.transaction.Txn;
+import com.parallelsymmetry.essence.transaction.TxnException;
+import com.parallelsymmetry.essence.transaction.TxnOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Node {
+
+	private static final Logger log = LoggerFactory.getLogger( Node.class );
 
 	public static final String MODIFIED = "modified";
 
@@ -80,7 +88,6 @@ public class Node {
 			values.put( key, value );
 		}
 
-		System.out.println( "lastHash=" +lastUnmodifiedStateHash + " stateHash=" + calculateStateHash() );
 		doSetModified( calculateStateHash() != lastUnmodifiedStateHash );
 
 		// TODO Add event to send
@@ -106,21 +113,17 @@ public class Node {
 
 	protected void setFlag( String key, boolean value ) {
 		boolean oldValue = getFlag( key );
-		boolean newValue = value;
+		if( value == oldValue ) return;
 
-		// Set the value
-		if( value ) {
-			if( flags == null ) flags = new CopyOnWriteArraySet<>();
-			flags.add( key );
-		} else {
-			if( flags != null ) {
-				flags.remove( key );
-				if( flags.size() == 0 ) flags = null;
-			}
+		try {
+			Txn.create();
+			Txn.submit( new SetFlagOperation( this, key, oldValue, value ) );
+			// Propagate the value to parent
+			// Propagate the value to children
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error("Error setting flag: " + key, exception );
 		}
-
-		// Propagate the value to parent
-		// Propagate the value to children
 	}
 
 	@Override
@@ -239,6 +242,59 @@ public class Node {
 		}
 
 		return result;
+	}
+
+	private abstract class NodeTxnOperation extends TxnOperation {
+
+		private Node node;
+
+		public NodeTxnOperation( Node node ) {
+			this.node = node;
+		}
+
+		protected Node getNode() {
+			return node;
+		}
+
+	}
+
+	private class SetFlagOperation extends NodeTxnOperation {
+
+		private String key;
+
+		private boolean oldValue;
+
+		private boolean newValue;
+
+		public SetFlagOperation( Node node, String key, boolean oldValue, boolean newValue ) {
+			super( node );
+			this.key = key;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		protected void commit() throws TxnException {
+			setValue( key, newValue );
+		}
+
+		@Override
+		protected void revert() throws TxnException {
+			setValue( key, oldValue );
+		}
+
+		private void setValue( String key, boolean value ) {
+			if( value ) {
+				if( flags == null ) flags = new CopyOnWriteArraySet<>();
+				flags.add( key );
+			} else {
+				if( flags != null ) {
+					flags.remove( key );
+					if( flags.size() == 0 ) flags = null;
+				}
+			}
+		}
+
 	}
 
 }

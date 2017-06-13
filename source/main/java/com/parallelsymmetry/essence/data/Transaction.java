@@ -84,7 +84,7 @@ public class Transaction {
 	}
 
 	public static final void reset() {
-		Transaction transaction = peekTransaction();
+		Transaction transaction = pullTransaction();
 
 		while( transaction != null ) {
 			transaction.doReset();
@@ -181,7 +181,7 @@ public class Transaction {
 	}
 
 	private void doRollback() {
-		//throw new UnsupportedOperationException( "Transaction.rollback() not implemented yet." );
+		//throw new UnsupportedOperationException( "Transaction.undo() not implemented yet." );
 
 		doReset();
 	}
