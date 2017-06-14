@@ -13,8 +13,9 @@ public class MockPersonNode extends Node {
 	private static String BIRTH_DATE = "birthDate";
 
 	public MockPersonNode() {
-		setPrimaryKey( ID );
-		setBusinessKey( FIRST_NAME, LAST_NAME, BIRTH_DATE );
+		definePrimaryKey( ID );
+		defineBusinessKey( FIRST_NAME, LAST_NAME, BIRTH_DATE );
+		setModified( false );
 	}
 
 	public int getId() {

@@ -46,6 +46,7 @@ public class Txn {
 	public static void submit( TxnOperation operation ) throws TxnException {
 		Txn transaction = verifyActiveTransaction();
 		transaction.doSubmit( operation );
+		log.info( "Operation submitted: " + operation );
 	}
 
 	public static void commit() throws TxnException {

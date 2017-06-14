@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.resource;
 
 import com.parallelsymmetry.essence.ResourceManager;
+import com.parallelsymmetry.essence.node.Node;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,35 +10,40 @@ import javax.swing.tree.TreePath;
 import javax.swing.undo.UndoManager;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Resource {
-
-	public static final String CONTENT_TYPE_RESOURCE_KEY = "resource.content.type";
-
-	//public static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
-
-	public static final String LAST_SAVED_RESOURCE_KEY = "resource.last.saved";
-
-	public static final String EXTERNALLY_MODIFIED = "resource.externally.modified";
-
-	public static final String EDITABLE = "resource.editable";
-
-	public static final String UNDO_MANAGER = "resource.undo.manager";
+public class Resource extends Node {
 
 	private static Logger log = LoggerFactory.getLogger( Resource.class );
 
+	private static final String URI_VALUE_KEY = "value.uri";
+
+	private static final String TYPE_VALUE_KEY = "value.type";
+
+	private static final String CODEC_VALUE_KEY = "value.codec";
+
+	private static final String SCHEME_VALUE_KEY = "value.scheme";
+
+//	private static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";
+//
+//	private static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
+//
+//	private static final String CONTENT_TYPE_RESOURCE_KEY = "resource.content.type";
+//
+//	private static final String LAST_SAVED_RESOURCE_KEY = "resource.last.saved";
+
+	private static final String EXTERNALLY_MODIFIED = "flag.externally.modified";
+
+//	private static final String EDITABLE = "resource.editable";
+//
+//	private static final String UNDO_MANAGER = "resource.undo.manager";
+
+	// Name is not stored in the node data
 	private String name;
-
-	private URI uri;
-
-	private Codec codec;
-
-	private Scheme scheme;
-
-	private ResourceType type;
 
 	private UndoManager undoManager;
 
@@ -50,8 +56,6 @@ public class Resource {
 	private volatile boolean saved;
 
 	private volatile boolean ready;
-
-	private Map<String, Object> resources;
 
 	public Resource( URI uri ) {
 		this( null, uri );
@@ -72,51 +76,60 @@ public class Resource {
 	public Resource( ResourceType type, URI uri ) {
 		if( type == null && uri == null ) throw new RuntimeException( "The type and uri cannot both be null." );
 
-		listeners = new CopyOnWriteArraySet<ResourceListener>();
+		// FIXME Finish implementing Resource constructor
+		setType( type );
+		setUri( uri );
+
 		// TODO What is the FX undo manager
 		//undoManager = new ResourceUndoManager();
 
-		// FIXME Finish implementing Resource constructor
+		listeners = new CopyOnWriteArraySet<>();
 		//addDataListener( new DataHandler() );
-		//setType( type );
-		//setUri( uri );
-
-		resources = new ConcurrentHashMap<>();
 	}
 
 	public URI getUri() {
-		return uri;
+		return getValue( URI_VALUE_KEY );
 	}
 
 	public void setUri( URI uri ) {
-		this.uri = uri;
+		setValue( URI_VALUE_KEY, uri );
 		updateResourceName( uri );
 	}
 
 	public ResourceType getType() {
-		return type;
+		return getValue( TYPE_VALUE_KEY );
 	}
 
 	public void setType( ResourceType type ) {
-		this.type = type;
+		setValue( TYPE_VALUE_KEY, type );
 	}
 
+	/**
+	 * The codec used to load/save the resource. The codec is usually null until
+	 * the resource is loaded or saved. Then the codec used for that operation is
+	 * stored for convenience to be used for later load or save operations.
+	 *
+	 * @return
+	 */
 	public Codec getCodec() {
-		return codec;
+		return getValue( CODEC_VALUE_KEY );
 	}
 
 	public void setCodec( Codec codec ) {
-		this.codec = codec;
+		setValue( CODEC_VALUE_KEY, codec );
 	}
 
 	public Scheme getScheme() {
+		Scheme scheme = getScheme();
 		if( scheme != null ) return scheme;
 
 		URI uri = getUri();
 		if( uri == null ) return null;
 
-		//this.scheme = Schemes.getScheme( uri.getScheme() );
+		//scheme = Schemes.getScheme( uri.getScheme() );
 		if( scheme == null ) throw new RuntimeException( "Scheme not registered: " + uri.getScheme() );
+
+		setValue( SCHEME_VALUE_KEY, scheme );
 
 		return scheme;
 	}
@@ -143,9 +156,9 @@ public class Resource {
 	 */
 	public String getFileName() {
 		String name = null;
-
+		URI uri = getUri();
 		try {
-			name = getUri().toURL().getFile();
+			name = uri.toURL().getFile();
 		} catch( MalformedURLException exception ) {
 			log.error( "Error getting file name from: " + uri, exception );
 		}
@@ -157,14 +170,13 @@ public class Resource {
 		return undoManager;
 	}
 
-	//	public boolean isExternallyModified() {
-	//		Boolean value = getMetaValue( EXTERNALLY_MODIFIED );
-	//		return value == null ? false : value;
-	//	}
-	//
-	//	public void setExternallyModified( boolean modified ) {
-	//		setMetaValue( EXTERNALLY_MODIFIED, modified );
-	//	}
+		public boolean isExternallyModified() {
+			return getFlag( EXTERNALLY_MODIFIED );
+		}
+
+		public void setExternallyModified( boolean modified ) {
+			setFlag( EXTERNALLY_MODIFIED, modified );
+		}
 
 	public synchronized final boolean isOpen() {
 		return open;
@@ -292,14 +304,6 @@ public class Resource {
 	public Resource getParent() {
 		// TODO Implement Resource.getParent()
 		return null;
-	}
-
-	public <T> void putResource( String key, T value ) {
-		resources.put( key, value );
-	}
-
-	public <T> T getResource( String key ) {
-		return (T)resources.get( key );
 	}
 
 	public void addResourceListener( ResourceListener listener ) {

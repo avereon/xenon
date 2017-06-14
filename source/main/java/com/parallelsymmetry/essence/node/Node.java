@@ -27,6 +27,14 @@ public class Node {
 	private Map<String, Object> values;
 
 	/**
+	 * The node resources. This map provides a way to associate objects without
+	 * affecting the data model as a whole. Adding or removing resources does not
+	 * affect the node state nor does it cause any kind of event. This is simply
+	 * a storage mechanism.
+	 */
+	private Map<String, Object> resources;
+
+	/**
 	 * The collection of edges this node is associated with. The node may be the
 	 * source or may be the target of the edge.
 	 */
@@ -74,24 +82,43 @@ public class Node {
 	}
 
 	public void setValue( String key, Object value ) {
-		if( key == null ) throw new NullPointerException( "Key cannot be null" );
+		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
 
 		Object oldValue = getValue( key );
-		Object newValue = value;
+		if( value == oldValue ) return;
 
-		if( value == null ) {
-			if( values == null ) return;
-			values.remove( key );
-			if( values.size() == 0 ) values = null;
-		} else {
-			if( values == null ) this.values = new ConcurrentHashMap<>();
-			values.put( key, value );
+		try {
+			Txn.create();
+			Txn.submit( new SetValueOperation( this, key, oldValue, value ) );
+
+			// TODO Add event to send
+			//if( !Objects.equals( oldValue, newValue )) addValueChangedEvent( key, oldValue, newValue );
+			Txn.commit();
+
+			// Cannot set modified flag until state is updated
+			// but it would be nice if it were part of the transaction
+			setFlag( MODIFIED, calculateStateHash() != lastUnmodifiedStateHash );
+		} catch( TxnException exception ) {
+			log.error( "Error setting flag: " + key, exception );
 		}
 
-		doSetModified( calculateStateHash() != lastUnmodifiedStateHash );
+	}
 
-		// TODO Add event to send
-		//if( !Objects.equals( oldValue, newValue )) addValueChangedEvent( key, oldValue, newValue );
+	public <T> void putResource( String key, T value ) {
+		if( value == null ) {
+			if( resources != null ) {
+				resources.remove( key );
+				if( resources.size() == 0 ) resources = null;
+			}
+		} else {
+			if( resources == null ) resources = new ConcurrentHashMap<>();
+			resources.put( key, value );
+		}
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public <T> T getResource( String key ) {
+		return resources == null ? null : (T)resources.get( key );
 	}
 
 	public boolean isModified() {
@@ -99,12 +126,8 @@ public class Node {
 	}
 
 	public void setModified( boolean modified ) {
-		doSetModified( modified );
-		if( !modified ) lastUnmodifiedStateHash = calculateStateHash();
-	}
-
-	private void doSetModified( boolean modified ) {
 		setFlag( MODIFIED, modified );
+		if( !modified ) lastUnmodifiedStateHash = calculateStateHash();
 	}
 
 	protected boolean getFlag( String key ) {
@@ -112,6 +135,8 @@ public class Node {
 	}
 
 	protected void setFlag( String key, boolean value ) {
+		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
+
 		boolean oldValue = getFlag( key );
 		if( value == oldValue ) return;
 
@@ -122,7 +147,7 @@ public class Node {
 			// Propagate the value to children
 			Txn.commit();
 		} catch( TxnException exception ) {
-			log.error("Error setting flag: " + key, exception );
+			log.error( "Error setting flag: " + key, exception );
 		}
 	}
 
@@ -136,7 +161,7 @@ public class Node {
 
 		List<String> keys = businessKeyList;
 		if( allValues ) {
-			keys = new ArrayList<String>();
+			keys = new ArrayList<>();
 			if( values != null ) keys.addAll( values.keySet() );
 			Collections.sort( keys );
 		}
@@ -197,7 +222,7 @@ public class Node {
 		return hashcode;
 	}
 
-	protected void setPrimaryKey( String... keys ) {
+	protected void definePrimaryKey( String... keys ) {
 		if( primaryKeyList == null ) {
 			primaryKeyList = Collections.unmodifiableList( Arrays.asList( keys ) );
 		} else {
@@ -205,7 +230,7 @@ public class Node {
 		}
 	}
 
-	protected void setBusinessKey( String... keys ) {
+	protected void defineBusinessKey( String... keys ) {
 		if( businessKeyList == null ) {
 			businessKeyList = Collections.unmodifiableList( Arrays.asList( keys ) );
 		} else {
@@ -225,7 +250,7 @@ public class Node {
 	private int calculateStateHash() {
 		if( values == null ) return 0;
 
-		int hash = 0;
+		int hash = 281;
 		for( String key : values.keySet() ) {
 			Object value = values.get( key );
 			hash ^= value.hashCode();
@@ -248,12 +273,50 @@ public class Node {
 
 		private Node node;
 
-		public NodeTxnOperation( Node node ) {
+		NodeTxnOperation( Node node ) {
 			this.node = node;
 		}
 
 		protected Node getNode() {
 			return node;
+		}
+
+	}
+
+	private class SetValueOperation extends NodeTxnOperation {
+
+		private String key;
+
+		private Object oldValue;
+
+		private Object newValue;
+
+		SetValueOperation( Node node, String key, Object oldValue, Object newValue ) {
+			super( node );
+			this.key = key;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		protected void commit() throws TxnException {
+			setValue( key, newValue );
+		}
+
+		@Override
+		protected void revert() throws TxnException {
+			setValue( key, oldValue );
+		}
+
+		private void setValue( String key, Object value ) {
+			if( value == null ) {
+				if( values == null ) return;
+				values.remove( key );
+				if( values.size() == 0 ) values = null;
+			} else {
+				if( values == null ) values = new ConcurrentHashMap<>();
+				values.put( key, value );
+			}
 		}
 
 	}
@@ -266,7 +329,7 @@ public class Node {
 
 		private boolean newValue;
 
-		public SetFlagOperation( Node node, String key, boolean oldValue, boolean newValue ) {
+		SetFlagOperation( Node node, String key, boolean oldValue, boolean newValue ) {
 			super( node );
 			this.key = key;
 			this.oldValue = oldValue;

@@ -78,6 +78,9 @@ public class NodeTest {
 
 		person.setId( 423984 );
 		assertThat( person.isModified(), is( true ) );
+
+		person.setModified( false );
+		assertThat( person.isModified(), is( false ) );
 	}
 
 	@Test
