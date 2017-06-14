@@ -17,7 +17,7 @@ public class TxnTest {
 		Txn.commit();
 
 		assertThat( step.getCommitCallCount(), is( 1 ) );
-		assertThat( step.getRollbackCallCount(), is( 1 ) );
+		assertThat( step.getRollbackCallCount(), is( 0 ) );
 	}
 
 	@Test
