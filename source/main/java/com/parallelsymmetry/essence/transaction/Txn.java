@@ -56,16 +56,10 @@ public class Txn {
 		pullTransaction();
 	}
 
-	public static void rollback() throws TxnException {
-		Txn transaction = verifyActiveTransaction();
-		if( --transaction.depth > 0 ) return;
-
-		transaction.doRollback();
-		pullTransaction();
-	}
-
-	public static final void reset() {
+	public static final void reset() throws TxnException {
 		Txn transaction = peekTransaction();
+		if( transaction == null ) return;
+		if( --transaction.depth > 0 ) return;
 
 		while( transaction != null ) {
 			transaction.doReset();
@@ -160,10 +154,6 @@ public class Txn {
 			commitLock.unlock();
 			log.trace( "Transaction[" + System.identityHashCode( this ) + "] committed!" );
 		}
-	}
-
-	private void doRollback() {
-		doReset();
 	}
 
 	private void doReset() {
