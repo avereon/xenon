@@ -33,8 +33,6 @@ public class Resource extends Node {
 //	private static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
 //
 //	private static final String CONTENT_TYPE_RESOURCE_KEY = "resource.content.type";
-//
-//	private static final String LAST_SAVED_RESOURCE_KEY = "resource.last.saved";
 
 	private static final String EXTERNALLY_MODIFIED = "flag.externally.modified";
 

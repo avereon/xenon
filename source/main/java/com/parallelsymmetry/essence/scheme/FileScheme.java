@@ -126,7 +126,7 @@ public class FileScheme extends BaseScheme {
 					throw new ResourceException( resource, exception );
 				}
 			}
-			resource.putResource( Resource.LAST_SAVED_RESOURCE_KEY, System.currentTimeMillis() );
+			resource.putResource( RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
 		}
 	}
 
@@ -323,8 +323,8 @@ public class FileScheme extends BaseScheme {
 //						if( !resource.isOpen() ) continue;
 //
 //						// This logic is intended to catch double events and events from our own save.
-//						Long lastSavedTime = resource.getResource( Resource.LAST_SAVED_RESOURCE_KEY );
-//						resource.putResource( Resource.LAST_SAVED_RESOURCE_KEY, System.currentTimeMillis() );
+//						Long lastSavedTime = resource.getResource( Resource.RESOURCE_LAST_SAVED_KEY );
+//						resource.putResource( Resource.RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
 //
 //						// This timeout needs to be long enough for the OS to react.
 //						// In the case of network resources it can take a couple of seconds.
