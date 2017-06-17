@@ -26,11 +26,10 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testModifiedFlag() {
+	public void testModifyByFlagAndUnmodifyByFlag() {
 		MockNode data = new MockNode();
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
-
 		assertThat( data.getModifiedValueCount(), is( 0 ) );
 		assertThat( data.isModified(), is( false ) );
 		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
@@ -38,78 +37,111 @@ public class NodeTest {
 		data.setModified( true );
 		assertThat( data.getModifiedValueCount(), is( 0 ) );
 		assertThat( data.isModified(), is( true ) );
-		assertThat( watcher, hasEventCounts( 0, 1, 1 ) );
+		assertThat( watcher, hasEventCounts( 1, 1, 0 ) );
 
-		//		data.setModified( false );
-		//		assertEquals( 0, data.getModifiedAttributeCount() );
-		//		assertFalse( data.isModified() );
-		//		assertEventCounts( handler, 2, 2, 0 );
+		data.setModified( false );
+		assertThat( data.getModifiedValueCount(), is( 0 ) );
+		assertThat( data.isModified(), is( false ) );
+		assertThat( watcher, hasEventCounts( 2, 2, 0 ) );
 	}
 
 	@Test
-	public void testModified() {
-		MockPersonNode person = new MockPersonNode();
-		assertThat( person.isModified(), is( false ) );
+	public void testModifyByValueAndUnmodifyByFlag() {
+		MockNode data = new MockNode();
+		NodeWatcher watcher = new NodeWatcher();
+		data.addNodeListener( watcher );
+		assertThat( data.isModified(), is( false ) );
+		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
 
-		person.setId( 423984 );
-		assertThat( person.isModified(), is( true ) );
+		data.setValue( "id", 423984 );
+		assertThat( data.isModified(), is( true ) );
+		//assertThat( watcher, hasEventCounts( 1, 1, 1 ) );
 
-		person.setModified( false );
-		assertThat( person.isModified(), is( false ) );
+		data.setModified( false );
+		assertThat( data.isModified(), is( false ) );
+		//assertThat( watcher, hasEventCounts( 2, 2, 1 ) );
+	}
+
+	@Test
+	public void testModifyByValueAndUnmodifyByValue() {
+		MockNode data = new MockNode();
+		NodeWatcher watcher = new NodeWatcher();
+		data.addNodeListener( watcher );
+		assertThat( data.isModified(), is( false ) );
+		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
+
+		data.setValue( "id", 423984 );
+		assertThat( data.isModified(), is( true ) );
+		//assertThat( watcher, hasEventCounts( 1, 1, 1 ) );
+
+		data.setValue( "id", null );
+		assertThat( data.isModified(), is( false ) );
+		//assertThat( watcher, hasEventCounts( 2, 2, 1 ) );
 	}
 
 	@Test
 	public void testToString() {
-		MockPersonNode person = new MockPersonNode();
-		assertThat( person.toString(), is( "MockPersonNode[]" ) );
+		MockNode data = new MockNode();
+		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		assertThat( data.toString(), is( "MockNode[]" ) );
 
-		person.setFirstName( "Jane" );
-		person.setBirthDate( new Date( 0 ) );
-		assertThat( person.toString(), is( "MockPersonNode[firstName=Jane,birthDate=Wed Dec 31 17:00:00 MST 1969]" ) );
+		data.setValue( "firstName", "Jane" );
+		data.setValue( "birthDate", new Date( 0 ) );
+		assertThat( data.toString(), is( "MockNode[firstName=Jane,birthDate=Wed Dec 31 17:00:00 MST 1969]" ) );
 
-		person.setLastName( "Doe" );
-		assertThat( person.toString(), is( "MockPersonNode[firstName=Jane,lastName=Doe,birthDate=Wed Dec 31 17:00:00 MST 1969]" ) );
+		data.setValue( "lastName", "Doe" );
+		assertThat( data.toString(), is( "MockNode[firstName=Jane,lastName=Doe,birthDate=Wed Dec 31 17:00:00 MST 1969]" ) );
 	}
 
 	@Test
 	public void testToStringWithAllValues() {
-		MockPersonNode person = new MockPersonNode();
-		assertThat( person.toString( true ), is( "MockPersonNode[]" ) );
+		MockNode data = new MockNode();
+		assertThat( data.toString( true ), is( "MockNode[]" ) );
+
+		data.setValue( "firstName", "Jane" );
+		data.setValue( "lastName", "Doe" );
+		assertThat( data.toString( true ), is( "MockNode[firstName=Jane,lastName=Doe]" ) );
 	}
 
 	@Test
 	public void testHashCode() {
-		MockPersonNode person = new MockPersonNode();
-		assertThat( person.hashCode(), is( 0 ) );
+		MockNode data = new MockNode();
+		data.definePrimaryKey( "id" );
+		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		assertThat( data.hashCode(), is( 0 ) );
 
 		// Test the primary key
-		person.setId( 2849234 );
-		assertThat( person.hashCode(), is( 2849234 ) );
+		data.setValue( "id", 2849234 );
+		assertThat( data.hashCode(), is( 2849234 ) );
 
 		// Test the business key
-		person.setLastName( "Doe" );
-		assertThat( person.hashCode(), is( 2782408 ) );
+		data.setValue( "lastName", "Doe" );
+		assertThat( data.hashCode(), is( 2782408 ) );
 	}
 
 	@Test
 	public void testEquals() {
-		MockPersonNode person1 = new MockPersonNode();
-		MockPersonNode person2 = new MockPersonNode();
-		assertThat( person1.equals( person2 ), is( true ) );
+		MockNode data1 = new MockNode();
+		data1.definePrimaryKey( "id" );
+		data1.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		MockNode data2 = new MockNode();
+		data2.definePrimaryKey( "id" );
+		data2.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		assertThat( data1.equals( data2 ), is( true ) );
 
 		// Test the primary key
-		person1.setId( 2849234 );
-		assertThat( person1.equals( person2 ), is( false ) );
+		data1.setValue( "id", 2849234 );
+		assertThat( data1.equals( data2 ), is( false ) );
 
-		person2.setId( 2849234 );
-		assertThat( person1.equals( person2 ), is( true ) );
+		data2.setValue( "id", 2849234 );
+		assertThat( data1.equals( data2 ), is( true ) );
 
 		// Test the business key
-		person1.setLastName( "Doe" );
-		assertThat( person1.equals( person2 ), is( false ) );
+		data1.setValue( "lastName", "Doe" );
+		assertThat( data1.equals( data2 ), is( false ) );
 
-		person2.setLastName( "Doe" );
-		assertThat( person1.equals( person2 ), is( true ) );
+		data2.setValue( "lastName", "Doe" );
+		assertThat( data1.equals( data2 ), is( true ) );
 	}
 
 	@Test
@@ -134,10 +166,10 @@ public class NodeTest {
 		assertThat( node.getLinks(), not( contains( edge ) ) );
 	}
 
-	private static Matcher<NodeWatcher> hasEventCounts( int value, int flag, int node ) {
+	private static Matcher<NodeWatcher> hasEventCounts( int node, int flag, int value ) {
+		Matcher<NodeWatcher> nodeEventCounter = eventCount( NodeEvent.Type.NODE_CHANGED, is( node ) );
 		Matcher<NodeWatcher> valueEventCounter = eventCount( NodeEvent.Type.VALUE_CHANGED, is( value ) );
 		Matcher<NodeWatcher> flagEventCounter = eventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
-		Matcher<NodeWatcher> nodeEventCounter = eventCount( NodeEvent.Type.NODE_CHANGED, is( node ) );
 		return allOf( valueEventCounter, flagEventCounter, nodeEventCounter );
 	}
 

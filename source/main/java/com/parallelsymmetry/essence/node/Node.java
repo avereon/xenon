@@ -193,14 +193,16 @@ public class Node implements TxnEventDispatcher {
 		boolean first = true;
 		builder.append( getClass().getSimpleName() );
 		builder.append( "[" );
-		for( String key : keys ) {
-			Object value = getValue( key );
-			if( value == null ) continue;
-			if( !first ) builder.append( "," );
-			builder.append( key );
-			builder.append( "=" );
-			builder.append( value );
-			first = false;
+		if( keys != null ) {
+			for( String key : keys ) {
+				Object value = getValue( key );
+				if( value == null ) continue;
+				if( !first ) builder.append( "," );
+				builder.append( key );
+				builder.append( "=" );
+				builder.append( value );
+				first = false;
+			}
 		}
 		builder.append( "]" );
 
