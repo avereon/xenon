@@ -40,7 +40,7 @@ public class Resource extends Node {
 //
 //	private static final String UNDO_MANAGER = "resource.undo.manager";
 
-	// Name is not stored in the node data
+	// Name is not stored in the node data, it is derived
 	private String name;
 
 	private UndoManager undoManager;
@@ -130,10 +130,6 @@ public class Resource extends Node {
 		setValue( SCHEME_VALUE_KEY, scheme );
 
 		return scheme;
-	}
-
-	public void setName( String name ) {
-		this.name = name;
 	}
 
 	/**
@@ -421,7 +417,7 @@ public class Resource extends Node {
 		// Return just the name from the path.
 		if( name == null && path != null ) name = path.substring( path.lastIndexOf( '/' ) + 1 );
 
-		setName( name );
+		this.name = name;
 	}
 
 	//	private class DataHandler extends DataAdapter {

@@ -1,5 +1,7 @@
 package com.parallelsymmetry.essence.node;
 
+import org.hamcrest.FeatureMatcher;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,6 +17,45 @@ public class NodeTest {
 	@Before
 	public void setup() throws Exception {
 		node = new Node();
+	}
+
+	@Test
+	public void testNewNodeModifiedState() {
+		MockNode node = new MockNode();
+		assertThat( node.isModified(), is( false ) );
+	}
+
+	@Test
+	public void testModifiedFlag() {
+		MockNode data = new MockNode();
+		NodeWatcher watcher = new NodeWatcher();
+		data.addNodeListener( watcher );
+
+		assertThat( data.getModifiedValueCount(), is( 0 ) );
+		assertThat( data.isModified(), is( false ) );
+		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
+
+		data.setModified( true );
+		assertThat( data.getModifiedValueCount(), is( 0 ) );
+		assertThat( data.isModified(), is( true ) );
+		assertThat( watcher, hasEventCounts( 0, 1, 1 ) );
+
+		//		data.setModified( false );
+		//		assertEquals( 0, data.getModifiedAttributeCount() );
+		//		assertFalse( data.isModified() );
+		//		assertEventCounts( handler, 2, 2, 0 );
+	}
+
+	@Test
+	public void testModified() {
+		MockPersonNode person = new MockPersonNode();
+		assertThat( person.isModified(), is( false ) );
+
+		person.setId( 423984 );
+		assertThat( person.isModified(), is( true ) );
+
+		person.setModified( false );
+		assertThat( person.isModified(), is( false ) );
 	}
 
 	@Test
@@ -72,18 +113,6 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testModifiedFlag() {
-		MockPersonNode person = new MockPersonNode();
-		assertThat( person.isModified(), is( false ) );
-
-		person.setId( 423984 );
-		assertThat( person.isModified(), is( true ) );
-
-		person.setModified( false );
-		assertThat( person.isModified(), is( false ) );
-	}
-
-	@Test
 	public void testLink() {
 		Node target = new Node();
 		Edge edge = node.add( target );
@@ -103,6 +132,29 @@ public class NodeTest {
 		node.remove( edge.getTarget() );
 
 		assertThat( node.getLinks(), not( contains( edge ) ) );
+	}
+
+	private static Matcher<NodeWatcher> hasEventCounts( int value, int flag, int node ) {
+		Matcher<NodeWatcher> valueEventCounter = eventCount( NodeEvent.Type.VALUE_CHANGED, is( value ) );
+		Matcher<NodeWatcher> flagEventCounter = eventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
+		Matcher<NodeWatcher> nodeEventCounter = eventCount( NodeEvent.Type.NODE_CHANGED, is( node ) );
+		return allOf( valueEventCounter, flagEventCounter, nodeEventCounter );
+	}
+
+	private static Matcher<NodeWatcher> eventCount( NodeEvent.Type type, Matcher<? super Integer> matcher ) {
+		return new FeatureMatcher<NodeWatcher, Integer>( matcher, type + " event count", "count" ) {
+
+			@Override
+			protected Integer featureValueOf( NodeWatcher actual ) {
+				int count = 0;
+				for( NodeEvent event : actual.getEvents() ) {
+					if( event.getType() == type ) count++;
+				}
+
+				return count;
+			}
+
+		};
 	}
 
 }

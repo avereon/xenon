@@ -167,7 +167,6 @@ public class TxnTest {
 		protected void commit() throws TxnException {
 			commitCallCount++;
 			if( throwable != null ) throw new TxnException( throwable );
-			setResult( new TxnOperationResult( this ) );
 		}
 
 		@Override

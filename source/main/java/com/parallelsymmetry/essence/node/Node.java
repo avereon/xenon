@@ -1,8 +1,6 @@
 package com.parallelsymmetry.essence.node;
 
-import com.parallelsymmetry.essence.transaction.Txn;
-import com.parallelsymmetry.essence.transaction.TxnException;
-import com.parallelsymmetry.essence.transaction.TxnOperation;
+import com.parallelsymmetry.essence.transaction.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,11 +8,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Node {
+public class Node implements TxnEventDispatcher {
 
 	private static final Logger log = LoggerFactory.getLogger( Node.class );
 
-	public static final String MODIFIED = "modified";
+	private static final String MODIFIED = "flag.modified";
 
 	/**
 	 * The node flags.
@@ -49,6 +47,13 @@ public class Node {
 	 * The list of value keys that specify the business key.
 	 */
 	private List<String> businessKeyList;
+
+	/**
+	 * The set of node listeners.
+	 */
+	private Set<NodeListener> listeners;
+
+	private int modifiedValueCount;
 
 	private int lastUnmodifiedStateHash;
 
@@ -90,18 +95,19 @@ public class Node {
 		try {
 			Txn.create();
 			Txn.submit( new SetValueOperation( this, key, oldValue, value ) );
-
-			// TODO Add event to send
-			//if( !Objects.equals( oldValue, newValue )) addValueChangedEvent( key, oldValue, newValue );
 			Txn.commit();
 
-			// Cannot set modified flag until state is updated
+			// TODO Cannot set modified flag until state is updated
 			// but it would be nice if it were part of the transaction
 			setFlag( MODIFIED, calculateStateHash() != lastUnmodifiedStateHash );
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
 		}
 
+	}
+
+	public int getModifiedValueCount() {
+		return modifiedValueCount;
 	}
 
 	public <T> void putResource( String key, T value ) {
@@ -149,6 +155,24 @@ public class Node {
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
 		}
+	}
+
+	@Override
+	public void dispatchEvent( TxnEvent event ) {
+		if( listeners == null || !(event instanceof NodeEvent) ) return;
+		for( NodeListener listener : listeners ) {
+			listener.eventOccurred( (NodeEvent)event );
+		}
+	}
+
+	public synchronized void addNodeListener( NodeListener listener ) {
+		if( listeners == null ) listeners = new CopyOnWriteArraySet<>();
+		listeners.add( listener );
+	}
+
+	public synchronized void removeNodeListener( NodeListener listener ) {
+		listeners.remove( listener );
+		if( listeners.size() == 0 ) listeners = null;
 	}
 
 	@Override
@@ -317,6 +341,8 @@ public class Node {
 				if( values == null ) values = new ConcurrentHashMap<>();
 				values.put( key, value );
 			}
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.VALUE_CHANGED, oldValue, newValue ) );
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
 		}
 
 	}
@@ -356,6 +382,8 @@ public class Node {
 					if( flags.size() == 0 ) flags = null;
 				}
 			}
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, oldValue, newValue ) );
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
 		}
 
 	}

@@ -12,6 +12,8 @@ public class Txn {
 
 	private static final Logger log = LoggerFactory.getLogger( Txn.class );
 
+	private static final TxnEventComparator eventComparator = new TxnEventComparator();
+
 	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<Deque<Txn>>();
 
 	private static final ReentrantLock commitLock = new ReentrantLock();
@@ -132,13 +134,34 @@ public class Txn {
 				}
 			}
 
-			//			// Go through each operation result and collect the events for each node.
-			//			for( OperationResult operationResult : operationResults ) {
+			// Go through each operation result and collect the events by dispatcher
+			Map<TxnEventDispatcher, List<TxnEvent>> txnEvents = new HashMap<>();
+			for( TxnOperationResult operationResult : operationResults ) {
+				for( TxnEvent event : operationResult.getEvents() ) {
+					TxnEventDispatcher dispatcher = event.getDispatcher();
+					List<TxnEvent> events = txnEvents.computeIfAbsent( dispatcher, k -> new ArrayList<>() );
+					events.add( event );
+				}
+			}
+
+			// Sort the events for each dispatcher
+			for( Map.Entry<TxnEventDispatcher, List<TxnEvent>> entry : txnEvents.entrySet() ) {
+				TxnEventDispatcher dispatcher = entry.getKey();
+				List<TxnEvent> events = entry.getValue();
+				Collections.sort( events, eventComparator );
+				for( TxnEvent event : events ) {
+					try {
+						dispatcher.dispatchEvent( event );
+					} catch( Throwable throwable ) {
+						log.error( "Error dispatching transaction event", throwable );
+					}
+				}
+			}
+
 			//				DataNode node = operationResult.getOperation().getData();
 			//				// TODO Collect operation events
 			//				//getResultCollector( node ).events.addAll( operationResult.getEvents() );
 			//				//getResultCollector( node ).modified.addAll( operationResult.getMetaValueEvents() );
-			//			}
 			//
 			//			// Send the events for each data node.
 			//			for( DataNode node : nodes.values() ) {

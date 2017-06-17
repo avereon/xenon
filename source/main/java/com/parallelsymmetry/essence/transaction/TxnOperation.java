@@ -4,7 +4,12 @@ package com.parallelsymmetry.essence.transaction;
 public abstract class TxnOperation {
 
 	public enum Status {
-		WAITING, COMMITTING, COMMITTED, REVERTING, REVERTED, FAILED
+		WAITING,
+		COMMITTING,
+		COMMITTED,
+		REVERTING,
+		REVERTED,
+		FAILED
 	}
 
 	private TxnOperation.Status status;
@@ -13,31 +18,26 @@ public abstract class TxnOperation {
 
 	protected TxnOperation() {
 		status = Status.WAITING;
+		result = new TxnOperationResult( this );
 	}
 
 	protected abstract void commit() throws TxnException;
 
 	protected abstract void revert() throws TxnException;
 
-	/**
-	 * Return the result of the operation or null if the operation failed or has not been processed.
-	 *
-	 * @return
-	 */
+	Status getStatus() {
+		return status;
+	}
+
 	protected TxnOperationResult getResult() {
 		return result;
 	}
 
-	/**
-	 * Set the operation result. This should not be set if the operation fails.
-	 *
-	 * @param result
-	 */
-	protected void setResult( TxnOperationResult result ) {
-		this.result = result;
+	protected void addEvent( TxnEvent event ) {
+		result.addEvent( event );
 	}
 
-	void callCommit() throws TxnException	{
+	void callCommit() throws TxnException {
 		try {
 			status = Status.COMMITTING;
 			commit();
@@ -57,10 +57,6 @@ public abstract class TxnOperation {
 			status = Status.FAILED;
 			throw exception;
 		}
-	}
-
-	Status getStatus() {
-		return status;
 	}
 
 	@Override
