@@ -12,7 +12,10 @@ public class Node implements TxnEventDispatcher {
 
 	private static final Logger log = LoggerFactory.getLogger( Node.class );
 
-	private static final String MODIFIED = "flag.modified";
+	static final String MODIFIED = "flag.modified";
+
+	// A special object to represent null values
+	private static final Object NULL = new Object();
 
 	/**
 	 * The node flags.
@@ -53,9 +56,7 @@ public class Node implements TxnEventDispatcher {
 	 */
 	private Set<NodeListener> listeners;
 
-	private int modifiedValueCount;
-
-	private int lastUnmodifiedStateHash;
+	private Map<String, Object> modifiedValues;
 
 	public Set<Edge> getLinks() {
 		return new HashSet<>( edges );
@@ -83,23 +84,22 @@ public class Node implements TxnEventDispatcher {
 
 	@SuppressWarnings( "unchecked" )
 	public <T> T getValue( String key ) {
+		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
+
 		return values == null ? null : (T)values.get( key );
 	}
 
-	public void setValue( String key, Object value ) {
+	public void setValue( String key, Object newValue ) {
 		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
 
 		Object oldValue = getValue( key );
-		if( value == oldValue ) return;
+		if( newValue == oldValue ) return;
 
 		try {
 			Txn.create();
-			Txn.submit( new SetValueOperation( this, key, oldValue, value ) );
+			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
+			Txn.submitAfter( new UpdateModifiedFlagOperation( this ) );
 			Txn.commit();
-
-			// TODO Cannot set modified flag until state is updated
-			// but it would be nice if it were part of the transaction
-			setFlag( MODIFIED, calculateStateHash() != lastUnmodifiedStateHash );
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
 		}
@@ -107,7 +107,7 @@ public class Node implements TxnEventDispatcher {
 	}
 
 	public int getModifiedValueCount() {
-		return modifiedValueCount;
+		return modifiedValues == null ? 0 : modifiedValues.size();
 	}
 
 	public <T> void putResource( String key, T value ) {
@@ -133,22 +133,25 @@ public class Node implements TxnEventDispatcher {
 
 	public void setModified( boolean modified ) {
 		setFlag( MODIFIED, modified );
-		if( !modified ) lastUnmodifiedStateHash = calculateStateHash();
 	}
 
 	protected boolean getFlag( String key ) {
+		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
 		return flags != null && flags.contains( key );
 	}
 
-	protected void setFlag( String key, boolean value ) {
+	protected void setFlag( String key, boolean newValue ) {
 		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
 
 		boolean oldValue = getFlag( key );
-		if( value == oldValue ) return;
+		if( newValue == oldValue ) return;
 
 		try {
 			Txn.create();
-			Txn.submit( new SetFlagOperation( this, key, oldValue, value ) );
+			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
+			//Txn.submitAfter( new UpdateModifiedFlagOperation( this ) );
+			//getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
+
 			// Propagate the value to parent
 			// Propagate the value to children
 			Txn.commit();
@@ -284,6 +287,10 @@ public class Node implements TxnEventDispatcher {
 		return hash;
 	}
 
+	private void updateModified( boolean modified ) {
+		if( !modified ) modifiedValues = null;
+	}
+
 	private Set<Edge> findEdges( Set<Edge> edges, Node source, Node target ) {
 		Set<Edge> result = new HashSet<>();
 
@@ -305,6 +312,43 @@ public class Node implements TxnEventDispatcher {
 
 		protected Node getNode() {
 			return node;
+		}
+
+	}
+
+	private class UpdateModifiedFlagOperation extends NodeTxnOperation {
+
+		private boolean oldValue;
+
+		UpdateModifiedFlagOperation( Node node ) {
+			super( node );
+			oldValue = node.isModified();
+		}
+
+		@Override
+		protected void commit() throws TxnException {
+			boolean newValue = modifiedValues != null && modifiedValues.size() > 0;
+			if( newValue != oldValue ) setFlag( MODIFIED, oldValue, newValue );
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
+		}
+
+		@Override
+		protected void revert() throws TxnException {
+			// No-op
+		}
+
+		private void setFlag( String key, boolean oldValue, boolean newValue ) {
+			if( newValue ) {
+				if( flags == null ) flags = new CopyOnWriteArraySet<>();
+				flags.add( key );
+			} else {
+				if( flags != null ) {
+					flags.remove( key );
+					if( flags.size() == 0 ) flags = null;
+				}
+			}
+
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
 		}
 
 	}
@@ -343,8 +387,21 @@ public class Node implements TxnEventDispatcher {
 				if( values == null ) values = new ConcurrentHashMap<>();
 				values.put( key, value );
 			}
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.VALUE_CHANGED, oldValue, newValue ) );
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
+
+			// Update the modified value map
+			Object preValue = modifiedValues == null ? null : modifiedValues.get( key );
+			if( preValue == null ) {
+				// Only add the value if there is not an existing previous value
+				if( modifiedValues == null ) modifiedValues = new ConcurrentHashMap<String, Object>();
+				modifiedValues.put( key, oldValue == null ? NULL : oldValue );
+			} else if( Objects.equals( preValue == NULL ? null : preValue, newValue ) ) {
+				if( modifiedValues != null ) {
+					modifiedValues.remove( key );
+					if( modifiedValues.size() == 0 ) modifiedValues = null;
+				}
+			}
+
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.VALUE_CHANGED, key, oldValue, newValue ) );
 		}
 
 	}
@@ -366,16 +423,16 @@ public class Node implements TxnEventDispatcher {
 
 		@Override
 		protected void commit() throws TxnException {
-			setValue( key, newValue );
+			setFlag( key, oldValue, newValue );
 		}
 
 		@Override
 		protected void revert() throws TxnException {
-			setValue( key, oldValue );
+			setFlag( key, newValue, oldValue );
 		}
 
-		private void setValue( String key, boolean value ) {
-			if( value ) {
+		private void setFlag( String key, boolean oldValue, boolean newValue ) {
+			if( newValue ) {
 				if( flags == null ) flags = new CopyOnWriteArraySet<>();
 				flags.add( key );
 			} else {
@@ -384,7 +441,10 @@ public class Node implements TxnEventDispatcher {
 					if( flags.size() == 0 ) flags = null;
 				}
 			}
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, oldValue, newValue ) );
+
+			if( MODIFIED.equals( key ) ) updateModified( newValue );
+
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
 			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
 		}
 

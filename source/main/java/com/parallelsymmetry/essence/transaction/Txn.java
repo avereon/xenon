@@ -5,10 +5,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Txn {
+
+	private enum Phase {
+		BEFORE,
+		DURING,
+		AFTER
+	}
 
 	private static final Logger log = LoggerFactory.getLogger( Txn.class );
 
@@ -20,7 +27,7 @@ public class Txn {
 
 	private static Txn committingTransaction;
 
-	private Queue<TxnOperation> operations;
+	private Map<Phase, Queue<TxnOperation>> operations;
 
 	private int depth;
 
@@ -29,7 +36,7 @@ public class Txn {
 	}
 
 	public Txn() {
-		operations = new ConcurrentLinkedQueue<TxnOperation>();
+		operations = new ConcurrentHashMap<>();
 	}
 
 	public static Txn create() {
@@ -45,10 +52,16 @@ public class Txn {
 		return transaction;
 	}
 
+	public static void submitBefore( TxnOperation operation ) throws TxnException {
+		verifyActiveTransaction().doSubmit( Phase.BEFORE, operation );
+	}
+
 	public static void submit( TxnOperation operation ) throws TxnException {
-		Txn transaction = verifyActiveTransaction();
-		transaction.doSubmit( operation );
-		log.info( "Operation submitted: " + operation );
+		verifyActiveTransaction().doSubmit( Phase.DURING, operation );
+	}
+
+	public static void submitAfter( TxnOperation operation ) throws TxnException {
+		verifyActiveTransaction().doSubmit( Phase.AFTER, operation );
 	}
 
 	public static void commit() throws TxnException {
@@ -101,9 +114,10 @@ public class Txn {
 		return transaction;
 	}
 
-	private void doSubmit( TxnOperation operation ) {
+	private void doSubmit( Phase phase, TxnOperation operation ) {
 		if( commitLock.isLocked() ) throw new TransactionException( "Transaction steps cannot be added during a commit" );
-		operations.offer( operation );
+		Queue<TxnOperation> phaseOperations = operations.computeIfAbsent( phase, key -> new ConcurrentLinkedQueue<TxnOperation>() );
+		phaseOperations.offer( operation );
 	}
 
 	private void doCommit() throws TxnException {
@@ -112,27 +126,11 @@ public class Txn {
 
 			committingTransaction = this;
 
-			//			// Store the current modified state of each data object.
-			//			for( DataNode node : nodes.values() ) {
-			//				node.putResource( PREVIOUS_MODIFIED_STATE, node.isModified() );
-			//			}
-
-			// Process the operations.
-			List<TxnOperationResult> operationResults = new ArrayList<>();
-			try {
-				for( TxnOperation operation : operations ) {
-					operation.callCommit();
-					operationResults.add( operation.getResult() );
-				}
-			} catch( TxnException commitException ) {
-				try {
-					for( TxnOperation operation : operations ) {
-						if( operation.getStatus() == TxnOperation.Status.COMMITTED ) operation.callRevert();
-					}
-				} catch( TxnException rollbackException ) {
-					throw new TxnException( "Error rolling back transaction", rollbackException );
-				}
-			}
+			// Process all the operations
+			List<TxnOperationResult> operationResults = new ArrayList<TxnOperationResult>();
+			operationResults.addAll( processOperations( Phase.BEFORE ) );
+			operationResults.addAll( processOperations( Phase.DURING ) );
+			operationResults.addAll( processOperations( Phase.AFTER ) );
 
 			// Go through each operation result and collect the events by dispatcher
 			Map<TxnEventDispatcher, List<TxnEvent>> txnEvents = new HashMap<>();
@@ -140,6 +138,9 @@ public class Txn {
 				for( TxnEvent event : operationResult.getEvents() ) {
 					TxnEventDispatcher dispatcher = event.getDispatcher();
 					List<TxnEvent> events = txnEvents.computeIfAbsent( dispatcher, k -> new ArrayList<>() );
+					int index = events.indexOf( event );
+					//System.out.println(  "count=" + events.size() + " index=" + index );
+					if( index > -1 ) events.remove( index );
 					events.add( event );
 				}
 			}
@@ -178,6 +179,29 @@ public class Txn {
 			commitLock.unlock();
 			log.trace( "Transaction[" + System.identityHashCode( this ) + "] committed!" );
 		}
+	}
+
+	private List<TxnOperationResult> processOperations( Phase phase ) throws TxnException {
+		// Process the operations.
+		List<TxnOperationResult> operationResults = new ArrayList<>();
+		try {
+			Queue<TxnOperation> phaseOperations = operations.get( phase );
+			if( phaseOperations != null ) {
+				for( TxnOperation operation : phaseOperations ) {
+					operation.callCommit();
+					operationResults.add( operation.getResult() );
+				}
+			}
+		} catch( TxnException commitException ) {
+			try {
+				for( TxnOperation operation : operations.get( phase ) ) {
+					if( operation.getStatus() == TxnOperation.Status.COMMITTED ) operation.callRevert();
+				}
+			} catch( TxnException rollbackException ) {
+				throw new TxnException( "Error rolling back transaction", rollbackException );
+			}
+		}
+		return operationResults;
 	}
 
 	private void doReset() {

@@ -2,6 +2,8 @@ package com.parallelsymmetry.essence.node;
 
 import com.parallelsymmetry.essence.transaction.TxnEvent;
 
+import java.util.Objects;
+
 public class NodeEvent extends TxnEvent {
 
 	public enum Type {
@@ -16,6 +18,8 @@ public class NodeEvent extends TxnEvent {
 
 	private Node node;
 
+	private String key;
+
 	private Object oldValue;
 
 	private Object newValue;
@@ -24,6 +28,7 @@ public class NodeEvent extends TxnEvent {
 
 	public NodeEvent( Node node, Type type ) {
 		super( node );
+		this.node = node;
 		this.type = type;
 	}
 
@@ -32,8 +37,9 @@ public class NodeEvent extends TxnEvent {
 		this.child = child;
 	}
 
-	public NodeEvent( Node node, Type type, Object oldValue, Object newValue ) {
+	public NodeEvent( Node node, Type type, String key, Object oldValue, Object newValue ) {
 		this( node, type );
+		this.key = key;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
 	}
@@ -46,6 +52,10 @@ public class NodeEvent extends TxnEvent {
 		return node;
 	}
 
+	public String getKey() {
+		return key;
+	}
+
 	public Object getOldValue() {
 		return oldValue;
 	}
@@ -56,6 +66,46 @@ public class NodeEvent extends TxnEvent {
 
 	public Node getChild() {
 		return child;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(getClass().getSimpleName());
+		builder.append( "[");
+		builder.append( "type=" );
+		builder.append( type );
+		builder.append( "]");
+
+		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		int code = 0;
+
+		if( node != null ) code |= node.hashCode();
+		if( type != null ) code |= type.hashCode();
+		if( oldValue != null ) code |= oldValue.hashCode();
+		if( newValue != null ) code |= newValue.hashCode();
+		if( child != null ) code |= child.hashCode();
+
+		return code;
+	}
+
+	@Override
+	public boolean equals( Object object ) {
+		if( !(object instanceof NodeEvent) ) return false;
+
+		NodeEvent that = (NodeEvent)object;
+		if( !Objects.equals( this.node, that.node ) ) return false;
+		if( !Objects.equals( this.type, that.type )) return false;
+		if( !Objects.equals( this.oldValue, that.oldValue ) ) return false;
+		if( !Objects.equals( this.newValue, that.newValue ) ) return false;
+		if( !Objects.equals( this.child, that.child ) ) return false;
+
+		return true;
 	}
 
 }
