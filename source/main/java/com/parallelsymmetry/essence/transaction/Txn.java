@@ -72,7 +72,7 @@ public class Txn {
 		pullTransaction();
 	}
 
-	public static final void reset() throws TxnException {
+	public static void reset() throws TxnException {
 		Txn transaction = peekTransaction();
 		if( transaction == null ) return;
 		if( --transaction.depth > 0 ) return;
@@ -140,7 +140,10 @@ public class Txn {
 					List<TxnEvent> events = txnEvents.computeIfAbsent( dispatcher, k -> new ArrayList<>() );
 					int index = events.indexOf( event );
 					//System.out.println(  "count=" + events.size() + " index=" + index );
-					if( index > -1 ) events.remove( index );
+					if( index > -1 ) {
+						TxnEvent removedEvent = events.remove( index );
+						//System.out.println( "Removed event: " + removedEvent );
+					}
 					events.add( event );
 				}
 			}
@@ -158,27 +161,14 @@ public class Txn {
 					}
 				}
 			}
-
-			//				DataNode node = operationResult.getOperation().getData();
-			//				// TODO Collect operation events
-			//				//getResultCollector( node ).events.addAll( operationResult.getEvents() );
-			//				//getResultCollector( node ).modified.addAll( operationResult.getMetaValueEvents() );
-			//
-			//			// Send the events for each data node.
-			//			for( DataNode node : nodes.values() ) {
-			//				boolean oldModified = (Boolean)node.getResource( PREVIOUS_MODIFIED_STATE );
-			//				boolean newModified = node.isModified();
-			//				node.putResource( PREVIOUS_MODIFIED_STATE, null );
-			//				collectFinalEvents( node, node, oldModified, newModified );
-			//			}
-
-			//			dispatchTransactionEvents();
 		} finally {
 			committingTransaction = null;
 			doReset();
 			commitLock.unlock();
 			log.trace( "Transaction[" + System.identityHashCode( this ) + "] committed!" );
 		}
+
+		//System.out.println( "Commit complete!" );
 	}
 
 	private List<TxnOperationResult> processOperations( Phase phase ) throws TxnException {

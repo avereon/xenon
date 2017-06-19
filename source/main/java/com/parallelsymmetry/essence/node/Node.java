@@ -168,6 +168,10 @@ public class Node implements TxnEventDispatcher {
 		}
 	}
 
+	public Collection<NodeListener> getNodeListeners() {
+		return listeners == null ? new HashSet<>() : new HashSet<>( listeners );
+	}
+
 	public synchronized void addNodeListener( NodeListener listener ) {
 		if( listeners == null ) listeners = new CopyOnWriteArraySet<>();
 		listeners.add( listener );
@@ -291,6 +295,29 @@ public class Node implements TxnEventDispatcher {
 		if( !modified ) modifiedValues = null;
 	}
 
+	private void doSetFlag( String key, boolean newValue ) {
+		if( newValue ) {
+			if( flags == null ) flags = new CopyOnWriteArraySet<>();
+			flags.add( key );
+		} else {
+			if( flags != null ) {
+				flags.remove( key );
+				if( flags.size() == 0 ) flags = null;
+			}
+		}
+	}
+
+	private void doSetValue( String key, Object value ) {
+		if( value == null ) {
+			if( values == null ) return;
+			values.remove( key );
+			if( values.size() == 0 ) values = null;
+		} else {
+			if( values == null ) values = new ConcurrentHashMap<>();
+			values.put( key, value );
+		}
+	}
+
 	private Set<Edge> findEdges( Set<Edge> edges, Node source, Node target ) {
 		Set<Edge> result = new HashSet<>();
 
@@ -328,27 +355,16 @@ public class Node implements TxnEventDispatcher {
 		@Override
 		protected void commit() throws TxnException {
 			boolean newValue = modifiedValues != null && modifiedValues.size() > 0;
-			if( newValue != oldValue ) setFlag( MODIFIED, oldValue, newValue );
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
+			if( newValue != oldValue ) {
+				doSetFlag( MODIFIED, newValue );
+				getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+			}
+			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
 		}
 
 		@Override
 		protected void revert() throws TxnException {
-			// No-op
-		}
-
-		private void setFlag( String key, boolean oldValue, boolean newValue ) {
-			if( newValue ) {
-				if( flags == null ) flags = new CopyOnWriteArraySet<>();
-				flags.add( key );
-			} else {
-				if( flags != null ) {
-					flags.remove( key );
-					if( flags.size() == 0 ) flags = null;
-				}
-			}
-
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
+			doSetFlag( MODIFIED, oldValue );
 		}
 
 	}
@@ -379,20 +395,13 @@ public class Node implements TxnEventDispatcher {
 		}
 
 		private void setValue( String key, Object value ) {
-			if( value == null ) {
-				if( values == null ) return;
-				values.remove( key );
-				if( values.size() == 0 ) values = null;
-			} else {
-				if( values == null ) values = new ConcurrentHashMap<>();
-				values.put( key, value );
-			}
+			doSetValue( key, value );
 
 			// Update the modified value map
 			Object preValue = modifiedValues == null ? null : modifiedValues.get( key );
 			if( preValue == null ) {
 				// Only add the value if there is not an existing previous value
-				if( modifiedValues == null ) modifiedValues = new ConcurrentHashMap<String, Object>();
+				if( modifiedValues == null ) modifiedValues = new ConcurrentHashMap<>();
 				modifiedValues.put( key, oldValue == null ? NULL : oldValue );
 			} else if( Objects.equals( preValue == NULL ? null : preValue, newValue ) ) {
 				if( modifiedValues != null ) {
@@ -432,15 +441,7 @@ public class Node implements TxnEventDispatcher {
 		}
 
 		private void setFlag( String key, boolean oldValue, boolean newValue ) {
-			if( newValue ) {
-				if( flags == null ) flags = new CopyOnWriteArraySet<>();
-				flags.add( key );
-			} else {
-				if( flags != null ) {
-					flags.remove( key );
-					if( flags.size() == 0 ) flags = null;
-				}
-			}
+			doSetFlag( key, newValue );
 
 			if( MODIFIED.equals( key ) ) updateModified( newValue );
 
