@@ -68,25 +68,25 @@ public class Node implements TxnEventDispatcher {
 		return new HashSet<>( edges );
 	}
 
-	public Edge add( Node target ) {
-		return add( target, false );
-	}
-
-	public Edge add( Node target, boolean directed ) {
-		Edge edge = new Edge( this, target, directed );
-		addEdge( edge );
-		target.addEdge( edge );
-		return edge;
-	}
-
-	public void remove( Node target ) {
-		// Find all edges where target is a source or target
-		for( Edge edge : findEdges( this.edges, this, target ) ) {
-			edge.getSource().removeEdge( edge );
-			edge.getTarget().removeEdge( edge );
-		}
-
-	}
+	//	public Edge add( Node target ) {
+	//		return add( target, false );
+	//	}
+	//
+	//	public Edge add( Node target, boolean directed ) {
+	//		Edge edge = new Edge( this, target, directed );
+	//		addEdge( edge );
+	//		target.addEdge( edge );
+	//		return edge;
+	//	}
+	//
+	//	public void remove( Node target ) {
+	//		// Find all edges where target is a source or target
+	//		for( Edge edge : findEdges( this.edges, this, target ) ) {
+	//			edge.getSource().removeEdge( edge );
+	//			edge.getTarget().removeEdge( edge );
+	//		}
+	//
+	//	}
 
 	@SuppressWarnings( "unchecked" )
 	public <T> T getValue( String key ) {
@@ -155,7 +155,6 @@ public class Node implements TxnEventDispatcher {
 		try {
 			Txn.create();
 			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
-			//Txn.submitAfter( new UpdateModifiedFlagOperation( this ) );
 			//getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
 
 			// Propagate the value to parent
@@ -244,7 +243,7 @@ public class Node implements TxnEventDispatcher {
 
 	@Override
 	public boolean equals( Object object ) {
-		if( this.getClass() != object.getClass() ) return false;
+		if( object == null || this.getClass() != object.getClass() ) return false;
 
 		Node that = (Node)object;
 		if( primaryKeyList != null ) {
@@ -306,7 +305,7 @@ public class Node implements TxnEventDispatcher {
 		edges.remove( edge );
 	}
 
-	void checkForCircularReference( Node node ) {
+	private void checkForCircularReference( Node node ) {
 		Node parent = this;
 		while( parent != null ) {
 			if( node == parent ) throw new CircularReferenceException( "Circular reference detected in parent path: " + node );
@@ -393,9 +392,15 @@ public class Node implements TxnEventDispatcher {
 			boolean newValue = modifiedValues != null && modifiedValues.size() > 0;
 			if( newValue != oldValue ) {
 				doSetFlag( MODIFIED, newValue );
-				getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
 			}
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
+
+
+			// FIXME Unable to send event to parent...
+			Node parent = getNode().getParent();
+			System.out.println( "parent=" + parent );
+			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
 		}
 
 		@Override
@@ -446,7 +451,15 @@ public class Node implements TxnEventDispatcher {
 				}
 			}
 
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.VALUE_CHANGED, key, oldValue, newValue ) );
+			NodeEvent.Type type = NodeEvent.Type.VALUE_CHANGED;
+			// FIXME Enable value insert and remove events
+			//			type = oldValue == null ? NodeEvent.Type.VALUE_INSERT : type;
+			//			type = newValue == null ? NodeEvent.Type.VALUE_REMOVE : type;
+
+			getResult().addEvent( new NodeEvent( getNode(), type, key, oldValue, newValue ) );
+
+			Node parent = Node.this.getParent();
+			if( parent != null ) getResult().addEvent( new NodeEvent( getNode(), parent, type, key, oldValue, newValue ) );
 		}
 
 	}
@@ -481,8 +494,8 @@ public class Node implements TxnEventDispatcher {
 
 			if( MODIFIED.equals( key ) ) updateModified( newValue );
 
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
-			getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
 		}
 
 	}

@@ -7,9 +7,11 @@ import java.util.Objects;
 public class NodeEvent extends TxnEvent {
 
 	public enum Type {
-		VALUE_CHANGED,
-		FLAG_CHANGED,
 		NODE_CHANGED,
+		FLAG_CHANGED,
+		VALUE_INSERT,
+		VALUE_CHANGED,
+		VALUE_REMOVE,
 		CHILD_ADDED,
 		CHILD_REMOVED
 	}
@@ -39,6 +41,14 @@ public class NodeEvent extends TxnEvent {
 
 	public NodeEvent( Node node, Type type, String key, Object oldValue, Object newValue ) {
 		this( node, type );
+		this.key = key;
+		this.oldValue = oldValue;
+		this.newValue = newValue;
+	}
+
+	public NodeEvent( Node node, Node child, Type type, String key, Object oldValue, Object newValue ) {
+		this( node, type );
+		this.child = child;
 		this.key = key;
 		this.oldValue = oldValue;
 		this.newValue = newValue;

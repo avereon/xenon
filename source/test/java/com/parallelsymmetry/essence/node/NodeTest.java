@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -454,49 +455,6 @@ public class NodeTest {
 		assertThat( watcher, hasEventCounts( 1, 1, 1 ) );
 	}
 
-	// NEXT Continue implementing tests
-
-	//	public void testParentDataEventNotification() {
-	//		MockDataNode data = new MockDataNode();
-	//		MockDataNode child = new MockDataNode();
-	//		data.setValue( "child", child );
-	//		DataEventWatcher handler = data.getDataEventWatcher();
-	//		assertNodeState( child, false, 0 );
-	//		assertEventCounts( handler, 1, 1, 1 );
-	//
-	//		// Insert an attribute.
-	//		child.setValue( "attribute", "value0" );
-	//		assertNodeState( child, true, 1 );
-	//		assertEventCounts( handler, 2, 1, 2 );
-	//
-	//		// Modify the attribute to the same value. Should do nothing.
-	//		child.setValue( "attribute", "value0" );
-	//		assertNodeState( child, true, 1 );
-	//		assertEventCounts( handler, 2, 1, 2 );
-	//
-	//		// Modify the attribute.
-	//		child.setValue( "attribute", "value1" );
-	//		assertNodeState( child, true, 1 );
-	//		assertEventCounts( handler, 3, 1, 3 );
-	//
-	//		// Remove the attribute.
-	//		child.setValue( "attribute", null );
-	//		assertNodeState( child, false, 0 );
-	//		assertEventCounts( handler, 4, 1, 4 );
-	//
-	//		int index = 0;
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.INSERT, data, data, "child", null, child );
-	//		assertEventState( handler, index++, DataEvent.Type.META_ATTRIBUTE, DataEvent.Action.MODIFY, data, data, DataNode.MODIFIED, false, true );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.INSERT, data, child, "attribute", null, "value0" );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.MODIFY, data, child, "attribute", "value0", "value1" );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.REMOVE, data, child, "attribute", "value1", null );
-	//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-	//		assertEquals( index++, handler.getEvents().size() );
-	//	}
-
 	@Test
 	public void testGetParent() {
 		MockNode parent = new MockNode();
@@ -512,23 +470,74 @@ public class NodeTest {
 		assertThat( child.getParent(), is( nullValue() ) );
 	}
 
-	//	@Test
-	//	public void testGetNodePath() {
-	//		MockDataList list = new MockDataList();
-	//		MockDataNode child = new MockDataNode();
-	//
-	//		list.add( child );
-	//
-	//		List<DataNode> path = list.getNodePath();
-	//		assertEquals( 1, path.size() );
-	//		assertEquals( list, path.get( 0 ) );
-	//
-	//		path = child.getNodePath();
-	//		assertEquals( 2, path.size() );
-	//		assertEquals( list, path.get( 0 ) );
-	//		assertEquals( child, path.get( 1 ) );
-	//	}
-	//
+	@Test
+	public void testGetNodePath() {
+		MockNode parent = new MockNode();
+		MockNode child = new MockNode();
+
+		parent.setValue( "child", child );
+
+		List<Node> path = parent.getNodePath();
+		assertThat( path.size(), is( 1 ) );
+		assertThat( path.get( 0 ), is( parent ) );
+
+		path = child.getNodePath();
+		assertThat( path.size(), is( 2 ) );
+		assertThat( path.get( 0 ), is( parent ) );
+		assertThat( path.get( 1 ), is( child ) );
+	}
+
+	// NEXT Continue implementing tests
+
+	@Test
+	public void testParentDataEventNotification() {
+		MockNode data = new MockNode();
+		MockNode child = new MockNode();
+
+		NodeWatcher watcher = new NodeWatcher();
+		data.addNodeListener( watcher );
+
+		data.setValue( "child", child );
+
+		assertThat( child, hasStates( false, 0 ) );
+		assertThat( watcher, hasEventCounts( 1, 1, 1 ) );
+
+		// Set a value
+		child.setValue( "attribute", "value0" );
+		assertThat( child, hasStates( true, 1 ) );
+		//assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
+
+		//		// Set the value to the same value. Should do nothing.
+		//		child.setValue( "attribute", "value0" );
+		//		assertThat( child, hasStates( true, 1 ) );
+		//		assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
+
+		//		// Modify the attribute.
+		//		child.setValue( "attribute", "value1" );
+		//		assertNodeState( child, true, 1 );
+		//		assertEventCounts( watcher, 3, 1, 3 );
+		//
+		//		// Remove the attribute.
+		//		child.setValue( "attribute", null );
+		//		assertNodeState( child, false, 0 );
+		//		assertEventCounts( watcher, 4, 1, 4 );
+
+		int index = 0;
+		assertEventState( watcher, index++, data, NodeEvent.Type.VALUE_CHANGED, "child", null, child );
+		assertEventState( watcher, index++, data, NodeEvent.Type.FLAG_CHANGED, Node.MODIFIED, false, true );
+		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
+
+		assertEventState( watcher, index++, data, child, NodeEvent.Type.VALUE_CHANGED, "attribute", null, "value0" );
+
+		//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.INSERT, data, child, "attribute", null, "value0" );
+		//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
+		//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.MODIFY, data, child, "attribute", "value0", "value1" );
+		//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
+		//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.REMOVE, data, child, "attribute", "value1", null );
+		//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
+		//		assertEquals( index++, handler.getEvents().size() );
+	}
+
 	//	public void testParentModifiedByChildNodeAttributeChange() {
 	//		MockDataNode parent = new MockDataNode();
 	//		MockDataNode child = new MockDataNode();
@@ -862,27 +871,27 @@ public class NodeTest {
 		assertThat( data1.equals( data2 ), is( true ) );
 	}
 
-	@Test
-	public void testLink() {
-		Node target = new Node();
-		Edge edge = data.add( target );
-
-		assertThat( edge.isDirected(), is( false ) );
-		assertThat( data.getLinks(), contains( edge ) );
-	}
-
-	@Test
-	public void testUnlink() {
-		Node target = new Node();
-		Edge edge = data.add( target );
-
-		assertThat( edge.isDirected(), is( false ) );
-		assertThat( data.getLinks(), contains( edge ) );
-
-		data.remove( edge.getTarget() );
-
-		assertThat( data.getLinks(), not( contains( edge ) ) );
-	}
+	//	@Test
+	//	public void testLink() {
+	//		Node target = new Node();
+	//		Edge edge = data.add( target );
+	//
+	//		assertThat( edge.isDirected(), is( false ) );
+	//		assertThat( data.getLinks(), contains( edge ) );
+	//	}
+	//
+	//	@Test
+	//	public void testUnlink() {
+	//		Node target = new Node();
+	//		Edge edge = data.add( target );
+	//
+	//		assertThat( edge.isDirected(), is( false ) );
+	//		assertThat( data.getLinks(), contains( edge ) );
+	//
+	//		data.remove( edge.getTarget() );
+	//
+	//		assertThat( data.getLinks(), not( contains( edge ) ) );
+	//	}
 
 	private void listEvents( NodeWatcher watcher ) {
 		for( NodeEvent event : watcher.getEvents() ) {
@@ -949,6 +958,10 @@ public class NodeTest {
 		assertThat( watcher.getEvents().get( index ), hasEventState( node, type, key, oldValue, newValue ) );
 	}
 
+	private static void assertEventState( NodeWatcher watcher, int index, Node parent, Node child, NodeEvent.Type type, String key, Object oldValue, Object newValue ) {
+		assertThat( watcher.getEvents().get( index ), hasEventState( parent, child, type, key, oldValue, newValue ) );
+	}
+
 	private static Matcher<NodeEvent> hasEventState( Node node, NodeEvent.Type type ) {
 		Matcher<NodeEvent> eventNode = eventNode( is( node ) );
 		Matcher<NodeEvent> eventType = eventType( is( type ) );
@@ -964,12 +977,33 @@ public class NodeTest {
 		return allOf( eventNode, eventType, eventKey, eventOldValue, eventNewValue );
 	}
 
+	private static Matcher<NodeEvent> hasEventState( Node node, Node child, NodeEvent.Type type, String key, Object oldValue, Object newValue ) {
+		Matcher<NodeEvent> eventNode = eventNode( is( node ) );
+		Matcher<NodeEvent> eventChild = eventChild( is( child ) );
+		Matcher<NodeEvent> eventType = eventType( is( type ) );
+		Matcher<NodeEvent> eventKey = eventKey( is( key ) );
+		Matcher<NodeEvent> eventOldValue = eventOldValue( is( oldValue ) );
+		Matcher<NodeEvent> eventNewValue = eventNewValue( is( newValue ) );
+		return allOf( eventNode, eventType, eventKey, eventOldValue, eventNewValue );
+	}
+
 	private static Matcher<NodeEvent> eventNode( Matcher<? super Node> matcher ) {
 		return new FeatureMatcher<NodeEvent, Node>( matcher, "node", "node" ) {
 
 			@Override
 			protected Node featureValueOf( NodeEvent event ) {
 				return event.getNode();
+			}
+
+		};
+	}
+
+	private static Matcher<NodeEvent> eventChild( Matcher<? super Node> matcher ) {
+		return new FeatureMatcher<NodeEvent, Node>( matcher, "node", "node" ) {
+
+			@Override
+			protected Node featureValueOf( NodeEvent event ) {
+				return event.getChild();
 			}
 
 		};

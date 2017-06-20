@@ -136,6 +136,7 @@ public class Txn {
 			Map<TxnEventDispatcher, List<TxnEvent>> txnEvents = new HashMap<>();
 			for( TxnOperationResult operationResult : operationResults ) {
 				for( TxnEvent event : operationResult.getEvents() ) {
+					System.out.print( "Dispatch event: " + event );
 					TxnEventDispatcher dispatcher = event.getDispatcher();
 					List<TxnEvent> events = txnEvents.computeIfAbsent( dispatcher, k -> new ArrayList<>() );
 					int index = events.indexOf( event );
@@ -143,8 +144,10 @@ public class Txn {
 					if( index > -1 ) {
 						TxnEvent removedEvent = events.remove( index );
 						//System.out.println( "Removed event: " + removedEvent );
+						System.out.println( "  removed");
 					}
 					events.add( event );
+					System.out.println( "  added");
 				}
 			}
 
