@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.node;
 
+import com.parallelsymmetry.essence.data.CircularReferenceException;
 import com.parallelsymmetry.essence.transaction.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,11 @@ public class Node implements TxnEventDispatcher {
 
 	// A special object to represent null values
 	private static final Object NULL = new Object();
+
+	/**
+	 * The parent of the node.
+	 */
+	private Node parent;
 
 	/**
 	 * The node flags.
@@ -160,6 +166,26 @@ public class Node implements TxnEventDispatcher {
 		}
 	}
 
+	Node getParent() {
+		return parent;
+	}
+
+	void setParent( Node parent ) {
+		checkForCircularReference( parent );
+		this.parent = parent;
+	}
+
+	List<Node> getNodePath() {
+		return getNodePath( null );
+	}
+
+	List<Node> getNodePath( Node stop ) {
+		List<Node> path = new ArrayList<Node>();
+		if( this != stop && parent != null ) path = parent.getNodePath();
+		path.add( this );
+		return path;
+	}
+
 	@Override
 	public void dispatchEvent( TxnEvent event ) {
 		if( listeners == null || !(event instanceof NodeEvent) ) return;
@@ -280,6 +306,14 @@ public class Node implements TxnEventDispatcher {
 		edges.remove( edge );
 	}
 
+	void checkForCircularReference( Node node ) {
+		Node parent = this;
+		while( parent != null ) {
+			if( node == parent ) throw new CircularReferenceException( "Circular reference detected in parent path: " + node );
+			parent = parent.getParent();
+		}
+	}
+
 	private int calculateStateHash() {
 		if( values == null ) return 0;
 
@@ -307,14 +341,16 @@ public class Node implements TxnEventDispatcher {
 		}
 	}
 
-	private void doSetValue( String key, Object value ) {
-		if( value == null ) {
+	private void doSetValue( String key, Object oldValue, Object newValue ) {
+		if( newValue == null ) {
 			if( values == null ) return;
 			values.remove( key );
 			if( values.size() == 0 ) values = null;
+			if( oldValue instanceof Node ) ((Node)oldValue).setParent( null );
 		} else {
 			if( values == null ) values = new ConcurrentHashMap<>();
-			values.put( key, value );
+			values.put( key, newValue );
+			if( newValue instanceof Node ) ((Node)newValue).setParent( this );
 		}
 	}
 
@@ -386,16 +422,16 @@ public class Node implements TxnEventDispatcher {
 
 		@Override
 		protected void commit() throws TxnException {
-			setValue( key, newValue );
+			setValue( key, oldValue, newValue );
 		}
 
 		@Override
 		protected void revert() throws TxnException {
-			setValue( key, oldValue );
+			setValue( key, newValue, oldValue );
 		}
 
-		private void setValue( String key, Object value ) {
-			doSetValue( key, value );
+		private void setValue( String key, Object oldValue, Object newValue ) {
+			doSetValue( key, oldValue, newValue );
 
 			// Update the modified value map
 			Object preValue = modifiedValues == null ? null : modifiedValues.get( key );

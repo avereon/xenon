@@ -496,23 +496,22 @@ public class NodeTest {
 	//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
 	//		assertEquals( index++, handler.getEvents().size() );
 	//	}
-	//
-	//	@Test
-	//	public void testGetParent() {
-	//		MockDataNode parent = new MockDataNode();
-	//		MockDataNode child = new MockDataNode();
-	//		//assertEquals( 0, child.getParents().size() );
-	//		assertNull( child.getParent() );
-	//
-	//		String key = "key";
-	//
-	//		parent.setValue( key, child );
-	//		assertEquals( child.getParent(), parent );
-	//
-	//		parent.setValue( key, null );
-	//		assertNull( child.getParent() );
-	//	}
-	//
+
+	@Test
+	public void testGetParent() {
+		MockNode parent = new MockNode();
+		MockNode child = new MockNode();
+		assertThat( child.getParent(), is( nullValue() ) );
+
+		String key = "key";
+
+		parent.setValue( key, child );
+		assertThat( child.getParent(), is( parent ) );
+
+		parent.setValue( key, null );
+		assertThat( child.getParent(), is( nullValue() ) );
+	}
+
 	//	@Test
 	//	public void testGetNodePath() {
 	//		MockDataList list = new MockDataList();
