@@ -6,18 +6,18 @@ public class MockNode extends Node {
 		this( null );
 	}
 
-	MockNode( String name ) {
-		definePrimaryKey( "name" );
-		setName( name );
+	MockNode( String id ) {
+		definePrimaryKey( "id" );
+		setId( id );
 		setModified( false );
 	}
 
-	private String getName() {
-		return getValue( "name" );
+	private String getId() {
+		return getValue( "id" );
 	}
 
-	private void setName( String name ) {
-		setValue( "name", name );
+	private void setId( String id ) {
+		setValue( "id", id );
 	}
 
 }

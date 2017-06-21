@@ -831,7 +831,6 @@ public class NodeTest {
 
 	@Test
 	public void testHashCode() {
-		data.definePrimaryKey( "id" );
 		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.hashCode(), is( 0 ) );
 
@@ -847,10 +846,8 @@ public class NodeTest {
 	@Test
 	public void testEquals() {
 		MockNode data1 = new MockNode();
-		data1.definePrimaryKey( "id" );
 		data1.defineBusinessKey( "firstName", "lastName", "birthDate" );
 		MockNode data2 = new MockNode();
-		data2.definePrimaryKey( "id" );
 		data2.defineBusinessKey( "firstName", "lastName", "birthDate" );
 		assertThat( data1.equals( data2 ), is( true ) );
 
