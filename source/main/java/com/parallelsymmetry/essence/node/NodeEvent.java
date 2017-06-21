@@ -34,7 +34,7 @@ public class NodeEvent extends TxnEvent {
 		this.type = type;
 	}
 
-	public NodeEvent( Node node, Type type, Node child ) {
+	public NodeEvent( Node node, Node child, Type type ) {
 		this( node, type );
 		this.child = child;
 	}
@@ -83,14 +83,24 @@ public class NodeEvent extends TxnEvent {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getClass().getSimpleName());
-		builder.append( "[");
-		builder.append( "type=" );
+		builder.append( "[ ");
+		builder.append( "node=");
+		builder.append( node );
+		if( child != null ) {
+			builder.append( ", child=");
+			builder.append( child );
+		}
+		builder.append( ", type=" );
 		builder.append( type );
 		if( key != null ) {
-			builder.append( ",key=" );
+			builder.append( ", key=" );
 			builder.append( key );
+			builder.append( ", oldValue=" );
+			builder.append( oldValue );
+			builder.append( ", newValue=" );
+			builder.append( newValue );
 		}
-		builder.append( "]");
+		builder.append( " ]");
 
 		return builder.toString();
 	}

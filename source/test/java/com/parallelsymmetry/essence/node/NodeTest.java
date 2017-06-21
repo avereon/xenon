@@ -391,14 +391,14 @@ public class NodeTest {
 		assertThat( watcher, hasEventCounts( 3, 2, 3 ) );
 
 		int index = 0;
-		assertEventState( watcher, index++, data, NodeEvent.Type.VALUE_CHANGED, "attribute", null, "value0" );
-		assertEventState( watcher, index++, data, NodeEvent.Type.FLAG_CHANGED, Node.MODIFIED, false, true );
-		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
-		assertEventState( watcher, index++, data, NodeEvent.Type.VALUE_CHANGED, "attribute", "value0", "value1" );
-		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
-		assertEventState( watcher, index++, data, NodeEvent.Type.VALUE_CHANGED, "attribute", "value1", null );
-		assertEventState( watcher, index++, data, NodeEvent.Type.FLAG_CHANGED, Node.MODIFIED, true, false );
-		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", null, "value0" );
+		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, false, true );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", "value0", "value1" );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", "value1", null );
+		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, true, false );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
@@ -426,11 +426,11 @@ public class NodeTest {
 		assertThat( watcher, hasEventCounts( 2, 2, 1 ) );
 
 		int index = 0;
-		assertEventState( watcher, index++, data, NodeEvent.Type.VALUE_CHANGED, "attribute", null, "value0" );
-		assertEventState( watcher, index++, data, NodeEvent.Type.FLAG_CHANGED, Node.MODIFIED, false, true );
-		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
-		assertEventState( watcher, index++, data, NodeEvent.Type.FLAG_CHANGED, Node.MODIFIED, true, false );
-		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", null, "value0" );
+		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, false, true );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
+		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, true, false );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
@@ -491,8 +491,8 @@ public class NodeTest {
 
 	@Test
 	public void testParentDataEventNotification() {
-		MockNode data = new MockNode();
-		MockNode child = new MockNode();
+		MockNode data = new MockNode( "parent" );
+		MockNode child = new MockNode( "child" );
 
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
@@ -505,37 +505,35 @@ public class NodeTest {
 		// Set a value
 		child.setValue( "attribute", "value0" );
 		assertThat( child, hasStates( true, 1 ) );
-		//assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
+		assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
 
-		//		// Set the value to the same value. Should do nothing.
-		//		child.setValue( "attribute", "value0" );
-		//		assertThat( child, hasStates( true, 1 ) );
-		//		assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
+		// Set the value to the same value. Should do nothing.
+		child.setValue( "attribute", "value0" );
+		assertThat( child, hasStates( true, 1 ) );
+		assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
 
-		//		// Modify the attribute.
-		//		child.setValue( "attribute", "value1" );
-		//		assertNodeState( child, true, 1 );
-		//		assertEventCounts( watcher, 3, 1, 3 );
-		//
-		//		// Remove the attribute.
-		//		child.setValue( "attribute", null );
-		//		assertNodeState( child, false, 0 );
-		//		assertEventCounts( watcher, 4, 1, 4 );
+		// Modify the attribute.
+		child.setValue( "attribute", "value1" );
+		assertThat( child, hasStates( true, 1 ) );
+		assertThat( watcher, hasEventCounts( 3, 1, 3 ) );
+
+		// Remove the attribute.
+		child.setValue( "attribute", null );
+		assertThat( child, hasStates( false, 0 ) );
+		assertThat( watcher, hasEventCounts( 4, 1, 4 ) );
 
 		int index = 0;
-		assertEventState( watcher, index++, data, NodeEvent.Type.VALUE_CHANGED, "child", null, child );
-		assertEventState( watcher, index++, data, NodeEvent.Type.FLAG_CHANGED, Node.MODIFIED, false, true );
-		assertEventState( watcher, index++, data, NodeEvent.Type.NODE_CHANGED );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "child", null, child );
+		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, false, true );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 
-		assertEventState( watcher, index++, data, child, NodeEvent.Type.VALUE_CHANGED, "attribute", null, "value0" );
-
-		//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.INSERT, data, child, "attribute", null, "value0" );
-		//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-		//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.MODIFY, data, child, "attribute", "value0", "value1" );
-		//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-		//		assertEventState( handler, index++, DataEvent.Type.DATA_ATTRIBUTE, DataEvent.Action.REMOVE, data, child, "attribute", "value1", null );
-		//		assertEventState( handler, index++, DataEvent.Type.DATA_CHANGED, DataEvent.Action.MODIFY, data );
-		//		assertEquals( index++, handler.getEvents().size() );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, child, "attribute", null, "value0" );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, child, "attribute", "value0", "value1" );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
+		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, child, "attribute", "value1", null );
+		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
+		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
 	//	public void testParentModifiedByChildNodeAttributeChange() {
@@ -950,15 +948,15 @@ public class NodeTest {
 		};
 	}
 
-	private static void assertEventState( NodeWatcher watcher, int index, Node node, NodeEvent.Type type ) {
+	private static void assertEventState( NodeWatcher watcher, int index, NodeEvent.Type type, Node node ) {
 		assertThat( watcher.getEvents().get( index ), hasEventState( node, type ) );
 	}
 
-	private static void assertEventState( NodeWatcher watcher, int index, Node node, NodeEvent.Type type, String key, Object oldValue, Object newValue ) {
+	private static void assertEventState( NodeWatcher watcher, int index, NodeEvent.Type type, Node node, String key, Object oldValue, Object newValue ) {
 		assertThat( watcher.getEvents().get( index ), hasEventState( node, type, key, oldValue, newValue ) );
 	}
 
-	private static void assertEventState( NodeWatcher watcher, int index, Node parent, Node child, NodeEvent.Type type, String key, Object oldValue, Object newValue ) {
+	private static void assertEventState( NodeWatcher watcher, int index, NodeEvent.Type type, Node parent, Node child, String key, Object oldValue, Object newValue ) {
 		assertThat( watcher.getEvents().get( index ), hasEventState( parent, child, type, key, oldValue, newValue ) );
 	}
 

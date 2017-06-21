@@ -10,7 +10,7 @@ public class TxnEvent extends EventObject {
 		this( dispatcher, dispatcher );
 	}
 
-	public TxnEvent( TxnEventDispatcher dispatcher, Object source ) {
+	public TxnEvent( Object source, TxnEventDispatcher dispatcher ) {
 		super( source );
 		this.dispatcher = dispatcher;
 	}

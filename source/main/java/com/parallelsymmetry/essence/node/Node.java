@@ -187,9 +187,12 @@ public class Node implements TxnEventDispatcher {
 
 	@Override
 	public void dispatchEvent( TxnEvent event ) {
-		if( listeners == null || !(event instanceof NodeEvent) ) return;
-		for( NodeListener listener : listeners ) {
-			listener.eventOccurred( (NodeEvent)event );
+		if( !(event instanceof NodeEvent) ) return;
+
+		if( listeners != null ) {
+			for( NodeListener listener : listeners ) {
+				listener.eventOccurred( (NodeEvent)event );
+			}
 		}
 	}
 
@@ -378,38 +381,6 @@ public class Node implements TxnEventDispatcher {
 
 	}
 
-	private class UpdateModifiedFlagOperation extends NodeTxnOperation {
-
-		private boolean oldValue;
-
-		UpdateModifiedFlagOperation( Node node ) {
-			super( node );
-			oldValue = node.isModified();
-		}
-
-		@Override
-		protected void commit() throws TxnException {
-			boolean newValue = modifiedValues != null && modifiedValues.size() > 0;
-			if( newValue != oldValue ) {
-				doSetFlag( MODIFIED, newValue );
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
-			}
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
-
-
-			// FIXME Unable to send event to parent...
-			Node parent = getNode().getParent();
-			System.out.println( "parent=" + parent );
-			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
-		}
-
-		@Override
-		protected void revert() throws TxnException {
-			doSetFlag( MODIFIED, oldValue );
-		}
-
-	}
-
 	private class SetValueOperation extends NodeTxnOperation {
 
 		private String key;
@@ -459,7 +430,7 @@ public class Node implements TxnEventDispatcher {
 			getResult().addEvent( new NodeEvent( getNode(), type, key, oldValue, newValue ) );
 
 			Node parent = Node.this.getParent();
-			if( parent != null ) getResult().addEvent( new NodeEvent( getNode(), parent, type, key, oldValue, newValue ) );
+			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), type, key, oldValue, newValue ) );
 		}
 
 	}
@@ -496,6 +467,35 @@ public class Node implements TxnEventDispatcher {
 
 			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
 			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+		}
+
+	}
+
+	private class UpdateModifiedFlagOperation extends NodeTxnOperation {
+
+		private boolean oldValue;
+
+		UpdateModifiedFlagOperation( Node node ) {
+			super( node );
+			oldValue = node.isModified();
+		}
+
+		@Override
+		protected void commit() throws TxnException {
+			boolean newValue = modifiedValues != null && modifiedValues.size() > 0;
+			if( newValue != oldValue ) {
+				doSetFlag( MODIFIED, newValue );
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+			}
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
+
+			Node parent = getNode().getParent();
+			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), NodeEvent.Type.NODE_CHANGED ) );
+		}
+
+		@Override
+		protected void revert() throws TxnException {
+			doSetFlag( MODIFIED, oldValue );
 		}
 
 	}
