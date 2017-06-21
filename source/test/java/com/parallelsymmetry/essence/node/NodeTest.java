@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.node;
 
+import com.parallelsymmetry.essence.data.CircularReferenceException;
 import com.parallelsymmetry.essence.transaction.Txn;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -536,39 +537,44 @@ public class NodeTest {
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
-	//	public void testParentModifiedByChildNodeAttributeChange() {
-	//		MockDataNode parent = new MockDataNode();
-	//		MockDataNode child = new MockDataNode();
-	//		DataEventWatcher parentHandler = parent.getDataEventWatcher();
-	//		DataEventWatcher childHandler = child.getDataEventWatcher();
-	//		assertNodeState( parent, false, 0 );
-	//
-	//		parent.setValue( "child", child );
-	//		assertNodeState( parent, true, 1 );
-	//		assertEventCounts( parentHandler, 1, 1, 1 );
-	//		assertEventCounts( childHandler, 0, 0, 0 );
-	//
-	//		parent.setModified( false );
-	//		assertNodeState( parent, false, 0 );
-	//		assertEventCounts( parentHandler, 2, 2, 1 );
-	//
-	//		// Test setting an attribute on the child node modifies the parent.
-	//		child.setValue( "attribute", "value" );
-	//		assertEquals( child.getParent(), parent );
-	//
-	//		assertNodeState( child, true, 1 );
-	//		assertNodeState( parent, true, 1 );
-	//		assertEventCounts( parentHandler, 3, 3, 2 );
-	//		assertEventCounts( childHandler, 1, 1, 1 );
-	//
-	//		// Test unsetting an attribute on the child node unmodifies the parent.
-	//		child.setValue( "attribute", null );
-	//		assertNodeState( child, false, 0 );
-	//		assertNodeState( parent, false, 0 );
-	//		assertEventCounts( parentHandler, 4, 4, 3 );
-	//		assertEventCounts( childHandler, 2, 2, 2 );
-	//	}
-	//
+	@Test
+	public void testParentModifiedByChildNodeAttributeChange() {
+		MockNode parent = new MockNode("parent");
+		MockNode child = new MockNode("child");
+		NodeWatcher parentHandler = new NodeWatcher();
+		NodeWatcher childHandler = new NodeWatcher();
+		parent.addNodeListener( parentHandler );
+		child.addNodeListener( childHandler );
+
+		assertThat( parent, hasStates( false, 0 ) );
+		assertThat( child, hasStates( false, 0 ) );
+
+		parent.setValue( "child", child );
+		assertThat( parent, hasStates( true, 1 ) );
+		assertThat( parentHandler, hasEventCounts( 1, 1, 1 ) );
+		assertThat( childHandler, hasEventCounts( 0, 0, 0 ) );
+
+		parent.setModified( false );
+		assertThat( parent, hasStates( false, 0 ) );
+		assertThat( parentHandler, hasEventCounts( 2, 2, 1 ) );
+
+		// Test setting a value on the child node modifies the parent
+		child.setValue( "attribute", "value" );
+		assertThat( child.getParent(), is( parent ) );
+
+		assertThat( child, hasStates( true, 1 ) );
+		assertThat( parent, hasStates( true, 1 ) );
+//		assertThat( parentHandler, hasEventCounts( 3, 3, 2 ) );
+//		assertThat( childHandler, hasEventCounts( 1, 1, 1 ) );
+//
+//		// Test unsetting the value on the child node unmodifies the parent
+//		child.setValue( "attribute", null );
+//		assertThat( child, hasStates( false, 0 ) );
+//		assertThat( parent, hasStates( false, 0 ) );
+//		assertThat( parentHandler, hasEventCounts( 4, 4, 3 ) );
+//		assertThat( childHandler, hasEventCounts( 2, 2, 2 ) );
+	}
+
 	//	public void testParentModifiedByChildNodeAttributeRippleChange() {
 	//		MockDataNode parent = new MockDataNode();
 	//		MockDataNode child = new MockDataNode();
@@ -796,16 +802,17 @@ public class NodeTest {
 		assertThat( listeners, not( contains( watcher ) ) );
 	}
 
-	//	@Test
-	//	public void testCircularReferenceCheck() {
-	//		MockDataNode node = new MockDataNode();
-	//		try {
-	//			node.setValue( "node", node );
-	//			fail( "CircularReferenceException should be throw." );
-	//		} catch( CircularReferenceException exception ) {
-	//			// Intentionally ignore exception.
-	//		}
-	//	}
+	@Test
+	public void testCircularReferenceCheck() {
+		MockNode node = new MockNode();
+		try {
+			node.setValue( "node", node );
+			Assert.fail( "CircularReferenceException should be thrown" );
+		} catch( CircularReferenceException exception ) {
+			// Intentionally ignore exception.
+			assertThat( exception.getMessage(), startsWith( "Circular reference detected" ) );
+		}
+	}
 
 	@Test
 	public void testToString() {
@@ -895,7 +902,7 @@ public class NodeTest {
 	}
 
 	private static Matcher<Node> hasStates( boolean modified, int modifiedValueCount ) {
-		Matcher<Node> modifiedMatcher = flag( Node.MODIFIED, is( modified ) );
+		Matcher<Node> modifiedMatcher = modifiedFlag(  is( modified ) );
 		Matcher<Node> modifiedValueCountMatcher = modifiedValueCount( is( modifiedValueCount ) );
 		return allOf( modifiedMatcher, modifiedValueCountMatcher );
 	}
@@ -906,6 +913,17 @@ public class NodeTest {
 			@Override
 			protected Boolean featureValueOf( Node node ) {
 				return node.getFlag( key );
+			}
+
+		};
+	}
+
+	private static Matcher<Node> modifiedFlag( Matcher<? super Boolean> matcher ) {
+		return new FeatureMatcher<Node, Boolean>( matcher, "modified", "modified" ) {
+
+			@Override
+			protected Boolean featureValueOf( Node node ) {
+				return node.isModified();
 			}
 
 		};

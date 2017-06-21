@@ -62,12 +62,35 @@ public class Node implements TxnEventDispatcher {
 	 */
 	private Set<NodeListener> listeners;
 
+	private boolean modified;
+
+	private boolean selfModified;
+
+	private boolean treeModified;
+
+	private int modifiedChildCount;
+
 	private Map<String, Object> modifiedValues;
 
-	public Set<Edge> getLinks() {
-		return new HashSet<>( edges );
+	/**
+	 * Is the node modified. The node is modified if any data value has been
+	 * modified or any child node has been modified since the last time
+	 * setModified( false ) was called.
+	 *
+	 * @return true if this node or any child nodes are modified, false otherwise.
+	 */
+	public boolean isModified() {
+		return modified;
 	}
 
+	public void setModified( boolean modified ) {
+		setFlag( MODIFIED, modified );
+	}
+
+	//	public Set<Edge> getLinks() {
+	//		return new HashSet<>( edges );
+	//	}
+	//
 	//	public Edge add( Node target ) {
 	//		return add( target, false );
 	//	}
@@ -88,34 +111,6 @@ public class Node implements TxnEventDispatcher {
 	//
 	//	}
 
-	@SuppressWarnings( "unchecked" )
-	public <T> T getValue( String key ) {
-		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
-
-		return values == null ? null : (T)values.get( key );
-	}
-
-	public void setValue( String key, Object newValue ) {
-		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
-
-		Object oldValue = getValue( key );
-		if( newValue == oldValue ) return;
-
-		try {
-			Txn.create();
-			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
-			Txn.submitAfter( new UpdateModifiedFlagOperation( this ) );
-			Txn.commit();
-		} catch( TxnException exception ) {
-			log.error( "Error setting flag: " + key, exception );
-		}
-
-	}
-
-	public int getModifiedValueCount() {
-		return modifiedValues == null ? 0 : modifiedValues.size();
-	}
-
 	public <T> void putResource( String key, T value ) {
 		if( value == null ) {
 			if( resources != null ) {
@@ -131,58 +126,6 @@ public class Node implements TxnEventDispatcher {
 	@SuppressWarnings( "unchecked" )
 	public <T> T getResource( String key ) {
 		return resources == null ? null : (T)resources.get( key );
-	}
-
-	public boolean isModified() {
-		return getFlag( MODIFIED );
-	}
-
-	public void setModified( boolean modified ) {
-		setFlag( MODIFIED, modified );
-	}
-
-	protected boolean getFlag( String key ) {
-		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-		return flags != null && flags.contains( key );
-	}
-
-	protected void setFlag( String key, boolean newValue ) {
-		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-
-		boolean oldValue = getFlag( key );
-		if( newValue == oldValue ) return;
-
-		try {
-			Txn.create();
-			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
-			//getResult().addEvent( new NodeEvent( Node.this, NodeEvent.Type.NODE_CHANGED ) );
-
-			// Propagate the value to parent
-			// Propagate the value to children
-			Txn.commit();
-		} catch( TxnException exception ) {
-			log.error( "Error setting flag: " + key, exception );
-		}
-	}
-
-	Node getParent() {
-		return parent;
-	}
-
-	void setParent( Node parent ) {
-		checkForCircularReference( parent );
-		this.parent = parent;
-	}
-
-	List<Node> getNodePath() {
-		return getNodePath( null );
-	}
-
-	List<Node> getNodePath( Node stop ) {
-		List<Node> path = new ArrayList<Node>();
-		if( this != stop && parent != null ) path = parent.getNodePath();
-		path.add( this );
-		return path;
 	}
 
 	@Override
@@ -299,6 +242,79 @@ public class Node implements TxnEventDispatcher {
 		}
 	}
 
+	protected int getModifiedValueCount() {
+		return modifiedValues == null ? 0 : modifiedValues.size();
+	}
+
+	@SuppressWarnings( "unchecked" )
+	protected <T> T getValue( String key ) {
+		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
+
+		return values == null ? null : (T)values.get( key );
+	}
+
+	protected void setValue( String key, Object newValue ) {
+		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
+
+		Object oldValue = getValue( key );
+		if( newValue == oldValue ) return;
+
+		try {
+			Txn.create();
+			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
+			Txn.submitAfter( new UpdateModifiedFlagOperation( this ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error setting flag: " + key, exception );
+		}
+
+	}
+
+	protected boolean getFlag( String key ) {
+		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
+		return flags != null && flags.contains( key );
+	}
+
+	protected void setFlag( String key, boolean newValue ) {
+		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
+
+		boolean oldValue = getFlag( key );
+		if( newValue == oldValue ) return;
+
+		try {
+			Txn.create();
+			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error setting flag: " + key, exception );
+		}
+	}
+
+	Node getParent() {
+		return parent;
+	}
+
+	void setParent( Node parent ) {
+		checkForCircularReference( parent );
+		this.parent = parent;
+	}
+
+	List<Node> getNodePath() {
+		return getNodePath( null );
+	}
+
+	List<Node> getNodePath( Node stop ) {
+		List<Node> path = new ArrayList<>();
+		if( this != stop && parent != null ) path = parent.getNodePath();
+		path.add( this );
+		return path;
+	}
+
+	void childModified( boolean modified ) {
+		modifiedChildCount = modified ? modifiedChildCount + 1 : modifiedChildCount - 1;
+		updateModified( selfModified, modifiedChildCount );
+	}
+
 	void addEdge( Edge edge ) {
 		if( edges == null ) edges = new CopyOnWriteArraySet<>();
 		edges.add( edge );
@@ -327,8 +343,10 @@ public class Node implements TxnEventDispatcher {
 		return hash;
 	}
 
-	private void updateModified( boolean modified ) {
-		if( !modified ) modifiedValues = null;
+	private void updateModified( boolean selfModified, int modifiedChildCount ) {
+		modified = selfModified || modifiedChildCount != 0;
+		System.out.println( this.toString( true ) + "  mcc=" + modifiedChildCount + "  modified="+modified );
+		if( !selfModified ) modifiedValues = null;
 	}
 
 	private void doSetFlag( String key, boolean newValue ) {
@@ -341,6 +359,26 @@ public class Node implements TxnEventDispatcher {
 				if( flags.size() == 0 ) flags = null;
 			}
 		}
+
+		if( MODIFIED.equals( key ) ) updateModified( newValue, modifiedChildCount );
+
+		// Propagate the flag value to parent
+		Node parent = getParent();
+		if( parent != null ) parent.childModified( newValue );
+
+		//			// Propagate the flag value to children
+		//			if( newValue == false ) {
+		//				// Clear the modified flag of any child nodes
+		//				if( values != null ) {
+		//					for( Object value : values.values() ) {
+		//						if( value instanceof Node ) {
+		//							Node child = (Node)value;
+		//							if( child.isModified() ) child.setModified( false );
+		//						}
+		//					}
+		//				}
+		//			}
+
 	}
 
 	private void doSetValue( String key, Object oldValue, Object newValue ) {
@@ -462,9 +500,6 @@ public class Node implements TxnEventDispatcher {
 
 		private void setFlag( String key, boolean oldValue, boolean newValue ) {
 			doSetFlag( key, newValue );
-
-			if( MODIFIED.equals( key ) ) updateModified( newValue );
-
 			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
 			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
 		}
