@@ -492,8 +492,8 @@ public class Node implements TxnEventDispatcher {
 
 			NodeEvent.Type type = NodeEvent.Type.VALUE_CHANGED;
 			// FIXME Enable value insert and remove events
-			//			type = oldValue == null ? NodeEvent.Type.VALUE_INSERT : type;
-			//			type = newValue == null ? NodeEvent.Type.VALUE_REMOVE : type;
+			//type = oldValue == null ? NodeEvent.Type.VALUE_INSERT : type;
+			//type = newValue == null ? NodeEvent.Type.VALUE_REMOVE : type;
 
 			getResult().addEvent( new NodeEvent( getNode(), type, key, oldValue, newValue ) );
 

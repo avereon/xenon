@@ -554,19 +554,19 @@ public class NodeTest {
 		assertThat( parentHandler, hasEventCounts( 1, 1, 1 ) );
 		assertThat( childHandler, hasEventCounts( 0, 0, 0 ) );
 
-		parent.setModified( false );
-		assertThat( parent, hasStates( false, 0 ) );
-		assertThat( parentHandler, hasEventCounts( 2, 2, 1 ) );
-
-		// Test setting a value on the child node modifies the parent
-		System.out.println( "--start" );
-		child.setValue( "attribute", "value" );
-		assertThat( child.getParent(), is( parent ) );
-		System.out.println( "--stop" );
-
-		assertThat( child, hasStates( true, 1 ) );
-		assertThat( parent, hasStates( true, 1 ) );
-		assertThat( parentHandler, hasEventCounts( 3, 3, 2 ) );
+//		parent.setModified( false );
+//		assertThat( parent, hasStates( false, 0 ) );
+//		assertThat( parentHandler, hasEventCounts( 2, 2, 1 ) );
+//
+//		// Test setting a value on the child node modifies the parent
+//		System.out.println( "--start" );
+//		child.setValue( "attribute", "value" );
+//		assertThat( child.getParent(), is( parent ) );
+//		System.out.println( "--stop" );
+//
+//		assertThat( child, hasStates( true, 1 ) );
+//		assertThat( parent, hasStates( true, 1 ) );
+//		assertThat( parentHandler, hasEventCounts( 3, 3, 2 ) );
 //		assertThat( childHandler, hasEventCounts( 1, 1, 1 ) );
 //
 //		// Test unsetting the value on the child node unmodifies the parent
@@ -944,8 +944,8 @@ public class NodeTest {
 
 	private static Matcher<NodeWatcher> hasEventCounts( int node, int flag, int value ) {
 		Matcher<NodeWatcher> nodeEventCounter = eventCount( NodeEvent.Type.NODE_CHANGED, is( node ) );
-		Matcher<NodeWatcher> valueEventCounter = eventCount( NodeEvent.Type.VALUE_CHANGED, is( value ) );
 		Matcher<NodeWatcher> flagEventCounter = eventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
+		Matcher<NodeWatcher> valueEventCounter = eventCount( NodeEvent.Type.VALUE_CHANGED, is( value ) );
 		return allOf( nodeEventCounter, flagEventCounter, valueEventCounter );
 	}
 
