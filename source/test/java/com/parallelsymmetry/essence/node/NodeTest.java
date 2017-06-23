@@ -559,12 +559,14 @@ public class NodeTest {
 		assertThat( parentHandler, hasEventCounts( 2, 2, 1 ) );
 
 		// Test setting a value on the child node modifies the parent
+		System.out.println( "--start" );
 		child.setValue( "attribute", "value" );
 		assertThat( child.getParent(), is( parent ) );
+		System.out.println( "--stop" );
 
 		assertThat( child, hasStates( true, 1 ) );
 		assertThat( parent, hasStates( true, 1 ) );
-//		assertThat( parentHandler, hasEventCounts( 3, 3, 2 ) );
+		assertThat( parentHandler, hasEventCounts( 3, 3, 2 ) );
 //		assertThat( childHandler, hasEventCounts( 1, 1, 1 ) );
 //
 //		// Test unsetting the value on the child node unmodifies the parent

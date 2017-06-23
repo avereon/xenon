@@ -68,7 +68,7 @@ public class Node implements TxnEventDispatcher {
 
 	private boolean treeModified;
 
-	private int modifiedChildCount;
+	//private int modifiedChildCount;
 
 	private Map<String, Object> modifiedValues;
 
@@ -161,7 +161,9 @@ public class Node implements TxnEventDispatcher {
 	public String toString( boolean allValues ) {
 		StringBuilder builder = new StringBuilder();
 
-		List<String> keys = businessKeyList;
+		List<String> keys = new ArrayList<>();
+		if( primaryKeyList != null ) keys.addAll( primaryKeyList );
+		if( businessKeyList != null ) keys.addAll( businessKeyList );
 		if( allValues ) {
 			keys = new ArrayList<>();
 			if( values != null ) keys.addAll( values.keySet() );
@@ -310,9 +312,38 @@ public class Node implements TxnEventDispatcher {
 		return path;
 	}
 
-	void childModified( boolean modified ) {
-		modifiedChildCount = modified ? modifiedChildCount + 1 : modifiedChildCount - 1;
-		updateModified( selfModified, modifiedChildCount );
+	void childModified( Node child, boolean modified ) {
+		for( String key : values.keySet() ) {
+			Object value = values.get( key );
+			if( !(value instanceof Node) ) continue;
+			Node valueChild = (Node)value;
+			if( modified ) {
+				if( modifiedValues == null ) modifiedValues = new ConcurrentHashMap<>();
+				modifiedValues.put( key, valueChild );
+			} else {
+				if( modifiedValues != null ) {
+					modifiedValues.remove( key );
+					if( modifiedValues.size() == 0 ) modifiedValues = null;
+				}
+			}
+		}
+
+		updateModified( selfModified, getModifiedChildCount() );
+	}
+
+	int getModifiedChildCount() {
+		int modifiedChildCount = 0;
+
+		if( values != null ) {
+			for( String key : values.keySet() ) {
+				Object value = values.get( key );
+				if( !(value instanceof Node) ) continue;
+				Node valueChild = (Node)value;
+				modifiedChildCount++;
+			}
+		}
+
+		return modifiedChildCount;
 	}
 
 	void addEdge( Edge edge ) {
@@ -345,7 +376,6 @@ public class Node implements TxnEventDispatcher {
 
 	private void updateModified( boolean selfModified, int modifiedChildCount ) {
 		modified = selfModified || modifiedChildCount != 0;
-		System.out.println( this.toString( true ) + "  mcc=" + modifiedChildCount + "  modified="+modified );
 		if( !selfModified ) modifiedValues = null;
 	}
 
@@ -360,11 +390,11 @@ public class Node implements TxnEventDispatcher {
 			}
 		}
 
-		if( MODIFIED.equals( key ) ) updateModified( newValue, modifiedChildCount );
+		if( MODIFIED.equals( key ) ) updateModified( newValue, getModifiedChildCount() );
 
 		// Propagate the flag value to parent
 		Node parent = getParent();
-		if( parent != null ) parent.childModified( newValue );
+		if( parent != null ) parent.childModified( this, newValue );
 
 		//			// Propagate the flag value to children
 		//			if( newValue == false ) {
@@ -533,6 +563,26 @@ public class Node implements TxnEventDispatcher {
 			doSetFlag( MODIFIED, oldValue );
 		}
 
+	}
+
+	private class ChildModifiedOperation extends NodeTxnOperation {
+
+		private Node child;
+
+		ChildModifiedOperation( Node node, Node child ) {
+			super( node );
+			this.child = child;
+		}
+
+		@Override
+		protected void commit() throws TxnException {
+			getResult().addEvent( new NodeEvent( getNode(), child, NodeEvent.Type.NODE_CHANGED ) );
+		}
+
+		@Override
+		protected void revert() throws TxnException {
+
+		}
 	}
 
 }

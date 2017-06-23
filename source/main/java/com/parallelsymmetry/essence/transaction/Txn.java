@@ -144,12 +144,13 @@ public class Txn {
 				}
 			}
 
-			// Sort the events for each dispatcher
 			for( Map.Entry<TxnEventDispatcher, List<TxnEvent>> entry : txnEvents.entrySet() ) {
 				TxnEventDispatcher dispatcher = entry.getKey();
 				List<TxnEvent> events = entry.getValue();
+				// Sort the events for each dispatcher
 				//Collections.sort( events, eventComparator );
 				for( TxnEvent event : events ) {
+					System.out.println( "Producer=" + dispatcher + "  event=" + event );
 					try {
 						dispatcher.dispatchEvent( event );
 					} catch( Throwable throwable ) {
