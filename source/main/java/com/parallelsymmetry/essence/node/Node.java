@@ -13,9 +13,15 @@ public class Node implements TxnEventDispatcher {
 
 	private static final Logger log = LoggerFactory.getLogger( Node.class );
 
+	/**
+	 * The modified flag key.
+	 */
 	static final String MODIFIED = "flag.modified";
 
-	// A special object to represent null values
+	/**
+	 * A special object to represent previous null values in the modifiedValues
+	 * map.
+	 */
 	private static final Object NULL = new Object();
 
 	/**
@@ -62,15 +68,22 @@ public class Node implements TxnEventDispatcher {
 	 */
 	private Set<NodeListener> listeners;
 
+	/**
+	 * The internally calculated modified flag used to allow for fast read rates.
+	 * This is updated only when values or the modified flag is changed.
+	 */
 	private boolean modified;
 
-	private boolean selfModified;
-
-	private boolean treeModified;
-
-	//private int modifiedChildCount;
-
+	/**
+	 * The map of previous values as the node is modified. This map is set to
+	 * null when the modified flag is set to false.
+	 */
 	private Map<String, Object> modifiedValues;
+
+	/**
+	 * The count of child nodes that are modified.
+	 */
+	private Set<Node> modifiedChildren;
 
 	/**
 	 * Is the node modified. The node is modified if any data value has been
@@ -244,8 +257,25 @@ public class Node implements TxnEventDispatcher {
 		}
 	}
 
-	protected int getModifiedValueCount() {
-		return modifiedValues == null ? 0 : modifiedValues.size();
+	protected boolean getFlag( String key ) {
+		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
+		return flags != null && flags.contains( key );
+	}
+
+	protected void setFlag( String key, boolean newValue ) {
+		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
+
+		boolean oldValue = getFlag( key );
+		if( newValue == oldValue ) return;
+
+		try {
+			Txn.create();
+			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
+			Txn.submit( new UpdateModifiedOperation( this ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error setting flag: " + key, exception );
+		}
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -264,7 +294,7 @@ public class Node implements TxnEventDispatcher {
 		try {
 			Txn.create();
 			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
-			Txn.submitAfter( new UpdateModifiedFlagOperation( this ) );
+			Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
@@ -272,24 +302,12 @@ public class Node implements TxnEventDispatcher {
 
 	}
 
-	protected boolean getFlag( String key ) {
-		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-		return flags != null && flags.contains( key );
+	int getModifiedValueCount() {
+		return (modifiedValues == null ? 0 : modifiedValues.size());
 	}
 
-	protected void setFlag( String key, boolean newValue ) {
-		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-
-		boolean oldValue = getFlag( key );
-		if( newValue == oldValue ) return;
-
-		try {
-			Txn.create();
-			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
-			Txn.commit();
-		} catch( TxnException exception ) {
-			log.error( "Error setting flag: " + key, exception );
-		}
+	int getModifiedChildCount() {
+		return modifiedChildren == null ? 0 : modifiedChildren.size();
 	}
 
 	Node getParent() {
@@ -312,40 +330,6 @@ public class Node implements TxnEventDispatcher {
 		return path;
 	}
 
-	void childModified( Node child, boolean modified ) {
-		for( String key : values.keySet() ) {
-			Object value = values.get( key );
-			if( !(value instanceof Node) ) continue;
-			Node valueChild = (Node)value;
-			if( modified ) {
-				if( modifiedValues == null ) modifiedValues = new ConcurrentHashMap<>();
-				modifiedValues.put( key, valueChild );
-			} else {
-				if( modifiedValues != null ) {
-					modifiedValues.remove( key );
-					if( modifiedValues.size() == 0 ) modifiedValues = null;
-				}
-			}
-		}
-
-		updateModified( selfModified, getModifiedChildCount() );
-	}
-
-	int getModifiedChildCount() {
-		int modifiedChildCount = 0;
-
-		if( values != null ) {
-			for( String key : values.keySet() ) {
-				Object value = values.get( key );
-				if( !(value instanceof Node) ) continue;
-				Node valueChild = (Node)value;
-				modifiedChildCount++;
-			}
-		}
-
-		return modifiedChildCount;
-	}
-
 	void addEdge( Edge edge ) {
 		if( edges == null ) edges = new CopyOnWriteArraySet<>();
 		edges.add( edge );
@@ -353,30 +337,6 @@ public class Node implements TxnEventDispatcher {
 
 	void removeEdge( Edge edge ) {
 		edges.remove( edge );
-	}
-
-	private void checkForCircularReference( Node node ) {
-		Node parent = this;
-		while( parent != null ) {
-			if( node == parent ) throw new CircularReferenceException( "Circular reference detected in parent path: " + node );
-			parent = parent.getParent();
-		}
-	}
-
-	private int calculateStateHash() {
-		if( values == null ) return 0;
-
-		int hash = 281;
-		for( String key : values.keySet() ) {
-			Object value = values.get( key );
-			hash ^= value.hashCode();
-		}
-		return hash;
-	}
-
-	private void updateModified( boolean selfModified, int modifiedChildCount ) {
-		modified = selfModified || modifiedChildCount != 0;
-		if( !selfModified ) modifiedValues = null;
 	}
 
 	private void doSetFlag( String key, boolean newValue ) {
@@ -390,25 +350,13 @@ public class Node implements TxnEventDispatcher {
 			}
 		}
 
-		if( MODIFIED.equals( key ) ) updateModified( newValue, getModifiedChildCount() );
-
-		// Propagate the flag value to parent
-		Node parent = getParent();
-		if( parent != null ) parent.childModified( this, newValue );
-
-		//			// Propagate the flag value to children
-		//			if( newValue == false ) {
-		//				// Clear the modified flag of any child nodes
-		//				if( values != null ) {
-		//					for( Object value : values.values() ) {
-		//						if( value instanceof Node ) {
-		//							Node child = (Node)value;
-		//							if( child.isModified() ) child.setModified( false );
-		//						}
-		//					}
-		//				}
-		//			}
-
+		if( MODIFIED.equals( key ) ) {
+			if( !newValue ) {
+				modifiedValues = null;
+				modifiedChildren = null;
+			}
+			updateModified();
+		}
 	}
 
 	private void doSetValue( String key, Object oldValue, Object newValue ) {
@@ -422,8 +370,46 @@ public class Node implements TxnEventDispatcher {
 			values.put( key, newValue );
 			if( newValue instanceof Node ) ((Node)newValue).setParent( this );
 		}
+
+		updateModified();
 	}
 
+	private void updateModified() {
+		modified = getFlag( MODIFIED ) || getModifiedChildCount() != 0;
+	}
+
+	private boolean childModified( Node child, boolean modified ) {
+		boolean previousModified = isModified();
+
+		// Search the value map for the modified child
+		for( String key : values.keySet() ) {
+			Object value = values.get( key );
+			if( value != child ) continue;
+
+			Node valueChild = (Node)value;
+			if( modified ) {
+				if( modifiedChildren == null ) modifiedChildren = new CopyOnWriteArraySet<>();
+				modifiedChildren.add( child );
+			} else {
+				if( modifiedChildren != null ) modifiedChildren.remove( child );
+				if( modifiedChildren.size() == 0 ) modifiedChildren = null;
+			}
+		}
+
+		updateModified();
+
+		return isModified() != previousModified;
+	}
+
+	private void checkForCircularReference( Node node ) {
+		Node parent = this;
+		while( parent != null ) {
+			if( node == parent ) throw new CircularReferenceException( "Circular reference detected in parent path: " + node );
+			parent = parent.getParent();
+		}
+	}
+
+	@Deprecated
 	private Set<Edge> findEdges( Set<Edge> edges, Node source, Node target ) {
 		Set<Edge> result = new HashSet<>();
 
@@ -433,6 +419,18 @@ public class Node implements TxnEventDispatcher {
 		}
 
 		return result;
+	}
+
+	@Deprecated
+	private int calculateStateHash() {
+		if( values == null ) return 0;
+
+		int hash = 281;
+		for( String key : values.keySet() ) {
+			Object value = values.get( key );
+			hash ^= value.hashCode();
+		}
+		return hash;
 	}
 
 	private abstract class NodeTxnOperation extends TxnOperation {
@@ -445,6 +443,51 @@ public class Node implements TxnEventDispatcher {
 
 		protected Node getNode() {
 			return node;
+		}
+
+	}
+
+	private class SetFlagOperation extends NodeTxnOperation {
+
+		private String key;
+
+		private boolean oldValue;
+
+		private boolean newValue;
+
+		SetFlagOperation( Node node, String key, boolean oldValue, boolean newValue ) {
+			super( node );
+			this.key = key;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		protected void commit() throws TxnException {
+			doSetFlag( key, newValue );
+
+			// Propagate the flag value to children
+			if( values != null && MODIFIED.equals( key ) && !newValue ) {
+				// Clear the modified flag of any child nodes
+				for( Object value : values.values() ) {
+					if( value instanceof Node ) {
+						Node child = (Node)value;
+						if( child.isModified() ) {
+							child.doSetFlag( key, false );
+							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.FLAG_CHANGED, key, true, false ) );
+							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.NODE_CHANGED ) );
+						}
+					}
+				}
+			}
+
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+		}
+
+		@Override
+		protected void revert() throws TxnException {
+			doSetFlag( key, oldValue );
 		}
 
 	}
@@ -467,6 +510,18 @@ public class Node implements TxnEventDispatcher {
 		@Override
 		protected void commit() throws TxnException {
 			setValue( key, oldValue, newValue );
+
+			Node parent = getParent();
+			NodeEvent.Type type = NodeEvent.Type.VALUE_CHANGED;
+			// FIXME Enable value insert and remove events
+			//type = oldValue == null ? NodeEvent.Type.VALUE_INSERT : type;
+			//type = newValue == null ? NodeEvent.Type.VALUE_REMOVE : type;
+
+			// Send an event to the node about the value change
+			getResult().addEvent( new NodeEvent( getNode(), type, key, oldValue, newValue ) );
+
+			// Send an event to the parent about the value change
+			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), type, key, oldValue, newValue ) );
 		}
 
 		@Override
@@ -489,73 +544,45 @@ public class Node implements TxnEventDispatcher {
 					if( modifiedValues.size() == 0 ) modifiedValues = null;
 				}
 			}
-
-			NodeEvent.Type type = NodeEvent.Type.VALUE_CHANGED;
-			// FIXME Enable value insert and remove events
-			//type = oldValue == null ? NodeEvent.Type.VALUE_INSERT : type;
-			//type = newValue == null ? NodeEvent.Type.VALUE_REMOVE : type;
-
-			getResult().addEvent( new NodeEvent( getNode(), type, key, oldValue, newValue ) );
-
-			Node parent = Node.this.getParent();
-			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), type, key, oldValue, newValue ) );
 		}
 
 	}
 
-	private class SetFlagOperation extends NodeTxnOperation {
-
-		private String key;
+	private class UpdateModifiedOperation extends NodeTxnOperation {
 
 		private boolean oldValue;
 
-		private boolean newValue;
-
-		SetFlagOperation( Node node, String key, boolean oldValue, boolean newValue ) {
+		UpdateModifiedOperation( Node node ) {
 			super( node );
-			this.key = key;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
+			// Check only the modified values
+			oldValue = hasModifiedValues();
 		}
 
 		@Override
 		protected void commit() throws TxnException {
-			setFlag( key, oldValue, newValue );
-		}
+			// Check only the modified values
+			boolean newValue = hasModifiedValues();
 
-		@Override
-		protected void revert() throws TxnException {
-			setFlag( key, newValue, oldValue );
-		}
-
-		private void setFlag( String key, boolean oldValue, boolean newValue ) {
-			doSetFlag( key, newValue );
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
-		}
-
-	}
-
-	private class UpdateModifiedFlagOperation extends NodeTxnOperation {
-
-		private boolean oldValue;
-
-		UpdateModifiedFlagOperation( Node node ) {
-			super( node );
-			oldValue = node.isModified();
-		}
-
-		@Override
-		protected void commit() throws TxnException {
-			boolean newValue = modifiedValues != null && modifiedValues.size() > 0;
+			// Check if the modified values should change the modified flag
 			if( newValue != oldValue ) {
 				doSetFlag( MODIFIED, newValue );
 				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
 			}
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED, MODIFIED, oldValue, newValue ) );
 
+			// Add the node changed event
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+
+			// Check all the parents for modification
+			Node node = getNode();
 			Node parent = getNode().getParent();
-			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), NodeEvent.Type.NODE_CHANGED ) );
+			while( parent != null ) {
+				boolean priorModified = parent.isModified();
+				boolean parentChanged = parent.childModified( node, newValue );
+				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, NodeEvent.Type.FLAG_CHANGED, MODIFIED, priorModified, !priorModified ) );
+				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.Type.NODE_CHANGED ) );
+				node = parent;
+				parent = parent.getParent();
+			}
 		}
 
 		@Override
@@ -563,26 +590,10 @@ public class Node implements TxnEventDispatcher {
 			doSetFlag( MODIFIED, oldValue );
 		}
 
-	}
-
-	private class ChildModifiedOperation extends NodeTxnOperation {
-
-		private Node child;
-
-		ChildModifiedOperation( Node node, Node child ) {
-			super( node );
-			this.child = child;
+		private boolean hasModifiedValues() {
+			return modifiedValues != null && modifiedValues.size() > 0;
 		}
 
-		@Override
-		protected void commit() throws TxnException {
-			getResult().addEvent( new NodeEvent( getNode(), child, NodeEvent.Type.NODE_CHANGED ) );
-		}
-
-		@Override
-		protected void revert() throws TxnException {
-
-		}
 	}
 
 }

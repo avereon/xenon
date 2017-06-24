@@ -7,13 +7,11 @@ import java.util.Objects;
 public class NodeEvent extends TxnEvent {
 
 	public enum Type {
-		NODE_CHANGED,
-		FLAG_CHANGED,
-		VALUE_INSERT,
-		VALUE_CHANGED,
-		VALUE_REMOVE,
+		CHILD_REMOVED,
 		CHILD_ADDED,
-		CHILD_REMOVED
+		VALUE_CHANGED,
+		FLAG_CHANGED,
+		NODE_CHANGED
 	}
 
 	private Type type;
@@ -132,6 +130,12 @@ public class NodeEvent extends TxnEvent {
 		if( !Objects.equals( this.child, that.child ) ) return false;
 
 		return true;
+	}
+
+	@Override
+	public int compareTo( TxnEvent event ) {
+		NodeEvent that = (NodeEvent)event;
+		return that.getType().ordinal() - this.getType().ordinal();
 	}
 
 }

@@ -2,7 +2,7 @@ package com.parallelsymmetry.essence.transaction;
 
 import java.util.EventObject;
 
-public class TxnEvent extends EventObject {
+public class TxnEvent extends EventObject implements Comparable<TxnEvent> {
 
 	private TxnEventDispatcher dispatcher;
 
@@ -17,6 +17,11 @@ public class TxnEvent extends EventObject {
 
 	public TxnEventDispatcher getDispatcher() {
 		return dispatcher;
+	}
+
+	@Override
+	public int compareTo( TxnEvent event ) {
+		return 0;
 	}
 
 }

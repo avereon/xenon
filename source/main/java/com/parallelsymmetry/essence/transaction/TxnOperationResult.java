@@ -7,7 +7,7 @@ public class TxnOperationResult {
 
 	private TxnOperation action;
 
-	private List<TxnEvent> events;
+	private List<TxnEvent> events = new ArrayList<>();
 
 	public TxnOperationResult( TxnOperation action ) {
 		this.action = action;
@@ -18,12 +18,15 @@ public class TxnOperationResult {
 	}
 
 	public List<TxnEvent> getEvents() {
-		return events == null ? new ArrayList<>() : events;
+		return events;
 	}
 
 	public void addEvent( TxnEvent event ) {
-		if( events == null ) events = new ArrayList<>();
 		events.add( event );
+	}
+
+	public void removeEvent( TxnEvent event ) {
+		events.remove( event );
 	}
 
 }

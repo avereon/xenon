@@ -148,9 +148,9 @@ public class Txn {
 				TxnEventDispatcher dispatcher = entry.getKey();
 				List<TxnEvent> events = entry.getValue();
 				// Sort the events for each dispatcher
-				//Collections.sort( events, eventComparator );
+				events.sort( eventComparator.reversed() );
 				for( TxnEvent event : events ) {
-					System.out.println( "Producer=" + dispatcher + "  event=" + event );
+					//System.out.println( "Producer=" + dispatcher + " event=" + event );
 					try {
 						dispatcher.dispatchEvent( event );
 					} catch( Throwable throwable ) {
