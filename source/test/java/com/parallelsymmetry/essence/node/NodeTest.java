@@ -639,7 +639,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testParentModifiedByChildNodeAttributeRippleChange() {
+	public void testParentModifiedByChildNodeClearedByFlag() {
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
 		NodeWatcher parentWatcher = new NodeWatcher();
@@ -655,14 +655,18 @@ public class NodeTest {
 		assertThat( child, hasStates( false, 0, 0 ) );
 		assertThat( parentWatcher, hasEventCounts( 1, 1, 1 ) );
 		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
+		parentWatcher.reset();
+		childWatcher.reset();
 
 		parent.setModified( false );
 		assertThat( child, hasStates( false, 0, 0 ) );
 		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( parentWatcher, hasEventCounts( 1, 1, 0 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
 		parentWatcher.reset();
 		childWatcher.reset();
 
-		// Set the value 'a' to '1'
+		// Test setting the 'a' value on the child modifies the parent
 		child.setValue( "a", "1" );
 		assertThat( child, hasStates( true, 1, 0 ) );
 		assertThat( parent, hasStates( true, 0, 1 ) );
@@ -671,7 +675,7 @@ public class NodeTest {
 		parentWatcher.reset();
 		childWatcher.reset();
 
-		// Set the value 'b' to '1'
+		// Test setting the 'b' value on the child leaves the parent modified
 		child.setValue( "b", "1" );
 		assertThat( child, hasStates( true, 2, 0 ) );
 		assertThat( parent, hasStates( true, 0, 1 ) );
@@ -686,152 +690,122 @@ public class NodeTest {
 		assertThat( parent, hasStates( false, 0, 0 ) );
 		assertThat( parentWatcher, hasEventCounts( 1, 1, 0 ) );
 		assertThat( childWatcher, hasEventCounts( 1, 1, 0 ) );
+		parentWatcher.reset();
+		childWatcher.reset();
+	}
 
-		// The parent is already not modified no event should be sent
+	@Test
+	public void testParentModifiedByChildNodeClearedByValue() {
+		MockNode parent = new MockNode( "parent" );
+		MockNode child = new MockNode( "child" );
+		NodeWatcher parentWatcher = new NodeWatcher();
+		NodeWatcher childWatcher = new NodeWatcher();
+		parent.addNodeListener( parentWatcher );
+		child.addNodeListener( childWatcher );
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+
+		parent.setValue( "child", child );
+		assertThat( child.getParent(), is( parent ) );
+		assertThat( parent, hasStates( true, 1, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parentWatcher, hasEventCounts( 1, 1, 1 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
+		parentWatcher.reset();
+		childWatcher.reset();
+
 		parent.setModified( false );
 		assertThat( child, hasStates( false, 0, 0 ) );
 		assertThat( parent, hasStates( false, 0, 0 ) );
 		assertThat( parentWatcher, hasEventCounts( 1, 1, 0 ) );
-		assertThat( childWatcher, hasEventCounts( 1, 1, 0 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
 		parentWatcher.reset();
 		childWatcher.reset();
 
-		// NEXT Continue implementing tests
-		//		// Test setting 'a' attribute on the child node modifies the parent.
-		//		child.setValue( "a", "2" );
-		//		assertNodeState( child, true, 1 );
-		//		assertNodeState( parent, true, 1 );
-		//		assertEventCounts( parentHandler, 1, 1, 1 );
-		//		assertEventCounts( childHandler, 1, 1, 1 );
-		//		parentHandler.reset();
-		//		childHandler.reset();
-		//
-		//		// Test setting the 'b' attribute on the child leaves the parent modified.
-		//		child.setValue( "b", "2" );
-		//		assertNodeState( child, true, 2 );
-		//		assertNodeState( parent, true, 1 );
-		//		assertEventCounts( parentHandler, 1, 0, 1 );
-		//		assertEventCounts( childHandler, 1, 0, 1 );
-		//		parentHandler.reset();
-		//		childHandler.reset();
-		//
-		//		// Test unsetting 'a' attribute on the child leaves the parent modified.
-		//		child.setValue( "a", "1" );
-		//		assertNodeState( child, true, 1 );
-		//		assertNodeState( parent, true, 1 );
-		//		assertEventCounts( parentHandler, 1, 0, 1 );
-		//		assertEventCounts( childHandler, 1, 0, 1 );
-		//		parentHandler.reset();
-		//		childHandler.reset();
-		//
-		//		// Test unsetting the 'b' attribute on the child returns the parent to unmodified.
-		//		child.setValue( "b", "1" );
-		//		assertNodeState( child, false, 0 );
-		//		assertNodeState( parent, false, 0 );
-		//		assertEventCounts( parentHandler, 1, 1, 1 );
-		//		assertEventCounts( childHandler, 1, 1, 1 );
+		// Test setting the 'a' value on the child modifies the parent
+		child.setValue( "a", "2" );
+		assertThat( child, hasStates( true, 1, 0 ) );
+		assertThat( parent, hasStates( true, 0, 1 ) );
+		assertThat( parentWatcher, hasEventCounts( 1, 1, 1 ) );
+		assertThat( childWatcher, hasEventCounts( 1, 1, 1 ) );
+		parentWatcher.reset();
+		childWatcher.reset();
+
+		// Test setting the 'b' value on the child leaves the parent modified
+		child.setValue( "b", "2" );
+		assertThat( child, hasStates( true, 2, 0 ) );
+		assertThat( parent, hasStates( true, 0, 1 ) );
+		assertThat( parentWatcher, hasEventCounts( 1, 0, 1 ) );
+		assertThat( childWatcher, hasEventCounts( 1, 0, 1 ) );
+		parentWatcher.reset();
+		childWatcher.reset();
+
+		// Test unsetting the 'a' value on the child leaves the parent modified
+		child.setValue( "a", null );
+		assertThat( child, hasStates( true, 1, 0 ) );
+		assertThat( parent, hasStates( true, 0, 1 ) );
+		assertThat( parentWatcher, hasEventCounts( 1, 0, 1 ) );
+		assertThat( childWatcher, hasEventCounts( 1, 0, 1 ) );
+		parentWatcher.reset();
+		childWatcher.reset();
+
+		// Test unsetting the value 'b' on the child returns the parent to unmodified
+		child.setValue( "b", null );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( parentWatcher, hasEventCounts( 1, 1, 1 ) );
+		assertThat( childWatcher, hasEventCounts( 1, 1, 1 ) );
 	}
 
-	//	public void testParentModifiedByNodeAttributeClearModified() {
-	//		MockDataNode node = new MockDataNode();
-	//		MockDataNode attribute = new MockDataNode();
-	//		DataEventWatcher nodeHandler = node.getDataEventWatcher();
-	//		DataEventWatcher attributeHandler = attribute.getDataEventWatcher();
-	//		assertNodeState( node, false, 0 );
-	//		assertEventCounts( nodeHandler, 0, 0, 0 );
-	//		assertEventCounts( attributeHandler, 0, 0, 0 );
-	//
-	//		node.setValue( "attribute", attribute );
-	//		assertNodeState( node, true, 1 );
-	//		assertEventCounts( nodeHandler, 1, 1, 1 );
-	//		assertEventCounts( attributeHandler, 0, 0, 0 );
-	//
-	//		node.setModified( false );
-	//		assertNodeState( node, false, 0 );
-	//		assertEventCounts( nodeHandler, 2, 2, 1 );
-	//
-	//		// Test setting an attribute on the attribute node modifies the parent.
-	//		attribute.setValue( "attribute", "value" );
-	//		assertEquals( attribute.getParent(), node );
-	//
-	//		assertNodeState( attribute, true, 1 );
-	//		assertNodeState( node, true, 1 );
-	//		assertEventCounts( nodeHandler, 3, 3, 2 );
-	//		assertEventCounts( attributeHandler, 1, 1, 1 );
-	//
-	//		// Test unsetting an attribute on the attribute node unmodified the parent.
-	//		attribute.setModified( false );
-	//		assertNodeState( attribute, false, 0 );
-	//		assertNodeState( node, false, 0 );
-	//		assertEventCounts( nodeHandler, 4, 4, 2 );
-	//		assertEventCounts( attributeHandler, 2, 2, 1 );
-	//	}
-	//
-	//	public void testChildNodeAttributesClearedByParentClearModified() {
-	//		MockDataNode child = new MockDataNode( "child" );
-	//		MockDataNode parent = new MockDataNode( "parent" );
-	//		DataEventWatcher childHandler = child.getDataEventWatcher();
-	//		DataEventWatcher parentHandler = parent.getDataEventWatcher();
-	//		assertNodeState( child, false, 0 );
-	//		assertEventCounts( childHandler, 0, 0, 0 );
-	//		assertNodeState( parent, false, 0 );
-	//		assertEventCounts( parentHandler, 0, 0, 0 );
-	//
-	//		parent.setValue( "child", child );
-	//		assertNodeState( parent, true, 1 );
-	//		assertEventCounts( parentHandler, 1, 1, 1 );
-	//
-	//		Log.setLevel( Log.DEBUG );
-	//		parent.setModified( false );
-	//		Log.setLevel(Log.NONE );
-	//		assertNodeState( parent, false, 0 );
-	//		assertEventCounts( parentHandler, 2, 2, 1 );
-	//
-	//		child.setValue( "attribute", "value" );
-	//		assertNodeState( child, true, 1 );
-	//		assertEventCounts( childHandler, 1, 1, 1 );
-	//		assertNodeState( parent, true, 1 );
-	//		assertEventCounts( parentHandler, 3, 3, 2 );
-	//
-	//		parent.setModified( false );
-	//		assertNodeState( child, false, 0 );
-	//		assertEventCounts( childHandler, 2, 2, 1 );
-	//		assertNodeState( parent, false, 0 );
-	//		assertEventCounts( parentHandler, 4, 4, 2 );
-	//	}
-	//
-	//	public void testAddNodeAttributeToDifferentParent() {
-	//		MockDataNode child = new MockDataNode();
-	//		MockDataNode parent0 = new MockDataNode();
-	//		MockDataNode parent1 = new MockDataNode();
-	//		DataEventWatcher childHandler = child.getDataEventWatcher();
-	//		DataEventWatcher parent0Handler = parent0.getDataEventWatcher();
-	//		DataEventWatcher parent1Handler = parent1.getDataEventWatcher();
-	//
-	//		// Add the child attribute to parent 0.
-	//		parent0.setValue( "child", child );
-	//		assertNodeState( parent0, true, 1 );
-	//		assertEventCounts( childHandler, 0, 0, 0 );
-	//		assertEventCounts( parent0Handler, 1, 1, 1 );
-	//		assertEventCounts( parent1Handler, 0, 0, 0 );
-	//
-	//		// Clear the modified flag of parent 0.
-	//		parent0.setModified( false );
-	//		assertNodeState( parent0, false, 0 );
-	//		assertEventCounts( childHandler, 0, 0, 0 );
-	//		assertEventCounts( parent0Handler, 2, 2, 1 );
-	//		assertEventCounts( parent1Handler, 0, 0, 0 );
-	//
-	//		// Add the child attribute to parent 1.
-	//		parent1.setValue( "child", child );
-	//		assertEquals( child, parent0.getAttribute( "child" ) );
-	//		assertEquals( child, parent1.getAttribute( "child" ) );
-	//		assertNodeState( parent0, false, 0 );
-	//		assertNodeState( parent1, true, 1 );
-	//		assertEventCounts( childHandler, 0, 0, 0 );
-	//		assertEventCounts( parent0Handler, 2, 2, 1 );
-	//		assertEventCounts( parent1Handler, 1, 1, 1 );
-	//	}
+	@Test
+	public void testAddNodeAttributeToDifferentParent() {
+		MockNode parent0 = new MockNode( "parent0" );
+		MockNode parent1 = new MockNode( "parent1" );
+		MockNode child = new MockNode( "child" );
+		NodeWatcher parent0Watcher = new NodeWatcher();
+		NodeWatcher parent1Watcher = new NodeWatcher();
+		NodeWatcher childWatcher = new NodeWatcher();
+		parent0.addNodeListener( parent0Watcher );
+		parent1.addNodeListener( parent1Watcher );
+		child.addNodeListener( childWatcher );
+		assertThat( parent0, hasStates( false, 0, 0 ) );
+		assertThat( parent1, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent0Watcher, hasEventCounts( 0, 0, 0 ) );
+		assertThat( parent1Watcher, hasEventCounts( 0, 0, 0 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
+
+		// Add the child attribute to parent 0
+		parent0.setValue( "child", child );
+		assertThat( parent0, hasStates( true, 1, 0 ) );
+		assertThat( parent0Watcher, hasEventCounts( 1, 1, 1 ) );
+		assertThat( parent1Watcher, hasEventCounts( 0, 0, 0 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
+
+		// Clear the modified flag of parent 0.
+		parent0.setModified( false );
+		assertThat( child.getParent(), is( parent0 ) );
+		assertThat( parent0, hasStates( false, 0, 0 ) );
+		assertThat( parent1, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent0Watcher, hasEventCounts( 2, 2, 1 ) );
+		assertThat( parent1Watcher, hasEventCounts( 0, 0, 0 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
+
+		// Add the child attribute to parent 1.
+		parent1.setValue( "child", child );
+		assertThat( child.getParent(), is( parent1 ) );
+
+		// Oddly both parents have the child as a value...
+		assertThat( parent0.getValue( "child" ), is( child ) );
+		assertThat( parent1.getValue( "child" ), is( child ) );
+		assertThat( parent0, hasStates( false, 0, 0 ) );
+		assertThat( parent1, hasStates( true, 1, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent0Watcher, hasEventCounts( 2, 2, 1 ) );
+		assertThat( parent1Watcher, hasEventCounts( 1, 1, 1 ) );
+		assertThat( childWatcher, hasEventCounts( 0, 0, 0 ) );
+	}
 
 	@Test
 	public void testAddDataListener() throws Exception {
@@ -978,7 +952,7 @@ public class NodeTest {
 		Matcher<Node> modifiedMatcher = modifiedFlag( is( modified ) );
 		Matcher<Node> modifiedValueCountMatcher = modifiedValueCount( is( modifiedValueCount ) );
 		Matcher<Node> modifiedChildCountMatcher = modifiedChildCount( is( modifiedChildCount ) );
-		return allOf( modifiedMatcher, modifiedValueCountMatcher,modifiedChildCountMatcher );
+		return allOf( modifiedMatcher, modifiedValueCountMatcher, modifiedChildCountMatcher );
 	}
 
 	private static Matcher<Node> flag( String key, Matcher<? super Boolean> matcher ) {
