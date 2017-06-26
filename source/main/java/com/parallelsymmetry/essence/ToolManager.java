@@ -112,13 +112,13 @@ public class ToolManager {
 	private Tool doGetEditTool( Resource resource ) {
 		ResourceType resourceType = resource.getType();
 		if( resourceType == null ) {
-			log.trace( "Resource type is null: " + resource );
+			log.warn( "Resource type is null: " + resource );
 			return null;
 		}
 
 		List<Class<? extends Tool>> typeTools = editTools.get( resourceType );
 		if( typeTools == null ) {
-			log.trace( "No tools registered for resource type: " + resourceType );
+			log.warn( "No tools registered for resource type: " + resourceType );
 			return null;
 		}
 
@@ -131,7 +131,7 @@ public class ToolManager {
 		if( tool == null ) {
 			log.warn( "Tool not found for resource: " + resource );
 		} else {
-			log.trace( "Tool created for resource: " + resource );
+			log.debug( "Tool created for resource: " + resource );
 		}
 
 		return tool;
