@@ -16,7 +16,7 @@ public class Node implements TxnEventDispatcher {
 	/**
 	 * The modified flag key.
 	 */
-	static final String MODIFIED = "flag.modified";
+	public static final String MODIFIED = "flag.modified";
 
 	/**
 	 * A special object to represent previous null values in the modifiedValues

@@ -2,6 +2,8 @@ package com.parallelsymmetry.essence.resource;
 
 import com.parallelsymmetry.essence.ResourceManager;
 import com.parallelsymmetry.essence.node.Node;
+import com.parallelsymmetry.essence.node.NodeEvent;
+import com.parallelsymmetry.essence.node.NodeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +12,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.undo.UndoManager;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Resource extends Node {
@@ -28,17 +27,17 @@ public class Resource extends Node {
 
 	private static final String SCHEME_VALUE_KEY = "value.scheme";
 
-//	private static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";
-//
-//	private static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
-//
-//	private static final String CONTENT_TYPE_RESOURCE_KEY = "resource.content.type";
+	//	private static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";
+	//
+	//	private static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
+	//
+	//	private static final String CONTENT_TYPE_RESOURCE_KEY = "resource.content.type";
 
 	private static final String EXTERNALLY_MODIFIED = "flag.externally.modified";
 
-//	private static final String EDITABLE = "resource.editable";
-//
-//	private static final String UNDO_MANAGER = "resource.undo.manager";
+	//	private static final String EDITABLE = "resource.editable";
+	//
+	//	private static final String UNDO_MANAGER = "resource.undo.manager";
 
 	// Name is not stored in the node data, it is derived
 	private String name;
@@ -82,7 +81,7 @@ public class Resource extends Node {
 		//undoManager = new ResourceUndoManager();
 
 		listeners = new CopyOnWriteArraySet<>();
-		//addDataListener( new DataHandler() );
+		addNodeListener( new NodeWatcher() );
 	}
 
 	public URI getUri() {
@@ -164,13 +163,13 @@ public class Resource extends Node {
 		return undoManager;
 	}
 
-		public boolean isExternallyModified() {
-			return getFlag( EXTERNALLY_MODIFIED );
-		}
+	public boolean isExternallyModified() {
+		return getFlag( EXTERNALLY_MODIFIED );
+	}
 
-		public void setExternallyModified( boolean modified ) {
-			setFlag( EXTERNALLY_MODIFIED, modified );
-		}
+	public void setExternallyModified( boolean modified ) {
+		setFlag( EXTERNALLY_MODIFIED, modified );
+	}
 
 	public synchronized final boolean isOpen() {
 		return open;
@@ -337,7 +336,7 @@ public class Resource extends Node {
 	public String toString() {
 		URI uri = getUri();
 		ResourceType type = getType();
-		String resourceTypeName = type == null? "Unknown resource type" : type.getName();
+		String resourceTypeName = type == null ? "Unknown resource type" : type.getName();
 		return uri == null ? resourceTypeName : uri.toString();
 	}
 
@@ -420,19 +419,21 @@ public class Resource extends Node {
 		this.name = name;
 	}
 
-	//	private class DataHandler extends DataAdapter {
-	//
-	//		@Override
-	//		public void metaAttributeChanged( MetaAttributeEvent event ) {
-	//			if( DataNode.MODIFIED == event.getAttributeName() ) {
-	//				if( Boolean.TRUE == event.getNewValue() ) {
-	//					fireResourceModified( new ResourceEvent( this, (Resource)event.getSender() ) );
-	//				} else {
-	//					fireResourceUnmodified( new ResourceEvent( this, (Resource)event.getSender() ) );
-	//				}
-	//			}
-	//		}
-	//
-	//	}
+	private class NodeWatcher implements NodeListener {
+
+		@Override
+		public void eventOccurred( NodeEvent event ) {
+			if( event.getType() != NodeEvent.Type.FLAG_CHANGED ) return;
+
+			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
+				if( Boolean.TRUE == event.getNewValue() ) {
+					fireResourceModified( new ResourceEvent( this, (Resource)event.getSource() ) );
+				} else {
+					fireResourceUnmodified( new ResourceEvent( this, (Resource)event.getSource() ) );
+				}
+			}
+		}
+
+	}
 
 }
