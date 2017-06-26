@@ -8,6 +8,7 @@ import javafx.event.Event;
 
 public class AboutAction extends Action {
 
+	// FIXME Resources should only be acquired from the resource manager
 	private Resource resource = new Resource( "program:about" );
 
 	public AboutAction( Program program ) {
