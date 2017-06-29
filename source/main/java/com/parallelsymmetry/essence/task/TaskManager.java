@@ -50,21 +50,27 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 
 	@Override
 	public void execute( Runnable task ) {
-		executor.execute( task );
+		submit( task );
 	}
 
 	@Override
 	public <T> Future<T> submit( Callable<T> task ) {
+		checkRunning();
+		if( task instanceof Task) submitted( (Task)task );
 		return executor.submit( task );
 	}
 
 	@Override
 	public <T> Future<T> submit( Runnable task, T result ) {
+		checkRunning();
+		if( task instanceof Task) submitted( (Task)task );
 		return executor.submit( task, result );
 	}
 
 	@Override
 	public Future<?> submit( Runnable task ) {
+		checkRunning();
+		if( task instanceof Task) submitted( (Task)task );
 		return executor.submit( task );
 	}
 
@@ -85,21 +91,45 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 
 	@Override
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks ) throws InterruptedException {
+		checkRunning();
+
+		for( Callable<T> task : tasks ) {
+			if( task instanceof Task) submitted( (Task)task );
+		}
+
 		return executor.invokeAll( tasks );
 	}
 
 	@Override
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException {
+		checkRunning();
+
+		for( Callable<T> task : tasks ) {
+			if( task instanceof Task) submitted( (Task)task );
+		}
+
 		return executor.invokeAll( tasks, timeout, unit );
 	}
 
 	@Override
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks ) throws InterruptedException, ExecutionException {
+		checkRunning();
+
+		for( Callable<T> task : tasks ) {
+			if( task instanceof Task) submitted( (Task)task );
+		}
+
 		return invokeAny( tasks );
 	}
 
 	@Override
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
+		checkRunning();
+
+		for( Callable<T> task : tasks ) {
+			if( task instanceof Task) submitted( (Task)task );
+		}
+
 		return executor.invokeAny( tasks, timeout, unit );
 	}
 
@@ -224,6 +254,39 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 	void fireTaskEvent( TaskEvent event ) {
 		for( TaskListener listener : listeners ) {
 			listener.handleEvent( event );
+		}
+	}
+
+	private void checkRunning() {
+		if( executor == null ) throw new RuntimeException( "TaskManager is not running." );
+	}
+
+
+	private <T> void synchronousExecute( Task<T> task ) {
+		try {
+			task.invoke();
+		} catch( Exception exception ) {
+			// Exceptions should be retrieved by calling get().
+		}
+	}
+
+	private <T> void synchronousExecute( Task<T> task, long timeout, TimeUnit unit ) {
+		try {
+			task.invoke( timeout, unit );
+		} catch( Exception exception ) {
+			// Exceptions should be retrieved by calling get().
+		}
+	}
+
+	private <T> void synchronousExecute( Collection<? extends Task<T>> tasks ) {
+		for( Task<T> task : tasks ) {
+			synchronousExecute( task );
+		}
+	}
+
+	private <T> void synchronousExecute( Collection<? extends Task<T>> tasks, long timeout, TimeUnit unit ) {
+		for( Task<T> task : tasks ) {
+			synchronousExecute( task, timeout, unit );
 		}
 	}
 

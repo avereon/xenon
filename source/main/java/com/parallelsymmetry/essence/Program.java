@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 public class Program extends Application implements Product {
@@ -122,7 +123,7 @@ public class Program extends Application implements Product {
 		TaskManager taskManager = new TaskManager();
 		Settings taskManagerSettings = new Settings( taskManager, new File( programDataFolder, "program" + SETTINGS_EXTENSION ) );
 		taskManager.loadSettings( taskManagerSettings.getConfiguration() );
-		//executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
+		taskManager.startAndWait( 1, TimeUnit.SECONDS );
 		executor = taskManager;
 		log.debug( "Executor service started." );
 	}
