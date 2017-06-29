@@ -1,14 +1,9 @@
 package com.parallelsymmetry.essence.task;
 
-import junit.framework.TestCase;
-
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-public class TaskManagerTest extends TestCase {
+public class TaskManagerTest extends BaseTaskTest {
 
 	private TaskManager manager;
 
@@ -18,58 +13,71 @@ public class TaskManagerTest extends TestCase {
 	}
 
 	public void testStartAndWait() throws Exception {
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
-		manager.stopAndWait();
+		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 	}
 
 	public void testStopAndWait() throws Exception {
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
-		manager.stopAndWait();
+		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testStartAndStop() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
-		manager.stopAndWait();
+		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testRestart() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
-		manager.stopAndWait();
+		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
-		manager.stopAndWait();
+		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testStopBeforeStart() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.stopAndWait();
+		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertFalse( manager.isRunning() );
 	}
 
-	public void testSubmitWithNull() throws Exception {
+	public void testSubmitNullRunnable() throws Exception {
 		assertFalse( manager.isRunning() );
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		try {
-			manager.submit( null );
+			manager.submit( (Runnable)null );
+			fail( "TaskManager.submit(null) should throw a NullPointerException." );
+		} catch( NullPointerException exception ) {
+			// A NullPointerException should be thrown.
+		}
+	}
+
+	public void testSubmitNullCallable() throws Exception {
+		assertFalse( manager.isRunning() );
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		assertTrue( manager.isRunning() );
+
+		try {
+			manager.submit( (Callable<?>)null );
 			fail( "TaskManager.submit(null) should throw a NullPointerException." );
 		} catch( NullPointerException exception ) {
 			// A NullPointerException should be thrown.
@@ -79,7 +87,7 @@ public class TaskManagerTest extends TestCase {
 	public void testSubmitNullResult() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		MockTask task = new MockTask( manager );
@@ -97,7 +105,7 @@ public class TaskManagerTest extends TestCase {
 	public void testSubmitWithResult() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		Object result = new Object();
@@ -116,7 +124,7 @@ public class TaskManagerTest extends TestCase {
 	public void testFailedTask() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		MockTask task = new MockTask( manager, null, true );
@@ -160,7 +168,7 @@ public class TaskManagerTest extends TestCase {
 	public void testUsingTaskAsFuture() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		Object result = new Object();
@@ -178,7 +186,7 @@ public class TaskManagerTest extends TestCase {
 
 	public void testNestedTask() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		Object nestedResult = new Object();
@@ -198,7 +206,7 @@ public class TaskManagerTest extends TestCase {
 
 	public void testNestedTaskWithException() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		Object nestedResult = new Object();
@@ -235,7 +243,7 @@ public class TaskManagerTest extends TestCase {
 
 	public void testTaskListener() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
 
 		MockTaskListener listener = new MockTaskListener();

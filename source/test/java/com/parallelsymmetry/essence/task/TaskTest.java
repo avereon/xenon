@@ -1,11 +1,10 @@
 package com.parallelsymmetry.essence.task;
 
-import com.parallelsymmetry.utility.ThreadUtil;
-import junit.framework.TestCase;
+import com.parallelsymmetry.essence.util.ThreadUtil;
 
 import java.util.concurrent.TimeUnit;
 
-public class TaskTest extends TestCase {
+public class TaskTest extends BaseTaskTest {
 
 	private TaskManager manager = new TaskManager();
 
@@ -18,7 +17,7 @@ public class TaskTest extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 	}
 
 	public void testPriority() throws Exception {

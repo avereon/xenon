@@ -12,6 +12,7 @@ import com.parallelsymmetry.essence.resource.ProgramResourceType;
 import com.parallelsymmetry.essence.scheme.FileScheme;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import com.parallelsymmetry.essence.scheme.Schemes;
+import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -30,12 +31,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.LogManager;
 
 public class Program extends Application implements Product {
 
 	public static final String STYLESHEET = "style.css";
+
+	public static final String SETTINGS_EXTENSION = ".settings";
 
 	private Logger log = LoggerFactory.getLogger( Program.class );
 
@@ -116,9 +118,12 @@ public class Program extends Application implements Product {
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 
 		// Create the executor service
-		int processorCount = Runtime.getRuntime().availableProcessors();
 		log.trace( "Starting executor service..." );
-		executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
+		TaskManager taskManager = new TaskManager();
+		Settings taskManagerSettings = new Settings( taskManager, new File( programDataFolder, "program" + SETTINGS_EXTENSION ) );
+		taskManager.loadSettings( taskManagerSettings.getConfiguration() );
+		//executor = Executors.newFixedThreadPool( Math.max( 2, processorCount ), new ProgramThreadFactory() );
+		executor = taskManager;
 		log.debug( "Executor service started." );
 	}
 

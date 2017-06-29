@@ -1,18 +1,16 @@
 package com.parallelsymmetry.essence.task;
 
-import junit.framework.TestCase;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskEventTest extends TestCase {
+public class TaskEventTest extends BaseTaskTest {
 
 	private TaskManager manager;
 
 	@Override
 	public void setUp() throws Exception {
 		manager = new TaskManager();
-		manager.startAndWait();
+		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 	}
 
 	public void testSucess() throws Exception {

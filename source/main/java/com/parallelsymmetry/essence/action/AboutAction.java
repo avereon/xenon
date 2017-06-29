@@ -25,10 +25,10 @@ public class AboutAction extends Action {
 	public void handle( Event event ) {
 		if( resource == null ) {
 			resource = program.getResourceManager().createResource( URI.create( "program:about" ) );
-			program.getResourceManager().open( resource );
+			// NEXT Open the resource
+			//program.getResourceManager().open( resource );
 		}
 
-		// NEXT Open the resource
 
 		// TODO Open the about tool
 		Tool tool = program.getToolManager().getEditTool( resource );

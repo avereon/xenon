@@ -225,7 +225,7 @@ public class UiFactory {
 	}
 
 	private File getConfigurationFile( Prefix prefix, String id ) {
-		return new File( paths.get( prefix ), id + ".properties" );
+		return new File( paths.get( prefix ), id + Program.SETTINGS_EXTENSION );
 	}
 
 }

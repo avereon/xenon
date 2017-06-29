@@ -1,6 +1,6 @@
 package com.parallelsymmetry.essence.task;
 
-import com.parallelsymmetry.utility.ThreadUtil;
+import com.parallelsymmetry.essence.util.ThreadUtil;
 
 final class MockTask extends Task<Object> {
 
