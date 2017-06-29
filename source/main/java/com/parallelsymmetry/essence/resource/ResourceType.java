@@ -14,7 +14,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * URI. Resource types may have one or more associated codecs. {@link Scheme},
  * ResourceType and {@link Codec} work together to store and restore resources.
  * <h2>Determining Resource Type</h2>
- * <p>
  * Resource types can usually be determined by using the resource URI. Some
  * resource types can be determined using just the URI scheme. If the resource
  * type cannot be determined by the URI scheme then it is usually a stateful
@@ -40,7 +39,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * When a resource is saved it might also be necessary to update the resource
  * type.
  * <h2>Determining a Resource Editor</h2>
- * <p>
  * Once the resource type is determined an appropriate editor can be created for
  * it. It is possible to have more than one editor registered for the resource
  * type. In this case a default may be specified or the user will need to

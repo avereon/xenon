@@ -8,6 +8,10 @@ import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductBundle;
 import com.parallelsymmetry.essence.product.ProductMetadata;
+import com.parallelsymmetry.essence.resource.ProgramResourceType;
+import com.parallelsymmetry.essence.scheme.FileScheme;
+import com.parallelsymmetry.essence.scheme.ProgramScheme;
+import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -326,6 +330,10 @@ public class Program extends Application implements Product {
 		actionLibrary = new ActionLibrary( productBundle, iconLibrary );
 		registerActionHandlers();
 
+		// Register schemes
+		Schemes.addScheme( new FileScheme( this ) );
+		Schemes.addScheme( new ProgramScheme( this ), new ProgramResourceType( this, "program" ) );
+
 		// Create the workspace manager
 		log.trace( "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this );
@@ -335,7 +343,8 @@ public class Program extends Application implements Product {
 		UiFactory factory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
-		final int steps = 3 + factory.getUiObjectCount();
+		final int startupCount = 4;
+		final int steps = startupCount + factory.getUiObjectCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product metadata
@@ -355,9 +364,11 @@ public class Program extends Application implements Product {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
-		// TODO Create the resource manager
-		//resourceManager = new ResourceManager(Program.this );
+		log.trace( "Starting resource manager..." );
+		resourceManager = new ResourceManager( Program.this );
 		//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Resource manager started." );
 
 		// Restore the workspace
 		Platform.runLater( () -> factory.restoreUi( splashScreen ) );

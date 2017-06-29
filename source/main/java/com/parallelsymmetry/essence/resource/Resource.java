@@ -4,6 +4,7 @@ import com.parallelsymmetry.essence.ResourceManager;
 import com.parallelsymmetry.essence.node.Node;
 import com.parallelsymmetry.essence.node.NodeEvent;
 import com.parallelsymmetry.essence.node.NodeListener;
+import com.parallelsymmetry.essence.scheme.Schemes;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,13 +118,13 @@ public class Resource extends Node {
 	}
 
 	public Scheme getScheme() {
-		Scheme scheme = getScheme();
+		Scheme scheme = getValue( SCHEME_VALUE_KEY );
 		if( scheme != null ) return scheme;
 
 		URI uri = getUri();
 		if( uri == null ) return null;
 
-		//scheme = Schemes.getScheme( uri.getScheme() );
+		scheme = Schemes.getScheme( uri.getScheme() );
 		if( scheme == null ) throw new RuntimeException( "Scheme not registered: " + uri.getScheme() );
 
 		setValue( SCHEME_VALUE_KEY, scheme );

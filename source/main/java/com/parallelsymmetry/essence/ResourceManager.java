@@ -2,10 +2,14 @@ package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.resource.Codec;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.resource.ResourceException;
 import com.parallelsymmetry.essence.resource.ResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -15,6 +19,8 @@ public class ResourceManager {
 
 	// Linux defines this limit in BINPRM_BUF_SIZE
 	private static final int FIRST_LINE_LIMIT = 128;
+
+	private static Logger log = LoggerFactory.getLogger( ResourceManager.class );
 
 	private Program program;
 
@@ -210,35 +216,35 @@ public class ResourceManager {
 //
 //		return createResource( uri );
 //	}
-//
-//	public Resource createResource( File file ) {
-//		return createResource( file.toURI() );
-//	}
-//
-//	public Resource createResource( URI uri ) {
-//		return createResource( null, uri );
-//	}
-//
-//	public Resource createResource( ResourceType type ) {
-//		return createResource( type, null );
-//	}
-//
-//	public Resource createResource( ResourceType type, URI uri ) {
-//		Resource resource = new Resource( type, uri );
-//
-//		resource = normalizeResourceReference( resource );
-//
-//		if( uri != null ) {
-//			try {
-//				resource.getScheme().init( resource );
-//			} catch( ResourceException exception ) {
-//				Log.write( exception );
-//			}
-//		}
-//
-//		return resource;
-//	}
-//
+
+	public Resource createResource( URI uri ) {
+		return createResource( null, uri );
+	}
+
+	public Resource createResource( File file ) {
+		return createResource( null, file.toURI() );
+	}
+
+	public Resource createResource( ResourceType type ) {
+		return createResource( type, null );
+	}
+
+	public Resource createResource( ResourceType type, URI uri ) {
+		Resource resource = new Resource( type, uri );
+
+		resource = findOpenResource( resource );
+
+		if( uri != null ) {
+			try {
+				resource.getScheme().init( resource );
+			} catch( ResourceException exception ) {
+				log.error( "Error initializing resource scheme", exception );
+			}
+		}
+
+		return resource;
+	}
+
 //	/**
 //	 * Create resources from an array of descriptors. Descriptors are preferred in
 //	 * the following order: URI, File, String, Object
@@ -620,14 +626,14 @@ public class ResourceManager {
 //		String name = HashUtil.hash( resource.getUri().toString() );
 //		return program.getSettings().getNode( ProgramSettingsPath.RESOURCE_SETTINGS ).getNode( name );
 //	}
-//
-//	private Resource normalizeResourceReference( Resource resource ) {
-//		for( Resource open : openResources ) {
-//			if( open.equals( resource ) ) return open;
-//		}
-//		return resource;
-//	}
-//
+
+	private Resource findOpenResource( Resource resource ) {
+		for( Resource open : openResources ) {
+			if( open.equals( resource ) ) return open;
+		}
+		return resource;
+	}
+
 //	private Collection<Resource> removeOpenResources( Collection<Resource> resources ) {
 //		Collection<Resource> filteredResources = new ArrayList<>( resources );
 //		for( Resource resource : openResources ) {
@@ -1185,7 +1191,7 @@ public class ResourceManager {
 //				try {
 //					resource = createResource( type );
 //					openResourcesAndWait( resource );
-//					resource = normalizeResourceReference( resource );
+//					resource = findOpenResource( resource );
 //					if( !resource.isOpen() ) return null;
 //				} catch( Exception exception ) {
 //					program.error( exception );
@@ -1338,7 +1344,7 @@ public class ResourceManager {
 //		}
 //
 //	}
-//
+
 //	private abstract class ResourceTask extends ProgramTask<Collection<Resource>> {
 //
 //		private Collection<Resource> resources;
@@ -1367,7 +1373,7 @@ public class ResourceManager {
 //					try {
 //						if( doOperation( resource ) ) result.add( resource );
 //					} catch( Throwable throwable ) {
-//						Log.write( Log.WARN, throwable );
+//						log.warn( "Error executing resource task", throwable );
 //						errors.add( throwable );
 //					}
 //				}
@@ -1376,15 +1382,16 @@ public class ResourceManager {
 //			if( errors.size() != 0 ) {
 //				StringBuilder messages = new StringBuilder();
 //				for( Throwable error : errors ) {
-//					messages.append( JavaUtil.getClassName( error.getClass() ) );
+//					messages.append( error.getClass().getSimpleName() );
 //					messages.append( ": " );
 //					messages.append( error.getMessage() );
 //					messages.append( "\n" );
 //				}
-//				String title = ProductUtil.getString( getProgram(), BundleKey.LABELS, "resources" );
-//				String message = ProductUtil.getString( getProgram(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
-//				//program.error( title, message );
-//				Log.write( Log.WARN, message );
+//				// FIXME Log the error information
+////				String title = ProductUtil.getString( getProgram(), BundleKey.LABELS, "resources" );
+////				String message = ProductUtil.getString( getProgram(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
+////				//program.error( title, message );
+////				log.warn( "Error executing resource task", message );
 //			}
 //
 //			return result;
@@ -1399,7 +1406,7 @@ public class ResourceManager {
 //		}
 //
 //	}
-//
+
 //	private class OpenResourceTask extends ResourceTask {
 //
 //		public OpenResourceTask( Collection<Resource> resources ) {
