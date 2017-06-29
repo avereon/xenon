@@ -1345,67 +1345,67 @@ public class ResourceManager {
 //
 //	}
 
-//	private abstract class ResourceTask extends ProgramTask<Collection<Resource>> {
-//
-//		private Collection<Resource> resources;
-//
-//		public ResourceTask( Resource resource ) {
-//			super( program );
-//			this.resources = Arrays.asList( new Resource[]{ resource } );
-//		}
-//
-//		public ResourceTask( Resource... resources ) {
-//			super( program );
-//			this.resources = Arrays.asList( resources );
-//		}
-//
-//		public ResourceTask( Collection<Resource> resources ) {
-//			super( program );
-//			this.resources = resources;
-//		}
-//
-//		@Override
-//		public Collection<Resource> execute() throws Exception {
-//			List<Resource> result = new ArrayList<Resource>();
-//			List<Throwable> errors = new ArrayList<Throwable>();
-//			if( resources != null ) {
-//				for( Resource resource : resources ) {
-//					try {
-//						if( doOperation( resource ) ) result.add( resource );
-//					} catch( Throwable throwable ) {
-//						log.warn( "Error executing resource task", throwable );
-//						errors.add( throwable );
-//					}
-//				}
-//			}
-//
-//			if( errors.size() != 0 ) {
-//				StringBuilder messages = new StringBuilder();
-//				for( Throwable error : errors ) {
-//					messages.append( error.getClass().getSimpleName() );
-//					messages.append( ": " );
-//					messages.append( error.getMessage() );
-//					messages.append( "\n" );
-//				}
-//				// FIXME Log the error information
-////				String title = ProductUtil.getString( getProgram(), BundleKey.LABELS, "resources" );
-////				String message = ProductUtil.getString( getProgram(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
-////				//program.error( title, message );
-////				log.warn( "Error executing resource task", message );
-//			}
-//
-//			return result;
-//		}
-//
-//		abstract boolean doOperation( Resource resource ) throws ResourceException;
-//
-//		@Override
-//		public String toString() {
-//			if( resources.size() == 0 ) return super.toString() + ": none";
-//			return super.toString() + ": " + resources.iterator().next().toString();
-//		}
-//
-//	}
+	private abstract class ResourceTask extends ProgramTask<Collection<Resource>> {
+
+		private Collection<Resource> resources;
+
+		public ResourceTask( Resource resource ) {
+			super( program );
+			this.resources = Arrays.asList( new Resource[]{ resource } );
+		}
+
+		public ResourceTask( Resource... resources ) {
+			super( program );
+			this.resources = Arrays.asList( resources );
+		}
+
+		public ResourceTask( Collection<Resource> resources ) {
+			super( program );
+			this.resources = resources;
+		}
+
+		@Override
+		public Collection<Resource> execute() throws Exception {
+			List<Resource> result = new ArrayList<Resource>();
+			List<Throwable> errors = new ArrayList<Throwable>();
+			if( resources != null ) {
+				for( Resource resource : resources ) {
+					try {
+						if( doOperation( resource ) ) result.add( resource );
+					} catch( Throwable throwable ) {
+						log.warn( "Error executing resource task", throwable );
+						errors.add( throwable );
+					}
+				}
+			}
+
+			if( errors.size() != 0 ) {
+				StringBuilder messages = new StringBuilder();
+				for( Throwable error : errors ) {
+					messages.append( error.getClass().getSimpleName() );
+					messages.append( ": " );
+					messages.append( error.getMessage() );
+					messages.append( "\n" );
+				}
+				// FIXME Log the error information
+//				String title = ProductUtil.getString( getProgram(), BundleKey.LABELS, "resources" );
+//				String message = ProductUtil.getString( getProgram(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
+//				//program.error( title, message );
+//				log.warn( "Error executing resource task", message );
+			}
+
+			return result;
+		}
+
+		abstract boolean doOperation( Resource resource ) throws ResourceException;
+
+		@Override
+		public String toString() {
+			if( resources.size() == 0 ) return super.toString() + ": none";
+			return super.toString() + ": " + resources.iterator().next().toString();
+		}
+
+	}
 
 //	private class OpenResourceTask extends ResourceTask {
 //
