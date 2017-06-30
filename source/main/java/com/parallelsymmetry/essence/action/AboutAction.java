@@ -24,11 +24,13 @@ public class AboutAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		if( resource == null ) {
-			resource = program.getResourceManager().createResource( URI.create( "program:about" ) );
-			// NEXT Open the resource
-			//program.getResourceManager().open( resource );
+			try {
+				resource = program.getResourceManager().createResource( URI.create( "program:about" ) );
+				program.getResourceManager().openResources( resource );
+			} catch( Exception exception ) {
+				log.warn( "Error opening about resource", exception );
+			}
 		}
-
 
 		// TODO Open the about tool
 		Tool tool = program.getToolManager().getEditTool( resource );

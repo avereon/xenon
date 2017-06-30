@@ -105,6 +105,10 @@ public abstract class Codec {
 		return supportedMediaTypes.contains( type );
 	}
 
+	public int getPriority() {
+		return 0;
+	}
+
 	@Override
 	public String toString() {
 		return getName();
