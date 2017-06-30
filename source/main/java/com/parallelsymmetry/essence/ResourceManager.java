@@ -82,6 +82,11 @@ public class ResourceManager {
 		//		updateActionState();
 	}
 
+	public boolean isRunning() {
+		// TODO Return a real value for ResourceManager.isRunning()
+		return false;
+	}
+
 	//	public void stop() {
 	//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
 	//	}
