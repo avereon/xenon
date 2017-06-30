@@ -50,18 +50,21 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 
 	private Set<ProgramEventListener> listeners;
 
-	public Settings( ExecutorService executor, File file ) {
-		this( executor, file, null );
+	public Settings( File file ) {
+		this( file, null );
 	}
 
-	public Settings( ExecutorService executor, File file, String id ) {
+	public Settings( File file, String id ) {
 		super( PropertiesConfiguration.class, null, true );
-		this.executor = executor;
 		this.listeners = new CopyOnWriteArraySet<>();
 		this.id = id;
 
 		configure( new Parameters().properties().setFile( file ) );
 		setAutoSave( true );
+	}
+
+	public void setExecutor( ExecutorService executor ) {
+		this.executor = executor;
 	}
 
 	@Override
@@ -125,7 +128,12 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 
 		@Override
 		public void run() {
-			if( !executor.isShutdown() ) executor.submit( Settings.this::persist );
+			// If there is an executor, use it to run the task, otherwise run the task on the timer thread
+			if( executor != null && !executor.isShutdown() ) {
+				executor.submit( Settings.this::persist );
+			} else {
+				this.run();
+			}
 		}
 
 	}

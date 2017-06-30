@@ -89,11 +89,11 @@ public class WorkspaceManager {
 		// Hide all the workspace stages
 		CountDownLatch latch = new CountDownLatch( workspaces.size() );
 		for( Workspace workspace : workspaces ) {
-			workspace.getStage().onHiddenProperty().addListener( (event) -> {latch.countDown();});
+			workspace.getStage().onHiddenProperty().addListener( (event) -> latch.countDown() );
 			Platform.runLater( () -> workspace.getStage().close() );
 		}
 		try {
-			latch.await( 1, TimeUnit.SECONDS );
+			latch.await( 10, TimeUnit.SECONDS );
 		} catch( InterruptedException exception ) {
 			log.error( "Timeout waiting for windows to close", exception );
 		}

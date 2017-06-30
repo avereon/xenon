@@ -40,15 +40,15 @@ public class Program extends Application implements Product {
 
 	public static final String SETTINGS_EXTENSION = ".settings";
 
-	private Logger log = LoggerFactory.getLogger( Program.class );
+	private static Logger log = LoggerFactory.getLogger( Program.class );
 
-	private long startTimestamp;
-
-	private String programTitle;
+	private static long programStartTime;
 
 	private SplashScreen splashScreen;
 
-	private ExecutorService executor;
+	//private ExecutorService executor;
+
+	private TaskManager taskManager;
 
 	private ProductMetadata metadata;
 
@@ -77,6 +77,8 @@ public class Program extends Application implements Product {
 	private AboutAction aboutAction;
 
 	static {
+		programStartTime = System.currentTimeMillis();
+
 		// This will require Platform.exit() to be called
 		//Platform.setImplicitExit( false );
 	}
@@ -87,69 +89,68 @@ public class Program extends Application implements Product {
 	}
 
 	public Program() {
-		startTimestamp = System.currentTimeMillis();
-
 		// Create program action handlers
 		exitAction = new ExitAction( this );
 		aboutAction = new AboutAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
-
-		// Create the event watcher
-		addEventListener( watcher = new ProgramEventWatcher() );
-	}
-
-	protected void finalize() {
-		removeEventListener( watcher );
 	}
 
 	@Override
 	public void init() throws Exception {
+		// NOTE Only do in init() what has to be done before the splash screen can be shown
+
+		// Load the product metadata
+		printHeader( metadata = new ProductMetadata() );
+		time( "init" );
+
 		configureLogging();
+		log.info( "Program init time (ms): " + (System.currentTimeMillis() - programStartTime) );
 
-		// Load the product metadata.
-		metadata = new ProductMetadata();
+		// Create the program event watcher after configuring the logging
+		addEventListener( watcher = new ProgramEventWatcher() );
 
-		// Determine execmode prefix
-		String prefix = getExecmodePrefix();
+		// Fire the program starting event after the event watcher is created
+		fireEvent( new ProgramStartingEvent( this ) );
 
-		// Set program values
-		programTitle = metadata.getName();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		// FIXME Getting the program settings takes about 1/4 of the startup time
+		File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
+		settings = new Settings( new File( programSettingsFolder, "program.properties" ) );
+		time( "settings" );
 
-		// Create the executor service
-		log.trace( "Starting executor service..." );
-		TaskManager taskManager = new TaskManager();
-		Settings taskManagerSettings = new Settings( taskManager, new File( programDataFolder, "program" + SETTINGS_EXTENSION ) );
-		taskManager.loadSettings( taskManagerSettings.getConfiguration() );
-		taskManager.startAndWait( 1, TimeUnit.SECONDS );
-		executor = taskManager;
-		log.debug( "Executor service started." );
+		// TODO Check for another instance after getting the settings but before the splash screen is shown
+		// https://stackoverflow.com/questions/41051127/javafx-single-instance-application
+		// Call Platform.exit() if there is already an instance
 	}
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		printHeader();
-
-		log.info( "Program init time (ms): " + (System.currentTimeMillis() - startTimestamp) );
-
-		new ProgramStartingEvent( this ).fire( listeners );
-
-		// Show the splash screen
-		splashScreen = new SplashScreen( programTitle );
+		// Show the splash screen as soon as possible after checking for another instance
+		splashScreen = new SplashScreen( metadata.getName() );
 		splashScreen.show();
+		time( "splash" );
+
+		String prefix = getExecmodePrefix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		time( "programValues" );
+
+		// Create the executor service
+		log.trace( "Starting executor service..." );
+		taskManager = new TaskManager();
+		taskManager.loadSettings( settings.getConfiguration() );
+		taskManager.startAndWait( 1, TimeUnit.SECONDS );
+		settings.setExecutor( taskManager );
+		log.debug( "Executor service started." );
+		time( "taskManager" );
 
 		// Submit the startup task
-		executor.submit( new Startup() );
+		taskManager.submit( new Startup() );
 	}
 
 	@Override
 	public void stop() throws Exception {
-		new ProgramStoppingEvent( this ).fire( listeners );
-
-		// Submit the shutdown task
-		executor.submit( this::doShutdownTasks );
+		taskManager.submit( this::doShutdownTasks );
 	}
 
 	public void requestExit() {
@@ -183,7 +184,7 @@ public class Program extends Application implements Product {
 	}
 
 	public long getStartTime() {
-		return startTimestamp;
+		return programStartTime;
 	}
 
 	public File getDataFolder() {
@@ -191,7 +192,7 @@ public class Program extends Application implements Product {
 	}
 
 	public ExecutorService getExecutor() {
-		return executor;
+		return taskManager;
 	}
 
 	public IconLibrary getIconLibrary() {
@@ -214,10 +215,6 @@ public class Program extends Application implements Product {
 		return workspaceManager;
 	}
 
-	public void fireEvent( ProgramEvent event ) {
-		event.fire( listeners );
-	}
-
 	public void addEventListener( ProgramEventListener listener ) {
 		this.listeners.add( listener );
 	}
@@ -226,8 +223,20 @@ public class Program extends Application implements Product {
 		this.listeners.remove( listener );
 	}
 
+	public void fireEvent( ProgramEvent event ) {
+		event.fire( listeners );
+	}
+
 	public ProgramEventWatcher getEventWatcher() {
 		return watcher;
+	}
+
+	protected void finalize() {
+		removeEventListener( watcher );
+	}
+
+	private static void time( String markerName ) {
+		System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	private String getLogLevel() {
@@ -306,7 +315,7 @@ public class Program extends Application implements Product {
 		}
 	}
 
-	private void printHeader() {
+	private void printHeader( ProductMetadata metadata ) {
 		System.out.println( metadata.getName() + " " + metadata.getVersion() );
 		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
 	}
@@ -322,9 +331,6 @@ public class Program extends Application implements Product {
 	}
 
 	private void doStartupTasks() throws Exception {
-		// Give the slash screen time to render and the user to see it
-		//Thread.sleep( 1000 );
-
 		// Create the product bundle
 		productBundle = new ProductBundle( getClass().getClassLoader() );
 
@@ -341,9 +347,9 @@ public class Program extends Application implements Product {
 		Schemes.addScheme( new ProgramScheme( this ), new ProgramResourceType( this, "program" ) );
 
 		// Create the workspace manager
-		log.trace( "Starting workspace manager..." );
+		log.trace( "Creating workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this );
-		log.debug( "Workspace manager started." );
+		log.debug( "Workspace manager created." );
 
 		// Create the UI factory
 		UiFactory factory = new UiFactory( Program.this );
@@ -353,31 +359,30 @@ public class Program extends Application implements Product {
 		final int steps = startupCount + factory.getUiObjectCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
+		// Update the splash screen for the task manager which is already started
+		Platform.runLater( () -> splashScreen.update() );
+
 		// Update the product metadata
 		metadata.loadContributors();
 		Platform.runLater( () -> splashScreen.update() );
 
-		// Create the setting manager
-		log.trace( "Starting settings manager..." );
-		File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
-		settings = new Settings( executor, new File( programSettingsFolder, "program.properties" ) );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Settings manager started." );
-
-		// Create the tool manager
+		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
+		// Start the resource manager
 		log.trace( "Starting resource manager..." );
-		resourceManager = new ResourceManager( Program.this );
+		resourceManager = new ResourceManager( Program.this ).start();
 		//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
 		// Restore the workspace
+		log.trace( "Starting workspace manager..." );
 		Platform.runLater( () -> factory.restoreUi( splashScreen ) );
+		log.debug( "Workspace manager started." );
 
 		// TODO Start the update manager
 
@@ -385,12 +390,12 @@ public class Program extends Application implements Product {
 		Platform.runLater( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it
+		//		long remaining = 1000 - (System.currentTimeMillis() - start);
+		//		if( remaining > 0 ) Thread.sleep( remaining );
+		time( "nap" );
 		Thread.sleep( 1000 );
+		time( "started" );
 	}
-
-	private void registerIcons() {}
-
-	private void unregisterIcons() {}
 
 	private void showProgram() {
 		workspaceManager.getActiveWorkspace().getStage().show();
@@ -400,21 +405,29 @@ public class Program extends Application implements Product {
 		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( this ) );
 		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( this ) );
 
-		new ProgramStartedEvent( this ).fire( listeners );
+		fireEvent( new ProgramStartedEvent( this ) );
 	}
 
 	private void doShutdownTasks() {
-		// TODO Stop the WorkspaceManager
+		fireEvent( new ProgramStoppingEvent( this ) );
+
+		// Stop the workspace manager
 		log.trace( "Stopping workspace manager..." );
+		// FIXME The program is exiting during this call
 		workspaceManager.shutdown();
 		log.debug( "Workspace manager stopped." );
 
 		// TODO Stop the UpdateManager
 
-		// TODO Stop the ResourceManager
+		// Stop the resource manager
+		log.trace( "Stopping resource manager..." );
+		resourceManager.stop();
+		log.debug( "Resource manager stopped." );
 
-		// TODO Stop the ToolManager
+		// Stop the tool manager
+		log.trace( "Stopping tool manager..." );
 		toolManager.shutdown();
+		log.debug( "Tool manager stopped." );
 
 		// Disconnect the settings listener
 		log.trace( "Stopping settings manager..." );
@@ -427,13 +440,24 @@ public class Program extends Application implements Product {
 		// Unregister icons
 		unregisterIcons();
 
-		new ProgramStoppedEvent( this ).fire( listeners );
+		// Stop the task manager
+		try {
+			log.trace( "Stopping task manager..." );
+			taskManager.shutdown();
+			taskManager.awaitTermination( 10, TimeUnit.SECONDS );
+			log.debug( "Task manager stopped." );
+			System.out.println( "Waiting for things to settle down" );
+			Thread.sleep( 1000 );
+		} catch( InterruptedException exception ) {
+			log.error( "Task manager shutdown interrupted", exception );
+		}
 
-		// Stop the executor service
-		log.trace( "Stopping executor service..." );
-		executor.shutdown();
-		log.debug( "Executor service stopped." );
+		fireEvent( new ProgramStoppedEvent( this ) );
 	}
+
+	private void registerIcons() {}
+
+	private void unregisterIcons() {}
 
 	private void registerActionHandlers() {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
@@ -456,8 +480,6 @@ public class Program extends Application implements Product {
 
 	private class Startup extends Task<Void> {
 
-		private Stage stage;
-
 		@Override
 		protected Void call() throws Exception {
 			doStartupTasks();
@@ -467,7 +489,15 @@ public class Program extends Application implements Product {
 		@Override
 		protected void succeeded() {
 			splashScreen.hide();
-			showProgram();
+
+			workspaceManager.getActiveWorkspace().getStage().show();
+
+			// Set the workarea actions
+			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
+			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
+			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
+
+			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
 		}
 
 		@Override

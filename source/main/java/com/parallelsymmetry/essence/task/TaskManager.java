@@ -184,37 +184,42 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 	}
 
 	@Override
-	public void start() throws ControllableException {
-		if( isRunning() ) return;
+	public TaskManager start() throws ControllableException {
+		if( isRunning() ) return this;
 		log.trace( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
 		executor = new ThreadPoolExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory() );
+		return this;
 	}
 
 	@Override
-	public void startAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
+	public TaskManager startAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
 		start();
+		return this;
 	}
 
 	@Override
-	public void restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
+	public TaskManager restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
 		// Don't use start() and stop() because they are asynchronous.
 		stopAndWait( timeout / 2, unit );
 		startAndWait( timeout / 2, unit );
+		return this;
 	}
 
 	@Override
-	public void stop() throws ControllableException {
-		if( executor == null || executor.isShutdown() ) return;
+	public TaskManager stop() throws ControllableException {
+		if( executor == null || executor.isShutdown() ) return this;
 		executor.shutdown();
 		executor = null;
+		return this;
 	}
 
 	@Override
-	public void stopAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
-		if( executor == null || executor.isShutdown() ) return;
+	public TaskManager stopAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
+		if( executor == null || executor.isShutdown() ) return this;
 		executor.shutdown();
 		executor.awaitTermination( timeout, unit );
 		executor = null;
+		return this;
 	}
 
 	@Override

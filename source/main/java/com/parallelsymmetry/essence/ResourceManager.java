@@ -3,6 +3,8 @@ package com.parallelsymmetry.essence;
 import com.parallelsymmetry.essence.resource.*;
 import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.scheme.Schemes;
+import com.parallelsymmetry.essence.util.Controllable;
+import com.parallelsymmetry.essence.util.ControllableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +14,9 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
-public class ResourceManager {
+public class ResourceManager implements Controllable<ResourceManager> {
 
 	public static final String CURRENT_DIRECTORY_SETTING_KEY = "current.folder";
 
@@ -67,7 +70,8 @@ public class ResourceManager {
 		registeredMediaTypes = new ConcurrentHashMap<>();
 	}
 
-	public void start() {
+	@Override
+	public ResourceManager start() {
 		//		((FileScheme)Schemes.getScheme( "file" )).startResourceWatching();
 		//
 		//		program.getActionLibrary().getAction( "new" ).pushHandler( newActionHandler );
@@ -80,16 +84,27 @@ public class ResourceManager {
 		//		program.getActionLibrary().getAction( "close.all" ).pushHandler( closeAllActionHandler );
 		//
 		//		updateActionState();
+		return this;
 	}
 
+	@Override
 	public boolean isRunning() {
 		// TODO Return a real value for ResourceManager.isRunning()
 		return false;
 	}
 
-	//	public void stop() {
+	@Override
+	public ResourceManager restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
+		stop();
+		start();
+		return this;
+	}
+
+	@Override
+		public ResourceManager stop() {
 	//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
-	//	}
+			return this;
+		}
 
 	public Resource getCurrentResource() {
 		return currentResource;

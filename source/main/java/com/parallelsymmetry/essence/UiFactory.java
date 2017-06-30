@@ -121,8 +121,9 @@ public class UiFactory {
 	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
+		Settings settings = new Settings( getConfigurationFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
 		settings.addProgramEventListener( program.getEventWatcher() );
+		settings.setExecutor( program.getExecutor() );
 		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
 		// Intentionally do not set the x property
@@ -138,8 +139,9 @@ public class UiFactory {
 	public Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = new Settings( program.getExecutor(), getConfigurationFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
+		Settings settings = new Settings( getConfigurationFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
 		settings.addProgramEventListener( program.getEventWatcher() );
+		settings.setExecutor( program.getExecutor() );
 		Configuration configuration = settings.getConfiguration();
 		configuration.setProperty( "id", id );
 
@@ -152,8 +154,9 @@ public class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Settings settings = new Settings( program.getExecutor(), file, Prefix.WORKSPACE.name() );
+			Settings settings = new Settings( file, Prefix.WORKSPACE.name() );
 			settings.addProgramEventListener( program.getEventWatcher() );
+			settings.setExecutor( program.getExecutor() );
 			Configuration configuration = settings.getConfiguration();
 			workspace.setConfiguration( configuration );
 
@@ -175,8 +178,9 @@ public class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-			Settings settings = new Settings( program.getExecutor(), file, Prefix.WORKAREA.name() );
+			Settings settings = new Settings( file, Prefix.WORKAREA.name() );
 			settings.addProgramEventListener( program.getEventWatcher() );
+			settings.setExecutor( program.getExecutor() );
 			Configuration configuration = settings.getConfiguration();
 			workarea.setConfiguration( configuration );
 

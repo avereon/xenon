@@ -2,14 +2,14 @@ package com.parallelsymmetry.essence.util;
 
 import java.util.concurrent.TimeUnit;
 
-public interface Controllable {
+public interface Controllable<T> {
 
 	boolean isRunning();
 
-	void start() throws ControllableException;
+	T start() throws ControllableException;
 
-	void restart(long timeout, TimeUnit unit) throws ControllableException, InterruptedException;
+	T restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException;
 
-	void stop() throws ControllableException;
+	T stop() throws ControllableException;
 
 }

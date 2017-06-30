@@ -2,10 +2,10 @@ package com.parallelsymmetry.essence.util;
 
 import java.util.concurrent.TimeUnit;
 
-public interface ControllableExtended extends Controllable {
+public interface ControllableExtended<T> extends Controllable<T> {
 
-	void startAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException;
+	T startAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException;
 
-	void stopAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException;
+	T stopAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException;
 
 }

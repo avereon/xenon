@@ -17,9 +17,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	protected Program program;
-
 	private ProgramWatcher watcher;
+
+	protected Program program;
 
 	protected ProductMetadata metadata;
 
@@ -48,6 +48,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	@After
 	@Override
 	public void cleanup() throws Exception {
+		program.removeEventListener( watcher );
 		FxToolkit.cleanupApplication( program );
 	}
 
