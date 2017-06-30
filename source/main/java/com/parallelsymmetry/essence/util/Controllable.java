@@ -2,14 +2,21 @@ package com.parallelsymmetry.essence.util;
 
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings( { "unused", "UnusedReturnValue" } )
 public interface Controllable<T> {
 
 	boolean isRunning();
 
-	T start() throws ControllableException;
+	T start();
 
-	T restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException;
+	T awaitStart( long timeout, TimeUnit unit ) throws InterruptedException;
 
-	T stop() throws ControllableException;
+	T restart();
+
+	T awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException;
+
+	T stop();
+
+	T awaitStop( long timeout, TimeUnit unit ) throws InterruptedException;
 
 }

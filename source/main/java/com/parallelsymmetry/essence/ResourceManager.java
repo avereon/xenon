@@ -4,7 +4,6 @@ import com.parallelsymmetry.essence.resource.*;
 import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.util.Controllable;
-import com.parallelsymmetry.essence.util.ControllableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,23 +87,38 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	@Override
+	public ResourceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+		return this;
+	}
+
+	@Override
 	public boolean isRunning() {
 		// TODO Return a real value for ResourceManager.isRunning()
 		return false;
 	}
 
 	@Override
-	public ResourceManager restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
+	public ResourceManager restart() {
 		stop();
 		start();
 		return this;
 	}
 
 	@Override
-		public ResourceManager stop() {
-	//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
-			return this;
-		}
+	public ResourceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+		return awaitStart( timeout, unit );
+	}
+
+	@Override
+	public ResourceManager stop() {
+		//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
+		return this;
+	}
+
+	@Override
+	public ResourceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+		return this;
+	}
 
 	public Resource getCurrentResource() {
 		return currentResource;
@@ -580,21 +594,21 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		program.getTaskManager().invoke( new CloseResourceTask( resources ) );
 	//	}
 
-		private void persistOpenResources() {
+	private void persistOpenResources() {
 		// FIXME Reimplement as a Configurable class
-//			Settings settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
-//
-//			synchronized( restoreLock ) {
-//				settings.removeNode();
-//
-//				for( Resource resource : openResources ) {
-//					URI uri = resource.getUri();
-//					if( uri == null ) continue;
-//					String uriString = uri.toASCIIString();
-//					settings.put( "resource-" + HashUtil.hash( uriString ), uriString );
-//				}
-//			}
-		}
+		//			Settings settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
+		//
+		//			synchronized( restoreLock ) {
+		//				settings.removeNode();
+		//
+		//				for( Resource resource : openResources ) {
+		//					URI uri = resource.getUri();
+		//					if( uri == null ) continue;
+		//					String uriString = uri.toASCIIString();
+		//					settings.put( "resource-" + HashUtil.hash( uriString ), uriString );
+		//				}
+		//			}
+	}
 
 	//	public void restoreOpenResources() {
 	//		// Clear the existing open resources set.
@@ -626,22 +640,22 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		}
 	//	}
 
-		/**
-		 * Get a collection of the supported codecs.
-		 *
-		 * @return
-		 */
-		public Collection<Codec> getCodecs() {
-			Set<Codec> codecs = new HashSet<Codec>();
+	/**
+	 * Get a collection of the supported codecs.
+	 *
+	 * @return
+	 */
+	public Collection<Codec> getCodecs() {
+		Set<Codec> codecs = new HashSet<Codec>();
 
-			for( ResourceType type : resourceTypes.values() ) {
-				codecs.addAll( type.getCodecs() );
-			}
-
-			return Collections.unmodifiableCollection( codecs );
+		for( ResourceType type : resourceTypes.values() ) {
+			codecs.addAll( type.getCodecs() );
 		}
 
-		// FIXME Resources should also implement Configurable
+		return Collections.unmodifiableCollection( codecs );
+	}
+
+	// FIXME Resources should also implement Configurable
 	//	public Settings getResourceSettings( Resource resource ) {
 	//		if( resource.getUri() == null ) return null;
 	//		String name = HashUtil.hash( resource.getUri().toString() );

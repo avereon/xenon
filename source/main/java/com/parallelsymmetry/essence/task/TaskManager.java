@@ -1,8 +1,7 @@
 package com.parallelsymmetry.essence.task;
 
 import com.parallelsymmetry.essence.util.Configurable;
-import com.parallelsymmetry.essence.util.ControllableException;
-import com.parallelsymmetry.essence.util.ControllableExtended;
+import com.parallelsymmetry.essence.util.Controllable;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TaskManager implements ExecutorService, ControllableExtended, Configurable {
+public class TaskManager implements ExecutorService, Configurable, Controllable<TaskManager> {
 
 	private static final int MIN_THREAD_COUNT = 4;
 
@@ -56,21 +55,21 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 	@Override
 	public <T> Future<T> submit( Callable<T> task ) {
 		checkRunning();
-		if( task instanceof Task) submitted( (Task)task );
+		if( task instanceof Task ) submitted( (Task)task );
 		return executor.submit( task );
 	}
 
 	@Override
 	public <T> Future<T> submit( Runnable task, T result ) {
 		checkRunning();
-		if( task instanceof Task) submitted( (Task)task );
+		if( task instanceof Task ) submitted( (Task)task );
 		return executor.submit( task, result );
 	}
 
 	@Override
 	public Future<?> submit( Runnable task ) {
 		checkRunning();
-		if( task instanceof Task) submitted( (Task)task );
+		if( task instanceof Task ) submitted( (Task)task );
 		return executor.submit( task );
 	}
 
@@ -94,7 +93,7 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 		checkRunning();
 
 		for( Callable<T> task : tasks ) {
-			if( task instanceof Task) submitted( (Task)task );
+			if( task instanceof Task ) submitted( (Task)task );
 		}
 
 		return executor.invokeAll( tasks );
@@ -105,7 +104,7 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 		checkRunning();
 
 		for( Callable<T> task : tasks ) {
-			if( task instanceof Task) submitted( (Task)task );
+			if( task instanceof Task ) submitted( (Task)task );
 		}
 
 		return executor.invokeAll( tasks, timeout, unit );
@@ -116,7 +115,7 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 		checkRunning();
 
 		for( Callable<T> task : tasks ) {
-			if( task instanceof Task) submitted( (Task)task );
+			if( task instanceof Task ) submitted( (Task)task );
 		}
 
 		return invokeAny( tasks );
@@ -127,7 +126,7 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 		checkRunning();
 
 		for( Callable<T> task : tasks ) {
-			if( task instanceof Task) submitted( (Task)task );
+			if( task instanceof Task ) submitted( (Task)task );
 		}
 
 		return executor.invokeAny( tasks, timeout, unit );
@@ -161,7 +160,7 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 
 		if( isRunning() ) {
 			try {
-				restart( 10, TimeUnit.SECONDS );
+				restart();
 			} catch( Exception exception ) {
 				log.error( "Error restarting task manager with new thread count", exception );
 			}
@@ -175,16 +174,16 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 
 	@Override
 	public boolean isShutdown() {
-		return executor.isShutdown();
+		return executor == null || executor.isShutdown();
 	}
 
 	@Override
 	public boolean isTerminated() {
-		return executor.isTerminated();
+		return executor == null || executor.isTerminated();
 	}
 
 	@Override
-	public TaskManager start() throws ControllableException {
+	public TaskManager start() {
 		if( isRunning() ) return this;
 		log.trace( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
 		executor = new ThreadPoolExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory() );
@@ -192,33 +191,41 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 	}
 
 	@Override
-	public TaskManager startAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
-		start();
+	public TaskManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
 		return this;
 	}
 
 	@Override
-	public TaskManager restart( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
-		// Don't use start() and stop() because they are asynchronous.
-		stopAndWait( timeout / 2, unit );
-		startAndWait( timeout / 2, unit );
+	public TaskManager restart() {
+		new Thread( () -> {
+			stop();
+			try {
+				// TODO Make task manager restart timeout a setting?
+				awaitStop( 10, TimeUnit.SECONDS );
+				start();
+			} catch( InterruptedException exception ) {
+				exception.printStackTrace();
+			}
+		} ).start();
+
 		return this;
 	}
 
 	@Override
-	public TaskManager stop() throws ControllableException {
+	public TaskManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+		return null;
+	}
+
+	@Override
+	public TaskManager stop() {
 		if( executor == null || executor.isShutdown() ) return this;
 		executor.shutdown();
-		executor = null;
 		return this;
 	}
 
-	@Override
-	public TaskManager stopAndWait( long timeout, TimeUnit unit ) throws ControllableException, InterruptedException {
+	public TaskManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 		if( executor == null || executor.isShutdown() ) return this;
-		executor.shutdown();
 		executor.awaitTermination( timeout, unit );
-		executor = null;
 		return this;
 	}
 
@@ -265,7 +272,6 @@ public class TaskManager implements ExecutorService, ControllableExtended, Confi
 	private void checkRunning() {
 		if( executor == null ) throw new RuntimeException( "TaskManager is not running." );
 	}
-
 
 	private <T> void synchronousExecute( Task<T> task ) {
 		try {

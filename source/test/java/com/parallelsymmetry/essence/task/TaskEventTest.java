@@ -10,7 +10,7 @@ public class TaskEventTest extends BaseTaskTest {
 	@Override
 	public void setUp() throws Exception {
 		manager = new TaskManager();
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 	}
 
 	public void testSucess() throws Exception {

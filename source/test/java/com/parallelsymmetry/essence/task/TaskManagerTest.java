@@ -12,55 +12,58 @@ public class TaskManagerTest extends BaseTaskTest {
 		manager = new TaskManager();
 	}
 
-	public void testStartAndWait() throws Exception {
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+	public void testStartAndAwait() throws Exception {
+		manager.start(  );
+		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
-		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.stop(  );
 	}
 
 	public void testStopAndWait() throws Exception {
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start();
+		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertTrue( manager.isRunning() );
-		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.stop();
+		manager.awaitStop( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testStartAndStop() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start();
 		assertTrue( manager.isRunning() );
 
-		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.stop();
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testRestart() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
-		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.stop(  );
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start(  );
 		assertTrue( manager.isRunning() );
 
-		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.stop( );
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testStopBeforeStart() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.stopAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.stop(  );
 		assertFalse( manager.isRunning() );
 	}
 
 	public void testSubmitNullRunnable() throws Exception {
 		assertFalse( manager.isRunning() );
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start(  );
 		assertTrue( manager.isRunning() );
 
 		try {
@@ -73,7 +76,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	public void testSubmitNullCallable() throws Exception {
 		assertFalse( manager.isRunning() );
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		try {
@@ -87,7 +90,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	public void testSubmitNullResult() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		MockTask task = new MockTask( manager );
@@ -105,7 +108,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	public void testSubmitWithResult() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		Object result = new Object();
@@ -124,7 +127,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	public void testFailedTask() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		MockTask task = new MockTask( manager, null, true );
@@ -168,7 +171,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	public void testUsingTaskAsFuture() throws Exception {
 		assertFalse( manager.isRunning() );
 
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		Object result = new Object();
@@ -186,7 +189,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	public void testNestedTask() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		Object nestedResult = new Object();
@@ -206,7 +209,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	public void testNestedTaskWithException() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		Object nestedResult = new Object();
@@ -243,7 +246,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	public void testTaskListener() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 		assertTrue( manager.isRunning() );
 
 		MockTaskListener listener = new MockTaskListener();

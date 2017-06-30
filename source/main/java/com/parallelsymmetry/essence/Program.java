@@ -40,7 +40,11 @@ public class Program extends Application implements Product {
 
 	public static final String SETTINGS_EXTENSION = ".settings";
 
+	private static final long MANAGER_ACTION_SECONDS = 10;
+
 	private static Logger log = LoggerFactory.getLogger( Program.class );
+
+	private static long managerActionTime = 10;
 
 	private static long programStartTime;
 
@@ -139,7 +143,8 @@ public class Program extends Application implements Product {
 		log.trace( "Starting executor service..." );
 		taskManager = new TaskManager();
 		taskManager.loadSettings( settings.getConfiguration() );
-		taskManager.startAndWait( 1, TimeUnit.SECONDS );
+		taskManager.start();
+		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		settings.setExecutor( taskManager );
 		log.debug( "Executor service started." );
 		time( "taskManager" );
@@ -409,50 +414,49 @@ public class Program extends Application implements Product {
 	}
 
 	private void doShutdownTasks() {
-		fireEvent( new ProgramStoppingEvent( this ) );
-
-		// Stop the workspace manager
-		log.trace( "Stopping workspace manager..." );
-		// FIXME The program is exiting during this call
-		workspaceManager.shutdown();
-		log.debug( "Workspace manager stopped." );
-
-		// TODO Stop the UpdateManager
-
-		// Stop the resource manager
-		log.trace( "Stopping resource manager..." );
-		resourceManager.stop();
-		log.debug( "Resource manager stopped." );
-
-		// Stop the tool manager
-		log.trace( "Stopping tool manager..." );
-		toolManager.shutdown();
-		log.debug( "Tool manager stopped." );
-
-		// Disconnect the settings listener
-		log.trace( "Stopping settings manager..." );
-		settings.removeProgramEventListener( watcher );
-		log.debug( "Settings manager stopped." );
-
-		// Unregister action handlers
-		unregisterActionHandlers();
-
-		// Unregister icons
-		unregisterIcons();
-
-		// Stop the task manager
 		try {
-			log.trace( "Stopping task manager..." );
-			taskManager.shutdown();
-			taskManager.awaitTermination( 10, TimeUnit.SECONDS );
-			log.debug( "Task manager stopped." );
-			System.out.println( "Waiting for things to settle down" );
-			Thread.sleep( 1000 );
-		} catch( InterruptedException exception ) {
-			log.error( "Task manager shutdown interrupted", exception );
-		}
+			fireEvent( new ProgramStoppingEvent( this ) );
 
-		fireEvent( new ProgramStoppedEvent( this ) );
+			// Stop the workspace manager
+			log.trace( "Stopping workspace manager..." );
+			// FIXME The program is exiting during this call
+			workspaceManager.shutdown();
+			log.debug( "Workspace manager stopped." );
+
+			// TODO Stop the UpdateManager
+
+			// Stop the resource manager
+			log.trace( "Stopping resource manager..." );
+			resourceManager.stop();
+			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Resource manager stopped." );
+
+			// Stop the tool manager
+			log.trace( "Stopping tool manager..." );
+			toolManager.shutdown();
+			log.debug( "Tool manager stopped." );
+
+			// Disconnect the settings listener
+			log.trace( "Stopping settings manager..." );
+			settings.removeProgramEventListener( watcher );
+			log.debug( "Settings manager stopped." );
+
+			// Unregister action handlers
+			unregisterActionHandlers();
+
+			// Unregister icons
+			unregisterIcons();
+
+			// Stop the task manager
+			log.trace( "Stopping task manager..." );
+			taskManager.stop();
+			taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Task manager stopped." );
+
+			fireEvent( new ProgramStoppedEvent( this ) );
+		} catch( InterruptedException exception ) {
+			log.error( "Program shutdown interrupted", exception );
+		}
 	}
 
 	private void registerIcons() {}

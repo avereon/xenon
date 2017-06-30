@@ -17,7 +17,7 @@ public class TaskTest extends BaseTaskTest {
 
 	@Override
 	public void setUp() throws Exception {
-		manager.startAndWait( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		manager.start( );
 	}
 
 	public void testPriority() throws Exception {
