@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.util.Controllable;
 import com.parallelsymmetry.essence.workarea.Workspace;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -14,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class WorkspaceManager {
+public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private static Logger log = LogUtil.get( WorkspaceManager.class );
 
@@ -24,9 +25,60 @@ public class WorkspaceManager {
 
 	private Workspace activeWorkspace;
 
+	private CountDownLatch stopLatch;
+
 	public WorkspaceManager( Program program ) {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return workspaces.size() > 0;
+	}
+
+	@Override
+	public WorkspaceManager start() {
+		return this;
+	}
+
+	@Override
+	public WorkspaceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+		return this;
+	}
+
+	@Override
+	public WorkspaceManager restart() {
+		return this;
+	}
+
+	@Override
+	public WorkspaceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+		return this;
+	}
+
+	public WorkspaceManager stop() {
+		// Hide all the workspace stages
+		stopLatch = new CountDownLatch( workspaces.size() );
+		for( Workspace workspace : workspaces ) {
+			workspace.getStage().onHiddenProperty().addListener( ( event ) -> stopLatch.countDown() );
+			Platform.runLater( () -> workspace.getStage().close() );
+		}
+
+		return this;
+	}
+
+	@Override
+	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+		if( stopLatch != null ) {
+			try {
+				stopLatch.await( 10, TimeUnit.SECONDS );
+			} catch( InterruptedException exception ) {
+				log.error( "Timeout waiting for windows to close", exception );
+			}
+		}
+
+		return this;
 	}
 
 	public Set<Workspace> getWorkspaces() {
@@ -82,20 +134,6 @@ public class WorkspaceManager {
 
 		// TODO Remove the workspace, workpane, workpane components, tool settings, etc.
 		// TODO Remove the workspace from the workspace collection
-	}
-
-	public void shutdown() {
-		// Hide all the workspace stages
-		CountDownLatch latch = new CountDownLatch( workspaces.size() );
-		for( Workspace workspace : workspaces ) {
-			workspace.getStage().onHiddenProperty().addListener( (event) -> latch.countDown() );
-			Platform.runLater( () -> workspace.getStage().close() );
-		}
-		try {
-			latch.await( 10, TimeUnit.SECONDS );
-		} catch( InterruptedException exception ) {
-			log.error( "Timeout waiting for windows to close", exception );
-		}
 	}
 
 }

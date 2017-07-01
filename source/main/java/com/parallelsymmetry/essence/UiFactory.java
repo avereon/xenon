@@ -50,12 +50,16 @@ public class UiFactory {
 		paths.put( Prefix.WORKTOOL, new File( uiSettingsFolder, Prefix.WORKTOOL.name().toLowerCase() ) );
 	}
 
-	public int getUiObjectCount() {
-		int s = getConfigurationFiles( Prefix.WORKSPACE ).length;
-		int a = getConfigurationFiles( Prefix.WORKAREA ).length;
-		int p = getConfigurationFiles( Prefix.WORKPANE ).length;
-		int t = getConfigurationFiles( Prefix.WORKTOOL ).length;
-		return Math.max( 2, s + a + p + t );
+//	public int getUiObjectCount() {
+//		int s = getConfigurationFiles( Prefix.WORKSPACE ).length;
+//		int a = getConfigurationFiles( Prefix.WORKAREA ).length;
+//		int p = getConfigurationFiles( Prefix.WORKPANE ).length;
+//		int t = getConfigurationFiles( Prefix.WORKTOOL ).length;
+//		return Math.max( 2, s + a + p + t );
+//	}
+
+	public int getToolCount() {
+		return getConfigurationFiles( Prefix.WORKTOOL ).length;
 	}
 
 	public void restoreUi( SplashScreen splashScreen ) {
@@ -69,13 +73,13 @@ public class UiFactory {
 				// Create the default workspace
 				Workspace workspace = newWorkspace();
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
-				splashScreen.update();
+				//splashScreen.update();
 
 				// Create the default workarea
 				Workarea workarea = newWorkarea();
 				workarea.setName( "Default" );
 				workspace.setActiveWorkarea( workarea );
-				splashScreen.update();
+				//splashScreen.update();
 
 				// TODO Create default workarea panes
 
@@ -88,13 +92,13 @@ public class UiFactory {
 			// Create the workspaces
 			for( File file : workspaceFiles ) {
 				restoreWorkspace( file );
-				splashScreen.update();
+				//splashScreen.update();
 			}
 
 			// Create the workareas
 			for( File file : workareaFiles ) {
 				restoreWorkarea( file );
-				splashScreen.update();
+				//splashScreen.update();
 			}
 
 			// Create the workpanes

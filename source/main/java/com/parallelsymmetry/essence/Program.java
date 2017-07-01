@@ -21,7 +21,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -350,17 +349,12 @@ public class Program extends Application implements Product {
 		Schemes.addScheme( new FileScheme( this ) );
 		Schemes.addScheme( new ProgramScheme( this ), new ProgramResourceType( this, "program" ) );
 
-		// Create the workspace manager
-		log.trace( "Creating workspace manager..." );
-		workspaceManager = new WorkspaceManager( Program.this );
-		log.debug( "Workspace manager created." );
-
 		// Create the UI factory
 		UiFactory factory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
-		final int startupCount = 4;
-		final int steps = startupCount + factory.getUiObjectCount();
+		int managerCount = 5;
+		final int steps = managerCount + factory.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the splash screen for the task manager which is already started
@@ -379,12 +373,15 @@ public class Program extends Application implements Product {
 		// Start the resource manager
 		log.trace( "Starting resource manager..." );
 		resourceManager = new ResourceManager( Program.this ).start();
-		//int resourceCount = resourceManager.getPreviouslyOpenResourceCount();
+		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
-		// Restore the workspace
+		// Create the workspace manager
 		log.trace( "Starting workspace manager..." );
+		workspaceManager = new WorkspaceManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
 		Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 		log.debug( "Workspace manager started." );
 
@@ -419,7 +416,8 @@ public class Program extends Application implements Product {
 			// Stop the workspace manager
 			log.trace( "Stopping workspace manager..." );
 			// FIXME The program is exiting during this call
-			workspaceManager.shutdown();
+			workspaceManager.stop();
+			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
 
 			// TODO Stop the UpdateManager
