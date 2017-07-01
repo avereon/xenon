@@ -3,6 +3,7 @@ package com.parallelsymmetry.essence;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceType;
+import com.parallelsymmetry.essence.util.Controllable;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolMetadataComparator;
 import javafx.scene.Node;
@@ -15,8 +16,9 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
-public class ToolManager {
+public class ToolManager implements Controllable<ToolManager> {
 
 	private static Logger log = LogUtil.get( ToolManager.class );
 
@@ -108,6 +110,47 @@ public class ToolManager {
 		return tool;
 	}
 
+	@Override
+	public boolean isRunning() {
+		return false;
+	}
+
+	@Override
+	public ToolManager start() {
+		// TODO Implement ToolManager.start()
+		return this;
+	}
+
+	@Override
+	public ToolManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+		// TODO Implement ToolManager.awaitStart()
+		return this;
+	}
+
+	@Override
+	public ToolManager restart() {
+		// TODO Implement ToolManager.restart()
+		return this;
+	}
+
+	@Override
+	public ToolManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+		// TODO Implement ToolManager.awaitRestart()
+		return this;
+	}
+
+	@Override
+	public ToolManager stop() {
+		// TODO Implement ToolManager.stop()
+		return this;
+	}
+
+	@Override
+	public ToolManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+		// TODO Implement ToolManager.awaitStop()
+		return this;
+	}
+
 	private Tool doGetEditTool( Resource resource ) {
 		ResourceType resourceType = resource.getType();
 		if( resourceType == null ) {
@@ -135,9 +178,4 @@ public class ToolManager {
 
 		return tool;
 	}
-
-	public void shutdown() {
-		// TODO Implement ToolManager.shutdown()
-	}
-
 }

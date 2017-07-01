@@ -5,7 +5,6 @@ import com.parallelsymmetry.essence.workarea.Workspace;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.util.HashSet;
@@ -61,8 +60,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		// Hide all the workspace stages
 		stopLatch = new CountDownLatch( workspaces.size() );
 		for( Workspace workspace : workspaces ) {
-			workspace.getStage().onHiddenProperty().addListener( ( event ) -> stopLatch.countDown() );
 			Platform.runLater( () -> workspace.getStage().close() );
+			workspace.getStage().onHiddenProperty().addListener( ( event ) -> stopLatch.countDown() );
+			System.out.println( "Closed: " + workspace.getId() );
 		}
 
 		return this;
@@ -113,24 +113,26 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
-		//if( workspaces.size() > 1 ) {
-		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-		alert.setTitle( program.getResourceBundle().getString( "workspace", "workspace.close.title" ) );
-		alert.setHeaderText( program.getResourceBundle().getString( "workspace", "workspace.close.message" ) );
-		alert.setContentText( program.getResourceBundle().getString( "workspace", "workspace.close.prompt" ) );
-		alert.initOwner( workspace.getStage() );
+		boolean closeProgram = workspaces.size() == 1;
+		if( closeProgram ) {
+			program.requestExit();
+		} else {
+			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+			alert.setTitle( program.getResourceBundle().getString( "workspace", "workspace.close.title" ) );
+			alert.setHeaderText( program.getResourceBundle().getString( "workspace", "workspace.close.message" ) );
+			alert.setContentText( program.getResourceBundle().getString( "workspace", "workspace.close.prompt" ) );
+			alert.initOwner( workspace.getStage() );
 
-		Optional<ButtonType> result = alert.showAndWait();
+			Optional<ButtonType> result = alert.showAndWait();
 
-		if( result.isPresent() && result.get() == ButtonType.YES ) closeWorkspace( workspace );
-		//		} else {
-		//			program.requestExit();
-		//		}
+			if( result.isPresent() && result.get() == ButtonType.YES ) closeWorkspace( workspace );
+		}
 	}
 
 	public void closeWorkspace( Workspace workspace ) {
-		Stage stage = workspace.getStage();
-		stage.close();
+		// This will close the program if it's the last window and
+		// Platform.setImplicitExit( false ) has not been called
+		workspace.getStage().close();
 
 		// TODO Remove the workspace, workpane, workpane components, tool settings, etc.
 		// TODO Remove the workspace from the workspace collection

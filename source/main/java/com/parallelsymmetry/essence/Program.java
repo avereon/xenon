@@ -81,7 +81,7 @@ public class Program extends Application implements Product {
 		programStartTime = System.currentTimeMillis();
 
 		// This will require Platform.exit() to be called
-		//Platform.setImplicitExit( false );
+		Platform.setImplicitExit( false );
 	}
 
 	public static void main( String[] commands ) {
@@ -354,7 +354,7 @@ public class Program extends Application implements Product {
 
 		// Set the number of startup steps
 		int managerCount = 5;
-		final int steps = managerCount + factory.getToolCount();
+		int steps = managerCount + factory.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the splash screen for the task manager which is already started
@@ -367,6 +367,7 @@ public class Program extends Application implements Product {
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
+		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
@@ -398,17 +399,6 @@ public class Program extends Application implements Product {
 		time( "started" );
 	}
 
-	private void showProgram() {
-		workspaceManager.getActiveWorkspace().getStage().show();
-
-		// Set the workarea actions
-		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( this ) );
-		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( this ) );
-		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( this ) );
-
-		fireEvent( new ProgramStartedEvent( this ) );
-	}
-
 	private void doShutdownTasks() {
 		try {
 			fireEvent( new ProgramStoppingEvent( this ) );
@@ -416,8 +406,8 @@ public class Program extends Application implements Product {
 			// Stop the workspace manager
 			log.trace( "Stopping workspace manager..." );
 			// FIXME The program is exiting during this call
-			workspaceManager.stop();
-			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//workspaceManager.stop();
+			//workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
 
 			// TODO Stop the UpdateManager
@@ -430,7 +420,8 @@ public class Program extends Application implements Product {
 
 			// Stop the tool manager
 			log.trace( "Stopping tool manager..." );
-			toolManager.shutdown();
+			toolManager.stop();
+			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Tool manager stopped." );
 
 			// Disconnect the settings listener
@@ -451,6 +442,7 @@ public class Program extends Application implements Product {
 			log.debug( "Task manager stopped." );
 
 			fireEvent( new ProgramStoppedEvent( this ) );
+			Platform.exit();
 		} catch( InterruptedException exception ) {
 			log.error( "Program shutdown interrupted", exception );
 		}
