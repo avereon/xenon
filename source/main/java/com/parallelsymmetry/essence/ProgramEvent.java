@@ -1,13 +1,12 @@
 package com.parallelsymmetry.essence;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 public class ProgramEvent {
 
-	private static Logger log = LoggerFactory.getLogger( ProgramEvent.class );
+	private static Logger log = LogUtil.get( ProgramEvent.class );
 
 	private Object source;
 

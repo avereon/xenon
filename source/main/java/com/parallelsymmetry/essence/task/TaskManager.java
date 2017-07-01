@@ -1,10 +1,10 @@
 package com.parallelsymmetry.essence.task;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.util.Configurable;
 import com.parallelsymmetry.essence.util.Controllable;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
 
-	private static final Logger log = LoggerFactory.getLogger( TaskManager.class );
+	private static final Logger log = LogUtil.get( TaskManager.class );
 
 	private ThreadPoolExecutor executor;
 

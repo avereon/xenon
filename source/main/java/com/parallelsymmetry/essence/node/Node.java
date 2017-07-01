@@ -1,9 +1,9 @@
 package com.parallelsymmetry.essence.node;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.data.CircularReferenceException;
 import com.parallelsymmetry.essence.transaction.*;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Node implements TxnEventDispatcher {
 
-	private static final Logger log = LoggerFactory.getLogger( Node.class );
+	private static final Logger log = LogUtil.get( Node.class );
 
 	/**
 	 * The modified flag key.

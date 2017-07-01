@@ -7,7 +7,6 @@ import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolMetadataComparator;
 import javafx.scene.Node;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ToolManager {
 
-	private static Logger log = LoggerFactory.getLogger( ToolManager.class );
+	private static Logger log = LogUtil.get( ToolManager.class );
 
 	private Program program;
 

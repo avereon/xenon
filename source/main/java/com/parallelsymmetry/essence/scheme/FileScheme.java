@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.scheme;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.resource.Codec;
 import com.parallelsymmetry.essence.resource.NullCodecException;
@@ -7,7 +8,6 @@ import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class FileScheme extends BaseScheme {
 
-	private static Logger log = LoggerFactory.getLogger( FileScheme.class );
+	private static Logger log = LogUtil.get( FileScheme.class );
 
 	/**
 	 * The key to the cached file object.

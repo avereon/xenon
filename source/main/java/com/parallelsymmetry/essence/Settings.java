@@ -7,7 +7,6 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Date;
@@ -30,7 +29,7 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 	 */
 	private static final long MAX_PERSIST_LIMIT = 5000;
 
-	private static Logger log = LoggerFactory.getLogger( Settings.class );
+	private static Logger log = LogUtil.get( Settings.class );
 
 	private static Timer timer = new Timer( Settings.class.getSimpleName(), true );
 

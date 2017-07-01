@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.workarea;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.worktool.CloseOperation;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolEvent;
@@ -13,7 +14,6 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -34,7 +34,7 @@ public class Workpane extends Pane {
 
 	public static final double DEFAULT_EDGE_SIDE = 5;
 
-	private static final Logger log = LoggerFactory.getLogger( Workpane.class );
+	private static final Logger log = LogUtil.get( Workpane.class );
 
 	private WorkpaneEdge northEdge;
 

@@ -1,8 +1,8 @@
 package com.parallelsymmetry.essence.util;
 
+import com.parallelsymmetry.essence.LogUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class OperatingSystem {
 
-	private static Logger log = LoggerFactory.getLogger( OperatingSystem.class );
+	private static Logger log = LogUtil.get( OperatingSystem.class );
 
 	public enum Family {
 		UNKNOWN,

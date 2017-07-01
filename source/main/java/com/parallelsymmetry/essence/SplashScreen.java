@@ -10,7 +10,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SplashScreen extends Stage {
 
@@ -18,7 +17,7 @@ public class SplashScreen extends Stage {
 
 	private static final int HEIGHT = 180;
 
-	private static final Logger log = LoggerFactory.getLogger( SplashScreen.class );
+	private static final Logger log = LogUtil.get( SplashScreen.class );
 
 	private int steps;
 

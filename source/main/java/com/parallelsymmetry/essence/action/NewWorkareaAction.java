@@ -1,19 +1,19 @@
 package com.parallelsymmetry.essence.action;
 
-import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.Action;
+import com.parallelsymmetry.essence.LogUtil;
+import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.UiFactory;
 import com.parallelsymmetry.essence.workarea.Workarea;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class NewWorkareaAction extends Action<ActionEvent> {
 
-	private static Logger log = LoggerFactory.getLogger( NewWorkareaAction.class );
+	private static Logger log = LogUtil.get( NewWorkareaAction.class );
 
 	public NewWorkareaAction( Program program ) {
 		super( program );

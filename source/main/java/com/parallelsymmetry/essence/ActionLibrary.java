@@ -2,14 +2,13 @@ package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.product.ProductBundle;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = LoggerFactory.getLogger( ActionLibrary.class );
+	private static Logger log = LogUtil.get( ActionLibrary.class );
 
 	private Map<String, ActionProxy> actions;
 

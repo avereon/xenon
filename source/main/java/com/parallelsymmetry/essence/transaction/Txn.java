@@ -1,8 +1,8 @@
 package com.parallelsymmetry.essence.transaction;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.data.TransactionException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +17,7 @@ public class Txn {
 		AFTER
 	}
 
-	private static final Logger log = LoggerFactory.getLogger( Txn.class );
+	private static final Logger log = LogUtil.get( Txn.class );
 
 	private static final TxnEventComparator eventComparator = new TxnEventComparator();
 

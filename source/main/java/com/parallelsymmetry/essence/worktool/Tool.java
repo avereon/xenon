@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.worktool;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
@@ -11,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public abstract class Tool extends Control {
 
-	private static final Logger log = LoggerFactory.getLogger( Tool.class );
+	private static final Logger log = LogUtil.get( Tool.class );
 
 	public static final String ICON_PROPERTY = "icon";
 

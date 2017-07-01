@@ -1,12 +1,11 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.workarea.Workarea;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.Workspace;
+import com.parallelsymmetry.essence.worktool.Tool;
 import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class UiFactory {
 		WORKTOOL
 	}
 
-	private static Logger log = LoggerFactory.getLogger( UiFactory.class );
+	private static Logger log = LogUtil.get( UiFactory.class );
 
 	private Program program;
 

@@ -42,15 +42,13 @@ public class Program extends Application implements Product {
 
 	private static final long MANAGER_ACTION_SECONDS = 10;
 
-	private static Logger log = LoggerFactory.getLogger( Program.class );
+	private static Logger log = LogUtil.get( Program.class );
 
 	private static long managerActionTime = 10;
 
 	private static long programStartTime;
 
 	private SplashScreen splashScreen;
-
-	//private ExecutorService executor;
 
 	private TaskManager taskManager;
 
@@ -241,7 +239,7 @@ public class Program extends Application implements Product {
 	}
 
 	private static void time( String markerName ) {
-		System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	private String getLogLevel() {
@@ -279,8 +277,8 @@ public class Program extends Application implements Product {
 
 		// SLF4J - Java Logging
 		// ERROR - SEVERE
-		// WARN - WARNING
-		// INFO - INFO
+		// WARN  - WARNING
+		// INFO  - INFO
 		// DEBUG - FINE
 		// TRACE - FINEST
 
@@ -292,7 +290,8 @@ public class Program extends Application implements Product {
 		//builder.append( "handlers=java.util.logging.ConsoleHandler,java.util.logging.FileHandler\n" );
 
 		// Configure the simple formatter
-		builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT %4$s %2$s %5$s %6$s%n\n" );
+		//builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT %4$s %3$s %5$s %6$s%n\n" );
+		builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT %4$s %5$s %6$s%n\n" );
 
 		// Configure the console handler
 		builder.append( "java.util.logging.ConsoleHandler.level=FINEST\n" );

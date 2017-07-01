@@ -6,7 +6,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class WorkspaceManager {
 
-	private static Logger log = LoggerFactory.getLogger( WorkspaceManager.class );
+	private static Logger log = LogUtil.get( WorkspaceManager.class );
 
 	private Program program;
 

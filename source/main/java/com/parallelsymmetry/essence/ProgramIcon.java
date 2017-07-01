@@ -15,11 +15,9 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 
-@Deprecated
 public abstract class ProgramIcon extends Canvas {
 
 	private static final int DEFAULT_SIZE = 256;
@@ -30,7 +28,7 @@ public abstract class ProgramIcon extends Canvas {
 		DARK
 	}
 
-	private static Logger log = LoggerFactory.getLogger( ProgramIcon.class );
+	private static Logger log = LogUtil.get( ProgramIcon.class );
 
 	private static double DEFAULT_STROKE_WIDTH = 1.0 / 32.0;
 

@@ -5,7 +5,6 @@ import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.util.Controllable;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
@@ -22,7 +21,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	// Linux defines this limit in BINPRM_BUF_SIZE
 	private static final int FIRST_LINE_LIMIT = 128;
 
-	private static Logger log = LoggerFactory.getLogger( ResourceManager.class );
+	private static Logger log = LogUtil.get( ResourceManager.class );
 
 	private Program program;
 

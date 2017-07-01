@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence.resource;
 
+import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.ResourceManager;
 import com.parallelsymmetry.essence.node.Node;
 import com.parallelsymmetry.essence.node.NodeEvent;
@@ -7,7 +8,6 @@ import com.parallelsymmetry.essence.node.NodeListener;
 import com.parallelsymmetry.essence.scheme.Schemes;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.tree.TreePath;
 import javax.swing.undo.UndoManager;
@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Resource extends Node {
 
-	private static Logger log = LoggerFactory.getLogger( Resource.class );
+	private static Logger log = LogUtil.get( Resource.class );
 
 	private static final String URI_VALUE_KEY = "value.uri";
 
