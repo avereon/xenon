@@ -289,8 +289,8 @@ public class Program extends Application implements Product {
 		//builder.append( "handlers=java.util.logging.ConsoleHandler,java.util.logging.FileHandler\n" );
 
 		// Configure the simple formatter
-		//builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT %4$s %3$s %5$s %6$s%n\n" );
-		builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT %4$s %5$s %6$s%n\n" );
+		// https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax
+		builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT.%1$tL %4$s %5$s %6$s%n\n" );
 
 		// Configure the console handler
 		builder.append( "java.util.logging.ConsoleHandler.level=FINEST\n" );
