@@ -12,6 +12,7 @@ import com.parallelsymmetry.essence.resource.ProgramResourceType;
 import com.parallelsymmetry.essence.scheme.FileScheme;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import com.parallelsymmetry.essence.scheme.Schemes;
+import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
@@ -62,6 +63,8 @@ public class Program extends Application implements Product {
 	private ProductBundle productBundle;
 
 	private ActionLibrary actionLibrary;
+
+	private SettingsManager settingsManager;
 
 	private ToolManager toolManager;
 
@@ -116,8 +119,9 @@ public class Program extends Application implements Product {
 		fireEvent( new ProgramStartingEvent( this ) );
 
 		// FIXME Getting the program settings takes about 1/4 of the startup time
+		settingsManager = new SettingsManager( this ).start();
 		File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
-		settings = new Settings( new File( programSettingsFolder, "program.properties" ) );
+		settings = settingsManager.getSettings( new File( programSettingsFolder, "program.properties" ) );
 		time( "settings" );
 
 		// TODO Check for another instance after getting the settings but before the splash screen is shown
@@ -137,13 +141,12 @@ public class Program extends Application implements Product {
 		time( "programValues" );
 
 		// Create the executor service
-		log.trace( "Starting executor service..." );
+		log.trace( "Starting task manager..." );
 		taskManager = new TaskManager();
-		taskManager.loadSettings( settings.getConfiguration() );
+		// FIXME PLEASE taskManager.loadSettings( settings );
 		taskManager.start();
 		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		settings.setExecutor( taskManager );
-		log.debug( "Executor service started." );
+		log.debug( "Task manager started." );
 		time( "taskManager" );
 
 		// Submit the startup task
@@ -203,6 +206,10 @@ public class Program extends Application implements Product {
 
 	public ActionLibrary getActionLibrary() {
 		return actionLibrary;
+	}
+
+	public SettingsManager getSettingsManager() {
+		return settingsManager;
 	}
 
 	public ToolManager getToolManager() {
@@ -426,8 +433,8 @@ public class Program extends Application implements Product {
 
 			// Disconnect the settings listener
 			log.trace( "Stopping settings manager..." );
-			settings.removeProgramEventListener( watcher );
-			log.debug( "Settings manager stopped." );
+			settingsManager.stop();
+			log.debug( "ProgramConfigurationBuilder manager stopped." );
 
 			// Unregister action handlers
 			unregisterActionHandlers();

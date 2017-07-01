@@ -1,11 +1,11 @@
 package com.parallelsymmetry.essence.util;
 
-import org.apache.commons.configuration2.Configuration;
+import com.parallelsymmetry.essence.settings.Settings;
 
 public interface Configurable {
 
-	void loadSettings( Configuration configuration );
+	void loadSettings( Settings settings );
 
-	void saveSettings( Configuration configuration );
+	void saveSettings( Settings settings );
 
 }

@@ -1,5 +1,7 @@
-package com.parallelsymmetry.essence;
+package com.parallelsymmetry.essence.settings;
 
+import com.parallelsymmetry.essence.LogUtil;
+import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.event.SettingsLoadedEvent;
 import com.parallelsymmetry.essence.event.SettingsSavedEvent;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -10,14 +12,12 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.Date;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Settings extends FileBasedConfigurationBuilder<PropertiesConfiguration> {
+public class ProgramConfigurationBuilder extends FileBasedConfigurationBuilder<PropertiesConfiguration> {
 
 	/**
 	 * Data will be persisted at most this fast.
@@ -29,9 +29,9 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 	 */
 	private static final long MAX_PERSIST_LIMIT = 5000;
 
-	private static Logger log = LogUtil.get( Settings.class );
+	private static Logger log = LogUtil.get( ProgramConfigurationBuilder.class );
 
-	private static Timer timer = new Timer( Settings.class.getSimpleName(), true );
+	private static Timer timer = new Timer( ProgramConfigurationBuilder.class.getSimpleName(), true );
 
 	private AtomicLong lastDirtyTime = new AtomicLong();
 
@@ -39,24 +39,30 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 
 	private AtomicLong lastStoreTime = new AtomicLong();
 
-	private ExecutorService executor;
+	private Program program;
+
+	private File file;
 
 	private String id;
+
+	private ExecutorService executor;
 
 	private SaveTask task;
 
 	private final Object taskLock = new Object();
 
-	private Set<ProgramEventListener> listeners;
+	//private Set<ProgramEventListener> listeners;
 
-	public Settings( File file ) {
-		this( file, null );
+	public ProgramConfigurationBuilder( Program program, File file ) {
+		this( program, file, null );
 	}
 
-	public Settings( File file, String id ) {
+	public ProgramConfigurationBuilder( Program program, File file, String id ) {
 		super( PropertiesConfiguration.class, null, true );
-		this.listeners = new CopyOnWriteArraySet<>();
+		this.program = program;
+		this.file = file;
 		this.id = id;
+		//this.listeners = new CopyOnWriteArraySet<>();
 
 		configure( new Parameters().properties().setFile( file ) );
 		setAutoSave( true );
@@ -69,7 +75,8 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 	@Override
 	public PropertiesConfiguration getConfiguration() throws ConfigurationException {
 		PropertiesConfiguration config = super.getConfiguration();
-		new SettingsLoadedEvent( this, getFileHandler().getFile(), id ).fire( listeners );
+		program.fireEvent( new SettingsLoadedEvent( this, getFileHandler().getFile(), id ) );
+		//new SettingsLoadedEvent( this, getFileHandler().getFile(), id ).fire( listeners );
 		return config;
 	}
 
@@ -80,18 +87,24 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 		scheduleSave();
 	}
 
-	public void addProgramEventListener( ProgramEventListener listener ) {
-		listeners.add( listener );
-	}
+//	public void addProgramEventListener( ProgramEventListener listener ) {
+//		listeners.add( listener );
+//	}
+//
+//	public void removeProgramEventListener( ProgramEventListener listener ) {
+//		listeners.remove( listener );
+//	}
 
-	public void removeProgramEventListener( ProgramEventListener listener ) {
-		listeners.remove( listener );
+	@Override
+	public String toString() {
+		return file.toString();
 	}
 
 	private void persist() {
 		try {
-			Settings.super.save();
-			new SettingsSavedEvent( Settings.this, getFileHandler().getFile(), id ).fire( listeners );
+			ProgramConfigurationBuilder.super.save();
+			program.fireEvent( new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), id ) );
+			//new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), id ).fire( listeners );
 
 			lastStoreTime.set( System.currentTimeMillis() );
 		} catch( ConfigurationException exception ) {
@@ -129,9 +142,10 @@ public class Settings extends FileBasedConfigurationBuilder<PropertiesConfigurat
 		public void run() {
 			// If there is an executor, use it to run the task, otherwise run the task on the timer thread
 			if( executor != null && !executor.isShutdown() ) {
-				executor.submit( Settings.this::persist );
+				executor.submit( ProgramConfigurationBuilder.this::persist );
 			} else {
-				this.run();
+				System.out.println( "Executor is null" );
+				ProgramConfigurationBuilder.this.persist();
 			}
 		}
 

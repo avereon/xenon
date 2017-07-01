@@ -39,7 +39,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 			throw new RuntimeException( exception );
 		}
 
-		initializeFx(  );
+		initializeFx();
 
 		metadata = program.getMetadata();
 		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );

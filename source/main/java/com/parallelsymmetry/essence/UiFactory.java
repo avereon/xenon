@@ -1,10 +1,10 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.workarea.Workarea;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.Workspace;
 import com.parallelsymmetry.essence.worktool.Tool;
-import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -14,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UiFactory {
 
-	public static final int DEFAULT_WIDTH = 960;
+	public static final double DEFAULT_WIDTH = 960;
 
-	public static final int DEFAULT_HEIGHT = 540;
+	public static final double DEFAULT_HEIGHT = 540;
 
 	enum Prefix {
 		WORKSPACE,
@@ -51,22 +51,22 @@ public class UiFactory {
 	}
 
 //	public int getUiObjectCount() {
-//		int s = getConfigurationFiles( Prefix.WORKSPACE ).length;
-//		int a = getConfigurationFiles( Prefix.WORKAREA ).length;
-//		int p = getConfigurationFiles( Prefix.WORKPANE ).length;
-//		int t = getConfigurationFiles( Prefix.WORKTOOL ).length;
+//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
+//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
+//		int p = getSettingsFiles( Prefix.WORKPANE ).length;
+//		int t = getSettingsFiles( Prefix.WORKTOOL ).length;
 //		return Math.max( 2, s + a + p + t );
 //	}
 
 	public int getToolCount() {
-		return getConfigurationFiles( Prefix.WORKTOOL ).length;
+		return getSettingsFiles( Prefix.WORKTOOL ).length;
 	}
 
 	public void restoreUi( SplashScreen splashScreen ) {
-		File[] workspaceFiles = getConfigurationFiles( Prefix.WORKSPACE );
-		File[] workareaFiles = getConfigurationFiles( Prefix.WORKAREA );
-		File[] workpaneFiles = getConfigurationFiles( Prefix.WORKPANE );
-		File[] worktoolFiles = getConfigurationFiles( Prefix.WORKTOOL );
+		File[] workspaceFiles = getSettingsFiles( Prefix.WORKSPACE );
+		File[] workareaFiles = getSettingsFiles( Prefix.WORKAREA );
+		File[] workpaneFiles = getSettingsFiles( Prefix.WORKPANE );
+		File[] worktoolFiles = getSettingsFiles( Prefix.WORKTOOL );
 
 		if( workspaceFiles.length == 0 ) {
 			try {
@@ -124,32 +124,34 @@ public class UiFactory {
 	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = new Settings( getConfigurationFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
-		settings.addProgramEventListener( program.getEventWatcher() );
-		settings.setExecutor( program.getExecutor() );
-		Configuration configuration = settings.getConfiguration();
-		configuration.setProperty( "id", id );
+//		ProgramSettingsBuilder settings = new ProgramSettingsBuilder( getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
+//		settings.addProgramEventListener( program.getEventWatcher() );
+//		settings.setExecutor( program.getExecutor() );
+//		Settings Settings = settings.getSettings();
+		Settings settings = program.getSettingsManager().getSettings(getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
+		settings.set( "id", id );
 		// Intentionally do not set the x property
 		// Intentionally do not set the y property
-		configuration.setProperty( "w", DEFAULT_WIDTH );
-		configuration.setProperty( "h", DEFAULT_HEIGHT );
+		settings.set( "w", DEFAULT_WIDTH );
+		settings.set( "h", DEFAULT_HEIGHT );
 
 		Workspace workspace = new Workspace( program );
-		workspace.setConfiguration( configuration );
+		workspace.loadSettings( settings );
 		return workspace;
 	}
 
 	public Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = new Settings( getConfigurationFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
-		settings.addProgramEventListener( program.getEventWatcher() );
-		settings.setExecutor( program.getExecutor() );
-		Configuration configuration = settings.getConfiguration();
-		configuration.setProperty( "id", id );
+//		ProgramSettingsBuilder settings = new ProgramSettingsBuilder( getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
+//		settings.addProgramEventListener( program.getEventWatcher() );
+//		settings.setExecutor( program.getExecutor() );
+//		Settings Settings = settings.getSettings();
+		Settings settings = program.getSettingsManager().getSettings(getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
+		settings.set( "id", id );
 
 		Workarea workarea = new Workarea();
-		workarea.setConfiguration( configuration );
+		workarea.loadSettings( settings );
 		return workarea;
 	}
 
@@ -157,11 +159,12 @@ public class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Settings settings = new Settings( file, Prefix.WORKSPACE.name() );
-			settings.addProgramEventListener( program.getEventWatcher() );
-			settings.setExecutor( program.getExecutor() );
-			Configuration configuration = settings.getConfiguration();
-			workspace.setConfiguration( configuration );
+//			ProgramSettingsBuilder settings = new ProgramSettingsBuilder( file, Prefix.WORKSPACE.name() );
+//			settings.addProgramEventListener( program.getEventWatcher() );
+//			settings.setExecutor( program.getExecutor() );
+//			Settings Settings = settings.getSettings();
+			Settings settings = program.getSettingsManager().getSettings(file, Prefix.WORKSPACE.name() );
+			workspace.loadSettings( settings );
 
 			if( workspace.isActive() ) {
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
@@ -169,7 +172,7 @@ public class UiFactory {
 				program.getWorkspaceManager().addWorkspace( workspace );
 			}
 
-			workspaces.put( configuration.getString( "id" ), workspace );
+			workspaces.put( settings.getString( "id" ), workspace );
 			return workspace;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workspace", exception );
@@ -181,20 +184,21 @@ public class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-			Settings settings = new Settings( file, Prefix.WORKAREA.name() );
-			settings.addProgramEventListener( program.getEventWatcher() );
-			settings.setExecutor( program.getExecutor() );
-			Configuration configuration = settings.getConfiguration();
-			workarea.setConfiguration( configuration );
+//			ProgramSettingsBuilder settings = new ProgramSettingsBuilder( file, Prefix.WORKAREA.name() );
+//			settings.addProgramEventListener( program.getEventWatcher() );
+//			settings.setExecutor( program.getExecutor() );
+//			Settings Settings = settings.getSettings();
+			Settings settings = program.getSettingsManager().getSettings(file, Prefix.WORKAREA.name() );
+			workarea.loadSettings( settings );
 
-			Workspace workspace = workspaces.get( configuration.getString( "workspaceId" ) );
+			Workspace workspace = workspaces.get( settings.getString( "workspaceId" ) );
 			if( workarea.isActive() ) {
 				workspace.setActiveWorkarea( workarea );
 			} else {
 				workspace.addWorkarea( workarea );
 			}
 
-			workareas.put( configuration.getString( "id" ), workarea );
+			workareas.put( settings.getString( "id" ), workarea );
 			return workarea;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workarea", exception );
@@ -206,10 +210,10 @@ public class UiFactory {
 		try {
 			//					Workpane workpane = new Workpane();
 			//
-			//					Configuration configuration = getConfiguration( file );
-			//					workpane.setConfiguration( configuration );
+			//					Settings settings = getSettings( file );
+			//					workpane.loadSettings( Settings );
 			//
-			//					workpanes.put( configuration.getString("id"), workpane );
+			//					workpanes.put( Settings.getString("id"), workpane );
 			//					return workpane;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workpane", exception );
@@ -226,12 +230,12 @@ public class UiFactory {
 		return null;
 	}
 
-	private File[] getConfigurationFiles( Prefix prefix ) {
+	private File[] getSettingsFiles( Prefix prefix ) {
 		File[] files = paths.get( prefix ).listFiles();
 		return files == null ? new File[ 0 ] : files;
 	}
 
-	private File getConfigurationFile( Prefix prefix, String id ) {
+	private File getSettingsFile( Prefix prefix, String id ) {
 		return new File( paths.get( prefix ), id + Program.SETTINGS_EXTENSION );
 	}
 

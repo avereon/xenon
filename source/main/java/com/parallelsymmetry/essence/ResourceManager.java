@@ -595,7 +595,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private void persistOpenResources() {
 		// FIXME Reimplement as a Configurable class
-		//			Settings settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
+		//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
 		//
 		//			synchronized( restoreLock ) {
 		//				settings.removeNode();
@@ -615,7 +615,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//
 	//		// Collect the resources to be opened.
 	//		Set<Resource> resources = new HashSet<Resource>();
-	//		Settings settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
+	//		ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
 	//		synchronized( restoreLock ) {
 	//			for( String key : settings.getKeys() ) {
 	//				try {
@@ -655,7 +655,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	// FIXME Resources should also implement Configurable
-	//	public Settings getResourceSettings( Resource resource ) {
+	//	public ProgramConfigurationBuilder getResourceSettings( Resource resource ) {
 	//		if( resource.getUri() == null ) return null;
 	//		String name = HashUtil.hash( resource.getUri().toString() );
 	//		return program.getSettings().getNode( ProgramSettingsPath.RESOURCE_SETTINGS ).getNode( name );
@@ -786,7 +786,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		Codec codec = resource.getCodec();
 	//
 	//		if( uri == null || (saveAs && saveAsResource == null) ) {
-	//			Settings settings = program.getSettings().getNode( ProgramSettingsPath.RESOURCE_MANAGER );
+	//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.RESOURCE_MANAGER );
 	//			String currentDirectory = settings.get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) );
 	//
 	//			JFileChooser chooser = new JFileChooser();
@@ -905,7 +905,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//
 	//		if( openResources.size() == 0 ) doSetCurrentResource( null );
 	//
-	//		Settings settings = getResourceSettings( resource );
+	//		ProgramConfigurationBuilder settings = getResourceSettings( resource );
 	//		if( settings != null ) settings.removeNode();
 	//
 	//		Log.write( Log.TRACE, "Resource closed: " + resource );

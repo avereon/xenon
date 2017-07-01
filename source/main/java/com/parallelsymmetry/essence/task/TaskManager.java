@@ -1,9 +1,9 @@
 package com.parallelsymmetry.essence.task;
 
 import com.parallelsymmetry.essence.LogUtil;
+import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.util.Configurable;
 import com.parallelsymmetry.essence.util.Controllable;
-import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private int minThreadCount = DEFAULT_MIN_THREAD_COUNT;
 
-	private Configuration settings;
+	private Settings settings;
 
 	private List<Task<?>> tasks;
 
@@ -230,15 +230,15 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	}
 
 	@Override
-	public void loadSettings( Configuration settings ) {
+	public void loadSettings( Settings settings ) {
 		this.settings = settings;
-		this.maxThreadCount = settings.getInt( "thread-count", maxThreadCount );
+		this.maxThreadCount = settings.getInteger( "thread-count", maxThreadCount );
 	}
 
 	@Override
-	public void saveSettings( Configuration settings ) {
+	public void saveSettings( Settings settings ) {
 		if( this.settings == null ) return;
-		this.settings.setProperty( "thread-count", maxThreadCount );
+		this.settings.set( "thread-count", maxThreadCount );
 	}
 
 	public void addTaskListener( TaskListener listener ) {

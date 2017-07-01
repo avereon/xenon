@@ -4,6 +4,8 @@ import com.parallelsymmetry.essence.Actions;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.UiFactory;
 import com.parallelsymmetry.essence.event.WorkareaChangedEvent;
+import com.parallelsymmetry.essence.settings.Settings;
+import com.parallelsymmetry.essence.util.Configurable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -12,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.apache.commons.configuration2.Configuration;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -22,7 +23,7 @@ import java.util.Set;
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
-public class Workspace {
+public class Workspace implements Configurable {
 
 	private Program program;
 
@@ -52,7 +53,7 @@ public class Workspace {
 
 	private WorkareaPropertyWatcher activeWorkareaWatcher;
 
-	private Configuration configuration;
+	private Settings settings;
 
 	private String id;
 
@@ -183,7 +184,7 @@ public class Workspace {
 
 	public void setActive( boolean active ) {
 		this.active = active;
-		configuration.setProperty( "active", active );
+		settings.set( "active", active );
 	}
 
 	public Set<Workarea> getWorkareas() {
@@ -245,16 +246,17 @@ public class Workspace {
 		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
 	}
 
-	public void setConfiguration( Configuration configuration ) {
-		if( this.configuration != null ) return;
+	@Override
+	public void loadSettings( Settings settings ) {
+		if( this.settings != null ) return;
 
-		this.configuration = configuration;
-		id = configuration.getString( "id" );
+		this.settings = settings;
+		id = settings.getString( "id" );
 
-		Double x = configuration.getDouble( "x", null );
-		Double y = configuration.getDouble( "y", null );
-		Double w = configuration.getDouble( "w", UiFactory.DEFAULT_WIDTH );
-		Double h = configuration.getDouble( "h", UiFactory.DEFAULT_HEIGHT );
+		Double x = settings.getDouble( "x", (Double)null );
+		Double y = settings.getDouble( "y", (Double)null );
+		Double w = settings.getDouble( "w", UiFactory.DEFAULT_WIDTH );
+		Double h = settings.getDouble( "h", UiFactory.DEFAULT_HEIGHT );
 
 		/*
 		Due to differences in how FX handles stage size (width and height) on
@@ -271,26 +273,29 @@ public class Workspace {
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
 
-		stage.setMaximized( configuration.getBoolean( "maximized", false ) );
-		setActive( configuration.getBoolean( "active", false ) );
+		stage.setMaximized( settings.getBoolean( "maximized", false ) );
+		setActive( settings.getBoolean( "active", false ) );
 
 		// Add the property listeners
 		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( stage.isShowing() ) configuration.setProperty( "maximized", newValue );
+			if( stage.isShowing() ) settings.set( "maximized", newValue );
 		} );
 		stage.xProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "x", newValue );
+			if( !stage.isMaximized() ) settings.set( "x", newValue );
 		} );
 		stage.yProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "y", newValue );
+			if( !stage.isMaximized() ) settings.set( "y", newValue );
 		} );
 		scene.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "w", newValue );
+			if( !stage.isMaximized() ) settings.set( "w", newValue );
 		} );
 		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) configuration.setProperty( "h", newValue );
+			if( !stage.isMaximized() ) settings.set( "h", newValue );
 		} );
 	}
+
+	@Override
+	public void saveSettings( Settings settings ) {}
 
 	private void setStageTitle( String name ) {
 		stage.setTitle( name + " - " + program.getMetadata().getName() );

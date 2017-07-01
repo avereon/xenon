@@ -1,8 +1,8 @@
 package com.parallelsymmetry.essence.workarea;
 
+import com.parallelsymmetry.essence.MockSettings;
+import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.testutil.FxTestCase;
-import org.apache.commons.configuration2.BaseConfiguration;
-import org.apache.commons.configuration2.Configuration;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 
 public class WorkareaTest extends FxTestCase {
 
-	private Configuration configuration = new BaseConfiguration();
+	private Settings settings = new MockSettings();
 
 	@Test
 	public void testConstructor() {
@@ -21,16 +21,16 @@ public class WorkareaTest extends FxTestCase {
 	public void testNameProperty() {
 		String name = "Mock Workarea";
 
-		// Create and setup the configuration
+		// Create and setup the settings
 		Workarea area = new Workarea();
-		area.setConfiguration( configuration );
+		area.loadSettings( settings );
 
 		// Set the method
 		area.setName( name );
 
 		// Assertions
 		assertThat( area.getName(), is( name ) );
-		assertThat( configuration.getString( "name" ), is( name ) );
+		assertThat( settings.getString( "name" ), is( name ) );
 	}
 
 }

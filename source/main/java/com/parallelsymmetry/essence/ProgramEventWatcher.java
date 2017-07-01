@@ -10,7 +10,7 @@ public class ProgramEventWatcher implements ProgramEventListener {
 	@Override
 	public void eventOccurred( ProgramEvent event ) {
 		if( event instanceof SettingsEvent ) {
-			log.debug( event.toString() );
+			log.trace( event.toString() );
 		} else {
 			log.info( event.toString() );
 		}

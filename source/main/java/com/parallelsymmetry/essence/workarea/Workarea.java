@@ -1,17 +1,18 @@
 package com.parallelsymmetry.essence.workarea;
 
+import com.parallelsymmetry.essence.settings.Settings;
+import com.parallelsymmetry.essence.util.Configurable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.apache.commons.configuration2.Configuration;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Workarea {
+public class Workarea implements Configurable {
 
 	private String id;
 
@@ -25,7 +26,7 @@ public class Workarea {
 
 	private Set<PropertyChangeListener> propertyChangeListeners;
 
-	private Configuration configuration;
+	private Settings settings;
 
 	public Workarea() {
 		workpane = new Workpane();
@@ -43,7 +44,7 @@ public class Workarea {
 	public void setName( String newName ) {
 		String oldName = name.get();
 		name.set( newName );
-		configuration.setProperty( "name", newName );
+		settings.set( "name", newName );
 		if( isActive() ) firePropertyChange( "name", oldName, newName );
 	}
 
@@ -57,7 +58,7 @@ public class Workarea {
 
 	public void setActive( boolean active ) {
 		this.active.set( active );
-		configuration.setProperty( "active", active );
+		settings.set( "active", active );
 	}
 
 	public BooleanProperty getActiveValue() {
@@ -78,9 +79,9 @@ public class Workarea {
 		this.workspace = workspace;
 
 		if( this.workspace != null ) {
-			configuration.setProperty( "workspaceId", this.workspace.getId() );
+			settings.set( "workspaceId", this.workspace.getId() );
 		} else {
-			configuration.clearProperty( "workspaceId" );
+			settings.set( "workspaceId", null );
 		}
 
 		firePropertyChange( "workspace", oldWorkspace, this.workspace );
@@ -94,15 +95,19 @@ public class Workarea {
 		propertyChangeListeners.remove( listener );
 	}
 
-	public void setConfiguration( Configuration configuration ) {
-		if( this.configuration != null ) return;
+	@Override
+	public void loadSettings( Settings settings ) {
+		if( this.settings != null ) return;
 
-		this.configuration = configuration;
+		this.settings = settings;
 
-		id = configuration.getString( "id" );
-		setName( configuration.getString( "name" ) );
-		setActive( configuration.getBoolean( "active", false ) );
+		id = settings.getString( "id" );
+		setName( settings.getString( "name" ) );
+		setActive( settings.getBoolean( "active", false ) );
 	}
+
+	@Override
+	public void saveSettings( Settings settings ) {}
 
 	@Override
 	public String toString() {
