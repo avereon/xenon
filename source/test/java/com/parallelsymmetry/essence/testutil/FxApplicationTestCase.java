@@ -31,7 +31,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	@Before
 	@Override
 	public void setup() throws Exception {
-		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
+		// CLEANUP Parameters are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		// Remove the existing program data folder
@@ -63,7 +63,8 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 	@Override
 	protected void initializeFx() throws Exception {
-		program = (Program)FxToolkit.setupApplication( Program.class, "" );
+		// Parameters are null during testing due to Java 9 incompatibility
+		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
