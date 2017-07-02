@@ -57,8 +57,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	@After
 	@Override
 	public void cleanup() throws Exception {
-		FxToolkit.cleanupApplication( program );
 		program.removeEventListener( watcher );
+		//program.requestExit( true );
+		FxToolkit.cleanupApplication( program );
 	}
 
 	@Override

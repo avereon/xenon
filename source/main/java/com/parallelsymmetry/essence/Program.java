@@ -15,7 +15,6 @@ import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.util.OperatingSystem;
-import com.parallelsymmetry.essence.util.ThreadUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -414,8 +413,8 @@ public class Program extends Application implements Product {
 			// Stop the workspace manager
 			log.trace( "Stopping workspace manager..." );
 			// FIXME The program is exiting during this call
-			//workspaceManager.stop();
-			//workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			workspaceManager.stop();
+			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
 
 			// TODO Stop the UpdateManager

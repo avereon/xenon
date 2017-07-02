@@ -2,7 +2,6 @@ package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.util.Controllable;
 import com.parallelsymmetry.essence.workarea.Workspace;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.slf4j.Logger;
@@ -57,26 +56,38 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public WorkspaceManager stop() {
-		// Hide all the workspace stages
-		stopLatch = new CountDownLatch( workspaces.size() );
-		for( Workspace workspace : workspaces ) {
-			Platform.runLater( () -> workspace.getStage().close() );
-			workspace.getStage().onHiddenProperty().addListener( ( event ) -> stopLatch.countDown() );
-			System.out.println( "Closed: " + workspace.getId() );
-		}
+		// If this is called because of a Platform.exit() then there is not much to
+		// do because the stages are already closed and don't need to be closed any
+		// more ... but during unit testing Platform.exit() cannot be called or it
+		// hangs the tests. So, somehow there needs to be a balance.
+
+//		// Hide all the workspace stages
+//		stopLatch = new CountDownLatch( workspaces.size() );
+//		for( Workspace workspace : workspaces ) {
+//			Stage stage = workspace.getStage();
+//			stage.onCloseRequestProperty().addListener( ( event ) -> {
+//				stopLatch.countDown();
+//				System.out.println( "Window closed: " + workspace.getId() );
+//			} );
+//			Platform.runLater( stage::close );
+//			stage.close();
+//			stopLatch.countDown();
+//		}
 
 		return this;
 	}
 
 	@Override
 	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		if( stopLatch != null ) {
-			try {
-				stopLatch.await( 10, TimeUnit.SECONDS );
-			} catch( InterruptedException exception ) {
-				log.error( "Timeout waiting for windows to close", exception );
-			}
-		}
+//		if( stopLatch != null ) {
+//			try {
+//				System.out.println( "Waiting for workspace manager to stop" );
+//				stopLatch.await( 10, TimeUnit.SECONDS );
+//				System.out.println( "Workspace manager stopped" );
+//			} catch( InterruptedException exception ) {
+//				log.error( "Timeout waiting for windows to close", exception );
+//			}
+//		}
 
 		return this;
 	}
