@@ -15,6 +15,7 @@ import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import com.parallelsymmetry.essence.util.ThreadUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -449,7 +450,8 @@ public class Program extends Application implements Product {
 			log.debug( "Task manager stopped." );
 
 			fireEvent( new ProgramStoppedEvent( this ) );
-			Platform.exit();
+
+			// NOTE Apparently it is not necessary to call Platform.exit() here
 		} catch( InterruptedException exception ) {
 			log.error( "Program shutdown interrupted", exception );
 		}

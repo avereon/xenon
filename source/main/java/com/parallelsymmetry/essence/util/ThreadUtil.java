@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.util;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -106,6 +107,13 @@ public class ThreadUtil {
 	public static final Class<?>[] getStackClasses() {
 		Class<?>[] frame = new StackClassResolver().getClassContext();
 		return Arrays.copyOfRange( frame, 2, frame.length );
+	}
+
+	public static void printRunningThreads() {
+		Map<Thread,StackTraceElement[]> traces = Thread.getAllStackTraces();
+		for( Thread thread : traces.keySet() ) {
+			System.out.println( thread.getName() );
+		}
 	}
 
 	private static final class StackClassResolver extends SecurityManager {

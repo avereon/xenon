@@ -23,6 +23,11 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 	protected ProductMetadata metadata;
 
+	/**
+	 * Override setup() in FxTestCase and does not call super.setup().
+	 *
+	 * @throws Exception
+	 */
 	@Before
 	@Override
 	public void setup() throws Exception {
@@ -45,16 +50,20 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );
 	}
 
+	/**
+	 * Override cleanup in FxTestCase and does not call super.cleanup().
+	 * @throws Exception
+	 */
 	@After
 	@Override
 	public void cleanup() throws Exception {
-		program.removeEventListener( watcher );
 		FxToolkit.cleanupApplication( program );
+		program.removeEventListener( watcher );
 	}
 
 	@Override
 	protected void initializeFx() throws Exception {
-		FxToolkit.setupApplication( () -> program = new Program() );
+		program = (Program)FxToolkit.setupApplication( Program.class, "" );
 	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
@@ -88,7 +97,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		}
 
 		/**
-		 * Wait for an name of a specific name to occur. If the name has already
+		 * Wait for an event of a specific class to occur. If the name has already
 		 * occurred this method will return immediately. If the name has not
 		 * already occurred then this method waits until the next name occurs, or
 		 * the specified timeout, whichever comes first.
@@ -110,9 +119,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		}
 
 		/**
-		 * Wait for an name of a specific name to occur. This method always waits
-		 * until the next name occurs, or the specified timeout, whichever comes
-		 * first.
+		 * Wait for the next event of a specific class to occur. This method always
+		 * waits until the next event occurs, or the specified timeout, whichever
+		 * comes first.
 		 *
 		 * @param clazz The event class to wait for
 		 * @param timeout How long, in milliseconds, to wait for the event
