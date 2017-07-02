@@ -144,8 +144,7 @@ public class ProgramConfigurationBuilder extends FileBasedConfigurationBuilder<P
 			if( executor != null && !executor.isShutdown() ) {
 				executor.submit( ProgramConfigurationBuilder.this::persist );
 			} else {
-				System.out.println( "Executor is null" );
-				ProgramConfigurationBuilder.this.persist();
+				persist();
 			}
 		}
 

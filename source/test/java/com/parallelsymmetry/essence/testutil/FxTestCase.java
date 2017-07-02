@@ -6,9 +6,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.testfx.framework.junit.ApplicationTest;
 
-import java.util.concurrent.CountDownLatch;
-
 public abstract class FxTestCase extends ApplicationTest {
+
+	private static volatile boolean fxInitialized;
 
 	@Before
 	public void setup() throws Exception {
@@ -22,18 +22,10 @@ public abstract class FxTestCase extends ApplicationTest {
 	public void start( Stage stage ) throws Exception {}
 
 	protected void initializeFx() throws Exception {
-		if( isFxInitialized() ) return;
-		final CountDownLatch latch = new CountDownLatch( 1 );
-		Platform.startup( latch::countDown );
-		latch.await();
-	}
-
-	protected boolean isFxInitialized() {
 		try {
-			Platform.runLater( () -> {} );
-			return true;
+			Platform.startup( () -> {} );
 		} catch( IllegalStateException exception ) {
-			return false;
+			// Intentionally ignore exception
 		}
 	}
 

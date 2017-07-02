@@ -56,38 +56,32 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public WorkspaceManager stop() {
-		// If this is called because of a Platform.exit() then there is not much to
-		// do because the stages are already closed and don't need to be closed any
-		// more ... but during unit testing Platform.exit() cannot be called or it
-		// hangs the tests. So, somehow there needs to be a balance.
+		// If this is called after Platform.exit(), which is usually the case
+		// then the result of closing the stages is unpredictable. Not trying to
+		// close the stages seems to work fine and the program exits normally.
+		// ... but during unit testing, Platform.exit() cannot be called or
+		// it hangs the tests. Furthermore, the test will end up calling
+		// Program.stop() which, in turn, calls WorkspaceManager.stop(), which
+		// should close the stages or they stay open during the duration of the
+		// testing process.
 
-//		// Hide all the workspace stages
-//		stopLatch = new CountDownLatch( workspaces.size() );
-//		for( Workspace workspace : workspaces ) {
-//			Stage stage = workspace.getStage();
-//			stage.onCloseRequestProperty().addListener( ( event ) -> {
-//				stopLatch.countDown();
-//				System.out.println( "Window closed: " + workspace.getId() );
-//			} );
-//			Platform.runLater( stage::close );
-//			stage.close();
-//			stopLatch.countDown();
-//		}
+		// RESULT Do not close the stages in this method. The unit tests will just
+		// have to close the stages as part of the cleanup.
 
 		return this;
 	}
 
 	@Override
 	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		if( stopLatch != null ) {
-//			try {
-//				System.out.println( "Waiting for workspace manager to stop" );
-//				stopLatch.await( 10, TimeUnit.SECONDS );
-//				System.out.println( "Workspace manager stopped" );
-//			} catch( InterruptedException exception ) {
-//				log.error( "Timeout waiting for windows to close", exception );
-//			}
-//		}
+		//		if( stopLatch != null ) {
+		//			try {
+		//				System.out.println( "Waiting for workspace manager to stop" );
+		//				stopLatch.await( 10, TimeUnit.SECONDS );
+		//				System.out.println( "Workspace manager stopped" );
+		//			} catch( InterruptedException exception ) {
+		//				log.error( "Timeout waiting for windows to close", exception );
+		//			}
+		//		}
 
 		return this;
 	}
@@ -141,8 +135,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void closeWorkspace( Workspace workspace ) {
-		// This will close the program if it's the last window and
-		// Platform.setImplicitExit( false ) has not been called
 		workspace.getStage().close();
 
 		// TODO Remove the workspace, workpane, workpane components, tool settings, etc.

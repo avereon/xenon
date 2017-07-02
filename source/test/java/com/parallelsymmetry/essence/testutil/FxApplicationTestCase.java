@@ -3,6 +3,9 @@ package com.parallelsymmetry.essence.testutil;
 import com.parallelsymmetry.essence.*;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import javafx.application.Platform;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +47,11 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 			throw new RuntimeException( exception );
 		}
 
-		initializeFx();
+		super.setup();
+
+		// Parameters are null during testing due to Java 9 incompatibility
+		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+
 
 		metadata = program.getMetadata();
 		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );
@@ -58,15 +65,19 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	@Override
 	public void cleanup() throws Exception {
 		program.removeEventListener( watcher );
-		//program.requestExit( true );
+
 		FxToolkit.cleanupApplication( program );
+
+		for( Window window : Stage.getWindows() ) {
+			Platform.runLater( window::hide );
+		}
 	}
 
-	@Override
-	protected void initializeFx() throws Exception {
-		// Parameters are null during testing due to Java 9 incompatibility
-		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-	}
+//	@Override
+//	protected void initializeFx() throws Exception {
+//		// Parameters are null during testing due to Java 9 incompatibility
+//		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+//	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
