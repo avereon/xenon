@@ -10,22 +10,30 @@ import java.util.concurrent.*;
  * The correct way to wait for the result is to obtain the Future object when
  * calling the submit( Task ) method and then call future.get().
  *
- * @author Mark Soderquist
  * @param <V> The return type of the task.
+ * @author Mark Soderquist
  */
 
 public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	public enum State {
-		WAITING, RUNNING, DONE;
+		WAITING,
+		RUNNING,
+		DONE
 	}
 
 	public enum Result {
-		UNKNOWN, CANCELLED, SUCCESS, FAILED;
+		UNKNOWN,
+		CANCELLED,
+		SUCCESS,
+		FAILED
 	}
 
 	public enum Priority {
-		LOW, MEDIUM, HIGH, UI
+		LOW,
+		MEDIUM,
+		HIGH,
+		UI
 	}
 
 	private Object stateLock = new Object();
@@ -126,7 +134,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 	public void waitForState( State state, long duration, TimeUnit unit ) throws InterruptedException {
 		synchronized( stateLock ) {
 			while( this.state != state ) {
-				stateLock.wait( unit.toMillis( duration ), (int)( unit.toNanos( duration ) % 1000000 ) );
+				stateLock.wait( unit.toMillis( duration ), (int)(unit.toNanos( duration ) % 1000000) );
 			}
 		}
 	}
@@ -217,48 +225,27 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 			this.task = task;
 		}
 
-		// This is a workaround in Java 6 to capture the result of the task.
 		@Override
 		protected void done() {
-			try {
-				task.future.get();
-				task.result = Result.SUCCESS;
-			} catch( InterruptedException exception ) {
-				// Intentionally ignore exception.
-			} catch( CancellationException exception ) {
-				task.result = Result.CANCELLED;
-			} catch( ExecutionException exception ) {
-				task.result = Result.FAILED;
-			} finally {
-				task.setState( State.DONE );
-				task.setProgress( task.maximum );
-				task.fireTaskEvent( TaskEvent.Type.TASK_FINISH );
-				task.manager.completed( task );
-				task.manager = null;
-			}
-
+			task.setState( State.DONE );
+			task.setProgress( task.maximum );
+			task.fireTaskEvent( TaskEvent.Type.TASK_FINISH );
+			task.manager.completed( task );
+			task.manager = null;
 			super.done();
 		}
 
-		// TODO The following methods work in Java 7 but not in Java 6.
-		//		@Override
-		//		protected void done() {
-		//			task.setState( State.DONE );
-		//			task.fireTaskEvent( TaskEvent.Type.TASK_FINISH );
-		//			super.done();
-		//		}
-		//
-		//		@Override
-		//		protected void set( W value ) {
-		//			task.result = Result.SUCCESS;
-		//			super.set( value );
-		//		}
-		//
-		//		@Override
-		//		protected void setException( Throwable throwable ) {
-		//			task.result = Result.FAILED;
-		//			super.setException( throwable );
-		//		}
+		@Override
+		protected void set( W value ) {
+			task.result = Result.SUCCESS;
+			super.set( value );
+		}
+
+		@Override
+		protected void setException( Throwable throwable ) {
+			task.result = Result.FAILED;
+			super.setException( throwable );
+		}
 
 	}
 
