@@ -1,6 +1,5 @@
 package com.parallelsymmetry.essence.node;
 
-import com.parallelsymmetry.essence.data.CircularReferenceException;
 import com.parallelsymmetry.essence.transaction.Txn;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;

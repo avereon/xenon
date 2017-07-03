@@ -1,7 +1,6 @@
 package com.parallelsymmetry.essence.transaction;
 
 import com.parallelsymmetry.essence.LogUtil;
-import com.parallelsymmetry.essence.data.TransactionException;
 import org.slf4j.Logger;
 
 import java.util.*;

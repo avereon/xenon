@@ -1,7 +1,6 @@
 package com.parallelsymmetry.essence.node;
 
 import com.parallelsymmetry.essence.LogUtil;
-import com.parallelsymmetry.essence.data.CircularReferenceException;
 import com.parallelsymmetry.essence.transaction.*;
 import org.slf4j.Logger;
 

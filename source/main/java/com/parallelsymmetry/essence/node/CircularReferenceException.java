@@ -1,4 +1,4 @@
-package com.parallelsymmetry.essence.data;
+package com.parallelsymmetry.essence.node;
 
 public class CircularReferenceException extends RuntimeException {
 

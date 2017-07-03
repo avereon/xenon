@@ -1,4 +1,4 @@
-package com.parallelsymmetry.essence.data;
+package com.parallelsymmetry.essence.transaction;
 
 public class TransactionException extends RuntimeException {
 
