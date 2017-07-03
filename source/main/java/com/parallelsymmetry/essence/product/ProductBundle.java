@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.product;
 
-import com.parallelsymmetry.essence.util.Utf8Control;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -10,6 +11,8 @@ import static java.util.ResourceBundle.getBundle;
 
 public class ProductBundle {
 
+	private static final Logger log = LoggerFactory.getLogger( ProductBundle.class );
+
 	private ClassLoader loader;
 
 	public ProductBundle( ClassLoader loader ) throws Exception {
@@ -17,11 +20,13 @@ public class ProductBundle {
 	}
 
 	public String getString( String bundleKey, String valueKey, String... values ) {
-		// TODO Might be able to optimize ProductBundle.getString()
-		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader, new Utf8Control() );
-		if( !bundle.containsKey( valueKey ) ) return null;
-		String string = bundle.getString( valueKey );
-		return format( string, values );
+		String string = null;
+
+		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader );
+		if( bundle.containsKey( valueKey ) ) string = format( bundle.getString( valueKey ), (Object[])values );
+		if( string == null ) log.trace( "Missing RB key: " + bundleKey + ":" + valueKey );
+
+		return string;
 	}
 
 }

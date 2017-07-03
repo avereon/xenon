@@ -48,6 +48,7 @@ public final class Schemes {
 	 * @param type
 	 */
 	public static void addScheme( Scheme scheme, ResourceType type ) {
+		System.out.println( "Scheme registered: scheme=" + scheme + " type=" + type );
 		schemes.put( scheme.getName(), scheme );
 		resourceTypes.put( scheme.getName(), type );
 	}

@@ -52,8 +52,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//	private CloseActionHandler closeActionHandler = new CloseActionHandler();
 	//
 	//	private CloseAllActionHandler closeAllActionHandler = new CloseAllActionHandler();
-	//
-	//	private CurrentResourceWatcher currentResourceWatcher = new CurrentResourceWatcher();
+
+	private CurrentResourceWatcher currentResourceWatcher = new CurrentResourceWatcher();
 
 	private Object restoreLock = new Object();
 
@@ -123,10 +123,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return currentResource;
 	}
 
-	//	public void setCurrentResource( Resource resource ) {
-	//		program.getTaskManager().submit( new SetCurrentResourceTask( resource ) );
-	//	}
-	//
+	public void setCurrentResource( Resource resource ) {
+		program.getExecutor().submit( new SetCurrentResourceTask( resource ) );
+	}
+
 	//	public void setCurrentResourceAndWait( Resource resource ) throws ExecutionException, InterruptedException {
 	//		program.getTaskManager().invoke( new SetCurrentResourceTask( resource ) );
 	//	}
@@ -914,42 +914,43 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//
 	//		return result;
 	//	}
-	//
-	//	private boolean doSetCurrentResource( Resource resource ) {
-	//		synchronized( currentResourceLock ) {
-	//			Resource previous = currentResource;
-	//
-	//			// "Disconnect" the old current resource.
-	//			if( currentResource != null ) currentResource.removeResourceListener( currentResourceWatcher );
-	//
-	//			// Change current resource.
-	//			currentResource = resource;
-	//
-	//			// "Connect" the new current resource.
-	//			if( currentResource == null ) {
-	//				saveActionHandler.setEnabled( false );
-	//				saveAsActionHandler.setEnabled( false );
-	//				saveCopyAsActionHandler.setEnabled( false );
-	//				closeActionHandler.setEnabled( false );
-	//			} else {
-	//				boolean canSave = canSaveResource( resource );
-	//				saveActionHandler.setEnabled( currentResource.isModified() && canSave );
-	//				saveAsActionHandler.setEnabled( canSave );
-	//				saveCopyAsActionHandler.setEnabled( canSave );
-	//				closeActionHandler.setEnabled( true );
-	//				currentResource.addResourceListener( currentResourceWatcher );
-	//			}
-	//
-	//			closeAllActionHandler.setEnabled( openResources.size() > 0 );
-	//
-	//			Log.write( Log.TRACE, "Resource select: " + (resource == null ? "null" : resource) );
-	//
-	//			// Notify program of current resource change.
-	//			program.getEventBus().submit( new CurrentResourceChangedEvent( getClass(), previous, currentResource ) );
-	//		}
-	//
-	//		return true;
-	//	}
+
+	// TODO Finish implementing ResourceManager.doSetCurrentResource()
+	private boolean doSetCurrentResource( Resource resource ) {
+		synchronized( currentResourceLock ) {
+			Resource previous = currentResource;
+
+			// "Disconnect" the old current resource.
+			if( currentResource != null ) currentResource.removeResourceListener( currentResourceWatcher );
+
+			// Change current resource.
+			currentResource = resource;
+
+			// "Connect" the new current resource.
+			//				if( currentResource == null ) {
+			//					saveActionHandler.setEnabled( false );
+			//					saveAsActionHandler.setEnabled( false );
+			//					saveCopyAsActionHandler.setEnabled( false );
+			//					closeActionHandler.setEnabled( false );
+			//				} else {
+			//					boolean canSave = canSaveResource( resource );
+			//					saveActionHandler.setEnabled( currentResource.isModified() && canSave );
+			//					saveAsActionHandler.setEnabled( canSave );
+			//					saveCopyAsActionHandler.setEnabled( canSave );
+			//					closeActionHandler.setEnabled( true );
+			//					currentResource.addResourceListener( currentResourceWatcher );
+			//				}
+
+			//				closeAllActionHandler.setEnabled( openResources.size() > 0 );
+
+			log.trace( "Resource select: " + (resource == null ? "null" : resource) );
+
+			//				// Notify program of current resource change.
+			//				program.getEventBus().submit( new CurrentResourceChangedEvent( getClass(), previous, currentResource ) );
+		}
+
+		return true;
+	}
 
 	/**
 	 * Determine the resource type for the given resource from the resource URI.
@@ -1005,6 +1006,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private Set<Codec> autoDetectCodecs( Resource resource ) {
 		URLConnection connection = null;
 		Set<Codec> codecs = new HashSet<Codec>();
+
+		// NEXT Create codecs for program resource types and assign them to the program scheme
+
 		//		Collection<ResourceType> resourceTypes = getResourceTypes();
 		//
 		//		// First option: Determine codec by file name.
@@ -1536,38 +1540,38 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		}
 	//
 	//	}
-	//
-	//	private class SetCurrentResourceTask extends ResourceTask {
-	//
-	//		public SetCurrentResourceTask( Resource resource ) {
-	//			super( resource );
-	//		}
-	//
-	//		@Override
-	//		public boolean doOperation( Resource resource ) throws ResourceException {
-	//			return doSetCurrentResource( resource );
-	//		}
-	//
-	//	}
-	//
-	//	private class CurrentResourceWatcher extends ResourceAdapter {
-	//
-	//		@Override
-	//		public void resourceModified( ResourceEvent event ) {
-	//			Resource resource = event.getResource();
-	//			Log.write( Log.TRACE, "Resource modified: " + resource );
-	//			saveActionHandler.setEnabled( canSaveResource( resource ) );
-	//		}
-	//
-	//		@Override
-	//		public void resourceUnmodified( ResourceEvent event ) {
-	//			Resource resource = event.getResource();
-	//			saveActionHandler.setEnabled( false );
-	//			Log.write( Log.TRACE, "Resource unmodified: " + resource );
-	//		}
-	//
-	//	}
-	//
+
+	private class SetCurrentResourceTask extends ResourceTask {
+
+		public SetCurrentResourceTask( Resource resource ) {
+			super( resource );
+		}
+
+		@Override
+		public boolean doOperation( Resource resource ) throws ResourceException {
+			return doSetCurrentResource( resource );
+		}
+
+	}
+
+	private class CurrentResourceWatcher extends ResourceAdapter {
+
+		@Override
+		public void resourceModified( ResourceEvent event ) {
+			Resource resource = event.getResource();
+			log.trace( "Resource modified: " + resource );
+			// TODO saveActionHandler.setEnabled( canSaveResource( resource ) );
+		}
+
+		@Override
+		public void resourceUnmodified( ResourceEvent event ) {
+			Resource resource = event.getResource();
+			// TODO saveActionHandler.setEnabled( false );
+			log.trace( "Resource unmodified: " + resource );
+		}
+
+	}
+
 	//	private class ModifiedEventWatcher extends DataAdapter {
 	//
 	//		@Override
