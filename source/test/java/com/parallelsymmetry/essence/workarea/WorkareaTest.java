@@ -2,13 +2,13 @@ package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.MockSettings;
 import com.parallelsymmetry.essence.settings.Settings;
-import com.parallelsymmetry.essence.testutil.FxTestCase;
+import com.parallelsymmetry.essence.testutil.FxPlatformTestCase;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WorkareaTest extends FxTestCase {
+public class WorkareaTest extends FxPlatformTestCase {
 
 	private Settings settings = new MockSettings();
 

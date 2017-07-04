@@ -1,6 +1,5 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.testutil.FxApplicationTestCase;
 import javafx.stage.Stage;
 import org.junit.Test;
@@ -12,8 +11,6 @@ public class ProgramWorkspaceTest extends FxApplicationTestCase {
 
 	@Test
 	public void testWorkspaceWindowTitle() throws Exception {
-		waitForEvent( ProgramStartedEvent.class );
-
 		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
 		assertThat( stage.isShowing(), is( true ) );
@@ -22,8 +19,6 @@ public class ProgramWorkspaceTest extends FxApplicationTestCase {
 
 	@Test
 	public void testWorkspaceDefaultSceneSize() throws Exception {
-		waitForEvent( ProgramStartedEvent.class );
-
 		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getScene().getWidth(), is( 960d ) );

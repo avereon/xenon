@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.testfx.api.FxToolkit;
+import org.testfx.framework.junit.ApplicationTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
-public abstract class FxApplicationTestCase extends FxTestCase {
+public abstract class FxApplicationTestCase extends ApplicationTest {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
@@ -30,10 +31,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	protected ProductMetadata metadata;
 
 	/**
-	 * Override setup() in FxTestCase and does not call super.setup().
+	 * Override setup() in FxPlatformTestCase and does not call super.setup().
 	 */
 	@Before
-	@Override
 	public void setup() throws Exception {
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
@@ -48,8 +48,6 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 			throw new RuntimeException( exception );
 		}
 
-		super.setup();
-
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		metadata = program.getMetadata();
@@ -59,10 +57,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 	}
 
 	/**
-	 * Override cleanup in FxTestCase and does not call super.cleanup().
+	 * Override cleanup in FxPlatformTestCase and does not call super.cleanup().
 	 */
 	@After
-	@Override
 	public void cleanup() throws Exception {
 		FxToolkit.cleanupApplication( program );
 
@@ -73,6 +70,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( watcher );
 	}
+
+	@Override
+	public void start( Stage stage ) throws Exception {}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );

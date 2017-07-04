@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.testutil.FxTestCase;
+import com.parallelsymmetry.essence.testutil.FxPlatformTestCase;
 import javafx.geometry.Side;
 import org.junit.Before;
 
@@ -10,7 +10,7 @@ import java.net.URI;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WorkpaneTestCase extends FxTestCase {
+public class WorkpaneTestCase extends FxPlatformTestCase {
 
 	protected Workpane workpane;
 
