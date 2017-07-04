@@ -17,7 +17,7 @@ public class AutoDetectCodec extends Codec {
 
 	@Override
 	public String getKey() {
-		return "com.parallelsymmetry.escape.codec.autodetect";
+		return "codec.autodetect";
 	}
 
 	@Override

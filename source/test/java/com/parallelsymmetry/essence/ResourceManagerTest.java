@@ -10,8 +10,7 @@ import org.junit.Test;
 
 import java.net.URI;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 public class ResourceManagerTest extends BaseTestCase {
@@ -21,6 +20,7 @@ public class ResourceManagerTest extends BaseTestCase {
 	private ResourceManager manager;
 
 	@Before
+	@Override
 	public void setup() throws Exception {
 		super.setup();
 		program = new Program();
@@ -28,14 +28,13 @@ public class ResourceManagerTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testResourceTypeLookup() {
+	public void testResourceTypeLookupWithOpaqueUri() {
 		Scheme scheme = new ProgramScheme( program );
 		manager.addScheme( scheme );
 		manager.registerUriResourceType( "program:about", new ProductInfoType( program, "" ) );
 		Resource resource = manager.createResource( URI.create( "program:about" ) );
 		ResourceType type = manager.autoDetectResourceType( resource );
 
-		assertThat( resource.getType(), not( is( nullValue() ) ) );
 		assertThat( resource.getType(), instanceOf( ProductInfoType.class ) );
 	}
 
