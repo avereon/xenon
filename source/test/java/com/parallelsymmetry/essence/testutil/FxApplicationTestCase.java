@@ -79,12 +79,6 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		program.removeEventListener( watcher );
 	}
 
-	//	@Override
-	//	protected void initializeFx() throws Exception {
-	//		// Parameters are null during testing due to Java 9 incompatibility
-	//		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-	//	}
-
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
