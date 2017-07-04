@@ -30,13 +30,13 @@ and '=' in front of the value like --log-level=info.
 
 Logging
 
-    --log-level=<level> The logging level for the product. Valid values are
+    --log-level=<level> The logging level for the program. Valid values are
     none, error, warn, info, debug, trace and all. The default is info.
       
       none - Turn off all logging
-      error - Events that may leave the product in an unstable state
-      warn - Events that usually leave the product in a stable state
-      info - Information messages like normal product events
+      error - Events that may leave the program in an unstable state
+      warn - Events that usually leave the program in a stable state
+      info - Information messages like normal program events
       debug - Extra messages that show high level events
       trace - Extra messages that show low level events
       all - Turn on all logging

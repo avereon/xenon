@@ -12,7 +12,7 @@ of windows, workareas and tools.
 ## Workspace Reader
 
 The workspace reader can restore the entire workspace hierarchy at
-the start of the product.
+the start of the program.
 
 ## Workspace Writer
 
