@@ -115,6 +115,7 @@ public class Program extends Application implements Product {
 		fireEvent( new ProgramStartingEvent( this ) );
 
 		// FIXME Getting the program settings takes about 1/4 of the startup time
+		// And has to happen before the splash screen is shown.
 		settingsManager = new SettingsManager( this ).start();
 		File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
 		settings = settingsManager.getSettings( new File( programSettingsFolder, "program.properties" ) );
