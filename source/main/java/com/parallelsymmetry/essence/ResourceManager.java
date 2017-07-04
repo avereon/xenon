@@ -2,7 +2,6 @@ package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.resource.*;
 import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
-import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
 import javafx.event.Event;
@@ -30,6 +29,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private volatile Resource currentResource;
 
 	private final Set<Resource> openResources;
+
+	private final Map<String, Scheme> schemes;
 
 	private final Map<String, ResourceType> resourceTypes;
 
@@ -68,6 +69,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	public ResourceManager( Program program ) {
 		this.program = program;
 		openResources = new CopyOnWriteArraySet<>();
+		schemes = new ConcurrentHashMap<>();
 		resourceTypes = new ConcurrentHashMap<>();
 		uriResourceTypes = new ConcurrentHashMap<>();
 		schemeResourceTypes = new ConcurrentHashMap<>();
@@ -173,6 +175,52 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		}
 	//		return externallyModifiedResources;
 	//	}
+
+	/**
+	 * Get a scheme by the scheme name.
+	 *
+	 * @param name The scheme name
+	 * @return The scheme registered to the name
+	 */
+	public Scheme getScheme( String name ) {
+		return schemes.get( name );
+	}
+
+	/**
+	 * Add a scheme.
+	 *
+	 * @param scheme The scheme to add
+	 */
+	public void addScheme( Scheme scheme ) {
+		schemes.put( scheme.getName(), scheme );
+	}
+
+	/**
+	 * Remove a scheme.
+	 *
+	 * @param name The name of the scheme to remove
+	 */
+	public void removeScheme( String name ) {
+		schemes.remove( name );
+	}
+
+	/**
+	 * Get the registered schemes.
+	 *
+	 * @return The set of registered schemes
+	 */
+	public Set<Scheme> getSchemes() {
+		return new HashSet<Scheme>( schemes.values() );
+	}
+
+	/**
+	 * Get the registered scheme names.
+	 *
+	 * @return The set of registered scheme names
+	 */
+	public Set<String> getSchemeNames() {
+		return new HashSet<String>( schemes.keySet() );
+	}
 
 	/**
 	 * Get a resource type by the resource type key defined in the resource type.
@@ -311,7 +359,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		if( uri != null ) {
 			try {
-				resource.getScheme().init( resource );
+				Scheme scheme = getScheme( uri.getScheme() );
+				resource.setScheme( scheme );
+				scheme.init( resource );
 			} catch( ResourceException exception ) {
 				log.error( "Error initializing resource scheme", exception );
 			}
@@ -1006,34 +1056,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * <li>Use the resource type associated to the codec</li>
 	 * </ol>
 	 *
-	 * @param uri
-	 * @return The resource type related to the URI
-	 */
-	public ResourceType resolveResourceType( URI uri ) {
-		ResourceType type = null;
-
-		// Lookup the resource type by the full URI
-
-		// Lookup the resource type by the URI scheme
-
-		// Use the resource type associated to the codec</li>
-		// TODO Of course, we also need to return the codec that was associated to the resource type
-
-		return type;
-	}
-
-	/**
-	 * Determine the resource type for the given resource. The resource URI
-	 * is used to find the resource type in the following order:
-	 * <ol>
-	 * <li>Lookup the resource type by the full URI</li>
-	 * <li>Lookup the resource type by the URI scheme</li>
-	 * <li>Find all the codecs that match the URI</li>
-	 * <li>Sort the codecs by priority, select the highest</li>
-	 * <li>Use the resource type associated to the codec</li>
-	 * </ol>
-	 *
-	 * @param resource
+	 * @param resource The resource for which to resolve the resource type
 	 * @return
 	 */
 	ResourceType autoDetectResourceType( Resource resource ) {
@@ -1151,7 +1174,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private URLConnection getConnection( URI uri ) {
-		if( !Schemes.getSchemeNames().contains( uri.getScheme() ) ) return null;
+		if( !getSchemeNames().contains( uri.getScheme() ) ) return null;
 
 		try {
 			return uri.toURL().openConnection();

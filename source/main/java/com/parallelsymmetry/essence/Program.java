@@ -8,10 +8,10 @@ import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductBundle;
 import com.parallelsymmetry.essence.product.ProductMetadata;
-import com.parallelsymmetry.essence.resource.ProgramResourceType;
+import com.parallelsymmetry.essence.resource.type.ProductInfoType;
+import com.parallelsymmetry.essence.resource.type.ProgramSettingsType;
 import com.parallelsymmetry.essence.scheme.FileScheme;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
-import com.parallelsymmetry.essence.scheme.Schemes;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.util.OperatingSystem;
@@ -376,10 +376,11 @@ public class Program extends Application implements Product {
 
 		// Start the resource manager
 		log.trace( "Starting resource manager..." );
-		resourceManager = new ResourceManager( Program.this ).start();
+		resourceManager = new ResourceManager( Program.this );
+		registerSchemes(resourceManager);
+		registerResourceTypes(resourceManager);
+		resourceManager.start();
 		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		registerSchemes();
-		registerResourceTypes();
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
@@ -419,10 +420,10 @@ public class Program extends Application implements Product {
 
 			// Stop the resource manager
 			log.trace( "Stopping resource manager..." );
-			unregisterResourceTypes();
-			unregisterSchemes();
 			resourceManager.stop();
 			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			unregisterResourceTypes(resourceManager);
+			unregisterSchemes(resourceManager);
 			log.debug( "Resource manager stopped." );
 
 			// Stop the tool manager
@@ -442,9 +443,6 @@ public class Program extends Application implements Product {
 			// Unregister icons
 			unregisterIcons();
 
-			// Unregister resource types
-			unregisterSchemes();
-
 			// Stop the task manager
 			log.trace( "Stopping task manager..." );
 			taskManager.stop();
@@ -459,23 +457,24 @@ public class Program extends Application implements Product {
 		}
 	}
 
-	private void registerSchemes() {
-		Schemes.addScheme( new ProgramScheme( this ) );
-		Schemes.addScheme( new FileScheme( this ) );
+	private void registerSchemes(ResourceManager manager) {
+		manager.addScheme( new ProgramScheme( this ) );
+		manager.addScheme( new FileScheme( this ) );
 	}
 
-	private void unregisterSchemes() {
-		Schemes.removeScheme( "program" );
-		Schemes.removeScheme( "file" );
+	private void unregisterSchemes(ResourceManager manager) {
+		manager.removeScheme( "program" );
+		manager.removeScheme( "file" );
 	}
 
-	private void registerResourceTypes() {
-		// NEXT Should the resource type be ProductInfoResourceType?
-		getResourceManager().registerUriResourceType( "program:about", new ProgramResourceType( this, "program" ) );
+	private void registerResourceTypes( ResourceManager manager) {
+		manager.registerUriResourceType( "program:about", new ProductInfoType( this, "program" ) );
+		manager.registerUriResourceType( "program:settings", new ProgramSettingsType( this, "program" ) );
 	}
 
-	private void unregisterResourceTypes() {
-		getResourceManager().unregisterUriResourceType( "program:about" );
+	private void unregisterResourceTypes(ResourceManager manager) {
+		manager.unregisterUriResourceType( "program:about" );
+		manager.unregisterUriResourceType( "program:settings" );
 	}
 
 	private void registerIcons() {}

@@ -5,7 +5,6 @@ import com.parallelsymmetry.essence.ResourceManager;
 import com.parallelsymmetry.essence.node.Node;
 import com.parallelsymmetry.essence.node.NodeEvent;
 import com.parallelsymmetry.essence.node.NodeListener;
-import com.parallelsymmetry.essence.scheme.Schemes;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -118,18 +117,11 @@ public class Resource extends Node {
 	}
 
 	public Scheme getScheme() {
-		Scheme scheme = getValue( SCHEME_VALUE_KEY );
-		if( scheme != null ) return scheme;
+		return getValue( SCHEME_VALUE_KEY );
+	}
 
-		URI uri = getUri();
-		if( uri == null ) return null;
-
-		scheme = Schemes.getScheme( uri.getScheme() );
-		if( scheme == null ) throw new RuntimeException( "Scheme not registered: " + uri.getScheme() );
-
+	public void setScheme( Scheme scheme ) {
 		setValue( SCHEME_VALUE_KEY, scheme );
-
-		return scheme;
 	}
 
 	/**
