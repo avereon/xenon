@@ -40,9 +40,9 @@ public class Program extends Application implements Product {
 
 	private static Logger log = LogUtil.get( Program.class );
 
-	private static long managerActionTime = 10;
+	private static long programStartTime = System.currentTimeMillis();
 
-	private static long programStartTime;
+	private static long managerActionTime = 10;
 
 	private SplashScreen splashScreen;
 
@@ -77,9 +77,8 @@ public class Program extends Application implements Product {
 	private AboutAction aboutAction;
 
 	static {
-		programStartTime = System.currentTimeMillis();
-
-		// This will require Platform.exit() to be called
+		// Set FX implicit exit to false
+		// which will require Platform.exit() to be called
 		Platform.setImplicitExit( false );
 	}
 
@@ -152,7 +151,7 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void stop() throws Exception {
-		taskManager.submit( this::doShutdownTasks );
+		taskManager.submit( new Shutdown() );
 	}
 
 	public void requestExit() {
@@ -325,11 +324,9 @@ public class Program extends Application implements Product {
 		Platform.runLater( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it
-		//		long remaining = 1000 - (System.currentTimeMillis() - start);
-		//		if( remaining > 0 ) Thread.sleep( remaining );
-		time( "nap" );
-		Thread.sleep( 1000 );
-		time( "started" );
+		Thread.sleep( 500 );
+
+		Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
 	}
 
 	private void doShutdownTasks() {
@@ -362,7 +359,7 @@ public class Program extends Application implements Product {
 			// Disconnect the settings listener
 			log.trace( "Stopping settings manager..." );
 			settingsManager.stop();
-			log.debug( "ProgramConfigurationBuilder manager stopped." );
+			log.debug( "Settings manager stopped." );
 
 			// Unregister action handlers
 			unregisterActionHandlers();
@@ -376,9 +373,9 @@ public class Program extends Application implements Product {
 			taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Task manager stopped." );
 
-			fireEvent( new ProgramStoppedEvent( this ) );
+			Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
 
-			// NOTE Apparently it is not necessary to call Platform.exit() here
+			// NOTE Do not call Platform.exit() here, it was called already
 		} catch( InterruptedException exception ) {
 			log.error( "Program shutdown interrupted", exception );
 		}
@@ -429,15 +426,12 @@ public class Program extends Application implements Product {
 		@Override
 		protected void succeeded() {
 			splashScreen.hide();
-
 			workspaceManager.getActiveWorkspace().getStage().show();
 
 			// Set the workarea actions
 			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
-
-			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
 		}
 
 		@Override
@@ -450,6 +444,26 @@ public class Program extends Application implements Product {
 		protected void failed() {
 			splashScreen.hide();
 			log.error( "Error during startup task", getException() );
+		}
+
+	}
+
+	private class Shutdown extends Task<Void> {
+
+		@Override
+		protected Void call() throws Exception {
+			doShutdownTasks();
+			return null;
+		}
+
+		@Override
+		protected void cancelled() {
+			log.error( "Shutdown task cancelled", getException() );
+		}
+
+		@Override
+		protected void failed() {
+			log.error( "Error during shutdown task", getException() );
 		}
 
 	}
