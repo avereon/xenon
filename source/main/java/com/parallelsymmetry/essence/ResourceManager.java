@@ -3,7 +3,9 @@ package com.parallelsymmetry.essence;
 import com.parallelsymmetry.essence.resource.*;
 import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.scheme.Schemes;
+import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
+import javafx.event.Event;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -27,31 +29,35 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private volatile Resource currentResource;
 
-	private Set<Resource> openResources;
+	private final Set<Resource> openResources;
 
-	private Map<String, ResourceType> resourceTypes;
+	private final Map<String, ResourceType> resourceTypes;
 
-	private Map<String, Set<Codec>> registeredFileNames;
+	private final Map<String, ResourceType> uriResourceTypes;
 
-	private Map<String, Set<Codec>> registeredFirstLines;
+	private final Map<String, ResourceType> schemeResourceTypes;
 
-	private Map<String, Set<Codec>> registeredMediaTypes;
+	private final Map<String, Set<Codec>> registeredFileNames;
 
-	//	private NewActionHandler newActionHandler = new NewActionHandler();
+	private final Map<String, Set<Codec>> registeredFirstLines;
+
+	private final Map<String, Set<Codec>> registeredMediaTypes;
+
+	private NewActionHandler newActionHandler;
+
+	//	private OpenActionHandler openActionHandler;
 	//
-	//	private OpenActionHandler openActionHandler = new OpenActionHandler();
+	//	private SaveActionHandler saveActionHandler;
 	//
-	//	private SaveActionHandler saveActionHandler = new SaveActionHandler( false, false );
+	//	private SaveActionHandler saveAsActionHandler;
 	//
-	//	private SaveActionHandler saveAsActionHandler = new SaveActionHandler( true, false );
+	//	private SaveActionHandler saveCopyAsActionHandler;
 	//
-	//	private SaveActionHandler saveCopyAsActionHandler = new SaveActionHandler( true, true );
+	//	private SaveAllActionHandler saveAllActionHandler;
 	//
-	//	private SaveAllActionHandler saveAllActionHandler = new SaveAllActionHandler();
+	//	private CloseActionHandler closeActionHandler;
 	//
-	//	private CloseActionHandler closeActionHandler = new CloseActionHandler();
-	//
-	//	private CloseAllActionHandler closeAllActionHandler = new CloseAllActionHandler();
+	//	private CloseAllActionHandler closeAllActionHandler;
 
 	private CurrentResourceWatcher currentResourceWatcher = new CurrentResourceWatcher();
 
@@ -63,9 +69,21 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		this.program = program;
 		openResources = new CopyOnWriteArraySet<>();
 		resourceTypes = new ConcurrentHashMap<>();
+		uriResourceTypes = new ConcurrentHashMap<>();
+		schemeResourceTypes = new ConcurrentHashMap<>();
 		registeredFileNames = new ConcurrentHashMap<>();
 		registeredFirstLines = new ConcurrentHashMap<>();
 		registeredMediaTypes = new ConcurrentHashMap<>();
+
+		newActionHandler = new NewActionHandler( program );
+
+		//		openActionHandler = new OpenActionHandler( program );
+		//		saveActionHandler = new SaveActionHandler( program, false, false );
+		//		saveAsActionHandler = new SaveActionHandler( program, true, false );
+		//		saveCopyAsActionHandler = new SaveActionHandler( program, true, true );
+		//		saveAllActionHandler = new SaveAllActionHandler( program );
+		//		closeActionHandler = new CloseActionHandler(program);
+		//		closeAllActionHandler = new CloseAllActionHandler(program);
 	}
 
 	@Override
@@ -155,99 +173,124 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		}
 	//		return externallyModifiedResources;
 	//	}
-	//
-	//	/**
-	//	 * Add a resource type to the set of supported resource types.
-	//	 *
-	//	 * @param type
-	//	 */
-	//	public void addResourceType( ResourceType type ) {
-	//		if( type == null ) return;
-	//		synchronized( resourceTypes ) {
-	//			if( resourceTypes.get( type.getKey() ) != null ) throw new IllegalArgumentException( "ResourceType already exists: " + type.getKey() );
-	//
-	//			Set<Codec> codecs = type.getCodecs();
-	//			for( Codec codec : codecs ) {
-	//				// Register codec support.
-	//				registerCodec( codec, codec.getSupportedFileNames(), registeredFileNames );
-	//				registerCodec( codec, codec.getSupportedFirstLines(), registeredFirstLines );
-	//				registerCodec( codec, codec.getSupportedContentTypes(), registeredMimeTypes );
-	//			}
-	//
-	//			// Add the resource type to the registered resource types.
-	//			resourceTypes.put( type.getKey(), type );
-	//
-	//			// Update the actions.
-	//			updateActionState();
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * Remove a resource type from the supported resource types.
-	//	 *
-	//	 * @param type
-	//	 */
-	//	public void removeResourceType( ResourceType type ) {
-	//		if( type == null ) return;
-	//		synchronized( resourceTypes ) {
-	//			if( !resourceTypes.containsKey( type.getKey() ) ) return;
-	//
-	//			// Remove the resource type from the registered resource types.
-	//			resourceTypes.remove( type.getKey() );
-	//
-	//			Set<Codec> codecs = type.getCodecs();
-	//			for( Codec codec : codecs ) {
-	//				// Unregister codec support.
-	//				unregisterCodec( codec, codec.getSupportedFileNames(), registeredFileNames );
-	//				unregisterCodec( codec, codec.getSupportedFirstLines(), registeredFirstLines );
-	//				unregisterCodec( codec, codec.getSupportedContentTypes(), registeredMimeTypes );
-	//			}
-	//
-	//			// Update the actions.
-	//			updateActionState();
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * Get a resource type by the resource type key defined in the resource type.
-	//	 * This is useful for getting resource types from persisted data.
-	//	 *
-	//	 * @param key
-	//	 * @return
-	//	 */
-	//	public ResourceType getResourceType( String key ) {
-	//		ResourceType type = resourceTypes.get( key );
-	//		if( type == null ) Log.write( Log.WARN, "Resource type not found: " + key );
-	//		return type;
-	//	}
-	//
-	//	/**
-	//	 * Get a collection of the supported resource types.
-	//	 *
-	//	 * @return
-	//	 */
-	//	public Collection<ResourceType> getResourceTypes() {
-	//		return Collections.unmodifiableCollection( resourceTypes.values() );
-	//	}
-	//
-	//	/**
-	//	 * Create a resource from a string.
-	//	 *
-	//	 * @param string
-	//	 * @return A new resource based on the specified string.
-	//	 */
-	//	public Resource createResource( String string ) {
-	//		if( string == null ) return null;
-	//
-	//		URI uri = UriUtil.resolve( string );
-	//
-	//		if( uri == null ) {
-	//			Log.write( Log.WARN, "Resource not created: ", string );
-	//			return null;
-	//		}
-	//
-	//		return createResource( uri );
-	//	}
+
+	/**
+	 * Get a resource type by the resource type key defined in the resource type.
+	 * This is useful for getting resource types from persisted data.
+	 *
+	 * @param key
+	 * @return
+	 */
+	public ResourceType getResourceType( String key ) {
+		ResourceType type = resourceTypes.get( key );
+		if( type == null ) log.warn( "Resource type not found: " + key );
+		return type;
+	}
+
+	/**
+	 * Get a collection of the supported resource types.
+	 *
+	 * @return
+	 */
+	public Collection<ResourceType> getResourceTypes() {
+		return Collections.unmodifiableCollection( resourceTypes.values() );
+	}
+
+	/**
+	 * Add a resource type to the set of supported resource types.
+	 *
+	 * @param type
+	 */
+	public void addResourceType( ResourceType type ) {
+		if( type == null ) return;
+
+		synchronized( resourceTypes ) {
+			if( resourceTypes.get( type.getKey() ) != null ) throw new IllegalArgumentException( "ResourceType already exists: " + type.getKey() );
+
+			Set<Codec> codecs = type.getCodecs();
+			for( Codec codec : codecs ) {
+				// Register codec support.
+				registerCodec( codec, codec.getSupportedFileNames(), registeredFileNames );
+				registerCodec( codec, codec.getSupportedFirstLines(), registeredFirstLines );
+				registerCodec( codec, codec.getSupportedMediaTypes(), registeredMediaTypes );
+			}
+
+			// Add the resource type to the registered resource types.
+			resourceTypes.put( type.getKey(), type );
+
+			// Update the actions.
+			updateActionState();
+		}
+	}
+
+	/**
+	 * Remove a resource type from the supported resource types.
+	 *
+	 * @param type
+	 */
+	public void removeResourceType( ResourceType type ) {
+		if( type == null ) return;
+		synchronized( resourceTypes ) {
+			if( !resourceTypes.containsKey( type.getKey() ) ) return;
+
+			// Remove the resource type from the registered resource types.
+			resourceTypes.remove( type.getKey() );
+			for( Map.Entry entry : uriResourceTypes.entrySet() ) {
+				if( entry.getValue() == type ) uriResourceTypes.remove( entry.getKey() );
+			}
+			for( Map.Entry entry : schemeResourceTypes.entrySet() ) {
+				if( entry.getValue() == type ) schemeResourceTypes.remove( entry.getKey() );
+			}
+
+			Set<Codec> codecs = type.getCodecs();
+			for( Codec codec : codecs ) {
+				// Unregister codec support.
+				unregisterCodec( codec, codec.getSupportedFileNames(), registeredFileNames );
+				unregisterCodec( codec, codec.getSupportedFirstLines(), registeredFirstLines );
+				unregisterCodec( codec, codec.getSupportedMediaTypes(), registeredMediaTypes );
+			}
+
+			// Update the actions.
+			updateActionState();
+		}
+	}
+
+	public void registerUriResourceType( String uri, ResourceType type ) {
+		if( resourceTypes.get( type.getKey() ) == null ) addResourceType( type );
+		uriResourceTypes.put( uri, type );
+	}
+
+	public void unregisterUriResourceType( String uri ) {
+		uriResourceTypes.remove( uri );
+	}
+
+	public void registerSchemeResourceType( String scheme, ResourceType type ) {
+		if( resourceTypes.get( type.getKey() ) == null ) addResourceType( type );
+		schemeResourceTypes.put( scheme, type );
+	}
+
+	public void unregisterSchemeResourceType( String scheme ) {
+		schemeResourceTypes.remove( scheme );
+	}
+
+	/**
+	 * Create a resource from a string.
+	 *
+	 * @param string A resource string
+	 * @return A new resource based on the specified string.
+	 */
+	public Resource createResource( String string ) {
+		if( string == null ) return null;
+
+		URI uri = UriUtil.resolve( string );
+
+		if( uri == null ) {
+			log.warn( "Resource not created: ", string );
+			return null;
+		}
+
+		return createResource( uri );
+	}
 
 	public Resource createResource( URI uri ) {
 		return createResource( null, uri );
@@ -680,11 +723,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return openResources.contains( resource );
 	}
 
-	//	private void updateActionState() {
-	//		newActionHandler.setEnabled( resourceTypes.size() > 0 );
-	//		openActionHandler.setEnabled( resourceTypes.size() > 0 );
-	//		saveAllActionHandler.setEnabled( getModifiedResources().size() > 0 );
-	//	}
+	private void updateActionState() {
+		newActionHandler.setEnabled( resourceTypes.size() > 0 );
+		//			openActionHandler.setEnabled( resourceTypes.size() > 0 );
+		//			saveAllActionHandler.setEnabled( getModifiedResources().size() > 0 );
+	}
 
 	private void registerCodec( Codec codec, Set<String> values, Map<String, Set<Codec>> registrations ) {
 		if( values == null ) return;
@@ -710,12 +753,13 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private boolean doOpenResource( Resource resource ) throws ResourceException {
+		if( isResourceOpen( resource ) ) return true;
+
 		// Determine the resource type.
 		ResourceType type = resource.getType();
 		if( type == null ) type = autoDetectResourceType( resource );
-		log.trace( "Resource type: " + type );
-
 		if( type == null ) throw new ResourceException( resource, "Resource type could not be determined: " + resource );
+		log.trace( "Resource type: " + type );
 
 		// Determine the codec.
 		Codec codec = resource.getCodec();
@@ -729,10 +773,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( !type.resourceDefault( program, resource ) ) return false;
 		log.trace( "Resource initialized with default values." );
 
-		// If the resource URI is null get user input from the resource type.
-		if( resource.getUri() == null ) {
+		// If the resource is new get user input from the resource type.
+		if( resource.isNew() ) {
 			if( !type.resourceDialog( program, resource ) ) return false;
-			if( isResourceOpen( resource ) ) return true;
 			log.trace( "Resource initialized with user values." );
 		}
 
@@ -953,17 +996,61 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine the resource type for the given resource from the resource URI.
+	 * Determine the resource type for the given resource. The resource URI
+	 * is used to find the resource type in the following order:
+	 * <ol>
+	 * <li>Lookup the resource type by the full URI</li>
+	 * <li>Lookup the resource type by the URI scheme</li>
+	 * <li>Find all the codecs that match the URI</li>
+	 * <li>Sort the codecs by priority, select the highest</li>
+	 * <li>Use the resource type associated to the codec</li>
+	 * </ol>
+	 *
+	 * @param uri
+	 * @return The resource type related to the URI
+	 */
+	public ResourceType resolveResourceType( URI uri ) {
+		ResourceType type = null;
+
+		// Lookup the resource type by the full URI
+
+		// Lookup the resource type by the URI scheme
+
+		// Use the resource type associated to the codec</li>
+		// TODO Of course, we also need to return the codec that was associated to the resource type
+
+		return type;
+	}
+
+	/**
+	 * Determine the resource type for the given resource. The resource URI
+	 * is used to find the resource type in the following order:
+	 * <ol>
+	 * <li>Lookup the resource type by the full URI</li>
+	 * <li>Lookup the resource type by the URI scheme</li>
+	 * <li>Find all the codecs that match the URI</li>
+	 * <li>Sort the codecs by priority, select the highest</li>
+	 * <li>Use the resource type associated to the codec</li>
+	 * </ol>
 	 *
 	 * @param resource
 	 * @return
 	 */
-	private ResourceType autoDetectResourceType( Resource resource ) {
-		// Look for resource types assigned to specific schemes.
+	ResourceType autoDetectResourceType( Resource resource ) {
 		URI uri = resource.getUri();
+
+		// Look for resource type assigned to specific URIs.
 		if( uri != null ) {
-			Scheme scheme = Schemes.getScheme( uri.getScheme() );
-			ResourceType type = Schemes.getResourceType( scheme );
+			ResourceType type = uriResourceTypes.get( uri.toString() );
+			if( type != null ) {
+				resource.setType( type );
+				return type;
+			}
+		}
+
+		// Look for resource types assigned to specific schemes.
+		if( uri != null ) {
+			ResourceType type = schemeResourceTypes.get( uri.getScheme() );
 			if( type != null ) {
 				resource.setType( type );
 				return type;
@@ -1189,63 +1276,87 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		}
 	//
 	//	}
-	//
-	//	private class NewActionHandler extends XActionHandler {
-	//
-	//		@Override
-	//		public void actionPerformed( ActionEvent event ) {
-	//			Collection<ResourceType> types = getResourceTypes();
-	//
-	//			ResourceType type = null;
-	//			if( types.size() == 1 ) {
-	//				type = types.iterator().next();
-	//			} else {
-	//				String title = Bundles.getString( BundleKey.LABELS, "new" );
-	//				ResourceTypePanel panel = new ResourceTypePanel( ResourceManager.this );
-	//
-	//				int result = program.notify( title, panel, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
-	//
-	//				if( result == JOptionPane.OK_OPTION ) type = panel.getResourceType();
-	//			}
-	//
-	//			program.getTaskManager().submit( new LoadResource( type ) );
-	//		}
-	//
-	//		private class LoadResource extends Task<Resource> {
-	//
-	//			private ResourceType type;
-	//
-	//			public LoadResource( ResourceType type ) {
-	//				this.type = type;
-	//			}
-	//
-	//			@Override
-	//			public Resource execute() throws Exception {
-	//				if( type == null ) return null;
-	//
-	//				Resource resource = null;
-	//				try {
-	//					resource = createResource( type );
-	//					openResourcesAndWait( resource );
-	//					resource = findOpenResource( resource );
-	//					if( !resource.isOpen() ) return null;
-	//				} catch( Exception exception ) {
-	//					program.error( exception );
-	//					return null;
-	//				}
-	//				resource.setModified( true );
-	//
-	//				if( !resource.isLoaded() ) loadResourcesAndWait( resource );
-	//				createResourceEditor( resource, null );
-	//				setCurrentResource( resource );
-	//
-	//				return resource;
-	//			}
-	//
-	//		}
-	//
-	//	}
-	//
+
+	private abstract class RmActionHandler extends Action {
+
+		private boolean enabled;
+
+		protected RmActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled( boolean enabled ) {
+			this.enabled = enabled;
+		}
+
+	}
+
+	private class NewActionHandler extends RmActionHandler {
+
+		protected NewActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public void handle( Event event ) {
+			Collection<ResourceType> types = getResourceTypes();
+
+			ResourceType type = null;
+			if( types.size() == 1 ) {
+				type = types.iterator().next();
+			} else {
+				//					String title = program.getResourceBundle().getString( BundleKey.LABELS, "new" );
+				//					ResourceTypePanel panel = new ResourceTypePanel( ResourceManager.this );
+				//
+				//					int result = program.notify( title, panel, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
+				//
+				//					if( result == JOptionPane.OK_OPTION ) type = panel.getResourceType();
+			}
+
+			program.getExecutor().submit( new LoadResource( type ) );
+		}
+
+		private class LoadResource extends Task<Resource> {
+
+			private ResourceType type;
+
+			public LoadResource( ResourceType type ) {
+				this.type = type;
+			}
+
+			@Override
+			public Resource execute() throws Exception {
+				if( type == null ) return null;
+
+				Resource resource = null;
+				// TODO Re-enable ResourceManager.LoadResource.execute()
+				//					try {
+				//						resource = createResource( type );
+				//						openResourcesAndWait( resource );
+				//						resource = findOpenResource( resource );
+				//						if( !resource.isOpen() ) return null;
+				//					} catch( Exception exception ) {
+				//						program.error( exception );
+				//						return null;
+				//					}
+				//					resource.setModified( true );
+				//
+				//					if( !resource.isLoaded() ) loadResourcesAndWait( resource );
+				//					createResourceEditor( resource, null );
+				//					setCurrentResource( resource );
+
+				return resource;
+			}
+
+		}
+
+	}
+
 	//	private class OpenActionHandler extends XActionHandler {
 	//
 	//		private ResourceTool tool;

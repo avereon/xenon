@@ -172,6 +172,10 @@ public class Resource extends Node {
 		setFlag( EXTERNALLY_MODIFIED, modified );
 	}
 
+	public synchronized final boolean isNew() {
+		return getUri() == null;
+	}
+
 	public synchronized final boolean isOpen() {
 		return open;
 	}

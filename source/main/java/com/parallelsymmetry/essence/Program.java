@@ -344,9 +344,6 @@ public class Program extends Application implements Product {
 		// Create the product bundle
 		productBundle = new ProductBundle( getClass().getClassLoader() );
 
-		// Register resource types
-		registerSchemes();
-
 		// Create the icon library
 		iconLibrary = new IconLibrary();
 		registerIcons();
@@ -381,6 +378,8 @@ public class Program extends Application implements Product {
 		log.trace( "Starting resource manager..." );
 		resourceManager = new ResourceManager( Program.this ).start();
 		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		registerSchemes();
+		registerResourceTypes();
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
@@ -420,6 +419,8 @@ public class Program extends Application implements Product {
 
 			// Stop the resource manager
 			log.trace( "Stopping resource manager..." );
+			unregisterResourceTypes();
+			unregisterSchemes();
 			resourceManager.stop();
 			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Resource manager stopped." );
@@ -459,12 +460,22 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerSchemes() {
-		Schemes.addScheme( new FileScheme( this ) );
-		// FIXME This is probably not how I want to register the ProgramAboutResourceType
 		Schemes.addScheme( new ProgramScheme( this ) );
+		Schemes.addScheme( new FileScheme( this ) );
 	}
 
-	private void unregisterSchemes() {}
+	private void unregisterSchemes() {
+		Schemes.removeScheme( "program" );
+		Schemes.removeScheme( "file" );
+	}
+
+	private void registerResourceTypes() {
+		getResourceManager().registerUriResourceType( "program:about", new ProgramResourceType( this, "program" ) );
+	}
+
+	private void unregisterResourceTypes() {
+		getResourceManager().unregisterUriResourceType( "program:about" );
+	}
 
 	private void registerIcons() {}
 

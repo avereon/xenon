@@ -10,7 +10,7 @@ public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 
 	protected Program program;
 
-	public Action( Program program ) {
+	protected Action( Program program ) {
 		this.program = program;
 	}
 

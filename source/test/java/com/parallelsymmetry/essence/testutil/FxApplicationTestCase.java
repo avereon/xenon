@@ -31,13 +31,11 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 	/**
 	 * Override setup() in FxTestCase and does not call super.setup().
-	 *
-	 * @throws Exception
 	 */
 	@Before
 	@Override
 	public void setup() throws Exception {
-		// CLEANUP Parameters are null during testing due to Java 9 incompatibility
+		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		// Remove the existing program data folder
@@ -52,7 +50,6 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 		super.setup();
 
-		// Parameters are null during testing due to Java 9 incompatibility
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		metadata = program.getMetadata();
@@ -63,8 +60,6 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 
 	/**
 	 * Override cleanup in FxTestCase and does not call super.cleanup().
-	 *
-	 * @throws Exception
 	 */
 	@After
 	@Override

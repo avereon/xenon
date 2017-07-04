@@ -17,7 +17,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Resource types can usually be determined by using the resource URI. Some
  * resource types can be determined using just the URI scheme. If the resource
  * type cannot be determined by the URI scheme then it is usually a stateful
- * resource with transient connections. The resource type is determined by
+ * resource with transient connections.
+ * <p>The resource type is determined by
  * comparing the resource name to registered codecs. It is possible to match
  * more than one codec. In this case the user might need to choose which codec
  * to use to determine the resource type. If all the possible codecs belong to
