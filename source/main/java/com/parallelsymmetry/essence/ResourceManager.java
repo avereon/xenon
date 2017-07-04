@@ -13,6 +13,7 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class ResourceManager implements Controllable<ResourceManager> {
@@ -448,36 +449,36 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) );
 	}
 
-	//	/**
-	//	 * Request that the specified resources be opened and wait until the task is
-	//	 * complete. This method submits a task to the task manager and waits for the
-	//	 * task to be completed.
-	//	 * <p>
-	//	 * Note: This method should not be called from the event dispatch thread.
-	//	 *
-	//	 * @param resource
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void openResourcesAndWait( Resource resource ) throws ResourceException, InterruptedException {
-	//		openResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be opened and wait until the task is
-	//	 * complete. This method submits a task to the task manager and waits for the
-	//	 * task to be completed.
-	//	 * <p>
-	//	 * Note: This method should not be called from the event dispatch thread.
-	//	 *
-	//	 * @param resources
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void openResourcesAndWait( Collection<Resource> resources ) throws ResourceException, InterruptedException {
-	//		program.getTaskManager().invoke( new OpenResourceTask( removeOpenResources( resources ) ) );
-	//	}
-	//
+		/**
+		 * Request that the specified resources be opened and wait until the task is
+		 * complete. This method submits a task to the task manager and waits for the
+		 * task to be completed.
+		 * <p>
+		 * Note: This method should not be called from the event dispatch thread.
+		 *
+		 * @param resource
+		 * @throws ExecutionException
+		 * @throws InterruptedException
+		 */
+		public void openResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+			openResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+		}
+
+		/**
+		 * Request that the specified resources be opened and wait until the task is
+		 * complete. This method submits a task to the task manager and waits for the
+		 * task to be completed.
+		 * <p>
+		 * Note: This method should not be called from the event dispatch thread.
+		 *
+		 * @param resources
+		 * @throws ExecutionException
+		 * @throws InterruptedException
+		 */
+		public void openResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
+			program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
+		}
+
 	//	/**
 	//	 * Request that the specified resources be loaded. This method submits a task
 	//	 * to the task manager and returns immediately.
@@ -1061,39 +1062,22 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 */
 	ResourceType autoDetectResourceType( Resource resource ) {
 		URI uri = resource.getUri();
+		ResourceType type = null;
 
 		// Look for resource type assigned to specific URIs.
-		if( uri != null ) {
-			ResourceType type = uriResourceTypes.get( uri.toString() );
-			if( type != null ) {
-				resource.setType( type );
-				return type;
-			}
-		}
+		if( uri != null ) type = uriResourceTypes.get( uri.toString() );
 
 		// Look for resource types assigned to specific schemes.
-		if( uri != null ) {
-			ResourceType type = schemeResourceTypes.get( uri.getScheme() );
-			if( type != null ) {
-				resource.setType( type );
-				return type;
-			}
-		}
+		if( type == null && uri != null ) type = schemeResourceTypes.get( uri.getScheme() );
 
 		// Look for resource types assigned to specific codecs.
 		List<Codec> codecs = new ArrayList<Codec>( autoDetectCodecs( resource ) );
-
-		// Sort the codecs.
-		Collections.sort( codecs, new CodecPriorityComparator() );
-		Collections.reverse( codecs );
-
+		codecs.sort( new CodecPriorityComparator().reversed() );
 		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
-		if( codec == null ) return null;
+		if( type == null && codec != null ) type = codec.getResourceType();
 
-		ResourceType type = codec.getResourceType();
-
-		resource.setCodec( codec );
-		resource.setType( type );
+		if( codec != null ) resource.setCodec( codec );
+		if( type != null ) resource.setType( type );
 
 		return type;
 	}
@@ -1110,8 +1094,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * blocked during the IO operations used in URLConnection if the first line or
 	 * the content type is needed to determine the resource type.
 	 *
-	 * @param resource
-	 * @return
+	 * @param resource The resource for which to find codecs
+	 * @return The set of codecs that match the resource
 	 */
 	private Set<Codec> autoDetectCodecs( Resource resource ) {
 		URLConnection connection = null;
@@ -1121,7 +1105,21 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		//		Collection<ResourceType> resourceTypes = getResourceTypes();
 		//
-		//		// First option: Determine codec by file name.
+		//		// First option: Determine codec by media type.
+		//		String contentType = null;
+		//		if( connection == null ) connection = getConnection( resource.getUri() );
+		//		if( connection != null ) contentType = connection.getContentType();
+		//
+		//		// Store the content type in the resource.
+		//		if( !TextUtil.isEmpty( contentType ) ) {
+		//			resource.putResource( Resource.CONTENT_TYPE_RESOURCE_KEY, contentType );
+		//			for( ResourceType check : resourceTypes ) {
+		//				Codec codec = check.getCodecByContentType( contentType );
+		//				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
+		//			}
+		//		}
+		//
+		//		// Second option: Determine codec by file name.
 		//		String fileName = null;
 		//		String path = resource.getUri().getPath();
 		//		if( path != null ) fileName = path.substring( path.lastIndexOf( '/' ) + 1 );
@@ -1132,7 +1130,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		//			}
 		//		}
 		//
-		//		// Second option: Determine codec by first line.
+		//		// Third option: Determine codec by first line.
 		//		try {
 		//			// Load the first line from the resource.
 		//			String firstLine = null;
@@ -1153,20 +1151,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		//				if( connection != null ) connection.getInputStream().close();
 		//			} catch( IOException exception ) {
 		//				Log.write( exception );
-		//			}
-		//		}
-		//
-		//		// Third option: Determine codec by content type.
-		//		String contentType = null;
-		//		if( connection == null ) connection = getConnection( resource.getUri() );
-		//		if( connection != null ) contentType = connection.getContentType();
-		//
-		//		// Store the content type in the resource.
-		//		if( !TextUtil.isEmpty( contentType ) ) {
-		//			resource.putResource( Resource.CONTENT_TYPE_RESOURCE_KEY, contentType );
-		//			for( ResourceType check : resourceTypes ) {
-		//				Codec codec = check.getCodecByContentType( contentType );
-		//				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
 		//			}
 		//		}
 
@@ -1558,8 +1542,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					messages.append( "\n" );
 				}
 				// FIXME Log the error information
-				//				String title = ProductUtil.getString( getProgram(), BundleKey.LABELS, "resources" );
-				//				String message = ProductUtil.getString( getProgram(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
+				//				String title = ProductUtil.getString( getProduct(), BundleKey.LABELS, "resources" );
+				//				String message = ProductUtil.getString( getProduct(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
 				//				//program.error( title, message );
 				//				log.warn( "Error executing resource task", message );
 			}

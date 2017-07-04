@@ -31,7 +31,7 @@ public class ResourceManagerTest extends BaseTestCase {
 	public void testResourceTypeLookupWithOpaqueUri() {
 		Scheme scheme = new ProgramScheme( program );
 		manager.addScheme( scheme );
-		manager.registerUriResourceType( "program:about", new ProductInfoType( program, "" ) );
+		manager.registerUriResourceType( "program:about", new ProductInfoType( program ) );
 		Resource resource = manager.createResource( URI.create( "program:about" ) );
 		ResourceType type = manager.autoDetectResourceType( resource );
 

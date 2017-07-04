@@ -8,12 +8,15 @@ import com.parallelsymmetry.essence.event.ProgramStoppingEvent;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductBundle;
 import com.parallelsymmetry.essence.product.ProductMetadata;
+import com.parallelsymmetry.essence.resource.ResourceType;
 import com.parallelsymmetry.essence.resource.type.ProductInfoType;
 import com.parallelsymmetry.essence.resource.type.ProgramSettingsType;
+import com.parallelsymmetry.essence.resource.type.ProgramWelcomeType;
 import com.parallelsymmetry.essence.scheme.FileScheme;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
+import com.parallelsymmetry.essence.tool.ProductInfoTool;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -28,7 +31,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Program extends Application implements Product {
@@ -294,13 +296,6 @@ public class Program extends Application implements Product {
 		metadata.loadContributors();
 		Platform.runLater( () -> splashScreen.update() );
 
-		// Start the tool manager
-		log.trace( "Starting tool manager..." );
-		toolManager = new ToolManager( this );
-		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Tool manager started." );
-
 		// Start the resource manager
 		log.trace( "Starting resource manager..." );
 		resourceManager = new ResourceManager( Program.this );
@@ -310,6 +305,14 @@ public class Program extends Application implements Product {
 		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
+
+		// Start the tool manager
+		log.trace( "Starting tool manager..." );
+		toolManager = new ToolManager( this );
+		registerTools( toolManager );
+		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Tool manager started." );
 
 		// Create the workspace manager
 		log.trace( "Starting workspace manager..." );
@@ -334,12 +337,18 @@ public class Program extends Application implements Product {
 
 			// Stop the workspace manager
 			log.trace( "Stopping workspace manager..." );
-			// FIXME The program is exiting during this call
 			workspaceManager.stop();
 			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
 
 			// TODO Stop the UpdateManager
+
+			// Stop the tool manager
+			log.trace( "Stopping tool manager..." );
+			toolManager.stop();
+			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			unregisterTools( toolManager );
+			log.debug( "Tool manager stopped." );
 
 			// Stop the resource manager
 			log.trace( "Stopping resource manager..." );
@@ -348,12 +357,6 @@ public class Program extends Application implements Product {
 			unregisterResourceTypes( resourceManager );
 			unregisterSchemes( resourceManager );
 			log.debug( "Resource manager stopped." );
-
-			// Stop the tool manager
-			log.trace( "Stopping tool manager..." );
-			toolManager.stop();
-			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			log.debug( "Tool manager stopped." );
 
 			// Disconnect the settings listener
 			log.trace( "Stopping settings manager..." );
@@ -372,26 +375,6 @@ public class Program extends Application implements Product {
 		}
 	}
 
-	private void registerSchemes( ResourceManager manager ) {
-		manager.addScheme( new ProgramScheme( this ) );
-		manager.addScheme( new FileScheme( this ) );
-	}
-
-	private void unregisterSchemes( ResourceManager manager ) {
-		manager.removeScheme( "program" );
-		manager.removeScheme( "file" );
-	}
-
-	private void registerResourceTypes( ResourceManager manager ) {
-		manager.registerUriResourceType( "program:about", new ProductInfoType( this, "program" ) );
-		manager.registerUriResourceType( "program:settings", new ProgramSettingsType( this, "program" ) );
-	}
-
-	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( "program:about" );
-		manager.unregisterUriResourceType( "program:settings" );
-	}
-
 	private void registerIcons() {}
 
 	private void unregisterIcons() {}
@@ -404,6 +387,40 @@ public class Program extends Application implements Product {
 	private void unregisterActionHandlers() {
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
+	}
+
+	private void registerSchemes( ResourceManager manager ) {
+		manager.addScheme( new ProgramScheme( this ) );
+		manager.addScheme( new FileScheme( this ) );
+	}
+
+	private void unregisterSchemes( ResourceManager manager ) {
+		manager.removeScheme( "program" );
+		manager.removeScheme( "file" );
+	}
+
+	private void registerResourceTypes( ResourceManager manager ) {
+		manager.registerUriResourceType( "program:about", new ProductInfoType( this ) );
+		manager.registerUriResourceType( "program:settings", new ProgramSettingsType( this ) );
+		manager.registerUriResourceType( "program:welcome", new ProgramWelcomeType( this ) );
+	}
+
+	private void unregisterResourceTypes( ResourceManager manager ) {
+		manager.unregisterUriResourceType( "program:welcome" );
+		manager.unregisterUriResourceType( "program:settings" );
+		manager.unregisterUriResourceType( "program:about" );
+	}
+
+	private void registerTools( ToolManager manager ) {
+		// TODO Make tools easier to register and unregister
+		ResourceType type = resourceManager.getResourceType( ProductInfoType.class.getName() );
+		String productInfoToolName = getResourceBundle().getString( "tool", "product-info" );
+		manager.registerTool( this, type, ProductInfoTool.class, productInfoToolName, getIconLibrary().getIcon( "about" ) );
+	}
+
+	private void unregisterTools( ToolManager manager ) {
+		ResourceType type = resourceManager.getResourceType( ProductInfoType.class.getName() );
+		manager.unregisterTool( type, ProductInfoTool.class );
 	}
 
 	private class Startup extends Task<Void> {

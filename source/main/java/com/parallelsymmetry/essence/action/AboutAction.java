@@ -26,16 +26,14 @@ public class AboutAction extends Action {
 		if( resource == null ) {
 			try {
 				resource = program.getResourceManager().createResource( URI.create( "program:about" ) );
-				program.getResourceManager().openResources( resource );
+				program.getResourceManager().openResourcesAndWait( resource );
+				resource.setModel( program.getMetadata() );
 			} catch( Exception exception ) {
 				log.warn( "Error opening about resource", exception );
 			}
 		}
 
-		// TODO Open the about tool
 		Tool tool = program.getToolManager().getEditTool( resource );
-		if( tool == null ) return;
-
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addTool( tool, true );
 	}
 

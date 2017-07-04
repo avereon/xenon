@@ -4,10 +4,10 @@ import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Codec;
 import com.parallelsymmetry.essence.resource.ResourceType;
 
-public class ProgramSettingsType extends ResourceType {
+public class ProgramWelcomeType extends ResourceType {
 
-	public ProgramSettingsType( Product product ) {
-		super( product, "settings" );
+	public ProgramWelcomeType( Product product ) {
+		super( product, "welcome" );
 	}
 
 	@Override

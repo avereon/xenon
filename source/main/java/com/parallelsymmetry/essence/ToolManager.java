@@ -40,23 +40,17 @@ public class ToolManager implements Controllable<ToolManager> {
 		aliases = new ConcurrentHashMap<>();
 	}
 
-	// TODO Rename to registerTool
-	public void addEditTool( Product product, ResourceType resourceType, Class<? extends Tool> type, String name, Node icon ) {
+	public void registerTool( Product product, ResourceType resourceType, Class<? extends Tool> type, String name, Node icon ) {
 		ToolMetadata metadata = new ToolMetadata( product, type, name, icon );
 		tools.put( type, metadata );
 
-		List<Class<? extends Tool>> resourceTypeTools = editTools.get( resourceType );
-		if( resourceTypeTools == null ) {
-			resourceTypeTools = new CopyOnWriteArrayList<Class<? extends Tool>>();
-			editTools.put( resourceType, resourceTypeTools );
-		}
+		List<Class<? extends Tool>> resourceTypeTools = editTools.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<Class<? extends Tool>>() );
 		resourceTypeTools.add( type );
 
 		log.debug( "Tool registered: resourceType={} -> tool={}", resourceType, type.getName() );
 	}
 
-	// TODO Rename to unregisterTool
-	public void removeEditTool( ResourceType resourceType, Class<? extends Tool> type ) {
+	public void unregisterTool( ResourceType resourceType, Class<? extends Tool> type ) {
 		tools.remove( type );
 
 		List<Class<? extends Tool>> resourceTypeTools = editTools.get( resourceType );

@@ -27,6 +27,8 @@ public class Resource extends Node {
 
 	private static final String SCHEME_VALUE_KEY = "value.scheme";
 
+	private static final String MODEL_VALUE_KEY = "value.model";
+
 	//	private static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";
 	//
 	//	private static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
@@ -162,6 +164,14 @@ public class Resource extends Node {
 
 	public void setExternallyModified( boolean modified ) {
 		setFlag( EXTERNALLY_MODIFIED, modified );
+	}
+
+	public <M> M getModel() {
+		return getValue( MODEL_VALUE_KEY );
+	}
+
+	public <M> void setModel( M model ) {
+		setValue( MODEL_VALUE_KEY, model );
 	}
 
 	public synchronized final boolean isNew() {
