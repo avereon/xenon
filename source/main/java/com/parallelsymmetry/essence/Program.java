@@ -23,16 +23,12 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.LogManager;
 
 public class Program extends Application implements Product {
 
@@ -109,8 +105,8 @@ public class Program extends Application implements Product {
 		printHeader( metadata = new ProductMetadata() );
 		time( "init" );
 
-		configureLogging();
-		log.info( "Program init time (ms): " + (System.currentTimeMillis() - programStartTime) );
+		// Configure logging
+		LogUtil.configureLogging( getParameter( ProgramParameter.LOG_LEVEL ) );
 
 		// Create the program event watcher after configuring the logging
 		addEventListener( watcher = new ProgramEventWatcher() );
@@ -253,83 +249,6 @@ public class Program extends Application implements Product {
 
 	private static void time( String markerName ) {
 		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
-	}
-
-	private String getLogLevel() {
-		String level = getParameter( ProgramParameter.LOG_LEVEL );
-		if( level != null ) {
-			try {
-				level = level.toUpperCase();
-				switch( level ) {
-					case "ERROR": {
-						level = "SEVERE";
-						break;
-					}
-					case "WARN": {
-						level = "WARNING";
-						break;
-					}
-					case "DEBUG": {
-						level = "FINE";
-						break;
-					}
-					case "TRACE": {
-						level = "FINEST";
-						break;
-					}
-				}
-			} catch( Exception exception ) {
-				// Intentionally ignore exception
-			}
-		}
-		return level;
-	}
-
-	private void configureLogging() {
-		// The default logging configuration is in the logging.properties resource
-
-		// SLF4J - Java Logging
-		// ERROR - SEVERE
-		// WARN  - WARNING
-		// INFO  - INFO
-		// DEBUG - FINE
-		// TRACE - FINEST
-
-		// Determine the log level
-
-		StringBuilder builder = new StringBuilder();
-		builder.append( "handlers=java.util.logging.ConsoleHandler\n" );
-		// TODO Enable the log file handler
-		//builder.append( "handlers=java.util.logging.ConsoleHandler,java.util.logging.FileHandler\n" );
-
-		// Configure the simple formatter
-		// https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax
-		builder.append( "java.util.logging.SimpleFormatter.format=%1$tF %1$tT.%1$tL %4$s %5$s %6$s%n\n" );
-
-		// Configure the console handler
-		builder.append( "java.util.logging.ConsoleHandler.level=FINEST\n" );
-		builder.append( "java.util.logging.ConsoleHandler.formatter=java.util.logging.SimpleFormatter\n" );
-
-		// Configure the file handler
-		builder.append( "java.util.logging.FileHandler.pattern=%h/java%u.log\n" );
-		builder.append( "java.util.logging.FileHandler.limit=50000\n" );
-		builder.append( "java.util.logging.FileHandler.count=1\n" );
-		builder.append( "java.util.logging.FileHandler.formatter=java.util.logging.XMLFormatter\n" );
-
-		// Set the default log level
-		builder.append( ".level=INFO\n" );
-
-		// Set the program log level
-		String level = getLogLevel();
-		if( level != null ) builder.append( getClass().getPackageName() + ".level=" + level + "\n" );
-
-		// Initialize the logging
-		try {
-			InputStream input = new ByteArrayInputStream( builder.toString().getBytes( "utf-8" ) );
-			LogManager.getLogManager().readConfiguration( input );
-		} catch( IOException exception ) {
-			exception.printStackTrace( System.err );
-		}
 	}
 
 	private void printHeader( ProductMetadata metadata ) {

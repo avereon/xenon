@@ -13,12 +13,12 @@ public final class JavaUtil {
 	}
 
 	public static String getCallingClassName( int level ) {
-		return Thread.currentThread().getStackTrace()[level].getClassName();
+		return Thread.currentThread().getStackTrace()[ level ].getClassName();
 	}
 
 	/**
 	 * Get the simple class name from a full class name.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -28,12 +28,36 @@ public final class JavaUtil {
 
 	/**
 	 * Get the simple class name from a full class name.
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
 	public static String getClassName( Class<?> type ) {
-		return ( getClassName( type.getName() ) );
+		return (getClassName( type.getName() ));
+	}
+
+	public static String getShortClassName( String name ) {
+		StringBuilder builder = new StringBuilder();
+		int index = 0;
+		boolean done = false;
+		do {
+			String letter = name.substring( index, index + 1 );
+			index = name.indexOf( ".", index + 1 );
+			if( index != -1 ) {
+				builder.append( letter );
+				builder.append( "." );
+				index++;
+			} else {
+				done = true;
+			}
+		} while( !done );
+		builder.append( getClassName( name ) );
+
+		return builder.toString();
+	}
+
+	public static String getShortClassName( Class<?> type ) {
+		return getShortClassName( type.getName() );
 	}
 
 	public static String getKeySafeClassName( String name ) {
@@ -49,7 +73,7 @@ public final class JavaUtil {
 	}
 
 	public static String getPackageName( Class<?> type ) {
-		return ( getPackageName( type.getName() ) );
+		return (getPackageName( type.getName() ));
 	}
 
 	public static String getPackagePath( String name ) {
@@ -57,7 +81,7 @@ public final class JavaUtil {
 	}
 
 	public static String getPackagePath( Class<?> type ) {
-		return ( getPackagePath( type.getName() ) );
+		return (getPackagePath( type.getName() ));
 	}
 
 	public static List<URI> getClasspath() {
@@ -127,7 +151,7 @@ public final class JavaUtil {
 
 	/**
 	 * Get the root cause of a throwable.
-	 * 
+	 *
 	 * @param throwable
 	 * @return
 	 */

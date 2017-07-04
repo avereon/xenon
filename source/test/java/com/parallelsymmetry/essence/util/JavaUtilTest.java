@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.util;
 
-import junit.framework.TestCase;
+import com.parallelsymmetry.essence.Program;
+import org.junit.Test;
 
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -9,52 +10,79 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
 
-public class JavaUtilTest extends TestCase {
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
+public class JavaUtilTest {
+
+	@Test
 	public void testGetCallingClassName() {
-		assertEquals( JavaUtilTest.class.getName(), JavaUtil.getCallingClassName() );
+		assertThat( JavaUtil.getCallingClassName(), is( JavaUtilTest.class.getName() ) );
 	}
 
+	@Test
 	public void testGetCallingClassNameWithLevel() {
-		assertEquals( Thread.class.getName(), JavaUtil.getCallingClassName( 0 ) );
-		assertEquals( JavaUtil.class.getName(), JavaUtil.getCallingClassName( 1 ) );
+		assertThat( JavaUtil.getCallingClassName( 0 ), is( Thread.class.getName() ) );
+		assertThat( JavaUtil.getCallingClassName( 1 ), is( JavaUtil.class.getName() ) );
 	}
 
+	@Test
 	public void testGetClassNameWithString() {
-		assertEquals( "Object", JavaUtil.getClassName( "java.lang.Object" ) );
+		assertThat( JavaUtil.getClassName( "java.lang.Object" ), is( "Object" ) );
 	}
 
+	@Test
 	public void testGetClassNameWithClass() {
-		assertEquals( "Object", JavaUtil.getClassName( Object.class ) );
+		assertThat( JavaUtil.getClassName( Object.class ), is( "Object" ) );
 	}
 
+	@Test
+	public void testGetShortClassNameWithString() {
+		assertThat( JavaUtil.getShortClassName( "java.lang.Object" ), is( "j.l.Object" ) );
+		assertThat( JavaUtil.getShortClassName( "com.parallelsymmetry.essence.Program" ), is( "c.p.e.Program" ) );
+	}
+
+	@Test
+	public void testGetShortClassNameWithClass() {
+		assertThat( JavaUtil.getShortClassName( Object.class ), is( "j.l.Object" ) );
+		assertThat( JavaUtil.getShortClassName( Program.class ), is( "c.p.e.Program" ) );
+	}
+
+	@Test
 	public void testGetKeySafeClassNameWithString() {
-		assertEquals( "java.awt.geom.Rectangle2D.Double", JavaUtil.getKeySafeClassName( "java.awt.geom.Rectangle2D$Double" ) );
+		assertThat( JavaUtil.getKeySafeClassName( "java.awt.geom.Rectangle2D$Double" ), is( "java.awt.geom.Rectangle2D.Double" ) );
 	}
 
+	@Test
 	public void testGetKeySafeClassNameWithClass() {
-		assertEquals( "java.awt.geom.Rectangle2D.Double", JavaUtil.getKeySafeClassName( Rectangle2D.Double.class ) );
+		assertThat( JavaUtil.getKeySafeClassName( Rectangle2D.Double.class ), is( "java.awt.geom.Rectangle2D.Double" ) );
 	}
 
+	@Test
 	public void testGetPackageNameWithString() {
-		assertEquals( "java.lang", JavaUtil.getPackageName( "java.lang.Object" ) );
+		assertThat( JavaUtil.getPackageName( "java.lang.Object" ), is( "java.lang" ) );
 	}
 
+	@Test
 	public void testGetPackageNameWithClass() {
-		assertEquals( "java.lang", JavaUtil.getPackageName( Object.class ) );
+		assertThat( JavaUtil.getPackageName( Object.class ), is( "java.lang" ) );
 	}
 
+	@Test
 	public void testGetPackagePathWithString() {
-		assertEquals( "/java/lang", JavaUtil.getPackagePath( "java.lang.Object" ) );
+		assertThat( JavaUtil.getPackagePath( "java.lang.Object" ), is( "/java/lang" ) );
 	}
 
+	@Test
 	public void testGetPackagePathWithClass() {
-		assertEquals( "/java/lang", JavaUtil.getPackagePath( Object.class ) );
+		assertThat( JavaUtil.getPackagePath( Object.class ), is( "/java/lang" ) );
 	}
 
+	@Test
 	public void testParseClasspath() throws Exception {
 		List<URI> entries = JavaUtil.parseClasspath( null );
-		assertEquals( 0, entries.size() );
+		assertThat( entries.size(), is( 0 ) );
 
 		String separator = ";";
 		String classpath = "test1.jar";
@@ -62,9 +90,9 @@ public class JavaUtilTest extends TestCase {
 		classpath += separator + URLEncoder.encode( "http://www.parallelsymmetry.com/software/test3.jar", "UTF-8" );
 		entries = JavaUtil.parseClasspath( classpath, separator );
 
-		assertEquals( new File( "test1.jar" ).toURI(), entries.get( 0 ) );
-		assertEquals( new File( "test2.jar" ).toURI(), entries.get( 1 ) );
-		assertEquals( URI.create( "http://www.parallelsymmetry.com/software/test3.jar" ), entries.get( 2 ) );
+		assertThat( entries.get( 0 ), is( new File( "test1.jar" ).toURI() ) );
+		assertThat( entries.get( 1 ), is( new File( "test2.jar" ).toURI() ) );
+		assertThat( entries.get( 2 ), is( URI.create( "http://www.parallelsymmetry.com/software/test3.jar" ) ) );
 
 		separator = ":";
 		classpath = "test1.jar";
@@ -72,39 +100,41 @@ public class JavaUtilTest extends TestCase {
 		classpath += separator + URLEncoder.encode( "http://www.parallelsymmetry.com/software/test3.jar", "UTF-8" );
 		entries = JavaUtil.parseClasspath( classpath, separator );
 
-		assertEquals( new File( "test1.jar" ).toURI(), entries.get( 0 ) );
-		assertEquals( new File( "test2.jar" ).toURI(), entries.get( 1 ) );
-		assertEquals( URI.create( "http://www.parallelsymmetry.com/software/test3.jar" ), entries.get( 2 ) );
+		assertThat( entries.get( 0 ), is( new File( "test1.jar" ).toURI() ) );
+		assertThat( entries.get( 1 ), is( new File( "test2.jar" ).toURI() ) );
+		assertThat( entries.get( 2 ), is( URI.create( "http://www.parallelsymmetry.com/software/test3.jar" ) ) );
 	}
 
+	@Test
 	public void testParseManifestClasspath() throws Exception {
 		File home = new File( "." ).getCanonicalFile();
 		URI base = home.toURI();
 		String classpath = "test1.jar test2.jar test%203.jar";
 
 		List<URL> entries = JavaUtil.parseManifestClasspath( base, null );
-		assertEquals( 0, entries.size() );
+		assertThat( entries.size(), is( 0 ) );
 
 		entries = JavaUtil.parseManifestClasspath( null, classpath );
-		assertEquals( 0, entries.size() );
+		assertThat( entries.size(), is( 0 ) );
 
 		entries = JavaUtil.parseManifestClasspath( base, classpath );
 
-		assertEquals( new File( home.getCanonicalFile(), "test1.jar" ).toURI().toURL(), entries.get( 0 ) );
-		assertEquals( new File( home.getCanonicalFile(), "test2.jar" ).toURI().toURL(), entries.get( 1 ) );
-		assertEquals( new File( home.getCanonicalFile(), "test 3.jar" ).toURI().toURL(), entries.get( 2 ) );
+		assertThat( entries.get( 0 ), is( new File( home.getCanonicalFile(), "test1.jar" ).toURI().toURL() ) );
+		assertThat( entries.get( 1 ), is( new File( home.getCanonicalFile(), "test2.jar" ).toURI().toURL() ) );
+		assertThat( entries.get( 2 ), is( new File( home.getCanonicalFile(), "test 3.jar" ).toURI().toURL() ) );
 	}
 
+	@Test
 	public void testGetRootCause() {
-		assertNull( JavaUtil.getRootCause( null ) );
+		assertThat( JavaUtil.getRootCause( null ), is( nullValue() ) );
 
 		Throwable one = new Throwable();
 		Throwable two = new Throwable( one );
 		Throwable three = new Throwable( two );
 
-		assertEquals( one, JavaUtil.getRootCause( one ) );
-		assertEquals( one, JavaUtil.getRootCause( two ) );
-		assertEquals( one, JavaUtil.getRootCause( three ) );
+		assertThat( JavaUtil.getRootCause( one ), is( one ) );
+		assertThat( JavaUtil.getRootCause( two ), is( one ) );
+		assertThat( JavaUtil.getRootCause( three ), is( one ) );
 	}
 
 }
