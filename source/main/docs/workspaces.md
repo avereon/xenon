@@ -1,11 +1,11 @@
 # Workspaces
 
-The program supports multiple workspaces. Workspaces are composed
+${project.name} supports multiple workspaces. Workspaces are composed
 of windows, workareas and tools.
 
 - Program
 	- Workspace
-		- Window
+		- Window (Stage)
 			- Workarea
 				- Tool
 
