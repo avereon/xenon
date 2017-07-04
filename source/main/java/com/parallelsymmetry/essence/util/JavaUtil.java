@@ -190,4 +190,17 @@ public final class JavaUtil {
 		return object.getClass().getClassLoader();
 	}
 
+	public static void printSystemProperties() {
+		Properties properties = System.getProperties();
+		List<String> keys = new ArrayList<>();
+		for( Object object : properties.keySet() ) {
+			keys.add( object.toString() );
+		}
+		Collections.sort( keys );
+		for( String key : keys ) {
+			String value = properties.getProperty( key );
+			System.out.println( key + "=" + value );
+		}
+	}
+
 }

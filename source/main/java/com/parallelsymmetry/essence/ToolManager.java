@@ -24,9 +24,9 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private Program program;
 
-	private Map<Class<? extends Tool>, ToolMetadata> tools;
+	private Map<Class<? extends ProductTool>, ToolMetadata> tools;
 
-	private Map<ResourceType, List<Class<? extends Tool>>> editTools;
+	private Map<ResourceType, List<Class<? extends ProductTool>>> editTools;
 
 	private SortedSet<ToolMetadata> workToolMetadata;
 
@@ -40,35 +40,30 @@ public class ToolManager implements Controllable<ToolManager> {
 		aliases = new ConcurrentHashMap<>();
 	}
 
-	public void registerTool( Product product, ResourceType resourceType, Class<? extends Tool> type, String name, Node icon ) {
+	public void registerTool( Product product, ResourceType resourceType, Class<? extends ProductTool> type, String name, Node icon ) {
 		ToolMetadata metadata = new ToolMetadata( product, type, name, icon );
 		tools.put( type, metadata );
 
-		List<Class<? extends Tool>> resourceTypeTools = editTools.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<Class<? extends Tool>>() );
+		List<Class<? extends ProductTool>> resourceTypeTools = editTools.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<Class<? extends ProductTool>>() );
 		resourceTypeTools.add( type );
 
 		log.debug( "Tool registered: resourceType={} -> tool={}", resourceType, type.getName() );
 	}
 
-	public void unregisterTool( ResourceType resourceType, Class<? extends Tool> type ) {
+	public void unregisterTool( ResourceType resourceType, Class<? extends ProductTool> type ) {
 		tools.remove( type );
 
-		List<Class<? extends Tool>> resourceTypeTools = editTools.get( resourceType );
+		List<Class<? extends ProductTool>> resourceTypeTools = editTools.get( resourceType );
 		if( resourceTypeTools != null ) resourceTypeTools.remove( type );
 
 		log.debug( "Tool unregistered: resourceType={} -> tool={}", resourceType, type.getName() );
 	}
 
-	// TODO Rename to getTool()
-	public Tool getEditTool( Resource resource ) {
-		return doGetEditTool( resource );
+	public ProductTool getTool( Resource resource ) {
+		return getToolInstance( resource );
 	}
 
-	public void addToolAlias( String oldName, String newName ) {
-		aliases.putIfAbsent( oldName, newName );
-	}
-
-	public Product getToolProduct( Tool tool ) {
+	public Product getToolProduct( ProductTool tool ) {
 		ToolMetadata data = tools.get( tool.getClass() );
 		return data == null ? null : data.getProduct();
 	}
@@ -79,29 +74,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		return alias == null ? className : alias;
 	}
 
-	public Tool getToolInstance( Class<? extends Tool> type ) {
-		return getToolInstance( type, null );
-	}
-
-	public Tool getToolInstance( Class<? extends Tool> type, Resource resource ) {
-		Tool tool = null;
-		Product product = tools.get( type ).getProduct();
-
-		try {
-			if( Tool.class.isAssignableFrom( type ) ) {
-				Constructor<? extends Tool> constructor = type.getConstructor( Product.class, Resource.class );
-				tool = constructor.newInstance( product, resource );
-				// FIXME Should Tool.setReady() be implemented differently?
-				//tool.setReady();
-			} else {
-				Constructor<? extends Tool> constructor = type.getConstructor( Product.class );
-				tool = constructor.newInstance( product );
-			}
-		} catch( Exception exception ) {
-			log.error( "Error creating instance: " + type.getName(), exception );
-		}
-
-		return tool;
+	public void addToolAlias( String oldName, String newName ) {
+		aliases.putIfAbsent( oldName, newName );
 	}
 
 	@Override
@@ -145,29 +119,48 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
-	private Tool doGetEditTool( Resource resource ) {
+	private ProductTool getToolInstance( Resource resource ) {
 		ResourceType resourceType = resource.getType();
 		if( resourceType == null ) {
 			log.warn( "Resource type is null: " + resource );
 			return null;
 		}
 
-		List<Class<? extends Tool>> typeTools = editTools.get( resourceType );
+		List<Class<? extends ProductTool>> typeTools = editTools.get( resourceType );
 		if( typeTools == null ) {
 			log.warn( "No tools registered for resource type: " + resourceType );
 			return null;
 		}
 
-		Class<? extends Tool> type = typeTools.get( 0 );
+		Class<? extends ProductTool> toolClass = typeTools.get( 0 );
 
 		// TODO If there is more than one tool for a type then ask the user.
 
-		Tool tool = getToolInstance( type, resource );
+		ProductTool tool = getToolInstance( toolClass, resource );
 
 		if( tool == null ) {
 			log.warn( "Tool not found for resource: " + resource );
 		} else {
 			log.debug( "Tool created for resource: " + resource );
+		}
+
+		return tool;
+	}
+
+	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource ) {
+		ProductTool tool = null;
+
+		try {
+			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
+			Product product = tools.get( type ).getProduct();
+			tool = constructor.newInstance( product, resource );
+			// FIXME Should Tool.setReady() be implemented differently?
+			// There really is no point to calling tool.setRead() here because
+			// the constructor just completed. Calling tool.setReady() on the
+			// same thread as the constructor just doesn't help any.
+			//tool.setReady();
+		} catch( Exception exception ) {
+			log.error( "Error creating instance: " + type.getName(), exception );
 		}
 
 		return tool;

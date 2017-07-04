@@ -4,9 +4,14 @@ import com.parallelsymmetry.essence.ProductTool;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
+import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BorderPane;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 public class ProductInfoTool extends ProductTool {
 
@@ -14,14 +19,19 @@ public class ProductInfoTool extends ProductTool {
 
 	private ProductMetadata metadata;
 
-	private TextArea area;
+	private TextArea text;
 
 	public ProductInfoTool( Product product, Resource resource ) {
 		super( product, resource );
 
-		area = new TextArea();
-		area.setEditable( false );
-		getChildren().add( area );
+		text = new TextArea();
+		text.setBackground( Background.EMPTY );
+		text.setEditable( false );
+
+		BorderPane border = new BorderPane();
+		border.setPadding( new Insets(10) );
+		border.setCenter( text );
+		getChildren().add( border );
 
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "product-info-suffix" ) );
 		setMetadata( resource.getModel() );
@@ -45,17 +55,6 @@ public class ProductInfoTool extends ProductTool {
 			setTitle( metadata.getName() );
 		} else {
 			setTitle( metadata.getName() + " - " + titleSuffix );
-		}
-
-		Properties properties = System.getProperties();
-		List<String> keys = new ArrayList<>();
-		for( Object object : properties.keySet() ) {
-			keys.add( object.toString() );
-		}
-		Collections.sort( keys );
-		for( String key : keys ) {
-			String value = properties.getProperty( key );
-			System.out.println( key + "=" + value );
 		}
 
 		StringBuilder builder = new StringBuilder();
@@ -110,7 +109,12 @@ public class ProductInfoTool extends ProductTool {
 		builder.append( metadata.getCopyrightSummary() );
 		builder.append( "\n" );
 
-		area.setText( builder.toString() );
+		text.setText( builder.toString().trim() );
+	}
+
+	@Override
+	public ToolInstanceMode getInstanceMode() {
+		return ToolInstanceMode.SINGLETON;
 	}
 
 }

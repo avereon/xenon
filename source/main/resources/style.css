@@ -2,20 +2,40 @@
  * This style sheet is intentionally coded to refer to the modena.css properties
  */
 
-/* Workpane */
+.root {
+/* Base color can be overridden here */
+/*	-fx-base: rgba( 236, 236, 236, 1 ); */
+	-fx-background: rgba( 241, 241, 241, 0.2 );
+}
 
+/* ScrollPane */
+.scroll-pane {
+	-fx-background-color: transparent;
+}
+
+.scroll-pane .viewport{
+	-fx-background-color: transparent;
+}
+
+.scroll-pane .content{
+	-fx-background-color: transparent;
+}
+
+/* TextArea */
+.text-area {
+	-fx-background-color: -fx-background;
+}
+
+/* Workpane */
 .workpane {
-	/* Don't set the opacity to zero, otherwise the entire workpane is not visible */
 	-fx-background-color: transparent;
 }
 
 .workpane-view {
-	/* Don't set the opacity to zero, otherwise the entire workpane-view is not visible */
 	-fx-background-color: transparent;
 }
 
 .workpane-edge {
-	/* Don't set the opacity to zero, otherwise the entire workpane-edge is not visible */
 	-fx-opacity: 0.5;
 	-fx-focus-traversable: false;
 	-fx-background-color: -fx-box-border;
