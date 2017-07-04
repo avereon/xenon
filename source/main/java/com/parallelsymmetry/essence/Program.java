@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Program extends Application implements Product {
@@ -76,14 +77,7 @@ public class Program extends Application implements Product {
 
 	private AboutAction aboutAction;
 
-	static {
-		// Set FX implicit exit to false
-		// which will require Platform.exit() to be called
-		Platform.setImplicitExit( false );
-	}
-
 	public static void main( String[] commands ) {
-		//log.info( "Main method before launch" );
 		launch( commands );
 	}
 
@@ -139,7 +133,8 @@ public class Program extends Application implements Product {
 		// Create the executor service
 		log.trace( "Starting task manager..." );
 		taskManager = new TaskManager();
-		// FIXME PLEASE taskManager.loadSettings( settings );
+		// FIXME Make the task manager configurable
+		// taskManager.loadSettings( settings );
 		taskManager.start();
 		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );
@@ -151,7 +146,13 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void stop() throws Exception {
-		taskManager.submit( new Shutdown() );
+		taskManager.submit( new Shutdown() ).get();
+
+		// Stop the task manager
+		log.trace( "Stopping task manager..." );
+		taskManager.stop();
+		taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "Task manager stopped." );
 	}
 
 	public void requestExit() {
@@ -325,8 +326,6 @@ public class Program extends Application implements Product {
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
-
-		Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
 	}
 
 	private void doShutdownTasks() {
@@ -366,14 +365,6 @@ public class Program extends Application implements Product {
 
 			// Unregister icons
 			unregisterIcons();
-
-			// Stop the task manager
-			log.trace( "Stopping task manager..." );
-			taskManager.stop();
-			taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			log.debug( "Task manager stopped." );
-
-			Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
 
 			// NOTE Do not call Platform.exit() here, it was called already
 		} catch( InterruptedException exception ) {
@@ -428,6 +419,9 @@ public class Program extends Application implements Product {
 			splashScreen.hide();
 			workspaceManager.getActiveWorkspace().getStage().show();
 
+			// Program started event shoudl be fired after the window is shown
+			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+
 			// Set the workarea actions
 			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
@@ -454,6 +448,11 @@ public class Program extends Application implements Product {
 		protected Void call() throws Exception {
 			doShutdownTasks();
 			return null;
+		}
+
+		@Override
+		protected void succeeded() {
+			Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
 		}
 
 		@Override

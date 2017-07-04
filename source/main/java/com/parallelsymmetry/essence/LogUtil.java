@@ -67,7 +67,7 @@ public class LogUtil {
 	}
 
 	private static String getDefaultLogLevel( String level ) {
-		String result = level.toUpperCase();
+		String result = level == null ? "info" : level.toUpperCase();
 
 		switch( result ) {
 			case "ERROR": {
@@ -88,7 +88,7 @@ public class LogUtil {
 	}
 
 	private static String getProgramLogLevel( String level ) {
-		String result = level.toUpperCase();
+		String result =  level == null ? "info" : level.toUpperCase();
 
 		switch( result ) {
 			case "ERROR": {

@@ -22,10 +22,6 @@ public class ProgramWorkspaceTest extends FxApplicationTestCase {
 		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getScene().getWidth(), is( 960d ) );
-
-		// FIXME This test will fail when run with other application tests
-		// This test will pass when run alone, but when run after a previous
-		// application test it fails on Linux.
 		assertThat( stage.getScene().getHeight(), is( 540d ) );
 	}
 
