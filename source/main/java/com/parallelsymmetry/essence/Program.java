@@ -470,6 +470,7 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerResourceTypes() {
+		// NEXT Should the resource type be ProductInfoResourceType?
 		getResourceManager().registerUriResourceType( "program:about", new ProgramResourceType( this, "program" ) );
 	}
 
