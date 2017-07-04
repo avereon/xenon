@@ -1,6 +1,8 @@
 package com.parallelsymmetry.essence.testutil;
 
 import com.parallelsymmetry.essence.*;
+import com.parallelsymmetry.essence.event.ProgramStartedEvent;
+import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import javafx.application.Platform;
@@ -15,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 
 public abstract class FxApplicationTestCase extends FxTestCase {
 
@@ -52,47 +55,50 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		// Parameters are null during testing due to Java 9 incompatibility
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
-
 		metadata = program.getMetadata();
 		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );
+
+		waitForEvent( ProgramStartedEvent.class );
 	}
 
 	/**
 	 * Override cleanup in FxTestCase and does not call super.cleanup().
+	 *
 	 * @throws Exception
 	 */
 	@After
 	@Override
 	public void cleanup() throws Exception {
-		program.removeEventListener( watcher );
-
 		FxToolkit.cleanupApplication( program );
 
 		for( Window window : Stage.getWindows() ) {
 			Platform.runLater( window::hide );
 		}
+
+		waitForEvent( ProgramStoppedEvent.class );
+		program.removeEventListener( watcher );
 	}
 
-//	@Override
-//	protected void initializeFx() throws Exception {
-//		// Parameters are null during testing due to Java 9 incompatibility
-//		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-//	}
+	//	@Override
+	//	protected void initializeFx() throws Exception {
+	//		// Parameters are null during testing due to Java 9 incompatibility
+	//		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+	//	}
 
-	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
+	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
-		watcher.waitFor( clazz, timeout );
+	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+		watcher.waitForEvent( clazz, timeout );
 	}
 
-	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException {
+	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
-		watcher.waitForNext( clazz, timeout );
+	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+		watcher.waitForNextEvent( clazz, timeout );
 	}
 
 	private class ProgramWatcher implements ProgramEventListener {
@@ -119,7 +125,7 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		 * @param timeout How long, in milliseconds, to wait for the event
 		 * @throws InterruptedException If the timeout is exceeded
 		 */
-		synchronized void waitFor( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		synchronized void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
 			boolean shouldWait = timeout > 0;
 			long start = System.currentTimeMillis();
 			long duration = 0;
@@ -129,6 +135,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 				duration = System.currentTimeMillis() - start;
 				shouldWait = duration < timeout;
 			}
+			duration = System.currentTimeMillis() - start;
+
+			if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + clazz.getName() );
 		}
 
 		/**
@@ -140,9 +149,9 @@ public abstract class FxApplicationTestCase extends FxTestCase {
 		 * @param timeout How long, in milliseconds, to wait for the event
 		 * @throws InterruptedException If the timeout is exceeded
 		 */
-		synchronized void waitForNext( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException {
+		synchronized void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
 			events.remove( clazz );
-			waitFor( clazz, timeout );
+			waitForEvent( clazz, timeout );
 		}
 
 	}
