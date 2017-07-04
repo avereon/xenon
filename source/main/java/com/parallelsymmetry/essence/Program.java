@@ -178,6 +178,13 @@ public class Program extends Application implements Product {
 		Platform.exit();
 	}
 
+	public String getParameter( String key ) {
+		Parameters parameters = getParameters();
+		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
+		if( parameters == null ) return System.getProperty( key );
+		return parameters.getNamed().get( key );
+	}
+
 	@Override
 	public ProductMetadata getMetadata() {
 		return metadata;
@@ -377,8 +384,8 @@ public class Program extends Application implements Product {
 		// Start the resource manager
 		log.trace( "Starting resource manager..." );
 		resourceManager = new ResourceManager( Program.this );
-		registerSchemes(resourceManager);
-		registerResourceTypes(resourceManager);
+		registerSchemes( resourceManager );
+		registerResourceTypes( resourceManager );
 		resourceManager.start();
 		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
@@ -422,8 +429,8 @@ public class Program extends Application implements Product {
 			log.trace( "Stopping resource manager..." );
 			resourceManager.stop();
 			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			unregisterResourceTypes(resourceManager);
-			unregisterSchemes(resourceManager);
+			unregisterResourceTypes( resourceManager );
+			unregisterSchemes( resourceManager );
 			log.debug( "Resource manager stopped." );
 
 			// Stop the tool manager
@@ -457,22 +464,22 @@ public class Program extends Application implements Product {
 		}
 	}
 
-	private void registerSchemes(ResourceManager manager) {
+	private void registerSchemes( ResourceManager manager ) {
 		manager.addScheme( new ProgramScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 	}
 
-	private void unregisterSchemes(ResourceManager manager) {
+	private void unregisterSchemes( ResourceManager manager ) {
 		manager.removeScheme( "program" );
 		manager.removeScheme( "file" );
 	}
 
-	private void registerResourceTypes( ResourceManager manager) {
+	private void registerResourceTypes( ResourceManager manager ) {
 		manager.registerUriResourceType( "program:about", new ProductInfoType( this, "program" ) );
 		manager.registerUriResourceType( "program:settings", new ProgramSettingsType( this, "program" ) );
 	}
 
-	private void unregisterResourceTypes(ResourceManager manager) {
+	private void unregisterResourceTypes( ResourceManager manager ) {
 		manager.unregisterUriResourceType( "program:about" );
 		manager.unregisterUriResourceType( "program:settings" );
 	}
@@ -489,15 +496,6 @@ public class Program extends Application implements Product {
 	private void unregisterActionHandlers() {
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
-	}
-
-	private String getParameter( String key ) {
-		Parameters parameters = getParameters();
-		if( parameters == null ) {
-			// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
-			return System.getProperty( key );
-		}
-		return parameters.getNamed().get( key );
 	}
 
 	private class Startup extends Task<Void> {
