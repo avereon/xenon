@@ -6,8 +6,6 @@ import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
-import com.parallelsymmetry.essence.worktool.Tool;
-import javafx.application.Platform;
 import javafx.event.Event;
 import org.slf4j.Logger;
 
@@ -1207,21 +1205,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//		return new String( output.toByteArray(), encoding );
 	//	}
 
-	// TODO Rename to createResourceTool
-	private void createResourceEditor( Resource resource, WorkpaneView view ) {
-		Tool tool = program.getToolManager().getTool( resource );
-		if( tool == null ) return;
-
-		// FIXME Should this really be in Workarea?
-		Platform.runLater( () -> {
-			if( view == null ) {
-				program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().addTool( tool );
-			} else {
-				view.getWorkPane().addTool( tool, view, true );
-			}
-		} );
-	}
-
 	//	/**
 	//	 * Determine if the resource can be saved. The resource can be saved if the
 	//	 * URI is null or if the URI scheme and codec can both save resources.
@@ -1282,8 +1265,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					continue;
 				}
 
-				if( !resource.isLoaded() ) loadResourcesAndWait( resource );
-				if( createEditor ) createResourceEditor( resource, view );
+				if( createEditor ) program.getToolManager().openTool( resource, view );
+				if( !resource.isLoaded() ) loadResources( resource );
 				setCurrentResource( resource );
 			}
 

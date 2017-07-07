@@ -4,8 +4,12 @@ import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceType;
 import com.parallelsymmetry.essence.util.Controllable;
+import com.parallelsymmetry.essence.workarea.Workpane;
+import com.parallelsymmetry.essence.workarea.WorkpaneView;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolMetadataComparator;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import org.slf4j.Logger;
 
@@ -61,6 +65,46 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	public ProductTool getTool( Resource resource ) {
 		return getToolInstance( resource );
+	}
+
+	public void openTool( Resource resource ) {
+		openTool( resource, null, null );
+	}
+
+	public void openTool( Resource resource, WorkpaneView view ) {
+		openTool( resource, view == null ? null : view.getWorkPane(), view );
+	}
+
+	// TODO Rename to createResourceTool
+	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
+		// FIXME Only get a tool if it is needed.
+		Tool tool = getTool( resource );
+		if( tool == null ) return;
+
+		// TODO Have these two values passed in as defaults from program settings
+		// Or have them passed in as values
+		// Use the tool values as defaults
+		Workpane.Placement placement = tool.getPlacement();
+		ToolInstanceMode instanceMode = tool.getInstanceMode();
+
+		// FIXME Exceptions are disappearing
+		//if( pane == null ) log.error( "Pane is null", new NullPointerException() );
+
+		final Workpane toolPane = pane != null ? pane : program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+
+		Tool existingTool = findToolOfType( toolPane, tool.getClass() );
+		if( instanceMode == ToolInstanceMode.SINGLETON && existingTool != null ) {
+			Platform.runLater( () -> toolPane.setActiveTool( existingTool ) );
+		} else {
+			Platform.runLater( () -> toolPane.addTool( tool, view, true ) );
+		}
+	}
+
+	private Tool findToolOfType( Workpane pane, Class<? extends Tool> type ) {
+		for( Tool paneTool : pane.getTools() ) {
+			if( paneTool.getClass() == type ) return paneTool;
+		}
+		return null;
 	}
 
 	public Product getToolProduct( ProductTool tool ) {
@@ -155,7 +199,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			Product product = tools.get( type ).getProduct();
 			tool = constructor.newInstance( product, resource );
 			// FIXME Should Tool.setReady() be implemented differently?
-			// There really is no point to calling tool.setRead() here because
+			// There really is no point to calling tool.setReady() here because
 			// the constructor just completed. Calling tool.setReady() on the
 			// same thread as the constructor just doesn't help any.
 			//tool.setReady();
