@@ -5,6 +5,9 @@ import com.parallelsymmetry.essence.resource.event.ResourceLoadedEvent;
 import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
+import com.parallelsymmetry.essence.workarea.WorkpaneView;
+import com.parallelsymmetry.essence.worktool.Tool;
+import javafx.application.Platform;
 import javafx.event.Event;
 import org.slf4j.Logger;
 
@@ -372,63 +375,63 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return resource;
 	}
 
-	//	/**
-	//	 * Create resources from an array of descriptors. Descriptors are preferred in
-	//	 * the following order: URI, File, String, Object
-	//	 *
-	//	 * @param descriptors
-	//	 * @return
-	//	 */
-	//	public List<Resource> createResources( Object... descriptors ) {
-	//		return createResources( Arrays.asList( descriptors ) );
-	//	}
-	//
-	//	/**
-	//	 * Create resources from a collection of descriptors. Descriptors are
-	//	 * preferred in the following order: URI, File, String, Object
-	//	 *
-	//	 * @param descriptors
-	//	 * @return
-	//	 */
-	//	public List<Resource> createResources( Collection<? extends Object> descriptors ) {
-	//		List<Resource> resources = new ArrayList<Resource>( descriptors.size() );
-	//
-	//		for( Object descriptor : descriptors ) {
-	//			if( descriptor instanceof URI ) {
-	//				resources.add( createResource( (URI)descriptor ) );
-	//			} else if( descriptor instanceof File ) {
-	//				resources.add( createResource( ((File)descriptor).toURI() ) );
-	//			} else {
-	//				resources.add( createResource( descriptor.toString() ) );
-	//			}
-	//		}
-	//
-	//		return resources;
-	//	}
-	//
-	//	public void open( Resource resource ) {
-	//		open( Arrays.asList( new Resource[]{ resource } ) );
-	//	}
-	//
-	//	public void open( Resource resource, boolean createEditor ) {
-	//		open( Arrays.asList( new Resource[]{ resource } ), createEditor );
-	//	}
-	//
-	//	public void open( Collection<Resource> resources ) {
-	//		open( resources, true );
-	//	}
-	//
-	//	public void open( Collection<Resource> resources, ToolView toolview ) {
-	//		open( resources, toolview, true );
-	//	}
-	//
-	//	public void open( Collection<Resource> resources, boolean createEditors ) {
-	//		open( resources, null, createEditors );
-	//	}
-	//
-	//	public void open( Collection<Resource> resources, ToolView toolview, boolean createEditors ) {
-	//		program.getTaskManager().submit( new OpenActionTask( resources, null, toolview, createEditors ) );
-	//	}
+	/**
+	 * Create resources from an array of descriptors. Descriptors are preferred in
+	 * the following order: URI, File, String, Object
+	 *
+	 * @param descriptors
+	 * @return
+	 */
+	public List<Resource> createResources( Object... descriptors ) {
+		return createResources( Arrays.asList( descriptors ) );
+	}
+
+	/**
+	 * Create resources from a collection of descriptors. Descriptors are
+	 * preferred in the following order: URI, File, String, Object
+	 *
+	 * @param descriptors
+	 * @return
+	 */
+	public List<Resource> createResources( Collection<? extends Object> descriptors ) {
+		List<Resource> resources = new ArrayList<>( descriptors.size() );
+
+		for( Object descriptor : descriptors ) {
+			if( descriptor instanceof URI ) {
+				resources.add( createResource( (URI)descriptor ) );
+			} else if( descriptor instanceof File ) {
+				resources.add( createResource( ((File)descriptor).toURI() ) );
+			} else {
+				resources.add( createResource( descriptor.toString() ) );
+			}
+		}
+
+		return resources;
+	}
+
+	public void open( Resource resource ) {
+		open( Arrays.asList( new Resource[]{ resource } ) );
+	}
+
+	public void open( Resource resource, boolean createEditor ) {
+		open( Arrays.asList( new Resource[]{ resource } ), createEditor );
+	}
+
+	public void open( Collection<Resource> resources ) {
+		open( resources, true );
+	}
+
+	public void open( Collection<Resource> resources, WorkpaneView view ) {
+		open( resources, view, true );
+	}
+
+	public void open( Collection<Resource> resources, boolean createEditors ) {
+		open( resources, null, createEditors );
+	}
+
+	public void open( Collection<Resource> resources, WorkpaneView view, boolean createEditors ) {
+		program.getExecutor().submit( new OpenActionTask( resources, null, view, createEditors ) );
+	}
 
 	/**
 	 * Request that the specified resources be opened. This method submits a task
@@ -450,85 +453,85 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) );
 	}
 
-		/**
-		 * Request that the specified resources be opened and wait until the task is
-		 * complete. This method submits a task to the task manager and waits for the
-		 * task to be completed.
-		 * <p>
-		 * Note: This method should not be called from the event dispatch thread.
-		 *
-		 * @param resource
-		 * @throws ExecutionException
-		 * @throws InterruptedException
-		 */
-		public void openResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-			openResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
-		}
+	/**
+	 * Request that the specified resources be opened and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should not be called from the event dispatch thread.
+	 *
+	 * @param resource
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void openResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+		openResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+	}
 
-		/**
-		 * Request that the specified resources be opened and wait until the task is
-		 * complete. This method submits a task to the task manager and waits for the
-		 * task to be completed.
-		 * <p>
-		 * Note: This method should not be called from the event dispatch thread.
-		 *
-		 * @param resources
-		 * @throws ExecutionException
-		 * @throws InterruptedException
-		 */
-		public void openResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-			program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
-		}
+	/**
+	 * Request that the specified resources be opened and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should not be called from the event dispatch thread.
+	 *
+	 * @param resources
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void openResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
+		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
+	}
 
-		/**
-		 * Request that the specified resources be loaded. This method submits a task
-		 * to the task manager and returns immediately.
-		 *
-		 * @param resource
-		 */
-		public void loadResources( Resource resource ) {
-			loadResources( Arrays.asList( new Resource[]{ resource } ) );
-		}
+	/**
+	 * Request that the specified resources be loaded. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param resource
+	 */
+	public void loadResources( Resource resource ) {
+		loadResources( Arrays.asList( new Resource[]{ resource } ) );
+	}
 
-		/**
-		 * Request that the specified resources be loaded. This method submits a task
-		 * to the task manager and returns immediately.
-		 *
-		 * @param resources
-		 */
-		public void loadResources( Collection<Resource> resources ) {
-			program.getExecutor().submit( new LoadResourceTask( resources ) );
-		}
+	/**
+	 * Request that the specified resources be loaded. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param resources
+	 */
+	public void loadResources( Collection<Resource> resources ) {
+		program.getExecutor().submit( new LoadResourceTask( resources ) );
+	}
 
-		/**
-		 * Request that the specified resources be loaded and wait until the task is
-		 * complete. This method submits a task to the task manager and waits for the
-		 * task to be completed.
-		 * <p>
-		 * Note: This method should not be called from the event dispatch thread.
-		 *
-		 * @param resource
-		 * @throws ExecutionException
-		 * @throws InterruptedException
-		 */
-		public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-			loadResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
-		}
+	/**
+	 * Request that the specified resources be loaded and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should not be called from the event dispatch thread.
+	 *
+	 * @param resource
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+		loadResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+	}
 
-		/**
-		 * Request that the specified resources be loaded and wait until the task is
-		 * complete. This method submits a task to the task manager and waits for the
-		 * task to be completed.
-		 * <p>
-		 * Note: This method should not be called from the event dispatch thread.
-		 *
-		 * @param resources
-		 * @throws ExecutionException
-		 * @throws InterruptedException
-		 */
-		public void loadResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-			program.getExecutor().submit( new LoadResourceTask( resources ) ).get();
-		}
+	/**
+	 * Request that the specified resources be loaded and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should not be called from the event dispatch thread.
+	 *
+	 * @param resources
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void loadResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
+		program.getExecutor().submit( new LoadResourceTask( resources ) ).get();
+	}
 
 	//	/**
 	//	 * Request that the specified resources be saved. This method submits a task
@@ -845,34 +848,34 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return true;
 	}
 
-		private boolean doLoadResource( Resource resource ) throws ResourceException {
-			if( resource == null ) return false;
+	private boolean doLoadResource( Resource resource ) throws ResourceException {
+		if( resource == null ) return false;
 
-			if( !resource.isOpen() ) doOpenResource( resource );
+		if( !resource.isOpen() ) doOpenResource( resource );
 
-			boolean previouslyLoaded = resource.isLoaded();
+		boolean previouslyLoaded = resource.isLoaded();
 
-			// Load the resource.
-			if( resource.exists() ) {
-				resource.load( this );
-				resource.setModified( false );
-			}
-
-			// TODO Re-enable the resource modified event watcher
-			//if( !previouslyLoaded ) resource.addDataListener( new ModifiedEventWatcher() );
-
-			log.trace( "Resource loaded: " + resource );
-
-			program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
-
-			if( !previouslyLoaded ) {
-				resource.setReady();
-			} else {
-				resource.refresh();
-			}
-
-			return true;
+		// Load the resource.
+		if( resource.exists() ) {
+			resource.load( this );
+			resource.setModified( false );
 		}
+
+		// TODO Re-enable the resource modified event watcher
+		//if( !previouslyLoaded ) resource.addDataListener( new ModifiedEventWatcher() );
+
+		log.trace( "Resource loaded: " + resource );
+
+		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
+
+		if( !previouslyLoaded ) {
+			resource.setReady();
+		} else {
+			resource.refresh();
+		}
+
+		return true;
+	}
 
 	//	private boolean doSaveResource( Resource resource, Resource saveAsResource, boolean saveAs, boolean copy ) throws ResourceException {
 	//		if( resource == null ) return false;
@@ -1203,19 +1206,22 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//
 	//		return new String( output.toByteArray(), encoding );
 	//	}
-	//
-	//	// FIXME ResourceManager.createResourceEditor() should be run on the EDT.
-	//	private void createResourceEditor( Resource resource, ToolView toolview ) {
-	//		Tool tool = program.getToolManager().getEditTool( resource );
-	//		if( tool == null ) return;
-	//
-	//		if( toolview == null ) {
-	//			program.getActiveWorkPane().addTool( tool, true );
-	//		} else {
-	//			toolview.getWorkPane().addTool( tool, toolview, true );
-	//		}
-	//	}
-	//
+
+	// TODO Rename to createResourceTool
+	private void createResourceEditor( Resource resource, WorkpaneView view ) {
+		Tool tool = program.getToolManager().getTool( resource );
+		if( tool == null ) return;
+
+		// FIXME Should this really be in Workarea?
+		Platform.runLater( () -> {
+			if( view == null ) {
+				program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().addTool( tool );
+			} else {
+				view.getWorkPane().addTool( tool, view, true );
+			}
+		} );
+	}
+
 	//	/**
 	//	 * Determine if the resource can be saved. The resource can be saved if the
 	//	 * URI is null or if the URI scheme and codec can both save resources.
@@ -1242,49 +1248,49 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//
 	//		return result;
 	//	}
-	//
-	//	private class OpenActionTask extends Task<Void> {
-	//
-	//		private Collection<Resource> resources;
-	//
-	//		private Codec codec;
-	//
-	//		private ToolView toolview;
-	//
-	//		private boolean createEditor;
-	//
-	//		public OpenActionTask( Collection<Resource> resources, Codec codec, ToolView toolview, boolean createEditor ) {
-	//			this.resources = resources;
-	//			this.codec = codec;
-	//			this.toolview = toolview;
-	//			this.createEditor = createEditor;
-	//		}
-	//
-	//		@Override
-	//		public Void execute() throws Exception {
-	//			for( Resource resource : resources ) {
-	//				Log.write( Log.TRACE, "Open resource: ", resource.getUri() );
-	//
-	//				boolean createEditor = this.createEditor || !isResourceOpen( resource );
-	//
-	//				try {
-	//					if( codec != null ) resource.setCodec( codec );
-	//					openResourcesAndWait( resource );
-	//					if( !resource.isOpen() ) continue;
-	//				} catch( Exception exception ) {
-	//					program.error( exception );
-	//					continue;
-	//				}
-	//
-	//				if( !resource.isLoaded() ) loadResourcesAndWait( resource );
-	//				if( createEditor ) createResourceEditor( resource, toolview );
-	//				setCurrentResource( resource );
-	//			}
-	//
-	//			return null;
-	//		}
-	//
-	//	}
+
+	private class OpenActionTask extends Task<Void> {
+
+		private Collection<Resource> resources;
+
+		private Codec codec;
+
+		private WorkpaneView view;
+
+		private boolean createEditor;
+
+		public OpenActionTask( Collection<Resource> resources, Codec codec, WorkpaneView view, boolean createEditor ) {
+			this.resources = resources;
+			this.codec = codec;
+			this.view = view;
+			this.createEditor = createEditor;
+		}
+
+		@Override
+		public Void execute() throws Exception {
+			for( Resource resource : resources ) {
+				log.trace( "Open resource: ", resource.getUri() );
+
+				boolean createEditor = this.createEditor || !isResourceOpen( resource );
+
+				try {
+					if( codec != null ) resource.setCodec( codec );
+					openResourcesAndWait( resource );
+					if( !resource.isOpen() ) continue;
+				} catch( Exception exception ) {
+					program.getNotifier().error( exception );
+					continue;
+				}
+
+				if( !resource.isLoaded() ) loadResourcesAndWait( resource );
+				if( createEditor ) createResourceEditor( resource, view );
+				setCurrentResource( resource );
+			}
+
+			return null;
+		}
+
+	}
 
 	private abstract class RmActionHandler extends Action {
 
@@ -1576,22 +1582,22 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-		private class LoadResourceTask extends ResourceTask {
+	private class LoadResourceTask extends ResourceTask {
 
-			public LoadResourceTask( Resource... resources ) {
-				super( resources );
-			}
-
-			public LoadResourceTask( Collection<Resource> resources ) {
-				super( resources );
-			}
-
-			@Override
-			public boolean doOperation( Resource resource ) throws ResourceException {
-				return doLoadResource( resource );
-			}
-
+		public LoadResourceTask( Resource... resources ) {
+			super( resources );
 		}
+
+		public LoadResourceTask( Collection<Resource> resources ) {
+			super( resources );
+		}
+
+		@Override
+		public boolean doOperation( Resource resource ) throws ResourceException {
+			return doLoadResource( resource );
+		}
+
+	}
 
 	//	private class SaveResourceTask extends ResourceTask {
 	//

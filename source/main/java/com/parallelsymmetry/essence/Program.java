@@ -73,6 +73,8 @@ public class Program extends Application implements Product {
 
 	private ProgramEventWatcher watcher;
 
+	private Notifier notifier;
+
 	private Set<ProgramEventListener> listeners;
 
 	private ExitAction exitAction;
@@ -109,6 +111,10 @@ public class Program extends Application implements Product {
 		// Fire the program starting event after the event watcher is created
 		fireEvent( new ProgramStartingEvent( this ) );
 
+		String prefix = getExecmodePrefix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		time( "programValues" );
+
 		// FIXME Getting the program settings takes about 1/4 of the startup time
 		// And has to happen before the splash screen is shown.
 		settingsManager = new SettingsManager( this ).start();
@@ -128,9 +134,7 @@ public class Program extends Application implements Product {
 		splashScreen.show();
 		time( "splash" );
 
-		String prefix = getExecmodePrefix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-		time( "programValues" );
+		notifier = new Notifier( this );
 
 		// Create the executor service
 		log.trace( "Starting task manager..." );
@@ -200,6 +204,10 @@ public class Program extends Application implements Product {
 
 	public File getDataFolder() {
 		return programDataFolder;
+	}
+
+	public Notifier getNotifier() {
+		return notifier;
 	}
 
 	public ExecutorService getExecutor() {

@@ -26,6 +26,10 @@ public class Workarea implements Configurable {
 
 	private Workpane workpane;
 
+	// private MenuBar extraMenuBarItems
+
+	// private ToolBar extraToolBarItems
+
 	private Set<PropertyChangeListener> propertyChangeListeners;
 
 	private Settings settings;
@@ -76,17 +80,7 @@ public class Workarea implements Configurable {
 		Workpane.Placement placement = tool.getPlacement();
 		ToolInstanceMode instanceMode = tool.getInstanceMode();
 
-		Tool existingTool;
-		if( instanceMode == ToolInstanceMode.SINGLETON && (existingTool = getExistingTool( tool )) != null ) {
-			workpane.setActiveTool( existingTool );
-		} else {
-			// TODO Utilize the placement value to pick a place
-			if( placement == Workpane.Placement.SMART) {
-				workpane.getSmartView();
-			}
-
 			workpane.addTool( tool, true );
-		}
 	}
 
 	public Workspace getWorkspace() {
@@ -136,13 +130,6 @@ public class Workarea implements Configurable {
 
 	Workpane getWorkpane() {
 		return workpane;
-	}
-
-	private Tool getExistingTool( Tool tool ) {
-		for( Tool paneTool : workpane.getTools() ) {
-			if( paneTool.getClass() == tool.getClass() ) return paneTool;
-		}
-		return null;
 	}
 
 	private void firePropertyChange( String property, Object oldValue, Object newValue ) {

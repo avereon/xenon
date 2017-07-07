@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.LogUtil;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import com.parallelsymmetry.essence.worktool.CloseOperation;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolEvent;
@@ -22,10 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Workpane extends Pane {
 
 	public enum Placement {
-		DEFAULT,
-		ACTIVE,
-		LARGEST,
-		SMART
+		DEFAULT, ACTIVE, LARGEST, SMART
 	}
 
 	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
@@ -681,7 +679,7 @@ public class Workpane extends Pane {
 		addView( newView );
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge(  Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
 		newEdge.westEdge = westEdge;
 		newEdge.eastEdge = eastEdge;
 		newEdge.setPosition( percent );
@@ -731,7 +729,7 @@ public class Workpane extends Pane {
 		addView( newView );
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge(  Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
 		newEdge.westEdge = westEdge;
 		newEdge.eastEdge = eastEdge;
 		newEdge.setPosition( 1.0 - percent );
@@ -781,7 +779,7 @@ public class Workpane extends Pane {
 		addView( newView );
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge(  Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
 		newEdge.northEdge = northEdge;
 		newEdge.southEdge = southEdge;
 		newEdge.setPosition( percent );
@@ -1291,9 +1289,23 @@ public class Workpane extends Pane {
 		return addTool( tool, true );
 	}
 
-	public Tool addTool( Tool tool, boolean select ) {
-		WorkpaneView view = null;
+	public Tool addTool( Tool tool, boolean activate ) {
+		Tool existingTool = findTool( tool );
+		ToolInstanceMode instanceMode = tool.getInstanceMode();
 
+		if( instanceMode == ToolInstanceMode.SINGLETON && existingTool != null ) {
+			if( activate ) {
+				try {
+					startOperation();
+					setActiveTool( existingTool );
+				} finally {
+					finishOperation( true );
+				}
+			}
+			return existingTool;
+		}
+
+		WorkpaneView view = null;
 		switch( tool.getPlacement() ) {
 			case DEFAULT: {
 				view = getDefaultView();
@@ -1313,7 +1325,7 @@ public class Workpane extends Pane {
 			}
 		}
 
-		return addTool( tool, view, select );
+		return addTool( tool, view, activate );
 	}
 
 	public Tool addTool( Tool tool, WorkpaneView view ) {
@@ -1324,14 +1336,14 @@ public class Workpane extends Pane {
 		return addTool( tool, view, view.getTools().size(), select );
 	}
 
-	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean select ) {
+	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
 		try {
 			startOperation();
 			view.addTool( tool, index );
 			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
-			if( select ) setActiveTool( tool );
+			if( activate ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
 		}
@@ -1840,6 +1852,13 @@ public class Workpane extends Pane {
 
 		// If there are no more associated views, remove the edge.
 		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
+	}
+
+	private Tool findTool( Tool tool ) {
+		for( Tool paneTool : getTools() ) {
+			if( paneTool.getClass() == tool.getClass() ) return paneTool;
+		}
+		return null;
 	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {
