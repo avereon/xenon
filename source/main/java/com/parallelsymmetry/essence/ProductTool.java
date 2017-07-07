@@ -18,8 +18,4 @@ public class ProductTool extends Tool {
 		return product;
 	}
 
-	public ToolInstanceMode getInstanceMode() {
-		return ToolInstanceMode.UNLIMITED;
-	}
-
 }

@@ -2,6 +2,8 @@ package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.util.Configurable;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
+import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -65,8 +67,26 @@ public class Workarea implements Configurable {
 		return active;
 	}
 
-	public Workpane getWorkpane() {
-		return workpane;
+	public void addTool( Tool tool ) {
+		Workpane workpane = getWorkpane();
+
+		// TODO Lookup these two values from settings
+		// Or have them passed in as values
+		// Use the tool values as defaults
+		Workpane.Placement placement = tool.getPlacement();
+		ToolInstanceMode instanceMode = tool.getInstanceMode();
+
+		Tool existingTool;
+		if( instanceMode == ToolInstanceMode.SINGLETON && (existingTool = getExistingTool( tool )) != null ) {
+			workpane.setActiveTool( existingTool );
+		} else {
+			// TODO Utilize the placement value to pick a place
+			if( placement == Workpane.Placement.SMART) {
+				workpane.getSmartView();
+			}
+
+			workpane.addTool( tool, true );
+		}
 	}
 
 	public Workspace getWorkspace() {
@@ -112,6 +132,17 @@ public class Workarea implements Configurable {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	Workpane getWorkpane() {
+		return workpane;
+	}
+
+	private Tool getExistingTool( Tool tool ) {
+		for( Tool paneTool : workpane.getTools() ) {
+			if( paneTool.getClass() == tool.getClass() ) return paneTool;
+		}
+		return null;
 	}
 
 	private void firePropertyChange( String property, Object oldValue, Object newValue ) {

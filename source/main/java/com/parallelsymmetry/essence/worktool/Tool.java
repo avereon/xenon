@@ -4,6 +4,7 @@ import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -61,6 +62,10 @@ public abstract class Tool extends Control {
 
 	public Resource getResource() {
 		return resource;
+	}
+
+	public ToolInstanceMode getInstanceMode() {
+		return ToolInstanceMode.UNLIMITED;
 	}
 
 	public Workpane.Placement getPlacement() {
