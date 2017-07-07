@@ -124,10 +124,6 @@ public class UiFactory {
 	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
-//		ProgramSettingsBuilder settings = new ProgramSettingsBuilder( getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
-//		settings.addProgramEventListener( program.getEventWatcher() );
-//		settings.setExecutor( program.getExecutor() );
-//		Settings Settings = settings.getSettings();
 		Settings settings = program.getSettingsManager().getSettings(getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
 		settings.set( "id", id );
 		// Intentionally do not set the x property
@@ -143,10 +139,6 @@ public class UiFactory {
 	public Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
-//		ProgramSettingsBuilder settings = new ProgramSettingsBuilder( getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
-//		settings.addProgramEventListener( program.getEventWatcher() );
-//		settings.setExecutor( program.getExecutor() );
-//		Settings Settings = settings.getSettings();
 		Settings settings = program.getSettingsManager().getSettings(getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
 		settings.set( "id", id );
 
@@ -159,10 +151,6 @@ public class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-//			ProgramSettingsBuilder settings = new ProgramSettingsBuilder( file, Prefix.WORKSPACE.name() );
-//			settings.addProgramEventListener( program.getEventWatcher() );
-//			settings.setExecutor( program.getExecutor() );
-//			Settings Settings = settings.getSettings();
 			Settings settings = program.getSettingsManager().getSettings(file, Prefix.WORKSPACE.name() );
 			workspace.loadSettings( settings );
 
@@ -184,10 +172,6 @@ public class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-//			ProgramSettingsBuilder settings = new ProgramSettingsBuilder( file, Prefix.WORKAREA.name() );
-//			settings.addProgramEventListener( program.getEventWatcher() );
-//			settings.setExecutor( program.getExecutor() );
-//			Settings Settings = settings.getSettings();
 			Settings settings = program.getSettingsManager().getSettings(file, Prefix.WORKAREA.name() );
 			workarea.loadSettings( settings );
 
