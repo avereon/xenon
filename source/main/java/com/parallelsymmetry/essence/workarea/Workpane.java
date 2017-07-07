@@ -1,7 +1,6 @@
 package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.LogUtil;
-import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import com.parallelsymmetry.essence.worktool.CloseOperation;
 import com.parallelsymmetry.essence.worktool.Tool;
 import com.parallelsymmetry.essence.worktool.ToolEvent;
@@ -23,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Workpane extends Pane {
 
 	public enum Placement {
-		DEFAULT, ACTIVE, LARGEST, SMART
+		DEFAULT, ACTIVE, LARGEST, SMART, DOCK_TOP, DOCK_LEFT, DOCK_RIGHT, DOCK_BOTTOM
 	}
 
 	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
@@ -1290,54 +1289,21 @@ public class Workpane extends Pane {
 	}
 
 	public Tool addTool( Tool tool, boolean activate ) {
-		Tool existingTool = findTool( tool );
-		ToolInstanceMode instanceMode = tool.getInstanceMode();
-
-		if( instanceMode == ToolInstanceMode.SINGLETON && existingTool != null ) {
-			if( activate ) {
-				try {
-					startOperation();
-					setActiveTool( existingTool );
-				} finally {
-					finishOperation( true );
-				}
-			}
-			return existingTool;
-		}
-
-		WorkpaneView view = null;
-		switch( tool.getPlacement() ) {
-			case DEFAULT: {
-				view = getDefaultView();
-				break;
-			}
-			case ACTIVE: {
-				view = getActiveView();
-				break;
-			}
-			case LARGEST: {
-				view = getLargestView();
-				break;
-			}
-			case SMART: {
-				view = getSmartView();
-				break;
-			}
-		}
-
-		return addTool( tool, view, activate );
+		return addTool( tool, null, activate );
 	}
 
 	public Tool addTool( Tool tool, WorkpaneView view ) {
 		return addTool( tool, view, true );
 	}
 
-	public Tool addTool( Tool tool, WorkpaneView view, boolean select ) {
-		return addTool( tool, view, view.getTools().size(), select );
+	public Tool addTool( Tool tool, WorkpaneView view, boolean activate ) {
+		return addTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
 	}
 
 	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
+
+		if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
 
 		try {
 			startOperation();
@@ -1854,11 +1820,33 @@ public class Workpane extends Pane {
 		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
-	private Tool findTool( Tool tool ) {
-		for( Tool paneTool : getTools() ) {
-			if( paneTool.getClass() == tool.getClass() ) return paneTool;
+	public WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
+		WorkpaneView view = null;
+
+		switch( placement ) {
+			case DEFAULT: {
+				view = getDefaultView();
+				break;
+			}
+			case ACTIVE: {
+				view = getActiveView();
+				break;
+			}
+			case LARGEST: {
+				view = getLargestView();
+				break;
+			}
+			case SMART: {
+				view = getSmartView();
+				break;
+			}
 		}
-		return null;
+
+		// TODO Add a docking mode: STANDARD or WIDE
+
+		// TODO Find or make a docked view
+
+		return view;
 	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {

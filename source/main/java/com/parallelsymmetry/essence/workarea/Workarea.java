@@ -2,8 +2,6 @@ package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.util.Configurable;
-import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
-import com.parallelsymmetry.essence.worktool.Tool;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -71,16 +69,8 @@ public class Workarea implements Configurable {
 		return active;
 	}
 
-	public void addTool( Tool tool ) {
-		Workpane workpane = getWorkpane();
-
-		// TODO Lookup these two values from settings
-		// Or have them passed in as values
-		// Use the tool values as defaults
-		Workpane.Placement placement = tool.getPlacement();
-		ToolInstanceMode instanceMode = tool.getInstanceMode();
-
-			workpane.addTool( tool, true );
+	public Workpane getWorkpane() {
+		return workpane;
 	}
 
 	public Workspace getWorkspace() {
@@ -126,10 +116,6 @@ public class Workarea implements Configurable {
 	@Override
 	public String toString() {
 		return getName();
-	}
-
-	Workpane getWorkpane() {
-		return workpane;
 	}
 
 	private void firePropertyChange( String property, Object oldValue, Object newValue ) {

@@ -1,7 +1,8 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.testutil.FxApplicationTestCase;
+import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -16,7 +17,15 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class ProgramMetadataTest extends FxApplicationTestCase {
+public class ProgramMetadataTest extends ProgramTestCase {
+
+	private ProductMetadata metadata;
+
+	@Before
+	public void setup() throws Exception {
+		super.setup();
+		metadata = program.getMetadata();
+	}
 
 	@Test
 	public void testProgramMetadata() throws Exception {

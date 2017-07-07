@@ -1,50 +1,88 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.product.Product;
-import com.parallelsymmetry.essence.worktool.Tool;
+import com.parallelsymmetry.essence.workarea.Workpane;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.scene.Node;
 
 public class ToolMetadata {
 
 	private Product product;
 
-	private Class<? extends Tool> type;
+	private Class<? extends ProductTool> type;
 
 	private String name;
 
 	private Node icon;
 
-	public ToolMetadata( Product product, Class<? extends Tool> type, String name, Node icon ) {
-		this.product = product;
-		this.type = type;
-		this.name = name;
-		this.icon = icon;
-	}
+	private Workpane.Placement placement;
+
+	private ToolInstanceMode instanceMode;
+
+	public ToolMetadata() {}
 
 	public Product getProduct() {
 		return product;
 	}
 
-	public Class<? extends Tool> getType() {
+	public ToolMetadata setProduct( Product product ) {
+		this.product = product;
+		return this;
+	}
+
+	public Class<? extends ProductTool> getType() {
 		return type;
+	}
+
+	public ToolMetadata setType( Class<? extends ProductTool> type ) {
+		this.type = type;
+		return this;
 	}
 
 	public String getName() {
 		return name;
 	}
 
+	public ToolMetadata setName( String name ) {
+		this.name = name;
+		return this;
+	}
+
 	public Node getIcon() {
 		return icon;
 	}
 
-	@Override
-	public int hashCode() {
-		return type.hashCode();
+	public ToolMetadata setIcon( Node icon ) {
+		this.icon = icon;
+		return this;
+	}
+
+	public Workpane.Placement getPlacement() {
+		return placement;
+	}
+
+	public ToolMetadata setPlacement( Workpane.Placement placement ) {
+		this.placement = placement;
+		return this;
+	}
+
+	public ToolInstanceMode getInstanceMode() {
+		return instanceMode;
+	}
+
+	public ToolMetadata setInstanceMode( ToolInstanceMode instanceMode ) {
+		this.instanceMode = instanceMode;
+		return this;
 	}
 
 	@Override
 	public boolean equals( Object object ) {
 		return type.equals( object );
+	}
+
+	@Override
+	public int hashCode() {
+		return type.hashCode();
 	}
 
 	@Override

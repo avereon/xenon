@@ -13,9 +13,7 @@ import java.net.URI;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
-public class ResourceManagerTest extends BaseTestCase {
-
-	private Program program;
+public class ResourceManagerTest extends ProgramTestCase {
 
 	private ResourceManager manager;
 
@@ -23,7 +21,6 @@ public class ResourceManagerTest extends BaseTestCase {
 	@Override
 	public void setup() throws Exception {
 		super.setup();
-		program = new Program();
 		manager = new ResourceManager( program );
 	}
 

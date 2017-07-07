@@ -18,9 +18,11 @@ import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.tool.ProductInfoTool;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -96,11 +98,15 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void init() throws Exception {
+		time( "init" );
+
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product metadata
-		printHeader( metadata = new ProductMetadata() );
-		time( "init" );
+		metadata = new ProductMetadata();
+
+		// Print the program header
+		printHeader( metadata );
 
 		// Configure logging
 		LogUtil.configureLogging( getParameter( ProgramParameter.LOG_LEVEL ) );
@@ -248,10 +254,6 @@ public class Program extends Application implements Product {
 
 	public void fireEvent( ProgramEvent event ) {
 		event.fire( listeners );
-	}
-
-	public ProgramEventWatcher getEventWatcher() {
-		return watcher;
 	}
 
 	protected void finalize() {
@@ -420,15 +422,29 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerTools( ToolManager manager ) {
-		// TODO Make tools easier to register and unregister
-		ResourceType type = resourceManager.getResourceType( ProductInfoType.class.getName() );
-		String productInfoToolName = getResourceBundle().getString( "tool", "product-info" );
-		manager.registerTool( this, type, ProductInfoTool.class, productInfoToolName, getIconLibrary().getIcon( "about" ) );
+		registerTool( manager, ProductInfoType.class, ProductInfoTool.class, ToolInstanceMode.SINGLETON, "product-info", "about" );
+		//registerTool( manager, ProgramSettingsType.class, ProductSettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
+		//registerTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		ResourceType type = resourceManager.getResourceType( ProductInfoType.class.getName() );
-		manager.unregisterTool( type, ProductInfoTool.class );
+		//unregisterTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class );
+		//unregisterTool( manager, ProgramSettingsType.class, ProductSettingsTool.class );
+		unregisterTool( manager, ProductInfoType.class, ProductInfoTool.class );
+	}
+
+	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
+		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
+		String name = getResourceBundle().getString( "tool", toolRbKey );
+		Node icon = getIconLibrary().getIcon( iconKey );
+
+		ToolMetadata metadata = new ToolMetadata();
+		metadata.setProduct( this ).setType( toolClass ).setInstanceMode( mode ).setName( name ).setIcon( icon );
+		manager.registerTool( type, metadata );
+	}
+
+	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass ) {
+		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 
 	private class Startup extends Task<Void> {

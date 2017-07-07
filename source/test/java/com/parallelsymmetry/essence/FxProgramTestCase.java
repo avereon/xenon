@@ -1,6 +1,5 @@
-package com.parallelsymmetry.essence.testutil;
+package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.*;
 import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
@@ -20,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
-public abstract class FxApplicationTestCase extends ApplicationTest {
+public abstract class FxProgramTestCase extends ApplicationTest {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
@@ -51,7 +50,7 @@ public abstract class FxApplicationTestCase extends ApplicationTest {
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		metadata = program.getMetadata();
-		program.addEventListener( watcher = new FxApplicationTestCase.ProgramWatcher() );
+		program.addEventListener( watcher = new FxProgramTestCase.ProgramWatcher() );
 
 		waitForEvent( ProgramStartedEvent.class );
 	}

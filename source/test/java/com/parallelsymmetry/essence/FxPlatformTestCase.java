@@ -1,9 +1,9 @@
-package com.parallelsymmetry.essence.testutil;
+package com.parallelsymmetry.essence;
 
 import javafx.application.Platform;
 import org.junit.Before;
 
-public abstract class FxPlatformTestCase {
+public abstract class FxPlatformTestCase extends BaseTestCase {
 
 	@Before
 	public void setup() throws Exception {

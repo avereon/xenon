@@ -1,5 +1,16 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.testutil.FxApplicationTestCase;
+import org.junit.Before;
 
-public abstract class ProgramTestCase extends FxApplicationTestCase {}
+public class ProgramTestCase extends BaseTestCase {
+
+	protected Program program;
+
+	@Before
+	public void setup() throws Exception {
+		super.setup();
+		program = new Program();
+		program.init();
+	}
+
+}

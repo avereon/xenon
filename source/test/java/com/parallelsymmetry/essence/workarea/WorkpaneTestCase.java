@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.testutil.FxPlatformTestCase;
+import com.parallelsymmetry.essence.FxPlatformTestCase;
 import javafx.geometry.Side;
 import org.junit.Before;
 

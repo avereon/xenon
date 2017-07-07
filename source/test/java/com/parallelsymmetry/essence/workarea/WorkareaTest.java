@@ -2,7 +2,7 @@ package com.parallelsymmetry.essence.workarea;
 
 import com.parallelsymmetry.essence.MockSettings;
 import com.parallelsymmetry.essence.settings.Settings;
-import com.parallelsymmetry.essence.testutil.FxPlatformTestCase;
+import com.parallelsymmetry.essence.FxPlatformTestCase;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
