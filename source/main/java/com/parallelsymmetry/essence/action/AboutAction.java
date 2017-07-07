@@ -26,13 +26,13 @@ public class AboutAction extends Action {
 		if( resource == null ) {
 			try {
 				resource = program.getResourceManager().createResource( URI.create( "program:about" ) );
-				program.getResourceManager().openResourcesAndWait( resource );
-				resource.setModel( program.getMetadata() );
+				program.getResourceManager().loadResourcesAndWait( resource );
 			} catch( Exception exception ) {
 				log.warn( "Error opening about resource", exception );
 			}
 		}
 
+		// FIXME These lines should be in ResourceManager or ToolManager
 		ProductTool tool = program.getToolManager().getTool( resource );
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().addTool( tool );
 	}

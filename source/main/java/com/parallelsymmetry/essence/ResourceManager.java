@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.resource.*;
+import com.parallelsymmetry.essence.resource.event.ResourceLoadedEvent;
 import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
@@ -479,56 +480,56 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
 		}
 
-	//	/**
-	//	 * Request that the specified resources be loaded. This method submits a task
-	//	 * to the task manager and returns immediately.
-	//	 *
-	//	 * @param resource
-	//	 */
-	//	public void loadResources( Resource resource ) {
-	//		loadResources( Arrays.asList( new Resource[]{ resource } ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be loaded. This method submits a task
-	//	 * to the task manager and returns immediately.
-	//	 *
-	//	 * @param resources
-	//	 */
-	//	public void loadResources( Collection<Resource> resources ) {
-	//		program.getTaskManager().submit( new LoadResourceTask( resources ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be loaded and wait until the task is
-	//	 * complete. This method submits a task to the task manager and waits for the
-	//	 * task to be completed.
-	//	 * <p>
-	//	 * Note: This method should not be called from the event dispatch thread.
-	//	 *
-	//	 * @param resource
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-	//		loadResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be loaded and wait until the task is
-	//	 * complete. This method submits a task to the task manager and waits for the
-	//	 * task to be completed.
-	//	 * <p>
-	//	 * Note: This method should not be called from the event dispatch thread.
-	//	 *
-	//	 * @param resources
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void loadResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-	//		program.getTaskManager().invoke( new LoadResourceTask( resources ) );
-	//	}
-	//
+		/**
+		 * Request that the specified resources be loaded. This method submits a task
+		 * to the task manager and returns immediately.
+		 *
+		 * @param resource
+		 */
+		public void loadResources( Resource resource ) {
+			loadResources( Arrays.asList( new Resource[]{ resource } ) );
+		}
+
+		/**
+		 * Request that the specified resources be loaded. This method submits a task
+		 * to the task manager and returns immediately.
+		 *
+		 * @param resources
+		 */
+		public void loadResources( Collection<Resource> resources ) {
+			program.getExecutor().submit( new LoadResourceTask( resources ) );
+		}
+
+		/**
+		 * Request that the specified resources be loaded and wait until the task is
+		 * complete. This method submits a task to the task manager and waits for the
+		 * task to be completed.
+		 * <p>
+		 * Note: This method should not be called from the event dispatch thread.
+		 *
+		 * @param resource
+		 * @throws ExecutionException
+		 * @throws InterruptedException
+		 */
+		public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+			loadResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+		}
+
+		/**
+		 * Request that the specified resources be loaded and wait until the task is
+		 * complete. This method submits a task to the task manager and waits for the
+		 * task to be completed.
+		 * <p>
+		 * Note: This method should not be called from the event dispatch thread.
+		 *
+		 * @param resources
+		 * @throws ExecutionException
+		 * @throws InterruptedException
+		 */
+		public void loadResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
+			program.getExecutor().submit( new LoadResourceTask( resources ) ).get();
+		}
+
 	//	/**
 	//	 * Request that the specified resources be saved. This method submits a task
 	//	 * to the task manager and returns immediately.
@@ -844,34 +845,35 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return true;
 	}
 
-	//	private boolean doLoadResource( Resource resource ) throws ResourceException {
-	//		if( resource == null ) return false;
-	//
-	//		if( !resource.isOpen() ) doOpenResource( resource );
-	//
-	//		boolean previouslyLoaded = resource.isLoaded();
-	//
-	//		// Load the resource.
-	//		if( resource.exists() ) {
-	//			resource.load( this );
-	//			resource.setModified( false );
-	//		}
-	//
-	//		if( !previouslyLoaded ) resource.addDataListener( new ModifiedEventWatcher() );
-	//
-	//		Log.write( Log.TRACE, "Resource loaded: " + resource );
-	//
-	//		program.getEventBus().submit( new ResourceLoadedEvent( getClass(), resource ) );
-	//
-	//		if( !previouslyLoaded ) {
-	//			resource.setReady();
-	//		} else {
-	//			resource.refresh();
-	//		}
-	//
-	//		return true;
-	//	}
-	//
+		private boolean doLoadResource( Resource resource ) throws ResourceException {
+			if( resource == null ) return false;
+
+			if( !resource.isOpen() ) doOpenResource( resource );
+
+			boolean previouslyLoaded = resource.isLoaded();
+
+			// Load the resource.
+			if( resource.exists() ) {
+				resource.load( this );
+				resource.setModified( false );
+			}
+
+			// TODO Re-enable the resource modified event watcher
+			//if( !previouslyLoaded ) resource.addDataListener( new ModifiedEventWatcher() );
+
+			log.trace( "Resource loaded: " + resource );
+
+			program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
+
+			if( !previouslyLoaded ) {
+				resource.setReady();
+			} else {
+				resource.refresh();
+			}
+
+			return true;
+		}
+
 	//	private boolean doSaveResource( Resource resource, Resource saveAsResource, boolean saveAs, boolean copy ) throws ResourceException {
 	//		if( resource == null ) return false;
 	//		if( !isResourceOpen( resource ) ) return false;
@@ -1574,23 +1576,23 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-	//	private class LoadResourceTask extends ResourceTask {
-	//
-	//		public LoadResourceTask( Resource... resources ) {
-	//			super( resources );
-	//		}
-	//
-	//		public LoadResourceTask( Collection<Resource> resources ) {
-	//			super( resources );
-	//		}
-	//
-	//		@Override
-	//		public boolean doOperation( Resource resource ) throws ResourceException {
-	//			return doLoadResource( resource );
-	//		}
-	//
-	//	}
-	//
+		private class LoadResourceTask extends ResourceTask {
+
+			public LoadResourceTask( Resource... resources ) {
+				super( resources );
+			}
+
+			public LoadResourceTask( Collection<Resource> resources ) {
+				super( resources );
+			}
+
+			@Override
+			public boolean doOperation( Resource resource ) throws ResourceException {
+				return doLoadResource( resource );
+			}
+
+		}
+
 	//	private class SaveResourceTask extends ResourceTask {
 	//
 	//		public SaveResourceTask( Resource resource ) {
