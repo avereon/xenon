@@ -15,13 +15,9 @@ import org.testfx.framework.junit.ApplicationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 public abstract class FxProgramTestCase extends ApplicationTest {
-
-	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
 	private ProgramWatcher watcher;
 
@@ -50,7 +46,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		metadata = program.getMetadata();
-		program.addEventListener( watcher = new FxProgramTestCase.ProgramWatcher() );
+		program.addEventListener( watcher = new ProgramWatcher() );
 
 		waitForEvent( ProgramStartedEvent.class );
 	}
@@ -74,7 +70,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	public void start( Stage stage ) throws Exception {}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
+		watcher.waitForEvent( clazz );
 	}
 
 	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
@@ -82,66 +78,11 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	}
 
 	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-		waitForNextEvent( clazz, DEFAULT_WAIT_TIMEOUT );
+		watcher.waitForNextEvent( clazz );
 	}
 
 	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
 		watcher.waitForNextEvent( clazz, timeout );
-	}
-
-	private class ProgramWatcher implements ProgramEventListener {
-
-		private Map<Class<? extends ProgramEvent>, ProgramEvent> events;
-
-		ProgramWatcher() {
-			this.events = new ConcurrentHashMap<>();
-		}
-
-		@Override
-		public synchronized void eventOccurred( ProgramEvent event ) {
-			events.put( event.getClass(), event );
-			this.notifyAll();
-		}
-
-		/**
-		 * Wait for an event of a specific class to occur. If the name has already
-		 * occurred this method will return immediately. If the name has not
-		 * already occurred then this method waits until the next name occurs, or
-		 * the specified timeout, whichever comes first.
-		 *
-		 * @param clazz The event class to wait for
-		 * @param timeout How long, in milliseconds, to wait for the event
-		 * @throws InterruptedException If the timeout is exceeded
-		 */
-		synchronized void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-			boolean shouldWait = timeout > 0;
-			long start = System.currentTimeMillis();
-			long duration = 0;
-
-			while( shouldWait && events.get( clazz ) == null ) {
-				wait( timeout - duration );
-				duration = System.currentTimeMillis() - start;
-				shouldWait = duration < timeout;
-			}
-			duration = System.currentTimeMillis() - start;
-
-			if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + clazz.getName() );
-		}
-
-		/**
-		 * Wait for the next event of a specific class to occur. This method always
-		 * waits until the next event occurs, or the specified timeout, whichever
-		 * comes first.
-		 *
-		 * @param clazz The event class to wait for
-		 * @param timeout How long, in milliseconds, to wait for the event
-		 * @throws InterruptedException If the timeout is exceeded
-		 */
-		synchronized void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-			events.remove( clazz );
-			waitForEvent( clazz, timeout );
-		}
-
 	}
 
 }

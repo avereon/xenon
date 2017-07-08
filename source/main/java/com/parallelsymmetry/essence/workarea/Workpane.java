@@ -303,26 +303,12 @@ public class Workpane extends Pane {
 		listeners.remove( listener );
 	}
 
-	void fireViewWillSplit( WorkpaneEvent event ) throws WorkpaneVetoException {
+	void fireWorkpaneEvent( WorkpaneEvent event ) throws WorkpaneVetoException {
 		WorkpaneVetoException exception = null;
 
 		for( WorkpaneListener listener : listeners ) {
 			try {
-				listener.viewWillSplit( event );
-			} catch( WorkpaneVetoException vetoException ) {
-				if( exception == null ) exception = vetoException;
-			}
-		}
-
-		if( exception != null ) throw exception;
-	}
-
-	void fireViewWillMerge( WorkpaneEvent event ) throws WorkpaneVetoException {
-		WorkpaneVetoException exception = null;
-
-		for( WorkpaneListener listener : listeners ) {
-			try {
-				listener.viewWillMerge( event );
+				listener.handle( event );
 			} catch( WorkpaneVetoException vetoException ) {
 				if( exception == null ) exception = vetoException;
 			}
@@ -348,53 +334,11 @@ public class Workpane extends Pane {
 	void dispatchEvents() {
 		for( WorkpaneEvent event : new LinkedList<WorkpaneEvent>( events ) ) {
 			events.remove( event );
-
 			for( WorkpaneListener listener : listeners ) {
-				switch( event.getType() ) {
-					case CHANGED: {
-						listener.paneChanged( event );
-						break;
-					}
-					case VIEW_ADDED: {
-						listener.viewAdded( event );
-						break;
-					}
-					case VIEW_REMOVED: {
-						listener.viewRemoved( event );
-						break;
-					}
-					case VIEW_MERGED: {
-						listener.viewMerged( event );
-						break;
-					}
-					case VIEW_SPLIT: {
-						listener.viewSplit( event );
-						break;
-					}
-					case VIEW_ACTIVATED: {
-						listener.viewActivated( event );
-						break;
-					}
-					case VIEW_DEACTIVATED: {
-						listener.viewDeactivated( event );
-						break;
-					}
-					case TOOL_ADDED: {
-						listener.toolAdded( event );
-						break;
-					}
-					case TOOL_REMOVED: {
-						listener.toolRemoved( event );
-						break;
-					}
-					case TOOL_ACTIVATED: {
-						listener.toolActivated( event );
-						break;
-					}
-					case TOOL_DEACTIVATED: {
-						listener.toolDeactivated( event );
-						break;
-					}
+				try {
+					listener.handle( event  );
+				} catch( WorkpaneVetoException exception ) {
+					log.error( "Error dispatching workpane event", exception );
 				}
 			}
 		}
@@ -877,7 +821,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireViewWillSplit( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -926,7 +870,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireViewWillSplit( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -975,7 +919,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireViewWillSplit( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -1024,7 +968,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireViewWillSplit( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -1735,7 +1679,7 @@ public class Workpane extends Pane {
 		// Notify the listeners the views will merge.
 		try {
 			for( WorkpaneView source : sources ) {
-				fireViewWillMerge( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source, null ) );
+				fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source, null ) );
 			}
 		} catch( WorkpaneVetoException exception ) {
 			return false;

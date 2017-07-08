@@ -28,9 +28,9 @@ public class TaskEventTest extends BaseTaskTest {
 
 		/**
 		 * Because there are two threads involved in this test, the test thread
-		 * needs to wait for the events to arrive. Task is required to ensure the
-		 * done state is set correctly before events are sent but this allows the
-		 * test thread to continue before the events arrive.
+		 * needs to wait for the eventList to arrive. Task is required to ensure the
+		 * done state is set correctly before eventList are sent but this allows the
+		 * test thread to continue before the eventList arrive.
 		 */
 		watcher.waitForEventCount( 3, 100 );
 		assertEquals( 3, watcher.events.size() );
@@ -59,9 +59,9 @@ public class TaskEventTest extends BaseTaskTest {
 
 		/**
 		 * Because there are two threads involved in this test, the test thread
-		 * needs to wait for the events to arrive. Task is required to ensure the
-		 * done state is set correctly before events are sent but this allows the
-		 * test thread to continue before the events arrive.
+		 * needs to wait for the eventList to arrive. Task is required to ensure the
+		 * done state is set correctly before eventList are sent but this allows the
+		 * test thread to continue before the eventList arrive.
 		 */
 		watcher.waitForEventCount( 3, 100 );
 		assertEquals( 3, watcher.events.size() );
