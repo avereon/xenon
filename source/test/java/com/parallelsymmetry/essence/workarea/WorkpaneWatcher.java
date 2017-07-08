@@ -35,9 +35,9 @@ public class WorkpaneWatcher implements WorkpaneListener {
 	}
 
 	/**
-	 * Wait for an event of a specific class to occur. If the name has already
-	 * occurred this method will return immediately. If the name has not
-	 * already occurred then this method waits until the next name occurs, or
+	 * Wait for an event of a specific type to occur. If the event has already
+	 * occurred this method will return immediately. If the event has not
+	 * already occurred then this method waits until the next event occurs, or
 	 * the specified timeout, whichever comes first.
 	 *
 	 * @param type The event type to wait for
@@ -59,8 +59,12 @@ public class WorkpaneWatcher implements WorkpaneListener {
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type );
 	}
 
+	public synchronized void clearEvent( WorkpaneEvent.Type type ) {
+		eventMap.remove( type );
+	}
+
 	/**
-	 * Wait for the next event of a specific class to occur. This method always
+	 * Wait for the next event of a specific type to occur. This method always
 	 * waits until the next event occurs, or the specified timeout, whichever
 	 * comes first.
 	 *
@@ -69,7 +73,7 @@ public class WorkpaneWatcher implements WorkpaneListener {
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
 	public synchronized void waitForNextEvent( WorkpaneEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
-		eventMap.remove( type );
+		clearEvent( type );
 		waitForEvent( type, timeout );
 	}
 

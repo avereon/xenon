@@ -4,6 +4,7 @@ import com.parallelsymmetry.essence.event.ProgramStartedEvent;
 import com.parallelsymmetry.essence.event.ProgramStoppedEvent;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.util.OperatingSystem;
+import com.parallelsymmetry.essence.workarea.WorkpaneWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -15,13 +16,14 @@ import org.testfx.framework.junit.ApplicationTest;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 
 public abstract class FxProgramTestCase extends ApplicationTest {
 
-	private ProgramWatcher watcher;
-
 	protected Program program;
+
+	protected ProgramWatcher programWatcher;
+
+	protected WorkpaneWatcher workpaneWatcher;
 
 	protected ProductMetadata metadata;
 
@@ -44,11 +46,11 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		}
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-
+		program.addEventListener( programWatcher = new ProgramWatcher() );
 		metadata = program.getMetadata();
-		program.addEventListener( watcher = new ProgramWatcher() );
 
-		waitForEvent( ProgramStartedEvent.class );
+		programWatcher.waitForEvent( ProgramStartedEvent.class );
+		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkPaneListener( workpaneWatcher = new WorkpaneWatcher() );
 	}
 
 	/**
@@ -62,27 +64,27 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 			Platform.runLater( window::hide );
 		}
 
-		waitForEvent( ProgramStoppedEvent.class );
-		program.removeEventListener( watcher );
+		programWatcher.waitForEvent( ProgramStoppedEvent.class );
+		program.removeEventListener( programWatcher );
 	}
 
 	@Override
 	public void start( Stage stage ) throws Exception {}
 
-	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-		watcher.waitForEvent( clazz );
-	}
-
-	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-		watcher.waitForEvent( clazz, timeout );
-	}
-
-	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-		watcher.waitForNextEvent( clazz );
-	}
-
-	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-		watcher.waitForNextEvent( clazz, timeout );
-	}
+//	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
+//		programWatcher.waitForEvent( clazz );
+//	}
+//
+//	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+//		programWatcher.waitForEvent( clazz, timeout );
+//	}
+//
+//	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
+//		programWatcher.waitForNextEvent( clazz );
+//	}
+//
+//	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+//		programWatcher.waitForNextEvent( clazz, timeout );
+//	}
 
 }

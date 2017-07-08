@@ -25,9 +25,9 @@ public class ProgramWatcher implements ProgramEventListener {
 	}
 
 	/**
-	 * Wait for an event of a specific class to occur. If the name has already
-	 * occurred this method will return immediately. If the name has not
-	 * already occurred then this method waits until the next name occurs, or
+	 * Wait for an event of a specific class to occur. If the event has already
+	 * occurred this method will return immediately. If the event has not
+	 * already occurred then this method waits until the next event occurs, or
 	 * the specified timeout, whichever comes first.
 	 *
 	 * @param clazz The event class to wait for
