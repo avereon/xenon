@@ -4,7 +4,11 @@ import com.parallelsymmetry.essence.ProductTool;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.resource.ResourceAdapter;
+import com.parallelsymmetry.essence.resource.ResourceEvent;
+import com.parallelsymmetry.essence.resource.ResourceListener;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
+import com.parallelsymmetry.essence.worktool.ToolException;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
@@ -21,19 +25,23 @@ public class ProductInfoTool extends ProductTool {
 
 	private TextArea text;
 
+	private ResourceListener watcher;
+
 	public ProductInfoTool( Product product, Resource resource ) {
 		super( product, resource );
+
+		setTitleSuffix( product.getResourceBundle().getString( "tool", "product-info-suffix" ) );
 
 		text = new TextArea();
 		text.setBackground( Background.EMPTY );
 		text.setEditable( false );
 
 		BorderPane border = new BorderPane();
-		border.setPadding( new Insets(10) );
+		border.setPadding( new Insets( 10 ) );
 		border.setCenter( text );
 		getChildren().add( border );
 
-		setTitleSuffix( product.getResourceBundle().getString( "tool", "product-info-suffix" ) );
+		// FIXME The resource may not be loaded at this point
 		setMetadata( resource.getModel() );
 	}
 
@@ -115,6 +123,27 @@ public class ProductInfoTool extends ProductTool {
 	@Override
 	public ToolInstanceMode getInstanceMode() {
 		return ToolInstanceMode.SINGLETON;
+	}
+
+	@Override
+	protected void allocate() throws ToolException {
+		super.allocate();
+		getResource().addResourceListener( watcher = new ResourceWatcher() );
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		getResource().removeResourceListener( watcher );
+		super.deallocate();
+	}
+
+	private class ResourceWatcher extends ResourceAdapter {
+
+		@Override
+		public void resourceClosed( ResourceEvent event ) {
+			ProductInfoTool.this.close();
+		}
+
 	}
 
 }

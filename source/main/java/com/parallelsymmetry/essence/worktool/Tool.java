@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -96,9 +97,8 @@ public abstract class Tool extends Control {
 	 * <code>ToolListener</code> object.
 	 * </dl>
 	 * <p>
-	 * The default value for and <code>WorkTool</code> is <code>REMOVE</code> and
-	 * for a <code>EditTool</code> is <code>NOTHING</code>. Before performing the
-	 * specified close operation, the tool fires a tool closing event.
+	 * Before performing the specified close operation, the tool fires a tool
+	 * closing event.
 	 *
 	 * @param operation One of the following constants: <code>REMOVE</code> or <code>NOTHING</code>
 	 * @see #addToolListener
@@ -182,6 +182,10 @@ public abstract class Tool extends Control {
 
 	public void addToolListener( ToolListener listener ) {
 		listeners.add( listener );
+	}
+
+	public void close() {
+		Platform.runLater( () -> getWorkpane().removeTool( this, true ) );
 	}
 
 	public void removeToolListener( ToolListener listener ) {
