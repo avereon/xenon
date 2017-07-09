@@ -2,6 +2,9 @@ package com.parallelsymmetry.essence.worktool;
 
 import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.resource.ResourceAdapter;
+import com.parallelsymmetry.essence.resource.ResourceEvent;
+import com.parallelsymmetry.essence.resource.ResourceListener;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
@@ -44,6 +47,8 @@ public abstract class Tool extends Control {
 	private boolean allocated;
 
 	private boolean displayed;
+
+	private ResourceListener watcher;
 
 	private Set<ToolListener> listeners;
 
@@ -257,6 +262,7 @@ public abstract class Tool extends Control {
 	 */
 	public final void callAllocate() {
 		try {
+			getResource().addResourceListener( watcher = new ResourceWatcher() );
 			allocate();
 			allocated = true;
 		} catch( ToolException exception ) {
@@ -319,6 +325,7 @@ public abstract class Tool extends Control {
 		try {
 			deallocate();
 			allocated = false;
+			getResource().removeResourceListener( watcher );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}
@@ -340,6 +347,15 @@ public abstract class Tool extends Control {
 		for( ToolListener listener : listeners ) {
 			listener.toolClosed( event );
 		}
+	}
+
+	private class ResourceWatcher extends ResourceAdapter {
+
+		@Override
+		public void resourceClosed( ResourceEvent event ) {
+			Tool.this.close();
+		}
+
 	}
 
 }

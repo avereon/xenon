@@ -4,11 +4,7 @@ import com.parallelsymmetry.essence.ProductTool;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.resource.ResourceAdapter;
-import com.parallelsymmetry.essence.resource.ResourceEvent;
-import com.parallelsymmetry.essence.resource.ResourceListener;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
-import com.parallelsymmetry.essence.worktool.ToolException;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
@@ -24,8 +20,6 @@ public class ProductInfoTool extends ProductTool {
 	private ProductMetadata metadata;
 
 	private TextArea text;
-
-	private ResourceListener watcher;
 
 	public ProductInfoTool( Product product, Resource resource ) {
 		super( product, resource );
@@ -123,27 +117,6 @@ public class ProductInfoTool extends ProductTool {
 	@Override
 	public ToolInstanceMode getInstanceMode() {
 		return ToolInstanceMode.SINGLETON;
-	}
-
-	@Override
-	protected void allocate() throws ToolException {
-		super.allocate();
-		getResource().addResourceListener( watcher = new ResourceWatcher() );
-	}
-
-	@Override
-	protected void deallocate() throws ToolException {
-		getResource().removeResourceListener( watcher );
-		super.deallocate();
-	}
-
-	private class ResourceWatcher extends ResourceAdapter {
-
-		@Override
-		public void resourceClosed( ResourceEvent event ) {
-			ProductInfoTool.this.close();
-		}
-
 	}
 
 }
