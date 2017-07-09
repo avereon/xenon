@@ -54,7 +54,7 @@ final class MockTask extends Task<Object> {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object call() throws Exception {
 		if( delay > 0 ) ThreadUtil.pause( delay );
 		if( fail ) throw new Exception( EXCEPTION_MESSAGE );
 		if( nest != null ) manager.invoke( nest );

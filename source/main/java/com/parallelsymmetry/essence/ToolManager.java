@@ -144,24 +144,19 @@ public class ToolManager implements Controllable<ToolManager> {
 			program.getNotifier().warning( title, (Object)message, resource.getUri().toString() );
 			return;
 		}
-		try {
-			// FIXME Exceptions are disappearing
-			//if( pane == null ) throw new NullPointerException( "Workpane is null opening tool" );
-			if( pane == null ) log.error( "Pane is null", new NullPointerException() );
-			if( view == null ) log.error( "View is null", new NullPointerException() );
-			if( tool == null ) log.error( "Tool is null", new NullPointerException() );
 
-			final Workpane finalPane = pane;
-			final WorkpaneView finalView = view;
-			final Tool finalTool = tool;
+		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
+		if( view == null ) throw new NullPointerException( "WorkpaneView cannot be null when opening tool" );
+		if( tool == null ) throw new NullPointerException( "Tool cannot be null when opening tool" );
 
-			if( alreadyExists && instanceMode == ToolInstanceMode.SINGLETON ) {
-				Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
-			} else {
-				Platform.runLater( () -> finalPane.addTool( finalTool, finalView, true ) );
-			}
-		} catch( Throwable throwable ) {
-			throwable.printStackTrace( System.err );
+		final Workpane finalPane = pane;
+		final WorkpaneView finalView = view;
+		final Tool finalTool = tool;
+
+		if( alreadyExists && instanceMode == ToolInstanceMode.SINGLETON ) {
+			Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+		} else {
+			Platform.runLater( () -> finalPane.addTool( finalTool, finalView, true ) );
 		}
 	}
 

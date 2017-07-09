@@ -35,14 +35,11 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private Settings settings;
 
-	private List<Task<?>> tasks;
-
 	private BlockingQueue<Runnable> queue;
 
 	private Set<TaskListener> listeners;
 
 	public TaskManager() {
-		tasks = new CopyOnWriteArrayList<Task<?>>();
 		queue = new LinkedBlockingQueue<Runnable>();
 		listeners = new CopyOnWriteArraySet<TaskListener>();
 	}
@@ -55,34 +52,30 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	@Override
 	public <T> Future<T> submit( Callable<T> task ) {
 		checkRunning();
-		if( task instanceof Task ) submitted( (Task)task );
+		return executor.submit( task );
+	}
+
+	@Override
+	public Future<?> submit( Runnable task ) {
+		checkRunning();
 		return executor.submit( task );
 	}
 
 	@Override
 	public <T> Future<T> submit( Runnable task, T result ) {
 		checkRunning();
-		if( task instanceof Task ) submitted( (Task)task );
 		return executor.submit( task, result );
-	}
-
-	@Override
-	public Future<?> submit( Runnable task ) {
-		checkRunning();
-		if( task instanceof Task ) submitted( (Task)task );
-		return executor.submit( task );
 	}
 
 	/**
 	 * Synchronously submit a task.
 	 *
-	 * @param <T>
-	 * @param task
-	 * @return
-	 * @throws InterruptedException
+	 * @param task The task to execute
+	 * @return The Future for the task
+	 * @throws InterruptedException if the executing task is interrupted
 	 */
-	public <T> Future<T> invoke( Task<T> task ) throws InterruptedException {
-		List<Task<T>> tasks = new ArrayList<>();
+	public <T> Future<T> invoke( Callable<T> task ) throws InterruptedException {
+		List<Callable<T>> tasks = new ArrayList<>();
 		tasks.add( task );
 		List<Future<T>> futures = invokeAll( tasks );
 		return futures.get( 0 );
@@ -92,9 +85,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks ) throws InterruptedException {
 		checkRunning();
 
-		for( Callable<T> task : tasks ) {
-			if( task instanceof Task ) submitted( (Task)task );
-		}
+//		for( Callable<T> task : tasks ) {
+//			if( task instanceof Task ) submitted( (Task)task );
+//		}
 
 		return executor.invokeAll( tasks );
 	}
@@ -103,9 +96,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException {
 		checkRunning();
 
-		for( Callable<T> task : tasks ) {
-			if( task instanceof Task ) submitted( (Task)task );
-		}
+//		for( Callable<T> task : tasks ) {
+//			if( task instanceof Task ) submitted( (Task)task );
+//		}
 
 		return executor.invokeAll( tasks, timeout, unit );
 	}
@@ -114,20 +107,20 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks ) throws InterruptedException, ExecutionException {
 		checkRunning();
 
-		for( Callable<T> task : tasks ) {
-			if( task instanceof Task ) submitted( (Task)task );
-		}
+//		for( Callable<T> task : tasks ) {
+//			if( task instanceof Task ) submitted( (Task)task );
+//		}
 
-		return invokeAny( tasks );
+		return executor.invokeAny( tasks );
 	}
 
 	@Override
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
 		checkRunning();
 
-		for( Callable<T> task : tasks ) {
-			if( task instanceof Task ) submitted( (Task)task );
-		}
+//		for( Callable<T> task : tasks ) {
+//			if( task instanceof Task ) submitted( (Task)task );
+//		}
 
 		return executor.invokeAny( tasks, timeout, unit );
 	}
@@ -148,7 +141,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	}
 
 	public int getThreadCount() {
-		return executor == null ? 0 : executor.getPoolSize();
+		return maxThreadCount;
 	}
 
 	public void setThreadCount( int count ) {
@@ -186,7 +179,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public TaskManager start() {
 		if( isRunning() ) return this;
 		log.trace( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
-		executor = new ThreadPoolExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory() );
+		executor = new TaskManagerExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory() );
 		return this;
 	}
 
@@ -213,7 +206,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	@Override
 	public TaskManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return null;
+		return awaitStart( timeout, unit );
 	}
 
 	@Override
@@ -249,20 +242,6 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		listeners.remove( listener );
 	}
 
-	void submitted( Task<?> task ) {
-		if( task == null ) throw new NullPointerException();
-		tasks.add( task );
-		task.setTaskManager( this );
-		fireTaskEvent( new TaskEvent( this, task, TaskEvent.Type.TASK_SUBMITTED ) );
-	}
-
-	void completed( Task<?> task ) {
-		if( task == null ) throw new NullPointerException();
-		fireTaskEvent( new TaskEvent( this, task, TaskEvent.Type.TASK_COMPLETED ) );
-		task.setTaskManager( null );
-		tasks.remove( task );
-	}
-
 	void fireTaskEvent( TaskEvent event ) {
 		for( TaskListener listener : listeners ) {
 			listener.handleEvent( event );
@@ -273,32 +252,25 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		if( executor == null ) throw new RuntimeException( "TaskManager is not running." );
 	}
 
-	private <T> void synchronousExecute( Task<T> task ) {
-		try {
-			task.invoke();
-		} catch( Exception exception ) {
-			// Exceptions should be retrieved by calling get().
-		}
-	}
+	private class TaskManagerExecutor extends ThreadPoolExecutor {
 
-	private <T> void synchronousExecute( Task<T> task, long timeout, TimeUnit unit ) {
-		try {
-			task.invoke( timeout, unit );
-		} catch( Exception exception ) {
-			// Exceptions should be retrieved by calling get().
+		public TaskManagerExecutor( int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory ) {
+			super( corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory );
 		}
-	}
 
-	private <T> void synchronousExecute( Collection<? extends Task<T>> tasks ) {
-		for( Task<T> task : tasks ) {
-			synchronousExecute( task );
+		@SuppressWarnings( "unchecked" )
+		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
+			RunnableFuture<T> future;
+			if( callable instanceof Task ) {
+				Task task = (Task)callable;
+				task.setTaskManager( TaskManager.this );
+				future = task.createFuture( callable );
+			} else {
+				future = new FutureTask<T>( callable );
+			}
+			return future;
 		}
-	}
 
-	private <T> void synchronousExecute( Collection<? extends Task<T>> tasks, long timeout, TimeUnit unit ) {
-		for( Task<T> task : tasks ) {
-			synchronousExecute( task, timeout, unit );
-		}
 	}
 
 	private static final class TaskThreadFactory implements ThreadFactory {
@@ -326,5 +298,23 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		}
 
 	}
+
+//	private static final class TaskManagerThread extends Thread {
+//
+//		public TaskManagerThread( ThreadGroup group, Runnable target, String name, long stackSize ) {
+//			super( group, target, name, stackSize );
+//		}
+//
+//		@Override
+//		public void run() {
+//			try {
+//				super.run();
+//			} catch( Throwable throwable ) {
+//				log.error( "Error running task", throwable );
+//				throw throwable;
+//			}
+//		}
+//
+//	}
 
 }

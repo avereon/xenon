@@ -1250,7 +1250,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public Void execute() throws Exception {
+		public Void call() throws Exception {
 			for( Resource resource : resources ) {
 				log.trace( "Open resource: ", resource.getUri() );
 
@@ -1328,7 +1328,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			}
 
 			@Override
-			public Resource execute() throws Exception {
+			public Resource call() throws Exception {
 				if( type == null ) return null;
 
 				Resource resource = null;
@@ -1510,7 +1510,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public Collection<Resource> execute() throws Exception {
+		public Collection<Resource> call() throws Exception {
 			List<Resource> result = new ArrayList<Resource>();
 			List<Throwable> errors = new ArrayList<Throwable>();
 			if( resources != null ) {

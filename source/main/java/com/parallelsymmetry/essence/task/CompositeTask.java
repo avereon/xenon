@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence.task;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 public class CompositeTask extends Task<Object> implements TaskListener {
@@ -46,14 +47,14 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 	}
 
 	@Override
-	public Object execute() throws Exception {
-		TaskManager manager = getTaskManager();
+	public Object call() throws Exception {
+		ExecutorService executor = getTaskManager();
 
 		futures = new HashSet<Future<?>>( tasks.size() );
 
 		// Submit all the tasks for execution.
 		for( Task<?> task : tasks ) {
-			futures.add( manager.submit( task ) );
+			futures.add( executor.submit( task ) );
 		}
 
 		// Wait for all the tasks to terminate.

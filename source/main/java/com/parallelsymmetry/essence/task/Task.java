@@ -1,5 +1,8 @@
 package com.parallelsymmetry.essence.task;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -16,14 +19,11 @@ import java.util.concurrent.*;
 
 public abstract class Task<V> implements Callable<V>, Future<V> {
 
+	private static final Logger log = LoggerFactory.getLogger( Task.class );
+
 	public enum State {
 		WAITING,
 		RUNNING,
-		DONE
-	}
-
-	public enum Result {
-		UNKNOWN,
 		CANCELLED,
 		SUCCESS,
 		FAILED
@@ -32,25 +32,22 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 	public enum Priority {
 		LOW,
 		MEDIUM,
-		HIGH,
-		UI
+		HIGH
 	}
 
-	private Object stateLock = new Object();
+	private final Object stateLock = new Object();
 
 	private State state = State.WAITING;
 
-	private Result result = Result.UNKNOWN;
+	private Priority priority = Priority.MEDIUM;
 
 	private String name;
 
-	private FutureTask<V> future;
+	private TaskFuture<V> future;
 
 	private TaskManager manager;
 
 	private Set<TaskListener> listeners;
-
-	private Priority priority;
 
 	private long minimum = 0;
 
@@ -69,15 +66,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 	public Task( String name, Priority priority ) {
 		this.name = name;
 		this.priority = priority;
-		future = new TaskFuture<V>( this, new TaskExecute<V>( this ) );
 		listeners = new CopyOnWriteArraySet<TaskListener>();
-	}
-
-	public abstract V execute() throws Exception;
-
-	@Override
-	public V call() throws Exception {
-		return invoke();
 	}
 
 	@Override
@@ -97,18 +86,20 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	@Override
 	public V get() throws InterruptedException, ExecutionException {
-		waitForState( State.DONE );
 		return future.get();
 	}
 
 	@Override
 	public V get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
-		waitForState( State.DONE, duration, unit );
 		return future.get( duration, unit );
 	}
 
 	public String getName() {
 		return name == null ? getClass().getName() : name;
+	}
+
+	public State getState() {
+		return state;
 	}
 
 	public Priority getPriority() {
@@ -117,30 +108,6 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	public void setPriority( Priority priority ) {
 		this.priority = priority;
-	}
-
-	public State getState() {
-		return state;
-	}
-
-	public void waitForState( State state ) throws InterruptedException {
-		synchronized( stateLock ) {
-			while( this.state != state ) {
-				stateLock.wait();
-			}
-		}
-	}
-
-	public void waitForState( State state, long duration, TimeUnit unit ) throws InterruptedException {
-		synchronized( stateLock ) {
-			while( this.state != state ) {
-				stateLock.wait( unit.toMillis( duration ), (int)(unit.toNanos( duration ) % 1000000) );
-			}
-		}
-	}
-
-	public Result getResult() {
-		return result;
 	}
 
 	public long getMinimum() {
@@ -176,37 +143,25 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		listeners.remove( listener );
 	}
 
-	protected TaskManager getTaskManager() {
+	TaskManager getTaskManager() {
 		return manager;
 	}
 
-	protected void setTaskManager( TaskManager manager ) {
+	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
+		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
 	}
 
-	protected void fireTaskEvent( TaskEvent.Type type ) {
+	FutureTask<V> createFuture( Callable<V> callable ) {
+		return this.future = new TaskFuture<V>( this );
+	}
+
+	private void fireTaskEvent( TaskEvent.Type type ) {
 		TaskEvent event = new TaskEvent( this, this, type );
 		for( TaskListener listener : listeners ) {
 			listener.handleEvent( event );
 		}
-		TaskManager manager = this.manager;
-		if( manager != null ) manager.fireTaskEvent( event );
-	}
-
-	V invoke() throws InterruptedException, ExecutionException {
-		setState( State.RUNNING );
-		fireTaskEvent( TaskEvent.Type.TASK_START );
-
-		future.run();
-		return future.get();
-	}
-
-	V invoke( long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
-		setState( State.RUNNING );
-		fireTaskEvent( TaskEvent.Type.TASK_START );
-
-		future.run();
-		return future.get( timeout, unit );
+		getTaskManager().fireTaskEvent( event );
 	}
 
 	private void setState( State state ) {
@@ -220,47 +175,38 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 		private Task<?> task;
 
-		public TaskFuture( Task<?> task, Callable<W> callable ) {
-			super( callable );
+		private TaskFuture( Task<W> task ) {
+			super( task );
 			this.task = task;
 		}
 
 		@Override
+		public void run() {
+			task.setState( State.RUNNING );
+			task.fireTaskEvent( TaskEvent.Type.TASK_START );
+			super.run();
+		}
+
+		@Override
 		protected void done() {
-			task.setState( State.DONE );
-			task.setProgress( task.maximum );
+			task.setProgress( task.getMaximum() );
 			task.fireTaskEvent( TaskEvent.Type.TASK_FINISH );
-			task.manager.completed( task );
-			task.manager = null;
+			if( isCancelled() ) task.setState( State.CANCELLED );
+			task.setTaskManager( null );
 			super.done();
 		}
 
 		@Override
 		protected void set( W value ) {
-			task.result = Result.SUCCESS;
+			task.setState( State.SUCCESS );
 			super.set( value );
 		}
 
 		@Override
 		protected void setException( Throwable throwable ) {
-			task.result = Result.FAILED;
+			task.setState( State.FAILED );
 			super.setException( throwable );
-		}
-
-	}
-
-	private static class TaskExecute<W> implements Callable<W> {
-
-		private Task<W> task;
-
-		public TaskExecute( Task<W> task ) {
-			this.task = task;
-		}
-
-		@Override
-		public W call() throws Exception {
-			// TODO This may not be the right place, but implement preemptive priority execution.
-			return task.execute();
+			log.error( "Error running task", throwable );
 		}
 
 	}
