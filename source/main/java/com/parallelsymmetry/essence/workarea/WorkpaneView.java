@@ -32,6 +32,10 @@ public class WorkpaneView extends BorderPane {
 		setCenter( tools = new TabPane() );
 	}
 
+	public TabPane getToolTabPane() {
+		return tools;
+	}
+
 	/**
 	 * Get an unmodifiable list of the tools in the view.
 	 *
