@@ -1,10 +1,12 @@
 package com.parallelsymmetry.essence.task;
 
 import com.parallelsymmetry.essence.util.ThreadUtil;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class TaskTest extends BaseTaskTest {
-
-	private TaskManager manager = new TaskManager();
 
 	/*
 	 * Don't make this number too small. The smaller the number, the more likely
@@ -13,62 +15,51 @@ public class TaskTest extends BaseTaskTest {
 	 */
 	private int delay = 50;
 
-	@Override
-	public void setup() throws Exception {
-		manager.start( );
-	}
-
+	@Test
 	public void testPriority() throws Exception {
 		Task<?> task = new MockTask( manager );
 
 		// Check default priority.
-//		assertEquals( Task.Priority.MEDIUM, task.getPriority() );
+		assertThat( task.getPriority(), is( Task.Priority.MEDIUM ) );
 
 		// Check changing priority.
-//		task.setPriority( Task.Priority.LOW );
-//		assertEquals( Task.Priority.LOW, task.getPriority() );
+		task.setPriority( Task.Priority.LOW );
+		assertThat( task.getPriority(), is( Task.Priority.LOW ) );
 	}
 
+	@Test
 	public void testSuccess() throws Exception {
 		Task<?> task = new MockTask( manager, 4 * delay );
 		ThreadUtil.pause( delay );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		manager.submit( task );
-//		task.waitForState( Task.State.RUNNING, 100, TimeUnit.MILLISECONDS );
-//		assertEquals( Task.State.RUNNING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-//		ThreadUtil.pause( delay );
-//		assertEquals( Task.State.RUNNING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-//		ThreadUtil.pause( 2 * delay );
-//		assertEquals( Task.State.RUNNING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-//		ThreadUtil.pause( 2 * delay );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
+
+		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
+		assertThat( task.getState(), is( Task.State.RUNNING ) );
+		ThreadUtil.pause( delay );
+		assertThat( task.getState(), is( Task.State.RUNNING ) );
+		ThreadUtil.pause( 2 * delay );
+		assertThat( task.getState(), is( Task.State.RUNNING ) );
+		ThreadUtil.pause( 2 * delay );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
+	@Test
 	public void testFailure() throws Exception {
 		Task<?> task = new MockTask( manager, 4 * delay, true );
 		ThreadUtil.pause( delay );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		manager.submit( task );
-//		task.waitForState( Task.State.RUNNING );
-//		assertEquals( Task.State.RUNNING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-//		ThreadUtil.pause( delay );
-//		assertEquals( Task.State.RUNNING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-//		ThreadUtil.pause( 2 * delay );
-//		assertEquals( Task.State.RUNNING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-//		ThreadUtil.pause( 2 * delay );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.FAILED, task.getResult() );
+		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
+		assertThat( task.getState(), is( Task.State.RUNNING ) );
+		ThreadUtil.pause( delay );
+		assertThat( task.getState(), is( Task.State.RUNNING ) );
+		ThreadUtil.pause( 2 * delay );
+		assertThat( task.getState(), is( Task.State.RUNNING ) );
+		ThreadUtil.pause( 2 * delay );
+		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 
 }

@@ -8,14 +8,6 @@ import static org.junit.Assert.assertThat;
 
 public class TaskEventTest extends BaseTaskTest {
 
-	private TaskManager manager;
-
-	@Override
-	public void setup() throws Exception {
-		manager = new TaskManager();
-		manager.start();
-	}
-
 	@Test
 	public void testSuccess() throws Exception {
 		Task<Object> task = new MockTask( manager );

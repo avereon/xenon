@@ -862,14 +862,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// TODO Re-enable the resource modified event watcher
 		//if( !previouslyLoaded ) resource.addDataListener( new ModifiedEventWatcher() );
 
-		log.trace( "Resource loaded: " + resource );
-
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
 
 		if( !previouslyLoaded ) {
 			resource.setReady();
+			log.trace( "Resource loaded: " + resource );
 		} else {
 			resource.refresh();
+			log.trace( "Resource refresh: " + resource );
 		}
 
 		return true;

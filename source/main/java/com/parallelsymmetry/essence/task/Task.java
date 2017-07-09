@@ -71,17 +71,17 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	@Override
 	public boolean isDone() {
-		return future.isDone();
+		return future != null && future.isDone();
 	}
 
 	@Override
 	public boolean isCancelled() {
-		return future.isCancelled();
+		return future != null && future.isCancelled();
 	}
 
 	@Override
 	public boolean cancel( boolean mayInterruptIfRunning ) {
-		return future.cancel( mayInterruptIfRunning );
+		return future != null && future.cancel( mayInterruptIfRunning );
 	}
 
 	@Override

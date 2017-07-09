@@ -1,9 +1,16 @@
 package com.parallelsymmetry.essence.task;
 
-import java.util.List;
-import java.util.concurrent.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class TaskManagerTest extends BaseTaskTest {
 
@@ -11,279 +18,267 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	@Override
 	public void setup() {
+		// Use a different manager instance
 		manager = new TaskManager();
 	}
 
+	@Test
 	public void testStartAndAwait() throws Exception {
-		manager.start(  );
+		manager.start();
 		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
-		assertTrue( manager.isRunning() );
-		manager.stop(  );
+		assertThat( manager.isRunning(), is( true ) );
+		manager.stop();
 	}
 
+	@Test
 	public void testStopAndWait() throws Exception {
 		manager.start();
 		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
-		assertTrue( manager.isRunning() );
+		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
 		manager.awaitStop( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 	}
 
+	@Test
 	public void testStartAndStop() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
-		assertTrue( manager.isRunning() );
+		assertThat( manager.isRunning(), is( true ) );
 
 		manager.stop();
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 	}
 
+	@Test
 	public void testRestart() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
-		manager.stop(  );
-		assertFalse( manager.isRunning() );
+		manager.stop();
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.start(  );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
-		manager.stop( );
-		assertFalse( manager.isRunning() );
+		manager.stop();
+		assertThat( manager.isRunning(), is( false ) );
 	}
 
+	@Test
 	public void testStopBeforeStart() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.stop(  );
-		assertFalse( manager.isRunning() );
+		manager.stop();
+		assertThat( manager.isRunning(), is( false ) );
 	}
 
+	@Test
 	public void testSubmitNullRunnable() throws Exception {
-		assertFalse( manager.isRunning() );
-		manager.start(  );
-		assertTrue( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		try {
 			manager.submit( (Runnable)null );
-			fail( "TaskManager.submit(null) should throw a NullPointerException." );
+			fail( "TaskManager.submit(null) should throw a NullPointerException" );
 		} catch( NullPointerException exception ) {
-			// A NullPointerException should be thrown.
+			assertThat( exception, instanceOf( NullPointerException.class ) );
 		}
 	}
 
+	@Test
 	public void testSubmitNullCallable() throws Exception {
-		assertFalse( manager.isRunning() );
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		try {
 			manager.submit( (Callable<?>)null );
-			fail( "TaskManager.submit(null) should throw a NullPointerException." );
+			fail( "TaskManager.submit(null) should throw a NullPointerException" );
 		} catch( NullPointerException exception ) {
-			// A NullPointerException should be thrown.
+			assertThat( exception, instanceOf( NullPointerException.class ) );
 		}
 	}
 
+	@Test
 	public void testSubmitNullResult() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		MockTask task = new MockTask( manager );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		Future<Object> future = manager.submit( task );
-		assertNull( future.get() );
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( future.get(), is( nullValue() ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
+	@Test
 	public void testSubmitWithResult() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		Future<Object> future = manager.submit( task );
-		assertEquals( result, future.get() );
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( future.get(), is( result ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
+	@Test
 	public void testFailedTask() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		MockTask task = new MockTask( manager, null, true );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		manager.submit( task );
 		try {
-			assertNull( task.get() );
-			fail();
+			assertThat( task.get(), is( nullValue() ) );
+			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
-			assertEquals( MockTask.EXCEPTION_MESSAGE, exception.getCause().getMessage() );
+			assertThat( exception.getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 		}
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.FAILED, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 
+	@Test
 	public void testSubmitBeforeStart() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
 		MockTask task = new MockTask( manager );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		try {
 			manager.submit( task );
-			fail( "TaskManager.submit() should throw and exception if the manager is not running." );
+			Assert.fail( "TaskManager.submit() should throw and exception if the manager is not running" );
 		} catch( Exception exception ) {
-			// Intentionally ignore exception.
+			assertThat( exception, instanceOf( Exception.class ) );
 		}
 
-		assertFalse( manager.isRunning() );
-		assertFalse( task.isDone() );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( manager.isRunning(), is( false ) );
+		assertThat( task.isDone(), is( false ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 	}
 
+	@Test
 	public void testUsingTaskAsFuture() throws Exception {
-		assertFalse( manager.isRunning() );
+		assertThat( manager.isRunning(), is( false ) );
 
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		manager.submit( task );
-		assertEquals( result, task.get() );
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( task.get(), is( result ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
+	@Test
 	public void testNestedTask() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		Object nestedResult = new Object();
 		MockTask nestedTask = new MockTask( manager, nestedResult );
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result, nestedTask );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		manager.submit( task );
-		assertEquals( result, task.get( 100, TimeUnit.MILLISECONDS ) );
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( task.get( 100, TimeUnit.MILLISECONDS ), is( result ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
+	@Test
 	public void testNestedTaskWithException() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
 		Object nestedResult = new Object();
 		MockTask nestedTask = new MockTask( manager, nestedResult, true );
-//		assertEquals( Task.State.WAITING, nestedTask.getState() );
-//		assertEquals( Task.Result.UNKNOWN, nestedTask.getResult() );
+		assertThat( nestedTask.getState(), is( Task.State.WAITING ) );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result, nestedTask );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
 
 		manager.submit( task );
 
 		// Check the parent task.
-		task.get();
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
-		assertFalse( task.isCancelled() );
+		task.get( 100, TimeUnit.MILLISECONDS );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 
 		// Check the nested task.
 		try {
-			assertNull( nestedTask.get() );
-			fail();
+			assertThat( nestedTask.get( 100, TimeUnit.MILLISECONDS ), is( nullValue() ) );
+			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
-			assertEquals( MockTask.EXCEPTION_MESSAGE, exception.getCause().getMessage() );
+			assertThat( exception.getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 		}
-		assertTrue( nestedTask.isDone() );
-//		assertEquals( Task.State.DONE, nestedTask.getState() );
-//		assertEquals( Task.Result.FAILED, nestedTask.getResult() );
-		assertFalse( nestedTask.isCancelled() );
+		assertThat( nestedTask.isDone(), is( true ) );
+		assertThat( nestedTask.isCancelled(), is( false ) );
+		assertThat( nestedTask.getState(), is( Task.State.FAILED ) );
 	}
 
+	@Test
 	public void testTaskListener() throws Exception {
 		manager.setThreadCount( 1 );
-		manager.start( );
-		assertTrue( manager.isRunning() );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
 
-		MockTaskListener listener = new MockTaskListener();
+		TaskWatcher listener = new TaskWatcher();
 		manager.addTaskListener( listener );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
-//		assertEquals( Task.State.WAITING, task.getState() );
-//		assertEquals( Task.Result.UNKNOWN, task.getResult() );
-		assertEquals( 0, listener.events.size() );
+		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( listener.getEvents().size(), is( 0 ) );
 
 		Future<Object> future = manager.submit( task );
-		assertEquals( result, future.get() );
-		assertTrue( task.isDone() );
-//		assertEquals( Task.State.DONE, task.getState() );
-//		assertEquals( Task.Result.SUCCESS, task.getResult() );
-		assertFalse( task.isCancelled() );
+		assertThat( future.get(), is( result ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.isCancelled(), is( false ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 
-		int index = 0;
-		assertEquals( 4, listener.events.size() );
-		assertEquals( TaskEvent.Type.TASK_SUBMITTED, listener.events.get( index++ ).getType() );
-		assertEquals( TaskEvent.Type.TASK_START, listener.events.get( index++ ).getType() );
-		assertEquals( TaskEvent.Type.TASK_PROGRESS, listener.events.get( index++ ).getType() );
-		assertEquals( TaskEvent.Type.TASK_FINISH, listener.events.get( index++ ).getType() );
-	}
-
-	private class MockTaskListener implements TaskListener {
-
-		public List<TaskEvent> events = new CopyOnWriteArrayList<TaskEvent>();
-
-		@Override
-		public void handleEvent( TaskEvent event ) {
-			events.add( event );
-		}
-
+		assertThat( listener.getEvents().get( 0 ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
+		assertThat( listener.getEvents().get( 1 ).getType(), is( TaskEvent.Type.TASK_START ) );
+		assertThat( listener.getEvents().get( 2 ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
+		assertThat( listener.getEvents().get( 3 ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
+		assertThat( listener.getEvents().size(), is( 4 ) );
 	}
 
 }
