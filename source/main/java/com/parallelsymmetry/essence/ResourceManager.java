@@ -3,9 +3,8 @@ package com.parallelsymmetry.essence;
 import com.parallelsymmetry.essence.node.NodeEvent;
 import com.parallelsymmetry.essence.node.NodeListener;
 import com.parallelsymmetry.essence.resource.*;
-import com.parallelsymmetry.essence.resource.event.ResourceClosedEvent;
-import com.parallelsymmetry.essence.resource.event.ResourceLoadedEvent;
-import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
+import com.parallelsymmetry.essence.resource.ResourceEvent;
+import com.parallelsymmetry.essence.resource.event.*;
 import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
@@ -56,21 +55,23 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private NewActionHandler newActionHandler;
 
-	//	private OpenActionHandler openActionHandler;
-	//
-	//	private SaveActionHandler saveActionHandler;
-	//
-	//	private SaveActionHandler saveAsActionHandler;
-	//
-	//	private SaveActionHandler saveCopyAsActionHandler;
-	//
-	//	private SaveAllActionHandler saveAllActionHandler;
-	//
-	//	private CloseActionHandler closeActionHandler;
-	//
-	//	private CloseAllActionHandler closeAllActionHandler;
+	private OpenActionHandler openActionHandler;
+
+	private SaveActionHandler saveActionHandler;
+
+	private SaveActionHandler saveAsActionHandler;
+
+	private SaveActionHandler saveCopyAsActionHandler;
+
+	private SaveAllActionHandler saveAllActionHandler;
+
+	private CloseActionHandler closeActionHandler;
+
+	private CloseAllActionHandler closeAllActionHandler;
 
 	private CurrentResourceWatcher currentResourceWatcher = new CurrentResourceWatcher();
+
+	private ModifiedResourceWatcher modifiedResourceWatcher = new ModifiedResourceWatcher();
 
 	private Object restoreLock = new Object();
 
@@ -88,30 +89,29 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		registeredMediaTypes = new ConcurrentHashMap<>();
 
 		newActionHandler = new NewActionHandler( program );
-
-		//		openActionHandler = new OpenActionHandler( program );
-		//		saveActionHandler = new SaveActionHandler( program, false, false );
-		//		saveAsActionHandler = new SaveActionHandler( program, true, false );
-		//		saveCopyAsActionHandler = new SaveActionHandler( program, true, true );
-		//		saveAllActionHandler = new SaveAllActionHandler( program );
-		//		closeActionHandler = new CloseActionHandler(program);
-		//		closeAllActionHandler = new CloseAllActionHandler(program);
+		openActionHandler = new OpenActionHandler( program );
+		saveActionHandler = new SaveActionHandler( program, false, false );
+		saveAsActionHandler = new SaveActionHandler( program, true, false );
+		saveCopyAsActionHandler = new SaveActionHandler( program, true, true );
+		saveAllActionHandler = new SaveAllActionHandler( program );
+		closeActionHandler = new CloseActionHandler( program );
+		closeAllActionHandler = new CloseAllActionHandler( program );
 	}
 
 	@Override
 	public ResourceManager start() {
 		//		((FileScheme)Schemes.getScheme( "file" )).startResourceWatching();
-		//
-		//		program.getActionLibrary().getAction( "new" ).pushHandler( newActionHandler );
-		//		program.getActionLibrary().getAction( "open" ).pushHandler( openActionHandler );
-		//		program.getActionLibrary().getAction( "save" ).pushHandler( saveActionHandler );
-		//		program.getActionLibrary().getAction( "save.as" ).pushHandler( saveAsActionHandler );
-		//		program.getActionLibrary().getAction( "save.copy.as" ).pushHandler( saveCopyAsActionHandler );
-		//		program.getActionLibrary().getAction( "save.all" ).pushHandler( saveAllActionHandler );
-		//		program.getActionLibrary().getAction( "close" ).pushHandler( closeActionHandler );
-		//		program.getActionLibrary().getAction( "close.all" ).pushHandler( closeAllActionHandler );
-		//
-		//		updateActionState();
+
+		program.getActionLibrary().getAction( "new" ).pushAction( newActionHandler );
+		program.getActionLibrary().getAction( "open" ).pushAction( openActionHandler );
+		program.getActionLibrary().getAction( "save" ).pushAction( saveActionHandler );
+		program.getActionLibrary().getAction( "save-as" ).pushAction( saveAsActionHandler );
+		program.getActionLibrary().getAction( "copy-as" ).pushAction( saveCopyAsActionHandler );
+		program.getActionLibrary().getAction( "save-all" ).pushAction( saveAllActionHandler );
+		program.getActionLibrary().getAction( "close" ).pushAction( closeActionHandler );
+		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
+
+		updateActionState();
 		return this;
 	}
 
@@ -157,34 +157,34 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new SetCurrentResourceTask( resource ) );
 	}
 
-	//	public void setCurrentResourceAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-	//		program.getTaskManager().invoke( new SetCurrentResourceTask( resource ) );
-	//	}
-	//
-	//	public List<Resource> getOpenResources() {
-	//		return new ArrayList<Resource>( openResources );
-	//	}
-	//
-	//	public List<Resource> getModifiedResources() {
-	//		List<Resource> modifiedResources = new ArrayList<Resource>();
-	//		for( Resource resource : getOpenResources() ) {
-	//			if( resource.isModified() && canSaveResource( resource ) ) modifiedResources.add( resource );
-	//		}
-	//		return modifiedResources;
-	//	}
-	//
-	//	/**
-	//	 * Get the externally modified resources.
-	//	 *
-	//	 * @return
-	//	 */
-	//	public List<Resource> getExternallyModifiedResources() {
-	//		List<Resource> externallyModifiedResources = new ArrayList<Resource>();
-	//		for( Resource resource : getOpenResources() ) {
-	//			if( resource.isExternallyModified() ) externallyModifiedResources.add( resource );
-	//		}
-	//		return externallyModifiedResources;
-	//	}
+	public void setCurrentResourceAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+		program.getExecutor().submit( new SetCurrentResourceTask( resource ) ).get();
+	}
+
+	public List<Resource> getOpenResources() {
+		return new ArrayList<Resource>( openResources );
+	}
+
+	public List<Resource> getModifiedResources() {
+		List<Resource> modifiedResources = new ArrayList<Resource>();
+		for( Resource resource : getOpenResources() ) {
+			if( resource.isModified() && canSaveResource( resource ) ) modifiedResources.add( resource );
+		}
+		return modifiedResources;
+	}
+
+	/**
+	 * Get the externally modified resources.
+	 *
+	 * @return
+	 */
+	public List<Resource> getExternallyModifiedResources() {
+		List<Resource> externallyModifiedResources = new ArrayList<Resource>();
+		for( Resource resource : getOpenResources() ) {
+			if( resource.isExternallyModified() ) externallyModifiedResources.add( resource );
+		}
+		return externallyModifiedResources;
+	}
 
 	/**
 	 * Get a scheme by the scheme name.
@@ -538,163 +538,163 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new LoadResourceTask( resources ) ).get();
 	}
 
-	//	/**
-	//	 * Request that the specified resources be saved. This method submits a task
-	//	 * to the task manager and returns immediately.
-	//	 *
-	//	 * @param resource
-	//	 */
-	//	public void saveResources( Resource resource ) {
-	//		saveResources( Arrays.asList( new Resource[]{ resource } ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be saved. This method submits a task
-	//	 * to the task manager and returns immediately.
-	//	 *
-	//	 * @param resources
-	//	 */
-	//	public void saveResources( Collection<Resource> resources ) {
-	//		program.getTaskManager().submit( new SaveResourceTask( resources ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be saved and wait until the task is
-	//	 * complete. This method submits a task to the task manager and waits for the
-	//	 * task to be completed.
-	//	 * <p>
-	//	 * Note: This method should never be called from the event dispatch thread.
-	//	 *
-	//	 * @param resource
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void saveResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-	//		saveResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the specified resources be saved and wait until the task is
-	//	 * complete. This method submits a task to the task manager and waits for the
-	//	 * task to be completed.
-	//	 * <p>
-	//	 * Note: This method should never be called from the event dispatch thread.
-	//	 *
-	//	 * @param resources
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void saveResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-	//		program.getTaskManager().invoke( new SaveResourceTask( resources ) );
-	//	}
-	//
-	//	/**
-	//	 * Request that the source resource be saved as the target resource. This
-	//	 * method submits a task to the task manager and returns immediately.
-	//	 *
-	//	 * @param source
-	//	 * @param target
-	//	 */
-	//	public void saveAsResource( Resource source, Resource target ) {
-	//		SaveAsResourceTask task = new SaveAsResourceTask( source, target );
-	//		program.getTaskManager().submit( task );
-	//	}
-	//
-	//	/**
-	//	 * Request that the source resource be saved as the target resource and wait
-	//	 * until the task is complete. This method submits a task to the task manager
-	//	 * and waits for the task to be completed.
-	//	 * <p>
-	//	 * Note: This method should never be called from the event dispatch thread.
-	//	 *
-	//	 * @param source
-	//	 * @param target
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void saveAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
-	//		SaveAsResourceTask task = new SaveAsResourceTask( source, target );
-	//		program.getTaskManager().invoke( task );
-	//	}
-	//
-	//	/**
-	//	 * Request that the source resource be saved as a copy to the target resource.
-	//	 * This method submits a task to the task manager and returns immediately.
-	//	 *
-	//	 * @param source
-	//	 * @param target
-	//	 */
-	//	public void saveCopyAsResource( Resource source, Resource target ) {
-	//		SaveCopyResourceTask task = new SaveCopyResourceTask( source, target );
-	//		program.getTaskManager().submit( task );
-	//	}
-	//
-	//	/**
-	//	 * Request that the source resource be saved as a copy to the target resource
-	//	 * and wait until the task is complete. This method submits a task to the task
-	//	 * manager and waits for the task to be completed.
-	//	 * <p>
-	//	 * Note: This method should never be called from the event dispatch thread.
-	//	 *
-	//	 * @param source
-	//	 * @param target
-	//	 * @throws ExecutionException
-	//	 * @throws InterruptedException
-	//	 */
-	//	public void saveCopyAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
-	//		SaveCopyResourceTask task = new SaveCopyResourceTask( source, target );
-	//		program.getTaskManager().invoke( task );
-	//	}
+	/**
+	 * Request that the specified resources be saved. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param resource
+	 */
+	public void saveResources( Resource resource ) {
+		saveResources( Arrays.asList( new Resource[]{ resource } ) );
+	}
 
-		/**
-		 * Request that the specified resources be closed. This method submits a task
-		 * to the task manager and returns immediately.
-		 *
-		 * @param resource The resources to close.
-		 */
-		public void closeResources( Resource resource ) {
-			closeResources( Arrays.asList( new Resource[]{ resource } ) );
-		}
+	/**
+	 * Request that the specified resources be saved. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param resources
+	 */
+	public void saveResources( Collection<Resource> resources ) {
+		program.getExecutor().submit( new SaveResourceTask( resources ) );
+	}
 
-		/**
-		 * Request that the specified resources be closed. This method submits a task
-		 * to the task manager and returns immediately.
-		 *
-		 * @param resources The resources to close.
-		 */
-		public void closeResources( Collection<Resource> resources ) {
-			program.getExecutor().submit( new CloseResourceTask( resources ) );
-		}
+	/**
+	 * Request that the specified resources be saved and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should never be called from the event dispatch thread.
+	 *
+	 * @param resource
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void saveResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+		saveResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+	}
 
-		/**
-		 * Request that the specified resources be closed and wait until the task is
-		 * complete. This method submits a task to the task manager and waits for the
-		 * task to be completed.
-		 * <p>
-		 * Note: This method should not be called from the event dispatch thread.
-		 *
-		 * @param resource The resources to close.
-		 * @throws ExecutionException
-		 * @throws InterruptedException
-		 */
-		public void closeResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-			closeResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
-		}
+	/**
+	 * Request that the specified resources be saved and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should never be called from the event dispatch thread.
+	 *
+	 * @param resources
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void saveResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
+		program.getExecutor().submit( new SaveResourceTask( resources ) ).get();
+	}
 
-		/**
-		 * Request that the specified resources be closed and wait until the task is
-		 * complete. This method submits a task to the task manager and waits for the
-		 * task to be completed.
-		 * <p>
-		 * Note: This method should not be called from the event dispatch thread.
-		 *
-		 * @param resources The resources to close.
-		 * @throws ExecutionException
-		 * @throws InterruptedException
-		 */
-		public void closeResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-			program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
-		}
+	/**
+	 * Request that the source resource be saved as the target resource. This
+	 * method submits a task to the task manager and returns immediately.
+	 *
+	 * @param source
+	 * @param target
+	 */
+	public void saveAsResource( Resource source, Resource target ) {
+		SaveAsResourceTask task = new SaveAsResourceTask( source, target );
+		program.getExecutor().submit( task );
+	}
+
+	/**
+	 * Request that the source resource be saved as the target resource and wait
+	 * until the task is complete. This method submits a task to the task manager
+	 * and waits for the task to be completed.
+	 * <p>
+	 * Note: This method should never be called from the event dispatch thread.
+	 *
+	 * @param source
+	 * @param target
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void saveAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
+		SaveAsResourceTask task = new SaveAsResourceTask( source, target );
+		program.getExecutor().submit( task ).get();
+	}
+
+	/**
+	 * Request that the source resource be saved as a copy to the target resource.
+	 * This method submits a task to the task manager and returns immediately.
+	 *
+	 * @param source
+	 * @param target
+	 */
+	public void saveCopyAsResource( Resource source, Resource target ) {
+		SaveCopyResourceTask task = new SaveCopyResourceTask( source, target );
+		program.getExecutor().submit( task );
+	}
+
+	/**
+	 * Request that the source resource be saved as a copy to the target resource
+	 * and wait until the task is complete. This method submits a task to the task
+	 * manager and waits for the task to be completed.
+	 * <p>
+	 * Note: This method should never be called from the event dispatch thread.
+	 *
+	 * @param source
+	 * @param target
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void saveCopyAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
+		SaveCopyResourceTask task = new SaveCopyResourceTask( source, target );
+		program.getExecutor().submit( task ).get();
+	}
+
+	/**
+	 * Request that the specified resources be closed. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param resource The resources to close.
+	 */
+	public void closeResources( Resource resource ) {
+		closeResources( Arrays.asList( new Resource[]{ resource } ) );
+	}
+
+	/**
+	 * Request that the specified resources be closed. This method submits a task
+	 * to the task manager and returns immediately.
+	 *
+	 * @param resources The resources to close.
+	 */
+	public void closeResources( Collection<Resource> resources ) {
+		program.getExecutor().submit( new CloseResourceTask( resources ) );
+	}
+
+	/**
+	 * Request that the specified resources be closed and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should not be called from the event dispatch thread.
+	 *
+	 * @param resource The resources to close.
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void closeResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
+		closeResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+	}
+
+	/**
+	 * Request that the specified resources be closed and wait until the task is
+	 * complete. This method submits a task to the task manager and waits for the
+	 * task to be completed.
+	 * <p>
+	 * Note: This method should not be called from the event dispatch thread.
+	 *
+	 * @param resources The resources to close.
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void closeResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
+		program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
+	}
 
 	private void persistOpenResources() {
 		// FIXME Reimplement as a Configurable class
@@ -785,19 +785,16 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private void updateActionState() {
 		newActionHandler.setEnabled( resourceTypes.size() > 0 );
-		//			openActionHandler.setEnabled( resourceTypes.size() > 0 );
-		//			saveAllActionHandler.setEnabled( getModifiedResources().size() > 0 );
+		openActionHandler.setEnabled( resourceTypes.size() > 0 );
+		saveAllActionHandler.setEnabled( getModifiedResources().size() > 0 );
+		closeAllActionHandler.setEnabled( openResources.size() > 0 );
 	}
 
 	private void registerCodec( Codec codec, Set<String> values, Map<String, Set<Codec>> registrations ) {
 		if( values == null ) return;
 
 		for( String value : values ) {
-			Set<Codec> registeredCodecs = registrations.get( value );
-			if( registeredCodecs == null ) {
-				registeredCodecs = new CopyOnWriteArraySet<Codec>();
-				registrations.put( value, registeredCodecs );
-			}
+			Set<Codec> registeredCodecs = registrations.computeIfAbsent( value, k -> new CopyOnWriteArraySet<Codec>() );
 			registeredCodecs.add( codec );
 		}
 	}
@@ -866,8 +863,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			resource.setModified( false );
 		}
 
-		// TODO Re-enable the resource modified event watcher
-		//if( !previouslyLoaded ) resource.addDataListener( new ModifiedEventWatcher() );
+		if( !previouslyLoaded ) resource.addNodeListener( modifiedResourceWatcher );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
 
@@ -882,108 +878,108 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return true;
 	}
 
-		private boolean doSaveResource( Resource resource, Resource saveAsResource, boolean saveAs, boolean copy ) throws ResourceException {
-			if( resource == null ) return false;
-			if( !isResourceOpen( resource ) ) return false;
+	private boolean doSaveResource( Resource resource, Resource saveAsResource, boolean saveAs, boolean copy ) throws ResourceException {
+		if( resource == null ) return false;
+		if( !isResourceOpen( resource ) ) return false;
 
-			URI uri = resource.getUri();
-			Codec codec = resource.getCodec();
+		URI uri = resource.getUri();
+		Codec codec = resource.getCodec();
 
-	//		if( uri == null || (saveAs && saveAsResource == null) ) {
-	//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.RESOURCE_MANAGER );
-	//			String currentDirectory = settings.get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) );
-	//
-	//			JFileChooser chooser = new JFileChooser();
-	//			chooser.setMultiSelectionEnabled( true );
-	//			chooser.setCurrentDirectory( new File( currentDirectory ) );
-	//			chooser.setAcceptAllFileFilterUsed( false );
-	//			Codec resourceCodec = resource.getCodec();
-	//
-	//			// If there is not a codec associated with the resource choose the default.
-	//			if( resourceCodec == null ) resourceCodec = resource.getType().getDefaultCodec();
-	//
-	//			// Add supported resource types.
-	//			FileFilter selectedFilter = null;
-	//			for( String pattern : registeredFileNames.keySet() ) {
-	//				Set<Codec> registration = registeredFileNames.get( pattern );
-	//				for( Codec option : registration ) {
-	//					if( !option.canSave() ) continue;
-	//					FileFilter filter = new FoldersAndCodecFilter( option );
-	//					chooser.addChoosableFileFilter( filter );
-	//					if( option.equals( resourceCodec ) ) selectedFilter = filter;
-	//				}
-	//			}
-	//
-	//			if( selectedFilter == null ) {
-	//				program.error( Bundles.getString( BundleKey.MESSAGES, "resource.save.no.codec" ) );
-	//				return false;
-	//			}
-	//			chooser.setFileFilter( selectedFilter );
-	//
-	//			File file = null;
-	//			int result = JOptionPane.YES_OPTION;
-	//			do {
-	//				int choice = chooser.showSaveDialog( program.getActiveFrame() );
-	//				if( choice == JFileChooser.CANCEL_OPTION ) return false;
-	//
-	//				CodecFileFilter filter = (CodecFileFilter)chooser.getFileFilter();
-	//
-	//				file = chooser.getSelectedFile();
-	//				codec = filter.getCodec();
-	//
-	//				// If the file is not already supported use the default extension from the codec.
-	//				if( !file.exists() && !codec.isSupportedFileName( file.getName() ) ) {
-	//					file = new File( file.getParent(), file.getName() + "." + codec.getDefaultExtension() );
-	//				}
-	//
-	//				// If the file already exists verify with the user.
-	//				if( file.exists() ) {
-	//					String title = Bundles.getString( BundleKey.LABELS, "file.already.exists" );
-	//					String message = MessageFormat.format( Bundles.getString( BundleKey.MESSAGES, "file.already.exists" ), file );
-	//					result = program.notify( title, message, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
-	//					if( result == JOptionPane.CANCEL_OPTION ) return false;
-	//				}
-	//			} while( file.exists() && result != JOptionPane.YES_OPTION );
-	//
-	//			uri = file.toURI();
-	//
-	//			if( saveAs ) {
-	//				saveAsResource = new Resource( resource.getType(), uri );
-	//				saveAsResource.setCodec( codec );
-	//				saveAsResource.open();
-	//			} else {
-	//				resource.setUri( uri );
-	//				resource.setCodec( codec );
-	//			}
-	//
-	//			File parent = file.isFile() ? file.getParentFile() : file;
-	//			settings.put( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
-	//		}
-	//
-	//		if( saveAsResource != null ) {
-	//			if( copy ) {
-	//				saveAsResource.fill( resource );
-	//				resource = saveAsResource;
-	//			} else {
-	//				resource.setUri( saveAsResource.getUri() );
-	//				resource.setCodec( saveAsResource.getCodec() );
-	//			}
-	//		}
-	//
-	//		resource.save( this );
-	//		persistOpenResources();
-	//
-	//		// Note: The resource watcher will log that the resource was unmodified.
-	//		resource.setModified( false );
-	//
-	//		// TODO Update the resource type.
-	//
-	//		Log.write( Log.TRACE, "Resource saved: " + resource );
-	//
-	//		program.getEventBus().submit( new ResourceSavedEvent( getClass(), resource ) );
+		//		if( uri == null || (saveAs && saveAsResource == null) ) {
+		//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.RESOURCE_MANAGER );
+		//			String currentDirectory = settings.get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) );
+		//
+		//			JFileChooser chooser = new JFileChooser();
+		//			chooser.setMultiSelectionEnabled( true );
+		//			chooser.setCurrentDirectory( new File( currentDirectory ) );
+		//			chooser.setAcceptAllFileFilterUsed( false );
+		//			Codec resourceCodec = resource.getCodec();
+		//
+		//			// If there is not a codec associated with the resource choose the default.
+		//			if( resourceCodec == null ) resourceCodec = resource.getType().getDefaultCodec();
+		//
+		//			// Add supported resource types.
+		//			FileFilter selectedFilter = null;
+		//			for( String pattern : registeredFileNames.keySet() ) {
+		//				Set<Codec> registration = registeredFileNames.get( pattern );
+		//				for( Codec option : registration ) {
+		//					if( !option.canSave() ) continue;
+		//					FileFilter filter = new FoldersAndCodecFilter( option );
+		//					chooser.addChoosableFileFilter( filter );
+		//					if( option.equals( resourceCodec ) ) selectedFilter = filter;
+		//				}
+		//			}
+		//
+		//			if( selectedFilter == null ) {
+		//				program.error( Bundles.getString( BundleKey.MESSAGES, "resource.save.no.codec" ) );
+		//				return false;
+		//			}
+		//			chooser.setFileFilter( selectedFilter );
+		//
+		//			File file = null;
+		//			int result = JOptionPane.YES_OPTION;
+		//			do {
+		//				int choice = chooser.showSaveDialog( program.getActiveFrame() );
+		//				if( choice == JFileChooser.CANCEL_OPTION ) return false;
+		//
+		//				CodecFileFilter filter = (CodecFileFilter)chooser.getFileFilter();
+		//
+		//				file = chooser.getSelectedFile();
+		//				codec = filter.getCodec();
+		//
+		//				// If the file is not already supported use the default extension from the codec.
+		//				if( !file.exists() && !codec.isSupportedFileName( file.getName() ) ) {
+		//					file = new File( file.getParent(), file.getName() + "." + codec.getDefaultExtension() );
+		//				}
+		//
+		//				// If the file already exists verify with the user.
+		//				if( file.exists() ) {
+		//					String title = Bundles.getString( BundleKey.LABELS, "file.already.exists" );
+		//					String message = MessageFormat.format( Bundles.getString( BundleKey.MESSAGES, "file.already.exists" ), file );
+		//					result = program.notify( title, message, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
+		//					if( result == JOptionPane.CANCEL_OPTION ) return false;
+		//				}
+		//			} while( file.exists() && result != JOptionPane.YES_OPTION );
+		//
+		//			uri = file.toURI();
+		//
+		//			if( saveAs ) {
+		//				saveAsResource = new Resource( resource.getType(), uri );
+		//				saveAsResource.setCodec( codec );
+		//				saveAsResource.open();
+		//			} else {
+		//				resource.setUri( uri );
+		//				resource.setCodec( codec );
+		//			}
+		//
+		//			File parent = file.isFile() ? file.getParentFile() : file;
+		//			settings.put( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
+		//		}
+		//
+		//		if( saveAsResource != null ) {
+		//			if( copy ) {
+		//				saveAsResource.fill( resource );
+		//				resource = saveAsResource;
+		//			} else {
+		//				resource.setUri( saveAsResource.getUri() );
+		//				resource.setCodec( saveAsResource.getCodec() );
+		//			}
+		//		}
 
-			return true;
-		}
+		resource.save( this );
+		persistOpenResources();
+
+		// Note: The resource watcher will log that the resource was unmodified.
+		resource.setModified( false );
+
+		// TODO Update the resource type.
+
+		log.trace( "Resource saved: " + resource );
+
+		program.fireEvent( new ResourceSavedEvent( getClass(), resource ) );
+
+		return true;
+	}
 
 	private boolean doCloseResource( Resource resource ) throws ResourceException {
 		if( resource == null ) return false;
@@ -1009,6 +1005,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		resource.close( this );
 		openResources.remove( resource );
+		resource.removeNodeListener( modifiedResourceWatcher );
 		persistOpenResources();
 
 		if( openResources.size() == 0 ) doSetCurrentResource( null );
@@ -1036,26 +1033,26 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			currentResource = resource;
 
 			// "Connect" the new current resource.
-			//				if( currentResource == null ) {
-			//					saveActionHandler.setEnabled( false );
-			//					saveAsActionHandler.setEnabled( false );
-			//					saveCopyAsActionHandler.setEnabled( false );
-			//					closeActionHandler.setEnabled( false );
-			//				} else {
-			//					boolean canSave = canSaveResource( resource );
-			//					saveActionHandler.setEnabled( currentResource.isModified() && canSave );
-			//					saveAsActionHandler.setEnabled( canSave );
-			//					saveCopyAsActionHandler.setEnabled( canSave );
-			//					closeActionHandler.setEnabled( true );
-			//					currentResource.addResourceListener( currentResourceWatcher );
-			//				}
+			if( currentResource == null ) {
+				saveActionHandler.setEnabled( false );
+				saveAsActionHandler.setEnabled( false );
+				saveCopyAsActionHandler.setEnabled( false );
+				closeActionHandler.setEnabled( false );
+			} else {
+				boolean canSave = canSaveResource( resource );
+				saveActionHandler.setEnabled( currentResource.isModified() && canSave );
+				saveAsActionHandler.setEnabled( canSave );
+				saveCopyAsActionHandler.setEnabled( canSave );
+				closeActionHandler.setEnabled( true );
+				currentResource.addResourceListener( currentResourceWatcher );
+			}
 
-			//				closeAllActionHandler.setEnabled( openResources.size() > 0 );
+			updateActionState();
 
 			log.trace( "Resource select: " + (resource == null ? "null" : resource) );
 
-			//				// Notify program of current resource change.
-			//				program.getEventBus().submit( new CurrentResourceChangedEvent( getClass(), previous, currentResource ) );
+			// Notify program of current resource change.
+			program.fireEvent( new CurrentResourceChangedEvent( getClass(), previous, currentResource ) );
 		}
 
 		return true;
@@ -1118,8 +1115,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		// NEXT Create codecs for program resource types and assign them to the program scheme
 
-		//		Collection<ResourceType> resourceTypes = getResourceTypes();
-		//
+				Collection<ResourceType> resourceTypes = getResourceTypes();
+
 		//		// First option: Determine codec by media type.
 		//		String contentType = null;
 		//		if( connection == null ) connection = getConnection( resource.getUri() );
@@ -1320,6 +1317,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			if( types.size() == 1 ) {
 				type = types.iterator().next();
 			} else {
+				// TODO Re-enable ResourceManager.NewActionHandler.handle()
 				//					String title = program.getResourceBundle().getString( BundleKey.LABELS, "new" );
 				//					ResourceTypePanel panel = new ResourceTypePanel( ResourceManager.this );
 				//
@@ -1344,7 +1342,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				if( type == null ) return null;
 
 				Resource resource = null;
-				// TODO Re-enable ResourceManager.LoadResource.execute()
+				// TODO Re-enable ResourceManager.LoadResource.call()
 				//					try {
 				//						resource = createResource( type );
 				//						openResourcesAndWait( resource );
@@ -1367,140 +1365,152 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-	//	private class OpenActionHandler extends XActionHandler {
-	//
-	//		private ResourceTool tool;
-	//
-	//		@Override
-	//		public void actionPerformed( ActionEvent event ) {
-	//			tool = (ResourceTool)program.getToolManager().getWorkTool( ResourceTool.class );
-	//			if( tool == null ) return;
-	//
-	//			tool.addActionListener( new ResourceToolOpenHandler() );
-	//			program.getActiveWorkPane().addTool( tool, true );
-	//
-	//			setEnabled( false );
-	//		}
-	//
-	//		private class ResourceToolOpenHandler implements ActionListener {
-	//
-	//			public void actionPerformed( ActionEvent event ) {
-	//				tool.removeActionListener( this );
-	//				updateActionState();
-	//
-	//				if( event.getActionCommand() == ResourceTool.CANCEL_SELECTION ) return;
-	//
-	//				// Open the selected resources.
-	//				Codec codec = tool.getSelectedCodec();
-	//				List<Resource> resources = Arrays.asList( tool.getSelectedResources() );
-	//				program.getTaskManager().submit( new OpenActionTask( resources, codec, program.getActiveWorkPane().getActiveView(), true ) );
-	//			}
-	//
-	//		}
-	//
-	//	}
-	//
-	//	private class SaveActionHandler extends XActionHandler {
-	//
-	//		private Resource resource;
-	//
-	//		private boolean saveAs;
-	//
-	//		private boolean copy;
-	//
-	//		private ResourceTool tool;
-	//
-	//		public SaveActionHandler( boolean saveAs, boolean copy ) {
-	//			this.saveAs = saveAs;
-	//			this.copy = copy;
-	//		}
-	//
-	//		@Override
-	//		public void actionPerformed( ActionEvent event ) {
-	//			resource = getCurrentResource();
-	//
-	//			if( saveAs ) {
-	//				// Ask the user for the new resource location.
-	//				tool = (ResourceTool)program.getToolManager().getWorkTool( ResourceTool.class );
-	//				if( tool == null ) return;
-	//
-	//				tool.addActionListener( new ResourceToolSaveHandler() );
-	//				program.getActiveWorkPane().addTool( tool, true );
-	//			} else {
-	//				saveResources( resource );
-	//			}
-	//		}
-	//
-	//		private class ResourceToolSaveHandler implements ActionListener {
-	//
-	//			@Override
-	//			public void actionPerformed( ActionEvent event ) {
-	//				tool.removeActionListener( this );
-	//
-	//				if( event.getActionCommand() == ResourceTool.CANCEL_SELECTION ) return;
-	//
-	//				// If the user specified a codec use it.
-	//				Codec codec = null;
-	//				ResourceType type = null;
-	//
-	//				// Set the codec and resource type.
-	//				codec = tool.getSelectedCodec();
-	//				if( codec != null ) type = codec.getResourceType();
-	//
-	//				// Resolve the URI.
-	//				URI uri = UriUtil.resolve( tool.getResourcePath() );
-	//
-	//				// Create the target resource.
-	//				Resource target = createResource( type, uri );
-	//
-	//				if( copy ) {
-	//					saveCopyAsResource( resource, target );
-	//				} else {
-	//					saveAsResource( resource, target );
-	//				}
-	//			}
-	//		}
-	//
-	//	}
-	//
-	//	private class SaveAllActionHandler extends XActionHandler {
-	//
-	//		@Override
-	//		public void actionPerformed( ActionEvent event ) {
-	//			try {
-	//				saveResources( getModifiedResources() );
-	//			} catch( Exception exception ) {
-	//				program.error( exception );
-	//			}
-	//		}
-	//
-	//	}
-	//
-	//	private class CloseActionHandler extends XActionHandler {
-	//
-	//		@Override
-	//		public void actionPerformed( ActionEvent event ) {
-	//			try {
-	//				closeResources( getCurrentResource() );
-	//			} catch( Exception exception ) {
-	//				program.error( exception );
-	//			}
-	//		}
-	//
-	//	}
-	//
-	//	private class CloseAllActionHandler extends XActionHandler {
-	//
-	//		@Override
-	//		public void actionPerformed( ActionEvent event ) {
-	//			try {
-	//				closeResources( openResources );
-	//			} catch( Exception exception ) {
-	//				program.error( exception );
-	//			}
-	//		}
-	//
-	//	}
+	private class OpenActionHandler extends Action {
+
+		protected OpenActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public void handle( Event event ) {
+			// TODO Open a file dialog for the user to pick a file
+			// In Escape this opened a separate tool. Do I want to do the same?
+
+			// Disable the action while the dialog is open
+			setEnabled( false );
+		}
+
+		// This class is the action listener of the resource tool used to open files
+		//		private class ResourceToolOpenHandler implements ActionListener {
+		//
+		//			public void actionPerformed( ActionEvent event ) {
+		//				tool.removeActionListener( this );
+		//				updateActionState();
+		//
+		//				if( event.getActionCommand() == ResourceTool.CANCEL_SELECTION ) return;
+		//
+		//				// Open the selected resources.
+		//				Codec codec = tool.getSelectedCodec();
+		//				List<Resource> resources = Arrays.asList( tool.getSelectedResources() );
+		//				program.getTaskManager().submit( new OpenActionTask( resources, codec, program.getActiveWorkPane().getActiveView(), true ) );
+		//			}
+		//
+		//		}
+		//
+	}
+
+	private class SaveActionHandler extends Action {
+
+		private Resource resource;
+
+		private boolean saveAs;
+
+		private boolean copy;
+
+		public SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
+			super( program );
+			this.saveAs = saveAs;
+			this.copy = copy;
+		}
+
+		@Override
+		public void handle( Event event ) {
+			resource = getCurrentResource();
+
+			if( saveAs ) {
+				//				// Ask the user for the new resource location.
+				//				tool = (ResourceTool)program.getToolManager().getWorkTool( ResourceTool.class );
+				//				if( tool == null ) return;
+				//
+				//				tool.addActionListener( new ResourceToolSaveHandler() );
+				//				program.getActiveWorkPane().addTool( tool, true );
+			} else {
+				saveResources( resource );
+			}
+		}
+
+		//		private class ResourceToolSaveHandler implements ActionListener {
+		//
+		//			@Override
+		//			public void actionPerformed( ActionEvent event ) {
+		//				tool.removeActionListener( this );
+		//
+		//				if( event.getActionCommand() == ResourceTool.CANCEL_SELECTION ) return;
+		//
+		//				// If the user specified a codec use it.
+		//				Codec codec = null;
+		//				ResourceType type = null;
+		//
+		//				// Set the codec and resource type.
+		//				codec = tool.getSelectedCodec();
+		//				if( codec != null ) type = codec.getResourceType();
+		//
+		//				// Resolve the URI.
+		//				URI uri = UriUtil.resolve( tool.getResourcePath() );
+		//
+		//				// Create the target resource.
+		//				Resource target = createResource( type, uri );
+		//
+		//				if( copy ) {
+		//					saveCopyAsResource( resource, target );
+		//				} else {
+		//					saveAsResource( resource, target );
+		//				}
+		//			}
+		//		}
+
+	}
+
+	private class SaveAllActionHandler extends Action {
+
+		protected SaveAllActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public void handle( Event event ) {
+			try {
+				saveResources( getModifiedResources() );
+			} catch( Exception exception ) {
+				program.getNotifier().error( exception );
+			}
+		}
+
+	}
+
+	private class CloseActionHandler extends Action {
+
+		protected CloseActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public void handle( Event event ) {
+			try {
+				closeResources( getCurrentResource() );
+			} catch( Exception exception ) {
+				program.getNotifier().error( exception );
+			}
+		}
+
+	}
+
+	private class CloseAllActionHandler extends Action {
+
+		protected CloseAllActionHandler( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public void handle( Event event ) {
+			try {
+				closeResources( openResources );
+			} catch( Exception exception ) {
+				program.getNotifier().error( exception );
+			}
+		}
+
+	}
 
 	private abstract class ResourceTask extends ProgramTask<Collection<Resource>> {
 
@@ -1508,7 +1518,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		public ResourceTask( Resource resource ) {
 			super( program );
-			this.resources = Arrays.asList( new Resource[]{ resource } );
+			this.resources = Collections.singletonList( resource );
 		}
 
 		public ResourceTask( Resource... resources ) {
@@ -1544,11 +1554,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					messages.append( error.getMessage() );
 					messages.append( "\n" );
 				}
-				// FIXME Log the error information
-				//				String title = ProductUtil.getString( getProduct(), BundleKey.LABELS, "resources" );
-				//				String message = ProductUtil.getString( getProduct(), BundleKey.MESSAGES, "resource.exception", messages.toString() );
-				//				//program.error( title, message );
-				//				log.warn( "Error executing resource task", message );
+
+				String title = program.getResourceBundle().getString( "resource", "resources" );
+				String message = program.getResourceBundle().getString( "resource", "resource.exception", messages.toString() );
+				program.getNotifier().warning( title, (Object)message );
+				log.warn( "Error executing resource task", message );
 			}
 
 			return result;
@@ -1594,60 +1604,58 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-	//	private class SaveResourceTask extends ResourceTask {
-	//
-	//		public SaveResourceTask( Resource resource ) {
-	//			super( resource );
-	//		}
-	//
-	//		public SaveResourceTask( Resource... resources ) {
-	//			super( resources );
-	//		}
-	//
-	//		public SaveResourceTask( Collection<Resource> resources ) {
-	//			super( resources );
-	//		}
-	//
-	//		@Override
-	//		public boolean doOperation( Resource resource ) throws ResourceException {
-	//			Log.write( "Save resource..." );
-	//
-	//			return doSaveResource( resource, null, false, false );
-	//		}
-	//
-	//	}
-	//
-	//	private class SaveAsResourceTask extends ResourceTask {
-	//
-	//		private Resource target;
-	//
-	//		public SaveAsResourceTask( Resource source, Resource target ) {
-	//			super( source );
-	//			this.target = target;
-	//		}
-	//
-	//		@Override
-	//		public boolean doOperation( Resource resource ) throws ResourceException {
-	//			return doSaveResource( resource, target, true, false );
-	//		}
-	//
-	//	}
-	//
-	//	private class SaveCopyResourceTask extends ResourceTask {
-	//
-	//		private Resource target;
-	//
-	//		public SaveCopyResourceTask( Resource source, Resource target ) {
-	//			super( source );
-	//			this.target = target;
-	//		}
-	//
-	//		@Override
-	//		public boolean doOperation( Resource resource ) throws ResourceException {
-	//			return doSaveResource( resource, target, true, true );
-	//		}
-	//
-	//	}
+	private class SaveResourceTask extends ResourceTask {
+
+		public SaveResourceTask( Resource resource ) {
+			super( resource );
+		}
+
+		public SaveResourceTask( Resource... resources ) {
+			super( resources );
+		}
+
+		public SaveResourceTask( Collection<Resource> resources ) {
+			super( resources );
+		}
+
+		@Override
+		public boolean doOperation( Resource resource ) throws ResourceException {
+			return doSaveResource( resource, null, false, false );
+		}
+
+	}
+
+	private class SaveAsResourceTask extends ResourceTask {
+
+		private Resource target;
+
+		public SaveAsResourceTask( Resource source, Resource target ) {
+			super( source );
+			this.target = target;
+		}
+
+		@Override
+		public boolean doOperation( Resource resource ) throws ResourceException {
+			return doSaveResource( resource, target, true, false );
+		}
+
+	}
+
+	private class SaveCopyResourceTask extends ResourceTask {
+
+		private Resource target;
+
+		public SaveCopyResourceTask( Resource source, Resource target ) {
+			super( source );
+			this.target = target;
+		}
+
+		@Override
+		public boolean doOperation( Resource resource ) throws ResourceException {
+			return doSaveResource( resource, target, true, true );
+		}
+
+	}
 
 	private class CloseResourceTask extends ResourceTask {
 
@@ -1681,19 +1689,19 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		public void resourceModified( ResourceEvent event ) {
 			Resource resource = event.getResource();
 			log.trace( "Resource modified: " + resource );
-			// TODO saveActionHandler.setEnabled( canSaveResource( resource ) );
+			saveActionHandler.setEnabled( canSaveResource( resource ) );
 		}
 
 		@Override
 		public void resourceUnmodified( ResourceEvent event ) {
 			Resource resource = event.getResource();
-			// TODO saveActionHandler.setEnabled( false );
+			saveActionHandler.setEnabled( false );
 			log.trace( "Resource unmodified: " + resource );
 		}
 
 	}
 
-	private class ModifiedEventWatcher implements NodeListener {
+	private class ModifiedResourceWatcher implements NodeListener {
 
 		@Override
 		public void eventOccurred( NodeEvent event ) {

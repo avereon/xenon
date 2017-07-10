@@ -10,10 +10,18 @@ public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 
 	protected Program program;
 
+	private boolean enabled;
+
 	protected Action( Program program ) {
 		this.program = program;
 	}
 
-	public abstract boolean isEnabled();
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled( boolean enabled ) {
+		this.enabled = false;
+	}
 
 }

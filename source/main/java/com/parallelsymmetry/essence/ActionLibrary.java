@@ -25,7 +25,9 @@ public class ActionLibrary {
 		register( bundle, icons, "save" );
 		register( bundle, icons, "save-as" );
 		register( bundle, icons, "copy-as" );
+		register( bundle, icons, "save-all" );
 		register( bundle, icons, "close" );
+		register( bundle, icons, "close-all" );
 		register( bundle, icons, "exit" );
 
 		register( bundle, icons, "edit" );
@@ -52,9 +54,8 @@ public class ActionLibrary {
 		register( bundle, icons, "statusbar-show" );
 
 		register( bundle, icons, "help" );
-		register( bundle, icons, "welcome" );
 		register( bundle, icons, "help-content" );
-		//		register( bundle, icons, "system-properties" );
+		register( bundle, icons, "welcome" );
 		//		register( bundle, icons, "products" );
 		register( bundle, icons, "update" );
 		register( bundle, icons, "about" );
