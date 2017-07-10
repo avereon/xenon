@@ -79,13 +79,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		openTool( resource, view == null ? null : view.getWorkPane(), view );
 	}
 
-	// TODO Rename to createResourceTool
 	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
-		// OK...so this is a bit of a mess here since there is a lot of decision
-		// making to be done in just this little spot. So...I'm going to try and
-		// lay out the process flow:
-
-		// The only thing cannot be null is the resource
+		// The only thing that cannot be null is the resource
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
 
 		// Get the resource type to look up the registered tool classes
@@ -122,10 +117,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		// If the view is not null, that means the user wants to put the tool in that view
 		if( view == null ) {
 			// Get the tool placement
-			Workpane.Placement placement = null;
-			if( placement == null ) placement = toolClassMetadata.get( toolClass ).getPlacement();
+			Workpane.Placement placement = toolClassMetadata.get( toolClass ).getPlacement();
 			if( placement == null ) placement = Workpane.Placement.SMART;
 			view = pane.determineViewFromPlacement( placement );
+			if( view == null ) throw new NullPointerException( "WorkpaneView cannot be null when opening tool" );
 		}
 
 		// Create a tool if it is needed
@@ -144,10 +139,6 @@ public class ToolManager implements Controllable<ToolManager> {
 			program.getNotifier().warning( title, (Object)message, resource.getUri().toString() );
 			return;
 		}
-
-		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
-		if( view == null ) throw new NullPointerException( "WorkpaneView cannot be null when opening tool" );
-		if( tool == null ) throw new NullPointerException( "Tool cannot be null when opening tool" );
 
 		final Workpane finalPane = pane;
 		final WorkpaneView finalView = view;
