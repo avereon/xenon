@@ -154,11 +154,11 @@ public class Workspace implements Configurable {
 		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
-		VBox pane = new VBox();
-		pane.getChildren().addAll( menubar, toolbar );
+		VBox bars = new VBox();
+		bars.getChildren().addAll( menubar, toolbar );
 
 		layout = new BorderPane();
-		layout.setTop( pane );
+		layout.setTop( bars );
 		layout.setCenter( workpaneContainer );
 
 		// Create the scene
@@ -264,7 +264,9 @@ public class Workspace implements Configurable {
 		stage, are used. This includes the listeners for the width and height
 		properties below.
 		 */
-		scene = new Scene( layout, w, h );
+
+		// NOTE Setting the scene size to zero and changing the stage size works perfectly on Linux
+		scene = new Scene( layout, 0, 0 );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.setScene( scene );
 
@@ -272,6 +274,8 @@ public class Workspace implements Configurable {
 		// If not specified the stage is centered on the screen
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
+		if( w != null ) stage.setWidth( w );
+		if( h != null ) stage.setHeight( h );
 
 		stage.setMaximized( settings.getBoolean( "maximized", false ) );
 		setActive( settings.getBoolean( "active", false ) );
