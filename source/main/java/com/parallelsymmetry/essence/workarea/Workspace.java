@@ -257,31 +257,29 @@ public class Workspace implements Configurable {
 		this.settings = settings;
 		id = settings.getString( "id" );
 
-		Double x = settings.getDouble( "x", (Double)null );
-		Double y = settings.getDouble( "y", (Double)null );
+		Double x = settings.getDouble( "x", null );
+		Double y = settings.getDouble( "y", null );
 		Double w = settings.getDouble( "w", UiFactory.DEFAULT_WIDTH );
 		Double h = settings.getDouble( "h", UiFactory.DEFAULT_HEIGHT );
 
-		/*
-		Due to differences in how FX handles stage size (width and height) on
-		different operating systems, the width and height from the scene, not the
-		stage, are used. This includes the listeners for the width and height
-		properties below.
-		 */
-
-		// NOTE Setting the scene size to zero and changing the stage size works
-		// correctly on Linux but on on Windows. Apparently the stage size on
-		// Windows does not take into account the window title.
-		scene = new Scene( layout, 0, 0 );
+		// Due to differences in how FX handles stage size (width and height) on
+		// different operating systems, the width and height from the scene, not the
+		// stage, are used. This includes the listeners for the width and height
+		// properties below.
+		stage.setScene( scene = new Scene( layout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
-		stage.setScene( scene );
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
-		if( w != null ) stage.setWidth( w );
-		if( h != null ) stage.setHeight( h );
+
+		// On Linux, setWidth() and setHeight() incorrectly do not take the stage
+		// window decorations into account. The way to deal with this is to watch
+		// the scene size and set the scene size on creation.
+		// Do not use the following.
+		// if( w != null ) stage.setWidth( w );
+		// if( h != null ) stage.setHeight( h );
 
 		stage.setMaximized( settings.getBoolean( "maximized", false ) );
 		setActive( settings.getBoolean( "active", false ) );
@@ -301,7 +299,6 @@ public class Workspace implements Configurable {
 		} );
 		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) settings.set( "h", newValue );
-			log.info( "stageHeight=" + newValue );
 		} );
 	}
 
