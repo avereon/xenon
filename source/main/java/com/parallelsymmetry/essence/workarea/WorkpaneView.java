@@ -58,11 +58,14 @@ public class WorkpaneView extends BorderPane {
 	public Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
 
-		tool.setToolView( this );
-		tools.getTabs().add( index, new Tab( tool.getTitle(), tool ) );
-
 		Tab tab = new Tab( tool.getTitle(), tool );
 		tab.textProperty().bind( tool.titleProperty() );
+		tab.setOnCloseRequest( event -> {
+			event.consume();
+			tool.close();
+		} );
+		tool.setToolView( this );
+		tools.getTabs().add( index, tab );
 
 		tool.callAllocate();
 
@@ -208,21 +211,14 @@ public class WorkpaneView extends BorderPane {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-
-		builder.append( super.toString() );
-		builder.append( "(" );
-		builder.append( System.identityHashCode( this ) );
-		builder.append( ")" );
-
-		return builder.toString();
+		return super.toString() + "(" + System.identityHashCode( this ) + ")";
 	}
 
-	public Workpane getWorkPane() {
+	public Workpane getWorkpane() {
 		return parent;
 	}
 
-	void setWorkPane( Workpane parent ) {
+	void setWorkpane( Workpane parent ) {
 		this.parent = parent;
 		// TODO Should workpanes have icons? If so, update them.
 		//if( parent != null ) updateIcons();

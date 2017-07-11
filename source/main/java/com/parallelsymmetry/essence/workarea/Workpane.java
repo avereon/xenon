@@ -419,7 +419,7 @@ public class Workpane extends Pane {
 
 		startOperation();
 		try {
-			view.setWorkPane( this );
+			view.setWorkpane( this );
 			getChildren().add( view );
 			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_ADDED, this, view, null ) );
 		} finally {
@@ -436,7 +436,7 @@ public class Workpane extends Pane {
 			startOperation();
 
 			getChildren().remove( view );
-			view.setWorkPane( null );
+			view.setWorkpane( null );
 
 			view.northEdge.southViews.remove( view );
 			view.southEdge.northViews.remove( view );

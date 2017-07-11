@@ -4,7 +4,6 @@ import com.parallelsymmetry.essence.ProductTool;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
@@ -112,11 +111,6 @@ public class ProductInfoTool extends ProductTool {
 		builder.append( "\n" );
 
 		text.setText( builder.toString().trim() );
-	}
-
-	@Override
-	public ToolInstanceMode getInstanceMode() {
-		return ToolInstanceMode.SINGLETON;
 	}
 
 }

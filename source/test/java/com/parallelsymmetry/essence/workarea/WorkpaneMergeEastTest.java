@@ -107,8 +107,8 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 
 		workpane.pushMerge( west, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 1 ) );
-		assertThat( west.getWorkPane(), is( workpane ) );
-		assertNull( toolview.getWorkPane() );
+		assertThat( west.getWorkpane(), is( workpane ) );
+		assertNull( toolview.getWorkpane() );
 		assertThat( workpane.getDefaultView(), is( west ) );
 		assertThat( workpane.getActiveView(), is( west ) );
 		assertThat( west.getTools().size(), is( 2 ) );

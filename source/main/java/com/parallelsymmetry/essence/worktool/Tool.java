@@ -7,7 +7,6 @@ import com.parallelsymmetry.essence.resource.ResourceEvent;
 import com.parallelsymmetry.essence.resource.ResourceListener;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
-import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -68,10 +67,6 @@ public abstract class Tool extends Control {
 
 	public Resource getResource() {
 		return resource;
-	}
-
-	public ToolInstanceMode getInstanceMode() {
-		return ToolInstanceMode.UNLIMITED;
 	}
 
 	public Workpane.Placement getPlacement() {
@@ -170,7 +165,7 @@ public abstract class Tool extends Control {
 
 	public Workpane getWorkpane() {
 		WorkpaneView view = getToolView();
-		return view == null ? null : view.getWorkPane();
+		return view == null ? null : view.getWorkpane();
 	}
 
 	public boolean isAllocated() {

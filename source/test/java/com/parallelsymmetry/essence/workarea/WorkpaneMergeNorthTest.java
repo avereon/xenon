@@ -95,7 +95,7 @@ public class WorkpaneMergeNorthTest extends WorkpaneTestCase {
 		assertThat( workpane.getDefaultView(), is( toolview ) );
 		assertThat( workpane.getActiveView(), is( toolview ) );
 		assertFalse( south.isActive() );
-		assertThat( south.getWorkPane(), is( workpane ) );
+		assertThat( south.getWorkpane(), is( workpane ) );
 		south.getProperties().put( "name", "view1" );
 
 		Tool view = new MockTool( resource );
@@ -110,8 +110,8 @@ public class WorkpaneMergeNorthTest extends WorkpaneTestCase {
 
 		workpane.pushMerge( south, Side.TOP );
 		assertThat( workpane.getViews().size(), is( 1 ) );
-		assertThat( south.getWorkPane(), is( workpane ) );
-		assertNull( toolview.getWorkPane() );
+		assertThat( south.getWorkpane(), is( workpane ) );
+		assertNull( toolview.getWorkpane() );
 		assertThat( workpane.getDefaultView(), is( south ) );
 		assertThat( workpane.getActiveView(), is( south ) );
 		assertThat( south.getTools().size(), is( 2 ) );

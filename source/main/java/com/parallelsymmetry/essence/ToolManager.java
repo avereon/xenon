@@ -76,7 +76,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	public void openTool( Resource resource, WorkpaneView view ) {
-		openTool( resource, view == null ? null : view.getWorkPane(), view );
+		openTool( resource, view == null ? null : view.getWorkpane(), view );
 	}
 
 	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
@@ -109,7 +109,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
 
 		// Before checking for existing tools, the workpane needs to be determined
-		if( pane == null && view != null ) pane = view.getWorkPane();
+		if( pane == null && view != null ) pane = view.getWorkpane();
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
