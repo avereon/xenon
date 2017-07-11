@@ -62,6 +62,8 @@ public abstract class Tool extends Control {
 		this.closeOperation = new SimpleObjectProperty<>();
 		this.listeners = new CopyOnWriteArraySet<>();
 
+		getStyleClass().add( "tool" );
+
 		setTitle( title );
 	}
 

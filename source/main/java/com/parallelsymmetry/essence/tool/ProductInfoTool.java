@@ -4,15 +4,19 @@ import com.parallelsymmetry.essence.ProductTool;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.worktool.ToolException;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 
 public class ProductInfoTool extends ProductTool {
+
+	private static final Logger log = LoggerFactory.getLogger( ProductInfoTool.class );
 
 	private String titleSuffix;
 
@@ -22,11 +26,11 @@ public class ProductInfoTool extends ProductTool {
 
 	public ProductInfoTool( Product product, Resource resource ) {
 		super( product, resource );
+		setId( "tool-product-info" );
 
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "product-info-suffix" ) );
 
 		text = new TextArea();
-		text.setBackground( Background.EMPTY );
 		text.setEditable( false );
 
 		BorderPane border = new BorderPane();
@@ -111,6 +115,36 @@ public class ProductInfoTool extends ProductTool {
 		builder.append( "\n" );
 
 		text.setText( builder.toString().trim() );
+	}
+
+	@Override
+	protected void allocate() throws ToolException {
+		log.info( "Tool allocate" );
+	}
+
+	@Override
+	protected void display() throws ToolException {
+		log.info( "Tool display" );
+	}
+
+	@Override
+	protected void activate() throws ToolException {
+		log.info( "Tool activate" );
+	}
+
+	@Override
+	protected void deactivate() throws ToolException {
+		log.info( "Tool deactivate" );
+	}
+
+	@Override
+	protected void conceal() throws ToolException {
+		log.info( "Tool conceal" );
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		log.info( "Tool deallocate" );
 	}
 
 }
