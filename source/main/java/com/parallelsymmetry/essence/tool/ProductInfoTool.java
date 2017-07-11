@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.worktool.ToolException;
+import com.parallelsymmetry.essence.worktool.ToolInfo;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
@@ -18,11 +19,17 @@ public class ProductInfoTool extends ProductTool {
 
 	private static final Logger log = LoggerFactory.getLogger( ProductInfoTool.class );
 
+	private static ToolInfo toolInfo = new ToolInfo();
+
 	private String titleSuffix;
 
 	private ProductMetadata metadata;
 
 	private TextArea text;
+
+	static {
+		getToolInfo().addRequiredToolClass( GuideTool.class );
+	}
 
 	public ProductInfoTool( Product product, Resource resource ) {
 		super( product, resource );
@@ -145,6 +152,10 @@ public class ProductInfoTool extends ProductTool {
 	@Override
 	protected void deallocate() throws ToolException {
 		log.info( "Tool deallocate" );
+	}
+
+	public static ToolInfo getToolInfo() {
+		return toolInfo;
 	}
 
 }

@@ -16,6 +16,7 @@ import com.parallelsymmetry.essence.scheme.FileScheme;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
+import com.parallelsymmetry.essence.tool.AboutTool;
 import com.parallelsymmetry.essence.tool.ProductInfoTool;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
@@ -422,7 +423,7 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerTools( ToolManager manager ) {
-		registerTool( manager, ProductInfoType.class, ProductInfoTool.class, ToolInstanceMode.SINGLETON, "product-info", "about" );
+		registerTool( manager, ProductInfoType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "product-info", "about" );
 		//registerTool( manager, ProgramSettingsType.class, ProductSettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		//registerTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 	}
@@ -430,7 +431,7 @@ public class Program extends Application implements Product {
 	private void unregisterTools( ToolManager manager ) {
 		//unregisterTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class );
 		//unregisterTool( manager, ProgramSettingsType.class, ProductSettingsTool.class );
-		unregisterTool( manager, ProductInfoType.class, ProductInfoTool.class );
+		unregisterTool( manager, ProductInfoType.class, AboutTool.class );
 	}
 
 	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {

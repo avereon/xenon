@@ -1,7 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.tool.ProductInfoTool;
+import com.parallelsymmetry.essence.tool.AboutTool;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneEvent;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class AboutToolTest extends FxProgramTestCase {
 
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 2000 );
-		assertThat( pane.getActiveTool(), instanceOf( ProductInfoTool.class ) );
+		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 
@@ -30,7 +30,7 @@ public class AboutToolTest extends FxProgramTestCase {
 
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 2000 );
-		assertThat( pane.getActiveTool(), instanceOf( ProductInfoTool.class ) );
+		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
 		workpaneWatcher.clearEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
@@ -45,7 +45,7 @@ public class AboutToolTest extends FxProgramTestCase {
 		Resource resource = program.getResourceManager().createResource( "program:about" );
 
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-		assertThat( pane.getActiveTool(), instanceOf( ProductInfoTool.class ) );
+		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
 		program.getResourceManager().closeResources( resource );

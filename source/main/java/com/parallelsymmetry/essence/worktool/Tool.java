@@ -33,6 +33,8 @@ public abstract class Tool extends Control {
 
 	public static final String DESCRIPTION_PROPERTY = "description";
 
+	private static ToolInfo toolInfo = new ToolInfo();
+
 	private ObjectProperty<Node> graphicProperty;
 
 	private StringProperty titleProperty;
@@ -353,6 +355,10 @@ public abstract class Tool extends Control {
 			Tool.this.close();
 		}
 
+	}
+
+	public static ToolInfo getToolInfo() {
+		return toolInfo;
 	}
 
 }

@@ -1,11 +1,8 @@
 package com.parallelsymmetry.essence;
 
-import com.parallelsymmetry.essence.tool.ProductInfoTool;
-import com.parallelsymmetry.essence.workarea.Workpane;
 import javafx.stage.Stage;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
