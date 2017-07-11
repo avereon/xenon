@@ -3,9 +3,12 @@
  */
 
 .root {
-/* Base color can be overridden here */
-/*	-fx-base: rgba( 236, 236, 236, 1 ); */
-	-fx-background: rgba( 241, 241, 241, 0.2 );
+	/* Base colors can be overridden here */
+	/* -fx-base: rgba( 236, 236, 236, 1 ); */
+	/* -fx-background: rgba( 241, 241, 241, 0.2 ); */
+
+	/* Program colors */
+	-px-background-text: rgba( 241, 241, 241, 0.2 );
 }
 
 /* ScrollPane */
@@ -47,4 +50,12 @@
 
 .workpane-edge:vertical {
 	-fx-cursor: h-resize;
+}
+
+.tool .text-area {
+	-fx-background: -px-background-text;
+}
+
+.tool .text-field {
+	-fx-background: -px-background-text;
 }
