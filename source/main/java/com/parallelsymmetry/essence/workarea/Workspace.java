@@ -14,6 +14,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -24,6 +26,8 @@ import java.util.Set;
  * The workspace manages the menu bar, tool bar and workareas.
  */
 public class Workspace implements Configurable {
+
+	private static final Logger log = LoggerFactory.getLogger( Workspace.class );
 
 	private Program program;
 
@@ -265,7 +269,9 @@ public class Workspace implements Configurable {
 		properties below.
 		 */
 
-		// NOTE Setting the scene size to zero and changing the stage size works perfectly on Linux
+		// NOTE Setting the scene size to zero and changing the stage size works
+		// correctly on Linux but on on Windows. Apparently the stage size on
+		// Windows does not take into account the window title.
 		scene = new Scene( layout, 0, 0 );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.setScene( scene );
@@ -295,6 +301,7 @@ public class Workspace implements Configurable {
 		} );
 		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) settings.set( "h", newValue );
+			log.info( "stageHeight=" + newValue );
 		} );
 	}
 
