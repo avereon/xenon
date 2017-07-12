@@ -4,16 +4,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.parallelsymmetry.pom</groupId>
-		<artifactId>jar</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
-		<relativePath></relativePath>
-	</parent>
-
 	<groupId>com.parallelsymmetry</groupId>
-	<artifactId>essence</artifactId>
+	<artifactId>essence-wercker-test</artifactId>
 	<packaging>jar</packaging>
+	<version>0.0.1</version>
 
 	<name>Essence</name>
 	<description>A Java application platform for developing modular cross-platform applications.</description>
