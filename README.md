@@ -1,3 +1,5 @@
+[![wercker status](https://app.wercker.com/status/0ee80f05342e6771985269dae3174e09/s/ "wercker status")](https://app.wercker.com/project/byKey/0ee80f05342e6771985269dae3174e09)
+
 # Essence #
 
 Essence is a program framework on which to build various kinds of 
