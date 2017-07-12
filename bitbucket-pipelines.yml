@@ -3,12 +3,19 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
+# https://hub.docker.com/r/library/maven/tags/
 image: maven:3.5-jdk-9
 
 pipelines:
-  default:
+  default: # replace `default` level with levels `branches.master` or any other branch to limit builds to that branch
+           # limiting builds to a branch allows you to dev on another branch, commit+push often, and not chew through your build minutes
     - step:
         caches:
           - maven
         script: # Modify the commands below to build your repository.
           - mvn -B verify package # -B batch mode makes Maven less verbose
+          # you could do a `mvn deploy` to place your artifact in a maven repo
+          # or you can run any command to move your artifact elsewhere
+          # like to BitBucket Downloads for example
+          # https://confluence.atlassian.com/bitbucket/deploy-build-artifacts-to-bitbucket-downloads-872124574.html
+          - curl -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"`ls -tr target/*.jar | tail -n1`"
