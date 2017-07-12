@@ -75,6 +75,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		openTool( resource, null, null );
 	}
 
+	public void openTool( Resource resource, Workpane pane ) {
+		openTool( resource, pane, null );
+	}
+
 	public void openTool( Resource resource, WorkpaneView view ) {
 		openTool( resource, view == null ? null : view.getWorkpane(), view );
 	}
@@ -139,6 +143,24 @@ public class ToolManager implements Controllable<ToolManager> {
 			program.getNotifier().warning( title, (Object)message, resource.getUri().toString() );
 			return;
 		}
+
+//		// NEXT Now that we have a tool...open dependent resources
+//		// Or, should we be opening dependent resources?
+//		// Or, should the resource dependencies be defined by the resource?
+//		for( Resource dependency: tool.getResourceDependencies() ) {
+//			openTool( dependency, pane );
+//		}
+
+//		try {
+//			ToolInfo info = (ToolInfo)toolClass.getMethod( "getToolInfo" ).invoke( null );
+//			for( Class<? extends Tool> dependency : info.getRequiredToolClasses() ) {
+//				// We know the class of the tool, but not a resource.
+//				// Can't have a null resource...so what do I do?
+//				// If I have a resource I could just open it with this method.
+//			}
+//		} catch( Exception exception ) {
+//			log.error( "Error getting tool info", exception );
+//		}
 
 		final Workpane finalPane = pane;
 		final WorkpaneView finalView = view;

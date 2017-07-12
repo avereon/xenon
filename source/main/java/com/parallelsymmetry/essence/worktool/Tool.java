@@ -17,6 +17,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import org.slf4j.Logger;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -355,6 +356,10 @@ public abstract class Tool extends Control {
 			Tool.this.close();
 		}
 
+	}
+
+	public Set<Resource> getResourceDependencies() {
+		return Collections.unmodifiableSet( Collections.emptySet() );
 	}
 
 	public static ToolInfo getToolInfo() {
