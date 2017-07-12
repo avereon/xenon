@@ -6,6 +6,12 @@ without admin access to the bitbucket repo i cannot add a webhook config. so to 
 
 -----
 
+# UPDATE #
+
+While i did like werker i like **BitBucket pipelines** much better especially combined with **BitBucket downloads**
+
+-----
+
 # Essence #
 
 Essence is a program framework on which to build various kinds of 
