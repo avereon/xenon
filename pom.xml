@@ -12,8 +12,9 @@
 	</parent>
 
 	<groupId>com.parallelsymmetry</groupId>
-	<artifactId>essence</artifactId>
+	<artifactId>essence-wercker-test</artifactId>
 	<packaging>jar</packaging>
+	<version>0.0.1</version>
 
 	<name>Essence</name>
 	<description>A Java application platform for developing modular cross-platform applications.</description>
@@ -33,7 +34,7 @@
 	<repositories>
 		<repository>
 			<id>psm</id>
-			<url>http://code.parallelsymmetry.com/repo/psm</url>
+			<url>https://code.parallelsymmetry.com/repo/psm</url>
 		</repository>
 	</repositories>
 
