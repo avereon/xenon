@@ -19,14 +19,17 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Program program;
 
+	private File programSettingsFolder;
+
 	private Set<ConfigWrapper> wrappers;
 
 	public SettingsManager( Program program ) {
 		this.program = program;
+		programSettingsFolder = new File( program.getDataFolder(), ProgramSettings.BASE );
 	}
 
-	public Settings getSettings( File file ) {
-		return getSettings( file, null );
+	public Settings getSettings( String path ) {
+		return getSettings( new File( programSettingsFolder, path ), null );
 	}
 
 	public Settings getSettings( File file, String id ) {

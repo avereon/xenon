@@ -208,21 +208,8 @@ public class Resource extends Node {
 		fireResourceLoaded( new ResourceEvent( Resource.class, this ) );
 	}
 
-	public synchronized final boolean isReady() {
-		return ready;
-	}
-
-	public synchronized void setReady() {
-		if( this.ready == true ) return;
-
-		this.ready = true;
-		notifyAll();
-
-		fireResourceReady( new ResourceEvent( Resource.class, this ) );
-	}
-
-	public void refresh( ResourceManager manager ) {
-		fireResourceRefresh( new ResourceEvent( Resource.class, this ) );
+	public synchronized final void refresh( ResourceManager manager ) {
+		fireResourceRefreshed( new ResourceEvent( Resource.class, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -359,21 +346,9 @@ public class Resource extends Node {
 		}
 	}
 
-	protected void fireResourceReady( ResourceEvent event ) {
+	protected void fireResourceRefreshed( ResourceEvent event ) {
 		for( ResourceListener listener : listeners ) {
-			listener.resourceReady( event );
-		}
-	}
-
-	protected void fireResourceSaved( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceSaved( event );
-		}
-	}
-
-	protected void fireResourceClosed( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceClosed( event );
+			listener.resourceRefreshed( event );
 		}
 	}
 
@@ -389,9 +364,15 @@ public class Resource extends Node {
 		}
 	}
 
-	protected void fireResourceRefresh( ResourceEvent event ) {
+	protected void fireResourceSaved( ResourceEvent event ) {
 		for( ResourceListener listener : listeners ) {
-			listener.resourceRefreshed( event );
+			listener.resourceSaved( event );
+		}
+	}
+
+	protected void fireResourceClosed( ResourceEvent event ) {
+		for( ResourceListener listener : listeners ) {
+			listener.resourceClosed( event );
 		}
 	}
 

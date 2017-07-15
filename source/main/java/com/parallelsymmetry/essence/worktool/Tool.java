@@ -243,6 +243,11 @@ public abstract class Tool extends Control {
 	protected void activate() throws ToolException {}
 
 	/**
+	 * Called when the resource data is refreshed.
+	 */
+	protected void resourceRefreshed() {}
+
+	/**
 	 * Deactivate the tool.
 	 */
 	protected void deactivate() throws ToolException {}
@@ -352,8 +357,8 @@ public abstract class Tool extends Control {
 	private class ResourceWatcher extends ResourceAdapter {
 
 		@Override
-		public void resourceReady( ResourceEvent event ) {
-			//
+		public void resourceRefreshed( ResourceEvent event ) {
+			Tool.this.resourceRefreshed();
 		}
 
 		@Override

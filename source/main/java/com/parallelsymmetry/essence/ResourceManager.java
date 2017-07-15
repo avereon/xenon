@@ -863,16 +863,12 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			resource.setModified( false );
 		}
 
-		if( !previouslyLoaded ) {
-			resource.addNodeListener( modifiedResourceWatcher );
-			resource.setReady();
-			log.trace( "Resource loaded: " + resource );
-		} else {
-			resource.refresh( this );
-			log.trace( "Resource refresh: " + resource );
-		}
+		if( !previouslyLoaded ) resource.addNodeListener( modifiedResourceWatcher );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
+
+		resource.refresh( this );
+		log.trace( "Resource refresh: " + resource );
 
 		return true;
 	}

@@ -9,9 +9,6 @@ public class ResourceAdapter implements ResourceListener {
 	public void resourceLoaded( ResourceEvent event ) {}
 
 	@Override
-	public void resourceReady( ResourceEvent event ) {}
-
-	@Override
 	public void resourceRefreshed( ResourceEvent event ) {}
 
 	@Override

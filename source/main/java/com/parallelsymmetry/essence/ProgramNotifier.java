@@ -9,13 +9,13 @@ import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Notifier {
+public class ProgramNotifier {
 
-	private static final Logger log = LoggerFactory.getLogger( Notifier.class );
+	private static final Logger log = LoggerFactory.getLogger( ProgramNotifier.class );
 
 	private Program program;
 
-	public Notifier( Program program ) {
+	public ProgramNotifier( Program program ) {
 		this.program = program;
 	}
 

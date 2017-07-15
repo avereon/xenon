@@ -1,8 +1,9 @@
 package com.parallelsymmetry.essence.resource;
 
-import java.util.EventObject;
+import com.parallelsymmetry.essence.ProgramEvent;
+import com.parallelsymmetry.essence.resource.Resource;
 
-public class ResourceEvent extends EventObject {
+public class ResourceEvent extends ProgramEvent {
 
 	private Resource resource;
 

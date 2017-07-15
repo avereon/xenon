@@ -17,7 +17,6 @@ import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.tool.AboutTool;
-import com.parallelsymmetry.essence.tool.ProductInfoTool;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.application.Application;
@@ -76,7 +75,7 @@ public class Program extends Application implements Product {
 
 	private ProgramEventWatcher watcher;
 
-	private Notifier notifier;
+	private ProgramNotifier notifier;
 
 	private Set<ProgramEventListener> listeners;
 
@@ -123,25 +122,21 @@ public class Program extends Application implements Product {
 		time( "programValues" );
 
 		// FIXME Getting the program settings takes about 1/4 of the startup time
-		// And has to happen before the splash screen is shown.
+		// Create the settings manager before getting the program settings
 		settingsManager = new SettingsManager( this ).start();
-		File programSettingsFolder = new File( programDataFolder, ProgramSettings.BASE );
-		settings = settingsManager.getSettings( new File( programSettingsFolder, "program.properties" ) );
+
+		// Get the program settings after the settings manager and before the task manager
+		settings = settingsManager.getSettings( "program.properties" );
 		time( "settings" );
 
 		// TODO Check for another instance after getting the settings but before the splash screen is shown
 		// https://stackoverflow.com/questions/41051127/javafx-single-instance-application
+		// The fastest way to check might be to try and bind to the port defined in
+		// the settings. The OS will quickly deny the bind.
 		// Call Platform.exit() if there is already an instance
-	}
 
-	@Override
-	public void start( Stage stage ) throws Exception {
-		// Show the splash screen as soon as possible after checking for another instance
-		splashScreen = new SplashScreen( metadata.getName() );
-		splashScreen.show();
-		time( "splash" );
-
-		notifier = new Notifier( this );
+		// Create the program notifier after creating the program settings
+		notifier = new ProgramNotifier( this );
 
 		// Create the executor service
 		log.trace( "Starting task manager..." );
@@ -152,6 +147,14 @@ public class Program extends Application implements Product {
 		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );
 		time( "taskManager" );
+	}
+
+	@Override
+	public void start( Stage stage ) throws Exception {
+		// Show the splash screen
+		splashScreen = new SplashScreen( metadata.getName() );
+		splashScreen.show();
+		time( "splash" );
 
 		// Submit the startup task
 		taskManager.submit( new Startup() );
@@ -213,7 +216,7 @@ public class Program extends Application implements Product {
 		return programDataFolder;
 	}
 
-	public Notifier getNotifier() {
+	public ProgramNotifier getNotifier() {
 		return notifier;
 	}
 
@@ -262,7 +265,7 @@ public class Program extends Application implements Product {
 	}
 
 	private static void time( String markerName ) {
-		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	private void printHeader( ProductMetadata metadata ) {

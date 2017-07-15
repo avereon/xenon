@@ -18,4 +18,11 @@ public class GuideTool extends ProgramTool {
 		getChildren().add( guide );
 	}
 
+	@Override
+	protected void resourceRefreshed() {
+		// When the resource is refreshed
+		// Had the resource guide been modified?
+
+	}
+
 }
