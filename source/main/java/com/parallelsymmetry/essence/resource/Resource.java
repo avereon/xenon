@@ -221,6 +221,10 @@ public class Resource extends Node {
 		fireResourceReady( new ResourceEvent( Resource.class, this ) );
 	}
 
+	public void refresh( ResourceManager manager ) {
+		fireResourceRefresh( new ResourceEvent( Resource.class, this ) );
+	}
+
 	public synchronized final boolean isSaved() {
 		return saved;
 	}
@@ -312,10 +316,6 @@ public class Resource extends Node {
 
 	public void removeResourceListener( ResourceListener listener ) {
 		listeners.remove( listener );
-	}
-
-	public void refresh() {
-		fireResourceRefresh( new ResourceEvent( Resource.class, this ) );
 	}
 
 	@Override

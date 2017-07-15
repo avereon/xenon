@@ -863,17 +863,16 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			resource.setModified( false );
 		}
 
-		if( !previouslyLoaded ) resource.addNodeListener( modifiedResourceWatcher );
-
-		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
-
 		if( !previouslyLoaded ) {
+			resource.addNodeListener( modifiedResourceWatcher );
 			resource.setReady();
 			log.trace( "Resource loaded: " + resource );
 		} else {
-			resource.refresh();
+			resource.refresh( this );
 			log.trace( "Resource refresh: " + resource );
 		}
+
+		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
 
 		return true;
 	}
@@ -1115,7 +1114,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		// NEXT Create codecs for program resource types and assign them to the program scheme
 
-				Collection<ResourceType> resourceTypes = getResourceTypes();
+		Collection<ResourceType> resourceTypes = getResourceTypes();
 
 		//		// First option: Determine codec by media type.
 		//		String contentType = null;

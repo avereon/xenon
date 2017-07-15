@@ -84,33 +84,21 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
+		openTool( resource, pane, view, null );
+	}
+
+	public void openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass ) {
 		// The only thing that cannot be null is the resource
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
 
 		// Get the resource type to look up the registered tool classes
 		ResourceType resourceType = resource.getType();
 
-		// Next, determine which tool class will be used
-		Class<? extends ProductTool> toolClass = null;
-		List<Class<? extends ProductTool>> toolClasses = resourceTypeToolClasses.get( resourceType );
-		if( toolClasses == null ) {
-			// There are no registered tools for the resource type
-			log.warn( "No tools registered for resource type {}", resourceType.getKey() );
-		} else if( toolClasses.size() == 1 ) {
-			// There is exactly one tool registered for the resource type
-			log.debug( "One tool registered for resource type {}", resourceType.getKey() );
-			toolClass = toolClasses.get( 0 );
-		} else {
-			// There is more than one tool registered for the resource type
-			log.warn( "Multiple tools registered for resource type {}", resourceType.getKey() );
-			toolClass = toolClasses.get( 0 );
-		}
+		// Determine which tool class will be used
+		if( toolClass == null ) toolClass = determineToolClassForResourceType( resourceType );
 
-		// Next thing to check is how many instances the tool allows
-		ToolInstanceMode instanceMode = null;
-		//if( instanceMode == null ) instanceMode = program.getSettings().getInstanceMode( toolClass );
-		if( instanceMode == null ) instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
-		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
+		// Determine how many instances the tool allows
+		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
 
 		// Before checking for existing tools, the workpane needs to be determined
 		if( pane == null && view != null ) pane = view.getWorkpane();
@@ -119,13 +107,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// If the view is null, determine what view to put the tool in
 		// If the view is not null, that means the user wants to put the tool in that view
-		if( view == null ) {
-			// Get the tool placement
-			Workpane.Placement placement = toolClassMetadata.get( toolClass ).getPlacement();
-			if( placement == null ) placement = Workpane.Placement.SMART;
-			view = pane.determineViewFromPlacement( placement );
-			if( view == null ) throw new NullPointerException( "WorkpaneView cannot be null when opening tool" );
-		}
+		if( view == null ) view = getWorkpaneView( pane, toolClass );
 
 		// Create a tool if it is needed
 		// If this instance mode is SINGLETON, check for an existing tool in the workpane
@@ -144,23 +126,30 @@ public class ToolManager implements Controllable<ToolManager> {
 			return;
 		}
 
-//		// NEXT Now that we have a tool...open dependent resources
-//		// Or, should we be opening dependent resources?
-//		// Or, should the resource dependencies be defined by the resource?
-//		for( Resource dependency: tool.getResourceDependencies() ) {
-//			openTool( dependency, pane );
-//		}
+		// NEXT Now that we have a tool...open dependent tools
+		// Or, should we be opening dependent resources?
+		// Or, should the resource dependencies be defined by the resource?
 
-//		try {
-//			ToolInfo info = (ToolInfo)toolClass.getMethod( "getToolInfo" ).invoke( null );
-//			for( Class<? extends Tool> dependency : info.getRequiredToolClasses() ) {
-//				// We know the class of the tool, but not a resource.
-//				// Can't have a null resource...so what do I do?
-//				// If I have a resource I could just open it with this method.
-//			}
-//		} catch( Exception exception ) {
-//			log.error( "Error getting tool info", exception );
-//		}
+		// After thing about this for a bit I've determined that the
+		// dependency comes from the tool and that the new tools should
+		// use the same resource. That makes sense to use the resource
+		// as a context between the tools. For example, a guide model can
+		// be set as a resource on the resource.
+
+		//		for( Resource dependency: tool.getResourceDependencies() ) {
+		//			openTool( dependency, pane );
+		//		}
+
+		//		try {
+		//			ToolInfo info = (ToolInfo)toolClass.getMethod( "getToolInfo" ).invoke( null );
+		//			for( Class<? extends Tool> dependency : info.getRequiredToolClasses() ) {
+		//				// We know the class of the tool, but not a resource.
+		//				// Can't have a null resource...so what do I do?
+		//				// If I have a resource I could just open it with this method.
+		//			}
+		//		} catch( Exception exception ) {
+		//			log.error( "Error getting tool info", exception );
+		//		}
 
 		final Workpane finalPane = pane;
 		final WorkpaneView finalView = view;
@@ -171,6 +160,41 @@ public class ToolManager implements Controllable<ToolManager> {
 		} else {
 			Platform.runLater( () -> finalPane.addTool( finalTool, finalView, true ) );
 		}
+	}
+
+	private WorkpaneView getWorkpaneView( Workpane pane, Class<? extends ProductTool> toolClass ) {
+		WorkpaneView view;// Get the tool placement
+		Workpane.Placement placement = toolClassMetadata.get( toolClass ).getPlacement();
+		if( placement == null ) placement = Workpane.Placement.SMART;
+		view = pane.determineViewFromPlacement( placement );
+		if( view == null ) throw new NullPointerException( "WorkpaneView cannot be null when opening tool" );
+		return view;
+	}
+
+	private ToolInstanceMode getToolInstanceMode( Class<? extends ProductTool> toolClass ) {
+		ToolInstanceMode instanceMode = null;
+		//if( instanceMode == null ) instanceMode = program.getSettings().getInstanceMode( toolClass );
+		if( instanceMode == null ) instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
+		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
+		return instanceMode;
+	}
+
+	private Class<? extends ProductTool> determineToolClassForResourceType( ResourceType resourceType ) {
+		Class<? extends ProductTool> toolClass = null;
+		List<Class<? extends ProductTool>> toolClasses = resourceTypeToolClasses.get( resourceType );
+		if( toolClasses == null ) {
+			// There are no registered tools for the resource type
+			log.warn( "No tools registered for resource type {}", resourceType.getKey() );
+		} else if( toolClasses.size() == 1 ) {
+			// There is exactly one tool registered for the resource type
+			log.debug( "One tool registered for resource type {}", resourceType.getKey() );
+			toolClass = toolClasses.get( 0 );
+		} else {
+			// There is more than one tool registered for the resource type
+			log.warn( "Multiple tools registered for resource type {}", resourceType.getKey() );
+			toolClass = toolClasses.get( 0 );
+		}
+		return toolClass;
 	}
 
 	public Product getToolProduct( ProductTool tool ) {

@@ -352,6 +352,11 @@ public abstract class Tool extends Control {
 	private class ResourceWatcher extends ResourceAdapter {
 
 		@Override
+		public void resourceReady( ResourceEvent event ) {
+			//
+		}
+
+		@Override
 		public void resourceClosed( ResourceEvent event ) {
 			Tool.this.close();
 		}
