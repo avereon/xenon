@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.ResourceManager;
 import com.parallelsymmetry.essence.node.Node;
 import com.parallelsymmetry.essence.node.NodeEvent;
 import com.parallelsymmetry.essence.node.NodeListener;
+import com.parallelsymmetry.essence.resource.event.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -190,7 +191,7 @@ public class Resource extends Node {
 
 		open = true;
 
-		fireResourceOpened( new ResourceEvent( Resource.class, this ) );
+		fireResourceEvent( new ResourceOpenedEvent( Resource.class, this ) );
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -205,11 +206,11 @@ public class Resource extends Node {
 		if( scheme != null ) scheme.load( this, getCodec() );
 		loaded = true;
 
-		fireResourceLoaded( new ResourceEvent( Resource.class, this ) );
+		fireResourceEvent( new ResourceLoadedEvent( Resource.class, this ) );
 	}
 
 	public synchronized final void refresh( ResourceManager manager ) {
-		fireResourceRefreshed( new ResourceEvent( Resource.class, this ) );
+		fireResourceEvent( new ResourceRefreshedEvent( Resource.class, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -225,7 +226,7 @@ public class Resource extends Node {
 		if( scheme != null ) scheme.save( this, getCodec() );
 		saved = true;
 
-		fireResourceSaved( new ResourceEvent( Resource.class, this ) );
+		fireResourceEvent( new ResourceSavedEvent( Resource.class, this ) );
 	}
 
 	public synchronized final boolean isClosed() {
@@ -240,7 +241,7 @@ public class Resource extends Node {
 
 		open = false;
 
-		fireResourceClosed( new ResourceEvent( Resource.class, this ) );
+		fireResourceEvent( new ResourceClosedEvent( Resource.class, this ) );
 	}
 
 	public boolean exists() throws ResourceException {
@@ -334,45 +335,9 @@ public class Resource extends Node {
 		return uri == null ? resourceTypeName : uri.toString();
 	}
 
-	protected void fireResourceOpened( ResourceEvent event ) {
+	protected void fireResourceEvent( ResourceEvent event ) {
 		for( ResourceListener listener : listeners ) {
-			listener.resourceOpened( event );
-		}
-	}
-
-	protected void fireResourceLoaded( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceLoaded( event );
-		}
-	}
-
-	protected void fireResourceRefreshed( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceRefreshed( event );
-		}
-	}
-
-	protected void fireResourceModified( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceModified( event );
-		}
-	}
-
-	protected void fireResourceUnmodified( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceUnmodified( event );
-		}
-	}
-
-	protected void fireResourceSaved( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceSaved( event );
-		}
-	}
-
-	protected void fireResourceClosed( ResourceEvent event ) {
-		for( ResourceListener listener : listeners ) {
-			listener.resourceClosed( event );
+			listener.eventOccurred( event );
 		}
 	}
 
@@ -415,9 +380,9 @@ public class Resource extends Node {
 
 			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
 				if( Boolean.TRUE == event.getNewValue() ) {
-					fireResourceModified( new ResourceEvent( this, (Resource)event.getSource() ) );
+					fireResourceEvent( new ResourceModifiedEvent( this, (Resource)event.getSource() ) );
 				} else {
-					fireResourceUnmodified( new ResourceEvent( this, (Resource)event.getSource() ) );
+					fireResourceEvent( new ResourceUnmodifiedEvent( this, (Resource)event.getSource() ) );
 				}
 			}
 		}

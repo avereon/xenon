@@ -2,7 +2,6 @@ package com.parallelsymmetry.essence.worktool;
 
 import com.parallelsymmetry.essence.LogUtil;
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.resource.ResourceAdapter;
 import com.parallelsymmetry.essence.resource.ResourceEvent;
 import com.parallelsymmetry.essence.resource.ResourceListener;
 import com.parallelsymmetry.essence.workarea.Workpane;
@@ -354,16 +353,20 @@ public abstract class Tool extends Control {
 		}
 	}
 
-	private class ResourceWatcher extends ResourceAdapter {
+	private class ResourceWatcher implements ResourceListener {
 
 		@Override
-		public void resourceRefreshed( ResourceEvent event ) {
-			Tool.this.resourceRefreshed();
-		}
-
-		@Override
-		public void resourceClosed( ResourceEvent event ) {
-			Tool.this.close();
+		public void eventOccurred( ResourceEvent event ) {
+			switch( event.getType() ) {
+				case REFRESHED : {
+					Tool.this.resourceRefreshed();
+					break;
+				}
+				case CLOSED : {
+					Tool.this.close();
+					break;
+				}
+			}
 		}
 
 	}

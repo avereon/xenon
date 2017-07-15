@@ -11,43 +11,7 @@ public class ResourceWatcher implements ResourceListener {
 	private Map<Class<? extends ResourceEvent>, ResourceEvent> events = new ConcurrentHashMap<>();
 
 	@Override
-	public synchronized void resourceOpened( ResourceEvent event ) {
-		events.put( event.getClass(), event );
-		notifyAll();
-	}
-
-	@Override
-	public synchronized void resourceLoaded( ResourceEvent event ) {
-		events.put( event.getClass(), event );
-		notifyAll();
-	}
-
-	@Override
-	public synchronized void resourceRefreshed( ResourceEvent event ) {
-		events.put( event.getClass(), event );
-		notifyAll();
-	}
-
-	@Override
-	public synchronized void resourceModified( ResourceEvent event ) {
-		events.put( event.getClass(), event );
-		notifyAll();
-	}
-
-	@Override
-	public synchronized void resourceUnmodified( ResourceEvent event ) {
-		events.put( event.getClass(), event );
-		notifyAll();
-	}
-
-	@Override
-	public synchronized void resourceSaved( ResourceEvent event ) {
-		events.put( event.getClass(), event );
-		notifyAll();
-	}
-
-	@Override
-	public synchronized void resourceClosed( ResourceEvent event ) {
+	public synchronized void eventOccurred( ResourceEvent event ) {
 		events.put( event.getClass(), event );
 		notifyAll();
 	}

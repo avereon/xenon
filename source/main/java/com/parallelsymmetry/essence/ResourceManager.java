@@ -3,7 +3,6 @@ package com.parallelsymmetry.essence;
 import com.parallelsymmetry.essence.node.NodeEvent;
 import com.parallelsymmetry.essence.node.NodeListener;
 import com.parallelsymmetry.essence.resource.*;
-import com.parallelsymmetry.essence.resource.ResourceEvent;
 import com.parallelsymmetry.essence.resource.event.*;
 import com.parallelsymmetry.essence.task.Task;
 import com.parallelsymmetry.essence.util.Controllable;
@@ -1678,20 +1677,25 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-	private class CurrentResourceWatcher extends ResourceAdapter {
+	private class CurrentResourceWatcher implements ResourceListener {
 
 		@Override
-		public void resourceModified( ResourceEvent event ) {
-			Resource resource = event.getResource();
-			log.trace( "Resource modified: " + resource );
-			saveActionHandler.setEnabled( canSaveResource( resource ) );
-		}
+		public void eventOccurred( ResourceEvent event ) {
+			switch( event.getType() ) {
+				case MODIFIED: {
+					Resource resource = event.getResource();
+					log.trace( "Resource modified: " + resource );
+					saveActionHandler.setEnabled( canSaveResource( resource ) );
+					break;
+				}
+				case UNMODIFIED: {
+					Resource resource = event.getResource();
+					saveActionHandler.setEnabled( false );
+					log.trace( "Resource unmodified: " + resource );
+					break;
+				}
+			}
 
-		@Override
-		public void resourceUnmodified( ResourceEvent event ) {
-			Resource resource = event.getResource();
-			saveActionHandler.setEnabled( false );
-			log.trace( "Resource unmodified: " + resource );
 		}
 
 	}

@@ -1,6 +1,7 @@
 package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.resource.*;
+import com.parallelsymmetry.essence.resource.event.ResourceOpenedEvent;
 import com.parallelsymmetry.essence.resource.type.ProductInfoType;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import org.junit.Before;
@@ -51,10 +52,11 @@ public class ResourceManagerTest extends ProgramTestCase {
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
 		resource.addResourceListener( watcher );
-		manager.openResources( resource );
-		//assertThat( resource.isOpen(), is( false ) );
+		assertThat( resource.isOpen(), is( false ) );
 
-		watcher.waitForEvent( ResourceEvent.class );
+		manager.openResources( resource );
+		watcher.waitForEvent( ResourceOpenedEvent.class );
+
 		assertThat( resource.isOpen(), is( true ) );
 	}
 
