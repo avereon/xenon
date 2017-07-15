@@ -342,7 +342,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		URI uri = UriUtil.resolve( string );
 
 		if( uri == null ) {
-			log.warn( "Resource not created: ", string );
+			log.warn( "Cannot resolve resource URI: {}", string );
 			return null;
 		}
 
