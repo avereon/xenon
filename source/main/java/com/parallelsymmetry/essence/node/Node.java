@@ -123,6 +123,15 @@ public class Node implements TxnEventDispatcher {
 	//
 	//	}
 
+	public Set<String> getResourceKeys() {
+		return resources.keySet();
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public <T> T getResource( String key ) {
+		return resources == null ? null : (T)resources.get( key );
+	}
+
 	public <T> void putResource( String key, T value ) {
 		if( value == null ) {
 			if( resources != null ) {
@@ -135,9 +144,18 @@ public class Node implements TxnEventDispatcher {
 		}
 	}
 
-	@SuppressWarnings( "unchecked" )
-	public <T> T getResource( String key ) {
-		return resources == null ? null : (T)resources.get( key );
+	/**
+	 * Fill in any missing attributes and resources from the specified node.
+	 *
+	 * @param node
+	 */
+	public void fill( Node node ) {
+		for( String key : node.getValueKeys() ) {
+			if( getValue( key ) == null ) setValue( key, node.getValue( key ) );
+		}
+		for( String key : node.getResourceKeys() ) {
+			if( getResource( key ) == null ) putResource( key, node.getResource( key ) );
+		}
 	}
 
 	@Override
@@ -275,6 +293,10 @@ public class Node implements TxnEventDispatcher {
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
 		}
+	}
+
+	protected Set<String> getValueKeys() {
+		return values.keySet();
 	}
 
 	@SuppressWarnings( "unchecked" )

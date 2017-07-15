@@ -80,6 +80,12 @@ public class NodeTest {
 	}
 
 	@Test
+	public void testGetValueKeys() {
+		data.setValue( "key", "value" );
+		assertThat( data.getValueKeys(), containsInAnyOrder( "key" ) );
+	}
+
+	@Test
 	public void testValues() {
 		String key = "key";
 		Object value = "value";
@@ -341,6 +347,12 @@ public class NodeTest {
 			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
 		}
 		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
+	}
+
+	@Test
+	public void testResourceKeys() {
+		data.putResource( "key", "value" );
+		assertThat( data.getResourceKeys(), containsInAnyOrder( "key" ) );
 	}
 
 	@Test
