@@ -873,6 +873,70 @@ public class NodeTest {
 	}
 
 	@Test
+	public void testCopyFrom() {
+		Node node1 = new Node();
+		node1.setValue( "key1", "value1" );
+		node1.setValue( "key2", "value2" );
+
+		Node node2 = new Node();
+		node2.setValue( "key2", "valueB" );
+
+		node2.copyFrom( node1 );
+		assertThat( node1.getValue( "key1"), is( "value1" ));
+		assertThat( node1.getValue( "key2"), is( "value2" ));
+		assertThat( node2.getValue( "key1"), is( "value1" ));
+		assertThat( node2.getValue( "key2"), is( "valueB" ));
+	}
+
+	@Test
+	public void testCopyFromWithOverwrite() {
+		Node node1 = new Node();
+		node1.setValue( "key1", "value1" );
+		node1.setValue( "key2", "value2" );
+
+		Node node2 = new Node();
+		node2.setValue( "key2", "valueB" );
+
+		node2.copyFrom( node1, true );
+		assertThat( node1.getValue( "key1"), is( "value1" ));
+		assertThat( node1.getValue( "key2"), is( "value2" ));
+		assertThat( node2.getValue( "key1"), is( "value1" ));
+		assertThat( node2.getValue( "key2"), is( "value2" ));
+	}
+
+	@Test
+	public void testCopyFromUsingResources() {
+		Node node1 = new Node();
+		node1.putResource( "key1", "value1" );
+		node1.putResource( "key2", "value2" );
+
+		Node node2 = new Node();
+		node2.putResource( "key2", "valueB" );
+
+		node2.copyFrom( node1 );
+		assertThat( node1.getResource( "key1"), is( "value1" ));
+		assertThat( node1.getResource( "key2"), is( "value2" ));
+		assertThat( node2.getResource( "key1"), is( "value1" ));
+		assertThat( node2.getResource( "key2"), is( "valueB" ));
+	}
+
+	@Test
+	public void testCopyFromWithOverwriteUsingResources() {
+		Node node1 = new Node();
+		node1.putResource( "key1", "value1" );
+		node1.putResource( "key2", "value2" );
+
+		Node node2 = new Node();
+		node2.putResource( "key2", "valueB" );
+
+		node2.copyFrom( node1, true );
+		assertThat( node1.getResource( "key1"), is( "value1" ));
+		assertThat( node1.getResource( "key2"), is( "value2" ));
+		assertThat( node2.getResource( "key1"), is( "value1" ));
+		assertThat( node2.getResource( "key2"), is( "value2" ));
+	}
+
+	@Test
 	public void testToString() {
 		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.toString(), is( "MockNode[]" ) );

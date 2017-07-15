@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class Node implements TxnEventDispatcher {
+public class Node implements TxnEventDispatcher, Cloneable {
 
 	private static final Logger log = LogUtil.get( Node.class );
 
@@ -124,7 +124,7 @@ public class Node implements TxnEventDispatcher {
 	//	}
 
 	public Set<String> getResourceKeys() {
-		return resources.keySet();
+		return resources == null ? Collections.emptySet() : resources.keySet();
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -141,20 +141,6 @@ public class Node implements TxnEventDispatcher {
 		} else {
 			if( resources == null ) resources = new ConcurrentHashMap<>();
 			resources.put( key, value );
-		}
-	}
-
-	/**
-	 * Fill in any missing attributes and resources from the specified node.
-	 *
-	 * @param node
-	 */
-	public void fill( Node node ) {
-		for( String key : node.getValueKeys() ) {
-			if( getValue( key ) == null ) setValue( key, node.getValue( key ) );
-		}
-		for( String key : node.getResourceKeys() ) {
-			if( getResource( key ) == null ) putResource( key, node.getResource( key ) );
 		}
 	}
 
@@ -181,6 +167,38 @@ public class Node implements TxnEventDispatcher {
 	public synchronized void removeNodeListener( NodeListener listener ) {
 		listeners.remove( listener );
 		if( listeners.size() == 0 ) listeners = null;
+	}
+
+	/**
+	 * Copy the values and resources from the specified node. This method will
+	 * only fill in missing values and resources from the specified node.
+	 *
+	 * @param node
+	 */
+	public Node copyFrom( Node node ) {
+		return copyFrom( node, false );
+	}
+
+	/**
+	 * Copy the values and resources from the specified node. If overwrite is
+	 * true this method will replace any values or resources with the specified
+	 * nodes values and resources. Otherwise, this method will only fill in
+	 * missing values and resources from the specified node.
+	 *
+	 * @param node
+	 */
+	public Node copyFrom( Node node, boolean overwrite ) {
+		// Clone values
+		for( String key : node.getValueKeys() ) {
+			if( overwrite || getValue( key ) == null ) setValue( key, node.getValue( key ) );
+		}
+
+		// Clone resources
+		for( String key : node.getResourceKeys() ) {
+			if( overwrite || getResource( key ) == null ) putResource( key, node.getResource( key ) );
+		}
+
+		return this;
 	}
 
 	@Override
@@ -296,7 +314,7 @@ public class Node implements TxnEventDispatcher {
 	}
 
 	protected Set<String> getValueKeys() {
-		return values.keySet();
+		return values == null ? Collections.emptySet() : values.keySet();
 	}
 
 	@SuppressWarnings( "unchecked" )
