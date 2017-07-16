@@ -34,4 +34,9 @@ public class ResourceTypeTest extends BaseTestCase {
 
 	// NEXT Should there be more unit tests for ResourceType
 
+	// Test get name
+	// Test add codec
+	// Test remove codec
+	// Test getting a coded based on a resource...?
+
 }
