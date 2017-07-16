@@ -199,12 +199,11 @@ public abstract class Tool extends Control {
 	@Override
 	public Tool clone() {
 		Tool tool = null;
-		Class<? extends Tool> clazz = getClass();
 
 		try {
-			tool = clazz.newInstance();
+			tool = getClass().getConstructor().newInstance();
 		} catch( Exception exception ) {
-			log.error( "Error cloning tool: " + clazz.getName(), exception );
+			log.error( "Error cloning tool: " + getClass().getName(), exception );
 		}
 
 		return tool;
