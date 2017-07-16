@@ -285,11 +285,14 @@ public class ToolManager implements Controllable<ToolManager> {
 			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			Product product = toolClassMetadata.get( type ).getProduct();
 			tool = constructor.newInstance( product, resource );
-			// FIXME Should Tool.setReady() be implemented differently?
-			// There really is no point to calling tool.setReady() here because
-			// the constructor just completed. Calling tool.setReady() on the
-			// same thread as the constructor just doesn't help any.
-			//tool.setReady();
+
+			// TODO Coordinate the tool with the resource state
+			// A resource is considered "ready" when it is "new" or "loaded". Until the
+			// resource is "ready" the state of the resource cannot be used.
+
+			// This method should have been called from a Callable class on a task
+			// manager thread, usually from ResourceManager.OpenActionTask
+
 		} catch( Exception exception ) {
 			log.error( "Error creating instance: " + type.getName(), exception );
 		}

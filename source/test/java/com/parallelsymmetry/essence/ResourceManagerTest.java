@@ -31,14 +31,16 @@ public class ResourceManagerTest extends ProgramTestCase {
 
 	@Test
 	public void testNewResource() throws Exception {
-		// New resources have a resource type but not a URI
-		Resource oldResource = manager.createResource( manager.getResourceType( "mock" ) );
-		assertThat( oldResource.isNew(), is( true ) );
+		// New resources have a resource type when created.
+		// The URI is assigned when the resource is saved.
+		Resource newResource = manager.createResource( manager.getResourceType( "mock" ) );
+		assertThat( newResource.isNew(), is( true ) );
 	}
 
 	@Test
 	public void testOldResource() throws Exception {
-		// Old resources have a URI
+		// Old resources have a URI when created.
+		// The resource type is assigned when the resource is opened.
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource oldResource = manager.createResource( uri );
 		assertThat( oldResource.isNew(), is( false ) );

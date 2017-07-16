@@ -1326,6 +1326,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return StringUtils.trimToNull( new String( output.toByteArray(), encoding ) );
 	}
 
+	// TODO The OpenActionTask class name is not the best...
+	// but there are other classes with the expected name
 	private class OpenActionTask extends Task<Void> {
 
 		private Collection<Resource> resources;
@@ -1334,13 +1336,13 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private WorkpaneView view;
 
-		private boolean createEditor;
+		private boolean openTool;
 
-		public OpenActionTask( Collection<Resource> resources, Codec codec, WorkpaneView view, boolean createEditor ) {
+		private OpenActionTask( Collection<Resource> resources, Codec codec, WorkpaneView view, boolean openTool ) {
 			this.resources = resources;
 			this.codec = codec;
 			this.view = view;
-			this.createEditor = createEditor;
+			this.openTool = openTool;
 		}
 
 		@Override
@@ -1348,19 +1350,23 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			for( Resource resource : resources ) {
 				log.trace( "Open resource: ", resource.getUri() );
 
-				boolean createEditor = this.createEditor || !isResourceOpen( resource );
+				boolean openTool = this.openTool || !isResourceOpen( resource );
 
 				try {
 					if( codec != null ) resource.setCodec( codec );
+
+					// Open the resource
 					openResourcesAndWait( resource );
 					if( !resource.isOpen() ) continue;
+
+					// Start loading the resource, but don't wait
+					if( !resource.isLoaded() ) loadResources( resource );
 				} catch( Exception exception ) {
 					program.getNotifier().error( exception );
 					continue;
 				}
 
-				if( createEditor ) program.getToolManager().openTool( resource, view );
-				if( !resource.isLoaded() ) loadResources( resource );
+				if( openTool ) program.getToolManager().openTool( resource, view );
 				setCurrentResource( resource );
 			}
 
@@ -1369,28 +1375,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	}
 
-	private abstract class RmActionHandler extends Action {
+	private class NewActionHandler extends Action {
 
-		private boolean enabled;
-
-		protected RmActionHandler( Program program ) {
-			super( program );
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return enabled;
-		}
-
-		public void setEnabled( boolean enabled ) {
-			this.enabled = enabled;
-		}
-
-	}
-
-	private class NewActionHandler extends RmActionHandler {
-
-		protected NewActionHandler( Program program ) {
+		private NewActionHandler( Program program ) {
 			super( program );
 		}
 
@@ -1418,7 +1405,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 			private ResourceType type;
 
-			public LoadResource( ResourceType type ) {
+			private LoadResource( ResourceType type ) {
 				this.type = type;
 			}
 
@@ -1452,7 +1439,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class OpenActionHandler extends Action {
 
-		protected OpenActionHandler( Program program ) {
+		private OpenActionHandler( Program program ) {
 			super( program );
 		}
 
@@ -1492,7 +1479,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private boolean copy;
 
-		public SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
+		private SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
 			super( program );
 			this.saveAs = saveAs;
 			this.copy = copy;
@@ -1548,7 +1535,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class SaveAllActionHandler extends Action {
 
-		protected SaveAllActionHandler( Program program ) {
+		private SaveAllActionHandler( Program program ) {
 			super( program );
 		}
 
@@ -1565,7 +1552,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class CloseActionHandler extends Action {
 
-		protected CloseActionHandler( Program program ) {
+		private CloseActionHandler( Program program ) {
 			super( program );
 		}
 
@@ -1582,7 +1569,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class CloseAllActionHandler extends Action {
 
-		protected CloseAllActionHandler( Program program ) {
+		private CloseAllActionHandler( Program program ) {
 			super( program );
 		}
 
@@ -1601,17 +1588,17 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private Collection<Resource> resources;
 
-		public ResourceTask( Resource resource ) {
+		private ResourceTask( Resource resource ) {
 			super( program );
 			this.resources = Collections.singletonList( resource );
 		}
 
-		public ResourceTask( Resource... resources ) {
+		private ResourceTask( Resource... resources ) {
 			super( program );
 			this.resources = Arrays.asList( resources );
 		}
 
-		public ResourceTask( Collection<Resource> resources ) {
+		private ResourceTask( Collection<Resource> resources ) {
 			super( program );
 			this.resources = resources;
 		}
@@ -1661,7 +1648,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class OpenResourceTask extends ResourceTask {
 
-		public OpenResourceTask( Collection<Resource> resources ) {
+		private OpenResourceTask( Collection<Resource> resources ) {
 			super( resources );
 		}
 
@@ -1674,11 +1661,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class LoadResourceTask extends ResourceTask {
 
-		public LoadResourceTask( Resource... resources ) {
+		private LoadResourceTask( Resource... resources ) {
 			super( resources );
 		}
 
-		public LoadResourceTask( Collection<Resource> resources ) {
+		private LoadResourceTask( Collection<Resource> resources ) {
 			super( resources );
 		}
 
@@ -1691,15 +1678,15 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class SaveResourceTask extends ResourceTask {
 
-		public SaveResourceTask( Resource resource ) {
+		private SaveResourceTask( Resource resource ) {
 			super( resource );
 		}
 
-		public SaveResourceTask( Resource... resources ) {
+		private SaveResourceTask( Resource... resources ) {
 			super( resources );
 		}
 
-		public SaveResourceTask( Collection<Resource> resources ) {
+		private SaveResourceTask( Collection<Resource> resources ) {
 			super( resources );
 		}
 
@@ -1712,7 +1699,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class CloseResourceTask extends ResourceTask {
 
-		public CloseResourceTask( Collection<Resource> resources ) {
+		private CloseResourceTask( Collection<Resource> resources ) {
 			super( resources );
 		}
 
@@ -1725,7 +1712,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class SetCurrentResourceTask extends ResourceTask {
 
-		public SetCurrentResourceTask( Resource resource ) {
+		private SetCurrentResourceTask( Resource resource ) {
 			super( resource );
 		}
 

@@ -19,7 +19,7 @@ public class GuideTool extends ProgramTool {
 	}
 
 	@Override
-	protected void resourceRefreshed() {
+	protected void onResourceRefreshed() {
 		// When the resource is refreshed
 		// Had the resource guide been modified?
 

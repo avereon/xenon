@@ -58,14 +58,13 @@ public abstract class Tool extends Control {
 	}
 
 	public Tool( Resource resource, String title ) {
-		this.resource = resource;
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
 		this.closeOperation = new SimpleObjectProperty<>();
 		this.listeners = new CopyOnWriteArraySet<>();
+		this.resource = resource;
 
 		getStyleClass().add( "tool" );
-
 		setTitle( title );
 	}
 
@@ -241,11 +240,6 @@ public abstract class Tool extends Control {
 	protected void activate() throws ToolException {}
 
 	/**
-	 * Called when the resource data is refreshed.
-	 */
-	protected void resourceRefreshed() {}
-
-	/**
 	 * Deactivate the tool.
 	 */
 	protected void deactivate() throws ToolException {}
@@ -259,6 +253,11 @@ public abstract class Tool extends Control {
 	 * Deallocate the tool.
 	 */
 	protected void deallocate() throws ToolException {}
+
+	/**
+	 * Called when the resource data is refreshed.
+	 */
+	protected void onResourceRefreshed() {}
 
 	/**
 	 * Allocate the tool.
@@ -358,7 +357,7 @@ public abstract class Tool extends Control {
 		public void eventOccurred( ResourceEvent event ) {
 			switch( event.getType() ) {
 				case REFRESHED : {
-					Tool.this.resourceRefreshed();
+					Tool.this.onResourceRefreshed();
 					break;
 				}
 				case CLOSED : {

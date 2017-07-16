@@ -21,7 +21,7 @@ public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 	}
 
 	public void setEnabled( boolean enabled ) {
-		this.enabled = false;
+		this.enabled = enabled;
 	}
 
 }

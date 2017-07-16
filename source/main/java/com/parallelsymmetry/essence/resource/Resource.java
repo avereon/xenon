@@ -185,6 +185,12 @@ public class Resource extends Node {
 	}
 
 	/**
+	 * A resource is "new" if it is created with a resource type. The URI is
+	 * assigned when the resource is saved.
+	 *
+	 * A resource is "old" if it is created with a URI. The resource type is
+	 * determined when the resource is opened.
+	 *
 	 * A resource is "new" if it does not have a URI associated with it yet. This
 	 * usually occurs when the resource is created with only a resource type and
 	 * has not been saved yet. When it is saved, a URI will be associated to the
