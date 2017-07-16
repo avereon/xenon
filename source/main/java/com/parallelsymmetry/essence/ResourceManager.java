@@ -175,14 +175,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Get the externally modified resources.
 	 *
-	 * @return
+	 * @return The set of externally modified resources
 	 */
-	public List<Resource> getExternallyModifiedResources() {
-		List<Resource> externallyModifiedResources = new ArrayList<Resource>();
+	public Set<Resource> getExternallyModifiedResources() {
+		Set<Resource> externallyModifiedResources = new HashSet<Resource>();
 		for( Resource resource : getOpenResources() ) {
 			if( resource.isExternallyModified() ) externallyModifiedResources.add( resource );
 		}
-		return externallyModifiedResources;
+		return Collections.unmodifiableSet( externallyModifiedResources );
 	}
 
 	/**
@@ -218,8 +218,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 *
 	 * @return The set of registered schemes
 	 */
-	public Set<Scheme> getSchemes() {
-		return new HashSet<Scheme>( schemes.values() );
+	public Collection<Scheme> getSchemes() {
+		return Collections.unmodifiableCollection( schemes.values() );
 	}
 
 	/**
@@ -228,15 +228,15 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The set of registered scheme names
 	 */
 	public Set<String> getSchemeNames() {
-		return new HashSet<String>( schemes.keySet() );
+		return Collections.unmodifiableSet( schemes.keySet() );
 	}
 
 	/**
 	 * Get a resource type by the resource type key defined in the resource type.
 	 * This is useful for getting resource types from persisted data.
 	 *
-	 * @param key
-	 * @return
+	 * @param key The resource type key
+	 * @return The resource type associated to the key
 	 */
 	public ResourceType getResourceType( String key ) {
 		ResourceType type = resourceTypes.get( key );
@@ -245,9 +245,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Get a collection of the supported resource types.
+	 * Get the set of supported resource types.
 	 *
-	 * @return
+	 * @return The set of supported resource types
 	 */
 	public Collection<ResourceType> getResourceTypes() {
 		return Collections.unmodifiableCollection( resourceTypes.values() );
@@ -256,7 +256,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Add a resource type to the set of supported resource types.
 	 *
-	 * @param type
+	 * @param type The resource type to add
 	 */
 	public void addResourceType( ResourceType type ) {
 		if( type == null ) return;
@@ -281,9 +281,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Remove a resource type from the supported resource types.
+	 * Remove a resource type from the set of supported resource types.
 	 *
-	 * @param type
+	 * @param type The resource type to remove
 	 */
 	public void removeResourceType( ResourceType type ) {
 		if( type == null ) return;
@@ -385,25 +385,23 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void saveAsResource( Resource source, Resource target ) {
-		//		SaveAsResourceTask task = new SaveAsResourceTask( source, target );
-		//		program.getExecutor().submit( task );
+		save( source, target, true, false );
 	}
 
-	/**
-	 * Request that the source resource be saved as the target resource and wait
-	 * until the task is complete. This method submits a task to the task manager
-	 * and waits for the task to be completed.
-	 *
-	 * @param source
-	 * @param target
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public void saveAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
-		//		SaveAsResourceTask task = new SaveAsResourceTask( source, target );
-		//		program.getExecutor().submit( task ).get();
-	}
+	//	/**
+	//	 * Request that the source resource be saved as the target resource and wait
+	//	 * until the task is complete. This method submits a task to the task manager
+	//	 * and waits for the task to be completed.
+	//	 *
+	//	 * @param source
+	//	 * @param target
+	//	 * @throws ExecutionException
+	//	 * @throws InterruptedException
+	//	 * @implNote This method makes calls to the FX platform.
+	//	 */
+	//	public void saveAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
+	//		save( source, target, true, false );
+	//	}
 
 	/**
 	 * Request that the source resource be saved as a copy to the target resource.
@@ -413,26 +411,24 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param target
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void saveCopyAsResource( Resource source, Resource target ) {
-		//		SaveCopyResourceTask task = new SaveCopyResourceTask( source, target );
-		//		program.getExecutor().submit( task );
+	public void copyAsResource( Resource source, Resource target ) {
+		save( source, target, false, true );
 	}
 
-	/**
-	 * Request that the source resource be saved as a copy to the target resource
-	 * and wait until the task is complete. This method submits a task to the task
-	 * manager and waits for the task to be completed.
-	 *
-	 * @param source
-	 * @param target
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public void saveCopyAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
-		//		SaveCopyResourceTask task = new SaveCopyResourceTask( source, target );
-		//		program.getExecutor().submit( task ).get();
-	}
+	//	/**
+	//	 * Request that the source resource be saved as a copy to the target resource
+	//	 * and wait until the task is complete. This method submits a task to the task
+	//	 * manager and waits for the task to be completed.
+	//	 *
+	//	 * @param source
+	//	 * @param target
+	//	 * @throws ExecutionException
+	//	 * @throws InterruptedException
+	//	 * @implNote This method makes calls to the FX platform.
+	//	 */
+	//	public void saveCopyAsResourceAndWait( Resource source, Resource target ) throws ExecutionException, InterruptedException {
+	//		save( source, target, false, true );
+	//	}
 
 	/**
 	 * Save the resource, prompting the user if necessary.
@@ -535,9 +531,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Close the resource, prompting the user if necessary.
 	 *
-	 * @implNote This method makes calls to the FX platform.
-	 *
 	 * @param resource The resource to be closed
+	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void close( Resource resource ) {
 		if( resource.isModified() && canSaveResource( resource ) ) {
@@ -557,7 +552,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a string.
+	 * Create a resource from a string. This resource is considered to be an old
+	 * resource. See {@link Resource#isNew()}
 	 *
 	 * @param string A resource string
 	 * @return A new resource based on the specified string.
@@ -575,18 +571,48 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return createResource( uri );
 	}
 
+	/**
+	 * Create a resource from a URI. This resource is considered to be an old
+	 * resource. See {@link Resource#isNew()}
+	 *
+	 * @param uri The URI to create a resource from
+	 * @return The resource created from the URI
+	 */
 	public Resource createResource( URI uri ) {
 		return createResource( null, uri );
 	}
 
+	/**
+	 * Create a resource from a file. This resource is considered to be an old
+	 * resource. See {@link Resource#isNew()}
+	 *
+	 * @param file The file to create a resource from
+	 * @return The resource created from the file
+	 */
 	public Resource createResource( File file ) {
 		return createResource( null, file.toURI() );
 	}
 
+	/**
+	 * Create a resource from a resource type. This resource is considered to be
+	 * a new resource. See {@link Resource#isNew()}
+	 *
+	 * @param type The resource type to create a resource from
+	 * @return The resource created from the resource type
+	 */
 	public Resource createResource( ResourceType type ) {
 		return createResource( type, null );
 	}
 
+	/**
+	 * Create a resource from a resource type and/or a URI. The resource is
+	 * considered to be a new resource if the URI is null. Otherwise, the
+	 * resource is considered an old resource. See {@link Resource#isNew()}
+	 *
+	 * @param type The resource type of the resource
+	 * @param uri The URI of the resource
+	 * @return The resource created from the resource type and URI
+	 */
 	public Resource createResource( ResourceType type, URI uri ) {
 		Resource resource = new Resource( type, uri );
 
@@ -609,8 +635,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Create resources from an array of descriptors. Descriptors are preferred in
 	 * the following order: URI, File, String, Object
 	 *
-	 * @param descriptors
-	 * @return
+	 * @param descriptors The descriptors from which to create resources
+	 * @return The list of resources created from the descriptors
 	 */
 	public List<Resource> createResources( Object... descriptors ) {
 		return createResources( Arrays.asList( descriptors ) );
@@ -620,8 +646,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Create resources from a collection of descriptors. Descriptors are
 	 * preferred in the following order: URI, File, String, Object
 	 *
-	 * @param descriptors
-	 * @return
+	 * @param descriptors The descriptors from which to create resources
+	 * @return The list of resources created from the descriptors
 	 */
 	public List<Resource> createResources( Collection<? extends Object> descriptors ) {
 		List<Resource> resources = new ArrayList<>( descriptors.size() );
@@ -643,7 +669,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be opened. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resource
+	 * @param resource The resource to open
 	 */
 	public void openResources( Resource resource ) throws ResourceException {
 		openResources( Arrays.asList( new Resource[]{ resource } ) );
@@ -653,7 +679,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be opened. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resources
+	 * @param resources The resources to open
 	 */
 	public void openResources( Collection<Resource> resources ) throws ResourceException {
 		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) );
@@ -663,12 +689,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be opened and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should not be called from the event dispatch thread.
 	 *
-	 * @param resource
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param resource The resource to open
+	 * @throws ExecutionException If there was an exception opening the resource
+	 * @throws InterruptedException If the process of opening the resource was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void openResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
 		openResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
@@ -678,12 +703,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be opened and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should not be called from the event dispatch thread.
 	 *
-	 * @param resources
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param resources The resources to open
+	 * @throws ExecutionException If there was an exception opening a resource
+	 * @throws InterruptedException If the process of opening a resource was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void openResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
 		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
@@ -693,7 +717,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be loaded. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resource
+	 * @param resource The resource to load
 	 */
 	public void loadResources( Resource resource ) {
 		loadResources( Arrays.asList( new Resource[]{ resource } ) );
@@ -703,7 +727,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be loaded. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resources
+	 * @param resources The resources to load
 	 */
 	public void loadResources( Collection<Resource> resources ) {
 		program.getExecutor().submit( new LoadResourceTask( resources ) );
@@ -713,12 +737,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be loaded and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should not be called from the event dispatch thread.
 	 *
-	 * @param resource
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param resource The resource to load
+	 * @throws ExecutionException If there was an exception loading the resource
+	 * @throws InterruptedException If the process of loading the resource was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
 		loadResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
@@ -728,12 +751,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be loaded and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should not be called from the event dispatch thread.
 	 *
-	 * @param resources
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param resources The resources to load
+	 * @throws ExecutionException If there was an exception loading the resources
+	 * @throws InterruptedException If the process of loading the resources was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void loadResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
 		program.getExecutor().submit( new LoadResourceTask( resources ) ).get();
@@ -743,7 +765,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be saved. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resource
+	 * @param resource The resource to save
 	 */
 	public void saveResources( Resource resource ) {
 		saveResources( Arrays.asList( new Resource[]{ resource } ) );
@@ -753,7 +775,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be saved. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resources
+	 * @param resources The resources to save
 	 */
 	public void saveResources( Collection<Resource> resources ) {
 		program.getExecutor().submit( new SaveResourceTask( resources ) );
@@ -763,12 +785,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be saved and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should never be called from the event dispatch thread.
 	 *
-	 * @param resource
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param resource The resource to save
+	 * @throws ExecutionException If there was an exception saving the resource
+	 * @throws InterruptedException If the process of saving the resource was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void saveResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
 		saveResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
@@ -778,12 +799,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be saved and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should never be called from the event dispatch thread.
 	 *
-	 * @param resources
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @param resources The resources to save
+	 * @throws ExecutionException If there was an exception saving the resources
+	 * @throws InterruptedException If the process of saving the resources was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void saveResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
 		program.getExecutor().submit( new SaveResourceTask( resources ) ).get();
@@ -793,7 +813,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be closed. This method submits a task
 	 * to the task manager and returns immediately.
 	 *
-	 * @param resource The resources to close.
+	 * @param resource The resource to close.
 	 */
 	public void closeResources( Resource resource ) {
 		closeResources( Arrays.asList( new Resource[]{ resource } ) );
@@ -813,12 +833,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be closed and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should not be called from the event dispatch thread.
 	 *
 	 * @param resource The resources to close.
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @throws ExecutionException If there was an exception closing the resource
+	 * @throws InterruptedException If the process of closing the resource was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void closeResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
 		closeResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
@@ -828,33 +847,32 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the specified resources be closed and wait until the task is
 	 * complete. This method submits a task to the task manager and waits for the
 	 * task to be completed.
-	 * <p>
-	 * Note: This method should not be called from the event dispatch thread.
 	 *
 	 * @param resources The resources to close.
-	 * @throws ExecutionException
-	 * @throws InterruptedException
+	 * @throws ExecutionException If there was an exception closing the resources
+	 * @throws InterruptedException If the process of closing the resources was interrupted
+	 * @implNote Do not call from a UI thread
 	 */
 	public void closeResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
 		program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
 	}
 
-	private void persistOpenResources() {
-		// NOTE Probably don't need to do this as the tools should have the open resources
-		// FIXME Reimplement as a Configurable class
-		//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
-		//
-		//			synchronized( restoreLock ) {
-		//				settings.removeNode();
-		//
-		//				for( Resource resource : openResources ) {
-		//					URI uri = resource.getUri();
-		//					if( uri == null ) continue;
-		//					String uriString = uri.toASCIIString();
-		//					settings.put( "resource-" + HashUtil.hash( uriString ), uriString );
-		//				}
-		//			}
-	}
+	//	private void persistOpenResources() {
+	// NOTE Probably don't need to do this as the tools should have the open resources
+	// FIXME Reimplement as a Configurable class
+	//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
+	//
+	//			synchronized( restoreLock ) {
+	//				settings.removeNode();
+	//
+	//				for( Resource resource : openResources ) {
+	//					URI uri = resource.getUri();
+	//					if( uri == null ) continue;
+	//					String uriString = uri.toASCIIString();
+	//					settings.put( "resource-" + HashUtil.hash( uriString ), uriString );
+	//				}
+	//			}
+	//	}
 
 	//	public void restoreOpenResources() {
 	//		// Clear the existing open resources set.
@@ -985,7 +1003,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		// Add the resource to the list of open resources.
 		openResources.add( resource );
-		persistOpenResources();
 
 		log.trace( "Resource opened: " + resource );
 
@@ -1025,7 +1042,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		Codec codec = resource.getCodec();
 
 		resource.save( this );
-		persistOpenResources();
 
 		// Note: The resource watcher will log that the resource was unmodified.
 		resource.setModified( false );
@@ -1046,7 +1062,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		resource.close( this );
 		openResources.remove( resource );
 		resource.removeNodeListener( modifiedResourceWatcher );
-		persistOpenResources();
 
 		if( openResources.size() == 0 ) doSetCurrentResource( null );
 

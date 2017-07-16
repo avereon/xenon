@@ -175,6 +175,14 @@ public class Resource extends Node {
 		setValue( MODEL_VALUE_KEY, model );
 	}
 
+	/**
+	 * A resource is "new" if it does not have a URI associated with it yet. This
+	 * usually occurs when the resource is created with only a resource type and
+	 * has not been saved yet. When it is saved, a URI will be associated to the
+	 * resource and it will be considered "old" from that point forward.
+	 *
+	 * @return If the resource is "new"
+	 */
 	public synchronized final boolean isNew() {
 		return getUri() == null;
 	}
