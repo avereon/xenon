@@ -19,29 +19,31 @@ import java.util.concurrent.CopyOnWriteArraySet;
 // TODO Add Configurable interface to this class
 public class Resource extends Node {
 
-	private static Logger log = LogUtil.get( Resource.class );
+	public static final String MEDIA_TYPE_RESOURCE_KEY = "resource.media.type";
 
-	private static final String URI_VALUE_KEY = "value.uri";
+	public static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";
+
+	public static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
 
 	private static final String TYPE_VALUE_KEY = "value.type";
 
-	private static final String CODEC_VALUE_KEY = "value.codec";
+	private static final String URI_VALUE_KEY = "value.uri";
 
 	private static final String SCHEME_VALUE_KEY = "value.scheme";
 
-	private static final String MODEL_VALUE_KEY = "value.model";
+	private static final String CODEC_VALUE_KEY = "value.codec";
 
-	//	private static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";
-	//
-	//	private static final String FIRST_LINE_RESOURCE_KEY = "resource.first.line";
-	//
-	//	private static final String CONTENT_TYPE_RESOURCE_KEY = "resource.content.type";
+	private static final String ENCODING_VALUE_KEY = "value.encoding";
+
+	private static final String MODEL_VALUE_KEY = "value.model";
 
 	private static final String EXTERNALLY_MODIFIED = "flag.externally.modified";
 
 	//	private static final String EDITABLE = "resource.editable";
-	//
+
 	//	private static final String UNDO_MANAGER = "resource.undo.manager";
+
+	private static Logger log = LogUtil.get( Resource.class );
 
 	// Name is not stored in the node data, it is derived
 	private String name;
@@ -128,6 +130,14 @@ public class Resource extends Node {
 		setValue( SCHEME_VALUE_KEY, scheme );
 	}
 
+	public String getEncoding() {
+		return getValue( ENCODING_VALUE_KEY );
+	}
+
+	public void setEncoding( String encoding ) {
+		setValue( ENCODING_VALUE_KEY, encoding );
+	}
+
 	/**
 	 * Get the name of the resource. This returns the resource type name if the
 	 * URI is null, the entire URI if the path portion of the URI is null, or the
@@ -145,9 +155,12 @@ public class Resource extends Node {
 	 * @return The file name from the URI.
 	 */
 	public String getFileName() {
-		String name = null;
 		URI uri = getUri();
+		if( uri == null ) return null;
+
+		String name = null;
 		try {
+			// FIXME Should not have to convert to URL to get name
 			name = uri.toURL().getFile();
 		} catch( MalformedURLException exception ) {
 			log.error( "Error getting file name from: " + uri, exception );

@@ -165,8 +165,8 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return getName().compareTo( type.getName() );
 	}
 
-	Codec getCodecByMediaType( String contentType ) {
-		if( contentType == null ) return null;
+	public Codec getCodecByMediaType( String mediaType ) {
+		if( mediaType == null ) return null;
 
 		Codec codec = null;
 
@@ -174,7 +174,7 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 			Set<String> supportedContentTypes = testCodec.getSupportedMediaTypes();
 			if( supportedContentTypes != null ) {
 				for( String pattern : supportedContentTypes ) {
-					if( contentType.matches( pattern ) ) {
+					if( mediaType.matches( pattern ) ) {
 						codec = testCodec;
 						break;
 					}
@@ -185,7 +185,7 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return codec;
 	}
 
-	Codec getCodecByFileName( String fileName ) {
+	public Codec getCodecByFileName( String fileName ) {
 		if( fileName == null ) return null;
 
 		Codec codec = null;
@@ -205,7 +205,7 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return codec;
 	}
 
-	Codec getCodecByFirstLine( String firstLine ) {
+	public Codec getCodecByFirstLine( String firstLine ) {
 		if( firstLine == null ) return null;
 
 		Codec codec = null;

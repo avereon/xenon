@@ -10,9 +10,14 @@ import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import org.apache.commons.io.input.BoundedInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLConnection;
 import java.util.*;
@@ -896,6 +901,92 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return Collections.unmodifiableCollection( codecs );
 	}
 
+	/**
+	 * Determine the resource type for the given resource. The resource URI
+	 * is used to find the resource type in the following order:
+	 * <ol>
+	 * <li>Lookup the resource type by the full URI</li>
+	 * <li>Lookup the resource type by the URI scheme</li>
+	 * <li>Find all the codecs that match the URI</li>
+	 * <li>Sort the codecs by priority, select the highest</li>
+	 * <li>Use the resource type associated to the codec</li>
+	 * </ol>
+	 *
+	 * @param resource The resource for which to resolve the resource type
+	 * @return
+	 */
+	ResourceType autoDetectResourceType( Resource resource ) {
+		URI uri = resource.getUri();
+		ResourceType type = null;
+
+		// Look for resource type assigned to specific URIs.
+		if( uri != null ) type = uriResourceTypes.get( uri.toString() );
+
+		// Look for resource types assigned to specific schemes.
+		if( type == null && uri != null ) type = schemeResourceTypes.get( uri.getScheme() );
+
+		// Look for resource types assigned to specific codecs.
+		List<Codec> codecs = new ArrayList<Codec>( autoDetectCodecs( resource ) );
+		codecs.sort( new CodecPriorityComparator().reversed() );
+		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
+		if( type == null && codec != null ) type = codec.getResourceType();
+
+		if( codec != null ) resource.setCodec( codec );
+		if( type != null ) resource.setType( type );
+
+		return type;
+	}
+
+	/**
+	 * Determine the codec for the given resource by checking the file name, the
+	 * first line, and the content type for a match with a supported resource
+	 * type. When calling this method the resource needs to already be open so
+	 * that the information needed to determine the correct codec is defined in
+	 * the resource.
+	 * <p>
+	 * Note: This method uses a URLConnection object to get the first line and
+	 * content type of the resource. This means that the calling thread will be
+	 * blocked during the IO operations used in URLConnection if the first line or
+	 * the content type is needed to determine the resource type.
+	 *
+	 * @param resource The resource for which to find codecs
+	 * @return The set of codecs that match the resource
+	 */
+	Set<Codec> autoDetectCodecs( Resource resource ) {
+		Set<Codec> codecs = new HashSet<Codec>();
+		Collection<ResourceType> resourceTypes = getResourceTypes();
+
+		// First option: Determine codec by media type.
+		String mediaType = getMediaType( resource );
+		if( mediaType != null ) {
+			for( ResourceType check : resourceTypes ) {
+				Codec codec = check.getCodecByMediaType( mediaType );
+				if( codec != null ) codecs.add( codec );
+			}
+		}
+
+		// Second option: Determine codec by file name.
+		String fileName = resource.getFileName();
+		if( fileName != null ) {
+			for( ResourceType check : resourceTypes ) {
+				Codec codec = check.getCodecByFileName( fileName );
+				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
+			}
+		}
+
+		// Third option: Determine codec by first line.
+		// Load the first line from the resource.
+		String firstLine = getFirstLine( resource );
+		if( firstLine != null ) {
+			for( ResourceType check : resourceTypes ) {
+				Codec codec = check.getCodecByFirstLine( firstLine );
+				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
+			}
+		}
+
+		return codecs;
+	}
+
 	private Resource findOpenResource( Resource resource ) {
 		for( Resource open : openResources ) {
 			if( open.equals( resource ) ) return open;
@@ -942,6 +1033,33 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
+	 * Determine if the resource can be saved. The resource can be saved if the
+	 * URI is null or if the URI scheme and codec can both save resources.
+	 *
+	 * @param resource
+	 * @return True if the resource can be saved, false otherwise.
+	 */
+	private boolean canSaveResource( Resource resource ) {
+		// Check the URI.
+		URI uri = resource.getUri();
+		if( uri == null ) return true;
+
+		// Check supported schemes.
+		Scheme scheme = getScheme( uri.getScheme() );
+		if( scheme == null ) return false;
+
+		boolean result = false;
+		try {
+			Codec codec = resource.getCodec();
+			result = scheme.canSave( resource ) && (codec == null || codec.canSave());
+		} catch( ResourceException exception ) {
+			log.error( "Error checking if resource can be saved", exception );
+		}
+
+		return result;
+	}
+
+	/**
 	 * Create a resource from a resource type and/or a URI. The resource is
 	 * considered to be a new resource if the URI is null. Otherwise, the
 	 * resource is considered an old resource. See {@link Resource#isNew()}
@@ -950,6 +1068,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param uri The URI of the resource
 	 * @return The resource created from the resource type and URI
 	 */
+	// FIXME Should throw ResourceException
 	private Resource doCreateResource( ResourceType type, URI uri ) {
 		Resource resource = new Resource( type, uri );
 
@@ -1112,186 +1231,99 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine the resource type for the given resource. The resource URI
-	 * is used to find the resource type in the following order:
-	 * <ol>
-	 * <li>Lookup the resource type by the full URI</li>
-	 * <li>Lookup the resource type by the URI scheme</li>
-	 * <li>Find all the codecs that match the URI</li>
-	 * <li>Sort the codecs by priority, select the highest</li>
-	 * <li>Use the resource type associated to the codec</li>
-	 * </ol>
-	 *
-	 * @param resource The resource for which to resolve the resource type
+	 * @param resource
 	 * @return
+	 * @deprecated Instead use Scheme.getConnection( Resource )
 	 */
-	ResourceType autoDetectResourceType( Resource resource ) {
+	@Deprecated
+	private URLConnection getConnection( Resource resource ) {
 		URI uri = resource.getUri();
-		ResourceType type = null;
-
-		// Look for resource type assigned to specific URIs.
-		if( uri != null ) type = uriResourceTypes.get( uri.toString() );
-
-		// Look for resource types assigned to specific schemes.
-		if( type == null && uri != null ) type = schemeResourceTypes.get( uri.getScheme() );
-
-		// Look for resource types assigned to specific codecs.
-		List<Codec> codecs = new ArrayList<Codec>( autoDetectCodecs( resource ) );
-		codecs.sort( new CodecPriorityComparator().reversed() );
-		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
-		if( type == null && codec != null ) type = codec.getResourceType();
-
-		if( codec != null ) resource.setCodec( codec );
-		if( type != null ) resource.setType( type );
-
-		return type;
-	}
-
-	/**
-	 * Determine the codec for the given resource by checking the file name, the
-	 * first line, and the content type for a match with a supported resource
-	 * type. When calling this method the resource needs to already be open so
-	 * that the information needed to determine the correct codec is defined in
-	 * the resource.
-	 * <p>
-	 * Note: This method uses a URLConnection object to get the first line and
-	 * content type of the resource. This means that the calling thread will be
-	 * blocked during the IO operations used in URLConnection if the first line or
-	 * the content type is needed to determine the resource type.
-	 *
-	 * @param resource The resource for which to find codecs
-	 * @return The set of codecs that match the resource
-	 */
-	private Set<Codec> autoDetectCodecs( Resource resource ) {
-		URLConnection connection = null;
-		Set<Codec> codecs = new HashSet<Codec>();
-
-		// NEXT Create codecs for program resource types and assign them to the program scheme
-
-		Collection<ResourceType> resourceTypes = getResourceTypes();
-
-		//		// First option: Determine codec by media type.
-		//		String contentType = null;
-		//		if( connection == null ) connection = getConnection( resource.getUri() );
-		//		if( connection != null ) contentType = connection.getContentType();
-		//
-		//		// Store the content type in the resource.
-		//		if( !TextUtil.isEmpty( contentType ) ) {
-		//			resource.putResource( Resource.CONTENT_TYPE_RESOURCE_KEY, contentType );
-		//			for( ResourceType check : resourceTypes ) {
-		//				Codec codec = check.getCodecByContentType( contentType );
-		//				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
-		//			}
-		//		}
-		//
-		//		// Second option: Determine codec by file name.
-		//		String fileName = null;
-		//		String path = resource.getUri().getPath();
-		//		if( path != null ) fileName = path.substring( path.lastIndexOf( '/' ) + 1 );
-		//		if( !StringUtils.isEmpty( fileName ) ) {
-		//			for( ResourceType check : resourceTypes ) {
-		//				Codec codec = check.getCodecByFileName( fileName );
-		//				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
-		//			}
-		//		}
-		//
-		//		// Third option: Determine codec by first line.
-		//		try {
-		//			// Load the first line from the resource.
-		//			String firstLine = null;
-		//
-		//			if( connection == null ) connection = getConnection( resource.getUri() );
-		//			if( connection != null ) firstLine = getFirstLine( connection.getInputStream(), connection.getContentEncoding() );
-		//
-		//			if( !TextUtil.isEmpty( firstLine ) ) {
-		//				for( ResourceType check : resourceTypes ) {
-		//					Codec codec = check.getCodecByFirstLine( firstLine );
-		//					if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
-		//				}
-		//			}
-		//		} catch( IOException exception ) {
-		//			// It is not important that the resource cannot be loaded when determining codec type.
-		//		} finally {
-		//			try {
-		//				if( connection != null ) connection.getInputStream().close();
-		//			} catch( IOException exception ) {
-		//				Log.write( exception );
-		//			}
-		//		}
-
-		return codecs;
-	}
-
-	private URLConnection getConnection( URI uri ) {
-		if( !getSchemeNames().contains( uri.getScheme() ) ) return null;
+		Scheme scheme = getScheme( uri.getScheme() );
+		if( scheme == null ) return null;
 
 		try {
+			// FIXME Should not convert to URL to get a connection
 			return uri.toURL().openConnection();
+
+			// It should come from the scheme
+			//return scheme.openConnection( resource );
 		} catch( Exception exception ) {
-			log.warn( "Error opening URL connection", uri );
-			log.warn( "Error opening URL connection", exception );
+			log.warn( "Error opening resource connection", resource );
+			log.warn( "Error opening resource connection", exception );
 		}
 
 		return null;
 	}
 
-	//	private String getFirstLine( InputStream input, String encoding ) throws IOException {
-	//		if( input == null ) return null;
-	//		if( encoding == null ) encoding = TextUtil.DEFAULT_ENCODING;
-	//
-	//		byte[] buffer = new byte[ FIRST_LINE_LIMIT ];
-	//		ByteArrayOutputStream output = new ByteArrayOutputStream();
-	//
-	//		int count = 0;
-	//		int read = -1;
-	//		while( (read = input.read( buffer )) > -1 && count < FIRST_LINE_LIMIT ) {
-	//			// Search for line termination.
-	//			boolean eol = false;
-	//			for( int index = 0; index < read; index++ ) {
-	//				int data = buffer[ index ];
-	//				if( data == 10 || data == 13 ) {
-	//					read = index;
-	//					eol = true;
-	//					break;
-	//				}
-	//			}
-	//
-	//			// Write the buffer.
-	//			output.write( buffer, 0, read );
-	//			count += read;
-	//
-	//			// If a line break was encountered stop.
-	//			if( eol ) break;
-	//		}
-	//
-	//		return new String( output.toByteArray(), encoding );
-	//	}
+	private String getMediaType( Resource resource ) {
+		String mediaType = resource.getResource( Resource.MEDIA_TYPE_RESOURCE_KEY );
 
-	/**
-	 * Determine if the resource can be saved. The resource can be saved if the
-	 * URI is null or if the URI scheme and codec can both save resources.
-	 *
-	 * @param resource
-	 * @return True if the resource can be saved, false otherwise.
-	 */
-	private boolean canSaveResource( Resource resource ) {
-		// Check the URI.
-		URI uri = resource.getUri();
-		if( uri == null ) return true;
-
-		// Check supported schemes.
-		Scheme scheme = getScheme( uri.getScheme() );
-		if( scheme == null ) return false;
-
-		boolean result = false;
-		try {
-			Codec codec = resource.getCodec();
-			result = scheme.canSave( resource ) && (codec == null || codec.canSave());
-		} catch( ResourceException exception ) {
-			log.error( "Error checking if resource can be saved", exception );
+		if( mediaType == null ) {
+			URLConnection connection = getConnection( resource );
+			if( connection != null ) {
+				try {
+					mediaType = StringUtils.trimToNull( connection.getContentType() );
+					resource.putResource( Resource.MEDIA_TYPE_RESOURCE_KEY, mediaType );
+					connection.getInputStream().close();
+				} catch( IOException exception ) {
+					log.warn( "Error closing resource connection", exception );
+				}
+			}
 		}
 
-		return result;
+		return mediaType;
+	}
+
+	private String getFirstLine( Resource resource ) {
+		// Load the first line from the resource.
+		String firstLine = null;
+
+		URLConnection connection = getConnection( resource );
+		if( connection != null ) {
+			try {
+				String encoding = resource.getEncoding();
+				if( encoding == null ) encoding = connection.getContentEncoding();
+				firstLine = readFirstLine( connection.getInputStream(), encoding );
+				connection.getInputStream().close();
+			} catch( IOException exception ) {
+				log.warn( "Error closing resource connection", exception );
+			}
+		}
+
+		return firstLine;
+	}
+
+	private String readFirstLine( InputStream input, String encoding ) throws IOException {
+		if( input == null ) return null;
+
+		byte[] buffer = new byte[ FIRST_LINE_LIMIT ];
+		BoundedInputStream boundedInput = new BoundedInputStream( input, FIRST_LINE_LIMIT );
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+		int read;
+		int count = 0;
+		while( (read = input.read( buffer )) > -1 ) {
+			// Search for line termination.
+			boolean eol = false;
+			for( int index = 0; index < read; index++ ) {
+				int data = buffer[ index ];
+				if( data == 10 || data == 13 ) {
+					read = index;
+					eol = true;
+					break;
+				}
+			}
+
+			// Write the buffer.
+			output.write( buffer, 0, read );
+			count += read;
+
+			// If a line break was encountered stop.
+			if( eol ) break;
+		}
+
+		if( encoding == null ) encoding = ProgramDefaults.ENCODING;
+		return StringUtils.trimToNull( new String( output.toByteArray(), encoding ) );
 	}
 
 	private class OpenActionTask extends Task<Void> {
