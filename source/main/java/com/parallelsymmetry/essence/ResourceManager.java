@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.parallelsymmetry.essence.node.NodeEvent.Type;
 
+// FIXME Add Configurable interface to this class
 public class ResourceManager implements Controllable<ResourceManager> {
 
 	public static final String CURRENT_DIRECTORY_SETTING_KEY = "current.folder";
@@ -502,6 +503,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			//
 			//			uri = file.toURI();
 			//
+			//			// TODO Set the settings for the resource
+			//			resource.loadSettings( program.getSettingsManager().getResourceSettings( this ) );
+			//
 			//			if( saveAs ) {
 			//				saveAsResource = new Resource( resource.getType(), uri );
 			//				saveAsResource.setCodec( codec );
@@ -579,7 +583,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The resource created from the URI
 	 */
 	public Resource createResource( URI uri ) {
-		return createResource( null, uri );
+		return doCreateResource( null, uri );
 	}
 
 	/**
@@ -590,7 +594,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The resource created from the file
 	 */
 	public Resource createResource( File file ) {
-		return createResource( null, file.toURI() );
+		return doCreateResource( null, file.toURI() );
 	}
 
 	/**
@@ -601,34 +605,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The resource created from the resource type
 	 */
 	public Resource createResource( ResourceType type ) {
-		return createResource( type, null );
-	}
-
-	/**
-	 * Create a resource from a resource type and/or a URI. The resource is
-	 * considered to be a new resource if the URI is null. Otherwise, the
-	 * resource is considered an old resource. See {@link Resource#isNew()}
-	 *
-	 * @param type The resource type of the resource
-	 * @param uri The URI of the resource
-	 * @return The resource created from the resource type and URI
-	 */
-	public Resource createResource( ResourceType type, URI uri ) {
-		Resource resource = new Resource( type, uri );
-
-		resource = findOpenResource( resource );
-
-		if( uri != null ) {
-			try {
-				Scheme scheme = getScheme( uri.getScheme() );
-				resource.setScheme( scheme );
-				scheme.init( resource );
-			} catch( ResourceException exception ) {
-				log.error( "Error initializing resource scheme", exception );
-			}
-		}
-
-		return resource;
+		return doCreateResource( type, null );
 	}
 
 	/**
@@ -857,9 +834,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
 	}
 
+	// TODO Probably don't need the persistOpenResources() and restoreOpenResources() methods.
+	// This work will be handled by persisting and restoring tools.
 	//	private void persistOpenResources() {
-	// NOTE Probably don't need to do this as the tools should have the open resources
-	// FIXME Reimplement as a Configurable class
 	//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
 	//
 	//			synchronized( restoreLock ) {
@@ -919,13 +896,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return Collections.unmodifiableCollection( codecs );
 	}
 
-	// FIXME Resources should also implement Configurable
-	//	public ProgramConfigurationBuilder getResourceSettings( Resource resource ) {
-	//		if( resource.getUri() == null ) return null;
-	//		String name = HashUtil.hash( resource.getUri().toString() );
-	//		return program.getSettings().getNode( ProgramSettingsPath.RESOURCE_SETTINGS ).getNode( name );
-	//	}
-
 	private Resource findOpenResource( Resource resource ) {
 		for( Resource open : openResources ) {
 			if( open.equals( resource ) ) return open;
@@ -969,6 +939,37 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			if( registeredCodecs == null ) continue;
 			registeredCodecs.remove( codec );
 		}
+	}
+
+	/**
+	 * Create a resource from a resource type and/or a URI. The resource is
+	 * considered to be a new resource if the URI is null. Otherwise, the
+	 * resource is considered an old resource. See {@link Resource#isNew()}
+	 *
+	 * @param type The resource type of the resource
+	 * @param uri The URI of the resource
+	 * @return The resource created from the resource type and URI
+	 */
+	private Resource doCreateResource( ResourceType type, URI uri ) {
+		Resource resource = new Resource( type, uri );
+
+		// If the resource is already open, use it instead
+		resource = findOpenResource( resource );
+
+		if( uri != null ) {
+			try {
+				Scheme scheme = getScheme( uri.getScheme() );
+				resource.setScheme( scheme );
+				scheme.init( resource );
+			} catch( ResourceException exception ) {
+				log.error( "Error initializing resource scheme", exception );
+			}
+
+			// TODO Set the settings for the resource
+			//resource.loadSettings( program.getSettingsManager().getResourceSettings( this ) );
+		}
+
+		return resource;
 	}
 
 	private boolean doOpenResource( Resource resource ) throws ResourceException {
@@ -1037,9 +1038,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private boolean doSaveResource( Resource resource ) throws ResourceException {
 		if( resource == null ) return false;
 		if( !isResourceOpen( resource ) ) return false;
-
-		URI uri = resource.getUri();
-		Codec codec = resource.getCodec();
 
 		resource.save( this );
 

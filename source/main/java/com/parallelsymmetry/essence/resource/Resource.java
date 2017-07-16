@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+// TODO Add Configurable interface to this class
 public class Resource extends Node {
 
 	private static Logger log = LogUtil.get( Resource.class );

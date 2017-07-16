@@ -43,7 +43,7 @@ public class ProgramConfigurationBuilder extends FileBasedConfigurationBuilder<P
 
 	private File file;
 
-	private String id;
+	private String scope;
 
 	private ExecutorService executor;
 
@@ -57,11 +57,11 @@ public class ProgramConfigurationBuilder extends FileBasedConfigurationBuilder<P
 		this( program, file, null );
 	}
 
-	public ProgramConfigurationBuilder( Program program, File file, String id ) {
+	public ProgramConfigurationBuilder( Program program, File file, String scope ) {
 		super( PropertiesConfiguration.class, null, true );
 		this.program = program;
 		this.file = file;
-		this.id = id;
+		this.scope = scope;
 		//this.listeners = new CopyOnWriteArraySet<>();
 
 		configure( new Parameters().properties().setFile( file ) );
@@ -75,8 +75,8 @@ public class ProgramConfigurationBuilder extends FileBasedConfigurationBuilder<P
 	@Override
 	public PropertiesConfiguration getConfiguration() throws ConfigurationException {
 		PropertiesConfiguration config = super.getConfiguration();
-		program.fireEvent( new SettingsLoadedEvent( this, getFileHandler().getFile(), id ) );
-		//new SettingsLoadedEvent( this, getFileHandler().getFile(), id ).fire( listeners );
+		program.fireEvent( new SettingsLoadedEvent( this, getFileHandler().getFile(), scope ) );
+		//new SettingsLoadedEvent( this, getFileHandler().getFile(), scope ).fire( listeners );
 		return config;
 	}
 
@@ -103,8 +103,8 @@ public class ProgramConfigurationBuilder extends FileBasedConfigurationBuilder<P
 	private void persist() {
 		try {
 			ProgramConfigurationBuilder.super.save();
-			program.fireEvent( new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), id ) );
-			//new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), id ).fire( listeners );
+			program.fireEvent( new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), scope ) );
+			//new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), scope ).fire( listeners );
 
 			lastStoreTime.set( System.currentTimeMillis() );
 		} catch( ConfigurationException exception ) {

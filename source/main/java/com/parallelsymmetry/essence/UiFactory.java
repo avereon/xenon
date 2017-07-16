@@ -50,13 +50,13 @@ public class UiFactory {
 		paths.put( Prefix.WORKTOOL, new File( uiSettingsFolder, Prefix.WORKTOOL.name().toLowerCase() ) );
 	}
 
-//	public int getUiObjectCount() {
-//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
-//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
-//		int p = getSettingsFiles( Prefix.WORKPANE ).length;
-//		int t = getSettingsFiles( Prefix.WORKTOOL ).length;
-//		return Math.max( 2, s + a + p + t );
-//	}
+	//	public int getUiObjectCount() {
+	//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
+	//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
+	//		int p = getSettingsFiles( Prefix.WORKPANE ).length;
+	//		int t = getSettingsFiles( Prefix.WORKTOOL ).length;
+	//		return Math.max( 2, s + a + p + t );
+	//	}
 
 	public int getToolCount() {
 		return getSettingsFiles( Prefix.WORKTOOL ).length;
@@ -124,7 +124,7 @@ public class UiFactory {
 	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = program.getSettingsManager().getSettings(getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
+		Settings settings = program.getSettingsManager().getSettings( getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
 		settings.set( "id", id );
 		// Intentionally do not set the x property
 		// Intentionally do not set the y property
@@ -139,7 +139,7 @@ public class UiFactory {
 	public Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
 
-		Settings settings = program.getSettingsManager().getSettings(getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
+		Settings settings = program.getSettingsManager().getSettings( getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
 		settings.set( "id", id );
 
 		Workarea workarea = new Workarea();
@@ -151,7 +151,7 @@ public class UiFactory {
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Settings settings = program.getSettingsManager().getSettings(file, Prefix.WORKSPACE.name() );
+			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKSPACE.name() );
 			workspace.loadSettings( settings );
 
 			if( workspace.isActive() ) {
@@ -172,7 +172,7 @@ public class UiFactory {
 		try {
 			Workarea workarea = new Workarea();
 
-			Settings settings = program.getSettingsManager().getSettings(file, Prefix.WORKAREA.name() );
+			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKAREA.name() );
 			workarea.loadSettings( settings );
 
 			Workspace workspace = workspaces.get( settings.getString( "workspaceId" ) );

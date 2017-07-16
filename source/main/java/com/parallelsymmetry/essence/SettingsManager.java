@@ -1,5 +1,6 @@
 package com.parallelsymmetry.essence;
 
+import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.settings.ProgramConfigurationBuilder;
 import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.util.Controllable;
@@ -9,7 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
@@ -19,21 +22,41 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Program program;
 
-	private File programSettingsFolder;
+	//private File programSettingsFolder;
+
+	private Map<String, File> paths;
 
 	private Set<ConfigWrapper> wrappers;
 
 	public SettingsManager( Program program ) {
 		this.program = program;
-		programSettingsFolder = new File( program.getDataFolder(), ProgramSettings.BASE );
+
+		paths = new ConcurrentHashMap<>();
+		paths.put( "program", new File( program.getDataFolder(), ProgramSettings.PROGRAM ) );
+		paths.put( "resource", new File( program.getDataFolder(), ProgramSettings.RESOURCE ) );
 	}
 
 	public Settings getSettings( String path ) {
-		return getSettings( new File( programSettingsFolder, path ), null );
+		return getSettings( new File( paths.get( "program" ), path ), null );
 	}
 
-	public Settings getSettings( File file, String id ) {
-		ProgramConfigurationBuilder builder = new ProgramConfigurationBuilder( program, file, id );
+	public Settings getProgramSettings() {
+		return getSettings( paths.get( "program" ), "PROGRAM" );
+	}
+
+	public Settings getResourceSettings( Resource resource ) {
+		if( resource.getUri() == null ) return null;
+
+		String id = IdGenerator.getId();
+		return getSettings( getSettingsFile( "resource", id ), "RESOURCE" );
+	}
+
+	private File getSettingsFile( String key, String id ) {
+		return new File( paths.get( key ), id + Program.SETTINGS_EXTENSION );
+	}
+
+	public Settings getSettings( File file, String scope ) {
+		ProgramConfigurationBuilder builder = new ProgramConfigurationBuilder( program, file, scope );
 		//builder.addProgramEventListener( program.getEventWatcher() );
 		builder.setExecutor( program.getExecutor() );
 
