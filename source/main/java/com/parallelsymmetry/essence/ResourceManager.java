@@ -959,8 +959,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// First option: Determine codec by media type.
 		String mediaType = getMediaType( resource );
 		if( mediaType != null ) {
-			for( ResourceType check : resourceTypes ) {
-				Codec codec = check.getCodecByMediaType( mediaType );
+			for( ResourceType resourceType : resourceTypes ) {
+				Codec codec = resourceType.getCodecByMediaType( mediaType );
 				if( codec != null ) codecs.add( codec );
 			}
 		}
@@ -968,9 +968,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Second option: Determine codec by file name.
 		String fileName = resource.getFileName();
 		if( fileName != null ) {
-			for( ResourceType check : resourceTypes ) {
-				Codec codec = check.getCodecByFileName( fileName );
-				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
+			for( ResourceType resourceType : resourceTypes ) {
+				Codec codec = resourceType.getCodecByFileName( fileName );
+				if( codec != null  ) codecs.add( codec );
 			}
 		}
 
@@ -978,9 +978,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Load the first line from the resource.
 		String firstLine = getFirstLine( resource );
 		if( firstLine != null ) {
-			for( ResourceType check : resourceTypes ) {
-				Codec codec = check.getCodecByFirstLine( firstLine );
-				if( codec != null && !codecs.contains( codec ) ) codecs.add( codec );
+			for( ResourceType resourceType : resourceTypes ) {
+				Codec codec = resourceType.getCodecByFirstLine( firstLine );
+				if( codec != null  ) codecs.add( codec );
 			}
 		}
 
@@ -1243,7 +1243,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		try {
 			// FIXME Should not convert to URL to get a connection
-			return uri.toURL().openConnection();
+			//return uri.toURL().openConnection();
 
 			// It should come from the scheme
 			//return scheme.openConnection( resource );

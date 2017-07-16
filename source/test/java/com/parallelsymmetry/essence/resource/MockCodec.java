@@ -3,23 +3,27 @@ package com.parallelsymmetry.essence.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 
 public class MockCodec extends Codec {
 
 	public static final String EXTENSION = "mock";
 
-	private static Set<String> supportedFileNames;
+	private String key;
 
 	public MockCodec() {
+		this( null );
+	}
+
+	public MockCodec(String key) {
+		this.key = key;
 		addSupportedMediaType( "application/mock" );
 		addSupportedExtension( EXTENSION );
-		addSupportedFirstLine( "\\?mock" );
+		addSupportedFirstLine( "?mock" );
 	}
 
 	@Override
 	public String getKey() {
-		return "com.parallelsymmetry.codec.mock";
+		return key == null ? "com.parallelsymmetry.codec.mock" : "com.parallelsymmetry.codec.mock." + key;
 	}
 
 	@Override

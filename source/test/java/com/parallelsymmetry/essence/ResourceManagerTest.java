@@ -11,8 +11,8 @@ import org.junit.Test;
 import java.net.URI;
 import java.util.Set;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -190,9 +190,9 @@ public class ResourceManagerTest extends ProgramTestCase {
 	@Test
 	public void testAutoDetectCodecs() {
 		ResourceType type = manager.getResourceType( "mock" );
-		Resource resource = manager.createResource( URI.create( "mock:test" ) );
+		Resource resource = manager.createResource( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( resource );
-		assertThat( codecs, containsInAnyOrder( type.getCodecs() ) );
+		assertThat( codecs, equalTo( type.getCodecs() ) );
 	}
 
 }

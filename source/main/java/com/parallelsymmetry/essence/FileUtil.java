@@ -1,5 +1,7 @@
 package com.parallelsymmetry.essence;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -37,87 +39,24 @@ public final class FileUtil {
 	public static final FileFilter JAR_FILE_FILTER = new JarFileFilter();
 
 	/**
-	 * Converts a Unix-style glob to a regular expression. This does the following
-	 * substitutions: ? becomes ., * becomes .*, {aa,bb} becomes (aa|bb).
-	 * 
-	 * @param glob The glob pattern.
+	 * @deprecated Just use FilenameUtils.getExtension()
 	 */
-	public static String globToRE( String glob ) {
-		if( glob == null ) return null;
-
-		boolean inside = false;
-		boolean escape = false;
-		StringBuffer buffer = new StringBuffer();
-
-		for( int index = 0; index < glob.length(); index++ ) {
-			char c = glob.charAt( index );
-
-			if( escape ) {
-				buffer.append( '\\' );
-				buffer.append( c );
-				escape = false;
-				continue;
-			}
-
-			switch( c ) {
-				case '\\': {
-					escape = true;
-					break;
-				}
-				case '?': {
-					buffer.append( '.' );
-					break;
-				}
-				case '.': {
-					buffer.append( "\\." );
-					break;
-				}
-				case '*': {
-					buffer.append( ".*" );
-					break;
-				}
-				case '{': {
-					buffer.append( '(' );
-					inside = true;
-					break;
-				}
-				case ',': {
-					if( inside ) {
-						buffer.append( '|' );
-					} else {
-						buffer.append( ',' );
-					}
-					break;
-				}
-				case '}': {
-					buffer.append( ')' );
-					inside = false;
-					break;
-				}
-				default: {
-					buffer.append( c );
-				}
-			}
-		}
-
-		return buffer.toString();
-	}
-
+	@Deprecated
 	public static String getExtension( File file ) {
-		if( file == null ) return null;
-		return getExtension( file.getName() );
+		return file == null ? null : getExtension( file.getName() );
 	}
 
+	/**
+	 * @deprecated Just use FilenameUtils.getExtension()
+	 */
+	@Deprecated
 	public static String getExtension( String name ) {
-		if( name == null ) return null;
-		int index = name.lastIndexOf( '.' );
-		if( index < 0 ) return "";
-		return name.substring( index + 1 );
+		return FilenameUtils.getExtension( name );
 	}
 
 	/**
 	 * Get a human readable string using orders of magnitude in base-10.
-	 * 
+	 *
 	 * @param size
 	 * @return
 	 */
@@ -171,7 +110,7 @@ public final class FileUtil {
 
 	/**
 	 * Get a human readable string using orders of magnitude in base-2.
-	 * 
+	 *
 	 * @param size
 	 * @return
 	 */
@@ -238,7 +177,7 @@ public final class FileUtil {
 	/**
 	 * Create a temporary folder. If there is a problem creating the folder this
 	 * method will return null.
-	 * 
+	 *
 	 * @param prefix
 	 * @param suffix
 	 * @return
@@ -254,7 +193,7 @@ public final class FileUtil {
 	/**
 	 * Create a temporary folder. If there is a problem creating the folder this
 	 * method will return null.
-	 * 
+	 *
 	 * @param prefix
 	 * @param suffix
 	 * @param parent

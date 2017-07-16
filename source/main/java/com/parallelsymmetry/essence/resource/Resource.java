@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 
 import javax.swing.tree.TreePath;
 import javax.swing.undo.UndoManager;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -158,15 +157,11 @@ public class Resource extends Node {
 		URI uri = getUri();
 		if( uri == null ) return null;
 
-		String name = null;
-		try {
-			// FIXME Should not have to convert to URL to get name
-			name = uri.toURL().getFile();
-		} catch( MalformedURLException exception ) {
-			log.error( "Error getting file name from: " + uri, exception );
+		if( uri.isOpaque() ) {
+			return uri.getSchemeSpecificPart();
+		} else {
+			return uri.getPath().substring( uri.getPath().lastIndexOf( '/' ) + 1 );
 		}
-
-		return name;
 	}
 
 	public UndoManager getUndoManager() {

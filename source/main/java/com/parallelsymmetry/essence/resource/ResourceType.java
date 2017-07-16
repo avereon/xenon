@@ -165,64 +165,34 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return getName().compareTo( type.getName() );
 	}
 
-	public Codec getCodecByMediaType( String mediaType ) {
-		if( mediaType == null ) return null;
+	public Codec getCodecByMediaType( String type ) {
+		if( type == null ) return null;
 
-		Codec codec = null;
-
-		for( Codec testCodec : codecs ) {
-			Set<String> supportedContentTypes = testCodec.getSupportedMediaTypes();
-			if( supportedContentTypes != null ) {
-				for( String pattern : supportedContentTypes ) {
-					if( mediaType.matches( pattern ) ) {
-						codec = testCodec;
-						break;
-					}
-				}
-			}
+		for( Codec codec : codecs ) {
+			if( codec.isSupportedMediaType( type )) return codec;
 		}
 
-		return codec;
+		return null;
 	}
 
-	public Codec getCodecByFileName( String fileName ) {
-		if( fileName == null ) return null;
+	public Codec getCodecByFileName( String name ) {
+		if( name == null ) return null;
 
-		Codec codec = null;
-
-		for( Codec testCodec : codecs ) {
-			Set<String> supportedFileNames = testCodec.getSupportedFileNames();
-			if( supportedFileNames != null ) {
-				for( String pattern : supportedFileNames ) {
-					if( fileName.matches( pattern ) ) {
-						codec = testCodec;
-						break;
-					}
-				}
-			}
+		for( Codec codec : codecs ) {
+			if( codec.isSupportedFileName( name ) ) return codec;
 		}
 
-		return codec;
+		return null;
 	}
 
-	public Codec getCodecByFirstLine( String firstLine ) {
-		if( firstLine == null ) return null;
+	public Codec getCodecByFirstLine( String line ) {
+		if( line == null ) return null;
 
-		Codec codec = null;
-
-		for( Codec testCodec : codecs ) {
-			Set<String> supportedFirstLines = testCodec.getSupportedFirstLines();
-			if( supportedFirstLines != null ) {
-				for( String pattern : supportedFirstLines ) {
-					if( firstLine.matches( pattern ) ) {
-						codec = testCodec;
-						break;
-					}
-				}
-			}
+		for( Codec codec : codecs ) {
+			if( codec.isSupportedFirstLine( line )) return codec;
 		}
 
-		return codec;
+		return null;
 	}
 
 }

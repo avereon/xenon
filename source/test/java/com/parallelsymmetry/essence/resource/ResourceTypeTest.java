@@ -32,7 +32,7 @@ public class ResourceTypeTest extends BaseTestCase {
 	@Test
 	public void testGetName() {
 		ResourceType type = new MockResourceType( product );
-		assertThat( type.getName(), is( "Mock Resource" ) );
+		assertThat( type.getName(), is( "Mock Resource (mock)" ) );
 	}
 
 	@Test
@@ -41,7 +41,7 @@ public class ResourceTypeTest extends BaseTestCase {
 		assertThat( type.getCodecs().size(), is( 1 ) );
 		Codec codec1 = type.getDefaultCodec();
 
-		MockCodec codec2 = new MockCodec();
+		MockCodec codec2 = new MockCodec( "2");
 		type.addCodec( codec2 );
 
 		assertThat( type.getCodecs(), containsInAnyOrder( codec1, codec2 ) );
@@ -53,7 +53,7 @@ public class ResourceTypeTest extends BaseTestCase {
 		assertThat( type.getCodecs().size(), is( 1 ) );
 		Codec codec1 = type.getDefaultCodec();
 
-		MockCodec codec2 = new MockCodec();
+		MockCodec codec2 = new MockCodec( "2");
 		type.addCodec( codec2 );
 		assertThat( type.getCodecs(), containsInAnyOrder( codec1, codec2 ) );
 

@@ -5,7 +5,7 @@ import com.parallelsymmetry.essence.product.Product;
 
 public class MockResourceType extends ResourceType {
 
-	private static final String KEY = "mock";
+	private String key;
 
 	private static final String NAME = "Mock Resource";
 
@@ -16,23 +16,28 @@ public class MockResourceType extends ResourceType {
 	private Codec defaultCodec;
 
 	public MockResourceType( Product product ) {
-		super( product, "mock" );
-		setDefaultCodec( defaultCodec = new MockCodec() );
+		this( product, "mock", new MockCodec() );
+	}
+
+	public MockResourceType( Product product, String key, Codec defaultCodec ) {
+		super( product, key );
+		this.key = key;
+		setDefaultCodec( defaultCodec );
 	}
 
 	@Override
 	public String getKey() {
-		return KEY;
+		return key == null ? super.getKey() : key;
 	}
 
 	@Override
 	public String getName() {
-		return NAME;
+		return NAME + " (" + getKey() + ")";
 	}
 
 	@Override
 	public String getDescription() {
-		return DESCRIPTION;
+		return DESCRIPTION + " (" + getKey() + ")";
 	}
 
 	@Override
