@@ -12,7 +12,9 @@ public class MockCodec extends Codec {
 	private static Set<String> supportedFileNames;
 
 	public MockCodec() {
+		addSupportedMediaType( "application/mock" );
 		addSupportedExtension( EXTENSION );
+		addSupportedFirstLine( "\\?mock" );
 	}
 
 	@Override

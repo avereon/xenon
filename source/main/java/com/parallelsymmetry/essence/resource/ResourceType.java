@@ -57,12 +57,18 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 
 	private Set<Codec> codecs;
 
+	private Codec defaultCodec;
+
 	public ResourceType( Product product, String resourceBundleKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( resourceBundleKey == null ) throw new NullPointerException( "Resource bundle key cannot be null" );
 		this.product = product;
 		this.rbKey = resourceBundleKey;
 		this.codecs = new CopyOnWriteArraySet<Codec>();
+	}
+
+	public Product getProduct() {
+		return product;
 	}
 
 	public String getKey() {
@@ -77,7 +83,34 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return product.getResourceBundle().getString( "resource", rbKey + "-description" );
 	}
 
-	public abstract Codec getDefaultCodec();
+	public Codec getDefaultCodec() {
+		return defaultCodec;
+	}
+
+	public void setDefaultCodec( Codec codec ) {
+		addCodec( this.defaultCodec = codec );
+	}
+
+	public Set<Codec> getCodecs() {
+		return Collections.unmodifiableSet( codecs );
+	}
+
+	public void addCodec( Codec codec ) {
+		if( codec == null ) return;
+		synchronized( codec ) {
+			codecs.add( codec );
+			codec.setResourceType( this );
+		}
+	}
+
+	public void removeCodec( Codec codec ) {
+		if( codec == null ) return;
+		synchronized( codec ) {
+			codecs.remove( codec );
+			codec.setResourceType( null );
+			if( getDefaultCodec() == codec ) setDefaultCodec( null );
+		}
+	}
 
 	/**
 	 * Initialize a resource with default state. This method should provide the
@@ -120,30 +153,6 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 	 */
 	public boolean resourceDialog( Program program, Resource resource ) throws ResourceException {
 		return true;
-	}
-
-	public Set<Codec> getCodecs() {
-		return Collections.unmodifiableSet( codecs );
-	}
-
-	public void addCodec( Codec codec ) {
-		if( codec == null ) return;
-		synchronized( codec ) {
-			codecs.add( codec );
-			codec.setResourceType( this );
-		}
-	}
-
-	public void removeCodec( Codec codec ) {
-		if( codec == null ) return;
-		synchronized( codec ) {
-			codecs.remove( codec );
-			codec.setResourceType( null );
-		}
-	}
-
-	public Product getProduct() {
-		return product;
 	}
 
 	@Override

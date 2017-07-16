@@ -17,7 +17,7 @@ public class MockResourceType extends ResourceType {
 
 	public MockResourceType( Product product ) {
 		super( product, "mock" );
-		addCodec( defaultCodec = new MockCodec() );
+		setDefaultCodec( defaultCodec = new MockCodec() );
 	}
 
 	@Override
@@ -33,11 +33,6 @@ public class MockResourceType extends ResourceType {
 	@Override
 	public String getDescription() {
 		return DESCRIPTION;
-	}
-
-	@Override
-	public Codec getDefaultCodec() {
-		return defaultCodec;
 	}
 
 	@Override

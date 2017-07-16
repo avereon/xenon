@@ -4,8 +4,7 @@ import com.parallelsymmetry.essence.BaseTestCase;
 import com.parallelsymmetry.essence.product.Product;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -27,16 +26,58 @@ public class ResourceTypeTest extends BaseTestCase {
 	@Test
 	public void testGetCodecs() {
 		ResourceType type = new MockResourceType( product );
-
-		assertThat( type.getCodecs().contains( product ), is( false ) );
-		assertThat( type.getCodecs().contains( type.getDefaultCodec() ), is( true ) );
+		assertThat( type.getCodecs(), containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
-	// NEXT Should there be more unit tests for ResourceType
+	@Test
+	public void testGetName() {
+		ResourceType type = new MockResourceType( product );
+		assertThat( type.getName(), is( "Mock Resource" ) );
+	}
 
-	// Test get name
-	// Test add codec
-	// Test remove codec
-	// Test getting a coded based on a resource...?
+	@Test
+	public void testAddCodec() {
+		ResourceType type = new MockResourceType( product );
+		assertThat( type.getCodecs().size(), is( 1 ) );
+		Codec codec1 = type.getDefaultCodec();
+
+		MockCodec codec2 = new MockCodec();
+		type.addCodec( codec2 );
+
+		assertThat( type.getCodecs(), containsInAnyOrder( codec1, codec2 ) );
+	}
+
+	@Test
+	public void testRemoveCodec() {
+		ResourceType type = new MockResourceType( product );
+		assertThat( type.getCodecs().size(), is( 1 ) );
+		Codec codec1 = type.getDefaultCodec();
+
+		MockCodec codec2 = new MockCodec();
+		type.addCodec( codec2 );
+		assertThat( type.getCodecs(), containsInAnyOrder( codec1, codec2 ) );
+
+		type.removeCodec( codec1 );
+		assertThat( type.getCodecs(), containsInAnyOrder( codec2 ) );
+		assertThat( type.getDefaultCodec(), is( nullValue() ) );
+	}
+
+	@Test
+	public void testGetCodecByMediaType() {
+		ResourceType type = new MockResourceType( product );
+		assertThat( type.getCodecByMediaType( "application/mock" ), is( type.getDefaultCodec() ) );
+	}
+
+	@Test
+	public void testGetCodecByFileName() {
+		ResourceType type = new MockResourceType( product );
+		assertThat( type.getCodecByFileName( "test.mock" ), is( type.getDefaultCodec() ) );
+	}
+
+	@Test
+	public void testGetCodecByFirstLine() {
+		ResourceType type = new MockResourceType( product );
+		assertThat( type.getCodecByFirstLine( "?mock" ), is( type.getDefaultCodec() ) );
+	}
 
 }

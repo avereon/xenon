@@ -26,16 +26,16 @@ public class CodecTest extends BaseTestCase {
 
 	@Test
 	public void testGetSupportedFirstLines() {
-		assertThat( codec.getSupportedFirstLines().size(), is( 0 ) );
-		codec.addSupportedFirstLine( "#!/bin/mock" );
 		assertThat( codec.getSupportedFirstLines().size(), is( 1 ) );
+		codec.addSupportedFirstLine( "#!/bin/mock" );
+		assertThat( codec.getSupportedFirstLines().size(), is( 2 ) );
 	}
 
 	@Test
 	public void testGetSupportedContentTypes() {
-		assertThat( codec.getSupportedMediaTypes().size(), is( 0 ) );
-		codec.addSupportedMediaType( "text/mock" );
 		assertThat( codec.getSupportedMediaTypes().size(), is( 1 ) );
+		codec.addSupportedMediaType( "text/mock" );
+		assertThat( codec.getSupportedMediaTypes().size(), is( 2 ) );
 	}
 
 	@Test

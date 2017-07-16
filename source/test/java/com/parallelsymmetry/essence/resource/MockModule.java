@@ -27,4 +27,5 @@ public class MockModule extends Module {
 	public ProductBundle getResourceBundle() {
 		return null;
 	}
+
 }
