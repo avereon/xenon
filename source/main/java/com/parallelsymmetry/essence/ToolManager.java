@@ -127,14 +127,11 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		// NEXT Now that we have a tool...open dependent tools
-		// Or, should we be opening dependent resources?
-		// Or, should the resource dependencies be defined by the resource?
-
 		// After thing about this for a bit I've determined that the
 		// dependency comes from the tool and that the new tools should
 		// use the same resource. That makes sense to use the resource
 		// as a context between the tools. For example, a guide model can
-		// be set as a resource on the resource.
+		// be added as a resource on the resource.
 
 		//		for( Resource dependency: tool.getResourceDependencies() ) {
 		//			openTool( dependency, pane );
