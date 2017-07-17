@@ -44,9 +44,6 @@ public class ProductInfoTool extends ProductTool {
 		border.setPadding( new Insets( 10 ) );
 		border.setCenter( text );
 		getChildren().add( border );
-
-		// FIXME The resource may not be loaded at this point
-		setMetadata( resource.getModel() );
 	}
 
 	public String getTitleSuffix() {
@@ -152,6 +149,17 @@ public class ProductInfoTool extends ProductTool {
 	@Override
 	protected void deallocate() throws ToolException {
 		log.info( "Tool deallocate" );
+	}
+
+	@Override
+	protected void resourceReady() throws ToolException {
+		log.info( "Resource ready" );
+		resourceRefreshed();
+	}
+
+	@Override
+	protected void resourceRefreshed() {
+		setMetadata( getResource().getModel() );
 	}
 
 	public static ToolInfo getToolInfo() {

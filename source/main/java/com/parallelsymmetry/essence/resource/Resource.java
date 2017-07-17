@@ -14,6 +14,7 @@ import javax.swing.undo.UndoManager;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 // TODO Add Configurable interface to this class
 public class Resource extends Node {
@@ -78,9 +79,11 @@ public class Resource extends Node {
 	public Resource( ResourceType type, URI uri ) {
 		if( type == null && uri == null ) throw new RuntimeException( "The type and uri cannot both be null." );
 
-		// FIXME Finish implementing Resource constructor
 		setType( type );
 		setUri( uri );
+
+		// If the URI is null then the resource is ready
+		ready = uri == null;
 
 		// TODO What is the FX undo manager
 		//undoManager = new ResourceUndoManager();
@@ -187,10 +190,10 @@ public class Resource extends Node {
 	/**
 	 * A resource is "new" if it is created with a resource type. The URI is
 	 * assigned when the resource is saved.
-	 *
+	 * <p>
 	 * A resource is "old" if it is created with a URI. The resource type is
 	 * determined when the resource is opened.
-	 *
+	 * <p>
 	 * A resource is "new" if it does not have a URI associated with it yet. This
 	 * usually occurs when the resource is created with only a resource type and
 	 * has not been saved yet. When it is saved, a URI will be associated to the
@@ -228,8 +231,10 @@ public class Resource extends Node {
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.load( this, getCodec() );
 		loaded = true;
+		ready = true;
 
 		fireResourceEvent( new ResourceLoadedEvent( Resource.class, this ) );
+		notifyAll();
 	}
 
 	public synchronized final void refresh( ResourceManager manager ) {
@@ -265,6 +270,27 @@ public class Resource extends Node {
 		open = false;
 
 		fireResourceEvent( new ResourceClosedEvent( Resource.class, this ) );
+	}
+
+	/**
+	 * If the resource is new or has been loaded then the resource is "ready".
+	 *
+	 * @return Is the resource ready
+	 */
+	public boolean isReady() {
+		return ready;
+	}
+
+	/**
+	 * Until the resource is "ready" the data of the resource cannot be used.
+	 *
+	 * @param time How long to wait
+	 * @param unit The time unit
+	 */
+	public synchronized void waitForReady( int time, TimeUnit unit ) throws InterruptedException {
+		while( !isReady() ) {
+			wait( unit.toMillis( time ) );
+		}
 	}
 
 	public boolean exists() throws ResourceException {

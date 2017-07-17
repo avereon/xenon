@@ -364,15 +364,15 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources, boolean createEditors ) {
-		open( resources, null, createEditors );
+	public void open( Collection<Resource> resources, boolean openTool ) {
+		open( resources, null, openTool );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources, WorkpaneView view, boolean createEditors ) {
-		program.getExecutor().submit( new OpenActionTask( resources, null, view, createEditors ) );
+	public void open( Collection<Resource> resources, WorkpaneView view, boolean openTool ) {
+		program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool ) );
 	}
 
 	/**
@@ -386,8 +386,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the source resource be saved as the target resource. This
 	 * method submits a task to the task manager and returns immediately.
 	 *
-	 * @param source
-	 * @param target
+	 * @param source The source resource
+	 * @param target The target resource
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void saveAsResource( Resource source, Resource target ) {
@@ -399,8 +399,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//	 * until the task is complete. This method submits a task to the task manager
 	//	 * and waits for the task to be completed.
 	//	 *
-	//	 * @param source
-	//	 * @param target
+	//	 * @param source The source resource
+	//	 * @param target The target resource
 	//	 * @throws ExecutionException
 	//	 * @throws InterruptedException
 	//	 * @implNote This method makes calls to the FX platform.
@@ -413,8 +413,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * Request that the source resource be saved as a copy to the target resource.
 	 * This method submits a task to the task manager and returns immediately.
 	 *
-	 * @param source
-	 * @param target
+	 * @param source The source resource
+	 * @param target The target resource
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void copyAsResource( Resource source, Resource target ) {
@@ -426,8 +426,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//	 * and wait until the task is complete. This method submits a task to the task
 	//	 * manager and waits for the task to be completed.
 	//	 *
-	//	 * @param source
-	//	 * @param target
+	//	 * @param source The source resource
+	//	 * @param target The target resource
 	//	 * @throws ExecutionException
 	//	 * @throws InterruptedException
 	//	 * @implNote This method makes calls to the FX platform.
@@ -970,7 +970,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( fileName != null ) {
 			for( ResourceType resourceType : resourceTypes ) {
 				Codec codec = resourceType.getCodecByFileName( fileName );
-				if( codec != null  ) codecs.add( codec );
+				if( codec != null ) codecs.add( codec );
 			}
 		}
 
@@ -980,7 +980,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( firstLine != null ) {
 			for( ResourceType resourceType : resourceTypes ) {
 				Codec codec = resourceType.getCodecByFirstLine( firstLine );
-				if( codec != null  ) codecs.add( codec );
+				if( codec != null ) codecs.add( codec );
 			}
 		}
 
@@ -1136,19 +1136,17 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		if( !resource.isOpen() ) doOpenResource( resource );
 
-		boolean previouslyLoaded = resource.isLoaded();
+		if( !resource.exists() ) return false;
+
 
 		// Load the resource.
-		if( resource.exists() ) {
-			resource.load( this );
-			resource.setModified( false );
-		}
-
+		boolean previouslyLoaded = resource.isLoaded();
+		resource.load( this );
+		resource.setModified( false );
 		if( !previouslyLoaded ) resource.addNodeListener( modifiedResourceWatcher );
+		if( resource.isReady() ) resource.refresh( this );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
-
-		resource.refresh( this );
 		log.trace( "Resource refresh: " + resource );
 
 		return true;

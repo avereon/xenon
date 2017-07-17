@@ -282,17 +282,17 @@ public class ToolManager implements Controllable<ToolManager> {
 		ProductTool tool = null;
 
 		try {
+			// Create the new tool instance
 			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			Product product = toolClassMetadata.get( type ).getProduct();
 			tool = constructor.newInstance( product, resource );
 
-			// TODO Coordinate the tool with the resource state
-			// A resource is considered "ready" when it is "new" or "loaded". Until the
-			// resource is "ready" the state of the resource cannot be used.
-
+			// Wait for the resource to be "ready", then notify the tool
 			// This method should have been called from a Callable class on a task
-			// manager thread, usually from ResourceManager.OpenActionTask
-
+			// manager thread, usually from ResourceManager.OpenActionTask. That
+			// means the calling thread can wait a bit for the resource to be ready.
+			if( !resource.isNew() ) resource.waitForReady( 10, TimeUnit.SECONDS );
+			tool.callResourceReady();
 		} catch( Exception exception ) {
 			log.error( "Error creating instance: " + type.getName(), exception );
 		}

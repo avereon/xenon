@@ -255,9 +255,14 @@ public abstract class Tool extends Control {
 	protected void deallocate() throws ToolException {}
 
 	/**
+	 * Called when the resource is ready to be used by the tool.
+	 */
+	protected void resourceReady() throws ToolException {}
+
+	/**
 	 * Called when the resource data is refreshed.
 	 */
-	protected void onResourceRefreshed() {}
+	protected void resourceRefreshed() throws ToolException {}
 
 	/**
 	 * Allocate the tool.
@@ -333,6 +338,28 @@ public abstract class Tool extends Control {
 		}
 	}
 
+	/**
+	 * Called when the resource is ready to be used by the tool.
+	 */
+	public void callResourceReady() {
+		try {
+			resourceReady();
+		} catch( ToolException exception ) {
+			log.error( "Error deallocating tool", exception );
+		}
+	}
+
+	/**
+	 * Called when the resource is ready to be used by the tool.
+	 */
+	public void callResourceRefreshed() {
+		try {
+			resourceRefreshed();
+		} catch( ToolException exception ) {
+			log.error( "Error deallocating tool", exception );
+		}
+	}
+
 	public final void fireToolClosingEvent( ToolEvent event ) throws ToolVetoException {
 		ToolVetoException exception = null;
 		for( ToolListener listener : listeners ) {
@@ -357,7 +384,7 @@ public abstract class Tool extends Control {
 		public void eventOccurred( ResourceEvent event ) {
 			switch( event.getType() ) {
 				case REFRESHED : {
-					Tool.this.onResourceRefreshed();
+					Tool.this.callResourceRefreshed();
 					break;
 				}
 				case CLOSED : {
