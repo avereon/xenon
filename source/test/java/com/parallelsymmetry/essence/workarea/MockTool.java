@@ -29,6 +29,8 @@ public class MockTool extends Tool {
 
 	private static final AtomicInteger counter = new AtomicInteger();
 
+	private Workpane.Placement placement;
+
 	private List<MethodCall> events = new CopyOnWriteArrayList<>();
 
 	private int eventIndex;
@@ -66,6 +68,15 @@ public class MockTool extends Tool {
 	@Override
 	public void deallocate() {
 		events.add( new MethodCall( DEALLOCATE ) );
+	}
+
+	@Override
+	public Workpane.Placement getPlacement() {
+		return placement;
+	}
+
+	public void setPlacement( Workpane.Placement placement) {
+		this.placement = placement;
 	}
 
 	@Override

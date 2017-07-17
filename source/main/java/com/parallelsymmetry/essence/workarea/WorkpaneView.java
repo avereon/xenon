@@ -21,6 +21,8 @@ public class WorkpaneView extends BorderPane {
 
 	WorkpaneEdge eastEdge;
 
+	private Workpane.Placement placement;
+
 	private TabPane tools;
 
 	private Workpane parent;
@@ -194,6 +196,14 @@ public class WorkpaneView extends BorderPane {
 				break;
 			}
 		}
+	}
+
+	public Workpane.Placement getPlacement() {
+		return placement;
+	}
+
+	public void setPlacement( Workpane.Placement placement ) {
+		this.placement = placement;
 	}
 
 	public double getCenter( Orientation orientation ) {

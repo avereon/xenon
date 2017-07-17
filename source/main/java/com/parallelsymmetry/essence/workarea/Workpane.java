@@ -25,6 +25,12 @@ public class Workpane extends Pane {
 		DEFAULT, ACTIVE, LARGEST, SMART, DOCK_TOP, DOCK_LEFT, DOCK_RIGHT, DOCK_BOTTOM
 	}
 
+	public enum DockMode {
+		LANDSCAPE, PORTRAIT
+	}
+
+	public static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
+
 	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
 
 	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.25;
@@ -51,6 +57,8 @@ public class Workpane extends Pane {
 
 	private ObjectProperty<Tool> activeToolProperty;
 
+	private ObjectProperty<DockMode> dockModeProperty;
+
 	private AtomicInteger operation;
 
 	private Queue<WorkpaneEvent> events;
@@ -65,9 +73,10 @@ public class Workpane extends Pane {
 		defaultViewProperty = new SimpleObjectProperty<>();
 		maximizedViewProperty = new SimpleObjectProperty<>();
 		activeToolProperty = new SimpleObjectProperty<>();
+		dockModeProperty = new SimpleObjectProperty<>();
 
 		operation = new AtomicInteger();
-		events = new LinkedList<WorkpaneEvent>();
+		events = new LinkedList<>();
 		listeners = new CopyOnWriteArraySet<>();
 
 		// Create the wall edges
@@ -113,6 +122,8 @@ public class Workpane extends Pane {
 		addView( view );
 		setActiveView( view );
 		setDefaultView( view );
+
+		setDockMode( DEFAULT_DOCK_MODE );
 
 		// TODO Set a better default background
 		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
@@ -215,11 +226,11 @@ public class Workpane extends Pane {
 		return defaultViewProperty;
 	}
 
-	WorkpaneView getMaximizedView() {
+	public WorkpaneView getMaximizedView() {
 		return maximizedViewProperty.get();
 	}
 
-	void setMaximizedView( WorkpaneView view ) {
+	public void setMaximizedView( WorkpaneView view ) {
 		if( getMaximizedView() == view ) return;
 		maximizedViewProperty.set( view );
 		updateComponentTree( true );
@@ -279,6 +290,22 @@ public class Workpane extends Pane {
 		return view != null ? view : getDefaultView();
 	}
 
+	public DockMode getDockMode() {
+		return dockModeProperty.get();
+	}
+
+	public void setDockMode( DockMode mode ) {
+		if( getDockMode() == mode ) return;
+
+		// TODO Rearrange the dock views according to the new mode
+
+		dockModeProperty.set( mode );
+	}
+
+	public ReadOnlyObjectProperty<DockMode> dockModeProperty() {
+		return dockModeProperty;
+	}
+
 	boolean isOperationActive() {
 		return operation.get() > 0;
 	}
@@ -336,7 +363,7 @@ public class Workpane extends Pane {
 			events.remove( event );
 			for( WorkpaneListener listener : listeners ) {
 				try {
-					listener.handle( event  );
+					listener.handle( event );
 				} catch( WorkpaneVetoException exception ) {
 					log.error( "Error dispatching workpane event", exception );
 				}
@@ -1784,13 +1811,124 @@ public class Workpane extends Pane {
 				view = getSmartView();
 				break;
 			}
+			case DOCK_TOP: {
+				view = getTopDockView();
+				break;
+			}
+			case DOCK_BOTTOM: {
+				view = getBottomDockView();
+				break;
+			}
+			case DOCK_LEFT: {
+				view = getLeftDockView();
+				break;
+			}
+			case DOCK_RIGHT: {
+				view = getRightDockView();
+				break;
+			}
 		}
 
-		// TODO Add a docking mode: STANDARD or WIDE
+		return view;
+	}
 
-		// TODO Find or make a docked view
+	private WorkpaneView getTopDockView() {
+		WorkpaneView view = getDockedView( Placement.DOCK_TOP);
+		if( view != null ) return view;
+
+		if( getDockMode() == DockMode.PORTRAIT ) {
+			view = split( Side.TOP );
+			view.setPlacement( Placement.DOCK_TOP );
+		} else {
+			// TODO Create the docked pane in LANDSCAPE dock mode
+			view = split( Side.TOP );
+			view.setPlacement( Placement.DOCK_TOP );
+		}
 
 		return view;
+	}
+
+	private WorkpaneView getBottomDockView() {
+		WorkpaneView view = getDockedView( Placement.DOCK_BOTTOM);
+		if( view != null ) return view;
+
+		if( getDockMode() == DockMode.PORTRAIT ) {
+			view = split( Side.BOTTOM );
+			view.setPlacement( Placement.DOCK_BOTTOM );
+		} else {
+			// TODO Create the docked pane in LANDSCAPE dock mode
+			view = split( Side.BOTTOM );
+			view.setPlacement( Placement.DOCK_BOTTOM );
+		}
+
+		return view;
+	}
+
+	private WorkpaneView getLeftDockView() {
+		WorkpaneView view = getDockedView( Placement.DOCK_LEFT);
+		if( view != null ) return view;
+
+		if( getDockMode() == DockMode.LANDSCAPE ) {
+			view = split( Side.LEFT );
+			view.setPlacement( Placement.DOCK_LEFT );
+		} else {
+			// TODO Create the docked pane in PORTRAIT dock mode
+			view = split( Side.LEFT );
+			view.setPlacement( Placement.DOCK_LEFT );
+		}
+
+		return view;
+	}
+
+	private WorkpaneView getRightDockView() {
+		WorkpaneView view = getDockedView( Placement.DOCK_RIGHT);
+		if( view != null ) return view;
+
+		if( getDockMode() == DockMode.LANDSCAPE ) {
+			view = split( Side.RIGHT );
+			view.setPlacement( Placement.DOCK_RIGHT );
+		} else {
+			// TODO Create the docked pane in PORTRAIT dock mode
+			view = split( Side.RIGHT );
+			view.setPlacement( Placement.DOCK_RIGHT );
+		}
+
+		return view;
+	}
+
+	private WorkpaneView getDockedView( Placement placement ) {
+		Side side = null;
+		WorkpaneEdge edge = null;
+		switch( placement ) {
+			case DOCK_TOP: {
+				edge = northEdge;
+				side = Side.BOTTOM;
+				break;
+			}
+			case DOCK_BOTTOM: {
+				edge = southEdge;
+				side = Side.TOP;
+				break;
+			}
+			case DOCK_LEFT: {
+				edge = westEdge;
+				side = Side.RIGHT;
+				break;
+			}
+			case DOCK_RIGHT: {
+				edge = eastEdge;
+				side = Side.LEFT;
+				break;
+			}
+		}
+
+		if( edge == null ) return null;
+
+		for( WorkpaneView testView : edge.getViews( side ) ) {
+			if( testView.getPlacement() == placement ) return testView;
+		}
+
+		return null;
 	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {
