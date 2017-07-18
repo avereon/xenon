@@ -7,21 +7,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class WorkpaneDockTest extends WorkpaneTestCase {
-
-	@Test
-	public void testDockMode() throws Exception {
-		assertThat( workpane.getDockMode(), is( Workpane.DEFAULT_DOCK_MODE ) );
-
-		workpane.setDockMode( Workpane.DockMode.PORTRAIT );
-		assertThat( workpane.getDockMode(), is( Workpane.DockMode.PORTRAIT ) );
-
-		workpane.setDockMode( Workpane.DockMode.LANDSCAPE );
-		assertThat( workpane.getDockMode(), is( Workpane.DockMode.LANDSCAPE ) );
-
-		workpane.setDockMode( Workpane.DEFAULT_DOCK_MODE );
-		assertThat( workpane.getDockMode(), is( Workpane.DEFAULT_DOCK_MODE ) );
-	}
+public class WorkpaneDockLeftTest extends WorkpaneTestCase {
 
 	@Test
 	public void testDockLeftInLandscapeMode() throws Exception {
@@ -112,9 +98,13 @@ public class WorkpaneDockTest extends WorkpaneTestCase {
 		WorkpaneView view = tool.getToolView();
 		assertThat( view, is( not( nullValue() ) ) );
 		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_LEFT ) );
-		//		assertThat( view.getEdge( Side.TOP ), is( workpane.getWallEdge( Side.TOP ) ) );
-		//		assertThat( view.getEdge( Side.LEFT ), is( workpane.getWallEdge( Side.LEFT ) ) );
-		//		assertThat( view.getEdge( Side.BOTTOM ), is( workpane.getWallEdge( Side.BOTTOM ) ) );
+		assertThat( view.getEdge( Side.TOP ), is( topTool.getToolView().getEdge( Side.BOTTOM ) ) );
+		assertThat( view.getEdge( Side.LEFT ), is( workpane.getWallEdge( Side.LEFT ) ) );
+		assertThat( view.getEdge( Side.BOTTOM ), is( bottomTool.getToolView().getEdge( Side.TOP ) ) );
+
+		WorkpaneEdge edge = view.getEdge( Side.RIGHT );
+		assertThat( edge.getEdge( Side.TOP ), is( topTool.getToolView().getEdge( Side.BOTTOM ) ) );
+		assertThat( edge.getEdge( Side.BOTTOM ), is( bottomTool.getToolView().getEdge( Side.TOP ) ) );
 	}
 
 }

@@ -157,6 +157,20 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
+	public void testDockMode() throws Exception {
+		assertThat( workpane.getDockMode(), is( Workpane.DEFAULT_DOCK_MODE ) );
+
+		workpane.setDockMode( Workpane.DockMode.PORTRAIT );
+		assertThat( workpane.getDockMode(), is( Workpane.DockMode.PORTRAIT ) );
+
+		workpane.setDockMode( Workpane.DockMode.LANDSCAPE );
+		assertThat( workpane.getDockMode(), is( Workpane.DockMode.LANDSCAPE ) );
+
+		workpane.setDockMode( Workpane.DEFAULT_DOCK_MODE );
+		assertThat( workpane.getDockMode(), is( Workpane.DEFAULT_DOCK_MODE ) );
+	}
+
+	@Test
 	public void testSplitNorth() throws Exception {
 		WorkpaneView view1 = workpane.split( Side.TOP );
 		assertThat( toolview.northEdge.getPosition(), is( Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
