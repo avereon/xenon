@@ -265,7 +265,7 @@ public class Program extends Application implements Product {
 	}
 
 	private static void time( String markerName ) {
-		System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	private void printHeader( ProductMetadata metadata ) {
