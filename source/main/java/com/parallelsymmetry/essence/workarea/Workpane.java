@@ -893,8 +893,6 @@ public class Workpane extends Pane {
 		// Move the new edge to new position.
 		newEdge.setPosition( newView.northEdge.getPosition() + ((source.southEdge.getPosition() - newView.northEdge.getPosition()) * percent) );
 
-		//source.invalidate();
-
 		return newView;
 	}
 
@@ -941,8 +939,6 @@ public class Workpane extends Pane {
 
 		// Move the new edge to new position.
 		newEdge.setPosition( newView.southEdge.getPosition() - ((newView.southEdge.getPosition() - source.northEdge.getPosition()) * percent) );
-
-		//source.invalidate();
 
 		return newView;
 	}
@@ -991,8 +987,6 @@ public class Workpane extends Pane {
 		// Move the new edge to new position.
 		newEdge.setPosition( newView.westEdge.getPosition() + ((source.eastEdge.getPosition() - newView.westEdge.getPosition()) * percent) );
 
-		//source.invalidate();
-
 		return newView;
 	}
 
@@ -1039,8 +1033,6 @@ public class Workpane extends Pane {
 
 		// Move the new edge to new position.
 		newEdge.setPosition( newView.eastEdge.getPosition() - ((newView.eastEdge.getPosition() - source.westEdge.getPosition()) * percent) );
-
-		//source.invalidate();
 
 		return newView;
 	}
