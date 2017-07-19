@@ -314,6 +314,25 @@ public class Workpane extends Pane {
 		return dockModeProperty;
 	}
 
+	// TODO Rename to addWorkpaneListener
+	public void addWorkPaneListener( WorkpaneListener listener ) {
+		listeners.add( listener );
+	}
+
+	// TODO Rename to removeWorkpaneListener
+	public void removeWorkPaneListener( WorkpaneListener listener ) {
+		listeners.remove( listener );
+	}
+
+	protected void updateComponentTree( boolean changed ) {
+		if( isOperationActive() ) return;
+
+		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.Type.CHANGED, this ) );
+
+		layoutChildren();
+		dispatchEvents();
+	}
+
 	boolean isOperationActive() {
 		return operation.get() > 0;
 	}
@@ -328,16 +347,6 @@ public class Workpane extends Pane {
 		updateComponentTree( changed );
 	}
 
-	// TODO Rename to addWorkpaneListener
-	public void addWorkPaneListener( WorkpaneListener listener ) {
-		listeners.add( listener );
-	}
-
-	// TODO Rename to removeWorkpaneListener
-	public void removeWorkPaneListener( WorkpaneListener listener ) {
-		listeners.remove( listener );
-	}
-
 	void fireWorkpaneEvent( WorkpaneEvent event ) throws WorkpaneVetoException {
 		WorkpaneVetoException exception = null;
 
@@ -350,15 +359,6 @@ public class Workpane extends Pane {
 		}
 
 		if( exception != null ) throw exception;
-	}
-
-	protected void updateComponentTree( boolean changed ) {
-		if( isOperationActive() ) return;
-
-		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.Type.CHANGED, this ) );
-
-		layoutChildren();
-		dispatchEvents();
 	}
 
 	void queueEvent( WorkpaneEvent data ) {
@@ -464,7 +464,7 @@ public class Workpane extends Pane {
 		return view;
 	}
 
-	public WorkpaneView removeView( WorkpaneView view ) {
+	private WorkpaneView removeView( WorkpaneView view ) {
 		if( view == null ) return view;
 
 		try {
@@ -490,7 +490,7 @@ public class Workpane extends Pane {
 		return view;
 	}
 
-	public WorkpaneEdge getWallEdge( Side direction ) {
+	WorkpaneEdge getWallEdge( Side direction ) {
 		switch( direction ) {
 			case TOP: {
 				return northEdge;
@@ -509,7 +509,7 @@ public class Workpane extends Pane {
 		return null;
 	}
 
-	public WorkpaneEdge addEdge( WorkpaneEdge edge ) {
+	private WorkpaneEdge addEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return edge;
 
 		edge.setWorkpane( this );
@@ -518,13 +518,43 @@ public class Workpane extends Pane {
 		return edge;
 	}
 
-	public WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
+	private WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return edge;
 
 		getChildren().remove( edge );
 		edge.setWorkpane( null );
 
 		return edge;
+	}
+
+	/**
+	 * Move the specified edge the specified offset in pixels.
+	 *
+	 * @param edge
+	 * @param offset
+	 * @return
+	 */
+	double moveEdge( WorkpaneEdge edge, double offset ) {
+		if( offset == 0 ) return 0;
+
+		double result = 0;
+		startOperation();
+		try {
+			switch( edge.getOrientation() ) {
+				case HORIZONTAL: {
+					result = moveVertical( edge, offset );
+					break;
+				}
+				case VERTICAL: {
+					result = moveHorizontal( edge, offset );
+					break;
+				}
+			}
+		} finally {
+			finishOperation( result != 0 );
+		}
+
+		return result;
 	}
 
 	public boolean canSplit( WorkpaneView target, Side direction ) {
@@ -639,402 +669,6 @@ public class Workpane extends Pane {
 		}
 
 		return result;
-	}
-
-	/**
-	 * Split the workpane using the space to the north for a new tool view along
-	 * the entire edge of the workpane.
-	 *
-	 * @param percent
-	 * @return
-	 */
-	private WorkpaneView splitNorth( double percent ) {
-		// Check the parameters.
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		newEdge.westEdge = westEdge;
-		newEdge.eastEdge = eastEdge;
-		newEdge.setPosition( percent );
-		addEdge( newEdge );
-
-		// Connect the new edge to the old and new views.
-		for( WorkpaneView view : northEdge.southViews ) {
-			northEdge.southViews.remove( view );
-			newEdge.southViews.add( view );
-			view.northEdge = newEdge;
-		}
-		newEdge.northViews.add( newView );
-
-		// Connect the new view to old and new edges.
-		newView.northEdge = northEdge;
-		newView.southEdge = newEdge;
-		newView.westEdge = westEdge;
-		newView.eastEdge = eastEdge;
-
-		// Connect the old edges to the new view.
-		northEdge.southViews.add( newView );
-		westEdge.eastViews.add( newView );
-		eastEdge.westViews.add( newView );
-
-		// Connect the old edges to the new edge.
-		for( WorkpaneEdge edge : getEdges() ) {
-			if( edge.northEdge != northEdge ) continue;
-			edge.northEdge = newEdge;
-		}
-
-		return newView;
-	}
-
-	/**
-	 * Split the workpane using the space to the south for a new tool view along
-	 * the entire edge of the workpane.
-	 *
-	 * @param percent
-	 * @return
-	 */
-	private WorkpaneView splitSouth( double percent ) {
-		// Check the parameters.
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		newEdge.westEdge = westEdge;
-		newEdge.eastEdge = eastEdge;
-		newEdge.setPosition( 1.0 - percent );
-		addEdge( newEdge );
-
-		// Connect the new edge to the old and new views.
-		for( WorkpaneView view : southEdge.northViews ) {
-			southEdge.northViews.remove( view );
-			newEdge.northViews.add( view );
-			view.southEdge = newEdge;
-		}
-		newEdge.southViews.add( newView );
-
-		// Connect the new view to old and new edges.
-		newView.northEdge = newEdge;
-		newView.southEdge = southEdge;
-		newView.westEdge = westEdge;
-		newView.eastEdge = eastEdge;
-
-		// Connect the old edges to the new view.
-		southEdge.northViews.add( newView );
-		westEdge.eastViews.add( newView );
-		eastEdge.westViews.add( newView );
-
-		// Connect the old edges to the new edge.
-		for( WorkpaneEdge edge : getEdges() ) {
-			if( edge.southEdge != southEdge ) continue;
-			edge.southEdge = newEdge;
-		}
-
-		return newView;
-	}
-
-	/**
-	 * Split the workpane using the space to the west for a new tool view along
-	 * the entire edge of the workpane.
-	 *
-	 * @param percent
-	 * @return
-	 */
-	private WorkpaneView splitWest( double percent ) {
-		// Check the parameters.
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		newEdge.northEdge = northEdge;
-		newEdge.southEdge = southEdge;
-		newEdge.setPosition( percent );
-		addEdge( newEdge );
-
-		// Connect the new edge to the old and new views.
-		for( WorkpaneView view : westEdge.eastViews ) {
-			westEdge.eastViews.remove( view );
-			newEdge.eastViews.add( view );
-			view.westEdge = newEdge;
-		}
-		newEdge.westViews.add( newView );
-
-		// Connect the new view to old and new edges.
-		newView.northEdge = northEdge;
-		newView.southEdge = southEdge;
-		newView.westEdge = westEdge;
-		newView.eastEdge = newEdge;
-
-		// Connect the old edges to the new view.
-		westEdge.eastViews.add( newView );
-		northEdge.southViews.add( newView );
-		southEdge.northViews.add( newView );
-
-		// Connect the old edges to the new edge.
-		for( WorkpaneEdge edge : getEdges() ) {
-			if( edge.westEdge != westEdge ) continue;
-			edge.westEdge = newEdge;
-		}
-
-		return newView;
-	}
-
-	/**
-	 * Split the workpane using the space to the east for a new tool view along
-	 * the entire edge of the workpane.
-	 *
-	 * @param percent
-	 * @return
-	 */
-	private WorkpaneView splitEast( double percent ) {
-		// Check the parameters.
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		newEdge.northEdge = northEdge;
-		newEdge.southEdge = southEdge;
-		newEdge.setPosition( 1.0 - percent );
-		addEdge( newEdge );
-
-		// Connect the new edge to the old and new views.
-		for( WorkpaneView view : eastEdge.westViews ) {
-			eastEdge.westViews.remove( view );
-			newEdge.westViews.add( view );
-			view.eastEdge = newEdge;
-		}
-		newEdge.eastViews.add( newView );
-
-		// Connect the new view to old and new edges.
-		newView.northEdge = northEdge;
-		newView.southEdge = southEdge;
-		newView.westEdge = newEdge;
-		newView.eastEdge = eastEdge;
-
-		// Connect the old edges to the new view.
-		eastEdge.westViews.add( newView );
-		northEdge.southViews.add( newView );
-		southEdge.northViews.add( newView );
-
-		// Connect the old edges to the new edge.
-		for( WorkpaneEdge edge : getEdges() ) {
-			if( edge.eastEdge != eastEdge ) continue;
-			edge.eastEdge = newEdge;
-		}
-
-		return newView;
-	}
-
-	/**
-	 * Split an existing tool view using the space to the north for a new tool
-	 * view.
-	 *
-	 * @param source
-	 * @param percent
-	 * @return
-	 */
-	private WorkpaneView splitNorth( WorkpaneView source, double percent ) {
-		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		newEdge.westEdge = source.westEdge;
-		newEdge.eastEdge = source.eastEdge;
-		addEdge( newEdge );
-
-		// Connect the new edge to the new and old views.
-		newEdge.northViews.add( newView );
-		newEdge.southViews.add( source );
-
-		// Connect the new view to old and new edges.
-		newView.northEdge = source.northEdge;
-		newView.southEdge = newEdge;
-		newView.eastEdge = source.eastEdge;
-		newView.westEdge = source.westEdge;
-
-		// Connect the old edges to the new view.
-		source.northEdge.southViews.remove( source );
-		source.northEdge.southViews.add( newView );
-		source.westEdge.eastViews.add( newView );
-		source.eastEdge.westViews.add( newView );
-
-		// Connect the old view to the new edge.
-		source.northEdge = newEdge;
-
-		// Move the new edge to new position.
-		newEdge.setPosition( newView.northEdge.getPosition() + ((source.southEdge.getPosition() - newView.northEdge.getPosition()) * percent) );
-
-		return newView;
-	}
-
-	private WorkpaneView splitSouth( WorkpaneView source, double percent ) {
-		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		newEdge.westEdge = source.westEdge;
-		newEdge.eastEdge = source.eastEdge;
-		addEdge( newEdge );
-
-		// Connect the new edge to the new and old views.
-		newEdge.northViews.add( source );
-		newEdge.southViews.add( newView );
-
-		// Connect the new view to old and new edges.
-		newView.northEdge = newEdge;
-		newView.southEdge = source.southEdge;
-		newView.eastEdge = source.eastEdge;
-		newView.westEdge = source.westEdge;
-
-		// Connect the old edges to the new view.
-		source.southEdge.northViews.remove( source );
-		source.southEdge.northViews.add( newView );
-		source.westEdge.eastViews.add( newView );
-		source.eastEdge.westViews.add( newView );
-
-		// Connect the old view to the new edge.
-		source.southEdge = newEdge;
-
-		// Move the new edge to new position.
-		newEdge.setPosition( newView.southEdge.getPosition() - ((newView.southEdge.getPosition() - source.northEdge.getPosition()) * percent) );
-
-		return newView;
-	}
-
-	private WorkpaneView splitWest( WorkpaneView source, double percent ) {
-		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		newEdge.northEdge = source.northEdge;
-		newEdge.southEdge = source.southEdge;
-		addEdge( newEdge );
-
-		// Connect the new edge to the new and old views.
-		newEdge.westViews.add( newView );
-		newEdge.eastViews.add( source );
-
-		// Connect the new view to old and new edges.
-		newView.eastEdge = newEdge;
-		newView.northEdge = source.northEdge;
-		newView.southEdge = source.southEdge;
-		newView.westEdge = source.westEdge;
-
-		// Connect the old edges to the new view.
-		source.westEdge.eastViews.remove( source );
-		source.westEdge.eastViews.add( newView );
-		source.northEdge.southViews.add( newView );
-		source.southEdge.northViews.add( newView );
-
-		// Connect the old view to the new edge.
-		source.westEdge = newEdge;
-
-		// Move the new edge to new position.
-		newEdge.setPosition( newView.westEdge.getPosition() + ((source.eastEdge.getPosition() - newView.westEdge.getPosition()) * percent) );
-
-		return newView;
-	}
-
-	private WorkpaneView splitEast( WorkpaneView source, double percent ) {
-		// Check the parameters.
-		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
-		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
-
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
-
-		// Create the new view.
-		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
-
-		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		newEdge.northEdge = source.northEdge;
-		newEdge.southEdge = source.southEdge;
-		addEdge( newEdge );
-
-		// Connect the new edge to the new and old views.
-		newEdge.westViews.add( source );
-		newEdge.eastViews.add( newView );
-
-		// Connect the new view to old and new edges.
-		newView.westEdge = newEdge;
-		newView.northEdge = source.northEdge;
-		newView.southEdge = source.southEdge;
-		newView.eastEdge = source.eastEdge;
-
-		// Connect the old edges to the new view.
-		source.eastEdge.westViews.remove( source );
-		source.eastEdge.westViews.add( newView );
-		source.northEdge.southViews.add( newView );
-		source.southEdge.northViews.add( newView );
-
-		// Connect the old view to the new edge.
-		source.eastEdge = newEdge;
-
-		// Move the new edge to new position.
-		newEdge.setPosition( newView.eastEdge.getPosition() - ((newView.eastEdge.getPosition() - source.westEdge.getPosition()) * percent) );
-
-		return newView;
 	}
 
 	private static Side getReverseDirection( Side direction ) {
@@ -1473,36 +1107,6 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Move the specified edge the specified offset in pixels.
-	 *
-	 * @param edge
-	 * @param offset
-	 * @return
-	 */
-	public double moveEdge( WorkpaneEdge edge, double offset ) {
-		if( offset == 0 ) return 0;
-
-		double result = 0;
-		startOperation();
-		try {
-			switch( edge.getOrientation() ) {
-				case HORIZONTAL: {
-					result = moveVertical( edge, offset );
-					break;
-				}
-				case VERTICAL: {
-					result = moveHorizontal( edge, offset );
-					break;
-				}
-			}
-		} finally {
-			finishOperation( result != 0 );
-		}
-
-		return result;
-	}
-
-	/**
 	 * Move the edge vertically because its orientation is horizontal. This method
 	 * may be called from other edges that need to move as part of the bump and
 	 * slide effect.
@@ -1836,6 +1440,138 @@ public class Workpane extends Pane {
 		return view;
 	}
 
+	/**
+	 * Split the workpane using the space to the north for a new tool view along
+	 * the entire edge of the workpane.
+	 *
+	 * @param percent
+	 * @return
+	 */
+	private WorkpaneView splitNorth( double percent ) {
+		// Check the parameters.
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Create the new view.
+		return newTopView( null, westEdge, eastEdge, percent );
+	}
+
+	/**
+	 * Split the workpane using the space to the south for a new tool view along
+	 * the entire edge of the workpane.
+	 *
+	 * @param percent
+	 * @return
+	 */
+	private WorkpaneView splitSouth( double percent ) {
+		// Check the parameters.
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Create the new view.
+		return newBottomView( null, westEdge, eastEdge, 1.0 - percent );
+	}
+
+	/**
+	 * Split the workpane using the space to the west for a new tool view along
+	 * the entire edge of the workpane.
+	 *
+	 * @param percent
+	 * @return
+	 */
+	private WorkpaneView splitWest( double percent ) {
+		// Check the parameters.
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Create the new view.
+		return newLeftView( null, northEdge, southEdge, percent );
+	}
+
+	/**
+	 * Split the workpane using the space to the east for a new tool view along
+	 * the entire edge of the workpane.
+	 *
+	 * @param percent
+	 * @return
+	 */
+	private WorkpaneView splitEast( double percent ) {
+		// Check the parameters.
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Create the new view.
+		return newRightView( null, northEdge, southEdge, 1.0 - percent );
+	}
+
+	/**
+	 * Split an existing tool view using the space to the north for a new tool
+	 * view.
+	 *
+	 * @param source
+	 * @param percent
+	 * @return
+	 */
+	private WorkpaneView splitNorth( WorkpaneView source, double percent ) {
+		// Check the parameters.
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Fire the will split event.
+		try {
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+		} catch( WorkpaneVetoException exception ) {
+			return null;
+		}
+
+		// Create the new view.
+		return newTopView( source, source.westEdge, source.eastEdge, percent );
+	}
+
+	private WorkpaneView splitSouth( WorkpaneView source, double percent ) {
+		// Check the parameters.
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Fire the will split event.
+		try {
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+		} catch( WorkpaneVetoException exception ) {
+			return null;
+		}
+
+		// Create the new view.
+		return newBottomView( source, source.westEdge, source.eastEdge, percent );
+	}
+
+	private WorkpaneView splitWest( WorkpaneView source, double percent ) {
+		// Check the parameters.
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Fire the will split event.
+		try {
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+		} catch( WorkpaneVetoException exception ) {
+			return null;
+		}
+
+		// Create the new view.
+		return newLeftView( source, source.northEdge, source.southEdge, percent );
+	}
+
+	private WorkpaneView splitEast( WorkpaneView source, double percent ) {
+		// Check the parameters.
+		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
+		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
+
+		// Fire the will split event.
+		try {
+			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+		} catch( WorkpaneVetoException exception ) {
+			return null;
+		}
+
+		// Create the new view.
+		return newRightView( source, source.northEdge, source.southEdge, percent );
+	}
+
 	private WorkpaneView getTopDockView() {
 		WorkpaneView view = getDockedView( Placement.DOCK_TOP );
 		if( view != null ) return view;
@@ -1865,41 +1601,7 @@ public class Workpane extends Pane {
 			WorkpaneEdge topEdge = topView == null ? northEdge : topView.getEdge( Side.BOTTOM );
 			WorkpaneEdge bottomEdge = bottomView == null ? southEdge : bottomView.getEdge( Side.TOP );
 
-			// Create the new view.
-			dockView = new WorkpaneView();
-			addView( dockView );
-
-			// Create the new edge.
-			WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-			newEdge.northEdge = topEdge;
-			newEdge.southEdge = bottomEdge;
-			//newEdge.setPosition( percent );
-			addEdge( newEdge );
-
-			// Connect the new edge to the old and new views.
-			for( WorkpaneView view : westEdge.eastViews ) {
-				westEdge.eastViews.remove( view );
-				newEdge.eastViews.add( view );
-				view.westEdge = newEdge;
-			}
-			newEdge.westViews.add( dockView );
-
-			// Connect the new view to old and new edges.
-			dockView.northEdge = topEdge;
-			dockView.southEdge = bottomEdge;
-			dockView.westEdge = westEdge;
-			dockView.eastEdge = newEdge;
-
-			// Connect the old edges to the new view.
-			westEdge.eastViews.add( dockView );
-			northEdge.southViews.add( dockView );
-			southEdge.northViews.add( dockView );
-
-			// Connect the old edges to the new edge.
-			for( WorkpaneEdge edge : getEdges() ) {
-				if( edge.westEdge != westEdge ) continue;
-				edge.westEdge = newEdge;
-			}
+			dockView = newLeftView( null, topEdge, bottomEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
 
 		return dockView;
@@ -1918,41 +1620,7 @@ public class Workpane extends Pane {
 			WorkpaneEdge topEdge = topView == null ? northEdge : topView.getEdge( Side.BOTTOM );
 			WorkpaneEdge bottomEdge = bottomView == null ? southEdge : bottomView.getEdge( Side.TOP );
 
-			// Create the new view.
-			newView = new WorkpaneView();
-			addView( newView );
-
-			// Create the new edge.
-			WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-			newEdge.northEdge = topEdge;
-			newEdge.southEdge = bottomEdge;
-			//newEdge.setPosition( percent );
-			addEdge( newEdge );
-
-			// Connect the new edge to the old and new views.
-			for( WorkpaneView view : eastEdge.westViews ) {
-				eastEdge.westViews.remove( view );
-				newEdge.westViews.add( view );
-				view.eastEdge = newEdge;
-			}
-			newEdge.eastViews.add( newView );
-
-			// Connect the new view to old and new edges.
-			newView.northEdge = topEdge;
-			newView.southEdge = bottomEdge;
-			newView.westEdge = newEdge;
-			newView.eastEdge = eastEdge;
-
-			// Connect the old edges to the new view.
-			eastEdge.westViews.add( newView );
-			northEdge.southViews.add( newView );
-			southEdge.northViews.add( newView );
-
-			// Connect the old edges to the new edge.
-			for( WorkpaneEdge edge : getEdges() ) {
-				if( edge.eastEdge != eastEdge ) continue;
-				edge.eastEdge = newEdge;
-			}
+			newView = newRightView( null, topEdge, bottomEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
 
 		return newView;
@@ -1972,6 +1640,273 @@ public class Workpane extends Pane {
 		}
 
 		return view;
+	}
+
+	private WorkpaneView newTopView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
+		WorkpaneView newView = new WorkpaneView();
+		addView( newView );
+
+		// Create the new edge.
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
+		newEdge.westEdge = leftEdge;
+		newEdge.eastEdge = rightEdge;
+		addEdge( newEdge );
+
+		// Connect the new edge to the old and new views.
+		if( source == null ) {
+			for( WorkpaneView view : northEdge.southViews ) {
+				northEdge.southViews.remove( view );
+				newEdge.southViews.add( view );
+				view.northEdge = newEdge;
+			}
+		} else {
+			newEdge.southViews.add( source );
+		}
+		newEdge.northViews.add( newView );
+
+		// Connect the new view to old and new edges.
+		if( source == null ) {
+			newView.northEdge = northEdge;
+			newView.southEdge = newEdge;
+			newView.westEdge = leftEdge;
+			newView.eastEdge = rightEdge;
+		} else {
+			newView.northEdge = source.northEdge;
+			newView.southEdge = newEdge;
+			newView.westEdge = source.westEdge;
+			newView.eastEdge = source.eastEdge;
+		}
+
+		// Connect the old edges to the new view.
+		if( source == null ) {
+			northEdge.southViews.add( newView );
+			leftEdge.eastViews.add( newView );
+			rightEdge.westViews.add( newView );
+		} else {
+			source.northEdge.southViews.remove( source );
+			source.northEdge.southViews.add( newView );
+			source.westEdge.eastViews.add( newView );
+			source.eastEdge.westViews.add( newView );
+		}
+
+		if( source == null ) {
+			// Connect the old edges to the new edge.
+			for( WorkpaneEdge edge : getEdges() ) {
+				if( edge.northEdge != northEdge ) continue;
+				edge.northEdge = newEdge;
+			}
+		} else {
+			// Connect the old view to the new edge.
+			source.northEdge = newEdge;
+		}
+
+		// Move the new edge to new position.
+		if( source == null ) {
+			newEdge.setPosition( percent );
+		} else {
+			newEdge.setPosition( newView.northEdge.getPosition() + ((source.southEdge.getPosition() - newView.northEdge.getPosition()) * percent) );
+		}
+
+		return newView;
+	}
+
+	private WorkpaneView newLeftView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
+		// Create the new view.
+		WorkpaneView newView = new WorkpaneView();
+		addView( newView );
+
+		// Create the new edge.
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
+		newEdge.northEdge = topEdge;
+		newEdge.southEdge = bottomEdge;
+		addEdge( newEdge );
+
+		// Connect the new edge to the old and new views.
+		if( source == null ) {
+			for( WorkpaneView view : westEdge.eastViews ) {
+				westEdge.eastViews.remove( view );
+				newEdge.eastViews.add( view );
+				view.westEdge = newEdge;
+			}
+		} else {
+			newEdge.eastViews.add( source );
+		}
+		newEdge.westViews.add( newView );
+
+		// Connect the new view to old and new edges.
+		newView.northEdge = topEdge;
+		newView.southEdge = bottomEdge;
+		newView.westEdge = source == null ? westEdge : source.westEdge;
+		newView.eastEdge = newEdge;
+
+		// Connect the old edges to the new view.
+		if( source == null ) {
+			westEdge.eastViews.add( newView );
+			northEdge.southViews.add( newView );
+			southEdge.northViews.add( newView );
+		} else {
+			source.westEdge.eastViews.remove( source );
+			source.westEdge.eastViews.add( newView );
+			source.northEdge.southViews.add( newView );
+			source.southEdge.northViews.add( newView );
+		}
+
+		if( source == null ) {
+			// Connect the old edges to the new edge.
+			for( WorkpaneEdge edge : getEdges() ) {
+				if( edge.westEdge != westEdge ) continue;
+				edge.westEdge = newEdge;
+			}
+		} else {
+			// Connect the old view to the new edge.
+			source.westEdge = newEdge;
+		}
+
+		// Move the new edge to new position.
+		if( source == null ) {
+			newEdge.setPosition( percent );
+		} else {
+			newEdge.setPosition( newView.westEdge.getPosition() + ((source.eastEdge.getPosition() - newView.westEdge.getPosition()) * percent) );
+		}
+
+		return newView;
+	}
+
+	private WorkpaneView newRightView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
+		// Create the new view.
+		WorkpaneView newView = new WorkpaneView();
+		addView( newView );
+
+		// Create the new edge.
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
+		newEdge.northEdge = topEdge;
+		newEdge.southEdge = bottomEdge;
+		addEdge( newEdge );
+
+		// Connect the new edge to the old and new views.
+		if( source == null ) {
+			for( WorkpaneView view : eastEdge.westViews ) {
+				eastEdge.westViews.remove( view );
+				newEdge.westViews.add( view );
+				view.eastEdge = newEdge;
+			}
+		} else {
+			newEdge.westViews.add( source );
+		}
+		newEdge.eastViews.add( newView );
+
+		// Connect the new view to old and new edges.
+		if( source == null ) {
+			newView.northEdge = topEdge;
+			newView.southEdge = bottomEdge;
+			newView.westEdge = newEdge;
+			newView.eastEdge = eastEdge;
+		} else {
+			newView.northEdge = source.northEdge;
+			newView.southEdge = source.southEdge;
+			newView.westEdge = newEdge;
+			newView.eastEdge = source.eastEdge;
+		}
+
+		// Connect the old edges to the new view.
+		if( source == null ) {
+			eastEdge.westViews.add( newView );
+			northEdge.southViews.add( newView );
+			southEdge.northViews.add( newView );
+		} else {
+			source.eastEdge.westViews.remove( source );
+			source.eastEdge.westViews.add( newView );
+			source.northEdge.southViews.add( newView );
+			source.southEdge.northViews.add( newView );
+		}
+
+		if( source == null ) {
+			// Connect the old edges to the new edge.
+			for( WorkpaneEdge edge : getEdges() ) {
+				if( edge.eastEdge != eastEdge ) continue;
+				edge.eastEdge = newEdge;
+			}
+		} else {
+			// Connect the old view to the new edge.
+			source.eastEdge = newEdge;
+		}
+
+		// Move the new edge to new position.
+		if( source == null ) {
+			newEdge.setPosition( percent );
+		} else {
+			newEdge.setPosition( newView.eastEdge.getPosition() - ((newView.eastEdge.getPosition() - source.westEdge.getPosition()) * percent) );
+		}
+
+		return newView;
+	}
+
+	private WorkpaneView newBottomView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
+		WorkpaneView newView = new WorkpaneView();
+		addView( newView );
+
+		// Create the new edge.
+		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
+		newEdge.westEdge = leftEdge;
+		newEdge.eastEdge = rightEdge;
+		addEdge( newEdge );
+
+		// Connect the new edge to the old and new views.
+		if( source == null ) {
+			for( WorkpaneView view : southEdge.northViews ) {
+				southEdge.northViews.remove( view );
+				newEdge.northViews.add( view );
+				view.southEdge = newEdge;
+			}
+		} else {
+			newEdge.northViews.add( source );
+		}
+		newEdge.southViews.add( newView );
+
+		// Connect the new view to old and new edges.
+		if( source == null ) {
+			newView.northEdge = newEdge;
+			newView.southEdge = southEdge;
+			newView.westEdge = leftEdge;
+			newView.eastEdge = rightEdge;
+		} else {
+			newView.northEdge = newEdge;
+			newView.southEdge = source.southEdge;
+			newView.westEdge = source.westEdge;
+			newView.eastEdge = source.eastEdge;
+		}
+
+		// Connect the old edges to the new view.
+		if( source == null ) {
+			southEdge.northViews.add( newView );
+			leftEdge.eastViews.add( newView );
+			rightEdge.westViews.add( newView );
+		} else {
+			source.southEdge.northViews.remove( source );
+			source.southEdge.northViews.add( newView );
+			source.westEdge.eastViews.add( newView );
+			source.eastEdge.westViews.add( newView );
+		}
+
+		if( source == null ) {
+			// Connect the old edges to the new edge.
+			for( WorkpaneEdge edge : getEdges() ) {
+				if( edge.southEdge != southEdge ) continue;
+				edge.southEdge = newEdge;
+			}
+		} else {
+			// Connect the old view to the new edge.
+			source.southEdge = newEdge;
+		}
+
+		// Move the new edge to new position.
+		if( source == null ) {
+			newEdge.setPosition( percent );
+		} else {
+			newEdge.setPosition( newView.southEdge.getPosition() - ((newView.southEdge.getPosition() - source.northEdge.getPosition()) * percent) );
+		}
+
+		return newView;
 	}
 
 	private WorkpaneView getDockedView( Placement placement ) {
