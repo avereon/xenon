@@ -37,6 +37,7 @@ public class MockTool extends Tool {
 
 	public MockTool( Resource resource ) {
 		super( resource, "MockTool-" + counter.getAndIncrement() );
+		setPlacement( super.getPlacement() );
 		setBackground( new Background( new BackgroundFill( new Color( 0,0.5,1,0.25), CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 

@@ -185,6 +185,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	@Test
 	public void testAutoDetectResourceTypeWithOpaqueUri() {
 		Resource resource = manager.createResource( URI.create( "mock:test" ) );
+		manager.autoDetectResourceType( resource );
 		assertThat( resource.getType(), instanceOf( MockResourceType.class ) );
 	}
 

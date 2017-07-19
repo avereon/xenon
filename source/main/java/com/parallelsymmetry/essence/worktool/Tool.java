@@ -33,6 +33,8 @@ public abstract class Tool extends Control {
 
 	public static final String DESCRIPTION_PROPERTY = "description";
 
+	public static final Workpane.Placement DEFAULT_TOOL_PLACEMENT = Workpane.Placement.SMART;
+
 	private static ToolInfo toolInfo = new ToolInfo();
 
 	private ObjectProperty<Node> graphicProperty;
@@ -73,7 +75,7 @@ public abstract class Tool extends Control {
 	}
 
 	public Workpane.Placement getPlacement() {
-		return Workpane.Placement.SMART;
+		return DEFAULT_TOOL_PLACEMENT;
 	}
 
 	/**
@@ -383,11 +385,11 @@ public abstract class Tool extends Control {
 		@Override
 		public void eventOccurred( ResourceEvent event ) {
 			switch( event.getType() ) {
-				case REFRESHED : {
+				case REFRESHED: {
 					Tool.this.callResourceRefreshed();
 					break;
 				}
-				case CLOSED : {
+				case CLOSED: {
 					Tool.this.close();
 					break;
 				}
