@@ -50,7 +50,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		metadata = program.getMetadata();
 
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
-		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkPaneListener( workpaneWatcher = new WorkpaneWatcher() );
+		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 	}
 
 	/**

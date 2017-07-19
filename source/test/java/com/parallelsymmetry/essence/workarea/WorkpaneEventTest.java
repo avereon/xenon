@@ -38,7 +38,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneEdge edge = west.getEdge( Side.RIGHT );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		workpane.addWorkPaneListener( workpaneWatcher );
+		workpane.addWorkpaneListener( workpaneWatcher );
 		workpane.moveEdge( edge, 25 );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.CHANGED, workpane, null, null );
 		assertThat( workpaneWatcher.getEvents().size(), is( 1 ) );
@@ -51,7 +51,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneEdge edge = west.getEdge( Side.RIGHT );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 		area.moveEdge( edge, 0 );
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
 	}
@@ -64,7 +64,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setActiveView( south );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 		area.setActiveView( north );
 		assertThat( workpaneWatcher.getEvents().size(), is( 3 ) );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_DEACTIVATED, area, south, null );
@@ -79,7 +79,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setActiveView( south );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 		area.setActiveView( south );
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
 	}
@@ -93,7 +93,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area0.setActiveView( view0 );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area0.addWorkPaneListener( workpaneWatcher );
+		area0.addWorkpaneListener( workpaneWatcher );
 		area0.setActiveView( view1 );
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
 	}
@@ -106,7 +106,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setDefaultView( south );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 		area.setDefaultView( north );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.CHANGED, area, null, null );
 		assertThat( workpaneWatcher.getEvents().size(), is( 1 ) );
@@ -119,7 +119,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setDefaultView( south );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 		area.setDefaultView( south );
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
 	}
@@ -130,7 +130,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setMaximizedView( null );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 		area.setMaximizedView( area.getDefaultView() );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.CHANGED, area, null, null );
 		assertThat( workpaneWatcher.getEvents().size(), is( 1 ) );
@@ -141,7 +141,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		Workpane area = new Workpane();
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		WorkpaneView north = area.split( Side.TOP );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_ADDED, area, north, null );
@@ -156,7 +156,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView view = area.getDefaultView();
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		WorkpaneView north = area.split( view, Side.TOP );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_WILL_SPLIT, area, view, null );
@@ -173,7 +173,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneView north = area.split( view, Side.TOP );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		area.pushMerge( view, Side.TOP );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_WILL_MERGE, area, view, null );
@@ -190,7 +190,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		Tool tool = new MockTool( resource );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		ToolEventCounter toolEventCounter = new ToolEventCounter();
 		tool.addToolListener( toolEventCounter );
@@ -211,7 +211,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.addTool( tool, view );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		ToolEventCounter toolEventCounter = new ToolEventCounter();
 		tool.addToolListener( toolEventCounter );
@@ -232,7 +232,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.addTool( tool, view );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		ToolEventCounter toolEventCounter = new ToolEventCounter();
 		tool.addToolListener( toolEventCounter );
@@ -259,7 +259,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setActiveTool( southTool );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		area.setActiveTool( northTool );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, southView, southTool );
@@ -280,7 +280,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.setActiveTool( southTool );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area.addWorkPaneListener( workpaneWatcher );
+		area.addWorkpaneListener( workpaneWatcher );
 
 		area.setActiveTool( northTool );
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
@@ -299,7 +299,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area0.setActiveTool( tool0 );
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-		area0.addWorkPaneListener( workpaneWatcher );
+		area0.addWorkpaneListener( workpaneWatcher );
 
 		area0.setActiveTool( tool1 );
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );

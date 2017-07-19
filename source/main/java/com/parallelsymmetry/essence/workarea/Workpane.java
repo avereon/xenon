@@ -314,13 +314,11 @@ public class Workpane extends Pane {
 		return dockModeProperty;
 	}
 
-	// TODO Rename to addWorkpaneListener
-	public void addWorkPaneListener( WorkpaneListener listener ) {
+	public void addWorkpaneListener( WorkpaneListener listener ) {
 		listeners.add( listener );
 	}
 
-	// TODO Rename to removeWorkpaneListener
-	public void removeWorkPaneListener( WorkpaneListener listener ) {
+	public void removeWorkpaneListener( WorkpaneListener listener ) {
 		listeners.remove( listener );
 	}
 
