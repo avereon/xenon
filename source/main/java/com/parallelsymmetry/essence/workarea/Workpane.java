@@ -1578,9 +1578,13 @@ public class Workpane extends Pane {
 			view = split( Side.TOP );
 			view.setPlacement( Placement.DOCK_TOP );
 		} else {
-			// TODO Create the docked pane in LANDSCAPE dock mode
-			view = split( Side.TOP );
-			view.setPlacement( Placement.DOCK_TOP );
+			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
+			WorkpaneView rightView= getDockedView( Placement.DOCK_RIGHT );
+
+			WorkpaneEdge leftEdge = leftView == null ? westEdge : leftView.getEdge(Side.RIGHT );
+			WorkpaneEdge rightEdge = rightView == null ? eastEdge : rightView.getEdge( Side.LEFT  );
+
+			view = newTopView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
 
 		return view;
@@ -1632,9 +1636,13 @@ public class Workpane extends Pane {
 			view = split( Side.BOTTOM );
 			view.setPlacement( Placement.DOCK_BOTTOM );
 		} else {
-			// TODO Create the docked pane in LANDSCAPE dock mode
-			view = split( Side.BOTTOM );
-			view.setPlacement( Placement.DOCK_BOTTOM );
+			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
+			WorkpaneView rightView= getDockedView( Placement.DOCK_RIGHT );
+
+			WorkpaneEdge leftEdge = leftView == null ? westEdge : leftView.getEdge(Side.RIGHT );
+			WorkpaneEdge rightEdge = rightView == null ? eastEdge : rightView.getEdge( Side.LEFT  );
+
+			view = newBottomView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
 
 		return view;
