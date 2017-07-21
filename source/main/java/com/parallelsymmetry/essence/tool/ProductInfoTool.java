@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 
 public class ProductInfoTool extends ProductTool {
@@ -160,6 +162,12 @@ public class ProductInfoTool extends ProductTool {
 	@Override
 	protected void resourceRefreshed() {
 		setMetadata( getResource().getModel() );
+	}
+
+	public Set<Class<? extends ProductTool>> getToolDependencies() {
+		Set<Class<? extends ProductTool>> tools = new HashSet<>();
+		tools.add( GuideTool.class );
+		return tools;
 	}
 
 	public static ToolInfo getToolInfo() {

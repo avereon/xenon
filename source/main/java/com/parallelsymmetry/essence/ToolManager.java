@@ -96,6 +96,11 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Determine which tool class will be used
 		if( toolClass == null ) toolClass = determineToolClassForResourceType( resourceType );
+		if( toolClass == null ) throw new NullPointerException( "No tools registered for: " + resourceType );
+
+		// Check that the tool is registered
+		ToolMetadata toolMetadata = toolClassMetadata.get( toolClass );
+		if( toolMetadata == null ) throw new IllegalArgumentException( "Tool not registered: " + toolClass );
 
 		// Determine how many instances the tool allows
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
@@ -111,11 +116,11 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Create a tool if it is needed
 		// If this instance mode is SINGLETON, check for an existing tool in the workpane
-		Tool tool = null;
+		ProductTool tool = null;
 		boolean alreadyExists = false;
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolOfClassInPane( pane, toolClass );
 		if( tool == null ) {
-			tool = getToolInstance( resource );
+			tool = getToolInstance( toolClass, resource );
 		} else {
 			alreadyExists = true;
 		}
@@ -133,16 +138,13 @@ public class ToolManager implements Controllable<ToolManager> {
 		// as a context between the tools. For example, a guide model can
 		// be added as a resource on the resource.
 
-		//		for( Resource dependency: tool.getResourceDependencies() ) {
-		//			openTool( dependency, pane );
-		//		}
+		for( Class<? extends ProductTool> dependency : tool.getToolDependencies() ) {
+			openTool( resource, pane, null, dependency );
+		}
 
 		//		try {
 		//			ToolInfo info = (ToolInfo)toolClass.getMethod( "getToolInfo" ).invoke( null );
 		//			for( Class<? extends Tool> dependency : info.getRequiredToolClasses() ) {
-		//				// We know the class of the tool, but not a resource.
-		//				// Can't have a null resource...so what do I do?
-		//				// If I have a resource I could just open it with this method.
 		//			}
 		//		} catch( Exception exception ) {
 		//			log.error( "Error getting tool info", exception );
@@ -283,7 +285,21 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		try {
 			// Create the new tool instance
-			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
+			Constructor<? extends ProductTool> constructor = null;
+			if( constructor == null )  {
+				try {
+					constructor = type.getConstructor( Program.class, Resource.class );
+				} catch( NoSuchMethodException exception ){
+					// Intentionally ignore exception
+				}
+			}
+			if( constructor == null )  {
+				try {
+				constructor = type.getConstructor( Product.class, Resource.class );
+				} catch( NoSuchMethodException exception ){
+					// Intentionally ignore exception
+				}
+			}
 			Product product = toolClassMetadata.get( type ).getProduct();
 			tool = constructor.newInstance( product, resource );
 
@@ -300,9 +316,9 @@ public class ToolManager implements Controllable<ToolManager> {
 		return tool;
 	}
 
-	private Tool findToolOfClassInPane( Workpane pane, Class<? extends Tool> type ) {
+	private ProductTool findToolOfClassInPane( Workpane pane, Class<? extends Tool> type ) {
 		for( Tool paneTool : pane.getTools() ) {
-			if( type == paneTool.getClass() ) return paneTool;
+			if( type == paneTool.getClass() ) return (ProductTool)paneTool;
 		}
 		return null;
 	}

@@ -2,8 +2,10 @@ package com.parallelsymmetry.essence;
 
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Resource;
-import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import com.parallelsymmetry.essence.worktool.Tool;
+
+import java.util.Collections;
+import java.util.Set;
 
 public class ProductTool extends Tool {
 
@@ -16,6 +18,10 @@ public class ProductTool extends Tool {
 
 	public Product getProduct() {
 		return product;
+	}
+
+	public Set<Class<? extends ProductTool>> getToolDependencies() {
+		return Collections.unmodifiableSet( Collections.emptySet() );
 	}
 
 }

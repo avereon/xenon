@@ -380,6 +380,10 @@ public abstract class Tool extends Control {
 		}
 	}
 
+	public static ToolInfo getToolInfo() {
+		return toolInfo;
+	}
+
 	private class ResourceWatcher implements ResourceListener {
 
 		@Override
@@ -396,14 +400,6 @@ public abstract class Tool extends Control {
 			}
 		}
 
-	}
-
-	public Set<Resource> getResourceDependencies() {
-		return Collections.unmodifiableSet( Collections.emptySet() );
-	}
-
-	public static ToolInfo getToolInfo() {
-		return toolInfo;
 	}
 
 }
