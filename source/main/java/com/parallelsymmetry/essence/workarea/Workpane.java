@@ -259,12 +259,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Find a view with the following rules:
-	 * <ol>
-	 * <li>Use a single large view (has double the area of any other view)</li>
-	 * <li>Use the active view</li>
-	 * <li>Use the default view</li>
-	 * </ol>
+	 * Find a view with the following rules: <ol> <li>Use a single large view (has double the area of any other view)</li> <li>Use the active view</li> <li>Use the default view</li> </ol>
 	 *
 	 * @return
 	 */
@@ -556,13 +551,11 @@ public class Workpane extends Pane {
 	}
 
 	public boolean canSplit( WorkpaneView target, Side direction ) {
-		if( target == null ) return false;
-		return getMaximizedView() == null;
+		return target != null && getMaximizedView() == null;
 	}
 
 	/**
-	 * Split the workpane using the space in the specified direction to make a new
-	 * tool view along the entire edge of the workpane.
+	 * Split the workpane using the space in the specified direction to make a new tool view along the entire edge of the workpane.
 	 *
 	 * @param direction
 	 * @return
@@ -572,9 +565,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split the workpane using the space in the specified direction to make a new
-	 * tool view along the entire edge of the workpane. The new tool view is
-	 * created using the specified percentage of the original space.
+	 * Split the workpane using the space in the specified direction to make a new tool view along the entire edge of the workpane. The new tool view is created using the specified percentage of the original space.
 	 *
 	 * @param direction
 	 * @param percent
@@ -615,8 +606,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split an existing tool view using the space in the specified direction to
-	 * create a new tool view.
+	 * Split an existing tool view using the space in the specified direction to create a new tool view.
 	 *
 	 * @param view
 	 * @param direction
@@ -627,9 +617,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split an existing tool view using the space in the specified direction to
-	 * create a new tool view. The new tool view is created using the specified
-	 * percentage of the original space.
+	 * Split an existing tool view using the space in the specified direction to create a new tool view. The new tool view is created using the specified percentage of the original space.
 	 *
 	 * @param view
 	 * @param direction
@@ -742,8 +730,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Performs an automatic pull merge. The direction is automatically determined
-	 * by a weighted algorithm.
+	 * Performs an automatic pull merge. The direction is automatically determined by a weighted algorithm.
 	 *
 	 * @param target
 	 * @return
@@ -809,17 +796,9 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Returns whether views on the source (opposite of direction) side of the
-	 * edge can be merged into the space occupied by the views on the target
-	 * (towards direction) side of the edge. The method returns false if any of
-	 * the following conditions exist:
-	 * <ul>
-	 * <li>If the edge is an end edge.</li>
-	 * <li>If any of the target views is the default view.</li>
-	 * <li>If the target views do not share a common back edge.</li>
-	 * <li>If the auto flag is set to true and any of the target views have tools.
-	 * </li>
-	 * </ul>
+	 * Returns whether views on the source (opposite of direction) side of the edge can be merged into the space occupied by the views on the target (towards direction) side of the edge. The method returns false if any of the following
+	 * conditions exist: <ul> <li>If the edge is an end edge.</li> <li>If any of the target views is the default view.</li> <li>If the target views do not share a common back edge.</li> <li>If the auto flag is set to true and any of the
+	 * target views have tools. </li> </ul>
 	 *
 	 * @param edge The edge across which views are to be merged.
 	 * @param direction The direction of the merge.
@@ -1105,9 +1084,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Move the edge vertically because its orientation is horizontal. This method
-	 * may be called from other edges that need to move as part of the bump and
-	 * slide effect.
+	 * Move the edge vertically because its orientation is horizontal. This method may be called from other edges that need to move as part of the bump and slide effect.
 	 */
 	private double moveVertical( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 || edge.isWall() ) return 0;
@@ -1154,9 +1131,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Move the edge horizontally because its orientation is vertical. This method
-	 * may be called from other edges that need to move as part of the bump and
-	 * slide effect.
+	 * Move the edge horizontally because its orientation is vertical. This method may be called from other edges that need to move as part of the bump and slide effect.
 	 */
 	private double moveHorizontal( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 || edge.isWall() ) return 0;
@@ -1439,8 +1414,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split the workpane using the space to the north for a new tool view along
-	 * the entire edge of the workpane.
+	 * Split the workpane using the space to the north for a new tool view along the entire edge of the workpane.
 	 *
 	 * @param percent
 	 * @return
@@ -1454,8 +1428,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split the workpane using the space to the south for a new tool view along
-	 * the entire edge of the workpane.
+	 * Split the workpane using the space to the south for a new tool view along the entire edge of the workpane.
 	 *
 	 * @param percent
 	 * @return
@@ -1469,8 +1442,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split the workpane using the space to the west for a new tool view along
-	 * the entire edge of the workpane.
+	 * Split the workpane using the space to the west for a new tool view along the entire edge of the workpane.
 	 *
 	 * @param percent
 	 * @return
@@ -1484,8 +1456,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split the workpane using the space to the east for a new tool view along
-	 * the entire edge of the workpane.
+	 * Split the workpane using the space to the east for a new tool view along the entire edge of the workpane.
 	 *
 	 * @param percent
 	 * @return
@@ -1499,8 +1470,7 @@ public class Workpane extends Pane {
 	}
 
 	/**
-	 * Split an existing tool view using the space to the north for a new tool
-	 * view.
+	 * Split an existing tool view using the space to the north for a new tool view.
 	 *
 	 * @param source
 	 * @param percent
@@ -1579,10 +1549,10 @@ public class Workpane extends Pane {
 			view.setPlacement( Placement.DOCK_TOP );
 		} else {
 			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
-			WorkpaneView rightView= getDockedView( Placement.DOCK_RIGHT );
+			WorkpaneView rightView = getDockedView( Placement.DOCK_RIGHT );
 
-			WorkpaneEdge leftEdge = leftView == null ? westEdge : leftView.getEdge(Side.RIGHT );
-			WorkpaneEdge rightEdge = rightView == null ? eastEdge : rightView.getEdge( Side.LEFT  );
+			WorkpaneEdge leftEdge = leftView == null ? westEdge : leftView.getEdge( Side.RIGHT );
+			WorkpaneEdge rightEdge = rightView == null ? eastEdge : rightView.getEdge( Side.LEFT );
 
 			view = newTopView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
@@ -1637,10 +1607,10 @@ public class Workpane extends Pane {
 			view.setPlacement( Placement.DOCK_BOTTOM );
 		} else {
 			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
-			WorkpaneView rightView= getDockedView( Placement.DOCK_RIGHT );
+			WorkpaneView rightView = getDockedView( Placement.DOCK_RIGHT );
 
-			WorkpaneEdge leftEdge = leftView == null ? westEdge : leftView.getEdge(Side.RIGHT );
-			WorkpaneEdge rightEdge = rightView == null ? eastEdge : rightView.getEdge( Side.LEFT  );
+			WorkpaneEdge leftEdge = leftView == null ? westEdge : leftView.getEdge( Side.RIGHT );
+			WorkpaneEdge rightEdge = rightView == null ? eastEdge : rightView.getEdge( Side.LEFT );
 
 			view = newBottomView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
@@ -1956,17 +1926,17 @@ public class Workpane extends Pane {
 
 		int weight;
 
-		public MergeDirection( WorkpaneView target, Side direction ) {
+		MergeDirection( WorkpaneView target, Side direction ) {
 			this.direction = direction;
 			this.weight = getMergeWeight( target, direction );
 			log.trace( "Direction: " + direction + "  Weight: " + weight );
 		}
 
-		public Side getDirection() {
+		Side getDirection() {
 			return direction;
 		}
 
-		public int getWeight() {
+		int getWeight() {
 			return weight;
 		}
 
