@@ -52,6 +52,15 @@
 	-fx-cursor: h-resize;
 }
 
+/* Tools */
+.tool .tree-view {
+	-fx-background-color: transparent;
+}
+
+.tool .tree-cell {
+	-fx-background: -px-background-text;
+}
+
 .tool .text-area {
 	-fx-background: -px-background-text;
 }
