@@ -871,7 +871,17 @@ public class Workpane extends Pane {
 	}
 
 	public Tool addTool( Tool tool, boolean activate ) {
-		return addTool( tool, null, activate );
+		return addTool( tool, (WorkpaneView)null, activate );
+	}
+
+	public Tool addTool( Tool tool, Placement placement ) {
+		if( placement == null ) placement = tool.getPlacement();
+		return addTool( tool, determineViewFromPlacement( placement ) );
+	}
+
+	public Tool addTool( Tool tool, Placement placement, boolean activate ) {
+		if( placement == null ) placement = tool.getPlacement();
+		return addTool( tool, determineViewFromPlacement( placement ), activate );
 	}
 
 	public Tool addTool( Tool tool, WorkpaneView view ) {

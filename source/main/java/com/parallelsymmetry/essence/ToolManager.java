@@ -84,10 +84,10 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
-		openTool( resource, pane, view, null );
+		openTool( resource, pane, view, null, false );
 	}
 
-	public void openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass ) {
+	public void openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass, boolean isDependency ) {
 		// The only thing that cannot be null is the resource
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
 
@@ -109,10 +109,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null && view != null ) pane = view.getWorkpane();
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
-
-		// If the view is null, determine what view to put the tool in
-		// If the view is not null, that means the user wants to put the tool in that view
-		if( view == null ) view = getWorkpaneView( pane, toolClass );
 
 		// Create a tool if it is needed
 		// If this instance mode is SINGLETON, check for an existing tool in the workpane
@@ -139,35 +135,21 @@ public class ToolManager implements Controllable<ToolManager> {
 		// be added as a resource on the resource.
 
 		for( Class<? extends ProductTool> dependency : tool.getToolDependencies() ) {
-			openTool( resource, pane, null, dependency );
+			openTool( resource, pane, null, dependency, true );
 		}
 
-		//		try {
-		//			ToolInfo info = (ToolInfo)toolClass.getMethod( "getToolInfo" ).invoke( null );
-		//			for( Class<? extends Tool> dependency : info.getRequiredToolClasses() ) {
-		//			}
-		//		} catch( Exception exception ) {
-		//			log.error( "Error getting tool info", exception );
-		//		}
+		// Determine the placement override
+		// A null value allows the tool to determine its placement
+		Workpane.Placement placementOverride = toolClassMetadata.get( tool.getClass() ).getPlacement();
 
 		final Workpane finalPane = pane;
-		final WorkpaneView finalView = view;
 		final Tool finalTool = tool;
 
 		if( alreadyExists && instanceMode == ToolInstanceMode.SINGLETON ) {
 			Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 		} else {
-			Platform.runLater( () -> finalPane.addTool( finalTool, finalView, true ) );
+			Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, !isDependency ) );
 		}
-	}
-
-	private WorkpaneView getWorkpaneView( Workpane pane, Class<? extends ProductTool> toolClass ) {
-		WorkpaneView view;// Get the tool placement
-		Workpane.Placement placement = toolClassMetadata.get( toolClass ).getPlacement();
-		if( placement == null ) placement = Workpane.Placement.SMART;
-		view = pane.determineViewFromPlacement( placement );
-		if( view == null ) throw new NullPointerException( "WorkpaneView cannot be null when opening tool" );
-		return view;
 	}
 
 	private ToolInstanceMode getToolInstanceMode( Class<? extends ProductTool> toolClass ) {
@@ -286,17 +268,17 @@ public class ToolManager implements Controllable<ToolManager> {
 		try {
 			// Create the new tool instance
 			Constructor<? extends ProductTool> constructor = null;
-			if( constructor == null )  {
+			if( constructor == null ) {
 				try {
 					constructor = type.getConstructor( Program.class, Resource.class );
-				} catch( NoSuchMethodException exception ){
+				} catch( NoSuchMethodException exception ) {
 					// Intentionally ignore exception
 				}
 			}
-			if( constructor == null )  {
+			if( constructor == null ) {
 				try {
-				constructor = type.getConstructor( Product.class, Resource.class );
-				} catch( NoSuchMethodException exception ){
+					constructor = type.getConstructor( Product.class, Resource.class );
+				} catch( NoSuchMethodException exception ) {
 					// Intentionally ignore exception
 				}
 			}
