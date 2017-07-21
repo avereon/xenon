@@ -3,6 +3,7 @@ package com.parallelsymmetry.essence;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceType;
+import com.parallelsymmetry.essence.task.TaskThread;
 import com.parallelsymmetry.essence.util.Controllable;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
@@ -262,9 +263,16 @@ public class ToolManager implements Controllable<ToolManager> {
 		return tool;
 	}
 
-	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource ) {
-		ProductTool tool = null;
+	private boolean isTaskThread() {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
+	}
 
+	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource ) {
+		if( !isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
+
+		// FIXME Why have a ProductTool and a ProgramTool????
+		// Have to have a ProductTool to support modules
 		try {
 			// Create the new tool instance
 			Constructor<? extends ProductTool> constructor = null;
@@ -282,20 +290,23 @@ public class ToolManager implements Controllable<ToolManager> {
 					// Intentionally ignore exception
 				}
 			}
+
 			Product product = toolClassMetadata.get( type ).getProduct();
-			tool = constructor.newInstance( product, resource );
+			ProductTool tool = constructor.newInstance( product, resource );
 
 			// Wait for the resource to be "ready", then notify the tool
-			// This method should have been called from a Callable class on a task
-			// manager thread, usually from ResourceManager.OpenActionTask. That
-			// means the calling thread can wait a bit for the resource to be ready.
+			// The getToolInstance() method should have been called from a Callable
+			// class on a task manager thread, usually from
+			// ResourceManager.OpenActionTask. That means the calling thread can
+			// wait a bit for the resource to be ready.
 			if( !resource.isNew() ) resource.waitForReady( 10, TimeUnit.SECONDS );
 			tool.callResourceReady();
+			return tool;
 		} catch( Exception exception ) {
 			log.error( "Error creating instance: " + type.getName(), exception );
 		}
 
-		return tool;
+		return null;
 	}
 
 	private ProductTool findToolOfClassInPane( Workpane pane, Class<? extends Tool> type ) {

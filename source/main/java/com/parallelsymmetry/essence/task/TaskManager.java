@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskManager implements ExecutorService, Configurable, Controllable<TaskManager> {
 
@@ -29,6 +28,8 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private ThreadPoolExecutor executor;
 
+	private ThreadGroup group;
+
 	private int maxThreadCount = DEFAULT_MAX_THREAD_COUNT;
 
 	private int minThreadCount = DEFAULT_MIN_THREAD_COUNT;
@@ -41,6 +42,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	public TaskManager() {
 		queue = new LinkedBlockingQueue<Runnable>();
+		group = new ThreadGroup( getClass().getName() );
 		listeners = new CopyOnWriteArraySet<TaskListener>();
 	}
 
@@ -179,7 +181,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public TaskManager start() {
 		if( isRunning() ) return this;
 		log.trace( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
-		executor = new TaskManagerExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory() );
+		executor = new TaskManagerExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory( group ) );
 		return this;
 	}
 
@@ -216,6 +218,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		return this;
 	}
 
+	@Override
 	public TaskManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 		if( executor == null || executor.isShutdown() ) return this;
 		executor.awaitTermination( timeout, unit );
@@ -272,49 +275,5 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		}
 
 	}
-
-	private static final class TaskThreadFactory implements ThreadFactory {
-
-		private static final AtomicInteger poolNumber = new AtomicInteger( 1 );
-
-		private final AtomicInteger threadNumber = new AtomicInteger( 1 );
-
-		private final ThreadGroup group;
-
-		private final String prefix;
-
-		public TaskThreadFactory() {
-			SecurityManager securityManager = System.getSecurityManager();
-			group = (securityManager != null) ? securityManager.getThreadGroup() : Thread.currentThread().getThreadGroup();
-			prefix = "TaskPool-" + poolNumber.getAndIncrement() + "-Thread-";
-		}
-
-		@Override
-		public Thread newThread( Runnable runnable ) {
-			Thread thread = new Thread( group, runnable, prefix + threadNumber.getAndIncrement(), 0 );
-			if( thread.getPriority() != Thread.NORM_PRIORITY ) thread.setPriority( Thread.NORM_PRIORITY );
-			if( !thread.isDaemon() ) thread.setDaemon( true );
-			return thread;
-		}
-
-	}
-
-//	private static final class TaskManagerThread extends Thread {
-//
-//		public TaskManagerThread( ThreadGroup group, Runnable target, String name, long stackSize ) {
-//			super( group, target, name, stackSize );
-//		}
-//
-//		@Override
-//		public void run() {
-//			try {
-//				super.run();
-//			} catch( Throwable throwable ) {
-//				log.error( "Error running task", throwable );
-//				throw throwable;
-//			}
-//		}
-//
-//	}
 
 }

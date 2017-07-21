@@ -8,6 +8,16 @@ import java.util.*;
 
 public final class JavaUtil {
 
+	public static boolean isClassInStackTrace( Class<?> clazz ) {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+
+		for( StackTraceElement element : stack ) {
+			if( Objects.equals( element.getClassName(), clazz.getName() ) ) return true;
+		}
+
+		return false;
+	}
+
 	public static String getCallingClassName() {
 		return getCallingClassName( 3 );
 	}
