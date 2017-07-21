@@ -15,6 +15,10 @@ public class GuideTool extends ProgramTool {
 
 	public GuideTool( Program program, Resource resource ) {
 		super( program, resource );
+		setId( "tool-guide" );
+
+		setTitle( program.getResourceBundle().getString( "tool", "guide-name" ) );
+
 		guide = new TreeView(  );
 		getChildren().add( guide );
 	}

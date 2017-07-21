@@ -15,6 +15,9 @@ public class SettingsTool extends ProgramTool {
 
 	public SettingsTool( Program program, Resource resource ) {
 		super( program, resource );
+		setId( "tool-settings" );
+
+		setTitle( program.getResourceBundle().getString( "tool", "settings-name" ) );
 	}
 
 	public static ToolInfo getToolInfo() {

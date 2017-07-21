@@ -7,6 +7,7 @@ public class AboutTool extends ProductInfoTool {
 
 	public AboutTool( Product product, Resource resource ) {
 		super( product, resource );
+		setId( "tool-about" );
 	}
 
 }
