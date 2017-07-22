@@ -20,7 +20,7 @@ public class AboutToolTest extends FxProgramTestCase {
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 2000 );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
-		assertThat( pane.getTools().size(), is( 1 ) );
+		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 
 	@Test
@@ -31,12 +31,12 @@ public class AboutToolTest extends FxProgramTestCase {
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 2000 );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
-		assertThat( pane.getTools().size(), is( 1 ) );
+		assertThat( pane.getTools().size(), is( 2 ) );
 
 		workpaneWatcher.clearEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 2000 );
-		assertThat( pane.getTools().size(), is( 1 ) );
+		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 
 	@Test
@@ -46,12 +46,12 @@ public class AboutToolTest extends FxProgramTestCase {
 
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
-		assertThat( pane.getTools().size(), is( 1 ) );
+		assertThat( pane.getTools().size(), is( 2 ) );
 
 		program.getResourceManager().closeResources( resource );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED, 2000 );
 
-		assertThat( pane.getTools().size(), is( 0 ) );
+		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 
 }
