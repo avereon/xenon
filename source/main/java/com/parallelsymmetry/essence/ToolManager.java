@@ -242,16 +242,15 @@ public class ToolManager implements Controllable<ToolManager> {
 			return null;
 		}
 
+		// TODO Replace this logic with getting the default tool for the type
 		List<Class<? extends ProductTool>> typeTools = resourceTypeToolClasses.get( resourceType );
 		if( typeTools == null ) {
 			log.warn( "No toolClassMetadata registered for resource type: " + resourceType );
 			return null;
 		}
 
+		// Get the tool for the type
 		Class<? extends ProductTool> toolClass = typeTools.get( 0 );
-
-		// TODO If there is more than one tool for a type then ask the user.
-
 		ProductTool tool = getToolInstance( toolClass, resource );
 
 		if( tool == null ) {
