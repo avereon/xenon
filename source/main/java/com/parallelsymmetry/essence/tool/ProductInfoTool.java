@@ -6,9 +6,7 @@ import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.worktool.ToolException;
 import com.parallelsymmetry.essence.worktool.ToolInfo;
-import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +40,7 @@ public class ProductInfoTool extends ProductTool {
 		text = new TextArea();
 		text.setEditable( false );
 
-		BorderPane border = new BorderPane();
-		border.setPadding( new Insets( 10 ) );
-		border.setCenter( text );
-		getChildren().add( border );
+		getChildren().add( text );
 	}
 
 	public String getTitleSuffix() {
