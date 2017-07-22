@@ -9,24 +9,20 @@
 
 	/* Program colors */
 	-px-background-text: rgba( 241, 241, 241, 0.2 );
+	-px-background-tabs: rgba( 241, 241, 241, 0.4 );
 }
 
 /* ScrollPane */
-.scroll-pane {
+.workpane .scroll-pane {
 	-fx-background-color: transparent;
 }
 
-.scroll-pane .viewport{
+.workpane .scroll-pane .viewport{
 	-fx-background-color: transparent;
 }
 
-.scroll-pane .content{
+.workpane .scroll-pane .content{
 	-fx-background-color: transparent;
-}
-
-/* TextArea */
-.text-area {
-	-fx-background-color: -fx-background;
 }
 
 /* Workpane */
@@ -39,9 +35,8 @@
 }
 
 .workpane-edge {
-	-fx-opacity: 0.5;
 	-fx-focus-traversable: false;
-	-fx-background-color: -fx-box-border;
+	-fx-background-color: -px-background-tabs
 }
 
 .workpane-edge:horizontal {
@@ -52,19 +47,25 @@
 	-fx-cursor: h-resize;
 }
 
+.workpane .tab-pane .tab-header-background {
+	-fx-background-color: -px-background-tabs
+}
+
 /* Tools */
 .tool .tree-view {
-	-fx-background-color: transparent;
+	-fx-background-color: -px-background-text;
 }
 
 .tool .tree-cell {
-	-fx-background: -px-background-text;
+	-fx-background-color: transparent;
 }
 
 .tool .text-area {
-	-fx-background: -px-background-text;
+	-fx-background-radius: 0 0 0 0;
+	-fx-background-color: -px-background-text;
 }
 
 .tool .text-field {
-	-fx-background: -px-background-text;
+	-fx-background-radius: 0 0 0 0;
+	-fx-background-color: -px-background-text;
 }
