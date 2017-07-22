@@ -1,23 +1,23 @@
 package com.parallelsymmetry.essence.tool;
 
-import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.ProgramTool;
+import com.parallelsymmetry.essence.ProductTool;
+import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
-public class GuideTool extends ProgramTool {
+public class GuideTool extends ProductTool {
 
 	private TreeView guide;
 
 	private TreeItem root;
 
-	public GuideTool( Program program, Resource resource ) {
-		super( program, resource );
+	public GuideTool( Product product, Resource resource ) {
+		super( product, resource );
 		setId( "tool-guide" );
 
-		setTitle( program.getResourceBundle().getString( "tool", "guide-name" ) );
+		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
 
 		guide = new TreeView(  );
 		getChildren().add( guide );

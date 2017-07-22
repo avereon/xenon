@@ -271,27 +271,11 @@ public class ToolManager implements Controllable<ToolManager> {
 	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource ) {
 		if( !isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
 
-		// FIXME Why have a ProductTool and a ProgramTool????
 		// Have to have a ProductTool to support modules
 		try {
 			// Create the new tool instance
-			Constructor<? extends ProductTool> constructor = null;
-			if( constructor == null ) {
-				try {
-					constructor = type.getConstructor( Program.class, Resource.class );
-				} catch( NoSuchMethodException exception ) {
-					// Intentionally ignore exception
-				}
-			}
-			if( constructor == null ) {
-				try {
-					constructor = type.getConstructor( Product.class, Resource.class );
-				} catch( NoSuchMethodException exception ) {
-					// Intentionally ignore exception
-				}
-			}
-
 			Product product = toolClassMetadata.get( type ).getProduct();
+			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			ProductTool tool = constructor.newInstance( product, resource );
 
 			// Wait for the resource to be "ready", then notify the tool
