@@ -4,7 +4,8 @@
 
 .root {
 	/* Base colors can be overridden here */
-	/* -fx-base: rgba( 236, 236, 236, 1 ); */
+	/* -fx-base: rgba( 63, 60, 65, 255 ); /* dark */
+	/* -fx-base: rgba( 236, 236, 236, 1 ); /* light */
 	/* -fx-background: rgba( 241, 241, 241, 0.2 ); */
 
 	/* Program colors */
