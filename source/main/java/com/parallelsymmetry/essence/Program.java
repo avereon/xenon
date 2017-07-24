@@ -9,8 +9,8 @@ import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductBundle;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.ResourceType;
-import com.parallelsymmetry.essence.resource.type.AnyResourceType;
-import com.parallelsymmetry.essence.resource.type.ProductInfoType;
+import com.parallelsymmetry.essence.resource.type.ProgramType;
+import com.parallelsymmetry.essence.resource.type.ProductAboutType;
 import com.parallelsymmetry.essence.resource.type.ProgramSettingsType;
 import com.parallelsymmetry.essence.resource.type.ProgramWelcomeType;
 import com.parallelsymmetry.essence.scheme.FileScheme;
@@ -416,8 +416,8 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerResourceTypes( ResourceManager manager ) {
-		manager.registerSchemeResourceType( "program", new AnyResourceType( this ) );
-		manager.registerUriResourceType( "program:about", new ProductInfoType( this ) );
+		manager.registerSchemeResourceType( "program", new ProgramType( this ) );
+		manager.registerUriResourceType( "program:about", new ProductAboutType( this ) );
 		manager.registerUriResourceType( "program:settings", new ProgramSettingsType( this ) );
 		manager.registerUriResourceType( "program:welcome", new ProgramWelcomeType( this ) );
 	}
@@ -430,8 +430,8 @@ public class Program extends Application implements Product {
 	}
 
 	private void registerTools( ToolManager manager ) {
-		registerTool( manager, AnyResourceType.class, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
-		registerTool( manager, ProductInfoType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "product-info", "about" );
+		registerTool( manager, ProgramType.class, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
+		registerTool( manager, ProductAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "product-info", "about" );
 		//registerTool( manager, ProgramSettingsType.class, ProductSettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		//registerTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 	}
@@ -439,8 +439,8 @@ public class Program extends Application implements Product {
 	private void unregisterTools( ToolManager manager ) {
 		//unregisterTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class );
 		//unregisterTool( manager, ProgramSettingsType.class, ProductSettingsTool.class );
-		unregisterTool( manager, ProductInfoType.class, AboutTool.class );
-		unregisterTool( manager, AnyResourceType.class, GuideTool.class );
+		unregisterTool( manager, ProductAboutType.class, AboutTool.class );
+		unregisterTool( manager, ProgramType.class, GuideTool.class );
 	}
 
 	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {

@@ -35,7 +35,7 @@ public class ProductInfoTool extends ProductTool {
 		super( product, resource );
 		setId( "tool-product-info" );
 
-		setTitleSuffix( product.getResourceBundle().getString( "tool", "product-info-suffix" ) );
+		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
 
 		text = new TextArea();
 		text.setEditable( false );

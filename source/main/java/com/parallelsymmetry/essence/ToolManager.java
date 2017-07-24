@@ -54,11 +54,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		log.debug( "Tool registered: resourceType={} -> tool={}", resourceType.getKey(), type.getName() );
 	}
 
-	//	public void registerTool( Product product, ResourceType resourceType, Class<? extends ProductTool> type, String name, Node icon ) {
-	//		ToolMetadata metadata = new ToolMetadata().setProduct( product ).setType( type ).setName( name ).setIcon( icon );
-	//
-	//	}
-
 	public void unregisterTool( ResourceType resourceType, Class<? extends ProductTool> type ) {
 		toolClassMetadata.remove( type );
 
