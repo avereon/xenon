@@ -47,12 +47,15 @@ public class ProductAboutType extends ResourceType {
 		TreeItem<String> detailsItem = new TreeItem<String>( rb.getString( "tool", "about-details" ) );
 		detailsItem.setGraphic( library.getIcon( "about" ) );
 
+		TreeItem<String> root = new TreeItem<>( "root" );
+		root.setGraphic( library.getIcon( "about" ) );
+		root.getChildren().add( summaryItem );
+		root.getChildren().add( productsItem );
+		root.getChildren().add( detailsItem );
+
 		// Create the guide
 		Guide guide = new Guide();
-		guide.getChildren().add( summaryItem );
-		guide.getChildren().add( productsItem );
-		guide.getChildren().add( detailsItem );
-
+		guide.setRoot( root );
 		return guide;
 	}
 

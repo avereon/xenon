@@ -5,26 +5,34 @@ import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.worktool.ToolException;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 public class GuideTool extends ProductTool {
 
-	private TreeView<Guide> guideView;
+	private TreeView guideView;
 
 	public GuideTool( Product product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-guide" );
 		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
-		getChildren().add( guideView = new TreeView<>() );
+		getChildren().add( guideView = new TreeView() );
 		guideView.setShowRoot( false );
 	}
 
 	@Override
+	@SuppressWarnings( "unchecked" )
 	protected void resourceReady() throws ToolException {
 		// Connect to the resource guide
 		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		if( guide != null ) guideView.setRoot( guide );
-		guide.setExpanded( true );
+		if( guide == null ) return;
+
+		// Set guide tree root
+		TreeItem root = guide.getRoot();
+		if( root != null ) guideView.setRoot( root );
+
+		// Set guide selection mode
+		guideView.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
 	}
 
 	@Override

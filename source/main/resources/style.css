@@ -9,8 +9,8 @@
 	/* -fx-background: rgba( 241, 241, 241, 0.2 ); */
 
 	/* Program colors */
-	-px-background-text: rgba( 241, 241, 241, 0.2 );
-	-px-background-tabs: rgba( 241, 241, 241, 0.4 );
+	-ex-background-text: rgba( 241, 241, 241, 0.2 );
+	-ex-background-tabs: rgba( 241, 241, 241, 0.4 );
 }
 
 /* ScrollPane */
@@ -37,7 +37,7 @@
 
 .workpane-edge {
 	-fx-focus-traversable: false;
-	-fx-background-color: -px-background-tabs
+	-fx-background-color: -ex-background-tabs
 }
 
 .workpane-edge:horizontal {
@@ -49,24 +49,38 @@
 }
 
 .workpane .tab-pane .tab-header-background {
-	-fx-background-color: -px-background-tabs
+	-fx-background-color: -ex-background-tabs
 }
 
 /* Tools */
 .tool .tree-view {
-	-fx-background-color: -px-background-text;
+	-fx-background-color: -ex-background-text;
 }
 
 .tool .tree-cell {
+	-fx-indent: 1em;
 	-fx-background-color: transparent;
 }
 
+.tool .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
+	-fx-background: -fx-selection-bar;
+	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+}
+
+.tool .tree-cell:filled:selected {
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+}
+
+.tool .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:focused {
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+}
+
 .tool .text-area {
+	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 0 0 0 0;
-	-fx-background-color: -px-background-text;
 }
 
 .tool .text-field {
+	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 0 0 0 0;
-	-fx-background-color: -px-background-text;
 }
