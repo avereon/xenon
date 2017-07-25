@@ -9,9 +9,14 @@ import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceException;
 import com.parallelsymmetry.essence.resource.ResourceType;
 import com.parallelsymmetry.essence.tool.Guide;
+import com.parallelsymmetry.essence.tool.GuideNode;
 import javafx.scene.control.TreeItem;
 
+import java.util.Map;
+
 public class ProductAboutType extends ResourceType {
+
+	private Map<TreeItem<String>, String> pages;
 
 	public ProductAboutType( Product product ) {
 		super( product, "about" );
@@ -30,33 +35,36 @@ public class ProductAboutType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( getProduct().getMetadata() );
-		resource.putResource( Guide.GUIDE_KEY, createGuide( program ) );
+		resource.putResource( Guide.GUIDE_KEY, new Guide<>() );
+		updateGuide( program, resource );
 		return true;
 	}
 
-	private Guide createGuide( Program program ) {
+	private void updateGuide( Program program, Resource resource ) {
+		Guide<GuideNode> guide = resource.getResource( Guide.GUIDE_KEY );
+
+		TreeItem<GuideNode> root = guide.getRoot();
+		if( root != null ) return;
+
 		IconLibrary library = program.getIconLibrary();
 		ProductBundle rb = getProduct().getResourceBundle();
 
-		TreeItem<String> summaryItem = new TreeItem<String>( rb.getString( "tool", "about-summary" ) );
-		summaryItem.setGraphic( library.getIcon( "about" ) );
+		GuideNode summaryNode = new GuideNode();
+		summaryNode.setId( "summary" );
+		summaryNode.setName( rb.getString( "tool", "about-summary" ) );
 
-		TreeItem<String> productsItem = new TreeItem<String>( rb.getString( "tool", "about-products" ) );
-		productsItem.setGraphic( library.getIcon( "about" ) );
+		GuideNode productsNode = new GuideNode();
+		productsNode.setId( "products");
+		productsNode.setName( rb.getString( "tool", "about-products" ) );
 
-		TreeItem<String> detailsItem = new TreeItem<String>( rb.getString( "tool", "about-details" ) );
-		detailsItem.setGraphic( library.getIcon( "about" ) );
+		GuideNode detailsNode = new GuideNode();
+		detailsNode.setId( "details" );
+		detailsNode.setName( rb.getString( "tool", "about-details" ) );
 
-		TreeItem<String> root = new TreeItem<>( "root" );
-		root.setGraphic( library.getIcon( "about" ) );
-		root.getChildren().add( summaryItem );
-		root.getChildren().add( productsItem );
-		root.getChildren().add( detailsItem );
-
-		// Create the guide
-		Guide guide = new Guide();
-		guide.setRoot( root );
-		return guide;
+		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "about" ) ) );
+		root.getChildren().add( new TreeItem<>( summaryNode, library.getIcon( "about" ) ) );
+		root.getChildren().add( new TreeItem<>( productsNode, library.getIcon( "about" ) ) );
+		root.getChildren().add( new TreeItem<>( detailsNode, library.getIcon( "about" ) ) );
 	}
 
 }

@@ -33,6 +33,10 @@ public class GuideTool extends ProductTool {
 
 		// Set guide selection mode
 		guideView.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
+
+		guideView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+			guide.setSelectedItem( (TreeItem)newSelection );
+		});
 	}
 
 	@Override
