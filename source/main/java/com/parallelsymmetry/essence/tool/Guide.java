@@ -1,7 +1,9 @@
 package com.parallelsymmetry.essence.tool;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
@@ -13,10 +15,14 @@ public class Guide<T> {
 
 	private SelectionMode selectionMode;
 
+	private BooleanProperty activeProperty;
+
 	private ReadOnlyObjectWrapper<TreeItem<T>> selectedItem = new ReadOnlyObjectWrapper<TreeItem<T>>( this, "selectedItem" );
 
 	public Guide() {
 		selectionMode = SelectionMode.SINGLE;
+		activeProperty = new SimpleBooleanProperty( false );
+		selectedItem = new ReadOnlyObjectWrapper<TreeItem<T>>( this, "selectedItem" );
 	}
 
 	public TreeItem<T> getRoot() {
@@ -33,6 +39,18 @@ public class Guide<T> {
 
 	public void setSelectionMode( SelectionMode selectionMode ) {
 		this.selectionMode = selectionMode == null ? SelectionMode.SINGLE : selectionMode;
+	}
+
+	public boolean isActive() {
+		return activeProperty.get();
+	}
+
+	public void setActive( boolean active ) {
+		activeProperty.set( active );
+	}
+
+	public BooleanProperty activeProperty() {
+		return activeProperty;
 	}
 
 	public final ReadOnlyObjectProperty<TreeItem<T>> selectedItemProperty() {

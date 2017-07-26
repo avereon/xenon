@@ -1,21 +1,22 @@
 package com.parallelsymmetry.essence.tool;
 
 import com.parallelsymmetry.essence.ProductTool;
+import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.worktool.ToolException;
 import com.parallelsymmetry.essence.worktool.ToolInfo;
+import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AboutTool extends ProductTool {
 
@@ -25,11 +26,23 @@ public class AboutTool extends ProductTool {
 
 	private String titleSuffix;
 
+	private Map<String, Node> nodes;
+
 	private StackPane stack;
 
 	private ProductMetadata metadata;
 
-	private TextArea text;
+	private BorderPane summaryPane;
+
+	private TextArea summaryText;
+
+	private BorderPane productsPane;
+
+	private TextArea productsText;
+
+	private BorderPane detailsPane;
+
+	private TextArea detailsText;
 
 	static {
 		getToolInfo().addRequiredToolClass( GuideTool.class );
@@ -44,12 +57,39 @@ public class AboutTool extends ProductTool {
 		// NEXT Add the different panes to the stack
 		stack = new StackPane();
 
-		text = new TextArea();
-		text.setEditable( false );
+		summaryText = new TextArea();
+		summaryText.setEditable( false );
+		//		summaryPane = new BorderPane();
+		//		summaryPane.setCenter( summaryText );
 
-		stack.getChildren().add(text );
+		productsText = new TextArea();
+		productsText.setEditable( false );
+		//		productsPane = new BorderPane();
+		//		productsPane.setCenter( productsText );
 
-		getChildren().add( stack );
+		detailsText = new TextArea();
+		detailsText.setEditable( false );
+		//		detailsPane = new BorderPane();
+		//		detailsPane.setCenter( detailsText );
+
+		//		stack.getChildren().add( summaryPane );
+
+		nodes = new ConcurrentHashMap<>();
+		nodes.put( "summary", summaryText );
+		nodes.put( "products", productsText );
+		nodes.put( "details", detailsText );
+
+		getChildren().add( summaryText );
+	}
+
+	public Set<Class<? extends ProductTool>> getToolDependencies() {
+		Set<Class<? extends ProductTool>> tools = new HashSet<>();
+		tools.add( GuideTool.class );
+		return tools;
+	}
+
+	public static ToolInfo getToolInfo() {
+		return toolInfo;
 	}
 
 	public String getTitleSuffix() {
@@ -60,18 +100,66 @@ public class AboutTool extends ProductTool {
 		this.titleSuffix = titleSuffix;
 	}
 
-	public ProductMetadata getMetadata() {
-		return metadata;
+	@Override
+	protected void allocate() throws ToolException {
+		log.info( "Tool allocate" );
 	}
 
-	public void setMetadata( ProductMetadata metadata ) {
-		this.metadata = metadata;
+	@Override
+	protected void display() throws ToolException {
+		log.info( "Tool display" );
+	}
+
+	@Override
+	protected void activate() throws ToolException {
+		log.info( "Tool activate" );
+		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.setActive( true );
+	}
+
+	@Override
+	protected void deactivate() throws ToolException {
+		log.info( "Tool deactivate" );
+	}
+
+	@Override
+	protected void conceal() throws ToolException {
+		log.info( "Tool conceal" );
+		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.setActive( false );
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		log.info( "Tool deallocate" );
+	}
+
+	@Override
+	protected void resourceReady() throws ToolException {
+		log.info( "Resource ready" );
+
+		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
+			selectedPage( newSelection );
+		} );
+
+		resourceRefreshed();
+	}
+
+	@Override
+	protected void resourceRefreshed() {
+		ProductMetadata metadata = getResource().getModel();
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );
 		} else {
 			setTitle( metadata.getName() + " - " + titleSuffix );
 		}
+		summaryText.setText( getSummaryText( metadata ) );
+		productsText.setText( getProductsText( (Program)getProduct() ) );
+		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+	}
 
+	private String getSummaryText( ProductMetadata metadata ) {
 		StringBuilder builder = new StringBuilder();
 		builder.append( metadata.getName() );
 		builder.append( " " );
@@ -124,84 +212,21 @@ public class AboutTool extends ProductTool {
 		builder.append( metadata.getCopyrightSummary() );
 		builder.append( "\n" );
 
-		text.setText( builder.toString().trim() );
+		return builder.toString();
 	}
 
-	@Override
-	protected void allocate() throws ToolException {
-		log.info( "Tool allocate" );
+	private String getProductsText( Program program ) {
+		return "Products Information";
 	}
 
-	@Override
-	protected void display() throws ToolException {
-		log.info( "Tool display" );
-	}
-
-	@Override
-	protected void activate() throws ToolException {
-		log.info( "Tool activate" );
-	}
-
-	@Override
-	protected void deactivate() throws ToolException {
-		log.info( "Tool deactivate" );
-	}
-
-	@Override
-	protected void conceal() throws ToolException {
-		log.info( "Tool conceal" );
-	}
-
-	@Override
-	protected void deallocate() throws ToolException {
-		log.info( "Tool deallocate" );
-	}
-
-	@Override
-	protected void resourceReady() throws ToolException {
-		log.info( "Resource ready" );
-
-		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
-			selectedPage( newSelection );
-		} );
-
-		resourceRefreshed();
+	private String getDetailsText( Program program ) {
+		return "Program Details";
 	}
 
 	private void selectedPage( TreeItem<GuideNode> item ) {
-		GuideNode node = item.getValue();
-
-		// The guide nodes need to be loosely connected to the tool(s)
-
-		System.out.println( "Set page: " + node.getId() );
-
-		switch( node.getId() ) {
-			case "summary" : {
-				break;
-			}
-			case "products" : {
-				break;
-			}
-			case "details" : {
-				break;
-			}
-		}
-	}
-
-	@Override
-	protected void resourceRefreshed() {
-		setMetadata( getResource().getModel() );
-	}
-
-	public Set<Class<? extends ProductTool>> getToolDependencies() {
-		Set<Class<? extends ProductTool>> tools = new HashSet<>();
-		tools.add( GuideTool.class );
-		return tools;
-	}
-
-	public static ToolInfo getToolInfo() {
-		return toolInfo;
+		if( item == null ) return;
+		getChildren().clear();
+		getChildren().add( nodes.get( item.getValue().getId() ) );
 	}
 
 }
