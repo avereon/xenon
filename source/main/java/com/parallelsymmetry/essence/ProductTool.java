@@ -20,6 +20,10 @@ public class ProductTool extends Tool {
 		return product;
 	}
 
+	public Set<String> getResourceDependencies() {
+		return Collections.unmodifiableSet( Collections.emptySet() );
+	}
+
 	public Set<Class<? extends ProductTool>> getToolDependencies() {
 		return Collections.unmodifiableSet( Collections.emptySet() );
 	}

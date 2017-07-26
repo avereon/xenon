@@ -23,11 +23,32 @@ public class GuideTool extends ProductTool {
 		guideView.setShowRoot( false );
 	}
 
-	@SuppressWarnings( "unchecked" )
 	private void switchGuide( WorkpaneEvent event ) {
+		System.out.println( "Workpane event: " + event );
+
+		switch( event.getType() ) {
+			case TOOL_ACTIVATED: {
+				setResourceGuide( event.getTool().getResource() );
+				break;
+			}
+			case TOOL_REMOVED: {
+				setResourceGuide( null );
+			}
+		}
+
 		if( event.getType() != WorkpaneEvent.Type.TOOL_ACTIVATED ) return;
 
-		Guide guide = event.getTool().getResource().getResource( Guide.GUIDE_KEY );
+		setResourceGuide( event.getTool().getResource() );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	private void setResourceGuide( Resource resource ) {
+		if( resource == null ) {
+			guideView.setRoot( null );
+			return;
+		}
+
+		Guide guide = resource.getResource( Guide.GUIDE_KEY );
 		if( guide == null ) return;
 
 		guideView.setRoot( guide.getRoot() );
@@ -70,6 +91,7 @@ public class GuideTool extends ProductTool {
 	protected void allocate() throws ToolException {
 		// Attach to the workpane and listen for current tool changes
 		getWorkpane().addWorkpaneListener( this::switchGuide );
+		setResourceGuide( getWorkpane().getActiveTool().getResource() );
 	}
 
 	@Override

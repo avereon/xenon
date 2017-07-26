@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.resource.type.ProgramGuideType;
 import com.parallelsymmetry.essence.worktool.ToolException;
 import com.parallelsymmetry.essence.worktool.ToolInfo;
 import javafx.scene.Node;
@@ -80,6 +81,12 @@ public class AboutTool extends ProductTool {
 		nodes.put( "details", detailsText );
 
 		getChildren().add( summaryText );
+	}
+
+	public Set<String> getResourceDependencies() {
+		Set<String> resources = new HashSet<>();
+		resources.add( ProgramGuideType.URI );
+		return resources;
 	}
 
 	public Set<Class<? extends ProductTool>> getToolDependencies() {

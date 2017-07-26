@@ -14,11 +14,11 @@ import javafx.scene.control.TreeItem;
 
 import java.util.Map;
 
-public class ProductAboutType extends ResourceType {
+public class ProgramAboutType extends ResourceType {
 
 	private Map<TreeItem<String>, String> pages;
 
-	public ProductAboutType( Product product ) {
+	public ProgramAboutType( Product product ) {
 		super( product, "about" );
 	}
 

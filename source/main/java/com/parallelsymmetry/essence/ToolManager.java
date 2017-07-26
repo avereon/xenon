@@ -124,14 +124,18 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		// NEXT Now that we have a tool...open dependent tools
-		// After thing about this for a bit I've determined that the
+		// After thinking about this for a bit I've determined that the
 		// dependency comes from the tool and that the new tools should
 		// use the same resource. That makes sense to use the resource
 		// as a context between the tools. For example, a guide model can
 		// be added as a resource on the resource.
 
-		for( Class<? extends ProductTool> dependency : tool.getToolDependencies() ) {
-			openTool( resource, pane, null, dependency, true );
+		//		for( Class<? extends ProductTool> dependency : tool.getToolDependencies() ) {
+		//			openTool( resource, pane, null, dependency, true );
+		//		}
+
+		for( String dependency : tool.getResourceDependencies() ) {
+			program.getResourceManager().open( program.getResourceManager().createResource( dependency ) );
 		}
 
 		// Determine the placement override
