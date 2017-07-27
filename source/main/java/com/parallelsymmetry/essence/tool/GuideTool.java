@@ -62,13 +62,13 @@ public class GuideTool extends ProductTool {
 		// Set the guide view selection mode
 		guideView.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
 
-//		// Add the selected item listener
-//		if( selectedItemListener != null ) guideView.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
-//		guideView.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new SelectedItemListener( guide ) );
-//
-//		// Add the guide active property listener
-//		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
-//		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
+		// Add the selected item listener
+		if( selectedItemListener != null ) guideView.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
+		guideView.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new SelectedItemListener( guide ) );
+
+		// Add the guide active property listener
+		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
+		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
 	}
 
 	private static class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem> {
