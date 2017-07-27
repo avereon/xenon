@@ -97,7 +97,6 @@ public class WorkpaneView extends BorderPane {
 
 		// If the tool is currently displayed, call conceal.
 		if( tool.isDisplayed() ) tool.callConceal();
-
 		tool.callDeallocate();
 
 		// Remove the tool.
@@ -118,6 +117,8 @@ public class WorkpaneView extends BorderPane {
 	public void setActiveTool( Tool tool ) {
 		if( tool == activeTool ) return;
 
+		Workpane pane = getWorkpane();
+
 		if( activeTool != null ) {
 			if( activeTool.isDisplayed() ) activeTool.callConceal();
 		}
@@ -126,7 +127,7 @@ public class WorkpaneView extends BorderPane {
 
 		if( activeTool != null ) {
 			tools.getSelectionModel().select( getToolIndex( tool ) );
-			activeTool.callDisplay();
+			if( !activeTool.isDisplayed() ) activeTool.callDisplay();
 		}
 	}
 

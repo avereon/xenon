@@ -18,6 +18,8 @@ public class WorkpaneEvent  extends EventObject {
 		VIEW_DEACTIVATED,
 		TOOL_ADDED,
 		TOOL_REMOVED,
+		TOOL_DISPLAYED,
+		TOOL_CONCEALED,
 		TOOL_ACTIVATED,
 		TOOL_DEACTIVATED
 	}

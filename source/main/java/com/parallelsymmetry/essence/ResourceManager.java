@@ -336,15 +336,25 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		schemeResourceTypes.remove( scheme );
 	}
 
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
 	public void open( Resource resource ) {
-		open( Arrays.asList( new Resource[]{ resource } ) );
+		open( Collections.singletonList( resource ) );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Resource resource, boolean createEditor ) {
-		open( Arrays.asList( new Resource[]{ resource } ), createEditor );
+	public void open( Resource resource, boolean openTool ) {
+		open( Collections.singletonList( resource ), openTool );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public void open( Resource resource, boolean openTool, boolean setActive ) {
+		open( Collections.singletonList( resource ), null, openTool, setActive );
 	}
 
 	/**
@@ -372,7 +382,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void open( Collection<Resource> resources, WorkpaneView view, boolean openTool ) {
-		program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool ) );
+		open( resources, view, openTool, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public void open( Collection<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) {
+		program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool, setActive ) );
 	}
 
 	/**
@@ -1336,11 +1353,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private boolean openTool;
 
-		private OpenActionTask( Collection<Resource> resources, Codec codec, WorkpaneView view, boolean openTool ) {
+		private boolean setActive;
+
+		private OpenActionTask( Collection<Resource> resources, Codec codec, WorkpaneView view, boolean openTool, boolean setActive ) {
 			this.resources = resources;
 			this.codec = codec;
 			this.view = view;
 			this.openTool = openTool;
+			this.setActive = setActive;
 		}
 
 		@Override
@@ -1364,7 +1384,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					continue;
 				}
 
-				if( openTool ) program.getToolManager().openTool( resource, view );
+				if( openTool ) program.getToolManager().openTool( resource, view, setActive );
 				setCurrentResource( resource );
 			}
 

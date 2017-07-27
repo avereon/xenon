@@ -138,7 +138,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testViewSetActiveTool() throws Exception {
+	public void testSetActiveTool() throws Exception {
 		Tool tool1 = new MockTool( resource );
 		Tool tool2 = new MockTool( resource );
 		Tool tool3 = new MockTool( resource );
@@ -148,11 +148,11 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		workpane.addTool( tool3, false );
 
 		assertThat( getActiveTool( toolview ), is( tool1 ) );
-		toolview.setActiveTool( tool2 );
+		workpane.setActiveTool( tool2 );
 		assertThat( getActiveTool( toolview ), is( tool2 ) );
-		toolview.setActiveTool( tool3 );
+		workpane.setActiveTool( tool3 );
 		assertThat( getActiveTool( toolview ), is( tool3 ) );
-		toolview.setActiveTool( tool1 );
+		workpane.setActiveTool( tool1 );
 		assertThat( getActiveTool( toolview ), is( tool1 ) );
 	}
 

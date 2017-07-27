@@ -57,6 +57,8 @@ public class WorkpaneWatcher implements WorkpaneListener {
 		duration = System.currentTimeMillis() - start;
 
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type );
+
+		clearEvent( type );
 	}
 
 	public synchronized void clearEvent( WorkpaneEvent.Type type ) {

@@ -5,6 +5,7 @@ import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.ResourceEvent;
 import com.parallelsymmetry.essence.resource.ResourceListener;
 import com.parallelsymmetry.essence.workarea.Workpane;
+import com.parallelsymmetry.essence.workarea.WorkpaneEvent;
 import com.parallelsymmetry.essence.workarea.WorkpaneView;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -16,7 +17,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import org.slf4j.Logger;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -270,10 +270,12 @@ public abstract class Tool extends Control {
 	 * Allocate the tool.
 	 */
 	public final void callAllocate() {
+		Workpane pane = getWorkpane();
 		try {
 			getResource().addResourceListener( watcher = new ResourceWatcher() );
 			allocate();
 			allocated = true;
+			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_ADDED, pane, getToolView(), this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error allocating tool", exception );
 		}
@@ -283,9 +285,11 @@ public abstract class Tool extends Control {
 	 * Display the tool.
 	 */
 	public final void callDisplay() {
+		Workpane pane = getWorkpane();
 		try {
 			display();
 			displayed = true;
+			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_DISPLAYED, pane, getToolView(), this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error displaying tool", exception );
 		}
@@ -295,8 +299,10 @@ public abstract class Tool extends Control {
 	 * Activate the tool.
 	 */
 	public final void callActivate() {
+		Workpane pane = getWorkpane();
 		try {
 			activate();
+			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_ACTIVATED, pane, getToolView(), this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error activating tool", exception );
 		}
@@ -307,8 +313,10 @@ public abstract class Tool extends Control {
 	 * parent being deactivated or by a different tool being activated.
 	 */
 	public final void callDeactivate() {
+		Workpane pane = getWorkpane();
 		try {
 			deactivate();
+			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_DEACTIVATED, pane, getToolView(), this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deactivating tool", exception );
 		}
@@ -319,9 +327,11 @@ public abstract class Tool extends Control {
 	 * another tool or removed from the tool parent.
 	 */
 	public final void callConceal() {
+		Workpane pane = getWorkpane();
 		try {
 			conceal();
 			displayed = false;
+			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_CONCEALED, pane, getToolView(), this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error concealing tool", exception );
 		}
@@ -331,10 +341,12 @@ public abstract class Tool extends Control {
 	 * Deallocate the tool. Called when the tool is removed from the tool parent.
 	 */
 	public final void callDeallocate() {
+		Workpane pane = getWorkpane();
 		try {
 			deallocate();
 			allocated = false;
 			getResource().removeResourceListener( watcher );
+			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_REMOVED, pane, getToolView(), this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}

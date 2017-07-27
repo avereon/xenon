@@ -197,9 +197,10 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 
 		area.addTool( tool, view );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_ADDED, area, view, tool );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_ACTIVATED, area, view, tool );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.CHANGED, area, null, null );
-		assertThat( workpaneWatcher.getEvents().size(), is( 3 ) );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_DISPLAYED, area, view, tool );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.TOOL_ACTIVATED, area, view, tool );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area, null, null );
+		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
 		assertThat( toolEventCounter.events.size(), is( 0 ) );
 	}
 
@@ -218,9 +219,10 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 
 		area.removeTool( tool );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, view, tool );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_REMOVED, area, view, tool );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.CHANGED, area, null, null );
-		assertThat( workpaneWatcher.getEvents().size(), is( 3 ) );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_CONCEALED, area, view, tool );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.TOOL_REMOVED, area, view, tool );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area, null, null );
+		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
 		assertThat( toolEventCounter.events.size(), is( 0 ) );
 	}
 
@@ -239,11 +241,12 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 
 		area.closeTool( tool );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, view, tool );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_REMOVED, area, view, tool );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.CHANGED, area, null, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_CONCEALED, area, view, tool );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.TOOL_REMOVED, area, view, tool );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area, null, null );
 		assertToolEvent( toolEventCounter.events.get( 0 ), ToolEvent.Type.TOOL_CLOSING, tool );
 		assertToolEvent( toolEventCounter.events.get( 1 ), ToolEvent.Type.TOOL_CLOSED, tool );
-		assertThat( workpaneWatcher.getEvents().size(), is( 3 ) );
+		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
 		assertThat( toolEventCounter.events.size(), is( 2 ) );
 	}
 

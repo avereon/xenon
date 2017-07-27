@@ -79,11 +79,15 @@ public class ToolManager implements Controllable<ToolManager> {
 		openTool( resource, view == null ? null : view.getWorkpane(), view );
 	}
 
-	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
-		openTool( resource, pane, view, null, false );
+	public void openTool( Resource resource, WorkpaneView view, boolean setActive ) {
+		openTool( resource, view == null ? null : view.getWorkpane(), view, null, setActive );
 	}
 
-	public void openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass, boolean isDependency ) {
+	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
+		openTool( resource, pane, view, null, true );
+	}
+
+	public void openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass, boolean setActive ) {
 		// The only thing that cannot be null is the resource
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
 
@@ -107,15 +111,13 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
 		// Create a tool if it is needed
-		// If this instance mode is SINGLETON, check for an existing tool in the workpane
 		ProductTool tool = null;
-		boolean alreadyExists = false;
+		// If the instance mode is SINGLETON, check for an existing tool in the workpane
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolOfClassInPane( pane, toolClass );
-		if( tool == null ) {
-			tool = getToolInstance( toolClass, resource );
-		} else {
-			alreadyExists = true;
-		}
+		boolean alreadyExists = tool != null;
+		if( !alreadyExists ) tool = getToolInstance( toolClass, resource );
+
+		// Verify there is a tool to use
 		if( tool == null ) {
 			String title = program.getResourceBundle().getString( "program", "no-tool-for-resource-title" );
 			String message = program.getResourceBundle().getString( "program", "no-tool-for-resource-message" );
@@ -135,7 +137,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		//		}
 
 		for( String dependency : tool.getResourceDependencies() ) {
-			program.getResourceManager().open( program.getResourceManager().createResource( dependency ) );
+			program.getResourceManager().open( program.getResourceManager().createResource( dependency ), true, false );
 		}
 
 		// Determine the placement override
@@ -148,7 +150,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( alreadyExists && instanceMode == ToolInstanceMode.SINGLETON ) {
 			Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 		} else {
-			Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, !isDependency ) );
+			Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, setActive ) );
 		}
 	}
 

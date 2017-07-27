@@ -354,7 +354,7 @@ public class Workpane extends Pane {
 		if( exception != null ) throw exception;
 	}
 
-	void queueEvent( WorkpaneEvent data ) {
+	public void queueEvent( WorkpaneEvent data ) {
 		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + data.getType() );
 		events.offer( data );
 	}
@@ -379,9 +379,7 @@ public class Workpane extends Pane {
 		try {
 			WorkpaneView activeToolView = getActiveView();
 
-			if( activeToolView != null ) {
-				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView, null ) );
-			}
+			if( activeToolView != null ) queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView, null ) );
 
 			// Change the active view
 			activeViewProperty.set( view );
@@ -391,9 +389,7 @@ public class Workpane extends Pane {
 
 			// Handle the new active view
 			activeToolView = getActiveView();
-			if( activeToolView != null ) {
-				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView, null ) );
-			}
+			if( activeToolView != null ) queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView, null ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -411,7 +407,7 @@ public class Workpane extends Pane {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
-				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
+				// NEXT queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
 			}
 
 			// Change the active view
@@ -426,8 +422,8 @@ public class Workpane extends Pane {
 
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
-				queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
 				activeTool.callActivate();
+				// NEXT queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
 			}
 		} finally {
 			finishOperation( true );
@@ -900,7 +896,7 @@ public class Workpane extends Pane {
 		try {
 			startOperation();
 			view.addTool( tool, index );
-			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
+			// FIXME queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
 			if( activate ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
@@ -920,10 +916,7 @@ public class Workpane extends Pane {
 		try {
 			startOperation();
 			view.removeTool( tool );
-
-			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_REMOVED, this, view, tool ) );
-
-			// Try to auto merge the view.
+			// FIXME queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_REMOVED, this, view, tool ) );
 			if( automerge ) pullMerge( view );
 		} finally {
 			finishOperation( true );
