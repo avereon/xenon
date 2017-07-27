@@ -6,12 +6,17 @@ import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.workarea.Workpane;
 import com.parallelsymmetry.essence.workarea.WorkpaneEvent;
 import com.parallelsymmetry.essence.worktool.ToolException;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 public class GuideTool extends ProductTool {
 
 	private TreeView guideView;
+
+	private SelectedItemListener selectedItemListener;
+
+	private ActiveGuideListener activeGuideListener;
 
 	public GuideTool( Product product, Resource resource ) {
 		// FIXME Maybe the resource should be program:guide
@@ -51,7 +56,51 @@ public class GuideTool extends ProductTool {
 		Guide guide = resource.getResource( Guide.GUIDE_KEY );
 		if( guide == null ) return;
 
+		// Set the guide view root
 		guideView.setRoot( guide.getRoot() );
+
+		// Set the guide view selection mode
+		guideView.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
+
+//		// Add the selected item listener
+//		if( selectedItemListener != null ) guideView.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
+//		guideView.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new SelectedItemListener( guide ) );
+//
+//		// Add the guide active property listener
+//		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
+//		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
+	}
+
+	private static class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem> {
+
+		private Guide guide;
+
+		SelectedItemListener( Guide guide ) {
+			this.guide = guide;
+		}
+
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public void changed( ObservableValue observable, TreeItem oldSelection, TreeItem newSelection ) {
+			guide.setSelectedItem( newSelection );
+		}
+
+	}
+
+	private class ActiveGuideListener implements javafx.beans.value.ChangeListener<Boolean> {
+
+		private Guide guide;
+
+		ActiveGuideListener( Guide guide ) {
+			this.guide = guide;
+		}
+
+		@Override
+		@SuppressWarnings( "unchecked" )
+		public void changed( ObservableValue observable, Boolean oldSelection, Boolean newSelection ) {
+			if( !newSelection ) guideView.setRoot( null );
+		}
+
 	}
 
 	@Override
@@ -69,17 +118,6 @@ public class GuideTool extends ProductTool {
 		// Set guide tree root
 		TreeItem root = guide.getRoot();
 		if( root != null ) guideView.setRoot( root );
-
-		// Set guide selection mode
-		guideView.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
-
-		guideView.getSelectionModel().selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
-			guide.setSelectedItem( (TreeItem)newSelection );
-		} );
-
-		guide.activeProperty().addListener( ( observable, oldValue, newValue ) -> {
-			if( !newValue ) guideView.setRoot( null );
-		} );
 	}
 
 	@Override
