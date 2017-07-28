@@ -178,6 +178,16 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return modifiedResources;
 	}
 
+	Set<ResourceType> getUserResourceTypes() {
+		Set<ResourceType> userResourceTypes = new HashSet<>();
+
+		for( ResourceType type : resourceTypes.values() ) {
+			if( type.isUserType() ) userResourceTypes.add( type );
+		}
+
+		return userResourceTypes;
+	}
+
 	/**
 	 * Get the externally modified resources.
 	 *
@@ -238,8 +248,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Get a resource type by the resource type key defined in the resource type.
-	 * This is useful for getting resource types from persisted data.
+	 * Get a resource type by the resource type key defined in the resource type. This is useful for getting resource types from persisted data.
 	 *
 	 * @param key The resource type key
 	 * @return The resource type associated to the key
@@ -400,8 +409,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the source resource be saved as the target resource. This
-	 * method submits a task to the task manager and returns immediately.
+	 * Request that the source resource be saved as the target resource. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param source The source resource
 	 * @param target The target resource
@@ -427,8 +435,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//	}
 
 	/**
-	 * Request that the source resource be saved as a copy to the target resource.
-	 * This method submits a task to the task manager and returns immediately.
+	 * Request that the source resource be saved as a copy to the target resource. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param source The source resource
 	 * @param target The target resource
@@ -578,8 +585,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a string. This resource is considered to be an old
-	 * resource. See {@link Resource#isNew()}
+	 * Create a resource from a string. This resource is considered to be an old resource. See {@link Resource#isNew()}
 	 *
 	 * @param string A resource string
 	 * @return A new resource based on the specified string.
@@ -598,8 +604,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a URI. This resource is considered to be an old
-	 * resource. See {@link Resource#isNew()}
+	 * Create a resource from a URI. This resource is considered to be an old resource. See {@link Resource#isNew()}
 	 *
 	 * @param uri The URI to create a resource from
 	 * @return The resource created from the URI
@@ -609,8 +614,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a file. This resource is considered to be an old
-	 * resource. See {@link Resource#isNew()}
+	 * Create a resource from a file. This resource is considered to be an old resource. See {@link Resource#isNew()}
 	 *
 	 * @param file The file to create a resource from
 	 * @return The resource created from the file
@@ -620,8 +624,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a resource type. This resource is considered to be
-	 * a new resource. See {@link Resource#isNew()}
+	 * Create a resource from a resource type. This resource is considered to be a new resource. See {@link Resource#isNew()}
 	 *
 	 * @param type The resource type to create a resource from
 	 * @return The resource created from the resource type
@@ -631,8 +634,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create resources from an array of descriptors. Descriptors are preferred in
-	 * the following order: URI, File, String, Object
+	 * Create resources from an array of descriptors. Descriptors are preferred in the following order: URI, File, String, Object
 	 *
 	 * @param descriptors The descriptors from which to create resources
 	 * @return The list of resources created from the descriptors
@@ -642,8 +644,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create resources from a collection of descriptors. Descriptors are
-	 * preferred in the following order: URI, File, String, Object
+	 * Create resources from a collection of descriptors. Descriptors are preferred in the following order: URI, File, String, Object
 	 *
 	 * @param descriptors The descriptors from which to create resources
 	 * @return The list of resources created from the descriptors
@@ -665,8 +666,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be opened. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resource The resource to open
 	 */
@@ -675,8 +675,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be opened. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resources The resources to open
 	 */
@@ -685,9 +684,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resource The resource to open
 	 * @throws ExecutionException If there was an exception opening the resource
@@ -699,9 +696,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resources The resources to open
 	 * @throws ExecutionException If there was an exception opening a resource
@@ -713,8 +708,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be loaded. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resource The resource to load
 	 */
@@ -723,8 +717,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be loaded. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resources The resources to load
 	 */
@@ -733,9 +726,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resource The resource to load
 	 * @throws ExecutionException If there was an exception loading the resource
@@ -747,9 +738,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resources The resources to load
 	 * @throws ExecutionException If there was an exception loading the resources
@@ -761,8 +750,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be saved. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resource The resource to save
 	 */
@@ -771,8 +759,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be saved. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resources The resources to save
 	 */
@@ -781,9 +768,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resource The resource to save
 	 * @throws ExecutionException If there was an exception saving the resource
@@ -795,9 +780,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resources The resources to save
 	 * @throws ExecutionException If there was an exception saving the resources
@@ -809,8 +792,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be closed. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resource The resource to close.
 	 */
@@ -819,8 +801,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed. This method submits a task
-	 * to the task manager and returns immediately.
+	 * Request that the specified resources be closed. This method submits a task to the task manager and returns immediately.
 	 *
 	 * @param resources The resources to close.
 	 */
@@ -829,9 +810,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resource The resources to close.
 	 * @throws ExecutionException If there was an exception closing the resource
@@ -843,9 +822,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed and wait until the task is
-	 * complete. This method submits a task to the task manager and waits for the
-	 * task to be completed.
+	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
 	 * @param resources The resources to close.
 	 * @throws ExecutionException If there was an exception closing the resources
@@ -919,15 +896,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine the resource type for the given resource. The resource URI
-	 * is used to find the resource type in the following order:
-	 * <ol>
-	 * <li>Lookup the resource type by the full URI</li>
-	 * <li>Lookup the resource type by the URI scheme</li>
-	 * <li>Find all the codecs that match the URI</li>
-	 * <li>Sort the codecs by priority, select the highest</li>
-	 * <li>Use the resource type associated to the codec</li>
-	 * </ol>
+	 * Determine the resource type for the given resource. The resource URI is used to find the resource type in the following order: <ol> <li>Lookup the resource type by the full URI</li> <li>Lookup the resource type by the URI scheme</li>
+	 * <li>Find all the codecs that match the URI</li> <li>Sort the codecs by priority, select the highest</li> <li>Use the resource type associated to the codec</li> </ol>
 	 *
 	 * @param resource The resource for which to resolve the resource type
 	 * @return
@@ -955,16 +925,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine the codec for the given resource by checking the file name, the
-	 * first line, and the content type for a match with a supported resource
-	 * type. When calling this method the resource needs to already be open so
-	 * that the information needed to determine the correct codec is defined in
-	 * the resource.
+	 * Determine the codec for the given resource by checking the file name, the first line, and the content type for a match with a supported resource type. When calling this method the resource needs to already be open so that the
+	 * information needed to determine the correct codec is defined in the resource.
 	 * <p>
-	 * Note: This method uses a URLConnection object to get the first line and
-	 * content type of the resource. This means that the calling thread will be
-	 * blocked during the IO operations used in URLConnection if the first line or
-	 * the content type is needed to determine the resource type.
+	 * Note: This method uses a URLConnection object to get the first line and content type of the resource. This means that the calling thread will be blocked during the IO operations used in URLConnection if the first line or the content
+	 * type is needed to determine the resource type.
 	 *
 	 * @param resource The resource for which to find codecs
 	 * @return The set of codecs that match the resource
@@ -1024,8 +989,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private void updateActionState() {
-		newActionHandler.setEnabled( resourceTypes.size() > 0 );
-		openActionHandler.setEnabled( resourceTypes.size() > 0 );
+		newActionHandler.setEnabled( getUserResourceTypes().size() > 0 );
+		openActionHandler.setEnabled( getUserResourceTypes().size() > 0 );
+		// TODO Should open resources and modified resources be scoped to the workarea?
 		saveAllActionHandler.setEnabled( getModifiedResources().size() > 0 );
 		closeAllActionHandler.setEnabled( openResources.size() > 0 );
 	}
@@ -1050,8 +1016,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine if the resource can be saved. The resource can be saved if the
-	 * URI is null or if the URI scheme and codec can both save resources.
+	 * Determine if the resource can be saved. The resource can be saved if the URI is null or if the URI scheme and codec can both save resources.
 	 *
 	 * @param resource
 	 * @return True if the resource can be saved, false otherwise.
@@ -1077,9 +1042,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a resource type and/or a URI. The resource is
-	 * considered to be a new resource if the URI is null. Otherwise, the
-	 * resource is considered an old resource. See {@link Resource#isNew()}
+	 * Create a resource from a resource type and/or a URI. The resource is considered to be a new resource if the URI is null. Otherwise, the resource is considered an old resource. See {@link Resource#isNew()}
 	 *
 	 * @param type The resource type of the resource
 	 * @param uri The URI of the resource
@@ -1154,7 +1117,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( !resource.isOpen() ) doOpenResource( resource );
 
 		if( !resource.exists() ) return false;
-
 
 		// Load the resource.
 		boolean previouslyLoaded = resource.isLoaded();

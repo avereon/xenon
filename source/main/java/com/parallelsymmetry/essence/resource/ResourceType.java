@@ -83,6 +83,10 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return product.getResourceBundle().getString( "resource", rbKey + "-description" );
 	}
 
+	public boolean isUserType() {
+		return true;
+	}
+
 	public Codec getDefaultCodec() {
 		return defaultCodec;
 	}

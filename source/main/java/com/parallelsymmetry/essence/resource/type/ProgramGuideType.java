@@ -12,6 +12,11 @@ public class ProgramGuideType extends ResourceType {
 		super( product, "guide" );
 	}
 
+	@Override
+	public boolean isUserType() {
+		return false;
+	}
+
 	// This resource type does not have a codec
 	public Codec getDefaultCodec() {
 		return null;

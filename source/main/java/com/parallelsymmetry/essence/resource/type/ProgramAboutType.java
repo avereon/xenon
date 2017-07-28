@@ -22,6 +22,11 @@ public class ProgramAboutType extends ResourceType {
 		super( product, "about" );
 	}
 
+	@Override
+	public boolean isUserType() {
+		return false;
+	}
+
 	/**
 	 * There are no codecs for this resource type so this method always returns null.
 	 *

@@ -11,6 +11,11 @@ public class ProgramWelcomeType extends ResourceType {
 	}
 
 	@Override
+	public boolean isUserType() {
+		return false;
+	}
+
+	@Override
 	public Codec getDefaultCodec() {
 		return null;
 	}
