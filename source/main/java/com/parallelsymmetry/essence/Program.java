@@ -19,6 +19,7 @@ import com.parallelsymmetry.essence.settings.Settings;
 import com.parallelsymmetry.essence.task.TaskManager;
 import com.parallelsymmetry.essence.tool.AboutTool;
 import com.parallelsymmetry.essence.tool.GuideTool;
+import com.parallelsymmetry.essence.tool.SettingsTool;
 import com.parallelsymmetry.essence.util.OperatingSystem;
 import com.parallelsymmetry.essence.workspace.ToolInstanceMode;
 import javafx.application.Application;
@@ -436,13 +437,13 @@ public class Program extends Application implements Product {
 	private void registerTools( ToolManager manager ) {
 		registerTool( manager, ProgramGuideType.class, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
-		//registerTool( manager, ProgramSettingsType.class, ProductSettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
-		//registerTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
+		//registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		//unregisterTool( manager, ProgramWelcomeType.class, ProductWelcomeTool.class );
-		//unregisterTool( manager, ProgramSettingsType.class, ProductSettingsTool.class );
+		//unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
+		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
 	}
