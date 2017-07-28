@@ -3,9 +3,8 @@ package com.parallelsymmetry.essence.action;
 import com.parallelsymmetry.essence.Action;
 import com.parallelsymmetry.essence.Program;
 import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.resource.type.ProgramSettingsType;
 import javafx.event.Event;
-
-import java.net.URI;
 
 public class SettingsAction extends Action {
 
@@ -22,15 +21,7 @@ public class SettingsAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		if( resource == null ) {
-			try {
-				resource = program.getResourceManager().createResource( URI.create( "program:settings" ) );
-			} catch( Exception exception ) {
-				log.warn( "Error opening settings resource", exception );
-			}
-		}
-
-		program.getResourceManager().open( resource );
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
 	}
 
 }

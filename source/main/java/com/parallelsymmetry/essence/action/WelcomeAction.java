@@ -2,14 +2,10 @@ package com.parallelsymmetry.essence.action;
 
 import com.parallelsymmetry.essence.Action;
 import com.parallelsymmetry.essence.Program;
-import com.parallelsymmetry.essence.resource.Resource;
+import com.parallelsymmetry.essence.resource.type.ProgramWelcomeType;
 import javafx.event.Event;
 
-import java.net.URI;
-
 public class WelcomeAction extends Action {
-
-	private Resource resource;
 
 	public WelcomeAction( Program program ) {
 		super( program );
@@ -22,15 +18,7 @@ public class WelcomeAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		if( resource == null ) {
-			try {
-				resource = program.getResourceManager().createResource( URI.create( "program:welcome" ) );
-			} catch( Exception exception ) {
-				log.warn( "Error opening settings resource", exception );
-			}
-		}
-
-		program.getResourceManager().open( resource );
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramWelcomeType.URI ) );
 	}
 
 }

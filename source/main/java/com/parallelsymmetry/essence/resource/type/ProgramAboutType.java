@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class ProgramAboutType extends ResourceType {
 
+	public static final String URI = "program:about";
+
 	private Map<TreeItem<String>, String> pages;
 
 	public ProgramAboutType( Product product ) {

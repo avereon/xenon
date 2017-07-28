@@ -428,15 +428,15 @@ public class Program extends Application implements Product {
 
 	private void registerResourceTypes( ResourceManager manager ) {
 		manager.registerUriResourceType( ProgramGuideType.URI, new ProgramGuideType( this ) );
-		manager.registerUriResourceType( "program:about", new ProgramAboutType( this ) );
-		manager.registerUriResourceType( "program:settings", new ProgramSettingsType( this ) );
-		manager.registerUriResourceType( "program:welcome", new ProgramWelcomeType( this ) );
+		manager.registerUriResourceType( ProgramAboutType.URI, new ProgramAboutType( this ) );
+		manager.registerUriResourceType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
+		manager.registerUriResourceType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( "program:welcome" );
-		manager.unregisterUriResourceType( "program:settings" );
-		manager.unregisterUriResourceType( "program:about" );
+		manager.unregisterUriResourceType( ProgramWelcomeType.URI );
+		manager.unregisterUriResourceType( ProgramSettingsType.URI );
+		manager.unregisterUriResourceType( ProgramAboutType.URI );
 		manager.unregisterUriResourceType( ProgramGuideType.URI );
 	}
 

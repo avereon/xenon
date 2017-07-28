@@ -6,6 +6,8 @@ import com.parallelsymmetry.essence.resource.ResourceType;
 
 public class ProgramSettingsType extends ResourceType {
 
+	public static final String URI = "program:settings";
+
 	public ProgramSettingsType( Product product ) {
 		super( product, "settings" );
 	}

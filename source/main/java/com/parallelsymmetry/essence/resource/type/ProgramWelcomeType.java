@@ -6,6 +6,8 @@ import com.parallelsymmetry.essence.resource.ResourceType;
 
 public class ProgramWelcomeType extends ResourceType {
 
+	public static final String URI = "program:welcome";
+
 	public ProgramWelcomeType( Product product ) {
 		super( product, "welcome" );
 	}
