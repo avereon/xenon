@@ -7,7 +7,6 @@ import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.Resource;
 import com.parallelsymmetry.essence.resource.type.ProgramGuideType;
 import com.parallelsymmetry.essence.worktool.ToolException;
-import com.parallelsymmetry.essence.worktool.ToolInfo;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
@@ -22,8 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AboutTool extends ProductTool {
 
 	private static final Logger log = LoggerFactory.getLogger( AboutTool.class );
-
-	private static ToolInfo toolInfo = new ToolInfo();
 
 	private String titleSuffix;
 
@@ -44,10 +41,6 @@ public class AboutTool extends ProductTool {
 	private BorderPane detailsPane;
 
 	private TextArea detailsText;
-
-	static {
-		getToolInfo().addRequiredToolClass( GuideTool.class );
-	}
 
 	public AboutTool( Product product, Resource resource ) {
 		super( product, resource );
@@ -87,16 +80,6 @@ public class AboutTool extends ProductTool {
 		Set<String> resources = new HashSet<>();
 		resources.add( ProgramGuideType.URI );
 		return resources;
-	}
-
-	public Set<Class<? extends ProductTool>> getToolDependencies() {
-		Set<Class<? extends ProductTool>> tools = new HashSet<>();
-		tools.add( GuideTool.class );
-		return tools;
-	}
-
-	public static ToolInfo getToolInfo() {
-		return toolInfo;
 	}
 
 	public String getTitleSuffix() {

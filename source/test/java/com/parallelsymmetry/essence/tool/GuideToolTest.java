@@ -1,16 +1,23 @@
 package com.parallelsymmetry.essence.tool;
 
-import com.parallelsymmetry.essence.FxPlatformTestCase;
+import com.parallelsymmetry.essence.FxProgramTestCase;
+import com.parallelsymmetry.essence.resource.Resource;
+import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import java.util.Set;
 
-public class GuideToolTest extends FxPlatformTestCase {
+import static org.hamcrest.Matchers.is;
+
+public class GuideToolTest extends FxProgramTestCase {
 
 	@Test
-	public void testToolInfo() {
-		assertThat( GuideTool.getToolInfo().getRequiredToolClasses().size(), is( 0 ) );
+	public void testGetRequiredToolResources() {
+		Resource resource = new Resource( "program:guide" );
+		GuideTool tool = new GuideTool( program, resource );
+
+		Set<String> resources = tool.getResourceDependencies();
+		Assert.assertThat(resources.size(), is( 0 ));
 	}
 
 }

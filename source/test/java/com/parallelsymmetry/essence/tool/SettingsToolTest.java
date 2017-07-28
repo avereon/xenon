@@ -1,17 +1,23 @@
 package com.parallelsymmetry.essence.tool;
 
-import com.parallelsymmetry.essence.FxPlatformTestCase;
+import com.parallelsymmetry.essence.FxProgramTestCase;
+import com.parallelsymmetry.essence.resource.Resource;
+import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import java.util.Set;
 
-public class SettingsToolTest extends FxPlatformTestCase {
+import static org.hamcrest.Matchers.containsInAnyOrder;
+
+public class SettingsToolTest extends FxProgramTestCase {
 
 	@Test
-	@SuppressWarnings( "unchecked" )
-	public void testToolInfo() {
-		assertThat( SettingsTool.getToolInfo().getRequiredToolClasses(), contains( GuideTool.class ) );
+	public void testGetRequiredToolResources() {
+		Resource resource = new Resource( "program:settings" );
+		SettingsTool tool = new SettingsTool( program, resource );
+
+		Set<String> resources = tool.getResourceDependencies();
+		Assert.assertThat( resources, containsInAnyOrder( "program:guide" ) );
 	}
 
 }

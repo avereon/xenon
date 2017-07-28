@@ -85,6 +85,8 @@ public class Program extends Application implements Product {
 
 	private AboutAction aboutAction;
 
+	private SettingsAction settingsAction;
+
 	public static void main( String[] commands ) {
 		launch( commands );
 	}
@@ -93,6 +95,7 @@ public class Program extends Application implements Product {
 		// Create program action handlers
 		exitAction = new ExitAction( this );
 		aboutAction = new AboutAction( this );
+		settingsAction = new SettingsAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -397,11 +400,13 @@ public class Program extends Application implements Product {
 	private void registerActionHandlers() {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
+		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
 	}
 
 	private void unregisterActionHandlers() {
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
+		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
 	}
 
 	private void registerSchemes( ResourceManager manager ) {
