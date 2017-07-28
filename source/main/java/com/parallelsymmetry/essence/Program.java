@@ -9,7 +9,10 @@ import com.parallelsymmetry.essence.product.Product;
 import com.parallelsymmetry.essence.product.ProductBundle;
 import com.parallelsymmetry.essence.product.ProductMetadata;
 import com.parallelsymmetry.essence.resource.ResourceType;
-import com.parallelsymmetry.essence.resource.type.*;
+import com.parallelsymmetry.essence.resource.type.ProgramAboutType;
+import com.parallelsymmetry.essence.resource.type.ProgramGuideType;
+import com.parallelsymmetry.essence.resource.type.ProgramSettingsType;
+import com.parallelsymmetry.essence.resource.type.ProgramWelcomeType;
 import com.parallelsymmetry.essence.scheme.FileScheme;
 import com.parallelsymmetry.essence.scheme.ProgramScheme;
 import com.parallelsymmetry.essence.settings.Settings;
@@ -56,7 +59,7 @@ public class Program extends Application implements Product {
 
 	private File programDataFolder;
 
-	private Settings settings;
+	private Settings programSettings;
 
 	private IconLibrary iconLibrary;
 
@@ -125,7 +128,7 @@ public class Program extends Application implements Product {
 		settingsManager = new SettingsManager( this ).start();
 
 		// Get the program settings after the settings manager and before the task manager
-		settings = settingsManager.getSettings( "program.properties" );
+		programSettings = settingsManager.getSettings( "program.properties" );
 		time( "settings" );
 
 		// TODO Check for another instance after getting the settings but before the splash screen is shown
@@ -140,8 +143,7 @@ public class Program extends Application implements Product {
 		// Create the executor service
 		log.trace( "Starting task manager..." );
 		taskManager = new TaskManager();
-		// FIXME Make the task manager configurable
-		// taskManager.loadSettings( settings );
+		taskManager.loadSettings( programSettings );
 		taskManager.start();
 		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );

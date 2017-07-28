@@ -6,18 +6,20 @@ import com.parallelsymmetry.essence.node.Node;
 import com.parallelsymmetry.essence.node.NodeEvent;
 import com.parallelsymmetry.essence.node.NodeListener;
 import com.parallelsymmetry.essence.resource.event.*;
+import com.parallelsymmetry.essence.settings.Settings;
+import com.parallelsymmetry.essence.util.Configurable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import javax.swing.tree.TreePath;
 import javax.swing.undo.UndoManager;
 import java.net.URI;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
-// TODO Add Configurable interface to this class
-public class Resource extends Node {
+public class Resource extends Node implements Configurable {
 
 	public static final String MEDIA_TYPE_RESOURCE_KEY = "resource.media.type";
 
@@ -52,6 +54,8 @@ public class Resource extends Node {
 
 	private Set<ResourceListener> listeners;
 
+	private Settings resourceSettings;
+
 	private volatile boolean open;
 
 	private volatile boolean loaded;
@@ -85,8 +89,8 @@ public class Resource extends Node {
 		// If the URI is null then the resource is ready
 		ready = uri == null;
 
-		// TODO What is the FX undo manager
-		//undoManager = new ResourceUndoManager();
+		// Create the undo manager
+		undoManager = new UndoManager();
 
 		listeners = new CopyOnWriteArraySet<>();
 		addNodeListener( new NodeWatcher() );
@@ -114,7 +118,7 @@ public class Resource extends Node {
 	 * the resource is loaded or saved. Then the codec used for that operation is
 	 * stored for convenience to be used for later load or save operations.
 	 *
-	 * @return
+	 * @return The codec used to load/save the resource.
 	 */
 	public Codec getCodec() {
 		return getValue( CODEC_VALUE_KEY );
@@ -145,7 +149,7 @@ public class Resource extends Node {
 	 * URI is null, the entire URI if the path portion of the URI is null, or the
 	 * file portion of the URI path.
 	 *
-	 * @return
+	 * @return The name of the resource.
 	 */
 	public String getName() {
 		return name;
@@ -295,12 +299,12 @@ public class Resource extends Node {
 
 	public boolean exists() throws ResourceException {
 		Scheme scheme = getScheme();
-		return scheme == null ? false : scheme.exists( this );
+		return scheme != null && scheme.exists( this );
 	}
 
 	public boolean delete() throws ResourceException {
 		Scheme scheme = getScheme();
-		return scheme == null ? false : scheme.delete( this );
+		return scheme != null && scheme.delete( this );
 	}
 
 	/**
@@ -308,7 +312,7 @@ public class Resource extends Node {
 	 */
 	public boolean isFolder() throws ResourceException {
 		Scheme scheme = getScheme();
-		return scheme == null ? false : scheme.isFolder( this );
+		return scheme != null && scheme.isFolder( this );
 	}
 
 	/**
@@ -316,7 +320,7 @@ public class Resource extends Node {
 	 */
 	public boolean isHidden() throws ResourceException {
 		Scheme scheme = getScheme();
-		return scheme == null ? false : scheme.isHidden( this );
+		return scheme != null && scheme.isHidden( this );
 	}
 
 	/**
@@ -328,23 +332,19 @@ public class Resource extends Node {
 		return scheme == null ? null : scheme.listResources( this );
 	}
 
-	public TreePath toTreePath() {
-		List<Resource> path = new ArrayList<Resource>();
-
-		Resource resource = this;
-		while( resource != null ) {
-			path.add( resource );
-			resource = (Resource)resource.getParent();
-		}
-
-		Collections.reverse( path );
-
-		return new TreePath( path.toArray( new Resource[ path.size() ] ) );
-	}
-
 	public Resource getParent() {
 		// TODO Implement Resource.getParent()
 		return null;
+	}
+
+	@Override
+	public void loadSettings( Settings settings ) {
+		resourceSettings = settings;
+	}
+
+	@Override
+	public void saveSettings( Settings settings ) {
+		resourceSettings = settings;
 	}
 
 	public void addResourceListener( ResourceListener listener ) {
@@ -371,9 +371,7 @@ public class Resource extends Node {
 		URI thatUri = that.getUri();
 
 		if( thisUri == null && thatUri == null ) return this == that;
-		if( thisUri == null || thatUri == null ) return false;
-
-		return thisUri.equals( thatUri );
+		return thisUri != null && thatUri != null && thisUri.equals( thatUri );
 	}
 
 	@Override
@@ -384,7 +382,7 @@ public class Resource extends Node {
 		return uri == null ? resourceTypeName : uri.toString();
 	}
 
-	protected void fireResourceEvent( ResourceEvent event ) {
+	private void fireResourceEvent( ResourceEvent event ) {
 		for( ResourceListener listener : listeners ) {
 			listener.eventOccurred( event );
 		}
@@ -395,7 +393,7 @@ public class Resource extends Node {
 		String path = null;
 
 		// If the URI is null return the type name.
-		if( name == null && uri == null ) name = getType().getName();
+		if( uri == null ) name = getType().getName();
 
 		// If the path is null return the entire URI.
 		if( name == null && uri != null ) {
