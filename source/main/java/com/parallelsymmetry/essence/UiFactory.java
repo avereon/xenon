@@ -18,6 +18,8 @@ public class UiFactory {
 
 	public static final double DEFAULT_HEIGHT = 540;
 
+	public static final double PAD = 5;
+
 	enum Prefix {
 		WORKSPACE,
 		WORKAREA,

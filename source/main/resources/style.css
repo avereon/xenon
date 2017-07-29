@@ -84,3 +84,8 @@
 	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 0 0 0 0;
 }
+
+.accent {
+	-fx-fill: -fx-text;
+	-fx-opacity: 0.3;
+}
