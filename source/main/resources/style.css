@@ -75,6 +75,7 @@
 	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
+/*
 .tool .text-area {
 	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 0 0 0 0;
@@ -84,8 +85,21 @@
 	-fx-background-color: -ex-background-text;
 	-fx-background-radius: 0 0 0 0;
 }
+*/
 
 .accent {
-	-fx-fill: -fx-text;
+	-fx-fill: -fx-background;
 	-fx-opacity: 0.3;
+}
+
+#tool-about {
+	-fx-background-color: -ex-background-text
+}
+
+#tool-about .text-area {
+	-fx-background-color: transparent;
+}
+
+#tool-welcome {
+	-fx-background-color: transparent;
 }
