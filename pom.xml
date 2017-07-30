@@ -11,19 +11,18 @@
 		<relativePath></relativePath>
 	</parent>
 
-	<groupId>com.parallelsymmetry</groupId>
-	<artifactId>essence</artifactId>
+	<groupId>com.xeomar</groupId>
+	<artifactId>xenon</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Essence</name>
+	<name>Xenon</name>
 	<description>A Java application platform for developing modular cross-platform applications.</description>
 	<inceptionYear>2017</inceptionYear>
 
 	<developers>
 		<developer>
 			<name>Mark Soderquist</name>
-			<organization>Parallel Symmetry</organization>
-			<email>mark@parallelsymmetry.com</email>
+			<email>mark@soderquis.net</email>
 			<roles>
 				<role>Architect</role>
 			</roles>
@@ -33,14 +32,14 @@
 	<repositories>
 		<repository>
 			<id>psm</id>
-			<url>https://code.parallelsymmetry.com/repo/psm</url>
+			<url>https://code.xeomar.com/repo/xeo</url>
 		</repository>
 	</repositories>
 
 	<properties>
 		<project.timestamp>${maven.build.timestamp}</project.timestamp>
 		<product-name>${project.name}</product-name>
-		<product-identifier>essence</product-identifier>
+		<product-identifier>xenon</product-identifier>
 		<package-stage-folder>program</package-stage-folder>
 		<slf4j.version>1.8.0-alpha2</slf4j.version>
 		<testfx.version>4.0.6-alpha</testfx.version>
@@ -162,7 +161,7 @@
 						<!-- <index>true</index> -->
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>com.parallelsymmetry.essence.Program</mainClass>
+							<mainClass>com.xeomar.xenon.Program</mainClass>
 							<!--<classpathLayoutType>custom</classpathLayoutType>-->
 							<!--<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}-->
 							<!--</customClasspathLayout>-->
@@ -191,7 +190,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.parallelsymmetry.essence.Program</mainClass>
+							<mainClass>com.xeomar.xenon.Program</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

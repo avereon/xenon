@@ -3,7 +3,7 @@ artifact: ${project.artifactId}
 version: ${project.version}
 timestamp: ${project.timestamp}
 
-icon: http://www.parallelsymmetry.com/images/icons/${project.artifactId}.png
+icon: http://www.xeomar.com/images/icons/${project.artifactId}.png
 name: ${project.name}
 provider: ${project.organization.name}
 inception: ${project.inceptionYear}
@@ -16,18 +16,18 @@ license:
   summary: Essence comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
 
 maintainers:
-  - !!com.parallelsymmetry.essence.person.Maintainer
+  - !!com.xeomar.xenon.person.Maintainer
     name: Mark Soderquist
-    email: mark@parallelsymmetry.com
+    email: mark@soderquist.net
     roles:
       - Architect
-    organization: Parallel Symmetry
-    organizationUrl: http://parallelsymmetry.com/
+    organization: Xeomar
+    organizationUrl: http://xeomar.com/
 
 contributors:
-  - !!com.parallelsymmetry.essence.person.Contributor
+  - !!com.xeomar.xenon.person.Contributor
     name: Dan Langford
 
 resources:
-  head: "http://www.parallelsymmetry.com/download/product/essence/product.xml"
-  pack: "http://www.parallelsymmetry.com/download/product/essence/product.zip"
+  head: "http://www.xeomar.com/download/product/essence/product.xml"
+  pack: "http://www.xeomar.com/download/product/essence/product.zip"
