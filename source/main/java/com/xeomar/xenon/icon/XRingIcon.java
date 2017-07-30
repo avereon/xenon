@@ -1,6 +1,5 @@
 package com.xeomar.xenon.icon;
 
-import com.xeomar.xenon.ProgramIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
@@ -11,10 +10,10 @@ import java.util.List;
 /**
  * Use <a href="http://www.pic2icon.com/windows7_vista_icon_generator.php">Pic2Icon</a> to convert to Windows icon.
  */
-public class XRingIcon extends ProgramIcon {
+public class XRingIcon extends XIcon {
 
 	protected void render() {
-		double ringScale = 7.0/11.0;
+		double ringScale = 7.0 / 11.0;
 
 		// Xenon hue: 263
 		Color dkXenon = Color.web( "#7836e5" );
@@ -39,18 +38,18 @@ public class XRingIcon extends ProgramIcon {
 		getGraphicsContext2D().save();
 		clip( g( 0 ), g( 16 ), g( 32 ), g( 16 ) );
 		xPath();
-		fillAndDraw( jetPaint );
+		fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
 		getGraphicsContext2D().restore();
 
 		// Ring
-		getGraphicsContext2D().save();
 		beginPath();
 		addArc( g( 16 ), g( 16 ), g( 11 ), g( ringScale * 11 ), 0, 360 );
 		moveTo( g( 21 ), g( 16 ) );
 		addArc( g( 16 ), g( 16 ), g( 5 ), g( 2.5 ), 0, 360 );
 		closePath();
+		getGraphicsContext2D().save();
 		getGraphicsContext2D().scale( 1, ringScale );
-		fill( ringPaint );
+		fill();
 		getGraphicsContext2D().restore();
 		draw();
 
@@ -58,7 +57,7 @@ public class XRingIcon extends ProgramIcon {
 		getGraphicsContext2D().save();
 		clip( g( 0 ), g( 0 ), g( 32 ), g( 16 ) );
 		xPath();
-		fillAndDraw( jetPaint );
+		fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
 		getGraphicsContext2D().restore();
 	}
 
@@ -67,24 +66,6 @@ public class XRingIcon extends ProgramIcon {
 		addRect( x, y, w, h );
 		closePath();
 		clip();
-	}
-
-	private void xPath() {
-		double radius = Math.sqrt( 2 * (g( 2 ) * g( 2 )) );
-		beginPath();
-		moveTo( g( 16 ), g( 12 ) );
-		lineTo( g( 22 ), g( 6 ) );
-		addArc( g( 24 ), g( 8 ), radius, radius, 135, -180 );
-		lineTo( g( 20 ), g( 16 ) );
-		lineTo( g( 26 ), g( 22 ) );
-		addArc( g( 24 ), g( 24 ), radius, radius, 45, -180 );
-		lineTo( g( 16 ), g( 20 ) );
-		lineTo( g( 10 ), g( 26 ) );
-		addArc( g( 8 ), g( 24 ), radius, radius, 315, -180 );
-		lineTo( g( 12 ), g( 16 ) );
-		lineTo( g( 6 ), g( 10 ) );
-		addArc( g( 8 ), g( 8 ), radius, radius, 225, -180 );
-		closePath();
 	}
 
 	public static void main( String[] commands ) {
