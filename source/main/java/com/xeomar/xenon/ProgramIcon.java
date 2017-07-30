@@ -17,7 +17,9 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.List;
 
 public abstract class ProgramIcon extends Canvas {
@@ -101,6 +103,10 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	public Image getImage() {
+		return SwingFXUtils.toFXImage( getBufferedImage(), new WritableImage( (int)getWidth(), (int)getHeight() ) );
+	}
+
+	public BufferedImage getBufferedImage() {
 		// Apparently images created from the snapshot method are not usable as
 		// application icons. The following workaround creates an image that is
 		// usable as an application icon. It may be more efficient to create
@@ -125,7 +131,7 @@ public abstract class ProgramIcon extends Canvas {
 
 		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
 		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
-		return SwingFXUtils.toFXImage( buffer, new WritableImage( width, height ) );
+		return buffer;
 	}
 
 	protected abstract void render();
@@ -406,6 +412,18 @@ public abstract class ProgramIcon extends Canvas {
 			stage.sizeToScene();
 			stage.show();
 		} );
+	}
+
+	protected void save( String path ) {
+		File file = new File( System.getProperty( "user.home"), path );
+		Platform.startup( () -> {
+			try {
+				ImageIO.write( getBufferedImage(), "png", file );
+			} catch( Exception exception ) {
+				exception.printStackTrace();
+			}
+		} );
+		Platform.exit();
 	}
 
 	private ProgramIcon copy() {

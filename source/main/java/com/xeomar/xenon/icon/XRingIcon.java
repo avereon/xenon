@@ -88,7 +88,8 @@ public class XRingIcon extends ProgramIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new XRingIcon() );
+		//proof( new XRingIcon() );
+		new XRingIcon().save( "Downloads/program.png");
 	}
 
 }
