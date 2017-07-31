@@ -16,6 +16,7 @@ pipelines:
           - maven
         script: # Modify the commands below to build your repository.
           # - apt-get install -y openjfx
+          - cp settings.xml $HOME/.m2/settings.xml
           - mvn -B clean deploy
 
           # you can run any command to move your artifact elsewhere
