@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.parallelsymmetry.pom</groupId>
+		<groupId>com.xeomar.pom</groupId>
 		<artifactId>jar</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath></relativePath>
@@ -31,7 +31,7 @@
 
 	<repositories>
 		<repository>
-			<id>psm</id>
+			<id>xeo</id>
 			<url>https://code.xeomar.com/repo/xeo</url>
 		</repository>
 	</repositories>

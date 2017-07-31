@@ -16,10 +16,9 @@ pipelines:
           - maven
         script: # Modify the commands below to build your repository.
           # - apt-get install -y openjfx
-          - mvn -B verify package # -B batch mode makes Maven less verbose
-          # you could do a `mvn deploy` to place your artifact in a maven repo
-          # or you can run any command to move your artifact elsewhere
+          - mvn -B clean deploy
 
+          # you can run any command to move your artifact elsewhere
           # like to BitBucket Downloads for example
 
           # TODO read the link, populate BB_AUTH_STRING, enjoy a nice cold lemonade
