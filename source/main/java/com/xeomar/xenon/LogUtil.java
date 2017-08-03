@@ -52,7 +52,7 @@ public class LogUtil {
 		builder.append( "\n" );
 
 		// Set the program log level
-		builder.append( Program.class.getPackageName() );
+		builder.append( Program.class.getPackage().getName() );
 		builder.append( ".level=" );
 		builder.append( getProgramLogLevel( level ) );
 		builder.append( "\n" );

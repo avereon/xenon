@@ -4,6 +4,7 @@ import com.xeomar.xenon.util.JavaUtil;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.function.Function;
@@ -23,7 +24,8 @@ public class ProgramFormatter extends Formatter {
 	@Override
 	public String format( LogRecord record ) {
 		// Timestamp
-		ZonedDateTime timestamp = ZonedDateTime.ofInstant( record.getInstant(), ZoneId.systemDefault() );
+		Instant instant = Instant.ofEpochMilli( record.getMillis());
+		ZonedDateTime timestamp = ZonedDateTime.ofInstant( instant, ZoneId.systemDefault() );
 
 		// Source
 		String source = record.getSourceClassName();

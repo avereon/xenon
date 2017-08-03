@@ -4,7 +4,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.css.*;
-import javafx.css.converter.EnumConverter;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
@@ -270,7 +269,9 @@ public class WorkpaneEdge extends Control {
 
 		private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
-		private static final CssMetaData<WorkpaneEdge, Orientation> ORIENTATION = new CssMetaData<WorkpaneEdge, Orientation>( "-fx-orientation", new EnumConverter<Orientation>( Orientation.class ), Orientation.HORIZONTAL ) {
+		private static final StyleConverter converter = StyleConverter.getEnumConverter( Orientation.class );
+
+		private static final CssMetaData<WorkpaneEdge, Orientation> ORIENTATION = new CssMetaData<WorkpaneEdge, Orientation>( "-fx-orientation", converter, Orientation.HORIZONTAL ) {
 
 			@Override
 			public Orientation getInitialValue( WorkpaneEdge edge ) {

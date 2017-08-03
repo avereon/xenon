@@ -368,62 +368,64 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	protected static void proof( ProgramIcon icon ) {
-		Platform.startup( () -> {
-			String title = icon.getClass().getSimpleName();
-
-			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
-			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
-
-			ProgramIcon icon128 = icon.copy().setSize( 128 );
-			AnchorPane.setTopAnchor( icon128, 0.0 );
-			AnchorPane.setLeftAnchor( icon128, 0.0 );
-
-			ProgramIcon icon64 = icon.copy().setSize( 64 );
-			AnchorPane.setTopAnchor( icon64, 128.0 );
-			AnchorPane.setLeftAnchor( icon64, 128.0 );
-
-			ProgramIcon icon32 = icon.copy().setSize( 32 );
-			AnchorPane.setTopAnchor( icon32, 192.0 );
-			AnchorPane.setLeftAnchor( icon32, 192.0 );
-
-			ProgramIcon icon16 = icon.copy().setSize( 16 );
-			AnchorPane.setTopAnchor( icon16, 224.0 );
-			AnchorPane.setLeftAnchor( icon16, 224.0 );
-
-			ProgramIcon icon8 = icon.copy().setSize( 8 );
-			AnchorPane.setTopAnchor( icon8, 240.0 );
-			AnchorPane.setLeftAnchor( icon8, 240.0 );
-
-			AnchorPane iconPane = new AnchorPane();
-			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
-
-			GridPane pane = new GridPane();
-			pane.add( icon, 1, 1 );
-			pane.add( imageView16, 2, 1 );
-			pane.add( imageView32, 2, 2 );
-			pane.add( iconPane, 1, 2 );
-
-			Stage stage = new Stage();
-			stage.setTitle( title );
-			stage.setScene( new Scene( pane ) );
-
-			stage.setResizable( false );
-			stage.centerOnScreen();
-			stage.sizeToScene();
-			stage.show();
-		} );
+		// FIXME Redo how to show an icon for JavaFX 8
+//		Platform.startup( () -> {
+//			String title = icon.getClass().getSimpleName();
+//
+//			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
+//			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
+//
+//			ProgramIcon icon128 = icon.copy().setSize( 128 );
+//			AnchorPane.setTopAnchor( icon128, 0.0 );
+//			AnchorPane.setLeftAnchor( icon128, 0.0 );
+//
+//			ProgramIcon icon64 = icon.copy().setSize( 64 );
+//			AnchorPane.setTopAnchor( icon64, 128.0 );
+//			AnchorPane.setLeftAnchor( icon64, 128.0 );
+//
+//			ProgramIcon icon32 = icon.copy().setSize( 32 );
+//			AnchorPane.setTopAnchor( icon32, 192.0 );
+//			AnchorPane.setLeftAnchor( icon32, 192.0 );
+//
+//			ProgramIcon icon16 = icon.copy().setSize( 16 );
+//			AnchorPane.setTopAnchor( icon16, 224.0 );
+//			AnchorPane.setLeftAnchor( icon16, 224.0 );
+//
+//			ProgramIcon icon8 = icon.copy().setSize( 8 );
+//			AnchorPane.setTopAnchor( icon8, 240.0 );
+//			AnchorPane.setLeftAnchor( icon8, 240.0 );
+//
+//			AnchorPane iconPane = new AnchorPane();
+//			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
+//
+//			GridPane pane = new GridPane();
+//			pane.add( icon, 1, 1 );
+//			pane.add( imageView16, 2, 1 );
+//			pane.add( imageView32, 2, 2 );
+//			pane.add( iconPane, 1, 2 );
+//
+//			Stage stage = new Stage();
+//			stage.setTitle( title );
+//			stage.setScene( new Scene( pane ) );
+//
+//			stage.setResizable( false );
+//			stage.centerOnScreen();
+//			stage.sizeToScene();
+//			stage.show();
+//		} );
 	}
 
 	protected void save( String path ) {
-		File file = new File( System.getProperty( "user.home"), path );
-		Platform.startup( () -> {
-			try {
-				ImageIO.write( getBufferedImage(), "png", file );
-			} catch( Exception exception ) {
-				exception.printStackTrace();
-			}
-		} );
-		Platform.exit();
+		// FIXME Redo how to save an icon for JavaFX 8
+//		File file = new File( System.getProperty( "user.home"), path );
+//		Platform.startup( () -> {
+//			try {
+//				ImageIO.write( getBufferedImage(), "png", file );
+//			} catch( Exception exception ) {
+//				exception.printStackTrace();
+//			}
+//		} );
+//		Platform.exit();
 	}
 
 	private ProgramIcon copy() {
