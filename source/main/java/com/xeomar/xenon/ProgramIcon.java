@@ -2,6 +2,7 @@ package com.xeomar.xenon;
 
 import com.xeomar.xenon.util.Colors;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -17,7 +18,9 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.List;
 
 public abstract class ProgramIcon extends Canvas {
@@ -365,71 +368,98 @@ public abstract class ProgramIcon extends Canvas {
 		return new RadialGradient( 0, 0, xformX( x ), xformY( y ), xformX( r ), false, CycleMethod.NO_CYCLE, stops );
 	}
 
+	public static final class JavaFxStarter extends Application {
+
+		public JavaFxStarter(){}
+
+		public static void go() {
+			launch();
+		}
+
+		@Override
+		public void start( Stage primaryStage ) throws Exception {}
+
+	}
+
 	protected static void proof( ProgramIcon icon ) {
-		Application proof = new Application() {
+		// Need to start JavaFx
+		new Thread( JavaFxStarter::go ).start();
 
-			@Override
-			public void start( Stage stage ) throws Exception {
-				String title = icon.getClass().getSimpleName();
+		// Wait for just a moment for the platform to start
+		try {
+			Thread.sleep( 100 );
+		} catch( InterruptedException exception ) {
+			exception.printStackTrace();
+		}
 
-				ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
-				ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
+		// Now show the icon window
+		Platform.runLater( () -> {
+			String title = icon.getClass().getSimpleName();
 
-				ProgramIcon icon128 = icon.copy().setSize( 128 );
-				AnchorPane.setTopAnchor( icon128, 0.0 );
-				AnchorPane.setLeftAnchor( icon128, 0.0 );
+			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
+			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
 
-				ProgramIcon icon64 = icon.copy().setSize( 64 );
-				AnchorPane.setTopAnchor( icon64, 128.0 );
-				AnchorPane.setLeftAnchor( icon64, 128.0 );
+			ProgramIcon icon128 = icon.copy().setSize( 128 );
+			AnchorPane.setTopAnchor( icon128, 0.0 );
+			AnchorPane.setLeftAnchor( icon128, 0.0 );
 
-				ProgramIcon icon32 = icon.copy().setSize( 32 );
-				AnchorPane.setTopAnchor( icon32, 192.0 );
-				AnchorPane.setLeftAnchor( icon32, 192.0 );
+			ProgramIcon icon64 = icon.copy().setSize( 64 );
+			AnchorPane.setTopAnchor( icon64, 128.0 );
+			AnchorPane.setLeftAnchor( icon64, 128.0 );
 
-				ProgramIcon icon16 = icon.copy().setSize( 16 );
-				AnchorPane.setTopAnchor( icon16, 224.0 );
-				AnchorPane.setLeftAnchor( icon16, 224.0 );
+			ProgramIcon icon32 = icon.copy().setSize( 32 );
+			AnchorPane.setTopAnchor( icon32, 192.0 );
+			AnchorPane.setLeftAnchor( icon32, 192.0 );
 
-				ProgramIcon icon8 = icon.copy().setSize( 8 );
-				AnchorPane.setTopAnchor( icon8, 240.0 );
-				AnchorPane.setLeftAnchor( icon8, 240.0 );
+			ProgramIcon icon16 = icon.copy().setSize( 16 );
+			AnchorPane.setTopAnchor( icon16, 224.0 );
+			AnchorPane.setLeftAnchor( icon16, 224.0 );
 
-				AnchorPane iconPane = new AnchorPane();
-				iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
+			ProgramIcon icon8 = icon.copy().setSize( 8 );
+			AnchorPane.setTopAnchor( icon8, 240.0 );
+			AnchorPane.setLeftAnchor( icon8, 240.0 );
 
-				GridPane pane = new GridPane();
-				pane.add( icon, 1, 1 );
-				pane.add( imageView16, 2, 1 );
-				pane.add( imageView32, 2, 2 );
-				pane.add( iconPane, 1, 2 );
+			AnchorPane iconPane = new AnchorPane();
+			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
 
-				//Stage stage = new Stage();
-				stage.setTitle( title );
-				stage.setScene( new Scene( pane ) );
+			GridPane pane = new GridPane();
+			pane.add( icon, 1, 1 );
+			pane.add( imageView16, 2, 1 );
+			pane.add( imageView32, 2, 2 );
+			pane.add( iconPane, 1, 2 );
 
-				stage.setResizable( false );
-				stage.centerOnScreen();
-				stage.sizeToScene();
-				stage.show();
-			}
+			Stage stage = new Stage();
+			stage.setTitle( title );
+			stage.setScene( new Scene( pane ) );
 
-		};
-
-		proof.launch();
+			stage.setResizable( false );
+			stage.centerOnScreen();
+			stage.sizeToScene();
+			stage.show();
+		} );
 	}
 
 	protected void save( String path ) {
-		// FIXME Redo how to save an icon for JavaFX 8
-		//		File file = new File( System.getProperty( "user.home"), path );
-		//		Platform.startup( () -> {
-		//			try {
-		//				ImageIO.write( getBufferedImage(), "png", file );
-		//			} catch( Exception exception ) {
-		//				exception.printStackTrace();
-		//			}
-		//		} );
-		//		Platform.exit();
+		// Need to start JavaFx
+		new Thread( JavaFxStarter::go ).start();
+
+		// Wait for just a moment for the platform to start
+		try {
+			Thread.sleep( 100 );
+		} catch( InterruptedException exception ) {
+			exception.printStackTrace();
+		}
+
+		// Render and save the icon
+		File file = new File( System.getProperty( "user.home"), path );
+		Platform.runLater( () -> {
+			try {
+				ImageIO.write( getBufferedImage(), "png", file );
+			} catch( Exception exception ) {
+				exception.printStackTrace();
+			}
+		} );
+		Platform.exit();
 	}
 
 	private ProgramIcon copy() {
