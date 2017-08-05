@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.util.Colors;
-import javafx.application.Application;
+import com.xeomar.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
@@ -135,6 +135,72 @@ public abstract class ProgramIcon extends Canvas {
 		return buffer;
 	}
 
+	public static void proof( ProgramIcon icon ) {
+		JavaFxStarter.startAndWait( 1000 );
+
+		// Now show the icon window
+		Platform.runLater( () -> {
+			String title = icon.getClass().getSimpleName();
+
+			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
+			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
+
+			ProgramIcon icon128 = icon.copy().setSize( 128 );
+			AnchorPane.setTopAnchor( icon128, 0.0 );
+			AnchorPane.setLeftAnchor( icon128, 0.0 );
+
+			ProgramIcon icon64 = icon.copy().setSize( 64 );
+			AnchorPane.setTopAnchor( icon64, 128.0 );
+			AnchorPane.setLeftAnchor( icon64, 128.0 );
+
+			ProgramIcon icon32 = icon.copy().setSize( 32 );
+			AnchorPane.setTopAnchor( icon32, 192.0 );
+			AnchorPane.setLeftAnchor( icon32, 192.0 );
+
+			ProgramIcon icon16 = icon.copy().setSize( 16 );
+			AnchorPane.setTopAnchor( icon16, 224.0 );
+			AnchorPane.setLeftAnchor( icon16, 224.0 );
+
+			ProgramIcon icon8 = icon.copy().setSize( 8 );
+			AnchorPane.setTopAnchor( icon8, 240.0 );
+			AnchorPane.setLeftAnchor( icon8, 240.0 );
+
+			AnchorPane iconPane = new AnchorPane();
+			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
+
+			GridPane pane = new GridPane();
+			pane.add( icon, 1, 1 );
+			pane.add( imageView16, 2, 1 );
+			pane.add( imageView32, 2, 2 );
+			pane.add( iconPane, 1, 2 );
+
+			Stage stage = new Stage();
+			stage.setTitle( title );
+			stage.setScene( new Scene( pane ) );
+
+			stage.setResizable( false );
+			stage.centerOnScreen();
+			stage.sizeToScene();
+			stage.show();
+		} );
+	}
+
+	public static void save( ProgramIcon icon, String path ) {
+		JavaFxStarter.startAndWait( 1000 );
+
+		// Render and save the icon
+		File file = new File( System.getProperty( "user.home" ), path );
+		Platform.runLater( () -> {
+			try {
+				ImageIO.write( icon.getBufferedImage(), "png", file );
+			} catch( Exception exception ) {
+				exception.printStackTrace();
+			}
+		} );
+
+		Platform.exit();
+	}
+
 	protected abstract void render();
 
 	protected void reset() {
@@ -170,10 +236,6 @@ public abstract class ProgramIcon extends Canvas {
 	protected void addRect( double x, double y, double w, double h ) {
 		getGraphicsContext2D().rect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
-
-	//	protected void arcTo( double x1, double y1, double x2, double y2, double radius ) {
-	//		getGraphicsContext2D().arcTo( xformX( x1 ), xformY( y1 ), xformX( x2 ), xformY( y2 ), xform( radius ) );
-	//	}
 
 	protected void curveTo( double xc, double yc, double x1, double y1 ) {
 		getGraphicsContext2D().quadraticCurveTo( xformX( xc ), xformY( yc ), xformX( x1 ), xformY( y1 ) );
@@ -368,100 +430,6 @@ public abstract class ProgramIcon extends Canvas {
 		return new RadialGradient( 0, 0, xformX( x ), xformY( y ), xformX( r ), false, CycleMethod.NO_CYCLE, stops );
 	}
 
-	public static final class JavaFxStarter extends Application {
-
-		public JavaFxStarter(){}
-
-		public static void go() {
-			launch();
-		}
-
-		@Override
-		public void start( Stage primaryStage ) throws Exception {}
-
-	}
-
-	protected static void proof( ProgramIcon icon ) {
-		// Need to start JavaFx
-		new Thread( JavaFxStarter::go ).start();
-
-		// Wait for just a moment for the platform to start
-		try {
-			Thread.sleep( 100 );
-		} catch( InterruptedException exception ) {
-			exception.printStackTrace();
-		}
-
-		// Now show the icon window
-		Platform.runLater( () -> {
-			String title = icon.getClass().getSimpleName();
-
-			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
-			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
-
-			ProgramIcon icon128 = icon.copy().setSize( 128 );
-			AnchorPane.setTopAnchor( icon128, 0.0 );
-			AnchorPane.setLeftAnchor( icon128, 0.0 );
-
-			ProgramIcon icon64 = icon.copy().setSize( 64 );
-			AnchorPane.setTopAnchor( icon64, 128.0 );
-			AnchorPane.setLeftAnchor( icon64, 128.0 );
-
-			ProgramIcon icon32 = icon.copy().setSize( 32 );
-			AnchorPane.setTopAnchor( icon32, 192.0 );
-			AnchorPane.setLeftAnchor( icon32, 192.0 );
-
-			ProgramIcon icon16 = icon.copy().setSize( 16 );
-			AnchorPane.setTopAnchor( icon16, 224.0 );
-			AnchorPane.setLeftAnchor( icon16, 224.0 );
-
-			ProgramIcon icon8 = icon.copy().setSize( 8 );
-			AnchorPane.setTopAnchor( icon8, 240.0 );
-			AnchorPane.setLeftAnchor( icon8, 240.0 );
-
-			AnchorPane iconPane = new AnchorPane();
-			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
-
-			GridPane pane = new GridPane();
-			pane.add( icon, 1, 1 );
-			pane.add( imageView16, 2, 1 );
-			pane.add( imageView32, 2, 2 );
-			pane.add( iconPane, 1, 2 );
-
-			Stage stage = new Stage();
-			stage.setTitle( title );
-			stage.setScene( new Scene( pane ) );
-
-			stage.setResizable( false );
-			stage.centerOnScreen();
-			stage.sizeToScene();
-			stage.show();
-		} );
-	}
-
-	protected void save( String path ) {
-		// Need to start JavaFx
-		new Thread( JavaFxStarter::go ).start();
-
-		// Wait for just a moment for the platform to start
-		try {
-			Thread.sleep( 100 );
-		} catch( InterruptedException exception ) {
-			exception.printStackTrace();
-		}
-
-		// Render and save the icon
-		File file = new File( System.getProperty( "user.home"), path );
-		Platform.runLater( () -> {
-			try {
-				ImageIO.write( getBufferedImage(), "png", file );
-			} catch( Exception exception ) {
-				exception.printStackTrace();
-			}
-		} );
-		Platform.exit();
-	}
-
 	private ProgramIcon copy() {
 		ProgramIcon clone = null;
 
@@ -477,21 +445,20 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	private static Image resample( Image input, int scale ) {
-		final int W = (int)input.getWidth();
-		final int H = (int)input.getHeight();
-		final int S = scale;
+		int w = (int)input.getWidth();
+		int h = (int)input.getHeight();
 
-		WritableImage output = new WritableImage( W * S, H * S );
+		WritableImage output = new WritableImage( w * scale, h * scale );
 
 		PixelReader reader = input.getPixelReader();
 		PixelWriter writer = output.getPixelWriter();
 
-		for( int y = 0; y < H; y++ ) {
-			for( int x = 0; x < W; x++ ) {
+		for( int y = 0; y < h; y++ ) {
+			for( int x = 0; x < w; x++ ) {
 				final int argb = reader.getArgb( x, y );
-				for( int dy = 0; dy < S; dy++ ) {
-					for( int dx = 0; dx < S; dx++ ) {
-						writer.setArgb( x * S + dx, y * S + dy, argb );
+				for( int dy = 0; dy < scale; dy++ ) {
+					for( int dx = 0; dx < scale; dx++ ) {
+						writer.setArgb( x * scale + dx, y * scale + dy, argb );
 					}
 				}
 			}
