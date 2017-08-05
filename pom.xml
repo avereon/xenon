@@ -13,6 +13,7 @@
 
 	<groupId>com.xeomar</groupId>
 	<artifactId>xenon</artifactId>
+	<version>0.0a1</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -142,6 +143,12 @@
 
 		<plugins>
 
+			<!--
+			The program is intended to work on Java 9 but we chose
+			to make it Java 8 compatible to use existing test tools
+			since Java 9 has yet to be released with the expectation
+			the program will run fine on Java 9.
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -150,7 +157,7 @@
 					<target>8</target>
 				</configuration>
 			</plugin>
-				
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -175,9 +182,6 @@
 							<!--<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}-->
 							<!--</customClasspathLayout>-->
 						</manifest>
-						<manifestEntries>
-							<SplashScreen-Image>splash.png</SplashScreen-Image>
-						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>

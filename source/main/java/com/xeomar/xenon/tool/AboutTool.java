@@ -6,6 +6,7 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.product.ProductMetadata;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
+import com.xeomar.xenon.util.Version;
 import com.xeomar.xenon.worktool.ToolException;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
@@ -150,12 +151,14 @@ public class AboutTool extends ProductTool {
 	}
 
 	private String getSummaryText( ProductMetadata metadata ) {
+		Version version = new Version( metadata.getVersion() );
+
 		StringBuilder builder = new StringBuilder();
 		builder.append( metadata.getName() );
 		builder.append( " " );
-		builder.append( metadata.getVersion() );
+		builder.append( version.toHumanString() );
 		builder.append( "\n" );
-		builder.append( "  build " );
+		builder.append( "  on " );
 		builder.append( metadata.getTimestamp() );
 		builder.append( " UTC\n" );
 		builder.append( "  by " );

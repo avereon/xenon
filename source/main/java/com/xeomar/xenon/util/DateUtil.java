@@ -42,10 +42,20 @@ public class DateUtil {
 	}
 
 	/**
+	 * Parse a date string with the default format using the standard time zone.
+	 *
+	 * @param data
+	 * @return
+	 */
+	public static final Date parse( String data ) {
+		return parse( data, DEFAULT_DATE_FORMAT, DEFAULT_TIME_ZONE );
+	}
+
+	/**
 	 * Parse a date string with the given format using the standard time zone.
 	 *
-	 * @param format
 	 * @param data
+	 * @param format
 	 * @return
 	 */
 	public static final Date parse( String data, String format ) {
@@ -83,6 +93,16 @@ public class DateUtil {
 		} catch( ParseException exception ) {
 			return null;
 		}
+	}
+
+	/**
+	 * Format a date with the given format using the standard time zone.
+	 *
+	 * @param date
+	 * @return
+	 */
+	public static final String format( Date date ) {
+		return format( date, DEFAULT_DATE_FORMAT, DEFAULT_TIME_ZONE );
 	}
 
 	/**
