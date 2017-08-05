@@ -1,12 +1,12 @@
 # ${project.name}
 
 Thank you for using ${project.name}, a lightweight Java application framework
-for modularized programs. ${project.name} provides the basic functionality for
-an integrated workspace experience. The features include: 
+for modular programs. ${project.name} provides the basic functionality for an 
+integrated workspace experience. The features include: 
 
   * Resource management
   * Workspace management
-  * Pluggable module management
+  * Module management
   * Online module discovery
   * Automated online updates
 

@@ -1,5 +1,5 @@
 # Command Line
-The ${project.name} follows the form:
+The ${project.name} command line follows the form:
 
     ${project.artifactId}.jar [<option>...] [url...]
 
