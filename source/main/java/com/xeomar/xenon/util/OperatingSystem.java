@@ -33,9 +33,11 @@ public class OperatingSystem {
 		PPC
 	}
 
-	static final String ELEVATED_PRIVILEGE_KEY = "escape.process.privilege";
+	static final String ELEVATED_PRIVILEGE_KEY = "program.process.privilege";
 
 	static final String ELEVATED_PRIVILEGE_VALUE = "elevated";
+
+	static final String NORMAL_PRIVILEGE_VALUE = "normal";
 
 	private static Architecture architecture;
 
@@ -59,8 +61,7 @@ public class OperatingSystem {
 	}
 
 	/**
-	 * The init() method is intentionally private, and separate from the static
-	 * initializer, so the initializing logic can be tested.
+	 * The init() method is intentionally private, and separate from the static initializer, so the initializing logic can be tested.
 	 *
 	 * @param name The os name from System.getProperty( "os.name" ).
 	 * @param arch The os arch from System.getProperty( "os.arch" ).
@@ -151,17 +152,21 @@ public class OperatingSystem {
 	 * @return true if the process has elevated privileges.
 	 */
 	public static final boolean isProcessElevated() {
-		if( elevated == null && isElevatedFlagSet() ) elevated = Boolean.TRUE;
+		if( elevated == null ) {
+			String override = System.getProperty( ELEVATED_PRIVILEGE_KEY );
+			if( ELEVATED_PRIVILEGE_VALUE.equals( override ) ) elevated = Boolean.TRUE;
+			if( NORMAL_PRIVILEGE_VALUE.equals( override ) ) elevated = Boolean.FALSE;
+		}
 
 		if( elevated == null ) {
 			if( isWindows() ) {
-				elevated = new Boolean( canWriteToProgramFiles() );
+				elevated = canWriteToProgramFiles();
 			} else {
-				elevated = new Boolean( System.getProperty( "user.name" ).equals( "root" ) );
+				elevated = System.getProperty( "user.name" ).equals( "root" );
 			}
 		}
 
-		return elevated.booleanValue();
+		return elevated;
 	}
 
 	public static final boolean isElevateProcessSupported() {
@@ -190,10 +195,7 @@ public class OperatingSystem {
 	}
 
 	/**
-	 * Modify the process builder to attempt to elevate the process privileges
-	 * when the process is started. The returned ProcessBuilder should not be
-	 * modified after this call to avoid problems even though this cannot be
-	 * enforced.
+	 * Modify the process builder to attempt to elevate the process privileges when the process is started. The returned ProcessBuilder should not be modified after this call to avoid problems even though this cannot be enforced.
 	 *
 	 * @param programName The name of the program requesting elevated privileges
 	 * @param builder
@@ -208,9 +210,7 @@ public class OperatingSystem {
 	}
 
 	/**
-	 * Modify the process builder to reduce the process privileges when the
-	 * process is started. The returned ProcessBuilder should not be modified
-	 * after this call to avoid problems even though this cannot be enforced.
+	 * Modify the process builder to reduce the process privileges when the process is started. The returned ProcessBuilder should not be modified after this call to avoid problems even though this cannot be enforced.
 	 *
 	 * @param builder
 	 * @return
@@ -264,13 +264,11 @@ public class OperatingSystem {
 	}
 
 	/**
-	 * Get the program data folder for the operating system. On Windows systems
-	 * this is the %APPDATA% location. On other systems this is $HOME.
+	 * Get the program data folder for the operating system. On Windows systems this is the %APPDATA% location. On other systems this is $HOME.
 	 * <p>
 	 * Exapmles:
 	 * <p>
-	 * Windows 7: C:\Users\&lt;username&gt;\AppData\Roaming<br/>
-	 * Linux: /home/&lt;username&gt;
+	 * Windows 7: C:\Users\&lt;username&gt;\AppData\Roaming<br/> Linux: /home/&lt;username&gt;
 	 *
 	 * @return
 	 */
@@ -297,11 +295,8 @@ public class OperatingSystem {
 	}
 
 	/**
-	 * Get the program data folder for the operating system using the program
-	 * identifier and/or name. The program identifier is normally all lower case
-	 * with no spaces. The name can be mixed case with spaces. Windows systems use
-	 * the name instead of the identifier to generate the program data folder
-	 * path.
+	 * Get the program data folder for the operating system using the program identifier and/or name. The program identifier is normally all lower case with no spaces. The name can be mixed case with spaces. Windows systems use the name
+	 * instead of the identifier to generate the program data folder path.
 	 *
 	 * @param identifier
 	 * @param name
@@ -323,21 +318,18 @@ public class OperatingSystem {
 		try {
 			return folder.getCanonicalFile();
 		} catch( IOException exception ) {
-			log.error("Error getting user program data folder", exception );
+			log.error( "Error getting user program data folder", exception );
 		}
 
 		return null;
 	}
 
 	/**
-	 * Get the shared program data folder for the operating system. On Windows
-	 * systems this is the %ALLUSERSPROFILE% location. On Linux systems this is
-	 * /usr/local/share/data.
+	 * Get the shared program data folder for the operating system. On Windows systems this is the %ALLUSERSPROFILE% location. On Linux systems this is /usr/local/share/data.
 	 * <p>
 	 * Exapmles:
 	 * <p>
-	 * Windows 7: C:/ProgramData/<br/>
-	 * Linux: /usr/local/share/data/
+	 * Windows 7: C:/ProgramData/<br/> Linux: /usr/local/share/data/
 	 *
 	 * @return
 	 */
@@ -361,18 +353,15 @@ public class OperatingSystem {
 		try {
 			return folder.getCanonicalFile();
 		} catch( IOException exception ) {
-			log.error("Error getting shared program data folder", exception );
+			log.error( "Error getting shared program data folder", exception );
 		}
 
 		return null;
 	}
 
 	/**
-	 * Get the shared program data folder for the operating system using the
-	 * program identifier and/or name. The program identifier is normally all
-	 * lower case with no spaces. The name can be mixed case with spaces. Windows
-	 * systems use the name instead of the identifier to generate the program data
-	 * folder path.
+	 * Get the shared program data folder for the operating system using the program identifier and/or name. The program identifier is normally all lower case with no spaces. The name can be mixed case with spaces. Windows systems use the
+	 * name instead of the identifier to generate the program data folder path.
 	 *
 	 * @param identifier
 	 * @param name
@@ -414,10 +403,6 @@ public class OperatingSystem {
 		builder.append( mapLibraryName( libname ) );
 
 		return builder.toString();
-	}
-
-	static final boolean isElevatedFlagSet() {
-		return ELEVATED_PRIVILEGE_VALUE.equals( System.getenv( ELEVATED_PRIVILEGE_KEY ) ) || ELEVATED_PRIVILEGE_VALUE.equals( System.getProperty( ELEVATED_PRIVILEGE_KEY ) );
 	}
 
 	static final void clearProcessElevatedFlag() {
@@ -530,7 +515,7 @@ public class OperatingSystem {
 		InputStream source = OperatingSystem.class.getResourceAsStream( "/elevate/win/elevate.js" );
 		FileOutputStream target = new FileOutputStream( elevator );
 		try {
-			IOUtils.copy(source,target );
+			IOUtils.copy( source, target );
 		} finally {
 			source.close();
 			target.close();
@@ -546,7 +531,7 @@ public class OperatingSystem {
 		InputStream source = OperatingSystem.class.getResourceAsStream( "/elevate/mac/elevate" );
 		FileOutputStream target = new FileOutputStream( elevator );
 		try {
-			IOUtils.copy(source,target );
+			IOUtils.copy( source, target );
 		} finally {
 			source.close();
 			target.close();

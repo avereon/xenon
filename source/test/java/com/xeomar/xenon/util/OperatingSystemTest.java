@@ -76,27 +76,25 @@ public class OperatingSystemTest extends TestCase {
 
 	@Test
 	public void testIsProcessElevatedMac() throws Exception {
-		// FIXME This test does not work correctly on Bitbucket Pipelines
-		// because the build is run as the root user and the initial assertion fails
 		OperatingSystemTest.init( "Mac OS X", "ppc", "10" );
 		OperatingSystem.clearProcessElevatedFlag();
-		//assertFalse( OperatingSystem.isProcessElevated() );
+		System.setProperty( OperatingSystem.ELEVATED_PRIVILEGE_KEY, OperatingSystem.NORMAL_PRIVILEGE_VALUE );
+		assertFalse( OperatingSystem.isProcessElevated() );
 
-		System.setProperty( OperatingSystem.ELEVATED_PRIVILEGE_KEY, OperatingSystem.ELEVATED_PRIVILEGE_VALUE );
 		OperatingSystem.clearProcessElevatedFlag();
+		System.setProperty( OperatingSystem.ELEVATED_PRIVILEGE_KEY, OperatingSystem.ELEVATED_PRIVILEGE_VALUE );
 		assertTrue( OperatingSystem.isProcessElevated() );
 	}
 
 	@Test
 	public void testIsProcessElevatedUnix() throws Exception {
-		// FIXME This test does not work correctly on Bitbucket Pipelines
-		// because the build is run as the root user and the initial assertion fails
 		OperatingSystemTest.init( "Linux", "x86_64", "2.6.32_45" );
 		OperatingSystem.clearProcessElevatedFlag();
-		//assertFalse( OperatingSystem.isProcessElevated() );
+		System.setProperty( OperatingSystem.ELEVATED_PRIVILEGE_KEY, OperatingSystem.NORMAL_PRIVILEGE_VALUE );
+		assertFalse( OperatingSystem.isProcessElevated() );
 
-		System.setProperty( OperatingSystem.ELEVATED_PRIVILEGE_KEY, OperatingSystem.ELEVATED_PRIVILEGE_VALUE );
 		OperatingSystem.clearProcessElevatedFlag();
+		System.setProperty( OperatingSystem.ELEVATED_PRIVILEGE_KEY, OperatingSystem.ELEVATED_PRIVILEGE_VALUE );
 		assertTrue( OperatingSystem.isProcessElevated() );
 	}
 
