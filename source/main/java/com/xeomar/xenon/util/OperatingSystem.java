@@ -420,7 +420,7 @@ public class OperatingSystem {
 		return ELEVATED_PRIVILEGE_VALUE.equals( System.getenv( ELEVATED_PRIVILEGE_KEY ) ) || ELEVATED_PRIVILEGE_VALUE.equals( System.getProperty( ELEVATED_PRIVILEGE_KEY ) );
 	}
 
-	static final void clearProcessElevatedCache() {
+	static final void clearProcessElevatedFlag() {
 		elevated = null;
 	}
 
