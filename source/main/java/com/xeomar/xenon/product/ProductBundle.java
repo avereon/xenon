@@ -1,5 +1,6 @@
 package com.xeomar.xenon.product;
 
+import com.xeomar.xenon.util.Utf8Control;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,8 @@ public class ProductBundle {
 	public String getString( String bundleKey, String valueKey, String... values ) {
 		String string = null;
 
-		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader );
+		// NOTE In Java 9 the Uft8Control is no longer necessary
+		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader, new Utf8Control() );
 		if( bundle.containsKey( valueKey ) ) string = format( bundle.getString( valueKey ), (Object[])values );
 		if( string == null ) log.trace( "Missing RB key: " + bundleKey + ":" + valueKey );
 
