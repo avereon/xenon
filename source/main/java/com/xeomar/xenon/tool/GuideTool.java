@@ -29,14 +29,12 @@ public class GuideTool extends ProductTool {
 	}
 
 	private void switchGuide( WorkpaneEvent event ) {
-		System.out.println( "Workpane event: " + event );
-
 		switch( event.getType() ) {
 			case TOOL_ACTIVATED: {
 				setResourceGuide( event.getTool().getResource() );
 				break;
 			}
-			case TOOL_REMOVED: {
+			case TOOL_CONCEALED: {
 				setResourceGuide( null );
 			}
 		}
