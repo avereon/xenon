@@ -941,12 +941,13 @@ public class NodeTest {
 		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.toString(), is( "MockNode[]" ) );
 
+		Date birthDate = new Date( 0 );
 		data.setValue( "firstName", "Jane" );
-		data.setValue( "birthDate", new Date( 0 ) );
-		assertThat( data.toString(), is( "MockNode[firstName=Jane,birthDate=Wed Dec 31 17:00:00 MST 1969]" ) );
+		data.setValue( "birthDate", birthDate );
+		assertThat( data.toString(), is( "MockNode[firstName=Jane,birthDate=" + birthDate.toString() + "]" ) );
 
 		data.setValue( "lastName", "Doe" );
-		assertThat( data.toString(), is( "MockNode[firstName=Jane,lastName=Doe,birthDate=Wed Dec 31 17:00:00 MST 1969]" ) );
+		assertThat( data.toString(), is( "MockNode[firstName=Jane,lastName=Doe,birthDate=" + birthDate.toString() + "]" ) );
 	}
 
 	@Test
