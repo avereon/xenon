@@ -23,7 +23,6 @@ import com.xeomar.xenon.tool.SettingsTool;
 import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.util.OperatingSystem;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
-import com.xeomar.xenon.action.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
