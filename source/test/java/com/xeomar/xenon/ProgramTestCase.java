@@ -9,6 +9,10 @@ public class ProgramTestCase extends BaseTestCase {
 	@Before
 	public void setup() throws Exception {
 		super.setup();
+
+		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
+		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+
 		program = new Program();
 		program.init();
 	}

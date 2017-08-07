@@ -1,5 +1,6 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.util;
 
+import com.xeomar.xenon.BaseTestCase;
 import org.junit.Test;
 
 import java.io.File;

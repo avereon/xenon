@@ -36,7 +36,7 @@ public class ProgramMetadataTest extends ProgramTestCase {
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		String groupId = (String)xpath.evaluate( "/project/groupId", pom, XPathConstants.STRING );
 		String artifactId = (String)xpath.evaluate( "/project/artifactId", pom, XPathConstants.STRING );
-		String version = (String)xpath.evaluate( "/project/parent/version", pom, XPathConstants.STRING );
+		String version = (String)xpath.evaluate( "/project/version", pom, XPathConstants.STRING );
 		String name = (String)xpath.evaluate( "/project/name", pom, XPathConstants.STRING );
 		// Provider is specified in the parent pom so the value from the child pom is not valuable
 		int inception = Integer.parseInt( (String)xpath.evaluate( "/project/inceptionYear", pom, XPathConstants.STRING ) );
@@ -56,7 +56,7 @@ public class ProgramMetadataTest extends ProgramTestCase {
 
 		assertThat( metadata.getSummary(), is( "Java application platform" ) );
 		assertThat( metadata.getDescription(), is( description ) );
-		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved." ) );
+		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved" ) );
 		assertThat( metadata.getLicenseSummary(), is( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." ) );
 	}
 

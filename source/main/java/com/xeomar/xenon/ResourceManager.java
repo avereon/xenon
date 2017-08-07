@@ -6,6 +6,7 @@ import com.xeomar.xenon.resource.*;
 import com.xeomar.xenon.resource.event.*;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.util.Controllable;
+import com.xeomar.xenon.util.UriUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
