@@ -145,9 +145,9 @@
 		<plugins>
 
 			<!--
-			The program is intended to work on Java 9 but we chose
-			to make it Java 8 compatible to use existing test tools
-			since Java 9 has yet to be released with the expectation
+			The program is intended to work on Java 9, but we chose
+			to make it Java 8 compatible, to use existing test tools
+			since Java 9 has yet to be released, with the expectation
 			the program will run fine on Java 9.
 			-->
 			<plugin>
