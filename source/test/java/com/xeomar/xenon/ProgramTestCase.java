@@ -13,11 +13,7 @@ public class ProgramTestCase extends BaseTestCase {
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
-		try {
-			program = new Program();
-		} catch ( Throwable throwable ) {
-			throwable.printStackTrace();
-		}
+		program = new Program();
 		program.init();
 	}
 
