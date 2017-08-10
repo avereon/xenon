@@ -478,7 +478,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	private static <T> Matcher<MockTool> nextEvent( Matcher<T> valueMatcher ) {
-		return new FeatureMatcher<>( valueMatcher, "Tool method call", "method call" ) {
+		return new FeatureMatcher<MockTool,T>( valueMatcher, "Tool method call", "method call" ) {
 
 			@Override
 			@SuppressWarnings( "unchecked" )
@@ -494,7 +494,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	private static <T> Matcher<MockTool> hasEvent( int index, Matcher<T> valueMatcher ) {
-		return new FeatureMatcher<>( valueMatcher, "Tool method call", "method call" ) {
+		return new FeatureMatcher<MockTool,T>( valueMatcher, "Tool method call", "method call" ) {
 
 			@Override
 			@SuppressWarnings( "unchecked" )
@@ -510,7 +510,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	private static Matcher<MockTool.MethodCall> isMethod( String name ) {
-		return new CustomTypeSafeMatcher<>( "matching " + name ) {
+		return new CustomTypeSafeMatcher<MockTool.MethodCall>( "matching " + name ) {
 
 			@Override
 			protected boolean matchesSafely( MockTool.MethodCall event ) {
