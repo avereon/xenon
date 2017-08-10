@@ -57,6 +57,10 @@ public class OperatingSystem {
 	 * Initialize the class.
 	 */
 	static {
+		reset();
+	}
+
+	public static void reset() {
 		init( System.getProperty( "os.name" ), System.getProperty( "os.arch" ), System.getProperty( "os.version" ) );
 	}
 
