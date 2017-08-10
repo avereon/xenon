@@ -4,7 +4,8 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 # https://hub.docker.com/r/library/maven/tags/
-image: xeomar/jdk-9-180-maven-3.5.0
+#image: xeomar/jdk-9-180-maven-3.5.0
+image: xeomar/jdk-8-144-maven-3.5.0
 
 # TODO: research. i wonder if we can add a script step fpr "apk add --no-cache openjfx" or maybe we just need out own image
 
