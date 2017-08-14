@@ -1,4 +1,4 @@
-${project.name}
+# ${project.name}
 
 Thank you for using ${project.name}, a lightweight Java application framework
 for modularized programs. ${project.name} provides the basic functionality for
