@@ -61,8 +61,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	 */
 	@After
 	public void cleanup() throws Exception {
-		if( program == null ) return;
-
 		FxToolkit.cleanupApplication( program );
 
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
