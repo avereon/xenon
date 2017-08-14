@@ -21,7 +21,3 @@ To specify the locale for the Java VM use the following JVM parameters:
 To change the language to Spanish
 
     -Duser.language=es
-
-To run unit tests with the Monocle JavaFX implementation
-
-    -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dtestfx.robot=glass -Dprism.order=sw
