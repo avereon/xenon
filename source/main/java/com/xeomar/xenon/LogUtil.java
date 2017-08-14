@@ -71,7 +71,7 @@ public class LogUtil {
 
 		switch( result ) {
 			case "ERROR": {
-				result = "ERROR";
+				result = "SEVERE";
 				break;
 			}
 			case "WARN": {
@@ -91,8 +91,12 @@ public class LogUtil {
 		String result =  level == null ? "INFO" : level.toUpperCase();
 
 		switch( result ) {
+			case "NONE": {
+				result = "OFF";
+				break;
+			}
 			case "ERROR": {
-				result = "ERROR";
+				result = "SEVERE";
 				break;
 			}
 			case "WARN": {

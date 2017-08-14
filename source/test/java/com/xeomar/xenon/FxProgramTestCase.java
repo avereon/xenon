@@ -29,12 +29,14 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	protected ProductMetadata metadata;
 
 	/**
-	 * Override setup() in FxPlatformTestCase and does not call super.setup().
+	 * Overrides setup() in FxPlatformTestCase and does not call super.setup().
 	 */
 	@Before
 	public void setup() throws Exception {
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
-		//System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+		// NOTE These are also used in ProgramTestCase
+		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+		System.setProperty( ProgramParameter.LOG_LEVEL, "none" );
 
 		// Remove the existing program data folder
 		try {

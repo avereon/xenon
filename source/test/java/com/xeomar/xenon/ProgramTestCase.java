@@ -11,7 +11,9 @@ public class ProgramTestCase extends BaseTestCase {
 		super.setup();
 
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
+		// NOTE These are also used in FxProgramTestCase
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+		System.setProperty( ProgramParameter.LOG_LEVEL, "none" );
 
 		program = new Program();
 		program.init();
