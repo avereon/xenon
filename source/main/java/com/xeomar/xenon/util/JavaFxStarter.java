@@ -19,11 +19,13 @@ public final class JavaFxStarter extends Application {
 		}
 	}
 
-	public synchronized static void startAndWait( long timeout ) {
-		if( started ) return;
-		new Thread( JavaFxStarter::launch ).start();
-		long limit = System.currentTimeMillis() + timeout;
+	public static void startAndWait( long timeout ) {
 		synchronized( startLock ) {
+			if( started ) return;
+
+			new Thread( JavaFxStarter::launch ).start();
+
+			long limit = System.currentTimeMillis() + timeout;
 			while( !started ) {
 				try {
 					startLock.wait( 100 );
