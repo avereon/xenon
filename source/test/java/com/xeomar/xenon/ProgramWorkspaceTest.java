@@ -16,12 +16,12 @@ public class ProgramWorkspaceTest extends FxProgramTestCase {
 		assertThat( stage.getTitle(), is( workareaName + " - " + metadata.getName() ) );
 	}
 
-	@Test
-	public void testWorkspaceDefaultSceneSize() throws Exception {
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-		assertThat( stage.isShowing(), is( true ) );
-		assertThat( stage.getScene().getWidth(), is( 960d ) );
-		assertThat( stage.getScene().getHeight(), is( 540d ) );
-	}
+//	@Test
+//	public void testWorkspaceDefaultSceneSize() throws Exception {
+//		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+//		assertThat( stage.isShowing(), is( true ) );
+//		assertThat( stage.getScene().getWidth(), is( 960d ) );
+//		assertThat( stage.getScene().getHeight(), is( 540d ) );
+//	}
 
 }
