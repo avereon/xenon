@@ -48,7 +48,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 			throw new RuntimeException( exception );
 		}
 
-		FxToolkit.registerPrimaryStage();
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 		program.addEventListener( programWatcher = new ProgramWatcher() );
 		metadata = program.getMetadata();
@@ -62,33 +61,36 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	 */
 	@After
 	public void cleanup() throws Exception {
-		FxToolkit.cleanupApplication( program );
+		if( program == null ) return;
 
-		for( Window window : StageHelper.getStages() ) {
-			Platform.runLater( window::hide );
-		}
+		FxToolkit.cleanupApplication( program );
 
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
+
+		// For some reason FxToolkit.cleanupApplication does not get the windows closed
+		for( Window window : StageHelper.getStages() ) {
+			Platform.runLater( window::hide );
+		}
 	}
 
 	@Override
 	public void start( Stage stage ) throws Exception {}
 
-//	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-//		programWatcher.waitForEvent( clazz );
-//	}
-//
-//	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-//		programWatcher.waitForEvent( clazz, timeout );
-//	}
-//
-//	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-//		programWatcher.waitForNextEvent( clazz );
-//	}
-//
-//	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-//		programWatcher.waitForNextEvent( clazz, timeout );
-//	}
+	//	protected void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
+	//		programWatcher.waitForEvent( clazz );
+	//	}
+	//
+	//	protected void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+	//		programWatcher.waitForEvent( clazz, timeout );
+	//	}
+	//
+	//	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
+	//		programWatcher.waitForNextEvent( clazz );
+	//	}
+	//
+	//	protected void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+	//		programWatcher.waitForNextEvent( clazz, timeout );
+	//	}
 
 }
