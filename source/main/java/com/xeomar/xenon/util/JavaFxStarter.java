@@ -19,7 +19,7 @@ public final class JavaFxStarter extends Application {
 		}
 	}
 
-	public static void startAndWait( long timeout ) {
+	public synchronized static void startAndWait( long timeout ) {
 		if( started ) return;
 		new Thread( JavaFxStarter::launch ).start();
 		long limit = System.currentTimeMillis() + timeout;
