@@ -6,7 +6,7 @@ import java.util.concurrent.TimeoutException;
 
 public class ProgramWatcher implements ProgramEventListener {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
+	private static final long DEFAULT_WAIT_TIMEOUT = 5000;
 
 	private Map<Class<? extends ProgramEvent>, ProgramEvent> events = new ConcurrentHashMap<>();
 
