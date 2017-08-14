@@ -9,6 +9,7 @@ import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.*;
 import com.xeomar.xenon.worktool.ToolException;
+import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
@@ -219,8 +220,9 @@ public class AboutTool extends ProductTool {
 		builder.append( getHeader( "JVM commands: " + TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ) );
 
 		// Program commands
+		Application.Parameters parameters = program.getParameters();
 		builder.append( "\n" );
-		builder.append( getHeader( "Program commands: " +  TextUtil.toString( program.getParameters().getRaw(), " " ) ) );
+		builder.append( getHeader( "Program commands: " + (parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " )) ) );
 
 		// Program details
 		builder.append( "\n" );
@@ -249,22 +251,22 @@ public class AboutTool extends ProductTool {
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getMemoryDetail(), 4, " " ) );
 
-//		// Installed modules
-//		builder.append( "\n" );
-//		builder.append( getHeader( "Installed modules" ) );
-//
-//		builder.append( "\n" );
-//		Set<ServiceModule> modules = getProgram().getProductManager().getModules();
-//		if( modules.size() == 0 ) {
-//			builder.append( "    No optional modules installed.\n" );
-//		} else {
-//			List<ServiceModule> moduleList = new ArrayList<ServiceModule>( modules );
-//			Collections.sort( moduleList );
-//			for( ServiceModule module : moduleList ) {
-//				builder.append( Indenter.indent( getProductDetails( module.getCard() ), 4, " " ) );
-//				builder.append( "\n" );
-//			}
-//		}
+		//		// Installed modules
+		//		builder.append( "\n" );
+		//		builder.append( getHeader( "Installed modules" ) );
+		//
+		//		builder.append( "\n" );
+		//		Set<ServiceModule> modules = getProgram().getProductManager().getModules();
+		//		if( modules.size() == 0 ) {
+		//			builder.append( "    No optional modules installed.\n" );
+		//		} else {
+		//			List<ServiceModule> moduleList = new ArrayList<ServiceModule>( modules );
+		//			Collections.sort( moduleList );
+		//			for( ServiceModule module : moduleList ) {
+		//				builder.append( Indenter.indent( getProductDetails( module.getCard() ), 4, " " ) );
+		//				builder.append( "\n" );
+		//			}
+		//		}
 
 		// Threads
 		builder.append( "\n" );
@@ -278,11 +280,11 @@ public class AboutTool extends ProductTool {
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getProperties( System.getProperties() ), 4, " " ) );
 
-//		// Settings
-//		builder.append( "\n" );
-//		builder.append( getHeader( "Settings" ) );
-//		builder.append( "\n" );
-//		builder.append( Indenter.indent( getSettingsDetail(), 4, " " ) );
+		//		// Settings
+		//		builder.append( "\n" );
+		//		builder.append( getHeader( "Settings" ) );
+		//		builder.append( "\n" );
+		//		builder.append( Indenter.indent( getSettingsDetail(), 4, " " ) );
 
 		return builder.toString();
 	}
@@ -320,10 +322,10 @@ public class AboutTool extends ProductTool {
 		builder.append( "Timestamp:   " + card.getTimestamp() + "\n" );
 		//builder.append( "Source URI:  " + card.getSourceUri() + "\n" );
 
-//		ProductManager productManager = getProgram().getProductManager();
-//		builder.append( "Enabled:     " + productManager.isEnabled( card ) + "\n" );
-//		builder.append( "Updatable:   " + productManager.isUpdatable( card ) + "\n" );
-//		builder.append( "Removable:   " + productManager.isRemovable( card ) + "\n" );
+		//		ProductManager productManager = getProgram().getProductManager();
+		//		builder.append( "Enabled:     " + productManager.isEnabled( card ) + "\n" );
+		//		builder.append( "Updatable:   " + productManager.isUpdatable( card ) + "\n" );
+		//		builder.append( "Removable:   " + productManager.isRemovable( card ) + "\n" );
 
 		return builder.toString().trim();
 	}
@@ -353,8 +355,8 @@ public class AboutTool extends ProductTool {
 		long lastUpdateCheck = programSettings.getLong( "/manager/product/update/check/last", 0L );
 		long nextUpdateCheck = programSettings.getLong( "/manager/product/update/check/next", 0L );
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
-		builder.append( "Last update check: " + ( lastUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ) ) + "\n" );
-		builder.append( "Next update check: " + ( nextUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ) ) + "\n" );
+		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
+		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
 
 		return builder.toString();
 	}

@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.sun.javafx.stage.StageHelper;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.product.ProductMetadata;
@@ -33,7 +34,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	@Before
 	public void setup() throws Exception {
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
-		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+		//System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 
 		// Remove the existing program data folder
 		try {
@@ -45,6 +46,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 			throw new RuntimeException( exception );
 		}
 
+		FxToolkit.registerPrimaryStage();
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 		program.addEventListener( programWatcher = new ProgramWatcher() );
 		metadata = program.getMetadata();
@@ -60,7 +62,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	public void cleanup() throws Exception {
 		FxToolkit.cleanupApplication( program );
 
-		for( Window window : Stage.getWindows() ) {
+		for( Window window : StageHelper.getStages() ) {
 			Platform.runLater( window::hide );
 		}
 

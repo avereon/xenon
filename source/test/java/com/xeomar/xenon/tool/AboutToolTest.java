@@ -2,12 +2,14 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.FxProgramTestCase;
 import com.xeomar.xenon.resource.Resource;
-import org.junit.Assert;
+import com.xeomar.xenon.workarea.Workpane;
+import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Test;
 
 import java.util.Set;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class AboutToolTest extends FxProgramTestCase {
 
@@ -17,7 +19,7 @@ public class AboutToolTest extends FxProgramTestCase {
 		AboutTool tool = new AboutTool( program, resource );
 
 		Set<String> resources = tool.getResourceDependencies();
-		Assert.assertThat( resources, containsInAnyOrder( "program:guide" ) );
+		assertThat( resources, containsInAnyOrder( "program:guide" ) );
 	}
 
 	@Test

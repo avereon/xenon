@@ -200,6 +200,8 @@ public class Program extends Application implements Product {
 		Platform.exit();
 	}
 
+
+
 	public String getParameter( String key ) {
 		Parameters parameters = getParameters();
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
