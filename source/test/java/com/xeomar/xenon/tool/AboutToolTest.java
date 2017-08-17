@@ -28,9 +28,9 @@ public class AboutToolTest extends FxProgramTestCase {
 		assertThat( pane.getTools().size(), is( 0 ) );
 
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
-//		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 1000 );
-//		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 1000 );
-		Thread.sleep( 500 );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
@@ -41,16 +41,15 @@ public class AboutToolTest extends FxProgramTestCase {
 		assertThat( pane.getTools().size(), is( 0 ) );
 
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 1000 );
-		//workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 1000 );
-		Thread.sleep( 500 );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
 		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 1000 );
-		//workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED, 1000 );
-		Thread.sleep( 500 );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
+
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 
@@ -64,7 +63,7 @@ public class AboutToolTest extends FxProgramTestCase {
 		assertThat( pane.getTools().size(), is( 2 ) );
 
 		program.getResourceManager().closeResources( resource );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED, 1000 );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}

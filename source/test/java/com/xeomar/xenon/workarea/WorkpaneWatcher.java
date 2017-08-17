@@ -26,11 +26,11 @@ public class WorkpaneWatcher implements WorkpaneListener {
 		return new ArrayList<WorkpaneEvent>( eventList );
 	}
 
-	protected void waitForEvent( WorkpaneEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( WorkpaneEvent.Type type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	protected void waitForNextEvent( WorkpaneEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( WorkpaneEvent.Type type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
