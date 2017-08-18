@@ -114,6 +114,9 @@ public class Txn {
 	}
 
 	private void doSubmit( Phase phase, TxnOperation operation ) {
+		System.out.println( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
+
+		// FIXME Can this be allowed by making a copy of the operations collection when commit starts?
 		if( commitLock.isLocked() ) throw new TransactionException( "Transaction steps cannot be added during a commit" );
 		Queue<TxnOperation> phaseOperations = operations.computeIfAbsent( phase, key -> new ConcurrentLinkedQueue<TxnOperation>() );
 		phaseOperations.offer( operation );
@@ -122,6 +125,7 @@ public class Txn {
 	private void doCommit() throws TxnException {
 		try {
 			commitLock.lock();
+			System.out.println( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
 
 			committingTransaction = this;
 

@@ -36,7 +36,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		// NOTE These are also used in ProgramTestCase
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-		System.setProperty( ProgramParameter.LOG_LEVEL, "none" );
+		System.setProperty( ProgramParameter.LOG_LEVEL, "error" );
 
 		// Remove the existing program data folder
 		try {
