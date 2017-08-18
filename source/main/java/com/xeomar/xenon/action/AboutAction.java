@@ -2,6 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.resource.type.ProgramAboutType;
 import javafx.event.Event;
 
 public class AboutAction extends Action {
@@ -17,7 +18,7 @@ public class AboutAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		program.getResourceManager().open( program.getResourceManager().createResource( "program:about" ) );
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.URI ) );
 	}
 
 }

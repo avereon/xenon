@@ -7,11 +7,15 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.worktool.ToolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class SettingsTool extends ProductTool {
+
+	private static final Logger log = LoggerFactory.getLogger( SettingsTool.class );
 
 	public SettingsTool( Product product, Resource resource ) {
 		super( product, resource );
@@ -21,6 +25,40 @@ public class SettingsTool extends ProductTool {
 		// I suppose all the settings pages can be created here. The
 		// pages are not part of the resource so they can be used here.
 		//List<SettingsPage> pages = ((Program)getProduct()).getSettingsManager().getSettingsPages();
+	}
+
+	@Override
+	protected void allocate() throws ToolException {
+		log.info( "Settings tool allocate" );
+	}
+
+	@Override
+	protected void display() throws ToolException {
+		log.info( "Settings tool display" );
+	}
+
+	@Override
+	protected void activate() throws ToolException {
+		log.info( "Settings tool activate" );
+		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.setActive( true );
+	}
+
+	@Override
+	protected void deactivate() throws ToolException {
+		log.info( "Settings tool deactivate" );
+	}
+
+	@Override
+	protected void conceal() throws ToolException {
+		log.info( "Settings tool conceal" );
+		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.setActive( false );
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		log.info( "Settings tool deallocate" );
 	}
 
 	@Override

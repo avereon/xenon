@@ -31,8 +31,6 @@ public class SettingsToolTest extends FxProgramTestCase {
 		assertThat( pane.getTools().size(), is( 0 ) );
 
 		program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
-		// NEXT Adding time should not cause a problem, but it does
-		Thread.sleep( 500 );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 
@@ -40,38 +38,37 @@ public class SettingsToolTest extends FxProgramTestCase {
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 
-//	@Test
-//	public void testOpenToolTwice() throws Exception {
-//				Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-//				assertThat( pane.getTools().size(), is( 0 ) );
-//
-//				program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
-//				workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-//				workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-//
-//				assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
-//				assertThat( pane.getTools().size(), is( 2 ) );
-//
-//
-//		program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
-////		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
-////
-////		assertThat( pane.getTools().size(), is( 2 ) );
-//	}
+	@Test
+	public void testOpenToolTwice() throws Exception {
+		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		assertThat( pane.getTools().size(), is( 0 ) );
 
-//	@Test
-//	public void testClosingResourceWillCloseTool() throws Exception {
-//		testOpenTool();
-//		Resource resource = program.getResourceManager().createResource( ProgramSettingsType.URI );
-//
-//		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-//		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
-//		assertThat( pane.getTools().size(), is( 2 ) );
-//
-//		program.getResourceManager().closeResources( resource );
-//		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-//
-//		assertThat( pane.getTools().size(), is( 1 ) );
-//	}
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+
+		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
+		assertThat( pane.getTools().size(), is( 2 ) );
+
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
+
+		assertThat( pane.getTools().size(), is( 2 ) );
+	}
+
+	@Test
+	public void testClosingResourceWillCloseTool() throws Exception {
+		testOpenTool();
+		Resource resource = program.getResourceManager().createResource( ProgramSettingsType.URI );
+
+		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
+		assertThat( pane.getTools().size(), is( 2 ) );
+
+		program.getResourceManager().closeResources( resource );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+
+		assertThat( pane.getTools().size(), is( 1 ) );
+	}
 
 }
