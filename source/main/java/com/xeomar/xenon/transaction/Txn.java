@@ -22,9 +22,7 @@ public class Txn {
 
 	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<Deque<Txn>>();
 
-	private static final ReentrantLock commitLock = new ReentrantLock();
-
-	private static Txn committingTransaction;
+	private final ReentrantLock commitLock = new ReentrantLock();
 
 	private Map<Phase, Queue<TxnOperation>> operations;
 
@@ -114,10 +112,10 @@ public class Txn {
 	}
 
 	private void doSubmit( Phase phase, TxnOperation operation ) {
-		System.out.println( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
+		log.debug( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
 
-		// FIXME Can this be allowed by making a copy of the operations collection when commit starts?
-		if( commitLock.isLocked() ) throw new TransactionException( "Transaction steps cannot be added during a commit" );
+		// TODO Can this be allowed by making a copy of the operations collection when commit starts?
+		if( commitLock.isLocked() ) throw new TransactionException( "Transaction " + System.identityHashCode( this ) + " steps cannot be added during a commit" );
 		Queue<TxnOperation> phaseOperations = operations.computeIfAbsent( phase, key -> new ConcurrentLinkedQueue<TxnOperation>() );
 		phaseOperations.offer( operation );
 	}
@@ -125,9 +123,7 @@ public class Txn {
 	private void doCommit() throws TxnException {
 		try {
 			commitLock.lock();
-			System.out.println( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
-
-			committingTransaction = this;
+			log.debug( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
 
 			// Process all the operations
 			List<TxnOperationResult> operationResults = new ArrayList<TxnOperationResult>();
@@ -162,7 +158,6 @@ public class Txn {
 				}
 			}
 		} finally {
-			committingTransaction = null;
 			doReset();
 			commitLock.unlock();
 			log.trace( "Transaction[" + System.identityHashCode( this ) + "] committed!" );
