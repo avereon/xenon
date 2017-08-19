@@ -5,6 +5,7 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
+import com.xeomar.xenon.worktool.Tool;
 import com.xeomar.xenon.worktool.ToolException;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -127,7 +128,9 @@ public class GuideTool extends ProductTool {
 	protected void allocate() throws ToolException {
 		// Attach to the workpane and listen for current tool changes
 		getWorkpane().addWorkpaneListener( this::switchGuide );
-		setResourceGuide( getWorkpane().getActiveTool().getResource() );
+
+		Tool activeTool = getWorkpane().getActiveTool();
+		if( activeTool != null ) setResourceGuide( activeTool.getResource() );
 	}
 
 	@Override
