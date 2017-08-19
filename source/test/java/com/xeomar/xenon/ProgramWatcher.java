@@ -1,27 +1,27 @@
 package com.xeomar.xenon;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
 public class ProgramWatcher implements ProgramEventListener {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 10000;
+	public static final long DEFAULT_WAIT_TIMEOUT = 10000;
 
-	private Map<Class<? extends ProgramEvent>, ProgramEvent> events = new ConcurrentHashMap<>();
+	private Queue<ProgramEvent> events = new ConcurrentLinkedQueue<>();
 
 	@Override
 	public synchronized void eventOccurred( ProgramEvent event ) {
-		events.put( event.getClass(), event );
+		events.offer( event );
 		notifyAll();
 	}
 
-	public void waitForEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
+	public void waitForEvent( Class<? extends ProgramEvent> type ) throws InterruptedException, TimeoutException {
+		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	public void waitForNextEvent( Class<? extends ProgramEvent> clazz ) throws InterruptedException, TimeoutException {
-		waitForNextEvent( clazz, DEFAULT_WAIT_TIMEOUT );
+	public void waitForNextEvent( Class<? extends ProgramEvent> type ) throws InterruptedException, TimeoutException {
+		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
 	/**
@@ -30,23 +30,23 @@ public class ProgramWatcher implements ProgramEventListener {
 	 * already occurred then this method waits until the next event occurs, or
 	 * the specified timeout, whichever comes first.
 	 *
-	 * @param clazz The event class to wait for
+	 * @param type The event type to wait for
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( Class<? extends ProgramEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
 
-		while( shouldWait && events.get( clazz ) == null ) {
+		while( shouldWait && findNext( type ) == null ) {
 			wait( timeout - duration );
 			duration = System.currentTimeMillis() - start;
 			shouldWait = duration < timeout;
 		}
 		duration = System.currentTimeMillis() - start;
 
-		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + clazz.getName() );
+		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type.getName() );
 	}
 
 	/**
@@ -54,13 +54,21 @@ public class ProgramWatcher implements ProgramEventListener {
 	 * waits until the next event occurs, or the specified timeout, whichever
 	 * comes first.
 	 *
-	 * @param clazz The event class to wait for
+	 * @param type The event class to wait for
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForNextEvent( Class<? extends ProgramEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
-		events.remove( clazz );
-		waitForEvent( clazz, timeout );
+	public synchronized void waitForNextEvent( Class<? extends ProgramEvent> type, long timeout ) throws InterruptedException, TimeoutException {
+		events.remove( type );
+		waitForEvent( type, timeout );
+	}
+
+	private ProgramEvent findNext( Class<? extends ProgramEvent> type ) {
+		ProgramEvent event;
+		while( (event = events.poll()) != null ) {
+			if( event.getClass().isAssignableFrom(  type ) ) return event;
+		}
+		return null;
 	}
 
 }

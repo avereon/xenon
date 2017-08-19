@@ -12,6 +12,7 @@ import javafx.stage.Window;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 
@@ -27,6 +28,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	protected WorkpaneWatcher workpaneWatcher;
 
 	protected ProductMetadata metadata;
+
+	protected FxRobot robot;
 
 	/**
 	 * Overrides setup() in FxPlatformTestCase and does not call super.setup().
@@ -54,6 +57,9 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
+
+		// Wait for things to settle
+		robot = new FxRobot().sleep( 100 );
 	}
 
 	/**

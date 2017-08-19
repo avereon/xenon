@@ -22,6 +22,7 @@ public class Actions {
 	public static Menu createMenu( ActionProxy action ) {
 		Menu item = new Menu();
 
+		item.setId( "menu-" + action.getId() );
 		item.setMnemonicParsing( true );
 		item.setText( action.getMnemonicName() );
 		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
@@ -52,6 +53,7 @@ public class Actions {
 			}
 		}
 
+		item.setId( "menuitem-" + action.getId() );
 		item.setOnAction( action );
 		item.setMnemonicParsing( true );
 		item.setDisable( !action.isEnabled() );
