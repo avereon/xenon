@@ -21,7 +21,6 @@ public class AboutToolTest extends FxProgramTestCase {
 	public void testGetRequiredToolResources() {
 		Resource resource = new Resource( ProgramAboutType.URI );
 		AboutTool tool = new AboutTool( program, resource );
-
 		Set<String> resources = tool.getResourceDependencies();
 		assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
 	}
@@ -31,10 +30,10 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.URI ) );
+		robot.clickOn( "#menu-help" );
+		robot.clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
@@ -44,31 +43,33 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.URI ) );
+		robot.clickOn( "#menu-help" );
+		robot.clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.URI ) );
+		robot.clickOn( "#menu-help" );
+		robot.clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
-
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 
 	@Test
 	public void testClosingResourceWillCloseTool() throws Exception {
-		testOpenTool();
-		Resource resource = program.getResourceManager().createResource( ProgramAboutType.URI );
-
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		assertThat( pane.getTools().size(), is( 0 ) );
+
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.URI ) );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
+		Resource resource = program.getResourceManager().createResource( ProgramAboutType.URI );
 		program.getResourceManager().closeResources( resource );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 

@@ -20,7 +20,6 @@ public class SettingsToolTest extends FxProgramTestCase {
 	public void testGetRequiredToolResources() {
 		Resource resource = new Resource( ProgramSettingsType.URI );
 		SettingsTool tool = new SettingsTool( program, resource );
-
 		Set<String> resources = tool.getResourceDependencies();
 		Assert.assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
 	}
@@ -30,14 +29,10 @@ public class SettingsToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		//program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
-
-		// TODO Swap resource open for menu clicks
 		robot.clickOn( "#menu-edit" );
 		robot.clickOn( "#menuitem-settings" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
@@ -47,20 +42,16 @@ public class SettingsToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		//program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
 		robot.clickOn( "#menu-edit" );
 		robot.clickOn( "#menuitem-settings" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		//program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
 		robot.clickOn( "#menu-edit" );
 		robot.clickOn( "#menuitem-settings" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
-
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 
@@ -72,14 +63,12 @@ public class SettingsToolTest extends FxProgramTestCase {
 		program.getResourceManager().open( program.getResourceManager().createResource( ProgramSettingsType.URI ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
 		Resource resource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		program.getResourceManager().closeResources( resource );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 
