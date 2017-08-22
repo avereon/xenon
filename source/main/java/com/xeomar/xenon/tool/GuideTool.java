@@ -20,13 +20,48 @@ public class GuideTool extends ProductTool {
 	private ActiveGuideListener activeGuideListener;
 
 	public GuideTool( Product product, Resource resource ) {
-		// FIXME Maybe the resource should be program:guide
-		// and it should listen for the current resource changes in the workarea
+		// TODO Should GuideTool listen for the current resource in the workarea for changes
 		super( product, resource );
 		setId( "tool-guide" );
 		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
 		getChildren().add( guideView = new TreeView() );
 		guideView.setShowRoot( false );
+	}
+
+	@Override
+	public Workpane.Placement getPlacement() {
+		return Workpane.Placement.DOCK_LEFT;
+	}
+
+	@Override
+	@SuppressWarnings( "unchecked" )
+	protected void resourceReady() throws ToolException {
+		// Connect to the resource guide
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
+		if( guide == null ) return;
+
+		// Set guide tree root
+		TreeItem root = guide.getRoot();
+		if( root != null ) guideView.setRoot( root );
+	}
+
+	@Override
+	protected void resourceRefreshed() {
+		// Update the guide? Or will the guide be updated by the resource?
+	}
+
+	@Override
+	protected void allocate() throws ToolException {
+		// Attach to the workpane and listen for current tool changes
+		getWorkpane().addWorkpaneListener( this::switchGuide );
+
+		Tool activeTool = getWorkpane().getActiveTool();
+		if( activeTool != null ) setResourceGuide( activeTool.getResource() );
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		// Disconnect from the resource guide
 	}
 
 	private void switchGuide( WorkpaneEvent event ) {
@@ -100,42 +135,6 @@ public class GuideTool extends ProductTool {
 			if( !newSelection ) guideView.setRoot( null );
 		}
 
-	}
-
-	@Override
-	public Workpane.Placement getPlacement() {
-		return Workpane.Placement.DOCK_LEFT;
-	}
-
-	@Override
-	@SuppressWarnings( "unchecked" )
-	protected void resourceReady() throws ToolException {
-		// Connect to the resource guide
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		if( guide == null ) return;
-
-		// Set guide tree root
-		TreeItem root = guide.getRoot();
-		if( root != null ) guideView.setRoot( root );
-	}
-
-	@Override
-	protected void resourceRefreshed() {
-		// Update the guide? Or will the guide be updated by the resource?
-	}
-
-	@Override
-	protected void allocate() throws ToolException {
-		// Attach to the workpane and listen for current tool changes
-		getWorkpane().addWorkpaneListener( this::switchGuide );
-
-		Tool activeTool = getWorkpane().getActiveTool();
-		if( activeTool != null ) setResourceGuide( activeTool.getResource() );
-	}
-
-	@Override
-	protected void deallocate() throws ToolException {
-		// Disconnect from the resource guide
 	}
 
 }
