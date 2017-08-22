@@ -24,4 +24,13 @@ public class ProgramWorkspaceTest extends FxProgramTestCase {
 		assertThat( stage.getScene().getHeight(), is( 540d ) );
 	}
 
+	@Test
+	public void testCloseApplication() throws Exception {
+		//Platform.runLater( program::requestExit );
+		//Platform.runLater( () -> program.requestExit( true ) );
+
+		System.out.println( "Try to click on the YES button" );
+		//robot.clickOn( ".dialog-pane > .button-bar > .container" );
+	}
+
 }
