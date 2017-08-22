@@ -392,10 +392,6 @@ public abstract class Tool extends Control {
 		}
 	}
 
-//	public static ToolInfo getToolInfo() {
-//		return toolInfo;
-//	}
-
 	private class ResourceWatcher implements ResourceListener {
 
 		@Override

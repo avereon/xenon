@@ -24,8 +24,4 @@ public class ProductTool extends Tool {
 		return Collections.unmodifiableSet( Collections.emptySet() );
 	}
 
-	public Set<Class<? extends ProductTool>> getToolDependencies() {
-		return Collections.unmodifiableSet( Collections.emptySet() );
-	}
-
 }
