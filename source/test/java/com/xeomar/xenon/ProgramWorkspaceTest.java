@@ -32,9 +32,9 @@ public class ProgramWorkspaceTest extends FxProgramTestCase {
 	}
 
 	@Test
-	public void testCloseApplication() throws Exception {
+	public void testCloseProgram() throws Exception {
 		// FIXME This test does not work on Monocle
-		if( System.getProperty( "glass.platform" ).equals( "Monocle" ) ) return;
+		if( "Monocle".equals( System.getProperty( "glass.platform" ) ) ) return;
 
 		closeCurrentWindow();
 		clickOn( "No" );
