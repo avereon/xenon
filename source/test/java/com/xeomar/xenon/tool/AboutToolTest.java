@@ -30,8 +30,8 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		robot.clickOn( "#menu-help" );
-		robot.clickOn( "#menuitem-about" );
+		clickOn( "#menu-help" );
+		clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
@@ -43,15 +43,15 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		robot.clickOn( "#menu-help" );
-		robot.clickOn( "#menuitem-about" );
+		clickOn( "#menu-help" );
+		clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		robot.clickOn( "#menu-help" );
-		robot.clickOn( "#menuitem-about" );
+		clickOn( "#menu-help" );
+		clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}

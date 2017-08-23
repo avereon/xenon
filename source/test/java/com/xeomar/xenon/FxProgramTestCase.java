@@ -30,9 +30,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	protected ProductMetadata metadata;
 
-	@Deprecated
-	protected FxRobot robot;
-
 	/**
 	 * Overrides setup() in FxPlatformTestCase and does not call super.setup().
 	 */
@@ -59,9 +56,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
-
-		// FIXME No need to have a separate robot
-		robot = new FxRobot();
 
 		// Wait for things to settle
 		WaitForAsyncUtils.waitForFxEvents();

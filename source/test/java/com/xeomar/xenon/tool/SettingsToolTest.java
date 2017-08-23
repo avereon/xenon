@@ -29,8 +29,8 @@ public class SettingsToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		robot.clickOn( "#menu-edit" );
-		robot.clickOn( "#menuitem-settings" );
+		clickOn( "#menu-edit" );
+		clickOn( "#menuitem-settings" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
@@ -42,15 +42,15 @@ public class SettingsToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		robot.clickOn( "#menu-edit" );
-		robot.clickOn( "#menuitem-settings" );
+		clickOn( "#menu-edit" );
+		clickOn( "#menuitem-settings" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		robot.clickOn( "#menu-edit" );
-		robot.clickOn( "#menuitem-settings" );
+		clickOn( "#menu-edit" );
+		clickOn( "#menuitem-settings" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
