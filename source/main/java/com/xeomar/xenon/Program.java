@@ -21,6 +21,7 @@ import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
 import com.xeomar.xenon.tool.SettingsTool;
 import com.xeomar.xenon.tool.WelcomeTool;
+import com.xeomar.xenon.util.JavaUtil;
 import com.xeomar.xenon.util.OperatingSystem;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Application;
@@ -197,10 +198,8 @@ public class Program extends Application implements Product {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return;
 		}
 
-		Platform.exit();
+		if( !JavaUtil.isTest() ) Platform.exit();
 	}
-
-
 
 	public String getParameter( String key ) {
 		Parameters parameters = getParameters();

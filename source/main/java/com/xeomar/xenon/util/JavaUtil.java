@@ -8,6 +8,15 @@ import java.util.*;
 
 public final class JavaUtil {
 
+	public static boolean isTest() {
+		try {
+			JavaUtil.class.getClassLoader().loadClass( "org.junit.Assert" );
+			return true;
+		}catch( Throwable throwable ) {
+			return false;
+		}
+	}
+
 	public static boolean isClassInStackTrace( Class<?> clazz ) {
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 

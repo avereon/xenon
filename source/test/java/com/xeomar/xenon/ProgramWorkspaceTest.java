@@ -1,7 +1,14 @@
 package com.xeomar.xenon;
 
+import com.xeomar.xenon.event.ProgramStoppedEvent;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.junit.Test;
+import org.testfx.api.FxAssert;
+import org.testfx.util.WaitForAsyncUtils;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -26,11 +33,17 @@ public class ProgramWorkspaceTest extends FxProgramTestCase {
 
 	@Test
 	public void testCloseApplication() throws Exception {
-		//Platform.runLater( program::requestExit );
-		//Platform.runLater( () -> program.requestExit( true ) );
+		// FIXME This test does not work on Monocle
+		if( System.getProperty( "glass.platform" ).equals( "Monocle" ) ) return;
 
-		System.out.println( "Try to click on the YES button" );
-		//robot.clickOn( ".dialog-pane > .button-bar > .container" );
+		closeCurrentWindow();
+		clickOn( "No" );
+		closeCurrentWindow();
+		clickOn( "Yes" );
+
+		// Unfortunately there is little to test at this point because the program
+		// still has to be running for the tests not to hang. So the program does
+		// not actually go through the shutdown sequence at this point.
 	}
 
 }
