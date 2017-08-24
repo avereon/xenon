@@ -24,19 +24,19 @@ public class ProgramWorkspaceTest extends FxProgramTestCase {
 		assertThat( stage.getScene().getHeight(), is( 540d ) );
 	}
 
-	@Test
-	public void testCloseProgram() throws Exception {
-		// FIXME This test does not work on Monocle
-		if( "Monocle".equals( System.getProperty( "glass.platform" ) ) ) return;
-
-		closeCurrentWindow();
-		clickOn( "No" );
-		closeCurrentWindow();
-		clickOn( "Yes" );
-
-		// Unfortunately there is little to test at this point because the program
-		// still has to be running for the tests not to hang. So the program does
-		// not actually go through the shutdown sequence at this point.
-	}
+//	@Test
+//	public void testCloseProgram() throws Exception {
+//		// FIXME This test does not work on Monocle
+//		if( "Monocle".equals( System.getProperty( "glass.platform" ) ) ) return;
+//
+//		closeCurrentWindow();
+//		clickOn( "No" );
+//		closeCurrentWindow();
+//		clickOn( "Yes" );
+//
+//		// Unfortunately there is little to test at this point because the program
+//		// still has to be running for the tests not to hang. So the program does
+//		// not actually go through the shutdown sequence at this point.
+//	}
 
 }
