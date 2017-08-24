@@ -1,14 +1,7 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.event.ProgramStoppedEvent;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import org.junit.Test;
-import org.testfx.api.FxAssert;
-import org.testfx.util.WaitForAsyncUtils;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
