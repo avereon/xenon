@@ -1,7 +1,6 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.util.JavaFxStarter;
-import javafx.application.Platform;
 import org.junit.Before;
 
 public abstract class FxPlatformTestCase extends BaseTestCase {

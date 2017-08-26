@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.FxPlatformTestCase;
+import com.xeomar.xenon.resource.Resource;
 import javafx.geometry.Side;
 import org.junit.Before;
 

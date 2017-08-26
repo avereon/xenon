@@ -5,7 +5,8 @@ import javafx.geometry.Side;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 public class WorkpaneMergeNorthTest extends WorkpaneTestCase {

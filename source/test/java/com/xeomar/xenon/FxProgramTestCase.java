@@ -1,18 +1,14 @@
 package com.xeomar.xenon;
 
-import com.sun.javafx.stage.StageHelper;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.product.ProductMetadata;
 import com.xeomar.xenon.util.OperatingSystem;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
-import javafx.application.Platform;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.testfx.api.FxRobot;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;

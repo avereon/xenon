@@ -1,8 +1,8 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.xenon.FxPlatformTestCase;
 import com.xeomar.xenon.MockSettings;
 import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.FxPlatformTestCase;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

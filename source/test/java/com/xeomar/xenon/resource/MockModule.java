@@ -1,9 +1,9 @@
 package com.xeomar.xenon.resource;
 
+import com.xeomar.xenon.Module;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.product.ProductBundle;
 import com.xeomar.xenon.product.ProductMetadata;
-import com.xeomar.xenon.Module;
 
 public class MockModule extends Module {
 
