@@ -37,8 +37,8 @@ public class XenonIcon extends XIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new XenonIcon() );
-		//new XRingIcon().save( "Downloads/program.png");
+		//proof( new XenonIcon() );
+		save( new XenonIcon(), "../../software/xenon/source/main/resources/program.png");
 	}
 
 }

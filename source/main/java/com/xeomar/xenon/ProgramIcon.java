@@ -189,9 +189,9 @@ public abstract class ProgramIcon extends Canvas {
 		JavaFxStarter.startAndWait( 1000 );
 
 		// Render and save the icon
-		File file = new File( System.getProperty( "user.home" ), path );
 		Platform.runLater( () -> {
 			try {
+				File file = new File( path ).getCanonicalFile();
 				ImageIO.write( icon.getBufferedImage(), "png", file );
 			} catch( Exception exception ) {
 				exception.printStackTrace();
