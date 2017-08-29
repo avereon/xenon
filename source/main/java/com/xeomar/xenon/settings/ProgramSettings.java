@@ -9,6 +9,8 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
@@ -47,33 +49,34 @@ public class ProgramSettings implements Settings {
 
 	private Properties properties;
 
-	private ExecutorService executor;
-
 	private SaveTask task;
 
 	private final Object taskLock = new Object();
 
 	public ProgramSettings( Program program, File file, String scope ) {
 		if( program == null ) throw new IllegalArgumentException( "Program cannot be null" );
-		if( file == null ) throw new IllegalArgumentException( "File cannot be null" );
 		this.program = program;
 		this.file = file;
 		this.scope = scope;
+		this.properties = new Properties();
+		load();
 	}
 
 	@Override
 	public <T> T get( String key ) {
-		return null;
+		// FIXME This probably cannot be done with generics
+		return (T)properties.getProperty( key );
 	}
 
 	@Override
 	public <T> T get( String key, T defaultValue ) {
-		return null;
+		// FIXME This probably cannot be done with generics
+		return (T)properties.getProperty( key );
 	}
 
 	@Override
 	public <T> void set( String key, T value ) {
-
+		properties.setProperty( key, String.valueOf( value ) );
 	}
 
 	@Override
@@ -139,13 +142,13 @@ public class ProgramSettings implements Settings {
 	@Override
 	@Deprecated
 	public String getString( String key ) {
-		return null;
+		return get( key );
 	}
 
 	@Override
 	@Deprecated
 	public String getString( String key, String defaultValue ) {
-		return null;
+		return get( key, defaultValue );
 	}
 
 	@Override
@@ -153,19 +156,15 @@ public class ProgramSettings implements Settings {
 		return file.toString();
 	}
 
-	public void setExecutor( ExecutorService executor ) {
-		this.executor = executor;
+	public void load() {
+		try {
+			properties.load( new FileInputStream( file ) );
+			program.fireEvent( new SettingsLoadedEvent( this, file, scope ) );
+		} catch( IOException exception ) {
+			log.error( "Error loading settings file: " + file, exception );
+		}
 	}
 
-	// NEXT Load the properties
-	public void load() throws ConfigurationException {
-		//		PropertiesConfiguration config = super.getConfiguration();
-		//		program.fireEvent( new SettingsLoadedEvent( this, getFileHandler().getFile(), scope ) );
-		//		//new SettingsLoadedEvent( this, getFileHandler().getFile(), scope ).fire( listeners );
-		//		return config;
-	}
-
-	// NEXT Save the properties
 	public void save() {
 		lastValueTime.set( System.currentTimeMillis() );
 		if( lastDirtyTime.get() <= lastStoreTime.get() ) lastDirtyTime.set( lastValueTime.get() );
@@ -173,15 +172,13 @@ public class ProgramSettings implements Settings {
 	}
 
 	private void persist() {
-		//		try {
-		//			super.save();
-		//			program.fireEvent( new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), scope ) );
-		//			//new SettingsSavedEvent( ProgramConfigurationBuilder.this, getFileHandler().getFile(), scope ).fire( listeners );
-		//
-		//			lastStoreTime.set( System.currentTimeMillis() );
-		//		} catch( ConfigurationException exception ) {
-		//			log.error( "Error saving settings file: " + getFileHandler().getFileName(), exception );
-		//		}
+		try {
+			properties.store( new FileOutputStream( file ), null );
+			program.fireEvent( new SettingsSavedEvent( this, file, scope ) );
+			lastStoreTime.set( System.currentTimeMillis() );
+		} catch( IOException exception ) {
+			log.error( "Error saving settings file: " + file, exception );
+		}
 	}
 
 	private void scheduleSave() {
@@ -212,6 +209,7 @@ public class ProgramSettings implements Settings {
 
 		@Override
 		public void run() {
+			ExecutorService executor = program.getExecutor();
 			// If there is an executor, use it to run the task, otherwise run the task on the timer thread
 			if( executor != null && !executor.isShutdown() ) {
 				executor.submit( ProgramSettings.this::persist );
