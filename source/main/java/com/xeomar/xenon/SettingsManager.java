@@ -125,6 +125,25 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 
 		@Override
+		public <T> T get( String key ) {
+			return null;
+		}
+
+		@Override
+		public <T> T get( String key, T defaultValue ) {
+			return null;
+		}
+
+		@Override
+		public <T> void set( String key, T value ) {
+			if( value == null ) {
+				properties.clearProperty( key );
+			} else {
+				properties.setProperty( key, value );
+			}
+		}
+
+		@Override
 		public Boolean getBoolean( String key ) {
 			return properties.getBoolean( key, null );
 		}
@@ -184,15 +203,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		@SuppressWarnings( "unchecked" )
 		public String getString( String key, String defaultValue ) {
 			return properties.getString( key, defaultValue );
-		}
-
-		@Override
-		public void set( String key, Object value ) {
-			if( value == null ) {
-				properties.clearProperty( key );
-			} else {
-				properties.setProperty( key, value );
-			}
 		}
 
 	}

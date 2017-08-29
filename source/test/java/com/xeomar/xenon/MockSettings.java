@@ -7,7 +7,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MockSettings implements Settings {
 
+
 	private Map<String, Object> values = new ConcurrentHashMap<>();
+
+	@Override
+	public <T> T get(String key ) {
+		return null;
+	}
+
+	@Override
+	public <T> T get(String key, T defaultValue ) {
+		return null;
+	}
+
+	@Override
+	public <T> void set( String key, T value ) {
+		if( value == null ) {
+			values.remove( key );
+		} else {
+			values.put( key, value.toString() );
+		}
+	}
 
 	@Override
 	public Boolean getBoolean( String key ) {
@@ -72,15 +92,6 @@ public class MockSettings implements Settings {
 		String value = getString( key );
 		if( value == null ) value = defaultValue;
 		return value;
-	}
-
-	@Override
-	public void set( String key, Object value ) {
-		if( value == null ) {
-			values.remove( key );
-		} else {
-			values.put( key, value.toString() );
-		}
 	}
 
 }
