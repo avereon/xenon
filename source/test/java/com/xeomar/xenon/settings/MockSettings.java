@@ -1,27 +1,14 @@
-package com.xeomar.xenon;
-
-import com.xeomar.xenon.settings.Settings;
+package com.xeomar.xenon.settings;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MockSettings implements Settings {
 
-
 	private Map<String, Object> values = new ConcurrentHashMap<>();
 
 	@Override
-	public <T> T get(String key ) {
-		return null;
-	}
-
-	@Override
-	public <T> T get(String key, T defaultValue ) {
-		return null;
-	}
-
-	@Override
-	public <T> void set( String key, T value ) {
+	public void set( String key, Object value ) {
 		if( value == null ) {
 			values.remove( key );
 		} else {
@@ -56,7 +43,7 @@ public class MockSettings implements Settings {
 
 	@Override
 	public Long getLong( String key, Long defaultValue ) {
-		return Long.parseLong( getString( key, defaultValue.toString() ));
+		return Long.parseLong( getString( key, defaultValue.toString() ) );
 	}
 
 	@Override
@@ -66,7 +53,7 @@ public class MockSettings implements Settings {
 
 	@Override
 	public Float getFloat( String key, Float defaultValue ) {
-		return Float.parseFloat( getString( key, defaultValue.toString() ));
+		return Float.parseFloat( getString( key, defaultValue.toString() ) );
 	}
 
 	@Override
@@ -76,7 +63,7 @@ public class MockSettings implements Settings {
 
 	@Override
 	public Double getDouble( String key, Double defaultValue ) {
-		return Double.parseDouble( getString( key, defaultValue.toString() ));
+		return Double.parseDouble( getString( key, defaultValue.toString() ) );
 	}
 
 	@Override
@@ -93,5 +80,11 @@ public class MockSettings implements Settings {
 		if( value == null ) value = defaultValue;
 		return value;
 	}
+
+	@Override
+	public void addSettingsListener( SettingsListener listener ) { }
+
+	@Override
+	public void removeSettingsListener( SettingsListener listener ) { }
 
 }

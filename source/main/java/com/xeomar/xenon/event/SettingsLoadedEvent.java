@@ -1,20 +1,18 @@
 package com.xeomar.xenon.event;
 
-import java.io.File;
-
 public class SettingsLoadedEvent extends SettingsEvent {
 
-	private File file;
+	private String root;
 
 	private String id;
 
-	public SettingsLoadedEvent( Object source, File file ) {
-		this( source, file, null );
+	public SettingsLoadedEvent( Object source, String root ) {
+		this( source, root, null );
 	}
 
-	public SettingsLoadedEvent( Object source, File file, String id ) {
+	public SettingsLoadedEvent( Object source, String root, String id ) {
 		super( source );
-		this.file = file;
+		this.root = root;
 		this.id = id;
 	}
 
@@ -25,10 +23,11 @@ public class SettingsLoadedEvent extends SettingsEvent {
 			builder.append( ":" );
 			builder.append( id );
 		}
-		if( file != null ) {
+		if( root != null ) {
 			builder.append( ":" );
-			builder.append( file.getName() );
+			builder.append( root );
 		}
 		return builder.toString();
 	}
+
 }

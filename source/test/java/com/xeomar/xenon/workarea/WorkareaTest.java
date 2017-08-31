@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.FxPlatformTestCase;
-import com.xeomar.xenon.MockSettings;
+import com.xeomar.xenon.settings.MockSettings;
 import com.xeomar.xenon.settings.Settings;
 import org.junit.Test;
 

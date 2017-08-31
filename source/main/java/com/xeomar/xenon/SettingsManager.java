@@ -1,11 +1,13 @@
 package com.xeomar.xenon;
 
+import com.xeomar.xenon.event.SettingsLoadedEvent;
+import com.xeomar.xenon.event.SettingsSavedEvent;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.settings.ProgramConfigurationBuilder;
+import com.xeomar.xenon.settings.DelayedStoredSettings;
+import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.settings.SettingsListener;
 import com.xeomar.xenon.util.Controllable;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +24,15 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Program program;
 
-	//private File programSettingsFolder;
-
 	private Map<String, File> paths;
 
-	private Set<ConfigWrapper> wrappers;
+	private Set<Settings> settingsSet;
+
+	private SettingsListener settingsWatcher;
 
 	public SettingsManager( Program program ) {
 		this.program = program;
+		this.settingsWatcher = new SettingsWatcher( program );
 
 		paths = new ConcurrentHashMap<>();
 		paths.put( "program", new File( program.getDataFolder(), ProgramSettings.PROGRAM ) );
@@ -51,29 +54,32 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return getSettings( getSettingsFile( "resource", id ), "RESOURCE" );
 	}
 
-	private File getSettingsFile( String key, String id ) {
-		return new File( paths.get( key ), id + Program.SETTINGS_EXTENSION );
-	}
-
 	public Settings getSettings( File file, String scope ) {
-		ProgramConfigurationBuilder builder = new ProgramConfigurationBuilder( program, file, scope );
-		//builder.addProgramEventListener( program.getEventWatcher() );
-		builder.setExecutor( program.getExecutor() );
-
-		ConfigWrapper wrapper = new ConfigWrapper( builder );
-		wrappers.add( wrapper );
-
-		return wrapper;
+		Settings settings = new DelayedStoredSettings( program.getExecutor(), file );
+		settings.addSettingsListener( settingsWatcher );
+		settingsSet.add( settings );
+		return settings;
 	}
+
+	//	public Settings getSettings( File file, String scope ) {
+	//		ProgramConfigurationBuilder builder = new ProgramConfigurationBuilder( program, file, scope );
+	//		//builder.addProgramEventListener( program.getEventWatcher() );
+	//		builder.setExecutor( program.getExecutor() );
+	//
+	//		ConfigWrapper wrapper = new ConfigWrapper( builder );
+	//		wrappers.add( wrapper );
+	//
+	//		return wrapper;
+	//	}
 
 	@Override
 	public boolean isRunning() {
-		return wrappers != null;
+		return settingsSet != null;
 	}
 
 	@Override
 	public SettingsManager start() {
-		wrappers = new CopyOnWriteArraySet<>();
+		settingsSet = new CopyOnWriteArraySet<>();
 		return this;
 	}
 
@@ -96,10 +102,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	@Override
 	public SettingsManager stop() {
-		for( ConfigWrapper wrapper : wrappers ) {
+		for( Settings settings : settingsSet ) {
 			//wrapper.close();
 		}
-		wrappers = null;
+		settingsSet = null;
 		return this;
 	}
 
@@ -108,103 +114,121 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-	private class ConfigWrapper implements Settings {
+	private File getSettingsFile( String key, String id ) {
+		return new File( paths.get( key ), id + Program.SETTINGS_EXTENSION );
+	}
 
-		private ProgramConfigurationBuilder builder;
+	private static class SettingsWatcher implements SettingsListener {
 
-		private PropertiesConfiguration properties;
+		private Program program;
 
-		public ConfigWrapper( ProgramConfigurationBuilder builder ) {
-			this.builder = builder;
-			try {
-				this.properties = builder.getConfiguration();
-			} catch( ConfigurationException exception ) {
-				exception.printStackTrace();
-				log.error( "Error creating wrappers: " + builder, exception );
+		private SettingsWatcher( Program program ) {
+			this.program = program;
+		}
+
+		@Override
+		public void event( SettingsEvent event ) {
+			switch( event.getType() ) {
+				case LOADED: {
+					program.fireEvent( new SettingsLoadedEvent( this, event.getRoot() ) );
+					break;
+				}
+				case SAVED: {
+					program.fireEvent( new SettingsSavedEvent( this, event.getRoot() ) );
+					break;
+				}
 			}
-		}
-
-		@Override
-		public <T> T get( String key ) {
-			return null;
-		}
-
-		@Override
-		public <T> T get( String key, T defaultValue ) {
-			return null;
-		}
-
-		@Override
-		public <T> void set( String key, T value ) {
-			if( value == null ) {
-				properties.clearProperty( key );
-			} else {
-				properties.setProperty( key, value );
-			}
-		}
-
-		@Override
-		public Boolean getBoolean( String key ) {
-			return properties.getBoolean( key, null );
-		}
-
-		@Override
-		public Boolean getBoolean( String key, Boolean defaultValue ) {
-			return properties.getBoolean( key, defaultValue );
-		}
-
-		@Override
-		public Integer getInteger( String key ) {
-			return properties.getInteger( key, null );
-		}
-
-		@Override
-		public Integer getInteger( String key, Integer defaultValue ) {
-			return properties.getInteger( key, defaultValue );
-		}
-
-		@Override
-		public Long getLong( String key ) {
-			return properties.getLong( key, null );
-		}
-
-		@Override
-		public Long getLong( String key, Long defaultValue ) {
-			return properties.getLong( key, defaultValue );
-		}
-
-		@Override
-		public Float getFloat( String key ) {
-			return properties.getFloat( key, null );
-		}
-
-		@Override
-		public Float getFloat( String key, Float defaultValue ) {
-			return properties.getFloat( key, defaultValue );
-		}
-
-		@Override
-		public Double getDouble( String key ) {
-			return properties.getDouble( key, null );
-		}
-
-		@Override
-		public Double getDouble( String key, Double defaultValue ) {
-			return properties.getDouble( key, defaultValue );
-		}
-
-		@Override
-		@SuppressWarnings( "unchecked" )
-		public String getString( String key ) {
-			return properties.getString( key, null );
-		}
-
-		@Override
-		@SuppressWarnings( "unchecked" )
-		public String getString( String key, String defaultValue ) {
-			return properties.getString( key, defaultValue );
 		}
 
 	}
+
+	//	private class ConfigWrapper implements Settings {
+	//
+	//		private ProgramConfigurationBuilder builder;
+	//
+	//		private PropertiesConfiguration properties;
+	//
+	//		public ConfigWrapper( ProgramConfigurationBuilder builder ) {
+	//			this.builder = builder;
+	//			try {
+	//				this.properties = builder.getConfiguration();
+	//			} catch( ConfigurationException exception ) {
+	//				exception.printStackTrace();
+	//				log.error( "Error creating wrappers: " + builder, exception );
+	//			}
+	//		}
+	//
+	//		@Override
+	//		public void set( String key, Object value ) {
+	//			if( value == null ) {
+	//				properties.clearProperty( key );
+	//			} else {
+	//				properties.setProperty( key, value );
+	//			}
+	//		}
+	//
+	//		@Override
+	//		public Boolean getBoolean( String key ) {
+	//			return properties.getBoolean( key, null );
+	//		}
+	//
+	//		@Override
+	//		public Boolean getBoolean( String key, Boolean defaultValue ) {
+	//			return properties.getBoolean( key, defaultValue );
+	//		}
+	//
+	//		@Override
+	//		public Integer getInteger( String key ) {
+	//			return properties.getInteger( key, null );
+	//		}
+	//
+	//		@Override
+	//		public Integer getInteger( String key, Integer defaultValue ) {
+	//			return properties.getInteger( key, defaultValue );
+	//		}
+	//
+	//		@Override
+	//		public Long getLong( String key ) {
+	//			return properties.getLong( key, null );
+	//		}
+	//
+	//		@Override
+	//		public Long getLong( String key, Long defaultValue ) {
+	//			return properties.getLong( key, defaultValue );
+	//		}
+	//
+	//		@Override
+	//		public Float getFloat( String key ) {
+	//			return properties.getFloat( key, null );
+	//		}
+	//
+	//		@Override
+	//		public Float getFloat( String key, Float defaultValue ) {
+	//			return properties.getFloat( key, defaultValue );
+	//		}
+	//
+	//		@Override
+	//		public Double getDouble( String key ) {
+	//			return properties.getDouble( key, null );
+	//		}
+	//
+	//		@Override
+	//		public Double getDouble( String key, Double defaultValue ) {
+	//			return properties.getDouble( key, defaultValue );
+	//		}
+	//
+	//		@Override
+	//		@SuppressWarnings( "unchecked" )
+	//		public String getString( String key ) {
+	//			return properties.getString( key, null );
+	//		}
+	//
+	//		@Override
+	//		@SuppressWarnings( "unchecked" )
+	//		public String getString( String key, String defaultValue ) {
+	//			return properties.getString( key, defaultValue );
+	//		}
+	//
+	//	}
 
 }

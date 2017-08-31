@@ -9,4 +9,5 @@ public interface ProgramSettings {
 	String RESOURCE = BASE + "/resource";
 
 	String UI = BASE + "/ui";
+
 }
