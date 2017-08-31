@@ -172,7 +172,7 @@ public class DelayedStoredSettings implements Settings {
 
 	@Override
 	public void addSettingsListener( SettingsListener listener ) {
-		listeners.add(listener );
+		listeners.add( listener );
 	}
 
 	@Override
@@ -193,8 +193,8 @@ public class DelayedStoredSettings implements Settings {
 
 	private void load() {
 		if( !file.exists() ) return;
-		try {
-			properties.load( new FileInputStream( file ) );
+		try( FileInputStream fis = new FileInputStream( file ) ) {
+			properties.load( fis );
 			fireEvent( new SettingsEvent( this, SettingsEvent.Type.LOADED, file.toString() ) );
 		} catch( IOException exception ) {
 			log.error( "Error loading settings file: " + file, exception );
@@ -226,8 +226,11 @@ public class DelayedStoredSettings implements Settings {
 	}
 
 	private void persist() {
-		try {
-			properties.store( new FileOutputStream( file ), null );
+		if( file == null ) return;
+		File parent = file.getParentFile();
+		if( !parent.exists() ) parent.mkdirs();
+		try( FileOutputStream fos = new FileOutputStream( file ) ) {
+			properties.store( fos, null );
 			fireEvent( new SettingsEvent( this, SettingsEvent.Type.SAVED, file.toString() ) );
 			lastStoreTime.set( System.currentTimeMillis() );
 		} catch( IOException exception ) {

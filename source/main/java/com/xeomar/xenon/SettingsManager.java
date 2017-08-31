@@ -44,7 +44,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getProgramSettings() {
-		return getSettings( paths.get( "program" ), "PROGRAM" );
+		return getSettings( getSettingsFile( "program", "program" ), "PROGRAM" );
 	}
 
 	public Settings getResourceSettings( Resource resource ) {
@@ -114,8 +114,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-	private File getSettingsFile( String key, String id ) {
-		return new File( paths.get( key ), id + Program.SETTINGS_EXTENSION );
+	private File getSettingsFile( String pathKey, String name ) {
+		return new File( paths.get( pathKey ), name + Program.SETTINGS_EXTENSION );
 	}
 
 	private static class SettingsWatcher implements SettingsListener {
