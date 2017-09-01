@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DelayedStoredSettings implements Settings {
+public class DelayedStoreSettings implements Settings {
 
 	/**
 	 * Data will be persisted at most this fast.
@@ -24,9 +24,9 @@ public class DelayedStoredSettings implements Settings {
 	 */
 	private static final long MAX_PERSIST_LIMIT = 5000;
 
-	private static Logger log = LogUtil.get( DelayedStoredSettings.class );
+	private static Logger log = LogUtil.get( DelayedStoreSettings.class );
 
-	private static Timer timer = new Timer( DelayedStoredSettings.class.getSimpleName(), true );
+	private static Timer timer = new Timer( DelayedStoreSettings.class.getSimpleName(), true );
 
 	private AtomicLong lastDirtyTime = new AtomicLong();
 
@@ -46,11 +46,11 @@ public class DelayedStoredSettings implements Settings {
 
 	private Set<SettingsListener> listeners;
 
-	public DelayedStoredSettings( File file ) {
+	public DelayedStoreSettings( File file ) {
 		this( null, file );
 	}
 
-	public DelayedStoredSettings( ExecutorService executor, File file ) {
+	public DelayedStoreSettings( ExecutorService executor, File file ) {
 		this.executor = executor;
 		this.file = file;
 		this.properties = new Properties();
@@ -250,7 +250,7 @@ public class DelayedStoredSettings implements Settings {
 		public void run() {
 			// If there is an executor, use it to run the task, otherwise run the task on the timer thread
 			if( executor != null && !executor.isShutdown() ) {
-				executor.submit( DelayedStoredSettings.this::persist );
+				executor.submit( DelayedStoreSettings.this::persist );
 			} else {
 				persist();
 			}

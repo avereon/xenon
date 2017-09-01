@@ -9,14 +9,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class DelayedStoredSettingsTest {
+public class DelayedStoreSettingsTest {
 
-	private DelayedStoredSettings settings;
+	private DelayedStoreSettings settings;
 
 	@Before
 	public void setup() throws Exception {
 		File file = File.createTempFile( "SettingsTest-", "" );
-		settings = new DelayedStoredSettings( null, file );
+		settings = new DelayedStoreSettings( null, file );
 		file.deleteOnExit();
 	}
 
