@@ -89,41 +89,41 @@ public class AboutTool extends ProductTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.info( "Tool allocate" );
+		log.debug( "Tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.info( "Tool display" );
+		log.debug( "Tool display" );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.info( "Tool activate" );
+		log.debug( "Tool activate" );
 		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( true );
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.info( "Tool deactivate" );
+		log.debug( "Tool deactivate" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.info( "Tool conceal" );
+		log.debug( "Tool conceal" );
 		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( false );
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.info( "Tool deallocate" );
+		log.debug( "Tool deallocate" );
 	}
 
 	@Override
 	protected void resourceReady() throws ToolException {
-		log.info( "Resource ready" );
+		log.debug( "Resource ready" );
 
 		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {

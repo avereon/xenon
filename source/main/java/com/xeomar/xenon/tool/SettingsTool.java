@@ -29,36 +29,36 @@ public class SettingsTool extends ProductTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.info( "Settings tool allocate" );
+		log.debug( "Settings tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.info( "Settings tool display" );
+		log.debug( "Settings tool display" );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.info( "Settings tool activate" );
+		log.debug( "Settings tool activate" );
 		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( true );
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.info( "Settings tool deactivate" );
+		log.debug( "Settings tool deactivate" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.info( "Settings tool conceal" );
+		log.debug( "Settings tool conceal" );
 		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( false );
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.info( "Settings tool deallocate" );
+		log.debug( "Settings tool deallocate" );
 	}
 
 	@Override

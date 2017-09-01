@@ -50,36 +50,36 @@ public class WelcomeTool extends ProductTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.info( "Tool allocate" );
+		log.debug( "Tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.info( "Tool display" );
+		log.debug( "Tool display" );
 		Workpane workpane = getWorkpane();
 		if( workpane != null  ) workpane.setMaximizedView( getToolView() );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.info( "Tool activate" );
+		log.debug( "Tool activate" );
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.info( "Tool deactivate" );
+		log.debug( "Tool deactivate" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.info( "Tool conceal" );
+		log.debug( "Tool conceal" );
 		Workpane workpane = getWorkpane();
 		if( workpane != null && workpane.getMaximizedView() == getToolView() ) workpane.setMaximizedView( null );
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.info( "Tool deallocate" );
+		log.debug( "Tool deallocate" );
 	}
 
 }
