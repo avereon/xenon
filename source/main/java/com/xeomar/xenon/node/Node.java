@@ -18,8 +18,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	public static final String MODIFIED = "flag.modified";
 
 	/**
-	 * A special object to represent previous null values in the modifiedValues
-	 * map.
+	 * A special object to represent previous null values in the modifiedValues map.
 	 */
 	private static final Object NULL = new Object();
 
@@ -39,16 +38,13 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private Map<String, Object> values;
 
 	/**
-	 * The node resources. This map provides a way to associate objects without
-	 * affecting the data model as a whole. Adding or removing resources does not
-	 * affect the node state nor does it cause any kind of event. This is simply
-	 * a storage mechanism.
+	 * The node resources. This map provides a way to associate objects without affecting the data model as a whole. Adding or removing resources does not affect the node state nor does it cause any kind of event. This is simply a storage
+	 * mechanism.
 	 */
 	private Map<String, Object> resources;
 
 	/**
-	 * The collection of edges this node is associated with. The node may be the
-	 * source or may be the target of the edge.
+	 * The collection of edges this node is associated with. The node may be the source or may be the target of the edge.
 	 */
 	private Set<Edge> edges;
 
@@ -63,19 +59,22 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private List<String> businessKeyList;
 
 	/**
+	 * The set of value keys that are read only.
+	 */
+	private Set<String> readOnlySet;
+
+	/**
 	 * The set of node listeners.
 	 */
 	private Set<NodeListener> listeners;
 
 	/**
-	 * The internally calculated modified flag used to allow for fast read rates.
-	 * This is updated only when values or the modified flag is changed.
+	 * The internally calculated modified flag used to allow for fast read rates. This is updated only when values or the modified flag is changed.
 	 */
 	private boolean modified;
 
 	/**
-	 * The map of previous values as the node is modified. This map is set to
-	 * null when the modified flag is set to false.
+	 * The map of previous values as the node is modified. This map is set to null when the modified flag is set to false.
 	 */
 	private Map<String, Object> modifiedValues;
 
@@ -85,9 +84,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private Set<Node> modifiedChildren;
 
 	/**
-	 * Is the node modified. The node is modified if any data value has been
-	 * modified or any child node has been modified since the last time
-	 * setModified( false ) was called.
+	 * Is the node modified. The node is modified if any data value has been modified or any child node has been modified since the last time setModified( false ) was called.
 	 *
 	 * @return true if this node or any child nodes are modified, false otherwise.
 	 */
@@ -170,8 +167,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	/**
-	 * Copy the values and resources from the specified node. This method will
-	 * only fill in missing values and resources from the specified node.
+	 * Copy the values and resources from the specified node. This method will only fill in missing values and resources from the specified node.
 	 *
 	 * @param node
 	 */
@@ -180,10 +176,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	/**
-	 * Copy the values and resources from the specified node. If overwrite is
-	 * true this method will replace any values or resources with the specified
-	 * nodes values and resources. Otherwise, this method will only fill in
-	 * missing values and resources from the specified node.
+	 * Copy the values and resources from the specified node. If overwrite is true this method will replace any values or resources with the specified nodes values and resources. Otherwise, this method will only fill in missing values and
+	 * resources from the specified node.
 	 *
 	 * @param node
 	 */
@@ -292,6 +286,18 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		}
 	}
 
+	protected void defineReadOnly( String... keys ) {
+		if( readOnlySet == null ) {
+			readOnlySet = Collections.unmodifiableSet( new HashSet<>( Arrays.asList( keys ) ) );
+		} else {
+			throw new IllegalStateException( "Read only keys already set" );
+		}
+	}
+
+	protected boolean isReadOnly( String key ) {
+		return readOnlySet != null && readOnlySet.contains( key );
+	}
+
 	protected boolean getFlag( String key ) {
 		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
 		return flags != null && flags.contains( key );
@@ -299,6 +305,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 	protected void setFlag( String key, boolean newValue ) {
 		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
+
+		if( readOnlySet != null && readOnlySet.contains( key ) ) return;
 
 		boolean oldValue = getFlag( key );
 		if( newValue == oldValue ) return;
@@ -326,6 +334,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 	protected void setValue( String key, Object newValue ) {
 		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
+
+		if( readOnlySet != null && readOnlySet.contains( key ) ) return;
 
 		Object oldValue = getValue( key );
 		if( newValue == oldValue ) return;

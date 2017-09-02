@@ -960,6 +960,17 @@ public class NodeTest {
 	}
 
 	@Test
+	public void testReadOnly() {
+		data.setValue("id", "123456789");
+		data.defineReadOnly( "id" );
+		assertThat( data.isReadOnly( "id"), is( true ));
+		assertThat( data.getValue( "id"), is( "123456789"));
+
+		data.setValue("id", "987654321");
+		assertThat( data.getValue( "id"), is( "123456789"));
+	}
+
+	@Test
 	public void testHashCode() {
 		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.hashCode(), is( 0 ) );
