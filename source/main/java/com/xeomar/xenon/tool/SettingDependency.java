@@ -4,7 +4,7 @@ import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.TextUtil;
 
-public class Dependency extends Node {
+public class SettingDependency extends Node {
 
 	public enum Operator {
 		NOT,
@@ -19,11 +19,11 @@ public class Dependency extends Node {
 
 	public static final String VALUE = "value";
 
-	public Dependency( String key, String value ) {
+	public SettingDependency( String key, String value ) {
 		this( Operator.AND, key, value );
 	}
 
-	public Dependency( Operator operator, String key, String value ) {
+	public SettingDependency( Operator operator, String key, String value ) {
 		setValue( OPERATOR, operator != null ? operator : Operator.AND );
 		setValue( KEY, key );
 		setValue( VALUE, value );
