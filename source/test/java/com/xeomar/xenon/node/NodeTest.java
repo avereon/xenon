@@ -100,7 +100,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testObjectAttribute() {
+	public void testObjectValue() {
 		String key = "key";
 		Object value = new Object();
 
@@ -110,7 +110,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testStringAttribute() {
+	public void testStringValue() {
 		String key = "key";
 		String value = "value";
 
@@ -120,7 +120,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testBooleanAttribute() {
+	public void testBooleanValue() {
 		String key = "key";
 		boolean value = true;
 
@@ -130,7 +130,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testIntegerAttribute() {
+	public void testIntegerValue() {
 		String key = "key";
 		int value = 0;
 
@@ -140,16 +140,16 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testSetNullAttributeToNull() {
+	public void testSetNullValueToNull() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
-		data.setValue( "attribute", null );
+		data.setValue( "value", null );
 		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
 	}
 
 	@Test
-	public void testSetAttributeWithNullName() {
+	public void testSetValueWithNullName() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -163,17 +163,17 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetAttributeWithNullName() {
+	public void testGetValueWithNullKey() {
 		try {
 			data.getValue( null );
-			Assert.fail( "Null attribute names are not allowed." );
+			Assert.fail( "Null value keys are not allowed." );
 		} catch( NullPointerException exception ) {
 			assertThat( exception.getMessage(), is( "Value key cannot be null" ) );
 		}
 	}
 
 	@Test
-	public void testNullAttributeValues() {
+	public void testNullValueValues() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -237,6 +237,12 @@ public class NodeTest {
 		assertThat( data.getValue( "z" ), is( nullValue() ) );
 		assertThat( data, hasStates( true, 1, 0 ) );
 		assertThat( watcher, hasEventCounts( 2, 1, 2 ) );
+	}
+
+	@Test
+	public void testGetValueWithDefault() {
+		assertThat( data.getValue( "key" ), is( nullValue() ) );
+		assertThat( data.getValue( "key", "default" ), is( "default" ) );
 	}
 
 	@Test
@@ -882,10 +888,10 @@ public class NodeTest {
 		node2.setValue( "key2", "valueB" );
 
 		node2.copyFrom( node1 );
-		assertThat( node1.getValue( "key1"), is( "value1" ));
-		assertThat( node1.getValue( "key2"), is( "value2" ));
-		assertThat( node2.getValue( "key1"), is( "value1" ));
-		assertThat( node2.getValue( "key2"), is( "valueB" ));
+		assertThat( node1.getValue( "key1" ), is( "value1" ) );
+		assertThat( node1.getValue( "key2" ), is( "value2" ) );
+		assertThat( node2.getValue( "key1" ), is( "value1" ) );
+		assertThat( node2.getValue( "key2" ), is( "valueB" ) );
 	}
 
 	@Test
@@ -898,10 +904,10 @@ public class NodeTest {
 		node2.setValue( "key2", "valueB" );
 
 		node2.copyFrom( node1, true );
-		assertThat( node1.getValue( "key1"), is( "value1" ));
-		assertThat( node1.getValue( "key2"), is( "value2" ));
-		assertThat( node2.getValue( "key1"), is( "value1" ));
-		assertThat( node2.getValue( "key2"), is( "value2" ));
+		assertThat( node1.getValue( "key1" ), is( "value1" ) );
+		assertThat( node1.getValue( "key2" ), is( "value2" ) );
+		assertThat( node2.getValue( "key1" ), is( "value1" ) );
+		assertThat( node2.getValue( "key2" ), is( "value2" ) );
 	}
 
 	@Test
@@ -914,10 +920,10 @@ public class NodeTest {
 		node2.putResource( "key2", "valueB" );
 
 		node2.copyFrom( node1 );
-		assertThat( node1.getResource( "key1"), is( "value1" ));
-		assertThat( node1.getResource( "key2"), is( "value2" ));
-		assertThat( node2.getResource( "key1"), is( "value1" ));
-		assertThat( node2.getResource( "key2"), is( "valueB" ));
+		assertThat( node1.getResource( "key1" ), is( "value1" ) );
+		assertThat( node1.getResource( "key2" ), is( "value2" ) );
+		assertThat( node2.getResource( "key1" ), is( "value1" ) );
+		assertThat( node2.getResource( "key2" ), is( "valueB" ) );
 	}
 
 	@Test
@@ -930,10 +936,10 @@ public class NodeTest {
 		node2.putResource( "key2", "valueB" );
 
 		node2.copyFrom( node1, true );
-		assertThat( node1.getResource( "key1"), is( "value1" ));
-		assertThat( node1.getResource( "key2"), is( "value2" ));
-		assertThat( node2.getResource( "key1"), is( "value1" ));
-		assertThat( node2.getResource( "key2"), is( "value2" ));
+		assertThat( node1.getResource( "key1" ), is( "value1" ) );
+		assertThat( node1.getResource( "key2" ), is( "value2" ) );
+		assertThat( node2.getResource( "key1" ), is( "value1" ) );
+		assertThat( node2.getResource( "key2" ), is( "value2" ) );
 	}
 
 	@Test
@@ -961,13 +967,13 @@ public class NodeTest {
 
 	@Test
 	public void testReadOnly() {
-		data.setValue("id", "123456789");
+		data.setValue( "id", "123456789" );
 		data.defineReadOnly( "id" );
-		assertThat( data.isReadOnly( "id"), is( true ));
-		assertThat( data.getValue( "id"), is( "123456789"));
+		assertThat( data.isReadOnly( "id" ), is( true ) );
+		assertThat( data.getValue( "id" ), is( "123456789" ) );
 
-		data.setValue("id", "987654321");
-		assertThat( data.getValue( "id"), is( "123456789"));
+		data.setValue( "id", "987654321" );
+		assertThat( data.getValue( "id" ), is( "123456789" ) );
 	}
 
 	@Test

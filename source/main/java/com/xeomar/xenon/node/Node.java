@@ -325,11 +325,17 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		return values == null ? Collections.emptySet() : values.keySet();
 	}
 
-	@SuppressWarnings( "unchecked" )
 	protected <T> T getValue( String key ) {
+		return getValue( key, null );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	protected <T> T getValue( String key, T defaultValue ) {
 		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
 
-		return values == null ? null : (T)values.get( key );
+		T value = values == null ? null : (T)values.get( key );
+
+		return value != null ? value : defaultValue;
 	}
 
 	protected void setValue( String key, Object newValue ) {
