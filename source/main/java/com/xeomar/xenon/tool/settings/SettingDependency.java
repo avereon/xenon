@@ -30,7 +30,6 @@ public class SettingDependency extends Node {
 		setOperator( Operator.AND );
 		definePrimaryKey( OPERATOR, KEY, VALUE );
 		defineBusinessKey( OPERATOR, KEY, VALUE );
-		defineReadOnly( KEY, VALUE, OPERATOR );
 	}
 
 	public Operator getOperator() {
