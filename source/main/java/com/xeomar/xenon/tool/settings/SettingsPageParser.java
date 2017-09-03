@@ -8,11 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class SettingsPageParser {
@@ -205,149 +208,169 @@ public class SettingsPageParser {
 	private Setting parseSetting( XMLStreamReader reader ) throws XMLStreamException {
 		Setting setting = new Setting( settings );
 
-				// Read the attributes.
-				String name;
-				String value;
-				int count = reader.getAttributeCount();
-				for( int index = 0; index < count; index++ ) {
-					name = reader.getAttributeLocalName( index );
-					value = reader.getAttributeValue( index );
+		// Read the attributes.
+		String name;
+		String value;
+		int count = reader.getAttributeCount();
+		for( int index = 0; index < count; index++ ) {
+			name = reader.getAttributeLocalName( index );
+			value = reader.getAttributeValue( index );
 
-					switch( name ) {
-						case "key" : {
-							setting.setKey( value );
-							break;
-						}
-						case "presentation" : {
-							setting.setPresentation( value );
-							break;
-						}
-						case "disabled" : {
-							setting.setEnabled( !Boolean.parseBoolean( value ) );
-							break;
-						}
-						case "opaque" : {
-							setting.setOpaque( Boolean.parseBoolean( value ) );
-							break;
-						}
-						default : {
-							log.warn( "Unknown setting attribute: " + name + "=" + value );
-							break;
-						}
+			switch( name ) {
+				case "key": {
+					setting.setKey( value );
+					break;
+				}
+				case "presentation": {
+					setting.setPresentation( value );
+					break;
+				}
+				case "disabled": {
+					setting.setEnabled( !Boolean.parseBoolean( value ) );
+					break;
+				}
+				case "opaque": {
+					setting.setOpaque( Boolean.parseBoolean( value ) );
+					break;
+				}
+				default: {
+					log.warn( "Unknown setting attribute: " + name + "=" + value );
+					break;
+				}
+			}
+		}
+
+		while( reader.hasNext() ) {
+			reader.next();
+			if( reader.isEndElement() && reader.getLocalName().equals( SETTING ) ) break;
+
+			switch( reader.getEventType() ) {
+				case XMLStreamReader.START_ELEMENT: {
+					String tagName = reader.getLocalName();
+					if( OPTION.equals( tagName ) ) {
+						setting.addOption( parseOption( reader, setting ) );
+					} else if( DEPENDENCY.equals( tagName ) ) {
+						setting.addDependency( parseDependency( reader ) );
 					}
 				}
-
-				while( reader.hasNext() ) {
-					reader.next();
-					if( reader.isEndElement() && reader.getLocalName().equals( SETTING ) ) break;
-
-					switch( reader.getEventType() ) {
-						case XMLStreamReader.START_ELEMENT: {
-							String tagName = reader.getLocalName();
-							if( OPTION.equals( tagName ) ) {
-								setting.addOption( parseOption( product, reader, setting ) );
-							} else if( DEPENDENCY.equals( tagName ) ) {
-								setting.getDependencies().add( parseDependency( reader ) );
-							}
-						}
-					}
-				}
+			}
+		}
 
 		return setting;
 	}
 
-		private  SettingOption parseOption( Product product, XMLStreamReader reader, Setting setting ) throws XMLStreamException {
+	private SettingOption parseOption( XMLStreamReader reader, Setting setting ) throws XMLStreamException {
+		SettingOption option = new SettingOption();
+		Map<String, String> attributes = new HashMap<>();
 
-	//		Map<String, String> attributes = new HashMap<String, String>();
-	//
-	//		// Read the option attributes.
-	//		int count = reader.getAttributeCount();
-	//		for( int index = 0; index < count; index++ ) {
-	//			attributes.put( reader.getAttributeLocalName( index ), reader.getAttributeValue( index ) );
-	//		}
-	//
-	//		// Collect the option text if it exists.
-	//		StringBuilder textBuilder = new StringBuilder();
-	//		while( reader.hasNext() ) {
-	//			reader.next();
-	//			if( reader.isEndElement() && reader.getLocalName().equals( OPTION ) ) break;
-	//
-	//			int type = reader.getEventType();
-	//			if( type == XMLStreamConstants.CHARACTERS ) textBuilder.append( reader.getText() );
-	//		}
-	//		String text = textBuilder.length() == 0 ? null : textBuilder.toString();
-	//
-	//		// Determine the option key and name values.
-	//		String key = attributes.get( SettingOption.KEY );
-	//		if( key == null ) key = attributes.get( SettingOption.VALUE );
-	//		if( key == null ) key = text;
-	//
-	//		// Determine the name.
-	//		String prefkey = setting.getBundleName();
-	//		String name = text;
-	//		if( name == null ) name = ProductUtil.getString( product, BundleKey.SETTINGS, prefkey + "." + key );
-	//
-	//		// Determine the option value.
-	//		String value = attributes.get( SettingOption.VALUE );
-	//		if( value == null ) value = text;
-	//		if( value == null ) value = attributes.get( SettingOption.KEY );
-	//
-	//		// Create the option object.
-	//		SettingOption option = new SettingOption( key, name, value );
-	//
-	//		// Copy the attributes to the object.
-	//		for( String attributeKey : attributes.keySet() ) {
-	//			option.setAttribute( attributeKey, attributes.get( key ) );
-	//		}
-	//
-	//		return option;
-			return null;
+		// Read the attributes.
+		String name;
+		String value;
+		int count = reader.getAttributeCount();
+		for( int index = 0; index < count; index++ ) {
+			name = reader.getAttributeLocalName( index );
+			value = reader.getAttributeValue( index );
+
+			switch( name ) {
+				case "key":
+				case "name":
+				case "value": {
+					// These attributes are known
+					attributes.put( name, value );
+					break;
+				}
+				default: {
+					log.warn( "Unknown option attribute: " + name + "=" + value );
+					break;
+				}
+			}
 		}
 
-		private  SettingDependency parseDependency( XMLStreamReader reader ) throws XMLStreamException {
-			SettingDependency dependency = new SettingDependency();
+		// Collect the option text if it exists
+		StringBuilder textBuilder = new StringBuilder();
+		while( reader.hasNext() ) {
+			reader.next();
+			if( reader.isEndElement() && reader.getLocalName().equals( OPTION ) ) break;
 
-			// Read the attributes.
-			String key;
-			String value;
-			int count = reader.getAttributeCount();
-			for( int index = 0; index < count; index++ ) {
-				key = reader.getAttributeLocalName( index );
-				value = reader.getAttributeValue( index );
+			int type = reader.getEventType();
+			if( type == XMLStreamConstants.CHARACTERS ) textBuilder.append( reader.getText() );
+		}
+		String text = textBuilder.length() == 0 ? null : textBuilder.toString();
 
-				switch( key ) {
-					case "operator" : {
-						dependency.setOperator( SettingDependency.Operator.valueOf( value.toUpperCase() ) );
-						break;
-					}
-					case "key" : {
-						break;
-					}
-					case "value" : {
-						break;
-					}
-					default : {
-						log.warn( "Unknown dependency attribute: " + key + "=" + value );
+		// Determine the option key
+		String key = attributes.get( "key" );
+		if( key == null ) key = attributes.get( "value" );
+		if( key == null ) key = text;
+
+		// Determine the option name
+		String optionName = text;
+		String nameRbKey = getBundleName( setting.getKey() ) + "-" + key;
+		if( optionName == null ) optionName = product.getResourceBundle().getString( "settings", nameRbKey );
+
+		// Determine the option value
+		String optionValue = attributes.get( "value" );
+		if( optionValue == null ) optionValue = text;
+		if( optionValue == null ) optionValue = attributes.get( "key" );
+
+		// Set the option parameters
+		option.setKey( key );
+		option.setName( optionName );
+		option.setOptionValue( optionValue );
+
+		return option;
+	}
+
+	public static String getBundleName( String key ) {
+		if( key == null ) return null;
+		if( key.startsWith( "/" ) ) key = key.substring( 1 );
+		key = key.replace( '/', '-' );
+		return key;
+	}
+
+	private SettingDependency parseDependency( XMLStreamReader reader ) throws XMLStreamException {
+		SettingDependency dependency = new SettingDependency();
+
+		// Read the attributes.
+		String key;
+		String value;
+		int count = reader.getAttributeCount();
+		for( int index = 0; index < count; index++ ) {
+			key = reader.getAttributeLocalName( index );
+			value = reader.getAttributeValue( index );
+
+			switch( key ) {
+				case "operator": {
+					dependency.setOperator( SettingDependency.Operator.valueOf( value.toUpperCase() ) );
+					break;
+				}
+				case "key": {
+					break;
+				}
+				case "value": {
+					break;
+				}
+				default: {
+					log.warn( "Unknown dependency attribute: " + key + "=" + value );
+				}
+			}
+		}
+
+		while( reader.hasNext() ) {
+			reader.next();
+			if( reader.isEndElement() && reader.getLocalName().equals( DEPENDENCY ) ) break;
+
+			switch( reader.getEventType() ) {
+				case XMLStreamReader.START_ELEMENT: {
+					String tagName = reader.getLocalName();
+					if( DEPENDENCY.equals( tagName ) ) {
+						dependency.addDependency( parseDependency( reader ) );
 					}
 				}
 			}
-
-			while( reader.hasNext() ) {
-				reader.next();
-				if( reader.isEndElement() && reader.getLocalName().equals( DEPENDENCY ) ) break;
-
-				switch( reader.getEventType() ) {
-					case XMLStreamReader.START_ELEMENT: {
-						String tagName = reader.getLocalName();
-						if( DEPENDENCY.equals( tagName ) ) {
-							dependency.addDependency( parseDependency( reader ) );
-						}
-					}
-				}
-			}
-
-			return dependency;
 		}
+
+		return dependency;
+	}
 
 	//	private void printTag() {
 	//		Log.write( "Tag: " + reader.getEventType() + " > " + reader.getLocalName() );
