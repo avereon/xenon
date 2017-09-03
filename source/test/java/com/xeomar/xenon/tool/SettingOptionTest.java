@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool;
 
+import com.xeomar.xenon.tool.settings.SettingOption;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

@@ -2,6 +2,7 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.settings.MockSettings;
 import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.tool.settings.SettingDependency;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -11,7 +12,10 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testConstructorWithKeyAndValue() {
-		SettingDependency dependency = new SettingDependency( "enabled", "true" );
+		SettingDependency dependency = new SettingDependency();
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
+
 		assertThat( dependency.getOperator(), is( SettingDependency.Operator.AND ) );
 		assertThat( dependency.getKey(), is( "enabled" ) );
 		assertThat( dependency.getDependencyValue(), is( "true" ) );
@@ -19,7 +23,11 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testConstructorWithOperatorKeyAndValue() {
-		SettingDependency dependency = new SettingDependency( SettingDependency.Operator.OR, "enabled", "true" );
+		SettingDependency dependency = new SettingDependency();
+		dependency.setOperator( SettingDependency.Operator.OR );
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
+
 		assertThat( dependency.getOperator(), is( SettingDependency.Operator.OR ) );
 		assertThat( dependency.getKey(), is( "enabled" ) );
 		assertThat( dependency.getDependencyValue(), is( "true" ) );
@@ -28,13 +36,16 @@ public class SettingDependencyTest {
 	@Test
 	public void testEvaluateWithNotOperator() {
 		Settings settings = new MockSettings();
-		SettingDependency dependency = new SettingDependency( SettingDependency.Operator.NOT, "enabled", "true" );
+		SettingDependency dependency = new SettingDependency( );
+		dependency.setOperator( SettingDependency.Operator.NOT );
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
 		assertThat( dependency.evaluate( settings, false ), is( false ) );
 		assertThat( dependency.evaluate( settings, true ), is( true ) );
 
-		settings.set("enabled", true );
+		settings.set( "enabled", true );
 		assertThat( dependency.evaluate( settings, false ), is( false ) );
 		assertThat( dependency.evaluate( settings, true ), is( false ) );
 	}
@@ -42,13 +53,16 @@ public class SettingDependencyTest {
 	@Test
 	public void testEvaluateWithAndOperator() {
 		Settings settings = new MockSettings();
-		SettingDependency dependency = new SettingDependency( SettingDependency.Operator.AND, "enabled", "true" );
+		SettingDependency dependency = new SettingDependency();
+		dependency.setOperator( SettingDependency.Operator.AND );
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
 		assertThat( dependency.evaluate( settings, false ), is( false ) );
 		assertThat( dependency.evaluate( settings, true ), is( false ) );
 
-		settings.set("enabled", true );
+		settings.set( "enabled", true );
 		assertThat( dependency.evaluate( settings, false ), is( false ) );
 		assertThat( dependency.evaluate( settings, true ), is( true ) );
 	}
@@ -56,28 +70,33 @@ public class SettingDependencyTest {
 	@Test
 	public void testEvaluateWithOrOperator() {
 		Settings settings = new MockSettings();
-		SettingDependency dependency = new SettingDependency( SettingDependency.Operator.OR, "enabled", "true" );
+		SettingDependency dependency = new SettingDependency();
+		dependency.setOperator( SettingDependency.Operator.OR );
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
 		assertThat( dependency.evaluate( settings, false ), is( false ) );
 		assertThat( dependency.evaluate( settings, true ), is( true ) );
 
-		settings.set("enabled", true );
+		settings.set( "enabled", true );
 		assertThat( dependency.evaluate( settings, false ), is( true ) );
 		assertThat( dependency.evaluate( settings, true ), is( true ) );
 	}
 
-
 	@Test
 	public void testEvaluateWithXorOperator() {
 		Settings settings = new MockSettings();
-		SettingDependency dependency = new SettingDependency( SettingDependency.Operator.XOR, "enabled", "true" );
+		SettingDependency dependency = new SettingDependency();
+		dependency.setOperator( SettingDependency.Operator.XOR );
+		dependency.setKey( "enabled" );
+		dependency.setDependencyValue( "true" );
 
 		settings.set( "enabled", false );
 		assertThat( dependency.evaluate( settings, false ), is( false ) );
 		assertThat( dependency.evaluate( settings, true ), is( true ) );
 
-		settings.set("enabled", true );
+		settings.set( "enabled", true );
 		assertThat( dependency.evaluate( settings, false ), is( true ) );
 		assertThat( dependency.evaluate( settings, true ), is( false ) );
 	}

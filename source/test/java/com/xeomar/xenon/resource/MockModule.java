@@ -24,6 +24,11 @@ public class MockModule extends Module {
 	public void unregister() {}
 
 	@Override
+	public ClassLoader getClassLoader() {
+		return getClass().getClassLoader();
+	}
+
+	@Override
 	public ProductBundle getResourceBundle() {
 		return null;
 	}

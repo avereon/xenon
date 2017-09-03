@@ -4,6 +4,7 @@ import com.xeomar.xenon.FxProgramTestCase;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
+import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Assert;

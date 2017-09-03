@@ -1,8 +1,12 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.TextUtil;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SettingDependency extends Node {
 
@@ -13,35 +17,53 @@ public class SettingDependency extends Node {
 		XOR
 	}
 
-	public static final String OPERATOR = "operator";
+	private static final String OPERATOR = "operator";
 
-	public static final String KEY = "key";
+	private static final String KEY = "key";
 
-	public static final String VALUE = "value";
+	private static final String VALUE = "value";
 
-	public SettingDependency( String key, String value ) {
-		this( Operator.AND, key, value );
-	}
+	private static final String DEPENDENCIES = "dependencies";
 
-	public SettingDependency( Operator operator, String key, String value ) {
-		setValue( OPERATOR, operator != null ? operator : Operator.AND );
-		setValue( KEY, key );
-		setValue( VALUE, value );
+	public SettingDependency() {
+		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
+		setOperator( Operator.AND );
 		definePrimaryKey( OPERATOR, KEY, VALUE );
 		defineBusinessKey( OPERATOR, KEY, VALUE );
 		defineReadOnly( KEY, VALUE, OPERATOR );
+	}
+
+	public Operator getOperator() {
+		return getValue( OPERATOR );
+	}
+
+	public void setOperator( Operator operator ) {
+		setValue( OPERATOR, operator );
 	}
 
 	public String getKey() {
 		return getValue( KEY );
 	}
 
+	public void setKey( String key ) {
+		setValue( KEY, key );
+	}
+
 	public String getDependencyValue() {
 		return getValue( VALUE );
 	}
 
-	public Operator getOperator() {
-		return getValue( OPERATOR );
+	public void setDependencyValue( String value ) {
+		setValue( VALUE, value );
+	}
+
+	public List<SettingDependency> getDependencies() {
+		return Collections.unmodifiableList( getValue( DEPENDENCIES ) );
+	}
+
+	public void addDependency( SettingDependency dependency ) {
+		List<SettingDependency> dependencies = getValue( DEPENDENCIES );
+		dependencies.add( dependency );
 	}
 
 	public boolean evaluate( Settings settings ) {
@@ -73,6 +95,16 @@ public class SettingDependency extends Node {
 				pass = pass ^ equal;
 				break;
 			}
+		}
+
+		return pass;
+	}
+
+	public static boolean evaluate( List<SettingDependency> dependencies, Settings settings ) {
+		boolean pass = true;
+
+		for( SettingDependency dependency : dependencies ) {
+			pass = dependency.evaluate( settings, pass );
 		}
 
 		return pass;

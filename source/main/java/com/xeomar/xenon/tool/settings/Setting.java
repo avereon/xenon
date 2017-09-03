@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.settings.Settings;
@@ -11,13 +11,15 @@ public class Setting extends Node {
 
 	public static final String KEY = "key";
 
-	public static final String SETTING_VALUE = "value";
+	public static final String VALUE = "value";
 
 	public static final String PRESENTATION = "presentation";
 
 	private static final String ENABLED = "enabled";
 
 	private static final String VISIBLE = "visible";
+
+	private static final String OPAQUE = "opaque";
 
 	private static final String OPTIONS = "options";
 
@@ -36,8 +38,16 @@ public class Setting extends Node {
 		return getValue( KEY );
 	}
 
+	public void setKey( String key ) {
+		setValue( KEY, key );
+	}
+
 	public String getSettingValue() {
-		return getValue( SETTING_VALUE );
+		return getValue( VALUE );
+	}
+
+	public void setSettingValue( String value ) {
+		setValue( VALUE, value );
 	}
 
 	public String getPresentation() {
@@ -68,6 +78,14 @@ public class Setting extends Node {
 		setFlag( VISIBLE, visible );
 	}
 
+	public boolean isOpaque() {
+		return getFlag( OPAQUE );
+	}
+
+	public void setOpaque( boolean opaque ) {
+		setFlag( OPAQUE, opaque );
+	}
+
 	public List<SettingOption> getOptions() {
 		return Collections.unmodifiableList( getValue( OPTIONS ) );
 	}
@@ -84,16 +102,6 @@ public class Setting extends Node {
 	public void addDependency( SettingDependency dependency ) {
 		List<SettingDependency> dependencies = getValue( DEPENDENCIES );
 		dependencies.add( dependency );
-	}
-
-	public boolean evaluateDependencies( Settings settings ) {
-		boolean pass = true;
-
-		for( SettingDependency dependency : getDependencies() ) {
-			pass = dependency.evaluate( settings, pass );
-		}
-
-		return pass;
 	}
 
 	public SettingOption getOption( String value ) {
@@ -122,7 +130,7 @@ public class Setting extends Node {
 	}
 
 	private boolean canEnable() {
-		return !getFlag( "disabled" ) && evaluateDependencies(settings);
+		return !getFlag( "disabled" ) && SettingDependency.evaluate(getDependencies(),settings);
 	}
 
 }

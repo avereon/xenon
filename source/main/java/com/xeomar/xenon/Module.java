@@ -7,17 +7,17 @@ import java.io.File;
 
 public abstract class Module implements Product, Comparable<Module> {
 
-	protected Program service;
+	protected Program program;
 
 	protected ProductMetadata card;
 
-	public Module( Program service, ProductMetadata moduleCard ) {
-		this.service = service;
+	public Module( Program program, ProductMetadata moduleCard ) {
+		this.program = program;
 		this.card = moduleCard;
 	}
 
 	public Program getProgram() {
-		return service;
+		return program;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public abstract class Module implements Product, Comparable<Module> {
 	 */
 	@Override
 	public File getDataFolder() {
-		return new File( service.getDataFolder(), card.getProductKey() );
+		return new File( program.getDataFolder(), card.getProductKey() );
 	}
 
 	/**

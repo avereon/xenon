@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
@@ -6,6 +6,8 @@ import com.xeomar.xenon.SettingsManager;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
+import com.xeomar.xenon.tool.Guide;
+import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.worktool.ToolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

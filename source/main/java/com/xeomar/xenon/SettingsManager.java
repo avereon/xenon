@@ -2,17 +2,22 @@ package com.xeomar.xenon;
 
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
+import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.settings.DelayedStoreSettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.settings.SettingsListener;
+import com.xeomar.xenon.tool.settings.SettingsPage;
+import com.xeomar.xenon.tool.settings.SettingsPageParser;
 import com.xeomar.xenon.util.Controllable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +29,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Map<String, File> paths;
 
-	private Map<File,Settings> settingsMap;
+	private Map<File, Settings> settingsMap;
 
 	private SettingsListener settingsWatcher;
 
@@ -59,6 +64,29 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return settings;
 	}
 
+	public Set<SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
+		Set<SettingsPage> pages;
+		try {
+			pages = new SettingsPageParser( product, settings ).parse( path );
+			addSettingsPages( pages );
+		} catch( IOException exception ) {
+			log.error( "Error loading settings page: " + path, exception );
+		}
+		return null;
+	}
+
+	public void addSettingsPages( Set<SettingsPage> pages ) {
+		log.warn( "Adding settings pages..." );
+
+		// TODO Get the settings program resource
+		// TODO Get the guide from the resource
+		// TODO Add the new pages and update the guide
+	}
+
+	public void removeSettingsPages( Set<SettingsPage> pages ) {
+		log.warn( "Removing settings pages..." );
+	}
+
 	@Override
 	public boolean isRunning() {
 		return settingsMap != null;
@@ -66,7 +94,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	@Override
 	public SettingsManager start() {
-		settingsMap = new ConcurrentHashMap<>(  );
+		settingsMap = new ConcurrentHashMap<>();
 		return this;
 	}
 

@@ -19,8 +19,9 @@ import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
-import com.xeomar.xenon.tool.SettingsTool;
 import com.xeomar.xenon.tool.WelcomeTool;
+import com.xeomar.xenon.tool.settings.SettingsPage;
+import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.util.JavaUtil;
 import com.xeomar.xenon.util.OperatingSystem;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
@@ -71,6 +72,8 @@ public class Program extends Application implements Product {
 	private ActionLibrary actionLibrary;
 
 	private SettingsManager settingsManager;
+
+	private Set<SettingsPage> settingsPages;
 
 	private ToolManager toolManager;
 
@@ -209,8 +212,18 @@ public class Program extends Application implements Product {
 	}
 
 	@Override
+	public Program getProgram() {
+		return this;
+	}
+
+	@Override
 	public ProductMetadata getMetadata() {
 		return metadata;
+	}
+
+	@Override
+	public ClassLoader getClassLoader() {
+		return getClass().getClassLoader();
 	}
 
 	@Override
@@ -330,6 +343,9 @@ public class Program extends Application implements Product {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
+		// Load the settings pages
+		registerSettingsPages();
+
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
@@ -373,6 +389,9 @@ public class Program extends Application implements Product {
 			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			unregisterTools( toolManager );
 			log.debug( "Tool manager stopped." );
+
+			// Unregister the settings pages
+			unregisterSettingsPages();
 
 			// Stop the resource manager
 			log.trace( "Stopping resource manager..." );
@@ -467,6 +486,14 @@ public class Program extends Application implements Product {
 
 	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass ) {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
+	}
+
+	private void registerSettingsPages() {
+		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
+	}
+
+	private void unregisterSettingsPages() {
+		getSettingsManager().removeSettingsPages( settingsPages );
 	}
 
 	private class Startup extends Task<Void> {
