@@ -305,8 +305,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 	protected void setFlag( String key, boolean newValue ) {
 		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-
-		if( readOnlySet != null && readOnlySet.contains( key ) ) return;
+		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only flag: " + key );
 
 		boolean oldValue = getFlag( key );
 		if( newValue == oldValue ) return;
@@ -340,8 +339,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 	protected void setValue( String key, Object newValue ) {
 		if( key == null ) throw new NullPointerException( "Value key cannot be null" );
-
-		if( readOnlySet != null && readOnlySet.contains( key ) ) return;
+		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only value: " + key );
 
 		Object oldValue = getValue( key );
 		if( newValue == oldValue ) return;
