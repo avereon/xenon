@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class NodeTest {
 
@@ -155,7 +156,7 @@ public class NodeTest {
 
 		try {
 			data.setValue( null, "value" );
-			Assert.fail( "Null value keys are not allowed" );
+			fail( "Null value keys are not allowed" );
 		} catch( NullPointerException exception ) {
 			assertThat( exception.getMessage(), is( "Value key cannot be null" ) );
 		}
@@ -166,7 +167,7 @@ public class NodeTest {
 	public void testGetValueWithNullKey() {
 		try {
 			data.getValue( null );
-			Assert.fail( "Null value keys are not allowed." );
+			fail( "Null value keys are not allowed." );
 		} catch( NullPointerException exception ) {
 			assertThat( exception.getMessage(), is( "Value key cannot be null" ) );
 		}
@@ -334,7 +335,7 @@ public class NodeTest {
 
 		try {
 			data.setFlag( null, true );
-			Assert.fail( "Null flag keys are not allowed" );
+			fail( "Null flag keys are not allowed" );
 		} catch( NullPointerException exception ) {
 			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
 		}
@@ -348,7 +349,7 @@ public class NodeTest {
 
 		try {
 			data.getFlag( null );
-			Assert.fail( "Null flag keys are not allowed" );
+			fail( "Null flag keys are not allowed" );
 		} catch( NullPointerException exception ) {
 			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
 		}
@@ -871,7 +872,7 @@ public class NodeTest {
 		MockNode node = new MockNode();
 		try {
 			node.setValue( "node", node );
-			Assert.fail( "CircularReferenceException should be thrown" );
+			fail( "CircularReferenceException should be thrown" );
 		} catch( CircularReferenceException exception ) {
 			// Intentionally ignore exception.
 			assertThat( exception.getMessage(), startsWith( "Circular reference detected" ) );
@@ -972,7 +973,12 @@ public class NodeTest {
 		assertThat( data.isReadOnly( "id" ), is( true ) );
 		assertThat( data.getValue( "id" ), is( "123456789" ) );
 
-		data.setValue( "id", "987654321" );
+		try {
+			data.setValue( "id", "987654321" );
+			fail( "Should throw an IllegalStateException" );
+		} catch( IllegalStateException exception ) {
+			// Intentially ignore exception
+		}
 		assertThat( data.getValue( "id" ), is( "123456789" ) );
 	}
 

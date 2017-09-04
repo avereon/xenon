@@ -26,7 +26,6 @@ public class SettingsPage extends Node {
 
 		definePrimaryKey( KEY );
 		defineBusinessKey( TITLE );
-		defineReadOnly( KEY );
 
 		setModified( false );
 	}
