@@ -7,13 +7,16 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.tool.Guide;
+import javafx.scene.control.TreeItem;
 
 public class ProgramSettingsType extends ResourceType {
 
 	public static final String URI = "program:settings";
 
+	public static final String KEY = "settings";
+
 	public ProgramSettingsType( Product product ) {
-		super( product, "settings" );
+		super( product, KEY );
 	}
 
 	@Override
@@ -29,7 +32,9 @@ public class ProgramSettingsType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( program.getSettingsManager().getProgramSettings() );
-		resource.putResource( Guide.GUIDE_KEY, new Guide<>() );
+		Guide guide = new Guide();
+		guide.setRoot( new TreeItem<>() );
+		resource.putResource( Guide.GUIDE_KEY, guide);
 		return true;
 	}
 

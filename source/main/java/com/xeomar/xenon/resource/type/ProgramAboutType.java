@@ -42,13 +42,13 @@ public class ProgramAboutType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( getProduct().getMetadata() );
-		resource.putResource( Guide.GUIDE_KEY, new Guide<>() );
+		resource.putResource( Guide.GUIDE_KEY, new Guide() );
 		updateGuide( program, resource );
 		return true;
 	}
 
 	private void updateGuide( Program program, Resource resource ) {
-		Guide<GuideNode> guide = resource.getResource( Guide.GUIDE_KEY );
+		Guide guide = resource.getResource( Guide.GUIDE_KEY );
 
 		TreeItem<GuideNode> root = guide.getRoot();
 		if( root != null ) return;

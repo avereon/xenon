@@ -4,21 +4,25 @@ import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.resource.type.ProgramSettingsType;
 import com.xeomar.xenon.settings.DelayedStoreSettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.settings.SettingsListener;
+import com.xeomar.xenon.tool.Guide;
+import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsPageParser;
 import com.xeomar.xenon.util.Controllable;
+import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class SettingsManager implements Controllable<SettingsManager> {
@@ -33,8 +37,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private SettingsListener settingsWatcher;
 
+	private Map<String, SettingsPage> settingsPages;
+
 	public SettingsManager( Program program ) {
 		this.program = program;
+		this.settingsPages = new ConcurrentHashMap<>();
 		this.settingsWatcher = new SettingsWatcher( program );
 
 		paths = new ConcurrentHashMap<>();
@@ -64,27 +71,92 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return settings;
 	}
 
+	public Collection<SettingsPage> getSettingsPages() {
+		return Collections.unmodifiableCollection( settingsPages.values() );
+	}
+
 	public Set<SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
-		Set<SettingsPage> pages;
+		Set<SettingsPage> pages = Collections.emptySet();
 		try {
 			pages = new SettingsPageParser( product, settings ).parse( path );
 			addSettingsPages( pages );
 		} catch( IOException exception ) {
 			log.error( "Error loading settings page: " + path, exception );
 		}
-		return null;
+		return pages;
 	}
 
 	public void addSettingsPages( Set<SettingsPage> pages ) {
 		log.warn( "Adding settings pages..." );
 
-		// TODO Get the settings program resource
-		// TODO Get the guide from the resource
-		// TODO Add the new pages and update the guide
+		// Add pages to the map, don't allow overrides
+		for( SettingsPage page : pages ) {
+			settingsPages.putIfAbsent( page.getKey(), page );
+		}
+
+		updateSettingsGuide();
 	}
 
 	public void removeSettingsPages( Set<SettingsPage> pages ) {
 		log.warn( "Removing settings pages..." );
+
+		for( SettingsPage page : pages ) {
+			settingsPages.remove( page.getKey() );
+		}
+
+		updateSettingsGuide();
+	}
+
+	private void updateSettingsGuide() {
+		// Get the settings program resource
+		ProgramSettingsType resourceType = (ProgramSettingsType)program.getResourceManager().getResourceType( ProgramSettingsType.KEY );
+		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
+		try {
+			program.getResourceManager().openResourcesAndWait( settingsResource );
+		} catch( Exception exception ) {
+			log.error( "Error getting settings resource", exception );
+		}
+		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
+
+		if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
+
+		// Create a map of the title keys except general
+		Map<String, String> titledKeys = new HashMap<>();
+		for( SettingsPage page : settingsPages.values() ) {
+			if( "general".equals( page.getKey() ) ) continue;
+			titledKeys.put( page.getTitle(), page.getKey() );
+		}
+
+		// Create a sorted list of the titles other than General
+		List<String> titles = new ArrayList<>( titledKeys.keySet() );
+		Collections.sort( titles );
+
+		// Get the guide root node
+		TreeItem<GuideNode> root = guide.getRoot();
+		if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
+
+		// Clear the guide nodes
+		root.getChildren().clear();
+
+		// Add the general node to the guide
+		root.getChildren().add( getGuideNode( "general" ) );
+
+		// Add the remaining nodes to the guide
+		for( String title : titles ) {
+			root.getChildren().add( getGuideNode( titledKeys.get( title ) ) );
+		}
+
+		// NEXT Update the guide
+	}
+
+	private TreeItem<GuideNode> getGuideNode( String key ) {
+		SettingsPage page = settingsPages.get( key );
+
+		GuideNode guideNode = new GuideNode();
+		guideNode.setId( key );
+		guideNode.setName( page.getTitle() );
+
+		return new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
 	}
 
 	@Override

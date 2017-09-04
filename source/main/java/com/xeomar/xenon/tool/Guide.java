@@ -7,29 +7,29 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
-public class Guide<T> {
+public class Guide {
 
 	public static final String GUIDE_KEY = GuideTool.class.getName() + ":guide";
 
-	private TreeItem<T> root;
+	private TreeItem<GuideNode> root;
 
 	private SelectionMode selectionMode;
 
 	private BooleanProperty activeProperty;
 
-	private ReadOnlyObjectWrapper<TreeItem<T>> selectedItem = new ReadOnlyObjectWrapper<TreeItem<T>>( this, "selectedItem" );
+	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem = new ReadOnlyObjectWrapper<TreeItem<GuideNode>>( this, "selectedItem" );
 
 	public Guide() {
 		selectionMode = SelectionMode.SINGLE;
 		activeProperty = new SimpleBooleanProperty( false );
-		selectedItem = new ReadOnlyObjectWrapper<TreeItem<T>>( this, "selectedItem" );
+		selectedItem = new ReadOnlyObjectWrapper<TreeItem<GuideNode>>( this, "selectedItem" );
 	}
 
-	public TreeItem<T> getRoot() {
+	public TreeItem<GuideNode> getRoot() {
 		return root;
 	}
 
-	public void setRoot( TreeItem<T> root ) {
+	public void setRoot( TreeItem<GuideNode> root ) {
 		this.root = root;
 	}
 
@@ -53,9 +53,9 @@ public class Guide<T> {
 		return activeProperty;
 	}
 
-	public final ReadOnlyObjectProperty<TreeItem<T>> selectedItemProperty() {
+	public final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
 		return selectedItem.getReadOnlyProperty();
 	}
 
-	final void setSelectedItem( TreeItem<T> value ) { selectedItem.set( value ); }
+	final void setSelectedItem( TreeItem<GuideNode> value ) { selectedItem.set( value ); }
 }

@@ -100,7 +100,7 @@ public class AboutTool extends ProductTool {
 	@Override
 	protected void activate() throws ToolException {
 		log.debug( "Tool activate" );
-		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( true );
 	}
 
@@ -112,7 +112,7 @@ public class AboutTool extends ProductTool {
 	@Override
 	protected void conceal() throws ToolException {
 		log.debug( "Tool conceal" );
-		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( false );
 	}
 
@@ -125,7 +125,7 @@ public class AboutTool extends ProductTool {
 	protected void resourceReady() throws ToolException {
 		log.debug( "Resource ready" );
 
-		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
 			selectedPage( newSelection );
 		} );

@@ -7,7 +7,6 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.Guide;
-import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.worktool.ToolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ public class SettingsTool extends ProductTool {
 	@Override
 	protected void activate() throws ToolException {
 		log.debug( "Settings tool activate" );
-		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( true );
 	}
 
@@ -54,7 +53,7 @@ public class SettingsTool extends ProductTool {
 	@Override
 	protected void conceal() throws ToolException {
 		log.debug( "Settings tool conceal" );
-		Guide<GuideNode> guide = getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		guide.setActive( false );
 	}
 
@@ -77,7 +76,7 @@ public class SettingsTool extends ProductTool {
 		// of the state of the resource. But I want it to be
 		// reasonably easy for module developers to add settings
 		// pages to the tool. But since the tool is a transient
-		// object they pages may need to be registered with the
+		// object the pages may need to be registered with the
 		// settings manager.
 		//manager.getSettingsPages();
 
