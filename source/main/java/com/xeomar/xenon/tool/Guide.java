@@ -17,12 +17,12 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
-	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem = new ReadOnlyObjectWrapper<TreeItem<GuideNode>>( this, "selectedItem" );
+	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
 
 	public Guide() {
 		selectionMode = SelectionMode.SINGLE;
 		activeProperty = new SimpleBooleanProperty( false );
-		selectedItem = new ReadOnlyObjectWrapper<TreeItem<GuideNode>>( this, "selectedItem" );
+		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
 	}
 
 	public TreeItem<GuideNode> getRoot() {

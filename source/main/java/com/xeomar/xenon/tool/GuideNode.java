@@ -23,13 +23,13 @@ public class GuideNode extends Node {
 		setValue( ID, id );
 	}
 
-	public String getIcon() {
-		return getValue( ICON );
-	}
-
-	public void setIcon( String name ) {
-		setValue( ICON, name );
-	}
+//	public String getIcon() {
+//		return getValue( ICON );
+//	}
+//
+//	public void setIcon( String name ) {
+//		setValue( ICON, name );
+//	}
 
 	public String getName() {
 		return getValue( NAME );

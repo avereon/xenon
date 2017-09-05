@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class SettingsManager implements Controllable<SettingsManager> {
@@ -37,7 +36,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private SettingsListener settingsWatcher;
 
-	private Map<String, SettingsPage> settingsPages;
+	private final Map<String, SettingsPage> settingsPages;
 
 	public SettingsManager( Program program ) {
 		this.program = program;
@@ -87,42 +86,46 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public void addSettingsPages( Set<SettingsPage> pages ) {
-		log.warn( "Adding settings pages..." );
+		synchronized( settingsPages ) {
+			log.warn( "Adding settings pages..." );
 
-		// Add pages to the map, don't allow overrides
-		for( SettingsPage page : pages ) {
-			settingsPages.putIfAbsent( page.getKey(), page );
+			// Add pages to the map, don't allow overrides
+			for( SettingsPage page : pages ) {
+				settingsPages.putIfAbsent( page.getKey(), page );
+			}
+
+			updateSettingsGuide( Collections.unmodifiableMap( settingsPages ) );
 		}
-
-		updateSettingsGuide();
 	}
 
 	public void removeSettingsPages( Set<SettingsPage> pages ) {
-		log.warn( "Removing settings pages..." );
+		synchronized( settingsPages ) {
+			log.warn( "Removing settings pages..." );
 
-		for( SettingsPage page : pages ) {
-			settingsPages.remove( page.getKey() );
+			for( SettingsPage page : pages ) {
+				settingsPages.remove( page.getKey() );
+			}
+
+			updateSettingsGuide( Collections.unmodifiableMap( settingsPages ) );
 		}
-
-		updateSettingsGuide();
 	}
 
-	private void updateSettingsGuide() {
+	private void updateSettingsGuide( Map<String, SettingsPage> pages ) {
 		// Get the settings program resource
-		ProgramSettingsType resourceType = (ProgramSettingsType)program.getResourceManager().getResourceType( ProgramSettingsType.KEY );
 		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		try {
 			program.getResourceManager().openResourcesAndWait( settingsResource );
 		} catch( Exception exception ) {
 			log.error( "Error getting settings resource", exception );
 		}
-		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
 
+		// Get the resource guide
+		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
 		if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
 
 		// Create a map of the title keys except general
 		Map<String, String> titledKeys = new HashMap<>();
-		for( SettingsPage page : settingsPages.values() ) {
+		for( SettingsPage page : pages.values() ) {
 			if( "general".equals( page.getKey() ) ) continue;
 			titledKeys.put( page.getTitle(), page.getKey() );
 		}
@@ -139,24 +142,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		root.getChildren().clear();
 
 		// Add the general node to the guide
-		root.getChildren().add( getGuideNode( "general" ) );
+		addGuideNode( root, pages.get( "general" ) );
 
 		// Add the remaining nodes to the guide
 		for( String title : titles ) {
-			root.getChildren().add( getGuideNode( titledKeys.get( title ) ) );
+			addGuideNode( root, pages.get( titledKeys.get( title ) ) );
 		}
-
-		// NEXT Update the guide
 	}
 
-	private TreeItem<GuideNode> getGuideNode( String key ) {
-		SettingsPage page = settingsPages.get( key );
+	private void addGuideNode( TreeItem<GuideNode> root, SettingsPage page ) {
+		if( page == null ) return;
 
 		GuideNode guideNode = new GuideNode();
-		guideNode.setId( key );
+		guideNode.setId( page.getKey() );
 		guideNode.setName( page.getTitle() );
 
-		return new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
+		root.getChildren().add( new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) ) );
 	}
 
 	@Override

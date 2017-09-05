@@ -103,6 +103,9 @@ public class SettingsPageParser {
 		page.putResource( SETTINGS, settings );
 		page.putResource( GuideNode.ICON, library.getIcon( "setting" ) );
 
+		page.setIcon( "setting" );
+		page.setTitle( "Setting" );
+
 		// Read the attributes.
 		String key;
 		String value;
@@ -119,7 +122,6 @@ public class SettingsPageParser {
 				}
 				case "icon": {
 					page.setIcon( value );
-					page.putResource( GuideNode.ICON, library.getIcon( value ) );
 					break;
 				}
 				case "title": {
