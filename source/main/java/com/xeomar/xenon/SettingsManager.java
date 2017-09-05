@@ -123,7 +123,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
 		if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
 
-		// Create a map of the title keys except general
+		// Create a map of the title keys except the general key, it gets special handling
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
 			if( "general".equals( page.getKey() ) ) continue;

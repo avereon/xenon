@@ -2,7 +2,7 @@
 
 <settings version="1.0">
 
-	<page key="general" icon="program">
+	<page key="general">
 
 		<group key="workspace">
 			<setting key="/manager/workspace/workarea-chooser-count" presentation="combobox">

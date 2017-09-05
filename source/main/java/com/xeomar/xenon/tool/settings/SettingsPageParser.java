@@ -88,23 +88,18 @@ public class SettingsPageParser {
 				case XMLStreamReader.START_ELEMENT: {
 					String tagName = reader.getLocalName();
 					if( PAGE.equals( tagName ) ) {
-						pages.add( parsePage( reader, pages ) );
+						pages.add( parsePage( reader ) );
 					}
 				}
 			}
 		}
 	}
 
-	private SettingsPage parsePage( XMLStreamReader reader, Set<SettingsPage> pages ) throws XMLStreamException {
-		IconLibrary library = product.getProgram().getIconLibrary();
-
+	private SettingsPage parsePage( XMLStreamReader reader ) throws XMLStreamException {
 		SettingsPage page = new SettingsPage();
 		page.putResource( PRODUCT, product );
 		page.putResource( SETTINGS, settings );
-		page.putResource( GuideNode.ICON, library.getIcon( "setting" ) );
-
 		page.setIcon( "setting" );
-		page.setTitle( "Setting" );
 
 		// Read the attributes.
 		String key;
@@ -117,7 +112,8 @@ public class SettingsPageParser {
 			switch( key ) {
 				case "key": {
 					page.setKey( value );
-					page.putResource( GuideNode.NAME, product.getResourceBundle().getString( "settings", value ) );
+					page.setIcon( value );
+					page.setTitle( product.getResourceBundle().getString( "settings", value ) );
 					break;
 				}
 				case "icon": {
@@ -145,7 +141,7 @@ public class SettingsPageParser {
 				case XMLStreamReader.START_ELEMENT: {
 					String tagName = reader.getLocalName();
 					if( PAGE.equals( tagName ) ) {
-						page.addPage( parsePage( reader, pages ) );
+						page.addPage( parsePage( reader ) );
 					} else if( GROUP.equals( tagName ) ) {
 						if( group != null ) {
 							page.addGroup( group );
