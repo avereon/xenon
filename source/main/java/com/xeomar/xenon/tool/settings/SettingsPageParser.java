@@ -1,9 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.IconLibrary;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.tool.GuideNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +110,6 @@ public class SettingsPageParser {
 			switch( key ) {
 				case "key": {
 					page.setKey( value );
-					page.setIcon( value );
 					page.setTitle( product.getResourceBundle().getString( "settings", value ) );
 					break;
 				}

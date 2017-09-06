@@ -30,6 +30,7 @@ public class IconLibrary {
 		register( "indent", IndentIcon.class );
 		register( "unindent", UnindentIcon.class );
 
+		register( "setting", SettingIcon.class );
 		register( "settings", SettingsIcon.class );
 
 		register( "welcome", WelcomeIcon.class );
