@@ -47,17 +47,17 @@ public class SettingsPageParser {
 		this.settings = settings;
 	}
 
-	public Set<SettingsPage> parse( String path ) throws IOException {
+	public Map<String, SettingsPage> parse( String path ) throws IOException {
 		if( path.startsWith( "/" ) ) path = path.substring( 1 );
 		InputStream input = product.getClassLoader().getResourceAsStream( path );
 		if( input == null ) log.warn( "Settings page input stream is null: " + path );
 		return parse( input );
 	}
 
-	public Set<SettingsPage> parse( InputStream input ) throws IOException {
+	public Map<String, SettingsPage> parse( InputStream input ) throws IOException {
 		if( input == null ) return null;
 
-		Set<SettingsPage> pages = new HashSet<>();
+		Map<String, SettingsPage> pages = new HashMap<>();
 		XMLStreamReader reader;
 		try {
 			reader = xmlInputFactory.createXMLStreamReader( input );
@@ -72,7 +72,7 @@ public class SettingsPageParser {
 		return pages;
 	}
 
-	private void parse( XMLStreamReader reader, Set<SettingsPage> pages ) throws XMLStreamException {
+	private void parse( XMLStreamReader reader, Map<String, SettingsPage> pages ) throws XMLStreamException {
 		if( !reader.hasNext() ) return;
 
 		reader.next();
@@ -86,7 +86,8 @@ public class SettingsPageParser {
 				case XMLStreamReader.START_ELEMENT: {
 					String tagName = reader.getLocalName();
 					if( PAGE.equals( tagName ) ) {
-						pages.add( parsePage( reader ) );
+						SettingsPage page = parsePage( reader );
+						pages.put( page.getId(), page );
 					}
 				}
 			}
@@ -144,6 +145,8 @@ public class SettingsPageParser {
 
 		return page;
 	}
+
+	// FIXME Switch all parse methods to use parsePage pattern
 
 	private SettingGroup parseGroup( XMLStreamReader reader ) throws XMLStreamException {
 		SettingGroup group = new SettingGroup( settings );

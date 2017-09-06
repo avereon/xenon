@@ -35,6 +35,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -73,7 +74,7 @@ public class Program extends Application implements Product {
 
 	private SettingsManager settingsManager;
 
-	private Set<SettingsPage> settingsPages;
+	private Map<String, SettingsPage> settingsPages;
 
 	private ToolManager toolManager;
 

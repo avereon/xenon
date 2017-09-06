@@ -70,12 +70,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return settings;
 	}
 
-	public Collection<SettingsPage> getSettingsPages() {
-		return Collections.unmodifiableCollection( settingsPages.values() );
+	public Map<String, SettingsPage> getSettingsPages() {
+		return Collections.unmodifiableMap( settingsPages );
 	}
 
-	public Set<SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
-		Set<SettingsPage> pages = Collections.emptySet();
+	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
+		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
 			pages = new SettingsPageParser( product, settings ).parse( path );
 			addSettingsPages( pages );
@@ -85,12 +85,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return pages;
 	}
 
-	public void addSettingsPages( Set<SettingsPage> pages ) {
+	public void addSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( settingsPages ) {
 			log.warn( "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
-			for( SettingsPage page : pages ) {
+			for( SettingsPage page : pages.values() ) {
 				settingsPages.putIfAbsent( page.getId(), page );
 			}
 
@@ -98,11 +98,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 	}
 
-	public void removeSettingsPages( Set<SettingsPage> pages ) {
+	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( settingsPages ) {
 			log.warn( "Removing settings pages..." );
 
-			for( SettingsPage page : pages ) {
+			for( SettingsPage page : pages.values() ) {
 				settingsPages.remove( page.getId() );
 			}
 
