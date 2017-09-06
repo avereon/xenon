@@ -94,39 +94,26 @@ public class SettingsPageParser {
 	}
 
 	private SettingsPage parsePage( XMLStreamReader reader ) throws XMLStreamException {
+		// Read the attributes.
+		int count = reader.getAttributeCount();
+		Map<String, String> attributes = new HashMap<>();
+		for( int index = 0; index < count; index++ ) {
+			attributes.put( reader.getAttributeLocalName( index ), reader.getAttributeValue( index ) );
+		}
+
+		String id = attributes.get( "id" );
+		String icon = attributes.get( "icon" );
+		if( icon == null ) icon = "setting";
+		String title = attributes.get( "title" );
+		if( title == null ) title = product.getResourceBundle().getString( "settings", id );
+		if( title == null ) title = id;
+
 		SettingsPage page = new SettingsPage();
 		page.putResource( PRODUCT, product );
 		page.putResource( SETTINGS, settings );
-		page.setIcon( "setting" );
-
-		// Read the attributes.
-		String key;
-		String value;
-		int count = reader.getAttributeCount();
-		for( int index = 0; index < count; index++ ) {
-			key = reader.getAttributeLocalName( index );
-			value = reader.getAttributeValue( index );
-
-			switch( key ) {
-				case "key": {
-					page.setKey( value );
-					page.setTitle( product.getResourceBundle().getString( "settings", value ) );
-					break;
-				}
-				case "icon": {
-					page.setIcon( value );
-					break;
-				}
-				case "title": {
-					page.setTitle( value );
-					break;
-				}
-				default: {
-					log.warn( "Unknown settings page attribute: " + key + "=" + value );
-					break;
-				}
-			}
-		}
+		page.setId( id );
+		page.setIcon( icon );
+		page.setTitle( title );
 
 		SettingGroup group = null;
 
@@ -170,8 +157,8 @@ public class SettingsPageParser {
 			value = reader.getAttributeValue( index );
 
 			switch( name ) {
-				case "key": {
-					group.setKey( value );
+				case "id": {
+					group.setId( value );
 					break;
 				}
 				default: {

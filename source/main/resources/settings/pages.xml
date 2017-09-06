@@ -2,9 +2,9 @@
 
 <settings version="1.0">
 
-	<page key="general">
+	<page id="general">
 
-		<group key="workspace">
+		<group id="workspace">
 			<setting key="/manager/workspace/workarea-chooser-count" presentation="combobox">
 				<option>5</option>
 				<option>10</option>
@@ -19,14 +19,14 @@
 			</setting>
 		</group>
 
-		<group key="shutdown">
+		<group id="shutdown">
 			<setting key="/shutdown/verify" presentation="checkbox" />
 			<setting key="/shutdown/autosave" presentation="checkbox" />
 			<setting key="/shutdown/keepalive" presentation="checkbox" />
 		</group>
 
-		<page key="updates">
-			<group key="updates.schedule">
+		<page id="updates">
+			<group id="updates-schedule">
 				<setting key="/manager/product/update/check" presentation="combobox">
 					<option key="interval" />
 					<option key="schedule" />
@@ -80,7 +80,7 @@
 				</setting>
 			</group>
 
-			<group key="updates.actions">
+			<group id="updates-actions">
 				<setting key="/manager/product/update/notice" presentation="combobox">
 					<option key="once" />
 					<option key="minute.30" />
@@ -105,17 +105,17 @@
 
 	</page>
 
-	<page key="appearance">
+	<page id="appearance">
 
-		<group key="workspace.theme">
+		<group id="workspace-theme">
 			<setting key="/workspace/theme/base" presentation="color" disabled="false" />
 			<setting key="/workspace/theme/background" presentation="color" disabled="true" />
 			<setting key="/workspace/theme/foreground" presentation="color" disabled="true" />
 		</group>
 
 		<!--
-		<page key="look.and.feel">
-			<group key="look.and.feel">
+		<page id="look.and.feel">
+			<group id="look.and.feel">
 				<setting key="/workspace/lookandfeel/name" presentation="combobox">
 					<option key="nimbus" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
 					<option key="metal" value="javax.swing.plaf.metal.MetalLookAndFeel" />
@@ -123,14 +123,14 @@
 				</setting>
 			</group>
 
-			<group key="nimbus.theme">
+			<group id="nimbus.theme">
 				<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
 				<setting key="/workspace/lookandfeel/nimbus/theme" presentation="color" opaque="true">
 					<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
 				</setting>
 			</group>
 
-			<group key="metal.theme">
+			<group id="metal.theme">
 				<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.metal.MetalLookAndFeel" />
 				<setting key="/workspace/lookandfeel/metal/theme" presentation="combobox">
 					<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.metal.MetalLookAndFeel" />
@@ -143,8 +143,8 @@
 		</page>
 		-->
 
-		<page key="background">
-			<group key="background">
+		<page id="background">
+			<group id="background">
 				<setting key="/workspace/scenery/back-direction" presentation="combobox">
 					<option key="vertical" value="1" />
 					<option key="horizontal" value="0" />
@@ -196,8 +196,8 @@
 			</group>
 		</page>
 
-		<page key="task.monitor">
-			<group key="task.monitor">
+		<page id="task-monitor">
+			<group id="task-monitor">
 				<setting key="/workspace/task/monitor/enabled" presentation="checkbox" />
 				<setting key="/workspace/task/monitor/text" presentation="checkbox">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
@@ -221,8 +221,8 @@
 			</group>
 		</page>
 
-		<page key="memory.monitor">
-			<group key="memory.monitor">
+		<page id="memory-monitor">
+			<group id="memory-monitor">
 				<setting key="/workspace/memory/monitor/enabled" presentation="checkbox" />
 				<setting key="/workspace/memory/monitor/text" presentation="checkbox">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
@@ -250,23 +250,23 @@
 		</page>
 	</page>
 
-	<page key="network">
+	<page id="network">
 
-		<group key="ipv6">
+		<group id="ipv6">
 			<setting key="/network/enableipv6" presentation="checkbox" />
 			<setting key="/network/preferipv6" presentation="checkbox">
 				<dependency key="/network/enableipv6" value="true" />
 			</setting>
 		</group>
 
-		<page key="proxy">
-			<group key="proxy.mode">
+		<page id="proxy">
+			<group id="proxy-mode">
 				<setting key="/network/proxy/mode" presentation="combobox">
 					<option key="direct" />
 					<option key="manual" />
 				</setting>
 			</group>
-			<group key="proxy.settings">
+			<group id="proxy-settings">
 				<setting key="/network/proxy/all" presentation="checkbox">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
@@ -293,7 +293,7 @@
 				</setting>
 			</group>
 
-			<group key="proxy.authentication">
+			<group id="proxy-authentication">
 				<setting key="/network/proxy/username">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
@@ -304,20 +304,20 @@
 		</page>
 	</page>
 
-	<page key="tools">
-		<page key="guide">
-			<group key="options">
+	<page id="tools">
+		<page id="guide">
+			<group id="options">
 				<setting key="/manager/workspace/guide-auto-expand" presentation="checkbox" />
 				<setting key="/manager/workspace/guide-auto-collapse" presentation="checkbox">
 					<dependency key="/manager/workspace/guide-auto-expand" value="true" />
 				</setting>
 			</group>
 		</page>
-		<page key="resource.manager">
-			<group key="options">
+		<page id="resource-manager">
+			<group id="options">
 				<setting key="/manager/resource/showuri" presentation="checkbox" />
 			</group>
-			<group key="colors">
+			<group id="colors">
 				<setting key="/manager/resource/color/hidden" presentation="color" />
 				<setting key="/manager/resource/color/disabled" presentation="color" />
 				<setting key="/manager/resource/color/modified" presentation="color" />

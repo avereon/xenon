@@ -4,13 +4,13 @@ import com.xeomar.xenon.node.Node;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SettingsPage extends Node {
 
-	public static final String KEY = "key";
+	public static final String ID = "id";
 
 	private static final String ICON = "icon";
 
@@ -22,20 +22,20 @@ public class SettingsPage extends Node {
 
 	public SettingsPage() {
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
-		setValue( PAGES, new CopyOnWriteArraySet<>() );
+		setValue( PAGES, new ConcurrentHashMap<>() );
 
-		definePrimaryKey( KEY );
+		definePrimaryKey( ID );
 		defineBusinessKey( TITLE );
 
 		setModified( false );
 	}
 
-	public String getKey() {
-		return getValue( KEY );
+	public String getId() {
+		return getValue( ID );
 	}
 
-	public void setKey( String key ) {
-		setValue( KEY, key );
+	public void setId( String id ) {
+		setValue( ID, id );
 	}
 
 	public String getIcon() {
@@ -63,13 +63,13 @@ public class SettingsPage extends Node {
 		groups.add( group );
 	}
 
-	public Set<SettingsPage> getPages() {
-		return Collections.unmodifiableSet( getValue( PAGES ) );
+	public Map<String, SettingsPage> getPages() {
+		return Collections.unmodifiableMap( getValue( PAGES ) );
 	}
 
 	public void addPage( SettingsPage page ) {
-		Set<SettingsPage> pages = getValue( PAGES );
-		pages.add( page );
+		ConcurrentHashMap<String, SettingsPage> pages = getValue( PAGES );
+		pages.put( page.getId(), page );
 	}
 
 }

@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SettingGroup extends Node {
 
-	private static final String KEY = "key";
+	private static final String ID = "id";
 
 	private static final String ENABLED = "enabled";
 
@@ -23,6 +23,7 @@ public class SettingGroup extends Node {
 
 	public SettingGroup( Settings settings ) {
 		this.settings = settings;
+		definePrimaryKey( ID );
 		setValue( SETTINGS, new CopyOnWriteArrayList<Setting>() );
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setEnabled( true );
@@ -30,12 +31,12 @@ public class SettingGroup extends Node {
 		setModified( false );
 	}
 
-	public String getKey() {
-		return getValue( KEY );
+	public String getId() {
+		return getValue( ID );
 	}
 
-	public void setKey( String key ) {
-		setValue( KEY, key );
+	public void setId( String id ) {
+		setValue( ID, id );
 	}
 
 	public boolean isEnabled() {

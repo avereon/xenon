@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.settings.MockSettings;
 import com.xeomar.xenon.settings.Settings;

@@ -91,7 +91,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages ) {
-				settingsPages.putIfAbsent( page.getKey(), page );
+				settingsPages.putIfAbsent( page.getId(), page );
 			}
 
 			updateSettingsGuide( Collections.unmodifiableMap( settingsPages ) );
@@ -103,7 +103,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			log.warn( "Removing settings pages..." );
 
 			for( SettingsPage page : pages ) {
-				settingsPages.remove( page.getKey() );
+				settingsPages.remove( page.getId() );
 			}
 
 			updateSettingsGuide( Collections.unmodifiableMap( settingsPages ) );
@@ -123,20 +123,30 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
 		if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
 
+		// Get the guide root node
+		TreeItem<GuideNode> root = guide.getRoot();
+		if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
+
+		addChildNodes(root, pages);
+	}
+
+	private void addChildNodes( TreeItem<GuideNode> root, Map<String, SettingsPage> pages ) {
 		// Create a map of the title keys except the general key, it gets special handling
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
-			if( "general".equals( page.getKey() ) ) continue;
-			titledKeys.put( page.getTitle(), page.getKey() );
+			if( "general".equals( page.getId() ) ) continue;
+
+			String title = page.getTitle();
+			String id = page.getId();
+
+			if( title == null ) log.error( "Settings page title is null: " + id );
+
+			titledKeys.put( page.getTitle(), page.getId() );
 		}
 
 		// Create a sorted list of the titles other than General
 		List<String> titles = new ArrayList<>( titledKeys.keySet() );
 		Collections.sort( titles );
-
-		// Get the guide root node
-		TreeItem<GuideNode> root = guide.getRoot();
-		if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
 
 		// Clear the guide nodes
 		root.getChildren().clear();
@@ -146,7 +156,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		// Add the remaining nodes to the guide
 		for( String title : titles ) {
-			addGuideNode( root, pages.get( titledKeys.get( title ) ) );
+			addGuideNode( root,  pages.get( titledKeys.get( title ) ) );
 		}
 	}
 
@@ -154,10 +164,13 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		if( page == null ) return;
 
 		GuideNode guideNode = new GuideNode();
-		guideNode.setId( page.getKey() );
+		guideNode.setId( page.getId() );
 		guideNode.setName( page.getTitle() );
 
-		root.getChildren().add( new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) ) );
+		TreeItem<GuideNode> child = new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
+		root.getChildren().add( child );
+
+		addChildNodes( child, page.getPages() );
 	}
 
 	@Override

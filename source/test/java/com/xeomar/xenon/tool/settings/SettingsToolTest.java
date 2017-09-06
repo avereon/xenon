@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.FxProgramTestCase;
 import com.xeomar.xenon.resource.Resource;
