@@ -1,20 +1,19 @@
 package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.ProductTool;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.SettingsManager;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.Guide;
 import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.worktool.ToolException;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class SettingsTool extends ProductTool {
@@ -25,10 +24,6 @@ public class SettingsTool extends ProductTool {
 		super( product, resource );
 		setId( "tool-settings" );
 		setTitle( product.getResourceBundle().getString( "tool", "settings-name" ) );
-
-		// I suppose all the settings pages can be created here. The
-		// pages are not part of the resource so they can be used here.
-		//List<SettingsPage> pages = ((Program)getProduct()).getSettingsManager().getSettingsPages();
 	}
 
 	@Override
@@ -69,28 +64,33 @@ public class SettingsTool extends ProductTool {
 	protected void resourceReady() throws ToolException {
 		log.debug( "Settings tool resource ready" );
 
-		// Register the guide selection listener
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
-			selectedPage( newSelection );
-		} );
-
-		SettingsManager manager = ((Program)getProduct()).getSettingsManager();
-		Map<String,SettingsPage> pages = manager.getSettingsPages();
-
-
 		resourceRefreshed();
 	}
 
-	private void selectedPage( TreeItem<GuideNode> item ) {
-		if( item == null ) return;
-		selectedPage( item.getValue().getId() );
+	@Override
+	public void resourceRefreshed() {
+		// Register the guide selection listener
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
+			selectItem( newSelection );
+		} );
 	}
 
-	private void selectedPage( String item ) {
+	private void selectItem( TreeItem<GuideNode> item ) {
 		getChildren().clear();
-		log.warn( "Settings page selected: " + item );
-		// TODO if( item != null ) getChildren().add( nodes.get( item ) );
+		if( item == null ) return;
+		selectPage( item.getValue().getPage() );
+	}
+
+	private void selectPage( SettingsPage page ) {
+		log.warn( "Settings page selected: " + page );
+		if( page == null ) return;
+
+		// FIXME Page is not taking all the horizontal space like I want it to
+		ScrollPane scroller = new ScrollPane( new SettingsPanel( getProduct(), page ) );
+		BorderPane pane = new BorderPane();
+		pane.setCenter( scroller );
+		getChildren().add( pane );
 	}
 
 	public Set<String> getResourceDependencies() {

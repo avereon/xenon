@@ -18,9 +18,9 @@ public class SettingsPageParser {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsPageParser.class );
 
-	public static final String PRODUCT = "product";
+	private static final String PRODUCT = "product";
 
-	public static final String SETTINGS = "settings";
+	private static final String SETTINGS = "settings";
 
 	private static final String PAGE = "page";
 
@@ -32,7 +32,23 @@ public class SettingsPageParser {
 
 	private static final String DEPENDENCY = "dependency";
 
+	private static final String OPERATOR = "operator";
+
+	private static final String ID = "id";
+
 	private static final String KEY = "key";
+
+	private static final String VALUE = "value";
+
+	private static final String ICON = "icon";
+
+	private static final String TITLE = "title";
+
+	private static final String PRESENTATION = "presentation";
+
+	private static final String ENABLED = "enabled";
+
+	private static final String OPAQUE = "opaque";
 
 	private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
@@ -52,7 +68,7 @@ public class SettingsPageParser {
 		return parse( input );
 	}
 
-	public Map<String, SettingsPage> parse( InputStream input ) throws IOException {
+	private Map<String, SettingsPage> parse( InputStream input ) throws IOException {
 		if( input == null ) return null;
 
 		Map<String, SettingsPage> pages = new HashMap<>();
@@ -96,11 +112,11 @@ public class SettingsPageParser {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
-		String id = attributes.get( "id" );
-		String icon = attributes.get( "icon" );
-		if( icon == null ) icon = "setting";
-		String title = attributes.get( "title" );
-		if( title == null ) title = product.getResourceBundle().getString( "settings", id );
+		String id = attributes.get( ID );
+		String icon = attributes.get( ICON );
+		if( icon == null ) icon = SETTING;
+		String title = attributes.get( TITLE );
+		if( title == null ) title = product.getResourceBundle().getString( SETTINGS, id );
 		if( title == null ) title = id;
 
 		SettingsPage page = new SettingsPage();
@@ -143,7 +159,7 @@ public class SettingsPageParser {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
-		String id = attributes.get( "id" );
+		String id = attributes.get( ID );
 
 		SettingGroup group = new SettingGroup( settings );
 		group.setId( id );
@@ -171,12 +187,12 @@ public class SettingsPageParser {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
-		String key = attributes.get( "key" );
-		String presentation = attributes.get( "presentation" );
-		String enabled = attributes.get( "disabled" );
-		if( enabled == null ) enabled = "false";
-		String opaque = attributes.get( "opaque" );
-		if( opaque == null ) opaque = "false";
+		String key = attributes.get( KEY );
+		String presentation = attributes.get( PRESENTATION );
+		String enabled = attributes.get( ENABLED );
+		if( enabled == null ) enabled = String.valueOf( false );
+		String opaque = attributes.get( OPAQUE );
+		if( opaque == null ) opaque = String.valueOf( false );
 
 		Setting setting = new Setting( settings );
 		setting.setKey( key );
@@ -219,19 +235,19 @@ public class SettingsPageParser {
 		String text = textBuilder.length() == 0 ? null : textBuilder.toString();
 
 		// Determine the option key
-		String key = attributes.get( "key" );
-		if( key == null ) key = attributes.get( "value" );
+		String key = attributes.get( KEY );
+		if( key == null ) key = attributes.get( VALUE );
 		if( key == null ) key = text;
 
 		// Determine the option name
 		String optionName = text;
-		String nameRbKey = getBundleName( setting.getKey() ) + "-" + key;
-		if( optionName == null ) optionName = product.getResourceBundle().getString( "settings", nameRbKey );
+		String nameRbKey = getBundleKey( setting.getKey() ) + "-" + key;
+		if( optionName == null ) optionName = product.getResourceBundle().getString( SETTINGS, nameRbKey );
 
 		// Determine the option value
-		String optionValue = attributes.get( "value" );
+		String optionValue = attributes.get( VALUE );
 		if( optionValue == null ) optionValue = text;
-		if( optionValue == null ) optionValue = attributes.get( "key" );
+		if( optionValue == null ) optionValue = attributes.get( KEY );
 
 		// Set the option parameters
 		SettingOption option = new SettingOption();
@@ -242,50 +258,17 @@ public class SettingsPageParser {
 		return option;
 	}
 
-	public static String getBundleName( String key ) {
-		if( key == null ) return null;
-		if( key.startsWith( "/" ) ) key = key.substring( 1 );
-		key = key.replace( '/', '-' );
-		return key;
-	}
-
-	private Map<String, String> parseAttributes( XMLStreamReader reader ) throws XMLStreamException {
-		// Read the attributes.
-		Map<String, String> attributes = new HashMap<>();
-		int count = reader.getAttributeCount();
-		for( int index = 0; index < count; index++ ) {
-			attributes.put( reader.getAttributeLocalName( index ), reader.getAttributeValue( index ) );
-		}
-		return attributes;
-	}
-
 	private SettingDependency parseDependency( XMLStreamReader reader ) throws XMLStreamException {
-		SettingDependency dependency = new SettingDependency();
-
 		// Read the attributes.
-		String key;
-		String value;
-		int count = reader.getAttributeCount();
-		for( int index = 0; index < count; index++ ) {
-			key = reader.getAttributeLocalName( index );
-			value = reader.getAttributeValue( index );
+		Map<String, String> attributes = parseAttributes( reader );
 
-			switch( key ) {
-				case "operator": {
-					dependency.setOperator( SettingDependency.Operator.valueOf( value.toUpperCase() ) );
-					break;
-				}
-				case "key": {
-					break;
-				}
-				case "value": {
-					break;
-				}
-				default: {
-					log.warn( "Unknown dependency attribute: " + key + "=" + value );
-				}
-			}
-		}
+		String operator = attributes.get( OPERATOR );
+		operator = operator != null ? operator.toUpperCase() : SettingDependency.Operator.AND.name();
+
+		SettingDependency dependency = new SettingDependency();
+		dependency.setOperator( SettingDependency.Operator.valueOf( operator ) );
+		dependency.setKey( attributes.get( KEY ) );
+		dependency.setDependencyValue( attributes.get( VALUE ) );
 
 		while( reader.hasNext() ) {
 			reader.next();
@@ -302,6 +285,22 @@ public class SettingsPageParser {
 		}
 
 		return dependency;
+	}
+
+	private static String getBundleKey( String key ) {
+		if( key == null ) return null;
+		if( key.startsWith( "/" ) ) key = key.substring( 1 );
+		return key.replace( '/', '-' );
+	}
+
+	private Map<String, String> parseAttributes( XMLStreamReader reader ) throws XMLStreamException {
+		// Read the attributes.
+		Map<String, String> attributes = new HashMap<>();
+		int count = reader.getAttributeCount();
+		for( int index = 0; index < count; index++ ) {
+			attributes.put( reader.getAttributeLocalName( index ), reader.getAttributeValue( index ) );
+		}
+		return attributes;
 	}
 
 	//	private void printTag() {

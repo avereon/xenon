@@ -70,10 +70,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return settings;
 	}
 
-	public Map<String, SettingsPage> getSettingsPages() {
-		return Collections.unmodifiableMap( settingsPages );
-	}
-
 	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
@@ -165,7 +161,9 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		GuideNode guideNode = new GuideNode();
 		guideNode.setId( page.getId() );
+		guideNode.setIcon( page.getIcon() );
 		guideNode.setName( page.getTitle() );
+		guideNode.setPage( page );
 
 		TreeItem<GuideNode> child = new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
 		root.getChildren().add( child );
