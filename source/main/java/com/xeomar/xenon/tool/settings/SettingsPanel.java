@@ -40,7 +40,7 @@ public class SettingsPanel extends VBox {
 		fontStyles = new String[]{ fontPlain, fontBold, fontItalic, fontBoldItalic };
 		fontSizes = new String[]{ "8", "10", "12", "14", "16", "18", "20", "22", "24", "26" };
 
-		setBorder( new Border( new BorderStroke( Color.TRANSPARENT, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+		setBorder( new Border( new BorderStroke( Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		// Get the title
 		String title = page.getTitle();

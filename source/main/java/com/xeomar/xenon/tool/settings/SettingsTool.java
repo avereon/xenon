@@ -9,7 +9,8 @@ import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.worktool.ToolException;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,9 +88,10 @@ public class SettingsTool extends ProductTool {
 		if( page == null ) return;
 
 		// FIXME Page is not taking all the horizontal space like I want it to
-		ScrollPane scroller = new ScrollPane( new SettingsPanel( getProduct(), page ) );
+		//ScrollPane scroller = new ScrollPane( new SettingsPanel( getProduct(), page ) );
 		BorderPane pane = new BorderPane();
-		pane.setCenter( scroller );
+		pane.setBorder( new Border( new BorderStroke( Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+		pane.setCenter( new SettingsPanel( getProduct(), page ) );
 		getChildren().add( pane );
 	}
 

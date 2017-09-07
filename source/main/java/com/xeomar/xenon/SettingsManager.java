@@ -14,6 +14,7 @@ import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsPageParser;
 import com.xeomar.xenon.util.Controllable;
+import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 				settingsPages.putIfAbsent( page.getId(), page );
 			}
 
-			updateSettingsGuide( Collections.unmodifiableMap( settingsPages ) );
+			Platform.runLater( this::updateSettingsGuide );
 		}
 	}
 
@@ -102,11 +103,13 @@ public class SettingsManager implements Controllable<SettingsManager> {
 				settingsPages.remove( page.getId() );
 			}
 
-			updateSettingsGuide( Collections.unmodifiableMap( settingsPages ) );
+			Platform.runLater( this::updateSettingsGuide );
 		}
 	}
 
-	private void updateSettingsGuide( Map<String, SettingsPage> pages ) {
+	private void updateSettingsGuide() {
+		Map<String, SettingsPage> pages = Collections.unmodifiableMap( settingsPages );
+
 		// Get the settings program resource
 		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		try {
@@ -123,7 +126,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		TreeItem<GuideNode> root = guide.getRoot();
 		if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
 
-		addChildNodes(root, pages);
+		addChildNodes( root, pages );
 	}
 
 	private void addChildNodes( TreeItem<GuideNode> root, Map<String, SettingsPage> pages ) {
@@ -152,7 +155,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		// Add the remaining nodes to the guide
 		for( String title : titles ) {
-			addGuideNode( root,  pages.get( titledKeys.get( title ) ) );
+			addGuideNode( root, pages.get( titledKeys.get( title ) ) );
 		}
 	}
 

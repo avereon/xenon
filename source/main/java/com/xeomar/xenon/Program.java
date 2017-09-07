@@ -345,7 +345,7 @@ public class Program extends Application implements Product {
 		log.debug( "Resource manager started." );
 
 		// Load the settings pages
-		registerSettingsPages();
+		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
 
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
@@ -391,8 +391,7 @@ public class Program extends Application implements Product {
 			unregisterTools( toolManager );
 			log.debug( "Tool manager stopped." );
 
-			// Unregister the settings pages
-			unregisterSettingsPages();
+			// Do not try to remove the settings pages during shutdown
 
 			// Stop the resource manager
 			log.trace( "Stopping resource manager..." );
@@ -489,13 +488,14 @@ public class Program extends Application implements Product {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 
-	private void registerSettingsPages() {
-		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
-	}
-
-	private void unregisterSettingsPages() {
-		getSettingsManager().removeSettingsPages( settingsPages );
-	}
+//	private void registerSettingsPages() {
+//		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
+//	}
+//
+//	private void unregisterSettingsPages() {
+//		//
+//		//getSettingsManager().removeSettingsPages( settingsPages );
+//	}
 
 	private class Startup extends Task<Void> {
 
