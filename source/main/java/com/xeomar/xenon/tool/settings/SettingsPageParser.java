@@ -12,9 +12,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class SettingsPageParser {
 
@@ -96,11 +94,7 @@ public class SettingsPageParser {
 
 	private SettingsPage parsePage( XMLStreamReader reader ) throws XMLStreamException {
 		// Read the attributes.
-		int count = reader.getAttributeCount();
-		Map<String, String> attributes = new HashMap<>();
-		for( int index = 0; index < count; index++ ) {
-			attributes.put( reader.getAttributeLocalName( index ), reader.getAttributeValue( index ) );
-		}
+		Map<String, String> attributes = parseAttributes( reader );
 
 		String id = attributes.get( "id" );
 		String icon = attributes.get( "icon" );
@@ -117,7 +111,6 @@ public class SettingsPageParser {
 		page.setTitle( title );
 
 		SettingGroup group = null;
-
 		while( reader.hasNext() ) {
 			reader.next();
 			if( reader.isEndElement() && reader.getLocalName().equals( PAGE ) ) break;
@@ -146,30 +139,14 @@ public class SettingsPageParser {
 		return page;
 	}
 
-	// FIXME Switch all parse methods to use parsePage pattern
-
 	private SettingGroup parseGroup( XMLStreamReader reader ) throws XMLStreamException {
-		SettingGroup group = new SettingGroup( settings );
-
 		// Read the attributes.
-		String name;
-		String value;
-		int count = reader.getAttributeCount();
-		for( int index = 0; index < count; index++ ) {
-			name = reader.getAttributeLocalName( index );
-			value = reader.getAttributeValue( index );
+		Map<String, String> attributes = parseAttributes( reader );
 
-			switch( name ) {
-				case "id": {
-					group.setId( value );
-					break;
-				}
-				default: {
-					log.warn( "Unknown group attribute: " + name + "=" + value );
-					break;
-				}
-			}
-		}
+		String id = attributes.get( "id" );
+
+		SettingGroup group = new SettingGroup( settings );
+		group.setId( id );
 
 		while( reader.hasNext() ) {
 			reader.next();
@@ -191,39 +168,21 @@ public class SettingsPageParser {
 	}
 
 	private Setting parseSetting( XMLStreamReader reader ) throws XMLStreamException {
-		Setting setting = new Setting( settings );
-
 		// Read the attributes.
-		String name;
-		String value;
-		int count = reader.getAttributeCount();
-		for( int index = 0; index < count; index++ ) {
-			name = reader.getAttributeLocalName( index );
-			value = reader.getAttributeValue( index );
+		Map<String, String> attributes = parseAttributes( reader );
 
-			switch( name ) {
-				case "key": {
-					setting.setKey( value );
-					break;
-				}
-				case "presentation": {
-					setting.setPresentation( value );
-					break;
-				}
-				case "disabled": {
-					setting.setEnabled( !Boolean.parseBoolean( value ) );
-					break;
-				}
-				case "opaque": {
-					setting.setOpaque( Boolean.parseBoolean( value ) );
-					break;
-				}
-				default: {
-					log.warn( "Unknown setting attribute: " + name + "=" + value );
-					break;
-				}
-			}
-		}
+		String key = attributes.get( "key" );
+		String presentation = attributes.get( "presentation" );
+		String enabled = attributes.get( "disabled" );
+		if( enabled == null ) enabled = "false";
+		String opaque = attributes.get( "opaque" );
+		if( opaque == null ) opaque = "false";
+
+		Setting setting = new Setting( settings );
+		setting.setKey( key );
+		setting.setPresentation( presentation );
+		setting.setEnabled( Boolean.parseBoolean( enabled ) );
+		setting.setOpaque( Boolean.parseBoolean( opaque ) );
 
 		while( reader.hasNext() ) {
 			reader.next();
@@ -245,31 +204,8 @@ public class SettingsPageParser {
 	}
 
 	private SettingOption parseOption( XMLStreamReader reader, Setting setting ) throws XMLStreamException {
-		SettingOption option = new SettingOption();
-		Map<String, String> attributes = new HashMap<>();
-
 		// Read the attributes.
-		String name;
-		String value;
-		int count = reader.getAttributeCount();
-		for( int index = 0; index < count; index++ ) {
-			name = reader.getAttributeLocalName( index );
-			value = reader.getAttributeValue( index );
-
-			switch( name ) {
-				case "key":
-				case "name":
-				case "value": {
-					// These attributes are known
-					attributes.put( name, value );
-					break;
-				}
-				default: {
-					log.warn( "Unknown option attribute: " + name + "=" + value );
-					break;
-				}
-			}
-		}
+		Map<String, String> attributes = parseAttributes( reader );
 
 		// Collect the option text if it exists
 		StringBuilder textBuilder = new StringBuilder();
@@ -298,6 +234,7 @@ public class SettingsPageParser {
 		if( optionValue == null ) optionValue = attributes.get( "key" );
 
 		// Set the option parameters
+		SettingOption option = new SettingOption();
 		option.setKey( key );
 		option.setName( optionName );
 		option.setOptionValue( optionValue );
@@ -310,6 +247,16 @@ public class SettingsPageParser {
 		if( key.startsWith( "/" ) ) key = key.substring( 1 );
 		key = key.replace( '/', '-' );
 		return key;
+	}
+
+	private Map<String, String> parseAttributes( XMLStreamReader reader ) throws XMLStreamException {
+		// Read the attributes.
+		Map<String, String> attributes = new HashMap<>();
+		int count = reader.getAttributeCount();
+		for( int index = 0; index < count; index++ ) {
+			attributes.put( reader.getAttributeLocalName( index ), reader.getAttributeValue( index ) );
+		}
+		return attributes;
 	}
 
 	private SettingDependency parseDependency( XMLStreamReader reader ) throws XMLStreamException {
