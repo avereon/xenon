@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.product.Product;
+import javafx.geometry.Pos;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -48,10 +49,13 @@ public class SettingsPanel extends VBox {
 
 		// Add the title label
 		Label titleLabel = new Label( title );
-		titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 		Font labelFont = titleLabel.getFont();
 		titleLabel.setFont( Font.font( labelFont.getFamily(), 2 * labelFont.getSize() ) );
-		titleLabel.setContentDisplay( ContentDisplay.CENTER );
+		titleLabel.setAlignment( Pos.CENTER );
+		titleLabel.prefWidthProperty().bind( widthProperty() );
+		titleLabel.getStyleClass().add( "h1" );
+		//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+
 		getChildren().add( titleLabel );
 
 		// TODO Add the groups
