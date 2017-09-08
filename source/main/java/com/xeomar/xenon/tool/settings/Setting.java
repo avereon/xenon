@@ -59,31 +59,31 @@ public class Setting extends Node {
 	}
 
 	public boolean isEnabled() {
-		return getFlag( ENABLED );
+		return getValue( ENABLED );
 	}
 
 	public void setEnabled( boolean enabled ) {
-		setFlag( ENABLED, enabled );
+		setValue( ENABLED, enabled );
 	}
 
-	public void updateEnabledFlag() {
+	public void updateEnabled() {
 		setEnabled( canEnable() );
 	}
 
 	public boolean isVisible() {
-		return getFlag( VISIBLE );
+		return getValue( VISIBLE );
 	}
 
 	public void setVisible( boolean visible ) {
-		setFlag( VISIBLE, visible );
+		setValue( VISIBLE, visible );
 	}
 
 	public boolean isOpaque() {
-		return getFlag( OPAQUE );
+		return getValue( OPAQUE );
 	}
 
 	public void setOpaque( boolean opaque ) {
-		setFlag( OPAQUE, opaque );
+		setValue( OPAQUE, opaque );
 	}
 
 	public SettingOption getOption( String value ) {
@@ -138,7 +138,7 @@ public class Setting extends Node {
 	}
 
 	private boolean canEnable() {
-		return !getFlag( "disabled" ) && SettingDependency.evaluate(getDependencies(),settings);
+		return !(Boolean)getValue( "disabled" ) && SettingDependency.evaluate(getDependencies(),settings);
 	}
 
 	private static String getBundleKey( String key ) {

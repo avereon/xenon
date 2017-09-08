@@ -114,8 +114,6 @@ public class SettingsPanel extends VBox {
 		MigPane pane = new MigPane( "fillx, gap " + pad, "[0]" );
 
 		for( Setting setting : group.getSettings() ) {
-			//pane.add( new Label( setting.getKey() ), "wrap" );
-
 			// Get the presentation attribute.
 			String presentation = setting.getPresentation();
 			if( presentation == null ) presentation = "text";
@@ -142,7 +140,7 @@ public class SettingsPanel extends VBox {
 			//					addSettingDependencyWatchers( pageSettings, setting, dependency );
 			//				}
 
-			setting.updateEnabledFlag();
+			setting.updateEnabled();
 		}
 
 		//pane.add( item, "");
@@ -204,7 +202,7 @@ public class SettingsPanel extends VBox {
 	//		@Override
 	//		public void settingChanged( SettingEvent event ) {
 	//			if( this.key == null ) return;
-	//			if( key.equals( event.getFullPath() ) ) group.updateEnabledFlag();
+	//			if( key.equals( event.getFullPath() ) ) group.updateEnabled();
 	//		}
 	//
 	//	}
@@ -223,7 +221,7 @@ public class SettingsPanel extends VBox {
 	//		@Override
 	//		public void settingChanged( SettingEvent event ) {
 	//			if( this.key == null ) return;
-	//			if( key.equals( event.getFullPath() ) ) setting.updateEnabledFlag();
+	//			if( key.equals( event.getFullPath() ) ) setting.updateEnabled();
 	//		}
 	//
 	//	}
@@ -296,6 +294,9 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void eventOccurred( NodeEvent event ) {
+			NodeEvent.Type type = event.getType();
+			if( type != NodeEvent.Type.VALUE_CHANGED) return;
+
 			switch( event.getKey() ) {
 				case "enabled": {
 					editor.setEnabled( (Boolean)event.getNewValue() );

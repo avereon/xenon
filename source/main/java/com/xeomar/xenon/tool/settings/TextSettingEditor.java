@@ -33,13 +33,13 @@ public class TextSettingEditor extends SettingEditor {
 		field.setText( value );
 		field.setId( rbKey );
 
-		//		// Add the change handler.
+		// TODO		// Add the change handlers
 		//		field.addFocusListener( this );
 		//		field.addKeyListener( this );
 
 		// Add the components.
-		pane.add( label );
-		pane.add( field, "span, growx, wrap" );
+		pane.add( new TextField("Mark"), "growx" );
+		pane.add( field, "span, growx, pushx, wrap" );
 	}
 
 	@Override
