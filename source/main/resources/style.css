@@ -107,3 +107,9 @@
 #tool-welcome {
 	-fx-background-color: transparent;
 }
+
+/* TitledPane */
+.titled-pane > *.content {
+	-fx-background-color: red;
+}
+

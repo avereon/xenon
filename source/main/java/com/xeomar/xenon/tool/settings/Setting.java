@@ -86,6 +86,16 @@ public class Setting extends Node {
 		setFlag( OPAQUE, opaque );
 	}
 
+	public SettingOption getOption( String value ) {
+		for( SettingOption option : getOptions() ) {
+			if( option.getOptionValue().equals( value ) ) {
+				return option;
+			}
+		}
+
+		return null;
+	}
+
 	public List<SettingOption> getOptions() {
 		return Collections.unmodifiableList( getValue( OPTIONS ) );
 	}
@@ -104,14 +114,12 @@ public class Setting extends Node {
 		dependencies.add( dependency );
 	}
 
-	public SettingOption getOption( String value ) {
-		for( SettingOption option : getOptions() ) {
-			if( option.getOptionValue().equals( value ) ) {
-				return option;
-			}
-		}
+	public Settings getSettings() {
+		return settings;
+	}
 
-		return null;
+	public String getBundleKey() {
+		return getBundleKey( getKey() );
 	}
 
 	@Override
@@ -131,6 +139,12 @@ public class Setting extends Node {
 
 	private boolean canEnable() {
 		return !getFlag( "disabled" ) && SettingDependency.evaluate(getDependencies(),settings);
+	}
+
+	private static String getBundleKey( String key ) {
+		if( key == null ) return null;
+		if( key.startsWith( "/" ) ) key = key.substring( 1 );
+		return key.replace( '/', '-' );
 	}
 
 }

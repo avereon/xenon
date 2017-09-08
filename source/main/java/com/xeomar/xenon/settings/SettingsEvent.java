@@ -5,9 +5,9 @@ import java.util.EventObject;
 public class SettingsEvent extends EventObject {
 
 	public enum Type {
+		UPDATED,
 		LOADED,
-		SAVED,
-		SET
+		SAVED
 	}
 
 	private Type type;

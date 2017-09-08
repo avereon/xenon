@@ -18,8 +18,6 @@ public class SettingsPageParser {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsPageParser.class );
 
-	private static final String PRODUCT = "product";
-
 	private static final String SETTINGS = "settings";
 
 	private static final String PAGE = "page";
@@ -116,12 +114,12 @@ public class SettingsPageParser {
 		String icon = attributes.get( ICON );
 		if( icon == null ) icon = SETTING;
 		String title = attributes.get( TITLE );
-		if( title == null ) title = product.getResourceBundle().getString( SETTINGS, id );
+		if( title == null ) title = product.getResourceBundle().getString( "settings", id );
 		if( title == null ) title = id;
 
 		SettingsPage page = new SettingsPage();
-		page.putResource( PRODUCT, product );
-		page.putResource( SETTINGS, settings );
+		page.setProduct( product );
+		page.setSettings( settings );
 		page.setId( id );
 		page.setIcon( icon );
 		page.setTitle( title );
@@ -242,7 +240,7 @@ public class SettingsPageParser {
 		// Determine the option name
 		String optionName = text;
 		String nameRbKey = getBundleKey( setting.getKey() ) + "-" + key;
-		if( optionName == null ) optionName = product.getResourceBundle().getString( SETTINGS, nameRbKey );
+		if( optionName == null ) optionName = product.getResourceBundle().getString( "settings", nameRbKey );
 
 		// Determine the option value
 		String optionValue = attributes.get( VALUE );

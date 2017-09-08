@@ -1,6 +1,8 @@
 package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.node.Node;
+import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.settings.Settings;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +21,10 @@ public class SettingsPage extends Node {
 	private static final String GROUPS = "groups";
 
 	private static final String PAGES = "pages";
+
+	private static final String PRODUCT = "product";
+
+	private static final String SETTINGS = "settings";
 
 	public SettingsPage() {
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
@@ -70,6 +76,22 @@ public class SettingsPage extends Node {
 	public void addPage( SettingsPage page ) {
 		ConcurrentHashMap<String, SettingsPage> pages = getValue( PAGES );
 		pages.put( page.getId(), page );
+	}
+
+	public Product getProduct() {
+		return getResource( PRODUCT );
+	}
+
+	public void setProduct( Product product ) {
+		putResource( PRODUCT, product );
+	}
+
+	public Settings getSettings() {
+		return getResource( SETTINGS );
+	}
+
+	public void setSettings( Settings settings ) {
+		putResource( SETTINGS, settings );
 	}
 
 }

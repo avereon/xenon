@@ -243,7 +243,7 @@
 				<setting key="/workspace/memory/monitor/used" presentation="color">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/refresh" presentation="textline">
+				<setting key="/workspace/memory/monitor/refresh" presentation="text">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
 			</group>
@@ -270,18 +270,18 @@
 				<setting key="/network/proxy/all" presentation="checkbox">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/http" presentation="textline">
+				<setting key="/network/proxy/http" presentation="text">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/https" presentation="textline">
+				<setting key="/network/proxy/https" presentation="text">
 					<dependency key="/network/proxy/all" value="false" />
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/ftp" presentation="textline">
+				<setting key="/network/proxy/ftp" presentation="text">
 					<dependency key="/network/proxy/all" value="false" />
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/socks" presentation="textline">
+				<setting key="/network/proxy/socks" presentation="text">
 					<dependency key="/network/proxy/all" value="false" />
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>

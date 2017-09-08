@@ -9,8 +9,6 @@ import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.worktool.ToolException;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +70,7 @@ public class SettingsTool extends ProductTool {
 	public void resourceRefreshed() {
 		// Register the guide selection listener
 		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
-			selectItem( newSelection );
-		} );
+		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> selectItem( newSelection ) );
 	}
 
 	private void selectItem( TreeItem<GuideNode> item ) {
