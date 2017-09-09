@@ -5,7 +5,8 @@ import com.xeomar.xenon.settings.SettingsEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.tbee.javafx.scene.layout.MigPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 public class TextSettingEditor extends SettingEditor {
 
@@ -21,7 +22,7 @@ public class TextSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void addComponents( MigPane pane ) {
+	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().getString( key, null );
 
@@ -38,8 +39,8 @@ public class TextSettingEditor extends SettingEditor {
 		//		field.addKeyListener( this );
 
 		// Add the components.
-		pane.add( new TextField("Mark"), "growx" );
-		pane.add( field, "span, growx, pushx, wrap" );
+		GridPane.setHgrow( field, Priority.ALWAYS );
+		pane.addRow( row, label, field );
 	}
 
 	@Override

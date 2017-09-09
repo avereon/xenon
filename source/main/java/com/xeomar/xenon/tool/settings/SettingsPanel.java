@@ -15,7 +15,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -88,9 +87,11 @@ public class SettingsPanel extends VBox {
 	}
 
 	private Control createGroupPane( Product product, SettingsPage page, String name, SettingGroup group ) {
-		VBox box = new VBox();
+		//		VBox box = new VBox();
+		//		box.getChildren().add( createSettingsPane( product, page, group ) );
 
-		box.getChildren().add( createSettingsPane( product, page, group ) );
+		Pane pane = createSettingsPane( product, page, group );
+
 		// TODO group.addDataListener( new GroupChangeHandler( group, panel, titleBorder, roundedBorder ) );
 
 		Settings pageSettings = page.getSettings();
@@ -103,16 +104,17 @@ public class SettingsPanel extends VBox {
 
 		group.updateFlags();
 
-		TitledPane pane = new TitledPane( name, box );
-		pane.setCollapsible( false );
-		pane.setExpanded( true );
-		return pane;
+		TitledPane groupPane = new TitledPane( name, pane );
+		groupPane.setCollapsible( false );
+		groupPane.setExpanded( true );
+		return groupPane;
 	}
 
 	private Pane createSettingsPane( Product product, SettingsPage page, SettingGroup group ) {
-		int pad = (int)BorderStroke.THICK.getTop();
-		MigPane pane = new MigPane( "fillx, gap " + pad, "[0]" );
+		GridPane pane = new GridPane();
+		pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
+		int row = 0;
 		for( Setting setting : group.getSettings() ) {
 			// Get the presentation attribute.
 			String presentation = setting.getPresentation();
@@ -127,8 +129,8 @@ public class SettingsPanel extends VBox {
 			if( editorClass == null ) {
 				log.warn( "Setting editor not registered: {}", presentation );
 			} else {
-				SettingEditor editor = createSettingEditor( product, pane, setting, editorClass );
-				if( editor != null ) editor.addComponents( pane );
+				SettingEditor editor = createSettingEditor( product, setting, editorClass );
+				if( editor != null ) editor.addComponents( pane, row++ );
 				if( editor == null ) log.debug( "Editor not created: ", editorClass.getName() );
 			}
 
@@ -148,7 +150,7 @@ public class SettingsPanel extends VBox {
 		return pane;
 	}
 
-	private SettingEditor createSettingEditor( Product product, MigPane parent, Setting setting, Class<? extends SettingEditor> editorClass ) {
+	private SettingEditor createSettingEditor( Product product, Setting setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type.
 		SettingEditor editor = null;
 
@@ -295,7 +297,7 @@ public class SettingsPanel extends VBox {
 		@Override
 		public void eventOccurred( NodeEvent event ) {
 			NodeEvent.Type type = event.getType();
-			if( type != NodeEvent.Type.VALUE_CHANGED) return;
+			if( type != NodeEvent.Type.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
 				case "enabled": {

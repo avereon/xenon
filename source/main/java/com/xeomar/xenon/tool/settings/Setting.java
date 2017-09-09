@@ -138,7 +138,7 @@ public class Setting extends Node {
 	}
 
 	private boolean canEnable() {
-		return !(Boolean)getValue( "disabled" ) && SettingDependency.evaluate(getDependencies(),settings);
+		return !getValue( "disabled", false ) && SettingDependency.evaluate( getDependencies(), settings );
 	}
 
 	private static String getBundleKey( String key ) {

@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool.settings;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsListener;
-import org.tbee.javafx.scene.layout.MigPane;
+import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +56,7 @@ public abstract class SettingEditor implements SettingsListener {
 		return editors.get( key );
 	}
 
-	public abstract void addComponents( MigPane pane );
+	public abstract void addComponents( GridPane pane, int row );
 
 	public abstract void setEnabled( boolean enabled );
 
