@@ -42,7 +42,7 @@ public class SettingsPageParser {
 
 	private static final String TITLE = "title";
 
-	private static final String PRESENTATION = "presentation";
+	private static final String EDITOR = "editor";
 
 	private static final String ENABLED = "enabled";
 
@@ -186,7 +186,7 @@ public class SettingsPageParser {
 		Map<String, String> attributes = parseAttributes( reader );
 
 		String key = attributes.get( KEY );
-		String presentation = attributes.get( PRESENTATION );
+		String editor = attributes.get( EDITOR );
 		String enabled = attributes.get( ENABLED );
 		if( enabled == null ) enabled = String.valueOf( false );
 		String opaque = attributes.get( OPAQUE );
@@ -194,7 +194,7 @@ public class SettingsPageParser {
 
 		Setting setting = new Setting( settings );
 		setting.setKey( key );
-		setting.setPresentation( presentation );
+		setting.setEditor( editor );
 		setting.setEnabled( Boolean.parseBoolean( enabled ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
 

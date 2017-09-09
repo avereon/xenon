@@ -13,7 +13,7 @@ public class Setting extends Node {
 
 	public static final String VALUE = "value";
 
-	public static final String PRESENTATION = "presentation";
+	public static final String EDITOR = "editor";
 
 	private static final String ENABLED = "enabled";
 
@@ -50,12 +50,12 @@ public class Setting extends Node {
 		setValue( VALUE, value );
 	}
 
-	public String getPresentation() {
-		return getValue( PRESENTATION );
+	public String getEditor() {
+		return getValue( EDITOR );
 	}
 
-	public void setPresentation( String presentation ) {
-		setValue( PRESENTATION, presentation );
+	public void setEditor( String editor ) {
+		setValue( EDITOR, editor );
 	}
 
 	public boolean isEnabled() {
@@ -130,9 +130,9 @@ public class Setting extends Node {
 		builder.append( key );
 		builder.append( ":" );
 
-		String presentation = getValue( PRESENTATION );
-		if( presentation == null ) presentation = "text";
-		builder.append( presentation );
+		String editor = getValue( EDITOR );
+		if( editor == null ) editor = "text";
+		builder.append( editor );
 
 		return builder.toString();
 	}

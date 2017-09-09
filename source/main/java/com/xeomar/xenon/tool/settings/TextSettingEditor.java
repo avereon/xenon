@@ -2,13 +2,17 @@ package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.SettingsEvent;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-public class TextSettingEditor extends SettingEditor {
+public class TextSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
 	private Label label;
 
@@ -17,6 +21,10 @@ public class TextSettingEditor extends SettingEditor {
 	private boolean password;
 
 	public TextSettingEditor( Product product, Setting setting ) {
+		this( product, setting, false );
+	}
+
+	public TextSettingEditor( Product product, Setting setting, boolean password){
 		super( product, setting );
 		this.password = password;
 	}
@@ -34,9 +42,9 @@ public class TextSettingEditor extends SettingEditor {
 		field.setText( value );
 		field.setId( rbKey );
 
-		// TODO		// Add the change handlers
-		//		field.addFocusListener( this );
-		//		field.addKeyListener( this );
+		// Add the change handlers
+		field.focusedProperty().addListener( this );
+		field.setOnKeyPressed( this );
 
 		// Add the components.
 		GridPane.setHgrow( field, Priority.ALWAYS );
@@ -58,6 +66,25 @@ public class TextSettingEditor extends SettingEditor {
 	@Override
 	public void event( SettingsEvent event ) {
 		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) field.setText( event.getNewValue() );
+	}
+
+	@Override
+	public void handle( KeyEvent event ) {
+		switch( event.getCode() ) {
+			case ESCAPE: {
+				field.setText( setting.getSettings().getString( key, null ) );
+				break;
+			}
+			case ENTER: {
+				setting.getSettings().set( key, field.getText() );
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+		if( !newValue ) setting.getSettings().set( key, field.getText() );
 	}
 
 }

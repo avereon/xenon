@@ -5,7 +5,7 @@
 	<page id="general">
 
 		<group id="workspace">
-			<setting key="/manager/workspace/workarea-chooser-count" presentation="combobox">
+			<setting key="/manager/workspace/workarea-chooser-count" editor="combobox">
 				<option>5</option>
 				<option>10</option>
 				<option>15</option>
@@ -20,27 +20,27 @@
 		</group>
 
 		<group id="shutdown">
-			<setting key="/shutdown/verify" presentation="checkbox" />
-			<setting key="/shutdown/autosave" presentation="checkbox" />
-			<setting key="/shutdown/keepalive" presentation="checkbox" />
+			<setting key="/shutdown/verify" editor="checkbox" />
+			<setting key="/shutdown/autosave" editor="checkbox" />
+			<setting key="/shutdown/keepalive" editor="checkbox" />
 		</group>
 
 		<page id="updates">
 			<group id="updates-schedule">
-				<setting key="/manager/product/update/check" presentation="combobox">
+				<setting key="/manager/product/update/check" editor="combobox">
 					<option key="interval" />
 					<option key="schedule" />
 					<option key="startup" />
 					<option key="manual" />
 				</setting>
-				<setting key="/manager/product/update/check/interval/unit" presentation="combobox">
+				<setting key="/manager/product/update/check/interval/unit" editor="combobox">
 					<dependency key="/manager/product/update/check" value="interval" />
 					<option key="month" />
 					<option key="week" />
 					<option key="day" />
 					<option key="hour" />
 				</setting>
-				<setting key="/manager/product/update/check/schedule/when" presentation="combobox">
+				<setting key="/manager/product/update/check/schedule/when" editor="combobox">
 					<dependency key="/manager/product/update/check" value="schedule" />
 					<option key="daily" />
 					<option key="sunday" />
@@ -51,7 +51,7 @@
 					<option key="friday" />
 					<option key="saturday" />
 				</setting>
-				<setting key="/manager/product/update/check/schedule/hour" presentation="combobox">
+				<setting key="/manager/product/update/check/schedule/hour" editor="combobox">
 					<dependency key="/manager/product/update/check" value="schedule" />
 					<option value="0" />
 					<option value="1" />
@@ -81,19 +81,19 @@
 			</group>
 
 			<group id="updates-actions">
-				<setting key="/manager/product/update/notice" presentation="combobox">
+				<setting key="/manager/product/update/notice" editor="combobox">
 					<option key="once" />
 					<option key="minute.30" />
 					<option key="hour.1" />
 					<option key="hour.3" />
 					<option key="none" />
 				</setting>
-				<setting key="/manager/product/update/found" presentation="combobox">
+				<setting key="/manager/product/update/found" editor="combobox">
 					<option key="select" />
 					<option key="store" />
 					<option key="stage" />
 				</setting>
-				<setting key="/manager/product/update/apply" presentation="combobox">
+				<setting key="/manager/product/update/apply" editor="combobox">
 					<dependency key="/manager/product/update/found" operator="not" value="store" />
 					<option key="verify" />
 					<option key="ignore" />
@@ -108,15 +108,15 @@
 	<page id="appearance">
 
 		<group id="workspace-theme">
-			<setting key="/workspace/theme/base" presentation="color" disabled="false" />
-			<setting key="/workspace/theme/background" presentation="color" disabled="true" />
-			<setting key="/workspace/theme/foreground" presentation="color" disabled="true" />
+			<setting key="/workspace/theme/base" editor="color" disabled="false" />
+			<setting key="/workspace/theme/background" editor="color" disabled="true" />
+			<setting key="/workspace/theme/foreground" editor="color" disabled="true" />
 		</group>
 
 		<!--
 		<page id="look.and.feel">
 			<group id="look.and.feel">
-				<setting key="/workspace/lookandfeel/name" presentation="combobox">
+				<setting key="/workspace/lookandfeel/name" editor="combobox">
 					<option key="nimbus" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
 					<option key="metal" value="javax.swing.plaf.metal.MetalLookAndFeel" />
 					<option key="platform" />
@@ -125,14 +125,14 @@
 
 			<group id="nimbus.theme">
 				<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
-				<setting key="/workspace/lookandfeel/nimbus/theme" presentation="color" opaque="true">
+				<setting key="/workspace/lookandfeel/nimbus/theme" editor="color" opaque="true">
 					<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
 				</setting>
 			</group>
 
 			<group id="metal.theme">
 				<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.metal.MetalLookAndFeel" />
-				<setting key="/workspace/lookandfeel/metal/theme" presentation="combobox">
+				<setting key="/workspace/lookandfeel/metal/theme" editor="combobox">
 					<dependency key="/workspace/lookandfeel/name" value="javax.swing.plaf.metal.MetalLookAndFeel" />
 					<option key="default" />
 					<option key="softblue" value="com.parallelsymmetry.escape.SoftBlueTheme" />
@@ -145,18 +145,18 @@
 
 		<page id="background">
 			<group id="background">
-				<setting key="/workspace/scenery/back-direction" presentation="combobox">
+				<setting key="/workspace/scenery/back-direction" editor="combobox">
 					<option key="vertical" value="1" />
 					<option key="horizontal" value="0" />
 				</setting>
-				<setting key="/workspace/scenery/back-color1" presentation="color" opaque="true" />
-				<setting key="/workspace/scenery/back-color2" presentation="color" opaque="true" />
+				<setting key="/workspace/scenery/back-color1" editor="color" opaque="true" />
+				<setting key="/workspace/scenery/back-color2" editor="color" opaque="true" />
 
-				<setting key="/workspace/scenery/image-enabled" presentation="checkbox" />
-				<setting key="/workspace/scenery/image-file" presentation="file">
+				<setting key="/workspace/scenery/image-enabled" editor="checkbox" />
+				<setting key="/workspace/scenery/image-file" editor="file">
 					<dependency key="/workspace/scenery/image-enabled" value="true" />
 				</setting>
-				<setting key="/workspace/scenery/image-style" presentation="combobox">
+				<setting key="/workspace/scenery/image-style" editor="combobox">
 					<dependency key="/workspace/scenery/image-enabled" value="true" />
 					<option key="fill" />
 					<option key="fit" />
@@ -164,7 +164,7 @@
 					<option key="tile" />
 					<option key="align" />
 				</setting>
-				<setting key="/workspace/scenery/image-align" presentation="combobox">
+				<setting key="/workspace/scenery/image-align" editor="combobox">
 					<dependency key="/workspace/scenery/image-enabled" value="true" />
 					<dependency key="/workspace/scenery/image-style" value="fill" />
 					<dependency key="/workspace/scenery/image-style" value="fit" operator="or" />
@@ -181,16 +181,16 @@
 					<option key="southeast" />
 				</setting>
 
-				<setting key="/workspace/scenery/tint-enabled" presentation="checkbox" />
-				<setting key="/workspace/scenery/tint-direction" presentation="combobox">
+				<setting key="/workspace/scenery/tint-enabled" editor="checkbox" />
+				<setting key="/workspace/scenery/tint-direction" editor="combobox">
 					<dependency key="/workspace/scenery/tint-enabled" value="true" />
 					<option key="vertical" value="1" />
 					<option key="horizontal" value="0" />
 				</setting>
-				<setting key="/workspace/scenery/tint-color1" presentation="color">
+				<setting key="/workspace/scenery/tint-color1" editor="color">
 					<dependency key="/workspace/scenery/tint-enabled" value="true" />
 				</setting>
-				<setting key="/workspace/scenery/tint-color2" presentation="color">
+				<setting key="/workspace/scenery/tint-color2" editor="color">
 					<dependency key="/workspace/scenery/tint-enabled" value="true" />
 				</setting>
 			</group>
@@ -198,24 +198,24 @@
 
 		<page id="task-monitor">
 			<group id="task-monitor">
-				<setting key="/workspace/task/monitor/enabled" presentation="checkbox" />
-				<setting key="/workspace/task/monitor/text" presentation="checkbox">
+				<setting key="/workspace/task/monitor/enabled" editor="checkbox" />
+				<setting key="/workspace/task/monitor/text" editor="checkbox">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/task/monitor/percent" presentation="checkbox">
+				<setting key="/workspace/task/monitor/percent" editor="checkbox">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
 					<dependency key="/workspace/task/monitor/text" value="true" />
 				</setting>
-				<setting key="/workspace/task/monitor/foreground" presentation="color">
+				<setting key="/workspace/task/monitor/foreground" editor="color">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/task/monitor/background" presentation="color">
+				<setting key="/workspace/task/monitor/background" editor="color">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/task/monitor/queue" presentation="color">
+				<setting key="/workspace/task/monitor/queue" editor="color">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/task/monitor/tasks" presentation="color">
+				<setting key="/workspace/task/monitor/tasks" editor="color">
 					<dependency key="/workspace/task/monitor/enabled" value="true" />
 				</setting>
 			</group>
@@ -223,27 +223,27 @@
 
 		<page id="memory-monitor">
 			<group id="memory-monitor">
-				<setting key="/workspace/memory/monitor/enabled" presentation="checkbox" />
-				<setting key="/workspace/memory/monitor/text" presentation="checkbox">
+				<setting key="/workspace/memory/monitor/enabled" editor="checkbox" />
+				<setting key="/workspace/memory/monitor/text" editor="checkbox">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/percent" presentation="checkbox">
+				<setting key="/workspace/memory/monitor/percent" editor="checkbox">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 					<dependency key="/workspace/memory/monitor/text" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/foreground" presentation="color">
+				<setting key="/workspace/memory/monitor/foreground" editor="color">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/background" presentation="color">
+				<setting key="/workspace/memory/monitor/background" editor="color">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/allocated" presentation="color">
+				<setting key="/workspace/memory/monitor/allocated" editor="color">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/used" presentation="color">
+				<setting key="/workspace/memory/monitor/used" editor="color">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
-				<setting key="/workspace/memory/monitor/refresh" presentation="text">
+				<setting key="/workspace/memory/monitor/refresh" editor="text">
 					<dependency key="/workspace/memory/monitor/enabled" value="true" />
 				</setting>
 			</group>
@@ -253,42 +253,42 @@
 	<page id="network">
 
 		<group id="ipv6">
-			<setting key="/network/enableipv6" presentation="checkbox" />
-			<setting key="/network/preferipv6" presentation="checkbox">
+			<setting key="/network/enableipv6" editor="checkbox" />
+			<setting key="/network/preferipv6" editor="checkbox">
 				<dependency key="/network/enableipv6" value="true" />
 			</setting>
 		</group>
 
 		<page id="proxy">
 			<group id="proxy-mode">
-				<setting key="/network/proxy/mode" presentation="combobox">
+				<setting key="/network/proxy/mode" editor="combobox">
 					<option key="direct" />
 					<option key="manual" />
 				</setting>
 			</group>
 			<group id="proxy-settings">
-				<setting key="/network/proxy/all" presentation="checkbox">
+				<setting key="/network/proxy/all" editor="checkbox">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/http" presentation="text">
+				<setting key="/network/proxy/http" editor="text">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/https" presentation="text">
+				<setting key="/network/proxy/https" editor="text">
 					<dependency key="/network/proxy/all" value="false" />
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/ftp" presentation="text">
+				<setting key="/network/proxy/ftp" editor="text">
 					<dependency key="/network/proxy/all" value="false" />
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/socks" presentation="text">
+				<setting key="/network/proxy/socks" editor="text">
 					<dependency key="/network/proxy/all" value="false" />
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/exclude" presentation="textarea">
+				<setting key="/network/proxy/exclude" editor="textarea">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/exclude-info" presentation="infoline">
+				<setting key="/network/proxy/exclude-info" editor="infoline">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
 			</group>
@@ -297,7 +297,7 @@
 				<setting key="/network/proxy/username">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
-				<setting key="/network/proxy/password" presentation="password">
+				<setting key="/network/proxy/password" editor="password">
 					<dependency key="/network/proxy/mode" value="manual" />
 				</setting>
 			</group>
@@ -307,20 +307,20 @@
 	<page id="tools">
 		<page id="guide">
 			<group id="options">
-				<setting key="/manager/workspace/guide-auto-expand" presentation="checkbox" />
-				<setting key="/manager/workspace/guide-auto-collapse" presentation="checkbox">
+				<setting key="/manager/workspace/guide-auto-expand" editor="checkbox" />
+				<setting key="/manager/workspace/guide-auto-collapse" editor="checkbox">
 					<dependency key="/manager/workspace/guide-auto-expand" value="true" />
 				</setting>
 			</group>
 		</page>
 		<page id="resource-manager">
 			<group id="options">
-				<setting key="/manager/resource/showuri" presentation="checkbox" />
+				<setting key="/manager/resource/showuri" editor="checkbox" />
 			</group>
 			<group id="colors">
-				<setting key="/manager/resource/color/hidden" presentation="color" />
-				<setting key="/manager/resource/color/disabled" presentation="color" />
-				<setting key="/manager/resource/color/modified" presentation="color" />
+				<setting key="/manager/resource/color/hidden" editor="color" />
+				<setting key="/manager/resource/color/disabled" editor="color" />
+				<setting key="/manager/resource/color/modified" editor="color" />
 			</group>
 		</page>
 	</page>
