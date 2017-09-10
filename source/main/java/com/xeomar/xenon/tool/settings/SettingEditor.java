@@ -3,6 +3,9 @@ package com.xeomar.xenon.tool.settings;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsListener;
+import com.xeomar.xenon.tool.settings.editor.CheckboxSettingEditor;
+import com.xeomar.xenon.tool.settings.editor.PasswordSettingEditor;
+import com.xeomar.xenon.tool.settings.editor.TextSettingEditor;
 import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
@@ -22,8 +25,8 @@ public abstract class SettingEditor implements SettingsListener {
 		editors = new HashMap<>();
 
 		addType( "text", TextSettingEditor.class );
-//		addType( "password", PasswordSettingEditor.class );
-//		addType( "checkbox", CheckboxSettingEditor.class );
+		addType( "password", PasswordSettingEditor.class );
+		addType( "checkbox", CheckboxSettingEditor.class );
 //		addType( "combobox", ComboboxSettingEditor.class );
 //		addType( "infoline", InfolineSettingEditor.class );
 //		addType( "infoarea", InfoareaSettingEditor.class );

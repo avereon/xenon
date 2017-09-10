@@ -1,7 +1,9 @@
-package com.xeomar.xenon.tool.settings;
+package com.xeomar.xenon.tool.settings.editor;
 
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.xenon.tool.settings.Setting;
+import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -24,7 +26,7 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 		this( product, setting, false );
 	}
 
-	public TextSettingEditor( Product product, Setting setting, boolean password){
+	TextSettingEditor( Product product, Setting setting, boolean password){
 		super( product, setting );
 		this.password = password;
 	}
@@ -82,6 +84,7 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 		}
 	}
 
+	/* Focus listener */
 	@Override
 	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
 		if( !newValue ) setting.getSettings().set( key, field.getText() );
