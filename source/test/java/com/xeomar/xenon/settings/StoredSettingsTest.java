@@ -4,19 +4,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class DelayedStoreSettingsTest {
+public class StoredSettingsTest {
 
-	private DelayedStoreSettings settings;
+	private StoredSettings settings;
 
 	@Before
 	public void setup() throws Exception {
 		File file = File.createTempFile( "SettingsTest-", "" );
-		settings = new DelayedStoreSettings( null, file );
+		settings = new StoredSettings( null, file );
 		file.deleteOnExit();
 	}
 
@@ -109,6 +111,39 @@ public class DelayedStoreSettingsTest {
 
 		settings.set( key, null );
 		assertThat( settings.getDouble( key ), is( nullValue() ) );
+	}
+
+	@Test
+	public void testGetValueFromDefaultSettings() {
+		String key = "key";
+		String value = "value";
+		String defaultValue = "defaultValue";
+
+		Map<String,String> defaultValues = new HashMap<>();
+		defaultValues.put( key, defaultValue );
+		ReadOnlySettings defaultSettings = new ReadOnlySettings( defaultValues );
+
+		// Start by checking the value is null
+		assertThat( settings.getString( key ), is( nullValue() ) );
+
+		settings.set( key, value );
+		assertThat( settings.getString( key ), is( value ) );
+
+		settings.set( key, null );
+		assertThat( settings.getString( key ), is( nullValue() ) );
+
+		// Test the default settings
+		settings.setDefaultSettings( defaultSettings );
+		assertThat( settings.getString( key), is( defaultValue ));
+
+		settings.set( key, value );
+		assertThat( settings.getString( key ), is( value ) );
+
+		settings.set( key, null );
+		assertThat( settings.getString( key), is( defaultValue ));
+
+		settings.setDefaultSettings( null );
+		assertThat( settings.getString( key ), is( nullValue() ) );
 	}
 
 }

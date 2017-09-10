@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DelayedStoreSettings implements Settings {
+public class StoredSettings implements Settings {
 
 	/**
 	 * Data will be persisted at most this fast.
@@ -24,9 +24,9 @@ public class DelayedStoreSettings implements Settings {
 	 */
 	private static final long MAX_PERSIST_LIMIT = 5000;
 
-	private static Logger log = LogUtil.get( DelayedStoreSettings.class );
+	private static Logger log = LogUtil.get( StoredSettings.class );
 
-	private static Timer timer = new Timer( DelayedStoreSettings.class.getSimpleName(), true );
+	private static Timer timer = new Timer( StoredSettings.class.getSimpleName(), true );
 
 	private AtomicLong lastDirtyTime = new AtomicLong();
 
@@ -46,11 +46,13 @@ public class DelayedStoreSettings implements Settings {
 
 	private Set<SettingsListener> listeners;
 
-	public DelayedStoreSettings( File file ) {
+	private Settings defaultSettings;
+
+	public StoredSettings( File file ) {
 		this( null, file );
 	}
 
-	public DelayedStoreSettings( ExecutorService executor, File file ) {
+	public StoredSettings( ExecutorService executor, File file ) {
 		this.executor = executor;
 		this.file = file;
 		this.properties = new Properties();
@@ -167,7 +169,18 @@ public class DelayedStoreSettings implements Settings {
 	@Override
 	@Deprecated
 	public String getString( String key, String defaultValue ) {
-		return properties.getProperty( key, defaultValue );
+		String value = properties.getProperty( key );
+		if( value == null && defaultSettings != null ) value = defaultSettings.getString( key );
+		if( value == null ) value = defaultValue;
+		return value;
+	}
+
+	public Settings getDefaultSettings() {
+		return defaultSettings;
+	}
+
+	public void setDefaultSettings( Settings settings ) {
+		this.defaultSettings = settings;
 	}
 
 	@Override
@@ -250,7 +263,7 @@ public class DelayedStoreSettings implements Settings {
 		public void run() {
 			// If there is an executor, use it to run the task, otherwise run the task on the timer thread
 			if( executor != null && !executor.isShutdown() ) {
-				executor.submit( DelayedStoreSettings.this::persist );
+				executor.submit( StoredSettings.this::persist );
 			} else {
 				persist();
 			}
