@@ -1,11 +1,23 @@
 package com.xeomar.xenon.settings;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class ReadOnlySettings implements Settings {
 
 	private Map<String, String> values;
+
+	private Settings defaultSettings;
+
+	public ReadOnlySettings( Properties properties ) {
+		Map<String, String> map = new HashMap<>();
+		for( Object key : properties.keySet() ) {
+			map.put( key.toString(), properties.getProperty( key.toString() ) );
+		}
+		this.values = Collections.unmodifiableMap( map );
+	}
 
 	public ReadOnlySettings( Map<String, String> values ) {
 		this.values = Collections.unmodifiableMap( values );
@@ -69,16 +81,27 @@ public class ReadOnlySettings implements Settings {
 	@Override
 	@SuppressWarnings( "unchecked" )
 	public String getString( String key ) {
-		Object value = values.get( key );
-		return value == null ? null : value.toString();
+		return getString( key, null );
 	}
 
 	@Override
 	@SuppressWarnings( "unchecked" )
 	public String getString( String key, String defaultValue ) {
-		String value = getString( key );
+		Object object = values.get( key );
+		String value = object == null ? null : object.toString();
+		if( value == null && defaultSettings != null ) value = defaultSettings.getString( key );
 		if( value == null ) value = defaultValue;
 		return value;
+	}
+
+	@Override
+	public Settings getDefaultSettings() {
+		return null;
+	}
+
+	@Override
+	public void setDefaultSettings( Settings settings ) {
+
 	}
 
 	@Override

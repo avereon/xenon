@@ -28,6 +28,10 @@ public interface Settings {
 
 	String getString( String key, String defaultValue );
 
+	Settings getDefaultSettings();
+
+	void setDefaultSettings( Settings settings );
+
 	void addSettingsListener( SettingsListener listener );
 
 	void removeSettingsListener( SettingsListener listener );

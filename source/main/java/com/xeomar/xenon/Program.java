@@ -15,6 +15,7 @@ import com.xeomar.xenon.resource.type.ProgramSettingsType;
 import com.xeomar.xenon.resource.type.ProgramWelcomeType;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
+import com.xeomar.xenon.settings.ReadOnlySettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
@@ -35,8 +36,10 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
@@ -140,8 +143,13 @@ public class Program extends Application implements Product {
 		// Create the settings manager before getting the program settings
 		settingsManager = new SettingsManager( this ).start();
 
+		// Get default settings map
+		Properties properties = new Properties();
+		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
+
 		// Get the program settings after the settings manager and before the task manager
 		programSettings = settingsManager.getSettings( "program.properties" );
+		programSettings.setDefaultSettings( new ReadOnlySettings( properties ) );
 		time( "settings" );
 
 		// TODO Check for another instance after getting the settings but before the splash screen is shown

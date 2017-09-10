@@ -82,6 +82,14 @@ public class MockSettings implements Settings {
 	}
 
 	@Override
+	public Settings getDefaultSettings() {
+		return null;
+	}
+
+	@Override
+	public void setDefaultSettings( Settings settings ) { }
+
+	@Override
 	public void addSettingsListener( SettingsListener listener ) { }
 
 	@Override
