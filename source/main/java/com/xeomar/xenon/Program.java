@@ -198,8 +198,11 @@ public class Program extends Application implements Product {
 	}
 
 	public void requestExit( boolean force ) {
+		boolean shutdownVerify = programSettings.getBoolean( "shutdown-verify", true );
+		boolean shutdownKeepalive = programSettings.getBoolean( "shutdown-keepalive", false );
+
 		// TODO If the user desires, prompt to exit the program
-		if( !force ) {
+		if( !force && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 			alert.initOwner( getWorkspaceManager().getActiveWorkspace().getStage() );
 			alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
@@ -210,7 +213,9 @@ public class Program extends Application implements Product {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return;
 		}
 
-		if( !JavaUtil.isTest() ) Platform.exit();
+		// FIXME Keepalive does not close the program window
+
+		if( !shutdownKeepalive && !JavaUtil.isTest() ) Platform.exit();
 	}
 
 	public String getParameter( String key ) {
@@ -496,14 +501,14 @@ public class Program extends Application implements Product {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 
-//	private void registerSettingsPages() {
-//		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
-//	}
-//
-//	private void unregisterSettingsPages() {
-//		//
-//		//getSettingsManager().removeSettingsPages( settingsPages );
-//	}
+	//	private void registerSettingsPages() {
+	//		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
+	//	}
+	//
+	//	private void unregisterSettingsPages() {
+	//		//
+	//		//getSettingsManager().removeSettingsPages( settingsPages );
+	//	}
 
 	private class Startup extends Task<Void> {
 
