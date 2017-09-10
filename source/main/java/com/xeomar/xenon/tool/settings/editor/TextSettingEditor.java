@@ -52,9 +52,9 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 	}
 
 	@Override
-	public void setEnabled( boolean enabled ) {
-		label.setDisable( !enabled );
-		field.setDisable( !enabled );
+	public void setDisable( boolean disable ) {
+		label.setDisable( disable );
+		field.setDisable( disable );
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 	}
 
 	@Override
-	public void event( SettingsEvent event ) {
+	public void settingsEvent( SettingsEvent event ) {
 		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) field.setText( event.getNewValue() );
 	}
 

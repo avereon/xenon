@@ -55,14 +55,16 @@ public class SettingsEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder( super.toString() );
-		//		if( id != null ) {
-		//			builder.append( ":" );
-		//			builder.append( id );
-		//		}
+		StringBuilder builder = new StringBuilder( getClass().getSimpleName() );
+		builder.append( ":" );
+		builder.append( type );
 		if( root != null ) {
 			builder.append( ":" );
 			builder.append( root );
+		}
+		if( key != null ) {
+			builder.append( ":" );
+			builder.append( key );
 		}
 		return builder.toString();
 	}

@@ -1,10 +1,9 @@
 package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsListener;
-import com.xeomar.xenon.tool.settings.editor.CheckboxSettingEditor;
-import com.xeomar.xenon.tool.settings.editor.ComboboxSettingEditor;
+import com.xeomar.xenon.tool.settings.editor.CheckBoxSettingEditor;
+import com.xeomar.xenon.tool.settings.editor.ComboBoxSettingEditor;
 import com.xeomar.xenon.tool.settings.editor.PasswordSettingEditor;
 import com.xeomar.xenon.tool.settings.editor.TextSettingEditor;
 import javafx.scene.layout.GridPane;
@@ -27,15 +26,15 @@ public abstract class SettingEditor implements SettingsListener {
 
 		addType( "text", TextSettingEditor.class );
 		addType( "password", PasswordSettingEditor.class );
-		addType( "checkbox", CheckboxSettingEditor.class );
-		addType( "combobox", ComboboxSettingEditor.class );
-//		addType( "infoline", InfolineSettingEditor.class );
-//		addType( "infoarea", InfoareaSettingEditor.class );
-//		addType( "color", ColorSettingEditor.class );
-//		addType( "file", FileSettingEditor.class );
-//		addType( "font", FontSettingEditor.class );
-//		//		addType( "link", LinkSettingEditor.class );
-//		//		addType( "time", TimeSettingEditor.class );
+		addType( "checkbox", CheckBoxSettingEditor.class );
+		addType( "combobox", ComboBoxSettingEditor.class );
+		//		addType( "infoline", InfolineSettingEditor.class );
+		//		addType( "infoarea", InfoareaSettingEditor.class );
+		//		addType( "color", ColorSettingEditor.class );
+		//		addType( "file", FileSettingEditor.class );
+		//		addType( "font", FontSettingEditor.class );
+		//		//		addType( "link", LinkSettingEditor.class );
+		//		//		addType( "time", TimeSettingEditor.class );
 	}
 
 	public SettingEditor( Product product, Setting setting ) {
@@ -43,7 +42,7 @@ public abstract class SettingEditor implements SettingsListener {
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;
 		this.setting = setting;
-		this.key=setting.getKey();
+		this.key = setting.getKey();
 	}
 
 	/**
@@ -60,14 +59,18 @@ public abstract class SettingEditor implements SettingsListener {
 		return editors.get( key );
 	}
 
+	public Setting getSetting() {
+		return setting;
+	}
+
+//	public Settings getSettings() {
+//		return setting.getSettings();
+//	}
+
 	public abstract void addComponents( GridPane pane, int row );
 
-	public abstract void setEnabled( boolean enabled );
+	public abstract void setDisable( boolean disable );
 
 	public abstract void setVisible( boolean visible );
-
-	public Settings getSettings() {
-		return setting.getSettings();
-	}
 
 }

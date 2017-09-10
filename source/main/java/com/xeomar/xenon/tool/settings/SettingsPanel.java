@@ -131,7 +131,7 @@ public class SettingsPanel extends VBox {
 				}
 			}
 
-			setting.updateEnabled();
+			setting.updateState();
 		}
 
 		return pane;
@@ -150,7 +150,7 @@ public class SettingsPanel extends VBox {
 		if( editor == null ) return null;
 
 		// Add the change handler
-		new EditorChangeHandler( setting, editor );
+		new EditorChangeHandler( editor, setting );
 
 		return editor;
 	}
@@ -189,7 +189,7 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void event( SettingsEvent event ) {
+		public void settingsEvent( SettingsEvent event ) {
 			if( this.key == null ) return;
 			if( key.equals( event.getKey() ) ) group.updateFlags();
 		}
@@ -208,9 +208,9 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void event( SettingsEvent event ) {
-			if( this.key == null ) return;
-			if( key.equals( event.getKey() ) ) setting.updateEnabled();
+		public void settingsEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
 
 	}
@@ -227,12 +227,12 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void eventOccurred( NodeEvent event ) {
+		public void nodeEvent( NodeEvent event ) {
 			if( event.getSource() != group || event.getType() != NodeEvent.Type.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
-				case "enabled": {
-					setEnabled( (Boolean)event.getNewValue() );
+				case "disable": {
+					setDisable( (Boolean)event.getNewValue() );
 					break;
 				}
 				case "visible": {
@@ -242,8 +242,8 @@ public class SettingsPanel extends VBox {
 			}
 		}
 
-		protected final void setEnabled( boolean enabled ) {
-			pane.setDisable( !enabled );
+		protected final void setDisable( boolean disable ) {
+			pane.setDisable( disable );
 		}
 
 		protected final void setVisible( boolean visible ) {
@@ -256,26 +256,22 @@ public class SettingsPanel extends VBox {
 
 		private SettingEditor editor;
 
-		public EditorChangeHandler( Setting setting, SettingEditor editor ) {
+		public EditorChangeHandler( SettingEditor editor, Setting setting ) {
 			this.editor = editor;
 			setting.addNodeListener( this );
 			setting.getSettings().addSettingsListener( this );
 		}
 
 		@Override
-		public void event( SettingsEvent event ) {
-			// Forward the event to the editor
-			editor.event( event );
-		}
-
-		@Override
-		public void eventOccurred( NodeEvent event ) {
+		public void nodeEvent( NodeEvent event ) {
 			NodeEvent.Type type = event.getType();
 			if( type != NodeEvent.Type.VALUE_CHANGED ) return;
 
+			log.warn( "Setting editor value changed: " + event.getKey() + "=" + event.getNewValue() );
+
 			switch( event.getKey() ) {
-				case "enabled": {
-					editor.setEnabled( (Boolean)event.getNewValue() );
+				case "disable": {
+					editor.setDisable( (Boolean)event.getNewValue() );
 					break;
 				}
 				case "visible": {
@@ -283,6 +279,14 @@ public class SettingsPanel extends VBox {
 					break;
 				}
 			}
+		}
+
+		@Override
+		public void settingsEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+
+			// Forward the event to the editor
+			editor.settingsEvent( event );
 		}
 
 	}

@@ -4,6 +4,6 @@ import java.util.EventListener;
 
 public interface NodeListener extends EventListener {
 
-	void eventOccurred( NodeEvent event );
+	void nodeEvent( NodeEvent event );
 
 }

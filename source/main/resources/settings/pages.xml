@@ -83,9 +83,9 @@
 			<group id="updates-actions">
 				<setting key="product-update-notice" editor="combobox">
 					<option key="once" />
-					<option key="minute.30" />
-					<option key="hour.1" />
-					<option key="hour.3" />
+					<option key="minute-30" />
+					<option key="hour-1" />
+					<option key="hour-3" />
 					<option key="none" />
 				</setting>
 				<setting key="product-update-found" editor="combobox">

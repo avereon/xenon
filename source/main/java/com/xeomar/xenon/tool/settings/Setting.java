@@ -15,7 +15,7 @@ public class Setting extends Node {
 
 	public static final String EDITOR = "editor";
 
-	private static final String ENABLED = "enabled";
+	private static final String DISABLE = "disable";
 
 	private static final String VISIBLE = "visible";
 
@@ -60,33 +60,33 @@ public class Setting extends Node {
 		setValue( EDITOR, editor );
 	}
 
-	public boolean isEnabled() {
-		return getValue( ENABLED );
+	public boolean isDisable() {
+		return getValue( DISABLE, false );
 	}
 
-	public void setEnabled( boolean enabled ) {
-		setValue( ENABLED, enabled );
+	public void setDisable( boolean disable ) {
+		setValue( DISABLE, disable );
 	}
 
-	public void updateEnabled() {
-		setEnabled( canEnable() );
+	public void updateState() {
+		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
 	}
 
 	public boolean isVisible() {
-		return getValue( VISIBLE );
+		return getValue( VISIBLE, true );
 	}
 
 	public void setVisible( boolean visible ) {
 		setValue( VISIBLE, visible );
 	}
 
-	public boolean isEditable() {
-		return getValue( EDITABLE );
-	}
-
-	public void setEditable( boolean editable ) {
-		setValue( EDITABLE, editable );
-	}
+//	public boolean isEditable() {
+//		return getValue( EDITABLE );
+//	}
+//
+//	public void setEditable( boolean editable ) {
+//		setValue( EDITABLE, editable );
+//	}
 
 	public boolean isOpaque() {
 		return getValue( OPAQUE );
@@ -145,10 +145,6 @@ public class Setting extends Node {
 		builder.append( editor );
 
 		return builder.toString();
-	}
-
-	private boolean canEnable() {
-		return !getValue( "disabled", false ) && SettingDependency.evaluate( getDependencies(), settings );
 	}
 
 	private static String getBundleKey( String key ) {

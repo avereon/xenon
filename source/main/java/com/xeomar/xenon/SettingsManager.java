@@ -84,7 +84,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void addSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( settingsPages ) {
-			log.warn( "Adding settings pages..." );
+			log.debug( "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -97,7 +97,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( settingsPages ) {
-			log.warn( "Removing settings pages..." );
+			log.debug( "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				settingsPages.remove( page.getId() );
@@ -229,7 +229,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 
 		@Override
-		public void event( SettingsEvent event ) {
+		public void settingsEvent( SettingsEvent event ) {
 			switch( event.getType() ) {
 				case LOADED: {
 					program.fireEvent( new SettingsLoadedEvent( this, event.getRoot() ) );

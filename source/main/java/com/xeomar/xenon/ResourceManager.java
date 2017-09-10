@@ -1728,7 +1728,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private class ModifiedResourceWatcher implements NodeListener {
 
 		@Override
-		public void eventOccurred( NodeEvent event ) {
+		public void nodeEvent( NodeEvent event ) {
 			NodeEvent.Type type = event.getType();
 			switch( type ) {
 				case FLAG_CHANGED: {

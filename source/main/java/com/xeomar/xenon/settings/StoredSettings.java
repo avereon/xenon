@@ -62,11 +62,14 @@ public class StoredSettings implements Settings {
 
 	@Override
 	public void set( String key, Object value ) {
+		String oldValue = properties.getProperty( key );
+		String newValue = String.valueOf( value );
 		if( value == null ) {
 			properties.remove( key );
 		} else {
-			properties.setProperty( key, String.valueOf( value ) );
+			properties.setProperty( key, newValue );
 		}
+		if( !Objects.equals( oldValue, value ) ) fireEvent( new SettingsEvent( this, SettingsEvent.Type.UPDATED, file.toString(), key, oldValue, newValue ) );
 		save();
 	}
 
@@ -253,7 +256,7 @@ public class StoredSettings implements Settings {
 
 	private void fireEvent( SettingsEvent event ) {
 		for( SettingsListener listener : new HashSet<>( listeners ) ) {
-			listener.event( event );
+			listener.settingsEvent( event );
 		}
 	}
 

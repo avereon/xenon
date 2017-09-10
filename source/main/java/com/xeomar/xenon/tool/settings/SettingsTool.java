@@ -80,7 +80,7 @@ public class SettingsTool extends ProductTool {
 	}
 
 	private void selectPage( SettingsPage page ) {
-		log.warn( "Settings page selected: " + page );
+		log.debug( "Settings page selected: " + page );
 		if( page == null ) return;
 
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );

@@ -5,6 +5,8 @@ import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import com.xeomar.xenon.tool.settings.SettingOption;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -12,13 +14,13 @@ import javafx.scene.layout.Priority;
 
 import java.util.List;
 
-public class ComboboxSettingEditor extends SettingEditor {
+public class ComboBoxSettingEditor extends SettingEditor implements ChangeListener<SettingOption> {
 
 	private Label label;
 
 	private ComboBox<SettingOption> combobox;
 
-	public ComboboxSettingEditor( Product product, Setting setting ) {
+	public ComboBoxSettingEditor( Product product, Setting setting ) {
 		super( product, setting );
 	}
 
@@ -32,6 +34,7 @@ public class ComboboxSettingEditor extends SettingEditor {
 		List<SettingOption> options = setting.getOptions();
 		combobox = new ComboBox<>();
 		combobox.getItems().addAll( options );
+		combobox.setMaxWidth( Double.MAX_VALUE );
 
 		SettingOption selected = setting.getOption( value );
 		if( selected == null ) {
@@ -41,28 +44,36 @@ public class ComboboxSettingEditor extends SettingEditor {
 		}
 
 		// Add the change handlers
-
+		combobox.valueProperty().addListener( this );
 
 		// Add the components.
 		GridPane.setHgrow( combobox, Priority.ALWAYS );
 		pane.addRow( row, label, combobox );
-
 	}
 
 	@Override
-	public void setEnabled( boolean enabled ) {
-
+	public void setDisable( boolean disable ) {
+		label.setDisable( disable );
+		combobox.setDisable( disable );
 	}
 
 	@Override
 	public void setVisible( boolean visible ) {
+		label.setVisible( visible );
+		combobox.setVisible( visible );
+	}
 
+	// Selection change listener
+	@Override
+	public void changed( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
+		setting.getSettings().set( setting.getKey(), newValue.getOptionValue() );
 	}
 
 	// Setting listener
 	@Override
-	public void event( SettingsEvent event ) {
-
+	public void settingsEvent( SettingsEvent event ) {
+		SettingOption option = setting.getOption( event.getNewValue() );
+		if( key.equals( event.getKey() ) ) combobox.getSelectionModel().select( option );
 	}
 
 }

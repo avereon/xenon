@@ -9,7 +9,7 @@ public class NodeWatcher implements NodeListener {
 	private List<NodeEvent> events = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void eventOccurred( NodeEvent event ) {
+	public void nodeEvent( NodeEvent event ) {
 		events.add( event );
 	}
 

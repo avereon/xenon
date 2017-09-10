@@ -147,7 +147,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 		if( listeners != null ) {
 			for( NodeListener listener : listeners ) {
-				listener.eventOccurred( (NodeEvent)event );
+				listener.nodeEvent( (NodeEvent)event );
 			}
 		}
 	}

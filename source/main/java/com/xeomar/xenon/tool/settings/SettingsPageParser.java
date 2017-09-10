@@ -44,7 +44,7 @@ public class SettingsPageParser {
 
 	private static final String EDITOR = "editor";
 
-	private static final String ENABLED = "enabled";
+	private static final String DISABLE = "disable";
 
 	private static final String EDITABLE = "editable";
 
@@ -189,8 +189,8 @@ public class SettingsPageParser {
 
 		String key = attributes.get( KEY );
 		String editor = attributes.get( EDITOR );
-		String enabled = attributes.get( ENABLED );
-		if( enabled == null ) enabled = String.valueOf( false );
+		String disable = attributes.get( DISABLE );
+		if( disable == null ) disable = String.valueOf( false );
 		String opaque = attributes.get( OPAQUE );
 		if( opaque == null ) opaque = String.valueOf( false );
 		String editable = attributes.get( EDITABLE );
@@ -199,8 +199,8 @@ public class SettingsPageParser {
 		Setting setting = new Setting( settings );
 		setting.setKey( key );
 		setting.setEditor( editor );
-		setting.setEnabled( Boolean.parseBoolean( enabled ) );
-		setting.setEditable( Boolean.parseBoolean( editable ) );
+		setting.setDisable( Boolean.parseBoolean( disable ) );
+		//setting.setEditable( Boolean.parseBoolean( editable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
 
 		while( reader.hasNext() ) {

@@ -9,11 +9,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
 
-public class CheckboxSettingEditor extends SettingEditor implements ChangeListener<Boolean> {
+public class CheckBoxSettingEditor extends SettingEditor implements ChangeListener<Boolean> {
 
 	private CheckBox checkbox;
 
-	public CheckboxSettingEditor( Product product, Setting setting ) {
+	public CheckBoxSettingEditor( Product product, Setting setting ) {
 		super( product, setting );
 	}
 
@@ -36,8 +36,8 @@ public class CheckboxSettingEditor extends SettingEditor implements ChangeListen
 	}
 
 	@Override
-	public void setEnabled( boolean enabled ) {
-		checkbox.setDisable( !enabled );
+	public void setDisable( boolean disable ) {
+		checkbox.setDisable( disable );
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class CheckboxSettingEditor extends SettingEditor implements ChangeListen
 
 	// Setting listener
 	@Override
-	public void event( SettingsEvent event ) {
+	public void settingsEvent( SettingsEvent event ) {
 		if( key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue() ) );
 	}
 

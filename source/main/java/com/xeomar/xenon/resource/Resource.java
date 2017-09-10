@@ -417,7 +417,7 @@ public class Resource extends Node implements Configurable {
 	private class NodeWatcher implements NodeListener {
 
 		@Override
-		public void eventOccurred( NodeEvent event ) {
+		public void nodeEvent( NodeEvent event ) {
 			if( event.getType() != NodeEvent.Type.FLAG_CHANGED ) return;
 
 			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
