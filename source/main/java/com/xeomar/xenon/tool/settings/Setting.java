@@ -19,6 +19,8 @@ public class Setting extends Node {
 
 	private static final String VISIBLE = "visible";
 
+	private static final String EDITABLE = "editable";
+
 	private static final String OPAQUE = "opaque";
 
 	private static final String OPTIONS = "options";
@@ -76,6 +78,14 @@ public class Setting extends Node {
 
 	public void setVisible( boolean visible ) {
 		setValue( VISIBLE, visible );
+	}
+
+	public boolean isEditable() {
+		return getValue( EDITABLE );
+	}
+
+	public void setEditable( boolean editable ) {
+		setValue( EDITABLE, editable );
 	}
 
 	public boolean isOpaque() {

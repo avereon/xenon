@@ -46,6 +46,8 @@ public class SettingsPageParser {
 
 	private static final String ENABLED = "enabled";
 
+	private static final String EDITABLE = "editable";
+
 	private static final String OPAQUE = "opaque";
 
 	private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
@@ -191,11 +193,14 @@ public class SettingsPageParser {
 		if( enabled == null ) enabled = String.valueOf( false );
 		String opaque = attributes.get( OPAQUE );
 		if( opaque == null ) opaque = String.valueOf( false );
+		String editable = attributes.get( EDITABLE );
+		if( editable == null ) editable = String.valueOf( false );
 
 		Setting setting = new Setting( settings );
 		setting.setKey( key );
 		setting.setEditor( editor );
 		setting.setEnabled( Boolean.parseBoolean( enabled ) );
+		setting.setEditable( Boolean.parseBoolean( editable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
 
 		while( reader.hasNext() ) {

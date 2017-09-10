@@ -20,7 +20,7 @@ public class CheckboxSettingEditor extends SettingEditor implements ChangeListen
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		boolean selected = setting.getSettings().getBoolean( key );
+		boolean selected = setting.getSettings().getBoolean( key, false );
 
 		String label = product.getResourceBundle().getString( "settings", rbKey );
 
@@ -37,23 +37,24 @@ public class CheckboxSettingEditor extends SettingEditor implements ChangeListen
 
 	@Override
 	public void setEnabled( boolean enabled ) {
-
+		checkbox.setDisable( !enabled );
 	}
 
 	@Override
 	public void setVisible( boolean visible ) {
-
+		checkbox.setVisible( visible );
 	}
 
-	@Override
-	public void event( SettingsEvent event ) {
-
-	}
-
-	/* Selected listener */
+	// Selected listener
 	@Override
 	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
 		setting.getSettings().set( key, checkbox.isSelected() );
+	}
+
+	// Setting listener
+	@Override
+	public void event( SettingsEvent event ) {
+		if( key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue() ) );
 	}
 
 }

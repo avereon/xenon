@@ -4,6 +4,7 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsListener;
 import com.xeomar.xenon.tool.settings.editor.CheckboxSettingEditor;
+import com.xeomar.xenon.tool.settings.editor.ComboboxSettingEditor;
 import com.xeomar.xenon.tool.settings.editor.PasswordSettingEditor;
 import com.xeomar.xenon.tool.settings.editor.TextSettingEditor;
 import javafx.scene.layout.GridPane;
@@ -27,7 +28,7 @@ public abstract class SettingEditor implements SettingsListener {
 		addType( "text", TextSettingEditor.class );
 		addType( "password", PasswordSettingEditor.class );
 		addType( "checkbox", CheckboxSettingEditor.class );
-//		addType( "combobox", ComboboxSettingEditor.class );
+		addType( "combobox", ComboboxSettingEditor.class );
 //		addType( "infoline", InfolineSettingEditor.class );
 //		addType( "infoarea", InfoareaSettingEditor.class );
 //		addType( "color", ColorSettingEditor.class );

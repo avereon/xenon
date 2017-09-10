@@ -36,9 +36,7 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().getString( key, null );
 
-		String title = product.getResourceBundle().getString( "settings", rbKey );
-
-		label = new Label( title );
+		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
 		field = password ? new PasswordField() : new TextField();
 		field.setText( value );
