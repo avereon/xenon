@@ -48,6 +48,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 
 		// Add the components.
 		GridPane.setHgrow( combobox, Priority.ALWAYS );
+		//GridPane.setColumnSpan( combobox, GridPane.REMAINING );
 		pane.addRow( row, label, combobox );
 	}
 

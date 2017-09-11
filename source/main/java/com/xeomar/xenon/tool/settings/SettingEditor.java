@@ -2,10 +2,7 @@ package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.SettingsListener;
-import com.xeomar.xenon.tool.settings.editor.CheckBoxSettingEditor;
-import com.xeomar.xenon.tool.settings.editor.ComboBoxSettingEditor;
-import com.xeomar.xenon.tool.settings.editor.PasswordSettingEditor;
-import com.xeomar.xenon.tool.settings.editor.TextSettingEditor;
+import com.xeomar.xenon.tool.settings.editor.*;
 import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
@@ -31,7 +28,7 @@ public abstract class SettingEditor implements SettingsListener {
 		//		addType( "infoline", InfolineSettingEditor.class );
 		//		addType( "infoarea", InfoareaSettingEditor.class );
 		//		addType( "color", ColorSettingEditor.class );
-		//		addType( "file", FileSettingEditor.class );
+		addType( "file", FileSettingEditor.class );
 		//		addType( "font", FontSettingEditor.class );
 		//		//		addType( "link", LinkSettingEditor.class );
 		//		//		addType( "time", TimeSettingEditor.class );
@@ -63,9 +60,9 @@ public abstract class SettingEditor implements SettingsListener {
 		return setting;
 	}
 
-//	public Settings getSettings() {
-//		return setting.getSettings();
-//	}
+	//	public Settings getSettings() {
+	//		return setting.getSettings();
+	//	}
 
 	public abstract void addComponents( GridPane pane, int row );
 

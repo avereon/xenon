@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool.settings.editor;
 
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
@@ -7,28 +8,28 @@ import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.stage.FileChooser;
 
-public class TextSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+import java.io.File;
+
+public class FileSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
 	private Label label;
 
 	private TextField field;
 
-	private boolean password;
+	private Button button;
 
-	public TextSettingEditor( Product product, Setting setting ) {
-		this( product, setting, false );
-	}
-
-	TextSettingEditor( Product product, Setting setting, boolean password){
+	public FileSettingEditor( Product product, Setting setting ) {
 		super( product, setting );
-		this.password = password;
 	}
 
 	@Override
@@ -38,37 +39,56 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
-		field = password ? new PasswordField() : new TextField();
+		field = new TextField();
 		field.setText( value );
 		field.setId( rbKey );
+
+		button = new Button();
+		button.setText( product.getResourceBundle().getString( "settings", "browse" ) );
+		button.setOnAction( ( event ) -> getFile() );
+
+		GridPane buttonBox = new GridPane();
+		GridPane.setHgrow( field, Priority.ALWAYS );
+		buttonBox.setHgap( UiFactory.PAD );
+		buttonBox.addRow( 0, field, button );
 
 		// Add the change handlers
 		field.focusedProperty().addListener( this );
 		field.setOnKeyPressed( this );
 
 		// Add the components.
-		GridPane.setHgrow( field, Priority.ALWAYS );
-		//GridPane.setColumnSpan( field, GridPane.REMAINING );
-		pane.addRow( row, label, field );
+		pane.addRow( row, label, buttonBox );
 	}
 
 	@Override
 	public void setDisable( boolean disable ) {
+		button.setDisable( disable );
 		label.setDisable( disable );
 		field.setDisable( disable );
 	}
 
 	@Override
 	public void setVisible( boolean visible ) {
+		button.setVisible( visible );
 		label.setVisible( visible );
 		field.setVisible( visible );
 	}
 
+	/**
+	 * Setting listener
+	 *
+	 * @param event
+	 */
 	@Override
 	public void settingsEvent( SettingsEvent event ) {
 		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) field.setText( event.getNewValue() );
 	}
 
+	/**
+	 * Key listener
+	 *
+	 * @param event
+	 */
 	@Override
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
@@ -83,10 +103,38 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 		}
 	}
 
-	/* Focus listener */
+	/**
+	 * Focus listener
+	 *
+	 * @param observable
+	 * @param oldValue
+	 * @param newValue
+	 */
 	@Override
 	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
 		if( !newValue ) setting.getSettings().set( key, field.getText() );
+	}
+
+	private void getFile() {
+		String label = product.getResourceBundle().getString( "settings", "image-files" );
+		String fileName = field.getText();
+
+		FileChooser fileChooser = new FileChooser();
+		// FIXME Lookup title in RB
+		fileChooser.setTitle( "Open Resource File" );
+		fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter( label, "*.png", "*.jpg", "*.gif" ) );
+
+		if( fileName != null ) {
+			File file = new File( fileName );
+			fileChooser.setInitialDirectory( file.getParentFile() );
+			fileChooser.setInitialFileName( file.getName() );
+		}
+
+		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveWorkspace().getStage() );
+		if( selectedFile != null ) {
+			field.setText( selectedFile.toString() );
+			setting.getSettings().set( key, field.getText() );
+		}
 	}
 
 }
