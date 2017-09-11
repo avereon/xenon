@@ -5,6 +5,7 @@ import com.xeomar.xenon.workarea.Workarea;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.Workspace;
 import com.xeomar.xenon.worktool.Tool;
+import javafx.scene.layout.BorderStroke;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -18,7 +19,7 @@ public class UiFactory {
 
 	public static final double DEFAULT_HEIGHT = 540;
 
-	public static final double PAD = 5;
+	public static final double PAD = BorderStroke.THICK.getTop();
 
 	enum Prefix {
 		WORKSPACE,
