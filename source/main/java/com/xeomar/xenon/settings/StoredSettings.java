@@ -197,6 +197,11 @@ public class StoredSettings implements Settings {
 	}
 
 	@Override
+	public void flush() {
+		scheduleSave( true );
+	}
+
+	@Override
 	public String toString() {
 		return file.toString();
 	}
@@ -204,7 +209,7 @@ public class StoredSettings implements Settings {
 	private void save() {
 		lastValueTime.set( System.currentTimeMillis() );
 		if( lastDirtyTime.get() <= lastStoreTime.get() ) lastDirtyTime.set( lastValueTime.get() );
-		scheduleSave();
+		scheduleSave( false );
 	}
 
 	private void load() {
@@ -217,13 +222,13 @@ public class StoredSettings implements Settings {
 		}
 	}
 
-	private void scheduleSave() {
+	private void scheduleSave( boolean force ) {
 		synchronized( taskLock ) {
 			long storeTime = lastStoreTime.get();
 			long dirtyTime = lastDirtyTime.get();
 
 			// If there are no changes since the last store time just return
-			if( dirtyTime < storeTime ) return;
+			if( !force && (dirtyTime < storeTime) ) return;
 
 			long valueTime = lastValueTime.get();
 			long softNext = valueTime + MIN_PERSIST_LIMIT;
@@ -232,7 +237,7 @@ public class StoredSettings implements Settings {
 			long taskTime = task == null ? 0 : task.scheduledExecutionTime();
 
 			// If the existing task time is already set to the next time just return
-			if( taskTime == nextTime ) return;
+			if( !force && (taskTime == nextTime) ) return;
 
 			// Cancel the existing task and schedule a new one
 			if( task != null ) task.cancel();

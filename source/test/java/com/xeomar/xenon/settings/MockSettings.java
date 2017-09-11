@@ -95,4 +95,7 @@ public class MockSettings implements Settings {
 	@Override
 	public void removeSettingsListener( SettingsListener listener ) { }
 
+	@Override
+	public void flush() {}
+
 }

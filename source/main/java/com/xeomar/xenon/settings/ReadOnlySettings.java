@@ -105,9 +105,12 @@ public class ReadOnlySettings implements Settings {
 	}
 
 	@Override
-	public void addSettingsListener( SettingsListener listener ) { }
+	public void addSettingsListener( SettingsListener listener ) {}
 
 	@Override
-	public void removeSettingsListener( SettingsListener listener ) { }
+	public void removeSettingsListener( SettingsListener listener ) {}
+
+	@Override
+	public void flush() {}
 
 }

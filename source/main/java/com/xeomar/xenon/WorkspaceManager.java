@@ -141,4 +141,10 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		// TODO Remove the workspace from the workspace collection
 	}
 
+	void hideWindows() {
+		for( Workspace workspace : getWorkspaces() ) {
+			workspace.getStage().hide();
+		}
+	}
+
 }

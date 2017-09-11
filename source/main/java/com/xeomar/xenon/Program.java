@@ -21,7 +21,6 @@ import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
 import com.xeomar.xenon.tool.WelcomeTool;
-import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.util.JavaUtil;
 import com.xeomar.xenon.util.OperatingSystem;
@@ -36,8 +35,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -75,9 +74,9 @@ public class Program extends Application implements Product {
 
 	private ActionLibrary actionLibrary;
 
-	private SettingsManager settingsManager;
+	private ProgramServer programServer;
 
-	private Map<String, SettingsPage> settingsPages;
+	private SettingsManager settingsManager;
 
 	private ToolManager toolManager;
 
@@ -135,11 +134,11 @@ public class Program extends Application implements Product {
 		// Fire the program starting event after the event watcher is created
 		fireEvent( new ProgramStartingEvent( this ) );
 
+		// Determine the program exec mode
 		String prefix = getExecmodePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-		time( "programValues" );
+		time( "metadata" );
 
-		// FIXME Getting the program settings takes about 1/4 of the startup time
 		// Create the settings manager before getting the program settings
 		settingsManager = new SettingsManager( this ).start();
 
@@ -152,11 +151,20 @@ public class Program extends Application implements Product {
 		programSettings.setDefaultSettings( new ReadOnlySettings( properties ) );
 		time( "settings" );
 
+		// Start the program server
 		// TODO Check for another instance after getting the settings but before the splash screen is shown
 		// https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 		// The fastest way to check might be to try and bind to the port defined in
 		// the settings. The OS will quickly deny the bind.
 		// Call Platform.exit() if there is already an instance
+		int port = programSettings.getInteger("program-port", 0 );
+		programServer = new ProgramServer( port );
+		try {
+			programServer.start();
+		} catch( IOException exception ) {
+			Platform.exit();
+		}
+		programSettings.set( "program-port", programServer.getPort() );
 
 		// Create the program notifier after creating the program settings
 		notifier = new ProgramNotifier( this );
@@ -173,10 +181,13 @@ public class Program extends Application implements Product {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		// Do not implicitly close the program
+		Platform.setImplicitExit( false );
+
 		// Show the splash screen
 		splashScreen = new SplashScreen( metadata.getName() );
 		splashScreen.show();
-		time( "splash" );
+		time( "splash displayed" );
 
 		// Submit the startup task
 		taskManager.submit( new Startup() );
@@ -199,9 +210,9 @@ public class Program extends Application implements Product {
 
 	public void requestExit( boolean force ) {
 		boolean shutdownVerify = programSettings.getBoolean( "shutdown-verify", true );
-		boolean shutdownKeepalive = programSettings.getBoolean( "shutdown-keepalive", false );
+		boolean shutdownKeepAlive = programSettings.getBoolean( "shutdown-keepalive", false );
 
-		// TODO If the user desires, prompt to exit the program
+		// If the user desires, prompt to exit the program
 		if( !force && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 			alert.initOwner( getWorkspaceManager().getActiveWorkspace().getStage() );
@@ -213,9 +224,13 @@ public class Program extends Application implements Product {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return;
 		}
 
-		// FIXME Keepalive does not close the program window
-
-		if( !shutdownKeepalive && !JavaUtil.isTest() ) Platform.exit();
+		if( !force && (shutdownKeepAlive || JavaUtil.isTest()) ) {
+			log.debug( "Program keep alive" );
+			workspaceManager.hideWindows();
+		} else {
+			log.debug( "Program exit" );
+			Platform.exit();
+		}
 	}
 
 	public String getParameter( String key ) {
@@ -358,7 +373,7 @@ public class Program extends Application implements Product {
 		log.debug( "Resource manager started." );
 
 		// Load the settings pages
-		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
+		getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
 
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
@@ -424,6 +439,16 @@ public class Program extends Application implements Product {
 
 			// Unregister icons
 			unregisterIcons();
+
+			// Stop the program server
+			try {
+				programServer.stop();
+			} catch( IOException exception ) {
+				log.error( "Error stopping program server", exception );
+			} finally {
+				programSettings.set( "program-port", 0 );
+				programSettings.flush();
+			}
 
 			// NOTE Do not call Platform.exit() here, it was called already
 		} catch( InterruptedException exception ) {
@@ -521,10 +546,13 @@ public class Program extends Application implements Product {
 		@Override
 		protected void succeeded() {
 			splashScreen.hide();
+			time( "splash hidden" );
+
 			workspaceManager.getActiveWorkspace().getStage().show();
 
-			// Program started event shoudl be fired after the window is shown
+			// Program started event should be fired after the window is shown
 			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+			time( "program started" );
 
 			// Set the workarea actions
 			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
@@ -535,6 +563,7 @@ public class Program extends Application implements Product {
 		@Override
 		protected void cancelled() {
 			splashScreen.hide();
+			time( "splash hidden" );
 			log.warn( "Startup task cancelled" );
 		}
 

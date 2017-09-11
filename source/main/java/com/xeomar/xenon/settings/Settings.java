@@ -36,4 +36,6 @@ public interface Settings {
 
 	void removeSettingsListener( SettingsListener listener );
 
+	void flush();
+
 }
