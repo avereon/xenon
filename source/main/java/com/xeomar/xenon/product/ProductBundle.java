@@ -26,7 +26,7 @@ public class ProductBundle {
 		// NOTE In Java 9 the Uft8Control is no longer necessary
 		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader, new Utf8Control() );
 		if( bundle.containsKey( valueKey ) ) string = format( bundle.getString( valueKey ), (Object[])values );
-		if( string == null ) log.warn( "Missing RB key: " + bundleKey + ":" + valueKey );
+		if( string == null ) log.trace( "Missing RB key: " + bundleKey + ":" + valueKey );
 
 		return string;
 	}

@@ -1,34 +1,105 @@
 package com.xeomar.xenon;
 
+import com.xeomar.xenon.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.*;
+import java.util.List;
 
 public class ProgramServer {
 
-	private int port;
+	private static final Logger log = LoggerFactory.getLogger( ProgramServer.class );
 
-	private ServerSocket socket;
+	private Program program;
 
-	public ProgramServer( int port ) {
-		this.port = port;
+	private ServerSocket server;
+
+	private SocketHandler handler;
+
+	public ProgramServer( Program program ) {
+		this.program = program;
 	}
 
-	public Object start() throws IOException {
-		// NEXT Implement program server
-		return null;
+	public boolean start() {
+		Settings programSettings = program.getSettingsManager().getProgramSettings();
+		int port = programSettings.getInteger( "program-port", 0 );
+
+		// Start the program server
+		try {
+			server = new ServerSocket();
+			server.setReuseAddress( true );
+			server.bind( new InetSocketAddress( InetAddress.getLoopbackAddress(), port ) );
+			int localPort = server.getLocalPort();
+			programSettings.set( "program-port", localPort );
+			programSettings.flush();
+			log.info( "Program server listening on port " + localPort );
+
+			new Thread( handler = new SocketHandler(), "ProgramServerThread" ).start();
+		} catch( BindException exception ) {
+			log.info( "Program already running" );
+
+			// Send the command line parameters
+			try {
+				Socket socket = new Socket( InetAddress.getLoopbackAddress(), port );
+				List<String> commandList = program.getParameters().getRaw();
+				String[] commands = commandList.toArray( new String[ commandList.size() ] );
+				new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
+				socket.close();
+			} catch( IOException socketException ) {
+				log.error( "Error sending commands to program", socketException );
+			}
+
+			return false;
+		} catch( IOException exception ) {
+			log.error( "Error starting program server", exception );
+		}
+
+		return true;
 	}
 
-	public boolean isRunning() {
-		return socket != null;
+	public void stop() {
+		if( server == null ) return;
+		if( handler != null ) handler.stop();
+
+		Settings programSettings = program.getSettingsManager().getProgramSettings();
+		programSettings.set( "program-port", 0 );
+		programSettings.flush();
 	}
 
-	public void stop() throws IOException {
-		if( socket == null ) return;
-		socket.close();
-	}
+	private class SocketHandler implements Runnable {
 
-	int getPort() {
-		return socket == null ? 0 : socket.getLocalPort();
+		private boolean run;
+
+		public void run() {
+			run = true;
+			while( run ) {
+				try {
+					Socket client = server.accept();
+					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
+					program.processCommands( commands );
+				} catch( ClassNotFoundException exception ) {
+					log.error( "Error reading commands from client", exception );
+				} catch( IOException exception ) {
+					if( !"socket closed".equals( exception.getMessage().toLowerCase() ) ) log.error( "Error waiting for connection", exception );
+				}
+			}
+		}
+
+		public void stop() {
+			run = false;
+			try {
+				server.close();
+			} catch( IOException exception ) {
+				log.error( "Error closing server socket", exception );
+			} finally {
+				server = null;
+			}
+		}
+
 	}
 
 }

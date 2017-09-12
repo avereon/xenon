@@ -35,7 +35,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Optional;
 import java.util.Properties;
@@ -48,7 +47,7 @@ public class Program extends Application implements Product {
 
 	public static final String STYLESHEET = "style.css";
 
-	public static final String SETTINGS_EXTENSION = ".settings";
+	public static final String SETTINGS_EXTENSION = ".properties";
 
 	private static final long MANAGER_ACTION_SECONDS = 10;
 
@@ -57,6 +56,8 @@ public class Program extends Application implements Product {
 	private static long programStartTime = System.currentTimeMillis();
 
 	private static long managerActionTime = 10;
+
+	private int port;
 
 	private SplashScreen splashScreen;
 
@@ -147,7 +148,7 @@ public class Program extends Application implements Product {
 		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
 
 		// Get the program settings after the settings manager and before the task manager
-		programSettings = settingsManager.getSettings( "program.properties" );
+		programSettings = settingsManager.getProgramSettings();
 		programSettings.setDefaultSettings( new ReadOnlySettings( properties ) );
 		time( "settings" );
 
@@ -157,14 +158,8 @@ public class Program extends Application implements Product {
 		// The fastest way to check might be to try and bind to the port defined in
 		// the settings. The OS will quickly deny the bind.
 		// Call Platform.exit() if there is already an instance
-		int port = programSettings.getInteger("program-port", 0 );
-		programServer = new ProgramServer( port );
-		try {
-			programServer.start();
-		} catch( IOException exception ) {
-			Platform.exit();
-		}
-		programSettings.set( "program-port", programServer.getPort() );
+		boolean singleton = programSettings.getBoolean( "shutdown-keepalive", false );
+		if( singleton && !(programServer = new ProgramServer( this )).start() ) Platform.exit();
 
 		// Create the program notifier after creating the program settings
 		notifier = new ProgramNotifier( this );
@@ -238,6 +233,14 @@ public class Program extends Application implements Product {
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
 		if( parameters == null ) return System.getProperty( key );
 		return parameters.getNamed().get( key );
+	}
+
+	public void processCommands( String[] commands ) {
+		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
+		Platform.runLater( () -> {
+			current.show();
+			current.requestFocus();
+		} );
 	}
 
 	@Override
@@ -441,14 +444,7 @@ public class Program extends Application implements Product {
 			unregisterIcons();
 
 			// Stop the program server
-			try {
-				programServer.stop();
-			} catch( IOException exception ) {
-				log.error( "Error stopping program server", exception );
-			} finally {
-				programSettings.set( "program-port", 0 );
-				programSettings.flush();
-			}
+			if( programServer != null ) programServer.stop();
 
 			// NOTE Do not call Platform.exit() here, it was called already
 		} catch( InterruptedException exception ) {

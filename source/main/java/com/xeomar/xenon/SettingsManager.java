@@ -5,10 +5,10 @@ import com.xeomar.xenon.event.SettingsSavedEvent;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
-import com.xeomar.xenon.settings.StoredSettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.settings.SettingsListener;
+import com.xeomar.xenon.settings.StoredSettings;
 import com.xeomar.xenon.tool.Guide;
 import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
@@ -65,9 +65,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getSettings( File file, String scope ) {
-		Settings settings = new StoredSettings( program.getExecutor(), file );
-		settings.addSettingsListener( settingsWatcher );
-		settingsMap.put( file, settings );
+		Settings settings = settingsMap.get( file );
+		if( settings == null ) {
+			settings = new StoredSettings( program.getExecutor(), file );
+			settings.addSettingsListener( settingsWatcher );
+			settingsMap.put( file, settings );
+		}
 		return settings;
 	}
 
@@ -205,9 +208,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	@Override
 	public SettingsManager stop() {
 		for( Settings settings : settingsMap.values() ) {
-			//wrapper.close();
+			//settings.flush();
 		}
-		settingsMap = null;
 		return this;
 	}
 
