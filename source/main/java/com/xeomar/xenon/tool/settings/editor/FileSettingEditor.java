@@ -116,13 +116,12 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	}
 
 	private void getFile() {
-		String label = product.getResourceBundle().getString( "settings", "image-files" );
 		String fileName = field.getText();
 
 		FileChooser fileChooser = new FileChooser();
-		// FIXME Lookup title in RB
-		fileChooser.setTitle( "Open Resource File" );
-		fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter( label, "*.png", "*.jpg", "*.gif" ) );
+		fileChooser.setTitle( product.getResourceBundle().getString( "settings", "select-file" ) );
+		//String label = product.getResourceBundle().getString( "settings", "image-files" );
+		//fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter( label, "*.png", "*.jpg", "*.gif" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );
