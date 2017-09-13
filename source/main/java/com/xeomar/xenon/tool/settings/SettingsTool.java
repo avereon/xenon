@@ -74,7 +74,6 @@ public class SettingsTool extends ProductTool {
 	}
 
 	private void selectItem( TreeItem<GuideNode> item ) {
-		getChildren().clear();
 		if( item == null ) return;
 		selectPage( item.getValue().getPage() );
 	}
@@ -86,6 +85,7 @@ public class SettingsTool extends ProductTool {
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
+		getChildren().clear();
 		getChildren().add( scroller );
 	}
 

@@ -7,28 +7,32 @@ import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 public class TextSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
-	private Label label;
-
-	private TextField field;
-
-	private boolean password;
-
-	public TextSettingEditor( Product product, Setting setting ) {
-		this( product, setting, false );
+	protected enum Type {
+		AREA,
+		FIELD,
+		PASSWORD
 	}
 
-	TextSettingEditor( Product product, Setting setting, boolean password){
+	private Label label;
+
+	private TextInputControl text;
+
+	private Type type;
+
+	public TextSettingEditor( Product product, Setting setting ) {
+		this( product, setting, Type.FIELD );
+	}
+
+	TextSettingEditor( Product product, Setting setting, Type type ) {
 		super( product, setting );
-		this.password = password;
+		this.type = type;
 	}
 
 	@Override
@@ -38,46 +42,61 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
-		field = password ? new PasswordField() : new TextField();
-		field.setText( value );
-		field.setId( rbKey );
+		switch( type ) {
+			case AREA : {
+				text = new TextArea(  );
+				break;
+			}
+			case PASSWORD : {
+				text = new PasswordField(  );
+				break;
+			}
+			default : {
+				text = new TextField(  );
+				break;
+			}
+		}
+		text.setText( value );
+		text.setId( rbKey );
 
 		// Add the change handlers
-		field.focusedProperty().addListener( this );
-		field.setOnKeyPressed( this );
+		text.focusedProperty().addListener( this );
+		text.setOnKeyPressed( this );
 
 		// Add the components.
-		GridPane.setHgrow( field, Priority.ALWAYS );
-		//GridPane.setColumnSpan( field, GridPane.REMAINING );
-		pane.addRow( row, label, field );
+		GridPane.setHgrow( text, Priority.ALWAYS );
+		//GridPane.setColumnSpan( text, GridPane.REMAINING );
+		pane.addRow( row, label, text );
 	}
 
 	@Override
 	public void setDisable( boolean disable ) {
 		label.setDisable( disable );
-		field.setDisable( disable );
+		text.setDisable( disable );
 	}
 
 	@Override
 	public void setVisible( boolean visible ) {
 		label.setVisible( visible );
-		field.setVisible( visible );
+		text.setVisible( visible );
 	}
 
 	@Override
 	public void settingsEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) field.setText( event.getNewValue() );
+		// If the values are the same, don't set the text because it moves the cursor
+		if( event.getNewValue().equals( text.getText() ) ) return;
+		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) text.setText( event.getNewValue() );
 	}
 
 	@Override
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
 			case ESCAPE: {
-				field.setText( setting.getSettings().getString( key, null ) );
+				text.setText( setting.getSettings().getString( key, null ) );
 				break;
 			}
 			case ENTER: {
-				setting.getSettings().set( key, field.getText() );
+				setting.getSettings().set( key, text.getText() );
 				break;
 			}
 		}
@@ -86,7 +105,7 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 	/* Focus listener */
 	@Override
 	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		if( !newValue ) setting.getSettings().set( key, field.getText() );
+		if( !newValue ) setting.getSettings().set( key, text.getText() );
 	}
 
 }

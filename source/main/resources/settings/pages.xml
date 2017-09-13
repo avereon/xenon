@@ -243,7 +243,7 @@
 				<setting key="workspace-memory-monitor-used" editor="color">
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 				</setting>
-				<setting key="workspace-memory-monitor-refresh" editor="text">
+				<setting key="workspace-memory-monitor-refresh" editor="textline">
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 				</setting>
 			</group>
@@ -270,18 +270,18 @@
 				<setting key="network-proxy-all" editor="checkbox">
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>
-				<setting key="network-proxy-http" editor="text">
+				<setting key="network-proxy-http" editor="textline">
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>
-				<setting key="network-proxy-https" editor="text">
+				<setting key="network-proxy-https" editor="textline">
 					<dependency key="network-proxy-all" value="false" />
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>
-				<setting key="network-proxy-ftp" editor="text">
+				<setting key="network-proxy-ftp" editor="textline">
 					<dependency key="network-proxy-all" value="false" />
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>
-				<setting key="network-proxy-socks" editor="text">
+				<setting key="network-proxy-socks" editor="textline">
 					<dependency key="network-proxy-all" value="false" />
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>

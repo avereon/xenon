@@ -21,7 +21,8 @@ public abstract class SettingEditor implements SettingsListener {
 	static {
 		editors = new HashMap<>();
 
-		addType( "text", TextSettingEditor.class );
+		addType( "textline", TextSettingEditor.class );
+		addType( "textarea", TextAreaSettingEditor.class );
 		addType( "password", PasswordSettingEditor.class );
 		addType( "checkbox", CheckBoxSettingEditor.class );
 		addType( "combobox", ComboBoxSettingEditor.class );

@@ -110,11 +110,11 @@ public class SettingsPanel extends VBox {
 		for( Setting setting : group.getSettings() ) {
 			// Get the editor type
 			String editorType = setting.getEditor();
-			if( editorType == null ) editorType = "text";
+			if( editorType == null ) editorType = "textline";
 
 			// Determine the editor class
 			Class<? extends SettingEditor> editorClass = SettingEditor.getType( editorType );
-			if( editorClass == null ) editorClass = SettingEditor.getType( "text" );
+			if( editorClass == null ) editorClass = SettingEditor.getType( "textline" );
 
 			// Create the editor
 			if( editorClass == null ) {

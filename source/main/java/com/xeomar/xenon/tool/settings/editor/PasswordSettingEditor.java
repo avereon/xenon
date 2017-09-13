@@ -6,7 +6,7 @@ import com.xeomar.xenon.tool.settings.Setting;
 public class PasswordSettingEditor extends TextSettingEditor {
 
 	public PasswordSettingEditor( Product product, Setting setting ) {
-		super( product, setting, true );
+		super( product, setting, Type.PASSWORD );
 	}
 
 }
