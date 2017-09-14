@@ -11,7 +11,7 @@ public class SettingGroup extends Node {
 
 	private static final String ID = "id";
 
-	private static final String ENABLED = "enabled";
+	private static final String DISABLE = "disable";
 
 	private static final String VISIBLE = "visible";
 
@@ -26,9 +26,6 @@ public class SettingGroup extends Node {
 		definePrimaryKey( ID );
 		setValue( SETTINGS, new CopyOnWriteArrayList<Setting>() );
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
-		setEnabled( true );
-		updateFlags();
-		setModified( false );
 	}
 
 	public String getId() {
@@ -39,12 +36,12 @@ public class SettingGroup extends Node {
 		setValue( ID, id );
 	}
 
-	public boolean isEnabled() {
-		return getValue( ENABLED, false );
+	public boolean isDisable() {
+		return getValue( DISABLE, false );
 	}
 
-	public void setEnabled( boolean enabled ) {
-		setValue( ENABLED, enabled );
+	public void setDisable( boolean enabled ) {
+		setValue( DISABLE, enabled );
 	}
 
 	public boolean isVisible() {
@@ -73,7 +70,7 @@ public class SettingGroup extends Node {
 		dependencies.add( dependency );
 	}
 
-	public void updateFlags() {
+	public void updateState() {
 		setVisible( SettingDependency.evaluate( getDependencies(), settings ) );
 	}
 

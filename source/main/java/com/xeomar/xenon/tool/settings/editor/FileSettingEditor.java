@@ -10,11 +10,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 
@@ -56,7 +54,11 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		field.focusedProperty().addListener( this );
 		field.setOnKeyPressed( this );
 
-		// Add the components.
+		// Set component state
+		setDisable( setting.isDisable() );
+		setVisible( setting.isVisible() );
+
+		// Add the components
 		pane.addRow( row, label, buttonBox );
 	}
 

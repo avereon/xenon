@@ -46,9 +46,12 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		// Add the change handlers
 		combobox.valueProperty().addListener( this );
 
-		// Add the components.
+		// Set component state
+		setDisable( setting.isDisable() );
+		setVisible( setting.isVisible() );
+
+		// Add the components
 		GridPane.setHgrow( combobox, Priority.ALWAYS );
-		//GridPane.setColumnSpan( combobox, GridPane.REMAINING );
 		pane.addRow( row, label, combobox );
 	}
 

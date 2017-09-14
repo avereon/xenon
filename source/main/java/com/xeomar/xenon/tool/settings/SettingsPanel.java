@@ -92,7 +92,7 @@ public class SettingsPanel extends VBox {
 			}
 		}
 
-		group.updateFlags();
+		group.updateState();
 
 		TitledPane groupPane = new TitledPane( name, pane );
 		groupPane.setCollapsible( false );
@@ -194,7 +194,7 @@ public class SettingsPanel extends VBox {
 		@Override
 		public void settingsEvent( SettingsEvent event ) {
 			if( this.key == null ) return;
-			if( key.equals( event.getKey() ) ) group.updateFlags();
+			if( key.equals( event.getKey() ) ) group.updateState();
 		}
 
 	}
@@ -270,7 +270,7 @@ public class SettingsPanel extends VBox {
 			NodeEvent.Type type = event.getType();
 			if( type != NodeEvent.Type.VALUE_CHANGED ) return;
 
-			log.debug( "Setting node value changed: " + event.getKey() + "=" + event.getNewValue() );
+			log.warn( "Setting node value changed: " + event.getKey() + "=" + event.getNewValue() );
 
 			switch( event.getKey() ) {
 				case "disable": {

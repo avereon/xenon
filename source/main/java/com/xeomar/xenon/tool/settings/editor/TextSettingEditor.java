@@ -63,7 +63,11 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 		text.focusedProperty().addListener( this );
 		text.setOnKeyPressed( this );
 
-		// Add the components.
+		// Set component state
+		setDisable( setting.isDisable() );
+		setVisible( setting.isVisible() );
+
+		// Add the components
 		GridPane.setHgrow( text, Priority.ALWAYS );
 		//GridPane.setColumnSpan( text, GridPane.REMAINING );
 		pane.addRow( row, label, text );

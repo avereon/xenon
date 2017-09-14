@@ -82,6 +82,7 @@ public class SettingsTool extends ProductTool {
 		log.debug( "Settings page selected: " + page );
 		if( page == null ) return;
 
+		// FIXME Creating a new settings panel causes the settings states to change
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
