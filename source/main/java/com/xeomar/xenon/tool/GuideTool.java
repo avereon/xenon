@@ -20,7 +20,6 @@ public class GuideTool extends ProductTool {
 	private ActiveGuideListener activeGuideListener;
 
 	public GuideTool( Product product, Resource resource ) {
-		// TODO Should GuideTool listen for the current resource in the workarea for changes
 		super( product, resource );
 		setId( "tool-guide" );
 		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
