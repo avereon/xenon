@@ -12,7 +12,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-public class TextSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+public class TextLineSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
 	protected enum Type {
 		AREA,
@@ -20,17 +20,17 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 		PASSWORD
 	}
 
+	private Type type;
+
 	private Label label;
 
 	private TextInputControl text;
 
-	private Type type;
-
-	public TextSettingEditor( Product product, Setting setting ) {
+	public TextLineSettingEditor( Product product, Setting setting ) {
 		this( product, setting, Type.FIELD );
 	}
 
-	TextSettingEditor( Product product, Setting setting, Type type ) {
+	TextLineSettingEditor( Product product, Setting setting, Type type ) {
 		super( product, setting );
 		this.type = type;
 	}
@@ -69,7 +69,6 @@ public class TextSettingEditor extends SettingEditor implements EventHandler<Key
 
 		// Add the components
 		GridPane.setHgrow( text, Priority.ALWAYS );
-		//GridPane.setColumnSpan( text, GridPane.REMAINING );
 		pane.addRow( row, label, text );
 	}
 
