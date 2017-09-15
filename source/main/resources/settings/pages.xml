@@ -266,6 +266,14 @@
 					<option key="manual" />
 				</setting>
 			</group>
+			<group id="proxy-authentication">
+				<setting key="network-proxy-username">
+					<dependency key="network-proxy-mode" value="manual" />
+				</setting>
+				<setting key="network-proxy-password" editor="password">
+					<dependency key="network-proxy-mode" value="manual" />
+				</setting>
+			</group>
 			<group id="proxy-settings">
 				<setting key="network-proxy-all" editor="checkbox">
 					<dependency key="network-proxy-mode" value="manual" />
@@ -289,15 +297,6 @@
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>
 				<setting key="network-proxy-exclude-info" editor="infoline">
-					<dependency key="network-proxy-mode" value="manual" />
-				</setting>
-			</group>
-
-			<group id="proxy-authentication">
-				<setting key="network-proxy-username">
-					<dependency key="network-proxy-mode" value="manual" />
-				</setting>
-				<setting key="network-proxy-password" editor="password">
 					<dependency key="network-proxy-mode" value="manual" />
 				</setting>
 			</group>
