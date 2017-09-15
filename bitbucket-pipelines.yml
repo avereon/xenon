@@ -8,22 +8,21 @@
 #image: xeomar/jdk-8-144-maven-3.5.0
 image: xeomar/jdk-8-144-jfx-maven-3.5.0
 
-# TODO: research. i wonder if we can add a script step fpr "apk add --no-cache openjfx" or maybe we just need out own image
-
 pipelines:
   default: # replace `default` level with levels `branches.master` or any other branch to limit builds to that branch
            # limiting builds to a branch allows you to dev on another branch, commit+push often, and not chew through your build minutes
     - step:
         caches:
           - maven
-        script: # Modify the commands below to build your repository.
-          # - apt-get install -y openjfx
+        script:
+          # Modify the commands below to build your artifact
           - cp settings.xml $HOME/.m2/settings.xml
           - mvn -B -Dtestfx.robot=glass -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw clean package
 
           # you can run any command to move your artifact elsewhere
           # like to BitBucket Downloads for example
 
-          # TODO read the link, populate BB_AUTH_STRING, enjoy a nice cold lemonade
+          # BitBucket Downloads
+          # Read the link, populate BB_AUTH_STRING, enjoy a nice cold lemonade
           # https://confluence.atlassian.com/bitbucket/deploy-build-artifacts-to-bitbucket-downloads-872124574.html
           # - curl -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"`ls -tr target/*.jar | tail -n1`"
