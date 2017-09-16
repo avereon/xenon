@@ -12,8 +12,8 @@ public class SettingGroupTest {
 	public void testConstructor() {
 		MockSettings settings = new MockSettings();
 		SettingGroup group = new SettingGroup( settings );
-		assertThat( group.isDisable(), is( true ) );
-		assertThat( group.isVisible(), is( true ) );
+		assertThat( group.isDisable(), is( false ) );
+		assertThat( group.isVisible(), is( false ) );
 	}
 
 }
