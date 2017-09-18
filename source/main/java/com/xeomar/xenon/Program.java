@@ -9,10 +9,7 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.product.ProductBundle;
 import com.xeomar.xenon.product.ProductMetadata;
 import com.xeomar.xenon.resource.ResourceType;
-import com.xeomar.xenon.resource.type.ProgramAboutType;
-import com.xeomar.xenon.resource.type.ProgramGuideType;
-import com.xeomar.xenon.resource.type.ProgramSettingsType;
-import com.xeomar.xenon.resource.type.ProgramWelcomeType;
+import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.settings.ReadOnlySettings;
@@ -99,6 +96,8 @@ public class Program extends Application implements Product {
 
 	private WelcomeAction welcomeAction;
 
+	private NoticeAction noticeAction;
+
 	public static void main( String[] commands ) {
 		launch( commands );
 	}
@@ -109,6 +108,7 @@ public class Program extends Application implements Product {
 		aboutAction = new AboutAction( this );
 		settingsAction = new SettingsAction( this );
 		welcomeAction = new WelcomeAction( this );
+		noticeAction = new NoticeAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -461,6 +461,7 @@ public class Program extends Application implements Product {
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction );
+		getActionLibrary().getAction( "notice" ).pushAction( noticeAction );
 	}
 
 	private void unregisterActionHandlers() {
@@ -468,6 +469,7 @@ public class Program extends Application implements Product {
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
+		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
 	}
 
 	private void registerSchemes( ResourceManager manager ) {
@@ -485,9 +487,11 @@ public class Program extends Application implements Product {
 		manager.registerUriResourceType( ProgramAboutType.URI, new ProgramAboutType( this ) );
 		manager.registerUriResourceType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
 		manager.registerUriResourceType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
+		manager.registerUriResourceType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
+		manager.unregisterUriResourceType( ProgramNoticeType.URI );
 		manager.unregisterUriResourceType( ProgramWelcomeType.URI );
 		manager.unregisterUriResourceType( ProgramSettingsType.URI );
 		manager.unregisterUriResourceType( ProgramAboutType.URI );
