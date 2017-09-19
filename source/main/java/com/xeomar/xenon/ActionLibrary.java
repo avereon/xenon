@@ -56,6 +56,7 @@ public class ActionLibrary {
 		register( bundle, icons, "help" );
 		register( bundle, icons, "help-content" );
 		register( bundle, icons, "welcome" );
+		register( bundle, icons, "notice" );
 		//		register( bundle, icons, "products" );
 		register( bundle, icons, "update" );
 		register( bundle, icons, "about" );
