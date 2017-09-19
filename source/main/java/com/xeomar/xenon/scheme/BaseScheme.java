@@ -7,6 +7,7 @@ import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.Scheme;
 
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.List;
 
 public abstract class BaseScheme implements Scheme {
@@ -97,6 +98,12 @@ public abstract class BaseScheme implements Scheme {
 	@Override
 	public long getModifiedDate( Resource resource ) throws ResourceException {
 		return -1;
+	}
+
+	// FIXME Should this be a URLConnection or a more general ResourceConnection?
+	@Override
+	public URLConnection getConnection( Resource resource ) {
+		return null;
 	}
 
 	protected boolean isSupported( Resource resource ) {

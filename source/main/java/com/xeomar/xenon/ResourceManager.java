@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 // FIXME Add Configurable interface to this class
 public class ResourceManager implements Controllable<ResourceManager> {
 
-	public static final String CURRENT_DIRECTORY_SETTING_KEY = "current.folder";
+	public static final String CURRENT_DIRECTORY_SETTING_KEY = "current-folder";
 
 	// Linux defines this limit in BINPRM_BUF_SIZE
 	private static final int FIRST_LINE_LIMIT = 128;
@@ -166,11 +166,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	public List<Resource> getOpenResources() {
-		return new ArrayList<Resource>( openResources );
+		return new ArrayList<>( openResources );
 	}
 
 	public List<Resource> getModifiedResources() {
-		List<Resource> modifiedResources = new ArrayList<Resource>();
+		List<Resource> modifiedResources = new ArrayList<>();
 		for( Resource resource : getOpenResources() ) {
 			if( resource.isModified() && canSaveResource( resource ) ) modifiedResources.add( resource );
 		}
@@ -304,7 +304,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		synchronized( resourceTypes ) {
 			if( !resourceTypes.containsKey( type.getKey() ) ) return;
 
-			// Remove the resource type from the registered resource types.
+			// Remove the resource type from the registered resource types
 			resourceTypes.remove( type.getKey() );
 			for( Map.Entry entry : uriResourceTypes.entrySet() ) {
 				if( entry.getValue() == type ) uriResourceTypes.remove( entry.getKey() );
@@ -670,7 +670,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resource The resource to open
 	 */
 	public void openResources( Resource resource ) throws ResourceException {
-		openResources( Arrays.asList( new Resource[]{ resource } ) );
+		openResources( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -691,7 +691,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void openResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		openResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+		openResourcesAndWait( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -712,7 +712,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resource The resource to load
 	 */
 	public void loadResources( Resource resource ) {
-		loadResources( Arrays.asList( new Resource[]{ resource } ) );
+		loadResources( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -733,7 +733,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		loadResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+		loadResourcesAndWait( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -754,7 +754,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resource The resource to save
 	 */
 	public void saveResources( Resource resource ) {
-		saveResources( Arrays.asList( new Resource[]{ resource } ) );
+		saveResources( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -775,7 +775,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void saveResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		saveResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+		saveResourcesAndWait( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -796,7 +796,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resource The resource to close.
 	 */
 	public void closeResources( Resource resource ) {
-		closeResources( Arrays.asList( new Resource[]{ resource } ) );
+		closeResources( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -817,7 +817,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void closeResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		closeResourcesAndWait( Arrays.asList( new Resource[]{ resource } ) );
+		closeResourcesAndWait( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -885,7 +885,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return
 	 */
 	public Collection<Codec> getCodecs() {
-		Set<Codec> codecs = new HashSet<Codec>();
+		Set<Codec> codecs = new HashSet<>();
 
 		for( ResourceType type : resourceTypes.values() ) {
 			codecs.addAll( type.getCodecs() );
@@ -912,7 +912,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( type == null && uri != null ) type = schemeResourceTypes.get( uri.getScheme() );
 
 		// Look for resource types assigned to specific codecs.
-		List<Codec> codecs = new ArrayList<Codec>( autoDetectCodecs( resource ) );
+		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( resource ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
 		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
 		if( type == null && codec != null ) type = codec.getResourceType();
@@ -934,7 +934,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The set of codecs that match the resource
 	 */
 	Set<Codec> autoDetectCodecs( Resource resource ) {
-		Set<Codec> codecs = new HashSet<Codec>();
+		Set<Codec> codecs = new HashSet<>();
 		Collection<ResourceType> resourceTypes = getResourceTypes();
 
 		// First option: Determine codec by media type.
@@ -1017,7 +1017,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Determine if the resource can be saved. The resource can be saved if the URI is null or if the URI scheme and codec can both save resources.
 	 *
-	 * @param resource
+	 * @param resource The resource to check
 	 * @return True if the resource can be saved, false otherwise.
 	 */
 	private boolean canSaveResource( Resource resource ) {
@@ -1206,36 +1206,36 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return true;
 	}
 
-	/**
-	 * @param resource
-	 * @return
-	 * @deprecated Instead use Scheme.getConnection( Resource )
-	 */
-	@Deprecated
-	private URLConnection getConnection( Resource resource ) {
-		URI uri = resource.getUri();
-		Scheme scheme = getScheme( uri.getScheme() );
-		if( scheme == null ) return null;
-
-		try {
-			// FIXME Should not convert to URL to get a connection
-			//return uri.toURL().openConnection();
-
-			// It should come from the scheme
-			//return scheme.openConnection( resource );
-		} catch( Exception exception ) {
-			log.warn( "Error opening resource connection", resource );
-			log.warn( "Error opening resource connection", exception );
-		}
-
-		return null;
-	}
+//	/**
+//	 * @param resource
+//	 * @return
+//	 * @deprecated Instead use Scheme.getConnection( Resource )
+//	 */
+//	@Deprecated
+//	private URLConnection getConnection( Resource resource ) {
+//		URI uri = resource.getUri();
+//		Scheme scheme = getScheme( uri.getScheme() );
+//		if( scheme == null ) return null;
+//
+//		try {
+//			// FIXME Should not convert to URL to get a connection
+//			//return uri.toURL().openConnection();
+//
+//			// It should come from the scheme
+//			//return scheme.openConnection( resource );
+//		} catch( Exception exception ) {
+//			log.warn( "Error opening resource connection", resource );
+//			log.warn( "Error opening resource connection", exception );
+//		}
+//
+//		return null;
+//	}
 
 	private String getMediaType( Resource resource ) {
 		String mediaType = resource.getResource( Resource.MEDIA_TYPE_RESOURCE_KEY );
 
 		if( mediaType == null ) {
-			URLConnection connection = getConnection( resource );
+			URLConnection connection = resource.getScheme().getConnection( resource );
 			if( connection != null ) {
 				try {
 					mediaType = StringUtils.trimToNull( connection.getContentType() );
@@ -1254,7 +1254,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Load the first line from the resource.
 		String firstLine = null;
 
-		URLConnection connection = getConnection( resource );
+		URLConnection connection = resource.getScheme().getConnection( resource );
 		if( connection != null ) {
 			try {
 				String encoding = resource.getEncoding();
