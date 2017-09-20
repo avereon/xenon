@@ -41,15 +41,17 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 		switch( type ) {
 			case AREA: {
 				text = new TextArea();
+				text.getStyleClass().add( "settings-infoarea");
 				break;
 			}
 			default: {
 				text = new TextField();
+				text.getStyleClass().add( "settings-infoline");
 				break;
 			}
 		}
-		text.setEditable( false );
 		text.setText( product.getResourceBundle().getString( "settings", rbKey ) );
+		text.setEditable( false );
 		text.setId( rbKey );
 
 		// Set component state
