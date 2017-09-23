@@ -64,7 +64,7 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 	// Setting node listener
 	@Override
 	public void settingsEvent( SettingsEvent event ) {
-		if( key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue() ) );
+		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue() ) );
 	}
 
 }

@@ -28,7 +28,7 @@ public abstract class SettingEditor implements SettingsListener {
 		addType( "combobox", ComboBoxSettingEditor.class );
 		addType( "infoline", InfoLineSettingEditor.class );
 		addType( "infoarea", InfoAreaSettingEditor.class );
-		//		addType( "color", ColorSettingEditor.class );
+		addType( "color", ColorSettingEditor.class );
 		addType( "file", FileSettingEditor.class );
 		//		addType( "font", FontSettingEditor.class );
 		//		//		addType( "link", LinkSettingEditor.class );

@@ -4,6 +4,18 @@ import javafx.scene.paint.Color;
 
 public class Colors {
 
+	public static Color web( String string ) {
+		return Color.web( string );
+	}
+
+	public static String web( Color color ) {
+		int r = (int)Math.round( color.getRed() * 255.0 );
+		int g = (int)Math.round( color.getGreen() * 255.0 );
+		int b = (int)Math.round( color.getBlue() * 255.0 );
+		int o = (int)Math.round( color.getOpacity() * 255.0 );
+		return String.format( "#%02x%02x%02x%02x", r, g, b, o );
+	}
+
 	public static Color mix( Color color, Color mixer, double factor ) {
 		if( color == null || mixer == null ) return null;
 
@@ -34,7 +46,7 @@ public class Colors {
 		if( factor < 0 ) factor = 0;
 		if( factor > 1 ) factor = 1;
 
-		double d = Math.abs(0.5-factor )/0.5;
+		double d = Math.abs( 0.5 - factor ) / 0.5;
 
 		return mix( color, new Color( factor, factor, factor, color.getOpacity() ), d );
 	}
