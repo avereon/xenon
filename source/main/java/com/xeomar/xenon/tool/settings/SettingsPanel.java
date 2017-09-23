@@ -270,8 +270,6 @@ public class SettingsPanel extends VBox {
 			NodeEvent.Type type = event.getType();
 			if( type != NodeEvent.Type.VALUE_CHANGED ) return;
 
-			log.warn( "Setting node value changed: " + event.getKey() + "=" + event.getNewValue() );
-
 			switch( event.getKey() ) {
 				case "disable": {
 					editor.setDisable( (Boolean)event.getNewValue() );

@@ -25,7 +25,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().getString( key, null );
+		String value = setting.getSettings().getString( key, "#000000ff" );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
