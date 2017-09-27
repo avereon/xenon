@@ -16,29 +16,35 @@ public class XRingIcon extends XIcon {
 		double ringScale = 7.0 / 11.0;
 
 		// Xenon hue: 263
-		Color dkXenon = Color.web( "#7836e5" );
-		Color mdXenon = Color.web( "#a77cf6" );
-		Color ltXenon = Color.web( "#b874e6" );
+		Color dkXenon = Color.web( "#9965e6" );
+		Color mdXenon = Color.web( "#b691ed" );
+		Color ltXenon = Color.web( "#d3bdf4" );
 
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 10 ) * g( 10 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
-		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
-		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
-		jetPaintStops.add( new Stop( 0.8, Color.web( "#aa80ff" ) ) );
+//		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
+//		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
+//		jetPaintStops.add( new Stop( 0.8, Color.web( "#aa80ff" ) ) );
+		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeee00" ) ) );
+		jetPaintStops.add( new Stop( 0.4, Color.web( "#eeee00" ) ) );
+		jetPaintStops.add( new Stop( 0.8, Color.web( "#ff8000" ) ) );
 		Paint jetPaint = radialPaint( g( 16 ), g( 16 ), jetRadius, jetPaintStops );
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-		ringPaintStops.add( new Stop( 0.6, Color.web( "#ffee80" ) ) );
-		ringPaintStops.add( new Stop( 0.9, Color.web( "#ff6000" ) ) );
+//		ringPaintStops.add( new Stop( 0.6, Color.web( "#ffee80" ) ) );
+//		ringPaintStops.add( new Stop( 0.9, Color.web( "#ff6000" ) ) );
+				ringPaintStops.add( new Stop( 0.6, ltXenon ) );
+				ringPaintStops.add( new Stop( 0.9, mdXenon ) );
 		Paint ringPaint = radialPaint( g( 16 ), (1 / ringScale) * g( 16 ), g( 11 ), ringPaintStops );
 
 		// Bottom of jet
 		getGraphicsContext2D().save();
 		clip( g( 0 ), g( 16 ), g( 32 ), g( 16 ) );
 		xPath();
-		fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
+		//fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
+		fillAndDraw( jetPaint );
 		getGraphicsContext2D().restore();
 
 		// Ring
@@ -49,7 +55,7 @@ public class XRingIcon extends XIcon {
 		closePath();
 		getGraphicsContext2D().save();
 		getGraphicsContext2D().scale( 1, ringScale );
-		fill();
+		fill( ringPaint );
 		getGraphicsContext2D().restore();
 		draw();
 
@@ -57,7 +63,8 @@ public class XRingIcon extends XIcon {
 		getGraphicsContext2D().save();
 		clip( g( 0 ), g( 0 ), g( 32 ), g( 16 ) );
 		xPath();
-		fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
+		//fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
+		fillAndDraw( jetPaint );
 		getGraphicsContext2D().restore();
 	}
 
@@ -71,6 +78,7 @@ public class XRingIcon extends XIcon {
 	public static void main( String[] commands ) {
 		proof( new XRingIcon() );
 		//save( new XRingIcon(), "Downloads/program.png" );
+		//save( new XRingIcon(), "../../software/xenon/source/main/resources/program.png");
 	}
 
 }

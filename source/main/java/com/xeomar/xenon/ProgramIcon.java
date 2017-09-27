@@ -65,12 +65,6 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	public ProgramIcon() {
-		this( DEFAULT_SIZE );
-	}
-
-	public ProgramIcon( double size ) {
-		setSize( size );
-		fireRender();
 		widthProperty().addListener( ( property, oldValue, newValue ) -> fireRender() );
 		heightProperty().addListener( ( property, oldValue, newValue ) -> fireRender() );
 	}
@@ -169,13 +163,14 @@ public abstract class ProgramIcon extends Canvas {
 			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
 
 			GridPane pane = new GridPane();
-			pane.add( icon, 1, 1 );
+			pane.add( icon.setSize( 256 ), 1, 1 );
 			pane.add( imageView16, 2, 1 );
 			pane.add( imageView32, 2, 2 );
 			pane.add( iconPane, 1, 2 );
 
 			Stage stage = new Stage();
 			stage.setTitle( title );
+			stage.getIcons().addAll( icon128.copy().getImage(), icon64.copy().getImage(), icon32.copy().getImage(), icon16.copy().getImage() );
 			stage.setScene( new Scene( pane ) );
 
 			stage.setResizable( false );
@@ -485,14 +480,13 @@ public abstract class ProgramIcon extends Canvas {
 		// Start rendering by clearing the icon area
 		clearRect( 0, 0, 1, 1 );
 
-		//		// Just for research, set different color backgrounds per xformX
-		//		double xformX = Math.min( getWidth(), getHeight() );
-		//		if( xformX == 16 ) protected void setFillColor( Color.PURPLE );
-		//		if( xformX == 24 ) protected void setFillColor( Color.BLUE );
-		//		if( xformX == 32 ) protected void setFillColor( Color.GREEN );
-		//		if( xformX == 64 ) protected void setFillColor( Color.YELLOW );
-		//		if( xformX == 128 ) protected void setFillColor( Color.ORANGE );
-		//		if( xformX == 256 ) protected void setFillColor( Color.RED );
+		//		// Just for research, set different color backgrounds per size
+		//		if( size == 16 ) protected void setFillColor( Color.PURPLE );
+		//		if( size == 24 ) protected void setFillColor( Color.BLUE );
+		//		if( size == 32 ) protected void setFillColor( Color.GREEN );
+		//		if( size == 64 ) protected void setFillColor( Color.YELLOW );
+		//		if( size == 128 ) protected void setFillColor( Color.ORANGE );
+		//		if( size == 256 ) protected void setFillColor( Color.RED );
 		//		protected void fillRect( 0, 0, getWidth(), getHeight() );
 
 		render();
