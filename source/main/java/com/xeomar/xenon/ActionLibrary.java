@@ -12,64 +12,61 @@ public class ActionLibrary {
 
 	private Map<String, ActionProxy> actions;
 
-	private IconLibrary icons;
-
-	public ActionLibrary( ProductBundle bundle, IconLibrary icons ) {
+	public ActionLibrary( ProductBundle bundle ) {
 		this.actions = new ConcurrentHashMap<>();
-		this.icons = icons;
 
 		// Create default actions
-		register( bundle, icons, "file" );
-		register( bundle, icons, "new" );
-		register( bundle, icons, "open" );
-		register( bundle, icons, "save" );
-		register( bundle, icons, "save-as" );
-		register( bundle, icons, "copy-as" );
-		register( bundle, icons, "save-all" );
-		register( bundle, icons, "close" );
-		register( bundle, icons, "close-all" );
-		register( bundle, icons, "exit" );
+		register( bundle, "file" );
+		register( bundle, "new" );
+		register( bundle, "open" );
+		register( bundle, "save" );
+		register( bundle, "save-as" );
+		register( bundle, "copy-as" );
+		register( bundle, "save-all" );
+		register( bundle, "close" );
+		register( bundle, "close-all" );
+		register( bundle, "exit" );
 
-		register( bundle, icons, "edit" );
-		register( bundle, icons, "undo" );
-		register( bundle, icons, "redo" );
-		register( bundle, icons, "cut" );
-		register( bundle, icons, "copy" );
-		register( bundle, icons, "paste" );
-		register( bundle, icons, "delete" );
-		register( bundle, icons, "indent" );
-		register( bundle, icons, "unindent" );
-		register( bundle, icons, "settings" );
+		register( bundle, "edit" );
+		register( bundle, "undo" );
+		register( bundle, "redo" );
+		register( bundle, "cut" );
+		register( bundle, "copy" );
+		register( bundle, "paste" );
+		register( bundle, "delete" );
+		register( bundle, "indent" );
+		register( bundle, "unindent" );
+		register( bundle, "settings" );
 
-		register( bundle, icons, "view" );
-		register( bundle, icons, "workspace-new" );
-		//		register( bundle, icons, "tool-new" );
-		//		register( bundle, icons, "view-default" );
-		//		register( bundle, icons, "view-split-horizontal" );
-		//		register( bundle, icons, "view-split-vertical" );
-		//		register( bundle, icons, "view-merge-north" );
-		//		register( bundle, icons, "view-merge-south" );
-		//		register( bundle, icons, "view-merge-east" );
-		//		register( bundle, icons, "view-merge-west" );
-		register( bundle, icons, "statusbar-show" );
+		register( bundle, "view" );
+		register( bundle, "workspace-new" );
+		//		register( bundle, "tool-new" );
+		//		register( bundle, "view-default" );
+		//		register( bundle, "view-split-horizontal" );
+		//		register( bundle, "view-split-vertical" );
+		//		register( bundle, "view-merge-north" );
+		//		register( bundle, "view-merge-south" );
+		//		register( bundle, "view-merge-east" );
+		//		register( bundle, "view-merge-west" );
+		register( bundle, "statusbar-show" );
 
-		register( bundle, icons, "help" );
-		register( bundle, icons, "help-content" );
-		register( bundle, icons, "welcome" );
-		register( bundle, icons, "notice" );
-		//		register( bundle, icons, "products" );
-		register( bundle, icons, "update" );
-		register( bundle, icons, "about" );
+		register( bundle, "help" );
+		register( bundle, "help-content" );
+		register( bundle, "welcome" );
+		register( bundle, "notice" );
+		//		register( bundle, "products" );
+		register( bundle, "update" );
+		register( bundle, "about" );
 
-		//		register( bundle, icons, "development" );
-		//		register( bundle, icons, "settings-reset" );
-		//		register( bundle, icons, "workers" );
-		//		register( bundle, icons, "restart" );
+		//		register( bundle, "development" );
+		//		register( bundle, "settings-reset" );
+		//		register( bundle, "workers" );
+		//		register( bundle, "restart" );
 
-		register( bundle, icons, "workarea" );
-		register( bundle, icons, "workarea-new" );
-		register( bundle, icons, "workarea-rename" );
-		register( bundle, icons, "workarea-close" );
+		register( bundle, "workarea" );
+		register( bundle, "workarea-new" );
+		register( bundle, "workarea-rename" );
+		register( bundle, "workarea-close" );
 	}
 
 	public ActionProxy getAction( String id ) {
@@ -78,15 +75,15 @@ public class ActionLibrary {
 		return proxy;
 	}
 
-	public void register( ProductBundle bundle, IconLibrary icons, String id ) {
+	public void register( ProductBundle bundle, String id ) {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
 		String icon = bundle.getString( "action", id + ".icon" );
-		String name = bundle.getString( "action",id + ".name" );
-		String type = bundle.getString( "action",id + ".type" );
-		String mnemonic = bundle.getString( "action",id + ".mnemonic" );
-		String shortcut = bundle.getString( "action",id + ".shortcut" );
+		String name = bundle.getString( "action", id + ".name" );
+		String type = bundle.getString( "action", id + ".type" );
+		String mnemonic = bundle.getString( "action", id + ".mnemonic" );
+		String shortcut = bundle.getString( "action", id + ".shortcut" );
 
 		int mnemonicValue = ActionProxy.NO_MNEMONIC;
 		try {

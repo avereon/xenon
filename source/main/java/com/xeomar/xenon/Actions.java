@@ -10,8 +10,12 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Actions {
+
+	private static Logger log = LoggerFactory.getLogger( Actions.class );
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 
@@ -58,10 +62,10 @@ public class Actions {
 		item.setMnemonicParsing( true );
 		item.setDisable( !action.isEnabled() );
 		item.setText( action.getMnemonicName() );
-		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ));
+		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		action.enabledProperty().addListener( (event)-> item.setDisable( !action.isEnabled() ) );
+		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
@@ -78,7 +82,7 @@ public class Actions {
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
-		action.enabledProperty().addListener( (event)-> button.setDisable( !action.isEnabled() ) );
+		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 
 		return button;
 	}

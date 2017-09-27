@@ -347,7 +347,7 @@ public class Program extends Application implements Product {
 		registerIcons();
 
 		// Create the action library
-		actionLibrary = new ActionLibrary( productBundle, iconLibrary );
+		actionLibrary = new ActionLibrary( productBundle );
 		registerActionHandlers();
 
 		// Create the UI factory
