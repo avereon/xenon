@@ -44,17 +44,11 @@ public class Program extends Application implements Product {
 
 	public static final String STYLESHEET = "style.css";
 
-	public static final String SETTINGS_EXTENSION = ".properties";
-
 	private static final long MANAGER_ACTION_SECONDS = 10;
 
 	private static Logger log = LogUtil.get( Program.class );
 
 	private static long programStartTime = System.currentTimeMillis();
-
-	private static long managerActionTime = 10;
-
-	private int port;
 
 	private SplashScreen splashScreen;
 
@@ -526,15 +520,6 @@ public class Program extends Application implements Product {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 
-	//	private void registerSettingsPages() {
-	//		settingsPages = getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
-	//	}
-	//
-	//	private void unregisterSettingsPages() {
-	//		//
-	//		//getSettingsManager().removeSettingsPages( settingsPages );
-	//	}
-
 	private class Startup extends Task<Void> {
 
 		@Override
@@ -548,8 +533,8 @@ public class Program extends Application implements Product {
 			splashScreen.hide();
 			time( "splash hidden" );
 
-			workspaceManager.getActiveWorkspace().getStage().toFront();
 			workspaceManager.getActiveWorkspace().getStage().show();
+			workspaceManager.getActiveWorkspace().getStage().toFront();
 
 			// Program started event should be fired after the window is shown
 			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );

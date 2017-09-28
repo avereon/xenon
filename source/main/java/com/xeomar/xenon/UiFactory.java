@@ -223,7 +223,7 @@ public class UiFactory {
 	}
 
 	private File getSettingsFile( Prefix prefix, String id ) {
-		return new File( paths.get( prefix ), id + Program.SETTINGS_EXTENSION );
+		return new File( paths.get( prefix ), id + SettingsManager.SETTINGS_EXTENSION );
 	}
 
 }
