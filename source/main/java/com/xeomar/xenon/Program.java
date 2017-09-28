@@ -514,7 +514,7 @@ public class Program extends Application implements Product {
 
 	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
-		String name = getResourceBundle().getString( "tool", toolRbKey );
+		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
 		ToolMetadata metadata = new ToolMetadata();

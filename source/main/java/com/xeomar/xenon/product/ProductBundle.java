@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import static java.text.MessageFormat.format;
@@ -26,7 +27,10 @@ public class ProductBundle {
 		// NOTE In Java 9 the Uft8Control is no longer necessary
 		ResourceBundle bundle = getBundle( "bundles/" + bundleKey, Locale.getDefault(), loader, new Utf8Control() );
 		if( bundle.containsKey( valueKey ) ) string = format( bundle.getString( valueKey ), (Object[])values );
-		if( string == null ) log.trace( "Missing RB key: " + bundleKey + ":" + valueKey );
+		if( string == null ) {
+			string = bundleKey + ":" + valueKey;
+			log.warn( "Missing RB key: " + string, new UnknownError( string ) );
+		}
 
 		return string;
 	}
