@@ -30,7 +30,7 @@ public abstract class SettingEditor implements SettingsListener {
 		addType( "infoarea", InfoAreaSettingEditor.class );
 		addType( "color", ColorSettingEditor.class );
 		addType( "file", FileSettingEditor.class );
-		//		addType( "font", FontSettingEditor.class );
+		addType( "font", FontSettingEditor.class );
 		//		//		addType( "link", LinkSettingEditor.class );
 		//		//		addType( "time", TimeSettingEditor.class );
 	}

@@ -45,11 +45,6 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		button.setText( product.getResourceBundle().getString( "settings", "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
-		GridPane buttonBox = new GridPane();
-		GridPane.setHgrow( field, Priority.ALWAYS );
-		buttonBox.setHgap( UiFactory.PAD );
-		buttonBox.addRow( 0, field, button );
-
 		// Add the change handlers
 		field.focusedProperty().addListener( this );
 		field.setOnKeyPressed( this );
@@ -59,6 +54,11 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		setVisible( setting.isVisible() );
 
 		// Add the components
+		GridPane buttonBox = new GridPane();
+		GridPane.setHgrow( field, Priority.ALWAYS );
+		buttonBox.setHgap( UiFactory.PAD );
+		buttonBox.addRow( 0, field, button );
+
 		pane.addRow( row, label, buttonBox );
 	}
 
