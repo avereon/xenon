@@ -108,7 +108,8 @@
 	<page id="appearance">
 
 		<group id="workspace-theme">
-			<setting key="workspace-theme-base" editor="color" disabled="false" />
+			<setting key="workspace-theme-font" editor="font" />
+			<setting key="workspace-theme-base" editor="color" />
 			<setting key="workspace-theme-background" editor="color" disabled="true" />
 			<setting key="workspace-theme-foreground" editor="color" disabled="true" />
 		</group>
