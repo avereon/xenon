@@ -548,6 +548,7 @@ public class Program extends Application implements Product {
 			splashScreen.hide();
 			time( "splash hidden" );
 
+			workspaceManager.getActiveWorkspace().getStage().toFront();
 			workspaceManager.getActiveWorkspace().getStage().show();
 
 			// Program started event should be fired after the window is shown
