@@ -1,6 +1,7 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
+import com.xeomar.xenon.util.JavaFxStarter;
 
 public class CompassIcon extends ProgramIcon {
 
@@ -99,7 +100,6 @@ public class CompassIcon extends ProgramIcon {
 	}
 
 	private void arrowPath() {
-
 		beginPath();
 		addArc( g( zx ), g( zy ), g( POINT_RADIUS ), g( POINT_RADIUS ), frontNormalAngleDeg, frontPointAngleDeg );
 		lineTo( g( bx ), g( by ) );
@@ -120,7 +120,9 @@ public class CompassIcon extends ProgramIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new CompassIcon() );
+		JavaFxStarter.startAndWait( 1000 );
+		//proof( new CompassIcon() );
+		save( new CompassIcon(), System.getProperty( "user.home" ) + "/Downloads/xeomar.png" );
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
+import com.xeomar.xenon.util.JavaFxStarter;
 
 public class UpdateIcon extends ProgramIcon {
 
@@ -48,6 +49,7 @@ public class UpdateIcon extends ProgramIcon {
 	}
 
 	public static void main( String[] commands ) {
+		JavaFxStarter.startAndWait( 1000 );
 		proof( new UpdateIcon() );
 	}
 

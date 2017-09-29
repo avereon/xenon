@@ -63,7 +63,7 @@ ZP - 31
 */
 public abstract class ProgramIcon extends Canvas {
 
-	private static final int DEFAULT_SIZE = 256;
+	private static final double DEFAULT_SIZE = 256;
 
 	protected enum GradientShade {
 		LIGHT,
@@ -105,6 +105,7 @@ public abstract class ProgramIcon extends Canvas {
 	public ProgramIcon() {
 		widthProperty().addListener( ( property, oldValue, newValue ) -> fireRender() );
 		heightProperty().addListener( ( property, oldValue, newValue ) -> fireRender() );
+		setSize( DEFAULT_SIZE );
 	}
 
 	public static void setColorTheme( ColorTheme theme ) {
@@ -130,8 +131,8 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	public ProgramIcon setSize( double size ) {
-		setWidth( size );
 		setHeight( size );
+		setWidth( size );
 		return this;
 	}
 
@@ -201,7 +202,7 @@ public abstract class ProgramIcon extends Canvas {
 			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
 
 			GridPane pane = new GridPane();
-			pane.add( icon.setSize( 256 ), 1, 1 );
+			pane.add( icon.copy().setSize( DEFAULT_SIZE ), 1, 1 );
 			pane.add( imageView16, 2, 1 );
 			pane.add( imageView32, 2, 2 );
 			pane.add( iconPane, 1, 2 );
