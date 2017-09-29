@@ -23,6 +23,44 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
+/*
+Conversion chart
+
+A ----- 0
+    J - 2
+  F --- 4
+    K - 6
+D ----- 8
+    L - 10
+  G --- 12
+    M - 14
+C ----- 16
+    N - 18
+  H --- 20
+    O - 22
+E ----- 24
+    P - 26
+  I --- 28
+    Q - 30
+B ----- 32
+
+ZA - 1
+ZB - 3
+ZC - 5
+ZD - 7
+ZE - 9
+ZF - 11
+ZG - 13
+ZH - 15
+ZI - 17
+ZJ - 19
+ZK - 21
+ZL - 23
+ZM - 25
+ZN - 27
+ZO - 29
+ZP - 31
+*/
 public abstract class ProgramIcon extends Canvas {
 
 	private static final int DEFAULT_SIZE = 256;
@@ -426,7 +464,7 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	protected double distance( double x1, double y1, double x2, double y2 ) {
-		return Math.sqrt( ( Math.pow( y2 - y1, 2 ) + Math.pow( x2 - x1, 2 ) ) );
+		return Math.sqrt( (Math.pow( y2 - y1, 2 ) + Math.pow( x2 - x1, 2 )) );
 	}
 
 	private ProgramIcon copy() {

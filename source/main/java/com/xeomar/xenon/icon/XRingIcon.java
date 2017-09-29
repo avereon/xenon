@@ -23,9 +23,9 @@ public class XRingIcon extends XIcon {
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 10 ) * g( 10 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
-//		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
-//		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
-//		jetPaintStops.add( new Stop( 0.8, Color.web( "#aa80ff" ) ) );
+		//		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
+		//		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
+		//		jetPaintStops.add( new Stop( 0.8, Color.web( "#aa80ff" ) ) );
 		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeee00" ) ) );
 		jetPaintStops.add( new Stop( 0.4, Color.web( "#eeee00" ) ) );
 		jetPaintStops.add( new Stop( 0.8, Color.web( "#ff8000" ) ) );
@@ -33,10 +33,10 @@ public class XRingIcon extends XIcon {
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-//		ringPaintStops.add( new Stop( 0.6, Color.web( "#ffee80" ) ) );
-//		ringPaintStops.add( new Stop( 0.9, Color.web( "#ff6000" ) ) );
-				ringPaintStops.add( new Stop( 0.6, ltXenon ) );
-				ringPaintStops.add( new Stop( 0.9, mdXenon ) );
+		//		ringPaintStops.add( new Stop( 0.6, Color.web( "#ffee80" ) ) );
+		//		ringPaintStops.add( new Stop( 0.9, Color.web( "#ff6000" ) ) );
+		ringPaintStops.add( new Stop( 0.6, ltXenon ) );
+		ringPaintStops.add( new Stop( 0.9, mdXenon ) );
 		Paint ringPaint = radialPaint( g( 16 ), (1 / ringScale) * g( 16 ), g( 11 ), ringPaintStops );
 
 		// Bottom of jet
