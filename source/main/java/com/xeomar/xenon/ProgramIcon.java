@@ -463,7 +463,7 @@ public abstract class ProgramIcon extends Canvas {
 		return new RadialGradient( 0, 0, xformX( x ), xformY( y ), xformX( r ), false, CycleMethod.NO_CYCLE, stops );
 	}
 
-	protected double distance( double x1, double y1, double x2, double y2 ) {
+	protected static double distance( double x1, double y1, double x2, double y2 ) {
 		return Math.sqrt( (Math.pow( y2 - y1, 2 ) + Math.pow( x2 - x1, 2 )) );
 	}
 
