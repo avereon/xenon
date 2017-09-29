@@ -6,26 +6,31 @@ import javafx.scene.text.FontWeight;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class FontUtilTest {
 
 	@Test
 	public void testEncode() {
-		for( String family : Font.getFamilies() ) {
-			System.out.println( family );
-			//			Font font = Font.font(family, FontWeight.BLACK, FontPosture.ITALIC, 18);
-			//			System.out.println( FontUtil.encode( font ));
-		}
-		Font font = Font.font( "Harlow Solid Italic", FontWeight.BLACK, FontPosture.ITALIC, 18 );
-		System.out.println( FontUtil.encode( font ) );
+		// Negative checks
+		assertThat( Font.font( "SansSerif", 18.0 ), not( is( Font.font( "System", 18.0 ) ) ) );
+
+		// Positive checks
+		assertThat( FontUtil.encode( Font.font( "SansSerif", 18.0 ) ), is( "SansSerif|Regular|18.0" ) );
+		assertThat( FontUtil.encode( Font.font( "SansSerif", FontWeight.BOLD, 18.0 ) ), is( "SansSerif|Bold|18.0" ) );
+		assertThat( FontUtil.encode( Font.font( "SansSerif", FontWeight.BOLD, FontPosture.ITALIC, 18.0 ) ), is( "SansSerif|Bold Italic|18.0" ) );
 	}
 
 	@Test
 	public void testDecode() {
-		assertThat( FontUtil.decode( "SanSerif|18.0" ), is( Font.font( "SanSerif", 18.0 ) ) );
-		assertThat( FontUtil.decode( "SanSerif Bold|18.0" ), is( Font.font( "SanSerif Bold", 18.0 ) ) );
-		assertThat( FontUtil.decode( "SanSerif Bold Italic|18.0" ), is( Font.font( "SanSerif Bold Italic", 18.0 ) ) );
+		// Negative checks
+		assertThat( FontUtil.decode( "SansSerif|18.0" ), not( is( Font.font( "System", 18.0 ) ) ) );
+
+		// Positive checks
+		assertThat( FontUtil.decode( "SansSerif|18.0" ), is( Font.font( "SansSerif", 18.0 ) ) );
+		assertThat( FontUtil.decode( "SansSerif|Bold|18.0" ), is( Font.font( "SansSerif", FontWeight.BOLD, 18.0 ) ) );
+		assertThat( FontUtil.decode( "SansSerif|Bold Italic|18.0" ), is( Font.font( "SansSerif", FontWeight.BOLD, FontPosture.ITALIC, 18.0 ) ) );
 	}
 
 }
