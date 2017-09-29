@@ -7,7 +7,7 @@ import com.xeomar.xenon.worktool.Tool;
 import java.util.Collections;
 import java.util.Set;
 
-public class ProductTool extends Tool {
+public abstract class ProductTool extends Tool {
 
 	private Product product;
 
