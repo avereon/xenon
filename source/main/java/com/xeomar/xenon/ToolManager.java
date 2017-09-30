@@ -9,16 +9,13 @@ import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import com.xeomar.xenon.worktool.Tool;
-import com.xeomar.xenon.worktool.ToolMetadataComparator;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -27,8 +24,6 @@ public class ToolManager implements Controllable<ToolManager> {
 	private static Logger log = LogUtil.get( ToolManager.class );
 
 	private Program program;
-
-	private SortedSet<ToolMetadata> toolMetadataSet;
 
 	private Map<Class<? extends ProductTool>, ToolMetadata> toolClassMetadata;
 
@@ -40,7 +35,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		this.program = program;
 		toolClassMetadata = new ConcurrentHashMap<>();
 		resourceTypeToolClasses = new ConcurrentHashMap<>();
-		toolMetadataSet = new ConcurrentSkipListSet<>( new ToolMetadataComparator() );
 		aliases = new ConcurrentHashMap<>();
 	}
 
@@ -125,17 +119,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			return;
 		}
 
-		// NEXT Now that we have a tool...open dependent tools
-		// After thinking about this for a bit I've determined that the
-		// dependency comes from the tool and that the new tools should
-		// use the same resource. That makes sense to use the resource
-		// as a context between the tools. For example, a guide model can
-		// be added as a resource on the resource.
-
-		//		for( Class<? extends ProductTool> dependency : tool.getToolDependencies() ) {
-		//			openTool( resource, pane, null, dependency, true );
-		//		}
-
+		// Now that we have a tool...open dependent tools
 		for( String dependency : tool.getResourceDependencies() ) {
 			program.getResourceManager().open( program.getResourceManager().createResource( dependency ), true, false );
 		}
