@@ -30,7 +30,7 @@ public class WorkareaTest extends FxPlatformTestCase {
 
 		// Assertions
 		assertThat( area.getName(), is( name ) );
-		assertThat( settings.getString( "name" ), is( name ) );
+		assertThat( settings.get( "name" ), is( name ) );
 	}
 
 }

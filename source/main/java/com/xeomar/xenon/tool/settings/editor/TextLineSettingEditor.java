@@ -38,7 +38,7 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().getString( key, null );
+		String value = setting.getSettings().get( key, null );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
@@ -95,7 +95,7 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
 			case ESCAPE: {
-				text.setText( setting.getSettings().getString( key, null ) );
+				text.setText( setting.getSettings().get( key, null ) );
 				break;
 			}
 			case ENTER: {

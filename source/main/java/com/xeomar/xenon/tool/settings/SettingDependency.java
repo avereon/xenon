@@ -75,7 +75,7 @@ public class SettingDependency extends Node {
 		Operator operator = getOperator();
 		if( operator == null ) operator = Operator.AND;
 
-		boolean equal = TextUtil.areEqual( value, settings.getString( key, null ) );
+		boolean equal = TextUtil.areEqual( value, settings.get( key, null ) );
 
 		switch( operator ) {
 			case NOT: {

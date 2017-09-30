@@ -18,7 +18,7 @@ public class StoredSettingsTest {
 	@Before
 	public void setup() throws Exception {
 		File file = File.createTempFile( "SettingsTest-", "" );
-		settings = new StoredSettings( null, file );
+		settings = new StoredSettings( file, null );
 		file.deleteOnExit();
 	}
 
@@ -26,13 +26,13 @@ public class StoredSettingsTest {
 	public void testSetStringAndGetString() {
 		String key = "key";
 		String value = "value";
-		assertThat( settings.getString( key ), is( nullValue() ) );
+		assertThat( settings.get( key ), is( nullValue() ) );
 
 		settings.set( key, value );
-		assertThat( settings.getString( key ), is( value ) );
+		assertThat( settings.get( key ), is( value ) );
 
 		settings.set( key, null );
-		assertThat( settings.getString( key ), is( nullValue() ) );
+		assertThat( settings.get( key ), is( nullValue() ) );
 	}
 
 	@Test
@@ -124,26 +124,26 @@ public class StoredSettingsTest {
 		ReadOnlySettings defaultSettings = new ReadOnlySettings( defaultValues );
 
 		// Start by checking the value is null
-		assertThat( settings.getString( key ), is( nullValue() ) );
+		assertThat( settings.get( key ), is( nullValue() ) );
 
 		settings.set( key, value );
-		assertThat( settings.getString( key ), is( value ) );
+		assertThat( settings.get( key ), is( value ) );
 
 		settings.set( key, null );
-		assertThat( settings.getString( key ), is( nullValue() ) );
+		assertThat( settings.get( key ), is( nullValue() ) );
 
 		// Test the default settings
 		settings.setDefaultSettings( defaultSettings );
-		assertThat( settings.getString( key), is( defaultValue ));
+		assertThat( settings.get( key), is( defaultValue ));
 
 		settings.set( key, value );
-		assertThat( settings.getString( key ), is( value ) );
+		assertThat( settings.get( key ), is( value ) );
 
 		settings.set( key, null );
-		assertThat( settings.getString( key), is( defaultValue ));
+		assertThat( settings.get( key), is( defaultValue ));
 
 		settings.setDefaultSettings( null );
-		assertThat( settings.getString( key ), is( nullValue() ) );
+		assertThat( settings.get( key ), is( nullValue() ) );
 	}
 
 }

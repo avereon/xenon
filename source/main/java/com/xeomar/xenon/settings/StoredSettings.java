@@ -49,10 +49,10 @@ public class StoredSettings implements Settings {
 	private Settings defaultSettings;
 
 	public StoredSettings( File file ) {
-		this( null, file );
+		this( file, null );
 	}
 
-	public StoredSettings( ExecutorService executor, File file ) {
+	public StoredSettings( File file, ExecutorService executor ) {
 		this.executor = executor;
 		this.file = file;
 		this.properties = new Properties();
@@ -82,7 +82,7 @@ public class StoredSettings implements Settings {
 	@Override
 	@Deprecated
 	public Boolean getBoolean( String key, Boolean defaultValue ) {
-		String value = getString( key );
+		String value = get( key );
 		if( value == null ) return defaultValue;
 		try {
 			return Boolean.parseBoolean( value );
@@ -100,7 +100,7 @@ public class StoredSettings implements Settings {
 	@Override
 	@Deprecated
 	public Integer getInteger( String key, Integer defaultValue ) {
-		String value = getString( key );
+		String value = get( key );
 		if( value == null ) return defaultValue;
 		try {
 			return Integer.parseInt( value );
@@ -118,7 +118,7 @@ public class StoredSettings implements Settings {
 	@Override
 	@Deprecated
 	public Long getLong( String key, Long defaultValue ) {
-		String value = getString( key );
+		String value = get( key );
 		if( value == null ) return defaultValue;
 		try {
 			return Long.parseLong( value );
@@ -136,7 +136,7 @@ public class StoredSettings implements Settings {
 	@Override
 	@Deprecated
 	public Float getFloat( String key, Float defaultValue ) {
-		String value = getString( key );
+		String value = get( key );
 		if( value == null ) return defaultValue;
 		try {
 			return Float.parseFloat( value );
@@ -154,7 +154,7 @@ public class StoredSettings implements Settings {
 	@Override
 	@Deprecated
 	public Double getDouble( String key, Double defaultValue ) {
-		String value = getString( key );
+		String value = get( key );
 		if( value == null ) return defaultValue;
 		try {
 			return Double.parseDouble( value );
@@ -165,16 +165,16 @@ public class StoredSettings implements Settings {
 
 	@Override
 	@Deprecated
-	public String getString( String key ) {
-		return getString( key, null );
+	public String get( String key ) {
+		return get( key, null );
 	}
 
 	@Override
 	@Deprecated
-	public String getString( String key, String defaultValue ) {
+	public String get( String key, Object defaultValue ) {
 		String value = properties.getProperty( key );
-		if( value == null && defaultSettings != null ) value = defaultSettings.getString( key );
-		if( value == null ) value = defaultValue;
+		if( value == null && defaultSettings != null ) value = defaultSettings.get( key );
+		if( value == null ) value = defaultValue == null? null :defaultValue.toString();
 		return value;
 	}
 
@@ -242,7 +242,11 @@ public class StoredSettings implements Settings {
 			// Cancel the existing task and schedule a new one
 			if( task != null ) task.cancel();
 			task = new SaveTask();
-			timer.schedule( task, new Date( nextTime ) );
+			if( force ) {
+				task.run();
+			} else {
+				timer.schedule( task, new Date( nextTime ) );
+			}
 		}
 	}
 

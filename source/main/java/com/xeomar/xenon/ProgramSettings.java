@@ -8,6 +8,8 @@ public interface ProgramSettings {
 
 	String RESOURCE = BASE + "/resource";
 
+	String TOOL = BASE + "/tool";
+
 	String UI = BASE + "/ui";
 
 }

@@ -3,6 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceType;
+import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskThread;
 import com.xeomar.xenon.util.Controllable;
 import com.xeomar.xenon.workarea.Workpane;
@@ -261,6 +262,11 @@ public class ToolManager implements Controllable<ToolManager> {
 			Product product = toolClassMetadata.get( type ).getProduct();
 			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			ProductTool tool = constructor.newInstance( product, resource );
+
+			Settings settings = program.getSettingsManager().getToolSettings( tool );
+
+			// NEXT Set the tool settings...
+			tool.loadSettings( settings );
 
 			// Wait for the resource to be "ready", then notify the tool
 			// The getToolInstance() method should have been called from a Callable

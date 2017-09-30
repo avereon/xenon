@@ -101,16 +101,17 @@ public class UiFactory {
 			// Create the workareas
 			for( File file : workareaFiles ) {
 				restoreWorkarea( file );
+				// NOTE Workareas contain the workpane
 				//splashScreen.update();
 			}
 
-			// Create the workpanes
+			// Create the workviews
 			for( File file : workpaneFiles ) {
 				//restoreWorkpane( file );
 				//splashScreen.update();
 			}
 
-			// Create the worktools
+			// Create the tools
 			for( File file : worktoolFiles ) {
 				restoreWorktool( file );
 				splashScreen.update();
@@ -163,7 +164,7 @@ public class UiFactory {
 				program.getWorkspaceManager().addWorkspace( workspace );
 			}
 
-			workspaces.put( settings.getString( "id" ), workspace );
+			workspaces.put( settings.get( "id" ), workspace );
 			return workspace;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workspace", exception );
@@ -178,14 +179,14 @@ public class UiFactory {
 			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKAREA.name() );
 			workarea.loadSettings( settings );
 
-			Workspace workspace = workspaces.get( settings.getString( "workspaceId" ) );
+			Workspace workspace = workspaces.get( settings.get( "workspaceId" ) );
 			if( workarea.isActive() ) {
 				workspace.setActiveWorkarea( workarea );
 			} else {
 				workspace.addWorkarea( workarea );
 			}
 
-			workareas.put( settings.getString( "id" ), workarea );
+			workareas.put( settings.get( "id" ), workarea );
 			return workarea;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workarea", exception );

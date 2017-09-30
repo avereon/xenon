@@ -255,7 +255,7 @@ public class Workspace implements Configurable {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
-		id = settings.getString( "id" );
+		id = settings.get( "id" );
 
 		Double x = settings.getDouble( "x", null );
 		Double y = settings.getDouble( "y", null );

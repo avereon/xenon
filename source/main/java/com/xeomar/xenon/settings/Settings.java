@@ -4,6 +4,10 @@ public interface Settings {
 
 	void set( String key, Object value );
 
+	String get( String key );
+
+	String get( String key, Object defaultValue );
+
 	Boolean getBoolean( String key );
 
 	Boolean getBoolean( String key, Boolean defaultValue );
@@ -23,10 +27,6 @@ public interface Settings {
 	Double getDouble( String key );
 
 	Double getDouble( String key, Double defaultValue );
-
-	String getString( String key );
-
-	String getString( String key, String defaultValue );
 
 	Settings getDefaultSettings();
 

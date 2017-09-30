@@ -4,6 +4,8 @@ import com.xeomar.xenon.LogUtil;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceEvent;
 import com.xeomar.xenon.resource.ResourceListener;
+import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import com.xeomar.xenon.workarea.WorkpaneView;
@@ -23,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * The Tool class is a control that "works on" a resource.
  */
-public abstract class Tool extends Control {
+public abstract class Tool extends Control implements Configurable {
 
 	private static final Logger log = LogUtil.get( Tool.class );
 
@@ -54,6 +56,10 @@ public abstract class Tool extends Control {
 	private ResourceListener watcher;
 
 	private Set<ToolListener> listeners;
+
+	private Settings settings;
+
+	private String id;
 
 	public Tool( Resource resource ) {
 		this( resource, null );
@@ -185,16 +191,8 @@ public abstract class Tool extends Control {
 		return parent != null && parent.getActiveTool() == this;
 	}
 
-	public void addToolListener( ToolListener listener ) {
-		listeners.add( listener );
-	}
-
 	public void close() {
 		Platform.runLater( () -> getWorkpane().removeTool( this, true ) );
-	}
-
-	public void removeToolListener( ToolListener listener ) {
-		listeners.remove( listener );
 	}
 
 	@Override
@@ -208,6 +206,25 @@ public abstract class Tool extends Control {
 		}
 
 		return tool;
+	}
+
+	public void loadSettings( Settings settings ){
+		if( this.settings != null ) return;
+
+		this.settings = settings;
+		id = settings.get( "id" );
+
+		// NEXT Keep implementing tool settings
+	}
+
+	public void saveSettings( Settings settings ){}
+
+	public void addToolListener( ToolListener listener ) {
+		listeners.add( listener );
+	}
+
+	public void removeToolListener( ToolListener listener ) {
+		listeners.remove( listener );
 	}
 
 	@Override

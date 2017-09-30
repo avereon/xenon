@@ -30,67 +30,67 @@ public class ReadOnlySettings implements Settings {
 
 	@Override
 	public Boolean getBoolean( String key ) {
-		return Boolean.parseBoolean( getString( key ) );
+		return Boolean.parseBoolean( get( key ) );
 	}
 
 	@Override
 	public Boolean getBoolean( String key, Boolean defaultValue ) {
-		return Boolean.parseBoolean( getString( key, defaultValue.toString() ) );
+		return Boolean.parseBoolean( get( key, defaultValue.toString() ) );
 	}
 
 	@Override
 	public Integer getInteger( String key ) {
-		return Integer.parseInt( getString( key ) );
+		return Integer.parseInt( get( key ) );
 	}
 
 	@Override
 	public Integer getInteger( String key, Integer defaultValue ) {
-		return Integer.parseInt( getString( key, defaultValue.toString() ) );
+		return Integer.parseInt( get( key, defaultValue.toString() ) );
 	}
 
 	@Override
 	public Long getLong( String key ) {
-		return Long.parseLong( getString( key ) );
+		return Long.parseLong( get( key ) );
 	}
 
 	@Override
 	public Long getLong( String key, Long defaultValue ) {
-		return Long.parseLong( getString( key, defaultValue.toString() ) );
+		return Long.parseLong( get( key, defaultValue.toString() ) );
 	}
 
 	@Override
 	public Float getFloat( String key ) {
-		return Float.parseFloat( getString( key ) );
+		return Float.parseFloat( get( key ) );
 	}
 
 	@Override
 	public Float getFloat( String key, Float defaultValue ) {
-		return Float.parseFloat( getString( key, defaultValue.toString() ) );
+		return Float.parseFloat( get( key, defaultValue.toString() ) );
 	}
 
 	@Override
 	public Double getDouble( String key ) {
-		return Double.parseDouble( getString( key ) );
+		return Double.parseDouble( get( key ) );
 	}
 
 	@Override
 	public Double getDouble( String key, Double defaultValue ) {
-		return Double.parseDouble( getString( key, defaultValue.toString() ) );
+		return Double.parseDouble( get( key, defaultValue.toString() ) );
 	}
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public String getString( String key ) {
-		return getString( key, null );
+	public String get( String key ) {
+		return get( key, null );
 	}
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public String getString( String key, String defaultValue ) {
+	public String get( String key, Object defaultValue ) {
 		Object object = values.get( key );
 		String value = object == null ? null : object.toString();
-		if( value == null && defaultSettings != null ) value = defaultSettings.getString( key );
-		if( value == null ) value = defaultValue;
+		if( value == null && defaultSettings != null ) value = defaultSettings.get( key );
+		if( value == null ) value = defaultValue == null? null : defaultValue.toString();
 		return value;
 	}
 
