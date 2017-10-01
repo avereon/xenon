@@ -12,7 +12,7 @@ import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
-import com.xeomar.xenon.settings.ReadOnlySettings;
+import com.xeomar.xenon.settings.MapSettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
@@ -143,7 +143,7 @@ public class Program extends Application implements Product {
 
 		// Get the program settings after the settings manager and before the task manager
 		programSettings = settingsManager.getProgramSettings();
-		programSettings.setDefaultSettings( new ReadOnlySettings( properties ) );
+		programSettings.setDefaultSettings( new MapSettings( properties ) );
 		time( "settings" );
 
 		// Start the program server

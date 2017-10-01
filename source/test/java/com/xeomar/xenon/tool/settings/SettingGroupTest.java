@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.settings.MockSettings;
+import com.xeomar.xenon.settings.MapSettings;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -10,7 +10,7 @@ public class SettingGroupTest {
 
 	@Test
 	public void testConstructor() {
-		MockSettings settings = new MockSettings();
+		MapSettings settings = new MapSettings();
 		SettingGroup group = new SettingGroup( settings );
 		assertThat( group.isDisable(), is( false ) );
 		assertThat( group.isVisible(), is( false ) );

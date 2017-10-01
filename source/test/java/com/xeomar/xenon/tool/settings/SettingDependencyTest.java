@@ -1,8 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.settings.MockSettings;
+import com.xeomar.xenon.settings.MapSettings;
 import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.tool.settings.SettingDependency;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -35,7 +34,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithNotOperator() {
-		Settings settings = new MockSettings();
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency( );
 		dependency.setOperator( SettingDependency.Operator.NOT );
 		dependency.setKey( "enabled" );
@@ -52,7 +51,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithAndOperator() {
-		Settings settings = new MockSettings();
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.AND );
 		dependency.setKey( "enabled" );
@@ -69,7 +68,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithOrOperator() {
-		Settings settings = new MockSettings();
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.OR );
 		dependency.setKey( "enabled" );
@@ -86,7 +85,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithXorOperator() {
-		Settings settings = new MockSettings();
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.XOR );
 		dependency.setKey( "enabled" );

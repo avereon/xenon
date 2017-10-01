@@ -8,11 +8,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class StoredSettings implements Settings {
+public class StoredSettings extends AbstractSettings {
 
 	/**
 	 * Data will be persisted at most this fast.
@@ -44,8 +43,6 @@ public class StoredSettings implements Settings {
 
 	private SaveTask task;
 
-	private Set<SettingsListener> listeners;
-
 	private Settings defaultSettings;
 
 	public StoredSettings( File file ) {
@@ -56,14 +53,18 @@ public class StoredSettings implements Settings {
 		this.executor = executor;
 		this.file = file;
 		this.properties = new Properties();
-		this.listeners = new CopyOnWriteArraySet<>();
 		load();
+	}
+
+	@Override
+	public String getPath() {
+		return file.toString();
 	}
 
 	@Override
 	public void set( String key, Object value ) {
 		String oldValue = properties.getProperty( key );
-		String newValue = String.valueOf( value );
+		String newValue = value == null ? null : String.valueOf( value );
 		if( value == null ) {
 			properties.remove( key );
 		} else {
@@ -71,96 +72,6 @@ public class StoredSettings implements Settings {
 		}
 		if( !Objects.equals( oldValue, value ) ) fireEvent( new SettingsEvent( this, SettingsEvent.Type.UPDATED, file.toString(), key, oldValue, newValue ) );
 		save();
-	}
-
-	@Override
-	@Deprecated
-	public Boolean getBoolean( String key ) {
-		return getBoolean( key, null );
-	}
-
-	@Override
-	@Deprecated
-	public Boolean getBoolean( String key, Boolean defaultValue ) {
-		String value = get( key );
-		if( value == null ) return defaultValue;
-		try {
-			return Boolean.parseBoolean( value );
-		} catch( NumberFormatException exception ) {
-			return null;
-		}
-	}
-
-	@Override
-	@Deprecated
-	public Integer getInteger( String key ) {
-		return getInteger( key, null );
-	}
-
-	@Override
-	@Deprecated
-	public Integer getInteger( String key, Integer defaultValue ) {
-		String value = get( key );
-		if( value == null ) return defaultValue;
-		try {
-			return Integer.parseInt( value );
-		} catch( NumberFormatException exception ) {
-			return null;
-		}
-	}
-
-	@Override
-	@Deprecated
-	public Long getLong( String key ) {
-		return getLong( key, null );
-	}
-
-	@Override
-	@Deprecated
-	public Long getLong( String key, Long defaultValue ) {
-		String value = get( key );
-		if( value == null ) return defaultValue;
-		try {
-			return Long.parseLong( value );
-		} catch( NumberFormatException exception ) {
-			return null;
-		}
-	}
-
-	@Override
-	@Deprecated
-	public Float getFloat( String key ) {
-		return getFloat( key, null );
-	}
-
-	@Override
-	@Deprecated
-	public Float getFloat( String key, Float defaultValue ) {
-		String value = get( key );
-		if( value == null ) return defaultValue;
-		try {
-			return Float.parseFloat( value );
-		} catch( NumberFormatException exception ) {
-			return null;
-		}
-	}
-
-	@Override
-	@Deprecated
-	public Double getDouble( String key ) {
-		return getDouble( key, null );
-	}
-
-	@Override
-	@Deprecated
-	public Double getDouble( String key, Double defaultValue ) {
-		String value = get( key );
-		if( value == null ) return defaultValue;
-		try {
-			return Double.parseDouble( value );
-		} catch( NumberFormatException exception ) {
-			return null;
-		}
 	}
 
 	@Override
@@ -174,7 +85,7 @@ public class StoredSettings implements Settings {
 	public String get( String key, Object defaultValue ) {
 		String value = properties.getProperty( key );
 		if( value == null && defaultSettings != null ) value = defaultSettings.get( key );
-		if( value == null ) value = defaultValue == null? null :defaultValue.toString();
+		if( value == null ) value = defaultValue == null ? null : defaultValue.toString();
 		return value;
 	}
 
@@ -184,16 +95,6 @@ public class StoredSettings implements Settings {
 
 	public void setDefaultSettings( Settings settings ) {
 		this.defaultSettings = settings;
-	}
-
-	@Override
-	public void addSettingsListener( SettingsListener listener ) {
-		listeners.add( listener );
-	}
-
-	@Override
-	public void removeSettingsListener( SettingsListener listener ) {
-		listeners.remove( listener );
 	}
 
 	@Override
@@ -260,12 +161,6 @@ public class StoredSettings implements Settings {
 			lastStoreTime.set( System.currentTimeMillis() );
 		} catch( IOException exception ) {
 			log.error( "Error saving settings file: " + file, exception );
-		}
-	}
-
-	private void fireEvent( SettingsEvent event ) {
-		for( SettingsListener listener : new HashSet<>( listeners ) ) {
-			listener.settingsEvent( event );
 		}
 	}
 

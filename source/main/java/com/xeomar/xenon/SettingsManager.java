@@ -249,11 +249,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		public void settingsEvent( SettingsEvent event ) {
 			switch( event.getType() ) {
 				case LOADED: {
-					program.fireEvent( new SettingsLoadedEvent( this, event.getRoot() ) );
+					program.fireEvent( new SettingsLoadedEvent( this, event.getPath() ) );
 					break;
 				}
 				case SAVED: {
-					program.fireEvent( new SettingsSavedEvent( this, event.getRoot() ) );
+					program.fireEvent( new SettingsSavedEvent( this, event.getPath() ) );
 					break;
 				}
 			}

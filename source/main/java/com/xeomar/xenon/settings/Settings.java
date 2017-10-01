@@ -2,6 +2,8 @@ package com.xeomar.xenon.settings;
 
 public interface Settings {
 
+	String getPath();
+
 	void set( String key, Object value );
 
 	String get( String key );

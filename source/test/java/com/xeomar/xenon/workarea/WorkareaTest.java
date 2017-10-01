@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.FxPlatformTestCase;
-import com.xeomar.xenon.settings.MockSettings;
+import com.xeomar.xenon.settings.MapSettings;
 import com.xeomar.xenon.settings.Settings;
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 
 public class WorkareaTest extends FxPlatformTestCase {
 
-	private Settings settings = new MockSettings();
+	private Settings settings = new MapSettings();
 
 	@Test
 	public void testConstructor() {

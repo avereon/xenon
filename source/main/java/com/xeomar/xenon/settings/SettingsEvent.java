@@ -12,7 +12,7 @@ public class SettingsEvent extends EventObject {
 
 	private Type type;
 
-	private String root;
+	private String path;
 
 	private String key;
 
@@ -20,14 +20,14 @@ public class SettingsEvent extends EventObject {
 
 	private String newValue;
 
-	public SettingsEvent( Object source, Type type, String root ) {
-		this( source, type, root, null, null, null );
+	public SettingsEvent( Object source, Type type, String path ) {
+		this( source, type, path, null, null, null );
 	}
 
-	public SettingsEvent( Object source, Type type, String root, String key, String oldValue, String newValue ) {
+	public SettingsEvent( Object source, Type type, String path, String key, String oldValue, String newValue ) {
 		super( source );
 		this.type = type;
-		this.root = root;
+		this.path = path;
 		this.key = key;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
@@ -37,8 +37,8 @@ public class SettingsEvent extends EventObject {
 		return type;
 	}
 
-	public String getRoot() {
-		return root;
+	public String getPath() {
+		return path;
 	}
 
 	public String getKey() {
@@ -55,16 +55,25 @@ public class SettingsEvent extends EventObject {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder( getClass().getSimpleName() );
+		StringBuilder builder = new StringBuilder(  );
+		builder.append( getClass().getSimpleName() );
+		builder.append( ":" );
+		builder.append( getSource().getClass().getSimpleName() );
 		builder.append( ":" );
 		builder.append( type );
-		if( root != null ) {
+		if( path != null ) {
 			builder.append( ":" );
-			builder.append( root );
+			builder.append( path );
 		}
 		if( key != null ) {
 			builder.append( ":" );
 			builder.append( key );
+		}
+		if( type == Type.UPDATED){
+			builder.append( ":" );
+			builder.append( oldValue );
+			builder.append( ":" );
+			builder.append( newValue );
 		}
 		return builder.toString();
 	}
