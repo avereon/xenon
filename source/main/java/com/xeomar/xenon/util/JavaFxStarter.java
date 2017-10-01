@@ -34,7 +34,7 @@ public final class JavaFxStarter extends Application {
 			long limit = System.currentTimeMillis() + timeout;
 			while( !started ) {
 				try {
-					startLock.wait( 100 );
+					startLock.wait( 20 );
 				} catch( InterruptedException exception ) {
 					exception.printStackTrace();
 				}
