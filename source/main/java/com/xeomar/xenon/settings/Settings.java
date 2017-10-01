@@ -2,7 +2,11 @@ package com.xeomar.xenon.settings;
 
 public interface Settings {
 
+	Settings getSettings( String path );
+
 	String getPath();
+
+	String[] getChildren();
 
 	void set( String key, Object value );
 

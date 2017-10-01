@@ -30,8 +30,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsManager.class );
 
-	static final String SETTINGS_EXTENSION = ".properties";
-
 	private Program program;
 
 	private Map<String, File> paths;
@@ -234,7 +232,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	private File getSettingsFile( String pathKey, String name ) {
-		return new File( paths.get( pathKey ), name + SETTINGS_EXTENSION );
+		return new File( paths.get( pathKey ), name );
 	}
 
 	private static class SettingsWatcher implements SettingsListener {

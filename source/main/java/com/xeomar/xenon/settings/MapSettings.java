@@ -1,12 +1,11 @@
 package com.xeomar.xenon.settings;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MapSettings extends AbstractSettings {
+
+	private Map<String, Settings> settingsMap;
 
 	private Map<String, String> values;
 
@@ -15,24 +14,55 @@ public class MapSettings extends AbstractSettings {
 	private String path;
 
 	public MapSettings() {
-		this.values = new ConcurrentHashMap<>();
+		init( "", new HashMap<>() );
 	}
 
-	public MapSettings( Map<String, String> values ) {
-		this.values = new ConcurrentHashMap<>( values );
+	public MapSettings( String path ) {
+		init( path, new HashMap<>() );
 	}
 
-	public MapSettings( Properties properties ) {
+	public MapSettings( String path, Map<String, String> map ) {
+		init( path, map );
+	}
+
+	public MapSettings( String path, Properties properties ) {
 		Map<String, String> map = new HashMap<>();
 		for( Object key : properties.keySet() ) {
 			map.put( key.toString(), properties.getProperty( key.toString() ) );
 		}
-		this.values = new ConcurrentHashMap<>( map );
+		init( path, map );
+	}
+
+	private void init( String path, Map<String, String> values ) {
+		this.settingsMap = new ConcurrentHashMap<>();
+		this.values = new ConcurrentHashMap<>( values );
+		this.path = path;
 	}
 
 	@Override
 	public String getPath() {
 		return path;
+	}
+
+	@Override
+	public Settings getSettings( String path ) {
+		int index = path.indexOf( "/" );
+		String name = index < 0 ? path : path.substring( 0, index );
+
+		Settings child = settingsMap.get( name );
+		if( child == null ) {
+			child = new MapSettings( this.path + "/" + name );
+			settingsMap.put( name, child );
+		}
+
+		return index < 0 ? child : child.getSettings( path.substring( index + 1 ) );
+	}
+
+	@Override
+	public String[] getChildren() {
+		List<String> children = new ArrayList<>( settingsMap.keySet() );
+		Collections.sort( children );
+		return children.toArray( new String[ children.size() ] );
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 
 public class WorkareaTest extends FxPlatformTestCase {
 
-	private Settings settings = new MapSettings();
+	private Settings settings = new MapSettings("workarea");
 
 	@Test
 	public void testConstructor() {

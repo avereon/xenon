@@ -4,13 +4,15 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static com.xeomar.xenon.settings.SettingsMatchers.eventHas;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 
 public abstract class BaseSettingsTest {
+
+	protected static final String SETTINGS_NAME = "SettingsTest";
 
 	protected Settings settings;
 
@@ -113,7 +115,7 @@ public abstract class BaseSettingsTest {
 
 		Map<String, String> defaultValues = new HashMap<>();
 		defaultValues.put( key, defaultValue );
-		MapSettings defaultSettings = new MapSettings( defaultValues );
+		MapSettings defaultSettings = new MapSettings( "default", defaultValues );
 
 		// Start by checking the value is null
 		assertThat( settings.get( key ), is( nullValue() ) );
@@ -150,6 +152,54 @@ public abstract class BaseSettingsTest {
 
 		settings.set( "a", null );
 		assertThat( watcher.getEvents().get( 1 ), eventHas( settings, SettingsEvent.Type.UPDATED, settings.getPath(), "a", "A", null ) );
+	}
+
+	@Test
+	public void testChildSettings() {
+		assertThat( settings.getPath(), startsWith( "" ) );
+
+		Settings peerSettings = settings.getSettings( "peer" );
+		assertThat( peerSettings, instanceOf( settings.getClass() ) );
+		assertThat( peerSettings.getPath(), is( "/peer" ) );
+
+		// Is the settings object viable
+		peerSettings.set( "a", "A" );
+		peerSettings.flush();
+		assertThat( peerSettings.get( "a" ), is( "A" ) );
+	}
+
+	@Test
+	public void testGrandchildSettings() {
+		assertThat( settings.getPath(), startsWith( "" ) );
+
+		Settings childSettings = settings.getSettings( "child" );
+		Settings grandchildSettings = childSettings.getSettings( "grand" );
+		assertThat( grandchildSettings, instanceOf( settings.getClass() ) );
+		assertThat( grandchildSettings.getPath(), is( "/child/grand" ) );
+
+		// Is the settings object viable
+		grandchildSettings.set( "a", "A" );
+		grandchildSettings.flush();
+		assertThat( grandchildSettings.get( "a" ), is( "A" ) );
+	}
+
+	@Test
+	public void testGetChildren() {
+		String folder = "children/" + String.format( "%08x", new Random().nextInt() );
+		Settings childA = settings.getSettings( folder + "/a" );
+		Settings childB = settings.getSettings( folder + "/b" );
+		Settings childC = settings.getSettings( folder + "/c" );
+
+		childA.set( "a", "A" );
+		childB.set( "b", "B" );
+		childC.set( "c", "C" );
+
+		childA.flush();
+		childB.flush();
+		childC.flush();
+
+		Settings children = settings.getSettings( folder );
+		assertThat( children.getChildren().length, is( 3 ) );
 	}
 
 }

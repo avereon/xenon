@@ -143,7 +143,7 @@ public class Program extends Application implements Product {
 
 		// Get the program settings after the settings manager and before the task manager
 		programSettings = settingsManager.getProgramSettings();
-		programSettings.setDefaultSettings( new MapSettings( properties ) );
+		programSettings.setDefaultSettings( new MapSettings( "program", properties ) );
 		time( "settings" );
 
 		// Start the program server

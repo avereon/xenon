@@ -23,6 +23,8 @@ public class StoredSettings extends AbstractSettings {
 	 */
 	private static final long MAX_PERSIST_LIMIT = 5000;
 
+	private static final String SETTINGS_EXTENSION = ".properties";
+
 	private static Logger log = LogUtil.get( StoredSettings.class );
 
 	private static Timer timer = new Timer( StoredSettings.class.getSimpleName(), true );
@@ -37,6 +39,8 @@ public class StoredSettings extends AbstractSettings {
 
 	private ExecutorService executor;
 
+	private File root;
+
 	private File file;
 
 	private Properties properties;
@@ -50,15 +54,32 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	public StoredSettings( File file, ExecutorService executor ) {
+		this( file, "", executor );
+	}
+
+	private StoredSettings( File root, String path, ExecutorService executor ) {
+		if( path.endsWith( SETTINGS_EXTENSION ) ) path = path.substring( 0, path.lastIndexOf( SETTINGS_EXTENSION ) );
+		this.root = root;
+		this.file = new File( root, path );
 		this.executor = executor;
-		this.file = file;
 		this.properties = new Properties();
 		load();
 	}
 
 	@Override
 	public String getPath() {
-		return file.toString();
+		return "/" + root.toURI().relativize( file.toURI() ).toString();
+	}
+
+	@Override
+	public Settings getSettings( String path ) {
+		File newFile = new File( file, path );
+		return new StoredSettings( root, root.toURI().relativize( newFile.toURI() ).toString(), executor );
+	}
+
+	@Override
+	public String[] getChildren() {
+		return file.list();
 	}
 
 	@Override
@@ -70,7 +91,7 @@ public class StoredSettings extends AbstractSettings {
 		} else {
 			properties.setProperty( key, newValue );
 		}
-		if( !Objects.equals( oldValue, value ) ) fireEvent( new SettingsEvent( this, SettingsEvent.Type.UPDATED, file.toString(), key, oldValue, newValue ) );
+		if( !Objects.equals( oldValue, value ) ) fireEvent( new SettingsEvent( this, SettingsEvent.Type.UPDATED, getPath(), key, oldValue, newValue ) );
 		save();
 	}
 
@@ -104,7 +125,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public String toString() {
-		return file.toString();
+		return root.toString();
 	}
 
 	private void save() {
@@ -114,12 +135,13 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	private void load() {
-		if( !file.exists() ) return;
-		try( FileInputStream fis = new FileInputStream( file ) ) {
+		File realFile = getFile();
+		if( !realFile.exists() ) return;
+		try( FileInputStream fis = new FileInputStream( realFile ) ) {
 			properties.load( fis );
-			fireEvent( new SettingsEvent( this, SettingsEvent.Type.LOADED, file.toString() ) );
+			fireEvent( new SettingsEvent( this, SettingsEvent.Type.LOADED, getPath() ) );
 		} catch( IOException exception ) {
-			log.error( "Error loading settings file: " + file, exception );
+			log.error( "Error loading settings file: " + realFile, exception );
 		}
 	}
 
@@ -152,16 +174,20 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	private void persist() {
-		if( file == null ) return;
-		File parent = file.getParentFile();
-		if( !parent.exists() ) parent.mkdirs();
-		try( FileOutputStream fos = new FileOutputStream( file ) ) {
+		File realFile = getFile();
+		File parent = realFile.getParentFile();
+		if( !parent.mkdirs() ) return;
+		try( FileOutputStream fos = new FileOutputStream( realFile ) ) {
 			properties.store( fos, null );
-			fireEvent( new SettingsEvent( this, SettingsEvent.Type.SAVED, file.toString() ) );
+			fireEvent( new SettingsEvent( this, SettingsEvent.Type.SAVED, getPath() ) );
 			lastStoreTime.set( System.currentTimeMillis() );
 		} catch( IOException exception ) {
-			log.error( "Error saving settings file: " + file, exception );
+			log.error( "Error saving settings file: " + realFile, exception );
 		}
+	}
+
+	private File getFile() {
+		return new File( file, "settings" + SETTINGS_EXTENSION );
 	}
 
 	private class SaveTask extends TimerTask {
