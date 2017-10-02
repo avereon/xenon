@@ -18,5 +18,5 @@ Monocle at runtime.
 
 1. Add the following system properties:
 
-       -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dtestfx.robot=glass -Dprism.order=sw
+       -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dtestfx.robot=glass -Dprism.order=sw -Dprism.text=t2k
 
