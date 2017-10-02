@@ -20,3 +20,8 @@ Monocle at runtime.
 
        -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dtestfx.robot=glass -Dprism.order=sw -Dprism.text=t2k
 
+## Running Maven
+After completing the above requirements Maven can be run:
+
+        mvn -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dtestfx.robot=glass -Dprism.order=sw -Dprism.text=t2k clean package
+
