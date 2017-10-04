@@ -106,4 +106,10 @@ public class MapSettings extends AbstractSettings {
 	@Override
 	public void flush() {}
 
+	@Override
+	public void delete() {
+		// NEXT Delete this settings object in the parent
+		// OR Reimplement with a static map of settings and simply remove this from the map
+	}
+
 }

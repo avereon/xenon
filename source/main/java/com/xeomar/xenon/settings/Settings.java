@@ -44,4 +44,6 @@ public interface Settings {
 
 	void flush();
 
+	void delete();
+
 }
