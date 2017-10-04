@@ -1,11 +1,14 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.xenon.IdGenerator;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,6 +16,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Workarea implements Configurable {
+
+	private static final Logger log = LoggerFactory.getLogger( Workarea.class );
 
 	private String id;
 
@@ -35,6 +40,32 @@ public class Workarea implements Configurable {
 	public Workarea() {
 		workpane = new Workpane();
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
+
+		workpane.addWorkpaneListener( new WorkpaneWatcher() );
+	}
+
+	private class WorkpaneWatcher implements WorkpaneListener {
+
+		@Override
+		public void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
+			//log.warn( "Workpane event: {}", event );
+			switch( event.getType() ) {
+				case EDGE_ADDED: {
+					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
+					String id = IdGenerator.getId();
+					settings.getSettings( "workpane/edges/" + id );
+					settings.set( "id", id );
+					settings.set( "position", edgeEvent.getPosition() );
+					edgeEvent.getEdge().setSettings( settings );
+					break;
+				}
+				case EDGE_REMOVED: {
+					((WorkpaneEdgeEvent)event).getEdge().getSettings();
+					break;
+				}
+			}
+		}
+
 	}
 
 	public String getId() {
@@ -100,7 +131,7 @@ public class Workarea implements Configurable {
 	}
 
 	@Override
-	public void loadSettings( Settings settings ) {
+	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
@@ -111,7 +142,9 @@ public class Workarea implements Configurable {
 	}
 
 	@Override
-	public void saveSettings( Settings settings ) {}
+	public Settings getSettings() {
+		return settings;
+	}
 
 	@Override
 	public String toString() {

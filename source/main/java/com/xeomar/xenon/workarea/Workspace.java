@@ -251,7 +251,7 @@ public class Workspace implements Configurable {
 	}
 
 	@Override
-	public void loadSettings( Settings settings ) {
+	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
@@ -303,7 +303,9 @@ public class Workspace implements Configurable {
 	}
 
 	@Override
-	public void saveSettings( Settings settings ) {}
+	public Settings getSettings() {
+		return settings;
+	}
 
 	private void setStageTitle( String name ) {
 		stage.setTitle( name + " - " + program.getMetadata().getName() );

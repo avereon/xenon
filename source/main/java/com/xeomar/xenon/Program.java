@@ -161,7 +161,7 @@ public class Program extends Application implements Product {
 		// Create the executor service
 		log.trace( "Starting task manager..." );
 		taskManager = new TaskManager();
-		taskManager.loadSettings( programSettings );
+		taskManager.setSettings( programSettings );
 		taskManager.start();
 		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );

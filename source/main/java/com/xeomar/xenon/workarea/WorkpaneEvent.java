@@ -8,6 +8,9 @@ public class WorkpaneEvent  extends EventObject {
 
 	public enum Type {
 		CHANGED,
+		EDGE_ADDED,
+		EDGE_REMOVED,
+		EDGE_MOVED,
 		VIEW_ADDED,
 		VIEW_REMOVED,
 		VIEW_SPLIT,

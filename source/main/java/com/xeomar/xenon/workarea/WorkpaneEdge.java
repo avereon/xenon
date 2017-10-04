@@ -1,5 +1,7 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.util.Configurable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -20,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Created by ecco on 5/29/17.
  */
-public class WorkpaneEdge extends Control {
+public class WorkpaneEdge extends Control implements Configurable {
 
 	private static final PseudoClass HORIZONTAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "horizontal" );
 
@@ -59,11 +61,9 @@ public class WorkpaneEdge extends Control {
 
 	private boolean wall;
 
-	private Set<WorkpaneView> viewsA;
-
-	private Set<WorkpaneView> viewsB;
-
 	private Workpane parent;
+
+	private Settings settings;
 
 	public WorkpaneEdge( Orientation orientation ) {
 		this( orientation, false );
@@ -76,8 +76,8 @@ public class WorkpaneEdge extends Control {
 		this.wall = wall;
 
 		// Create the view lists.
-		viewsA = new CopyOnWriteArraySet<WorkpaneView>();
-		viewsB = new CopyOnWriteArraySet<WorkpaneView>();
+		Set<WorkpaneView> viewsA = new CopyOnWriteArraySet<>();
+		Set<WorkpaneView> viewsB = new CopyOnWriteArraySet<>();
 		northViews = viewsA;
 		southViews = viewsB;
 		westViews = viewsA;
@@ -159,6 +159,7 @@ public class WorkpaneEdge extends Control {
 
 	public final void setPosition( double value ) {
 		positionProperty().set( value );
+		if( settings != null ) settings.set("position", value );
 	}
 
 	public final DoubleProperty positionProperty() {
@@ -232,6 +233,17 @@ public class WorkpaneEdge extends Control {
 		}
 
 		return null;
+	}
+
+	@Override
+	public void setSettings( Settings settings ) {
+		this.settings = settings;
+		setPosition( settings.getDouble( "position" ) );
+	}
+
+	@Override
+	public Settings getSettings() {
+		return settings;
 	}
 
 	@Override

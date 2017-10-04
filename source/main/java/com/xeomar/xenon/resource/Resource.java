@@ -54,7 +54,7 @@ public class Resource extends Node implements Configurable {
 
 	private Set<ResourceListener> listeners;
 
-	private Settings resourceSettings;
+	private Settings settings;
 
 	private volatile boolean open;
 
@@ -338,13 +338,13 @@ public class Resource extends Node implements Configurable {
 	}
 
 	@Override
-	public void loadSettings( Settings settings ) {
-		resourceSettings = settings;
+	public void setSettings( Settings settings ) {
+		this.settings = settings;
 	}
 
 	@Override
-	public void saveSettings( Settings settings ) {
-		resourceSettings = settings;
+	public Settings getSettings() {
+		return settings;
 	}
 
 	public void addResourceListener( ResourceListener listener ) {

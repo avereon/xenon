@@ -151,7 +151,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		minThreadCount = Math.max( MIN_THREAD_COUNT, count / 2 );
 		maxThreadCount = Math.min( MAX_THREAD_COUNT, Math.max( minThreadCount, count ) );
 
-		saveSettings( settings );
+		if( settings != null ) settings.set( "thread-count", maxThreadCount );
 
 		if( isRunning() ) {
 			try {
@@ -226,15 +226,14 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	}
 
 	@Override
-	public void loadSettings( Settings settings ) {
+	public void setSettings( Settings settings ) {
 		this.settings = settings;
 		this.maxThreadCount = settings.getInteger( "thread-count", maxThreadCount );
 	}
 
 	@Override
-	public void saveSettings( Settings settings ) {
-		if( this.settings == null ) return;
-		this.settings.set( "thread-count", maxThreadCount );
+	public Settings getSettings() {
+		return settings;
 	}
 
 	public void addTaskListener( TaskListener listener ) {

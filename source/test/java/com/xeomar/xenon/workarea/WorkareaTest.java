@@ -23,7 +23,7 @@ public class WorkareaTest extends FxPlatformTestCase {
 
 		// Create and setup the settings
 		Workarea area = new Workarea();
-		area.loadSettings( settings );
+		area.setSettings( settings );
 
 		// Set the method
 		area.setName( name );

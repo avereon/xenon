@@ -4,8 +4,8 @@ import com.xeomar.xenon.settings.Settings;
 
 public interface Configurable {
 
-	void loadSettings( Settings settings );
+	void setSettings( Settings settings );
 
-	void saveSettings( Settings settings );
+	Settings getSettings();
 
 }

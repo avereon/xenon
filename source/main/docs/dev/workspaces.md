@@ -4,9 +4,9 @@ ${project.name} supports multiple workspaces. Workspaces are composed
 of windows, workareas and tools.
 
 - Program
-	- Workspace
-		- Window (Stage)
-			- Workarea
+	- Workspace	- Window
+		- Workarea - Workpane
+			- WorkpaneView/WorkpaneEdge
 				- Tool
 
 ## Workspace Reader

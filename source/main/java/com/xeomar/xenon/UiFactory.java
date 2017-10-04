@@ -136,7 +136,7 @@ public class UiFactory {
 		settings.set( "h", DEFAULT_HEIGHT );
 
 		Workspace workspace = new Workspace( program );
-		workspace.loadSettings( settings );
+		workspace.setSettings( settings );
 		return workspace;
 	}
 
@@ -147,7 +147,7 @@ public class UiFactory {
 		settings.set( "id", id );
 
 		Workarea workarea = new Workarea();
-		workarea.loadSettings( settings );
+		workarea.setSettings( settings );
 		return workarea;
 	}
 
@@ -156,7 +156,7 @@ public class UiFactory {
 			Workspace workspace = new Workspace( program );
 
 			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKSPACE.name() );
-			workspace.loadSettings( settings );
+			workspace.setSettings( settings );
 
 			if( workspace.isActive() ) {
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
@@ -177,7 +177,7 @@ public class UiFactory {
 			Workarea workarea = new Workarea();
 
 			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKAREA.name() );
-			workarea.loadSettings( settings );
+			workarea.setSettings( settings );
 
 			Workspace workspace = workspaces.get( settings.get( "workspaceId" ) );
 			if( workarea.isActive() ) {

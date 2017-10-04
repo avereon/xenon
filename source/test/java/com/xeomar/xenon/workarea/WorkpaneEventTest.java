@@ -40,8 +40,9 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
 		workpane.addWorkpaneListener( workpaneWatcher );
 		workpane.moveEdge( edge, 25 );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.CHANGED, workpane, null, null );
-		assertThat( workpaneWatcher.getEvents().size(), is( 1 ) );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.EDGE_MOVED, workpane, null, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.CHANGED, workpane, null, null );
+		assertThat( workpaneWatcher.getEvents().size(), is( 2 ) );
 	}
 
 	@Test
@@ -144,10 +145,11 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.addWorkpaneListener( workpaneWatcher );
 
 		WorkpaneView north = area.split( Side.TOP );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_ADDED, area, north, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.VIEW_SPLIT, area, null, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.CHANGED, area, null, null );
-		assertThat( workpaneWatcher.getEvents().size(), is( 3 ) );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.EDGE_ADDED, area, null, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.VIEW_ADDED, area, north, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.VIEW_SPLIT, area, null, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area, null, null );
+		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
 	}
 
 	@Test
@@ -160,10 +162,11 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 
 		WorkpaneView north = area.split( view, Side.TOP );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_WILL_SPLIT, area, view, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.VIEW_ADDED, area, north, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.VIEW_SPLIT, area, view, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area, null, null );
-		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.EDGE_ADDED, area, null, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.VIEW_ADDED, area, north, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.VIEW_SPLIT, area, view, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.Type.CHANGED, area, null, null );
+		assertThat( workpaneWatcher.getEvents().size(), is( 5 ) );
 	}
 
 	@Test
@@ -178,9 +181,10 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		area.pushMerge( view, Side.TOP );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.VIEW_WILL_MERGE, area, view, null );
 		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.VIEW_REMOVED, area, north, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.VIEW_MERGED, area, view, null );
-		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area, null, null );
-		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.EDGE_REMOVED, area, null, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.VIEW_MERGED, area, view, null );
+		assertWorkAreaEvent( workpaneWatcher.getEvents().get( 4 ), WorkpaneEvent.Type.CHANGED, area, null, null );
+		assertThat( workpaneWatcher.getEvents().size(), is( 5 ) );
 	}
 
 	@Test

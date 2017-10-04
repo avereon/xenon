@@ -266,7 +266,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			Settings settings = program.getSettingsManager().getToolSettings( tool );
 
 			// NEXT Set the tool settings...
-			tool.loadSettings( settings );
+			tool.setSettings( settings );
 
 			// Wait for the resource to be "ready", then notify the tool
 			// The getToolInstance() method should have been called from a Callable

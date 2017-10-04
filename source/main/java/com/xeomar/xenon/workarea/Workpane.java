@@ -360,7 +360,7 @@ public class Workpane extends Pane {
 	}
 
 	void dispatchEvents() {
-		for( WorkpaneEvent event : new LinkedList<WorkpaneEvent>( events ) ) {
+		for( WorkpaneEvent event : new LinkedList<>( events ) ) {
 			events.remove( event );
 			for( WorkpaneListener listener : listeners ) {
 				try {
@@ -499,19 +499,22 @@ public class Workpane extends Pane {
 	}
 
 	private WorkpaneEdge addEdge( WorkpaneEdge edge ) {
-		if( edge == null ) return edge;
+		if( edge == null ) return null;
 
 		edge.setWorkpane( this );
 		getChildren().add( edge );
+		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_ADDED, this, edge, edge.getPosition() ) );
+		edge.positionProperty().addListener( ( observable, oldValue, newValue ) -> queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_MOVED, this, edge, newValue.doubleValue() ) ) );
 
 		return edge;
 	}
 
 	private WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
-		if( edge == null ) return edge;
+		if( edge == null ) return null;
 
 		getChildren().remove( edge );
 		edge.setWorkpane( null );
+		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_REMOVED, this, edge, edge.getPosition() ) );
 
 		return edge;
 	}
@@ -891,10 +894,9 @@ public class Workpane extends Pane {
 	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
-		if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
-
 		try {
 			startOperation();
+			if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
 			view.addTool( tool, index );
 			// FIXME queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
 			if( activate ) setActiveTool( tool );
@@ -1623,13 +1625,11 @@ public class Workpane extends Pane {
 
 	private WorkpaneView newTopView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
 		newEdge.westEdge = leftEdge;
 		newEdge.eastEdge = rightEdge;
-		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
@@ -1686,19 +1686,20 @@ public class Workpane extends Pane {
 			newEdge.setPosition( newView.northEdge.getPosition() + ((source.southEdge.getPosition() - newView.northEdge.getPosition()) * percent) );
 		}
 
+		addEdge( newEdge );
+		addView( newView );
+
 		return newView;
 	}
 
 	private WorkpaneView newLeftView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
 		newEdge.northEdge = topEdge;
 		newEdge.southEdge = bottomEdge;
-		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
@@ -1748,19 +1749,20 @@ public class Workpane extends Pane {
 			newEdge.setPosition( newView.westEdge.getPosition() + ((source.eastEdge.getPosition() - newView.westEdge.getPosition()) * percent) );
 		}
 
+		addEdge( newEdge );
+		addView( newView );
+
 		return newView;
 	}
 
 	private WorkpaneView newRightView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
 		newEdge.northEdge = topEdge;
 		newEdge.southEdge = bottomEdge;
-		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
@@ -1817,18 +1819,19 @@ public class Workpane extends Pane {
 			newEdge.setPosition( newView.eastEdge.getPosition() - ((newView.eastEdge.getPosition() - source.westEdge.getPosition()) * percent) );
 		}
 
+		addEdge( newEdge );
+		addView( newView );
+
 		return newView;
 	}
 
 	private WorkpaneView newBottomView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
-		addView( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
 		newEdge.westEdge = leftEdge;
 		newEdge.eastEdge = rightEdge;
-		addEdge( newEdge );
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
@@ -1884,6 +1887,9 @@ public class Workpane extends Pane {
 		} else {
 			newEdge.setPosition( newView.southEdge.getPosition() - ((newView.southEdge.getPosition() - source.northEdge.getPosition()) * percent) );
 		}
+
+		addEdge( newEdge );
+		addView( newView );
 
 		return newView;
 	}

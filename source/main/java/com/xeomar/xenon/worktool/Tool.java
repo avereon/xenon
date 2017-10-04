@@ -208,7 +208,7 @@ public abstract class Tool extends Control implements Configurable {
 		return tool;
 	}
 
-	public void loadSettings( Settings settings ){
+	public void setSettings( Settings settings ){
 		if( this.settings != null ) return;
 
 		this.settings = settings;
@@ -217,7 +217,9 @@ public abstract class Tool extends Control implements Configurable {
 		// NEXT Keep implementing tool settings
 	}
 
-	public void saveSettings( Settings settings ){}
+	public Settings getSettings(){
+		return settings;
+	}
 
 	public void addToolListener( ToolListener listener ) {
 		listeners.add( listener );
