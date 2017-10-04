@@ -5,16 +5,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MapSettings extends AbstractSettings {
 
+	// The map of settings. Should only be stored in the root node
 	private Map<String, Settings> settingsMap;
 
-	private Map<String, String> values;
-
+	// The settings defaults. Should only be stored in the root node
 	private Settings defaultSettings;
+
+	// The settings node values
+	private Map<String, String> values;
 
 	private String path;
 
 	public MapSettings() {
-		init( "", new HashMap<>() );
+		init( "/", new HashMap<>() );
 	}
 
 	public MapSettings( String path ) {
@@ -78,13 +81,11 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	@SuppressWarnings( "unchecked" )
 	public String get( String key ) {
 		return get( key, null );
 	}
 
 	@Override
-	@SuppressWarnings( "unchecked" )
 	public String get( String key, Object defaultValue ) {
 		Object object = values.get( key );
 		String value = object == null ? null : object.toString();

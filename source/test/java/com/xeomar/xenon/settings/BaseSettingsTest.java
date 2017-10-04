@@ -17,6 +17,14 @@ public abstract class BaseSettingsTest {
 	protected Settings settings;
 
 	@Test
+	public void testGetSettings() {
+		Settings root = settings;
+		assertThat( root.getSettings("/"), is( root ) );
+		assertThat( root.getSettings(""), is( root ) );
+
+	}
+
+	@Test
 	public void testSetStringAndGetString() {
 		String key = "key";
 		String value = "value";
