@@ -1,5 +1,6 @@
 package com.xeomar.xenon.workarea;
 
+import com.sun.istack.internal.NotNull;
 import com.xeomar.xenon.LogUtil;
 import com.xeomar.xenon.worktool.CloseOperation;
 import com.xeomar.xenon.worktool.Tool;
@@ -407,7 +408,6 @@ public class Workpane extends Pane {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
-				// NEXT queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_DEACTIVATED, this, activeTool.getToolView(), activeTool ) );
 			}
 
 			// Change the active view
@@ -423,7 +423,6 @@ public class Workpane extends Pane {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callActivate();
-				// NEXT queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ACTIVATED, this, activeTool.getToolView(), activeTool ) );
 			}
 		} finally {
 			finishOperation( true );

@@ -213,8 +213,6 @@ public abstract class Tool extends Control implements Configurable {
 
 		this.settings = settings;
 		id = settings.get( "id" );
-
-		// NEXT Keep implementing tool settings
 	}
 
 	public Settings getSettings(){

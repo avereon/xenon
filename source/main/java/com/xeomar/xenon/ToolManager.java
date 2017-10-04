@@ -263,10 +263,8 @@ public class ToolManager implements Controllable<ToolManager> {
 			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			ProductTool tool = constructor.newInstance( product, resource );
 
-			Settings settings = program.getSettingsManager().getToolSettings( tool );
-
-			// NEXT Set the tool settings...
-			tool.setSettings( settings );
+			// Set the tool settings
+			tool.setSettings( program.getSettingsManager().getToolSettings( tool ) );
 
 			// Wait for the resource to be "ready", then notify the tool
 			// The getToolInstance() method should have been called from a Callable

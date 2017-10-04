@@ -48,7 +48,7 @@ public class Workarea implements Configurable {
 
 		@Override
 		public void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
-			//log.warn( "Workpane event: {}", event );
+			log.warn( "Workpane event: {}", event );
 			switch( event.getType() ) {
 				case EDGE_ADDED: {
 					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
