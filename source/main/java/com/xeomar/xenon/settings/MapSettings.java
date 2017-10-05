@@ -17,7 +17,7 @@ public class MapSettings extends AbstractSettings {
 	private String path;
 
 	public MapSettings() {
-		init( "/", new HashMap<>() );
+		init( "", new HashMap<>() );
 	}
 
 	public MapSettings( String path ) {

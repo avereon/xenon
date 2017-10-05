@@ -30,6 +30,7 @@ public class SettingsPathsTest {
 
 		assertThat( SettingsPaths.isRelative( "/" ), is( false ) );
 		assertThat( SettingsPaths.isRelative( "/test" ), is( false ) );
+		assertThat( SettingsPaths.isRelative( "/test/" ), is( false ) );
 		assertThat( SettingsPaths.isRelative( "/test/path" ), is( false ) );
 		assertThat( SettingsPaths.isRelative( "/test/path/" ), is( false ) );
 	}
@@ -38,9 +39,18 @@ public class SettingsPathsTest {
 	public void testGetParent() {
 		assertThat( SettingsPaths.getParent( null ), is( nullValue() ) );
 		assertThat( SettingsPaths.getParent( "" ), is( nullValue() ) );
+		assertThat( SettingsPaths.getParent( "/" ), is( nullValue() ) );
+
 		assertThat( SettingsPaths.getParent( "test" ), is( "" ) );
 		assertThat( SettingsPaths.getParent( "test/path" ), is( "test" ) );
 		assertThat( SettingsPaths.getParent( "test/path/" ), is( "test" ) );
+
+		assertThat( SettingsPaths.getParent( "/test" ), is( "/" ) );
+		assertThat( SettingsPaths.getParent( "/test/" ), is( "/" ) );
+		assertThat( SettingsPaths.getParent( "/test/path" ), is( "/test" ) );
+		assertThat( SettingsPaths.getParent( "/test/path/" ), is( "/test" ) );
+
+		assertThat( SettingsPaths.getParent( "/../test" ), is( nullValue() ) );
 	}
 
 	@Test
@@ -61,7 +71,9 @@ public class SettingsPathsTest {
 		assertThat( SettingsPaths.resolve( "/test/////path" ), is( "/test/path" ) );
 
 		// Parent references
-		assertThat( SettingsPaths.resolve( "/../test" ), is( "" ) );
+		assertThat( SettingsPaths.resolve( "/.." ), is( nullValue() ) );
+		assertThat( SettingsPaths.resolve( "/../test" ), is( nullValue() ) );
 		assertThat( SettingsPaths.resolve( "/test/../path" ), is( "/path" ) );
 	}
+
 }
