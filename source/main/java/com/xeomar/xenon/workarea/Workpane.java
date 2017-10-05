@@ -1,6 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.sun.istack.internal.NotNull;
 import com.xeomar.xenon.LogUtil;
 import com.xeomar.xenon.worktool.CloseOperation;
 import com.xeomar.xenon.worktool.Tool;
