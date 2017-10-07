@@ -1,6 +1,9 @@
-package com.xeomar.xenon.settings;
+package com.xeomar.xenon.util;
 
-public class SettingsPaths {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Paths {
 
 	private static final String SEPARATOR = "/";
 
@@ -23,7 +26,7 @@ public class SettingsPaths {
 	}
 
 	/**
-	 * This method does not normalize the path.
+	 * NOTE: This method does not normalize the path.
 	 *
 	 * @param root
 	 * @param path
@@ -36,11 +39,11 @@ public class SettingsPaths {
 		if( EMPTY.equals( path ) ) return root;
 		if( isAbsolute( path ) ) return path;
 
-		return root + (root.endsWith( SEPARATOR ) ? EMPTY : SEPARATOR) + path;
+		return root.endsWith( SEPARATOR ) ? root + path : root + SEPARATOR + path;
 	}
 
 	/**
-	 * This method does not normalize the path.
+	 * NOTE: This method does not normalize the path.
 	 *
 	 * @param path
 	 * @return
@@ -71,98 +74,82 @@ public class SettingsPaths {
 		} else if( EMPTY.equals( source ) ) {
 			return target;
 		} else {
-			// NEXT Continue to implement relativize
-		}
+			String[] sourceNames = parseNames( source );
+			String[] targetNames = parseNames( target );
+			int sourceCount = sourceNames.length;
+			int targetCount = targetNames.length;
+			int minimumCount = Math.min( sourceCount, targetCount );
 
-		return null;
-		//		UnixPath var2 = toUnixPath(var1);
-		//		if (var2.equals(this)) {
-		//			return this.emptyPath();
-		//		} else if (this.isAbsolute() != var2.isAbsolute()) {
-		//			throw new IllegalArgumentException("'other' is different type of Path");
-		//		} else if (this.isEmpty()) {
-		//			return var2;
-		//		} else {
-		//			int var3 = this.getNameCount();
-		//			int var4 = var2.getNameCount();
-		//			int var5 = var3 > var4 ? var4 : var3;
-		//
-		//			int var6;
-		//			for(var6 = 0; var6 < var5 && this.getName(var6).equals(var2.getName(var6)); ++var6) {
-		//				;
-		//			}
-		//
-		//			int var7 = var3 - var6;
-		//			if (var6 < var4) {
-		//				UnixPath var13 = var2.subpath(var6, var4);
-		//				if (var7 == 0) {
-		//					return var13;
-		//				} else {
-		//					boolean var14 = var2.isEmpty();
-		//					int var10 = var7 * 3 + var13.path.length;
-		//					if (var14) {
-		//						assert var13.isEmpty();
-		//
-		//						--var10;
-		//					}
-		//
-		//					byte[] var11 = new byte[var10];
-		//
-		//					int var12;
-		//					for(var12 = 0; var7 > 0; --var7) {
-		//						var11[var12++] = 46;
-		//						var11[var12++] = 46;
-		//						if (var14) {
-		//							if (var7 > 1) {
-		//								var11[var12++] = 47;
-		//							}
-		//						} else {
-		//							var11[var12++] = 47;
-		//						}
-		//					}
-		//
-		//					System.arraycopy(var13.path, 0, var11, var12, var13.path.length);
-		//					return new UnixPath(this.getFileSystem(), var11);
-		//				}
-		//			} else {
-		//				byte[] var8 = new byte[var7 * 3 - 1];
-		//
-		//				for(int var9 = 0; var7 > 0; --var7) {
-		//					var8[var9++] = 46;
-		//					var8[var9++] = 46;
-		//					if (var7 > 1) {
-		//						var8[var9++] = 47;
-		//					}
-		//				}
-		//
-		//				return new UnixPath(this.getFileSystem(), var8);
-		//			}
-		//		}
+			int matchCount = 0;
+			while( matchCount < minimumCount && sourceNames[ matchCount ].equals( targetNames[ matchCount ] ) ) matchCount++;
+
+			if( matchCount < targetCount ) {
+				String subpath = subpath( targetNames, matchCount, targetCount );
+				if( sourceCount == matchCount ) {
+					return subpath;
+				} else {
+					int sourceIndex = matchCount;
+					StringBuilder builder = new StringBuilder();
+					while( sourceIndex < sourceCount ) {
+						builder.append( PARENT );
+						builder.append( SEPARATOR );
+						sourceIndex++;
+					}
+					int targetIndex = matchCount;
+					while( targetIndex < targetCount ) {
+						if( targetIndex > matchCount ) builder.append( SEPARATOR );
+						builder.append( targetNames[ targetIndex ] );
+						targetIndex++;
+					}
+
+					return builder.toString();
+				}
+			} else {
+				int index = matchCount;
+				StringBuilder builder = new StringBuilder();
+				while( index < sourceCount ) {
+					if( index > matchCount ) builder.append( SEPARATOR );
+					builder.append( PARENT );
+					index++;
+				}
+
+				return builder.toString();
+			}
+		}
 	}
 
-	private static String[] parseNames( String path ) {
-		int count = countSeparators( path );
-		String[] names = new String[count];
-		int length = SEPARATOR.length();
+	private static String subpath( String[] names, int startIndex, int endIndex ) {
+		StringBuilder builder = new StringBuilder();
+		for( int index = startIndex; index < endIndex; index++ ) {
+			if( index > startIndex ) builder.append( SEPARATOR );
+			builder.append( names[ index ] );
+		}
+		return builder.toString();
+	}
 
-		int index = -length;
+	static String[] parseNames( String path ) {
+		if( path == null ) return null;
+		if( EMPTY.equals( path ) ) return new String[]{ EMPTY };
+
+		List<String> names = new ArrayList<>();
+		int separatorLength = SEPARATOR.length();
+
 		int lastIndex = 0;
-		int arrayIndex= 0;
-		while( (index = path.indexOf( SEPARATOR, index + length )) > -1 ) {
-			names[arrayIndex] = path.substring( lastIndex, index + length );
-			lastIndex = index + length;
+		int index = path.indexOf( SEPARATOR, lastIndex );
+		if( index == 0 ) {
+			names.add( SEPARATOR );
+			lastIndex = index + separatorLength;
+			index = path.indexOf( SEPARATOR, lastIndex );
+		}
+		while( index > -1 ) {
+			names.add( path.substring( lastIndex, index ) );
+			lastIndex = index + separatorLength;
+			index = path.indexOf( SEPARATOR, lastIndex );
 		}
 
-		return names;
-	}
+		if( path.length() > lastIndex ) names.add( path.substring( lastIndex ) );
 
-	private static int countSeparators( String path ) {
-		if( path == null ) throw new IllegalArgumentException( "Path cannot be null" );
-		int length = SEPARATOR.length();
-		int count = 0;
-		int index = -length;
-		while( (index = path.indexOf( SEPARATOR, index + length )) > -1 ) count++;
-		return count;
+		return names.toArray( new String[ names.size() ] );
 	}
 
 	private static String cleanTrailingSeparator( String path ) {
