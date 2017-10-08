@@ -1,23 +1,24 @@
 package com.xeomar.xenon.settings;
 
-public interface Settings {
+import java.util.Map;
 
-	/**
-	 * Get a settings object for the specified path. If the path starts with the
-	 * slash character then the path is absolute. If the path does not start with
-	 * the slash character then the path is relative to this settings node.
-	 *
-	 * Multiple requests from the same settings tree using the same resovled path
-	 * should return the same settings object.
-	 *
-	 * @param path The requested path
-	 * @return The settings object for the path
-	 */
-	Settings getSettings( String path );
+public interface Settings {
 
 	String getPath();
 
 	String[] getChildren();
+
+	/**
+	 * Get a settings object for the specified path. If the path starts with the slash character then the path is absolute. If the path does not start with the slash character then the path is relative to this settings node.
+	 * <p>
+	 * Multiple requests from the same settings tree using the same path should return the same settings object.
+	 *
+	 * @param path The requested path
+	 * @return The settings object for the path
+	 */
+	Settings getChild( String path );
+
+	Settings getChild( String path, Map<String, String> values );
 
 	void set( String key, Object value );
 
@@ -45,9 +46,9 @@ public interface Settings {
 
 	Double getDouble( String key, Double defaultValue );
 
-	Settings getDefaultSettings();
+	Map<String, String> getDefaultValues();
 
-	void setDefaultSettings( Settings settings );
+	void setDefaultValues( Map<String, String> defaults );
 
 	void addSettingsListener( SettingsListener listener );
 

@@ -16,13 +16,12 @@ public abstract class BaseSettingsTest {
 
 	protected Settings settings;
 
-//	@Test
-//	public void testGetSettings() {
-//		Settings root = settings;
-//		assertThat( root.getSettings("/"), is( root ) );
-//		assertThat( root.getSettings(""), is( root ) );
-//
-//	}
+	@Test
+	public void testGetSettings() {
+		Settings root = settings;
+		assertThat( root.getChild( "/" ), is( root ) );
+		assertThat( root.getChild( "" ), is( root ) );
+	}
 
 	@Test
 	public void testSetStringAndGetString() {
@@ -123,7 +122,6 @@ public abstract class BaseSettingsTest {
 
 		Map<String, String> defaultValues = new HashMap<>();
 		defaultValues.put( key, defaultValue );
-		MapSettings defaultSettings = new MapSettings( "default", defaultValues );
 
 		// Start by checking the value is null
 		assertThat( settings.get( key ), is( nullValue() ) );
@@ -135,7 +133,7 @@ public abstract class BaseSettingsTest {
 		assertThat( settings.get( key ), is( nullValue() ) );
 
 		// Test the default settings
-		settings.setDefaultSettings( defaultSettings );
+		settings.setDefaultValues( defaultValues );
 		assertThat( settings.get( key ), is( defaultValue ) );
 
 		settings.set( key, value );
@@ -144,7 +142,7 @@ public abstract class BaseSettingsTest {
 		settings.set( key, null );
 		assertThat( settings.get( key ), is( defaultValue ) );
 
-		settings.setDefaultSettings( null );
+		settings.setDefaultValues( null );
 		assertThat( settings.get( key ), is( nullValue() ) );
 	}
 
@@ -166,7 +164,7 @@ public abstract class BaseSettingsTest {
 	public void testChildSettings() {
 		assertThat( settings.getPath(), startsWith( "" ) );
 
-		Settings peerSettings = settings.getSettings( "peer" );
+		Settings peerSettings = settings.getChild( "peer" );
 		assertThat( peerSettings, instanceOf( settings.getClass() ) );
 		assertThat( peerSettings.getPath(), is( "/peer" ) );
 
@@ -180,8 +178,8 @@ public abstract class BaseSettingsTest {
 	public void testGrandchildSettings() {
 		assertThat( settings.getPath(), startsWith( "" ) );
 
-		Settings childSettings = settings.getSettings( "child" );
-		Settings grandchildSettings = childSettings.getSettings( "grand" );
+		Settings childSettings = settings.getChild( "child" );
+		Settings grandchildSettings = childSettings.getChild( "grand" );
 		assertThat( grandchildSettings, instanceOf( settings.getClass() ) );
 		assertThat( grandchildSettings.getPath(), is( "/child/grand" ) );
 
@@ -194,9 +192,9 @@ public abstract class BaseSettingsTest {
 	@Test
 	public void testGetChildren() {
 		String folder = "children/" + String.format( "%08x", new Random().nextInt() );
-		Settings childA = settings.getSettings( folder + "/a" );
-		Settings childB = settings.getSettings( folder + "/b" );
-		Settings childC = settings.getSettings( folder + "/c" );
+		Settings childA = settings.getChild( folder + "/a" );
+		Settings childB = settings.getChild( folder + "/b" );
+		Settings childC = settings.getChild( folder + "/c" );
 
 		childA.set( "a", "A" );
 		childB.set( "b", "B" );
@@ -206,7 +204,7 @@ public abstract class BaseSettingsTest {
 		childB.flush();
 		childC.flush();
 
-		Settings children = settings.getSettings( folder );
+		Settings children = settings.getChild( folder );
 		assertThat( children.getChildren().length, is( 3 ) );
 	}
 

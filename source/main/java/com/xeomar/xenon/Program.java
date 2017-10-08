@@ -12,7 +12,6 @@ import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
-import com.xeomar.xenon.settings.MapSettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
@@ -33,9 +32,7 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -140,10 +137,12 @@ public class Program extends Application implements Product {
 		// Get default settings map
 		Properties properties = new Properties();
 		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
+		Map<String, String> values = new HashMap<>();
+		properties.forEach( ( k, v ) -> values.put( (String)k, (String)v ) );
 
 		// Get the program settings after the settings manager and before the task manager
 		programSettings = settingsManager.getProgramSettings();
-		programSettings.setDefaultSettings( new MapSettings( "program", properties ) );
+		programSettings.setDefaultValues( values );
 		time( "settings" );
 
 		// Start the program server

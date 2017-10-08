@@ -53,7 +53,7 @@ public class Workarea implements Configurable {
 				case EDGE_ADDED: {
 					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
 					String id = IdGenerator.getId();
-					settings.getSettings( "workpane/edges/" + id );
+					settings.getChild( "workpane/edges/" + id );
 					settings.set( "id", id );
 					settings.set( "position", edgeEvent.getPosition() );
 					edgeEvent.getEdge().setSettings( settings );

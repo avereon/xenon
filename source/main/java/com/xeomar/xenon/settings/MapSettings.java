@@ -1,45 +1,41 @@
 package com.xeomar.xenon.settings;
 
+import com.xeomar.xenon.util.Paths;
+import com.xeomar.xenon.util.TextUtil;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MapSettings extends AbstractSettings {
 
 	// The map of settings. Should only be stored in the root node
-	private Map<String, Settings> settingsMap;
+	private Map<String, Settings> settings;
 
-	// The settings defaults. Should only be stored in the root node
-	private Settings defaultSettings;
+	private MapSettings root;
+
+	private String path;
 
 	// The settings node values
 	private Map<String, String> values;
 
-	private String path;
+	// The settings defaults.
+	private Map<String, String> defaultValues;
 
 	public MapSettings() {
-		init( "", new HashMap<>() );
+		this( null, "/", new HashMap<>() );
 	}
 
-	public MapSettings( String path ) {
-		init( path, new HashMap<>() );
-	}
-
-	public MapSettings( String path, Map<String, String> map ) {
-		init( path, map );
-	}
-
-	public MapSettings( String path, Properties properties ) {
-		Map<String, String> map = new HashMap<>();
-		for( Object key : properties.keySet() ) {
-			map.put( key.toString(), properties.getProperty( key.toString() ) );
+	private MapSettings( MapSettings root, String path, Map<String, String> values ) {
+		if( root == null ) {
+			this.settings = new ConcurrentHashMap<>();
+			this.root = this;
+		} else {
+			this.root = root;
 		}
-		init( path, map );
-	}
-
-	private void init( String path, Map<String, String> values ) {
-		this.settingsMap = new ConcurrentHashMap<>();
-		this.values = new ConcurrentHashMap<>( values );
 		this.path = path;
+		this.values = new ConcurrentHashMap<>();
+		if( values != null ) this.values.putAll( values );
+		this.root.settings.put( path, this );
 	}
 
 	@Override
@@ -48,23 +44,36 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	public Settings getSettings( String path ) {
-		int index = path.indexOf( "/" );
-		String name = index < 0 ? path : path.substring( 0, index );
+	public Settings getChild( String path ) {
+		return getChild( path, null );
+	}
 
-		Settings child = settingsMap.get( name );
-		if( child == null ) {
-			child = new MapSettings( this.path + "/" + name );
-			settingsMap.put( name, child );
-		}
+	@Override
+	public Settings getChild( String path, Map<String, String> values ) {
+		// Resolve the path
+		String childPath = Paths.isAbsolute( path ) ? path : Paths.resolve( this.path, path );
 
-		return index < 0 ? child : child.getSettings( path.substring( index + 1 ) );
+		// Normalize the path
+		childPath = Paths.normalize( childPath );
+
+		// Get or create settings node
+		Settings child = root.settings.get( childPath );
+
+		if( child == null ) child = new MapSettings( root, childPath, values );
+
+		return child;
 	}
 
 	@Override
 	public String[] getChildren() {
-		List<String> children = new ArrayList<>( settingsMap.keySet() );
-		Collections.sort( children );
+		List<String> children = new ArrayList<>();
+
+		for( String childPath : root.settings.keySet() ) {
+			if( !childPath.startsWith( path ) ) continue;
+			String child = Paths.getChild( path, childPath );
+			if( !TextUtil.isEmpty( child ) ) children.add( child );
+		}
+
 		return children.toArray( new String[ children.size() ] );
 	}
 
@@ -89,19 +98,19 @@ public class MapSettings extends AbstractSettings {
 	public String get( String key, Object defaultValue ) {
 		Object object = values.get( key );
 		String value = object == null ? null : object.toString();
-		if( value == null && defaultSettings != null ) value = defaultSettings.get( key );
+		if( value == null && defaultValues != null ) value = defaultValues.get( key );
 		if( value == null ) value = defaultValue == null ? null : defaultValue.toString();
 		return value;
 	}
 
 	@Override
-	public Settings getDefaultSettings() {
-		return defaultSettings;
+	public Map<String, String> getDefaultValues() {
+		return defaultValues;
 	}
 
 	@Override
-	public void setDefaultSettings( Settings settings ) {
-		this.defaultSettings = settings;
+	public void setDefaultValues( Map<String, String> values ) {
+		this.defaultValues = values;
 	}
 
 	@Override

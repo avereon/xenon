@@ -118,6 +118,13 @@ public class Paths {
 		}
 	}
 
+	public static String getChild( String root, String path ) {
+		if( root == null || path == null ) return null;
+		String child = relativize( root, path );
+		int index = child.indexOf( SEPARATOR );
+		return index < 0 ? child : child.substring(0,index);
+	}
+
 	private static String subpath( String[] names, int startIndex, int endIndex ) {
 		StringBuilder builder = new StringBuilder();
 		for( int index = startIndex; index < endIndex; index++ ) {

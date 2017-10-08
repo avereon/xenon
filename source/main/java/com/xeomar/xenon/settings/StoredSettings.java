@@ -1,6 +1,7 @@
 package com.xeomar.xenon.settings;
 
 import com.xeomar.xenon.LogUtil;
+import com.xeomar.xenon.util.Paths;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -29,6 +31,20 @@ public class StoredSettings extends AbstractSettings {
 
 	private static Timer timer = new Timer( StoredSettings.class.getSimpleName(), true );
 
+	private Map<String, StoredSettings> settings;
+
+	private ExecutorService executor;
+
+	private StoredSettings root;
+
+	private String path;
+
+	private File file;
+
+	private Properties values;
+
+	private Map<String, String> defaultValues;
+
 	private AtomicLong lastDirtyTime = new AtomicLong();
 
 	private AtomicLong lastValueTime = new AtomicLong();
@@ -37,44 +53,57 @@ public class StoredSettings extends AbstractSettings {
 
 	private final Object taskLock = new Object();
 
-	private ExecutorService executor;
-
-	private File root;
-
-	private File file;
-
-	private Properties properties;
-
 	private SaveTask task;
-
-	private Settings defaultSettings;
 
 	public StoredSettings( File file ) {
 		this( file, null );
 	}
 
 	public StoredSettings( File file, ExecutorService executor ) {
-		this( file, "", executor );
+		this( null, "/", file, null, executor );
 	}
 
-	private StoredSettings( File root, String path, ExecutorService executor ) {
-		if( path.endsWith( SETTINGS_EXTENSION ) ) path = path.substring( 0, path.lastIndexOf( SETTINGS_EXTENSION ) );
-		this.root = root;
-		this.file = new File( root, path );
+	private StoredSettings( StoredSettings root, String path, File file, Map<String, String> values, ExecutorService executor ) {
+		//if( path.endsWith( SETTINGS_EXTENSION ) ) path = path.substring( 0, path.lastIndexOf( SETTINGS_EXTENSION ) );
+		if( root == null ) {
+			this.settings = new ConcurrentHashMap<>();
+			this.root = this;
+		} else {
+			this.root = root;
+		}
+		this.path = path;
+		this.file = file;
+		this.values = new Properties();
+		if( values != null ) this.values.putAll( values );
+		this.root.settings.put( path, this );
 		this.executor = executor;
-		this.properties = new Properties();
 		load();
 	}
 
 	@Override
 	public String getPath() {
-		return "/" + root.toURI().relativize( file.toURI() ).toString();
+		return path;
 	}
 
 	@Override
-	public Settings getSettings( String path ) {
-		File newFile = new File( file, path );
-		return new StoredSettings( root, root.toURI().relativize( newFile.toURI() ).toString(), executor );
+	public Settings getChild( String path ) {
+		return getChild( path, null );
+	}
+
+	@Override
+	public Settings getChild( String path, Map<String, String> values ) {
+		// Resolve the path
+		String childPath = Paths.isAbsolute( path ) ? path : Paths.resolve( this.path, path );
+
+		// Normalize the path
+		childPath = Paths.normalize( childPath );
+
+		// Get or create settings node
+		Settings child = root.settings.get( childPath );
+
+		if( child == null ) child = new StoredSettings( root, childPath, new File( file, path ), values, executor );
+
+		return child;
 	}
 
 	@Override
@@ -84,12 +113,12 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public void set( String key, Object value ) {
-		String oldValue = properties.getProperty( key );
+		String oldValue = values.getProperty( key );
 		String newValue = value == null ? null : String.valueOf( value );
 		if( value == null ) {
-			properties.remove( key );
+			values.remove( key );
 		} else {
-			properties.setProperty( key, newValue );
+			values.setProperty( key, newValue );
 		}
 		if( !Objects.equals( oldValue, value ) ) fireEvent( new SettingsEvent( this, SettingsEvent.Type.UPDATED, getPath(), key, oldValue, newValue ) );
 		save();
@@ -104,18 +133,18 @@ public class StoredSettings extends AbstractSettings {
 	@Override
 	@Deprecated
 	public String get( String key, Object defaultValue ) {
-		String value = properties.getProperty( key );
-		if( value == null && defaultSettings != null ) value = defaultSettings.get( key );
+		String value = values.getProperty( key );
+		if( value == null && defaultValues != null ) value = defaultValues.get( key );
 		if( value == null ) value = defaultValue == null ? null : defaultValue.toString();
 		return value;
 	}
 
-	public Settings getDefaultSettings() {
-		return defaultSettings;
+	public Map<String, String> getDefaultValues() {
+		return defaultValues;
 	}
 
-	public void setDefaultSettings( Settings settings ) {
-		this.defaultSettings = settings;
+	public void setDefaultValues( Map<String, String> settings ) {
+		this.defaultValues = settings;
 	}
 
 	@Override
@@ -132,7 +161,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public String toString() {
-		return root.toString();
+		return root.file.toString();
 	}
 
 	private void save() {
@@ -145,7 +174,7 @@ public class StoredSettings extends AbstractSettings {
 		File realFile = getFile();
 		if( !realFile.exists() ) return;
 		try( FileInputStream fis = new FileInputStream( realFile ) ) {
-			properties.load( fis );
+			values.load( fis );
 			fireEvent( new SettingsEvent( this, SettingsEvent.Type.LOADED, getPath() ) );
 		} catch( IOException exception ) {
 			log.error( "Error loading settings file: " + realFile, exception );
@@ -185,7 +214,7 @@ public class StoredSettings extends AbstractSettings {
 		File parent = realFile.getParentFile();
 		if( !parent.mkdirs() ) return;
 		try( FileOutputStream fos = new FileOutputStream( realFile ) ) {
-			properties.store( fos, null );
+			values.store( fos, null );
 			fireEvent( new SettingsEvent( this, SettingsEvent.Type.SAVED, getPath() ) );
 			lastStoreTime.set( System.currentTimeMillis() );
 		} catch( IOException exception ) {

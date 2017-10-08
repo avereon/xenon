@@ -178,4 +178,16 @@ public class PathsTest {
 		assertThat( Paths.parseNames( null ), is( nullValue() ) );
 	}
 
+	@Test
+	public void testGetChild() {
+		assertThat( Paths.getChild( null, "" ), is( nullValue() ) );
+		assertThat( Paths.getChild( "", null ), is( nullValue() ) );
+
+		assertThat( Paths.getChild( "", "" ), is( "" ) );
+		assertThat( Paths.getChild( "/foo", "/foo" ), is( "" ) );
+
+		assertThat( Paths.getChild( "/foo", "/foo/bar" ), is( "bar" ) );
+		assertThat( Paths.getChild( "/foo", "/foo/bar/gus" ), is( "bar" ) );
+	}
+
 }

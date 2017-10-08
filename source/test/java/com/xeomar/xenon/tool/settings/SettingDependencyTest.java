@@ -34,7 +34,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithNotOperator() {
-		Settings settings = new MapSettings( "test" );
+		Settings settings = new MapSettings(  );
 		SettingDependency dependency = new SettingDependency( );
 		dependency.setOperator( SettingDependency.Operator.NOT );
 		dependency.setKey( "enabled" );
@@ -51,7 +51,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithAndOperator() {
-		Settings settings = new MapSettings("test");
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.AND );
 		dependency.setKey( "enabled" );
@@ -68,7 +68,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithOrOperator() {
-		Settings settings = new MapSettings("test");
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.OR );
 		dependency.setKey( "enabled" );
@@ -85,7 +85,7 @@ public class SettingDependencyTest {
 
 	@Test
 	public void testEvaluateWithXorOperator() {
-		Settings settings = new MapSettings("test");
+		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.XOR );
 		dependency.setKey( "enabled" );
