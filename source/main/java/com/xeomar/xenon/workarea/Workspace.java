@@ -192,7 +192,7 @@ public class Workspace implements Configurable {
 	}
 
 	public Set<Workarea> getWorkareas() {
-		return new HashSet<Workarea>( workareas );
+		return new HashSet<>( workareas );
 	}
 
 	public void addWorkarea( Workarea workarea ) {

@@ -2,14 +2,18 @@ package com.xeomar.xenon;
 
 public interface ProgramSettings {
 
-	String BASE = "settings";
+	String BASE = "/";
 
-	String PROGRAM = BASE;
+	String PROGRAM = BASE + "program/";
 
-	String RESOURCE = BASE + "/resource";
+	String RESOURCE = BASE + "resource/";
 
-	String TOOL = BASE + "/tool";
+	String TOOL = BASE + "tool/";
 
-	String UI = BASE + "/ui";
+	String UI = BASE + "ui/";
+
+	String WORKSPACE = UI + "workspace/";
+
+	String WORKAREA = UI + "workarea/";
 
 }

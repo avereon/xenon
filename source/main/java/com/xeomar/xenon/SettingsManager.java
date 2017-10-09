@@ -14,6 +14,7 @@ import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsPageParser;
 import com.xeomar.xenon.util.Controllable;
+import com.xeomar.xenon.util.Paths;
 import com.xeomar.xenon.worktool.Tool;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
@@ -30,7 +31,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsManager.class );
 
+	private static final String ROOT = "settings";
+
 	private Program program;
+
+	private Settings settings;
 
 	private Map<String, File> paths;
 
@@ -42,28 +47,35 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public SettingsManager( Program program ) {
 		this.program = program;
+		this.settings = new StoredSettings( new File( program.getDataFolder(), ROOT ) );
 		this.settingsPages = new ConcurrentHashMap<>();
 		this.settingsWatcher = new SettingsWatcher( program );
 
 		paths = new ConcurrentHashMap<>();
-		paths.put( "program", new File( program.getDataFolder(), ProgramSettings.PROGRAM ) );
+		//paths.put( "program", new File( program.getDataFolder(), ProgramSettings.PROGRAM ) );
 		paths.put( "resource", new File( program.getDataFolder(), ProgramSettings.RESOURCE ) );
 		paths.put( "tool", new File( program.getDataFolder(), ProgramSettings.RESOURCE ) );
 	}
 
 	public Settings getSettings( String path ) {
-		return getSettings( new File( paths.get( "program" ), path ), null );
+		Settings settings = this.settings.getNode( path );
+		settings.addSettingsListener( settingsWatcher );
+		return settings;
+	}
+
+	public Settings getSettings( String root, String path ) {
+		return getSettings( Paths.resolve( root, path ) );
 	}
 
 	public Settings getProgramSettings() {
-		return getSettings( getSettingsFile( "program", "program" ), "PROGRAM" );
+		return getSettings( ProgramSettings.PROGRAM );
 	}
 
 	public Settings getToolSettings( Tool tool ) {
 		if( tool == null ) return null;
 
 		String id = IdGenerator.getId();
-		Settings settings = getSettings( getSettingsFile( "tool", id ), "TOOL" );
+		Settings settings = getSettings( ProgramSettings.TOOL, id );
 		settings.set( "id", id );
 		return settings;
 	}
@@ -72,20 +84,21 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		if( resource == null || resource.getUri() == null ) return null;
 
 		String id = IdGenerator.getId();
-		Settings settings = getSettings( getSettingsFile( "resource", id ), "RESOURCE" );
+		Settings settings = getSettings( ProgramSettings.RESOURCE, id );
 		settings.set( "id", id );
 		return settings;
 	}
 
-	public Settings getSettings( File file, String scope ) {
-		Settings settings = settingsMap.get( file );
-		if( settings == null ) {
-			settings = new StoredSettings( file, program.getExecutor() );
-			settings.addSettingsListener( settingsWatcher );
-			settingsMap.put( file, settings );
-		}
-		return settings;
-	}
+	//	@Deprecated
+	//	public Settings getSettings( File file, String scope ) {
+	//		Settings settings = settingsMap.get( file );
+	//		if( settings == null ) {
+	//			settings = new StoredSettings( file, program.getExecutor() );
+	//			settings.addSettingsListener( settingsWatcher );
+	//			settingsMap.put( file, settings );
+	//		}
+	//		return settings;
+	//	}
 
 	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();

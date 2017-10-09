@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.util.Paths;
 import com.xeomar.xenon.workarea.Workarea;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.Workspace;
@@ -62,16 +63,14 @@ public class UiFactory {
 	//	}
 
 	public int getToolCount() {
-		return getSettingsFiles( Prefix.WORKTOOL ).length;
+		return getSettingsNames( ProgramSettings.TOOL ).length;
 	}
 
 	public void restoreUi( SplashScreen splashScreen ) {
-		File[] workspaceFiles = getSettingsFiles( Prefix.WORKSPACE );
-		File[] workareaFiles = getSettingsFiles( Prefix.WORKAREA );
-		File[] workpaneFiles = getSettingsFiles( Prefix.WORKPANE );
-		File[] worktoolFiles = getSettingsFiles( Prefix.WORKTOOL );
+		String[] workspaceIds = getSettingsNames( ProgramSettings.WORKSPACE );
+		String[] workareaIds = getSettingsNames( ProgramSettings.WORKAREA );
 
-		if( workspaceFiles.length == 0 ) {
+		if( workspaceIds.length == 0 ) {
 			try {
 				// Create the default workspace
 				Workspace workspace = newWorkspace();
@@ -93,29 +92,29 @@ public class UiFactory {
 			}
 		} else {
 			// Create the workspaces
-			for( File file : workspaceFiles ) {
-				restoreWorkspace( file );
+			for( String id : workspaceIds ) {
+				restoreWorkspace( id );
 				//splashScreen.update();
 			}
 
 			// Create the workareas
-			for( File file : workareaFiles ) {
-				restoreWorkarea( file );
+			for( String id : workareaIds ) {
+				restoreWorkarea( id );
 				// NOTE Workareas contain the workpane
 				//splashScreen.update();
 			}
 
 			// Create the workviews
-			for( File file : workpaneFiles ) {
-				//restoreWorkpane( file );
-				//splashScreen.update();
-			}
+			//for( File file : workpaneFiles ) {
+			//restoreWorkpane( file );
+			//splashScreen.update();
+			//}
 
 			// Create the tools
-			for( File file : worktoolFiles ) {
-				restoreWorktool( file );
-				splashScreen.update();
-			}
+			//for( File file : worktoolFiles ) {
+			//restoreWorktool( file );
+			//splashScreen.update();
+			//}
 		}
 
 		// Clear the object maps
@@ -127,9 +126,9 @@ public class UiFactory {
 
 	public Workspace newWorkspace() throws Exception {
 		String id = IdGenerator.getId();
-
-		Settings settings = program.getSettingsManager().getSettings( getSettingsFile( Prefix.WORKSPACE, id ), Prefix.WORKSPACE.name() );
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
 		settings.set( "id", id );
+
 		// Intentionally do not set the x property
 		// Intentionally do not set the y property
 		settings.set( "w", DEFAULT_WIDTH );
@@ -142,8 +141,7 @@ public class UiFactory {
 
 	public Workarea newWorkarea() throws Exception {
 		String id = IdGenerator.getId();
-
-		Settings settings = program.getSettingsManager().getSettings( getSettingsFile( Prefix.WORKAREA, id ), Prefix.WORKAREA.name() );
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKAREA, id );
 		settings.set( "id", id );
 
 		Workarea workarea = new Workarea();
@@ -151,12 +149,15 @@ public class UiFactory {
 		return workarea;
 	}
 
-	private Workspace restoreWorkspace( File file ) {
+	private Workspace restoreWorkspace( String id ) {
+		log.trace( "Restoring workspace: " + id );
 		try {
 			Workspace workspace = new Workspace( program );
 
-			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKSPACE.name() );
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
 			workspace.setSettings( settings );
+
+			log.warn( "Workspace active( " + workspace.getId() + " ): " + workspace.isActive() );
 
 			if( workspace.isActive() ) {
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
@@ -172,11 +173,11 @@ public class UiFactory {
 		return null;
 	}
 
-	private Workarea restoreWorkarea( File file ) {
+	private Workarea restoreWorkarea( String id ) {
 		try {
 			Workarea workarea = new Workarea();
 
-			Settings settings = program.getSettingsManager().getSettings( file, Prefix.WORKAREA.name() );
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKAREA, id );
 			workarea.setSettings( settings );
 
 			Workspace workspace = workspaces.get( settings.get( "workspaceId" ) );
@@ -194,7 +195,7 @@ public class UiFactory {
 		return null;
 	}
 
-	private Workpane restoreWorkpane( File file ) {
+	private Workpane restoreWorkpane( String id ) {
 		try {
 			//					Workpane workpane = new Workpane();
 			//
@@ -209,7 +210,7 @@ public class UiFactory {
 		return null;
 	}
 
-	private Tool restoreWorktool( File file ) {
+	private Tool restoreWorktool( String id ) {
 		//		try {
 		//			return loadWorktool( file );
 		//		}catch( Exception exception ) {
@@ -218,13 +219,8 @@ public class UiFactory {
 		return null;
 	}
 
-	private File[] getSettingsFiles( Prefix prefix ) {
-		File[] files = paths.get( prefix ).listFiles();
-		return files == null ? new File[ 0 ] : files;
-	}
-
-	private File getSettingsFile( Prefix prefix, String id ) {
-		return new File( paths.get( prefix ), id );
+	private String[] getSettingsNames( String path ) {
+		return program.getSettingsManager().getSettings( path ).getNodes();
 	}
 
 }
