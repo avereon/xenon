@@ -2,8 +2,8 @@ package com.xeomar.xenon;
 
 public enum ExecMode {
 
-	DEVL( "@"),
-	TEST( "#");
+	DEVL( "#"),
+	TEST( "$");
 
 	private String prefix;
 
