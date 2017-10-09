@@ -17,10 +17,65 @@ public abstract class BaseSettingsTest {
 	protected Settings settings;
 
 	@Test
-	public void testGetSettings() {
-		Settings root = settings;
-		assertThat( root.getChild( "/" ), is( root ) );
-		assertThat( root.getChild( "" ), is( root ) );
+	public void testExists() {
+		assertThat( settings.exists( "/" ), is( true ) );
+	}
+
+	@Test
+	public void testGetPath() {
+		assertThat( settings.getPath(), startsWith( "/" ) );
+	}
+
+	@Test
+	public void testGetNode() {
+		Settings peer = settings.getNode( "peer" );
+		assertThat( peer, instanceOf( settings.getClass() ) );
+		assertThat( peer.getPath(), is( "/peer" ) );
+
+		// Is the settings object viable
+		peer.set( "a", "A" );
+		peer.flush();
+		assertThat( peer.get( "a" ), is( "A" ) );
+	}
+
+	@Test
+	public void testGetGrandNodes() {
+		assertThat( settings.getPath(), startsWith( "" ) );
+
+		Settings childSettings = settings.getNode( "child" );
+		Settings grandchildSettings = childSettings.getNode( "grand" );
+		assertThat( grandchildSettings, instanceOf( settings.getClass() ) );
+		assertThat( grandchildSettings.getPath(), is( "/child/grand" ) );
+
+		// Is the settings object viable
+		grandchildSettings.set( "a", "A" );
+		grandchildSettings.flush();
+		assertThat( grandchildSettings.get( "a" ), is( "A" ) );
+	}
+
+	@Test
+	public void testGetNodeReturnsSameObject() {
+		assertThat( settings.getNode( "" ), is( settings ) );
+		assertThat( settings.getNode( "/" ), is( settings ) );
+	}
+
+	@Test
+	public void testGetNodes() {
+		String folder = "children/" + String.format( "%08x", new Random().nextInt() );
+		Settings childA = settings.getNode( folder + "/a" );
+		Settings childB = settings.getNode( folder + "/b" );
+		Settings childC = settings.getNode( folder + "/c" );
+
+		childA.set( "a", "A" );
+		childB.set( "b", "B" );
+		childC.set( "c", "C" );
+
+		childA.flush();
+		childB.flush();
+		childC.flush();
+
+		Settings children = settings.getNode( folder );
+		assertThat( children.getNodes().length, is( 3 ) );
 	}
 
 	@Test
@@ -161,51 +216,13 @@ public abstract class BaseSettingsTest {
 	}
 
 	@Test
-	public void testChildSettings() {
-		assertThat( settings.getPath(), startsWith( "" ) );
-
-		Settings peerSettings = settings.getChild( "peer" );
-		assertThat( peerSettings, instanceOf( settings.getClass() ) );
-		assertThat( peerSettings.getPath(), is( "/peer" ) );
-
-		// Is the settings object viable
-		peerSettings.set( "a", "A" );
-		peerSettings.flush();
-		assertThat( peerSettings.get( "a" ), is( "A" ) );
-	}
-
-	@Test
-	public void testGrandchildSettings() {
-		assertThat( settings.getPath(), startsWith( "" ) );
-
-		Settings childSettings = settings.getChild( "child" );
-		Settings grandchildSettings = childSettings.getChild( "grand" );
-		assertThat( grandchildSettings, instanceOf( settings.getClass() ) );
-		assertThat( grandchildSettings.getPath(), is( "/child/grand" ) );
-
-		// Is the settings object viable
-		grandchildSettings.set( "a", "A" );
-		grandchildSettings.flush();
-		assertThat( grandchildSettings.get( "a" ), is( "A" ) );
-	}
-
-	@Test
-	public void testGetChildren() {
-		String folder = "children/" + String.format( "%08x", new Random().nextInt() );
-		Settings childA = settings.getChild( folder + "/a" );
-		Settings childB = settings.getChild( folder + "/b" );
-		Settings childC = settings.getChild( folder + "/c" );
-
-		childA.set( "a", "A" );
-		childB.set( "b", "B" );
-		childC.set( "c", "C" );
-
-		childA.flush();
-		childB.flush();
-		childC.flush();
-
-		Settings children = settings.getChild( folder );
-		assertThat( children.getChildren().length, is( 3 ) );
+	public void testDelete() {
+		assertThat( settings.exists( "test" ), is( false ) );
+		Settings test = settings.getNode( "test" );
+		test.flush();
+		assertThat( settings.exists( "test" ), is( true ) );
+		test.delete();
+		assertThat( settings.exists( "test" ), is( false ) );
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.xeomar.xenon.settings;
 
+import com.xeomar.xenon.util.Paths;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -116,6 +118,14 @@ public abstract class AbstractSettings implements Settings {
 		for( SettingsListener listener : new HashSet<>( listeners ) ) {
 			listener.settingsEvent( event );
 		}
+	}
+
+	protected String getNodePath( String root, String path ) {
+		// Resolve the path
+		String nodePath = Paths.isAbsolute( path ) ? path : Paths.resolve( root, path );
+
+		// Normalize the path
+		return Paths.normalize( nodePath );
 	}
 
 }

@@ -44,28 +44,29 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	public Settings getChild( String path ) {
-		return getChild( path, null );
+	public boolean exists( String path ) {
+		return root.settings.get( getNodePath( this.path, path ) ) != null;
 	}
 
 	@Override
-	public Settings getChild( String path, Map<String, String> values ) {
-		// Resolve the path
-		String childPath = Paths.isAbsolute( path ) ? path : Paths.resolve( this.path, path );
+	public Settings getNode( String path ) {
+		return getNode( path, null );
+	}
 
-		// Normalize the path
-		childPath = Paths.normalize( childPath );
+	@Override
+	public Settings getNode( String path, Map<String, String> values ) {
+		String nodePath = getNodePath( this.path, path );
 
 		// Get or create settings node
-		Settings child = root.settings.get( childPath );
+		Settings child = root.settings.get( nodePath );
 
-		if( child == null ) child = new MapSettings( root, childPath, values );
+		if( child == null ) child = new MapSettings( root, nodePath, values );
 
 		return child;
 	}
 
 	@Override
-	public String[] getChildren() {
+	public String[] getNodes() {
 		List<String> children = new ArrayList<>();
 
 		for( String childPath : root.settings.keySet() ) {
@@ -78,7 +79,7 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	public void set( String key, Object value ) {
+	public void set( String key, String value ) {
 		String oldValue = values.get( key );
 		String newValue = value == null ? null : String.valueOf( value );
 		if( newValue == null ) {
@@ -95,7 +96,7 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	public String get( String key, Object defaultValue ) {
+	public String get( String key, String defaultValue ) {
 		Object object = values.get( key );
 		String value = object == null ? null : object.toString();
 		if( value == null && defaultValues != null ) value = defaultValues.get( key );
@@ -118,8 +119,7 @@ public class MapSettings extends AbstractSettings {
 
 	@Override
 	public void delete() {
-		// NEXT Delete this settings object in the parent
-		// OR Reimplement with a static map of settings and simply remove this from the map
+		root.settings.remove( getPath() );
 	}
 
 }

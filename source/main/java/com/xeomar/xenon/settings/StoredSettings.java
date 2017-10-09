@@ -1,7 +1,7 @@
 package com.xeomar.xenon.settings;
 
 import com.xeomar.xenon.LogUtil;
-import com.xeomar.xenon.util.Paths;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -64,7 +64,6 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	private StoredSettings( StoredSettings root, String path, File file, Map<String, String> values, ExecutorService executor ) {
-		//if( path.endsWith( SETTINGS_EXTENSION ) ) path = path.substring( 0, path.lastIndexOf( SETTINGS_EXTENSION ) );
 		if( root == null ) {
 			this.settings = new ConcurrentHashMap<>();
 			this.root = this;
@@ -86,33 +85,35 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	@Override
-	public Settings getChild( String path ) {
-		return getChild( path, null );
+	public boolean exists( String path ) {
+		String nodePath = getNodePath( this.path, path );
+		return new File( root.file, nodePath ).exists();
 	}
 
 	@Override
-	public Settings getChild( String path, Map<String, String> values ) {
-		// Resolve the path
-		String childPath = Paths.isAbsolute( path ) ? path : Paths.resolve( this.path, path );
+	public Settings getNode( String path ) {
+		return getNode( path, null );
+	}
 
-		// Normalize the path
-		childPath = Paths.normalize( childPath );
+	@Override
+	public Settings getNode( String path, Map<String, String> values ) {
+		String nodePath = getNodePath( this.path, path );
 
 		// Get or create settings node
-		Settings child = root.settings.get( childPath );
+		Settings child = root.settings.get( nodePath );
 
-		if( child == null ) child = new StoredSettings( root, childPath, new File( file, path ), values, executor );
+		if( child == null ) child = new StoredSettings( root, nodePath, new File( root.file, nodePath ), values, executor );
 
 		return child;
 	}
 
 	@Override
-	public String[] getChildren() {
+	public String[] getNodes() {
 		return file.list();
 	}
 
 	@Override
-	public void set( String key, Object value ) {
+	public void set( String key, String value ) {
 		String oldValue = values.getProperty( key );
 		String newValue = value == null ? null : String.valueOf( value );
 		if( value == null ) {
@@ -132,7 +133,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	@Deprecated
-	public String get( String key, Object defaultValue ) {
+	public String get( String key, String defaultValue ) {
 		String value = values.getProperty( key );
 		if( value == null && defaultValues != null ) value = defaultValues.get( key );
 		if( value == null ) value = defaultValue == null ? null : defaultValue.toString();
@@ -154,9 +155,12 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public void delete() {
-		// NEXT Delete this settings object in the parent
-		// OR Reimplement with a static map of settings and simply remove this from the map
-		// NEXT Delete the setting file and the parent folder if empty
+		root.settings.remove( getPath() );
+		try {
+			FileUtils.forceDelete( file );
+		} catch( IOException exception ) {
+			log.error( "Unable to delete settings file: " + file, exception );
+		}
 	}
 
 	@Override
