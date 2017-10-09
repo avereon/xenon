@@ -47,11 +47,10 @@ public interface Settings {
 
 	/**
 	 * Set a value in the settings object.
-	 *
-	 * @param key The value key
+	 *  @param key The value key
 	 * @param value The value
 	 */
-	void set( String key, String value );
+	void set( String key, Object value );
 
 	/**
 	 * Get a value from the settings object.
@@ -68,7 +67,7 @@ public interface Settings {
 	 * @param defaultValue The default value
 	 * @return The value as a string or the default value if the value does not already exist
 	 */
-	String get( String key, String defaultValue );
+	String get( String key, Object defaultValue );
 
 	Boolean getBoolean( String key );
 

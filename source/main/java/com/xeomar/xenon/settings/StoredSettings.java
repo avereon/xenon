@@ -113,7 +113,7 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	@Override
-	public void set( String key, String value ) {
+	public void set( String key, Object value ) {
 		String oldValue = values.getProperty( key );
 		String newValue = value == null ? null : String.valueOf( value );
 		if( value == null ) {
@@ -133,7 +133,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	@Deprecated
-	public String get( String key, String defaultValue ) {
+	public String get( String key, Object defaultValue ) {
 		String value = values.getProperty( key );
 		if( value == null && defaultValues != null ) value = defaultValues.get( key );
 		if( value == null ) value = defaultValue == null ? null : defaultValue.toString();

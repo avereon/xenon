@@ -79,7 +79,7 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	public void set( String key, String value ) {
+	public void set( String key, Object value ) {
 		String oldValue = values.get( key );
 		String newValue = value == null ? null : String.valueOf( value );
 		if( newValue == null ) {
@@ -96,7 +96,7 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
-	public String get( String key, String defaultValue ) {
+	public String get( String key, Object defaultValue ) {
 		Object object = values.get( key );
 		String value = object == null ? null : object.toString();
 		if( value == null && defaultValues != null ) value = defaultValues.get( key );
