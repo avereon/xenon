@@ -63,6 +63,13 @@ public class Workarea implements Configurable {
 					((WorkpaneEdgeEvent)event).getEdge().getSettings().delete();
 					break;
 				}
+				case VIEW_ADDED: {
+					WorkpaneViewEvent viewEvent = (WorkpaneViewEvent)event;
+					break;
+				}
+				case VIEW_REMOVED: {
+					break;
+				}
 			}
 		}
 

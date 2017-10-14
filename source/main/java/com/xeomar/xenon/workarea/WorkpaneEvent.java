@@ -1,7 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.worktool.Tool;
-
 import java.util.EventObject;
 
 public class WorkpaneEvent  extends EventObject {
@@ -33,20 +31,10 @@ public class WorkpaneEvent  extends EventObject {
 
 	private Workpane pane;
 
-	private Tool tool;
-
-	private WorkpaneView view;
-
 	public WorkpaneEvent( Object source, Type type, Workpane workpane ) {
-		this( source, type, workpane, null, null );
-	}
-
-	public WorkpaneEvent( Object source, Type type, Workpane workpane, WorkpaneView view, Tool tool ) {
-		super( source );
+		super(source);
 		this.type = type;
 		this.pane = workpane;
-		this.view = view;
-		this.tool = tool;
 	}
 
 	public Type getType() {
@@ -55,15 +43,6 @@ public class WorkpaneEvent  extends EventObject {
 
 	public Workpane getWorkPane() {
 		return pane;
-	}
-
-	@Deprecated
-	public WorkpaneView getToolView() {
-		return view;
-	}
-
-	public Tool getTool() {
-		return tool;
 	}
 
 	@Override

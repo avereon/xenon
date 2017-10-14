@@ -379,7 +379,7 @@ public class Workpane extends Pane {
 		try {
 			WorkpaneView activeToolView = getActiveView();
 
-			if( activeToolView != null ) queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView, null ) );
+			if( activeToolView != null ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView ) );
 
 			// Change the active view
 			activeViewProperty.set( view );
@@ -389,7 +389,7 @@ public class Workpane extends Pane {
 
 			// Handle the new active view
 			activeToolView = getActiveView();
-			if( activeToolView != null ) queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView, null ) );
+			if( activeToolView != null ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -443,7 +443,7 @@ public class Workpane extends Pane {
 		try {
 			view.setWorkpane( this );
 			getChildren().add( view );
-			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_ADDED, this, view, null ) );
+			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ADDED, this, view ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -469,7 +469,7 @@ public class Workpane extends Pane {
 			view.westEdge = null;
 			view.eastEdge = null;
 
-			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_REMOVED, this, view, null ) );
+			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_REMOVED, this, view ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -594,7 +594,7 @@ public class Workpane extends Pane {
 			// TODO Does workpane maintain icons?
 			//result.updateIcons();
 
-			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, null, null ) );
+			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, null ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -646,7 +646,7 @@ public class Workpane extends Pane {
 			}
 			// TODO Does workpane maintain icons?
 			//result.updateIcons();
-			queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, view, null ) );
+			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, view ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -753,7 +753,7 @@ public class Workpane extends Pane {
 		try {
 			startOperation();
 			result = merge( target.getEdge( getReverseDirection( direction ) ), direction );
-			if( result ) queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_MERGED, this, target, null ) );
+			if( result ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_MERGED, this, target ) );
 		} finally {
 			finishOperation( result );
 		}
@@ -776,7 +776,7 @@ public class Workpane extends Pane {
 		try {
 			startOperation();
 			result = merge( source.getEdge( direction ), direction );
-			if( result ) queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_MERGED, this, source, null ) );
+			if( result ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_MERGED, this, source ) );
 		} finally {
 			finishOperation( result );
 		}
@@ -1286,7 +1286,7 @@ public class Workpane extends Pane {
 		// Notify the listeners the views will merge.
 		try {
 			for( WorkpaneView source : sources ) {
-				fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source, null ) );
+				fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source ) );
 			}
 		} catch( WorkpaneVetoException exception ) {
 			return false;
@@ -1486,7 +1486,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -1502,7 +1502,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -1518,7 +1518,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
@@ -1534,7 +1534,7 @@ public class Workpane extends Pane {
 
 		// Fire the will split event.
 		try {
-			fireWorkpaneEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source, null ) );
+			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}

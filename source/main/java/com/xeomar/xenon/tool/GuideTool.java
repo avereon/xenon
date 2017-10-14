@@ -5,6 +5,7 @@ import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
+import com.xeomar.xenon.workarea.WorkpaneToolEvent;
 import com.xeomar.xenon.worktool.Tool;
 import com.xeomar.xenon.worktool.ToolException;
 import javafx.beans.value.ObservableValue;
@@ -64,9 +65,12 @@ public class GuideTool extends ProductTool {
 	}
 
 	private void switchGuide( WorkpaneEvent event ) {
+		if( !(event instanceof WorkpaneToolEvent) ) return;
+
+		WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
 		switch( event.getType() ) {
 			case TOOL_ACTIVATED: {
-				setResourceGuide( event.getTool().getResource() );
+				setResourceGuide( toolEvent.getTool().getResource() );
 				break;
 			}
 			case TOOL_CONCEALED: {
@@ -76,7 +80,7 @@ public class GuideTool extends ProductTool {
 
 		if( event.getType() != WorkpaneEvent.Type.TOOL_ACTIVATED ) return;
 
-		setResourceGuide( event.getTool().getResource() );
+		setResourceGuide( toolEvent.getTool().getResource() );
 	}
 
 	@SuppressWarnings( "unchecked" )

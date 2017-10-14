@@ -8,6 +8,7 @@ import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
+import com.xeomar.xenon.workarea.WorkpaneToolEvent;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -292,7 +293,7 @@ public abstract class Tool extends Control implements Configurable {
 			getResource().addResourceListener( watcher = new ResourceWatcher() );
 			allocate();
 			allocated = true;
-			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_ADDED, pane, getToolView(), this ) );
+			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ADDED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error allocating tool", exception );
 		}
@@ -306,7 +307,7 @@ public abstract class Tool extends Control implements Configurable {
 		try {
 			display();
 			displayed = true;
-			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_DISPLAYED, pane, getToolView(), this ) );
+			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_DISPLAYED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error displaying tool", exception );
 		}
@@ -319,7 +320,7 @@ public abstract class Tool extends Control implements Configurable {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
-			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_ACTIVATED, pane, getToolView(), this ) );
+			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error activating tool", exception );
 		}
@@ -333,7 +334,7 @@ public abstract class Tool extends Control implements Configurable {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
-			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_DEACTIVATED, pane, getToolView(), this ) );
+			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_DEACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deactivating tool", exception );
 		}
@@ -348,7 +349,7 @@ public abstract class Tool extends Control implements Configurable {
 		try {
 			conceal();
 			displayed = false;
-			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_CONCEALED, pane, getToolView(), this ) );
+			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_CONCEALED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error concealing tool", exception );
 		}
@@ -363,7 +364,7 @@ public abstract class Tool extends Control implements Configurable {
 			deallocate();
 			allocated = false;
 			getResource().removeResourceListener( watcher );
-			pane.queueEvent( new WorkpaneEvent( pane, WorkpaneEvent.Type.TOOL_REMOVED, pane, getToolView(), this ) );
+			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_REMOVED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}

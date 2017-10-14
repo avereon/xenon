@@ -12,7 +12,7 @@ public class WorkpaneEdgeEvent extends WorkpaneEvent {
 		this.position = position;
 	}
 
-		public WorkpaneEdge getEdge() {
+	public WorkpaneEdge getEdge() {
 		return edge;
 	}
 
