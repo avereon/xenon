@@ -113,6 +113,7 @@ public class Workpane extends Pane {
 
 		// Create the initial view
 		WorkpaneView view = new WorkpaneView();
+		// NEXT This view need settings...somehow
 
 		// Add the view to the wall edges
 		northEdge.southViews.add( view );

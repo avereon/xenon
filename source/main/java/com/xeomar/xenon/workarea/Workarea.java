@@ -65,6 +65,10 @@ public class Workarea implements Configurable {
 				}
 				case VIEW_ADDED: {
 					WorkpaneViewEvent viewEvent = (WorkpaneViewEvent)event;
+					String id = IdGenerator.getId();
+					Settings settings = Workarea.this.settings.getNode( "workpane/view/" + id );
+					settings.set( "id", id );
+					viewEvent.getView().setSettings( settings );
 					break;
 				}
 				case VIEW_REMOVED: {

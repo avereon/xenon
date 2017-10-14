@@ -237,6 +237,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	@Override
 	public void setSettings( Settings settings ) {
+		if( this.settings != null ) return;
 		this.settings = settings;
 		setPosition( settings.getDouble( "position" ) );
 	}

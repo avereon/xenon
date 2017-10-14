@@ -1,5 +1,7 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.worktool.Tool;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -11,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class WorkpaneView extends BorderPane {
+public class WorkpaneView extends BorderPane implements Configurable {
 
 	WorkpaneEdge northEdge;
 
@@ -28,6 +30,8 @@ public class WorkpaneView extends BorderPane {
 	private Workpane parent;
 
 	private Tool activeTool;
+
+	private Settings settings;
 
 	WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
@@ -218,6 +222,17 @@ public class WorkpaneView extends BorderPane {
 		}
 
 		return Double.NaN;
+	}
+
+	@Override
+	public void setSettings( Settings settings ) {
+		if( this.settings != null ) return;
+		this.settings = settings;
+	}
+
+	@Override
+	public Settings getSettings() {
+		return settings;
 	}
 
 	@Override
