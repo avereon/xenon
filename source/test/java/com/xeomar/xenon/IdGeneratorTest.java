@@ -14,11 +14,19 @@ public class IdGeneratorTest {
 	}
 
 	@Test
-	public void testConvertLong() {
-		assertThat( IdGenerator.toString( 0x0000000000000000L ), is( "mmmmmmmmmmmmmmmm" ) );
-		assertThat( IdGenerator.toString( 0x5555555555555555L ), is( "cccccccccccccccc" ) );
-		assertThat( IdGenerator.toString( 0xaaaaaaaaaaaaaaaaL ), is( "xxxxxxxxxxxxxxxx" ) );
-		assertThat( IdGenerator.toString( 0xffffffffffffffffL ), is( "ssssssssssssssss" ) );
+	public void testGetIdWithLong() {
+		assertThat( IdGenerator.getId( 0x0000000000000000L ), is( "mmmmmmmmmmmmmmmm" ) );
+		assertThat( IdGenerator.getId( 0x5555555555555555L ), is( "cccccccccccccccc" ) );
+		assertThat( IdGenerator.getId( 0xaaaaaaaaaaaaaaaaL ), is( "xxxxxxxxxxxxxxxx" ) );
+		assertThat( IdGenerator.getId( 0xffffffffffffffffL ), is( "ssssssssssssssss" ) );
+	}
+
+	@Test
+	public void testGetIdWithString() {
+		assertThat( IdGenerator.getId( "test"), is( "ttzlkhsndwnhcnlc" ) );
+		assertThat( IdGenerator.getId( "tent"), is( "zzwvwkwxwwkkzrrl" ) );
+		assertThat( IdGenerator.getId( "bent"), is( "btkclsbfbtnhnsvx" ) );
+		assertThat( IdGenerator.getId( "bunt"), is( "lrzcnrdcbkbzxkfc" ) );
 	}
 
 }
