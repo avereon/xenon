@@ -74,9 +74,13 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	public Settings getToolSettings( Tool tool ) {
 		if( tool == null ) return null;
 
-		String id = IdGenerator.getId();
-		Settings settings = getSettings( ProgramSettings.TOOL, id );
-		settings.set( "id", id );
+		Settings settings = tool.getSettings();
+		if( settings == null ) {
+			String id = IdGenerator.getId();
+			settings = getSettings( ProgramSettings.TOOL, id );
+			settings.set( "id", id );
+		}
+
 		return settings;
 	}
 

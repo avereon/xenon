@@ -1,18 +1,18 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Paths;
-import com.xeomar.xenon.workarea.Workarea;
-import com.xeomar.xenon.workarea.Workpane;
-import com.xeomar.xenon.workarea.Workspace;
+import com.xeomar.xenon.workarea.*;
 import com.xeomar.xenon.worktool.Tool;
+import javafx.geometry.Orientation;
 import javafx.scene.layout.BorderStroke;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class UiFactory {
 
@@ -22,18 +22,13 @@ public class UiFactory {
 
 	public static final double PAD = BorderStroke.THICK.getTop();
 
-	enum Prefix {
-		WORKSPACE,
-		WORKAREA,
-		WORKPANE,
-		WORKTOOL
-	}
+	public static final String PARENT_WORKAREA_ID = "workarea-id";
+
+	public static final String PARENT_WORKPANE_ID = "workpane-id";
 
 	private static Logger log = LogUtil.get( UiFactory.class );
 
 	private Program program;
-
-	private Map<Prefix, File> paths;
 
 	private Map<String, Workspace> workspaces = new HashMap<>();
 
@@ -41,17 +36,20 @@ public class UiFactory {
 
 	private Map<String, Workpane> workpanes = new HashMap<>();
 
+	private Map<String, WorkpaneEdge> workpaneEdges = new HashMap<>();
+
+	private Map<String, WorkpaneView> workpaneViews = new HashMap<>();
+
 	private Map<String, Tool> worktools = new HashMap<>();
+
+	private boolean restored;
+
+	private Lock restoreLock = new ReentrantLock();
+
+	private Condition restoreCondition = restoreLock.newCondition();
 
 	public UiFactory( Program program ) {
 		this.program = program;
-		paths = new ConcurrentHashMap<>();
-
-		File uiSettingsFolder = new File( program.getDataFolder(), ProgramSettings.UI );
-		paths.put( Prefix.WORKSPACE, new File( uiSettingsFolder, Prefix.WORKSPACE.name().toLowerCase() ) );
-		paths.put( Prefix.WORKAREA, new File( uiSettingsFolder, Prefix.WORKAREA.name().toLowerCase() ) );
-		paths.put( Prefix.WORKPANE, new File( uiSettingsFolder, Prefix.WORKPANE.name().toLowerCase() ) );
-		paths.put( Prefix.WORKTOOL, new File( uiSettingsFolder, Prefix.WORKTOOL.name().toLowerCase() ) );
 	}
 
 	//	public int getUiObjectCount() {
@@ -67,61 +65,89 @@ public class UiFactory {
 	}
 
 	public void restoreUi( SplashScreen splashScreen ) {
-		String[] workspaceIds = getSettingsNames( ProgramSettings.WORKSPACE );
-		String[] workareaIds = getSettingsNames( ProgramSettings.WORKAREA );
+		restoreLock.lock();
+		try {
+			String[] workspaceIds = getSettingsNames( ProgramSettings.WORKSPACE );
+			String[] workareaIds = getSettingsNames( ProgramSettings.WORKAREA );
+			String[] edgeIds = getSettingsNames( ProgramSettings.WORKPANEEDGE );
+			String[] viewIds = getSettingsNames( ProgramSettings.WORKPANEVIEW );
+			String[] toolIds = getSettingsNames( ProgramSettings.TOOL );
 
-		if( workspaceIds.length == 0 ) {
-			try {
-				// Create the default workspace
-				Workspace workspace = newWorkspace();
-				program.getWorkspaceManager().setActiveWorkspace( workspace );
-				//splashScreen.update();
+			if( workspaceIds.length == 0 ) {
+				try {
+					// Create the default workspace
+					Workspace workspace = newWorkspace();
+					program.getWorkspaceManager().setActiveWorkspace( workspace );
+					//splashScreen.update();
 
-				// Create the default workarea
-				Workarea workarea = newWorkarea();
-				workarea.setName( "Default" );
-				workspace.setActiveWorkarea( workarea );
-				//splashScreen.update();
+					// Create the default workarea
+					Workarea workarea = newWorkarea();
+					workarea.setName( "Default" );
+					workspace.setActiveWorkarea( workarea );
+					//splashScreen.update();
 
-				// TODO Create default workarea panes
+					// TODO Create default workarea panes
 
-				// TODO Create default tools
+					// TODO Create default tools
 
-			} catch( Exception exception ) {
-				log.error( "Error creating default workspace", exception );
+				} catch( Exception exception ) {
+					log.error( "Error creating default workspace", exception );
+				}
+			} else {
+				// Create the workspaces (includes the window)
+				for( String id : workspaceIds ) {
+					restoreWorkspace( id );
+					//splashScreen.update();
+				}
+
+				// Create the workareas (includes the workpane)
+				for( String id : workareaIds ) {
+					restoreWorkarea( id );
+					//splashScreen.update();
+				}
+
+				// Create the workpane edges
+				for( String id : edgeIds ) {
+					restoreWorkpaneEdge( id );
+					//splashScreen.update();
+				}
+
+				// Create the workpane views
+				for( String id : viewIds ) {
+					restoreWorkpaneView( id );
+					//splashScreen.update();
+				}
+
+				// Create the tools
+				for( String id : toolIds ) {
+					restoreWorktool( id );
+					//splashScreen.update();
+				}
 			}
-		} else {
-			// Create the workspaces
-			for( String id : workspaceIds ) {
-				restoreWorkspace( id );
-				//splashScreen.update();
-			}
 
-			// Create the workareas
-			for( String id : workareaIds ) {
-				restoreWorkarea( id );
-				// NOTE Workareas contain the workpane
-				//splashScreen.update();
-			}
+			// Clear the object maps when done
+			worktools.clear();
+			workpaneViews.clear();
+			workpaneEdges.clear();
+			workpanes.clear();
+			workareas.clear();
+			workspaces.clear();
 
-			// Create the workviews
-			//for( File file : workpaneFiles ) {
-			//restoreWorkpane( file );
-			//splashScreen.update();
-			//}
-
-			// Create the tools
-			//for( File file : worktoolFiles ) {
-			//restoreWorktool( file );
-			//splashScreen.update();
-			//}
+			restoreCondition.signalAll();
+		} finally {
+			restoreLock.unlock();
 		}
+	}
 
-		// Clear the object maps
-		worktools.clear();
-		workpanes.clear();
-		workareas.clear();
-		workspaces.clear();
+	public void awaitRestore( long timeout, TimeUnit unit ) throws InterruptedException {
+		restoreLock.lock();
+		try {
+			while( !restored ) {
+				restoreCondition.await( timeout, unit );
+			}
+		} finally {
+			restoreLock.unlock();
+		}
 	}
 
 	public Workspace newWorkspace() throws Exception {
@@ -175,19 +201,24 @@ public class UiFactory {
 
 	private Workarea restoreWorkarea( String id ) {
 		try {
-			Workarea workarea = new Workarea();
-
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKAREA, id );
-			workarea.setSettings( settings );
 
-			Workspace workspace = workspaces.get( settings.get( "workspaceId" ) );
-			if( workarea.isActive() ) {
-				workspace.setActiveWorkarea( workarea );
-			} else {
-				workspace.addWorkarea( workarea );
+			Workspace workspace = workspaces.get( settings.get( Workarea.PARENT_WORKSPACE_ID ) );
+
+			// If the workspace is not found, then the workarea is orphaned...delete the settings
+			if( workspace == null ) {
+				log.debug( "Removing orphaned workarea settings: " + id );
+				settings.delete();
+				return null;
 			}
 
+			Workarea workarea = new Workarea();
+			workarea.setSettings( settings );
+			workspace.addWorkarea( workarea );
+			if( workarea.isActive() ) workspace.setActiveWorkarea( workarea );
+
 			workareas.put( settings.get( "id" ), workarea );
+			workpanes.put( settings.get( "id" ), workarea.getWorkpane() );
 			return workarea;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workarea", exception );
@@ -195,15 +226,54 @@ public class UiFactory {
 		return null;
 	}
 
-	private Workpane restoreWorkpane( String id ) {
+	private WorkpaneEdge restoreWorkpaneEdge( String id ) {
 		try {
-			//					Workpane workpane = new Workpane();
-			//
-			//					Settings settings = getSettings( file );
-			//					workpane.loadSettings( Settings );
-			//
-			//					workpanes.put( Settings.getString("id"), workpane );
-			//					return workpane;
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKPANEEDGE, id );
+
+			Workpane workpane = workpanes.get( settings.get( PARENT_WORKPANE_ID ) );
+
+			// If the workpane is not found, then the edge is orphaned...delete the settings
+			if( workpane == null ) {
+				log.debug( "Removing orphaned workpane edge settings: " + id );
+				settings.delete();
+				return null;
+			}
+
+			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
+			WorkpaneEdge edge = new WorkpaneEdge( orientation );
+			edge.setPosition( settings.getDouble( "position" ) );
+
+			// NEXT Add the edge to the workpane
+			//workpane.getChildren().add( edge );
+
+			workpaneEdges.put( settings.get( "id" ), edge );
+			return edge;
+		} catch( Exception exception ) {
+			log.error( "Error restoring workpane", exception );
+		}
+		return null;
+	}
+
+	private WorkpaneView restoreWorkpaneView( String id ) {
+		try {
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKPANEVIEW, id );
+
+			Workpane workpane = workpanes.get( settings.get( PARENT_WORKPANE_ID ) );
+
+			// If the workpane is not found, then the view is orphaned...delete the settings
+			if( workpane == null ) {
+				log.debug( "Removing orphaned workpane view settings: " + id );
+				settings.delete();
+				return null;
+			}
+
+			WorkpaneView view = new WorkpaneView();
+
+			// NEXT Get all the edges linked
+			// NEXT Add the view to the workpane
+
+			workpaneViews.put( settings.get( "id" ), view );
+			return view;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workpane", exception );
 		}
@@ -211,11 +281,13 @@ public class UiFactory {
 	}
 
 	private Tool restoreWorktool( String id ) {
-		//		try {
-		//			return loadWorktool( file );
-		//		}catch( Exception exception ) {
-		//			log.error( "Error restoring worktool", exception );
-		//		}
+		try {
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
+
+			//			return loadWorktool( file );
+		} catch( Exception exception ) {
+			log.error( "Error restoring tool", exception );
+		}
 		return null;
 	}
 

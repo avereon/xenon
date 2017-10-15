@@ -344,11 +344,11 @@ public class Program extends Application implements Product {
 		registerActionHandlers();
 
 		// Create the UI factory
-		UiFactory factory = new UiFactory( Program.this );
+		UiFactory uiFactory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
 		int managerCount = 5;
-		int steps = managerCount + factory.getToolCount();
+		int steps = managerCount + uiFactory.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the splash screen for the task manager which is already started
@@ -384,8 +384,13 @@ public class Program extends Application implements Product {
 		workspaceManager = new WorkspaceManager( Program.this ).start();
 		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
-		Platform.runLater( () -> factory.restoreUi( splashScreen ) );
 		log.debug( "Workspace manager started." );
+
+		// Restore the user interface
+		log.trace( "Restore the user interface..." );
+		Platform.runLater( () -> uiFactory.restoreUi( splashScreen ) );
+		//uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "User interface restored." );
 
 		// TODO Start the update manager
 

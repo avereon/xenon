@@ -1,12 +1,14 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.IdGenerator;
+import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.geometry.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Workarea implements Configurable {
+
+	public static final String PARENT_WORKSPACE_ID = "workspace-id";
 
 	private static final Logger log = LoggerFactory.getLogger( Workarea.class );
 
@@ -48,12 +52,13 @@ public class Workarea implements Configurable {
 
 		@Override
 		public void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
+			// FIXME I really don't like all of this in an event listener
 			log.warn( "Workpane event: {}", event );
 			switch( event.getType() ) {
 				case EDGE_ADDED: {
 					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
 					String id = IdGenerator.getId();
-					Settings settings = Workarea.this.settings.getNode( "workpane/edge/" + id );
+					Settings settings = Workarea.this.settings.getNode( ProgramSettings.WORKPANEEDGE ).getNode( id );
 					settings.set( "id", id );
 					settings.set( "position", edgeEvent.getPosition() );
 					edgeEvent.getEdge().setSettings( settings );
@@ -65,16 +70,41 @@ public class Workarea implements Configurable {
 				}
 				case VIEW_ADDED: {
 					WorkpaneViewEvent viewEvent = (WorkpaneViewEvent)event;
+					WorkpaneView view = viewEvent.getView();
+
 					String id = IdGenerator.getId();
-					Settings settings = Workarea.this.settings.getNode( "workpane/view/" + id );
+					Settings settings = Workarea.this.settings.getNode( ProgramSettings.WORKPANEVIEW ).getNode( id );
 					settings.set( "id", id );
-					viewEvent.getView().setSettings( settings );
+					settings.set( "t", getEdgeId( view.getEdge( Side.TOP ) ) );
+					settings.set( "l", getEdgeId( view.getEdge( Side.LEFT ) ) );
+					settings.set( "r", getEdgeId( view.getEdge( Side.RIGHT ) ) );
+					settings.set( "b", getEdgeId( view.getEdge( Side.BOTTOM ) ) );
+
+					view.setSettings( settings );
 					break;
 				}
 				case VIEW_REMOVED: {
 					break;
 				}
 			}
+		}
+
+		private String getEdgeId( WorkpaneEdge edge ) {
+			String id = null;
+
+			Settings settings = edge.getSettings();
+			if( settings != null ) id = settings.get( "id" );
+
+			// FIXME Do I want to do it this way...or just set ids on the edges
+			if( edge.isWall() ) {
+				Workpane pane = edge.getWorkpane();
+				if( edge == pane.getWallEdge( Side.TOP ) ) id = "t";
+				if( edge == pane.getWallEdge( Side.LEFT ) ) id = "l";
+				if( edge == pane.getWallEdge( Side.RIGHT ) ) id = "r";
+				if( edge == pane.getWallEdge( Side.BOTTOM ) ) id = "b";
+			}
+
+			return id;
 		}
 
 	}
@@ -125,9 +155,9 @@ public class Workarea implements Configurable {
 		this.workspace = workspace;
 
 		if( this.workspace != null ) {
-			settings.set( "workspaceId", this.workspace.getId() );
+			settings.set( PARENT_WORKSPACE_ID, this.workspace.getId() );
 		} else {
-			settings.set( "workspaceId", null );
+			settings.set( PARENT_WORKSPACE_ID, null );
 		}
 
 		firePropertyChange( "workspace", oldWorkspace, this.workspace );

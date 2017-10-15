@@ -33,7 +33,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private Settings settings;
 
-	WorkpaneView() {
+	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
 	}

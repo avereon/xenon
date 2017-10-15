@@ -239,6 +239,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 		this.settings = settings;
+		settings.set( "orientation", getOrientation().name().toLowerCase() );
 		setPosition( settings.getDouble( "position" ) );
 	}
 
