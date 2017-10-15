@@ -112,7 +112,7 @@ public class Txn {
 	}
 
 	private void doSubmit( Phase phase, TxnOperation operation ) {
-		log.debug( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
+		log.trace( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
 
 		// TODO Can this be allowed by making a copy of the operations collection when commit starts?
 		if( commitLock.isLocked() ) throw new TransactionException( "Transaction " + System.identityHashCode( this ) + " steps cannot be added during a commit" );
@@ -123,7 +123,7 @@ public class Txn {
 	private void doCommit() throws TxnException {
 		try {
 			commitLock.lock();
-			log.debug( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
+			log.trace( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
 
 			// Process all the operations
 			List<TxnOperationResult> operationResults = new ArrayList<TxnOperationResult>();
