@@ -183,10 +183,12 @@ public class UiManager {
 			//splashScreen.update();
 		}
 
-		linkComponents();
+		linkEdgesAndViews();
+		addToolsToViews();
+		cleanup();
 	}
 
-	private void linkComponents() {
+	private void linkEdgesAndViews() {
 		// Link the workareas to the workspaces
 		for( Workarea workarea : areas.values() ) {
 			Settings settings = workarea.getSettings();
@@ -205,9 +207,7 @@ public class UiManager {
 			linkEdges( view );
 		}
 
-		// NEXT Add the tools to the views, in the correct order, of course
-
-		cleanup();
+		// TODO Add edges and views to workpane
 	}
 
 	private void linkEdges( WorkpaneEdge edge  ) {
@@ -218,6 +218,10 @@ public class UiManager {
 	private void linkEdges( WorkpaneView view  ) {
 		Settings settings = view.getSettings();
 		// NEXT Implement
+	}
+
+	private void addToolsToViews( ) {
+		// NEXT Add the tools to the views, in the correct order, of course
 	}
 
 	private String[] getChildNodeNames( String path ) {
