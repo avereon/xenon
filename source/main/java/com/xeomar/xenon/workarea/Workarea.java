@@ -172,7 +172,7 @@ public class Workarea implements Configurable {
 		this.workspace = workspace;
 
 		if( this.workspace != null ) {
-			settings.set( UiManager.PARENT_WORKSPACE_ID, this.workspace.getId() );
+			settings.set( UiManager.PARENT_WORKSPACE_ID, this.workspace.getSettings().getName() );
 		} else {
 			settings.set( UiManager.PARENT_WORKSPACE_ID, null );
 		}

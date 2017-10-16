@@ -5,11 +5,12 @@ import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.workarea.*;
 import com.xeomar.xenon.worktool.Tool;
 import javafx.geometry.Orientation;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderStroke;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -46,6 +47,10 @@ public class UiManager {
 	private Map<String, WorkpaneView> views = new HashMap<>();
 
 	private Map<String, Tool> tools = new HashMap<>();
+
+	private Map<Workpane, Set<Node>> workpaneNodes = new HashMap<>();
+
+	private Map<WorkpaneView, Tool> viewTools = new HashMap<>();
 
 	private boolean started;
 
@@ -160,35 +165,35 @@ public class UiManager {
 
 		// Create the workareas (includes the workpane)
 		for( String id : areaIds ) {
-			areas.put( id, restoreWorkarea( id ) );
-			panes.put( id, areas.get( id ).getWorkpane() );
+			restoreWorkarea( id );
 			//splashScreen.update();
 		}
 
 		// Create the workpane edges
 		for( String id : edgeIds ) {
-			edges.put( id, restoreWorkpaneEdge( id ) );
+			restoreWorkpaneEdge( id );
 			//splashScreen.update();
 		}
 
 		// Create the workpane views
 		for( String id : viewIds ) {
-			views.put( id, restoreWorkpaneView( id ) );
+			restoreWorkpaneView( id );
 			//splashScreen.update();
 		}
 
 		// Create the tools
 		for( String id : toolIds ) {
-			tools.put( id, restoreWorktool( id ) );
+			restoreWorktool( id );
 			//splashScreen.update();
 		}
 
-		linkEdgesAndViews();
-		addToolsToViews();
+		linkWorkareas();
+		//linkEdgesAndViews();
+		//linkTools();
 		cleanup();
 	}
 
-	private void linkEdgesAndViews() {
+	private void linkWorkareas() {
 		// Link the workareas to the workspaces
 		for( Workarea workarea : areas.values() ) {
 			Settings settings = workarea.getSettings();
@@ -196,31 +201,63 @@ public class UiManager {
 			workspace.addWorkarea( workarea );
 			if( workarea.isActive() ) workspace.setActiveWorkarea( workarea );
 		}
+	}
 
+	private void linkEdgesAndViews() {
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
-			linkEdges( edge );
+			linkEdge( edge );
 		}
 
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
-			linkEdges( view );
+			linkView( view );
 		}
 
-		// TODO Add edges and views to workpane
+		// Restore edges and views to workpane
+		for( Workpane pane : panes.values() ) {
+			pane.restoreNodes( workpaneNodes.get( pane ) );
+		}
 	}
 
-	private void linkEdges( WorkpaneEdge edge  ) {
+	private void linkEdge( WorkpaneEdge edge ) {
 		Settings settings = edge.getSettings();
-		// NEXT Implement
+		Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+
+		switch( edge.getOrientation() ) {
+			case VERTICAL: {
+				edge.setEdge( Side.TOP, lookupEdge( workpane, settings.get( "t" ) ) );
+				edge.setEdge( Side.BOTTOM, lookupEdge( workpane, settings.get( "b" ) ) );
+				break;
+			}
+			case HORIZONTAL: {
+				edge.setEdge( Side.LEFT, lookupEdge( workpane, settings.get( "l" ) ) );
+				edge.setEdge( Side.RIGHT, lookupEdge( workpane, settings.get( "r" ) ) );
+				break;
+			}
+		}
 	}
 
-	private void linkEdges( WorkpaneView view  ) {
+	private void linkView( WorkpaneView view ) {
 		Settings settings = view.getSettings();
 		// NEXT Implement
 	}
 
-	private void addToolsToViews( ) {
+	private WorkpaneEdge lookupEdge( Workpane pane, String name ) {
+		WorkpaneEdge edge = edges.get( name );
+
+		if( edge == null ) {
+			try {
+				edge = pane.getWallEdge( Side.valueOf( name.toUpperCase() ) );
+			} catch( IllegalArgumentException exception ) {
+				// Intentionally ignore exception
+			}
+		}
+
+		return edge;
+	}
+
+	private void linkTools() {
 		// NEXT Add the tools to the views, in the correct order, of course
 	}
 
@@ -236,7 +273,7 @@ public class UiManager {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
 			workspace.setSettings( settings );
 
-			log.warn( "Workspace active( " + workspace.getId() + " ): " + workspace.isActive() );
+			log.warn( "Workspace active( " + settings.getName() + " ): " + workspace.isActive() );
 
 			if( workspace.isActive() ) {
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
@@ -272,6 +309,8 @@ public class UiManager {
 			workpaneSettings.set( PARENT_WORKAREA_ID, id );
 			workarea.getWorkpane().setSettings( workpaneSettings );
 
+			areas.put( id, workarea );
+			panes.put( id, workarea.getWorkpane() );
 			return workarea;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workarea", exception );
@@ -298,6 +337,10 @@ public class UiManager {
 			WorkpaneEdge edge = new WorkpaneEdge( orientation );
 			edge.setSettings( settings );
 
+			edges.put( id, edge );
+			Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
+			nodes.add( edge );
+
 			return edge;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workpane", exception );
@@ -321,6 +364,9 @@ public class UiManager {
 			WorkpaneView view = new WorkpaneView();
 			view.setSettings( settings );
 
+			views.put( id, view );
+			Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
+			nodes.add( view );
 			return view;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workpane", exception );
@@ -348,6 +394,9 @@ public class UiManager {
 
 			ProductTool tool = program.getToolManager().getTool( resource );
 			tool.setSettings( settings );
+
+			tools.put( id, tool );
+			viewTools.put( view, tool );
 			return tool;
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool", exception );
@@ -357,6 +406,8 @@ public class UiManager {
 
 	private void cleanup() {
 		// Clear the object maps when done
+		viewTools.clear();
+		workpaneNodes.clear();
 		tools.clear();
 		views.clear();
 		edges.clear();

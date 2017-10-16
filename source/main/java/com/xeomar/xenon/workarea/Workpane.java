@@ -453,8 +453,22 @@ public class Workpane extends Pane implements Configurable {
 		return area1 - area2;
 	}
 
-	public void restoreView( WorkpaneView view ) {
-		addView( view );
+	/**
+	 * For use when restoring the state of the workpane.
+	 */
+	public void restoreNodes( Set<Node> nodes ) {
+		startOperation();
+		try {
+			for( Node node : nodes ) {
+				if( node instanceof WorkpaneView ) {
+					addView( (WorkpaneView)node );
+				} else if( node instanceof WorkpaneEdge ) {
+					addEdge( (WorkpaneEdge)node );
+				}
+			}
+		} finally {
+			finishOperation( false );
+		}
 	}
 
 	private WorkpaneView addView( WorkpaneView view ) {
@@ -498,7 +512,7 @@ public class Workpane extends Pane implements Configurable {
 		return view;
 	}
 
-	WorkpaneEdge getWallEdge( Side direction ) {
+	public WorkpaneEdge getWallEdge( Side direction ) {
 		switch( direction ) {
 			case TOP: {
 				return northEdge;
@@ -515,20 +529,6 @@ public class Workpane extends Pane implements Configurable {
 		}
 
 		return null;
-	}
-
-	/**
-	 * For use when restoring the state of the workpane.
-	 *
-	 * @param edge The edge to restore
-	 */
-	public void restoreEdge( WorkpaneEdge edge ) {
-		startOperation();
-		try {
-			addEdge( edge );
-		} finally {
-			finishOperation( true );
-		}
 	}
 
 	private WorkpaneEdge addEdge( WorkpaneEdge edge ) {

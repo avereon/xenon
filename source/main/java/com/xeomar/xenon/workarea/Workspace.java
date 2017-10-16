@@ -174,10 +174,6 @@ public class Workspace implements Configurable {
 		} );
 	}
 
-	public String getId() {
-		return id;
-	}
-
 	public Stage getStage() {
 		return stage;
 	}
