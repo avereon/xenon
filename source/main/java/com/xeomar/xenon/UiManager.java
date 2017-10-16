@@ -216,7 +216,8 @@ public class UiManager {
 
 		// Restore edges and views to workpane
 		for( Workpane pane : panes.values() ) {
-			pane.restoreNodes( workpaneNodes.get( pane ) );
+			Set<Node> nodes = workpaneNodes.get( pane );
+			if( nodes != null ) pane.restoreNodes( nodes );
 		}
 	}
 
@@ -240,7 +241,12 @@ public class UiManager {
 
 	private void linkView( WorkpaneView view ) {
 		Settings settings = view.getSettings();
-		// NEXT Implement
+		Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+
+		view.setEdge( Side.TOP, lookupEdge( workpane, settings.get( "t" ) ) );
+		view.setEdge( Side.LEFT, lookupEdge( workpane, settings.get( "l" ) ) );
+		view.setEdge( Side.RIGHT, lookupEdge( workpane, settings.get( "r" ) ) );
+		view.setEdge( Side.BOTTOM, lookupEdge( workpane, settings.get( "b" ) ) );
 	}
 
 	private WorkpaneEdge lookupEdge( Workpane pane, String name ) {
@@ -330,8 +336,6 @@ public class UiManager {
 				settings.delete();
 				return null;
 			}
-
-			Settings.print( settings );
 
 			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
 			WorkpaneEdge edge = new WorkpaneEdge( orientation );

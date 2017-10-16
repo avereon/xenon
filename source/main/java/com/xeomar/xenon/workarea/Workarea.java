@@ -108,18 +108,10 @@ public class Workarea implements Configurable {
 
 		private String getEdgeId( WorkpaneEdge edge ) {
 			String id = null;
-
 			Settings settings = edge.getSettings();
-			if( settings != null ) id = settings.get( "id" );
 
-			// FIXME Do I want to do it this way...or just set ids on the edges
-			if( edge.isWall() ) {
-				Workpane pane = edge.getWorkpane();
-				if( edge == pane.getWallEdge( Side.TOP ) ) id = "t";
-				if( edge == pane.getWallEdge( Side.LEFT ) ) id = "l";
-				if( edge == pane.getWallEdge( Side.RIGHT ) ) id = "r";
-				if( edge == pane.getWallEdge( Side.BOTTOM ) ) id = "b";
-			}
+			if( settings != null ) return settings.getName();
+			if( edge.isWall() ) return edge.getWorkpane().getWallEdgeSide( edge ).name().toLowerCase();
 
 			return id;
 		}

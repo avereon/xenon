@@ -376,7 +376,7 @@ public class Workpane extends Pane implements Configurable {
 		events.offer( data );
 	}
 
-	void dispatchEvents() {
+	private void dispatchEvents() {
 		for( WorkpaneEvent event : new LinkedList<>( events ) ) {
 			events.remove( event );
 			for( WorkpaneListener listener : listeners ) {
@@ -459,6 +459,9 @@ public class Workpane extends Pane implements Configurable {
 	public void restoreNodes( Set<Node> nodes ) {
 		startOperation();
 		try {
+			for( WorkpaneView view : getViews() ) {
+				removeView( view );
+			}
 			for( Node node : nodes ) {
 				if( node instanceof WorkpaneView ) {
 					addView( (WorkpaneView)node );
@@ -472,7 +475,7 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	private WorkpaneView addView( WorkpaneView view ) {
-		if( view == null ) return view;
+		if( view == null ) return null;
 
 		startOperation();
 		try {
@@ -487,7 +490,7 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	private WorkpaneView removeView( WorkpaneView view ) {
-		if( view == null ) return view;
+		if( view == null ) return null;
 
 		try {
 			startOperation();
@@ -528,6 +531,15 @@ public class Workpane extends Pane implements Configurable {
 			}
 		}
 
+		return null;
+	}
+
+	Side getWallEdgeSide( WorkpaneEdge edge ) {
+		if( !edge.isWall() ) return null;
+		if( edge == getWallEdge( Side.TOP ) ) return Side.TOP;
+		if( edge == getWallEdge( Side.LEFT ) ) return Side.LEFT;
+		if( edge == getWallEdge( Side.RIGHT ) ) return Side.RIGHT;
+		if( edge == getWallEdge( Side.BOTTOM ) ) return Side.BOTTOM;
 		return null;
 	}
 
