@@ -62,6 +62,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return getToolInstance( resource );
 	}
 
+	// FIXME Should openTool methods be in UiManager
 	public void openTool( Resource resource ) {
 		openTool( resource, null, null );
 	}
@@ -264,7 +265,10 @@ public class ToolManager implements Controllable<ToolManager> {
 			ProductTool tool = constructor.newInstance( product, resource );
 
 			// Set the tool settings
-			tool.setSettings( program.getSettingsManager().getToolSettings( tool ) );
+			String id = IdGenerator.getId();
+			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
+			settings.set( "id", id );
+			tool.setSettings( settings );
 
 			// Wait for the resource to be "ready", then notify the tool
 			// The getToolInstance() method should have been called from a Callable

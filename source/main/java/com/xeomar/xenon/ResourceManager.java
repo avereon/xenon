@@ -968,13 +968,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return codecs;
 	}
 
-	private Resource findOpenResource( Resource resource ) {
-		for( Resource open : openResources ) {
-			if( open.equals( resource ) ) return open;
-		}
-		return resource;
-	}
-
 	private Collection<Resource> removeOpenResources( Collection<Resource> resources ) {
 		Collection<Resource> filteredResources = new ArrayList<>( resources );
 		for( Resource resource : openResources ) {
@@ -1051,10 +1044,12 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private Resource doCreateResource( ResourceType type, URI uri ) {
 		Resource resource = new Resource( type, uri );
 
-		// If the resource is already open, use it instead
-		resource = findOpenResource( resource );
-
 		if( uri != null ) {
+			// If the resource is already open, use it instead
+			for( Resource open : openResources ) {
+				if( open.getUri().equals( uri ) ) return open;
+			}
+
 			try {
 				Scheme scheme = getScheme( uri.getScheme() );
 				resource.setScheme( scheme );
@@ -1063,8 +1058,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				log.error( "Error initializing resource scheme", exception );
 			}
 
-			// TODO Set the settings for the resource
-			//resource.loadSettings( program.getSettingsManager().getResourceSettings( this ) );
+			// Set the settings for the resource
+			resource.setSettings( program.getSettingsManager().getSettings( ProgramSettings.RESOURCE, IdGenerator.getId( uri.toString() ) ) );
 		}
 
 		return resource;
@@ -1158,9 +1153,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		if( openResources.size() == 0 ) doSetCurrentResource( null );
 
-		// TODO Resources should be configurable
-		//ProgramConfigurationBuilder settings = getResourceSettings( resource );
-		//if( settings != null ) settings.removeNode();
+		// TODO Delete the resource settings?
+		// Should the settings be removed? Or left for later?
+		//		Settings settings = resource.getSettings();
+		//		if( settings != null ) settings.delete();
 
 		log.trace( "Resource closed: " + resource );
 
@@ -1206,30 +1202,30 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return true;
 	}
 
-//	/**
-//	 * @param resource
-//	 * @return
-//	 * @deprecated Instead use Scheme.getConnection( Resource )
-//	 */
-//	@Deprecated
-//	private URLConnection getConnection( Resource resource ) {
-//		URI uri = resource.getUri();
-//		Scheme scheme = getScheme( uri.getScheme() );
-//		if( scheme == null ) return null;
-//
-//		try {
-//			// FIXME Should not convert to URL to get a connection
-//			//return uri.toURL().openConnection();
-//
-//			// It should come from the scheme
-//			//return scheme.openConnection( resource );
-//		} catch( Exception exception ) {
-//			log.warn( "Error opening resource connection", resource );
-//			log.warn( "Error opening resource connection", exception );
-//		}
-//
-//		return null;
-//	}
+	//	/**
+	//	 * @param resource
+	//	 * @return
+	//	 * @deprecated Instead use Scheme.getConnection( Resource )
+	//	 */
+	//	@Deprecated
+	//	private URLConnection getConnection( Resource resource ) {
+	//		URI uri = resource.getUri();
+	//		Scheme scheme = getScheme( uri.getScheme() );
+	//		if( scheme == null ) return null;
+	//
+	//		try {
+	//			// FIXME Should not convert to URL to get a connection
+	//			//return uri.toURL().openConnection();
+	//
+	//			// It should come from the scheme
+	//			//return scheme.openConnection( resource );
+	//		} catch( Exception exception ) {
+	//			log.warn( "Error opening resource connection", resource );
+	//			log.warn( "Error opening resource connection", exception );
+	//		}
+	//
+	//		return null;
+	//	}
 
 	private String getMediaType( Resource resource ) {
 		String mediaType = resource.getResource( Resource.MEDIA_TYPE_RESOURCE_KEY );

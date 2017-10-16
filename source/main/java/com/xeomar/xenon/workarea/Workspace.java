@@ -2,7 +2,7 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.Actions;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
@@ -259,8 +259,8 @@ public class Workspace implements Configurable {
 
 		Double x = settings.getDouble( "x", null );
 		Double y = settings.getDouble( "y", null );
-		Double w = settings.getDouble( "w", UiFactory.DEFAULT_WIDTH );
-		Double h = settings.getDouble( "h", UiFactory.DEFAULT_HEIGHT );
+		Double w = settings.getDouble( "w", UiManager.DEFAULT_WIDTH );
+		Double h = settings.getDouble( "h", UiManager.DEFAULT_HEIGHT );
 
 		// Due to differences in how FX handles stage size (width and height) on
 		// different operating systems, the width and height from the scene, not the

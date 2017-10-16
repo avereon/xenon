@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.product.Product;
@@ -102,8 +102,8 @@ public class SettingsPanel extends VBox {
 
 	private Pane createSettingsPane( Product product, SettingsPage page, SettingGroup group ) {
 		GridPane pane = new GridPane();
-		pane.setHgap( UiFactory.PAD );
-		pane.setVgap( UiFactory.PAD );
+		pane.setHgap( UiManager.PAD );
+		pane.setVgap( UiManager.PAD );
 		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		int row = 0;

@@ -141,7 +141,7 @@ public class Program extends Application implements Product {
 		properties.forEach( ( k, v ) -> values.put( (String)k, (String)v ) );
 
 		// Get the program settings after the settings manager and before the task manager
-		programSettings = settingsManager.getProgramSettings();
+		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( values );
 		time( "settings" );
 
@@ -318,7 +318,7 @@ public class Program extends Application implements Product {
 
 	private void printHeader( ProductMetadata metadata ) {
 		System.out.println( metadata.getName() + " " + metadata.getVersion() );
-		System.out.println( "Java " + System.getProperty( "java.vm.version" ) );
+		System.out.println( "Java " + System.getProperty( "java.runtime.version" ) );
 	}
 
 	private String getExecmodePrefix() {
@@ -344,11 +344,11 @@ public class Program extends Application implements Product {
 		registerActionHandlers();
 
 		// Create the UI factory
-		UiFactory uiFactory = new UiFactory( Program.this );
+		UiManager uiManager = new UiManager( Program.this );
 
 		// Set the number of startup steps
 		int managerCount = 5;
-		int steps = managerCount + uiFactory.getToolCount();
+		int steps = managerCount + uiManager.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the splash screen for the task manager which is already started
@@ -388,13 +388,14 @@ public class Program extends Application implements Product {
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiFactory.restoreUi( splashScreen ) );
-		//uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> uiManager.restoreUi( splashScreen ) );
+		uiManager.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
 		// TODO Start the update manager
 
 		// Finish the splash screen
+		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
 		Platform.runLater( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it

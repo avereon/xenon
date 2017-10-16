@@ -2,6 +2,7 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.product.ProductMetadata;
 import com.xeomar.xenon.resource.Resource;
@@ -351,7 +352,7 @@ public class AboutTool extends ProductTool {
 		builder.append( "Current time:      " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) + "\n" );
 		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) + "\n" );
 
-		Settings programSettings = program.getSettingsManager().getProgramSettings();
+		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		long lastUpdateCheck = programSettings.getLong( "/manager/product/update/check/last", 0L );
 		long nextUpdateCheck = programSettings.getLong( "/manager/product/update/check/next", 0L );
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;

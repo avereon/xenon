@@ -53,8 +53,16 @@ public class SplashScreen extends Stage {
 		sizeToScene();
 	}
 
+	public int getSteps() {
+		return steps;
+	}
+
 	public void setSteps( int steps ) {
 		this.steps = steps;
+	}
+
+	public int getCompletedSteps() {
+		return progress;
 	}
 
 	public void update() {

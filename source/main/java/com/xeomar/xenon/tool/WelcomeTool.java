@@ -2,7 +2,7 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
@@ -20,7 +20,7 @@ public class WelcomeTool extends ProductTool {
 
 	private static final Logger log = LoggerFactory.getLogger( WelcomeTool.class );
 
-	private static final double PAD = 2 * UiFactory.PAD;
+	private static final double PAD = 2 * UiManager.PAD;
 
 	private static final double ICON_SIZE = 64;
 

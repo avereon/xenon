@@ -3,7 +3,7 @@ package com.xeomar.xenon.action;
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.LogUtil;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;
@@ -37,9 +37,9 @@ public class NewWorkareaAction extends Action<ActionEvent> {
 	}
 
 	private void createNewWorkarea( String name ) {
-		UiFactory uiFactory = new UiFactory( program );
+		UiManager uiManager = new UiManager( program );
 		try {
-			Workarea workarea = uiFactory.newWorkarea();
+			Workarea workarea = uiManager.newWorkarea();
 			workarea.setName( name );
 			program.getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {

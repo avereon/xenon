@@ -55,6 +55,15 @@ public class PathsTest {
 	}
 
 	@Test
+	public void testGetName() {
+		assertThat( Paths.getName( null ), is( nullValue() ) );
+		assertThat( Paths.getName( "" ), is( "" ) );
+		assertThat( Paths.getName( "/" ), is( "/" ) );
+		assertThat( Paths.getName( "/test" ), is( "test" ) );
+		assertThat( Paths.getName( "/test/path" ), is( "path" ) );
+	}
+
+	@Test
 	public void testNormalize() {
 		// Normal paths
 		assertThat( Paths.normalize( null ), is( nullValue() ) );

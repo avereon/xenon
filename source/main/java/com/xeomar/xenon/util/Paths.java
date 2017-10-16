@@ -25,6 +25,12 @@ public class Paths {
 		return path != null && SEPARATOR.equals( path );
 	}
 
+	public static String getName( String path ) {
+		if( path == null ) return null;
+		String[] names = parseNames( path );
+		return names[names.length -1 ];
+	}
+
 	/**
 	 * NOTE: This method does not normalize the path.
 	 *

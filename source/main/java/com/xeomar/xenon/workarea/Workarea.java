@@ -2,6 +2,7 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.IdGenerator;
 import com.xeomar.xenon.ProgramSettings;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import javafx.beans.property.BooleanProperty;
@@ -18,8 +19,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Workarea implements Configurable {
-
-	public static final String PARENT_WORKSPACE_ID = "workspace-id";
 
 	private static final Logger log = LoggerFactory.getLogger( Workarea.class );
 
@@ -42,9 +41,10 @@ public class Workarea implements Configurable {
 	private Settings settings;
 
 	public Workarea() {
-		workpane = new Workpane();
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
 
+		workpane = new Workpane();
+		// NEXT Add settings to the default view and edges...?
 		workpane.addWorkpaneListener( new WorkpaneWatcher() );
 	}
 
@@ -57,10 +57,26 @@ public class Workarea implements Configurable {
 			switch( event.getType() ) {
 				case EDGE_ADDED: {
 					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
+					WorkpaneEdge edge = edgeEvent.getEdge();
+					if( edge.getSettings() != null ) return;
+
 					String id = IdGenerator.getId();
-					Settings settings = Workarea.this.settings.getNode( ProgramSettings.WORKPANEEDGE ).getNode( id );
-					settings.set( "id", id );
+					Settings settings = Workarea.this.settings.getNode( ProgramSettings.EDGE ).getNode( id );
 					settings.set( "position", edgeEvent.getPosition() );
+					settings.set( UiManager.PARENT_WORKPANE_ID, edgeEvent.getEdge().getWorkpane().getSettings().getName() );
+					switch( edge.getOrientation() ) {
+						case VERTICAL: {
+							settings.set( "t", getEdgeId( edge.getEdge( Side.TOP ) ) );
+							settings.set( "b", getEdgeId( edge.getEdge( Side.BOTTOM ) ) );
+							break;
+						}
+						case HORIZONTAL: {
+							settings.set( "l", getEdgeId( edge.getEdge( Side.LEFT ) ) );
+							settings.set( "r", getEdgeId( edge.getEdge( Side.RIGHT ) ) );
+							break;
+						}
+					}
+
 					edgeEvent.getEdge().setSettings( settings );
 					break;
 				}
@@ -71,14 +87,15 @@ public class Workarea implements Configurable {
 				case VIEW_ADDED: {
 					WorkpaneViewEvent viewEvent = (WorkpaneViewEvent)event;
 					WorkpaneView view = viewEvent.getView();
+					if( view.getSettings() != null ) return;
 
 					String id = IdGenerator.getId();
-					Settings settings = Workarea.this.settings.getNode( ProgramSettings.WORKPANEVIEW ).getNode( id );
-					settings.set( "id", id );
+					Settings settings = Workarea.this.settings.getNode( ProgramSettings.VIEW ).getNode( id );
 					settings.set( "t", getEdgeId( view.getEdge( Side.TOP ) ) );
 					settings.set( "l", getEdgeId( view.getEdge( Side.LEFT ) ) );
 					settings.set( "r", getEdgeId( view.getEdge( Side.RIGHT ) ) );
 					settings.set( "b", getEdgeId( view.getEdge( Side.BOTTOM ) ) );
+					settings.set( UiManager.PARENT_WORKPANE_ID, viewEvent.getView().getWorkpane().getSettings().getName() );
 
 					view.setSettings( settings );
 					break;
@@ -155,9 +172,9 @@ public class Workarea implements Configurable {
 		this.workspace = workspace;
 
 		if( this.workspace != null ) {
-			settings.set( PARENT_WORKSPACE_ID, this.workspace.getId() );
+			settings.set( UiManager.PARENT_WORKSPACE_ID, this.workspace.getId() );
 		} else {
-			settings.set( PARENT_WORKSPACE_ID, null );
+			settings.set( UiManager.PARENT_WORKSPACE_ID, null );
 		}
 
 		firePropertyChange( "workspace", oldWorkspace, this.workspace );

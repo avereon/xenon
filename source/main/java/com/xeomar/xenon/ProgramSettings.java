@@ -14,11 +14,13 @@ public interface ProgramSettings {
 
 	String WORKSPACE = UI + "workspace/";
 
-	String WORKAREA = UI + "workarea/";
+	String AREA = UI + "area/";
 
-	String WORKPANEEDGE = UI + "workpaneedge/";
+	String PANE = UI + "pane/";
 
-	String WORKPANEVIEW = UI + "workpaneview/";
+	String EDGE = UI + "edge/";
+
+	String VIEW = UI + "view/";
 
 	String TOOL = UI + "tool/";
 

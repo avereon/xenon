@@ -39,6 +39,11 @@ public class MapSettings extends AbstractSettings {
 	}
 
 	@Override
+	public String getName() {
+		return Paths.getName( path );
+	}
+
+	@Override
 	public String getPath() {
 		return path;
 	}
@@ -76,6 +81,11 @@ public class MapSettings extends AbstractSettings {
 		}
 
 		return children.toArray( new String[ children.size() ] );
+	}
+
+	@Override
+	public Set<String> getKeys() {
+		return values.keySet();
 	}
 
 	@Override

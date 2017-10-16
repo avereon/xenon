@@ -1,6 +1,8 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.LogUtil;
+import com.xeomar.xenon.settings.Settings;
+import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.worktool.CloseOperation;
 import com.xeomar.xenon.worktool.Tool;
 import com.xeomar.xenon.worktool.ToolEvent;
@@ -19,7 +21,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Workpane extends Pane {
+public class Workpane extends Pane implements Configurable {
 
 	public enum Placement {
 		DEFAULT,
@@ -72,6 +74,8 @@ public class Workpane extends Pane {
 	private Queue<WorkpaneEvent> events;
 
 	private Collection<WorkpaneListener> listeners;
+
+	private Settings settings;
 
 	public Workpane() {
 		getStyleClass().add( "workpane" );
@@ -310,6 +314,18 @@ public class Workpane extends Pane {
 		return dockModeProperty;
 	}
 
+	@Override
+	public void setSettings( Settings settings ) {
+		if( this.settings != null ) return;
+
+		this.settings = settings;
+	}
+
+	@Override
+	public Settings getSettings() {
+		return settings;
+	}
+
 	public void addWorkpaneListener( WorkpaneListener listener ) {
 		listeners.add( listener );
 	}
@@ -437,6 +453,10 @@ public class Workpane extends Pane {
 		return area1 - area2;
 	}
 
+	public void restoreView( WorkpaneView view ) {
+		addView( view );
+	}
+
 	private WorkpaneView addView( WorkpaneView view ) {
 		if( view == null ) return view;
 
@@ -495,6 +515,20 @@ public class Workpane extends Pane {
 		}
 
 		return null;
+	}
+
+	/**
+	 * For use when restoring the state of the workpane.
+	 *
+	 * @param edge The edge to restore
+	 */
+	public void restoreEdge( WorkpaneEdge edge ) {
+		startOperation();
+		try {
+			addEdge( edge );
+		} finally {
+			finishOperation( true );
+		}
 	}
 
 	private WorkpaneEdge addEdge( WorkpaneEdge edge ) {

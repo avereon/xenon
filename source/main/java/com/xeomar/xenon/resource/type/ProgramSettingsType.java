@@ -1,6 +1,7 @@
 package com.xeomar.xenon.resource.type;
 
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.Resource;
@@ -31,7 +32,7 @@ public class ProgramSettingsType extends ResourceType {
 
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
-		resource.setModel( program.getSettingsManager().getProgramSettings() );
+		resource.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		Guide guide = new Guide();
 		guide.setRoot( new TreeItem<>() );
 		resource.putResource( Guide.GUIDE_KEY, guide);

@@ -31,6 +31,7 @@ public class StoredSettings extends AbstractSettings {
 
 	private static Timer timer = new Timer( StoredSettings.class.getSimpleName(), true );
 
+	// Settings map store in root node
 	private Map<String, StoredSettings> settings;
 
 	private ExecutorService executor;
@@ -39,7 +40,7 @@ public class StoredSettings extends AbstractSettings {
 
 	private String path;
 
-	private File file;
+	private File folder;
 
 	private Properties values;
 
@@ -55,15 +56,15 @@ public class StoredSettings extends AbstractSettings {
 
 	private SaveTask task;
 
-	public StoredSettings( File file ) {
-		this( file, null );
+	public StoredSettings( File folder ) {
+		this( folder, null );
 	}
 
-	public StoredSettings( File file, ExecutorService executor ) {
-		this( null, "/", file, null, executor );
+	public StoredSettings( File folder, ExecutorService executor ) {
+		this( null, "/", folder, null, executor );
 	}
 
-	private StoredSettings( StoredSettings root, String path, File file, Map<String, String> values, ExecutorService executor ) {
+	private StoredSettings( StoredSettings root, String path, File folder, Map<String, String> values, ExecutorService executor ) {
 		if( root == null ) {
 			this.settings = new ConcurrentHashMap<>();
 			this.root = this;
@@ -71,12 +72,17 @@ public class StoredSettings extends AbstractSettings {
 			this.root = root;
 		}
 		this.path = path;
-		this.file = file;
+		this.folder = folder;
 		this.values = new Properties();
 		if( values != null ) this.values.putAll( values );
 		this.root.settings.put( path, this );
 		this.executor = executor;
 		load();
+	}
+
+	@Override
+	public String getName() {
+		return folder.getName();
 	}
 
 	@Override
@@ -87,7 +93,7 @@ public class StoredSettings extends AbstractSettings {
 	@Override
 	public boolean exists( String path ) {
 		String nodePath = getNodePath( this.path, path );
-		return new File( root.file, nodePath ).exists();
+		return new File( root.folder, nodePath ).exists();
 	}
 
 	@Override
@@ -102,15 +108,24 @@ public class StoredSettings extends AbstractSettings {
 		// Get or create settings node
 		Settings child = root.settings.get( nodePath );
 
-		if( child == null ) child = new StoredSettings( root, nodePath, new File( root.file, nodePath ), values, executor );
+		if( child == null ) child = new StoredSettings( root, nodePath, new File( root.folder, nodePath ), values, executor );
 
 		return child;
 	}
 
 	@Override
 	public String[] getNodes() {
-		String[] names = file.list();
+		String[] names = folder.list();
 		return names == null ? new String[ 0 ] : names;
+	}
+
+	@Override
+	public Set<String> getKeys() {
+		Set<String> keys = new HashSet<>(  );
+		for( Object key : values.keySet() ) {
+			keys.add( key.toString() );
+		}
+		return keys;
 	}
 
 	@Override
@@ -161,15 +176,18 @@ public class StoredSettings extends AbstractSettings {
 	public void delete() {
 		root.settings.remove( getPath() );
 		try {
-			FileUtils.forceDelete( file );
+			File file = getFile();
+			if( file.exists() ) FileUtils.forceDelete( file );
+			String[] files = folder.list();
+			if( files != null && files.length == 0 ) FileUtils.forceDelete( folder );
 		} catch( IOException exception ) {
-			log.error( "Unable to delete settings file: " + file, exception );
+			log.error( "Unable to delete settings file: " + folder, exception );
 		}
 	}
 
 	@Override
 	public String toString() {
-		return file.toString();
+		return folder.toString();
 	}
 
 	private void load() {
@@ -224,7 +242,7 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	private File getFile() {
-		return new File( file, "settings" + SETTINGS_EXTENSION );
+		return new File( folder, "settings" + SETTINGS_EXTENSION );
 	}
 
 	private class SaveTask extends TimerTask {

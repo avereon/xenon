@@ -1,8 +1,16 @@
 package com.xeomar.xenon.settings;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface Settings {
+
+	/**
+	 * Get the name of the settings node.
+	 *
+	 * @return The name of the settings node
+	 */
+	String getName();
 
 	/**
 	 * Get the absolute path of the settings node.
@@ -46,8 +54,16 @@ public interface Settings {
 	String[] getNodes();
 
 	/**
+	 * Get the value keys for this settings node.
+	 *
+	 * @return The value keys for this settings node
+	 */
+	Set<String> getKeys();
+
+	/**
 	 * Set a value in the settings object.
-	 *  @param key The value key
+	 *
+	 * @param key The value key
 	 * @param value The value
 	 */
 	void set( String key, Object value );
@@ -126,5 +142,14 @@ public interface Settings {
 	 * Delete this settings node.
 	 */
 	void delete();
+
+	@SuppressWarnings( "unused" )
+	static void print( Settings settings ) {
+		System.out.println( "settings( " + settings.getPath() + " ) {" );
+		for( String key : settings.getKeys() ) {
+			System.out.println( "  " + key + " = " + settings.get( key ) );
+		}
+		System.out.println( "}" );
+	}
 
 }
