@@ -9,8 +9,9 @@
 image: xeomar/jdk-8-144-jfx-maven-3.5.0
 
 pipelines:
-  default: # replace `default` level with levels `branches.master` or any other branch to limit builds to that branch
-           # limiting builds to a branch allows you to dev on another branch, commit+push often, and not chew through your build minutes
+  # replace `default` level with levels `branches.master` or any other branch to limit builds to that branch
+  # limiting builds to a branch allows you to dev on another branch, commit+push often, and not chew through your build minutes
+  branches.master:
     - step:
         caches:
           - maven
