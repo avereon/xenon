@@ -38,6 +38,18 @@ public interface Settings {
 	Settings getNode( String path );
 
 	/**
+	 * Get a settings object for the specified parent path and name. If the path starts with the separator character then the path is absolute. If the path does not start with the separator character then the path is relative to this settings
+	 * node.
+	 * <p>
+	 * Multiple requests from the same settings tree using the same path return the same settings object.
+	 *
+	 * @param parent The parent path
+	 * @param name The node name
+	 * @return The settings object for the path
+	 */
+	Settings getNode( String parent, String name );
+
+	/**
 	 * Get a settings object for the specified path according to {@link #getNode(String)} with the specified values.
 	 *
 	 * @param path The requested path

@@ -22,8 +22,6 @@ public class Workarea implements Configurable {
 
 	private static final Logger log = LoggerFactory.getLogger( Workarea.class );
 
-	private String id;
-
 	private StringProperty name = new SimpleStringProperty();
 
 	private BooleanProperty active = new SimpleBooleanProperty();
@@ -44,82 +42,8 @@ public class Workarea implements Configurable {
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
 
 		workpane = new Workpane();
-		// NEXT Add settings to the default view and edges...?
+
 		workpane.addWorkpaneListener( new WorkpaneWatcher() );
-	}
-
-	private class WorkpaneWatcher implements WorkpaneListener {
-
-		@Override
-		public void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
-			// FIXME I really don't like all of this in an event listener
-			log.warn( "Workpane event: {}", event );
-			switch( event.getType() ) {
-				case EDGE_ADDED: {
-					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
-					WorkpaneEdge edge = edgeEvent.getEdge();
-					if( edge.getSettings() != null ) return;
-
-					String id = IdGenerator.getId();
-					Settings settings = Workarea.this.settings.getNode( ProgramSettings.EDGE ).getNode( id );
-					settings.set( "position", edgeEvent.getPosition() );
-					settings.set( UiManager.PARENT_WORKPANE_ID, edgeEvent.getEdge().getWorkpane().getSettings().getName() );
-					switch( edge.getOrientation() ) {
-						case VERTICAL: {
-							settings.set( "t", getEdgeId( edge.getEdge( Side.TOP ) ) );
-							settings.set( "b", getEdgeId( edge.getEdge( Side.BOTTOM ) ) );
-							break;
-						}
-						case HORIZONTAL: {
-							settings.set( "l", getEdgeId( edge.getEdge( Side.LEFT ) ) );
-							settings.set( "r", getEdgeId( edge.getEdge( Side.RIGHT ) ) );
-							break;
-						}
-					}
-
-					edgeEvent.getEdge().setSettings( settings );
-					break;
-				}
-				case EDGE_REMOVED: {
-					((WorkpaneEdgeEvent)event).getEdge().getSettings().delete();
-					break;
-				}
-				case VIEW_ADDED: {
-					WorkpaneViewEvent viewEvent = (WorkpaneViewEvent)event;
-					WorkpaneView view = viewEvent.getView();
-					if( view.getSettings() != null ) return;
-
-					String id = IdGenerator.getId();
-					Settings settings = Workarea.this.settings.getNode( ProgramSettings.VIEW ).getNode( id );
-					settings.set( "t", getEdgeId( view.getEdge( Side.TOP ) ) );
-					settings.set( "l", getEdgeId( view.getEdge( Side.LEFT ) ) );
-					settings.set( "r", getEdgeId( view.getEdge( Side.RIGHT ) ) );
-					settings.set( "b", getEdgeId( view.getEdge( Side.BOTTOM ) ) );
-					settings.set( UiManager.PARENT_WORKPANE_ID, viewEvent.getView().getWorkpane().getSettings().getName() );
-
-					view.setSettings( settings );
-					break;
-				}
-				case VIEW_REMOVED: {
-					break;
-				}
-			}
-		}
-
-		private String getEdgeId( WorkpaneEdge edge ) {
-			String id = null;
-			Settings settings = edge.getSettings();
-
-			if( settings != null ) return settings.getName();
-			if( edge.isWall() ) return edge.getWorkpane().getWallEdgeSide( edge ).name().toLowerCase();
-
-			return id;
-		}
-
-	}
-
-	public String getId() {
-		return id;
 	}
 
 	public String getName() {
@@ -186,9 +110,10 @@ public class Workarea implements Configurable {
 
 		this.settings = settings;
 
-		id = settings.get( "id" );
 		setName( settings.get( "name" ) );
 		setActive( settings.getBoolean( "active", false ) );
+
+		createViewSettings( workpane.getDefaultView() );
 	}
 
 	@Override
@@ -206,6 +131,66 @@ public class Workarea implements Configurable {
 		for( PropertyChangeListener listener : propertyChangeListeners ) {
 			listener.propertyChange( event );
 		}
+	}
+
+	private void createEdgeSettings( WorkpaneEdge edge ) {
+		Settings settings = Workarea.this.settings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
+		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+		settings.set( "position", edge.getPosition() );
+		switch( edge.getOrientation() ) {
+			case VERTICAL: {
+				settings.set( "t", edge.getEdge( Side.TOP ).getEdgeId() );
+				settings.set( "b", edge.getEdge( Side.BOTTOM ).getEdgeId() );
+				break;
+			}
+			case HORIZONTAL: {
+				settings.set( "l", edge.getEdge( Side.LEFT ).getEdgeId() );
+				settings.set( "r", edge.getEdge( Side.RIGHT ).getEdgeId() );
+				break;
+			}
+		}
+		edge.setSettings( settings );
+	}
+
+	private void createViewSettings( WorkpaneView view ) {
+		Settings settings = Workarea.this.settings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
+		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+		settings.set( "t", view.getEdge( Side.TOP ).getEdgeId() );
+		settings.set( "l", view.getEdge( Side.LEFT ).getEdgeId() );
+		settings.set( "r", view.getEdge( Side.RIGHT ).getEdgeId() );
+		settings.set( "b", view.getEdge( Side.BOTTOM ).getEdgeId() );
+		view.setSettings( settings );
+	}
+
+	private class WorkpaneWatcher implements WorkpaneListener {
+
+		@Override
+		public void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
+			switch( event.getType() ) {
+				case EDGE_ADDED: {
+					WorkpaneEdgeEvent edgeEvent = (WorkpaneEdgeEvent)event;
+					WorkpaneEdge edge = edgeEvent.getEdge();
+					if( edge.getSettings() != null ) return;
+					createEdgeSettings( edge );
+					break;
+				}
+				case EDGE_REMOVED: {
+					((WorkpaneEdgeEvent)event).getEdge().getSettings().delete();
+					break;
+				}
+				case VIEW_ADDED: {
+					WorkpaneViewEvent viewEvent = (WorkpaneViewEvent)event;
+					WorkpaneView view = viewEvent.getView();
+					if( view.getSettings() != null ) return;
+					createViewSettings( view );
+					break;
+				}
+				case VIEW_REMOVED: {
+					break;
+				}
+			}
+		}
+
 	}
 
 }

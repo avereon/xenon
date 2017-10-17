@@ -30,58 +30,55 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	private ObjectProperty<Orientation> orientation;
 
-	WorkpaneEdge northEdge;
+	WorkpaneEdge topEdge;
 
-	WorkpaneEdge southEdge;
+	WorkpaneEdge bottomEdge;
 
-	WorkpaneEdge westEdge;
+	WorkpaneEdge leftEdge;
 
-	WorkpaneEdge eastEdge;
+	WorkpaneEdge rightEdge;
 
-	Set<WorkpaneView> northViews;
+	Set<WorkpaneView> topViews;
 
-	Set<WorkpaneView> southViews;
+	Set<WorkpaneView> bottomViews;
 
-	Set<WorkpaneView> westViews;
+	Set<WorkpaneView> leftViews;
 
-	Set<WorkpaneView> eastViews;
+	Set<WorkpaneView> rightViews;
 
 	/**
-	 * <p>Represents the location where the divider should ideally be
-	 * positioned, between 0.0 and 1.0 (inclusive) when the position is
-	 * relative. 0.0 represents the left- or top-most point, and 1.0 represents
-	 * the right- or bottom-most point (depending on the orientation property).
+	 * <p>Represents the location where the divider should ideally be positioned, between 0.0 and 1.0 (inclusive) when the position is relative. 0.0 represents the left- or top-most point, and 1.0 represents the right- or bottom-most point
+	 * (depending on the orientation property).
 	 * <p>
-	 * <p>As the user drags the edge around this property will be updated to
-	 * always represent its current location.
+	 * <p>As the user drags the edge around this property will be updated to always represent its current location.
 	 */
 	private DoubleProperty position;
 
 	private boolean absolute;
 
-	private boolean wall;
+	private Side side;
 
 	private Workpane parent;
 
 	private Settings settings;
 
 	public WorkpaneEdge( Orientation orientation ) {
-		this( orientation, false );
+		this( orientation, null );
 	}
 
-	public WorkpaneEdge( Orientation orientation, boolean wall ) {
+	public WorkpaneEdge( Orientation orientation, Side side ) {
 		getStyleClass().add( "workpane-edge" );
 		setOrientation( orientation );
 		setPosition( 0 );
-		this.wall = wall;
+		this.side = side;
 
 		// Create the view lists.
 		Set<WorkpaneView> viewsA = new CopyOnWriteArraySet<>();
 		Set<WorkpaneView> viewsB = new CopyOnWriteArraySet<>();
-		northViews = viewsA;
-		southViews = viewsB;
-		westViews = viewsA;
-		eastViews = viewsB;
+		topViews = viewsA;
+		bottomViews = viewsB;
+		leftViews = viewsA;
+		rightViews = viewsB;
 
 		// Register the mouse handlers
 		onMouseDraggedProperty().set( this::mouseDragged );
@@ -93,14 +90,16 @@ public class WorkpaneEdge extends Control implements Configurable {
 	}
 
 	public final boolean isWall() {
-		return wall;
+		return side != null;
+	}
+
+	public String getEdgeId() {
+		return side == null ? settings.getName() : side.name().toLowerCase();
 	}
 
 	/**
-	 * <p>This property controls how the WorkpaneEdge should be displayed to the
-	 * user. {@link javafx.geometry.Orientation#HORIZONTAL} will result in
-	 * a horizontal divider, while {@link javafx.geometry.Orientation#VERTICAL}
-	 * will result in a vertical divider.</p>
+	 * <p>This property controls how the WorkpaneEdge should be displayed to the user. {@link javafx.geometry.Orientation#HORIZONTAL} will result in a horizontal divider, while {@link javafx.geometry.Orientation#VERTICAL} will result in a
+	 * vertical divider.</p>
 	 *
 	 * @param value the orientation value
 	 */
@@ -159,7 +158,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	public final void setPosition( double value ) {
 		positionProperty().set( value );
-		if( settings != null ) settings.set("position", value );
+		if( settings != null ) settings.set( "position", value );
 	}
 
 	public final DoubleProperty positionProperty() {
@@ -179,16 +178,16 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 		switch( direction ) {
 			case TOP: {
-				return northEdge;
+				return topEdge;
 			}
 			case BOTTOM: {
-				return southEdge;
+				return bottomEdge;
 			}
 			case LEFT: {
-				return westEdge;
+				return leftEdge;
 			}
 			case RIGHT: {
-				return eastEdge;
+				return rightEdge;
 			}
 		}
 
@@ -198,19 +197,23 @@ public class WorkpaneEdge extends Control implements Configurable {
 	public void setEdge( Side direction, WorkpaneEdge edge ) {
 		switch( direction ) {
 			case TOP: {
-				northEdge = edge;
-				break;
-			}
-			case BOTTOM: {
-				southEdge = edge;
+				topEdge = edge;
+				if( settings != null ) settings.set( "t", edge.getEdgeId() );
 				break;
 			}
 			case LEFT: {
-				westEdge = edge;
+				leftEdge = edge;
+				if( settings != null ) settings.set( "l", edge.getEdgeId() );
 				break;
 			}
 			case RIGHT: {
-				eastEdge = edge;
+				rightEdge = edge;
+				if( settings != null ) settings.set( "r", edge.getEdgeId() );
+				break;
+			}
+			case BOTTOM: {
+				bottomEdge = edge;
+				if( settings != null ) settings.set( "b", edge.getEdgeId() );
 				break;
 			}
 		}
@@ -219,16 +222,16 @@ public class WorkpaneEdge extends Control implements Configurable {
 	public Set<WorkpaneView> getViews( Side direction ) {
 		switch( direction ) {
 			case TOP: {
-				return northViews;
-			}
-			case BOTTOM: {
-				return southViews;
+				return topViews;
 			}
 			case LEFT: {
-				return westViews;
+				return leftViews;
 			}
 			case RIGHT: {
-				return eastViews;
+				return rightViews;
+			}
+			case BOTTOM: {
+				return bottomViews;
 			}
 		}
 
@@ -239,8 +242,13 @@ public class WorkpaneEdge extends Control implements Configurable {
 	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 		this.settings = settings;
+
+		// Restore state from settings if available
+		if( settings.get( "position" ) != null ) setPosition( settings.getDouble( "position" ) );
+
+		// Store state from settings
 		settings.set( "orientation", getOrientation().name().toLowerCase() );
-		setPosition( settings.getDouble( "position" ) );
+		settings.set( "position", getPosition() );
 	}
 
 	@Override

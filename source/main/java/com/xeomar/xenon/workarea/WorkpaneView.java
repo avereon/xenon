@@ -15,13 +15,13 @@ import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
 
-	WorkpaneEdge northEdge;
+	WorkpaneEdge topEdge;
 
-	WorkpaneEdge southEdge;
+	WorkpaneEdge leftEdge;
 
-	WorkpaneEdge westEdge;
+	WorkpaneEdge rightEdge;
 
-	WorkpaneEdge eastEdge;
+	WorkpaneEdge bottomEdge;
 
 	private Workpane.Placement placement;
 
@@ -121,8 +121,6 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public void setActiveTool( Tool tool ) {
 		if( tool == activeTool ) return;
 
-		Workpane pane = getWorkpane();
-
 		if( activeTool != null ) {
 			if( activeTool.isDisplayed() ) activeTool.callConceal();
 		}
@@ -162,16 +160,16 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		switch( direction ) {
 			case TOP: {
-				return northEdge;
-			}
-			case BOTTOM: {
-				return southEdge;
+				return topEdge;
 			}
 			case LEFT: {
-				return westEdge;
+				return leftEdge;
 			}
 			case RIGHT: {
-				return eastEdge;
+				return rightEdge;
+			}
+			case BOTTOM: {
+				return bottomEdge;
 			}
 		}
 
@@ -181,23 +179,29 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public void setEdge( Side direction, WorkpaneEdge edge ) {
 		switch( direction ) {
 			case TOP: {
-				northEdge = edge;
-				northEdge.southViews.add( this );
-				break;
-			}
-			case BOTTOM: {
-				southEdge = edge;
-				southEdge.northViews.add( this );
+				topEdge = edge;
+				topEdge.bottomViews.add( this );
+				if( settings != null ) settings.set( "t", edge.getEdgeId() );
 				break;
 			}
 			case LEFT: {
-				westEdge = edge;
-				westEdge.eastViews.add( this );
+				leftEdge = edge;
+				leftEdge.rightViews.add( this );
+				// NEXT FIXME The setting is not being persisted
+				System.out.println( "Setting left edge: " + edge.getEdgeId() );
+				if( settings != null ) settings.set( "l", edge.getEdgeId() );
 				break;
 			}
 			case RIGHT: {
-				eastEdge = edge;
-				eastEdge.westViews.add( this );
+				rightEdge = edge;
+				rightEdge.leftViews.add( this );
+				if( settings != null ) settings.set( "r", edge.getEdgeId() );
+				break;
+			}
+			case BOTTOM: {
+				bottomEdge = edge;
+				bottomEdge.topViews.add( this );
+				if( settings != null ) settings.set( "b", edge.getEdgeId() );
 				break;
 			}
 		}
@@ -213,11 +217,11 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public double getCenter( Orientation orientation ) {
 		switch( orientation ) {
-			case HORIZONTAL: {
-				return (westEdge.getPosition() + eastEdge.getPosition()) / 2;
-			}
 			case VERTICAL: {
-				return (northEdge.getPosition() + southEdge.getPosition()) / 2;
+				return (topEdge.getPosition() + bottomEdge.getPosition()) / 2;
+			}
+			case HORIZONTAL: {
+				return (leftEdge.getPosition() + rightEdge.getPosition()) / 2;
 			}
 		}
 

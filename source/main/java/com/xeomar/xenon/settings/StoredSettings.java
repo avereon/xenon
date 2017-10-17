@@ -98,7 +98,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public Settings getNode( String path ) {
-		return getNode( path, null );
+		return getNode( path, (Map<String,String>)null );
 	}
 
 	@Override
