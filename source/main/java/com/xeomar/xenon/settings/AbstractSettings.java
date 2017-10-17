@@ -15,13 +15,16 @@ public abstract class AbstractSettings implements Settings {
 	}
 
 	@Override
-	@Deprecated
+	public Settings getNode( String parent, String name ) {
+		return getNode( Paths.resolve( parent, name ));
+	}
+
+	@Override
 	public Boolean getBoolean( String key ) {
 		return getBoolean( key, null );
 	}
 
 	@Override
-	@Deprecated
 	public Boolean getBoolean( String key, Boolean defaultValue ) {
 		String value = get( key );
 		if( value == null ) return defaultValue;
@@ -33,13 +36,11 @@ public abstract class AbstractSettings implements Settings {
 	}
 
 	@Override
-	@Deprecated
 	public Integer getInteger( String key ) {
 		return getInteger( key, null );
 	}
 
 	@Override
-	@Deprecated
 	public Integer getInteger( String key, Integer defaultValue ) {
 		String value = get( key );
 		if( value == null ) return defaultValue;
@@ -51,13 +52,11 @@ public abstract class AbstractSettings implements Settings {
 	}
 
 	@Override
-	@Deprecated
 	public Long getLong( String key ) {
 		return getLong( key, null );
 	}
 
 	@Override
-	@Deprecated
 	public Long getLong( String key, Long defaultValue ) {
 		String value = get( key );
 		if( value == null ) return defaultValue;
@@ -69,13 +68,11 @@ public abstract class AbstractSettings implements Settings {
 	}
 
 	@Override
-	@Deprecated
 	public Float getFloat( String key ) {
 		return getFloat( key, null );
 	}
 
 	@Override
-	@Deprecated
 	public Float getFloat( String key, Float defaultValue ) {
 		String value = get( key );
 		if( value == null ) return defaultValue;
@@ -87,13 +84,11 @@ public abstract class AbstractSettings implements Settings {
 	}
 
 	@Override
-	@Deprecated
 	public Double getDouble( String key ) {
 		return getDouble( key, null );
 	}
 
 	@Override
-	@Deprecated
 	public Double getDouble( String key, Double defaultValue ) {
 		String value = get( key );
 		if( value == null ) return defaultValue;
@@ -114,13 +109,13 @@ public abstract class AbstractSettings implements Settings {
 		listeners.remove( listener );
 	}
 
-	protected void fireEvent( SettingsEvent event ) {
+	void fireEvent( SettingsEvent event ) {
 		for( SettingsListener listener : new HashSet<>( listeners ) ) {
 			listener.settingsEvent( event );
 		}
 	}
 
-	protected String getNodePath( String root, String path ) {
+	String getNodePath( String root, String path ) {
 		// Resolve the path
 		String nodePath = Paths.isAbsolute( path ) ? path : Paths.resolve( root, path );
 

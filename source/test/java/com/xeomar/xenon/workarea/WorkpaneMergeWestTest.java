@@ -114,10 +114,10 @@ public class WorkpaneMergeWestTest extends WorkpaneTestCase {
 		assertThat( workpane.getActiveView(), is( east ) );
 		assertThat( east.getTools().size(), is( 2 ) );
 
-		assertThat( east.northEdge.getPosition(), is( 0d ) );
-		assertThat( east.southEdge.getPosition(), is( 1d ) );
-		assertThat( east.westEdge.getPosition(), is( 0d ) );
-		assertThat( east.eastEdge.getPosition(), is( 1d ) );
+		assertThat( east.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( east.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( east.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( east.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 
 		assertEquals( east.getBoundsInLocal(), workpane.getBoundsInLocal() );
 	}
@@ -154,18 +154,18 @@ public class WorkpaneMergeWestTest extends WorkpaneTestCase {
 		assertThat( workpane.getViews(), hasItem( northeast ) );
 		assertThat( workpane.getViews(), hasItem( southeast ) );
 
-		assertEquals( northeast.northEdge, workpane.getWallEdge( Side.TOP ) );
-		assertEquals( northeast.southEdge, southeast.northEdge );
-		assertEquals( northeast.westEdge, workpane.getWallEdge( Side.LEFT ) );
-		assertEquals( northeast.eastEdge, workpane.getWallEdge( Side.RIGHT ) );
+		assertEquals( northeast.getEdge( Side.TOP ), workpane.getWallEdge( Side.TOP ) );
+		assertEquals( northeast.getEdge( Side.BOTTOM ), southeast.getEdge( Side.TOP ) );
+		assertEquals( northeast.getEdge( Side.LEFT ), workpane.getWallEdge( Side.LEFT ) );
+		assertEquals( northeast.getEdge( Side.RIGHT ), workpane.getWallEdge( Side.RIGHT ) );
 
-		assertEquals( southeast.northEdge, northeast.southEdge );
-		assertEquals( southeast.southEdge, workpane.getWallEdge( Side.BOTTOM ) );
-		assertEquals( southeast.westEdge, workpane.getWallEdge( Side.LEFT ) );
-		assertEquals( southeast.eastEdge, workpane.getWallEdge( Side.RIGHT ) );
+		assertEquals( southeast.getEdge( Side.TOP ), northeast.getEdge( Side.BOTTOM ) );
+		assertEquals( southeast.getEdge( Side.BOTTOM ), workpane.getWallEdge( Side.BOTTOM ) );
+		assertEquals( southeast.getEdge( Side.LEFT ), workpane.getWallEdge( Side.LEFT ) );
+		assertEquals( southeast.getEdge( Side.RIGHT ), workpane.getWallEdge( Side.RIGHT ) );
 
-		assertEquals( northeast.southEdge.westEdge, workpane.getWallEdge( Side.LEFT ) );
-		assertEquals( northeast.southEdge.eastEdge, workpane.getWallEdge( Side.RIGHT ) );
+		assertEquals( northeast.getEdge( Side.BOTTOM ).getEdge( Side.LEFT ), workpane.getWallEdge( Side.LEFT ) );
+		assertEquals( northeast.getEdge( Side.BOTTOM ).getEdge( Side.RIGHT ), workpane.getWallEdge( Side.RIGHT ) );
 	}
 
 	@Test
@@ -184,18 +184,18 @@ public class WorkpaneMergeWestTest extends WorkpaneTestCase {
 		assertThat( workpane.getViews(), hasItem( northeast ) );
 		assertThat( workpane.getViews(), hasItem( southeast ) );
 
-		assertEquals( northeast.northEdge, workpane.getWallEdge( Side.TOP ) );
-		assertEquals( northeast.southEdge, southeast.northEdge );
-		assertEquals( northeast.westEdge, workpane.getWallEdge( Side.LEFT ) );
-		assertEquals( northeast.eastEdge, workpane.getWallEdge( Side.RIGHT ) );
+		assertEquals( northeast.getEdge( Side.TOP ), workpane.getWallEdge( Side.TOP ) );
+		assertEquals( northeast.getEdge( Side.BOTTOM ), southeast.getEdge( Side.TOP ) );
+		assertEquals( northeast.getEdge( Side.LEFT ), workpane.getWallEdge( Side.LEFT ) );
+		assertEquals( northeast.getEdge( Side.RIGHT ), workpane.getWallEdge( Side.RIGHT ) );
 
-		assertEquals( southeast.northEdge, northeast.southEdge );
-		assertEquals( southeast.southEdge, workpane.getWallEdge( Side.BOTTOM ) );
-		assertEquals( southeast.westEdge, workpane.getWallEdge( Side.LEFT ) );
-		assertEquals( southeast.eastEdge, workpane.getWallEdge( Side.RIGHT ) );
+		assertEquals( southeast.getEdge( Side.TOP ), northeast.getEdge( Side.BOTTOM ) );
+		assertEquals( southeast.getEdge( Side.BOTTOM ), workpane.getWallEdge( Side.BOTTOM ) );
+		assertEquals( southeast.getEdge( Side.LEFT ), workpane.getWallEdge( Side.LEFT ) );
+		assertEquals( southeast.getEdge( Side.RIGHT ), workpane.getWallEdge( Side.RIGHT ) );
 
-		assertEquals( northeast.southEdge.westEdge, workpane.getWallEdge( Side.LEFT ) );
-		assertEquals( northeast.southEdge.eastEdge, workpane.getWallEdge( Side.RIGHT ) );
+		assertEquals( northeast.getEdge( Side.BOTTOM ).getEdge( Side.LEFT ), workpane.getWallEdge( Side.LEFT ) );
+		assertEquals( northeast.getEdge( Side.BOTTOM ).getEdge( Side.RIGHT ), workpane.getWallEdge( Side.RIGHT ) );
 	}
 
 	@Test
