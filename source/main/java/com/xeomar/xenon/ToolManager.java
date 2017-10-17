@@ -111,7 +111,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		// If the instance mode is SINGLETON, check for an existing tool in the workpane
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolOfClassInPane( pane, toolClass );
 		boolean alreadyExists = tool != null;
-		if( !alreadyExists ) tool = getToolInstance( toolClass, resource );
+		if( !alreadyExists ) {
+			tool = getToolInstance( toolClass, resource );
+			createToolSettings( tool );
+		}
 
 		// Verify there is a tool to use
 		if( tool == null ) {
@@ -138,6 +141,28 @@ public class ToolManager implements Controllable<ToolManager> {
 		} else {
 			Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, setActive ) );
 		}
+	}
+
+	public ProductTool restoreTool( String toolClassName, Resource resource ) {
+		// Run this class by the alias map
+		toolClassName = getToolClassName( toolClassName );
+
+		// Find the registered tool type metadata
+		ToolMetadata toolMetadata = null;
+		for( ToolMetadata metadata : toolClassMetadata.values() ) {
+			if( metadata.getType().getName().equals( toolClassName ) ) {
+				toolMetadata = metadata;
+				break;
+			}
+		}
+
+		// Check for unregistered tool type
+		if( toolMetadata == null ) {
+			log.error( "Tool class not registered: " + toolClassName );
+			return null;
+		}
+
+		return getToolInstance(  toolMetadata.getType(), resource );
 	}
 
 	private ToolInstanceMode getToolInstanceMode( Class<? extends ProductTool> toolClass ) {
@@ -239,6 +264,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Get the tool for the type
 		Class<? extends ProductTool> toolClass = typeTools.get( 0 );
 		ProductTool tool = getToolInstance( toolClass, resource );
+		createToolSettings( tool );
 
 		if( tool == null ) {
 			log.warn( "Tool not found for resource: {}", resource );
@@ -254,6 +280,13 @@ public class ToolManager implements Controllable<ToolManager> {
 		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
 	}
 
+	private void createToolSettings( ProductTool tool ) {
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, IdGenerator.getId() );
+		settings.set( "type", tool.getClass().getName() );
+		settings.set( "uri", tool.getResource().getUri() );
+		tool.setSettings( settings );
+	}
+
 	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource ) {
 		if( !isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
 
@@ -263,12 +296,6 @@ public class ToolManager implements Controllable<ToolManager> {
 			Product product = toolClassMetadata.get( type ).getProduct();
 			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			ProductTool tool = constructor.newInstance( product, resource );
-
-			// Set the tool settings
-			String id = IdGenerator.getId();
-			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-			settings.set( "id", id );
-			tool.setSettings( settings );
 
 			// Wait for the resource to be "ready", then notify the tool
 			// The getToolInstance() method should have been called from a Callable

@@ -394,6 +394,7 @@ public class UiManager {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
 
 			WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
+			String toolType = settings.get( "type" );
 			String uri = settings.get( "uri" );
 
 			// If the view is not found, then the tool is orphaned...delete the settings
@@ -403,12 +404,15 @@ public class UiManager {
 				return null;
 			}
 
-			// Determine and load the resource
+			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
-			program.getResourceManager().loadResources( resource );
 
-			ProductTool tool = program.getToolManager().getTool( resource );
+			// Restore the tool
+			ProductTool tool = program.getToolManager().restoreTool( toolType, resource );
 			tool.setSettings( settings );
+
+			// Load the resource after the tool is created
+			program.getResourceManager().loadResources( resource );
 
 			tools.put( id, tool );
 			viewTools.put( view, tool );

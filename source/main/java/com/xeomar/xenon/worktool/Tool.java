@@ -60,8 +60,6 @@ public abstract class Tool extends Control implements Configurable {
 
 	private Settings settings;
 
-	private String id;
-
 	public Tool( Resource resource ) {
 		this( resource, null );
 	}
@@ -213,7 +211,6 @@ public abstract class Tool extends Control implements Configurable {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
-		id = settings.get( "id" );
 	}
 
 	public Settings getSettings(){
