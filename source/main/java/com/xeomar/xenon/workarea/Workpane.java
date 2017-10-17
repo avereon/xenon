@@ -1,6 +1,9 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.xenon.IdGenerator;
 import com.xeomar.xenon.LogUtil;
+import com.xeomar.xenon.ProgramSettings;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.worktool.CloseOperation;
@@ -318,6 +321,8 @@ public class Workpane extends Pane implements Configurable {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
+
+		createViewSettings( getDefaultView() );
 	}
 
 	@Override
@@ -506,6 +511,8 @@ public class Workpane extends Pane implements Configurable {
 			view.setEdge( Side.LEFT, null );
 			view.setEdge( Side.RIGHT, null );
 
+			if( view.getSettings() != null ) view.getSettings().delete();
+
 			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_REMOVED, this, view ) );
 		} finally {
 			finishOperation( true );
@@ -558,6 +565,8 @@ public class Workpane extends Pane implements Configurable {
 
 		getChildren().remove( edge );
 		edge.setWorkpane( null );
+		if( edge.getSettings() != null ) edge.getSettings().delete();
+
 		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_REMOVED, this, edge, edge.getPosition() ) );
 
 		return edge;
@@ -1669,9 +1678,11 @@ public class Workpane extends Pane implements Configurable {
 
 	private WorkpaneView newTopView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
+		createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
+		createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -1739,9 +1750,11 @@ public class Workpane extends Pane implements Configurable {
 	private WorkpaneView newLeftView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
+		createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
+		createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1802,9 +1815,11 @@ public class Workpane extends Pane implements Configurable {
 	private WorkpaneView newRightView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
+		createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
+		createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1871,9 +1886,11 @@ public class Workpane extends Pane implements Configurable {
 
 	private WorkpaneView newBottomView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
+		createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
+		createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -1971,6 +1988,35 @@ public class Workpane extends Pane implements Configurable {
 		}
 
 		return null;
+	}
+
+	private void createEdgeSettings( WorkpaneEdge edge ) {
+		Settings settings = getSettings().getNode( ProgramSettings.EDGE, IdGenerator.getId() );
+		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+//		settings.set( "position", edge.getPosition() );
+//		switch( edge.getOrientation() ) {
+//			case VERTICAL: {
+//				settings.set( "t", edge.getEdge( Side.TOP ).getEdgeId() );
+//				settings.set( "b", edge.getEdge( Side.BOTTOM ).getEdgeId() );
+//				break;
+//			}
+//			case HORIZONTAL: {
+//				settings.set( "l", edge.getEdge( Side.LEFT ).getEdgeId() );
+//				settings.set( "r", edge.getEdge( Side.RIGHT ).getEdgeId() );
+//				break;
+//			}
+//		}
+		edge.setSettings( settings );
+	}
+
+	private void createViewSettings( WorkpaneView view ) {
+		Settings settings = getSettings().getNode( ProgramSettings.VIEW, IdGenerator.getId() );
+		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+//		settings.set( "t", view.getEdge( Side.TOP ).getEdgeId() );
+//		settings.set( "l", view.getEdge( Side.LEFT ).getEdgeId() );
+//		settings.set( "r", view.getEdge( Side.RIGHT ).getEdgeId() );
+//		settings.set( "b", view.getEdge( Side.BOTTOM ).getEdgeId() );
+		view.setSettings( settings );
 	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {

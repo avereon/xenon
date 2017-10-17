@@ -188,6 +188,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 				leftEdge = edge;
 				if( edge != null ) edge.rightViews.add( this );
 				if( settings != null ) settings.set( "l", edge == null ? null : edge.getEdgeId() );
+				System.out.println( "Set view side " + direction + " = " + edge );
 				break;
 			}
 			case RIGHT: {
