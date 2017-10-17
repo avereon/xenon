@@ -94,7 +94,9 @@ public class WorkpaneEdge extends Control implements Configurable {
 	}
 
 	public String getEdgeId() {
-		return side == null ? settings.getName() : side.name().toLowerCase();
+		if( settings != null ) return settings.getName();
+		if( side != null ) return side.name().toLowerCase();
+		return null;
 	}
 
 	/**
