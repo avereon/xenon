@@ -1989,31 +1989,20 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	private void createEdgeSettings( WorkpaneEdge edge ) {
-		Settings settings = getSettings().getNode( ProgramSettings.EDGE, IdGenerator.getId() );
+		Settings paneSettings= getSettings();
+		if( paneSettings == null ) return;
+
+		Settings settings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
 		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
-		//		settings.set( "position", edge.getPosition() );
-		//		switch( edge.getOrientation() ) {
-		//			case VERTICAL: {
-		//				settings.set( "t", edge.getEdge( Side.TOP ).getEdgeId() );
-		//				settings.set( "b", edge.getEdge( Side.BOTTOM ).getEdgeId() );
-		//				break;
-		//			}
-		//			case HORIZONTAL: {
-		//				settings.set( "l", edge.getEdge( Side.LEFT ).getEdgeId() );
-		//				settings.set( "r", edge.getEdge( Side.RIGHT ).getEdgeId() );
-		//				break;
-		//			}
-		//		}
 		edge.setSettings( settings );
 	}
 
 	private void createViewSettings( WorkpaneView view ) {
-		Settings settings = getSettings().getNode( ProgramSettings.VIEW, IdGenerator.getId() );
+		Settings paneSettings= getSettings();
+		if( paneSettings == null ) return;
+
+		Settings settings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
 		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
-//		if( view.getEdge( Side.TOP ) != null ) settings.set( "t", view.getEdge( Side.TOP ).getEdgeId() );
-//		if( view.getEdge( Side.LEFT ) != null ) settings.set( "l", view.getEdge( Side.LEFT ).getEdgeId() );
-//		if( view.getEdge( Side.RIGHT ) != null ) settings.set( "r", view.getEdge( Side.RIGHT ).getEdgeId() );
-//		if( view.getEdge( Side.BOTTOM ) != null ) settings.set( "b", view.getEdge( Side.BOTTOM ).getEdgeId() );
 		view.setSettings( settings );
 	}
 
