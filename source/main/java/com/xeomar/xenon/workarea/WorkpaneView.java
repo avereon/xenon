@@ -15,13 +15,13 @@ import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
 
-	WorkpaneEdge topEdge;
+	private WorkpaneEdge topEdge;
 
-	WorkpaneEdge leftEdge;
+	private WorkpaneEdge leftEdge;
 
-	WorkpaneEdge rightEdge;
+	private WorkpaneEdge rightEdge;
 
-	WorkpaneEdge bottomEdge;
+	private WorkpaneEdge bottomEdge;
 
 	private Workpane.Placement placement;
 
@@ -180,28 +180,26 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		switch( direction ) {
 			case TOP: {
 				topEdge = edge;
-				topEdge.bottomViews.add( this );
-				if( settings != null ) settings.set( "t", edge.getEdgeId() );
+				if( edge != null ) edge.bottomViews.add( this );
+				if( settings != null ) settings.set( "t", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case LEFT: {
 				leftEdge = edge;
-				leftEdge.rightViews.add( this );
-				// NEXT FIXME The setting is not being persisted
-				//System.out.println( "Setting left edge: " + edge.getEdgeId() );
-				if( settings != null ) settings.set( "l", edge.getEdgeId() );
+				if( edge != null ) edge.rightViews.add( this );
+				if( settings != null ) settings.set( "l", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case RIGHT: {
 				rightEdge = edge;
-				rightEdge.leftViews.add( this );
-				if( settings != null ) settings.set( "r", edge.getEdgeId() );
+				if( edge != null ) edge.leftViews.add( this );
+				if( settings != null ) settings.set( "r", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case BOTTOM: {
 				bottomEdge = edge;
-				bottomEdge.topViews.add( this );
-				if( settings != null ) settings.set( "b", edge.getEdgeId() );
+				if( edge != null ) edge.topViews.add( this );
+				if( settings != null ) settings.set( "b", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 		}
