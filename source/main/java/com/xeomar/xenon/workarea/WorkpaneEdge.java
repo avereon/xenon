@@ -30,7 +30,8 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	private ObjectProperty<Orientation> orientation;
 
-	WorkpaneEdge topEdge;
+	// NEXT Make edges private
+	private WorkpaneEdge topEdge;
 
 	WorkpaneEdge bottomEdge;
 

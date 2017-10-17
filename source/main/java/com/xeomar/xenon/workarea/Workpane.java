@@ -49,13 +49,13 @@ public class Workpane extends Pane implements Configurable {
 
 	private static final Logger log = LogUtil.get( Workpane.class );
 
-	private WorkpaneEdge topEdge;
+	private WorkpaneEdge topWall;
 
-	private WorkpaneEdge leftEdge;
+	private WorkpaneEdge leftWall;
 
-	private WorkpaneEdge rightEdge;
+	private WorkpaneEdge rightWall;
 
-	private WorkpaneEdge bottomEdge;
+	private WorkpaneEdge bottomWall;
 
 	private DoubleProperty edgeSize;
 
@@ -92,43 +92,43 @@ public class Workpane extends Pane implements Configurable {
 		listeners = new CopyOnWriteArraySet<>();
 
 		// Create the wall edges
-		topEdge = new WorkpaneEdge( Orientation.HORIZONTAL, Side.TOP );
-		leftEdge = new WorkpaneEdge( Orientation.VERTICAL, Side.LEFT );
-		rightEdge = new WorkpaneEdge( Orientation.VERTICAL, Side.RIGHT );
-		bottomEdge = new WorkpaneEdge( Orientation.HORIZONTAL, Side.BOTTOM );
+		topWall = new WorkpaneEdge( Orientation.HORIZONTAL, Side.TOP );
+		leftWall = new WorkpaneEdge( Orientation.VERTICAL, Side.LEFT );
+		rightWall = new WorkpaneEdge( Orientation.VERTICAL, Side.RIGHT );
+		bottomWall = new WorkpaneEdge( Orientation.HORIZONTAL, Side.BOTTOM );
 
 		// Set the workpane on the edges
-		topEdge.setWorkpane( this );
-		leftEdge.setWorkpane( this );
-		rightEdge.setWorkpane( this );
-		bottomEdge.setWorkpane( this );
+		topWall.setWorkpane( this );
+		leftWall.setWorkpane( this );
+		rightWall.setWorkpane( this );
+		bottomWall.setWorkpane( this );
 
 		// Set the edge positions
-		topEdge.setPosition( 0 );
-		leftEdge.setPosition( 0 );
-		rightEdge.setPosition( 1 );
-		bottomEdge.setPosition( 1 );
+		topWall.setPosition( 0 );
+		leftWall.setPosition( 0 );
+		rightWall.setPosition( 1 );
+		bottomWall.setPosition( 1 );
 
 		// Add the edges to the workpane
-		getChildren().add( topEdge );
-		getChildren().add( leftEdge );
-		getChildren().add( rightEdge );
-		getChildren().add( bottomEdge );
+		getChildren().add( topWall );
+		getChildren().add( leftWall );
+		getChildren().add( rightWall );
+		getChildren().add( bottomWall );
 
 		// Create the initial view
 		WorkpaneView view = new WorkpaneView();
 
 		// Add the view to the wall edges
-		topEdge.bottomViews.add( view );
-		leftEdge.rightViews.add( view );
-		rightEdge.leftViews.add( view );
-		bottomEdge.topViews.add( view );
+		topWall.bottomViews.add( view );
+		leftWall.rightViews.add( view );
+		rightWall.leftViews.add( view );
+		bottomWall.topViews.add( view );
 
 		// Set the edges on the view
-		view.setEdge( Side.TOP, topEdge );
-		view.setEdge( Side.LEFT, leftEdge );
-		view.setEdge( Side.RIGHT, rightEdge );
-		view.setEdge( Side.BOTTOM, bottomEdge );
+		view.setEdge( Side.TOP, topWall );
+		view.setEdge( Side.LEFT, leftWall );
+		view.setEdge( Side.RIGHT, rightWall );
+		view.setEdge( Side.BOTTOM, bottomWall );
 
 		// Add the initial view
 		addView( view );
@@ -153,10 +153,10 @@ public class Workpane extends Pane implements Configurable {
 		for( Node node : getChildren() ) {
 			if( node instanceof WorkpaneEdge ) edges.add( (WorkpaneEdge)node );
 		}
-		edges.remove( topEdge );
-		edges.remove( bottomEdge );
-		edges.remove( leftEdge );
-		edges.remove( rightEdge );
+		edges.remove( topWall );
+		edges.remove( bottomWall );
+		edges.remove( leftWall );
+		edges.remove( rightWall );
 
 		return Collections.unmodifiableSet( edges );
 	}
@@ -517,16 +517,16 @@ public class Workpane extends Pane implements Configurable {
 	public WorkpaneEdge getWallEdge( Side direction ) {
 		switch( direction ) {
 			case TOP: {
-				return topEdge;
+				return topWall;
 			}
 			case BOTTOM: {
-				return bottomEdge;
+				return bottomWall;
 			}
 			case LEFT: {
-				return leftEdge;
+				return leftWall;
 			}
 			case RIGHT: {
-				return rightEdge;
+				return rightWall;
 			}
 		}
 
@@ -1087,11 +1087,11 @@ public class Workpane extends Pane implements Configurable {
 
 		if( edge.getOrientation() == Orientation.VERTICAL ) {
 			x = position * bounds.getWidth() - edgeHalf;
-			y = edge.topEdge == null ? 0 : edge.topEdge.getPosition() * bounds.getHeight();
+			y = edge.getEdge( Side.TOP ) == null ? 0 : edge.getEdge( Side.TOP ).getPosition() * bounds.getHeight();
 			w = edgeSize;
 			h = edge.bottomEdge == null ? 1 : edge.getEdge( Side.BOTTOM ).getPosition() * bounds.getHeight() - y;
 
-			double north = edge.topEdge == null ? 0 : edge.topEdge.isWall() ? 0 : edgeRest;
+			double north = edge.getEdge( Side.TOP ) == null ? 0 : edge.getEdge( Side.TOP ).isWall() ? 0 : edgeRest;
 			double south = edge.bottomEdge == null ? 0 : edge.getEdge( Side.BOTTOM ).isWall() ? 0 : edgeHalf;
 
 			y += north;
@@ -1473,7 +1473,7 @@ public class Workpane extends Pane implements Configurable {
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		return newTopView( null, leftEdge, rightEdge, percent );
+		return newTopView( null, leftWall, rightWall, percent );
 	}
 
 	/**
@@ -1487,7 +1487,7 @@ public class Workpane extends Pane implements Configurable {
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		return newBottomView( null, leftEdge, rightEdge, 1.0 - percent );
+		return newBottomView( null, leftWall, rightWall, 1.0 - percent );
 	}
 
 	/**
@@ -1501,7 +1501,7 @@ public class Workpane extends Pane implements Configurable {
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		return newLeftView( null, topEdge, bottomEdge, percent );
+		return newLeftView( null, topWall, bottomWall, percent );
 	}
 
 	/**
@@ -1515,7 +1515,7 @@ public class Workpane extends Pane implements Configurable {
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		return newRightView( null, topEdge, bottomEdge, 1.0 - percent );
+		return newRightView( null, topWall, bottomWall, 1.0 - percent );
 	}
 
 	/**
@@ -1600,8 +1600,8 @@ public class Workpane extends Pane implements Configurable {
 			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
 			WorkpaneView rightView = getDockedView( Placement.DOCK_RIGHT );
 
-			WorkpaneEdge leftEdge = leftView == null ? this.leftEdge : leftView.getEdge( Side.RIGHT );
-			WorkpaneEdge rightEdge = rightView == null ? this.rightEdge : rightView.getEdge( Side.LEFT );
+			WorkpaneEdge leftEdge = leftView == null ? this.leftWall : leftView.getEdge( Side.RIGHT );
+			WorkpaneEdge rightEdge = rightView == null ? this.rightWall : rightView.getEdge( Side.LEFT );
 
 			view = newTopView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
@@ -1619,8 +1619,8 @@ public class Workpane extends Pane implements Configurable {
 			WorkpaneView topView = getDockedView( Placement.DOCK_TOP );
 			WorkpaneView bottomView = getDockedView( Placement.DOCK_BOTTOM );
 
-			WorkpaneEdge topEdge = topView == null ? this.topEdge : topView.getEdge( Side.BOTTOM );
-			WorkpaneEdge bottomEdge = bottomView == null ? this.bottomEdge : bottomView.getEdge( Side.TOP );
+			WorkpaneEdge topEdge = topView == null ? this.topWall : topView.getEdge( Side.BOTTOM );
+			WorkpaneEdge bottomEdge = bottomView == null ? this.bottomWall : bottomView.getEdge( Side.TOP );
 
 			dockView = newLeftView( null, topEdge, bottomEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
@@ -1638,8 +1638,8 @@ public class Workpane extends Pane implements Configurable {
 			WorkpaneView topView = getDockedView( Placement.DOCK_TOP );
 			WorkpaneView bottomView = getDockedView( Placement.DOCK_BOTTOM );
 
-			WorkpaneEdge topEdge = topView == null ? this.topEdge : topView.getEdge( Side.BOTTOM );
-			WorkpaneEdge bottomEdge = bottomView == null ? this.bottomEdge : bottomView.getEdge( Side.TOP );
+			WorkpaneEdge topEdge = topView == null ? this.topWall : topView.getEdge( Side.BOTTOM );
+			WorkpaneEdge bottomEdge = bottomView == null ? this.bottomWall : bottomView.getEdge( Side.TOP );
 
 			newView = newRightView( null, topEdge, bottomEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
@@ -1658,8 +1658,8 @@ public class Workpane extends Pane implements Configurable {
 			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
 			WorkpaneView rightView = getDockedView( Placement.DOCK_RIGHT );
 
-			WorkpaneEdge leftEdge = leftView == null ? this.leftEdge : leftView.getEdge( Side.RIGHT );
-			WorkpaneEdge rightEdge = rightView == null ? this.rightEdge : rightView.getEdge( Side.LEFT );
+			WorkpaneEdge leftEdge = leftView == null ? this.leftWall : leftView.getEdge( Side.RIGHT );
+			WorkpaneEdge rightEdge = rightView == null ? this.rightWall : rightView.getEdge( Side.LEFT );
 
 			view = newBottomView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
 		}
@@ -1677,8 +1677,8 @@ public class Workpane extends Pane implements Configurable {
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
-			for( WorkpaneView view : topEdge.bottomViews ) {
-				topEdge.bottomViews.remove( view );
+			for( WorkpaneView view : topWall.bottomViews ) {
+				topWall.bottomViews.remove( view );
 				newEdge.bottomViews.add( view );
 				view.setEdge( Side.TOP, newEdge );
 			}
@@ -1689,7 +1689,7 @@ public class Workpane extends Pane implements Configurable {
 
 		// Connect the new view to old and new edges.
 		if( source == null ) {
-			newView.setEdge( Side.TOP, topEdge );
+			newView.setEdge( Side.TOP, topWall );
 			newView.setEdge( Side.BOTTOM, newEdge );
 			newView.setEdge( Side.LEFT, leftEdge );
 			newView.setEdge( Side.RIGHT, rightEdge );
@@ -1702,7 +1702,7 @@ public class Workpane extends Pane implements Configurable {
 
 		// Connect the old edges to the new view.
 		if( source == null ) {
-			topEdge.bottomViews.add( newView );
+			topWall.bottomViews.add( newView );
 			leftEdge.rightViews.add( newView );
 			rightEdge.leftViews.add( newView );
 		} else {
@@ -1715,8 +1715,8 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
-				if( edge.topEdge != topEdge ) continue;
-				edge.topEdge = newEdge;
+				if( edge.getEdge( Side.TOP ) != topWall ) continue;
+				edge.setEdge(Side.TOP, newEdge );
 			}
 		} else {
 			// Connect the old view to the new edge.
@@ -1742,13 +1742,13 @@ public class Workpane extends Pane implements Configurable {
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		newEdge.topEdge = topEdge;
+		newEdge.setEdge(Side.TOP, topEdge );
 		newEdge.bottomEdge = bottomEdge;
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
-			for( WorkpaneView view : leftEdge.rightViews ) {
-				leftEdge.rightViews.remove( view );
+			for( WorkpaneView view : leftWall.rightViews ) {
+				leftWall.rightViews.remove( view );
 				newEdge.rightViews.add( view );
 				view.setEdge( Side.LEFT, newEdge );
 			}
@@ -1760,14 +1760,14 @@ public class Workpane extends Pane implements Configurable {
 		// Connect the new view to old and new edges.
 		newView.setEdge( Side.TOP, topEdge );
 		newView.setEdge( Side.BOTTOM, bottomEdge );
-		newView.setEdge( Side.LEFT, source == null ? leftEdge : source.getEdge( Side.LEFT ) );
+		newView.setEdge( Side.LEFT, source == null ? leftWall : source.getEdge( Side.LEFT ) );
 		newView.setEdge( Side.RIGHT, newEdge );
 
 		// Connect the old edges to the new view.
 		if( source == null ) {
-			leftEdge.rightViews.add( newView );
-			this.topEdge.bottomViews.add( newView );
-			this.bottomEdge.topViews.add( newView );
+			leftWall.rightViews.add( newView );
+			this.topWall.bottomViews.add( newView );
+			this.bottomWall.topViews.add( newView );
 		} else {
 			source.getEdge( Side.LEFT ).rightViews.remove( source );
 			source.getEdge( Side.LEFT ).rightViews.add( newView );
@@ -1778,7 +1778,7 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
-				if( edge.leftEdge != leftEdge ) continue;
+				if( edge.leftEdge != leftWall ) continue;
 				edge.leftEdge = newEdge;
 			}
 		} else {
@@ -1805,13 +1805,13 @@ public class Workpane extends Pane implements Configurable {
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		newEdge.topEdge = topEdge;
+		newEdge.setEdge(Side.TOP, topEdge );
 		newEdge.bottomEdge = bottomEdge;
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
-			for( WorkpaneView view : rightEdge.leftViews ) {
-				rightEdge.leftViews.remove( view );
+			for( WorkpaneView view : rightWall.leftViews ) {
+				rightWall.leftViews.remove( view );
 				newEdge.leftViews.add( view );
 				view.setEdge( Side.RIGHT, newEdge );
 			}
@@ -1825,7 +1825,7 @@ public class Workpane extends Pane implements Configurable {
 			newView.setEdge( Side.TOP, topEdge );
 			newView.setEdge( Side.BOTTOM, bottomEdge );
 			newView.setEdge( Side.LEFT, newEdge );
-			newView.setEdge( Side.RIGHT, rightEdge );
+			newView.setEdge( Side.RIGHT, rightWall );
 		} else {
 			newView.setEdge( Side.TOP, source.getEdge( Side.TOP ) );
 			newView.setEdge( Side.BOTTOM, source.getEdge( Side.BOTTOM ) );
@@ -1835,9 +1835,9 @@ public class Workpane extends Pane implements Configurable {
 
 		// Connect the old edges to the new view.
 		if( source == null ) {
-			rightEdge.leftViews.add( newView );
-			this.topEdge.bottomViews.add( newView );
-			this.bottomEdge.topViews.add( newView );
+			rightWall.leftViews.add( newView );
+			this.topWall.bottomViews.add( newView );
+			this.bottomWall.topViews.add( newView );
 		} else {
 			source.getEdge( Side.RIGHT ).leftViews.remove( source );
 			source.getEdge( Side.RIGHT ).leftViews.add( newView );
@@ -1848,7 +1848,7 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
-				if( edge.rightEdge != rightEdge ) continue;
+				if( edge.rightEdge != rightWall ) continue;
 				edge.rightEdge = newEdge;
 			}
 		} else {
@@ -1879,8 +1879,8 @@ public class Workpane extends Pane implements Configurable {
 
 		// Connect the new edge to the old and new views.
 		if( source == null ) {
-			for( WorkpaneView view : bottomEdge.topViews ) {
-				bottomEdge.topViews.remove( view );
+			for( WorkpaneView view : bottomWall.topViews ) {
+				bottomWall.topViews.remove( view );
 				newEdge.topViews.add( view );
 				view.setEdge( Side.BOTTOM, newEdge );
 			}
@@ -1892,7 +1892,7 @@ public class Workpane extends Pane implements Configurable {
 		// Connect the new view to old and new edges.
 		if( source == null ) {
 			newView.setEdge( Side.TOP, newEdge );
-			newView.setEdge( Side.BOTTOM, bottomEdge );
+			newView.setEdge( Side.BOTTOM, bottomWall );
 			newView.setEdge( Side.LEFT, leftEdge );
 			newView.setEdge( Side.RIGHT, rightEdge );
 		} else {
@@ -1904,7 +1904,7 @@ public class Workpane extends Pane implements Configurable {
 
 		// Connect the old edges to the new view.
 		if( source == null ) {
-			bottomEdge.topViews.add( newView );
+			bottomWall.topViews.add( newView );
 			leftEdge.rightViews.add( newView );
 			rightEdge.leftViews.add( newView );
 		} else {
@@ -1917,7 +1917,7 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
-				if( edge.bottomEdge != bottomEdge ) continue;
+				if( edge.bottomEdge != bottomWall ) continue;
 				edge.bottomEdge = newEdge;
 			}
 		} else {
@@ -1943,22 +1943,22 @@ public class Workpane extends Pane implements Configurable {
 		WorkpaneEdge edge = null;
 		switch( placement ) {
 			case DOCK_TOP: {
-				edge = topEdge;
+				edge = topWall;
 				side = Side.BOTTOM;
 				break;
 			}
 			case DOCK_BOTTOM: {
-				edge = bottomEdge;
+				edge = bottomWall;
 				side = Side.TOP;
 				break;
 			}
 			case DOCK_LEFT: {
-				edge = leftEdge;
+				edge = leftWall;
 				side = Side.RIGHT;
 				break;
 			}
 			case DOCK_RIGHT: {
-				edge = rightEdge;
+				edge = rightWall;
 				side = Side.LEFT;
 				break;
 			}
