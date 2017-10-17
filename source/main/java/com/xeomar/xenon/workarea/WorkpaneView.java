@@ -188,7 +188,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 				leftEdge = edge;
 				leftEdge.rightViews.add( this );
 				// NEXT FIXME The setting is not being persisted
-				System.out.println( "Setting left edge: " + edge.getEdgeId() );
+				//System.out.println( "Setting left edge: " + edge.getEdgeId() );
 				if( settings != null ) settings.set( "l", edge.getEdgeId() );
 				break;
 			}
