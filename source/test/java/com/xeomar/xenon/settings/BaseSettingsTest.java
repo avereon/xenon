@@ -39,6 +39,13 @@ public abstract class BaseSettingsTest {
 	}
 
 	@Test
+	public void testGetNodeWithParentAndName() {
+		assertThat( settings.getNode( "", "test" ).getPath(), is( "/test" ) );
+		assertThat( settings.getNode( "/", "test" ).getPath(), is( "/test" ) );
+		assertThat( settings.getNode( "/test", "path" ).getPath(), is( "/test/path" ) );
+	}
+
+	@Test
 	public void testGetGrandNodes() {
 		assertThat( settings.getPath(), startsWith( "" ) );
 
