@@ -126,6 +126,14 @@ public class UiManager {
 		workpaneSettings.set( PARENT_WORKAREA_ID, id );
 		workarea.getWorkpane().setSettings( workpaneSettings );
 
+		Settings viewSettings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, id );
+		viewSettings.set( PARENT_WORKPANE_ID, id );
+		viewSettings.set( "t", Side.TOP.name().toLowerCase() );
+		viewSettings.set( "l", Side.LEFT.name().toLowerCase() );
+		viewSettings.set( "r", Side.RIGHT.name().toLowerCase() );
+		viewSettings.set( "b", Side.BOTTOM.name().toLowerCase() );
+		workarea.getWorkpane().getDefaultView().setSettings( viewSettings );
+
 		return workarea;
 	}
 
@@ -188,7 +196,7 @@ public class UiManager {
 		}
 
 		linkWorkareas();
-		//linkEdgesAndViews();
+		linkEdgesAndViews();
 		//linkTools();
 		cleanup();
 	}
@@ -250,6 +258,9 @@ public class UiManager {
 	}
 
 	private WorkpaneEdge lookupEdge( Workpane pane, String name ) {
+		if( pane == null ) throw new NullPointerException( "Pane cannot be null" );
+		if( name == null ) throw new NullPointerException( "Name cannot be null" );
+
 		WorkpaneEdge edge = edges.get( name );
 
 		if( edge == null ) {
