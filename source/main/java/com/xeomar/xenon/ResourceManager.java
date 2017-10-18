@@ -1057,9 +1057,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			} catch( ResourceException exception ) {
 				log.error( "Error initializing resource scheme", exception );
 			}
-
-			// Set the settings for the resource
-			resource.setSettings( program.getSettingsManager().getSettings( ProgramSettings.RESOURCE, IdGenerator.getId( uri.toString() ) ) );
 		}
 
 		return resource;
@@ -1081,6 +1078,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			resource.setCodec( codec );
 		}
 		log.trace( "Resource codec: " + codec );
+
+		// Create the resource settings
+		createResourceSettings( resource );
+		log.trace( "Resource settings: " + resource.getSettings().getPath() );
 
 		// Initialize the resource.
 		if( !type.resourceDefault( program, resource ) ) return false;
@@ -1131,6 +1132,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		resource.save( this );
 
+		// Create the resource settings
+		createResourceSettings( resource );
+
 		// Note: The resource watcher will log that the resource was unmodified.
 		resource.setModified( false );
 
@@ -1166,6 +1170,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	// TODO Finish implementing ResourceManager.doSetCurrentResource()
+
 	private boolean doSetCurrentResource( Resource resource ) {
 		synchronized( currentResourceLock ) {
 			Resource previous = currentResource;
@@ -1200,6 +1205,12 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		return true;
+	}
+
+	private void createResourceSettings( Resource resource ) {
+		URI uri = resource.getUri();
+		if( uri == null ) return;
+		resource.setSettings( program.getSettingsManager().getSettings( ProgramSettings.RESOURCE, IdGenerator.getId( uri.toString() ) ) );
 	}
 
 	//	/**

@@ -1,6 +1,7 @@
 package com.xeomar.xenon.worktool;
 
 import com.xeomar.xenon.LogUtil;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceEvent;
 import com.xeomar.xenon.resource.ResourceListener;
@@ -171,6 +172,7 @@ public abstract class Tool extends Control implements Configurable {
 
 	public void setToolView( WorkpaneView parent ) {
 		this.parent = parent;
+		if( settings != null ) settings.set( UiManager.PARENT_WORKPANEVIEW_ID, parent == null ? null : parent.getViewId() );
 	}
 
 	public Workpane getWorkpane() {

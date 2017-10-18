@@ -232,8 +232,20 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	public void setDefaultView( WorkpaneView view ) {
-		if( getDefaultView() == view ) return;
+		WorkpaneView defaultView = getDefaultView();
+		if( defaultView == view ) return;
+
+		if( defaultView != null ) {
+			if( defaultView.getSettings() != null ) defaultView.getSettings().set( "default", null );
+		}
+
 		defaultViewProperty.set( view );
+		defaultView = view;
+
+		if( defaultView != null ) {
+			if( defaultView.getSettings() != null ) defaultView.getSettings().set( "default", true );
+		}
+
 		updateComponentTree( true );
 	}
 
@@ -246,8 +258,20 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	public void setMaximizedView( WorkpaneView view ) {
-		if( getMaximizedView() == view ) return;
+		WorkpaneView maximizedView = getMaximizedView();
+		if( maximizedView == view ) return;
+
+		if( maximizedView != null ) {
+			if( maximizedView.getSettings() != null ) maximizedView.getSettings().set( "maximized", null );
+		}
+
 		maximizedViewProperty.set( view );
+		maximizedView = view;
+
+		if( maximizedView != null ) {
+			if( maximizedView.getSettings() != null ) maximizedView.getSettings().set( "maximized", true );
+		}
+
 		updateComponentTree( true );
 	}
 
@@ -398,17 +422,23 @@ public class Workpane extends Pane implements Configurable {
 		try {
 			WorkpaneView activeToolView = getActiveView();
 
-			if( activeToolView != null ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView ) );
+			if( activeToolView != null ) {
+				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", null );
+				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView ) );
+			}
 
 			// Change the active view
 			activeViewProperty.set( view );
 
 			// Change the active tool
-			if( setTool ) doSetActiveTool( view.getActiveTool(), false );
+			if( setTool && view != null ) doSetActiveTool( view.getActiveTool(), false );
 
 			// Handle the new active view
 			activeToolView = getActiveView();
-			if( activeToolView != null ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView ) );
+			if( activeToolView != null ) {
+				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", true );
+				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView ) );
+			}
 		} finally {
 			finishOperation( true );
 		}
@@ -426,6 +456,7 @@ public class Workpane extends Pane implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
+				if( activeTool.getSettings() != null ) activeTool.getSettings().set( "active", null );
 			}
 
 			// Change the active view
@@ -441,6 +472,7 @@ public class Workpane extends Pane implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callActivate();
+				if( activeTool.getSettings() != null ) activeTool.getSettings().set( "active", true );
 			}
 		} finally {
 			finishOperation( true );
@@ -461,14 +493,30 @@ public class Workpane extends Pane implements Configurable {
 	public void restoreNodes( Set<Node> nodes ) {
 		startOperation();
 		try {
+			// Remove existing views
 			for( WorkpaneView view : getViews() ) {
 				removeView( view );
 			}
+
+			// Add edges and views
 			for( Node node : nodes ) {
-				if( node instanceof WorkpaneView ) {
-					addView( (WorkpaneView)node );
-				} else if( node instanceof WorkpaneEdge ) {
+				if( node instanceof WorkpaneEdge ) {
 					addEdge( (WorkpaneEdge)node );
+				} else if( node instanceof WorkpaneView ) {
+					WorkpaneView view = (WorkpaneView)node;
+
+					addView( view );
+
+					Settings settings = view.getSettings();
+					if( settings != null ) {
+						boolean isActive = settings.getBoolean( "active", false );
+						boolean isDefault = settings.getBoolean( "default", false );
+						boolean isMaximized = settings.getBoolean( "maximized", false );
+
+						if( isActive ) setActiveView( view );
+						if( isDefault ) setDefaultView( view );
+						if( isMaximized ) setMaximizedView( view );
+					}
 				}
 			}
 		} finally {
@@ -497,6 +545,9 @@ public class Workpane extends Pane implements Configurable {
 		try {
 			startOperation();
 
+			if( view.getSettings() != null ) view.getSettings().delete();
+			view.setSettings( null );
+
 			getChildren().remove( view );
 			view.setWorkpane( null );
 
@@ -508,8 +559,6 @@ public class Workpane extends Pane implements Configurable {
 			view.setEdge( Side.BOTTOM, null );
 			view.setEdge( Side.LEFT, null );
 			view.setEdge( Side.RIGHT, null );
-
-			if( view.getSettings() != null ) view.getSettings().delete();
 
 			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_REMOVED, this, view ) );
 		} finally {
@@ -561,9 +610,11 @@ public class Workpane extends Pane implements Configurable {
 	private WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return null;
 
+		if( edge.getSettings() != null ) edge.getSettings().delete();
+		edge.setSettings( null );
+
 		getChildren().remove( edge );
 		edge.setWorkpane( null );
-		if( edge.getSettings() != null ) edge.getSettings().delete();
 
 		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_REMOVED, this, edge, edge.getPosition() ) );
 
@@ -783,12 +834,11 @@ public class Workpane extends Pane implements Configurable {
 	 * Performs an automatic pull merge. The direction is automatically determined by a weighted algorithm.
 	 *
 	 * @param target
-	 * @return
+	 * @return If the merge was successful
 	 */
 	public boolean pullMerge( WorkpaneView target ) {
 		Side direction = getPullMergeDirection( target, true );
-		if( direction == null ) return false;
-		return pullMerge( target, direction );
+		return direction != null && pullMerge( target, direction );
 	}
 
 	/**
@@ -796,7 +846,7 @@ public class Workpane extends Pane implements Configurable {
 	 *
 	 * @param target
 	 * @param direction
-	 * @return
+	 * @return If the merge was successful
 	 */
 	public boolean pullMerge( WorkpaneView target, Side direction ) {
 		// Check the parameters.
@@ -819,7 +869,7 @@ public class Workpane extends Pane implements Configurable {
 	 *
 	 * @param source
 	 * @param direction
-	 * @return
+	 * @return If the merge was successful
 	 */
 	public boolean pushMerge( WorkpaneView source, Side direction ) {
 		// Check the parameters.
@@ -949,7 +999,6 @@ public class Workpane extends Pane implements Configurable {
 			startOperation();
 			if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
 			view.addTool( tool, index );
-			// FIXME queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_ADDED, this, view, tool ) );
 			if( activate ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
@@ -969,7 +1018,7 @@ public class Workpane extends Pane implements Configurable {
 		try {
 			startOperation();
 			view.removeTool( tool );
-			// FIXME queueEvent( new WorkpaneEvent( this, WorkpaneEvent.Type.TOOL_REMOVED, this, view, tool ) );
+			if( tool.getSettings() != null ) tool.getSettings().delete();
 			if( automerge ) pullMerge( view );
 		} finally {
 			finishOperation( true );
@@ -1388,11 +1437,11 @@ public class Workpane extends Pane implements Configurable {
 		}
 
 		// Remove the edge.
+		edge.getWorkpane().removeEdge( edge );
 		edge.setEdge( direction, null );
 		edge.setEdge( getReverseDirection( direction ), null );
 		edge.setEdge( getLeftDirection( direction ), null );
 		edge.setEdge( getRightDirection( direction ), null );
-		edge.getWorkpane().removeEdge( edge );
 
 		return true;
 	}
@@ -1989,7 +2038,7 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	private void createEdgeSettings( WorkpaneEdge edge ) {
-		Settings paneSettings= getSettings();
+		Settings paneSettings = getSettings();
 		if( paneSettings == null ) return;
 
 		Settings settings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
@@ -1998,7 +2047,7 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	private void createViewSettings( WorkpaneView view ) {
-		Settings paneSettings= getSettings();
+		Settings paneSettings = getSettings();
 		if( paneSettings == null ) return;
 
 		Settings settings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );

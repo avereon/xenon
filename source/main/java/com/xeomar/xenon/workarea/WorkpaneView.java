@@ -38,6 +38,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		setCenter( tools = new TabPane() );
 	}
 
+	public String getViewId() {
+		return settings == null ? null : settings.getName();
+	}
+
 	public TabPane getToolTabPane() {
 		return tools;
 	}
@@ -211,6 +215,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public void setPlacement( Workpane.Placement placement ) {
 		this.placement = placement;
+		if( settings != null ) settings.set( "placement", placement == null ? null : placement.name().toLowerCase() );
 	}
 
 	public double getCenter( Orientation orientation ) {
@@ -228,8 +233,24 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	@Override
 	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
+		if( settings == null ) {
+			this.settings = null;
+			return;
+		} else if( this.settings != null ) {
+			return;
+		}
+
 		this.settings = settings;
+
+		// Restore state from settings
+		String placementValue = settings.get( "placement" );
+		if( placementValue != null ) setPlacement( Workpane.Placement.valueOf( placementValue.toUpperCase() ) );
+
+		// Persist state to settings
+		if( isActive() ) settings.set( "active", true );
+		if( isDefault() ) settings.set( "default", true );
+		if( isMaximized() ) settings.set( "maximized", true );
+		settings.set( "placement", getPlacement() == null ? null : getPlacement().name().toLowerCase() );
 	}
 
 	@Override

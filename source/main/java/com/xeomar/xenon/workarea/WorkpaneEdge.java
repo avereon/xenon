@@ -242,13 +242,19 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	@Override
 	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
+		if( settings == null ) {
+			this.settings = null;
+			return;
+		} else if( this.settings != null ) {
+			return;
+		}
+
 		this.settings = settings;
 
-		// Restore state from settings if available
+		// Restore state from settings
 		if( settings.get( "position" ) != null ) setPosition( settings.getDouble( "position" ) );
 
-		// Store state from settings
+		// Persist state to settings
 		settings.set( "orientation", getOrientation().name().toLowerCase() );
 		settings.set( "position", getPosition() );
 	}

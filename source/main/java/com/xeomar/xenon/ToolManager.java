@@ -112,7 +112,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolOfClassInPane( pane, toolClass );
 		boolean alreadyExists = tool != null;
 		if( !alreadyExists ) {
-			tool = getToolInstance( toolClass, resource );
+			tool = getToolInstance( toolClass, resource, !resource.isNew() );
 			createToolSettings( tool );
 		}
 
@@ -120,7 +120,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( tool == null ) {
 			String title = program.getResourceBundle().getString( "program", "no-tool-for-resource-title" );
 			String message = program.getResourceBundle().getString( "program", "no-tool-for-resource-message" );
-			program.getNotifier().warning( title, (Object)message, resource.getUri().toString() );
+			program.getNotifier().warning( title, (Object)message, resource.getName() );
 			return;
 		}
 
@@ -162,7 +162,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			return null;
 		}
 
-		return getToolInstance(  toolMetadata.getType(), resource );
+		return getToolInstance( toolMetadata.getType(), resource, true );
 	}
 
 	private ToolInstanceMode getToolInstanceMode( Class<? extends ProductTool> toolClass ) {
@@ -263,7 +263,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Get the tool for the type
 		Class<? extends ProductTool> toolClass = typeTools.get( 0 );
-		ProductTool tool = getToolInstance( toolClass, resource );
+		ProductTool tool = getToolInstance( toolClass, resource, !resource.isNew() );
 		createToolSettings( tool );
 
 		if( tool == null ) {
@@ -287,7 +287,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		tool.setSettings( settings );
 	}
 
-	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource ) {
+	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource, boolean waitForResourceReady ) {
 		if( !isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
 
 		// Have to have a ProductTool to support modules
@@ -297,13 +297,15 @@ public class ToolManager implements Controllable<ToolManager> {
 			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
 			ProductTool tool = constructor.newInstance( product, resource );
 
-			// Wait for the resource to be "ready", then notify the tool
-			// The getToolInstance() method should have been called from a Callable
-			// class on a task manager thread, usually from
-			// ResourceManager.OpenActionTask. That means the calling thread can
-			// wait a bit for the resource to be ready.
-			if( !resource.isNew() ) resource.waitForReady( 10, TimeUnit.SECONDS );
-			tool.callResourceReady();
+			// The getToolInstance() method should have been called from a
+			// Callable class on a task manager thread, usually from
+			// ResourceManager.OpenActionTask. That means the calling thread
+			// can wait a bit for the resource to be ready.
+			if( waitForResourceReady ) {
+				// Wait for the resource to be "ready", then notify the tool
+				resource.waitForReady( 10, TimeUnit.SECONDS );
+				tool.callResourceReady();
+			}
 			return tool;
 		} catch( Exception exception ) {
 			log.error( "Error creating instance: " + type.getName(), exception );
