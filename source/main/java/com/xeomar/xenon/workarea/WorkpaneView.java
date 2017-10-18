@@ -280,7 +280,8 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		@Override
 		public void changed( ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue ) {
-			if( newValue != null ) getWorkpane().setActiveTool( (Tool)newValue.getContent() );
+			// FIXME This call significantly changes the behavior of the program and causes the UI tests to fail
+			//if( newValue != null ) getWorkpane().setActiveTool( (Tool)newValue.getContent() );
 		}
 
 	}
