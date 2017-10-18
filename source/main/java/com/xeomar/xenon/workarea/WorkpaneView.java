@@ -3,6 +3,8 @@ package com.xeomar.xenon.workarea;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.worktool.Tool;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
@@ -36,6 +38,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
+		tools.getSelectionModel().selectedItemProperty().addListener( new TabSelectionWatcher() );
 	}
 
 	public String getViewId() {
@@ -271,6 +274,15 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		this.parent = parent;
 		// TODO Should workpanes have icons? If so, update them.
 		//if( parent != null ) updateIcons();
+	}
+
+	private class TabSelectionWatcher implements ChangeListener<Tab> {
+
+		@Override
+		public void changed( ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue ) {
+			if( newValue != null ) getWorkpane().setActiveTool( (Tool)newValue.getContent() );
+		}
+
 	}
 
 }
