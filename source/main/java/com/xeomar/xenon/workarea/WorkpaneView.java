@@ -281,6 +281,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		@Override
 		public void changed( ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue ) {
 			// FIXME This call significantly changes the behavior of the program and causes the UI tests to fail
+
+			// This is on the tab pane and not each individual tab.
+			// That make it different than I was thinking.
+
 			//if( newValue != null ) getWorkpane().setActiveTool( (Tool)newValue.getContent() );
 		}
 
