@@ -278,9 +278,9 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		@Override
 		public void changed( ObservableValue<? extends Tab> observable, Tab oldTab, Tab tab ) {
-//			if( tab == null ) return;
-//			Tool tool = (Tool)tab.getContent();
-//			if( isActive() && tab.isSelected() && tool != null ) getWorkpane().setActiveTool( tool );
+			if( tab == null ) return;
+			Tool tool = (Tool)tab.getContent();
+			if( isActive() && tab.isSelected() && tool != null ) getWorkpane().setActiveTool( tool );
 		}
 
 	}
