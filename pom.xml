@@ -163,11 +163,6 @@
 				<configuration>
 					<source>9</source>
 					<target>9</target>
-					<!--fork>true</fork-->
-					<compilerargs>
-						<arg>--add-opens</arg><arg>java.base/java.util=ALL-UNNAMED</arg>
-						<arg>--add-exports</arg><arg>javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</arg>
-					</compilerargs>
 				</configuration>
 			</plugin>
 
@@ -176,6 +171,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<runOrder>alphabetical</runOrder>
+					<argLine>--add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
+					<!-- for headless options see the headless profile -->
 				</configuration>
 			</plugin>
 
@@ -231,7 +228,29 @@
 			</plugin>
 
 		</plugins>
-
 	</build>
+
+	<profiles>
+		<profile>
+		<id>headless</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<systemPropertyVariables>
+								<glass.platform>Monocle</glass.platform>
+								<monocle.platform>Headless</monocle.platform>
+								<testfx.robot>glass</testfx.robot>
+								<prism.order>sw</prism.order>
+								<prism.text>t2k</prism.text>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
