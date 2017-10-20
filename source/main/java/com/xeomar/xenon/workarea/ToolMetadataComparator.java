@@ -1,4 +1,4 @@
-package com.xeomar.xenon.worktool;
+package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.ToolMetadata;
 

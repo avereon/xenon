@@ -1,4 +1,4 @@
-package com.xeomar.xenon.worktool;
+package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.LogUtil;
 import com.xeomar.xenon.UiManager;
@@ -7,10 +7,6 @@ import com.xeomar.xenon.resource.ResourceEvent;
 import com.xeomar.xenon.resource.ResourceListener;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
-import com.xeomar.xenon.workarea.Workpane;
-import com.xeomar.xenon.workarea.WorkpaneEvent;
-import com.xeomar.xenon.workarea.WorkpaneToolEvent;
-import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

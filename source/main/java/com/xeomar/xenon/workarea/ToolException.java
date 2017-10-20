@@ -1,4 +1,4 @@
-package com.xeomar.xenon.worktool;
+package com.xeomar.xenon.workarea;
 
 public class ToolException extends Exception {
 

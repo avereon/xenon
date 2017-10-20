@@ -832,53 +832,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
 	}
 
-	// TODO Probably don't need the persistOpenResources() and restoreOpenResources() methods.
-	// This work will be handled by persisting and restoring tools.
-	//	private void persistOpenResources() {
-	//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
-	//
-	//			synchronized( restoreLock ) {
-	//				settings.removeNode();
-	//
-	//				for( Resource resource : openResources ) {
-	//					URI uri = resource.getUri();
-	//					if( uri == null ) continue;
-	//					String uriString = uri.toASCIIString();
-	//					settings.put( "resource-" + HashUtil.hash( uriString ), uriString );
-	//				}
-	//			}
-	//	}
-
-	//	public void restoreOpenResources() {
-	//		// Clear the existing open resources set.
-	//		openResources.clear();
-	//
-	//		// Collect the resources to be opened.
-	//		Set<Resource> resources = new HashSet<Resource>();
-	//		ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
-	//		synchronized( restoreLock ) {
-	//			for( String key : settings.getKeys() ) {
-	//				try {
-	//					String uri = settings.get( key, null );
-	//					if( uri != null ) resources.add( createResource( new URI( uri ) ) );
-	//				} catch( URISyntaxException exception ) {
-	//					continue;
-	//				}
-	//			}
-	//		}
-	//
-	//		// Open and load the resources.
-	//		try {
-	//			openResourcesAndWait( resources );
-	//			loadResources( resources );
-	//		} catch( ResourceException exception ) {
-	//			Log.write( Log.WARN, exception );
-	//			return;
-	//		} catch( InterruptedException exception ) {
-	//			return;
-	//		}
-	//	}
-
 	/**
 	 * Get a collection of the supported codecs.
 	 *

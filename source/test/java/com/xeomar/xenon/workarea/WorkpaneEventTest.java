@@ -1,8 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.worktool.Tool;
-import com.xeomar.xenon.worktool.ToolEvent;
-import com.xeomar.xenon.worktool.ToolListener;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import org.junit.Before;
@@ -201,11 +198,12 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		tool.addToolListener( toolEventCounter );
 
 		area.addTool( tool, view );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_ADDED, area, tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_DISPLAYED, area, tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.TOOL_ACTIVATED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
+		int count = 0;
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_ADDED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_DISPLAYED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_ACTIVATED, area, tool );
+		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
 		assertThat( toolEventCounter.events.size(), is( 0 ) );
 	}
 

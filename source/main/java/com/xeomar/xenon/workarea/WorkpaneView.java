@@ -2,7 +2,6 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
-import com.xeomar.xenon.worktool.Tool;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
@@ -64,11 +63,11 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		return Collections.unmodifiableList( toolList );
 	}
 
-	public Tool addTool( Tool tool ) {
+	Tool addTool( Tool tool ) {
 		return addTool( tool, tools.getTabs().size() );
 	}
 
-	public Tool addTool( Tool tool, int index ) {
+	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
 
 		Tab tab = new Tab( tool.getTitle(), tool );
@@ -78,16 +77,15 @@ public class WorkpaneView extends BorderPane implements Configurable {
 			tool.close();
 		} );
 		tool.setToolView( this );
-		tools.getTabs().add( index, tab );
-
 		tool.callAllocate();
+		tools.getTabs().add( index, tab );
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
 
 		return tool;
 	}
 
-	public Tool removeTool( Tool tool ) {
+	Tool removeTool( Tool tool ) {
 		boolean isActiveTool = tool == activeTool;
 
 		Tool next = null;
@@ -125,7 +123,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		return activeTool;
 	}
 
-	public void setActiveTool( Tool tool ) {
+	void setActiveTool( Tool tool ) {
 		if( tool == activeTool ) return;
 
 		if( activeTool != null ) {
@@ -140,7 +138,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		}
 	}
 
-	public int getToolIndex( Tool tool ) {
+	int getToolIndex( Tool tool ) {
 		int index = 0;
 
 		for( Tab tab : tools.getTabs() ) {
@@ -279,13 +277,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	private class TabSelectionWatcher implements ChangeListener<Tab> {
 
 		@Override
-		public void changed( ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue ) {
-			// FIXME This call significantly changes the behavior of the program and causes the UI tests to fail
-
-			// This is on the tab pane and not each individual tab.
-			// That make it different than I was thinking.
-
-			//if( newValue != null ) getWorkpane().setActiveTool( (Tool)newValue.getContent() );
+		public void changed( ObservableValue<? extends Tab> observable, Tab oldTab, Tab tab ) {
+//			if( tab == null ) return;
+//			Tool tool = (Tool)tab.getContent();
+//			if( isActive() && tab.isSelected() && tool != null ) getWorkpane().setActiveTool( tool );
 		}
 
 	}

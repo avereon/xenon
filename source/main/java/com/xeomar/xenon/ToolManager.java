@@ -9,7 +9,7 @@ import com.xeomar.xenon.util.Controllable;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
-import com.xeomar.xenon.worktool.Tool;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
@@ -136,7 +136,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		final Workpane finalPane = pane;
 		final Tool finalTool = tool;
 
-		if( alreadyExists && instanceMode == ToolInstanceMode.SINGLETON ) {
+		if( alreadyExists ) {
 			Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 		} else {
 			Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, setActive ) );

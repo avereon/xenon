@@ -6,7 +6,7 @@ import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
-import com.xeomar.xenon.worktool.ToolException;
+import com.xeomar.xenon.workarea.ToolException;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
