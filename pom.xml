@@ -44,7 +44,7 @@
 		<product-identifier>xenon</product-identifier>
 		<package-stage-folder>program</package-stage-folder>
 		<slf4j.version>1.8.0-alpha2</slf4j.version>
-		<testfx.version>4.0.6-alpha</testfx.version>
+		<testfx.version>4.0.8-alpha</testfx.version>
 		<jarsigner.skip>true</jarsigner.skip>
 	</properties>
 
@@ -110,6 +110,19 @@
 			<artifactId>testfx-core</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testfx</groupId>
+					<artifactId>testfx-internal-java8</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>testfx-internal-java9</artifactId>
+			<version>${testfx.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -161,8 +174,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>8</source>
-					<target>8</target>
+					<source>9</source>
+					<target>9</target>
 				</configuration>
 			</plugin>
 
@@ -171,6 +184,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<runOrder>alphabetical</runOrder>
+					<argLine>--add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
+					<!-- for headless options see the headless profile -->
 				</configuration>
 			</plugin>
 
@@ -226,7 +241,30 @@
 			</plugin>
 
 		</plugins>
-
 	</build>
+
+	<profiles>
+		<profile>
+		<id>headless</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<systemPropertyVariables>
+								<java.awt.headless>true</java.awt.headless>
+								<testfx.robot>glass</testfx.robot>
+								<testfx.headless>true</testfx.headless>
+								<prism.order>sw</prism.order>
+								<prism.text>t2k</prism.text>
+								<testfx.setup.timeout>2500</testfx.setup.timeout>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
