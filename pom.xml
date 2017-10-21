@@ -110,6 +110,19 @@
 			<artifactId>testfx-core</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testfx</groupId>
+					<artifactId>testfx-internal-java8</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>testfx-internal-java9</artifactId>
+			<version>${testfx.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
