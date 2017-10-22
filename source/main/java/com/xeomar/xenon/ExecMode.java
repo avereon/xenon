@@ -2,8 +2,9 @@ package com.xeomar.xenon;
 
 public enum ExecMode {
 
-	DEVL( "#"),
-	TEST( "$");
+	DEV( "#" ),
+	TEST( "$" ),
+	PROD( "" );
 
 	private String prefix;
 
