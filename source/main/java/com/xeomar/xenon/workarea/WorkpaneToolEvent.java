@@ -1,7 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.worktool.Tool;
-
 public class WorkpaneToolEvent extends WorkpaneEvent {
 
 	private Tool tool;

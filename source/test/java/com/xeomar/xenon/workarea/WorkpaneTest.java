@@ -1,6 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.worktool.Tool;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;

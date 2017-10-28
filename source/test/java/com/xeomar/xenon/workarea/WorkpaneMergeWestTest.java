@@ -1,6 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.worktool.Tool;
 import javafx.geometry.Side;
 import org.junit.Test;
 

@@ -52,7 +52,7 @@ public class StoredSettings extends AbstractSettings {
 
 	private AtomicLong lastStoreTime = new AtomicLong();
 
-	private final Object taskLock = new Object();
+	private final Object scheduleLock = new Object();
 
 	private SaveTask task;
 
@@ -98,7 +98,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public Settings getNode( String path ) {
-		return getNode( path, (Map<String,String>)null );
+		return getNode( path, (Map<String, String>)null );
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class StoredSettings extends AbstractSettings {
 
 	@Override
 	public Set<String> getKeys() {
-		Set<String> keys = new HashSet<>(  );
+		Set<String> keys = new HashSet<>();
 		for( Object key : values.keySet() ) {
 			keys.add( key.toString() );
 		}
@@ -173,7 +173,11 @@ public class StoredSettings extends AbstractSettings {
 	}
 
 	@Override
-	public void delete() {
+	public synchronized void delete() {
+		synchronized( scheduleLock ) {
+			if( task != null ) task.cancel();
+		}
+
 		root.settings.remove( getPath() );
 		try {
 			File file = getFile();
@@ -190,31 +194,35 @@ public class StoredSettings extends AbstractSettings {
 		return folder.toString();
 	}
 
-	private void load() {
-		File realFile = getFile();
-		if( !realFile.exists() ) return;
-		try( FileInputStream input = new FileInputStream( realFile ) ) {
+	private synchronized void load() {
+		File file = getFile();
+		if( !file.exists() ) return;
+		try( FileInputStream input = new FileInputStream( file ) ) {
 			values.load( input );
 			fireEvent( new SettingsEvent( this, SettingsEvent.Type.LOADED, getPath() ) );
 		} catch( IOException exception ) {
-			log.error( "Error loading settings file: " + realFile, exception );
+			log.error( "Error loading settings file: " + file, exception );
 		}
 	}
 
-	private void save() {
-		File realFile = getFile();
-		realFile.getParentFile().mkdirs();
-		try( FileOutputStream output = new FileOutputStream( realFile ) ) {
+	private synchronized void save() {
+		File file = getFile();
+		try {
+			FileUtils.forceMkdir( file.getParentFile() );
+		} catch( IOException exception ) {
+			log.error( "Error saving settings file: " + file, exception );
+		}
+		try( FileOutputStream output = new FileOutputStream( file ) ) {
 			values.store( output, null );
 			lastStoreTime.set( System.currentTimeMillis() );
 			fireEvent( new SettingsEvent( this, SettingsEvent.Type.SAVED, getPath() ) );
 		} catch( IOException exception ) {
-			log.error( "Error saving settings file: " + realFile, exception );
+			log.error( "Error saving settings file: " + file, exception );
 		}
 	}
 
 	private void scheduleSave( boolean force ) {
-		synchronized( taskLock ) {
+		synchronized( scheduleLock ) {
 			long storeTime = lastStoreTime.get();
 			long dirtyTime = lastDirtyTime.get();
 

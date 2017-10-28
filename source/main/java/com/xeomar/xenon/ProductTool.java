@@ -2,7 +2,7 @@ package com.xeomar.xenon;
 
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.worktool.Tool;
+import com.xeomar.xenon.workarea.Tool;
 
 import java.util.Collections;
 import java.util.Set;

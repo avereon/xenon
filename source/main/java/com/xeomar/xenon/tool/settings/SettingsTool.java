@@ -6,7 +6,7 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.Guide;
 import com.xeomar.xenon.tool.GuideNode;
-import com.xeomar.xenon.worktool.ToolException;
+import com.xeomar.xenon.workarea.ToolException;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;

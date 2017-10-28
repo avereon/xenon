@@ -9,7 +9,7 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.*;
-import com.xeomar.xenon.worktool.ToolException;
+import com.xeomar.xenon.workarea.ToolException;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;

@@ -15,12 +15,12 @@ the following basic features:
 
 | Version | Feature Goals | Status |
 |---|---|---|
-|0.1|UI, settings manager| Complete |
+|0.1|Initial UI, settings manager| Complete |
 |0.2|Workarea, menu bar, tool bar| Complete |
 |0.3|Resource manager, product resources| Complete |
 |0.4|Welcome tool, guide tool, about tool| Complete |
-|0.5|Program settings, settings tool| In progress |
-|0.6|Update manager, product updates|
+|0.5|Program settings, settings tool| Complete |
+|0.6|Update manager, product updates| In Progress |
 |0.7|Module manager, module tool|
 |0.8|
 |0.9|

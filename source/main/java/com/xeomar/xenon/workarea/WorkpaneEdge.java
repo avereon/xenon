@@ -30,13 +30,13 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	private ObjectProperty<Orientation> orientation;
 
-	WorkpaneEdge topEdge;
+	private WorkpaneEdge topEdge;
 
-	WorkpaneEdge bottomEdge;
+	private WorkpaneEdge leftEdge;
 
-	WorkpaneEdge leftEdge;
+	private WorkpaneEdge rightEdge;
 
-	WorkpaneEdge rightEdge;
+	private WorkpaneEdge bottomEdge;
 
 	Set<WorkpaneView> topViews;
 
@@ -200,22 +200,22 @@ public class WorkpaneEdge extends Control implements Configurable {
 		switch( direction ) {
 			case TOP: {
 				topEdge = edge;
-				if( settings != null ) settings.set( "t", edge.getEdgeId() );
+				if( settings != null ) settings.set( "t", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case LEFT: {
 				leftEdge = edge;
-				if( settings != null ) settings.set( "l", edge.getEdgeId() );
+				if( settings != null ) settings.set( "l", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case RIGHT: {
 				rightEdge = edge;
-				if( settings != null ) settings.set( "r", edge.getEdgeId() );
+				if( settings != null ) settings.set( "r", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case BOTTOM: {
 				bottomEdge = edge;
-				if( settings != null ) settings.set( "b", edge.getEdgeId() );
+				if( settings != null ) settings.set( "b", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 		}
@@ -242,13 +242,19 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	@Override
 	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
+		if( settings == null ) {
+			this.settings = null;
+			return;
+		} else if( this.settings != null ) {
+			return;
+		}
+
 		this.settings = settings;
 
-		// Restore state from settings if available
+		// Restore state from settings
 		if( settings.get( "position" ) != null ) setPosition( settings.getDouble( "position" ) );
 
-		// Store state from settings
+		// Persist state to settings
 		settings.set( "orientation", getOrientation().name().toLowerCase() );
 		settings.set( "position", getPosition() );
 	}
@@ -264,6 +270,8 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 		builder.append( "<" );
 		builder.append( getClass().getSimpleName() );
+		builder.append( " id=" );
+		builder.append( getEdgeId() );
 		builder.append( " orientation=" );
 		builder.append( getOrientation() );
 		builder.append( " position=" );

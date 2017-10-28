@@ -3,7 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.workarea.*;
-import com.xeomar.xenon.worktool.Tool;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,9 +49,7 @@ public class UiManager {
 
 	private Map<String, Tool> tools = new HashMap<>();
 
-	private Map<Workpane, Set<Node>> workpaneNodes = new HashMap<>();
-
-	private Map<WorkpaneView, Tool> viewTools = new HashMap<>();
+	private Map<WorkpaneView, Set<ProductTool>> viewTools = new HashMap<>();
 
 	private boolean started;
 
@@ -126,6 +125,14 @@ public class UiManager {
 		workpaneSettings.set( PARENT_WORKAREA_ID, id );
 		workarea.getWorkpane().setSettings( workpaneSettings );
 
+		Settings viewSettings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, id );
+		viewSettings.set( PARENT_WORKPANE_ID, id );
+		viewSettings.set( "t", Side.TOP.name().toLowerCase() );
+		viewSettings.set( "l", Side.LEFT.name().toLowerCase() );
+		viewSettings.set( "r", Side.RIGHT.name().toLowerCase() );
+		viewSettings.set( "b", Side.BOTTOM.name().toLowerCase() );
+		workarea.getWorkpane().getDefaultView().setSettings( viewSettings );
+
 		return workarea;
 	}
 
@@ -159,7 +166,7 @@ public class UiManager {
 
 		// Create the workspaces (includes the window)
 		for( String id : workspaceIds ) {
-			workspaces.put( id, restoreWorkspace( id ) );
+			restoreWorkspace( id );
 			//splashScreen.update();
 		}
 
@@ -188,8 +195,8 @@ public class UiManager {
 		}
 
 		linkWorkareas();
-		//linkEdgesAndViews();
-		//linkTools();
+		linkEdgesAndViews();
+		linkTools();
 		cleanup();
 	}
 
@@ -204,14 +211,42 @@ public class UiManager {
 	}
 
 	private void linkEdgesAndViews() {
+		Map<Workpane, Set<Node>> workpaneNodes = new HashMap<>();
+
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
-			linkEdge( edge );
+			Settings settings = edge.getSettings();
+			Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+			try {
+				if( linkEdge( edge ) ) {
+					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
+					nodes.add( edge );
+				} else {
+					log.debug( "Removing invalid workpane edge settings: " + settings.getName() );
+					settings.delete();
+				}
+			} catch( Exception exception ) {
+				log.warn( "Error linking edge: " + edge.getEdgeId(), exception );
+				return;
+			}
 		}
 
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
-			linkView( view );
+			Settings settings = view.getSettings();
+			Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+			try {
+				if( linkView( view ) ) {
+					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
+					nodes.add( view );
+				} else {
+					log.debug( "Removing invalid workpane edge settings: " + settings.getName() );
+					settings.delete();
+				}
+			} catch( Exception exception ) {
+				log.warn( "Error linking view: " + view.getViewId(), exception );
+				return;
+			}
 		}
 
 		// Restore edges and views to workpane
@@ -221,35 +256,55 @@ public class UiManager {
 		}
 	}
 
-	private void linkEdge( WorkpaneEdge edge ) {
+	private boolean linkEdge( WorkpaneEdge edge ) {
 		Settings settings = edge.getSettings();
 		Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
 
 		switch( edge.getOrientation() ) {
 			case VERTICAL: {
-				edge.setEdge( Side.TOP, lookupEdge( workpane, settings.get( "t" ) ) );
-				edge.setEdge( Side.BOTTOM, lookupEdge( workpane, settings.get( "b" ) ) );
+				WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
+				WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
+				if( t == null || b == null ) return false;
+				edge.setEdge( Side.TOP, t );
+				edge.setEdge( Side.BOTTOM, b );
 				break;
 			}
 			case HORIZONTAL: {
-				edge.setEdge( Side.LEFT, lookupEdge( workpane, settings.get( "l" ) ) );
-				edge.setEdge( Side.RIGHT, lookupEdge( workpane, settings.get( "r" ) ) );
+				WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
+				WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
+				if( l == null || r == null ) return false;
+				edge.setEdge( Side.LEFT, l );
+				edge.setEdge( Side.RIGHT, r );
 				break;
 			}
 		}
+
+		return true;
 	}
 
-	private void linkView( WorkpaneView view ) {
+	private boolean linkView( WorkpaneView view ) {
 		Settings settings = view.getSettings();
 		Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
 
-		view.setEdge( Side.TOP, lookupEdge( workpane, settings.get( "t" ) ) );
-		view.setEdge( Side.LEFT, lookupEdge( workpane, settings.get( "l" ) ) );
-		view.setEdge( Side.RIGHT, lookupEdge( workpane, settings.get( "r" ) ) );
-		view.setEdge( Side.BOTTOM, lookupEdge( workpane, settings.get( "b" ) ) );
+		WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
+		WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
+		WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
+		WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
+
+		if( t == null || l == null || r == null || b == null ) return false;
+
+		view.setEdge( Side.TOP, t );
+		view.setEdge( Side.LEFT, l );
+		view.setEdge( Side.RIGHT, r );
+		view.setEdge( Side.BOTTOM, b );
+
+		return true;
 	}
 
 	private WorkpaneEdge lookupEdge( Workpane pane, String name ) {
+		if( pane == null ) throw new NullPointerException( "Workpane cannot be null" );
+		if( name == null ) throw new NullPointerException( "Edge name cannot be null" );
+
 		WorkpaneEdge edge = edges.get( name );
 
 		if( edge == null ) {
@@ -264,14 +319,29 @@ public class UiManager {
 	}
 
 	private void linkTools() {
-		// NEXT Add the tools to the views, in the correct order, of course
+		for( WorkpaneView view : viewTools.keySet() ) {
+			Workpane pane = view.getWorkpane();
+			if( pane == null ) continue;
+
+			List<ProductTool> tools = new ArrayList<>( viewTools.get( view ) );
+
+			// Sort the tools
+			tools.sort( new ToolOrderComparator() );
+
+			// Add the tools to the view
+			for( ProductTool tool : tools ) {
+				pane.addTool( tool, view, tool.isActive() );
+
+				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
+			}
+		}
 	}
 
 	private String[] getChildNodeNames( String path ) {
 		return program.getSettingsManager().getSettings( path ).getNodes();
 	}
 
-	private Workspace restoreWorkspace( String id ) {
+	private void restoreWorkspace( String id ) {
 		log.trace( "Restoring workspace: " + id );
 		try {
 			Workspace workspace = new Workspace( program );
@@ -287,14 +357,13 @@ public class UiManager {
 				program.getWorkspaceManager().addWorkspace( workspace );
 			}
 
-			return workspace;
+			workspaces.put( id, workspace );
 		} catch( Exception exception ) {
 			log.error( "Error restoring workspace", exception );
 		}
-		return null;
 	}
 
-	private Workarea restoreWorkarea( String id ) {
+	private void restoreWorkarea( String id ) {
 		try {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, id );
 			Settings workpaneSettings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
@@ -306,7 +375,7 @@ public class UiManager {
 				log.debug( "Removing orphaned workarea settings: " + id );
 				workpaneSettings.delete();
 				settings.delete();
-				return null;
+				return;
 			}
 
 			Workarea workarea = new Workarea();
@@ -315,16 +384,14 @@ public class UiManager {
 			workpaneSettings.set( PARENT_WORKAREA_ID, id );
 			workarea.getWorkpane().setSettings( workpaneSettings );
 
-			areas.put( id, workarea );
 			panes.put( id, workarea.getWorkpane() );
-			return workarea;
+			areas.put( id, workarea );
 		} catch( Exception exception ) {
 			log.error( "Error restoring workarea", exception );
 		}
-		return null;
 	}
 
-	private WorkpaneEdge restoreWorkpaneEdge( String id ) {
+	private void restoreWorkpaneEdge( String id ) {
 		try {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.EDGE, id );
 
@@ -334,7 +401,7 @@ public class UiManager {
 			if( workpane == null ) {
 				log.debug( "Removing orphaned workpane edge settings: " + id );
 				settings.delete();
-				return null;
+				return;
 			}
 
 			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
@@ -342,17 +409,12 @@ public class UiManager {
 			edge.setSettings( settings );
 
 			edges.put( id, edge );
-			Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
-			nodes.add( edge );
-
-			return edge;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workpane", exception );
 		}
-		return null;
 	}
 
-	private WorkpaneView restoreWorkpaneView( String id ) {
+	private void restoreWorkpaneView( String id ) {
 		try {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, id );
 
@@ -362,62 +424,86 @@ public class UiManager {
 			if( workpane == null ) {
 				log.debug( "Removing orphaned workpane view settings: " + id );
 				settings.delete();
-				return null;
+				return;
 			}
 
 			WorkpaneView view = new WorkpaneView();
 			view.setSettings( settings );
 
 			views.put( id, view );
-			Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
-			nodes.add( view );
-			return view;
 		} catch( Exception exception ) {
 			log.error( "Error restoring workpane", exception );
 		}
-		return null;
 	}
 
-	private Tool restoreWorktool( String id ) {
+	private void restoreWorktool( String id ) {
 		try {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
 
 			WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
+			String toolType = settings.get( "type" );
 			String uri = settings.get( "uri" );
 
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uri == null ) {
 				log.debug( "Removing orphaned tool settings: " + id );
 				settings.delete();
-				return null;
+				return;
 			}
 
-			// Determine and load the resource
+			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
 			program.getResourceManager().loadResources( resource );
 
-			ProductTool tool = program.getToolManager().getTool( resource );
-			tool.setSettings( settings );
+			// Restore the tool on a task thread
+			try {
+				ProductTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( toolType, resource ) ).get( 1, TimeUnit.SECONDS );
+				if( tool == null ) return;
+				tool.setSettings( settings );
 
-			tools.put( id, tool );
-			viewTools.put( view, tool );
-			return tool;
+				Set<ProductTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
+				viewToolSet.add( tool );
+
+				tools.put( id, tool );
+			} catch( TimeoutException exception ) {
+				log.warn( "Timeout waiting for tool to load: " + toolType, exception );
+			}
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool", exception );
 		}
-		return null;
 	}
 
 	private void cleanup() {
 		// Clear the object maps when done
 		viewTools.clear();
-		workpaneNodes.clear();
 		tools.clear();
 		views.clear();
 		edges.clear();
 		panes.clear();
 		areas.clear();
 		workspaces.clear();
+	}
+
+	private class ToolOrderComparator implements Comparator<ProductTool> {
+
+		@Override
+		public int compare( ProductTool tool1, ProductTool tool2 ) {
+			Settings settings1 = tool1.getSettings();
+			Settings settings2 = tool2.getSettings();
+
+			if( settings1 == null && settings2 == null ) return 0;
+			if( settings1 == null ) return -1;
+			if( settings2 == null ) return 1;
+
+			Integer order1 = settings1.getInteger( "order" );
+			Integer order2 = settings2.getInteger( "order" );
+
+			if( order1 == null && order2 == null ) return 0;
+			if( order1 == null ) return -1;
+			if( order2 == null ) return 1;
+
+			return order2 - order1;
+		}
 	}
 
 }

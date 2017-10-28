@@ -31,6 +31,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	 */
 	@Before
 	public void setup() throws Exception {
+		// Intentionally do not call super.setup()
+
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		// NOTE These are also used in ProgramTestCase
 		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );

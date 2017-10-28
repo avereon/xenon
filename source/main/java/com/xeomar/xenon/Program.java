@@ -57,6 +57,8 @@ public class Program extends Application implements Product {
 
 	private Settings programSettings;
 
+	private ExecMode execMode;
+
 	private IconLibrary iconLibrary;
 
 	private ProductBundle productBundle;
@@ -127,7 +129,7 @@ public class Program extends Application implements Product {
 		fireEvent( new ProgramStartingEvent( this ) );
 
 		// Determine the program exec mode
-		String prefix = getExecmodePrefix();
+		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		time( "metadata" );
 
@@ -224,8 +226,10 @@ public class Program extends Application implements Product {
 	public String getParameter( String key ) {
 		Parameters parameters = getParameters();
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
-		if( parameters == null ) return System.getProperty( key );
-		return parameters.getNamed().get( key );
+		//if( parameters == null ) return System.getProperty( key );
+		String value = parameters == null ? null : parameters.getNamed().get( key );
+		if( value == null ) value = System.getProperty( key );
+		return value;
 	}
 
 	public void processCommands( String[] commands ) {
@@ -317,18 +321,29 @@ public class Program extends Application implements Product {
 	}
 
 	private void printHeader( ProductMetadata metadata ) {
-		System.out.println( metadata.getName() + " " + metadata.getVersion() );
+		ExecMode execMode = getExecMode();
+		System.out.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
 		System.out.println( "Java " + System.getProperty( "java.runtime.version" ) );
 	}
 
-	private String getExecmodePrefix() {
-		String prefix = "";
+	private ExecMode getExecMode() {
+		if( execMode != null ) return execMode;
 
-		String execmode = getParameter( ProgramParameter.EXECMODE );
-		if( ProgramParameter.EXECMODE_DEVL.equals( execmode ) ) prefix = ExecMode.DEVL.getPrefix();
-		if( ProgramParameter.EXECMODE_TEST.equals( execmode ) ) prefix = ExecMode.TEST.getPrefix();
+		String execModeParameter = getParameter( ProgramParameter.EXECMODE );
+		if( execModeParameter != null ) {
+			try {
+				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );
+			} catch( IllegalArgumentException exception ) {
+				// Intentionally ignore exception
+			}
+		}
+		if( execMode == null ) execMode = ExecMode.PROD;
 
-		return prefix;
+		return execMode;
+	}
+
+	private String getExecModePrefix() {
+		return getExecMode().getPrefix();
 	}
 
 	private void doStartupTasks() throws Exception {

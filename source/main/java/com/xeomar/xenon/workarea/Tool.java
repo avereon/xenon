@@ -1,15 +1,12 @@
-package com.xeomar.xenon.worktool;
+package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.LogUtil;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceEvent;
 import com.xeomar.xenon.resource.ResourceListener;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
-import com.xeomar.xenon.workarea.Workpane;
-import com.xeomar.xenon.workarea.WorkpaneEvent;
-import com.xeomar.xenon.workarea.WorkpaneToolEvent;
-import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -59,8 +56,6 @@ public abstract class Tool extends Control implements Configurable {
 	private Set<ToolListener> listeners;
 
 	private Settings settings;
-
-	private String id;
 
 	public Tool( Resource resource ) {
 		this( resource, null );
@@ -173,6 +168,7 @@ public abstract class Tool extends Control implements Configurable {
 
 	public void setToolView( WorkpaneView parent ) {
 		this.parent = parent;
+		if( settings != null ) settings.set( UiManager.PARENT_WORKPANEVIEW_ID, parent == null ? null : parent.getViewId() );
 	}
 
 	public Workpane getWorkpane() {
@@ -213,7 +209,6 @@ public abstract class Tool extends Control implements Configurable {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
-		id = settings.get( "id" );
 	}
 
 	public Settings getSettings(){

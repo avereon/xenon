@@ -832,53 +832,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
 	}
 
-	// TODO Probably don't need the persistOpenResources() and restoreOpenResources() methods.
-	// This work will be handled by persisting and restoring tools.
-	//	private void persistOpenResources() {
-	//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
-	//
-	//			synchronized( restoreLock ) {
-	//				settings.removeNode();
-	//
-	//				for( Resource resource : openResources ) {
-	//					URI uri = resource.getUri();
-	//					if( uri == null ) continue;
-	//					String uriString = uri.toASCIIString();
-	//					settings.put( "resource-" + HashUtil.hash( uriString ), uriString );
-	//				}
-	//			}
-	//	}
-
-	//	public void restoreOpenResources() {
-	//		// Clear the existing open resources set.
-	//		openResources.clear();
-	//
-	//		// Collect the resources to be opened.
-	//		Set<Resource> resources = new HashSet<Resource>();
-	//		ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.OPEN_RESOURCES );
-	//		synchronized( restoreLock ) {
-	//			for( String key : settings.getKeys() ) {
-	//				try {
-	//					String uri = settings.get( key, null );
-	//					if( uri != null ) resources.add( createResource( new URI( uri ) ) );
-	//				} catch( URISyntaxException exception ) {
-	//					continue;
-	//				}
-	//			}
-	//		}
-	//
-	//		// Open and load the resources.
-	//		try {
-	//			openResourcesAndWait( resources );
-	//			loadResources( resources );
-	//		} catch( ResourceException exception ) {
-	//			Log.write( Log.WARN, exception );
-	//			return;
-	//		} catch( InterruptedException exception ) {
-	//			return;
-	//		}
-	//	}
-
 	/**
 	 * Get a collection of the supported codecs.
 	 *
@@ -1057,9 +1010,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			} catch( ResourceException exception ) {
 				log.error( "Error initializing resource scheme", exception );
 			}
-
-			// Set the settings for the resource
-			resource.setSettings( program.getSettingsManager().getSettings( ProgramSettings.RESOURCE, IdGenerator.getId( uri.toString() ) ) );
 		}
 
 		return resource;
@@ -1081,6 +1031,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			resource.setCodec( codec );
 		}
 		log.trace( "Resource codec: " + codec );
+
+		// Create the resource settings
+		createResourceSettings( resource );
+		log.trace( "Resource settings: " + resource.getSettings().getPath() );
 
 		// Initialize the resource.
 		if( !type.resourceDefault( program, resource ) ) return false;
@@ -1131,6 +1085,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		resource.save( this );
 
+		// Create the resource settings
+		createResourceSettings( resource );
+
 		// Note: The resource watcher will log that the resource was unmodified.
 		resource.setModified( false );
 
@@ -1166,6 +1123,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	// TODO Finish implementing ResourceManager.doSetCurrentResource()
+
 	private boolean doSetCurrentResource( Resource resource ) {
 		synchronized( currentResourceLock ) {
 			Resource previous = currentResource;
@@ -1200,6 +1158,12 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		return true;
+	}
+
+	private void createResourceSettings( Resource resource ) {
+		URI uri = resource.getUri();
+		if( uri == null ) return;
+		resource.setSettings( program.getSettingsManager().getSettings( ProgramSettings.RESOURCE, IdGenerator.getId( uri.toString() ) ) );
 	}
 
 	//	/**

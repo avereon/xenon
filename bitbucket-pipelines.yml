@@ -4,9 +4,8 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 # https://hub.docker.com/r/library/maven/tags/
-#image: xeomar/jdk-9-180-maven-3.5.0
-#image: xeomar/jdk-8-144-maven-3.5.0
-image: xeomar/jdk-8-144-jfx-maven-3.5.0
+#image: xeomar/jdk-8-144-jfx-maven-3.5.0
+image: xeomar/jdk-9.0.1-jfx-maven-3.5.2
 
 pipelines:
   # replace `default` level with levels `branches.master` or any other branch to limit builds to that branch

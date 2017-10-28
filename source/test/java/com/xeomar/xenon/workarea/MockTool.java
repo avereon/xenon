@@ -1,7 +1,6 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.worktool.Tool;
 import javafx.geometry.Insets;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
