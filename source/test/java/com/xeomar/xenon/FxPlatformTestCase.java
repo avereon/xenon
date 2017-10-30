@@ -7,11 +7,7 @@ public abstract class FxPlatformTestCase extends BaseTestCase {
 
 	@Before
 	public void setup() throws Exception {
-		try {
-			JavaFxStarter.startAndWait( 2000 );
-		} catch( IllegalStateException exception ) {
-			// Intentionally ignore exception
-		}
+		JavaFxStarter.startAndWait( 3000 );
 	}
 
 }
