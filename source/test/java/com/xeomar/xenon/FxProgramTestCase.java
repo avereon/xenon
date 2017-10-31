@@ -27,11 +27,16 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	protected ProductMetadata metadata;
 
 	/**
-	 * Overrides setup() in FxPlatformTestCase and does not call super.setup().
+	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
 	@Before
 	public void setup() throws Exception {
 		// Intentionally do not call super.setup()
+
+		long max = Runtime.getRuntime().maxMemory();
+		long total = Runtime.getRuntime().totalMemory();
+		long used = total - Runtime.getRuntime().freeMemory();
+		System.out.println( "Memory: " + used + " / " + total + " / " + max );
 
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		// NOTE These are also used in ProgramTestCase
