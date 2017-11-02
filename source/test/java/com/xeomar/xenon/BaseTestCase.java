@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.util.OperatingSystem;
+import com.xeomar.razor.OperatingSystem;
 import org.junit.After;
 import org.junit.Before;
 

@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.event.SettingsEvent;
 import org.slf4j.Logger;
 

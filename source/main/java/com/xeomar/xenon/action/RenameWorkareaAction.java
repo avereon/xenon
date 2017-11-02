@@ -1,7 +1,7 @@
 package com.xeomar.xenon.action;
 
+import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.Action;
-import com.xeomar.xenon.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.workarea.Workarea;

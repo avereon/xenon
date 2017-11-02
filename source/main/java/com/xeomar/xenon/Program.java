@@ -1,5 +1,8 @@
 package com.xeomar.xenon;
 
+import com.xeomar.razor.JavaUtil;
+import com.xeomar.razor.LogUtil;
+import com.xeomar.razor.OperatingSystem;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
@@ -18,8 +21,6 @@ import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
 import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
-import com.xeomar.xenon.util.JavaUtil;
-import com.xeomar.xenon.util.OperatingSystem;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -120,7 +121,7 @@ public class Program extends Application implements Product {
 		printHeader( metadata );
 
 		// Configure logging
-		LogUtil.configureLogging( getParameter( ProgramParameter.LOG_LEVEL ) );
+		LogUtil.configureLogging( this, getParameter( ProgramParameter.LOG_LEVEL ) );
 
 		// Create the program event watcher after configuring the logging
 		addEventListener( watcher = new ProgramEventWatcher() );

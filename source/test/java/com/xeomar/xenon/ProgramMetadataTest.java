@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
+import com.xeomar.razor.OperatingSystem;
 import com.xeomar.xenon.product.ProductMetadata;
-import com.xeomar.xenon.util.OperatingSystem;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;

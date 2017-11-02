@@ -1,6 +1,6 @@
 package com.xeomar.xenon.task;
 
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
 import com.xeomar.xenon.util.Controllable;

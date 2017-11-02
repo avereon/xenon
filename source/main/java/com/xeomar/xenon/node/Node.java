@@ -1,6 +1,6 @@
 package com.xeomar.xenon.node;
 
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.transaction.*;
 import org.slf4j.Logger;
 

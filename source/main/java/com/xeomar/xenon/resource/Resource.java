@@ -1,6 +1,6 @@
 package com.xeomar.xenon.resource;
 
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.ResourceManager;
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.node.NodeEvent;

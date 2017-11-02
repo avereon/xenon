@@ -1,6 +1,6 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceEvent;
