@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.xeomar.razor.FileUtil;
 import com.xeomar.razor.OperatingSystem;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
@@ -36,7 +37,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		System.out.println( "Memory: " + used + " / " + total + " / " + max );
+		System.out.println( "Memory: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) );
 
 		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
 		// NOTE These are also used in ProgramTestCase

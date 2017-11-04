@@ -222,6 +222,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<runOrder>alphabetical</runOrder>
+							<argLine>-Xmx2g</argLine>
 							<systemPropertyVariables>
 								<java.awt.headless>true</java.awt.headless>
 								<glass.platform>Monocle</glass.platform>
@@ -290,7 +291,7 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
 							<runOrder>alphabetical</runOrder>
-							<argLine>--add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
+							<argLine>-Xmx2g --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
 							<systemPropertyVariables>
 								<java.awt.headless>true</java.awt.headless>
 								<prism.order>sw</prism.order>

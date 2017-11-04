@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool;
 
+import com.xeomar.razor.FileUtil;
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
@@ -365,7 +366,14 @@ public class AboutTool extends ProductTool {
 	private String getMemoryDetail() {
 		StringBuilder builder = new StringBuilder();
 
+		long max = Runtime.getRuntime().maxMemory();
+		long total = Runtime.getRuntime().totalMemory();
+		long used = total - Runtime.getRuntime().freeMemory();
+		builder.append( "Summary: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
+
+
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
+		builder.append( "\n" );
 		builder.append( "Heap use:     " + bean.getHeapMemoryUsage() + "\n" );
 		builder.append( "Non-heap use: " + bean.getNonHeapMemoryUsage() + "\n" );
 
