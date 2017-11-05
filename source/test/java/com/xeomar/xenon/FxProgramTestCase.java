@@ -34,6 +34,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	public void setup() throws Exception {
 		// Intentionally do not call super.setup()
 
+		Runtime.getRuntime().gc();
+
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
