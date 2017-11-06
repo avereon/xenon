@@ -7,7 +7,7 @@ public abstract class FxPlatformTestCase extends BaseTestCase {
 
 	@Before
 	public void setup() throws Exception {
-		JavaFxStarter.startAndWait( 3000 );
+		JavaFxStarter.startAndWait( 5000 );
 	}
 
 }
