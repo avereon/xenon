@@ -45,7 +45,6 @@
 		<package-stage-folder>program</package-stage-folder>
 		<slf4j.version>1.8.0-alpha2</slf4j.version>
 		<testfx.version>4.0.8-alpha</testfx.version>
-		<jarsigner.skip>true</jarsigner.skip>
 	</properties>
 
 	<dependencies>
