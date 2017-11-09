@@ -109,12 +109,32 @@
 			<artifactId>testfx-core</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testfx</groupId>
+					<artifactId>testfx-internal-java8</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-junit</artifactId>
 			<version>${testfx.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>testfx-internal-java9</artifactId>
+			<version>${testfx.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>openjfx-monocle</artifactId>
+			<version>jdk-9+181</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -142,20 +162,26 @@
 		</resources>
 
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<runOrder>alphabetical</runOrder>
+					<argLine>-Xmx2g --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
+					<systemPropertyVariables>
+						<java.awt.headless>true</java.awt.headless>
+						<prism.order>sw</prism.order>
+						<prism.text>t2k</prism.text>
+						<testfx.robot>glass</testfx.robot>
+						<testfx.headless>true</testfx.headless>
+						<testfx.setup.timeout>2500</testfx.setup.timeout>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<!--<executions>-->
-				<!--<execution>-->
-				<!--<id>jar</id>-->
-				<!--<phase>package</phase>-->
-				<!--<goals>-->
-				<!--<goal>jar</goal>-->
-				<!--&lt;!&ndash; <goal>sign</goal> &ndash;&gt;-->
-				<!--</goals>-->
-				<!--</execution>-->
-				<!--</executions>-->
 				<configuration>
 					<archive>
 						<!-- Indexing the jar breaks the use of the Class-Path entry. -->
@@ -196,117 +222,5 @@
 
 		</plugins>
 	</build>
-
-	<profiles>
-
-		<!-- Profile for Java 8 -->
-		<profile>
-			<id>java8</id>
-			<activation>
-				<jdk>1.8</jdk>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>8</source>
-							<target>8</target>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<runOrder>alphabetical</runOrder>
-							<argLine>-Xmx2g</argLine>
-							<systemPropertyVariables>
-								<java.awt.headless>true</java.awt.headless>
-								<glass.platform>Monocle</glass.platform>
-								<monocle.platform>Headless</monocle.platform>
-								<testfx.robot>glass</testfx.robot>
-								<prism.order>sw</prism.order>
-								<prism.text>t2k</prism.text>
-							</systemPropertyVariables>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<!-- Profile for Java 9 -->
-		<profile>
-			<id>java9</id>
-			<activation>
-				<jdk>9</jdk>
-			</activation>
-
-			<dependencies>
-
-				<dependency>
-					<groupId>org.testfx</groupId>
-					<artifactId>testfx-core</artifactId>
-					<version>${testfx.version}</version>
-					<scope>test</scope>
-					<exclusions>
-						<exclusion>
-							<groupId>org.testfx</groupId>
-							<artifactId>testfx-internal-java8</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-
-				<dependency>
-					<groupId>org.testfx</groupId>
-					<artifactId>testfx-internal-java9</artifactId>
-					<version>${testfx.version}</version>
-					<scope>test</scope>
-				</dependency>
-
-				<dependency>
-					<groupId>org.testfx</groupId>
-					<artifactId>openjfx-monocle</artifactId>
-					<version>jdk-9+181</version>
-					<scope>test</scope>
-				</dependency>
-
-			</dependencies>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>9</source>
-							<target>9</target>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<runOrder>alphabetical</runOrder>
-							<argLine>-Xmx2g --add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
-							<systemPropertyVariables>
-								<java.awt.headless>true</java.awt.headless>
-								<prism.order>sw</prism.order>
-								<prism.text>t2k</prism.text>
-								<testfx.robot>glass</testfx.robot>
-								<testfx.headless>true</testfx.headless>
-								<!--
-								<testfx.setup.timeout>2500</testfx.setup.timeout>
-								-->
-							</systemPropertyVariables>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-	</profiles>
 
 </project>
