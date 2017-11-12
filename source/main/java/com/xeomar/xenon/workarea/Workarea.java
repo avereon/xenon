@@ -1,7 +1,5 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.IdGenerator;
-import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.Configurable;
@@ -9,7 +7,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.geometry.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

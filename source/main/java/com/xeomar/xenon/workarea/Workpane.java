@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.razor.LogUtil;
-import com.xeomar.xenon.IdGenerator;
+import com.xeomar.razor.IdGenerator;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.settings.Settings;

@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.xeomar.razor.IdGenerator;
 import com.xeomar.razor.LogUtil;
 import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
