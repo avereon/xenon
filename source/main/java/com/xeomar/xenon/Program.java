@@ -322,8 +322,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private void printHeader( ProductMetadata metadata ) {
 		ExecMode execMode = getExecMode();
-		System.out.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
-		System.out.println( "Java " + System.getProperty( "java.runtime.version" ) );
+		System.err.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
+		System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
 	}
 
 	private ExecMode getExecMode() {
