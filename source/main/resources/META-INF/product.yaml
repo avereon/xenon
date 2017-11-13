@@ -13,12 +13,12 @@ description: ${project.description}
 copyright:
   summary: All rights reserved.
 license:
-  summary: Essence comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
+  summary: ${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
 
 maintainers:
   - !!com.xeomar.util.Maintainer
     name: Mark Soderquist
-    email: mark@soderquist.net
+    email: mark.soderquist@xeomar.com
     roles:
       - Architect
     organization: Xeomar
@@ -29,5 +29,5 @@ contributors:
     name: Dan Langford
 
 resources:
-  head: "http://www.xeomar.com/download/product/essence/product.xml"
-  pack: "http://www.xeomar.com/download/product/essence/product.zip"
+  head: "http://www.xeomar.com/download/product/${project.artifactId}/product.xml"
+  pack: "http://www.xeomar.com/download/product/${project.artifactId}/product.zip"
