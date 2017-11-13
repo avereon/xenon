@@ -2,7 +2,7 @@ package com.xeomar.xenon.resource.type;
 
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;

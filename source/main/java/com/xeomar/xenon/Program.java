@@ -1,16 +1,15 @@
 package com.xeomar.xenon;
 
-import com.xeomar.razor.JavaUtil;
-import com.xeomar.razor.LogUtil;
-import com.xeomar.razor.OperatingSystem;
+import com.xeomar.util.JavaUtil;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.OperatingSystem;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.event.ProgramStoppingEvent;
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.product.ProductBundle;
-import com.xeomar.xenon.product.ProductMetadata;
+import com.xeomar.util.ProductBundle;
+import com.xeomar.util.ProductMetadata;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
@@ -38,7 +37,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Program extends Application implements Product {
+public class Program extends Application implements ProgramProduct {
 
 	public static final String STYLESHEET = "style.css";
 

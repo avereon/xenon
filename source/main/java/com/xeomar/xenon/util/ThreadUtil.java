@@ -1,6 +1,6 @@
 package com.xeomar.xenon.util;
 
-import com.xeomar.razor.JavaUtil;
+import com.xeomar.util.JavaUtil;
 
 import java.util.Arrays;
 import java.util.Map;

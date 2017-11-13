@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings.editor;
 
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiManager;
-import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
@@ -26,7 +26,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 
 	private Button button;
 
-	public FileSettingEditor( Product product, Setting setting ) {
+	public FileSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 

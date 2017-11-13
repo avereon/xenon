@@ -1,6 +1,6 @@
 package com.xeomar.xenon.settings;
 
-import com.xeomar.razor.LogUtil;
+import com.xeomar.util.LogUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 

@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.settings.SettingsListener;
 import com.xeomar.xenon.tool.settings.editor.*;
 import javafx.scene.layout.GridPane;
@@ -12,7 +12,7 @@ public abstract class SettingEditor implements SettingsListener {
 
 	private static Map<String, Class<? extends SettingEditor>> editors;
 
-	protected Product product;
+	protected ProgramProduct product;
 
 	protected Setting setting;
 
@@ -35,7 +35,7 @@ public abstract class SettingEditor implements SettingsListener {
 		//		//		addType( "time", TimeSettingEditor.class );
 	}
 
-	public SettingEditor( Product product, Setting setting ) {
+	public SettingEditor( ProgramProduct product, Setting setting ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;

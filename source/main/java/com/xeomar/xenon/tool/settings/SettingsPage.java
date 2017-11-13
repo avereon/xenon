@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.node.Node;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 import com.xeomar.xenon.settings.Settings;
 
 import java.util.Collections;

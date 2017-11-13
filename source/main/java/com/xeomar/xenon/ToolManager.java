@@ -1,8 +1,8 @@
 package com.xeomar.xenon;
 
-import com.xeomar.razor.IdGenerator;
-import com.xeomar.razor.LogUtil;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.IdGenerator;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.settings.Settings;

@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
@@ -18,7 +18,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 
 	private ColorPicker colorPicker;
 
-	public ColorSettingEditor( Product product, Setting setting ) {
+	public ColorSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 

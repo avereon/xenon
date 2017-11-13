@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool;
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.ToolException;

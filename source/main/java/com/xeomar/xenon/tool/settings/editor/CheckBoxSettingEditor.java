@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
@@ -17,7 +17,7 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	private CheckBox checkbox;
 
-	public CheckBoxSettingEditor( Product product, Setting setting ) {
+	public CheckBoxSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 

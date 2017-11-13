@@ -1,6 +1,6 @@
 package com.xeomar.xenon.scheme;
 
-import com.xeomar.razor.LogUtil;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.NullCodecException;

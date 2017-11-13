@@ -2,8 +2,8 @@ package com.xeomar.xenon.resource.type;
 
 import com.xeomar.xenon.IconLibrary;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.product.ProductBundle;
+import com.xeomar.util.Product;
+import com.xeomar.util.ProductBundle;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;

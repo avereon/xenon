@@ -1,5 +1,7 @@
 package com.xeomar.xenon.util;
 
+import com.xeomar.util.LineParser;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;

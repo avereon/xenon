@@ -1,7 +1,7 @@
 package com.xeomar.xenon.resource;
 
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 
 public class MockResourceType extends ResourceType {
 

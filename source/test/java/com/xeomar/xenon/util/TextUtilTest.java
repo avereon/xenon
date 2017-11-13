@@ -1,5 +1,6 @@
 package com.xeomar.xenon.util;
 
+import com.xeomar.util.LineParser;
 import junit.framework.TestCase;
 
 import java.nio.charset.Charset;

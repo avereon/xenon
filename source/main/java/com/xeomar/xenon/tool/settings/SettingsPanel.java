@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool.settings;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.settings.SettingsListener;

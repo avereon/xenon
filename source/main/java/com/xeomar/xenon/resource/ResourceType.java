@@ -1,7 +1,7 @@
 package com.xeomar.xenon.resource;
 
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 
 import java.util.Collections;
 import java.util.Set;

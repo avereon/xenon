@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
@@ -25,11 +25,11 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 
 	private TextInputControl text;
 
-	public InfoLineSettingEditor( Product product, Setting setting ) {
+	public InfoLineSettingEditor( ProgramProduct product, Setting setting ) {
 		this( product, setting, Type.FIELD );
 	}
 
-	public InfoLineSettingEditor( Product product, Setting setting, Type type ) {
+	public InfoLineSettingEditor( ProgramProduct product, Setting setting, Type type ) {
 		super( product, setting );
 		this.type = type;
 	}

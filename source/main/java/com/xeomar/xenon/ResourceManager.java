@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
-import com.xeomar.razor.IdGenerator;
-import com.xeomar.razor.LogUtil;
+import com.xeomar.util.IdGenerator;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.*;

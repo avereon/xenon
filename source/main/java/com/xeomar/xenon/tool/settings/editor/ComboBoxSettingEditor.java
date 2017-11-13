@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
@@ -20,7 +20,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	private ComboBox<SettingOption> combobox;
 
-	public ComboBoxSettingEditor( Product product, Setting setting ) {
+	public ComboBoxSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 

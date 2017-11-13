@@ -1,10 +1,10 @@
 package com.xeomar.xenon;
 
-import com.xeomar.razor.FileUtil;
-import com.xeomar.razor.OperatingSystem;
+import com.xeomar.util.FileUtil;
+import com.xeomar.util.OperatingSystem;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
-import com.xeomar.xenon.product.ProductMetadata;
+import com.xeomar.util.ProductMetadata;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;

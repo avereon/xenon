@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.product.ProductMetadata;
+import com.xeomar.util.Product;
+import com.xeomar.util.ProductMetadata;
 
 import java.io.File;
 

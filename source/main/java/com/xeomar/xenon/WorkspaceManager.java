@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.razor.LogUtil;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.Controllable;
 import com.xeomar.xenon.workarea.Workspace;
 import javafx.scene.control.Alert;

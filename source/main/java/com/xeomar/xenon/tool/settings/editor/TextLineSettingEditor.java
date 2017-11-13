@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
@@ -26,11 +26,11 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 
 	private TextInputControl text;
 
-	public TextLineSettingEditor( Product product, Setting setting ) {
+	public TextLineSettingEditor( ProgramProduct product, Setting setting ) {
 		this( product, setting, Type.FIELD );
 	}
 
-	TextLineSettingEditor( Product product, Setting setting, Type type ) {
+	TextLineSettingEditor( ProgramProduct product, Setting setting, Type type ) {
 		super( product, setting );
 		this.type = type;
 	}
@@ -43,16 +43,16 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
 		switch( type ) {
-			case AREA : {
-				text = new TextArea(  );
+			case AREA: {
+				text = new TextArea();
 				break;
 			}
-			case PASSWORD : {
-				text = new PasswordField(  );
+			case PASSWORD: {
+				text = new PasswordField();
 				break;
 			}
-			default : {
-				text = new TextField(  );
+			default: {
+				text = new TextField();
 				break;
 			}
 		}

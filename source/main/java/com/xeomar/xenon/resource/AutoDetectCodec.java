@@ -1,6 +1,6 @@
 package com.xeomar.xenon.resource;
 
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 
 import java.io.IOException;
 import java.io.InputStream;

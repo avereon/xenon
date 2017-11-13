@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.razor.LogUtil;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.Colors;
 import com.xeomar.xenon.util.JavaFxStarter;
 import javafx.application.Platform;

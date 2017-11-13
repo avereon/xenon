@@ -16,7 +16,7 @@ license:
   summary: Essence comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
 
 maintainers:
-  - !!com.xeomar.xenon.person.Maintainer
+  - !!com.xeomar.util.Maintainer
     name: Mark Soderquist
     email: mark@soderquist.net
     roles:
@@ -25,7 +25,7 @@ maintainers:
     organizationUrl: http://xeomar.com/
 
 contributors:
-  - !!com.xeomar.xenon.person.Contributor
+  - !!com.xeomar.util.Contributor
     name: Dan Langford
 
 resources:

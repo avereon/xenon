@@ -2,7 +2,7 @@ package com.xeomar.xenon;
 
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.util.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
 import com.xeomar.xenon.settings.Settings;
