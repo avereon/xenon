@@ -1,20 +1,20 @@
 package com.xeomar.xenon;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
+import com.xeomar.settings.StoredSettings;
+import com.xeomar.util.Controllable;
+import com.xeomar.util.Paths;
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
 import com.xeomar.util.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.settings.SettingsEvent;
-import com.xeomar.xenon.settings.SettingsListener;
-import com.xeomar.xenon.settings.StoredSettings;
 import com.xeomar.xenon.tool.Guide;
 import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsPageParser;
-import com.xeomar.xenon.util.Controllable;
-import com.xeomar.xenon.util.Paths;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;

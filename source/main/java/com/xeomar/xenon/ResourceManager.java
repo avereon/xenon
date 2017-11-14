@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.node.NodeEvent;
@@ -7,7 +8,6 @@ import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.*;
 import com.xeomar.xenon.resource.event.*;
 import com.xeomar.xenon.task.Task;
-import com.xeomar.xenon.util.Controllable;
 import com.xeomar.xenon.util.UriUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.event.Event;

@@ -1,9 +1,9 @@
 package com.xeomar.xenon;
 
+import com.xeomar.settings.Settings;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.workarea.*;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;

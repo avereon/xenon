@@ -1,13 +1,13 @@
 package com.xeomar.xenon;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceType;
-import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskThread;
-import com.xeomar.xenon.util.Controllable;
 import com.xeomar.xenon.workarea.Tool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;

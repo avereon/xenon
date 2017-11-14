@@ -1,12 +1,12 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceEvent;
 import com.xeomar.xenon.resource.ResourceListener;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

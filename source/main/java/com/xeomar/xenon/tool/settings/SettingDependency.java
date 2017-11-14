@@ -1,8 +1,8 @@
 package com.xeomar.xenon.tool.settings;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.node.Node;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.TextUtil;
 
 import java.util.Collections;
 import java.util.List;

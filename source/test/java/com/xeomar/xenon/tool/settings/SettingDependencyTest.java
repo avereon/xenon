@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.settings.MapSettings;
-import com.xeomar.xenon.settings.Settings;
+import com.xeomar.settings.MapSettings;
+import com.xeomar.settings.Settings;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

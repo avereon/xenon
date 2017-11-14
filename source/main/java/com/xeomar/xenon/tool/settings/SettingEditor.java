@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
+import com.xeomar.settings.SettingsListener;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.settings.SettingsListener;
 import com.xeomar.xenon.tool.settings.editor.*;
 import javafx.scene.layout.GridPane;
 

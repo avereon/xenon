@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings.editor;
 
+import com.xeomar.settings.SettingsEvent;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.settings.SettingsEvent;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import com.xeomar.xenon.util.FontUtil;

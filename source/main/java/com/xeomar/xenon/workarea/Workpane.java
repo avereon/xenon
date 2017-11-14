@@ -1,11 +1,11 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiManager;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Node;

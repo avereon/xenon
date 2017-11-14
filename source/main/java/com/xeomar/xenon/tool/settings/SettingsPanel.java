@@ -1,12 +1,12 @@
 package com.xeomar.xenon.tool.settings;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.util.Product;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.settings.SettingsEvent;
-import com.xeomar.xenon.settings.SettingsListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;

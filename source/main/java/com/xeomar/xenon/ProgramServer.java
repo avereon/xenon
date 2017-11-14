@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.settings.Settings;
+import com.xeomar.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,9 +1,9 @@
 package com.xeomar.xenon.task;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
+import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
-import com.xeomar.xenon.util.Controllable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

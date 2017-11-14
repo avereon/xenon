@@ -1,11 +1,11 @@
 package com.xeomar.xenon.workarea;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import com.xeomar.xenon.Actions;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;

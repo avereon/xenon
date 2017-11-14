@@ -1,13 +1,13 @@
 package com.xeomar.xenon.resource;
 
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ResourceManager;
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.event.*;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 

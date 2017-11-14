@@ -1,14 +1,13 @@
 package com.xeomar.xenon.tool;
 
+import com.xeomar.settings.Settings;
 import com.xeomar.util.*;
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
-import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.util.*;
-import com.xeomar.xenon.util.TextUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import javafx.application.Application;
 import javafx.scene.Node;

@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;

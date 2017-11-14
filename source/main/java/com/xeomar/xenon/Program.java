@@ -1,20 +1,16 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.JavaUtil;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.OperatingSystem;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.*;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.event.ProgramStoppingEvent;
-import com.xeomar.util.ProductBundle;
-import com.xeomar.util.ProductMetadata;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
-import com.xeomar.xenon.settings.Settings;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
@@ -317,7 +313,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		//System.err.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	private void printHeader( ProductMetadata metadata ) {

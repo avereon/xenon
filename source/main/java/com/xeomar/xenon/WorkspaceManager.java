@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.util.Controllable;
 import com.xeomar.xenon.workarea.Workspace;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
