@@ -71,6 +71,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private WorkspaceManager workspaceManager;
 
+	private UpdateManager updateManager;
+
 	private ProgramEventWatcher watcher;
 
 	private ProgramNotifier notifier;
@@ -296,6 +298,10 @@ public class Program extends Application implements ProgramProduct {
 		return workspaceManager;
 	}
 
+	public UpdateManager getUpdateManager() {
+		return updateManager;
+	}
+
 	public void addEventListener( ProgramEventListener listener ) {
 		this.listeners.add( listener );
 	}
@@ -358,7 +364,7 @@ public class Program extends Application implements ProgramProduct {
 		UiManager uiManager = new UiManager( Program.this );
 
 		// Set the number of startup steps
-		int managerCount = 5;
+		int managerCount = 6;
 		int steps = managerCount + uiManager.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
@@ -403,7 +409,12 @@ public class Program extends Application implements ProgramProduct {
 		uiManager.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
-		// TODO Start the update manager
+		// Start the update manager
+		log.trace( "Starting update manager..." );
+		updateManager = new UpdateManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Update manager started." );
 
 		// Finish the splash screen
 		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
@@ -417,13 +428,17 @@ public class Program extends Application implements ProgramProduct {
 		try {
 			fireEvent( new ProgramStoppingEvent( this ) );
 
+			// Stop the UpdateManager
+			log.trace( "Stopping update manager..." );
+			updateManager.stop();
+			updateManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Update manager stopped." );
+
 			// Stop the workspace manager
 			log.trace( "Stopping workspace manager..." );
 			workspaceManager.stop();
 			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
-
-			// TODO Stop the UpdateManager
 
 			// Stop the tool manager
 			log.trace( "Stopping tool manager..." );
