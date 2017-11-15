@@ -89,6 +89,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private NoticeAction noticeAction;
 
+	private UpdateAction updateAction;
+
 	public static void main( String[] commands ) {
 		launch( commands );
 	}
@@ -100,6 +102,7 @@ public class Program extends Application implements ProgramProduct {
 		settingsAction = new SettingsAction( this );
 		welcomeAction = new WelcomeAction( this );
 		noticeAction = new NoticeAction( this );
+		updateAction = new UpdateAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -487,6 +490,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction );
+		getActionLibrary().getAction( "update" ).pushAction( updateAction );
 	}
 
 	private void unregisterActionHandlers() {
@@ -495,6 +499,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
+		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 	}
 
 	private void registerSchemes( ResourceManager manager ) {

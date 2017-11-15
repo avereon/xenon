@@ -4,9 +4,9 @@ import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import javafx.event.Event;
 
-public class UpdatesAction extends Action  {
+public class UpdateAction extends Action {
 
-	protected UpdatesAction( Program program ) {
+	public UpdateAction( Program program ) {
 		super( program );
 	}
 
@@ -17,7 +17,7 @@ public class UpdatesAction extends Action  {
 
 	@Override
 	public void handle( Event event ) {
-	program.getUpdateManager().checkForUpdates();
+		program.getUpdateManager().checkForUpdates();
 	}
 
 }
