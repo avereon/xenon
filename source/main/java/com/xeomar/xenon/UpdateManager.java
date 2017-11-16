@@ -2,10 +2,13 @@ package com.xeomar.xenon;
 
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
-import com.xeomar.xenon.update.ProductUpdate;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
+import com.xeomar.xenon.update.ProductCatalog;
+import com.xeomar.xenon.update.ProductUpdate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -26,24 +29,43 @@ import java.util.concurrent.TimeUnit;
 public class UpdateManager implements Controllable<UpdateManager>, Configurable {
 
 	public enum CheckOption {
-		MANUAL, STARTUP, INTERVAL, SCHEDULE
+		MANUAL,
+		STARTUP,
+		INTERVAL,
+		SCHEDULE
 	}
 
 	public enum CheckInterval {
-		MONTH, WEEK, DAY, HOUR
+		MONTH,
+		WEEK,
+		DAY,
+		HOUR
 	}
 
 	public enum CheckWhen {
-		DAILY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+		DAILY,
+		SUNDAY,
+		MONDAY,
+		TUESDAY,
+		WEDNESDAY,
+		THURSDAY,
+		FRIDAY,
+		SATURDAY
 	}
 
 	public enum FoundOption {
-		SELECT, STORE, STAGE
+		SELECT,
+		STORE,
+		STAGE
 	}
 
 	public enum ApplyOption {
-		VERIFY, IGNORE, RESTART
+		VERIFY,
+		IGNORE,
+		RESTART
 	}
+
+	private static final Logger log = LoggerFactory.getLogger( UpdateManager.class );
 
 	public static final String DEFAULT_CATALOG_FILE_NAME = "catalog.xml";
 
@@ -81,7 +103,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Settings settings;
 
-	//private Set<ProductCatalog> catalogs;
+	private Set<ProductCatalog> catalogs;
 
 	private Map<String, Module> modules;
 
@@ -120,7 +142,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public UpdateManager( Program program ) {
 		this.program = program;
 
-//		catalogs = new CopyOnWriteArraySet<ProductCatalog>();
+		catalogs = new CopyOnWriteArraySet<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
 		products = new ConcurrentHashMap<>();
@@ -137,8 +159,146 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		postedUpdateCache = new CopyOnWriteArraySet<>();
 	}
 
+	public int getCatalogCount() {
+		return catalogs.size();
+	}
+
+	public void addCatalog( ProductCatalog source ) {
+		catalogs.add( source );
+		saveSettings();
+	}
+
+	public void removeCatalog( ProductCatalog source ) {
+		catalogs.remove( source );
+		saveSettings();
+	}
+
+	public void setCatalogEnabled( ProductCatalog catalog, boolean enabled ) {
+		catalog.setEnabled( enabled );
+		saveSettings();
+	}
+
+	public Set<ProductCatalog> getCatalogs() {
+		return new HashSet<>( catalogs );
+	}
+
+	public Set<Module> getModules() {
+		return new HashSet<>( modules.values() );
+	}
+
+	public Product getProduct( String productKey ) {
+		return productKey == null ? program : products.get( productKey );
+	}
+
+	public Set<ProductCard> getProductCards() {
+		return new HashSet<>( productCards.values() );
+	}
+
+	public void registerProduct( Product product ) {
+		String productKey = product.getCard().getProductKey();
+		products.put( productKey, product );
+		productCards.put( productKey, product.getCard() );
+		productStates.put( productKey, new ProductState() );
+	}
+
+	public void unregisterProduct( Product product ) {
+		String productKey = product.getCard().getProductKey();
+		products.remove( productKey );
+		productCards.remove( productKey );
+		productStates.remove( productKey );
+	}
+
+	public int getInstalledProductCount() {
+		return productCards.size();
+	}
+
+	/**
+	 * Determines if a product is installed regardless of release.
+	 *
+	 * @param card
+	 * @return
+	 */
+	public boolean isInstalled( ProductCard card ) {
+		return productCards.get( card.getProductKey() ) != null;
+	}
+
+	/**
+	 * Determines if a specific release of a product is installed.
+	 *
+	 * @param card
+	 * @return
+	 */
+	public boolean isReleaseInstalled( ProductCard card ) {
+		ProductCard internal = productCards.get( card.getProductKey() );
+		return internal != null && internal.getRelease().equals( card.getRelease() );
+	}
+
+	public boolean isUpdatable( ProductCard card ) {
+		ProductState state = productStates.get( card.getProductKey() );
+		return state != null && state.updatable;
+	}
+
+	public void setUpdatable( ProductCard card, boolean updatable ) {
+		if( isUpdatable( card ) == updatable ) return;
+		ProductState state = productStates.get( card.getProductKey() );
+		if( state == null ) return;
+
+		state.updatable = updatable;
+		new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
+	}
+
+	public boolean isRemovable( ProductCard card ) {
+		ProductState state = productStates.get( card.getProductKey() );
+		return state != null && state.removable;
+	}
+
+	public void setRemovable( ProductCard card, boolean removable ) {
+		if( isRemovable( card ) == removable ) return;
+		ProductState state = productStates.get( card.getProductKey() );
+		if( state == null ) return;
+
+		state.removable = removable;
+		new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
+	}
+
+	public boolean isEnabled( ProductCard card ) {
+		return program.getSettingsManager().getProductSettings( card ).getBoolean( PRODUCT_ENABLED_KEY, false );
+	}
+
+	public void setEnabled( ProductCard card, boolean enabled ) {
+		if( isEnabled( card ) == enabled ) return;
+
+		// NEXT Implement setEnabledImpl()
+		//		setEnabledImpl( card, enabled );
+
+		Settings settings = program.getSettingsManager().getProductSettings( card );
+		settings.set( PRODUCT_ENABLED_KEY, enabled );
+		settings.flush();
+		log.trace( "Set enabled: ", settings.getPath(), ": ", enabled );
+
+		new UpdateManagerEvent( this, enabled ? UpdateManagerEvent.Type.PRODUCT_ENABLED : UpdateManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
+	}
+
+	/**
+	 * Get the path to the updater library.
+	 *
+	 * @return
+	 */
+	public File getUpdaterPath() {
+		return updater;
+	}
+
+	/**
+	 * Get the path to the updater library.
+	 *
+	 * @param file
+	 */
+	public void setUpdaterPath( File file ) {
+		this.updater = file;
+	}
+
 	public void checkForUpdates() {
-		// NEXT Work on implementing update manager
+		// TODO Implement checkForUpdates()
 	}
 
 	@Override
@@ -176,9 +336,45 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return this;
 	}
 
+	public void addProductManagerListener( UpdateManagerListener listener ) {
+		listeners.add( listener );
+	}
+
+	public void removeProductManagerListener( UpdateManagerListener listener ) {
+		listeners.remove( listener );
+	}
+
 	@Override
 	public void setSettings( Settings settings ) {
+		if( settings == null || this.settings != null ) return;
+
 		this.settings = settings;
+
+		//		// TODO Load the product catalogs
+		//		Set<ProductCatalog> catalogsSet = new CopyOnWriteArraySet<ProductCatalog>();
+		//		Set<Settings> catalogsSettings = settings.getChildNodes( CATALOGS_SETTINGS_KEY );
+		//		for( Settings catalogSettings : catalogsSettings ) {
+		//			ProductCatalog catalog = new ProductCatalog();
+		//			catalog.loadSettings( catalogSettings );
+		//			catalogsSet.add( catalog );
+		//		}
+		//		this.catalogs = catalogsSet;
+		//
+		//		// TODO Load the product updates
+		//		Map<String, ProductUpdate> updatesMap = new ConcurrentHashMap<String, ProductUpdate>();
+		//		Map<String, Settings> updatesSettings = settings.getNodeMap( UPDATES_SETTINGS_KEY, this.updates );
+		//		for( String key : updatesSettings.keySet() ) {
+		//			Settings updateSettings = updatesSettings.get( key );
+		//			ProductUpdate update = new ProductUpdate();
+		//			update.loadSettings( updateSettings );
+		//			updatesMap.put( key, update );
+		//		}
+		//		this.updates = updatesMap;
+
+		Settings updateSettings = settings.getNode( "update" );
+		this.checkOption = CheckOption.valueOf( updateSettings.get( CHECK, CheckOption.INTERVAL ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( updateSettings.get( FOUND, FoundOption.SELECT ).toUpperCase() );
+		this.applyOption = ApplyOption.valueOf( updateSettings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
 	}
 
 	@Override
@@ -186,18 +382,30 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return settings;
 	}
 
-//	private final class SettingChangeHandler implements SettingListener {
-//
-//		@Override
-//		public void settingChanged( SettingEvent event ) {
-//			if( CHECK.equals( event.getKey() ) ) {
-//				setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
-//			} else if( event.getFullPath().startsWith( ServiceSettingsPath.UPDATE_SETTINGS_PATH + "/check" ) ) {
-//				scheduleUpdateCheck( false );
-//			}
-//		}
-//
-//	}
+	private void saveSettings() {
+		// TODO settings.putNodeSet( CATALOGS_SETTINGS_KEY, catalogs );
+		// TODO settings.putNodeMap( UPDATES_SETTINGS_KEY, updates );
+
+		Settings updateSettings = settings.getNode( "update" );
+		updateSettings.set( CHECK, checkOption.name().toLowerCase() );
+		updateSettings.set( FOUND, foundOption.name().toLowerCase() );
+		updateSettings.set( APPLY, applyOption.name().toLowerCase() );
+
+		settings.flush();
+	}
+
+	//	private final class SettingChangeHandler implements SettingListener {
+	//
+	//		@Override
+	//		public void settingChanged( SettingEvent event ) {
+	//			if( CHECK.equals( event.getKey() ) ) {
+	//				setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
+	//			} else if( event.getFullPath().startsWith( ServiceSettingsPath.UPDATE_SETTINGS_PATH + "/check" ) ) {
+	//				scheduleUpdateCheck( false );
+	//			}
+	//		}
+	//
+	//	}
 
 	private final class UpdateCheckTask extends TimerTask {
 

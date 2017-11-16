@@ -3,7 +3,9 @@ package com.xeomar.xenon;
 import com.xeomar.product.ProductBundle;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
-import com.xeomar.util.*;
+import com.xeomar.util.JavaUtil;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.OperatingSystem;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
@@ -417,7 +419,8 @@ public class Program extends Application implements ProgramProduct {
 		// Start the update manager
 		log.trace( "Starting update manager..." );
 		updateManager = new UpdateManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		updateManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		configureUpdates();
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Update manager started." );
 
@@ -556,6 +559,21 @@ public class Program extends Application implements ProgramProduct {
 
 	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass ) {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
+	}
+
+	private void configureUpdates() {
+		Settings settings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		if( settings == null ) throw new RuntimeException( "Settings not initialized." );
+
+		// Register the product.
+		updateManager.registerProduct( this );
+		updateManager.setEnabled( getCard(), true );
+		updateManager.setUpdatable( getCard(), true );
+		updateManager.setRemovable( getCard(), false );
+
+		// Configure the product manager.
+		updateManager.setSettings( settings.getNode( ProgramSettings.UPDATE ) );
+		// TODO updateManager.setUpdaterPath( new File( getHomeFolder(), UpdateManager.UPDATER_JAR_NAME ) );
 	}
 
 	private class Startup extends Task<Void> {

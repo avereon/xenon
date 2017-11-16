@@ -1,5 +1,7 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.Product;
+import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
@@ -8,7 +10,6 @@ import com.xeomar.util.Controllable;
 import com.xeomar.util.Paths;
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
-import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
 import com.xeomar.xenon.tool.Guide;
@@ -55,6 +56,18 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public Settings getSettings( String root, String path ) {
 		return getSettings( Paths.resolve( root, path ) );
+	}
+
+	public Settings getProductSettings( Product product ) {
+		return getSettings( getSettingsPath( product.getCard() ) );
+	}
+
+	public Settings getProductSettings( ProductCard card ) {
+		return getSettings( getSettingsPath( card ) );
+	}
+
+	private static final String getSettingsPath( ProductCard card ) {
+		return ProgramSettings.PRODUCT + card.getProductKey();
 	}
 
 	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {

@@ -4,7 +4,11 @@ public interface ProgramSettings {
 
 	String BASE = "/";
 
+	String PRODUCT = BASE + "product/";
+
 	String PROGRAM = BASE + "program/";
+
+	String UPDATE = PROGRAM + "update/";
 
 	String RESOURCE = BASE + "resource/";
 

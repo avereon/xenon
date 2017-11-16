@@ -2,9 +2,7 @@ package com.xeomar.xenon;
 
 import com.xeomar.product.ProductCard;
 
-import java.util.EventObject;
-
-public class UpdateManagerEvent extends EventObject {
+public class UpdateManagerEvent extends ProgramEvent {
 
 	public enum Type {
 		PRODUCT_CHANGED, PRODUCT_ENABLED, PRODUCT_DISABLED, PRODUCT_INSTALLED, PRODUCT_REMOVED, PRODUCT_STAGED, PRODUCT_UPDATED
