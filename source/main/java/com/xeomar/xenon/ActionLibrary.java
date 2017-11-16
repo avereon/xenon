@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.util.LogUtil;
-import com.xeomar.util.ProductBundle;
+import com.xeomar.product.ProductBundle;
 import org.slf4j.Logger;
 
 import java.util.Map;

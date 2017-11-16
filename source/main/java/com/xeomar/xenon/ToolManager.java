@@ -4,7 +4,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
-import com.xeomar.util.Product;
+import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.task.TaskThread;

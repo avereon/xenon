@@ -1,5 +1,7 @@
 package com.xeomar.xenon.tool;
 
+import com.xeomar.product.Product;
+import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.*;
 import com.xeomar.xenon.ProductTool;
@@ -134,7 +136,7 @@ public class AboutTool extends ProductTool {
 
 	@Override
 	protected void resourceRefreshed() {
-		ProductMetadata metadata = getResource().getModel();
+		ProductCard metadata = getResource().getModel();
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );
 		} else {
@@ -145,7 +147,7 @@ public class AboutTool extends ProductTool {
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
 	}
 
-	private String getSummaryText( ProductMetadata metadata ) {
+	private String getSummaryText( ProductCard metadata ) {
 		Version version = new Version( metadata.getVersion() );
 
 		StringBuilder builder = new StringBuilder();
@@ -203,7 +205,7 @@ public class AboutTool extends ProductTool {
 	}
 
 	private String getDetailsText( Program program ) {
-		ProductMetadata metadata = program.getMetadata();
+		ProductCard metadata = program.getCard();
 		StringBuilder builder = new StringBuilder();
 
 		// Framework summary
@@ -227,7 +229,7 @@ public class AboutTool extends ProductTool {
 		builder.append( "\n" );
 		builder.append( getHeader( "Program details" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getProductDetails( program.getMetadata() ), 4, " " ) );
+		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getProgramDetails( program ), 4, " " ) );
 
@@ -307,7 +309,7 @@ public class AboutTool extends ProductTool {
 		return builder.toString();
 	}
 
-	private String getProductDetails( ProductMetadata card ) {
+	private String getProductDetails( ProductCard card ) {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "Product:     " + card.getName() + "\n" );

@@ -1,13 +1,13 @@
 package com.xeomar.xenon.resource;
 
+import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.Module;
 import com.xeomar.xenon.Program;
-import com.xeomar.util.ProductBundle;
-import com.xeomar.util.ProductMetadata;
+import com.xeomar.product.ProductBundle;
 
 public class MockModule extends Module {
 
-	public MockModule( Program program, ProductMetadata card ) {
+	public MockModule( Program program, ProductCard card ) {
 		super( program, card );
 	}
 

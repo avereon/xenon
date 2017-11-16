@@ -2,9 +2,9 @@ package com.xeomar.xenon;
 
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.OperatingSystem;
+import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
-import com.xeomar.util.ProductMetadata;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
@@ -25,7 +25,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	protected WorkpaneWatcher workpaneWatcher;
 
-	protected ProductMetadata metadata;
+	protected ProductCard metadata;
 
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
@@ -49,7 +49,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		// Remove the existing program data folder
 		try {
 			String prefix = ExecMode.TEST.getPrefix();
-			ProductMetadata metadata = new ProductMetadata();
+			ProductCard metadata = new ProductCard();
 			File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 			if( programDataFolder != null && programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
 		} catch( IOException exception ) {
@@ -58,7 +58,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
 		program.addEventListener( programWatcher = new ProgramWatcher() );
-		metadata = program.getMetadata();
+		metadata = program.getCard();
 
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
 		WaitForAsyncUtils.waitForFxEvents();

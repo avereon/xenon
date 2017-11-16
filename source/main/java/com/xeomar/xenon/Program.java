@@ -1,5 +1,7 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.ProductBundle;
+import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.*;
 import com.xeomar.xenon.action.*;
@@ -47,7 +49,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskManager taskManager;
 
-	private ProductMetadata metadata;
+	private ProductCard metadata;
 
 	private File programDataFolder;
 
@@ -115,7 +117,7 @@ public class Program extends Application implements ProgramProduct {
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product metadata
-		metadata = new ProductMetadata();
+		metadata = new ProductCard();
 
 		// Print the program header
 		printHeader( metadata );
@@ -247,7 +249,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	@Override
-	public ProductMetadata getMetadata() {
+	public ProductCard getCard() {
 		return metadata;
 	}
 
@@ -325,7 +327,7 @@ public class Program extends Application implements ProgramProduct {
 		//System.err.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
-	private void printHeader( ProductMetadata metadata ) {
+	private void printHeader( ProductCard metadata ) {
 		ExecMode execMode = getExecMode();
 		System.err.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
 		System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );

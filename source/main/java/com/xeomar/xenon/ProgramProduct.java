@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.Product;
+import com.xeomar.product.Product;
 
 public interface ProgramProduct extends Product {
 

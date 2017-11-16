@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.Product;
+import com.xeomar.product.Product;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.scene.Node;

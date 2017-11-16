@@ -2,8 +2,8 @@ package com.xeomar.xenon.resource.type;
 
 import com.xeomar.xenon.IconLibrary;
 import com.xeomar.xenon.Program;
-import com.xeomar.util.Product;
-import com.xeomar.util.ProductBundle;
+import com.xeomar.product.Product;
+import com.xeomar.product.ProductBundle;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
@@ -41,7 +41,7 @@ public class ProgramAboutType extends ResourceType {
 
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
-		resource.setModel( getProduct().getMetadata() );
+		resource.setModel( getProduct().getCard() );
 		resource.putResource( Guide.GUIDE_KEY, new Guide() );
 		updateGuide( program, resource );
 		return true;

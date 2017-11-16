@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool;
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
-import com.xeomar.util.Product;
+import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.ToolException;
@@ -33,7 +33,7 @@ public class WelcomeTool extends ProductTool {
 
 		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );
 
-		Label label = new Label( product.getMetadata().getName(), icon );
+		Label label = new Label( product.getCard().getName(), icon );
 		label.setFont( new Font( label.getFont().getSize() * 4 ) );
 		label.setPadding( new Insets( PAD, PAD, PAD, PAD ) );
 

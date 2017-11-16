@@ -8,7 +8,7 @@ import com.xeomar.util.Controllable;
 import com.xeomar.util.Paths;
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
-import com.xeomar.util.Product;
+import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
 import com.xeomar.xenon.tool.Guide;

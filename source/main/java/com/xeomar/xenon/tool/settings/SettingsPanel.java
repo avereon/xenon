@@ -6,7 +6,7 @@ import com.xeomar.settings.SettingsListener;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
-import com.xeomar.util.Product;
+import com.xeomar.product.Product;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;

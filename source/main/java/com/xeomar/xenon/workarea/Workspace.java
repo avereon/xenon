@@ -304,7 +304,7 @@ public class Workspace implements Configurable {
 	}
 
 	private void setStageTitle( String name ) {
-		stage.setTitle( name + " - " + program.getMetadata().getName() );
+		stage.setTitle( name + " - " + program.getCard().getName() );
 	}
 
 	private Workarea determineNextActiveWorkarea() {

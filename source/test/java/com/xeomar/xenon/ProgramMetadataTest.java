@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.util.OperatingSystem;
-import com.xeomar.util.ProductMetadata;
+import com.xeomar.product.ProductCard;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -19,12 +19,12 @@ import static org.junit.Assert.assertTrue;
 
 public class ProgramMetadataTest extends ProgramTestCase {
 
-	private ProductMetadata metadata;
+	private ProductCard metadata;
 
 	@Before
 	public void setup() throws Exception {
 		super.setup();
-		metadata = program.getMetadata();
+		metadata = program.getCard();
 	}
 
 	@Test

@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.Product;
-import com.xeomar.util.ProductMetadata;
+import com.xeomar.product.Product;
+import com.xeomar.product.ProductCard;
 
 import java.io.File;
 
@@ -9,9 +9,9 @@ public abstract class Module implements Product, Comparable<Module> {
 
 	protected Program program;
 
-	protected ProductMetadata card;
+	protected ProductCard card;
 
-	public Module( Program program, ProductMetadata moduleCard ) {
+	public Module( Program program, ProductCard moduleCard ) {
 		this.program = program;
 		this.card = moduleCard;
 	}
@@ -26,7 +26,7 @@ public abstract class Module implements Product, Comparable<Module> {
 	 * @return
 	 */
 	@Override
-	public ProductMetadata getMetadata() {
+	public ProductCard getCard() {
 		return card;
 	}
 
