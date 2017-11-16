@@ -3,7 +3,7 @@
 
 ### Eclipse ###
 
-.card
+.metadata
 bin/
 tmp/
 *.tmp
