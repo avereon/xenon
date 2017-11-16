@@ -3,6 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.product.ProductBundle;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
+import com.xeomar.util.FileUtil;
 import com.xeomar.util.JavaUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.OperatingSystem;
@@ -31,7 +32,13 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
@@ -47,11 +54,13 @@ public class Program extends Application implements ProgramProduct {
 
 	private static long programStartTime = System.currentTimeMillis();
 
+	private com.xeomar.util.Parameters parameters;
+
 	private SplashScreen splashScreen;
 
 	private TaskManager taskManager;
 
-	private ProductCard metadata;
+	private ProductCard card;
 
 	private File programDataFolder;
 
@@ -95,6 +104,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private UpdateAction updateAction;
 
+	private Path home;
+
 	public static void main( String[] commands ) {
 		launch( commands );
 	}
@@ -118,11 +129,11 @@ public class Program extends Application implements ProgramProduct {
 
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
-		// Load the product metadata
-		metadata = new ProductCard();
+		// Load the product card
+		card = new ProductCard();
 
 		// Print the program header
-		printHeader( metadata );
+		printHeader( card );
 
 		// Configure logging
 		LogUtil.configureLogging( this, getParameter( ProgramParameter.LOG_LEVEL ) );
@@ -135,8 +146,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Determine the program exec mode
 		String prefix = getExecModePrefix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-		time( "metadata" );
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
 		// Create the settings manager before getting the program settings
 		settingsManager = new SettingsManager( this ).start();
@@ -152,13 +162,13 @@ public class Program extends Application implements ProgramProduct {
 		programSettings.setDefaultValues( values );
 		time( "settings" );
 
-		// Start the program server
-		// TODO Check for another instance after getting the settings but before the splash screen is shown
-		// https://stackoverflow.com/questions/41051127/javafx-single-instance-application
-		// The fastest way to check might be to try and bind to the port defined in
-		// the settings. The OS will quickly deny the bind.
-		// Call Platform.exit() if there is already an instance
 		boolean singleton = programSettings.getBoolean( "shutdown-keepalive", false );
+
+		// Check for another instance after getting the settings but before the
+		// splash screen is shown. The fastest way to check might be to try and
+		// bind to the port defined in the settings. The OS will quickly deny the
+		// bind. Call Platform.exit() if there is already an instance.
+		// See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 		if( singleton && !(programServer = new ProgramServer( this )).start() ) Platform.exit();
 
 		// Create the program notifier after creating the program settings
@@ -180,7 +190,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.setImplicitExit( false );
 
 		// Show the splash screen
-		splashScreen = new SplashScreen( metadata.getName() );
+		splashScreen = new SplashScreen( card.getName() );
 		splashScreen.show();
 		time( "splash displayed" );
 
@@ -197,6 +207,21 @@ public class Program extends Application implements ProgramProduct {
 		taskManager.stop();
 		taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager stopped." );
+	}
+
+	public void restart( String... commands ) {
+		//		// Register a shutdown hook to restart the application.
+		//		RestartShutdownHook restartShutdownHook = new RestartShutdownHook( this, commands );
+		//		Runtime.getRuntime().addShutdownHook( restartShutdownHook );
+		//
+		//		// Request the program stop.
+		//		if( !requestStop() ) {
+		//			Runtime.getRuntime().removeShutdownHook( restartShutdownHook );
+		//			return;
+		//		}
+		//
+		//		// The shutdown hook should restart the application.
+		//		Log.write( Log.INFO, "Restarting..." );
 	}
 
 	public void requestExit() {
@@ -228,11 +253,16 @@ public class Program extends Application implements ProgramProduct {
 		}
 	}
 
+	public com.xeomar.util.Parameters getProgramParameters() {
+		if( parameters == null ) parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() );
+		return parameters;
+	}
+
 	public String getParameter( String key ) {
-		Parameters parameters = getParameters();
+		com.xeomar.util.Parameters parameters = getProgramParameters();
 		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
 		//if( parameters == null ) return System.getProperty( key );
-		String value = parameters == null ? null : parameters.getNamed().get( key );
+		String value = parameters == null ? null : parameters.get( key );
 		if( value == null ) value = System.getProperty( key );
 		return value;
 	}
@@ -250,9 +280,18 @@ public class Program extends Application implements ProgramProduct {
 		return this;
 	}
 
+	/**
+	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like Java Web Start.
+	 *
+	 * @return The home folder
+	 */
+	public final Path getHomeFolder() {
+		return home;
+	}
+
 	@Override
 	public ProductCard getCard() {
-		return metadata;
+		return card;
 	}
 
 	@Override
@@ -378,8 +417,8 @@ public class Program extends Application implements ProgramProduct {
 		// Update the splash screen for the task manager which is already started
 		Platform.runLater( () -> splashScreen.update() );
 
-		// Update the product metadata
-		metadata.loadContributors();
+		// Update the product card
+		card.loadContributors();
 		Platform.runLater( () -> splashScreen.update() );
 
 		// Start the resource manager
@@ -483,6 +522,54 @@ public class Program extends Application implements ProgramProduct {
 		} catch( InterruptedException exception ) {
 			log.error( "Program shutdown interrupted", exception );
 		}
+	}
+
+	/**
+	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example: <code>$HOME/lib/program.jar</code>
+	 *
+	 * @param parameters The command line parameters
+	 */
+	private void configureHome( com.xeomar.util.Parameters parameters ) {
+		try {
+			// If the HOME flag was specified on the command line use it.
+			if( home == null && parameters.isSet( ProgramParameter.HOME ) ) home = Paths.get( parameters.get( ProgramParameter.HOME ) );
+
+			// Check the code source.
+			if( home == null ) {
+				try {
+					URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) ) home = Paths.get( uri ).getParent();
+				} catch( URISyntaxException exception ) {
+					log.error( "Error using class location to determine program home", exception );
+				}
+			}
+
+			// Check the execmode flag to detect when running in development
+			if( home == null && parameters.isSet( ProgramParameter.EXECMODE ) ) {
+				home = Paths.get( System.getProperty( "user.dir" ), "target/install" );
+				Files.createDirectories( home );
+
+				// Copy the updater library.
+				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "../updater/target/updater-" + card.getRelease().getVersion() + ".jar" );
+				Path updaterTarget = home.resolve( "updater.jar" );
+				FileUtil.copy( updaterSource, updaterTarget );
+				log.debug( "Updater copied: " + updaterSource );
+			}
+
+			// Use the user directory as a last resort.
+			if( home == null ) home = Paths.get( System.getProperty( "user.dir" ) );
+
+			// Canonicalize the home path.
+			if( home != null ) home = home.toFile().getCanonicalFile().toPath();
+		} catch( IOException exception ) {
+			log.error( "Error configuring home folder", exception );
+		}
+
+		//		log.trace( "Home: "+ home );
+		//		log.trace( "Log : "+ logFilePattern );
+
+		// TODO Set install folder on product card
+		//card.setInstallFolder( home );
 	}
 
 	private void registerIcons() {}

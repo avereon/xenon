@@ -8,6 +8,14 @@ public interface ProgramParameter {
 
 	String EXECMODE_TEST = "test";
 
+	String HOME = "home";
+
 	String LOG_LEVEL = "log-level";
+
+	String NOUPDATE = "noupdate";
+
+	String NOUPDATECHECK = "noupdatecheck";
+
+	String RESET = "reset";
 
 }

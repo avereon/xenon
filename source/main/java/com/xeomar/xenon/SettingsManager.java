@@ -7,7 +7,7 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.settings.StoredSettings;
 import com.xeomar.util.Controllable;
-import com.xeomar.util.Paths;
+import com.xeomar.util.PathUtil;
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
 import com.xeomar.xenon.resource.Resource;
@@ -55,7 +55,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getSettings( String root, String path ) {
-		return getSettings( Paths.resolve( root, path ) );
+		return getSettings( PathUtil.resolve( root, path ) );
 	}
 
 	public Settings getProductSettings( Product product ) {
