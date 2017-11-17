@@ -21,11 +21,12 @@ public class CloseWorkareaAction extends Action {
 
 	@Override
 	public boolean isEnabled() {
-		return program.getWorkspaceManager().getActiveWorkspace().getWorkareas().size() > 1;
+		return getProgram().getWorkspaceManager().getActiveWorkspace().getWorkareas().size() > 1;
 	}
 
 	@Override
 	public void handle( Event event ) {
+		Program program = getProgram();
 		Workarea workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
@@ -39,7 +40,7 @@ public class CloseWorkareaAction extends Action {
 	}
 
 	private void closeWorkarea( Workarea workarea ) {
-		program.getWorkspaceManager().getActiveWorkspace().removeWorkarea( workarea );
+		getProgram().getWorkspaceManager().getActiveWorkspace().removeWorkarea( workarea );
 	}
 
 }

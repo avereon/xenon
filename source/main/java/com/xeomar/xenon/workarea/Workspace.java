@@ -3,6 +3,7 @@ package com.xeomar.xenon.workarea;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.xenon.Actions;
+import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
@@ -109,7 +110,14 @@ public class Workspace implements Configurable {
 		help.getItems().add( Actions.createMenuItem( program, "update" ) );
 		help.getItems().add( Actions.createMenuItem( program, "about" ) );
 
-		menubar.getMenus().addAll( file, edit, view, help );
+		Menu dev = Actions.createMenu( program, "development" );
+		dev.getItems().add( Actions.createMenuItem( program, "restart" ) );
+
+		if( program.getExecMode() == ExecMode.DEV ) {
+			menubar.getMenus().addAll( file, edit, view, help, dev );
+		} else {
+			menubar.getMenus().addAll( file, edit, view, help );
+		}
 
 		// TOOLBAR
 

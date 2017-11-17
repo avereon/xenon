@@ -23,11 +23,13 @@ public class RenameWorkareaAction extends Action {
 
 	@Override
 	public boolean isEnabled() {
-		return program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() != null;
+		return getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea() != null;
 	}
 
 	@Override
 	public void handle( Event event ) {
+		Program program = getProgram();
+
 		workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 
 		TextInputDialog dialog = new TextInputDialog( workarea.getName() );
@@ -41,7 +43,7 @@ public class RenameWorkareaAction extends Action {
 	}
 
 	private void renameWorkarea( String name ) {
-		UiManager uiManager = new UiManager( program );
+		UiManager uiManager = new UiManager( getProgram() );
 		try {
 			workarea.setName( name );
 		} catch( Exception exception ) {

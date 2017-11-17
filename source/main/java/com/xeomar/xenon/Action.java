@@ -9,7 +9,7 @@ public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 
 	protected static Logger log = LogUtil.get( Action.class );
 
-	protected Program program;
+	private Program program;
 
 	private boolean enabled;
 
@@ -23,6 +23,10 @@ public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 
 	public void setEnabled( boolean enabled ) {
 		this.enabled = enabled;
+	}
+
+	public Program getProgram() {
+		return program;
 	}
 
 }

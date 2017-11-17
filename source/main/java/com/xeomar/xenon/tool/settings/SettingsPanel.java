@@ -3,6 +3,7 @@ package com.xeomar.xenon.tool.settings;
 import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
@@ -145,8 +146,8 @@ public class SettingsPanel extends VBox {
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( Product.class, Setting.class );
-			editor = constructor.newInstance( product, setting );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, Setting.class );
+			editor = constructor.newInstance( (ProgramProduct)product, setting );
 		} catch( Exception exception ) {
 			log.error( "Error creating setting editor: " + editorClass.getName(), exception );
 		}

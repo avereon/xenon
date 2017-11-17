@@ -2,12 +2,11 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.resource.type.ProgramNoticeType;
 import javafx.event.Event;
 
-public class NoticeAction extends Action {
+public class RestartAction extends Action {
 
-	public NoticeAction( Program program ) {
+	public RestartAction( Program program ) {
 		super( program );
 	}
 
@@ -18,7 +17,7 @@ public class NoticeAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().getResourceManager().open( getProgram().getResourceManager().createResource( ProgramNoticeType.URI ) );
+		getProgram().restart();
 	}
 
 }

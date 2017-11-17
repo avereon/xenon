@@ -2,6 +2,7 @@ package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.Guide;

@@ -17,7 +17,7 @@ public class UpdateAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		program.getUpdateManager().checkForUpdates();
+		getProgram().getUpdateManager().checkForUpdates();
 	}
 
 }

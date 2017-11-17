@@ -59,10 +59,10 @@ public class ActionLibrary {
 		register( bundle, "update" );
 		register( bundle, "about" );
 
-		//		register( bundle, "development" );
+		register( bundle, "development" );
 		//		register( bundle, "settings-reset" );
 		//		register( bundle, "workers" );
-		//		register( bundle, "restart" );
+		register( bundle, "restart" );
 
 		register( bundle, "workarea" );
 		register( bundle, "workarea-new" );

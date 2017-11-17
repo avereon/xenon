@@ -96,6 +96,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private AboutAction aboutAction;
 
+	private RestartAction restartAction;
+
 	private SettingsAction settingsAction;
 
 	private WelcomeAction welcomeAction;
@@ -118,6 +120,7 @@ public class Program extends Application implements ProgramProduct {
 		welcomeAction = new WelcomeAction( this );
 		noticeAction = new NoticeAction( this );
 		updateAction = new UpdateAction( this );
+		restartAction = new RestartAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -264,6 +267,7 @@ public class Program extends Application implements ProgramProduct {
 
 	public com.xeomar.util.Parameters getProgramParameters() {
 		if( parameters == null ) parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() );
+		configureHome( parameters );
 		return parameters;
 	}
 
@@ -374,7 +378,7 @@ public class Program extends Application implements ProgramProduct {
 		System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
 	}
 
-	private ExecMode getExecMode() {
+	public ExecMode getExecMode() {
 		if( execMode != null ) return execMode;
 
 		String execModeParameter = getProgramParameters().get( ProgramParameter.EXECMODE );
@@ -382,7 +386,7 @@ public class Program extends Application implements ProgramProduct {
 			try {
 				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );
 			} catch( IllegalArgumentException exception ) {
-				// Intentionally ignore exception
+				execMode = ExecMode.DEV;
 			}
 		}
 		if( execMode == null ) execMode = ExecMode.PROD;
@@ -583,6 +587,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
+		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 	}
 
 	private void unregisterActionHandlers() {
@@ -592,6 +597,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
+		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 	}
 
 	private void registerSchemes( ResourceManager manager ) {

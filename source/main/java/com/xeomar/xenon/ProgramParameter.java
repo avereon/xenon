@@ -4,9 +4,9 @@ public interface ProgramParameter {
 
 	String EXECMODE = "execmode";
 
-	String EXECMODE_DEVL = "devl";
+	String EXECMODE_DEVL = ExecMode.DEV.name().toLowerCase();
 
-	String EXECMODE_TEST = "test";
+	String EXECMODE_TEST = ExecMode.TEST.name().toLowerCase();
 
 	String HOME = "home";
 

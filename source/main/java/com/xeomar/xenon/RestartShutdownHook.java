@@ -18,16 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This shutdown hook is used when a program restart is requested. When a
- * restart is requested the program registers an instance of this shutdown hook,
- * and stops the program, which triggers this shutdown hook to start the program
- * again.
+ * This shutdown hook is used when a program restart is requested. When a restart is requested the program registers an instance of this shutdown hook, and stops the program, which triggers this shutdown hook to start the program again.
  *
  * @author soderquistmv
  */
 public class RestartShutdownHook extends Thread {
 
-	private static final Logger log = LoggerFactory.getLogger(RestartShutdownHook.class);
+	private static final Logger log = LoggerFactory.getLogger( RestartShutdownHook.class );
 
 	private volatile ProcessBuilder builder;
 
@@ -49,11 +46,7 @@ public class RestartShutdownHook extends Thread {
 			// Add the classpath information.
 			List<URI> classpath = JavaUtil.getClasspath();
 			boolean jar = classpath.size() == 1 && classpath.get( 0 ).getPath().endsWith( ".jar" );
-			if( jar ) {
-				builder.command().add( "-jar" );
-			} else {
-				builder.command().add( "-cp" );
-			}
+			builder.command().add( jar ? "-jar" : "-cp" );
 			builder.command().add( runtimeBean.getClassPath() );
 			if( !jar ) builder.command().add( service.getClass().getName() );
 		}
@@ -70,7 +63,7 @@ public class RestartShutdownHook extends Thread {
 		}
 
 		// Collect program URIs.
-		List<String> uris = new ArrayList<String>();
+		List<String> uris = new ArrayList<>();
 		for( String uri : service.getProgramParameters().getUris() ) {
 			if( !uris.contains( uri ) ) uris.add( uri );
 		}
@@ -97,7 +90,7 @@ public class RestartShutdownHook extends Thread {
 		log.trace( "Restart command: ", TextUtil.toString( builder.command(), " " ) );
 	}
 
-	private static  String getRestartExecutablePath( Program service ) {
+	private static String getRestartExecutablePath( Program service ) {
 		String executablePath = OperatingSystem.getJavaExecutablePath();
 
 		String launcherPath = getWindowsLauncherPath( service );
@@ -106,16 +99,12 @@ public class RestartShutdownHook extends Thread {
 		return executablePath;
 	}
 
-	private static  boolean isWindowsLauncherFound( Program service ) {
+	private static boolean isWindowsLauncherFound( Program service ) {
 		return new File( getWindowsLauncherPath( service ) ).exists();
 	}
 
-	private static  String getWindowsLauncherPath( Program program ) {
-		StringBuilder builder = new StringBuilder( program.getHomeFolder().toString() );
-		builder.append( File.separator );
-		builder.append( program.getCard().getArtifact() );
-		builder.append( ".exe" );
-		return builder.toString();
+	private static String getWindowsLauncherPath( Program program ) {
+		return program.getHomeFolder().toString() + File.separator + program.getCard().getArtifact() + ".exe";
 	}
 
 	@Override
@@ -125,7 +114,7 @@ public class RestartShutdownHook extends Thread {
 		try {
 			builder.start();
 		} catch( IOException exception ) {
-			log.error("Error restarting program", exception );
+			log.error( "Error restarting program", exception );
 		}
 	}
 

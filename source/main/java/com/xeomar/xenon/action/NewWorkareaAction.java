@@ -26,6 +26,7 @@ public class NewWorkareaAction extends Action<ActionEvent> {
 
 	@Override
 	public void handle( ActionEvent event ) {
+		Program program = getProgram();
 		TextInputDialog dialog = new TextInputDialog();
 		dialog.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
 		dialog.setTitle( program.getResourceBundle().getString( "workarea", "workarea.new.title" ) );
@@ -37,11 +38,11 @@ public class NewWorkareaAction extends Action<ActionEvent> {
 	}
 
 	private void createNewWorkarea( String name ) {
-		UiManager uiManager = new UiManager( program );
+		UiManager uiManager = new UiManager( getProgram() );
 		try {
 			Workarea workarea = uiManager.newWorkarea();
 			workarea.setName( name );
-			program.getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
+			getProgram().getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {
 			log.error( "Error creating new workarea: " + name, exception );
 		}
