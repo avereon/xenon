@@ -123,6 +123,13 @@ public class Program extends Application implements ProgramProduct {
 		listeners = new CopyOnWriteArraySet<>();
 	}
 
+	// This constructor is specifically available for testing
+	// when the application does not need to be started.
+	Program( com.xeomar.util.Parameters parameters ) {
+		this();
+		this.parameters = parameters;
+	}
+
 	@Override
 	public void init() throws Exception {
 		time( "init" );
@@ -136,7 +143,7 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card );
 
 		// Configure logging
-		LogUtil.configureLogging( this, getParameter( ProgramParameter.LOG_LEVEL ) );
+		LogUtil.configureLogging( this, getProgramParameters().get( ProgramParameter.LOG_LEVEL ) );
 
 		// Create the program event watcher after configuring the logging
 		addEventListener( watcher = new ProgramEventWatcher() );
@@ -210,25 +217,26 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public void restart( String... commands ) {
+		// FIXME Implement restart()
 		//		// Register a shutdown hook to restart the application.
 		//		RestartShutdownHook restartShutdownHook = new RestartShutdownHook( this, commands );
 		//		Runtime.getRuntime().addShutdownHook( restartShutdownHook );
 		//
 		//		// Request the program stop.
-		//		if( !requestStop() ) {
+		//		if( !requestExit() ) {
 		//			Runtime.getRuntime().removeShutdownHook( restartShutdownHook );
 		//			return;
 		//		}
 		//
 		//		// The shutdown hook should restart the application.
-		//		Log.write( Log.INFO, "Restarting..." );
+		//		log.info( "Restarting..." );
 	}
 
-	public void requestExit() {
-		requestExit( false );
+	public boolean requestExit() {
+		return requestExit( false );
 	}
 
-	public void requestExit( boolean force ) {
+	public boolean requestExit( boolean force ) {
 		boolean shutdownVerify = programSettings.getBoolean( "shutdown-verify", true );
 		boolean shutdownKeepAlive = programSettings.getBoolean( "shutdown-keepalive", false );
 
@@ -241,7 +249,7 @@ public class Program extends Application implements ProgramProduct {
 			alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
 
 			Optional<ButtonType> result = alert.showAndWait();
-			if( result.isPresent() && result.get() != ButtonType.YES ) return;
+			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 
 		if( !force && (shutdownKeepAlive || JavaUtil.isTest()) ) {
@@ -251,20 +259,13 @@ public class Program extends Application implements ProgramProduct {
 			log.debug( "Program exit" );
 			Platform.exit();
 		}
+
+		return true;
 	}
 
 	public com.xeomar.util.Parameters getProgramParameters() {
 		if( parameters == null ) parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() );
 		return parameters;
-	}
-
-	public String getParameter( String key ) {
-		com.xeomar.util.Parameters parameters = getProgramParameters();
-		// WORKAROUND Parameters are null during testing due to Java 9 incompatibility
-		//if( parameters == null ) return System.getProperty( key );
-		String value = parameters == null ? null : parameters.get( key );
-		if( value == null ) value = System.getProperty( key );
-		return value;
 	}
 
 	public void processCommands( String[] commands ) {
@@ -377,7 +378,7 @@ public class Program extends Application implements ProgramProduct {
 	private ExecMode getExecMode() {
 		if( execMode != null ) return execMode;
 
-		String execModeParameter = getParameter( ProgramParameter.EXECMODE );
+		String execModeParameter = getProgramParameters().get( ProgramParameter.EXECMODE );
 		if( execModeParameter != null ) {
 			try {
 				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );

@@ -56,7 +56,13 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 			throw new RuntimeException( exception );
 		}
 
-		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
+		// For the parameters to be available using Java 9, the following needs to be added
+		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
+		// is not exposed, nor is there a "proper" way to access it:
+		//
+		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+
+		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
 		program.addEventListener( programWatcher = new ProgramWatcher() );
 		metadata = program.getCard();
 

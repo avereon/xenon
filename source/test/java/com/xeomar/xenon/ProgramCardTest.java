@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class ProgramMetadataTest extends ProgramTestCase {
+public class ProgramCardTest extends ProgramTestCase {
 
 	private ProductCard metadata;
 

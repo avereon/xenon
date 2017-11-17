@@ -445,16 +445,16 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		public void checkForUpdates() {
 			if( !isEnabled() ) return;
 
-			try {
-				log.trace( "Checking for updates..." );
-				int stagedUpdateCount = stagePostedUpdates();
-				if( stagedUpdateCount > 0 ) {
-					log.trace( "Updates staged, restarting..." );
-					program.restart( ProgramParameter.NOUPDATECHECK );
-				}
-			} catch( Exception exception ) {
-				log.error( "Error checking for updates", exception );
-			}
+//			try {
+//				log.trace( "Checking for updates..." );
+//				int stagedUpdateCount = stagePostedUpdates();
+//				if( stagedUpdateCount > 0 ) {
+//					log.trace( "Updates staged, restarting..." );
+//					program.restart( ProgramParameter.NOUPDATECHECK );
+//				}
+//			} catch( Exception exception ) {
+//				log.error( "Error checking for updates", exception );
+//			}
 		}
 
 	//	public Set<ProductCard> getPostedUpdates() throws Exception {
