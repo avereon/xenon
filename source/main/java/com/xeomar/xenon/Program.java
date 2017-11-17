@@ -217,19 +217,18 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public void restart( String... commands ) {
-		// FIXME Implement restart()
-		//		// Register a shutdown hook to restart the application.
-		//		RestartShutdownHook restartShutdownHook = new RestartShutdownHook( this, commands );
-		//		Runtime.getRuntime().addShutdownHook( restartShutdownHook );
-		//
-		//		// Request the program stop.
-		//		if( !requestExit() ) {
-		//			Runtime.getRuntime().removeShutdownHook( restartShutdownHook );
-		//			return;
-		//		}
-		//
-		//		// The shutdown hook should restart the application.
-		//		log.info( "Restarting..." );
+		// Register a shutdown hook to restart the application.
+		RestartShutdownHook restartShutdownHook = new RestartShutdownHook( this, commands );
+		Runtime.getRuntime().addShutdownHook( restartShutdownHook );
+
+		// Request the program stop.
+		if( !requestExit() ) {
+			Runtime.getRuntime().removeShutdownHook( restartShutdownHook );
+			return;
+		}
+
+		// The shutdown hook should restart the application.
+		log.info( "Restarting..." );
 	}
 
 	public boolean requestExit() {

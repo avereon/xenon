@@ -6,6 +6,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
 import com.xeomar.xenon.update.ProductCatalog;
+import com.xeomar.xenon.update.ProductResource;
 import com.xeomar.xenon.update.ProductUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,10 +212,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//	public void installProducts( ProductCard... cards ) throws Exception {
 	//		installProducts( new HashSet<ProductCard>( Arrays.asList( cards ) ) );
 	//	}
-	//
-	//	public void installProducts( Set<ProductCard> cards ) throws Exception {
-	//		Log.write( Log.DEBUG, "Number of products to install: " + cards.size() );
-	//
+
+		public void installProducts( Set<ProductCard> cards ) throws Exception {
+			log.debug( "Number of products to install: " + cards.size() );
+
 	//		// Download the product resources.
 	//		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( cards );
 	//
@@ -234,8 +235,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		Set<InstalledProduct> products = getStoredRemovedProducts();
 	//		products.removeAll( installedProducts );
 	//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
-	//	}
-	//
+		}
+
 	//	public void uninstallProducts( ProductCard... cards ) throws Exception {
 	//		uninstallProducts( new HashSet<ProductCard>( Arrays.asList( cards ) ) );
 	//	}
@@ -1140,11 +1141,12 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//	}
 	//
-	//	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
-	//		// Determine all the resources to download.
-	//		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<ProductCard, Set<ProductResource>>();
-	//		for( ProductCard card : cards ) {
-	//			try {
+		private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
+			// Determine all the resources to download.
+			Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
+
+			for( ProductCard card : cards ) {
+				try {
 	//				Set<ProductResource> resources = new PackProvider( card, service.getTaskManager() ).getResources();
 	//
 	//				for( ProductResource resource : resources ) {
@@ -1156,13 +1158,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//				}
 	//
 	//				productResources.put( card, resources );
-	//			} catch( Exception exception ) {
-	//				Log.write( exception );
-	//			}
-	//		}
-	//
-	//		// Wait for all resources to be downloaded.
-	//		for( ProductCard card : cards ) {
+				} catch( Exception exception ) {
+					log.error( "Error creating pack download", exception );
+				}
+			}
+
+			// Wait for all resources to be downloaded.
+			for( ProductCard card : cards ) {
 	//			Set<ProductResource> resources = productResources.get( card );
 	//			for( ProductResource resource : resources ) {
 	//				try {
@@ -1177,11 +1179,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//					Log.write( exception );
 	//				}
 	//			}
-	//		}
-	//
-	//		return productResources;
-	//	}
-	//
+			}
+
+			return productResources;
+		}
+
 	//	/**
 	//	 * A folder module is and unpacked module contained in a folder.
 	//	 *
