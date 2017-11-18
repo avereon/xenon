@@ -11,6 +11,13 @@ contributors:
   - !!com.xeomar.util.Contributor
     name: Dan Langford
 
+# The resources define what is needed for this product
+# java - What is the minimum version of Java
+# head - The location of the product descriptor file
+# pack - The location of the product pack file
+# main - The main class of the product, or module class in the case of a module
 resources:
+  java: 9
   head: "http://www.xeomar.com/download/product/${project.artifactId}/product.xml"
   pack: "http://www.xeomar.com/download/product/${project.artifactId}/product.zip"
+  main: "com.xeomar.xenon.Program"
