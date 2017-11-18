@@ -133,19 +133,7 @@
 		<resources>
 			<resource>
 				<directory>source/main/resources</directory>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>**/*.properties</exclude>
-					<exclude>**/*.yaml</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>source/main/resources</directory>
 				<filtering>true</filtering>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.yaml</include>
-				</includes>
 			</resource>
 		</resources>
 

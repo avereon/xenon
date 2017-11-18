@@ -1,0 +1,16 @@
+maintainers:
+  - !!com.xeomar.util.Maintainer
+    name: Mark Soderquist
+    email: mark.soderquist@xeomar.com
+    roles:
+      - Architect
+    organization: Xeomar
+    organizationUrl: http://xeomar.com/
+
+contributors:
+  - !!com.xeomar.util.Contributor
+    name: Dan Langford
+
+resources:
+  head: "http://www.xeomar.com/download/product/${project.artifactId}/product.xml"
+  pack: "http://www.xeomar.com/download/product/${project.artifactId}/product.zip"
