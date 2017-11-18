@@ -3,6 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
+import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.*;
@@ -14,7 +15,6 @@ import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.apache.commons.io.input.BoundedInputStream;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
@@ -1200,7 +1200,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			URLConnection connection = resource.getScheme().getConnection( resource );
 			if( connection != null ) {
 				try {
-					mediaType = StringUtils.trimToNull( connection.getContentType() );
+					mediaType = TextUtil.cleanNull( connection.getContentType() );
 					resource.putResource( Resource.MEDIA_TYPE_RESOURCE_KEY, mediaType );
 					connection.getInputStream().close();
 				} catch( IOException exception ) {
@@ -1261,7 +1261,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		if( encoding == null ) encoding = ProgramDefaults.ENCODING;
-		return StringUtils.trimToNull( new String( output.toByteArray(), encoding ) );
+		return TextUtil.cleanNull( new String( output.toByteArray(), encoding ) );
 	}
 
 	// TODO The OpenActionTask class name is not the best...

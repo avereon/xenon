@@ -3,12 +3,12 @@ package com.xeomar.xenon.resource;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
+import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.ResourceManager;
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.event.*;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import javax.swing.undo.UndoManager;
@@ -393,7 +393,7 @@ public class Resource extends Node implements Configurable {
 		// If the path is null return the entire URI.
 		if( name == null && uri != null ) {
 			path = uri.getPath();
-			if( StringUtils.isEmpty( path ) ) name = uri.toString();
+			if( TextUtil.isEmpty( path ) ) name = uri.toString();
 		}
 
 		// Get the folder name from the path.

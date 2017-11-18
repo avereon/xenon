@@ -1,6 +1,6 @@
 package com.xeomar.xenon.resource;
 
-import org.apache.commons.lang3.StringUtils;
+import com.xeomar.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,7 @@ public abstract class Codec {
 	}
 
 	public boolean isSupportedMediaType( String type ) {
-		if( StringUtils.isEmpty( type ) ) return false;
+		if( TextUtil.isEmpty( type ) ) return false;
 		for( String pattern : getSupportedMediaTypes() ) {
 			boolean matches = pattern.equals( type );
 			log.debug( "Type [" + type + "] matches [" + pattern + "]: " + matches );
@@ -120,7 +120,7 @@ public abstract class Codec {
 	}
 
 	public boolean isSupportedFileName( String name ) {
-		if( StringUtils.isEmpty( name ) ) return false;
+		if( TextUtil.isEmpty( name ) ) return false;
 		for( String pattern : getSupportedFileNames() ) {
 			boolean matches = name.matches( pattern );
 			log.debug( "Name [" + name + "] matches [" + pattern + "]: " + matches );
@@ -130,7 +130,7 @@ public abstract class Codec {
 	}
 
 	public boolean isSupportedFirstLine( String line ) {
-		if( StringUtils.isEmpty( line ) ) return false;
+		if( TextUtil.isEmpty( line ) ) return false;
 		for( String pattern : getSupportedFirstLines() ) {
 			//boolean matches = line.matches( pattern );
 			boolean matches = line.startsWith( pattern );
