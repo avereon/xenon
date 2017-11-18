@@ -2,7 +2,7 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
-import com.xeomar.util.Descriptor;
+import com.xeomar.util.XmlDescriptor;
 import com.xeomar.xenon.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +48,11 @@ public class ProductCatalog implements Configurable {
 	 */
 	public ProductCatalog() {}
 
-	public ProductCatalog( Descriptor descriptor, URI base ) {
+	public ProductCatalog( XmlDescriptor descriptor, URI base ) {
 		update( descriptor, base );
 	}
 
-	public ProductCatalog update( Descriptor descriptor, URI base ) {
+	public ProductCatalog update( XmlDescriptor descriptor, URI base ) {
 		String iconUri = descriptor.getValue( ICON_PATH );
 		String name = descriptor.getValue( NAME_PATH );
 
@@ -65,7 +65,7 @@ public class ProductCatalog implements Configurable {
 
 		this.sources.clear();
 		for( Node node : descriptor.getNodes( SOURCES_PATH ) ) {
-			String sourcePath = new Descriptor( node ).getValue( SOURCE_PATH );
+			String sourcePath = new XmlDescriptor( node ).getValue( SOURCE_PATH );
 			try {
 				URI uri = UriUtil.resolve( base, new URI( sourcePath ) );
 				log.debug( "Adding catalog source: " + uri );

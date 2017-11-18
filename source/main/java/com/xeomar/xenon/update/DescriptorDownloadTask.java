@@ -1,14 +1,14 @@
 package com.xeomar.xenon.update;
 
 import com.xeomar.product.Product;
-import com.xeomar.util.Descriptor;
+import com.xeomar.util.XmlDescriptor;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskListener;
 
 import java.io.FileInputStream;
 import java.net.URI;
 
-public class DescriptorDownloadTask extends Task<Descriptor> {
+public class DescriptorDownloadTask extends Task<XmlDescriptor> {
 
 	private DownloadTask task;
 
@@ -47,10 +47,10 @@ public class DescriptorDownloadTask extends Task<Descriptor> {
 	}
 
 	@Override
-	public Descriptor call() throws Exception {
+	public XmlDescriptor call() throws Exception {
 		Download download = task.call();
 		if( download == null ) return null;
-		return new Descriptor( new FileInputStream( download.getTarget() ) );
+		return new XmlDescriptor( new FileInputStream( download.getTarget() ) );
 	}
 
 }

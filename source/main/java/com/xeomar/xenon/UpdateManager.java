@@ -5,6 +5,8 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
+import com.xeomar.util.DateUtil;
+import com.xeomar.util.TestUtil;
 import com.xeomar.xenon.update.ProductCatalog;
 import com.xeomar.xenon.update.ProductResource;
 import com.xeomar.xenon.update.ProductUpdate;
@@ -79,6 +81,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public static final String UPDATER_LOG_NAME = "updater.log";
 
 	public static final String UPDATE_FOLDER_NAME = "updates";
+
+	private static final String UPDATE = "update";
 
 	private static final String CHECK = "check";
 
@@ -213,29 +217,29 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		installProducts( new HashSet<ProductCard>( Arrays.asList( cards ) ) );
 	//	}
 
-		public void installProducts( Set<ProductCard> cards ) throws Exception {
-			log.debug( "Number of products to install: " + cards.size() );
+	public void installProducts( Set<ProductCard> cards ) throws Exception {
+		log.debug( "Number of products to install: " + cards.size() );
 
-	//		// Download the product resources.
-	//		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( cards );
-	//
-	//		// TODO All the product resources may not have been successfully downloaded.
-	//
-	//		// Install the products.
-	//		Set<InstalledProduct> installedProducts = new HashSet<InstalledProduct>();
-	//		for( ProductCard card : cards ) {
-	//			try {
-	//				installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-	//				installProductImpl( card, productResources );
-	//			} catch( Exception exception ) {
-	//				Log.write( exception );
-	//			}
-	//		}
-	//
-	//		Set<InstalledProduct> products = getStoredRemovedProducts();
-	//		products.removeAll( installedProducts );
-	//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
-		}
+		//		// Download the product resources.
+		//		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( cards );
+		//
+		//		// TODO All the product resources may not have been successfully downloaded.
+		//
+		//		// Install the products.
+		//		Set<InstalledProduct> installedProducts = new HashSet<InstalledProduct>();
+		//		for( ProductCard card : cards ) {
+		//			try {
+		//				installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+		//				installProductImpl( card, productResources );
+		//			} catch( Exception exception ) {
+		//				Log.write( exception );
+		//			}
+		//		}
+		//
+		//		Set<InstalledProduct> products = getStoredRemovedProducts();
+		//		products.removeAll( installedProducts );
+		//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
+	}
 
 	//	public void uninstallProducts( ProductCard... cards ) throws Exception {
 	//		uninstallProducts( new HashSet<ProductCard>( Arrays.asList( cards ) ) );
@@ -379,84 +383,84 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @param startup True if the method is called at product start.
 	 */
 	public synchronized void scheduleUpdateCheck( boolean startup ) {
-		//		if( task != null ) {
-		//			boolean alreadyRun = task.scheduledExecutionTime() < System.currentTimeMillis();
-		//			task.cancel();
-		//			task = null;
-		//			if( !alreadyRun ) Log.write( Log.DEBUG, "Check for updates task cancelled." );
-		//		}
-		//
-		//		// Don't schedule tasks if the NOUPDATECHECK flag is set.
-		//		if( service.getParameters().isSet( ServiceFlag.NOUPDATECHECK ) ) return;
-		//
-		//		Settings settings = service.getSettings().getNode( ServiceSettingsPath.UPDATE_SETTINGS_PATH + "/check" );
-		//
-		//		long lastUpdateCheck = settings.getLong( "last", 0 );
-		//		long timeSinceLastCheck = System.currentTimeMillis() - lastUpdateCheck;
-		//		long delay = NO_CHECK;
-		//
-		//		// This is required to avoid a memory use problem during testing.
-		//		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
-		//
-		//		switch( checkOption ) {
-		//			case MANUAL:
-		//				delay = NO_CHECK;
-		//				break;
-		//			case STARTUP:
-		//				delay = startup ? 0 : NO_CHECK;
-		//				break;
-		//			case INTERVAL: {
-		//				CheckInterval intervalUnit = CheckInterval.valueOf( settings.get( "interval/unit", "day" ).toUpperCase() );
-		//				delay = getNextIntervalTime( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
-		//				break;
-		//			}
-		//			case SCHEDULE: {
-		//				CheckWhen scheduleWhen = CheckWhen.valueOf( settings.get( "schedule/when", "daily" ).toUpperCase() );
-		//				int scheduleHour = settings.getInt( "schedule/hour", 0 );
-		//				delay = getNextScheduleTime( System.currentTimeMillis(), scheduleWhen, scheduleHour );
-		//				break;
-		//			}
-		//			default: {
-		//				delay = NO_CHECK;
-		//				break;
-		//			}
-		//		}
-		//
-		//		if( delay == NO_CHECK ) {
-		//			Log.write( Log.TRACE, "No update check scheduled." );
-		//			return;
-		//		}
-		//
-		//		// Create the update check task.
-		//		task = new UpdateCheckTask( this );
-		//
-		//		// Schedule the update check task.
-		//		timer.schedule( task, delay );
-		//
-		//		long nextCheckTime = System.currentTimeMillis() + delay;
-		//
-		//		// Set the next update check time in the settings.
-		//		settings.putLong( "next", nextCheckTime );
-		//
-		//		// Log the next update check time.
-		//		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getTimeZone( "America/Denver" ) );
-		//		Log.write( Log.TRACE, "Next check scheduled for: " + (delay == 0 ? "now" : date) );
+		if( task != null ) {
+			boolean alreadyRun = task.scheduledExecutionTime() < System.currentTimeMillis();
+			task.cancel();
+			task = null;
+			if( !alreadyRun ) log.debug( "Check for updates task cancelled." );
+		}
+
+		// Don't schedule tasks if the NOUPDATECHECK flag is set.
+		if( program.getProgramParameters().isSet( ProgramParameter.NOUPDATECHECK ) ) return;
+
+		Settings checkSettings = getSettings().getNode( "update" ).getNode( CHECK );
+
+		long lastUpdateCheck = checkSettings.getLong( "last", 0L );
+		long timeSinceLastCheck = System.currentTimeMillis() - lastUpdateCheck;
+		long delay = NO_CHECK;
+
+		// This is required to avoid a memory use problem during testing.
+		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
+
+		switch( checkOption ) {
+			case MANUAL:
+				delay = NO_CHECK;
+				break;
+			case STARTUP:
+				delay = startup ? 0 : NO_CHECK;
+				break;
+			case INTERVAL: {
+				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( "interval/unit", "day" ).toUpperCase() );
+				delay = getNextIntervalTime( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
+				break;
+			}
+			case SCHEDULE: {
+				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( "schedule/when", "daily" ).toUpperCase() );
+				int scheduleHour = checkSettings.getInteger( "schedule/hour", 0 );
+				delay = getNextScheduleTime( System.currentTimeMillis(), scheduleWhen, scheduleHour );
+				break;
+			}
+			default: {
+				delay = NO_CHECK;
+				break;
+			}
+		}
+
+		if( delay == NO_CHECK ) {
+			log.trace( "No update check scheduled." );
+			return;
+		}
+
+		// Create the update check task.
+		task = new UpdateCheckTask( this );
+
+		// Schedule the update check task.
+		timer.schedule( task, delay );
+
+		long nextCheckTime = System.currentTimeMillis() + delay;
+
+		// Set the next update check time in the settings.
+		checkSettings.set( "next", nextCheckTime );
+
+		// Log the next update check time.
+		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getTimeZone( "America/Denver" ) );
+		log.trace( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
-		public void checkForUpdates() {
-			if( !isEnabled() ) return;
+	public void checkForUpdates() {
+		if( !isEnabled() ) return;
 
-//			try {
-//				log.trace( "Checking for updates..." );
-//				int stagedUpdateCount = stagePostedUpdates();
-//				if( stagedUpdateCount > 0 ) {
-//					log.trace( "Updates staged, restarting..." );
-//					program.restart( ProgramParameter.NOUPDATECHECK );
-//				}
-//			} catch( Exception exception ) {
-//				log.error( "Error checking for updates", exception );
-//			}
+		try {
+			log.trace( "Checking for updates..." );
+			//				int stagedUpdateCount = stagePostedUpdates();
+			//				if( stagedUpdateCount > 0 ) {
+			//					log.trace( "Updates staged, restarting..." );
+			//					program.restart( ProgramParameter.NOUPDATECHECK );
+			//				}
+		} catch( Exception exception ) {
+			log.error( "Error checking for updates", exception );
 		}
+	}
 
 	//	public Set<ProductCard> getPostedUpdates() throws Exception {
 	//		return getPostedUpdates( true );
@@ -507,7 +511,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//				DescriptorDownloadTask task = tasks.get( oldCard );
 	//				if( task == null ) continue;
 	//
-	//				Descriptor descriptor = task.get();
+	//				XmlDescriptor descriptor = task.get();
 	//				ProductCard newCard = new ProductCard( task.getUri(), descriptor );
 	//
 	//				// Validate the pack key.
@@ -749,13 +753,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//
 	//		return count;
 	//	}
-	//
-	//	public void clearStagedUpdates() {
-	//		// Remove the updates settings.
-	//		updates.clear();
-	//		saveSettings( settings );
-	//	}
-	//
+
+	public void clearStagedUpdates() {
+		// Remove the updates settings.
+		updates.clear();
+		saveSettings();
+	}
+
 	//	public void loadProducts( File... folders ) throws Exception {
 	//		ClassLoader parent = getClass().getClassLoader();
 	//
@@ -769,7 +773,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//			for( File jar : jars ) {
 	//				Log.write( Log.DEBUG, "Searching for module in: " + jar.toURI() );
 	//				URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
-	//				ProductCard card = new ProductCard( jar.getParentFile().toURI(), new Descriptor( uri ) );
+	//				ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
 	//				if( !isReservedProduct( card ) ) loadSimpleModule( card, jar.toURI(), parent );
 	//			}
 	//
@@ -782,7 +786,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//				for( File jar : jars ) {
 	//					try {
 	//						URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
-	//						ProductCard card = new ProductCard( jar.getParentFile().toURI(), new Descriptor( uri ) );
+	//						ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
 	//						if( !isReservedProduct( card ) ) loadNormalModule( card, moduleFolder.toURI(), parent );
 	//					} catch( FileNotFoundException exception ) {
 	//						// Not finding a product card is a common situation with dependencies.
@@ -794,80 +798,80 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//	}
 
-	//	public static final Map<String, ProductCard> getProductCardMap( Set<ProductCard> cards ) {
-	//		if( cards == null ) return null;
-	//
-	//		Map<String, ProductCard> map = new HashMap<String, ProductCard>();
-	//		for( ProductCard card : cards ) {
-	//			map.put( card.getProductKey(), card );
-	//		}
-	//
-	//		return map;
-	//	}
-	//
-	//	public static final boolean areResourcesValid( Set<ProductResource> resources ) {
-	//		for( ProductResource resource : resources ) {
-	//			if( !resource.isValid() ) return false;
-	//		}
-	//
-	//		return true;
-	//	}
-	//
-	//	public static final long getNextIntervalTime( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck, long timeSinceLastCheck ) {
-	//		long delay;
-	//		long intervalDelay = 0;
-	//		switch( intervalUnit ) {
-	//			case MONTH: {
-	//				intervalDelay = 30L * 24L * MILLIS_IN_HOUR;
-	//				break;
-	//			}
-	//			case WEEK: {
-	//				intervalDelay = 7L * 24L * MILLIS_IN_HOUR;
-	//				break;
-	//			}
-	//			case DAY: {
-	//				intervalDelay = 24L * MILLIS_IN_HOUR;
-	//				break;
-	//			}
-	//			case HOUR: {
-	//				intervalDelay = 1L * MILLIS_IN_HOUR;
-	//				break;
-	//			}
-	//		}
-	//
-	//		if( timeSinceLastCheck > intervalDelay ) {
-	//			// Check now and schedule again.
-	//			delay = 0;
-	//		} else {
-	//			// Schedule the next interval.
-	//			delay = (lastUpdateCheck + intervalDelay) - currentTime;
-	//		}
-	//		return delay;
-	//	}
-	//
-	//	public static final long getNextScheduleTime( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
-	//		Calendar calendar = new GregorianCalendar( DateUtil.DEFAULT_TIME_ZONE );
-	//
-	//		// Calculate the next update check.
-	//		calendar.setTimeInMillis( currentTime );
-	//		calendar.set( Calendar.HOUR_OF_DAY, scheduleHour );
-	//		calendar.set( Calendar.MINUTE, 0 );
-	//		calendar.set( Calendar.SECOND, 0 );
-	//		calendar.set( Calendar.MILLISECOND, 0 );
-	//		if( scheduleWhen != CheckWhen.DAILY ) calendar.set( Calendar.DAY_OF_WEEK, scheduleWhen.ordinal() );
-	//		long result = calendar.getTimeInMillis() - currentTime;
-	//
-	//		// If past the scheduled time, add a day or week.
-	//		if( result < 0 ) {
-	//			if( scheduleWhen == CheckWhen.DAILY ) {
-	//				result += 24 * MILLIS_IN_HOUR;
-	//			} else {
-	//				result += 7 * 24 * MILLIS_IN_HOUR;
-	//			}
-	//		}
-	//
-	//		return result;
-	//	}
+	public static Map<String, ProductCard> getProductCardMap( Set<ProductCard> cards ) {
+		if( cards == null ) return null;
+
+		Map<String, ProductCard> map = new HashMap<>();
+		for( ProductCard card : cards ) {
+			map.put( card.getProductKey(), card );
+		}
+
+		return map;
+	}
+
+	public static boolean areResourcesValid( Set<ProductResource> resources ) {
+		for( ProductResource resource : resources ) {
+			if( !resource.isValid() ) return false;
+		}
+
+		return true;
+	}
+
+	public static long getNextIntervalTime( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck, long timeSinceLastCheck ) {
+		long delay;
+		long intervalDelay = 0;
+		switch( intervalUnit ) {
+			case MONTH: {
+				intervalDelay = 30L * 24L * MILLIS_IN_HOUR;
+				break;
+			}
+			case WEEK: {
+				intervalDelay = 7L * 24L * MILLIS_IN_HOUR;
+				break;
+			}
+			case DAY: {
+				intervalDelay = 24L * MILLIS_IN_HOUR;
+				break;
+			}
+			case HOUR: {
+				intervalDelay = (long)MILLIS_IN_HOUR;
+				break;
+			}
+		}
+
+		if( timeSinceLastCheck > intervalDelay ) {
+			// Check now and schedule again.
+			delay = 0;
+		} else {
+			// Schedule the next interval.
+			delay = (lastUpdateCheck + intervalDelay) - currentTime;
+		}
+		return delay;
+	}
+
+	public static long getNextScheduleTime( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
+		Calendar calendar = new GregorianCalendar( DateUtil.DEFAULT_TIME_ZONE );
+
+		// Calculate the next update check.
+		calendar.setTimeInMillis( currentTime );
+		calendar.set( Calendar.HOUR_OF_DAY, scheduleHour );
+		calendar.set( Calendar.MINUTE, 0 );
+		calendar.set( Calendar.SECOND, 0 );
+		calendar.set( Calendar.MILLISECOND, 0 );
+		if( scheduleWhen != CheckWhen.DAILY ) calendar.set( Calendar.DAY_OF_WEEK, scheduleWhen.ordinal() );
+		long result = calendar.getTimeInMillis() - currentTime;
+
+		// If past the scheduled time, add a day or week.
+		if( result < 0 ) {
+			if( scheduleWhen == CheckWhen.DAILY ) {
+				result += 24 * MILLIS_IN_HOUR;
+			} else {
+				result += 7 * 24 * MILLIS_IN_HOUR;
+			}
+		}
+
+		return result;
+	}
 
 	public void addProductManagerListener( UpdateManagerListener listener ) {
 		listeners.add( listener );
@@ -904,7 +908,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//		}
 		//		this.updates = updatesMap;
 
-		Settings updateSettings = settings.getNode( "update" );
+		Settings updateSettings = settings.getNode( UPDATE );
 		this.checkOption = CheckOption.valueOf( updateSettings.get( CHECK, CheckOption.INTERVAL ).toUpperCase() );
 		this.foundOption = FoundOption.valueOf( updateSettings.get( FOUND, FoundOption.SELECT ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( updateSettings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
@@ -1141,48 +1145,49 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//	}
 	//
-		private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
-			// Determine all the resources to download.
-			Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
+	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
+		// Determine all the resources to download.
+		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
 
-			for( ProductCard card : cards ) {
-				try {
-	//				Set<ProductResource> resources = new PackProvider( card, service.getTaskManager() ).getResources();
-	//
-	//				for( ProductResource resource : resources ) {
-	//					URI uri = getResolvedUpdateUri( resource.getUri() );
-	//					Log.write( Log.DEBUG, "Resource source: " + uri );
-	//
-	//					// Submit task to download resource.
-	//					resource.setFuture( service.getTaskManager().submit( new DownloadTask( uri ) ) );
-	//				}
-	//
-	//				productResources.put( card, resources );
-				} catch( Exception exception ) {
-					log.error( "Error creating pack download", exception );
-				}
+		for( ProductCard card : cards ) {
+			try {
+				// NEXT Continue implementing downloadProductResources()
+				//				Set<ProductResource> resources = new PackProvider( card, service.getTaskManager() ).getResources();
+				//
+				//				for( ProductResource resource : resources ) {
+				//					URI uri = getResolvedUpdateUri( resource.getUri() );
+				//					Log.write( Log.DEBUG, "Resource source: " + uri );
+				//
+				//					// Submit task to download resource.
+				//					resource.setFuture( service.getTaskManager().submit( new DownloadTask( uri ) ) );
+				//				}
+				//
+				//				productResources.put( card, resources );
+			} catch( Exception exception ) {
+				log.error( "Error creating pack download", exception );
 			}
-
-			// Wait for all resources to be downloaded.
-			for( ProductCard card : cards ) {
-	//			Set<ProductResource> resources = productResources.get( card );
-	//			for( ProductResource resource : resources ) {
-	//				try {
-	//					resource.waitFor();
-	//					Log.write( Log.DEBUG, "Resource target: " + resource.getLocalFile() );
-	//
-	//					// TODO Verify resources are secure by checking digital signatures.
-	//					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
-	//
-	//				} catch( Exception exception ) {
-	//					resource.setThrowable( exception );
-	//					Log.write( exception );
-	//				}
-	//			}
-			}
-
-			return productResources;
 		}
+
+		// Wait for all resources to be downloaded.
+		for( ProductCard card : cards ) {
+			//			Set<ProductResource> resources = productResources.get( card );
+			//			for( ProductResource resource : resources ) {
+			//				try {
+			//					resource.waitFor();
+			//					Log.write( Log.DEBUG, "Resource target: " + resource.getLocalFile() );
+			//
+			//					// TODO Verify resources are secure by checking digital signatures.
+			//					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
+			//
+			//				} catch( Exception exception ) {
+			//					resource.setThrowable( exception );
+			//					Log.write( exception );
+			//				}
+			//			}
+		}
+
+		return productResources;
+	}
 
 	//	/**
 	//	 * A folder module is and unpacked module contained in a folder.
@@ -1397,7 +1402,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//
 	//	}
 
-	private final class UpdateCheckTask extends TimerTask {
+	private static final class UpdateCheckTask extends TimerTask {
 
 		private UpdateManager updateManager;
 
@@ -1412,7 +1417,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	}
 
-	private final class ProductState {
+	private static final class ProductState {
 
 		public boolean updatable;
 

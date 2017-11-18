@@ -42,7 +42,7 @@ public class PackProvider implements ProductResourceProvider {
 //		}
 //		for( String jnlp : jnlps ) {
 //			URI uri = codebase.resolve( jnlp );
-//			Future<Descriptor> future = taskManager.submit( new DescriptorDownloadTask( uri ) );
+//			Future<XmlDescriptor> future = taskManager.submit( new DescriptorDownloadTask( uri ) );
 //			resources.addAll( new JnlpProvider( future.get(), taskManager ).getResources() );
 //		}
 
