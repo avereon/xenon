@@ -2,10 +2,10 @@ package com.xeomar.xenon.update;
 
 import org.junit.Test;
 
-public class ProductCatalogTest {
+public class ProductCatalogOldTest {
 
 	@Test
 	public void testConstructor() {
-		ProductCatalog catalog = new ProductCatalog(  );
+		ProductCatalogOld catalog = new ProductCatalogOld(  );
 	}
 }

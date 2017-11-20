@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ProductCatalog implements Configurable {
+@Deprecated
+public class ProductCatalogOld implements Configurable {
 
-	private static final Logger log = LoggerFactory.getLogger( ProductCatalog.class );
+	private static final Logger log = LoggerFactory.getLogger( ProductCatalogOld.class );
 
 	public static final String CATALOG_PATH = "/catalog";
 
@@ -46,13 +47,13 @@ public class ProductCatalog implements Configurable {
 	/*
 	 * This constructor is required for the Settings API.
 	 */
-	public ProductCatalog() {}
+	public ProductCatalogOld() {}
 
-	public ProductCatalog( XmlDescriptor descriptor, URI base ) {
+	public ProductCatalogOld( XmlDescriptor descriptor, URI base ) {
 		update( descriptor, base );
 	}
 
-	public ProductCatalog update( XmlDescriptor descriptor, URI base ) {
+	public ProductCatalogOld update( XmlDescriptor descriptor, URI base ) {
 		String iconUri = descriptor.getValue( ICON_PATH );
 		String name = descriptor.getValue( NAME_PATH );
 

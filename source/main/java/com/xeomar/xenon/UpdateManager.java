@@ -7,7 +7,7 @@ import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.DateUtil;
 import com.xeomar.util.TestUtil;
-import com.xeomar.xenon.update.ProductCatalog;
+import com.xeomar.xenon.update.ProductCatalogOld;
 import com.xeomar.xenon.update.ProductResource;
 import com.xeomar.xenon.update.ProductUpdate;
 import org.slf4j.Logger;
@@ -108,7 +108,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Settings settings;
 
-	private Set<ProductCatalog> catalogs;
+	private Set<ProductCatalogOld> catalogs;
 
 	private Map<String, Module> modules;
 
@@ -168,22 +168,22 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return catalogs.size();
 	}
 
-	public void addCatalog( ProductCatalog source ) {
+	public void addCatalog( ProductCatalogOld source ) {
 		catalogs.add( source );
 		saveSettings();
 	}
 
-	public void removeCatalog( ProductCatalog source ) {
+	public void removeCatalog( ProductCatalogOld source ) {
 		catalogs.remove( source );
 		saveSettings();
 	}
 
-	public void setCatalogEnabled( ProductCatalog catalog, boolean enabled ) {
+	public void setCatalogEnabled( ProductCatalogOld catalog, boolean enabled ) {
 		catalog.setEnabled( enabled );
 		saveSettings();
 	}
 
-	public Set<ProductCatalog> getCatalogs() {
+	public Set<ProductCatalogOld> getCatalogs() {
 		return new HashSet<>( catalogs );
 	}
 
@@ -888,10 +888,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		this.settings = settings;
 
 		//		// TODO Load the product catalogs
-		//		Set<ProductCatalog> catalogsSet = new CopyOnWriteArraySet<ProductCatalog>();
+		//		Set<ProductCatalogOld> catalogsSet = new CopyOnWriteArraySet<ProductCatalogOld>();
 		//		Set<Settings> catalogsSettings = settings.getChildNodes( CATALOGS_SETTINGS_KEY );
 		//		for( Settings catalogSettings : catalogsSettings ) {
-		//			ProductCatalog catalog = new ProductCatalog();
+		//			ProductCatalogOld catalog = new ProductCatalogOld();
 		//			catalog.loadSettings( catalogSettings );
 		//			catalogsSet.add( catalog );
 		//		}

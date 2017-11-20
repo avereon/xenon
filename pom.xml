@@ -202,6 +202,37 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<!-- Add the product card file. -->
+								<artifact>
+									<file>target/main/java/META-INF/product.card</file>
+									<classifier>product</classifier>
+									<type>card</type>
+								</artifact>
+								<!-- Add the product catalog file. -->
+								<artifact>
+									<file>target/main/java/catalogs/snapshot.yaml</file>
+									<classifier>catalog-snap</classifier>
+									<type>card</type>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 

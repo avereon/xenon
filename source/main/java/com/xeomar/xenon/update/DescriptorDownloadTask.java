@@ -8,6 +8,7 @@ import com.xeomar.xenon.task.TaskListener;
 import java.io.FileInputStream;
 import java.net.URI;
 
+@Deprecated
 public class DescriptorDownloadTask extends Task<XmlDescriptor> {
 
 	private DownloadTask task;
