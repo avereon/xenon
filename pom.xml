@@ -223,8 +223,8 @@
 								</artifact>
 								<!-- Add the product catalog file. -->
 								<artifact>
-									<file>target/main/java/catalogs/snapshot.yaml</file>
-									<classifier>catalog-snap</classifier>
+									<file>target/main/java/META-INF/catalog.card</file>
+									<classifier>catalog</classifier>
 									<type>card</type>
 								</artifact>
 							</artifacts>
