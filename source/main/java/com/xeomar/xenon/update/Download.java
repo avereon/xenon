@@ -3,6 +3,11 @@ package com.xeomar.xenon.update;
 import java.io.*;
 import java.net.URI;
 
+/**
+ * This class represents content that has been downloaded, either to a specific
+ * file or to a temporary file. If to a temporary file, the file is marked to
+ * be removed on JVM exit.
+ */
 public class Download extends OutputStream {
 
 	private URI source;

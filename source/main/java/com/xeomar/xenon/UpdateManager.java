@@ -7,6 +7,7 @@ import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.DateUtil;
 import com.xeomar.util.TestUtil;
+import com.xeomar.xenon.update.DescriptorDownloadTask;
 import com.xeomar.xenon.update.ProductCatalogOld;
 import com.xeomar.xenon.update.ProductResource;
 import com.xeomar.xenon.update.ProductUpdate;
@@ -14,9 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -97,6 +103,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	private static final String UPDATES_SETTINGS_KEY = "updates";
 
 	private static final String PRODUCT_ENABLED_KEY = "enabled";
+
+	private static final String LAST_CHECK_TIME = "last-check-time";
 
 	private static final int POSTED_UPDATE_CACHE_TIMEOUT = 60000;
 
@@ -320,7 +328,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void setEnabled( ProductCard card, boolean enabled ) {
 		if( isEnabled( card ) == enabled ) return;
 
-		// NEXT Implement setEnabledImpl()
+		// TODO Implement setEnabledImpl()
 		//		setEnabledImpl( card, enabled );
 
 		Settings settings = program.getSettingsManager().getProductSettings( card );
@@ -452,233 +460,241 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		try {
 			log.trace( "Checking for updates..." );
-			//				int stagedUpdateCount = stagePostedUpdates();
-			//				if( stagedUpdateCount > 0 ) {
-			//					log.trace( "Updates staged, restarting..." );
-			//					program.restart( ProgramParameter.NOUPDATECHECK );
-			//				}
+			int stagedUpdateCount = stagePostedUpdates();
+			if( stagedUpdateCount > 0 ) {
+				log.trace( "Updates staged, restarting..." );
+				program.restart( ProgramParameter.NOUPDATECHECK );
+			}
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
 	}
 
-	//	public Set<ProductCard> getPostedUpdates() throws Exception {
-	//		return getPostedUpdates( true );
-	//	}
-	//
-	//	/**
-	//	 * Gets the set of posted product updates. If there are no posted updates
-	//	 * found an empty set is returned.
-	//	 *
-	//	 * @return The set of posted updates.
-	//	 * @throws Exception
-	//	 */
-	//	public Set<ProductCard> getPostedUpdates( boolean force ) throws Exception {
-	//		Set<ProductCard> newCards = new HashSet<ProductCard>();
-	//		if( !isEnabled() ) return newCards;
-	//
-	//		// If the posted update cache is still valid return the updates in the cache.
-	//		long postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
-	//		if( force == false && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return new HashSet<ProductCard>( postedUpdateCache );
-	//
-	//		// Update when the last update check occurred.
-	//		service.getSettings().putLong( ServiceSettingsPath.UPDATE_SETTINGS_PATH + "/check/last", System.currentTimeMillis() );
-	//
-	//		// Schedule the next update check.
-	//		scheduleUpdateCheck( false );
-	//
-	//		// Download the descriptors for each product.
-	//		Set<ProductCard> oldCards = getProductCards();
-	//		Map<ProductCard, DescriptorDownloadTask> tasks = new HashMap<ProductCard, DescriptorDownloadTask>();
-	//		for( ProductCard oldCard : oldCards ) {
-	//			URI uri = getResolvedUpdateUri( oldCard.getSourceUri() );
-	//			if( uri == null ) {
-	//				Log.write( Log.WARN, "Installed pack does not have source defined: " + oldCard.toString() );
-	//				continue;
-	//			} else {
-	//				Log.write( Log.DEBUG, "Installed pack source: " + uri );
-	//			}
-	//
-	//			DescriptorDownloadTask task = new DescriptorDownloadTask( uri );
-	//			service.getTaskManager().submit( task );
-	//			tasks.put( oldCard, task );
-	//		}
-	//
-	//		// Determine what products have posted updates.
-	//		Exception exception = null;
-	//		for( ProductCard oldCard : oldCards ) {
-	//			try {
-	//				DescriptorDownloadTask task = tasks.get( oldCard );
-	//				if( task == null ) continue;
-	//
-	//				XmlDescriptor descriptor = task.get();
-	//				ProductCard newCard = new ProductCard( task.getUri(), descriptor );
-	//
-	//				// Validate the pack key.
-	//				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
-	//					Log.write( Log.WARN, "Pack mismatch: ", oldCard.getProductKey(), " != ", newCard.getProductKey() );
-	//					continue;
-	//				}
-	//
-	//				Log.write( Log.DEBUG, "Old release: ", oldCard.getArtifact(), " ", oldCard.getRelease() );
-	//				Log.write( Log.DEBUG, "New release: ", newCard.getArtifact(), " ", newCard.getRelease() );
-	//
-	//				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
-	//					Log.write( Log.TRACE, "Update found for: " + oldCard.toString() );
-	//					newCards.add( newCard );
-	//				}
-	//			} catch( Exception workException ) {
-	//				if( exception == null ) exception = workException;
-	//			}
-	//		}
-	//
-	//		// If there is an exception and there are no updates, throw the exception.
-	//		if( exception != null && newCards.size() == 0 ) throw exception;
-	//
-	//		// Cache the discovered updates.
-	//		postedUpdateCacheTime = System.currentTimeMillis();
-	//		postedUpdateCache = new CopyOnWriteArraySet<ProductCard>( newCards );
-	//
-	//		return newCards;
-	//	}
-	//
-	//	public boolean cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
-	//		throw new RuntimeException( "Method not implemented yet." );
-	//	}
-	//
-	//	public boolean stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
-	//		throw new RuntimeException( "Method not implemented yet." );
-	//	}
-	//
-	//	/**
-	//	 * Attempt to stage the product packs from posted updates.
-	//	 *
-	//	 * @return true if one or more product packs were staged.
-	//	 * @throws Exception
-	//	 */
-	//	public int stagePostedUpdates() throws Exception {
-	//		if( !isEnabled() ) return 0;
-	//		stageSelectedUpdates( getPostedUpdates( true ) );
-	//		return updates.size();
-	//	}
-	//
+	public Set<ProductCard> getPostedUpdates() throws Exception {
+		return getPostedUpdates( true );
+	}
+
+	/**
+	 * Gets the set of posted product updates. If there are no posted updates
+	 * found an empty set is returned.
+	 *
+	 * @return The set of posted updates.
+	 * @throws Exception
+	 */
+	public Set<ProductCard> getPostedUpdates( boolean force ) throws ExecutionException, InterruptedException {
+		Set<ProductCard> newCards = new HashSet<>();
+		if( !isEnabled() ) return newCards;
+
+		// If the posted update cache is still valid return the updates in the cache.
+		long postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
+		if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return new HashSet<>( postedUpdateCache );
+
+		// Update when the last update check occurred.
+		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+
+		// Schedule the next update check.
+		scheduleUpdateCheck( false );
+
+		// Download the descriptors for each product.
+		Set<ProductCard> oldCards = getProductCards();
+		Map<ProductCard, DescriptorDownloadTask> tasks = new HashMap<>();
+//		for( ProductCard oldCard : oldCards ) {
+//			URI uri = getResolvedUpdateUri( oldCard.getCardUri() );
+//			if( uri == null ) {
+//				log.warn( "Installed pack does not have source defined: " + oldCard.toString() );
+//				continue;
+//			} else {
+//				log.debug( "Installed pack source: " + uri );
+//			}
+//
+//			DescriptorDownloadTask task = new DescriptorDownloadTask( uri );
+//			program.getExecutor().submit( task );
+//			tasks.put( oldCard, task );
+//		}
+
+//		// Determine what products have posted updates.
+//		ExecutionException executionException = null;
+//		InterruptedException interruptedException = null;
+//		for( ProductCard oldCard : oldCards ) {
+//			try {
+//				DescriptorDownloadTask task = tasks.get( oldCard );
+//				if( task == null ) continue;
+//
+//				XmlDescriptor descriptor = task.get();
+//				ProductCard newCard = new ProductCard();
+//				newCard.loadCard( descriptor, task.getUri() );
+//
+//				// Validate the pack key.
+//				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
+//					log.warn( "Pack mismatch: " + oldCard.getProductKey() + " != " + newCard.getProductKey() );
+//					continue;
+//				}
+//
+//				log.debug( "Old release: " + oldCard.getArtifact() + " " + oldCard.getRelease() );
+//				log.debug( "New release: " + newCard.getArtifact() + " " + newCard.getRelease() );
+//
+//				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
+//					log.trace( "Update found for: " + oldCard.toString() );
+//					newCards.add( newCard );
+//				}
+//			} catch( ExecutionException exception ) {
+//				if( executionException == null ) executionException = exception;
+//			} catch( InterruptedException exception ) {
+//				if( interruptedException == null ) interruptedException = exception;
+//			}
+//		}
+//
+//		// If there is an exception and there are no updates, throw the exception.
+//		if( newCards.size() == 0 ) {
+//			if( executionException != null ) throw executionException;
+//			if( interruptedException != null ) throw interruptedException;
+//		}
+
+		// Cache the discovered updates.
+		postedUpdateCacheTime = System.currentTimeMillis();
+		postedUpdateCache = new CopyOnWriteArraySet<>( newCards );
+
+		return newCards;
+	}
+
+	public boolean cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
+		throw new RuntimeException( "Method not implemented yet." );
+	}
+
+	public boolean stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
+		throw new RuntimeException( "Method not implemented yet." );
+	}
+
+	/**
+	 * Attempt to stage the product packs from posted updates.
+	 *
+	 * @return true if one or more product packs were staged.
+	 * @throws Exception
+	 */
+	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException {
+		if( !isEnabled() ) return 0;
+		stageSelectedUpdates( getPostedUpdates( true ) );
+		return updates.size();
+	}
+
 	//	public File getProductInstallFolder( ProductCard card ) {
 	//		File installFolder = new File( service.getDataFolder(), Service.MODULE_INSTALL_FOLDER_NAME );
 	//		return new File( installFolder, card.getGroup() + "." + card.getArtifact() );
 	//	}
-	//
-	//	/**
-	//	 * Attempt to stage the product packs described by the specified product
-	//	 * cards.
-	//	 *
-	//	 * @param updateCards
-	//	 * @return true if one or more product packs were staged.
-	//	 * @throws Exception
-	//	 */
-	//	public Map<ProductCard, Set<ProductResource>> stageSelectedUpdates( Set<ProductCard> updateCards ) throws IOException {
-	//		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<ProductCard, Set<ProductResource>>();
-	//
-	//		if( updateCards.size() == 0 ) return null;
-	//
-	//		File stageFolder = new File( service.getDataFolder(), UPDATE_FOLDER_NAME );
-	//		stageFolder.mkdirs();
-	//
-	//		Log.write( Log.TRACE, "Number of packs to stage: " + updateCards.size() );
-	//		Log.write( Log.DEBUG, "Pack stage folder: " + stageFolder );
-	//
-	//		// Download the product resources.
-	//		productResources = downloadProductResources( updateCards );
-	//
-	//		// Create an update for each product.
-	//		for( ProductCard updateCard : updateCards ) {
-	//			ProductCard productCard = productCards.get( updateCard.getProductKey() );
-	//
-	//			// Verify the resources have all been staged successfully.
-	//			Set<ProductResource> resources = productResources.get( updateCard );
-	//			if( !areResourcesValid( resources ) ) continue;
-	//
-	//			File installFolder = productCard.getInstallFolder();
-	//			boolean installFolderValid = installFolder != null && installFolder.exists();
-	//
-	//			if( !installFolderValid ) {
-	//				Log.write( Log.ERROR, "Error staging update for: " + productCard.getProductKey() );
-	//				Log.write( Log.ERROR, "Invalid install folder: " + installFolder );
-	//			}
-	//
-	//			// Check that the product is known and installed.
-	//			if( productCard == null || !installFolderValid ) {
-	//				Log.write( Log.WARN, "Update not staged: " + updateCard );
-	//				continue;
-	//			}
-	//
-	//			File updatePack = new File( stageFolder, getStagedUpdateFileName( updateCard ) );
-	//			createUpdatePack( productResources.get( updateCard ), updatePack );
-	//
-	//			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
-	//
-	//			// Remove any old staged updates for this product.
-	//			updates.remove( update );
-	//
-	//			// Add the update to the set of staged updates.
-	//			updates.put( update.getCard().getProductKey(), update );
-	//
-	//			// Notify listeners the update is staged.
-	//			fireProductManagerEvent( new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ) );
-	//
-	//			Log.write( Log.TRACE, "Update staged: ", updateCard.getName(), " ", updateCard.getRelease() );
-	//			Log.write( Log.TRACE, "Update pack:   ", updatePack );
-	//		}
-	//		saveSettings( settings );
-	//
-	//		return productResources;
-	//	}
-	//
-	//	public String getStagedUpdateFileName( ProductCard card ) {
-	//		return card.getGroup() + "." + card.getArtifact() + ".pak";
-	//	}
-	//
-	//	public Set<ProductCard> getStagedUpdates() {
-	//		Set<ProductUpdate> staged = new HashSet<ProductUpdate>();
-	//		Set<ProductUpdate> remove = new HashSet<ProductUpdate>();
-	//
-	//		for( ProductUpdate update : updates.values() ) {
-	//			if( update.getSource().exists() ) {
-	//				staged.add( update );
-	//				Log.write( Log.DEBUG, "Staged update found: " + update.getSource() );
-	//			} else {
-	//				remove.add( update );
-	//				Log.write( Log.WARN, "Staged update missing: " + update.getSource() );
-	//			}
-	//		}
-	//
-	//		// Remove updates that cannot be found.
-	//		if( remove.size() > 0 ) {
-	//			for( ProductUpdate update : remove ) {
-	//				updates.remove( update );
-	//			}
-	//			saveSettings( settings );
-	//		}
-	//
-	//		Set<ProductCard> cards = new HashSet<ProductCard>();
-	//		for( ProductUpdate update : staged ) {
-	//			cards.add( update.getCard() );
-	//		}
-	//
-	//		return cards;
-	//	}
-	//
-	//	public int getStagedUpdateCount() {
-	//		return getStagedUpdates().size();
-	//	}
-	//
-	//	public boolean areUpdatesStaged() {
-	//		return getStagedUpdateCount() > 0;
-	//	}
-	//
-	//	public boolean isStaged( ProductCard card ) {
-	//		return getStagedUpdates().contains( card );
-	//	}
-	//
+
+	/**
+	 * Attempt to stage the product packs described by the specified product
+	 * cards.
+	 *
+	 * @param updateCards
+	 * @return true if one or more product packs were staged.
+	 * @throws Exception
+	 */
+	public Map<ProductCard, Set<ProductResource>> stageSelectedUpdates( Set<ProductCard> updateCards ) throws IOException {
+		if( updateCards.size() == 0 ) return null;
+
+		Path stageFolder =  program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
+		Files.createDirectories( stageFolder );
+
+		log.debug( "Pack stage folder: " + stageFolder );
+		log.trace( "Number of packs to stage: " + updateCards.size() );
+
+		// Download the product resources.
+		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( updateCards );
+
+		// Create an update for each product.
+		for( ProductCard updateCard : updateCards ) {
+			// Verify the product is registered
+			ProductCard productCard = productCards.get( updateCard.getProductKey() );
+			if( productCard == null ) {
+				log.warn( "Product not registered: " + updateCard );
+				continue;
+			}
+
+			// Verify the product is installed
+			Path installFolder = productCard.getInstallFolder();
+			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
+			if( !installFolderValid ) {
+				log.warn( "Product not installed: " + updateCard );
+				log.debug( "Missing install folder: " + installFolder );
+				continue;
+			}
+
+			// Verify the resources have all been staged successfully
+			Set<ProductResource> resources = productResources.get( updateCard );
+			if( !areResourcesValid( resources ) ) {
+				log.warn( "Update missing resources: " + updateCard );
+				continue;
+			}
+
+			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( updateCard ) );
+			// TODO createUpdatePack( productResources.get( updateCard ), updatePack );
+
+//			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
+//
+//			// Remove any old staged updates for this product.
+//			updates.remove( update );
+//
+//			// Add the update to the set of staged updates.
+//			updates.put( update.getCard().getProductKey(), update );
+
+			// Notify listeners the update is staged.
+			new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+
+			log.trace( "Update staged: ", updateCard.getName(), " ", updateCard.getRelease() );
+			log.trace( "Update pack:   ", updatePack );
+		}
+		saveSettings();
+
+		return productResources;
+	}
+
+	public String getStagedUpdateFileName( ProductCard card ) {
+		return card.getGroup() + "." + card.getArtifact() + ".pack";
+	}
+
+	public Set<ProductCard> getStagedUpdates() {
+		Set<ProductUpdate> staged = new HashSet<>();
+		Set<ProductUpdate> remove = new HashSet<>();
+
+		for( ProductUpdate update : updates.values() ) {
+			if( update.getSource().exists() ) {
+				staged.add( update );
+				log.debug( "Staged update found: " + update.getSource() );
+			} else {
+				remove.add( update );
+				log.warn( "Staged update missing: " + update.getSource() );
+			}
+		}
+
+		// Remove updates that cannot be found.
+		if( remove.size() > 0 ) {
+			for( ProductUpdate update : remove ) {
+				updates.remove( update );
+			}
+			saveSettings();
+		}
+
+		Set<ProductCard> cards = new HashSet<ProductCard>();
+		for( ProductUpdate update : staged ) {
+			cards.add( update.getCard() );
+		}
+
+		return cards;
+	}
+
+	public int getStagedUpdateCount() {
+		return getStagedUpdates().size();
+	}
+
+	public boolean areUpdatesStaged() {
+		return getStagedUpdateCount() > 0;
+	}
+
+	public boolean isStaged( ProductCard card ) {
+		return getStagedUpdates().contains( card );
+	}
+
 	//	public boolean isReleaseStaged( ProductCard card ) {
 	//		ProductUpdate update = updates.get( card.getProductKey() );
 	//		if( update == null ) return false;
@@ -1094,13 +1110,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//		service.getSettings().removeNode( REMOVES_SETTINGS_KEY );
 	//	}
-	//
-	//	private URI getResolvedUpdateUri( URI uri ) {
-	//		if( uri == null ) return null;
-	//		if( uri.getScheme() == null ) uri = new File( uri.getPath() ).toURI();
-	//		return uri;
-	//	}
-	//
+
+	private URI getResolvedUpdateUri( URI uri ) {
+		if( uri == null ) return null;
+		if( uri.getScheme() == null ) uri = new File( uri.getPath() ).toURI();
+		return uri;
+	}
+
 	//	private Set<InstalledProduct> getStoredRemovedProducts() {
 	//		Set<InstalledProduct> products = new HashSet<InstalledProduct>();
 	//		Set<Settings> productSettings = service.getSettings().getChildNodes( REMOVES_SETTINGS_KEY );

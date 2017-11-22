@@ -62,7 +62,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProductCard card;
 
-	private File programDataFolder;
+	private Path programDataFolder;
 
 	private Settings programSettings;
 
@@ -289,7 +289,7 @@ public class Program extends Application implements ProgramProduct {
 	 *
 	 * @return The home folder
 	 */
-	public final Path getHomeFolder() {
+	public Path getHomeFolder() {
 		return home;
 	}
 
@@ -312,7 +312,7 @@ public class Program extends Application implements ProgramProduct {
 		return programStartTime;
 	}
 
-	public File getDataFolder() {
+	public Path getDataFolder() {
 		return programDataFolder;
 	}
 

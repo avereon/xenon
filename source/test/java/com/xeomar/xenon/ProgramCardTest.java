@@ -12,6 +12,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
+import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -63,7 +64,7 @@ public class ProgramCardTest extends ProgramTestCase {
 	@Test
 	public void testProgramDataFolder() throws Exception {
 		String prefix = ExecMode.TEST.getPrefix();
-		File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		assertThat( program.getDataFolder(), is( programDataFolder ) );
 	}
 

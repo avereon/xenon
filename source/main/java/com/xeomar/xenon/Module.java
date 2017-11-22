@@ -4,6 +4,7 @@ import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public abstract class Module implements Product, Comparable<Module> {
 
@@ -58,8 +59,8 @@ public abstract class Module implements Product, Comparable<Module> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public File getDataFolder() {
-		return new File( program.getDataFolder(), card.getProductKey() );
+	public Path getDataFolder() {
+		return program.getDataFolder().resolve( card.getProductKey() );
 	}
 
 	/**

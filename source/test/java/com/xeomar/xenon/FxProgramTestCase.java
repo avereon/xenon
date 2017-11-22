@@ -16,6 +16,8 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public abstract class FxProgramTestCase extends ApplicationTest {
 
@@ -50,8 +52,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		try {
 			String prefix = ExecMode.TEST.getPrefix();
 			ProductCard metadata = new ProductCard();
-			File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-			if( programDataFolder != null && programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
+			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+			if( Files.exists(programDataFolder) ) FileUtil.delete( programDataFolder );
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
 		}

@@ -8,10 +8,15 @@ name: "${project.name}"
 provider: "${project.organization.name}"
 inception: ${project.inceptionYear}
 
-summary: "Java application platform"
+summary: "Java-based program platform"
 description: "${project.description}"
 copyright: "All rights reserved."
 license: "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions."
+
+card: "http://www.xeomar.com/download/product/${project.artifactId}/product.card"
+pack: "http://www.xeomar.com/download/product/${project.artifactId}/product.pack"
+main: "com.xeomar.xenon.Program"
+java: "9"
 
 maintainers:
   - !!com.xeomar.util.Maintainer
@@ -29,13 +34,3 @@ contributors:
     roles:
       - "Problem Solver"
 
-# The resources define what is needed for this product
-# java - What is the minimum version of Java
-# head - The location of the product descriptor file
-# pack - The location of the product pack file
-# main - The main class of the product, or module class in the case of a module
-resources:
-  java: 9
-  card: "http://www.xeomar.com/download/product/${project.artifactId}/product.card"
-  pack: "http://www.xeomar.com/download/product/${project.artifactId}/product.pack"
-  main: "com.xeomar.xenon.Program"
