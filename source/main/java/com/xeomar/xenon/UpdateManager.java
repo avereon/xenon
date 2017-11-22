@@ -70,9 +70,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private static final Logger log = LoggerFactory.getLogger( UpdateManager.class );
 
-	public static final String DEFAULT_CATALOG_FILE_NAME = "catalog.xml";
+	public static final String DEFAULT_CATALOG_FILE_NAME = "catalog.card";
 
-	public static final String DEFAULT_PRODUCT_FILE_NAME = "product.xml";
+	public static final String DEFAULT_PRODUCT_FILE_NAME = "product.card";
 
 	public static final String PRODUCT_DESCRIPTOR_PATH = "META-INF/" + DEFAULT_PRODUCT_FILE_NAME;
 
@@ -1144,7 +1144,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//			}
 	//		}
 	//	}
-	//
+
 	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
 		// Determine all the resources to download.
 		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
@@ -1316,8 +1316,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//
 	//		throw new NoSuchMethodException( "Module constructor not found: " + JavaUtil.getClassName( moduleClass ) + "( " + JavaUtil.getClassName( Service.class ) + ", " + JavaUtil.getClassName( ProductCard.class ) + " )" );
 	//	}
-	//
-	//	private void registerProduct( ServiceModule module, boolean updatable, boolean removable ) {
+
+	//	private void registerProduct( Module module, boolean updatable, boolean removable ) {
 	//		ProductCard card = module.getCard();
 	//
 	//		// Register the product.

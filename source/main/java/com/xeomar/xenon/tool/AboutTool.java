@@ -321,7 +321,7 @@ public class AboutTool extends ProductTool {
 		builder.append( "Artifact:    " + card.getArtifact() + "\n" );
 		builder.append( "Version:     " + card.getVersion() + "\n" );
 		builder.append( "Timestamp:   " + card.getTimestamp() + "\n" );
-		//builder.append( "Source URI:  " + card.getSourceUri() + "\n" );
+		builder.append( "Source URI:  " + card.getCardUri() + "\n" );
 
 		//		ProductManager productManager = getProgram().getProductManager();
 		//		builder.append( "Enabled:     " + productManager.isEnabled( card ) + "\n" );

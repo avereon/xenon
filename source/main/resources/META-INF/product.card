@@ -1,14 +1,41 @@
-group = ${project.groupId}
-artifact = ${project.artifactId}
-version = ${project.version}
-timestamp = ${project.timestamp}
+group: "${project.groupId}"
+artifact: "${project.artifactId}"
+version: "${project.version}"
+timestamp: "${project.timestamp}"
 
-name = ${project.name}
-icon = http://www.xeomar.com/images/icons/${project.artifactId}.png
-provider = ${project.organization.name}
-inception = ${project.inceptionYear}
+icon: "http://www.xeomar.com/images/icons/${project.artifactId}.png"
+name: "${project.name}"
+provider: "${project.organization.name}"
+inception: ${project.inceptionYear}
 
-summary = Java application platform
-description = ${project.description}
-copyright = All rights reserved
-license = ${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.
+summary: "Java application platform"
+description: "${project.description}"
+copyright: "All rights reserved."
+license: "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions."
+
+maintainers:
+  - !!com.xeomar.util.Maintainer
+    name: "Mark Soderquist"
+    email: "mark.soderquist@xeomar.com"
+    roles:
+      - "Architect"
+      - "Developer"
+    organization: "Xeomar"
+    organizationUrl: "http://xeomar.com/"
+
+contributors:
+  - !!com.xeomar.util.Contributor
+    name: "Dan Langford"
+    roles:
+      - "Problem Solver"
+
+# The resources define what is needed for this product
+# java - What is the minimum version of Java
+# head - The location of the product descriptor file
+# pack - The location of the product pack file
+# main - The main class of the product, or module class in the case of a module
+resources:
+  java: 9
+  card: "http://www.xeomar.com/download/product/${project.artifactId}/product.card"
+  pack: "http://www.xeomar.com/download/product/${project.artifactId}/product.pack"
+  main: "com.xeomar.xenon.Program"
