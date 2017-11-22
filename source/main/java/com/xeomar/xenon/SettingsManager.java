@@ -43,7 +43,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public SettingsManager( Program program ) {
 		this.program = program;
-		this.settings = new StoredSettings( program.getDataFolder().resolve(  ROOT ).toFile() );
+		System.out.println( "Settings root: " + program.getDataFolder().resolve( ROOT ) );
+		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.settingsPages = new ConcurrentHashMap<>();
 		this.settingsWatcher = new SettingsWatcher( program );
 	}
