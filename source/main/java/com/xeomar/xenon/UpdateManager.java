@@ -571,7 +571,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Attempt to stage the product packs from posted updates.
 	 *
 	 * @return true if one or more product packs were staged.
-	 * @throws Exception
+	 * @throws IOException If an IO error occurs
+	 * @throws ExecutionException If an execution error occurs
+	 * @throws InterruptedException If the method is interrupted
 	 */
 	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException {
 		if( !isEnabled() ) return 0;
@@ -579,7 +581,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return updates.size();
 	}
 
-	//	public File getProductInstallFolder( ProductCard card ) {
+	// TODO	public File getProductInstallFolder( ProductCard card ) {
 	//		File installFolder = new File( service.getDataFolder(), Service.MODULE_INSTALL_FOLDER_NAME );
 	//		return new File( installFolder, card.getGroup() + "." + card.getArtifact() );
 	//	}
@@ -588,9 +590,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Attempt to stage the product packs described by the specified product
 	 * cards.
 	 *
-	 * @param updateCards
+	 * @param updateCards The set of update cards to stage
 	 * @return true if one or more product packs were staged.
-	 * @throws Exception
+	 * @throws IOException If an IO error occurs
 	 */
 	public Map<ProductCard, Set<ProductResource>> stageSelectedUpdates( Set<ProductCard> updateCards ) throws IOException {
 		if( updateCards.size() == 0 ) return null;
