@@ -14,16 +14,18 @@ import com.xeomar.xenon.update.ProductUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+//import java.io.File;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -120,9 +122,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Map<String, Module> modules;
 
-	private File homeModuleFolder;
+	private Path homeModuleFolder;
 
-	private File userProductFolder;
+	private Path userProductFolder;
 
 	private CheckOption checkOption;
 
@@ -130,7 +132,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private ApplyOption applyOption;
 
-	private File updater;
+	private Path updater;
 
 	private Map<String, Product> products;
 
@@ -344,7 +346,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 *
 	 * @return
 	 */
-	public File getUpdaterPath() {
+	public Path getUpdaterPath() {
 		return updater;
 	}
 
@@ -353,7 +355,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 *
 	 * @param file
 	 */
-	public void setUpdaterPath( File file ) {
+	public void setUpdaterPath( Path file ) {
 		this.updater = file;
 	}
 
@@ -1113,7 +1115,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private URI getResolvedUpdateUri( URI uri ) {
 		if( uri == null ) return null;
-		if( uri.getScheme() == null ) uri = new File( uri.getPath() ).toURI();
+		if( uri.getScheme() == null ) uri = Paths.get(uri.getPath() ).toUri();
 		return uri;
 	}
 
@@ -1355,7 +1357,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	static final class InstalledProduct implements Configurable {
 
 		// TODO Change to Path
-		private File target;
+		private Path target;
 
 		private Settings settings;
 
@@ -1364,11 +1366,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		 */
 		public InstalledProduct() {}
 
-		public InstalledProduct( File target ) {
+		public InstalledProduct( Path target ) {
 			this.target = target;
 		}
 
-		public File getTarget() {
+		public Path getTarget() {
 			return target;
 		}
 
@@ -1379,8 +1381,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			this.settings = settings;
 
 			String targetPath = settings.get( "target", null );
-			target = targetPath == null ? null : new File( targetPath );
-			settings.set( "target", target.getPath() );
+			target = targetPath == null ? null : Paths.get( targetPath );
+			settings.set( "target", target.toString() );
 		}
 
 		@Override

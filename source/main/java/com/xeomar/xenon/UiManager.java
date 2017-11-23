@@ -71,14 +71,14 @@ public class UiManager {
 	//	}
 
 	public int getToolCount() {
-		return getChildNodeNames( ProgramSettings.TOOL ).length;
+		return getChildNodeNames( ProgramSettings.TOOL ).size();
 	}
 
 	public void restoreUi( SplashScreen splashScreen ) {
 		restoreLock.lock();
 		try {
-			String[] workspaceIds = getChildNodeNames( ProgramSettings.WORKSPACE );
-			if( workspaceIds.length == 0 ) {
+			List<String> workspaceIds = getChildNodeNames( ProgramSettings.WORKSPACE );
+			if( workspaceIds.size() == 0 ) {
 				createDefaultWorkspace();
 			} else {
 				restoreWorkspaces( splashScreen, workspaceIds );
@@ -159,11 +159,11 @@ public class UiManager {
 		}
 	}
 
-	private void restoreWorkspaces( SplashScreen splashScreen, String[] workspaceIds ) {
-		String[] areaIds = getChildNodeNames( ProgramSettings.AREA );
-		String[] edgeIds = getChildNodeNames( ProgramSettings.EDGE );
-		String[] viewIds = getChildNodeNames( ProgramSettings.VIEW );
-		String[] toolIds = getChildNodeNames( ProgramSettings.TOOL );
+	private void restoreWorkspaces( SplashScreen splashScreen, List<String> workspaceIds ) {
+		List<String> areaIds = getChildNodeNames( ProgramSettings.AREA );
+		List<String> edgeIds = getChildNodeNames( ProgramSettings.EDGE );
+		List<String> viewIds = getChildNodeNames( ProgramSettings.VIEW );
+		List<String> toolIds = getChildNodeNames( ProgramSettings.TOOL );
 
 		// Create the workspaces (includes the window)
 		for( String id : workspaceIds ) {
@@ -338,7 +338,7 @@ public class UiManager {
 		}
 	}
 
-	private String[] getChildNodeNames( String path ) {
+	private List<String> getChildNodeNames( String path ) {
 		return program.getSettingsManager().getSettings( path ).getNodes();
 	}
 
