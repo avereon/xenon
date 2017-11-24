@@ -387,7 +387,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
+	 * Schedule the update check task according to the settings. This method may
+	 * safely be called as many times as necessary from any thread.
 	 *
 	 * @param startup True if the method is called at product start.
 	 */
@@ -436,7 +437,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 
 		if( delay == NO_CHECK ) {
-			log.trace( "No update check scheduled." );
+			log.debug( "No update check scheduled." );
 			return;
 		}
 
@@ -453,7 +454,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		// Log the next update check time.
 		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getTimeZone( "America/Denver" ) );
-		log.trace( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
+		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
 	public void checkForUpdates() {
@@ -928,7 +929,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//		this.updates = updatesMap;
 
 		Settings updateSettings = settings.getNode( UPDATE );
-		this.checkOption = CheckOption.valueOf( updateSettings.get( CHECK, CheckOption.INTERVAL ).toUpperCase() );
+		this.checkOption = CheckOption.valueOf( updateSettings.get( CHECK, CheckOption.MANUAL ).toUpperCase() );
 		this.foundOption = FoundOption.valueOf( updateSettings.get( FOUND, FoundOption.SELECT ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( updateSettings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
 	}
