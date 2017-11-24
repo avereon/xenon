@@ -7,10 +7,7 @@ import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.DateUtil;
 import com.xeomar.util.TestUtil;
-import com.xeomar.xenon.update.DescriptorDownloadTask;
-import com.xeomar.xenon.update.ProductCatalogOld;
-import com.xeomar.xenon.update.ProductResource;
-import com.xeomar.xenon.update.ProductUpdate;
+import com.xeomar.xenon.update.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +75,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private static final Logger log = LoggerFactory.getLogger( UpdateManager.class );
 
+	public static final String MODULE_INSTALL_FOLDER_NAME = "modules";
+
 	public static final String DEFAULT_CATALOG_FILE_NAME = "catalog.card";
 
 	public static final String DEFAULT_PRODUCT_FILE_NAME = "product.card";
@@ -118,7 +117,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Settings settings;
 
-	private Set<ProductCatalogOld> catalogs;
+	private Set<CatalogCard> catalogs;
 
 	private Map<String, Module> modules;
 
@@ -178,22 +177,22 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return catalogs.size();
 	}
 
-	public void addCatalog( ProductCatalogOld source ) {
+	public void addCatalog( CatalogCard source ) {
 		catalogs.add( source );
 		saveSettings();
 	}
 
-	public void removeCatalog( ProductCatalogOld source ) {
+	public void removeCatalog( CatalogCard source ) {
 		catalogs.remove( source );
 		saveSettings();
 	}
 
-	public void setCatalogEnabled( ProductCatalogOld catalog, boolean enabled ) {
+	public void setCatalogEnabled( CatalogCard catalog, boolean enabled ) {
 		catalog.setEnabled( enabled );
 		saveSettings();
 	}
 
-	public Set<ProductCatalogOld> getCatalogs() {
+	public Set<CatalogCard> getCatalogs() {
 		return new HashSet<>( catalogs );
 	}
 
@@ -223,9 +222,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		productStates.remove( productKey );
 	}
 
-	//	public void installProducts( ProductCard... cards ) throws Exception {
-	//		installProducts( new HashSet<ProductCard>( Arrays.asList( cards ) ) );
-	//	}
+	public void installProducts( ProductCard... cards ) throws Exception {
+		installProducts( new HashSet<>( Arrays.asList( cards ) ) );
+	}
 
 	public void installProducts( Set<ProductCard> cards ) throws Exception {
 		log.debug( "Number of products to install: " + cards.size() );
@@ -500,57 +499,57 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Download the descriptors for each product.
 		Set<ProductCard> oldCards = getProductCards();
 		Map<ProductCard, DescriptorDownloadTask> tasks = new HashMap<>();
-//		for( ProductCard oldCard : oldCards ) {
-//			URI uri = getResolvedUpdateUri( oldCard.getCardUri() );
-//			if( uri == null ) {
-//				log.warn( "Installed pack does not have source defined: " + oldCard.toString() );
-//				continue;
-//			} else {
-//				log.debug( "Installed pack source: " + uri );
-//			}
-//
-//			DescriptorDownloadTask task = new DescriptorDownloadTask( uri );
-//			program.getExecutor().submit( task );
-//			tasks.put( oldCard, task );
-//		}
+		//		for( ProductCard oldCard : oldCards ) {
+		//			URI uri = getResolvedUpdateUri( oldCard.getCardUri() );
+		//			if( uri == null ) {
+		//				log.warn( "Installed pack does not have source defined: " + oldCard.toString() );
+		//				continue;
+		//			} else {
+		//				log.debug( "Installed pack source: " + uri );
+		//			}
+		//
+		//			DescriptorDownloadTask task = new DescriptorDownloadTask( uri );
+		//			program.getExecutor().submit( task );
+		//			tasks.put( oldCard, task );
+		//		}
 
-//		// Determine what products have posted updates.
-//		ExecutionException executionException = null;
-//		InterruptedException interruptedException = null;
-//		for( ProductCard oldCard : oldCards ) {
-//			try {
-//				DescriptorDownloadTask task = tasks.get( oldCard );
-//				if( task == null ) continue;
-//
-//				XmlDescriptor descriptor = task.get();
-//				ProductCard newCard = new ProductCard();
-//				newCard.loadCard( descriptor, task.getUri() );
-//
-//				// Validate the pack key.
-//				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
-//					log.warn( "Pack mismatch: " + oldCard.getProductKey() + " != " + newCard.getProductKey() );
-//					continue;
-//				}
-//
-//				log.debug( "Old release: " + oldCard.getArtifact() + " " + oldCard.getRelease() );
-//				log.debug( "New release: " + newCard.getArtifact() + " " + newCard.getRelease() );
-//
-//				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
-//					log.trace( "Update found for: " + oldCard.toString() );
-//					newCards.add( newCard );
-//				}
-//			} catch( ExecutionException exception ) {
-//				if( executionException == null ) executionException = exception;
-//			} catch( InterruptedException exception ) {
-//				if( interruptedException == null ) interruptedException = exception;
-//			}
-//		}
-//
-//		// If there is an exception and there are no updates, throw the exception.
-//		if( newCards.size() == 0 ) {
-//			if( executionException != null ) throw executionException;
-//			if( interruptedException != null ) throw interruptedException;
-//		}
+		//		// Determine what products have posted updates.
+		//		ExecutionException executionException = null;
+		//		InterruptedException interruptedException = null;
+		//		for( ProductCard oldCard : oldCards ) {
+		//			try {
+		//				DescriptorDownloadTask task = tasks.get( oldCard );
+		//				if( task == null ) continue;
+		//
+		//				XmlDescriptor descriptor = task.get();
+		//				ProductCard newCard = new ProductCard();
+		//				newCard.loadCard( descriptor, task.getUri() );
+		//
+		//				// Validate the pack key.
+		//				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
+		//					log.warn( "Pack mismatch: " + oldCard.getProductKey() + " != " + newCard.getProductKey() );
+		//					continue;
+		//				}
+		//
+		//				log.debug( "Old release: " + oldCard.getArtifact() + " " + oldCard.getRelease() );
+		//				log.debug( "New release: " + newCard.getArtifact() + " " + newCard.getRelease() );
+		//
+		//				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
+		//					log.trace( "Update found for: " + oldCard.toString() );
+		//					newCards.add( newCard );
+		//				}
+		//			} catch( ExecutionException exception ) {
+		//				if( executionException == null ) executionException = exception;
+		//			} catch( InterruptedException exception ) {
+		//				if( interruptedException == null ) interruptedException = exception;
+		//			}
+		//		}
+		//
+		//		// If there is an exception and there are no updates, throw the exception.
+		//		if( newCards.size() == 0 ) {
+		//			if( executionException != null ) throw executionException;
+		//			if( interruptedException != null ) throw interruptedException;
+		//		}
 
 		// Cache the discovered updates.
 		postedUpdateCacheTime = System.currentTimeMillis();
@@ -581,10 +580,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return updates.size();
 	}
 
-	// TODO	public File getProductInstallFolder( ProductCard card ) {
-	//		File installFolder = new File( service.getDataFolder(), Service.MODULE_INSTALL_FOLDER_NAME );
-	//		return new File( installFolder, card.getGroup() + "." + card.getArtifact() );
-	//	}
+	public Path getProductInstallFolder( ProductCard card ) {
+		Path installFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		return installFolder.resolve( card.getGroup() + "." + card.getArtifact() );
+	}
 
 	/**
 	 * Attempt to stage the product packs described by the specified product
@@ -597,7 +596,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public Map<ProductCard, Set<ProductResource>> stageSelectedUpdates( Set<ProductCard> updateCards ) throws IOException {
 		if( updateCards.size() == 0 ) return null;
 
-		Path stageFolder =  program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
+		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
 		Files.createDirectories( stageFolder );
 
 		log.debug( "Pack stage folder: " + stageFolder );
@@ -634,13 +633,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( updateCard ) );
 			// TODO createUpdatePack( productResources.get( updateCard ), updatePack );
 
-//			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
-//
-//			// Remove any old staged updates for this product.
-//			updates.remove( update );
-//
-//			// Add the update to the set of staged updates.
-//			updates.put( update.getCard().getProductKey(), update );
+			//			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
+			//
+			//			// Remove any old staged updates for this product.
+			//			updates.remove( update );
+			//
+			//			// Add the update to the set of staged updates.
+			//			updates.put( update.getCard().getProductKey(), update );
 
 			// Notify listeners the update is staged.
 			new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
@@ -908,10 +907,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		this.settings = settings;
 
 		//		// TODO Load the product catalogs
-		//		Set<ProductCatalogOld> catalogsSet = new CopyOnWriteArraySet<ProductCatalogOld>();
+		//		Set<CatalogCard> catalogsSet = new CopyOnWriteArraySet<CatalogCard>();
 		//		Set<Settings> catalogsSettings = settings.getChildNodes( CATALOGS_SETTINGS_KEY );
 		//		for( Settings catalogSettings : catalogsSettings ) {
-		//			ProductCatalogOld catalog = new ProductCatalogOld();
+		//			CatalogCard catalog = new CatalogCard();
 		//			catalog.loadSettings( catalogSettings );
 		//			catalogsSet.add( catalog );
 		//		}
@@ -953,28 +952,28 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//		cleanRemovedProducts();
 		//
 		//		service.getSettings().addSettingListener( ServiceSettingsPath.UPDATE_SETTINGS_PATH, new SettingChangeHandler() );
-		//
-		//		// Create the update check timer.
-		//		timer = new Timer( true );
-		//
-		//		// Define the module folders.
-		//		homeModuleFolder = new File( service.getHomeFolder(), Service.MODULE_INSTALL_FOLDER_NAME );
-		//		userProductFolder = new File( service.getDataFolder(), Service.MODULE_INSTALL_FOLDER_NAME );
-		//
-		//		// Create the default module folders list.
-		//		List<File> moduleFolders = new ArrayList<File>();
-		//		moduleFolders.add( homeModuleFolder );
-		//		moduleFolders.add( userProductFolder );
-		//
-		//		// Check for module paths in the parameters.
-		//		List<String> modulePaths = service.getParameters().getValues( "module" );
-		//		if( modulePaths != null ) {
-		//			for( String path : modulePaths ) {
-		//				File folder = new File( path );
-		//				if( folder.exists() ) moduleFolders.add( folder );
-		//			}
-		//		}
-		//
+
+		// Create the update check timer.
+		timer = new Timer( true );
+
+		// Define the module folders.
+		homeModuleFolder = program.getHomeFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		userProductFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+
+		// Create the default module folders list.
+		List<Path> moduleFolders = new ArrayList<>();
+		moduleFolders.add( homeModuleFolder );
+		moduleFolders.add( userProductFolder );
+
+		// Check for module paths in the parameters.
+		List<String> modulePaths = program.getProgramParameters().getValues( "module" );
+		if( modulePaths != null ) {
+			for( String path : modulePaths ) {
+				Path folder = Paths.get( path );
+				if( Files.exists( folder ) ) moduleFolders.add( folder );
+			}
+		}
+
 		//		// Load modules.
 		//		loadProducts( moduleFolders.toArray( new File[ moduleFolders.size() ] ) );
 
@@ -1016,13 +1015,16 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	private void saveSettings() {
-		// TODO settings.putNodeSet( CATALOGS_SETTINGS_KEY, catalogs );
-		// TODO settings.putNodeMap( UPDATES_SETTINGS_KEY, updates );
-
 		Settings updateSettings = settings.getNode( "update" );
 		updateSettings.set( CHECK, checkOption.name().toLowerCase() );
 		updateSettings.set( FOUND, foundOption.name().toLowerCase() );
 		updateSettings.set( APPLY, applyOption.name().toLowerCase() );
+
+		// TODO Store the catalogs
+		// settings.putNodeSet( CATALOGS_SETTINGS_KEY, catalogs );
+
+		// TODO Store the updates
+		// settings.putNodeMap( UPDATES_SETTINGS_KEY, updates );
 
 		settings.flush();
 	}
@@ -1117,7 +1119,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private URI getResolvedUpdateUri( URI uri ) {
 		if( uri == null ) return null;
-		if( uri.getScheme() == null ) uri = Paths.get(uri.getPath() ).toUri();
+		if( uri.getScheme() == null ) uri = Paths.get( uri.getPath() ).toUri();
 		return uri;
 	}
 
@@ -1165,15 +1167,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//	}
 
+	// NEXT Continue implementing downloadProductResources()
 	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
 		// Determine all the resources to download.
 		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
 
 		for( ProductCard card : cards ) {
 			try {
-				// NEXT Continue implementing downloadProductResources()
-				//				Set<ProductResource> resources = new PackProvider( card, service.getTaskManager() ).getResources();
-				//
+				Set<ProductResource> resources = new PackProvider( card, program ).getResources();
+
 				//				for( ProductResource resource : resources ) {
 				//					URI uri = getResolvedUpdateUri( resource.getUri() );
 				//					Log.write( Log.DEBUG, "Resource source: " + uri );
@@ -1337,19 +1339,19 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		throw new NoSuchMethodException( "Module constructor not found: " + JavaUtil.getClassName( moduleClass ) + "( " + JavaUtil.getClassName( Service.class ) + ", " + JavaUtil.getClassName( ProductCard.class ) + " )" );
 	//	}
 
-	//	private void registerProduct( Module module, boolean updatable, boolean removable ) {
-	//		ProductCard card = module.getCard();
-	//
-	//		// Register the product.
-	//		registerProduct( module );
-	//
-	//		// Add the module to the collection.
-	//		modules.put( card.getProductKey(), module );
-	//
-	//		// Set the enabled flag.
-	//		setUpdatable( card, card.getSourceUri() != null );
-	//		setRemovable( card, true );
-	//	}
+	private void registerProduct( Module module, boolean updatable, boolean removable ) {
+		ProductCard card = module.getCard();
+
+		// Register the product.
+		registerProduct( module );
+
+		// Add the module to the collection.
+		modules.put( card.getProductKey(), module );
+
+		// Set the enabled flag.
+		setUpdatable( card, card.getCardUri() != null );
+		setRemovable( card, true );
+	}
 
 	/**
 	 * NOTE: This class is Persistent and changing the package will most likely result in a ClassNotFoundException being thrown at runtime.
@@ -1358,7 +1360,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	static final class InstalledProduct implements Configurable {
 
-		// TODO Change to Path
 		private Path target;
 
 		private Settings settings;
@@ -1384,7 +1385,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 			String targetPath = settings.get( "target", null );
 			target = targetPath == null ? null : Paths.get( targetPath );
-			settings.set( "target", target.toString() );
+			settings.set( "target", target == null ? null : target.toString() );
 		}
 
 		@Override
