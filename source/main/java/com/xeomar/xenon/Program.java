@@ -2,6 +2,8 @@ package com.xeomar.xenon;
 
 import com.xeomar.product.ProductBundle;
 import com.xeomar.product.ProductCard;
+import com.xeomar.product.ProductEvent;
+import com.xeomar.product.ProductEventListener;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.JavaUtil;
@@ -31,7 +33,6 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -90,7 +91,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramNotifier notifier;
 
-	private Set<ProgramEventListener> listeners;
+	private Set<ProductEventListener> listeners;
 
 	private ExitAction exitAction;
 
@@ -352,15 +353,15 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
-	public void addEventListener( ProgramEventListener listener ) {
+	public void addEventListener( ProductEventListener listener ) {
 		this.listeners.add( listener );
 	}
 
-	public void removeEventListener( ProgramEventListener listener ) {
+	public void removeEventListener( ProductEventListener listener ) {
 		this.listeners.remove( listener );
 	}
 
-	public void fireEvent( ProgramEvent event ) {
+	public void fireEvent( ProductEvent event ) {
 		event.fire( listeners );
 	}
 
@@ -461,15 +462,17 @@ public class Program extends Application implements ProgramProduct {
 
 		// Start the update manager
 		log.trace( "Starting update manager..." );
-		updateManager = new UpdateManager( Program.this ).start();
+		updateManager = configureUpdateManager( new UpdateManager( Program.this ) ).start();
 		updateManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		configureUpdates();
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Update manager started." );
 
 		// Finish the splash screen
 		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
 		Platform.runLater( () -> splashScreen.done() );
+
+		// Check for updates.
+		updateManager.scheduleUpdateCheck( true );
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
@@ -654,19 +657,18 @@ public class Program extends Application implements ProgramProduct {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 
-	private void configureUpdates() {
-		Settings settings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		if( settings == null ) throw new RuntimeException( "Settings not initialized." );
-
+	private UpdateManager configureUpdateManager( UpdateManager updateManager ) {
 		// Register the product.
 		updateManager.registerProduct( this );
 		updateManager.setEnabled( getCard(), true );
 		updateManager.setUpdatable( getCard(), true );
 		updateManager.setRemovable( getCard(), false );
 
-		// Configure the product manager.
-		updateManager.setSettings( settings.getNode( ProgramSettings.UPDATE ) );
-		// TODO updateManager.setUpdaterPath( new File( getHomeFolder(), UpdateManager.UPDATER_JAR_NAME ) );
+		// Configure the update manager
+		updateManager.setUpdaterPath( getHomeFolder().resolve( UpdateManager.UPDATER_JAR_NAME ) );
+		updateManager.setSettings( programSettings );
+
+		return updateManager;
 	}
 
 	private class Startup extends Task<Void> {

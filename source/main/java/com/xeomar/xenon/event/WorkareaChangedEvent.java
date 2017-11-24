@@ -1,9 +1,9 @@
 package com.xeomar.xenon.event;
 
-import com.xeomar.xenon.ProgramEvent;
+import com.xeomar.product.ProductEvent;
 import com.xeomar.xenon.workarea.Workarea;
 
-public class WorkareaChangedEvent extends ProgramEvent {
+public class WorkareaChangedEvent extends ProductEvent {
 
 	private Workarea workarea;
 

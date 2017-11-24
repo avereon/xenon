@@ -218,7 +218,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 
 		@Override
-		public void settingsEvent( SettingsEvent event ) {
+		public void eventOccurred( SettingsEvent event ) {
 			switch( event.getType() ) {
 				case LOADED: {
 					program.fireEvent( new SettingsLoadedEvent( this, event.getPath() ) );

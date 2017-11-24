@@ -1,8 +1,8 @@
 package com.xeomar.xenon.resource;
 
-import com.xeomar.xenon.ProgramEvent;
+import com.xeomar.product.ProductEvent;
 
-public abstract class ResourceEvent extends ProgramEvent {
+public abstract class ResourceEvent extends ProductEvent {
 
 	public enum Type {
 		OPENED,

@@ -192,7 +192,7 @@ public class UiManager {
 		// Create the tools
 		for( String id : toolIds ) {
 			restoreWorktool( id );
-			//splashScreen.update();
+			splashScreen.update();
 		}
 
 		linkWorkareas();

@@ -8,7 +8,7 @@ public interface ProgramSettings {
 
 	String PROGRAM = BASE + "program/";
 
-	String UPDATE = PROGRAM + "update/";
+	//String UPDATE = PROGRAM + "update/";
 
 	String RESOURCE = BASE + "resource/";
 

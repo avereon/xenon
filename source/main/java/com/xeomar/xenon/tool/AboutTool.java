@@ -353,8 +353,8 @@ public class AboutTool extends ProductTool {
 		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) + "\n" );
 
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		long lastUpdateCheck = programSettings.getLong( "/manager/product/update/check/last", 0L );
-		long nextUpdateCheck = programSettings.getLong( "/manager/product/update/check/next", 0L );
+		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
+		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
 		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );

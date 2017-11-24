@@ -1,21 +1,21 @@
 package com.xeomar.xenon.testutil;
 
-import com.xeomar.xenon.ProgramEvent;
-import com.xeomar.xenon.ProgramEventListener;
+import com.xeomar.product.ProductEvent;
+import com.xeomar.product.ProductEventListener;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ProgramEventCollector implements ProgramEventListener {
+public class ProgramEventCollector implements ProductEventListener {
 
-	private List<ProgramEvent> events = new CopyOnWriteArrayList<>();
+	private List<ProductEvent> events = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void eventOccurred( ProgramEvent event ) {
+	public void eventOccurred( ProductEvent event ) {
 		events.add( event );
 	}
 
-	public List<ProgramEvent> getEvents() {
+	public List<ProductEvent> getEvents() {
 		return events;
 	}
 

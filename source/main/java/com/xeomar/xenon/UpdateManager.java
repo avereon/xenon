@@ -3,6 +3,8 @@ package com.xeomar.xenon;
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.DateUtil;
@@ -89,13 +91,23 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public static final String UPDATE_FOLDER_NAME = "updates";
 
-	private static final String UPDATE = "update";
+	private static final String CHECK = "product-update-check";
 
-	private static final String CHECK = "check";
+	private static final String INTERVAL_UNIT = "product-update-check-interval-unit";
 
-	private static final String FOUND = "found";
+	private static final String SCHEDULE_WHEN = "product-update-check-schedule-when";
 
-	private static final String APPLY = "apply";
+	private static final String SCHEDULE_HOUR = "product-update-check-schedule-hour";
+
+	private static final String LAST_CHECK_TIME = "product-update-last-check-time";
+
+	private static final String NEXT_CHECK_TIME = "product-update-next-check-time";
+
+	private static final String NOTICE = "product-update-notice";
+
+	private static final String FOUND = "product-update-found";
+
+	private static final String APPLY = "product-update-apply";
 
 	private static final String CATALOGS_SETTINGS_KEY = "catalogs";
 
@@ -104,8 +116,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	private static final String UPDATES_SETTINGS_KEY = "updates";
 
 	private static final String PRODUCT_ENABLED_KEY = "enabled";
-
-	private static final String LAST_CHECK_TIME = "last-check-time";
 
 	private static final int POSTED_UPDATE_CACHE_TIMEOUT = 60000;
 
@@ -365,7 +375,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void setCheckOption( CheckOption checkOption ) {
 		this.checkOption = checkOption;
 		saveSettings();
-		scheduleUpdateCheck( false );
 	}
 
 	public FoundOption getFoundOption() {
@@ -386,11 +395,19 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		saveSettings();
 	}
 
+	public long getLastUpdateCheck() {
+		return getSettings().getLong( LAST_CHECK_TIME, 0L );
+	}
+
+	public long getNextUpdateCheck() {
+		return getSettings().getLong( NEXT_CHECK_TIME, 0L );
+	}
+
 	/**
 	 * Schedule the update check task according to the settings. This method may
 	 * safely be called as many times as necessary from any thread.
 	 *
-	 * @param startup True if the method is called at product start.
+	 * @param startup True if the method is called at program start
 	 */
 	public synchronized void scheduleUpdateCheck( boolean startup ) {
 		if( task != null ) {
@@ -400,16 +417,16 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			if( !alreadyRun ) log.debug( "Check for updates task cancelled." );
 		}
 
-		// Don't schedule tasks if the NOUPDATECHECK flag is set.
+		// Don't schedule tasks if the NOUPDATECHECK flag is set
 		if( program.getProgramParameters().isSet( ProgramParameter.NOUPDATECHECK ) ) return;
 
-		Settings checkSettings = getSettings().getNode( "update" ).getNode( CHECK );
+		Settings checkSettings = getSettings();
 
-		long lastUpdateCheck = checkSettings.getLong( "last", 0L );
+		long lastUpdateCheck = getLastUpdateCheck();
 		long timeSinceLastCheck = System.currentTimeMillis() - lastUpdateCheck;
-		long delay = NO_CHECK;
+		long delay;
 
-		// This is required to avoid a memory use problem during testing.
+		// This is required to avoid a memory use problem during testing
 		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
 
 		switch( checkOption ) {
@@ -420,13 +437,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				delay = startup ? 0 : NO_CHECK;
 				break;
 			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( "interval/unit", "day" ).toUpperCase() );
+				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
 				delay = getNextIntervalTime( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
 				break;
 			}
 			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( "schedule/when", "daily" ).toUpperCase() );
-				int scheduleHour = checkSettings.getInteger( "schedule/hour", 0 );
+				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+				int scheduleHour = checkSettings.getInteger( SCHEDULE_HOUR, 0 );
 				delay = getNextScheduleTime( System.currentTimeMillis(), scheduleWhen, scheduleHour );
 				break;
 			}
@@ -450,10 +467,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		long nextCheckTime = System.currentTimeMillis() + delay;
 
 		// Set the next update check time in the settings.
-		checkSettings.set( "next", nextCheckTime );
+		checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
 
 		// Log the next update check time.
-		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getTimeZone( "America/Denver" ) );
+		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
 		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
@@ -907,6 +924,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		this.settings = settings;
 
+		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT ).toUpperCase() );
+		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
+
 		//		// TODO Load the product catalogs
 		//		Set<CatalogCard> catalogsSet = new CopyOnWriteArraySet<CatalogCard>();
 		//		Set<Settings> catalogsSettings = settings.getChildNodes( CATALOGS_SETTINGS_KEY );
@@ -927,11 +948,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//			updatesMap.put( key, update );
 		//		}
 		//		this.updates = updatesMap;
-
-		Settings updateSettings = settings.getNode( UPDATE );
-		this.checkOption = CheckOption.valueOf( updateSettings.get( CHECK, CheckOption.MANUAL ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( updateSettings.get( FOUND, FoundOption.SELECT ).toUpperCase() );
-		this.applyOption = ApplyOption.valueOf( updateSettings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
 	}
 
 	@Override
@@ -952,7 +968,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public UpdateManager start() {
 		//		cleanRemovedProducts();
 		//
-		//		service.getSettings().addSettingListener( ServiceSettingsPath.UPDATE_SETTINGS_PATH, new SettingChangeHandler() );
+		getSettings().addSettingsListener( new SettingsChangeHandler() );
 
 		// Create the update check timer.
 		timer = new Timer( true );
@@ -975,7 +991,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			}
 		}
 
-		//		// Load modules.
+		// TODO Load modules
 		//		loadProducts( moduleFolders.toArray( new File[ moduleFolders.size() ] ) );
 
 		return this;
@@ -1411,18 +1427,18 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	}
 
-	//	private final class SettingChangeHandler implements SettingListener {
-	//
-	//		@Override
-	//		public void settingChanged( SettingEvent event ) {
-	//			if( CHECK.equals( event.getKey() ) ) {
-	//				setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
-	//			} else if( event.getFullPath().startsWith( ServiceSettingsPath.UPDATE_SETTINGS_PATH + "/check" ) ) {
-	//				scheduleUpdateCheck( false );
-	//			}
-	//		}
-	//
-	//	}
+	private final class SettingsChangeHandler implements SettingsListener {
+
+		@Override
+		public void eventOccurred( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+			System.out.println( "Settings event key: " + event.getKey() );
+			System.out.println( "Settings event path: " + event.getPath() );
+			if( CHECK.equals( event.getKey() ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
+			if( event.getKey().startsWith( CHECK ) ) scheduleUpdateCheck( false );
+		}
+
+	}
 
 	private static final class UpdateCheckTask extends TimerTask {
 
