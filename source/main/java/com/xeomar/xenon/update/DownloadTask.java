@@ -86,8 +86,8 @@ public class DownloadTask extends Task<Download> {
 			download.close();
 		}
 
-		log.trace( "Resource downloaded: " + uri );
-		log.debug( "        to location: " + download.getTarget() );
+		log.debug( "Resource downloaded: " + uri );
+		log.trace( "        to location: " + download.getTarget() );
 
 		return download;
 	}

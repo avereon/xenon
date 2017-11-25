@@ -4,7 +4,8 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * NOTE: This class is Persistent and changing the package will most likely
@@ -16,9 +17,9 @@ public final class ProductUpdate implements Configurable {
 
 	private ProductCard card;
 
-	private File source;
+	private Path source;
 
-	private File target;
+	private Path target;
 
 	private Settings settings;
 
@@ -27,7 +28,7 @@ public final class ProductUpdate implements Configurable {
 	 */
 	public ProductUpdate() {}
 
-	public ProductUpdate( ProductCard card, File source, File target ) {
+	public ProductUpdate( ProductCard card, Path source, Path target ) {
 		this.card = card;
 		this.source = source;
 		this.target = target;
@@ -37,11 +38,11 @@ public final class ProductUpdate implements Configurable {
 		return card;
 	}
 
-	public File getSource() {
+	public Path getSource() {
 		return source;
 	}
 
-	public File getTarget() {
+	public Path getTarget() {
 		return target;
 	}
 
@@ -51,8 +52,8 @@ public final class ProductUpdate implements Configurable {
 //		card = new ProductCard( settings.getNode( "card" ) );
 		String sourcePath = settings.get( "source", null );
 		String targetPath = settings.get( "target", null );
-		source = sourcePath == null ? null : new File( sourcePath );
-		target = targetPath == null ? null : new File( targetPath );
+		source = sourcePath == null ? null : Paths.get( sourcePath );
+		target = targetPath == null ? null : Paths.get( targetPath );
 	}
 
 	@Override
