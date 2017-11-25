@@ -267,8 +267,10 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public com.xeomar.util.Parameters getProgramParameters() {
-		if( parameters == null ) parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() );
-		configureHome( parameters );
+		if( parameters == null ) {
+			configureHome( parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() ) );
+			configureHome( parameters );
+		}
 		return parameters;
 	}
 
@@ -501,7 +503,7 @@ public class Program extends Application implements ProgramProduct {
 			unregisterTools( toolManager );
 			log.debug( "Tool manager stopped." );
 
-			// Do not try to remove the settings pages during shutdown
+			// NOTE Do not try to remove the settings pages during shutdown
 
 			// Stop the resource manager
 			log.trace( "Stopping resource manager..." );
@@ -572,11 +574,11 @@ public class Program extends Application implements ProgramProduct {
 			log.error( "Error configuring home folder", exception );
 		}
 
-		//		log.trace( "Home: "+ home );
-		//		log.trace( "Log : "+ logFilePattern );
+		log.debug( "Home: " + home );
+		//		log.debug( "Log : "+ logFilePattern );
 
-		// TODO Set install folder on product card
-		//card.setInstallFolder( home );
+		// Set install folder on product card
+		card.setInstallFolder( home );
 	}
 
 	private void registerIcons() {}

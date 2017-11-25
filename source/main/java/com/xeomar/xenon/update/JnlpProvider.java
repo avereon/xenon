@@ -22,12 +22,12 @@ public class JnlpProvider implements ProductResourceProvider {
 	}
 
 	@Override
-	public Set<ProductResource> getResources() throws Exception {
-		return getResources( descriptor );
+	public Set<ProductResource> getResources( URI codebase ) throws Exception {
+		return getResources( codebase, descriptor );
 	}
 
-	private Set<ProductResource> getResources( XmlDescriptor descriptor ) throws Exception {
-		URI codebase = new URI( descriptor.getValue( "/jnlp/@codebase" ) );
+	private Set<ProductResource> getResources( URI codebase, XmlDescriptor descriptor ) throws Exception {
+		//URI codebase = new URI( descriptor.getValue( "/jnlp/@codebase" ) );
 
 		Set<ProductResource> resources = new HashSet<>();
 
@@ -52,7 +52,7 @@ public class JnlpProvider implements ProductResourceProvider {
 		for( String extension : extensions ) {
 			URI uri = codebase.resolve( extension );
 			Future<XmlDescriptor> future = program.getExecutor().submit( new DescriptorDownloadTask( program, uri ) );
-			resources.addAll( new JnlpProvider( future.get(), program ).getResources() );
+			resources.addAll( new JnlpProvider( future.get(), program ).getResources( codebase ) );
 		}
 
 		return resources;
@@ -83,7 +83,7 @@ public class JnlpProvider implements ProductResourceProvider {
 			if( uris != null ) resources.addAll( Arrays.asList( uris ) );
 		}
 
-		return resources.toArray( new String[resources.size()] );
+		return resources.toArray( new String[ resources.size() ] );
 	}
 
 }

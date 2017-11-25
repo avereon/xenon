@@ -51,7 +51,7 @@ public class DescriptorDownloadTask extends Task<XmlDescriptor> {
 	public XmlDescriptor call() throws Exception {
 		Download download = task.call();
 		if( download == null ) return null;
-		return new XmlDescriptor( new FileInputStream( download.getTarget() ) );
+		return new XmlDescriptor( new FileInputStream( download.getTarget().toFile() ) );
 	}
 
 }

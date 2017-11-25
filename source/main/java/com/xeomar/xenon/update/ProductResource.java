@@ -1,7 +1,7 @@
 package com.xeomar.xenon.update;
 
-import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.concurrent.Future;
 
 public final class ProductResource {
@@ -16,7 +16,7 @@ public final class ProductResource {
 
 	private Future<Download> future;
 
-	private File file;
+	private Path file;
 
 	private Throwable throwable;
 
@@ -37,7 +37,7 @@ public final class ProductResource {
 		file = future.get().getTarget();
 	}
 
-	public File getLocalFile() {
+	public Path getLocalFile() {
 		return file;
 	}
 

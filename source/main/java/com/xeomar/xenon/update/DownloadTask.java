@@ -5,11 +5,11 @@ import com.xeomar.xenon.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -26,7 +26,7 @@ public class DownloadTask extends Task<Download> {
 
 	private URI uri;
 
-	private File target;
+	private Path target;
 
 	private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
@@ -39,7 +39,7 @@ public class DownloadTask extends Task<Download> {
 		listeners = new CopyOnWriteArraySet<>();
 	}
 
-	public DownloadTask( Product product, URI uri, File target ) {
+	public DownloadTask( Product product, URI uri, Path target ) {
 		super( product.getResourceBundle().getString( "prompt", "download" ) + " " + uri.toString() );
 		this.uri = uri;
 		this.target = target;

@@ -14,10 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -91,17 +94,17 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public static final String UPDATE_FOLDER_NAME = "updates";
 
-	private static final String CHECK = "product-update-check";
-
-	private static final String INTERVAL_UNIT = "product-update-check-interval-unit";
-
-	private static final String SCHEDULE_WHEN = "product-update-check-schedule-when";
-
-	private static final String SCHEDULE_HOUR = "product-update-check-schedule-hour";
-
 	private static final String LAST_CHECK_TIME = "product-update-last-check-time";
 
 	private static final String NEXT_CHECK_TIME = "product-update-next-check-time";
+
+	private static final String CHECK = "product-update-check";
+
+	private static final String INTERVAL_UNIT = CHECK + "-interval-unit";
+
+	private static final String SCHEDULE_WHEN = CHECK + "-schedule-when";
+
+	private static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
 
 	private static final String NOTICE = "product-update-notice";
 
@@ -414,7 +417,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			boolean alreadyRun = task.scheduledExecutionTime() < System.currentTimeMillis();
 			task.cancel();
 			task = null;
-			if( !alreadyRun ) log.debug( "Check for updates task cancelled." );
+			if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
 		}
 
 		// Don't schedule tasks if the NOUPDATECHECK flag is set
@@ -478,10 +481,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( !isEnabled() ) return;
 
 		try {
-			log.trace( "Checking for updates..." );
+			log.trace( "Checking for staged updates..." );
 			int stagedUpdateCount = stagePostedUpdates();
 			if( stagedUpdateCount > 0 ) {
-				log.trace( "Updates staged, restarting..." );
+				log.debug( "Staged updates found, restarting..." );
 				program.restart( ProgramParameter.NOUPDATECHECK );
 			}
 		} catch( Exception exception ) {
@@ -498,9 +501,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
-	 * @throws Exception
+	 * @throws ExecutionException If a task execution exception occurs
+	 * @throws InterruptedException If the calling thread is interrupted
+	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
-	public Set<ProductCard> getPostedUpdates( boolean force ) throws ExecutionException, InterruptedException {
+	public Set<ProductCard> getPostedUpdates( boolean force ) throws ExecutionException, InterruptedException, URISyntaxException {
 		Set<ProductCard> newCards = new HashSet<>();
 		if( !isEnabled() ) return newCards;
 
@@ -516,53 +521,59 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		// Download the descriptors for each product.
 		Set<ProductCard> oldCards = getProductCards();
-		Map<ProductCard, DescriptorDownloadTask> tasks = new HashMap<>();
-		//		for( ProductCard oldCard : oldCards ) {
-		//			URI uri = getResolvedUpdateUri( oldCard.getCardUri() );
-		//			if( uri == null ) {
-		//				log.warn( "Installed pack does not have source defined: " + oldCard.toString() );
-		//				continue;
-		//			} else {
-		//				log.debug( "Installed pack source: " + uri );
-		//			}
-		//
-		//			DescriptorDownloadTask task = new DescriptorDownloadTask( uri );
-		//			program.getExecutor().submit( task );
-		//			tasks.put( oldCard, task );
-		//		}
+		Map<ProductCard, DownloadTask> tasks = new HashMap<>();
+		for( ProductCard oldCard : oldCards ) {
+			URI codebase = resolveCardUri( oldCard, oldCard.getCardUri() );
+			URI uri = getResolvedUpdateUri( codebase );
+			if( uri == null ) {
+				log.warn( "Installed pack does not have source defined: " + oldCard.toString() );
+				continue;
+			} else {
+				log.debug( "Installed pack source: " + uri );
+			}
 
-		//		// Determine what products have posted updates.
-		//		ExecutionException executionException = null;
-		//		InterruptedException interruptedException = null;
-		//		for( ProductCard oldCard : oldCards ) {
-		//			try {
-		//				DescriptorDownloadTask task = tasks.get( oldCard );
-		//				if( task == null ) continue;
-		//
-		//				XmlDescriptor descriptor = task.get();
-		//				ProductCard newCard = new ProductCard();
-		//				newCard.loadCard( descriptor, task.getUri() );
-		//
-		//				// Validate the pack key.
-		//				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
-		//					log.warn( "Pack mismatch: " + oldCard.getProductKey() + " != " + newCard.getProductKey() );
-		//					continue;
-		//				}
-		//
-		//				log.debug( "Old release: " + oldCard.getArtifact() + " " + oldCard.getRelease() );
-		//				log.debug( "New release: " + newCard.getArtifact() + " " + newCard.getRelease() );
-		//
-		//				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
-		//					log.trace( "Update found for: " + oldCard.toString() );
-		//					newCards.add( newCard );
-		//				}
-		//			} catch( ExecutionException exception ) {
-		//				if( executionException == null ) executionException = exception;
-		//			} catch( InterruptedException exception ) {
-		//				if( interruptedException == null ) interruptedException = exception;
-		//			}
-		//		}
-		//
+			DownloadTask task = new DownloadTask( program, uri );
+			program.getExecutor().submit( task );
+			tasks.put( oldCard, task );
+		}
+
+		// Determine what products have posted updates.
+		ExecutionException executionException = null;
+		InterruptedException interruptedException = null;
+		for( ProductCard oldCard : oldCards ) {
+			try {
+				DownloadTask task = tasks.get( oldCard );
+				if( task == null ) continue;
+
+				Download download = task.get();
+				ProductCard newCard = new ProductCard();
+				try( InputStream input = download.getInputStream() ) {
+					newCard.loadCard( input, task.getUri() );
+				} catch( IOException exception ) {
+					log.warn( "Error loading product card: " + task.getUri(), exception );
+					continue;
+				}
+
+				// Validate the pack key.
+				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
+					log.warn( "Pack mismatch: " + oldCard.getProductKey() + " != " + newCard.getProductKey() );
+					continue;
+				}
+
+				log.debug( "Old release: " + oldCard.getArtifact() + " " + oldCard.getRelease() );
+				log.debug( "New release: " + newCard.getArtifact() + " " + newCard.getRelease() );
+
+				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
+					log.trace( "Update found for: " + oldCard.toString() );
+					newCards.add( newCard );
+				}
+			} catch( ExecutionException exception ) {
+				if( executionException == null ) executionException = exception;
+			} catch( InterruptedException exception ) {
+				if( interruptedException == null ) interruptedException = exception;
+			}
+		}
+
 		//		// If there is an exception and there are no updates, throw the exception.
 		//		if( newCards.size() == 0 ) {
 		//			if( executionException != null ) throw executionException;
@@ -591,8 +602,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @throws IOException If an IO error occurs
 	 * @throws ExecutionException If an execution error occurs
 	 * @throws InterruptedException If the method is interrupted
+	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
-	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException {
+	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
 		stageSelectedUpdates( getPostedUpdates( true ) );
 		return updates.size();
@@ -1136,6 +1148,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private URI getResolvedUpdateUri( URI uri ) {
 		if( uri == null ) return null;
+
 		if( uri.getScheme() == null ) uri = Paths.get( uri.getPath() ).toUri();
 		return uri;
 	}
@@ -1184,24 +1197,24 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//	}
 
-	// NEXT Continue implementing downloadProductResources()
 	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
 		// Determine all the resources to download.
 		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
 
 		for( ProductCard card : cards ) {
 			try {
-				Set<ProductResource> resources = new PackProvider( card, program ).getResources();
+				URI codebase = resolveCardUri( card, card.getCardUri() );
+				Set<ProductResource> resources = new PackProvider( program, card ).getResources( codebase );
 
-				//				for( ProductResource resource : resources ) {
-				//					URI uri = getResolvedUpdateUri( resource.getUri() );
-				//					Log.write( Log.DEBUG, "Resource source: " + uri );
-				//
-				//					// Submit task to download resource.
-				//					resource.setFuture( service.getTaskManager().submit( new DownloadTask( uri ) ) );
-				//				}
-				//
-				//				productResources.put( card, resources );
+				for( ProductResource resource : resources ) {
+					URI uri = getResolvedUpdateUri( resource.getUri() );
+					log.trace( "Resource source: " + uri );
+
+					// Submit download resource task
+					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
+				}
+
+				productResources.put( card, resources );
 			} catch( Exception exception ) {
 				log.error( "Error creating pack download", exception );
 			}
@@ -1209,23 +1222,29 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		// Wait for all resources to be downloaded.
 		for( ProductCard card : cards ) {
-			//			Set<ProductResource> resources = productResources.get( card );
-			//			for( ProductResource resource : resources ) {
-			//				try {
-			//					resource.waitFor();
-			//					Log.write( Log.DEBUG, "Resource target: " + resource.getLocalFile() );
-			//
-			//					// TODO Verify resources are secure by checking digital signatures.
-			//					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
-			//
-			//				} catch( Exception exception ) {
-			//					resource.setThrowable( exception );
-			//					Log.write( exception );
-			//				}
-			//			}
+			Set<ProductResource> resources = productResources.get( card );
+			for( ProductResource resource : resources ) {
+				try {
+					resource.waitFor();
+					log.trace( "Resource target: " + resource.getLocalFile() );
+
+					// TODO Verify resources are secure by checking digital signatures.
+					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
+
+				} catch( Exception exception ) {
+					resource.setThrowable( exception );
+					log.error( "Error downloading resource: " + resource, exception );
+				}
+			}
 		}
 
 		return productResources;
+	}
+
+	private URI resolveCardUri( ProductCard card, String uri ) throws URISyntaxException {
+		String channel = "latest";
+		String artifact = card.getArtifact();
+		return new URI( MessageFormat.format( uri, artifact, channel ) );
 	}
 
 	//	/**
@@ -1432,8 +1451,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		@Override
 		public void eventOccurred( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
-			System.out.println( "Settings event key: " + event.getKey() );
-			System.out.println( "Settings event path: " + event.getPath() );
 			if( CHECK.equals( event.getKey() ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
 			if( event.getKey().startsWith( CHECK ) ) scheduleUpdateCheck( false );
 		}
@@ -1444,7 +1461,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		private UpdateManager updateManager;
 
-		public UpdateCheckTask( UpdateManager updateManager ) {
+		UpdateCheckTask( UpdateManager updateManager ) {
 			this.updateManager = updateManager;
 		}
 
@@ -1457,11 +1474,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private static final class ProductState {
 
-		public boolean updatable;
+		boolean updatable;
 
-		public boolean removable;
+		boolean removable;
 
-		public ProductState() {
+		ProductState() {
 			this.updatable = false;
 			this.removable = false;
 		}

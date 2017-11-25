@@ -1,7 +1,10 @@
 package com.xeomar.xenon.update;
 
+import com.xeomar.util.FileUtil;
+
 import java.io.*;
 import java.net.URI;
+import java.nio.file.Path;
 
 /**
  * This class represents content that has been downloaded, either to a specific
@@ -16,7 +19,7 @@ public class Download extends OutputStream {
 
 	private String encoding;
 
-	private File target;
+	private Path target;
 
 	private OutputStream output;
 
@@ -24,7 +27,7 @@ public class Download extends OutputStream {
 		this( source, length, encoding, null );
 	}
 
-	public Download( URI source, int length, String encoding, File target ) {
+	public Download( URI source, int length, String encoding, Path target ) {
 		this.source = source;
 		this.length = length;
 		this.encoding = encoding;
@@ -43,8 +46,12 @@ public class Download extends OutputStream {
 		return encoding;
 	}
 
-	public File getTarget() {
+	public Path getTarget() {
 		return target;
+	}
+
+	public InputStream getInputStream() throws FileNotFoundException {
+		return new FileInputStream( target.toFile() );
 	}
 
 	@Override
@@ -73,12 +80,9 @@ public class Download extends OutputStream {
 	}
 
 	private OutputStream getOutputStream() throws IOException {
-		if( target == null ) {
-			target = File.createTempFile( "download", "data" );
-			target.deleteOnExit();
-		}
 		if( output == null ) {
-			output = new BufferedOutputStream( new FileOutputStream( target ) );
+			if( target == null ) target = FileUtil.deleteOnExit( FileUtil.createTempFile( "download", "data" ) );
+			output = new BufferedOutputStream( new FileOutputStream( target.toFile() ) );
 		}
 		return output;
 	}

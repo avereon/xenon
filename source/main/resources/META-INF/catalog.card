@@ -1,14 +1,14 @@
 name: Xeomar
-icon: http://www.xeomar.com/download/image/xeomar.png
+icon: http://xeomar.com/download/image/xeomar.png
 
 products:
-  - http://www.xeomar.com/download/product/xenon/card
+  - http://xeomar.com/download/product/xenon/card
 
-#  - http://www.xeomar.com/download/product/elements/card
-#  - http://www.xeomar.com/download/product/fitfoil/card
-#  - http://www.xeomar.com/download/product/labyrinth/card
-#  - http://www.xeomar.com/download/product/openderby/card
-#  - http://www.xeomar.com/download/product/novaworx/card
-#  - http://www.xeomar.com/download/product/proplexity/card
-#  - http://www.xeomar.com/download/product/serenity/card
-#  - http://www.xeomar.com/download/product/shellport/card
+#  - http://xeomar.com/download/product/elements/card
+#  - http://xeomar.com/download/product/fitfoil/card
+#  - http://xeomar.com/download/product/labyrinth/card
+#  - http://xeomar.com/download/product/openderby/card
+#  - http://xeomar.com/download/product/novaworx/card
+#  - http://xeomar.com/download/product/proplexity/card
+#  - http://xeomar.com/download/product/serenity/card
+#  - http://xeomar.com/download/product/shellport/card

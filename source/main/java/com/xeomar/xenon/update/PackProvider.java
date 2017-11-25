@@ -15,14 +15,13 @@ public class PackProvider implements ProductResourceProvider {
 
 	private ProductCard card;
 
-	public PackProvider( ProductCard card, Program program ) {
+	public PackProvider( Program program, ProductCard card ) {
 		this.card = card;
 		this.program = program;
 	}
 
 	@Override
-	public Set<ProductResource> getResources() throws Exception {
-		URI codebase = card.getCardUri();
+	public Set<ProductResource> getResources( URI codebase ) throws Exception {
 		Set<ProductResource> resources = new HashSet<>();
 
 		// Determine all the resources that need to be downloaded.
@@ -41,7 +40,7 @@ public class PackProvider implements ProductResourceProvider {
 		for( String jnlp : jnlps ) {
 			URI uri = codebase.resolve( jnlp );
 			Future<XmlDescriptor> future = program.getExecutor().submit( new DescriptorDownloadTask( program, uri ) );
-			resources.addAll( new JnlpProvider( future.get(), program ).getResources() );
+			resources.addAll( new JnlpProvider( future.get(), program ).getResources( codebase ) );
 		}
 
 		return resources;
