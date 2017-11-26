@@ -2,7 +2,7 @@ name: Xeomar
 icon: http://xeomar.com/download/image/xeomar.png
 
 products:
-  - http://xeomar.com/download/product/xenon/card
+  - http://xeomar.com/download/xenon/product/card/{0}
 
 #  - http://xeomar.com/download/product/elements/card
 #  - http://xeomar.com/download/product/fitfoil/card
