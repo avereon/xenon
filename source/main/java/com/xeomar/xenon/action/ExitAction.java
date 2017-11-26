@@ -17,7 +17,7 @@ public class ExitAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().requestExit( true );
+		getProgram().requestExit( false );
 	}
 
 }

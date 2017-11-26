@@ -74,7 +74,7 @@ public class UiManager {
 		return getChildNodeNames( ProgramSettings.TOOL ).size();
 	}
 
-	public void restoreUi( SplashScreen splashScreen ) {
+	public void restoreUi( SplashScreenPane splashScreen ) {
 		restoreLock.lock();
 		try {
 			List<String> workspaceIds = getChildNodeNames( ProgramSettings.WORKSPACE );
@@ -159,7 +159,7 @@ public class UiManager {
 		}
 	}
 
-	private void restoreWorkspaces( SplashScreen splashScreen, List<String> workspaceIds ) {
+	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
 		List<String> areaIds = getChildNodeNames( ProgramSettings.AREA );
 		List<String> edgeIds = getChildNodeNames( ProgramSettings.EDGE );
 		List<String> viewIds = getChildNodeNames( ProgramSettings.VIEW );

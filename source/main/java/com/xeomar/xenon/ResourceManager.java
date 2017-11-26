@@ -9,11 +9,13 @@ import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.*;
 import com.xeomar.xenon.resource.event.*;
 import com.xeomar.xenon.task.Task;
+import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.util.UriUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.slf4j.Logger;
 
@@ -570,16 +572,17 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 */
 	public void close( Resource resource ) {
 		if( resource.isModified() && canSaveResource( resource ) ) {
-			Alert dialog = new Alert( Alert.AlertType.CONFIRMATION );
-			dialog.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
-			dialog.setTitle( program.getResourceBundle().getString( "resource", "close-save-title" ) );
-			dialog.setHeaderText( program.getResourceBundle().getString( "workarea", "close-save-message" ) );
-			dialog.setContentText( program.getResourceBundle().getString( "resource", "close-save-prompt" ) );
-			dialog.getButtonTypes().addAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+			Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
+			alert.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
+			alert.setTitle( program.getResourceBundle().getString( "resource", "close-save-title" ) );
+			alert.setHeaderText( program.getResourceBundle().getString( "workarea", "close-save-message" ) );
+			alert.setContentText( program.getResourceBundle().getString( "resource", "close-save-prompt" ) );
+			alert.getButtonTypes().addAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
 
-			Optional<ButtonType> choice = dialog.showAndWait();
+			Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			if( choice.isPresent() && choice.get() != ButtonType.YES ) return;
+			if( result.isPresent() && result.get() != ButtonType.YES ) return;
 		}
 
 		save( resource, null, false, false );

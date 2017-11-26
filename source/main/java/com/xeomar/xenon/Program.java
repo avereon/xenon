@@ -23,6 +23,7 @@ import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
 import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
+import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -57,7 +58,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private com.xeomar.util.Parameters parameters;
 
-	private SplashScreen splashScreen;
+	private SplashScreenPane splashScreen;
 
 	private TaskManager taskManager;
 
@@ -201,8 +202,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.setImplicitExit( false );
 
 		// Show the splash screen
-		splashScreen = new SplashScreen( card.getName() );
-		splashScreen.show();
+		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
 
 		// Submit the startup task
@@ -251,7 +251,9 @@ public class Program extends Application implements ProgramProduct {
 			alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
 			alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
 
-			Optional<ButtonType> result = alert.showAndWait();
+			Stage stage = getWorkspaceManager().getActiveWorkspace().getStage();
+			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 

@@ -39,7 +39,7 @@
 	</repositories>
 
 	<properties>
-		<project.timestamp>${maven.build.timestamp}</project.timestamp>
+		<!-- project.timestamp comes from the top pom -->
 		<product-name>${project.name}</product-name>
 		<product-identifier>xenon</product-identifier>
 		<package-stage-folder>program</package-stage-folder>

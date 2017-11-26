@@ -1,11 +1,13 @@
 package com.xeomar.xenon;
 
+import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +104,8 @@ public class ProgramNotifier {
 				if( title != null ) alert.setTitle( title );
 				if( graphic != null ) alert.setGraphic( graphic );
 				alert.setContentText( content );
-				alert.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
-				alert.show();
+				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+				DialogUtil.show( stage, alert );
 			} );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.out );

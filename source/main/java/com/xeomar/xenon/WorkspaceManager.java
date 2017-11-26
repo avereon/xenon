@@ -2,9 +2,11 @@ package com.xeomar.xenon;
 
 import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.Workspace;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.util.HashSet;
@@ -129,7 +131,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 			alert.setContentText( program.getResourceBundle().getString( "workspace", "workspace.close.prompt" ) );
 			alert.initOwner( workspace.getStage() );
 
-			Optional<ButtonType> result = alert.showAndWait();
+			Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) closeWorkspace( workspace );
 		}

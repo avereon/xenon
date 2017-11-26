@@ -9,16 +9,17 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-public class SplashScreen extends Stage {
+public class SplashScreenPane extends Pane {
 
 	private static final int WIDTH = 320;
 
 	private static final int HEIGHT = 180;
 
-	private static final Logger log = LogUtil.get( SplashScreen.class );
+	private static final Logger log = LogUtil.get( SplashScreenPane.class );
+
+	private String title;
 
 	private int steps;
 
@@ -26,11 +27,8 @@ public class SplashScreen extends Stage {
 
 	private Rectangle progressBar;
 
-	public SplashScreen( String title ) {
-		// Utility windows are automatically centered
-		super( StageStyle.UTILITY );
-
-		setTitle( title );
+	public SplashScreenPane( String title ) {
+		this.title = title;
 
 		// The background is a workaround to the stage color changing on Windows
 		Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
@@ -43,15 +41,14 @@ public class SplashScreen extends Stage {
 		titleText.setFill( new Color( 0.9, 0.9, 0.9, 1.0 ) );
 		titleText.setFont( new Font( 40 ) );
 
-		Pane pane = new Pane();
-		pane.getChildren().add( background );
-		pane.getChildren().add( new Circle( -40, 80, 160, new Color( 0.5, 0.5, 0.6, 0.5 ) ) );
-		pane.getChildren().add( new Circle( 80, -200, 360, new Color( 0.5, 0.6, 0.6, 0.5 ) ) );
-		pane.getChildren().add( titleText );
-		pane.getChildren().add( progressBar );
+		getChildren().add( background );
+		getChildren().add( new Circle( -40, 80, 160, new Color( 0.5, 0.5, 0.6, 0.5 ) ) );
+		getChildren().add( new Circle( 80, -200, 360, new Color( 0.5, 0.6, 0.6, 0.5 ) ) );
+		getChildren().add( titleText );
+		getChildren().add( progressBar );
 
-		setScene( new Scene( pane, WIDTH, HEIGHT, Color.BLACK ) );
-		sizeToScene();
+		setWidth( WIDTH );
+		setHeight( HEIGHT );
 	}
 
 	public int getSteps() {
@@ -66,6 +63,14 @@ public class SplashScreen extends Stage {
 		return progress;
 	}
 
+	public SplashScreenPane show( Stage stage ) {
+		stage.setTitle( title );
+		stage.setScene( new Scene( this, getWidth(), getHeight(), Color.BLACK ) );
+		stage.sizeToScene();
+		stage.show();
+		return this;
+	}
+
 	public void update() {
 		progress++;
 		progressBar.setWidth( getWidth() * ((double)progress / (double)steps) );
@@ -75,6 +80,10 @@ public class SplashScreen extends Stage {
 		progress = steps;
 		progressBar.setWidth( getWidth() );
 		progressBar.setFill( Color.WHITE );
+	}
+
+	public void hide() {
+		getScene().getWindow().hide();
 	}
 
 }
