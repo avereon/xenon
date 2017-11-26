@@ -44,7 +44,7 @@
 		<product-identifier>xenon</product-identifier>
 		<package-stage-folder>program</package-stage-folder>
 		<slf4j.version>1.8.0-alpha2</slf4j.version>
-		<testfx.version>4.0.8-alpha</testfx.version>
+		<testfx.version>4.0.9-alpha</testfx.version>
 	</properties>
 
 	<dependencies>
