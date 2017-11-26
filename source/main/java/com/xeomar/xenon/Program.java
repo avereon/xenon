@@ -464,7 +464,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Start the update manager
 		log.trace( "Starting update manager..." );
-		updateManager = configureUpdateManager( new UpdateManager( Program.this ) ).start();
+		updateManager = configureUpdateManager( new ProgramUpdateManager( Program.this ) ).start();
 		updateManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Update manager started." );
