@@ -2,6 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramUpdateManager;
 import javafx.event.Event;
 
 public class UpdateAction extends Action {
@@ -17,7 +18,7 @@ public class UpdateAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().getUpdateManager().checkForUpdates();
+		((ProgramUpdateManager)getProgram().getUpdateManager()).checkForUpdates( true );
 	}
 
 }
