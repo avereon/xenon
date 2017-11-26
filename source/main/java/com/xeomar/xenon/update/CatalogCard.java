@@ -22,7 +22,7 @@ public class CatalogCard {
 
 	private boolean removable;
 
-	private List<URI> products;
+	private List<String> products;
 
 	public String getName() {
 		return name;
@@ -64,11 +64,11 @@ public class CatalogCard {
 		this.removable = removable;
 	}
 
-	public List<URI> getProducts() {
+	public List<String> getProducts() {
 		return products;
 	}
 
-	public void setProducts( List<URI> products ) {
+	public void setProducts( List<String> products ) {
 		this.products = products;
 	}
 

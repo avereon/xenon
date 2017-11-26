@@ -17,8 +17,8 @@ public class CatalogCardTest {
 	// Test that the catalog card can be de-serialized
 	@Test
 	public void testReadCardFromYaml() throws Exception {
-		List<URI> products = new ArrayList<>();
-		products.add( URI.create( "http://xeomar.com/download/product/xenon/card" ) );
+		List<String> products = new ArrayList<>();
+		products.add( "http://xeomar.com/download/xenon/product/card/{0}" );
 
 		InputStream input = getClass().getResourceAsStream( CatalogCard.CARD );
 		CatalogCard card = YmlUtil.load( input, CatalogCard.class );
