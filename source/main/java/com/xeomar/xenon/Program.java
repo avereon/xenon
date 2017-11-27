@@ -23,6 +23,8 @@ import com.xeomar.xenon.tool.AboutTool;
 import com.xeomar.xenon.tool.GuideTool;
 import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
+import com.xeomar.xenon.update.ProgramUpdateManager;
+import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Application;
@@ -207,6 +209,10 @@ public class Program extends Application implements ProgramProduct {
 
 		// Submit the startup task
 		taskManager.submit( new Startup() );
+	}
+
+	public boolean isRunning() {
+		return taskManager.isRunning();
 	}
 
 	@Override

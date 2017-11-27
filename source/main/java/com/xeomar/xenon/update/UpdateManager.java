@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.update;
 
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
@@ -6,7 +6,9 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.update.*;
+import com.xeomar.xenon.Module;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -767,43 +769,45 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		}
 	//		return result;
 	//	}
-	//
-	//	/**
-	//	 * Launch the update program to apply the staged updates. This method is
-	//	 * generally called when the program starts and, if the update program is
-	//	 * successfully started, the program should be terminated to allow for the
-	//	 * updates to be applied.
-	//	 *
-	//	 * @param extras Extra commands to add to the update program when launched.
-	//	 * @return The number of updates applied.
-	//	 * @throws Exception
-	//	 */
-	//	public int applyStagedUpdates( String... extras ) throws Exception {
-	//		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
-	//
-	//		Log.write( Log.DEBUG, "Starting update process..." );
-	//		// Copy the updater to a temporary location.
-	//		File updaterSource = updater;
-	//		File updaterTarget = new File( FileUtil.TEMP_FOLDER, service.getCard().getArtifact() + "-updater.jar" );
-	//
-	//		File updaterLogFolder = new File( service.getDataFolder(), Service.LOG_FOLDER_NAME );
-	//		File updaterLogFile = new File( updaterLogFolder, UPDATER_LOG_NAME );
-	//
-	//		if( updaterSource == null || !updaterSource.exists() ) throw new RuntimeException( "Update library not found: " + updaterSource );
-	//		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
-	//
-	//		// Register a shutdown hook to start the updater.
-	//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
-	//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
-	//		Log.write( Log.TRACE, "Update shutdown hook registered." );
-	//
-	//		// Store the update count because the collection will be cleared.
-	//		int count = updates.size();
-	//
-	//		clearStagedUpdates();
-	//
-	//		return count;
-	//	}
+
+	/**
+	 * Launch the update program to apply the staged updates. This method is
+	 * generally called when the program starts and, if the update program is
+	 * successfully started, the program should be terminated to allow for the
+	 * updates to be applied.
+	 *
+	 * @param extras Extra commands to add to the update program when launched.
+	 * @return The number of updates applied.
+	 * @throws Exception
+	 */
+	public int applyStagedUpdates( String... extras ) throws Exception {
+		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
+
+		log.trace( "Starting update process..." );
+
+		// Copy the updater to a temporary location.
+		Path updaterSource = updater;
+		Path updaterTarget = FileUtil.TEMP_FOLDER.resolve( program.getCard().getArtifact() + "-updater.jar" );
+
+		//		Path updaterLogFolder = service.getDataFolder().resolve( Program.LOG_FOLDER_NAME );
+		//		Path updaterLogFile = updaterLogFolder.resolve( UPDATER_LOG_NAME );
+
+		if( updaterSource == null || !Files.exists( updaterSource ) ) throw new RuntimeException( "Update library not found: " + updaterSource );
+		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
+
+		// Register a shutdown hook to start the updater.
+		// TODO Register update shutdown hook and finish implementation
+		//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
+		//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
+		//		log.trace( "Update shutdown hook registered." );
+
+		// Store the update count because the collection will be cleared.
+		int count = updates.size();
+
+		clearStagedUpdates();
+
+		return count;
+	}
 
 	public void clearStagedUpdates() {
 		// Remove the updates settings.

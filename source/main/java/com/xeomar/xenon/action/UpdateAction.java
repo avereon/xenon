@@ -2,7 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramUpdateManager;
+import com.xeomar.xenon.update.ProgramUpdateManager;
 import javafx.event.Event;
 
 public class UpdateAction extends Action {

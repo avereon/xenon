@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.update;
 
 import com.xeomar.product.ProductEventListener;
 
