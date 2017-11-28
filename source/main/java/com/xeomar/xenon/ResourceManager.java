@@ -884,6 +884,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		// Sort the uris in reverse order
 		Collections.sort( typeUris );
 
+		// NEXT Finish implementation of matching resource URIs
 //		for( String uriResourceKey : uriResourceTypes.keySet() ) {
 //			try {
 //				URI keyUri = new URI( uriResourceKey );
