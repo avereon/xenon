@@ -1,16 +1,12 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.Controllable;
-import com.xeomar.util.IdGenerator;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.TextUtil;
+import com.xeomar.util.*;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.*;
 import com.xeomar.xenon.resource.event.*;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.util.UriUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.event.Event;
 import javafx.scene.control.Alert;
@@ -49,9 +45,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private final Map<String, Scheme> schemes;
 
-	private final Map<String, ResourceType> resourceTypes;
+	private final Map<String, ResourceType> resourceTypesByTypeKey;
 
-	private final Map<String, ResourceType> uriResourceTypes;
+	private final Map<URI, ResourceType> uriResourceTypes;
 
 	private final Map<String, ResourceType> schemeResourceTypes;
 
@@ -89,7 +85,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		this.program = program;
 		openResources = new CopyOnWriteArraySet<>();
 		schemes = new ConcurrentHashMap<>();
-		resourceTypes = new ConcurrentHashMap<>();
+		resourceTypesByTypeKey = new ConcurrentHashMap<>();
 		uriResourceTypes = new ConcurrentHashMap<>();
 		schemeResourceTypes = new ConcurrentHashMap<>();
 		registeredFileNames = new ConcurrentHashMap<>();
@@ -184,7 +180,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	Set<ResourceType> getUserResourceTypes() {
 		Set<ResourceType> userResourceTypes = new HashSet<>();
 
-		for( ResourceType type : resourceTypes.values() ) {
+		for( ResourceType type : resourceTypesByTypeKey.values() ) {
 			if( type.isUserType() ) userResourceTypes.add( type );
 		}
 
@@ -257,7 +253,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The resource type associated to the key
 	 */
 	public ResourceType getResourceType( String key ) {
-		ResourceType type = resourceTypes.get( key );
+		ResourceType type = resourceTypesByTypeKey.get( key );
 		if( type == null ) log.warn( "Resource type not found: " + key );
 		return type;
 	}
@@ -268,7 +264,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The set of supported resource types
 	 */
 	public Collection<ResourceType> getResourceTypes() {
-		return Collections.unmodifiableCollection( resourceTypes.values() );
+		return Collections.unmodifiableCollection( resourceTypesByTypeKey.values() );
 	}
 
 	/**
@@ -279,8 +275,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	public void addResourceType( ResourceType type ) {
 		if( type == null ) return;
 
-		synchronized( resourceTypes ) {
-			if( resourceTypes.get( type.getKey() ) != null ) throw new IllegalArgumentException( "ResourceType already exists: " + type.getKey() );
+		synchronized( resourceTypesByTypeKey ) {
+			if( resourceTypesByTypeKey.get( type.getKey() ) != null ) throw new IllegalArgumentException( "ResourceType already exists: " + type.getKey() );
 
 			Set<Codec> codecs = type.getCodecs();
 			for( Codec codec : codecs ) {
@@ -291,7 +287,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			}
 
 			// Add the resource type to the registered resource types.
-			resourceTypes.put( type.getKey(), type );
+			resourceTypesByTypeKey.put( type.getKey(), type );
 
 			// Update the actions.
 			updateActionState();
@@ -305,11 +301,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 */
 	public void removeResourceType( ResourceType type ) {
 		if( type == null ) return;
-		synchronized( resourceTypes ) {
-			if( !resourceTypes.containsKey( type.getKey() ) ) return;
+		synchronized( resourceTypesByTypeKey ) {
+			if( !resourceTypesByTypeKey.containsKey( type.getKey() ) ) return;
 
 			// Remove the resource type from the registered resource types
-			resourceTypes.remove( type.getKey() );
+			resourceTypesByTypeKey.remove( type.getKey() );
 			for( Map.Entry entry : uriResourceTypes.entrySet() ) {
 				if( entry.getValue() == type ) uriResourceTypes.remove( entry.getKey() );
 			}
@@ -330,17 +326,17 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 	}
 
-	public void registerUriResourceType( String uri, ResourceType type ) {
-		if( resourceTypes.get( type.getKey() ) == null ) addResourceType( type );
+	public void registerUriResourceType( URI uri, ResourceType type ) {
+		if( resourceTypesByTypeKey.get( type.getKey() ) == null ) addResourceType( type );
 		uriResourceTypes.put( uri, type );
 	}
 
-	public void unregisterUriResourceType( String uri ) {
+	public void unregisterUriResourceType( URI uri ) {
 		uriResourceTypes.remove( uri );
 	}
 
 	public void registerSchemeResourceType( String scheme, ResourceType type ) {
-		if( resourceTypes.get( type.getKey() ) == null ) addResourceType( type );
+		if( resourceTypesByTypeKey.get( type.getKey() ) == null ) addResourceType( type );
 		schemeResourceTypes.put( scheme, type );
 	}
 
@@ -845,7 +841,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	public Collection<Codec> getCodecs() {
 		Set<Codec> codecs = new HashSet<>();
 
-		for( ResourceType type : resourceTypes.values() ) {
+		for( ResourceType type : resourceTypesByTypeKey.values() ) {
 			codecs.addAll( type.getCodecs() );
 		}
 
@@ -863,30 +859,61 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		URI uri = resource.getUri();
 		ResourceType type = null;
 
-		// Look for resource type assigned to specific URIs.
-		if( uri != null ) type = uriResourceTypes.get( uri.toString() );
-
-		// Look for resource types assigned to specific schemes.
-		if( type == null && uri != null ) type = schemeResourceTypes.get( uri.getScheme() );
-
-		// Look for resource types assigned to specific codecs.
+		// Look for resource types assigned to specific codecs
 		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( resource ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
 		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
 		if( type == null && codec != null ) type = codec.getResourceType();
 
+		// Look for resource type assigned to specific URIs
+		if( type == null && uri != null ) type = findMatchingUriResourceType( uri );
+
+		// Look for resource types assigned to specific schemes
+		if( type == null && uri != null ) type = schemeResourceTypes.get( uri.getScheme() );
+
+		// Assign values to resource
 		if( codec != null ) resource.setCodec( codec );
 		if( type != null ) resource.setType( type );
 
 		return type;
 	}
 
+	private ResourceType findMatchingUriResourceType( URI uri ) {
+		List<URI> typeUris = new ArrayList<>(uriResourceTypes.keySet());
+
+		// Sort the uris in reverse order
+		Collections.sort( typeUris );
+
+//		for( String uriResourceKey : uriResourceTypes.keySet() ) {
+//			try {
+//				URI keyUri = new URI( uriResourceKey );
+//
+//				if( uri.isOpaque() ) {
+//					// Match the scheme,
+//				}
+//				boolean schemeMatch = Objects.equals( keyUri.getScheme(), uri.getScheme() );
+//				boolean hostMatch = Objects.equals( keyUri.getHost(), uri.getHost() );
+//				boolean
+//			} catch( URISyntaxException exception ) {
+//				// If the key URI syntax is bad, it is not usable
+//				log.warn( "Unusable resource type URI: " + uriResourceKey, exception );
+//			}
+//		}
+
+		return null;
+	}
+
 	/**
-	 * Determine the codec for the given resource by checking the file name, the first line, and the content type for a match with a supported resource type. When calling this method the resource needs to already be open so that the
-	 * information needed to determine the correct codec is defined in the resource.
+	 * Determine the codec for the given resource by checking the file name, the
+	 * first line, and the content type for a match with a supported resource
+	 * type. When calling this method the resource needs to already be open so
+	 * that the information needed to determine the correct codec is defined in
+	 * the resource.
 	 * <p>
-	 * Note: This method uses a URLConnection object to get the first line and content type of the resource. This means that the calling thread will be blocked during the IO operations used in URLConnection if the first line or the content
-	 * type is needed to determine the resource type.
+	 * Note: This method uses a URLConnection object to get the first line and
+	 * content type of the resource. This means that the calling thread will be
+	 * blocked during the IO operations used in URLConnection if the first line
+	 * or the content type is needed to determine the resource type.
 	 *
 	 * @param resource The resource for which to find codecs
 	 * @return The set of codecs that match the resource
