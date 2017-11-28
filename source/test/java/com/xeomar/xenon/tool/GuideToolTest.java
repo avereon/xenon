@@ -8,6 +8,7 @@ import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -18,10 +19,10 @@ public class GuideToolTest extends FxProgramTestCase {
 
 	@Test
 	public void testGetRequiredToolResources() {
-		Resource resource = new Resource( ProgramGuideType.URI );
+		Resource resource = new Resource( ProgramGuideType.uri );
 		GuideTool tool = new GuideTool( program, resource );
 
-		Set<String> resources = tool.getResourceDependencies();
+		Set<URI> resources = tool.getResourceDependencies();
 		Assert.assertThat(resources.size(), is( 0 ));
 	}
 
@@ -30,7 +31,7 @@ public class GuideToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramGuideType.URI ) );
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramGuideType.uri ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
@@ -41,12 +42,12 @@ public class GuideToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramGuideType.URI ) );
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramGuideType.uri ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
-		Resource resource = program.getResourceManager().createResource( ProgramGuideType.URI );
+		Resource resource = program.getResourceManager().createResource( ProgramGuideType.uri );
 		program.getResourceManager().closeResources( resource );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 		assertThat( pane.getTools().size(), is( 0 ) );

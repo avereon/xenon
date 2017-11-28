@@ -10,9 +10,11 @@ import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.tool.Guide;
 import javafx.scene.control.TreeItem;
 
+import java.net.URI;
+
 public class ProgramSettingsType extends ResourceType {
 
-	public static final String URI = "program:settings";
+	public static final URI uri = URI.create( "program:settings" );
 
 	public static final String KEY = "settings";
 

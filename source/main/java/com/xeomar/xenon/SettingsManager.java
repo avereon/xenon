@@ -109,7 +109,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( settingsPages );
 
 		// Get the settings program resource
-		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
+		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.uri );
 		try {
 			program.getResourceManager().openResourcesAndWait( settingsResource );
 		} catch( Exception exception ) {

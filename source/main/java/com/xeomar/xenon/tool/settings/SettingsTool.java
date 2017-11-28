@@ -2,7 +2,6 @@ package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.xenon.ProductTool;
 import com.xeomar.product.Product;
-import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.Guide;
@@ -13,6 +12,7 @@ import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -90,9 +90,9 @@ public class SettingsTool extends ProductTool {
 		getChildren().add( scroller );
 	}
 
-	public Set<String> getResourceDependencies() {
-		Set<String> resources = new HashSet<>();
-		resources.add( ProgramGuideType.URI );
+	public Set<URI> getResourceDependencies() {
+		Set<URI> resources = new HashSet<>();
+		resources.add( ProgramGuideType.uri );
 		return resources;
 	}
 

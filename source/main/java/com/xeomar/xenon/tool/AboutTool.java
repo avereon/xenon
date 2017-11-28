@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.management.*;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,9 +75,9 @@ public class AboutTool extends ProductTool {
 		selectedPage( "summary" );
 	}
 
-	public Set<String> getResourceDependencies() {
-		Set<String> resources = new HashSet<>();
-		resources.add( ProgramGuideType.URI );
+	public Set<URI> getResourceDependencies() {
+		Set<URI> resources = new HashSet<>();
+		resources.add( ProgramGuideType.uri );
 		return resources;
 	}
 

@@ -900,7 +900,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 //			}
 //		}
 
-		return null;
+		return uriResourceTypes.get( uri );
 	}
 
 	/**

@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Constructor;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -127,7 +128,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		// Now that we have a tool...open dependent tools
-		for( String dependency : tool.getResourceDependencies() ) {
+		for( URI dependency : tool.getResourceDependencies() ) {
 			program.getResourceManager().open( program.getResourceManager().createResource( dependency ), true, false );
 		}
 

@@ -4,6 +4,7 @@ import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Tool;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public abstract class ProductTool extends Tool {
 		return product;
 	}
 
-	public Set<String> getResourceDependencies() {
+	public Set<URI> getResourceDependencies() {
 		return Collections.unmodifiableSet( Collections.emptySet() );
 	}
 

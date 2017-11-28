@@ -12,11 +12,12 @@ import com.xeomar.xenon.tool.Guide;
 import com.xeomar.xenon.tool.GuideNode;
 import javafx.scene.control.TreeItem;
 
+import java.net.URI;
 import java.util.Map;
 
 public class ProgramAboutType extends ResourceType {
 
-	public static final String URI = "program:about";
+	public static final URI uri = URI.create( "program:about" );
 
 	private Map<TreeItem<String>, String> pages;
 

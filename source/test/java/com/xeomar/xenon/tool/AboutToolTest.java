@@ -8,6 +8,7 @@ import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
@@ -17,10 +18,10 @@ public class AboutToolTest extends FxProgramTestCase {
 
 	@Test
 	public void testGetRequiredToolResources() {
-		Resource resource = new Resource( ProgramAboutType.URI );
+		Resource resource = new Resource( ProgramAboutType.uri );
 		AboutTool tool = new AboutTool( program, resource );
-		Set<String> resources = tool.getResourceDependencies();
-		assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
+		Set<URI> resources = tool.getResourceDependencies();
+		assertThat( resources, containsInAnyOrder( ProgramGuideType.uri ) );
 	}
 
 	@Test
@@ -59,13 +60,13 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.URI ) );
+		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.uri ) );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		Resource resource = program.getResourceManager().createResource( ProgramAboutType.URI );
+		Resource resource = program.getResourceManager().createResource( ProgramAboutType.uri );
 		program.getResourceManager().closeResources( resource );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 		assertThat( pane.getTools().size(), is( 1 ) );

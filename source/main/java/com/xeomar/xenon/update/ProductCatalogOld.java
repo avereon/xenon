@@ -2,8 +2,8 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
+import com.xeomar.util.UriUtil;
 import com.xeomar.util.XmlDescriptor;
-import com.xeomar.xenon.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;

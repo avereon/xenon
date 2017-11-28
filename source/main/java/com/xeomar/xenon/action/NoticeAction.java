@@ -18,7 +18,7 @@ public class NoticeAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().getResourceManager().open( getProgram().getResourceManager().createResource( ProgramNoticeType.URI ) );
+		getProgram().getResourceManager().open( getProgram().getResourceManager().createResource( ProgramNoticeType.uri ) );
 	}
 
 }
