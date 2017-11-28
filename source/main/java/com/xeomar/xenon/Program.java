@@ -629,9 +629,11 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriResourceType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
 		manager.registerUriResourceType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
 		manager.registerUriResourceType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
+		manager.registerUriResourceType( ProgramProductType.URI, new ProgramProductType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
+		manager.unregisterUriResourceType( ProgramProductType.URI );
 		manager.unregisterUriResourceType( ProgramNoticeType.URI );
 		manager.unregisterUriResourceType( ProgramWelcomeType.URI );
 		manager.unregisterUriResourceType( ProgramSettingsType.URI );
@@ -644,9 +646,11 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
 		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );

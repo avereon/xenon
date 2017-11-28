@@ -5,6 +5,8 @@ import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramParameter;
 import com.xeomar.xenon.ProgramTask;
+import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -217,9 +219,16 @@ public class ProgramUpdateManager extends UpdateManager {
 
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
 								// NEXT Create and use the product tool to select updates
-								//ProductOrganizer tool = (ProductOrganizer)program.getToolManager().openTool( ProductOrganizer.class );
-								//tool.showPage( ProductOrganizer.PAGE_UPDATABLE );
-								System.out.println( "Show the product organizer" );
+								System.out.println( "Show the product tool" );
+								try {
+									Resource productResource = program.getResourceManager().createResource( ProgramProductType.URI + "#update" );
+									program.getResourceManager().openResourcesAndWait( productResource );
+									program.getToolManager().openTool( productResource );
+								} catch( ExecutionException exception ) {
+									log.error("Error opening tool product", exception );
+								} catch( InterruptedException exception ) {
+									log.warn( "Interrupted opening product tool", exception );
+								}
 							}
 						} );
 					} else {
