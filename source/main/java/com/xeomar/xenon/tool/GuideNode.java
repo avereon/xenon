@@ -42,10 +42,14 @@ public class GuideNode extends Node {
 		setValue( NAME, name );
 	}
 
+	// FIXME GuideNode should not have anything relating to a specific tool
+	@Deprecated
 	public SettingsPage getPage() {
 		return getValue( PAGE );
 	}
 
+	// FIXME GuideNode should not have anything relating to a specific tool
+	@Deprecated
 	public void setPage(SettingsPage page ) {
 		setValue( PAGE, page );
 	}

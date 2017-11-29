@@ -7,6 +7,8 @@ import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.Guide;
 import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.workarea.ToolException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
@@ -19,6 +21,8 @@ import java.util.Set;
 public class SettingsTool extends ProductTool {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsTool.class );
+
+	private GuideListener guideListener = new GuideListener();
 
 	public SettingsTool( Product product, Resource resource ) {
 		super( product, resource );
@@ -64,14 +68,15 @@ public class SettingsTool extends ProductTool {
 	protected void resourceReady() throws ToolException {
 		log.debug( "Settings tool resource ready" );
 
+		// Register the guide selection listener
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
+		guide.selectedItemProperty().addListener( guideListener );
+
 		resourceRefreshed();
 	}
 
 	@Override
 	public void resourceRefreshed() {
-		// Register the guide selection listener
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> selectItem( newSelection ) );
 	}
 
 	private void selectItem( TreeItem<GuideNode> item ) {
@@ -94,6 +99,15 @@ public class SettingsTool extends ProductTool {
 		Set<URI> resources = new HashSet<>();
 		resources.add( ProgramGuideType.uri );
 		return resources;
+	}
+
+	private class GuideListener implements ChangeListener<TreeItem<GuideNode>> {
+
+		@Override
+		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
+			selectItem( newSelection );
+		}
+
 	}
 
 }

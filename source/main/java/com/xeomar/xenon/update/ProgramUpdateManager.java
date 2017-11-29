@@ -201,7 +201,6 @@ public class ProgramUpdateManager extends UpdateManager {
 			switch( getFoundOption() ) {
 				case SELECT: {
 					if( interactive ) {
-						// FIXME Should the tool really be handling this interaction?
 						// Directly notify the user.
 						String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 						String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
@@ -219,11 +218,19 @@ public class ProgramUpdateManager extends UpdateManager {
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
 								program.getExecutor().submit( () -> {
 									Resource resource = program.getResourceManager().createResource( ProgramArtifactType.uri + "#update" );
-									program.getResourceManager().loadResources( resource );
-									// FIXME This doesn't show the tool on the first try
-									ProductTool tool = program.getToolManager().openTool( resource );
-									//((ArtifactTool)tool).setPostedUpdates( postedUpdates );
-									program.getResourceManager().setCurrentResource( resource );
+									try {
+										program.getResourceManager().loadResourcesAndWait( resource );
+										// FIXME ToolManager did not stop me from getting two tools
+										// Or maybe resource manager didn't
+										ProductTool tool = program.getToolManager().openTool( resource );
+										program.getResourceManager().open( resource );
+										((ArtifactTool)tool).setPostedUpdates( postedUpdates );
+										program.getResourceManager().setCurrentResource( resource );
+									} catch( ExecutionException exception ) {
+										log.error( "Error loading program artifact tool resource", exception );
+									} catch( InterruptedException exception ) {
+										log.error( "Interruption loading program artifact tool resource", exception );
+									}
 								} );
 							}
 						} );
