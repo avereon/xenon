@@ -220,16 +220,8 @@ public class ProgramUpdateManager extends UpdateManager {
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
 								// NEXT Switch to task thread
 								program.getExecutor().submit( () -> {
-									try {
-										Resource productResource = program.getResourceManager().createResource( ProgramArtifactType.uri + "#update" );
-										program.getResourceManager().openResourcesAndWait( productResource );
-										//program.getToolManager().openTool( productResource );
-										Platform.runLater( () -> program.getResourceManager().open( productResource ) );
-									} catch( ExecutionException exception ) {
-										log.error( "Error opening tool product", exception );
-									} catch( InterruptedException exception ) {
-										log.warn( "Interrupted opening product tool", exception );
-									}
+									Resource resource = program.getResourceManager().createResource( ProgramArtifactType.uri + "#update" );
+									Platform.runLater( () -> program.getResourceManager().open( resource ) );
 								} );
 							}
 						} );
