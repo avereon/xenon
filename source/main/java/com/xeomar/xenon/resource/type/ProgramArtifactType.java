@@ -14,12 +14,12 @@ import javafx.scene.control.TreeItem;
 
 import java.net.URI;
 
-public class ProgramProductType extends ResourceType {
+public class ProgramArtifactType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:product" );
+	public static final URI uri = URI.create( "program:artifact" );
 
-	public ProgramProductType( Product product ) {
-		super( product, "product" );
+	public ProgramArtifactType( Product product ) {
+		super( product, "artifact" );
 	}
 
 	@Override
@@ -57,24 +57,24 @@ public class ProgramProductType extends ResourceType {
 
 		GuideNode installed = new GuideNode();
 		installed.setId( "installed" );
-		installed.setName( rb.getString( "tool", "product-installed" ) );
+		installed.setName( rb.getString( "tool", "artifact-installed" ) );
 
 		GuideNode available = new GuideNode();
 		available.setId( "available");
-		available.setName( rb.getString( "tool", "product-available" ) );
+		available.setName( rb.getString( "tool", "artifact-available" ) );
 
 		GuideNode updates = new GuideNode();
 		updates.setId( "updates" );
-		updates.setName( rb.getString( "tool", "product-updates" ) );
+		updates.setName( rb.getString( "tool", "artifact-updates" ) );
 
 		GuideNode sources = new GuideNode();
 		sources.setId( "sources" );
-		sources.setName( rb.getString( "tool", "product-sources" ) );
+		sources.setName( rb.getString( "tool", "artifact-sources" ) );
 
-		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
+		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "artifact" ) ) );
+		root.getChildren().add( new TreeItem<>( installed, library.getIcon( "artifact" ) ) );
+		root.getChildren().add( new TreeItem<>( available, library.getIcon( "artifact" ) ) );
+		root.getChildren().add( new TreeItem<>( updates, library.getIcon( "artifact" ) ) );
+		root.getChildren().add( new TreeItem<>( sources, library.getIcon( "artifact" ) ) );
 	}
 }

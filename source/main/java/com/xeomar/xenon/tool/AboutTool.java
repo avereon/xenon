@@ -29,6 +29,12 @@ public class AboutTool extends ProductTool {
 
 	private static final Logger log = LoggerFactory.getLogger( AboutTool.class );
 
+	public static final String SUMMARY = "summary";
+
+	public static final String PRODUCTS = "products";
+
+	public static final String DETAILS = "details";
+
 	private String titleSuffix;
 
 	private Map<String, Node> nodes;
@@ -68,11 +74,9 @@ public class AboutTool extends ProductTool {
 		detailsPane.setCenter( detailsText );
 
 		nodes = new ConcurrentHashMap<>();
-		nodes.put( "summary", summaryPane );
-		nodes.put( "products", productsPane );
-		nodes.put( "details", detailsPane );
-
-		selectedPage( "summary" );
+		nodes.put( SUMMARY, summaryPane );
+		nodes.put( PRODUCTS, productsPane );
+		nodes.put( DETAILS, detailsPane );
 	}
 
 	public Set<URI> getResourceDependencies() {
@@ -128,11 +132,10 @@ public class AboutTool extends ProductTool {
 		log.debug( "Resource ready" );
 
 		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
-			selectedPage( newSelection );
-		} );
+		guide.selectedItemProperty().addListener( ( observable, oldSelection, newSelection ) -> selectedPage( newSelection ) );
 
 		resourceRefreshed();
+		selectedPage( SUMMARY );
 	}
 
 	@Override

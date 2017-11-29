@@ -879,32 +879,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private ResourceType findMatchingUriResourceType( URI uri ) {
-		List<URI> typeUris = new ArrayList<>( uriResourceTypes.keySet() );
-
-		// Sort the uris in reverse order to compare the most specific first
-		typeUris.sort( Collections.reverseOrder() );
-
-		System.out.println( "Find match for: " + uri );
-
-		// NEXT Finish implementation of matching resource URIs
-		for( URI typeUri : typeUris ) {
-			System.out.println( "Check " + typeUri + ": " + scoreUriMatch( uri, typeUri ) );
-			//			try {
-			//				URI keyUri = new URI( uriResourceKey );
-			//
-			//				if( uri.isOpaque() ) {
-			//					// Match the scheme,
-			//				}
-			//				boolean schemeMatch = Objects.equals( keyUri.getScheme(), uri.getScheme() );
-			//				boolean hostMatch = Objects.equals( keyUri.getHost(), uri.getHost() );
-			//				boolean
-			//			} catch( URISyntaxException exception ) {
-			//				// If the key URI syntax is bad, it is not usable
-			//				log.warn( "Unusable resource type URI: " + uriResourceKey, exception );
-			//			}
-		}
-
-		return uriResourceTypes.get( uri );
+		return uriResourceTypes.get( UriUtil.cleanUri( uri ) );
 	}
 
 	/**
@@ -918,7 +893,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		int score = 0;
 		if( a.getScheme() != null ) {
 			if( Objects.equals( a.getScheme(), b.getScheme() ) ) {
-				score+=2;
+				score += 2;
 			} else {
 				return score;
 			}
@@ -960,7 +935,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		if( Objects.equals( a.getPath(), b.getPath() ) ) {
 			score++;
-		} else if(b.getPath().startsWith( a.getPath() )) {
+		} else if( b.getPath().startsWith( a.getPath() ) ) {
 			score++;
 			return score;
 		} else {
@@ -969,7 +944,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		if( Objects.equals( a.getQuery(), b.getQuery() ) ) {
 			score++;
-		} else if(b.getQuery().startsWith( a.getQuery() )) {
+		} else if( b.getQuery().startsWith( a.getQuery() ) ) {
 			score++;
 			return score;
 		} else {

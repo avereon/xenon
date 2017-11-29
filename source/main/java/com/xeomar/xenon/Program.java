@@ -20,6 +20,7 @@ import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
+import com.xeomar.xenon.tool.ArtifactTool;
 import com.xeomar.xenon.tool.GuideTool;
 import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
@@ -629,12 +630,11 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriResourceType( ProgramSettingsType.uri, new ProgramSettingsType( this ) );
 		manager.registerUriResourceType( ProgramWelcomeType.uri, new ProgramWelcomeType( this ) );
 		manager.registerUriResourceType( ProgramNoticeType.uri, new ProgramNoticeType( this ) );
-		manager.registerUriResourceType( ProgramProductType.uri, new ProgramProductType( this ) );
-		manager.registerUriResourceType( URI.create( ProgramProductType.uri.toString( ) + "#update" ), new ProgramProductType( this ) );
+		manager.registerUriResourceType( ProgramArtifactType.uri, new ProgramArtifactType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( ProgramProductType.uri );
+		manager.unregisterUriResourceType( ProgramArtifactType.uri );
 		manager.unregisterUriResourceType( ProgramNoticeType.uri );
 		manager.unregisterUriResourceType( ProgramWelcomeType.uri );
 		manager.unregisterUriResourceType( ProgramSettingsType.uri );
@@ -647,11 +647,11 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
-		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, ProgramArtifactType.class, ArtifactTool.class, ToolInstanceMode.SINGLETON, "artifact", "artifact" );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
+		unregisterTool( manager, ProgramArtifactType.class, ArtifactTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
 		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );

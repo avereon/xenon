@@ -6,7 +6,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramParameter;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.resource.type.ProgramProductType;
+import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -218,18 +218,19 @@ public class ProgramUpdateManager extends UpdateManager {
 							Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
-								// NEXT Create and use the product tool to select updates
-								System.out.println( "Show the product tool" );
-								try {
-									//Resource productResource = program.getResourceManager().createResource( ProgramProductType.uri + "#update" );
-									Resource productResource = program.getResourceManager().createResource( ProgramProductType.uri );
-									program.getResourceManager().openResourcesAndWait( productResource );
-									program.getToolManager().openTool( productResource );
-								} catch( ExecutionException exception ) {
-									log.error("Error opening tool product", exception );
-								} catch( InterruptedException exception ) {
-									log.warn( "Interrupted opening product tool", exception );
-								}
+								// NEXT Switch to task thread
+								program.getExecutor().submit( () -> {
+									try {
+										Resource productResource = program.getResourceManager().createResource( ProgramArtifactType.uri + "#update" );
+										program.getResourceManager().openResourcesAndWait( productResource );
+										//program.getToolManager().openTool( productResource );
+										Platform.runLater( () -> program.getResourceManager().open( productResource ) );
+									} catch( ExecutionException exception ) {
+										log.error( "Error opening tool product", exception );
+									} catch( InterruptedException exception ) {
+										log.warn( "Interrupted opening product tool", exception );
+									}
+								} );
 							}
 						} );
 					} else {

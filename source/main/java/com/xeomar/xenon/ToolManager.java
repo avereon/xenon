@@ -293,7 +293,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource, boolean waitForResourceReady ) {
 		if( !isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
 
-		// Have to have a ProductTool to support modules
+		// Have to have a ArtifactTool to support modules
 		try {
 			// Create the new tool instance
 			Product product = toolClassMetadata.get( type ).getProduct();
