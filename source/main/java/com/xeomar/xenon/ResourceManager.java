@@ -344,6 +344,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		schemeResourceTypes.remove( scheme );
 	}
 
+	public void open( URI uri ) {
+		open( createResource( uri ) );
+	}
+
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */

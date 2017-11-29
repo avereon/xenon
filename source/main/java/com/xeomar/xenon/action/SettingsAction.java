@@ -21,7 +21,7 @@ public class SettingsAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().getResourceManager().open( getProgram().getResourceManager().createResource( ProgramSettingsType.uri ) );
+		getProgram().getResourceManager().open(  ProgramSettingsType.uri );
 	}
 
 }
