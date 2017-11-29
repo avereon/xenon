@@ -1,12 +1,10 @@
 package com.xeomar.xenon.update;
 
 import com.xeomar.product.ProductCard;
-import com.xeomar.xenon.BundleKey;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramParameter;
-import com.xeomar.xenon.ProgramTask;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
+import com.xeomar.xenon.tool.ArtifactTool;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -203,6 +201,7 @@ public class ProgramUpdateManager extends UpdateManager {
 			switch( getFoundOption() ) {
 				case SELECT: {
 					if( interactive ) {
+						// FIXME Should the tool really be handling this interaction?
 						// Directly notify the user.
 						String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 						String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
@@ -218,10 +217,13 @@ public class ProgramUpdateManager extends UpdateManager {
 							Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
-								// NEXT Switch to task thread
 								program.getExecutor().submit( () -> {
 									Resource resource = program.getResourceManager().createResource( ProgramArtifactType.uri + "#update" );
-									Platform.runLater( () -> program.getResourceManager().open( resource ) );
+									program.getResourceManager().loadResources( resource );
+									// FIXME This doesn't show the tool on the first try
+									ProductTool tool = program.getToolManager().openTool( resource );
+									//((ArtifactTool)tool).setPostedUpdates( postedUpdates );
+									program.getResourceManager().setCurrentResource( resource );
 								} );
 							}
 						} );

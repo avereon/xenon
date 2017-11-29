@@ -66,27 +66,27 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	// FIXME Should openTool methods be in UiManager
-	public void openTool( Resource resource ) {
-		openTool( resource, null, null );
+	public ProductTool openTool( Resource resource ) {
+		return openTool( resource, null, null );
 	}
 
-	public void openTool( Resource resource, Workpane pane ) {
-		openTool( resource, pane, null );
+	public ProductTool openTool( Resource resource, Workpane pane ) {
+		return openTool( resource, pane, null );
 	}
 
-	public void openTool( Resource resource, WorkpaneView view ) {
-		openTool( resource, view == null ? null : view.getWorkpane(), view );
+	public ProductTool openTool( Resource resource, WorkpaneView view ) {
+		return openTool( resource, view == null ? null : view.getWorkpane(), view );
 	}
 
-	public void openTool( Resource resource, WorkpaneView view, boolean setActive ) {
-		openTool( resource, view == null ? null : view.getWorkpane(), view, null, setActive );
+	public ProductTool openTool( Resource resource, WorkpaneView view, boolean setActive ) {
+		return openTool( resource, view == null ? null : view.getWorkpane(), view, null, setActive );
 	}
 
-	public void openTool( Resource resource, Workpane pane, WorkpaneView view ) {
-		openTool( resource, pane, view, null, true );
+	public ProductTool openTool( Resource resource, Workpane pane, WorkpaneView view ) {
+		return openTool( resource, pane, view, null, true );
 	}
 
-	public void openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass, boolean setActive ) {
+	public ProductTool openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass, boolean setActive ) {
 		// The only thing that cannot be null is the resource
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
 
@@ -124,7 +124,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			String title = program.getResourceBundle().getString( "program", "no-tool-for-resource-title" );
 			String message = program.getResourceBundle().getString( "program", "no-tool-for-resource-message" );
 			program.getNotifier().warning( title, (Object)message, resource.getName() );
-			return;
+			return null;
 		}
 
 		// Now that we have a tool...open dependent tools
@@ -144,6 +144,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		} else {
 			Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, setActive ) );
 		}
+
+		return tool;
 	}
 
 	public ProductTool restoreTool( String toolClassName, Resource resource ) {
