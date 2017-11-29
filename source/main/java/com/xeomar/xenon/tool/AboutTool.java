@@ -4,7 +4,6 @@ import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.*;
-import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
@@ -25,7 +24,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AboutTool extends ProductTool {
+public class AboutTool extends AbstractTool {
 
 	private static final Logger log = LoggerFactory.getLogger( AboutTool.class );
 

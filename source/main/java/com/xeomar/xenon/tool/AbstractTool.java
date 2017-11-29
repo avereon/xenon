@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.tool;
 
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
@@ -8,11 +8,11 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
 
-public abstract class ProductTool extends Tool {
+public abstract class AbstractTool extends Tool {
 
 	private Product product;
 
-	public ProductTool( Product product, Resource resource ) {
+	public AbstractTool( Product product, Resource resource ) {
 		super( resource );
 		this.product = product;
 	}

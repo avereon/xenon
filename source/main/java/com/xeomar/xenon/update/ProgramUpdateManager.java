@@ -4,6 +4,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.*;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
+import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.tool.ArtifactTool;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
@@ -222,7 +223,7 @@ public class ProgramUpdateManager extends UpdateManager {
 										program.getResourceManager().loadResourcesAndWait( resource );
 										// FIXME ToolManager did not stop me from getting two tools
 										// Or maybe resource manager didn't
-										ProductTool tool = program.getToolManager().openTool( resource );
+										AbstractTool tool = program.getToolManager().openTool( resource );
 										program.getResourceManager().open( resource );
 										((ArtifactTool)tool).setPostedUpdates( postedUpdates );
 										program.getResourceManager().setCurrentResource( resource );

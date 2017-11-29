@@ -19,10 +19,7 @@ import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
-import com.xeomar.xenon.tool.AboutTool;
-import com.xeomar.xenon.tool.ArtifactTool;
-import com.xeomar.xenon.tool.GuideTool;
-import com.xeomar.xenon.tool.WelcomeTool;
+import com.xeomar.xenon.tool.*;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
@@ -658,7 +655,7 @@ public class Program extends Application implements ProgramProduct {
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
 	}
 
-	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
+	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends AbstractTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
 		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
@@ -668,7 +665,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerTool( type, metadata );
 	}
 
-	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProductTool> toolClass ) {
+	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends AbstractTool> toolClass ) {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 

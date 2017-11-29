@@ -1,6 +1,5 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.product.Product;
@@ -16,7 +15,7 @@ import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WelcomeTool extends ProductTool {
+public class WelcomeTool extends AbstractTool {
 
 	private static final Logger log = LoggerFactory.getLogger( WelcomeTool.class );
 

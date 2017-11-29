@@ -4,6 +4,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.workarea.*;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -50,7 +51,7 @@ public class UiManager {
 
 	private Map<String, Tool> tools = new HashMap<>();
 
-	private Map<WorkpaneView, Set<ProductTool>> viewTools = new HashMap<>();
+	private Map<WorkpaneView, Set<AbstractTool>> viewTools = new HashMap<>();
 
 	private boolean started;
 
@@ -324,13 +325,13 @@ public class UiManager {
 			Workpane pane = view.getWorkpane();
 			if( pane == null ) continue;
 
-			List<ProductTool> tools = new ArrayList<>( viewTools.get( view ) );
+			List<AbstractTool> tools = new ArrayList<>( viewTools.get( view ) );
 
 			// Sort the tools
 			tools.sort( new ToolOrderComparator() );
 
 			// Add the tools to the view
-			for( ProductTool tool : tools ) {
+			for( AbstractTool tool : tools ) {
 				pane.addTool( tool, view, tool.isActive() );
 
 				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
@@ -458,11 +459,11 @@ public class UiManager {
 
 			// Restore the tool on a task thread
 			try {
-				ProductTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( toolType, resource ) ).get( 1, TimeUnit.SECONDS );
+				AbstractTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( toolType, resource ) ).get( 1, TimeUnit.SECONDS );
 				if( tool == null ) return;
 				tool.setSettings( settings );
 
-				Set<ProductTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
+				Set<AbstractTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
 				viewToolSet.add( tool );
 
 				tools.put( id, tool );
@@ -485,10 +486,10 @@ public class UiManager {
 		workspaces.clear();
 	}
 
-	private class ToolOrderComparator implements Comparator<ProductTool> {
+	private class ToolOrderComparator implements Comparator<AbstractTool> {
 
 		@Override
-		public int compare( ProductTool tool1, ProductTool tool2 ) {
+		public int compare( AbstractTool tool1, AbstractTool tool2 ) {
 			Settings settings1 = tool1.getSettings();
 			Settings settings2 = tool2.getSettings();
 

@@ -8,6 +8,7 @@ import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.task.TaskThread;
+import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.workarea.Tool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
@@ -29,9 +30,9 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private Program program;
 
-	private Map<Class<? extends ProductTool>, ToolMetadata> toolClassMetadata;
+	private Map<Class<? extends AbstractTool>, ToolMetadata> toolClassMetadata;
 
-	private Map<ResourceType, List<Class<? extends ProductTool>>> resourceTypeToolClasses;
+	private Map<ResourceType, List<Class<? extends AbstractTool>>> resourceTypeToolClasses;
 
 	private Map<String, String> aliases;
 
@@ -43,50 +44,50 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	public void registerTool( ResourceType resourceType, ToolMetadata metadata ) {
-		Class<? extends ProductTool> type = metadata.getType();
+		Class<? extends AbstractTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		List<Class<? extends ProductTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<Class<? extends ProductTool>>() );
+		List<Class<? extends AbstractTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<Class<? extends AbstractTool>>() );
 		resourceTypeToolClasses.add( type );
 
 		log.debug( "Tool registered: resourceType={} -> tool={}", resourceType.getKey(), type.getName() );
 	}
 
-	public void unregisterTool( ResourceType resourceType, Class<? extends ProductTool> type ) {
+	public void unregisterTool( ResourceType resourceType, Class<? extends AbstractTool> type ) {
 		toolClassMetadata.remove( type );
 
-		List<Class<? extends ProductTool>> resourceTypeTools = resourceTypeToolClasses.get( resourceType );
+		List<Class<? extends AbstractTool>> resourceTypeTools = resourceTypeToolClasses.get( resourceType );
 		if( resourceTypeTools != null ) resourceTypeTools.remove( type );
 
 		log.debug( "Tool unregistered: resourceType={} -> tool={}", resourceType.getKey(), type.getName() );
 	}
 
-	public ProductTool getTool( Resource resource ) {
+	public AbstractTool getTool( Resource resource ) {
 		return getToolInstance( resource );
 	}
 
 	// FIXME Should openTool methods be in UiManager
-	public ProductTool openTool( Resource resource ) {
+	public AbstractTool openTool( Resource resource ) {
 		return openTool( resource, null, null );
 	}
 
-	public ProductTool openTool( Resource resource, Workpane pane ) {
+	public AbstractTool openTool( Resource resource, Workpane pane ) {
 		return openTool( resource, pane, null );
 	}
 
-	public ProductTool openTool( Resource resource, WorkpaneView view ) {
+	public AbstractTool openTool( Resource resource, WorkpaneView view ) {
 		return openTool( resource, view == null ? null : view.getWorkpane(), view );
 	}
 
-	public ProductTool openTool( Resource resource, WorkpaneView view, boolean setActive ) {
+	public AbstractTool openTool( Resource resource, WorkpaneView view, boolean setActive ) {
 		return openTool( resource, view == null ? null : view.getWorkpane(), view, null, setActive );
 	}
 
-	public ProductTool openTool( Resource resource, Workpane pane, WorkpaneView view ) {
+	public AbstractTool openTool( Resource resource, Workpane pane, WorkpaneView view ) {
 		return openTool( resource, pane, view, null, true );
 	}
 
-	public ProductTool openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends ProductTool> toolClass, boolean setActive ) {
+	public AbstractTool openTool( Resource resource, Workpane pane, WorkpaneView view, Class<? extends AbstractTool> toolClass, boolean setActive ) {
 		// The only thing that cannot be null is the resource
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
 
@@ -110,7 +111,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
 		// Create a tool if it is needed
-		ProductTool tool = null;
+		AbstractTool tool = null;
 		// If the instance mode is SINGLETON, check for an existing tool in the workpane
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolOfClassInPane( pane, toolClass );
 		boolean alreadyExists = tool != null;
@@ -148,7 +149,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return tool;
 	}
 
-	public ProductTool restoreTool( String toolClassName, Resource resource ) {
+	public AbstractTool restoreTool( String toolClassName, Resource resource ) {
 		// Run this class by the alias map
 		toolClassName = getToolClassName( toolClassName );
 
@@ -170,7 +171,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return getToolInstance( toolMetadata.getType(), resource, true );
 	}
 
-	private ToolInstanceMode getToolInstanceMode( Class<? extends ProductTool> toolClass ) {
+	private ToolInstanceMode getToolInstanceMode( Class<? extends AbstractTool> toolClass ) {
 		ToolInstanceMode instanceMode = null;
 		//if( instanceMode == null ) instanceMode = program.getSettings().getInstanceMode( toolClass );
 		if( instanceMode == null ) instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
@@ -178,9 +179,9 @@ public class ToolManager implements Controllable<ToolManager> {
 		return instanceMode;
 	}
 
-	private Class<? extends ProductTool> determineToolClassForResourceType( ResourceType resourceType ) {
-		Class<? extends ProductTool> toolClass = null;
-		List<Class<? extends ProductTool>> toolClasses = resourceTypeToolClasses.get( resourceType );
+	private Class<? extends AbstractTool> determineToolClassForResourceType( ResourceType resourceType ) {
+		Class<? extends AbstractTool> toolClass = null;
+		List<Class<? extends AbstractTool>> toolClasses = resourceTypeToolClasses.get( resourceType );
 		if( toolClasses == null ) {
 			// There are no registered tools for the resource type
 			log.warn( "No tools registered for resource type {}", resourceType.getKey() );
@@ -196,7 +197,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return toolClass;
 	}
 
-	public Product getToolProduct( ProductTool tool ) {
+	public Product getToolProduct( AbstractTool tool ) {
 		ToolMetadata data = toolClassMetadata.get( tool.getClass() );
 		return data == null ? null : data.getProduct();
 	}
@@ -252,7 +253,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
-	private ProductTool getToolInstance( Resource resource ) {
+	private AbstractTool getToolInstance( Resource resource ) {
 		ResourceType resourceType = resource.getType();
 		if( resourceType == null ) {
 			log.warn( "Resource type is null: " + resource );
@@ -260,15 +261,15 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		// TODO Replace this logic with getting the default tool for the type
-		List<Class<? extends ProductTool>> typeTools = resourceTypeToolClasses.get( resourceType );
+		List<Class<? extends AbstractTool>> typeTools = resourceTypeToolClasses.get( resourceType );
 		if( typeTools == null ) {
 			log.warn( "No toolClassMetadata registered for resource type: " + resourceType );
 			return null;
 		}
 
 		// Get the tool for the type
-		Class<? extends ProductTool> toolClass = typeTools.get( 0 );
-		ProductTool tool = getToolInstance( toolClass, resource, !resource.isNew() );
+		Class<? extends AbstractTool> toolClass = typeTools.get( 0 );
+		AbstractTool tool = getToolInstance( toolClass, resource, !resource.isNew() );
 		createToolSettings( tool );
 
 		if( tool == null ) {
@@ -285,22 +286,22 @@ public class ToolManager implements Controllable<ToolManager> {
 		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
 	}
 
-	private void createToolSettings( ProductTool tool ) {
+	private void createToolSettings( AbstractTool tool ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, IdGenerator.getId() );
 		settings.set( "type", tool.getClass().getName() );
 		settings.set( "uri", tool.getResource().getUri() );
 		tool.setSettings( settings );
 	}
 
-	private ProductTool getToolInstance( Class<? extends ProductTool> type, Resource resource, boolean waitForResourceReady ) {
+	private AbstractTool getToolInstance( Class<? extends AbstractTool> type, Resource resource, boolean waitForResourceReady ) {
 		if( !isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
 
 		// Have to have a ArtifactTool to support modules
 		try {
 			// Create the new tool instance
 			Product product = toolClassMetadata.get( type ).getProduct();
-			Constructor<? extends ProductTool> constructor = type.getConstructor( Product.class, Resource.class );
-			ProductTool tool = constructor.newInstance( product, resource );
+			Constructor<? extends AbstractTool> constructor = type.getConstructor( Product.class, Resource.class );
+			AbstractTool tool = constructor.newInstance( product, resource );
 
 			// The getToolInstance() method should have been called from a
 			// Callable class on a task manager thread, usually from
@@ -319,9 +320,9 @@ public class ToolManager implements Controllable<ToolManager> {
 		return null;
 	}
 
-	private ProductTool findToolOfClassInPane( Workpane pane, Class<? extends Tool> type ) {
+	private AbstractTool findToolOfClassInPane( Workpane pane, Class<? extends Tool> type ) {
 		for( Tool paneTool : pane.getTools() ) {
-			if( type == paneTool.getClass() ) return (ProductTool)paneTool;
+			if( type == paneTool.getClass() ) return (AbstractTool)paneTool;
 		}
 		return null;
 	}

@@ -1,6 +1,5 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.xenon.ProductTool;
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
@@ -12,7 +11,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
-public class GuideTool extends ProductTool {
+public class GuideTool extends AbstractTool {
 
 	private TreeView guideView;
 

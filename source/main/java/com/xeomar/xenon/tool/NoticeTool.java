@@ -1,11 +1,10 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.xenon.ProductTool;
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 
-public class NoticeTool extends ProductTool {
+public class NoticeTool extends AbstractTool {
 
 	public NoticeTool( Product product, Resource resource ) {
 		super( product, resource );

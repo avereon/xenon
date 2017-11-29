@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.ProductTool;
+import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
@@ -18,7 +18,7 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SettingsTool extends ProductTool {
+public class SettingsTool extends AbstractTool {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsTool.class );
 

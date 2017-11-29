@@ -3,7 +3,6 @@ package com.xeomar.xenon.tool;
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
-import com.xeomar.xenon.ProductTool;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
 import javafx.beans.value.ChangeListener;
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-public class ArtifactTool extends ProductTool {
+public class ArtifactTool extends AbstractTool {
 
 	private static final Logger log = LoggerFactory.getLogger( ArtifactTool.class );
 
