@@ -197,4 +197,12 @@ public class ResourceManagerTest extends ProgramTestCase {
 		assertThat( codecs, equalTo( type.getCodecs() ) );
 	}
 
+	@Test
+	public void testScoreUriMatch() {
+		assertThat( manager.scoreUriMatch( URI.create( "program:about#detail" ), URI.create( "program:about#detail" ) ), is( 3 ) );
+		assertThat( manager.scoreUriMatch( URI.create( "program:about#detail" ), URI.create( "program:about" ) ), is( 2 ) );
+		assertThat( manager.scoreUriMatch( URI.create( "program:about" ), URI.create( "program:about" ) ), is( 2 ) );
+
+		assertThat( manager.scoreUriMatch( URI.create( "/tmp/test" ), URI.create( "/tmp/test" ) ), is( 2 ) );
+	}
 }

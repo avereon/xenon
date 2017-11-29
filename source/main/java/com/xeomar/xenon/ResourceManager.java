@@ -879,29 +879,110 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private ResourceType findMatchingUriResourceType( URI uri ) {
-		List<URI> typeUris = new ArrayList<>(uriResourceTypes.keySet());
+		List<URI> typeUris = new ArrayList<>( uriResourceTypes.keySet() );
 
-		// Sort the uris in reverse order
-		Collections.sort( typeUris );
+		// Sort the uris in reverse order to compare the most specific first
+		typeUris.sort( Collections.reverseOrder() );
+
+		System.out.println( "Find match for: " + uri );
 
 		// NEXT Finish implementation of matching resource URIs
-//		for( String uriResourceKey : uriResourceTypes.keySet() ) {
-//			try {
-//				URI keyUri = new URI( uriResourceKey );
-//
-//				if( uri.isOpaque() ) {
-//					// Match the scheme,
-//				}
-//				boolean schemeMatch = Objects.equals( keyUri.getScheme(), uri.getScheme() );
-//				boolean hostMatch = Objects.equals( keyUri.getHost(), uri.getHost() );
-//				boolean
-//			} catch( URISyntaxException exception ) {
-//				// If the key URI syntax is bad, it is not usable
-//				log.warn( "Unusable resource type URI: " + uriResourceKey, exception );
-//			}
-//		}
+		for( URI typeUri : typeUris ) {
+			System.out.println( "Check " + typeUri + ": " + scoreUriMatch( uri, typeUri ) );
+			//			try {
+			//				URI keyUri = new URI( uriResourceKey );
+			//
+			//				if( uri.isOpaque() ) {
+			//					// Match the scheme,
+			//				}
+			//				boolean schemeMatch = Objects.equals( keyUri.getScheme(), uri.getScheme() );
+			//				boolean hostMatch = Objects.equals( keyUri.getHost(), uri.getHost() );
+			//				boolean
+			//			} catch( URISyntaxException exception ) {
+			//				// If the key URI syntax is bad, it is not usable
+			//				log.warn( "Unusable resource type URI: " + uriResourceKey, exception );
+			//			}
+		}
 
 		return uriResourceTypes.get( uri );
+	}
+
+	/**
+	 * Get a match score comparing a with b.
+	 *
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	int scoreUriMatch( URI a, URI b ) {
+		int score = 0;
+		if( a.getScheme() != null ) {
+			if( Objects.equals( a.getScheme(), b.getScheme() ) ) {
+				score+=2;
+			} else {
+				return score;
+			}
+		}
+
+		// Score is 1 just for matching the scheme
+
+		if( a.isOpaque() ) {
+			if( Objects.equals( a.getSchemeSpecificPart(), b.getSchemeSpecificPart() ) ) {
+				score++;
+			} else {
+				return score;
+			}
+			if( Objects.equals( a.getFragment(), b.getFragment() ) ) {
+				score++;
+			} else {
+				return score;
+			}
+			return score;
+		}
+
+		if( Objects.equals( a.getUserInfo(), b.getUserInfo() ) ) {
+			score++;
+		} else {
+			return score;
+		}
+
+		if( Objects.equals( a.getHost(), b.getHost() ) ) {
+			score++;
+		} else {
+			return score;
+		}
+
+		if( Objects.equals( a.getPort(), b.getPort() ) ) {
+			score++;
+		} else {
+			return score;
+		}
+
+		if( Objects.equals( a.getPath(), b.getPath() ) ) {
+			score++;
+		} else if(b.getPath().startsWith( a.getPath() )) {
+			score++;
+			return score;
+		} else {
+			return score;
+		}
+
+		if( Objects.equals( a.getQuery(), b.getQuery() ) ) {
+			score++;
+		} else if(b.getQuery().startsWith( a.getQuery() )) {
+			score++;
+			return score;
+		} else {
+			return score;
+		}
+
+		if( Objects.equals( a.getFragment(), b.getFragment() ) ) {
+			score++;
+		} else {
+			return score;
+		}
+
+		return score;
 	}
 
 	/**

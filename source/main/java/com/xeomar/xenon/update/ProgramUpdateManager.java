@@ -221,7 +221,8 @@ public class ProgramUpdateManager extends UpdateManager {
 								// NEXT Create and use the product tool to select updates
 								System.out.println( "Show the product tool" );
 								try {
-									Resource productResource = program.getResourceManager().createResource( ProgramProductType.uri + "#update" );
+									//Resource productResource = program.getResourceManager().createResource( ProgramProductType.uri + "#update" );
+									Resource productResource = program.getResourceManager().createResource( ProgramProductType.uri );
 									program.getResourceManager().openResourcesAndWait( productResource );
 									program.getToolManager().openTool( productResource );
 								} catch( ExecutionException exception ) {

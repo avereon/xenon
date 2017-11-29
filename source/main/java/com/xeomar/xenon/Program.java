@@ -630,6 +630,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriResourceType( ProgramWelcomeType.uri, new ProgramWelcomeType( this ) );
 		manager.registerUriResourceType( ProgramNoticeType.uri, new ProgramNoticeType( this ) );
 		manager.registerUriResourceType( ProgramProductType.uri, new ProgramProductType( this ) );
+		manager.registerUriResourceType( URI.create( ProgramProductType.uri.toString( ) + "#update" ), new ProgramProductType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
