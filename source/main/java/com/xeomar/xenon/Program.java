@@ -373,10 +373,6 @@ public class Program extends Application implements ProgramProduct {
 		event.fire( listeners );
 	}
 
-	protected void finalize() {
-		removeEventListener( watcher );
-	}
-
 	private static void time( String markerName ) {
 		//System.err.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}

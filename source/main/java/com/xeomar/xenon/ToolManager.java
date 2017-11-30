@@ -113,7 +113,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Create a tool if it is needed
 		AbstractTool tool = null;
 		// If the instance mode is SINGLETON, check for an existing tool in the workpane
-		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolOfClassInPane( pane, toolClass );
+		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolInPane( pane, toolClass );
 		boolean alreadyExists = tool != null;
 		if( !alreadyExists ) {
 			tool = getToolInstance( toolClass, resource, !resource.isNew() );
@@ -320,9 +320,9 @@ public class ToolManager implements Controllable<ToolManager> {
 		return null;
 	}
 
-	private AbstractTool findToolOfClassInPane( Workpane pane, Class<? extends Tool> type ) {
+	private AbstractTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
 		for( Tool paneTool : pane.getTools() ) {
-			if( type == paneTool.getClass() ) return (AbstractTool)paneTool;
+			if( paneTool.getClass() == type ) return (AbstractTool)paneTool;
 		}
 		return null;
 	}

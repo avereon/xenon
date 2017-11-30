@@ -5,27 +5,22 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-public class ArtifactTool extends AbstractTool {
+public class ArtifactTool extends GuidedTool {
 
 	private static final Logger log = LoggerFactory.getLogger( ArtifactTool.class );
 
 	private Button refresh;
 
 	private Button apply;
-
-	private GuideListener guideListener = new GuideListener();
 
 	public ArtifactTool( Product product, Resource resource ) {
 		super( product, resource );
@@ -36,60 +31,59 @@ public class ArtifactTool extends AbstractTool {
 
 	@Override
 	protected void allocate() throws ToolException {
+		super.allocate();
 		log.debug( "Artifact tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
 		log.debug( "Artifact tool display" );
+		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
 		log.debug( "Artifact tool activate" );
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.setActive( true );
+		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
 		log.debug( "Artifact tool deactivate" );
+		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		log.debug( "Artifact tool conceal" );
-		((Guide)getResource().getResource( Guide.GUIDE_KEY )).setActive( false );
+		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
 		log.debug( "Artifact tool deallocate" );
+		super.deallocate();
 	}
 
 	@Override
 	protected void resourceReady() throws ToolException {
 		log.debug( "Artifact tool resource ready" );
-
-		// Register the guide selection listener
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().removeListener( guideListener );
-		guide.selectedItemProperty().addListener( guideListener );
-
+		super.resourceReady();
 		resourceRefreshed();
 	}
 
 	@Override
-	public void resourceRefreshed() {
+	public void resourceRefreshed() throws ToolException {
+		super.resourceRefreshed();
 	}
 
 	public void setPostedUpdates( Set<ProductCard> postedUpdates ) {
 		log.error( "ArtifactTool.setPostedUpdates() called: " + postedUpdates.size() );
 	}
 
-	private void selectItem( TreeItem<GuideNode> item ) {
-		if( item == null ) return;
-		selectPage( item.getValue().getId() );
+	@Override
+	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
+		if( newNode != null ) selectPage( newNode.getId() );
 	}
 
 	private void selectPage( String page ) {
@@ -115,15 +109,6 @@ public class ArtifactTool extends AbstractTool {
 			title = new Label( product.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + page ) );
 
 			getChildren().addAll( title );
-		}
-
-	}
-
-	private class GuideListener implements ChangeListener<TreeItem<GuideNode>> {
-
-		@Override
-		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
-			selectItem( newSelection );
 		}
 
 	}

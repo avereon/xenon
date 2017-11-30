@@ -12,7 +12,6 @@ import com.xeomar.xenon.workarea.ToolException;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AboutTool extends AbstractTool {
+public class AboutTool extends GuidedTool {
 
 	private static final Logger log = LoggerFactory.getLogger( AboutTool.class );
 
@@ -95,50 +94,49 @@ public class AboutTool extends AbstractTool {
 	@Override
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
+		super.allocate();
 	}
 
 	@Override
 	protected void display() throws ToolException {
 		log.debug( "Tool display" );
+		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
 		log.debug( "Tool activate" );
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.setActive( true );
+		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
 		log.debug( "Tool deactivate" );
+		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		log.debug( "Tool conceal" );
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.setActive( false );
+		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
 		log.debug( "Tool deallocate" );
+		super.deallocate();
 	}
 
 	@Override
 	protected void resourceReady() throws ToolException {
-		log.debug( "Resource ready" );
-
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( observable, oldSelection, newSelection ) -> selectedPage( newSelection ) );
-
+		super.resourceReady();
 		resourceRefreshed();
 		selectedPage( SUMMARY );
 	}
 
 	@Override
-	protected void resourceRefreshed() {
+	protected void resourceRefreshed() throws ToolException {
+		super.resourceRefreshed();
 		ProductCard metadata = getResource().getModel();
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );
@@ -409,9 +407,9 @@ public class AboutTool extends AbstractTool {
 		return builder.toString();
 	}
 
-	private void selectedPage( TreeItem<GuideNode> item ) {
-		if( item == null ) return;
-		selectedPage( item.getValue().getId() );
+	@Override
+	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
+		if( newNode != null ) selectedPage( newNode.getId() );
 	}
 
 	private void selectedPage( String item ) {
