@@ -4,7 +4,6 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.TextUtil;
-import com.xeomar.xenon.ResourceManager;
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
@@ -81,6 +80,10 @@ public class Resource extends Node implements Configurable {
 	}
 
 	public Resource( ResourceType type, URI uri ) {
+		this( type, uri, null, null );
+	}
+
+	public Resource( ResourceType type, URI uri, String uriQuery, String uriFragment ) {
 		if( type == null && uri == null ) throw new RuntimeException( "The type and uri cannot both be null." );
 
 		setType( type );

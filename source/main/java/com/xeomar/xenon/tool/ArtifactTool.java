@@ -69,6 +69,7 @@ public class ArtifactTool extends GuidedTool {
 	protected void resourceReady() throws ToolException {
 		log.debug( "Artifact tool resource ready" );
 		super.resourceReady();
+		System.out.println( "Artifact tool resource URI: " + getResource().getUri() );
 		resourceRefreshed();
 	}
 
@@ -97,8 +98,6 @@ public class ArtifactTool extends GuidedTool {
 		getChildren().add( scroller );
 	}
 
-	// TODO Register a listener to listen for updates available events
-
 	private class ArtifactPanel extends Pane {
 
 		private Label title;
@@ -107,6 +106,7 @@ public class ArtifactTool extends GuidedTool {
 			setId( "tool-artifact-panel" );
 
 			title = new Label( product.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + page ) );
+			title.setId( "tool-artifact-page-header" );
 
 			getChildren().addAll( title );
 		}

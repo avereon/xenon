@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.xeomar.xenon.resource.ResourceManager;
 import org.junit.Assert;
 import org.junit.Test;
 

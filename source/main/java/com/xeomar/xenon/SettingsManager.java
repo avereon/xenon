@@ -109,22 +109,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( settingsPages );
 
 		// Get the settings program resource
-		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.uri );
 		try {
+			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.uri );
 			program.getResourceManager().openResourcesAndWait( settingsResource );
+
+			// Get the resource guide
+			Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
+			if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
+
+			// Get the guide root node
+			TreeItem<GuideNode> root = guide.getRoot();
+			if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
+
+			addChildNodes( root, pages );
 		} catch( Exception exception ) {
 			log.error( "Error getting settings resource", exception );
 		}
-
-		// Get the resource guide
-		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
-		if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
-
-		// Get the guide root node
-		TreeItem<GuideNode> root = guide.getRoot();
-		if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
-
-		addChildNodes( root, pages );
 	}
 
 	private void addChildNodes( TreeItem<GuideNode> root, Map<String, SettingsPage> pages ) {

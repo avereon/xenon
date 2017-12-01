@@ -1,6 +1,6 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.resource;
 
-import com.xeomar.xenon.resource.*;
+import com.xeomar.xenon.ProgramTestCase;
 import com.xeomar.xenon.resource.event.ResourceClosedEvent;
 import com.xeomar.xenon.resource.event.ResourceLoadedEvent;
 import com.xeomar.xenon.resource.event.ResourceOpenedEvent;
@@ -47,7 +47,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testCreateResourceWithUri() {
+	public void testCreateResourceWithUri() throws Exception {
 		URI uri = URI.create( "mock:///home/user/temp/test.txt" );
 		Resource resource = manager.createResource( uri );
 		assertThat( resource.getScheme(), is( manager.getScheme( "mock" ) ) );
@@ -56,7 +56,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testCreateResourceWithString() {
+	public void testCreateResourceWithString() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		assertThat( resource.getScheme(), is( manager.getScheme( "mock" ) ) );
@@ -183,14 +183,14 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testAutoDetectResourceTypeWithOpaqueUri() {
+	public void testAutoDetectResourceTypeWithOpaqueUri() throws Exception {
 		Resource resource = manager.createResource( URI.create( "mock:test" ) );
 		manager.autoDetectResourceType( resource );
 		assertThat( resource.getType(), instanceOf( MockResourceType.class ) );
 	}
 
 	@Test
-	public void testAutoDetectCodecs() {
+	public void testAutoDetectCodecs() throws Exception {
 		ResourceType type = manager.getResourceType( "mock" );
 		Resource resource = manager.createResource( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( resource );

@@ -1,11 +1,12 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.resource;
 
 import com.xeomar.util.*;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
-import com.xeomar.xenon.resource.*;
 import com.xeomar.xenon.resource.event.*;
 import com.xeomar.xenon.task.Task;
+import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.event.Event;
@@ -22,10 +23,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 // FIXME Add Configurable interface to this class
 public class ResourceManager implements Controllable<ResourceManager> {
@@ -344,7 +342,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		schemeResourceTypes.remove( scheme );
 	}
 
-	public void open( URI uri ) {
+	public void open( URI uri ) throws ResourceException {
 		open( createResource( uri ) );
 	}
 
@@ -402,6 +400,66 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 */
 	public void open( Collection<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) {
 		program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool, setActive ) );
+	}
+
+	public AbstractTool openAndWait( URI uri )  throws ResourceException, ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( createResource( uri ) );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public AbstractTool openAndWait( Resource resource ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( resource, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public AbstractTool openAndWait( Resource resource, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( resource, openTool, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public AbstractTool openAndWait( Resource resource, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( Collections.singletonList( resource ), null, openTool, setActive ).iterator().next();
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public Collection<AbstractTool> openAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( resources, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, WorkpaneView view ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( resources, view, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( resources, null, openTool );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, WorkpaneView view, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
+		return openAndWait( resources, view, openTool, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
+		return program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool, setActive ) ).get( 1, TimeUnit.SECONDS );
 	}
 
 	/**
@@ -594,7 +652,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param string A resource string
 	 * @return A new resource based on the specified string.
 	 */
-	public Resource createResource( String string ) {
+	public Resource createResource( String string ) throws ResourceException {
 		if( string == null ) return null;
 
 		URI uri = UriUtil.resolve( string );
@@ -613,7 +671,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param uri The URI to create a resource from
 	 * @return The resource created from the URI
 	 */
-	public Resource createResource( URI uri ) {
+	public Resource createResource( URI uri ) throws ResourceException {
 		return doCreateResource( null, uri );
 	}
 
@@ -623,7 +681,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param file The file to create a resource from
 	 * @return The resource created from the file
 	 */
-	public Resource createResource( File file ) {
+	public Resource createResource( File file ) throws ResourceException {
 		return doCreateResource( null, file.toURI() );
 	}
 
@@ -633,7 +691,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param type The resource type to create a resource from
 	 * @return The resource created from the resource type
 	 */
-	public Resource createResource( ResourceType type ) {
+	public Resource createResource( ResourceType type ) throws ResourceException {
 		return doCreateResource( type, null );
 	}
 
@@ -643,7 +701,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param descriptors The descriptors from which to create resources
 	 * @return The list of resources created from the descriptors
 	 */
-	public List<Resource> createResources( Object... descriptors ) {
+	public Collection<Resource> createResources( Object... descriptors ) throws ResourceException {
 		return createResources( Arrays.asList( descriptors ) );
 	}
 
@@ -653,7 +711,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param descriptors The descriptors from which to create resources
 	 * @return The list of resources created from the descriptors
 	 */
-	public List<Resource> createResources( Collection<? extends Object> descriptors ) {
+	public Collection<Resource> createResources( Collection<?> descriptors ) throws ResourceException {
 		List<Resource> resources = new ArrayList<>( descriptors.size() );
 
 		for( Object descriptor : descriptors ) {
@@ -716,8 +774,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 *
 	 * @param resource The resource to load
 	 */
-	public void loadResources( Resource resource ) {
-		loadResources( Collections.singletonList( resource ) );
+	public Future<Collection<Resource>> loadResources( Resource resource ) {
+		return loadResources( Collections.singletonList( resource ) );
 	}
 
 	/**
@@ -725,8 +783,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 *
 	 * @param resources The resources to load
 	 */
-	public void loadResources( Collection<Resource> resources ) {
-		program.getExecutor().submit( new LoadResourceTask( resources ) );
+	public Future<Collection<Resource>> loadResources( Collection<Resource> resources ) {
+		return program.getExecutor().submit( new LoadResourceTask( resources ) );
 	}
 
 	/**
@@ -1009,22 +1067,29 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The resource created from the resource type and URI
 	 */
 	// FIXME Should throw ResourceException
-	private Resource doCreateResource( ResourceType type, URI uri ) {
-		Resource resource = new Resource( type, uri );
+	private Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
+		Resource resource;
+		URI cleanUri = UriUtil.cleanUri( uri );
+		if( uri == null ) {
+			resource = new Resource( type );
+		} else {
+			resource = new Resource( type, cleanUri, uri.getQuery(), uri.getFragment() );
+		}
 
-		if( uri != null ) {
+		if( cleanUri != null ) {
+			// FIXME Store open resources in a map for faster access
 			// If the resource is already open, use it instead
 			for( Resource open : openResources ) {
-				if( open.getUri().equals( uri ) ) return open;
+				if( open.getUri().equals( cleanUri ) ) return open;
 			}
 
-			try {
-				Scheme scheme = getScheme( uri.getScheme() );
+			//try {
+				Scheme scheme = getScheme( cleanUri.getScheme() );
 				resource.setScheme( scheme );
 				scheme.init( resource );
-			} catch( ResourceException exception ) {
-				log.error( "Error initializing resource scheme", exception );
-			}
+//			} catch( ResourceException exception ) {
+//				log.error( "Error initializing resource scheme", exception );
+//			}
 		}
 
 		return resource;
@@ -1279,7 +1344,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	// TODO The OpenActionTask class name is not the best...
 	// but there are other classes with the expected name
-	private class OpenActionTask extends Task<Void> {
+	private class OpenActionTask extends Task<Collection<AbstractTool>> {
 
 		private Collection<Resource> resources;
 
@@ -1300,7 +1365,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public Void call() throws Exception {
+		public Collection<AbstractTool> call() throws Exception {
+			Collection<AbstractTool> tools = new HashSet<AbstractTool>();
+
 			for( Resource resource : resources ) {
 				log.trace( "Open resource: ", resource.getUri() );
 
@@ -1320,11 +1387,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					continue;
 				}
 
-				if( openTool ) program.getToolManager().openTool( resource, view, setActive );
+				if( openTool ) tools.add( program.getToolManager().openTool( resource, view, setActive ) );
 				setCurrentResource( resource );
 			}
 
-			return null;
+			return tools;
 		}
 
 	}

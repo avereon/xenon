@@ -1,12 +1,14 @@
 package com.xeomar.xenon.update;
 
 import com.xeomar.product.ProductCard;
-import com.xeomar.xenon.*;
-import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.BundleKey;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramParameter;
+import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
-import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.tool.ArtifactTool;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -14,6 +16,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -218,19 +221,12 @@ public class ProgramUpdateManager extends UpdateManager {
 
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
 								program.getExecutor().submit( () -> {
-									Resource resource = program.getResourceManager().createResource( ProgramArtifactType.uri + "#update" );
 									try {
-										program.getResourceManager().loadResourcesAndWait( resource );
-										// FIXME ToolManager did not stop me from getting two tools
-										// Or maybe resource manager didn't
-										AbstractTool tool = program.getToolManager().openTool( resource );
-										program.getResourceManager().open( resource );
+										URI uri = URI.create( ProgramArtifactType.uri + "#update" );
+										Tool tool = program.getResourceManager().openAndWait( uri );
 										((ArtifactTool)tool).setPostedUpdates( postedUpdates );
-										program.getResourceManager().setCurrentResource( resource );
-									} catch( ExecutionException exception ) {
-										log.error( "Error loading program artifact tool resource", exception );
-									} catch( InterruptedException exception ) {
-										log.error( "Interruption loading program artifact tool resource", exception );
+									} catch( Exception exception ) {
+										log.error( "Error opening artifact tool ", exception );
 									}
 								} );
 							}

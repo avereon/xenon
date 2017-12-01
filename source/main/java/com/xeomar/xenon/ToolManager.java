@@ -6,6 +6,7 @@ import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.task.TaskThread;
 import com.xeomar.xenon.tool.AbstractTool;
@@ -130,7 +131,11 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Now that we have a tool...open dependent tools
 		for( URI dependency : tool.getResourceDependencies() ) {
-			program.getResourceManager().open( program.getResourceManager().createResource( dependency ), true, false );
+			try {
+				program.getResourceManager().open( program.getResourceManager().createResource( dependency ), true, false );
+			} catch( ResourceException exception ) {
+				log.error( "Error opening dependency: " + dependency, exception );
+			}
 		}
 
 		// Determine the placement override

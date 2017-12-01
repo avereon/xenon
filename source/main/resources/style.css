@@ -53,6 +53,10 @@
 }
 
 /* Tools */
+.tool {
+	-fx-background-color: -ex-background-text
+}
+
 .tool .tree-view {
 	-fx-background-color: -ex-background-text;
 }
@@ -92,16 +96,12 @@
 	-fx-opacity: 0.3;
 }
 
-#tool-about {
-	-fx-background-color: -ex-background-text
-}
-
 #tool-about .text-area {
 	-fx-background-color: transparent;
 }
 
-#tool-settings {
-	-fx-background-color: -ex-background-text
+#tool-artifact-page-header {
+	-fx-font-size: 2.5em;
 }
 
 #tool-welcome {
