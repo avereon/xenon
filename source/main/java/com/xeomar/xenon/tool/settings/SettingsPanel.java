@@ -193,7 +193,7 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void eventOccurred( SettingsEvent event ) {
+		public void handleEvent( SettingsEvent event ) {
 			if( this.key == null ) return;
 			if( key.equals( event.getKey() ) ) group.updateState();
 		}
@@ -212,7 +212,7 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void eventOccurred( SettingsEvent event ) {
+		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
 			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
@@ -284,11 +284,11 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void eventOccurred( SettingsEvent event ) {
+		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
 
 			// Forward the event to the editor
-			editor.eventOccurred( event );
+			editor.handleEvent( event );
 		}
 
 	}

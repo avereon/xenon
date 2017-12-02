@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.*;
@@ -370,36 +371,45 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources ) {
+	public void open( List<Resource> resources ) {
 		open( resources, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources, WorkpaneView view ) {
+	public void open( List<Resource> resources, WorkpaneView view ) {
 		open( resources, view, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources, boolean openTool ) {
+	public void open( List<Resource> resources, boolean openTool ) {
 		open( resources, null, openTool );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources, WorkpaneView view, boolean openTool ) {
+	public void open( List<Resource> resources, WorkpaneView view, boolean openTool ) {
 		open( resources, view, openTool, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Collection<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) {
-		program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool, setActive ) );
+	private List<Future<AbstractTool>> open( List<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) {
+		List<Future<AbstractTool>> futures = new ArrayList<>( resources.size() );
+
+		for( Resource resource : resources ) {
+			OpenResourceRequest request = new OpenResourceRequest().setResource( resource ).setView( view ).setOpenTool( openTool ).setSetActive( setActive );
+			OpenActionTask task = new OpenActionTask( request );
+			futures.add( program.getExecutor().submit( task ) );
+			setActive = false;
+		}
+
+		return futures;
 	}
 
 	public AbstractTool openAndWait( URI uri ) throws ResourceException, ExecutionException, InterruptedException, TimeoutException {
@@ -424,42 +434,48 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public AbstractTool openAndWait( Resource resource, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( Collections.singletonList( resource ), null, openTool, setActive ).iterator().next();
+		return openAndWait( Collections.singletonList( resource ), null, openTool, setActive ).get( 0 );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Collection<AbstractTool> openAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException, TimeoutException {
+	public List<AbstractTool> openAndWait( List<Resource> resources ) throws ExecutionException, InterruptedException, TimeoutException {
 		return openAndWait( resources, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, WorkpaneView view ) throws ExecutionException, InterruptedException, TimeoutException {
+	public List<AbstractTool> openAndWait( List<Resource> resources, WorkpaneView view ) throws ExecutionException, InterruptedException, TimeoutException {
 		return openAndWait( resources, view, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
+	public List<AbstractTool> openAndWait( List<Resource> resources, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
 		return openAndWait( resources, null, openTool );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, WorkpaneView view, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
+	public List<AbstractTool> openAndWait( List<Resource> resources, WorkpaneView view, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
 		return openAndWait( resources, view, openTool, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Collection<AbstractTool> openAndWait( Collection<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
-		return program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool, setActive ) ).get( 1, TimeUnit.SECONDS );
+	public List<AbstractTool> openAndWait( List<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
+		List<AbstractTool> tools = new ArrayList<>( resources.size() );
+
+		for( Future<AbstractTool> future : open( resources, view, openTool, setActive ) ) {
+			tools.add( future.get( 1, TimeUnit.SECONDS ) );
+		}
+
+		return tools;
 	}
 
 	/**
@@ -941,7 +957,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private ResourceType findMatchingUriResourceType( URI uri ) {
-		return uriResourceTypes.get( UriUtil.cleanUri( uri ) );
+		return uriResourceTypes.get( toResourceUri( uri ) );
 	}
 
 	/**
@@ -1067,30 +1083,48 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The resource created from the resource type and URI
 	 */
 	private Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
+		// The query and fragment should not be part of the resource
+		uri = toResourceUri( uri );
+
 		Resource resource;
-		URI cleanUri = UriUtil.cleanUri( uri );
 		if( uri == null ) {
 			resource = new Resource( type );
 		} else {
-			resource = new Resource( type, cleanUri, uri.getQuery(), uri.getFragment() );
-		}
-
-		if( cleanUri != null ) {
+			resource = new Resource( type, uri );
 			// FIXME Store open resources in a map for faster access
 			// If the resource is already open, use it instead
 			// Can't do that because openResources can have unsaved resources
 			// which don't have a URI.
 			for( Resource open : openResources ) {
-				if( open.getUri().equals( cleanUri ) ) return open;
+				if( open.getUri().equals( uri ) ) return open;
 			}
 
-			Scheme scheme = getScheme( cleanUri.getScheme() );
+			Scheme scheme = getScheme( uri.getScheme() );
 			resource.setScheme( scheme );
 			scheme.init( resource );
 		}
 
 		return resource;
 	}
+
+	static URI toResourceUri( URI uri ) {
+		if( uri == null ) return null;
+
+		// Return a URI without query or fragment data
+		try {
+			if( uri.isOpaque() ) {
+				return new URI( uri.getScheme(), uri.getSchemeSpecificPart(), null );
+			} else {
+				return new URI( uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null );
+			}
+		} catch( URISyntaxException exception ) {
+			// Intentionally ignore exception - should never happen
+			exception.printStackTrace( System.err );
+		}
+		return null;
+	}
+
+
 
 	private boolean doOpenResource( Resource resource ) throws ResourceException {
 		if( isResourceOpen( resource ) ) return true;
@@ -1342,54 +1376,42 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	// TODO The OpenActionTask class name is not the best...
 	// but there are other classes with the expected name
-	private class OpenActionTask extends Task<Collection<AbstractTool>> {
+	private class OpenActionTask extends Task<AbstractTool> {
 
-		private Collection<Resource> resources;
+		private OpenResourceRequest request;
 
-		private Codec codec;
-
-		private WorkpaneView view;
-
-		private boolean openTool;
-
-		private boolean setActive;
-
-		private OpenActionTask( Collection<Resource> resources, Codec codec, WorkpaneView view, boolean openTool, boolean setActive ) {
-			this.resources = resources;
-			this.codec = codec;
-			this.view = view;
-			this.openTool = openTool;
-			this.setActive = setActive;
+		public OpenActionTask( OpenResourceRequest request ) {
+			this.request = request;
 		}
 
 		@Override
-		public Collection<AbstractTool> call() throws Exception {
-			Collection<AbstractTool> tools = new HashSet<AbstractTool>();
+		public AbstractTool call() throws Exception {
+			Resource resource = request.getResource();
+			log.trace( "Open resource: ", resource.getUri() );
 
-			for( Resource resource : resources ) {
-				log.trace( "Open resource: ", resource.getUri() );
+			boolean openTool = request.isOpenTool() || !isResourceOpen( resource );
+			Codec codec = request.getCodec();
 
-				boolean openTool = this.openTool || !isResourceOpen( resource );
+			try {
+				if( codec != null ) resource.setCodec( codec );
 
-				try {
-					if( codec != null ) resource.setCodec( codec );
+				// Open the resource
+				openResourcesAndWait( resource );
+				if( !resource.isOpen() ) return null;
 
-					// Open the resource
-					openResourcesAndWait( resource );
-					if( !resource.isOpen() ) continue;
-
-					// Start loading the resource, but don't wait
-					if( !resource.isLoaded() ) loadResources( resource );
-				} catch( Exception exception ) {
-					program.getNotifier().error( exception );
-					continue;
-				}
-
-				if( openTool ) tools.add( program.getToolManager().openTool( resource, view, setActive ) );
-				setCurrentResource( resource );
+				// Start loading the resource, but don't wait
+				if( !resource.isLoaded() ) loadResources( resource );
+			} catch( Exception exception ) {
+				program.getNotifier().error( exception );
+				return null;
 			}
 
-			return tools;
+			AbstractTool tool = null;
+			if( openTool ) tool = program.getToolManager().openTool( resource, request.getView(), request.isSetActive() );
+
+			setCurrentResource( resource );
+
+			return tool;
 		}
 
 	}

@@ -14,7 +14,7 @@ public class ProgramWatcher implements ProductEventListener {
 	private Queue<ProductEvent> events = new ConcurrentLinkedQueue<>();
 
 	@Override
-	public synchronized void eventOccurred( ProductEvent event ) {
+	public synchronized void handleEvent( ProductEvent event ) {
 		events.offer( event );
 		notifyAll();
 	}

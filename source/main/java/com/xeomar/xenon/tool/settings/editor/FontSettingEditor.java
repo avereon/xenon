@@ -59,7 +59,7 @@ public class FontSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void eventOccurred( SettingsEvent event ) {
+	public void handleEvent( SettingsEvent event ) {
 		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) updateFont( event.getNewValue() );
 	}
 

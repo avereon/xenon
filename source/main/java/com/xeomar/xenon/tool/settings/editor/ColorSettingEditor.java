@@ -64,7 +64,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	}
 
 	@Override
-	public void eventOccurred( SettingsEvent event ) {
+	public void handleEvent( SettingsEvent event ) {
 		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue() ) );
 	}
 

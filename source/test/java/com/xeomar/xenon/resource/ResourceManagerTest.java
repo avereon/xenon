@@ -1,5 +1,6 @@
 package com.xeomar.xenon.resource;
 
+import com.xeomar.util.UriUtil;
 import com.xeomar.xenon.ProgramTestCase;
 import com.xeomar.xenon.resource.event.ResourceClosedEvent;
 import com.xeomar.xenon.resource.event.ResourceLoadedEvent;
@@ -195,6 +196,14 @@ public class ResourceManagerTest extends ProgramTestCase {
 		Resource resource = manager.createResource( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( resource );
 		assertThat( codecs, equalTo( type.getCodecs() ) );
+	}
+
+	@Test
+	public void testToResourceUri() throws Exception {
+			assertThat( ResourceManager.toResourceUri( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
+			assertThat( ResourceManager.toResourceUri( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
+			assertThat( ResourceManager.toResourceUri( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );
+			assertThat( ResourceManager.toResourceUri( URI.create( "relative/path?query#fragment" ) ), is( URI.create( "relative/path" ) ) );
 	}
 
 }

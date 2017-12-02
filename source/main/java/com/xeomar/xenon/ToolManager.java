@@ -1,10 +1,10 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.Product;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
-import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
@@ -275,7 +275,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Get the tool for the type
 		Class<? extends AbstractTool> toolClass = typeTools.get( 0 );
 		AbstractTool tool = getToolInstance( toolClass, resource, !resource.isNew() );
-		createToolSettings( tool );
 
 		if( tool == null ) {
 			log.warn( "Tool not found for resource: {}", resource );
@@ -308,14 +307,21 @@ public class ToolManager implements Controllable<ToolManager> {
 			Constructor<? extends AbstractTool> constructor = type.getConstructor( Product.class, Resource.class );
 			AbstractTool tool = constructor.newInstance( product, resource );
 
-			// The getToolInstance() method should have been called from a
-			// Callable class on a task manager thread, usually from
-			// ResourceManager.OpenActionTask. That means the calling thread
-			// can wait a bit for the resource to be ready.
+			createToolSettings( tool );
+
 			if( waitForResourceReady ) {
-				// Wait for the resource to be "ready", then notify the tool
-				resource.waitForReady( 10, TimeUnit.SECONDS );
-				tool.callResourceReady();
+				// The getToolInstance() method should have been called from a
+				// Callable class on a task manager thread, usually from
+				// ResourceManager.OpenActionTask. That means the calling thread
+				// can wait a bit for the resource to be ready.
+				program.getExecutor().submit( () -> {
+					try {
+						resource.waitForReady( 10, TimeUnit.SECONDS );
+						tool.callResourceReady();
+					} catch( InterruptedException exception ) {
+						log.warn( "Wait for resource interrupted: " + resource, exception );
+					}
+				} );
 			}
 			return tool;
 		} catch( Exception exception ) {

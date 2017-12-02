@@ -80,10 +80,6 @@ public class Resource extends Node implements Configurable {
 	}
 
 	public Resource( ResourceType type, URI uri ) {
-		this( type, uri, null, null );
-	}
-
-	public Resource( ResourceType type, URI uri, String uriQuery, String uriFragment ) {
 		if( type == null && uri == null ) throw new RuntimeException( "The type and uri cannot both be null." );
 
 		setType( type );

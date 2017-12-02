@@ -158,10 +158,8 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	private void fireTaskEvent( TaskEvent.Type type ) {
 		TaskEvent event = new TaskEvent( this, this, type );
-		for( TaskListener listener : listeners ) {
-			listener.handleEvent( event );
-		}
-		getTaskManager().fireTaskEvent( event );
+		event.fire( listeners );
+		event.fire( getTaskManager().getTaskListeners() );
 	}
 
 	private void setState( State state ) {

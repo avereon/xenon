@@ -11,7 +11,7 @@ public class ProgramEventWatcher implements ProductEventListener {
 	private static Logger log = LogUtil.get( ProgramEventWatcher.class );
 
 	@Override
-	public void eventOccurred( ProductEvent event ) {
+	public void handleEvent( ProductEvent event ) {
 		if( event instanceof SettingsEvent ) {
 			log.trace( event.toString() );
 		} else {

@@ -1450,7 +1450,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	private final class SettingsChangeHandler implements SettingsListener {
 
 		@Override
-		public void eventOccurred( SettingsEvent event ) {
+		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
 			if( CHECK.equals( event.getKey() ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
 			if( event.getKey().startsWith( CHECK ) ) scheduleUpdateCheck( false );

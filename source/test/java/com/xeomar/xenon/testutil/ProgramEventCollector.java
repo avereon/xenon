@@ -11,7 +11,7 @@ public class ProgramEventCollector implements ProductEventListener {
 	private List<ProductEvent> events = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void eventOccurred( ProductEvent event ) {
+	public void handleEvent( ProductEvent event ) {
 		events.add( event );
 	}
 

@@ -82,7 +82,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	 * @param event
 	 */
 	@Override
-	public void eventOccurred( SettingsEvent event ) {
+	public void handleEvent( SettingsEvent event ) {
 		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) field.setText( event.getNewValue() );
 	}
 

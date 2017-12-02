@@ -87,9 +87,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks ) throws InterruptedException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAll( tasks );
 	}
@@ -98,9 +98,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAll( tasks, timeout, unit );
 	}
@@ -109,9 +109,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks ) throws InterruptedException, ExecutionException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAny( tasks );
 	}
@@ -120,9 +120,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAny( tasks, timeout, unit );
 	}
@@ -244,10 +244,8 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		listeners.remove( listener );
 	}
 
-	void fireTaskEvent( TaskEvent event ) {
-		for( TaskListener listener : listeners ) {
-			listener.handleEvent( event );
-		}
+	Set<TaskListener> getTaskListeners() {
+		return listeners;
 	}
 
 	private void checkRunning() {
