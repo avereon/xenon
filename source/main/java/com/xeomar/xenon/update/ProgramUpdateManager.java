@@ -223,7 +223,7 @@ public class ProgramUpdateManager extends UpdateManager {
 								program.getExecutor().submit( () -> {
 									try {
 										URI uri = URI.create( ProgramArtifactType.uri + "#update" );
-										Tool tool = program.getResourceManager().openAndWait( uri );
+										Tool tool = program.getResourceManager().open( uri ).get();
 										((ArtifactTool)tool).setPostedUpdates( postedUpdates );
 									} catch( Exception exception ) {
 										log.error( "Error opening artifact tool ", exception );

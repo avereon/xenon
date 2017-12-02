@@ -343,57 +343,57 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		schemeResourceTypes.remove( scheme );
 	}
 
-	public void open( URI uri ) throws ResourceException {
-		open( createResource( uri ) );
+	public Future<AbstractTool> open( URI uri ) throws ResourceException {
+		return open( createResource( uri ) );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Resource resource ) {
-		open( Collections.singletonList( resource ) );
+	public Future<AbstractTool> open( Resource resource ) {
+		return open( resource, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Resource resource, boolean openTool ) {
-		open( Collections.singletonList( resource ), openTool );
+	public Future<AbstractTool> open( Resource resource, boolean openTool ) {
+		return open( resource, openTool, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( Resource resource, boolean openTool, boolean setActive ) {
-		open( Collections.singletonList( resource ), null, openTool, setActive );
+	public Future<AbstractTool> open( Resource resource, boolean openTool, boolean setActive ) {
+		return open( Collections.singletonList( resource ), null, openTool, setActive ).get( 0 );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( List<Resource> resources ) {
-		open( resources, true );
+	public List<Future<AbstractTool>> open( List<Resource> resources ) {
+		return open( resources, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( List<Resource> resources, WorkpaneView view ) {
-		open( resources, view, true );
+	public List<Future<AbstractTool>> open( List<Resource> resources, WorkpaneView view ) {
+		return open( resources, view, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( List<Resource> resources, boolean openTool ) {
-		open( resources, null, openTool );
+	public List<Future<AbstractTool>> open( List<Resource> resources, boolean openTool ) {
+		return open( resources, null, openTool );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void open( List<Resource> resources, WorkpaneView view, boolean openTool ) {
-		open( resources, view, openTool, true );
+	public List<Future<AbstractTool>> open( List<Resource> resources, WorkpaneView view, boolean openTool ) {
+		return open( resources, view, openTool, true );
 	}
 
 	/**
@@ -410,72 +410,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		return futures;
-	}
-
-	public AbstractTool openAndWait( URI uri ) throws ResourceException, ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( createResource( uri ) );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public AbstractTool openAndWait( Resource resource ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( resource, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public AbstractTool openAndWait( Resource resource, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( resource, openTool, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public AbstractTool openAndWait( Resource resource, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( Collections.singletonList( resource ), null, openTool, setActive ).get( 0 );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<AbstractTool> openAndWait( List<Resource> resources ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( resources, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<AbstractTool> openAndWait( List<Resource> resources, WorkpaneView view ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( resources, view, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<AbstractTool> openAndWait( List<Resource> resources, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( resources, null, openTool );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<AbstractTool> openAndWait( List<Resource> resources, WorkpaneView view, boolean openTool ) throws ExecutionException, InterruptedException, TimeoutException {
-		return openAndWait( resources, view, openTool, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<AbstractTool> openAndWait( List<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) throws ExecutionException, InterruptedException, TimeoutException {
-		List<AbstractTool> tools = new ArrayList<>( resources.size() );
-
-		for( Future<AbstractTool> future : open( resources, view, openTool, setActive ) ) {
-			tools.add( future.get( 1, TimeUnit.SECONDS ) );
-		}
-
-		return tools;
 	}
 
 	/**
@@ -1123,8 +1057,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 		return null;
 	}
-
-
 
 	private boolean doOpenResource( Resource resource ) throws ResourceException {
 		if( isResourceOpen( resource ) ) return true;
