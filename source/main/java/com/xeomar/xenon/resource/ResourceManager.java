@@ -402,7 +402,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getExecutor().submit( new OpenActionTask( resources, null, view, openTool, setActive ) );
 	}
 
-	public AbstractTool openAndWait( URI uri )  throws ResourceException, ExecutionException, InterruptedException, TimeoutException {
+	public AbstractTool openAndWait( URI uri ) throws ResourceException, ExecutionException, InterruptedException, TimeoutException {
 		return openAndWait( createResource( uri ) );
 	}
 
@@ -1066,7 +1066,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param uri The URI of the resource
 	 * @return The resource created from the resource type and URI
 	 */
-	// FIXME Should throw ResourceException
 	private Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
 		Resource resource;
 		URI cleanUri = UriUtil.cleanUri( uri );
@@ -1079,17 +1078,15 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( cleanUri != null ) {
 			// FIXME Store open resources in a map for faster access
 			// If the resource is already open, use it instead
+			// Can't do that because openResources can have unsaved resources
+			// which don't have a URI.
 			for( Resource open : openResources ) {
 				if( open.getUri().equals( cleanUri ) ) return open;
 			}
 
-			//try {
-				Scheme scheme = getScheme( cleanUri.getScheme() );
-				resource.setScheme( scheme );
-				scheme.init( resource );
-//			} catch( ResourceException exception ) {
-//				log.error( "Error initializing resource scheme", exception );
-//			}
+			Scheme scheme = getScheme( cleanUri.getScheme() );
+			resource.setScheme( scheme );
+			scheme.init( resource );
 		}
 
 		return resource;
@@ -1259,6 +1256,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	//
 	//		try {
 	//			// FIXME Should not convert to URL to get a connection
+	//      // TODO Should use scheme to get a connection
 	//			//return uri.toURL().openConnection();
 	//
 	//			// It should come from the scheme
