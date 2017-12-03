@@ -270,9 +270,13 @@ public abstract class Tool extends Control implements Configurable {
 	protected void deallocate() throws ToolException {}
 
 	/**
-	 * Called when the resource is ready to be used by the tool.
+	 * Called when the resource is ready to be used by the tool. This method is
+	 * called each time the resource edited by this tool is opened. If it is
+	 * opened another time it may have different parameters.
+	 *
+	 * @param parameters
 	 */
-	protected void resourceReady() throws ToolException {}
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {}
 
 	/**
 	 * Called when the resource data is refreshed.
@@ -368,9 +372,9 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceReady() {
+	public void callResourceReady( ToolParameters parameters) {
 		try {
-			resourceReady();
+			resourceReady(parameters);
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}

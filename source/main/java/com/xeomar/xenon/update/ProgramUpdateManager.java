@@ -6,7 +6,6 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramParameter;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
-import com.xeomar.xenon.tool.ArtifactTool;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
@@ -165,7 +164,7 @@ public class ProgramUpdateManager extends UpdateManager {
 			// Get the posted updates.
 			Set<ProductCard> postedUpdates = null;
 			try {
-				postedUpdates = getPostedUpdates( interactive );
+				postedUpdates = findPostedUpdates( interactive );
 			} catch( ExecutionException exception ) {
 				log.warn( exception.getClass().getName(), exception.getMessage() );
 				log.trace( "Error getting posted updates", exception );
@@ -224,7 +223,6 @@ public class ProgramUpdateManager extends UpdateManager {
 									try {
 										URI uri = URI.create( ProgramArtifactType.uri + "#update" );
 										Tool tool = program.getResourceManager().open( uri ).get();
-										((ArtifactTool)tool).setPostedUpdates( postedUpdates );
 									} catch( Exception exception ) {
 										log.error( "Error opening artifact tool ", exception );
 									}

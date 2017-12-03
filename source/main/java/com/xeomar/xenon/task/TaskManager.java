@@ -6,10 +6,7 @@ import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class TaskManager implements ExecutorService, Configurable, Controllable<TaskManager> {
@@ -44,6 +41,11 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		queue = new LinkedBlockingQueue<Runnable>();
 		group = new ThreadGroup( getClass().getName() );
 		listeners = new CopyOnWriteArraySet<TaskListener>();
+	}
+
+	public static boolean isTaskThread() {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
 	}
 
 	@Override

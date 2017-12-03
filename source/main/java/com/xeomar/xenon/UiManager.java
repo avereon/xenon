@@ -3,6 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.resource.OpenResourceRequest;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.workarea.*;
@@ -453,13 +454,15 @@ public class UiManager {
 				return;
 			}
 
+
 			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
-			program.getResourceManager().loadResources( resource );
+			program.getResourceManager().loadResource( resource );
 
 			// Restore the tool on a task thread
 			try {
-				AbstractTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( toolType, resource ) ).get( 1, TimeUnit.SECONDS );
+				OpenResourceRequest openResourceRequest = new OpenResourceRequest().setResource( resource );
+				AbstractTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openResourceRequest, toolType ) ).get( 1, TimeUnit.SECONDS );
 				if( tool == null ) return;
 				tool.setSettings( settings );
 

@@ -9,6 +9,7 @@ import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
@@ -128,8 +129,8 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady() throws ToolException {
-		super.resourceReady();
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+		super.resourceReady( parameters );
 		resourceRefreshed();
 		selectedPage( SUMMARY );
 	}

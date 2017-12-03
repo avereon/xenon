@@ -2,11 +2,7 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.workarea.Workpane;
-import com.xeomar.xenon.workarea.WorkpaneEvent;
-import com.xeomar.xenon.workarea.WorkpaneToolEvent;
-import com.xeomar.xenon.workarea.Tool;
-import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -34,7 +30,7 @@ public class GuideTool extends AbstractTool {
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	protected void resourceReady() throws ToolException {
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		// Connect to the resource guide
 		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		if( guide == null ) return;

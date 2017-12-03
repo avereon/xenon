@@ -3,6 +3,7 @@ package com.xeomar.xenon.tool;
 import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -38,8 +39,8 @@ public abstract class GuidedTool extends AbstractTool {
 	}
 
 	@Override
-	protected void resourceReady() throws ToolException {
-		super.resourceReady();
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+		super.resourceReady( parameters );
 		((Guide)getResource().getResource( Guide.GUIDE_KEY )).selectedItemProperty().addListener( guideListener );
 	}
 

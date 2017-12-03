@@ -1,18 +1,17 @@
 package com.xeomar.xenon.tool;
 
 import com.xeomar.product.Product;
-import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
+import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
 
 public class ArtifactTool extends GuidedTool {
 
@@ -66,20 +65,18 @@ public class ArtifactTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady() throws ToolException {
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		log.debug( "Artifact tool resource ready" );
-		super.resourceReady();
-		System.out.println( "Artifact tool resource URI: " + getResource().getUri() );
+		super.resourceReady( parameters );
+		System.out.println( "Artifact tool fragment: " + parameters.getFragment() );
 		resourceRefreshed();
 	}
 
 	@Override
 	public void resourceRefreshed() throws ToolException {
 		super.resourceRefreshed();
-	}
-
-	public void setPostedUpdates( Set<ProductCard> postedUpdates ) {
-		log.error( "ArtifactTool.setPostedUpdates() called: " + postedUpdates.size() );
+		Program program = (Program)getProduct();
+		log.error( "posted update count: " + program.getUpdateManager().getPostedUpdates().size() );
 	}
 
 	@Override

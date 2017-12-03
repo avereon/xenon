@@ -1,6 +1,5 @@
 package com.xeomar.xenon.resource;
 
-import com.xeomar.util.UriUtil;
 import com.xeomar.xenon.ProgramTestCase;
 import com.xeomar.xenon.resource.event.ResourceClosedEvent;
 import com.xeomar.xenon.resource.event.ResourceLoadedEvent;
@@ -98,7 +97,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		resource.addResourceListener( watcher );
 		assertThat( resource.isLoaded(), is( false ) );
 
-		manager.loadResources( resource );
+		manager.loadResource( resource );
 		watcher.waitForEvent( ResourceLoadedEvent.class );
 		assertThat( resource.isOpen(), is( true ) );
 		assertThat( resource.isLoaded(), is( true ) );

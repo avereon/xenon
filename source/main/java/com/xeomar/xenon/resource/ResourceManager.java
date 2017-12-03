@@ -343,10 +343,19 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		schemeResourceTypes.remove( scheme );
 	}
 
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
 	public Future<AbstractTool> open( URI uri ) throws ResourceException {
-		return open( createResource( uri ) );
+		OpenResourceRequest request = new OpenResourceRequest();
+		request.setResource( createResource( uri ) );
+		request.setFragment( uri.getFragment() );
+		request.setQuery( uri.getQuery() );
+
+		return program.getExecutor().submit( new OpenActionTask( request ) );
 	}
 
+	// NEXT Fix the rest of the open methods
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
@@ -359,6 +368,13 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 */
 	public Future<AbstractTool> open( Resource resource, boolean openTool ) {
 		return open( resource, openTool, true );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	public Future<AbstractTool> open( URI uri, boolean openTool, boolean setActive ) throws ResourceException {
+		return open( Collections.singletonList( createResource( uri ) ), null, openTool, setActive ).get( 0 );
 	}
 
 	/**
@@ -724,7 +740,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 *
 	 * @param resource The resource to load
 	 */
-	public Future<Collection<Resource>> loadResources( Resource resource ) {
+	public Future<Collection<Resource>> loadResource( Resource resource ) {
 		return loadResources( Collections.singletonList( resource ) );
 	}
 
@@ -1332,14 +1348,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				if( !resource.isOpen() ) return null;
 
 				// Start loading the resource, but don't wait
-				if( !resource.isLoaded() ) loadResources( resource );
+				if( !resource.isLoaded() ) loadResource( resource );
 			} catch( Exception exception ) {
 				program.getNotifier().error( exception );
 				return null;
 			}
 
 			AbstractTool tool = null;
-			if( openTool ) tool = program.getToolManager().openTool( resource, request.getView(), request.isSetActive() );
+			if( openTool ) tool = program.getToolManager().openTool( new OpenToolRequest( request ) );
 
 			setCurrentResource( resource );
 

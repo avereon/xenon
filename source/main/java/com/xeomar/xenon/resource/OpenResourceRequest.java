@@ -2,7 +2,7 @@ package com.xeomar.xenon.resource;
 
 import com.xeomar.xenon.workarea.WorkpaneView;
 
-class OpenResourceRequest {
+public class OpenResourceRequest {
 
 	private Resource resource;
 

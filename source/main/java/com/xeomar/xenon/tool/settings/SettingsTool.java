@@ -6,6 +6,7 @@ import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.GuideNode;
 import com.xeomar.xenon.tool.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +62,9 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady() throws ToolException {
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		log.debug( "Settings tool resource ready" );
-		super.resourceReady();
+		super.resourceReady( parameters );
 		resourceRefreshed();
 	}
 

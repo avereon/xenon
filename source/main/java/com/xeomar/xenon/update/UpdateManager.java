@@ -490,8 +490,12 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 	}
 
-	public Set<ProductCard> getPostedUpdates() throws Exception {
-		return getPostedUpdates( true );
+	public Set<ProductCard> getPostedUpdates() {
+		return new HashSet<>( postedUpdateCache );
+	}
+
+	public Set<ProductCard> findPostedUpdates() throws Exception {
+		return findPostedUpdates( false );
 	}
 
 	/**
@@ -503,7 +507,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @throws InterruptedException If the calling thread is interrupted
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
-	public Set<ProductCard> getPostedUpdates( boolean force ) throws ExecutionException, InterruptedException, URISyntaxException {
+	public Set<ProductCard> findPostedUpdates( boolean force ) throws ExecutionException, InterruptedException, URISyntaxException {
 		Set<ProductCard> newCards = new HashSet<>();
 		if( !isEnabled() ) return newCards;
 
@@ -610,7 +614,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		stageSelectedUpdates( getPostedUpdates( true ) );
+		stageSelectedUpdates( findPostedUpdates( true ) );
 		return updates.size();
 	}
 
