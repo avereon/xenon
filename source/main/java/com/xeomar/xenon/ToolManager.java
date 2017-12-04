@@ -257,7 +257,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		try {
 			// Create the new tool instance
 			Product product = toolClassMetadata.get( toolClass ).getProduct();
-			Constructor<? extends AbstractTool> constructor = toolClass.getConstructor( Product.class, Resource.class );
+			Constructor<? extends AbstractTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
 			return constructor.newInstance( product, resource );
 		} catch( Exception exception ) {
 			log.error( "Error creating instance: " + toolClass.getName(), exception );

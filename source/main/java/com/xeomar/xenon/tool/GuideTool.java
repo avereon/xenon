@@ -1,7 +1,6 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.product.Product;
-import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.*;
 import javafx.beans.value.ObservableValue;
@@ -16,10 +15,10 @@ public class GuideTool extends AbstractTool {
 
 	private ActiveGuideListener activeGuideListener;
 
-	public GuideTool( Product product, Resource resource ) {
+	public GuideTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-guide" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "guide" ) );
+		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
 		getChildren().add( guideView = new TreeView() );
 		guideView.setShowRoot( false );
@@ -112,7 +111,6 @@ public class GuideTool extends AbstractTool {
 		@Override
 		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
-			System.out.println( "Guide node changed: " + ( newSelection == null ? "null" : newSelection.getValue() ) );
 			guide.setSelectedItem( newSelection );
 		}
 

@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
@@ -16,7 +16,7 @@ public abstract class GuidedTool extends AbstractTool {
 
 	private GuideListener guideListener = new GuideListener();
 
-	public GuidedTool( Product product, Resource resource ) {
+	public GuidedTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 	}
 

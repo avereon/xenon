@@ -93,9 +93,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public static final String UPDATE_FOLDER_NAME = "updates";
 
-	private static final String LAST_CHECK_TIME = "product-update-last-check-time";
+	public static final String LAST_CHECK_TIME = "product-update-last-check-time";
 
-	private static final String NEXT_CHECK_TIME = "product-update-next-check-time";
+	public static final String NEXT_CHECK_TIME = "product-update-next-check-time";
 
 	private static final String CHECK = "product-update-check";
 

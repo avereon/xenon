@@ -1,11 +1,11 @@
 package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiManager;
-import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.Workpane;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -25,7 +25,7 @@ public class WelcomeTool extends AbstractTool {
 
 	private static final double SLOPE_RADIUS = 5000;
 
-	public WelcomeTool( Product product, Resource resource ) {
+	public WelcomeTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-welcome" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "welcome" ) );

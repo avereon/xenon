@@ -3,7 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.product.ProductEvent;
 import com.xeomar.product.ProductEventListener;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.event.SettingsEvent;
+import com.xeomar.xenon.event.ProgramSettingsEvent;
 import org.slf4j.Logger;
 
 public class ProgramEventWatcher implements ProductEventListener {
@@ -12,7 +12,7 @@ public class ProgramEventWatcher implements ProductEventListener {
 
 	@Override
 	public void handleEvent( ProductEvent event ) {
-		if( event instanceof SettingsEvent ) {
+		if( event instanceof ProgramSettingsEvent ) {
 			log.trace( event.toString() );
 		} else {
 			log.info( event.toString() );

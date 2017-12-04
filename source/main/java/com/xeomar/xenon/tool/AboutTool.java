@@ -1,10 +1,10 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.*;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
@@ -50,11 +50,11 @@ public class AboutTool extends GuidedTool {
 
 	private TextArea detailsText;
 
-	public AboutTool( Product product, Resource resource ) {
+	public AboutTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-about" );
 
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "about" ) );
+		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
 
 		summaryText = new TextArea();

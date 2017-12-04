@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.product.Product;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.GuideNode;
@@ -20,7 +20,7 @@ public class SettingsTool extends GuidedTool {
 
 	private static final Logger log = LoggerFactory.getLogger( SettingsTool.class );
 
-	public SettingsTool( Product product, Resource resource ) {
+	public SettingsTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-settings" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );

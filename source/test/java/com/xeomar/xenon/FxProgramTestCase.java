@@ -1,20 +1,18 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.ProductCard;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.OperatingSystem;
-import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
 import javafx.stage.Stage;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,11 +40,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
 		System.out.println( "Memory: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) );
-
-		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
-		// NOTE These are also used in ProgramTestCase
-		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-		System.setProperty( ProgramParameter.LOG_LEVEL, "error" );
 
 		// Remove the existing program data folder
 		try {
