@@ -28,6 +28,7 @@ public class WelcomeTool extends AbstractTool {
 	public WelcomeTool( Product product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-welcome" );
+		setGraphic( ((Program)product).getIconLibrary().getIcon( "welcome" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "welcome-name" ) );
 
 		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );

@@ -41,6 +41,8 @@ public class IconLibrary {
 		register( "workarea-new", WorkareaIcon.class);
 		register( "workarea-rename", WorkareaRenameIcon.class);
 		register( "workarea-close", WorkareaCloseIcon.class);
+
+		register( "refresh", RefreshIcon.class );
 	}
 
 	public ProgramIcon getIcon( String id ) {

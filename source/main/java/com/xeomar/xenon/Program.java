@@ -33,6 +33,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -203,6 +204,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.setImplicitExit( false );
 
 		// Show the splash screen
+		stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
 

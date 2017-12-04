@@ -54,6 +54,7 @@ public class AboutTool extends GuidedTool {
 		super( product, resource );
 		setId( "tool-about" );
 
+		setGraphic( ((Program)product).getIconLibrary().getIcon( "about" ) );
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
 
 		summaryText = new TextArea();

@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool.settings;
 
 import com.xeomar.product.Product;
+import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.GuideNode;
@@ -22,6 +23,7 @@ public class SettingsTool extends GuidedTool {
 	public SettingsTool( Product product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-settings" );
+		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "settings-name" ) );
 	}
 

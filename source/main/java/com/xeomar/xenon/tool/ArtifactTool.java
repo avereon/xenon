@@ -2,17 +2,21 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
-import com.xeomar.xenon.Actions;
+import com.xeomar.xenon.Action;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
+import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
+import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
@@ -27,20 +31,28 @@ public class ArtifactTool extends GuidedTool {
 
 	private static final int ICON_SIZE = 48;
 
-	private Map<String, ArtifactPanel> panes;
+	private Action addSourceAction;
+
+	private Action refreshStateAction;
+
+	private Map<String, ArtifactPage> pages;
+
+	private ArtifactPage currentPage;
 
 	public ArtifactTool( Product product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-artifact" );
-		// FIXME Tool tab does not show icon
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "artifact" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "artifact-name" ) );
 
-		panes = new HashMap<>();
-		panes.put( ProgramArtifactType.INSTALLED, new InstalledPane( (Program)product ) );
-		panes.put( ProgramArtifactType.AVAILABLE, new AvailablePane( (Program)product ) );
-		panes.put( ProgramArtifactType.UPDATES, new UpdatesPane( (Program)product ) );
-		panes.put( ProgramArtifactType.SOURCES, new SourcesPane( (Program)product ) );
+		addSourceAction = new AddSourceAction((Program)product);
+		refreshStateAction = new RefreshStateAction((Program)product);
+
+		pages = new HashMap<>();
+		pages.put( ProgramArtifactType.INSTALLED, new InstalledPage( (Program)product ) );
+		pages.put( ProgramArtifactType.AVAILABLE, new AvailablePage( (Program)product ) );
+		pages.put( ProgramArtifactType.UPDATES, new UpdatesPage( (Program)product ) );
+		pages.put( ProgramArtifactType.SOURCES, new SourcesPage( (Program)product ) );
 	}
 
 	@Override
@@ -102,70 +114,141 @@ public class ArtifactTool extends GuidedTool {
 		log.debug( "Artifact page selected: " + pageId );
 		if( pageId == null ) return;
 
-		ScrollPane scroller = new ScrollPane( panes.get( pageId ) );
+		currentPage = pages.get( pageId );
+		currentPage.updateState();
+
+		ScrollPane scroller = new ScrollPane( currentPage );
 		scroller.setFitToWidth( true );
 		getChildren().clear();
 		getChildren().add( scroller );
 	}
 
-	private abstract class ArtifactPanel extends Pane {
+	private class AddSourceAction extends Action {
+
+		protected AddSourceAction( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return true;
+		}
+
+		@Override
+		public void handle( Event event ) {
+			// TODO Implement AddSourceAction.handle()
+		}
+
+	}
+
+	private class RefreshStateAction extends Action {
+
+		protected RefreshStateAction( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return true;
+		}
+
+		@Override
+		public void handle( Event event ) {
+			if( currentPage != null ) currentPage.updateState();
+		}
+
+	}
+
+	private abstract class ArtifactPage extends Pane {
 
 		private Label title;
 
-		private Button refreshButton;
+		private HBox buttons;
 
-		public ArtifactPanel( Program program ) {
+		public ArtifactPage( Program program ) {
 			setId( "tool-artifact-panel" );
 
 			title = new Label( "" );
 			title.setId( "tool-artifact-page-title" );
 
-			refreshButton = Actions.createButton( program, program.getActionLibrary().getAction( "refresh" ) );
-			refreshButton.setId( "tool-artifact-page-refresh" );
+			buttons = new HBox();
 
-			HBox titleBox = new HBox( title, refreshButton );
+			BorderPane layoutPane = new BorderPane();
+			layoutPane.prefWidthProperty().bind( this.widthProperty() );
+			layoutPane.setLeft( title );
+			layoutPane.setRight( buttons );
 
-			getChildren().addAll( titleBox );
+			getChildren().addAll( layoutPane );
 		}
 
 		protected void setTitle( String title ) {
 			this.title.setText( title );
 		}
 
+		protected ObservableList<Node> getButtons() {
+			return buttons.getChildren();
+		}
+
+		protected void updateState() {}
+
 	}
 
-	private class InstalledPane extends ArtifactPanel {
+	private abstract class ProductPage extends ArtifactPage {
 
-		InstalledPane( Program program ) {
+		private Button refreshButton;
+
+		public ProductPage( Program program ) {
+			super( program );
+
+			refreshButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "refresh" ) );
+			refreshButton.setId( "tool-artifact-page-refresh" );
+
+			getButtons().addAll( refreshButton );
+		}
+
+	}
+
+	private class InstalledPage extends ProductPage {
+
+		InstalledPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.INSTALLED ) );
 		}
 
 	}
 
-	private class AvailablePane extends ArtifactPanel {
+	private class AvailablePage extends ProductPage {
 
-		AvailablePane( Program program ) {
+		AvailablePage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.AVAILABLE ) );
 		}
 
 	}
 
-	private class UpdatesPane extends ArtifactPanel {
+	private class UpdatesPage extends ProductPage {
 
-		UpdatesPane( Program program ) {
+		UpdatesPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.UPDATES ) );
 		}
 
 	}
 
-	private class SourcesPane extends ArtifactPanel {
+	private class SourcesPage extends ArtifactPage {
 
-		SourcesPane( Program program ) {
+		private Button addButton;
+
+		SourcesPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.SOURCES ) );
+
+			addButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "add-market" ) );
+			addButton.setId( "tool-artifact-page-add" );
+
+			getButtons().addAll( addButton );
+
+			program.getActionLibrary().getAction( "add-market" ).pushAction( addSourceAction );
 		}
 
 	}

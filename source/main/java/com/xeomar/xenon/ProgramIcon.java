@@ -64,15 +64,19 @@ ZP - 31
 */
 public abstract class ProgramIcon extends Canvas {
 
-	private static final double DEFAULT_SIZE = 256;
-
 	protected enum GradientShade {
 		LIGHT,
 		MEDIUM,
 		DARK
 	}
 
+	protected static final double RADIANS_PER_DEGREE = Math.PI / 180;
+
+	protected static final double DEGREES_PER_RADIAN = 180 / Math.PI;
+
 	private static Logger log = LogUtil.get( ProgramIcon.class );
+
+	private static final double DEFAULT_SIZE = 256;
 
 	private static double DEFAULT_STROKE_WIDTH = 1.0 / 32.0;
 
@@ -213,7 +217,7 @@ public abstract class ProgramIcon extends Canvas {
 			stage.getIcons().addAll( icon128.copy().getImage(), icon64.copy().getImage(), icon32.copy().getImage(), icon16.copy().getImage() );
 			stage.setScene( new Scene( pane ) );
 
-			stage.setResizable( false );
+			stage.setResizable( true );
 			stage.centerOnScreen();
 			stage.sizeToScene();
 			stage.show();
@@ -534,6 +538,68 @@ public abstract class ProgramIcon extends Canvas {
 		//		protected void fillRect( 0, 0, getWidth(), getHeight() );
 
 		render();
+	}
+
+	protected static class Point {
+
+		private static final long serialVersionUID = -1520877460686311009L;
+
+		public double x;
+
+		public double y;
+
+		public double z;
+
+		public Point( double x, double y ) {
+			this( x, y, 0 );
+		}
+
+		private Point( double x, double y, double z ) {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
+
+		public final double getX() {
+			return x;
+		}
+
+		public final double getY() {
+			return y;
+		}
+
+		public final double getZ() {
+			return z;
+		}
+
+		public final double getMagnitude() {
+			return Math.sqrt( x * x + y * y + z * z );
+		}
+
+		public final double getAngle() {
+			return Math.atan2( y, x );
+		}
+
+		public final double dot( Point vector ) {
+			return x * vector.x + y * vector.y + z * vector.z;
+		}
+
+		public final Point cross( Point vector ) {
+			return new Point( y * vector.z - z * vector.y, z * vector.x - x * vector.z, x * vector.y - y * vector.x );
+		}
+
+		public final Point plus( Point vector ) {
+			return new Point( x + vector.x, y + vector.y, z + vector.z );
+		}
+
+		public final Point minus( Point vector ) {
+			return new Point( x - vector.x, y - vector.y, z - vector.z );
+		}
+
+		public final Point times( double scale ) {
+			return new Point( x * scale, y * scale, z * scale );
+		}
+
 	}
 
 }

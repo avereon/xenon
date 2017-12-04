@@ -1,5 +1,7 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.util;
 
+import com.xeomar.xenon.ActionProxy;
+import com.xeomar.xenon.Program;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
@@ -13,9 +15,9 @@ import javafx.scene.layout.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Actions {
+public class ActionUtil {
 
-	private static Logger log = LoggerFactory.getLogger( Actions.class );
+	private static Logger log = LoggerFactory.getLogger( ActionUtil.class );
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 

@@ -2,11 +2,11 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
-import com.xeomar.xenon.Actions;
 import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
+import com.xeomar.xenon.util.ActionUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -73,45 +73,45 @@ public class Workspace implements Configurable {
 		// MENUBAR
 		menubar = new MenuBar();
 
-		Menu file = Actions.createMenu( program, "file" );
-		file.getItems().add( Actions.createMenuItem( program, "new" ) );
-		file.getItems().add( Actions.createMenuItem( program, "open" ) );
-		file.getItems().add( Actions.createMenuItem( program, "save" ) );
-		file.getItems().add( Actions.createMenuItem( program, "save-as" ) );
-		file.getItems().add( Actions.createMenuItem( program, "copy-as" ) );
-		file.getItems().add( Actions.createMenuItem( program, "close" ) );
+		Menu file = ActionUtil.createMenu( program, "file" );
+		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
 		file.getItems().add( new SeparatorMenuItem() );
-		file.getItems().add( Actions.createMenuItem( program, "exit" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 
-		Menu edit = Actions.createMenu( program, "edit" );
-		edit.getItems().add( Actions.createMenuItem( program, "undo" ) );
-		edit.getItems().add( Actions.createMenuItem( program, "redo" ) );
+		Menu edit = ActionUtil.createMenu( program, "edit" );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "redo" ) );
 		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( Actions.createMenuItem( program, "cut" ) );
-		edit.getItems().add( Actions.createMenuItem( program, "copy" ) );
-		edit.getItems().add( Actions.createMenuItem( program, "paste" ) );
-		edit.getItems().add( Actions.createMenuItem( program, "delete" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "cut" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "copy" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "paste" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "delete" ) );
 		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( Actions.createMenuItem( program, "indent" ) );
-		edit.getItems().add( Actions.createMenuItem( program, "unindent" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
 		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( Actions.createMenuItem( program, "settings" ) );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
-		Menu view = Actions.createMenu( program, "view" );
-		view.getItems().add( Actions.createMenuItem( program, "workspace-new" ) );
+		Menu view = ActionUtil.createMenu( program, "view" );
+		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
 		view.getItems().add( new SeparatorMenuItem() );
-		view.getItems().add( Actions.createMenuItem( program, "statusbar-show" ) );
+		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
-		Menu help = Actions.createMenu( program, "help" );
-		help.getItems().add( Actions.createMenuItem( program, "welcome" ) );
+		Menu help = ActionUtil.createMenu( program, "help" );
+		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
 		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( Actions.createMenuItem( program, "help-content" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
 		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( Actions.createMenuItem( program, "update" ) );
-		help.getItems().add( Actions.createMenuItem( program, "about" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
 
-		Menu dev = Actions.createMenu( program, "development" );
-		dev.getItems().add( Actions.createMenuItem( program, "restart" ) );
+		Menu dev = ActionUtil.createMenu( program, "development" );
+		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
 		if( program.getExecMode() == ExecMode.DEV ) {
 			menubar.getMenus().addAll( file, edit, view, help, dev );
@@ -121,12 +121,12 @@ public class Workspace implements Configurable {
 
 		// TOOLBAR
 
-		Menu workareaMenu = Actions.createMenu( program, "workarea" );
-		workareaMenu.getItems().add( Actions.createMenuItem( program, "workarea-new" ) );
+		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
+		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
 		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( Actions.createMenuItem( program, "workarea-rename" ) );
+		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-rename" ) );
 		workareaMenu.getItems().add( new SeparatorMenuItem() );
-		workareaMenu.getItems().add( Actions.createMenuItem( program, "workarea-close" ) );
+		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-close" ) );
 
 		MenuBar workareaMenuBar = new MenuBar();
 		workareaMenuBar.getMenus().add( workareaMenu );
@@ -141,18 +141,18 @@ public class Workspace implements Configurable {
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
 		toolbar = new ToolBar();
-		toolbar.getItems().add( Actions.createToolBarButton( program, "new" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "open" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "save" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
 		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "undo" ) );
-		toolbar.getItems().add( Actions.createToolBarButton( program, "redo" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
 		//		toolbar.getItems().add( new Separator() );
-		//		toolbar.getItems().add( Actions.createToolBarButton( program, "cut" ) );
-		//		toolbar.getItems().add( Actions.createToolBarButton( program, "copy" ) );
-		//		toolbar.getItems().add( Actions.createToolBarButton( program, "paste" ) );
+		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
+		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
+		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
 
-		toolbar.getItems().add( Actions.createSpring() );
+		toolbar.getItems().add( ActionUtil.createSpring() );
 
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
