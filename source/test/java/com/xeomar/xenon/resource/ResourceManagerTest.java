@@ -198,7 +198,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testToResourceUri() throws Exception {
+	public void testToResourceUri() {
 			assertThat( ResourceManager.toResourceUri( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
 			assertThat( ResourceManager.toResourceUri( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
 			assertThat( ResourceManager.toResourceUri( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );

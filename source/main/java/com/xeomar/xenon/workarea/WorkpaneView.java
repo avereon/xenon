@@ -71,6 +71,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
 
 		Tab tab = new Tab( tool.getTitle(), tool );
+		tab.graphicProperty().bind( tool.graphicProperty() );
 		tab.textProperty().bind( tool.titleProperty() );
 		tab.setOnCloseRequest( event -> {
 			event.consume();

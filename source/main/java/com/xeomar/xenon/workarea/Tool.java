@@ -127,7 +127,7 @@ public abstract class Tool extends Control implements Configurable {
 		graphicProperty.setValue( graphic );
 	}
 
-	public ObjectProperty graphicProperty() {
+	public ObjectProperty<Node> graphicProperty() {
 		return graphicProperty;
 	}
 
