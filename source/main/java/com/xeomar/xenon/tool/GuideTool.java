@@ -72,10 +72,6 @@ public class GuideTool extends AbstractTool {
 				setResourceGuide( null );
 			}
 		}
-
-		if( event.getType() != WorkpaneEvent.Type.TOOL_ACTIVATED ) return;
-
-		setResourceGuide( toolEvent.getTool().getResource() );
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -103,7 +99,7 @@ public class GuideTool extends AbstractTool {
 		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
 	}
 
-	private static class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem> {
+	private static class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
 
 		private Guide guide;
 
@@ -113,7 +109,8 @@ public class GuideTool extends AbstractTool {
 
 		@Override
 		@SuppressWarnings( "unchecked" )
-		public void changed( ObservableValue observable, TreeItem oldSelection, TreeItem newSelection ) {
+		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
+			System.out.println( "Guide node changed: " + ( newSelection == null ? "null" : newSelection.getValue() ) );
 			guide.setSelectedItem( newSelection );
 		}
 
@@ -130,7 +127,11 @@ public class GuideTool extends AbstractTool {
 		@Override
 		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue observable, Boolean oldSelection, Boolean newSelection ) {
-			if( !newSelection ) guideView.setRoot( null );
+			if( newSelection ) {
+				guideView.setRoot( guide.getRoot() );
+			} else {
+				guideView.setRoot( null );
+			}
 		}
 
 	}

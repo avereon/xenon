@@ -68,15 +68,14 @@ public class ArtifactTool extends GuidedTool {
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		log.debug( "Artifact tool resource ready" );
 		super.resourceReady( parameters );
-		System.out.println( "Artifact tool fragment: " + parameters.getFragment() );
 		resourceRefreshed();
+		getGuide().setSelected( parameters.getFragment() );
 	}
 
 	@Override
 	public void resourceRefreshed() throws ToolException {
 		super.resourceRefreshed();
 		Program program = (Program)getProduct();
-		log.error( "posted update count: " + program.getUpdateManager().getPostedUpdates().size() );
 	}
 
 	@Override

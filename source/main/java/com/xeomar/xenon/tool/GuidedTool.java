@@ -23,25 +23,29 @@ public abstract class GuidedTool extends AbstractTool {
 	@Override
 	protected void activate() throws ToolException {
 		super.activate();
-		((Guide)getResource().getResource( Guide.GUIDE_KEY )).setActive( true );
+		getGuide().setActive( true );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		super.conceal();
-		((Guide)getResource().getResource( Guide.GUIDE_KEY )).setActive( false );
+		getGuide().setActive( false );
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
 		super.deallocate();
-		((Guide)getResource().getResource( Guide.GUIDE_KEY )).selectedItemProperty().removeListener( guideListener );
+		getGuide().selectedItemProperty().removeListener( guideListener );
 	}
 
 	@Override
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
-		((Guide)getResource().getResource( Guide.GUIDE_KEY )).selectedItemProperty().addListener( guideListener );
+		getGuide().selectedItemProperty().addListener( guideListener );
+	}
+
+	protected Guide getGuide() {
+		return (Guide)getResource().getResource( Guide.GUIDE_KEY );
 	}
 
 	protected abstract void guideNodeChanged( GuideNode oldNode, GuideNode newNode );

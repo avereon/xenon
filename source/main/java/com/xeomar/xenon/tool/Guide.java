@@ -57,5 +57,17 @@ public class Guide {
 		return selectedItem.getReadOnlyProperty();
 	}
 
-	final void setSelectedItem( TreeItem<GuideNode> value ) { selectedItem.set( value ); }
+	final void setSelectedItem( TreeItem<GuideNode> value ) {
+		selectedItem.set( value );
+	}
+
+	final void setSelected( String id ) {
+		for( TreeItem<GuideNode> node : getRoot().getChildren()){
+			if( node.getValue().getId().equals( id ) ) {
+				setSelectedItem( node );
+				return;
+			}
+		}
+	}
+
 }
