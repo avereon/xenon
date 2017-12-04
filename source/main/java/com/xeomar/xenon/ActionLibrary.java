@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.LogUtil;
 import com.xeomar.product.ProductBundle;
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -55,7 +55,7 @@ public class ActionLibrary {
 		register( bundle, "help-content" );
 		register( bundle, "welcome" );
 		register( bundle, "notice" );
-		//		register( bundle, "products" );
+		//register( bundle, "products" );
 		register( bundle, "update" );
 		register( bundle, "about" );
 
@@ -68,6 +68,8 @@ public class ActionLibrary {
 		register( bundle, "workarea-new" );
 		register( bundle, "workarea-rename" );
 		register( bundle, "workarea-close" );
+
+		register( bundle, "refresh" );
 	}
 
 	public ActionProxy getAction( String id ) {

@@ -87,6 +87,18 @@ public class Actions {
 		return button;
 	}
 
+	public static Button createButton( Program program, ActionProxy action ) {
+		Button button = new Button();
+
+		button.setOnAction( action );
+		button.setDisable( !action.isEnabled() );
+		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+
+		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
+
+		return button;
+	}
+
 	public static Region createSpring() {
 		Region spring = new Region();
 		HBox.setHgrow( spring, Priority.ALWAYS );

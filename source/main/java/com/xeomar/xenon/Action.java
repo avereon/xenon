@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import org.slf4j.Logger;
 
+// FIXME There is a proper Action class in JavaFX
 public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 
 	protected static Logger log = LogUtil.get( Action.class );

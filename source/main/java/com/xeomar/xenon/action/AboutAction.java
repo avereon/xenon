@@ -20,7 +20,7 @@ public class AboutAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-		getProgram().getResourceManager().open( ProgramAboutType.uri );
+			getProgram().getResourceManager().open( ProgramAboutType.uri );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening about tool", exception );
 		}
