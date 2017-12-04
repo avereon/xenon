@@ -13,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderStroke;
 import org.slf4j.Logger;
 
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -35,6 +36,8 @@ public class UiManager {
 	public static final String PARENT_WORKPANE_ID = "workpane-id";
 
 	public static final String PARENT_WORKPANEVIEW_ID = "workpaneview-id";
+
+	private static final int RESTORE_TOOL_TIMEOUT = 10;
 
 	private static Logger log = LogUtil.get( UiManager.class );
 
@@ -440,39 +443,39 @@ public class UiManager {
 	}
 
 	private void restoreWorktool( String id ) {
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
+		String toolType = settings.get( "type" );
+		String uriString = settings.get( "uri" );
+		WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
+
 		try {
-			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-
-			WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
-			String toolType = settings.get( "type" );
-			String uri = settings.get( "uri" );
-
 			// If the view is not found, then the tool is orphaned...delete the settings
-			if( view == null || uri == null ) {
+			if( view == null || uriString == null ) {
 				log.debug( "Removing orphaned tool settings: " + id );
 				settings.delete();
 				return;
 			}
 
-
 			// Create the resource
+			URI uri = URI.create( uriString );
 			Resource resource = program.getResourceManager().createResource( uri );
 			program.getResourceManager().loadResource( resource );
 
+			// Create an open tool request
+			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
+			openToolRequest.setResource( resource );
+
 			// Restore the tool on a task thread
-			try {
-				OpenResourceRequest openResourceRequest = new OpenResourceRequest().setResource( resource );
-				AbstractTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openResourceRequest, toolType ) ).get( 1, TimeUnit.SECONDS );
-				if( tool == null ) return;
-				tool.setSettings( settings );
+			AbstractTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openToolRequest, toolType ) ).get( RESTORE_TOOL_TIMEOUT, TimeUnit.SECONDS );
+			if( tool == null ) return;
+			tool.setSettings( settings );
 
-				Set<AbstractTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
-				viewToolSet.add( tool );
+			Set<AbstractTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
+			viewToolSet.add( tool );
 
-				tools.put( id, tool );
-			} catch( TimeoutException exception ) {
-				log.warn( "Timeout waiting for tool to load: " + toolType, exception );
-			}
+			tools.put( id, tool );
+		} catch( TimeoutException exception ) {
+			log.warn( "Timeout waiting for tool to load: " + toolType, exception );
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool", exception );
 		}

@@ -2,9 +2,11 @@ package com.xeomar.xenon.resource;
 
 import com.xeomar.xenon.workarea.WorkpaneView;
 
+import java.net.URI;
+
 public class OpenResourceRequest {
 
-	private Resource resource;
+	private URI uri;
 
 	private String query;
 
@@ -18,12 +20,12 @@ public class OpenResourceRequest {
 
 	private boolean setActive;
 
-	public Resource getResource() {
-		return resource;
+	public URI getUri() {
+		return uri;
 	}
 
-	public OpenResourceRequest setResource( Resource resource ) {
-		this.resource = resource;
+	public OpenResourceRequest setUri( URI uri ) {
+		this.uri = uri;
 		return this;
 	}
 

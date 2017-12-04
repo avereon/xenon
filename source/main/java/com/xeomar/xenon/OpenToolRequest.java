@@ -7,9 +7,13 @@ import com.xeomar.xenon.tool.AbstractTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
 
+import java.net.URI;
+
 public class OpenToolRequest {
 
 	private OpenResourceRequest openResourceRequest;
+
+	private Resource resource;
 
 	private Workpane pane;
 
@@ -19,7 +23,7 @@ public class OpenToolRequest {
 		this.openResourceRequest = openResourceRequest;
 	}
 
-	public Resource getResource() {return openResourceRequest.getResource();}
+	public URI getUri() {return openResourceRequest.getUri();}
 
 	public String getQuery() {return openResourceRequest.getQuery();}
 
@@ -39,6 +43,15 @@ public class OpenToolRequest {
 
 	public OpenToolRequest setToolClass( Class<? extends AbstractTool> toolClass ) {
 		this.toolClass = toolClass;
+		return this;
+	}
+
+	public Resource getResource() {
+		return resource;
+	}
+
+	public OpenToolRequest setResource( Resource resource ) {
+		this.resource = resource;
 		return this;
 	}
 

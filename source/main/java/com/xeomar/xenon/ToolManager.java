@@ -5,7 +5,6 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.resource.OpenResourceRequest;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
@@ -64,31 +63,6 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		log.debug( "Tool unregistered: resourceType={} -> tool={}", resourceType.getKey(), type.getName() );
 	}
-
-	//	public AbstractTool getTool( Resource resource ) {
-	//		return getToolInstance( resource );
-	//	}
-
-	// FIXME Should openTool methods be in UiManager
-	//	public AbstractTool openTool( Resource resource ) {
-	//		return openTool( resource, null, null );
-	//	}
-	//
-	//	public AbstractTool openTool( Resource resource, Workpane pane ) {
-	//		return openTool( resource, pane, null );
-	//	}
-	//
-	//	public AbstractTool openTool( Resource resource, WorkpaneView view ) {
-	//		return openTool( resource, view == null ? null : view.getWorkpane(), view );
-	//	}
-	//
-	//	public AbstractTool openTool( Resource resource, WorkpaneView view, boolean setActive ) {
-	//		return openTool( resource, view == null ? null : view.getWorkpane(), view, null, setActive );
-	//	}
-	//
-	//	public AbstractTool openTool( Resource resource, Workpane pane, WorkpaneView view ) {
-	//		return openTool( resource, pane, view, null, true );
-	//	}
 
 	public AbstractTool openTool( OpenToolRequest request ) {
 		// Verify the request parameters
@@ -166,7 +140,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return tool;
 	}
 
-	public AbstractTool restoreTool( OpenResourceRequest request, String toolClassName ) {
+	public AbstractTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) throws ResourceException {
 		// Run this class through the alias map
 		toolClassName = getToolClassName( toolClassName );
 
@@ -188,16 +162,15 @@ public class ToolManager implements Controllable<ToolManager> {
 			return null;
 		}
 
-		OpenToolRequest openToolRequest = new OpenToolRequest( request ).setToolClass( toolMetadata.getType() );
+		openToolRequest.setToolClass( toolMetadata.getType() );
+
 		final AbstractTool tool = getToolInstance( openToolRequest, false );
 		if( tool != null ) waitForResourceReady( openToolRequest, tool );
 		return tool;
 	}
 
 	private ToolInstanceMode getToolInstanceMode( Class<? extends AbstractTool> toolClass ) {
-		ToolInstanceMode instanceMode = null;
-		//if( instanceMode == null ) instanceMode = program.getSettings().getInstanceMode( toolClass );
-		if( instanceMode == null ) instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
+		ToolInstanceMode instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
 		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
 		return instanceMode;
 	}

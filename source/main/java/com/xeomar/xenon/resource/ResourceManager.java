@@ -347,32 +347,27 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public Future<AbstractTool> open( URI uri ) throws ResourceException {
-		OpenResourceRequest request = new OpenResourceRequest();
-		request.setResource( createResource( uri ) );
-		request.setOpenTool( true );
-		request.setSetActive( true );
-		request.setFragment( uri.getFragment() );
-		request.setQuery( uri.getQuery() );
-
-		return program.getExecutor().submit( new OpenActionTask( request ) );
+		return open( uri, true, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public Future<AbstractTool> open( URI uri, boolean openTool, boolean setActive ) throws ResourceException {
-		return open( Collections.singletonList( createResource( uri ) ), null, openTool, setActive ).get( 0 );
+		return open( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	private List<Future<AbstractTool>> open( List<Resource> resources, WorkpaneView view, boolean openTool, boolean setActive ) {
-		List<Future<AbstractTool>> futures = new ArrayList<>( resources.size() );
+	private List<Future<AbstractTool>> open( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
+		List<Future<AbstractTool>> futures = new ArrayList<>( uris.size() );
 
-		for( Resource resource : resources ) {
+		for( URI uri : uris ) {
 			OpenResourceRequest request = new OpenResourceRequest();
-			request.setResource( resource );
+			request.setUri( uri );
+			request.setFragment( uri.getFragment() );
+			request.setQuery( uri.getQuery() );
 			request.setView( view );
 			request.setOpenTool( openTool );
 			request.setSetActive( setActive );
@@ -1290,7 +1285,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		@Override
 		public AbstractTool call() throws Exception {
-			Resource resource = request.getResource();
+			Resource resource = createResource( request.getUri() );
 			log.debug( "Open resource: ", resource.getUri() );
 
 			boolean openTool = request.isOpenTool() || !isResourceOpen( resource );
@@ -1310,8 +1305,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				return null;
 			}
 
-			AbstractTool tool = null;
-			if( openTool ) tool = program.getToolManager().openTool( new OpenToolRequest( request ) );
+			AbstractTool tool = openTool ? program.getToolManager().openTool( new OpenToolRequest( request ).setResource( resource ) ) : null;
 
 			setCurrentResource( resource );
 

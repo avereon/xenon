@@ -218,16 +218,7 @@ public class ProgramUpdateManager extends UpdateManager {
 							Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 							Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-							if( result.isPresent() && result.get() == ButtonType.YES ) {
-								program.getExecutor().submit( () -> {
-									try {
-										URI uri = URI.create( ProgramArtifactType.uri + "#" + ProgramArtifactType.UPDATES );
-										Tool tool = program.getResourceManager().open( uri ).get();
-									} catch( Exception exception ) {
-										log.error( "Error opening artifact tool ", exception );
-									}
-								} );
-							}
+							if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
 						} );
 					} else {
 						// NEXT Use the notice tool to notify the user of posted updates
@@ -247,6 +238,15 @@ public class ProgramUpdateManager extends UpdateManager {
 					// TODO program.getExecutor().submit( new StageUpdates( postedUpdates ) );
 					break;
 				}
+			}
+		}
+
+		private void showUpdates() {
+			try {
+				URI uri = URI.create( ProgramArtifactType.uri + "#" + ProgramArtifactType.UPDATES );
+				Tool tool = program.getResourceManager().open( uri ).get();
+			} catch( Exception exception ) {
+				log.error( "Error opening artifact tool ", exception );
 			}
 		}
 
