@@ -347,21 +347,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public Future<AbstractTool> open( URI uri ) throws ResourceException {
-		return open( createResource( uri ) );
-	}
+		OpenResourceRequest request = new OpenResourceRequest();
+		request.setResource( createResource( uri ) );
+		request.setOpenTool( true );
+		request.setSetActive( true );
+		request.setFragment( uri.getFragment() );
+		request.setQuery( uri.getQuery() );
 
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public Future<AbstractTool> open( Resource resource ) {
-		return open( resource, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public Future<AbstractTool> open( Resource resource, boolean openTool ) {
-		return open( resource, openTool, true );
+		return program.getExecutor().submit( new OpenActionTask( request ) );
 	}
 
 	/**
@@ -369,41 +362,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 */
 	public Future<AbstractTool> open( URI uri, boolean openTool, boolean setActive ) throws ResourceException {
 		return open( Collections.singletonList( createResource( uri ) ), null, openTool, setActive ).get( 0 );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public Future<AbstractTool> open( Resource resource, boolean openTool, boolean setActive ) {
-		return open( Collections.singletonList( resource ), null, openTool, setActive ).get( 0 );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<Future<AbstractTool>> open( List<Resource> resources ) {
-		return open( resources, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<Future<AbstractTool>> open( List<Resource> resources, WorkpaneView view ) {
-		return open( resources, view, true );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<Future<AbstractTool>> open( List<Resource> resources, boolean openTool ) {
-		return open( resources, null, openTool );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public List<Future<AbstractTool>> open( List<Resource> resources, WorkpaneView view, boolean openTool ) {
-		return open( resources, view, openTool, true );
 	}
 
 	/**

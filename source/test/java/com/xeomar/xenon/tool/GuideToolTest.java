@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -23,7 +24,7 @@ public class GuideToolTest extends FxProgramTestCase {
 		GuideTool tool = new GuideTool( program, resource );
 
 		Set<URI> resources = tool.getResourceDependencies();
-		Assert.assertThat(resources.size(), is( 0 ));
+		Assert.assertThat( resources.size(), is( 0 ) );
 	}
 
 	@Test
@@ -31,7 +32,7 @@ public class GuideToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramGuideType.uri ) );
+		program.getResourceManager().open( ProgramGuideType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
@@ -42,13 +43,12 @@ public class GuideToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramGuideType.uri ) );
+		Future<AbstractTool> future = program.getResourceManager().open( ProgramGuideType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
-		Resource resource = program.getResourceManager().createResource( ProgramGuideType.uri );
-		program.getResourceManager().closeResources( resource );
+		program.getResourceManager().closeResources( future.get().getResource() );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 		assertThat( pane.getTools().size(), is( 0 ) );
 	}

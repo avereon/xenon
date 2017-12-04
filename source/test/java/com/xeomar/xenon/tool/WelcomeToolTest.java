@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -32,7 +33,7 @@ public class WelcomeToolTest extends FxProgramTestCase {
 		clickOn( "#menuitem-welcome" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ));
+		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 
@@ -45,14 +46,14 @@ public class WelcomeToolTest extends FxProgramTestCase {
 		clickOn( "#menuitem-welcome" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ));
+		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ));
+		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 
@@ -61,16 +62,15 @@ public class WelcomeToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramWelcomeType.uri ) );
+		Future<AbstractTool> future = program.getResourceManager().open( ProgramWelcomeType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
-		assertThat( pane.getActiveView().isMaximized(), is( true ));
+		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
-		Resource resource = program.getResourceManager().createResource( ProgramWelcomeType.uri );
-		program.getResourceManager().closeResources( resource );
+		program.getResourceManager().closeResources( future.get().getResource() );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-		assertThat( pane.getMaximizedView(), is( nullValue() ));
+		assertThat( pane.getMaximizedView(), is( nullValue() ) );
 		assertThat( pane.getTools().size(), is( 0 ) );
 	}
 

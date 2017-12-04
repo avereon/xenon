@@ -84,11 +84,11 @@ public class ArtifactTool extends GuidedTool {
 		if( newNode != null ) selectPage( newNode.getId() );
 	}
 
-	private void selectPage( String page ) {
-		log.debug( "Artifact page selected: " + page );
-		if( page == null ) return;
+	private void selectPage( String pageId ) {
+		log.debug( "Artifact page selected: " + pageId );
+		if( pageId == null ) return;
 
-		ArtifactPanel panel = new ArtifactPanel( getProduct(), page );
+		ArtifactPanel panel = new ArtifactPanel( getProduct(), pageId );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
 		getChildren().clear();

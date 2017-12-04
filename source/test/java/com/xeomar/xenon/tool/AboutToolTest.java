@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -60,14 +61,13 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramAboutType.uri ) );
+		Future<AbstractTool> future = program.getResourceManager().open( ProgramAboutType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		Resource resource = program.getResourceManager().createResource( ProgramAboutType.uri );
-		program.getResourceManager().closeResources( resource );
+		program.getResourceManager().closeResources( future.get().getResource() );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}

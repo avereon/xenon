@@ -18,6 +18,14 @@ public class ProgramArtifactType extends ResourceType {
 
 	public static final URI uri = URI.create( "program:artifact" );
 
+	public static final String INSTALLED = "installed";
+
+	public static final String AVAILABLE = "available";
+
+	public static final String UPDATES = "updates";
+
+	public static final String SOURCES = "sources";
+
 	public ProgramArtifactType( Product product ) {
 		super( product, "artifact" );
 	}
@@ -45,7 +53,6 @@ public class ProgramArtifactType extends ResourceType {
 		return null;
 	}
 
-
 	private void updateGuide( Program program, Resource resource ) {
 		Guide guide = resource.getResource( Guide.GUIDE_KEY );
 
@@ -56,19 +63,19 @@ public class ProgramArtifactType extends ResourceType {
 		ProductBundle rb = getProduct().getResourceBundle();
 
 		GuideNode installed = new GuideNode();
-		installed.setId( "installed" );
+		installed.setId( INSTALLED );
 		installed.setName( rb.getString( "tool", "artifact-installed" ) );
 
 		GuideNode available = new GuideNode();
-		available.setId( "available");
+		available.setId( AVAILABLE );
 		available.setName( rb.getString( "tool", "artifact-available" ) );
 
 		GuideNode updates = new GuideNode();
-		updates.setId( "updates" );
+		updates.setId( UPDATES );
 		updates.setName( rb.getString( "tool", "artifact-updates" ) );
 
 		GuideNode sources = new GuideNode();
-		sources.setId( "sources" );
+		sources.setId( SOURCES );
 		sources.setName( rb.getString( "tool", "artifact-sources" ) );
 
 		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "artifact" ) ) );

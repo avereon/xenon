@@ -221,7 +221,7 @@ public class ProgramUpdateManager extends UpdateManager {
 							if( result.isPresent() && result.get() == ButtonType.YES ) {
 								program.getExecutor().submit( () -> {
 									try {
-										URI uri = URI.create( ProgramArtifactType.uri + "#update" );
+										URI uri = URI.create( ProgramArtifactType.uri + "#" + ProgramArtifactType.UPDATES );
 										Tool tool = program.getResourceManager().open( uri ).get();
 									} catch( Exception exception ) {
 										log.error( "Error opening artifact tool ", exception );
