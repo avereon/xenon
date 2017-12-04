@@ -347,15 +347,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public Future<AbstractTool> open( URI uri ) throws ResourceException {
-		OpenResourceRequest request = new OpenResourceRequest();
-		request.setResource( createResource( uri ) );
-		request.setFragment( uri.getFragment() );
-		request.setQuery( uri.getQuery() );
-
-		return program.getExecutor().submit( new OpenActionTask( request ) );
+		return open( createResource( uri ) );
 	}
 
-	// NEXT Fix the rest of the open methods
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
@@ -419,7 +413,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		List<Future<AbstractTool>> futures = new ArrayList<>( resources.size() );
 
 		for( Resource resource : resources ) {
-			OpenResourceRequest request = new OpenResourceRequest().setResource( resource ).setView( view ).setOpenTool( openTool ).setSetActive( setActive );
+			OpenResourceRequest request = new OpenResourceRequest();
+			request.setResource( resource );
+			request.setView( view );
+			request.setOpenTool( openTool );
+			request.setSetActive( setActive );
 			OpenActionTask task = new OpenActionTask( request );
 			futures.add( program.getExecutor().submit( task ) );
 			setActive = false;
@@ -1335,7 +1333,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		@Override
 		public AbstractTool call() throws Exception {
 			Resource resource = request.getResource();
-			log.trace( "Open resource: ", resource.getUri() );
+			log.debug( "Open resource: ", resource.getUri() );
 
 			boolean openTool = request.isOpenTool() || !isResourceOpen( resource );
 			Codec codec = request.getCodec();
