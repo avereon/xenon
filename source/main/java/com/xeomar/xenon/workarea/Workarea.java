@@ -37,6 +37,7 @@ public class Workarea implements Configurable {
 
 	public Workarea() {
 		workpane = new Workpane();
+		workpane.setEdgeSize( UiManager.PAD );
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
 	}
 

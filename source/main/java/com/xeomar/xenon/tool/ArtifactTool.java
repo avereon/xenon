@@ -4,10 +4,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.DateUtil;
-import com.xeomar.xenon.Action;
-import com.xeomar.xenon.BundleKey;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramProduct;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.update.UpdateManager;
@@ -17,10 +14,10 @@ import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -42,6 +39,8 @@ public class ArtifactTool extends GuidedTool {
 	private Action addSourceAction;
 
 	private Action refreshStateAction;
+
+	private BorderPane layoutPane;
 
 	private Map<String, ArtifactPage> pages;
 
@@ -67,9 +66,12 @@ public class ArtifactTool extends GuidedTool {
 		pages.put( ProgramArtifactType.UPDATES, new UpdatesPage( program ) );
 		pages.put( ProgramArtifactType.SOURCES, new SourcesPage( program ) );
 
-		// NEXT Get the layout straigned out
 		checkInfo = new UpdateCheckInfo( program );
 
+		layoutPane = new BorderPane();
+		layoutPane.setPadding( new Insets( UiManager.PAD ) );
+		layoutPane.setBottom( checkInfo );
+		getChildren().add( layoutPane );
 	}
 
 	@Override
@@ -82,6 +84,7 @@ public class ArtifactTool extends GuidedTool {
 	protected void display() throws ToolException {
 		log.debug( "Artifact tool display" );
 		super.display();
+		checkInfo.updateInfo();
 	}
 
 	@Override
@@ -140,10 +143,7 @@ public class ArtifactTool extends GuidedTool {
 		currentPage = pages.get( pageId );
 		currentPage.updateState();
 
-		ScrollPane scroller = new ScrollPane( currentPage );
-		scroller.setFitToWidth( true );
-		getChildren().clear();
-		getChildren().add( scroller );
+		layoutPane.setCenter( currentPage );
 	}
 
 	private class AddSourceAction extends Action {
@@ -332,9 +332,8 @@ public class ArtifactTool extends GuidedTool {
 			lastUpdateCheckField = new Label();
 			nextUpdateCheckField = new Label();
 
+			// NEXT Fix layout
 			getChildren().addAll( lastUpdateCheckLabel, lastUpdateCheckField, new Pane(), nextUpdateCheckLabel, nextUpdateCheckField );
-
-			updateInfo();
 
 			program.getUpdateManager().getSettings().addSettingsListener( this );
 		}

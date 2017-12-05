@@ -7,19 +7,19 @@ import java.util.Optional;
 
 public class DialogUtil {
 
-	public static void show( Stage stage, Dialog dialog ) {
+	public static void show( Stage owner, Dialog dialog ) {
 		// The following line is a workaround to dialogs showing with zero size on Linux
 		dialog.setResizable( true );
 
-		dialog.initOwner( stage );
+		dialog.initOwner( owner );
 		dialog.show();
 	}
 
-	public static <R> Optional<R> showAndWait( Stage stage, Dialog<R> dialog ) {
+	public static <R> Optional<R> showAndWait( Stage owner, Dialog<R> dialog ) {
 		// The following line is a workaround to dialogs showing with zero size on Linux
 		dialog.setResizable( true );
 
-		dialog.initOwner( stage );
+		dialog.initOwner( owner );
 		return dialog.showAndWait();
 	}
 

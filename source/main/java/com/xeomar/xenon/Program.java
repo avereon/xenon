@@ -461,18 +461,18 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
-		// Restore the user interface
-		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiManager.restoreUi( splashScreen ) );
-		uiManager.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		log.debug( "User interface restored." );
-
 		// Start the update manager
 		log.trace( "Starting update manager..." );
 		updateManager = configureUpdateManager( new ProgramUpdateManager( Program.this ) ).start();
 		updateManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Update manager started." );
+
+		// Restore the user interface
+		log.trace( "Restore the user interface..." );
+		Platform.runLater( () -> uiManager.restoreUi( splashScreen ) );
+		uiManager.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "User interface restored." );
 
 		// Finish the splash screen
 		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
