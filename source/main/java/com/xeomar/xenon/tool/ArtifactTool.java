@@ -331,7 +331,6 @@ public class ArtifactTool extends GuidedTool {
 
 			Pane spring = new Pane();
 			HBox.setHgrow( spring, Priority.ALWAYS );
-			// NEXT Fix layout
 			getChildren().addAll( lastUpdateCheckLabel, lastUpdateCheckField, spring, nextUpdateCheckLabel, nextUpdateCheckField );
 
 			program.getUpdateManager().getSettings().addSettingsListener( this );
