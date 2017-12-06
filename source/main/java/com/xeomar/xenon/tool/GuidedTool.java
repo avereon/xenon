@@ -2,6 +2,7 @@ package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.beans.value.ChangeListener;
@@ -9,6 +10,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class GuidedTool extends AbstractTool {
 
@@ -18,6 +23,12 @@ public abstract class GuidedTool extends AbstractTool {
 
 	public GuidedTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
+	}
+
+	public Set<URI> getResourceDependencies() {
+		Set<URI> resources = new HashSet<>();
+		resources.add( ProgramGuideType.uri );
+		return resources;
 	}
 
 	@Override

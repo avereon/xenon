@@ -108,6 +108,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private NoticeAction noticeAction;
 
+	private ProductAction productAction;
+
 	private UpdateAction updateAction;
 
 	private Path home;
@@ -123,6 +125,7 @@ public class Program extends Application implements ProgramProduct {
 		settingsAction = new SettingsAction( this );
 		welcomeAction = new WelcomeAction( this );
 		noticeAction = new NoticeAction( this );
+		productAction = new ProductAction( this );
 		updateAction = new UpdateAction( this );
 		restartAction = new RestartAction( this );
 
@@ -546,13 +549,15 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( home == null && parameters.isSet( ProgramParameter.HOME ) ) home = Paths.get( parameters.get( ProgramParameter.HOME ) );
+			if( home == null && parameters.isSet( ProgramParameter.HOME ) )
+				home = Paths.get( parameters.get( ProgramParameter.HOME ) );
 
 			// Check the code source.
 			if( home == null ) {
 				try {
 					URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) ) home = Paths.get( uri ).getParent();
+					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) )
+						home = Paths.get( uri ).getParent();
 				} catch( URISyntaxException exception ) {
 					log.error( "Error using class location to determine program home", exception );
 				}
@@ -596,6 +601,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction );
+		getActionLibrary().getAction( "product" ).pushAction( productAction );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 	}
@@ -606,6 +612,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
+		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 	}

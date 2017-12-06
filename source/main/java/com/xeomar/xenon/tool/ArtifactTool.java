@@ -18,10 +18,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -332,8 +329,10 @@ public class ArtifactTool extends GuidedTool {
 			lastUpdateCheckField = new Label();
 			nextUpdateCheckField = new Label();
 
+			Pane spring = new Pane();
+			HBox.setHgrow( spring, Priority.ALWAYS );
 			// NEXT Fix layout
-			getChildren().addAll( lastUpdateCheckLabel, lastUpdateCheckField, new Pane(), nextUpdateCheckLabel, nextUpdateCheckField );
+			getChildren().addAll( lastUpdateCheckLabel, lastUpdateCheckField, spring, nextUpdateCheckLabel, nextUpdateCheckField );
 
 			program.getUpdateManager().getSettings().addSettingsListener( this );
 		}

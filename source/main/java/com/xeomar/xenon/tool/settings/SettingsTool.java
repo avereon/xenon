@@ -91,10 +91,4 @@ public class SettingsTool extends GuidedTool {
 		getChildren().add( scroller );
 	}
 
-	public Set<URI> getResourceDependencies() {
-		Set<URI> resources = new HashSet<>();
-		resources.add( ProgramGuideType.uri );
-		return resources;
-	}
-
 }

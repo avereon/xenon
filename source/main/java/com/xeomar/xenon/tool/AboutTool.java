@@ -79,12 +79,6 @@ public class AboutTool extends GuidedTool {
 		nodes.put( DETAILS, detailsPane );
 	}
 
-	public Set<URI> getResourceDependencies() {
-		Set<URI> resources = new HashSet<>();
-		resources.add( ProgramGuideType.uri );
-		return resources;
-	}
-
 	public String getTitleSuffix() {
 		return titleSuffix;
 	}
