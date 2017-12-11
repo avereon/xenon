@@ -462,16 +462,8 @@ public class ArtifactTool extends GuidedTool {
 			boolean isProgram = getProgram().getCard().equals( card );
 			boolean isEnabled = manager.isEnabled( card );
 			boolean isInstalled = manager.isInstalled( card );
-			//boolean isInstalledProductsPanel = SwingUtilities.isDescendingFrom( this, installedProducts );
-			//boolean isUpdatableProductsPanel = SwingUtilities.isDescendingFrom( this, updatableProducts );
-
-			Pane installedProductsPane = pages.get( ProgramArtifactType.INSTALLED );
-			Pane updatableProductsPane = pages.get( ProgramArtifactType.UPDATES );
-
-			UiUtil.isChildOf( this, installedProductsPane );
-
-			boolean isInstalledProductsPanel = UiUtil.isChildOf( this, installedProductsPane );
-			boolean isUpdatableProductsPanel = UiUtil.isChildOf( this, updatableProductsPane );
+			boolean isInstalledProductsPanel = UiUtil.isChildOf( this, pages.get( ProgramArtifactType.INSTALLED ) );
+			boolean isUpdatableProductsPanel = UiUtil.isChildOf( this, pages.get( ProgramArtifactType.UPDATES ) );
 
 			// Determine state string key.
 			String stateLabelKey = "not.installed";
