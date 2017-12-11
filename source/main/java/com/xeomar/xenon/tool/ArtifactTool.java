@@ -453,6 +453,7 @@ public class ArtifactTool extends GuidedTool {
 		}
 
 		void updateProductState() {
+			// NEXT Implement ArtifactTool.ProductPane.updateProductState()
 			ProductCard card = source.getCard();
 			UpdateManager manager = getProgram().getUpdateManager();
 
