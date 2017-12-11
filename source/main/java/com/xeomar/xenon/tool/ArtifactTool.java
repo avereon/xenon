@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool;
 
 import com.xeomar.product.ProductCard;
+import com.xeomar.product.ProductCardComparator;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.DateUtil;
@@ -9,6 +10,7 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.ActionUtil;
+import com.xeomar.xenon.util.UiUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
@@ -22,10 +24,7 @@ import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 public class ArtifactTool extends GuidedTool {
 
@@ -43,7 +42,7 @@ public class ArtifactTool extends GuidedTool {
 
 	private ArtifactPage currentPage;
 
-	private UpdateCheckInfo checkInfo;
+	private CheckInfoPane checkInfo;
 
 	public ArtifactTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -63,7 +62,7 @@ public class ArtifactTool extends GuidedTool {
 		pages.put( ProgramArtifactType.UPDATES, new UpdatesPage( program ) );
 		pages.put( ProgramArtifactType.SOURCES, new SourcesPage( program ) );
 
-		checkInfo = new UpdateCheckInfo( program );
+		checkInfo = new CheckInfoPane( program );
 
 		layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiManager.PAD ) );
@@ -118,14 +117,12 @@ public class ArtifactTool extends GuidedTool {
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		log.debug( "Artifact tool resource ready" );
 		super.resourceReady( parameters );
-		resourceRefreshed();
 		getGuide().setSelected( parameters.getFragment() );
 	}
 
 	@Override
 	public void resourceRefreshed() throws ToolException {
 		super.resourceRefreshed();
-		Program program = (Program)getProduct();
 	}
 
 	@Override
@@ -141,6 +138,39 @@ public class ArtifactTool extends GuidedTool {
 		currentPage.updateState();
 
 		layoutPane.setCenter( currentPage );
+	}
+
+	private List<ProductSource> createSourceList( List<ProductCard> cards ) {
+		// Clean out duplicate releases and create unique product list.
+		List<ProductCard> uniqueList = new ArrayList<>();
+		Map<String, List<ProductCard>> cardMap = new HashMap<>();
+		for( ProductCard card : cards ) {
+			List<ProductCard> productReleaseCards = cardMap.get( card.getProductKey() );
+			if( productReleaseCards == null ) {
+				productReleaseCards = new ArrayList<>();
+				productReleaseCards.add( card );
+				cardMap.put( card.getProductKey(), productReleaseCards );
+				uniqueList.add( card );
+			} else {
+				boolean found = false;
+				for( ProductCard releaseCard : productReleaseCards ) {
+					found = found | card.getRelease().equals( releaseCard.getRelease() );
+				}
+				if( !found ) productReleaseCards.add( card );
+			}
+		}
+
+		// Create the sources.
+		List<ProductSource> sources = new ArrayList<>();
+		for( ProductCard card : uniqueList ) {
+			List<ProductCard> releases = cardMap.get( card.getProductKey() );
+			if( releases != null ) {
+				releases.sort( Collections.reverseOrder( new ProductCardComparator( getProgram(), ProductCardComparator.Field.RELEASE ) ) );
+				sources.add( new ProductSource( releases.get( 0 ) ) );
+			}
+		}
+
+		return sources;
 	}
 
 	private class AddSourceAction extends Action {
@@ -179,11 +209,13 @@ public class ArtifactTool extends GuidedTool {
 
 	}
 
-	private abstract class ArtifactPage extends VBox {
+	private abstract class ArtifactPage extends BorderPane {
 
 		private Label title;
 
-		private HBox buttons;
+		private HBox buttonBox;
+
+		private VBox nodes;
 
 		public ArtifactPage( Program program ) {
 			setId( "tool-artifact-panel" );
@@ -191,29 +223,25 @@ public class ArtifactTool extends GuidedTool {
 			title = new Label( "" );
 			title.setId( "tool-artifact-page-title" );
 
-			buttons = new HBox();
+			buttonBox = new HBox();
 
-			BorderPane layoutPane = new BorderPane();
-			layoutPane.prefWidthProperty().bind( this.widthProperty() );
-			layoutPane.setLeft( title );
-			layoutPane.setRight( buttons );
+			BorderPane header = new BorderPane();
+			header.prefWidthProperty().bind( this.widthProperty() );
+			header.setLeft( title );
+			header.setRight( buttonBox );
 
-			getChildren().addAll( layoutPane );
+			setTop( header );
 		}
 
 		protected void setTitle( String title ) {
 			this.title.setText( title );
 		}
 
-		protected ObservableList<Node> getButtons() {
-			return buttons.getChildren();
+		protected ObservableList<Node> getButtonBox() {
+			return buttonBox.getChildren();
 		}
 
-		protected void updateState() {
-			System.out.println( "Update state for " + title.getText() );
-
-			//
-		}
+		protected abstract void updateState();
 
 	}
 
@@ -221,17 +249,76 @@ public class ArtifactTool extends GuidedTool {
 
 		private Button refreshButton;
 
+		private VBox productList;
+
 		public ProductPage( Program program ) {
 			super( program );
 
 			refreshButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "refresh" ) );
 			refreshButton.setId( "tool-artifact-page-refresh" );
 
-			getButtons().addAll( refreshButton );
+			getButtonBox().addAll( refreshButton );
+
+			setCenter( productList = new VBox() );
 		}
 
 		Button getRefreshButton() {
 			return refreshButton;
+		}
+
+		void setProducts( List<ProductCard> cards ) {
+			setProducts( cards, false );
+		}
+
+		public void setProducts( List<ProductCard> cards, boolean isUpdate ) {
+			// NEXT Implement ArtifactTool.ProductPage.setProducts()
+//			productList.removeAll();
+//			sources.clear();
+//
+//			// Create a map of the updates.
+//			Map<String, ProductCard> installedProducts = new HashMap<String, ProductCard>();
+//			Map<String, ProductCard> productUpdates = new HashMap<String, ProductCard>();
+//			if( isUpdate ) {
+//				// Installed product map.
+//				for( ProductCard card : getProgram().getProductManager().getProductCards() ) {
+//					installedProducts.put( card.getProductKey(), card );
+//				}
+//
+//				// Product update map.
+//				for( ProductCard card : cards ) {
+//					productUpdates.put( card.getProductKey(), card );
+//				}
+//
+//				// Installed product list.
+//				List<ProductCard> newCards = new ArrayList<ProductCard>();
+//				for( ProductCard card : cards ) {
+//					newCards.add( installedProducts.get( card.getProductKey() ) );
+//				}
+//				cards = newCards;
+//			}
+//
+//			// Create a valid list of product sources.
+//			List<ProductSource> check = createSourceList( cards );
+//			List<ProductSource> valid = new ArrayList<ProductSource>( check.size() );
+//
+//			// Filter out sources with invalid sources.
+//			for( ProductSource source : check ) {
+//				if( source.getCards().size() > 0 ) valid.add( source );
+//			}
+//
+//			// Add a source panel for each card.
+//			int index = 0;
+//			for( ProductSource source : valid ) {
+//				ProductCard product = source.getCards().get( 0 );
+//
+//				SourcePanel panel = new SourcePanel( source, productUpdates.get( product.getProductKey() ) );
+//				productList.add( panel, index == 0 ? "growx" : "newline, growx" );
+//				sources.add( panel );
+//				EventQueue.invokeLater( new UpdateSourcePanelState( panel ) );
+//				index++;
+//			}
+//
+//			productList.revalidate();
 		}
 
 	}
@@ -243,6 +330,23 @@ public class ArtifactTool extends GuidedTool {
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.INSTALLED ) );
 		}
 
+		@Override
+		protected void updateState() {
+			System.out.println( "Update state for installed products" );
+
+//			UpdateManager updateManager = getProgram().getUpdateManager();
+//			List<ProductCard> cards = new ArrayList<>( updateManager.getProductCards() );
+//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+//
+//			List<ProductPane> panes = new ArrayList<>( cards.size() );
+//			cards.forEach( ( card ) -> panes.add( new ProductPane( ProductSource.create( updateManager, card ), null ) ) );
+//
+//			VBox contents = new VBox( UiManager.PAD );
+//			contents.getChildren().addAll( panes );
+//
+//			setCenter( contents );
+		}
+
 	}
 
 	private class AvailablePage extends ProductPage {
@@ -252,6 +356,11 @@ public class ArtifactTool extends GuidedTool {
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.AVAILABLE ) );
 		}
 
+		@Override
+		protected void updateState() {
+			System.out.println( "Update state for available products" );
+		}
+
 	}
 
 	private class UpdatesPage extends ProductPage {
@@ -259,6 +368,11 @@ public class ArtifactTool extends GuidedTool {
 		UpdatesPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.UPDATES ) );
+		}
+
+		@Override
+		protected void updateState() {
+			System.out.println( "Update state for available updates" );
 		}
 
 	}
@@ -274,18 +388,24 @@ public class ArtifactTool extends GuidedTool {
 			addButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "add-market" ) );
 			addButton.setId( "tool-artifact-page-add" );
 
-			getButtons().addAll( addButton );
+			getButtonBox().addAll( addButton );
 
-			//Set<UpdateSource> updateSources = program.getUpdateManager().getUpdateSources();
 		}
 
 		Button getAddButton() {
 			return addButton;
 		}
 
+		@Override
+		protected void updateState() {
+			System.out.println( "Update state for product sources" );
+
+			//Set<UpdateSource> updateSources = getProgram().getUpdateManager().getUpdateSources();
+		}
+
 	}
 
-	private class ProductPane extends Pane {
+	private class ProductPane extends BorderPane {
 
 		private ProductSource source;
 
@@ -295,9 +415,27 @@ public class ArtifactTool extends GuidedTool {
 
 		private Label nameLabel;
 
+//		private JLabel versionLabel;
+//
+//		private JTextArea summaryArea;
+//
+//		private JLabel summaryLabel;
+//
+//		private JLabel hyphenLabel;
+//
+//		private JLabel providerLabel;
+//
+//		private JLabel releaseLabel;
+//
+//		private JCheckBox selectCheckBox;
+//
+//		private JLabel stateLabel;
+
 		public ProductPane( ProductSource source, ProductCard update ) {
 			this.source = source;
 			this.update = update;
+
+			setId( "tool-artifact-product" );
 
 			Program program = (Program)getProduct();
 
@@ -305,16 +443,66 @@ public class ArtifactTool extends GuidedTool {
 			if( productIcon == null ) productIcon = program.getIconLibrary().getIcon( "product", ICON_SIZE );
 
 			iconLabel = new Label( null, productIcon );
-			nameLabel.setId( "tool-artifact-product-icon" );
+			iconLabel.setId( "tool-artifact-product-icon" );
 			nameLabel = new Label( source.getCard().getName() );
 			nameLabel.setId( "tool-artifact-product-name" );
 
-			getChildren().addAll( iconLabel, nameLabel );
+			//getChildren().addAll( iconLabel, nameLabel );
+			setLeft( iconLabel );
+			setCenter( nameLabel );
+		}
+
+		void updateProductState() {
+			ProductCard card = source.getCard();
+			UpdateManager manager = getProgram().getUpdateManager();
+
+			//boolean isStaged = update == null ? manager.isStaged( card ) : manager.isReleaseStaged( update );
+			boolean isStaged = false;
+			boolean isProgram = getProgram().getCard().equals( card );
+			boolean isEnabled = manager.isEnabled( card );
+			boolean isInstalled = manager.isInstalled( card );
+			//boolean isInstalledProductsPanel = SwingUtilities.isDescendingFrom( this, installedProducts );
+			//boolean isUpdatableProductsPanel = SwingUtilities.isDescendingFrom( this, updatableProducts );
+
+			Pane installedProductsPane = pages.get( ProgramArtifactType.INSTALLED );
+			Pane updatableProductsPane = pages.get( ProgramArtifactType.UPDATES );
+
+			UiUtil.isChildOf( this, installedProductsPane );
+
+			boolean isInstalledProductsPanel = UiUtil.isChildOf( this, installedProductsPane );
+			boolean isUpdatableProductsPanel = UiUtil.isChildOf( this, updatableProductsPane );
+
+			// Determine state string key.
+			String stateLabelKey = "not.installed";
+			if( isInstalled ) {
+				if( !isProgram && !isEnabled ) {
+					stateLabelKey = "disabled";
+				} else if( isUpdatableProductsPanel ) {
+					stateLabelKey = "available";
+				} else {
+					stateLabelKey = "installed";
+				}
+			}
+			if( isStaged ) stateLabelKey = "downloaded";
+
+			// If on the installed products panel, disable the program product panel.
+			if( isInstalledProductsPanel ) {
+				//selectCheckBox.setEnabled( !isProgram );
+				//				selectCheckBox.setIcon( getProgram().getIconLibrary().getIcon( isProgram ? "blank" : "box" ) );
+				//				selectCheckBox.setSelectedIcon( getProgram().getIconLibrary().getIcon( isProgram ? "blank" : "checkbox" ) );
+				//				selectCheckBox.setRolloverIcon( selectCheckBox.getIcon() );
+				//				selectCheckBox.setRolloverSelectedIcon( selectCheckBox.getSelectedIcon() );
+				//if( isProgram ) selectCheckBox.setSelected( false );
+			} else if( isUpdatableProductsPanel ) {
+				//selectCheckBox.setSelected( true );
+			}
+
+			//stateLabel.setText( stateLabelKey == null ? "" : Bundles.getString( BundleKey.LABELS, stateLabelKey ) );
 		}
 
 	}
 
-	private class UpdateCheckInfo extends HBox implements SettingsListener {
+	private class CheckInfoPane extends HBox implements SettingsListener {
 
 		private Program program;
 
@@ -322,7 +510,7 @@ public class ArtifactTool extends GuidedTool {
 
 		private Label nextUpdateCheckField;
 
-		public UpdateCheckInfo( Program program ) {
+		public CheckInfoPane( Program program ) {
 			this.program = program;
 			Label lastUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" ) );
 			Label nextUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" ) );
@@ -359,6 +547,49 @@ public class ArtifactTool extends GuidedTool {
 					updateInfo();
 				}
 			}
+		}
+
+	}
+
+	private class UpdateAvailableSources implements Runnable {
+
+		private List<ProductCard> cards;
+
+		public UpdateAvailableSources( List<ProductCard> cards ) {
+			this.cards = cards;
+		}
+
+		@Override
+		public void run() {
+			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+			Platform.runLater( () -> ((ProductPage)pages.get( ProgramArtifactType.AVAILABLE )).setProducts( cards ) );
+		}
+
+	}
+
+	private class UpdateInstalledProducts implements Runnable {
+
+		@Override
+		public void run() {
+			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getProductCards() );
+			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+			Platform.runLater( () -> ((ProductPage)pages.get( ProgramArtifactType.INSTALLED )).setProducts( cards ) );
+		}
+
+	}
+
+	private class UpdateUpdateableProducts implements Runnable {
+
+		private List<ProductCard> cards;
+
+		public UpdateUpdateableProducts( Set<ProductCard> cards ) {
+			this.cards = new ArrayList<>( cards );
+		}
+
+		@Override
+		public void run() {
+			this.cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+			Platform.runLater( () -> ((ProductPage)pages.get( ProgramArtifactType.UPDATES )).setProducts( cards ) );
 		}
 
 	}

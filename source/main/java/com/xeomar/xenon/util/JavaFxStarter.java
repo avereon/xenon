@@ -3,6 +3,8 @@ package com.xeomar.xenon.util;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.util.concurrent.TimeoutException;
+
 public final class JavaFxStarter extends Application {
 
 	private final static Object startLock = new Object();
@@ -12,7 +14,11 @@ public final class JavaFxStarter extends Application {
 	public JavaFxStarter() {}
 
 	@Override
-	public void start( Stage primaryStage ) throws Exception {
+	public void start( Stage primaryStage ) {
+		setStarted();
+	}
+
+	private static void setStarted() {
 		synchronized( startLock ) {
 			started = true;
 			startLock.notifyAll();
@@ -20,6 +26,8 @@ public final class JavaFxStarter extends Application {
 	}
 
 	public static void startAndWait( long timeout ) {
+		long limit = System.currentTimeMillis() + timeout;
+
 		synchronized( startLock ) {
 			if( started ) return;
 
@@ -27,18 +35,20 @@ public final class JavaFxStarter extends Application {
 				try {
 					JavaFxStarter.launch();
 				} catch( IllegalStateException exception ) {
-					started = true;
+					// Platform was already started by a different class
+					setStarted();
 				}
 			} ).start();
 
-			long limit = System.currentTimeMillis() + timeout;
 			while( !started ) {
 				try {
-					startLock.wait( 20 );
+					startLock.wait( timeout );
 				} catch( InterruptedException exception ) {
 					exception.printStackTrace();
 				}
-				if( System.currentTimeMillis() > limit ) return;
+				if( !started && System.currentTimeMillis() >= limit ) {
+					throw new RuntimeException( new TimeoutException( "FX platform start timeout after " + timeout + " ms" ) );
+				}
 			}
 		}
 	}

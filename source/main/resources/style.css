@@ -104,6 +104,15 @@
 	-fx-font-size: 2em;
 }
 
+#tool-artifact-product {
+	-fx-background-color: -ex-background-text;
+}
+
+#tool-artifact-product-name {
+	-fx-font-size: 2em;
+	-fx-background-color: green;
+}
+
 #tool-welcome {
 	-fx-background-color: transparent;
 }

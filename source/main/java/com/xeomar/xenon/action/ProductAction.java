@@ -6,6 +6,8 @@ import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import javafx.event.Event;
 
+import java.net.URI;
+
 public class ProductAction extends Action {
 
 	public ProductAction( Program program ) {
@@ -20,7 +22,8 @@ public class ProductAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			getProgram().getResourceManager().open( ProgramArtifactType.uri );
+			URI uri = URI.create( ProgramArtifactType.uri + "#" + ProgramArtifactType.INSTALLED );
+			getProgram().getResourceManager().open( uri );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening product tool", exception );
 		}

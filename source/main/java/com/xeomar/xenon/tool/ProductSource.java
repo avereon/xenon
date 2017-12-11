@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool;
 
 import com.xeomar.product.ProductCard;
+import com.xeomar.xenon.update.UpdateManager;
 
 /**
  * This class is used for state information in the ArtifactTool class.
@@ -43,6 +44,14 @@ public class ProductSource {
 
 	public void setRemovable( boolean removable ) {
 		this.removable = removable;
+	}
+
+	public static ProductSource create( UpdateManager manager, ProductCard card ) {
+		ProductSource source = new ProductSource(  );
+		source.setCard( card );
+		source.setEnabled( manager.isEnabled( card ) );
+		source.setRemovable( manager.isRemovable( card ) );
+		return source;
 	}
 
 }
