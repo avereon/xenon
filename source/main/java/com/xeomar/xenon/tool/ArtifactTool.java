@@ -477,7 +477,7 @@ public class ArtifactTool extends GuidedTool {
 			boolean isUpdatableProductsPanel = UiUtil.isChildOf( this, pages.get( ProgramArtifactType.UPDATES ) );
 
 			// Determine state string key.
-			String stateLabelKey = "not.installed";
+			String stateLabelKey = "not-installed";
 			if( isInstalled ) {
 				if( !isProgram && !isEnabled ) {
 					stateLabelKey = "disabled";
@@ -501,7 +501,7 @@ public class ArtifactTool extends GuidedTool {
 				//selectCheckBox.setSelected( true );
 			}
 
-			//stateLabel.setText( stateLabelKey == null ? "" : Bundles.getString( BundleKey.LABELS, stateLabelKey ) );
+			stateLabel.setText( stateLabelKey == null ? "" : getProgram().getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
 		}
 
 	}

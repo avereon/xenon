@@ -3,7 +3,7 @@ package com.xeomar.xenon;
 public interface BundleKey {
 
 	String ACTION = "action";
-	//String LABELS = "labels";
+	String LABEL = "label";
 	String PROGRAM = "program";
 	String PROMPT = "prompt";
 	String RESOURCE = "resource";
