@@ -19,7 +19,9 @@ import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,53 +274,53 @@ public class ArtifactTool extends GuidedTool {
 
 		public void setProducts( List<ProductCard> cards, boolean isUpdate ) {
 			// NEXT Implement ArtifactTool.ProductPage.setProducts()
-//			productList.removeAll();
-//			sources.clear();
-//
-//			// Create a map of the updates.
-//			Map<String, ProductCard> installedProducts = new HashMap<String, ProductCard>();
-//			Map<String, ProductCard> productUpdates = new HashMap<String, ProductCard>();
-//			if( isUpdate ) {
-//				// Installed product map.
-//				for( ProductCard card : getProgram().getProductManager().getProductCards() ) {
-//					installedProducts.put( card.getProductKey(), card );
-//				}
-//
-//				// Product update map.
-//				for( ProductCard card : cards ) {
-//					productUpdates.put( card.getProductKey(), card );
-//				}
-//
-//				// Installed product list.
-//				List<ProductCard> newCards = new ArrayList<ProductCard>();
-//				for( ProductCard card : cards ) {
-//					newCards.add( installedProducts.get( card.getProductKey() ) );
-//				}
-//				cards = newCards;
-//			}
-//
-//			// Create a valid list of product sources.
-//			List<ProductSource> check = createSourceList( cards );
-//			List<ProductSource> valid = new ArrayList<ProductSource>( check.size() );
-//
-//			// Filter out sources with invalid sources.
-//			for( ProductSource source : check ) {
-//				if( source.getCards().size() > 0 ) valid.add( source );
-//			}
-//
-//			// Add a source panel for each card.
-//			int index = 0;
-//			for( ProductSource source : valid ) {
-//				ProductCard product = source.getCards().get( 0 );
-//
-//				SourcePanel panel = new SourcePanel( source, productUpdates.get( product.getProductKey() ) );
-//				productList.add( panel, index == 0 ? "growx" : "newline, growx" );
-//				sources.add( panel );
-//				EventQueue.invokeLater( new UpdateSourcePanelState( panel ) );
-//				index++;
-//			}
-//
-//			productList.revalidate();
+			//			productList.removeAll();
+			//			sources.clear();
+			//
+			//			// Create a map of the updates.
+			//			Map<String, ProductCard> installedProducts = new HashMap<String, ProductCard>();
+			//			Map<String, ProductCard> productUpdates = new HashMap<String, ProductCard>();
+			//			if( isUpdate ) {
+			//				// Installed product map.
+			//				for( ProductCard card : getProgram().getProductManager().getProductCards() ) {
+			//					installedProducts.put( card.getProductKey(), card );
+			//				}
+			//
+			//				// Product update map.
+			//				for( ProductCard card : cards ) {
+			//					productUpdates.put( card.getProductKey(), card );
+			//				}
+			//
+			//				// Installed product list.
+			//				List<ProductCard> newCards = new ArrayList<ProductCard>();
+			//				for( ProductCard card : cards ) {
+			//					newCards.add( installedProducts.get( card.getProductKey() ) );
+			//				}
+			//				cards = newCards;
+			//			}
+			//
+			//			// Create a valid list of product sources.
+			//			List<ProductSource> check = createSourceList( cards );
+			//			List<ProductSource> valid = new ArrayList<ProductSource>( check.size() );
+			//
+			//			// Filter out sources with invalid sources.
+			//			for( ProductSource source : check ) {
+			//				if( source.getCards().size() > 0 ) valid.add( source );
+			//			}
+			//
+			//			// Add a source panel for each card.
+			//			int index = 0;
+			//			for( ProductSource source : valid ) {
+			//				ProductCard product = source.getCards().get( 0 );
+			//
+			//				SourcePanel panel = new SourcePanel( source, productUpdates.get( product.getProductKey() ) );
+			//				productList.add( panel, index == 0 ? "growx" : "newline, growx" );
+			//				sources.add( panel );
+			//				EventQueue.invokeLater( new UpdateSourcePanelState( panel ) );
+			//				index++;
+			//			}
+			//
+			//			productList.revalidate();
 		}
 
 	}
@@ -334,17 +336,17 @@ public class ArtifactTool extends GuidedTool {
 		protected void updateState() {
 			System.out.println( "Update state for installed products" );
 
-//			UpdateManager updateManager = getProgram().getUpdateManager();
-//			List<ProductCard> cards = new ArrayList<>( updateManager.getProductCards() );
-//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-//
-//			List<ProductPane> panes = new ArrayList<>( cards.size() );
-//			cards.forEach( ( card ) -> panes.add( new ProductPane( ProductSource.create( updateManager, card ), null ) ) );
-//
-//			VBox contents = new VBox( UiManager.PAD );
-//			contents.getChildren().addAll( panes );
-//
-//			setCenter( contents );
+			//			UpdateManager updateManager = getProgram().getUpdateManager();
+			//			List<ProductCard> cards = new ArrayList<>( updateManager.getProductCards() );
+			//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+			//
+			//			List<ProductPane> panes = new ArrayList<>( cards.size() );
+			//			cards.forEach( ( card ) -> panes.add( new ProductPane( ProductSource.create( updateManager, card ), null ) ) );
+			//
+			//			VBox contents = new VBox( UiManager.PAD );
+			//			contents.getChildren().addAll( panes );
+			//
+			//			setCenter( contents );
 		}
 
 	}
@@ -415,21 +417,21 @@ public class ArtifactTool extends GuidedTool {
 
 		private Label nameLabel;
 
-//		private JLabel versionLabel;
-//
-//		private JTextArea summaryArea;
-//
-//		private JLabel summaryLabel;
-//
-//		private JLabel hyphenLabel;
-//
-//		private JLabel providerLabel;
-//
-//		private JLabel releaseLabel;
-//
-//		private JCheckBox selectCheckBox;
-//
-//		private JLabel stateLabel;
+		private Label versionLabel;
+
+		private TextArea summaryArea;
+
+		private Label summaryLabel;
+
+		private Label hyphenLabel;
+
+		private Label providerLabel;
+
+		private Label releaseLabel;
+
+		private CheckBox selectCheckBox;
+
+		private Label stateLabel;
 
 		public ProductPane( ProductSource source, ProductCard update ) {
 			this.source = source;
@@ -446,8 +448,17 @@ public class ArtifactTool extends GuidedTool {
 			iconLabel.setId( "tool-artifact-product-icon" );
 			nameLabel = new Label( source.getCard().getName() );
 			nameLabel.setId( "tool-artifact-product-name" );
+			versionLabel = new Label();
+			versionLabel.setId( "tool-artifact-product-version" );
+			summaryLabel = new Label();
+			summaryLabel.setId( "tool-artifact-product-summary" );
+			providerLabel = new Label();
+			providerLabel.setId( "tool-artifact-product-provider" );
+			releaseLabel = new Label();
+			releaseLabel.setId( "tool-artifact-product-release" );
+			stateLabel = new Label();
+			stateLabel.setId( "tool-artifact-product-state" );
 
-			//getChildren().addAll( iconLabel, nameLabel );
 			setLeft( iconLabel );
 			setCenter( nameLabel );
 		}
