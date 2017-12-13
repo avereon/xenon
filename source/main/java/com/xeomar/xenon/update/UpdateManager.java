@@ -736,14 +736,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return getStagedUpdates().contains( card );
 	}
 
-	//	public boolean isReleaseStaged( ProductCard card ) {
-	//		ProductUpdate update = updates.get( card.getProductKey() );
-	//		if( update == null ) return false;
-	//
-	//		ProductCard internal = update.getCard();
-	//		return internal != null && internal.getRelease().equals( card.getRelease() );
-	//	}
-	//
+	public boolean isReleaseStaged( ProductCard card ) {
+		ProductUpdate update = updates.get( card.getProductKey() );
+		if( update == null ) return false;
+
+		ProductCard internal = update.getCard();
+		return internal != null && internal.getRelease().equals( card.getRelease() );
+	}
+
 	//	/**
 	//	 * Apply updates. If updates are found then the method returns the number of
 	//	 * updates applied.
