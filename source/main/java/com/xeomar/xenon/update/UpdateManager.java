@@ -260,13 +260,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
 	}
 
-	//	public void uninstallProducts( ProductCard... cards ) throws Exception {
-	//		uninstallProducts( new HashSet<ProductCard>( Arrays.asList( cards ) ) );
-	//	}
-	//
-	//	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
-	//		Log.write( Log.DEBUG, "Number of products to remove: " + cards.size() );
-	//
+		public void uninstallProducts( ProductCard... cards ) throws Exception {
+			uninstallProducts( new HashSet<>( Arrays.asList( cards ) ) );
+		}
+
+		public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
+			log.trace( "Number of products to remove: " + cards.size() );
+
 	//		// Remove the products.
 	//		Set<InstalledProduct> removedProducts = new HashSet<InstalledProduct>();
 	//		for( ProductCard card : cards ) {
@@ -277,7 +277,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		Set<InstalledProduct> products = getStoredRemovedProducts();
 	//		products.addAll( removedProducts );
 	//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
-	//	}
+		}
 
 	public int getInstalledProductCount() {
 		return productCards.size();

@@ -70,8 +70,12 @@ public class ActionLibrary {
 		register( bundle, "workarea-close" );
 
 		register( bundle, "refresh" );
-
+		register( bundle, "enable" );
+		register( bundle, "disable" );
+		register( bundle, "install" );
+		register( bundle, "remove" );
 		register( bundle, "add-market" );
+		register( bundle, "remove-market" );
 	}
 
 	public ActionProxy getAction( String id ) {

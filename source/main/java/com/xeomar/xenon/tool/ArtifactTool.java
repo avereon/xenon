@@ -10,13 +10,14 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.ActionUtil;
-import com.xeomar.xenon.util.UiUtil;
+import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -337,6 +338,14 @@ public class ArtifactTool extends GuidedTool {
 
 			productList.getChildren().clear();
 			productList.getChildren().addAll( sources );
+
+			updateProductStates();
+		}
+
+		void updateProductStates() {
+			for( Node node : productList.getChildren() ) {
+				((ProductPane)node).updateProductState();
+			}
 		}
 
 		public void updateProductState( ProductCard card ) {
@@ -373,6 +382,7 @@ public class ArtifactTool extends GuidedTool {
 		@Override
 		protected void updateState() {
 			System.out.println( "Update state for available products" );
+			Platform.runLater( new UpdateAvailableSources() );
 		}
 
 	}
@@ -425,6 +435,10 @@ public class ArtifactTool extends GuidedTool {
 
 		private ProductCard update;
 
+		private CheckBox selectCheckBox;
+
+		private CheckBox enableCheckBox;
+
 		private Label iconLabel;
 
 		private Label nameLabel;
@@ -439,9 +453,17 @@ public class ArtifactTool extends GuidedTool {
 
 		private Label releaseLabel;
 
-		private CheckBox selectCheckBox;
-
 		private Label stateLabel;
+
+		private Pane actionButtonBox;
+
+		private Pane removeButtonBox;
+
+		private Button enableButton;
+
+		private Button removeButton;
+
+		private Button installButton;
 
 		public ProductPane( ProductSource source, ProductCard update ) {
 			super( "fillx, hidemode 3, insets " + UiManager.PAD + " " + UiManager.PAD + ", gap " + UiManager.PAD + " " + UiManager.PAD );
@@ -451,8 +473,7 @@ public class ArtifactTool extends GuidedTool {
 
 			setId( "tool-artifact-product" );
 
-			Program program = (Program)getProduct();
-
+			Program program = getProgram();
 			Node productIcon = program.getIconLibrary().getIcon( source.getCard().getIconUri(), ICON_SIZE );
 			if( productIcon == null ) productIcon = program.getIconLibrary().getIcon( "product", ICON_SIZE );
 
@@ -473,19 +494,34 @@ public class ArtifactTool extends GuidedTool {
 			stateLabel.setId( "tool-artifact-product-state" );
 			selectCheckBox = new CheckBox();
 			selectCheckBox.setId( "tool-artifact-product-select" );
+			enableCheckBox = new CheckBox();
+			enableCheckBox.setId( "tool-artifact-product-enable" );
 
-			add( selectCheckBox, "spany, aligny center" );
+			// Try to do all actions without a selection box
+			// Or use the selection checkbox as an enabled checkbox
+			//add( selectCheckBox, "spany, aligny center" );
+
+			actionButtonBox = new HBox();
+			((HBox)actionButtonBox).setAlignment( Pos.CENTER );
+			removeButtonBox = new HBox();
+			((HBox)removeButtonBox).setAlignment( Pos.CENTER );
+
+			enableButton = ActionUtil.createToolBarButton( program, "enable" );
+			removeButton = ActionUtil.createToolBarButton( program, "remove" );
+			installButton = ActionUtil.createToolBarButton( program, "install" );
 
 			add( iconLabel, "spany, aligny top" );
 			add( nameLabel );
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
 			add( versionLabel );
+			add( actionButtonBox );
 
-			add( summaryLabel, "newline, spanx 4, split 2" );
+			add( summaryLabel, "newline, spanx 3" );
 			add( stateLabel, "tag right" );
+			add( removeButtonBox );
 
-			updateProductState();
+			// Trying to update the product state before being added to a page causes incorrect state
 		}
 
 		public ProductSource getSource() {
@@ -512,11 +548,8 @@ public class ArtifactTool extends GuidedTool {
 			boolean isProgram = getProgram().getCard().equals( card );
 			boolean isEnabled = manager.isEnabled( card );
 			boolean isInstalled = manager.isInstalled( card );
-			boolean isInstalledProductsPanel = UiUtil.isChildOf( this, installedPage );
-			boolean isUpdatableProductsPanel = UiUtil.isChildOf( this, updatesPage );
-
-			// NEXT Fix the installed products page flag
-			System.out.println( "Is installed product page: " + isInstalledProductsPanel );
+			boolean isInstalledProductsPanel = FxUtil.isChildOf( this, installedPage );
+			boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, updatesPage );
 
 			// Determine state string key.
 			String stateLabelKey = "not-installed";
@@ -530,15 +563,21 @@ public class ArtifactTool extends GuidedTool {
 				}
 			}
 			if( isStaged ) stateLabelKey = "downloaded";
+			stateLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
 
-			// If on the installed products panel, disable the program product panel.
 			if( isInstalledProductsPanel ) {
+				actionButtonBox.getChildren().clear();
+				actionButtonBox.getChildren().add( enableButton );
+				removeButtonBox.getChildren().add( removeButton );
+				removeButton.setDisable( isProgram );
 				selectCheckBox.setSelected( !isProgram );
+				selectCheckBox.setDisable( isProgram );
 			} else if( isUpdatableProductsPanel ) {
+				actionButtonBox.getChildren().clear();
+				actionButtonBox.getChildren().add( installButton );
+				removeButtonBox.getChildren().clear();
 				selectCheckBox.setSelected( true );
 			}
-
-			stateLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
 		}
 
 	}
@@ -594,16 +633,11 @@ public class ArtifactTool extends GuidedTool {
 
 	private class UpdateAvailableSources implements Runnable {
 
-		private List<ProductCard> cards;
-
-		public UpdateAvailableSources( List<ProductCard> cards ) {
-			this.cards = cards;
-		}
-
 		@Override
 		public void run() {
-			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-			availablePage.setProducts( cards );
+//			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getAvailableProducts() );
+//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+//			availablePage.setProducts( cards );
 		}
 
 	}

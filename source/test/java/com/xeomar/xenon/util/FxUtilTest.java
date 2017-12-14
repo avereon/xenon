@@ -9,13 +9,13 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class UiUtilTest extends FxPlatformTestCase {
+public class FxUtilTest extends FxPlatformTestCase {
 
 	@Test
 	public void testIsChildOfFalse() {
 		Pane parent = new Pane();
 		Node child = new Label();
-		assertThat( UiUtil.isChildOf( child, parent ), is( false ) );
+		assertThat( FxUtil.isChildOf( child, parent ), is( false ) );
 	}
 
 	@Test
@@ -23,11 +23,11 @@ public class UiUtilTest extends FxPlatformTestCase {
 		Pane parent = new Pane();
 		Node child = new Label();
 
-		assertThat( UiUtil.isChildOf( child, parent ), is( false ) );
+		assertThat( FxUtil.isChildOf( child, parent ), is( false ) );
 
 		parent.getChildren().add( child );
 
-		assertThat( UiUtil.isChildOf( child, parent ), is( true ) );
+		assertThat( FxUtil.isChildOf( child, parent ), is( true ) );
 	}
 
 	@Test
@@ -36,12 +36,12 @@ public class UiUtilTest extends FxPlatformTestCase {
 		Pane parent = new Pane();
 		Node child = new Label();
 
-		assertThat( UiUtil.isChildOf( child, grandParent ), is( false ) );
+		assertThat( FxUtil.isChildOf( child, grandParent ), is( false ) );
 
 		grandParent.getChildren().add( parent );
 		parent.getChildren().add( child );
 
-		assertThat( UiUtil.isChildOf( child, grandParent ), is( true ) );
+		assertThat( FxUtil.isChildOf( child, grandParent ), is( true ) );
 	}
 
 }
