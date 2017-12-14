@@ -17,20 +17,16 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ArtifactTool extends GuidedTool {
@@ -343,6 +339,13 @@ public class ArtifactTool extends GuidedTool {
 			productList.getChildren().addAll( sources );
 		}
 
+		public void updateProductState( ProductCard card ) {
+			for( Node node : productList.getChildren() ) {
+				ProductPane panel = (ProductPane)node;
+				if( panel.getSource().getCard().equals( card ) ) panel.updateProductState();
+			}
+		}
+
 	}
 
 	private class InstalledPage extends ProductPage {
@@ -471,7 +474,7 @@ public class ArtifactTool extends GuidedTool {
 			selectCheckBox = new CheckBox();
 			selectCheckBox.setId( "tool-artifact-product-select" );
 
-			setPadding( new Insets( UiManager.PAD ) );
+			add( selectCheckBox, "spany, aligny center" );
 
 			add( iconLabel, "spany, aligny top" );
 			add( nameLabel );
@@ -479,10 +482,10 @@ public class ArtifactTool extends GuidedTool {
 			add( providerLabel, "pushx" );
 			add( versionLabel );
 
-			add( selectCheckBox, "spany, aligny center" );
-
 			add( summaryLabel, "newline, spanx 4, split 2" );
 			add( stateLabel, "tag right" );
+
+			updateProductState();
 		}
 
 		public ProductSource getSource() {
@@ -512,6 +515,9 @@ public class ArtifactTool extends GuidedTool {
 			boolean isInstalledProductsPanel = UiUtil.isChildOf( this, installedPage );
 			boolean isUpdatableProductsPanel = UiUtil.isChildOf( this, updatesPage );
 
+			// NEXT Fix the installed products page flag
+			System.out.println( "Is installed product page: " + isInstalledProductsPanel );
+
 			// Determine state string key.
 			String stateLabelKey = "not-installed";
 			if( isInstalled ) {
@@ -525,13 +531,8 @@ public class ArtifactTool extends GuidedTool {
 			}
 			if( isStaged ) stateLabelKey = "downloaded";
 
-			// NEXT Implement ArtifactTool.ProductPane.updateProductState()
 			// If on the installed products panel, disable the program product panel.
 			if( isInstalledProductsPanel ) {
-				//				selectCheckBox.setIcon( getProgram().getIconLibrary().getIcon( isProgram ? "blank" : "box" ) );
-				//				selectCheckBox.setSelectedIcon( getProgram().getIconLibrary().getIcon( isProgram ? "blank" : "checkbox" ) );
-				//				selectCheckBox.setRolloverIcon( selectCheckBox.getIcon() );
-				//				selectCheckBox.setRolloverSelectedIcon( selectCheckBox.getSelectedIcon() );
 				selectCheckBox.setSelected( !isProgram );
 			} else if( isUpdatableProductsPanel ) {
 				selectCheckBox.setSelected( true );

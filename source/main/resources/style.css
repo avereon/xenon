@@ -109,8 +109,7 @@
 }
 
 #tool-artifact-product-name {
-	-fx-font-size: 2em;
-	-fx-background-color: green;
+	-fx-font-weight: bold;
 }
 
 #tool-welcome {
