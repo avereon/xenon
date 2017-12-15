@@ -1,9 +1,10 @@
 package com.xeomar.xenon.update;
 
+import com.xeomar.annex.UpdateFlag;
 import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramParameter;
+import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.util.DialogUtil;
@@ -16,8 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class ProgramUpdateManager extends UpdateManager {
@@ -44,20 +44,19 @@ public class ProgramUpdateManager extends UpdateManager {
 	public int applyStagedUpdates( String... extras ) throws Exception {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
-		//		List<String> commandList = new ArrayList<String>( Arrays.asList( extras ) );
-		//		commandList.add( UpdaterFlag.UI );
-		//		commandList.add( "true" );
-		//		commandList.add( UpdaterFlag.UI_MESSAGE );
-		//		commandList.add( ProductUtil.getString( program, BundleKey.MESSAGES, "updater.updating", program.getName() ) );
-		//		String[] commands = commandList.toArray( new String[commandList.size()] );
-		//
-		//		/*
-		//		 * If the ServiceFlag.NOUPDATECHECK is set that means that the program was
-		//		 * started as a result of a program restart due to staged updates and the
-		//		 * updates should be applied without user interaction.
-		//		 */
-		//		if( program.getParameters().isSet( ServiceFlag.NOUPDATECHECK ) ) return super.applyStagedUpdates( commands );
-		//
+		List<String> commandList = new ArrayList<>( Arrays.asList( extras ) );
+		// FIXME The --title flag should come from Annex
+		commandList.add( UpdateFlag.TITLE );
+		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", program.getCard().getName() ) );
+		String[] commands = commandList.toArray( new String[ commandList.size() ] );
+
+		/*
+		 * If the ServiceFlag.NOUPDATECHECK is set that means that the program was
+		 * started as a result of a program restart due to staged updates and the
+		 * updates should be applied without user interaction.
+		 */
+		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return super.applyStagedUpdates( commands );
+
 		//		/*
 		//		 * If the ServiceFlag.NOUPDATECHECK is not set, that means the program was
 		//		 * started normally and the user should be asked what to do about the staged
@@ -339,7 +338,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) program.restart( ProgramParameter.NOUPDATECHECK );
+				if( result.isPresent() && result.get() == ButtonType.YES ) program.restart( ProgramFlag.NOUPDATECHECK );
 			} );
 		}
 
