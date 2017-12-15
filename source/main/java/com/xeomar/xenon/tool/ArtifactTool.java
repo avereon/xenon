@@ -474,8 +474,10 @@ public class ArtifactTool extends GuidedTool {
 			setId( "tool-artifact-product" );
 
 			Program program = getProgram();
-			Node productIcon = program.getIconLibrary().getIcon( source.getCard().getIconUri(), ICON_SIZE );
-			if( productIcon == null ) productIcon = program.getIconLibrary().getIcon( "product", ICON_SIZE );
+
+			String iconUri = source.getCard().getIconUri();
+			Node productIcon = program.getIconLibrary().getIcon( "module", ICON_SIZE );
+			//Node productIcon = program.getIconLibrary().getIcon( iconUri, ICON_SIZE );
 
 			iconLabel = new Label( null, productIcon );
 			iconLabel.setId( "tool-artifact-product-icon" );
@@ -510,7 +512,7 @@ public class ArtifactTool extends GuidedTool {
 			removeButton = ActionUtil.createToolBarButton( program, "remove" );
 			installButton = ActionUtil.createToolBarButton( program, "install" );
 
-			add( iconLabel, "spany, aligny top" );
+			add( iconLabel, "spany, aligny center" );
 			add( nameLabel );
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
@@ -635,9 +637,9 @@ public class ArtifactTool extends GuidedTool {
 
 		@Override
 		public void run() {
-//			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getAvailableProducts() );
-//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-//			availablePage.setProducts( cards );
+			//			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getAvailableProducts() );
+			//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+			//			availablePage.setProducts( cards );
 		}
 
 	}

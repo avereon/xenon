@@ -43,6 +43,8 @@ public class IconLibrary {
 		register( "workarea-close", WorkareaCloseIcon.class);
 
 		register( "refresh", RefreshIcon.class );
+		register( "download", DownloadIcon.class );
+		register( "module", ModuleIcon.class );
 	}
 
 	public ProgramIcon getIcon( String id ) {
