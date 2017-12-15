@@ -153,7 +153,7 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card );
 
 		// Configure logging
-		LogUtil.configureLogging( this, getProgramParameters().get( ProgramParameter.LOG_LEVEL ) );
+		LogUtil.configureLogging( this, getProgramParameters().get( ProgramFlag.LOG_LEVEL ) );
 
 		// Create the program event watcher after configuring the logging
 		addEventListener( watcher = new ProgramEventWatcher() );
@@ -392,7 +392,7 @@ public class Program extends Application implements ProgramProduct {
 	public ExecMode getExecMode() {
 		if( execMode != null ) return execMode;
 
-		String execModeParameter = getProgramParameters().get( ProgramParameter.EXECMODE );
+		String execModeParameter = getProgramParameters().get( ProgramFlag.EXECMODE );
 		if( execModeParameter != null ) {
 			try {
 				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );
@@ -549,8 +549,8 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( home == null && parameters.isSet( ProgramParameter.HOME ) )
-				home = Paths.get( parameters.get( ProgramParameter.HOME ) );
+			if( home == null && parameters.isSet( ProgramFlag.HOME ) )
+				home = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
 			// Check the code source.
 			if( home == null ) {
@@ -564,7 +564,7 @@ public class Program extends Application implements ProgramProduct {
 			}
 
 			// Check the execmode flag to detect when running in development
-			if( home == null && parameters.isSet( ProgramParameter.EXECMODE ) ) {
+			if( home == null && parameters.isSet( ProgramFlag.EXECMODE ) ) {
 				home = Paths.get( System.getProperty( "user.dir" ), "target/install" );
 				Files.createDirectories( home );
 

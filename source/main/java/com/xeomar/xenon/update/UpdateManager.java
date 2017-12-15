@@ -8,7 +8,7 @@ import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
 import com.xeomar.xenon.Module;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramParameter;
+import com.xeomar.xenon.ProgramFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -418,7 +418,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 
 		// Don't schedule tasks if the NOUPDATECHECK flag is set
-		if( program.getProgramParameters().isSet( ProgramParameter.NOUPDATECHECK ) ) return;
+		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return;
 
 		Settings checkSettings = getSettings();
 
@@ -483,7 +483,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			int stagedUpdateCount = stagePostedUpdates();
 			if( stagedUpdateCount > 0 ) {
 				log.debug( "Staged updates found, restarting..." );
-				program.restart( ProgramParameter.NOUPDATECHECK );
+				program.restart( ProgramFlag.NOUPDATECHECK );
 			}
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
@@ -978,7 +978,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	protected boolean isEnabled() {
-		return !program.getParameters().getNamed().containsKey( ProgramParameter.NOUPDATE );
+		return !program.getParameters().getNamed().containsKey( ProgramFlag.NOUPDATE );
 	}
 
 	@Override

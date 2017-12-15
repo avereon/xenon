@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-public interface ProgramParameter {
+public interface ProgramFlag {
 
 	String EXECMODE = "execmode";
 
