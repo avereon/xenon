@@ -516,11 +516,11 @@ public class ArtifactTool extends GuidedTool {
 			add( nameLabel );
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
-			add( versionLabel );
+			add( stateLabel, "tag right" );
 			add( actionButtonBox );
 
 			add( summaryLabel, "newline, spanx 3" );
-			add( stateLabel, "tag right" );
+			add( versionLabel, "tag right" );
 			add( removeButtonBox );
 
 			// Trying to update the product state before being added to a page causes incorrect state
@@ -561,7 +561,7 @@ public class ArtifactTool extends GuidedTool {
 				} else if( isUpdatableProductsPanel ) {
 					stateLabelKey = "available";
 				} else {
-					stateLabelKey = "installed";
+					stateLabelKey = "enabled";
 				}
 			}
 			if( isStaged ) stateLabelKey = "downloaded";
