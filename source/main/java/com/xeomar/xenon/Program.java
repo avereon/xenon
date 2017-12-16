@@ -279,10 +279,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public com.xeomar.util.Parameters getProgramParameters() {
-		if( parameters == null ) {
-			configureHome( parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() ) );
-			configureHome( parameters );
-		}
+		if( parameters == null ) configureHome( parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() ) );
 		return parameters;
 	}
 
@@ -549,15 +546,13 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( home == null && parameters.isSet( ProgramFlag.HOME ) )
-				home = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			if( home == null && parameters.isSet( ProgramFlag.HOME ) ) home = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
 			// Check the code source.
 			if( home == null ) {
 				try {
 					URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) )
-						home = Paths.get( uri ).getParent();
+					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) ) home = Paths.get( uri ).getParent();
 				} catch( URISyntaxException exception ) {
 					log.error( "Error using class location to determine program home", exception );
 				}

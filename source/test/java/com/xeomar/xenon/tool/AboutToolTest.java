@@ -34,8 +34,11 @@ public class AboutToolTest extends FxProgramTestCase {
 		clickOn( "#menuitem-about" );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
+
+		//interact( () -> System.out.println( "Interacting" ) );
+
 		assertThat( pane.getTools().size(), is( 2 ) );
+		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );
 	}
 
 	@Test

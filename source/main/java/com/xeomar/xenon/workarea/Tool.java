@@ -321,7 +321,6 @@ public abstract class Tool extends Control implements Configurable {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
-			getSettings().set( "active", true );
 			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error activating tool", exception );
@@ -336,7 +335,6 @@ public abstract class Tool extends Control implements Configurable {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
-			getSettings().set( "active", null );
 			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_DEACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deactivating tool", exception );

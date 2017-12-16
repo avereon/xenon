@@ -104,10 +104,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// If the instance mode is SINGLETON, check for an existing tool in the workpane
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolInPane( pane, toolClass );
 		final boolean alreadyExists = tool != null;
-		if( !alreadyExists ) {
-			tool = getToolInstance( request, !resource.isNew() );
-			if( tool != null ) createToolSettings( tool );
-		}
+		if( !alreadyExists ) tool = getToolInstance( request );
 
 		// Verify there is a tool to use
 		if( tool == null ) {
@@ -116,6 +113,9 @@ public class ToolManager implements Controllable<ToolManager> {
 			program.getNotifier().warning( title, (Object)message, resource.getName() );
 			return null;
 		}
+
+		// Create the tools settings
+		createToolSettings( tool );
 
 		// Now that we have a tool...open dependent tools
 		for( URI dependency : tool.getResourceDependencies() ) {
@@ -141,7 +141,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			}
 		} );
 
-		triggerResourceReady( request, finalTool );
+		scheduleResourceReady( request, finalTool );
 
 		return tool;
 	}
@@ -178,9 +178,9 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		openToolRequest.setToolClass( toolMetadata.getType() );
 
-		AbstractTool tool = getToolInstance( openToolRequest, false );
+		AbstractTool tool = getToolInstance( openToolRequest );
 
-		if( tool != null ) triggerResourceReady( openToolRequest, tool );
+		if( tool != null ) scheduleResourceReady( openToolRequest, tool );
 
 		return tool;
 	}
@@ -265,7 +265,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
-	private AbstractTool getToolInstance( OpenToolRequest request, boolean waitForResourceReady ) {
+	private AbstractTool getToolInstance( OpenToolRequest request ) {
 		Resource resource = request.getResource();
 		Class<? extends AbstractTool> toolClass = request.getToolClass();
 
@@ -296,7 +296,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the resource is ready
 	 */
-	private void triggerResourceReady( OpenToolRequest request, AbstractTool tool ) {
+	private void scheduleResourceReady( OpenToolRequest request, AbstractTool tool ) {
 		program.getExecutor().submit( () -> {
 			Resource resource = request.getResource();
 			try {

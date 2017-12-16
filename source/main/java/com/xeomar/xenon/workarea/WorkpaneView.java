@@ -69,22 +69,27 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
+		tool.setToolView( this );
+		tool.callAllocate();
 
 		Tab tab = new Tab( tool.getTitle(), tool );
 		tab.graphicProperty().bind( tool.graphicProperty() );
 		tab.textProperty().bind( tool.titleProperty() );
-		tab.setOnSelectionChanged( event ->  {
-			if( tab.isSelected() ) tool.getWorkpane().setActiveTool( tool );
+		tools.getTabs().add( index, tab );
+
+		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
+
+		tab.setOnSelectionChanged( event -> {
+			// NEXT Figure out why the handler causes extra events
+			System.out.println( event.getClass().getName() );
+//			if( !tab.isSelected() ) return;
+//			event.consume();
+//			tool.getWorkpane().setActiveTool( tool );
 		} );
 		tab.setOnCloseRequest( event -> {
 			event.consume();
 			tool.close();
 		} );
-		tool.setToolView( this );
-		tool.callAllocate();
-		tools.getTabs().add( index, tab );
-
-		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
 
 		return tool;
 	}
