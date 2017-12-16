@@ -20,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Resource extends Node implements Configurable {
 
+	public static final int RESOURCE_READY_TIMEOUT = 10;
+
 	public static final String MEDIA_TYPE_RESOURCE_KEY = "resource.media.type";
 
 	public static final String FILE_NAME_RESOURCE_KEY = "resource.file.name";

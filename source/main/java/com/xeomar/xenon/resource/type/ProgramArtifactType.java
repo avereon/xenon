@@ -84,4 +84,5 @@ public class ProgramArtifactType extends ResourceType {
 		root.getChildren().add( new TreeItem<>( updates, library.getIcon( "artifact" ) ) );
 		root.getChildren().add( new TreeItem<>( sources, library.getIcon( "artifact" ) ) );
 	}
+
 }

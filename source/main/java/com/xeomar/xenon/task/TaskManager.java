@@ -6,7 +6,10 @@ import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class TaskManager implements ExecutorService, Configurable, Controllable<TaskManager> {
@@ -43,9 +46,17 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		listeners = new CopyOnWriteArraySet<TaskListener>();
 	}
 
-	public static boolean isTaskThread() {
+	public static void taskThreadCheck() {
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
+
+		String callingClass = stack[ 2 ].getClassName();
+		String callingMethod = stack[ 2 ].getMethodName();
+		String callingFile = stack[ 2 ].getFileName();
+		int callingLine = stack[ 2 ].getLineNumber();
+
+		String caller = callingClass + "." + callingMethod + "(" + callingFile + ":" + callingLine + ")";
+
+		if( !TaskManager.isTaskThread() ) throw new RuntimeException( caller + " not called on task thread" );
 	}
 
 	@Override
@@ -248,6 +259,11 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	Set<TaskListener> getTaskListeners() {
 		return listeners;
+	}
+
+	private static boolean isTaskThread() {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
 	}
 
 	private void checkRunning() {

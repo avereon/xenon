@@ -6,8 +6,12 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Guide {
+
+	private static final Logger log = LoggerFactory.getLogger( Guide.class );
 
 	public static final String GUIDE_KEY = GuideTool.class.getName() + ":guide";
 
@@ -61,13 +65,14 @@ public class Guide {
 		selectedItem.set( value );
 	}
 
-	final void setSelected( String id ) {
-		for( TreeItem<GuideNode> node : getRoot().getChildren()){
-			if( node.getValue().getId().equals( id ) ) {
-				setSelectedItem( node );
-				return;
-			}
-		}
-	}
+//	final void setSelected( String id ) {
+//		log.warn( "Guide.setSelected() not working properly");
+//		for( TreeItem<GuideNode> node : getRoot().getChildren()){
+//			if( node.getValue().getId().equals( id ) ) {
+//				setSelectedItem( node );
+//				return;
+//			}
+//		}
+//	}
 
 }

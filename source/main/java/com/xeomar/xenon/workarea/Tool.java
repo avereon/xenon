@@ -205,13 +205,15 @@ public abstract class Tool extends Control implements Configurable {
 		return tool;
 	}
 
-	public void setSettings( Settings settings ){
+	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
+
+		// NEXT Restore tool state...particularly the active tool?
 	}
 
-	public Settings getSettings(){
+	public Settings getSettings() {
 		return settings;
 	}
 
@@ -319,6 +321,7 @@ public abstract class Tool extends Control implements Configurable {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
+			getSettings().set( "active", true );
 			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error activating tool", exception );
@@ -333,6 +336,7 @@ public abstract class Tool extends Control implements Configurable {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
+			getSettings().set( "active", null );
 			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_DEACTIVATED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deactivating tool", exception );
@@ -372,9 +376,9 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceReady( ToolParameters parameters) {
+	public void callResourceReady( ToolParameters parameters ) {
 		try {
-			resourceReady(parameters);
+			resourceReady( parameters );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}

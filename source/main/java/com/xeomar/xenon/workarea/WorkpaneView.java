@@ -54,7 +54,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	 * @return A list of the tools in the view.
 	 */
 	public List<Tool> getTools() {
-		List<Tool> toolList = new ArrayList<Tool>();
+		List<Tool> toolList = new ArrayList<>();
 
 		for( Tab tab : tools.getTabs() ) {
 			toolList.add( (Tool)tab.getContent() );
@@ -73,6 +73,9 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		Tab tab = new Tab( tool.getTitle(), tool );
 		tab.graphicProperty().bind( tool.graphicProperty() );
 		tab.textProperty().bind( tool.titleProperty() );
+		tab.setOnSelectionChanged( event ->  {
+			if( tab.isSelected() ) tool.getWorkpane().setActiveTool( tool );
+		} );
 		tab.setOnCloseRequest( event -> {
 			event.consume();
 			tool.close();

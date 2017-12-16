@@ -83,6 +83,8 @@ public class ArtifactTool extends GuidedTool {
 
 		layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiManager.PAD ) );
+		// TODO Switch this back to installedPage
+		layoutPane.setCenter( availablePage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
 	}
@@ -90,28 +92,33 @@ public class ArtifactTool extends GuidedTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-		log.debug( "Artifact tool allocate" );
+		log.debug( "Product tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.debug( "Artifact tool display" );
+		log.debug( "Product tool display" );
 		super.display();
 		checkInfo.updateInfo();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.debug( "Artifact tool activate" );
+		log.debug( "Product tool activate" );
 		super.activate();
 
 		getProgram().getActionLibrary().getAction( "add-market" ).pushAction( addSourceAction );
 		getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
+
+		String selected = getSettings().get( "selected", ProgramArtifactType.INSTALLED );
+		// TODO Be sure the guide also changes selection
+		//getGuide().setSelected( selected );
+		selectPage( selected );
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.debug( "Artifact tool deactivate" );
+		log.debug( "Product tool deactivate" );
 		super.deactivate();
 
 		getProgram().getActionLibrary().getAction( "refresh" ).pullAction( refreshStateAction );
@@ -120,29 +127,34 @@ public class ArtifactTool extends GuidedTool {
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.debug( "Artifact tool conceal" );
+		log.debug( "Product tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.debug( "Artifact tool deallocate" );
+		log.debug( "Product tool deallocate" );
 		super.deallocate();
 	}
 
 	@Override
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
-		log.debug( "Artifact tool resource ready" );
+		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
-		getGuide().setSelected( parameters.getFragment() );
 
-		//		EventQueue.invokeLater( new UpdateAvailableProductPanelState() );
-		//Platform.runLater( new UpdateInstalledProducts() );
-		//		EventQueue.invokeLater( new UpdateUpdatableProductPanelState() );
+		Platform.runLater( new UpdateInstalledProducts() );
+		Platform.runLater( new UpdateAvailableProducts() );
+		Platform.runLater( new UpdateUpdatableProducts() );
+
+		String selected = parameters.getFragment();
+		// TODO Be sure the guide also changes selection
+		//if( selected != null ) getGuide().setSelected( selected );
+		if( selected != null ) selectPage( selected );
 	}
 
 	@Override
-	public void resourceRefreshed() throws ToolException {
+	protected void resourceRefreshed() throws ToolException {
+		log.debug( "Product tool resource refreshed" );
 		super.resourceRefreshed();
 	}
 
@@ -152,8 +164,11 @@ public class ArtifactTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		log.debug( "Artifact page selected: " + pageId );
+		log.debug( "Product page selected: " + pageId );
+
 		if( pageId == null ) return;
+
+		getSettings().set( "selected", pageId );
 
 		currentPage = pages.get( pageId );
 		currentPage.updateState();
@@ -382,7 +397,7 @@ public class ArtifactTool extends GuidedTool {
 		@Override
 		protected void updateState() {
 			System.out.println( "Update state for available products" );
-			Platform.runLater( new UpdateAvailableSources() );
+			Platform.runLater( new UpdateAvailableProducts() );
 		}
 
 	}
@@ -633,7 +648,7 @@ public class ArtifactTool extends GuidedTool {
 
 	}
 
-	private class UpdateAvailableSources implements Runnable {
+	private class UpdateAvailableProducts implements Runnable {
 
 		@Override
 		public void run() {
@@ -658,17 +673,12 @@ public class ArtifactTool extends GuidedTool {
 
 	}
 
-	private class UpdateUpdateableProducts implements Runnable {
-
-		private List<ProductCard> cards;
-
-		public UpdateUpdateableProducts( Set<ProductCard> cards ) {
-			this.cards = new ArrayList<>( cards );
-		}
+	private class UpdateUpdatableProducts implements Runnable {
 
 		@Override
 		public void run() {
-			this.cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getPostedUpdates() );
+			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
 			updatesPage.setProducts( cards );
 		}
 

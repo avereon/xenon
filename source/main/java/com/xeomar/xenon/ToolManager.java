@@ -64,13 +64,18 @@ public class ToolManager implements Controllable<ToolManager> {
 		log.debug( "Tool unregistered: resourceType={} -> tool={}", resourceType.getKey(), type.getName() );
 	}
 
+	/**
+	 * @param request
+	 * @return
+	 * @apiNote Should be called from a @code{TaskThread}
+	 */
 	public AbstractTool openTool( OpenToolRequest request ) {
+		// Check the calling thread
+		TaskManager.taskThreadCheck();
+
 		// Verify the request parameters
 		Resource resource = request.getResource();
 		if( resource == null ) throw new NullPointerException( "Resource cannot be null" );
-
-		// Check the calling thread
-		if( !TaskManager.isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
 
 		// Get the resource type to look up the registered tool classes
 		ResourceType resourceType = resource.getType();
@@ -134,18 +139,27 @@ public class ToolManager implements Controllable<ToolManager> {
 			} else {
 				finalPane.addTool( finalTool, placementOverride, request.isSetActive() );
 			}
-			waitForResourceReady( request, finalTool );
 		} );
+
+		triggerResourceReady( request, finalTool );
 
 		return tool;
 	}
 
-	public AbstractTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) throws ResourceException {
+	/**
+	 * @param openToolRequest
+	 * @param toolClassName
+	 * @return The restored tool
+	 * @apiNode Should be called from a @code{TaskThread}
+	 */
+	public AbstractTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
+		TaskManager.taskThreadCheck();
+
 		// Run this class through the alias map
 		toolClassName = getToolClassName( toolClassName );
 
 		// Check the calling thread
-		if( !TaskManager.isTaskThread() ) throw new RuntimeException( "ToolManager.getToolInstance() not called on Task thread" );
+		TaskManager.taskThreadCheck();
 
 		// Find the registered tool type metadata
 		ToolMetadata toolMetadata = null;
@@ -164,8 +178,10 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		openToolRequest.setToolClass( toolMetadata.getType() );
 
-		final AbstractTool tool = getToolInstance( openToolRequest, false );
-		if( tool != null ) waitForResourceReady( openToolRequest, tool );
+		AbstractTool tool = getToolInstance( openToolRequest, false );
+
+		if( tool != null ) triggerResourceReady( openToolRequest, tool );
+
 		return tool;
 	}
 
@@ -250,8 +266,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private AbstractTool getToolInstance( OpenToolRequest request, boolean waitForResourceReady ) {
-		Class<? extends AbstractTool> toolClass = request.getToolClass();
 		Resource resource = request.getResource();
+		Class<? extends AbstractTool> toolClass = request.getToolClass();
 
 		// Have to have a ArtifactTool to support modules
 		try {
@@ -273,17 +289,23 @@ public class ToolManager implements Controllable<ToolManager> {
 		tool.setSettings( settings );
 	}
 
-	private void waitForResourceReady( OpenToolRequest request, AbstractTool tool ) {
-		// The waitForResourceReady() method should have been called on a task
-		// manager thread, usually from ResourceManager.OpenActionTask. That
-		// means the calling thread can wait a bit for the resource to be ready.
-		Resource resource = request.getResource();
-		try {
-			resource.waitForReady( 10, TimeUnit.SECONDS );
-			Platform.runLater( () -> tool.callResourceReady( new ToolParameters( request ) ) );
-		} catch( InterruptedException exception ) {
-			log.warn( "Wait for resource interrupted: " + resource, exception );
-		}
+	/**
+	 * This method creates a task that waits for the resource to be ready then
+	 * calls the tool resourceReady() method.
+	 *
+	 * @param request The open tool request object
+	 * @param tool The tool that should be notified when the resource is ready
+	 */
+	private void triggerResourceReady( OpenToolRequest request, AbstractTool tool ) {
+		program.getExecutor().submit( () -> {
+			Resource resource = request.getResource();
+			try {
+				resource.waitForReady( Resource.RESOURCE_READY_TIMEOUT, TimeUnit.SECONDS );
+				Platform.runLater( () -> tool.callResourceReady( new ToolParameters( request ) ) );
+			} catch( InterruptedException exception ) {
+				log.warn( "Wait for resource interrupted: " + resource, exception );
+			}
+		} );
 	}
 
 	private AbstractTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {

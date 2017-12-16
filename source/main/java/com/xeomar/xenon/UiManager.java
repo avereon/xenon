@@ -446,6 +446,7 @@ public class UiManager {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
 		String toolType = settings.get( "type" );
 		String uriString = settings.get( "uri" );
+		boolean active = settings.getBoolean( "active", false );
 		WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
 
 		try {
@@ -462,7 +463,7 @@ public class UiManager {
 			program.getResourceManager().loadResource( resource );
 
 			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
+			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ).setSetActive( active ) );
 			openToolRequest.setResource( resource );
 
 			// Restore the tool on a task thread
@@ -475,7 +476,7 @@ public class UiManager {
 
 			tools.put( id, tool );
 		} catch( TimeoutException exception ) {
-			log.warn( "Timeout waiting for tool to load: " + toolType, exception );
+			log.warn( "Timeout restoring tool: " + toolType, exception );
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool", exception );
 		}
