@@ -325,6 +325,8 @@ public class UiManager {
 	}
 
 	private void linkTools() {
+		Tool activeTool = null;
+
 		for( WorkpaneView view : viewTools.keySet() ) {
 			Workpane pane = view.getWorkpane();
 			if( pane == null ) continue;
@@ -337,10 +339,13 @@ public class UiManager {
 			// Add the tools to the view
 			for( ProgramTool tool : tools ) {
 				pane.addTool( tool, view, tool.isActive() );
+				if( tool.getSettings().getBoolean( "active", false ) ) activeTool = tool;
 
 				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
 			}
 		}
+
+		if( activeTool != null ) activeTool.getWorkpane().setActiveTool( activeTool );
 	}
 
 	private List<String> getChildNodeNames( String path ) {
@@ -348,14 +353,12 @@ public class UiManager {
 	}
 
 	private void restoreWorkspace( String id ) {
-		log.trace( "Restoring workspace: " + id );
+		log.debug( "Restoring workspace: " + id );
 		try {
 			Workspace workspace = new Workspace( program );
 
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
 			workspace.setSettings( settings );
-
-			log.warn( "Workspace active( " + settings.getName() + " ): " + workspace.isActive() );
 
 			if( workspace.isActive() ) {
 				program.getWorkspaceManager().setActiveWorkspace( workspace );
@@ -446,13 +449,12 @@ public class UiManager {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
 		String toolType = settings.get( "type" );
 		String uriString = settings.get( "uri" );
-		boolean active = settings.getBoolean( "active", false );
 		WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
 
 		try {
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uriString == null ) {
-				log.debug( "Removing orphaned tool settings: " + id );
+				log.warn( "Removing orphaned tool: " + id );
 				settings.delete();
 				return;
 			}
@@ -463,12 +465,16 @@ public class UiManager {
 			program.getResourceManager().loadResource( resource );
 
 			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ).setSetActive( active ) );
+			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
 			openToolRequest.setResource( resource );
 
 			// Restore the tool on a task thread
 			ProgramTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openToolRequest, toolType ) ).get( RESTORE_TOOL_TIMEOUT, TimeUnit.SECONDS );
-			if( tool == null ) return;
+			if( tool == null ) {
+				log.warn( "Removing unknown tool: " + id );
+				settings.delete();
+				return;
+			}
 			tool.setSettings( settings );
 
 			Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );

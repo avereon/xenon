@@ -209,8 +209,6 @@ public abstract class Tool extends Control implements Configurable {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
-
-		// NEXT Restore tool state...particularly the active tool?
 	}
 
 	public Settings getSettings() {
