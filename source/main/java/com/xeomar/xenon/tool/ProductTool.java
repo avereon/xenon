@@ -30,9 +30,9 @@ import org.tbee.javafx.scene.layout.MigPane;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ArtifactTool extends GuidedTool {
+public class ProductTool extends GuidedTool {
 
-	private static final Logger log = LoggerFactory.getLogger( ArtifactTool.class );
+	private static final Logger log = LoggerFactory.getLogger( ProductTool.class );
 
 	private static final int ICON_SIZE = 48;
 
@@ -56,7 +56,7 @@ public class ArtifactTool extends GuidedTool {
 
 	private SourcesPage sourcesPage;
 
-	public ArtifactTool( ProgramProduct product, Resource resource ) {
+	public ProductTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 
 		Program program = getProgram();

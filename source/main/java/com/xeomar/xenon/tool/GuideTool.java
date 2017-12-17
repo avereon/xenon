@@ -7,7 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
-public class GuideTool extends AbstractTool {
+public class GuideTool extends ProgramTool {
 
 	private TreeView guideView;
 

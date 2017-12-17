@@ -4,7 +4,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.update.UpdateManager;
 
 /**
- * This class is used for state information in the ArtifactTool class.
+ * This class is used for state information in the ProductTool class.
  * 
  * @author Mark Soderquist
  */

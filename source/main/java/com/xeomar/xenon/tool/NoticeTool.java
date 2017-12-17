@@ -5,7 +5,7 @@ import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 
-public class NoticeTool extends AbstractTool {
+public class NoticeTool extends ProgramTool {
 
 	public NoticeTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );

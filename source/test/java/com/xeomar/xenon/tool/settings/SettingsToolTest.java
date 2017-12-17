@@ -4,7 +4,7 @@ import com.xeomar.xenon.FxProgramTestCase;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
-import com.xeomar.xenon.tool.AbstractTool;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Assert;
@@ -63,7 +63,7 @@ public class SettingsToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<AbstractTool> future = program.getResourceManager().open( ProgramSettingsType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramSettingsType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );

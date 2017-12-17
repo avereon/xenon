@@ -1,7 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.product.Product;
-import com.xeomar.xenon.tool.AbstractTool;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.scene.Node;
@@ -10,7 +10,7 @@ public class ToolMetadata {
 
 	private Product product;
 
-	private Class<? extends AbstractTool> type;
+	private Class<? extends ProgramTool> type;
 
 	private String name;
 
@@ -31,11 +31,11 @@ public class ToolMetadata {
 		return this;
 	}
 
-	public Class<? extends AbstractTool> getType() {
+	public Class<? extends ProgramTool> getType() {
 		return type;
 	}
 
-	public ToolMetadata setType( Class<? extends AbstractTool> type ) {
+	public ToolMetadata setType( Class<? extends ProgramTool> type ) {
 		this.type = type;
 		return this;
 	}

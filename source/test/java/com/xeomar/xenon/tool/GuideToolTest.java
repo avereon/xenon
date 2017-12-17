@@ -43,7 +43,7 @@ public class GuideToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<AbstractTool> future = program.getResourceManager().open( ProgramGuideType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramGuideType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );

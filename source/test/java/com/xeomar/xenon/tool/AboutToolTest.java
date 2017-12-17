@@ -64,7 +64,7 @@ public class AboutToolTest extends FxProgramTestCase {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<AbstractTool> future = program.getResourceManager().open( ProgramAboutType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramAboutType.uri );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );

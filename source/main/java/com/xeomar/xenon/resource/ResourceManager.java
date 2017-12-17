@@ -6,7 +6,7 @@ import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.event.*;
 import com.xeomar.xenon.task.Task;
-import com.xeomar.xenon.tool.AbstractTool;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.event.Event;
@@ -346,22 +346,22 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Future<AbstractTool> open( URI uri ) throws ResourceException {
+	public Future<ProgramTool> open( URI uri ) throws ResourceException {
 		return open( uri, true, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Future<AbstractTool> open( URI uri, boolean openTool, boolean setActive ) throws ResourceException {
+	public Future<ProgramTool> open( URI uri, boolean openTool, boolean setActive ) throws ResourceException {
 		return open( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	private List<Future<AbstractTool>> open( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
-		List<Future<AbstractTool>> futures = new ArrayList<>( uris.size() );
+	private List<Future<ProgramTool>> open( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
+		List<Future<ProgramTool>> futures = new ArrayList<>( uris.size() );
 
 		for( URI uri : uris ) {
 			OpenResourceRequest request = new OpenResourceRequest();
@@ -1275,7 +1275,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	// TODO The OpenActionTask class name is not the best...
 	// but there are other classes with the expected name
-	private class OpenActionTask extends Task<AbstractTool> {
+	private class OpenActionTask extends Task<ProgramTool> {
 
 		private OpenResourceRequest request;
 
@@ -1284,7 +1284,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public AbstractTool call() throws Exception {
+		public ProgramTool call() throws Exception {
 			Resource resource = createResource( request.getUri() );
 			log.debug( "Open resource: ", resource.getUri() );
 
@@ -1305,7 +1305,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				return null;
 			}
 
-			AbstractTool tool = openTool ? program.getToolManager().openTool( new OpenToolRequest( request ).setResource( resource ) ) : null;
+			ProgramTool tool = openTool ? program.getToolManager().openTool( new OpenToolRequest( request ).setResource( resource ) ) : null;
 
 			setCurrentResource( resource );
 

@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class GuidedTool extends AbstractTool {
+public abstract class GuidedTool extends ProgramTool {
 
 	private static final Logger log = LoggerFactory.getLogger( GuidedTool.class );
 

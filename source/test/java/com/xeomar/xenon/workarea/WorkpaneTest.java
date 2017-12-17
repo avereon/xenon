@@ -99,6 +99,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( tool1, nextEvent( isMethod( MockTool.CONCEAL ) ) );
 		assertThat( tool1.getEvents().size(), is( 3 ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.ALLOCATE ) ) );
+		//assertThat( tool3, nextEvent( isMethod( MockTool.ACTIVATE ) ) ); // Extra
 		assertThat( tool3, nextEvent( isMethod( MockTool.DISPLAY ) ) );
 		assertThat( tool3, nextEvent( isMethod( MockTool.ACTIVATE ) ) );
 		assertThat( tool3.getEvents().size(), is( 3 ) );

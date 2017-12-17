@@ -645,18 +645,18 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
-		registerTool( manager, ProgramArtifactType.class, ArtifactTool.class, ToolInstanceMode.SINGLETON, "artifact", "artifact" );
+		registerTool( manager, ProgramArtifactType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "artifact", "artifact" );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, ProgramArtifactType.class, ArtifactTool.class );
+		unregisterTool( manager, ProgramArtifactType.class, ProductTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
 		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
 	}
 
-	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends AbstractTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
+	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
 		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
 		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
@@ -666,7 +666,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerTool( type, metadata );
 	}
 
-	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends AbstractTool> toolClass ) {
+	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProgramTool> toolClass ) {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 

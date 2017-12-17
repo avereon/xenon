@@ -15,7 +15,7 @@ import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WelcomeTool extends AbstractTool {
+public class WelcomeTool extends ProgramTool {
 
 	private static final Logger log = LoggerFactory.getLogger( WelcomeTool.class );
 

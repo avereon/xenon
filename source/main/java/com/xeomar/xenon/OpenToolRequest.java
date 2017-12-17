@@ -3,7 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.OpenResourceRequest;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.tool.AbstractTool;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
 
@@ -17,7 +17,7 @@ public class OpenToolRequest {
 
 	private Workpane pane;
 
-	private Class<? extends AbstractTool> toolClass;
+	private Class<? extends ProgramTool> toolClass;
 
 	public OpenToolRequest( OpenResourceRequest openResourceRequest ) {
 		this.openResourceRequest = openResourceRequest;
@@ -37,11 +37,11 @@ public class OpenToolRequest {
 
 	public boolean isSetActive() {return openResourceRequest.isSetActive();}
 
-	public Class<? extends AbstractTool> getToolClass() {
+	public Class<? extends ProgramTool> getToolClass() {
 		return toolClass;
 	}
 
-	public OpenToolRequest setToolClass( Class<? extends AbstractTool> toolClass ) {
+	public OpenToolRequest setToolClass( Class<? extends ProgramTool> toolClass ) {
 		this.toolClass = toolClass;
 		return this;
 	}

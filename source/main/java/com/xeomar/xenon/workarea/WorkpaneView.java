@@ -37,7 +37,14 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
-		tools.getSelectionModel().selectedItemProperty().addListener( new TabSelectionWatcher() );
+
+		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
+			if( newValue ) activateTool( (Tool)tools.getSelectionModel().getSelectedItem().getContent() );
+		} );
+
+		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
+			if( tools.focusedProperty().getValue() && newValue != null) activateTool( (Tool)newValue.getContent() );
+		} );
 	}
 
 	public String getViewId() {
@@ -79,13 +86,6 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
 
-		tab.setOnSelectionChanged( event -> {
-			// NEXT Figure out why the handler causes extra events
-			System.out.println( event.getClass().getName() );
-//			if( !tab.isSelected() ) return;
-//			event.consume();
-//			tool.getWorkpane().setActiveTool( tool );
-		} );
 		tab.setOnCloseRequest( event -> {
 			event.consume();
 			tool.close();
@@ -283,15 +283,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		//if( parent != null ) updateIcons();
 	}
 
-	private class TabSelectionWatcher implements ChangeListener<Tab> {
-
-		@Override
-		public void changed( ObservableValue<? extends Tab> observable, Tab oldTab, Tab tab ) {
-			if( tab == null ) return;
-			Tool tool = (Tool)tab.getContent();
-			if( isActive() && tab.isSelected() && tool != null ) getWorkpane().setActiveTool( tool );
-		}
-
+	private void activateTool( Tool tool ) {
+		Workpane workpane = getWorkpane();
+		if( workpane.getActiveTool() == tool ) return;
+		workpane.setActiveTool( tool );
 	}
 
 }

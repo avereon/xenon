@@ -9,11 +9,11 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
 
-public abstract class AbstractTool extends Tool {
+public abstract class ProgramTool extends Tool {
 
 	private ProgramProduct product;
 
-	public AbstractTool( ProgramProduct product, Resource resource ) {
+	public ProgramTool( ProgramProduct product, Resource resource ) {
 		super( resource );
 		this.product = product;
 	}

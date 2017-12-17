@@ -5,7 +5,7 @@ import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.resource.OpenResourceRequest;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.tool.AbstractTool;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.*;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -55,7 +55,7 @@ public class UiManager {
 
 	private Map<String, Tool> tools = new HashMap<>();
 
-	private Map<WorkpaneView, Set<AbstractTool>> viewTools = new HashMap<>();
+	private Map<WorkpaneView, Set<ProgramTool>> viewTools = new HashMap<>();
 
 	private boolean started;
 
@@ -329,13 +329,13 @@ public class UiManager {
 			Workpane pane = view.getWorkpane();
 			if( pane == null ) continue;
 
-			List<AbstractTool> tools = new ArrayList<>( viewTools.get( view ) );
+			List<ProgramTool> tools = new ArrayList<>( viewTools.get( view ) );
 
 			// Sort the tools
 			tools.sort( new ToolOrderComparator() );
 
 			// Add the tools to the view
-			for( AbstractTool tool : tools ) {
+			for( ProgramTool tool : tools ) {
 				pane.addTool( tool, view, tool.isActive() );
 
 				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
@@ -467,11 +467,11 @@ public class UiManager {
 			openToolRequest.setResource( resource );
 
 			// Restore the tool on a task thread
-			AbstractTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openToolRequest, toolType ) ).get( RESTORE_TOOL_TIMEOUT, TimeUnit.SECONDS );
+			ProgramTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openToolRequest, toolType ) ).get( RESTORE_TOOL_TIMEOUT, TimeUnit.SECONDS );
 			if( tool == null ) return;
 			tool.setSettings( settings );
 
-			Set<AbstractTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
+			Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
 			viewToolSet.add( tool );
 
 			tools.put( id, tool );
@@ -493,10 +493,10 @@ public class UiManager {
 		workspaces.clear();
 	}
 
-	private class ToolOrderComparator implements Comparator<AbstractTool> {
+	private class ToolOrderComparator implements Comparator<ProgramTool> {
 
 		@Override
-		public int compare( AbstractTool tool1, AbstractTool tool2 ) {
+		public int compare( ProgramTool tool1, ProgramTool tool2 ) {
 			Settings settings1 = tool1.getSettings();
 			Settings settings2 = tool2.getSettings();
 
