@@ -8,7 +8,6 @@ import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -243,7 +242,7 @@ public class ProgramUpdateManager extends UpdateManager {
 		private void showUpdates() {
 			try {
 				URI uri = URI.create( ProgramArtifactType.uri + "#" + ProgramArtifactType.UPDATES );
-				Tool tool = program.getResourceManager().open( uri ).get();
+				program.getResourceManager().open( uri );
 			} catch( Exception exception ) {
 				log.error( "Error opening artifact tool ", exception );
 			}
@@ -383,7 +382,7 @@ public class ProgramUpdateManager extends UpdateManager {
 	//		}
 	//
 	//	}
-	//
+
 	//	private static final class UpdateOptionClickHandler extends MouseAdapter {
 	//
 	//		private JCheckBox checkbox;

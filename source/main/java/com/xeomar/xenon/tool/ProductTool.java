@@ -5,9 +5,15 @@ import com.xeomar.product.ProductCardComparator;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.DateUtil;
-import com.xeomar.xenon.*;
+import com.xeomar.xenon.BundleKey;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramProduct;
+import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
+import com.xeomar.xenon.task.Task;
+import com.xeomar.xenon.task.TaskManager;
+import com.xeomar.xenon.update.CatalogCard;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.FxUtil;
@@ -15,7 +21,6 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -36,17 +41,13 @@ public class ProductTool extends GuidedTool {
 
 	private static final int ICON_SIZE = 48;
 
-	private Action addMarketAction;
-
-	private Action refreshStateAction;
-
 	private BorderPane layoutPane;
 
-	private Map<String, ArtifactPage> pages;
+	private Map<String, ProductToolPage> pages;
 
-	private ArtifactPage currentPage;
+	private ProductToolPage currentPage;
 
-	private CheckInfoPane checkInfo;
+	private UpdateCheckInformationPane checkInfo;
 
 	private InstalledPage installedPage;
 
@@ -54,7 +55,7 @@ public class ProductTool extends GuidedTool {
 
 	private UpdatesPage updatesPage;
 
-	private SourcesPage sourcesPage;
+	private ProductMarketPage productMarketPage;
 
 	public ProductTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -65,21 +66,18 @@ public class ProductTool extends GuidedTool {
 		setGraphic( program.getIconLibrary().getIcon( "artifact" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "artifact-name" ) );
 
-		addMarketAction = new AddSourceAction( program );
-		refreshStateAction = new RefreshStateAction( program );
-
 		installedPage = new InstalledPage( program );
 		availablePage = new AvailablePage( program );
 		updatesPage = new UpdatesPage( program );
-		sourcesPage = new SourcesPage( program );
+		productMarketPage = new ProductMarketPage( program );
 
 		pages = new HashMap<>();
 		pages.put( ProgramArtifactType.INSTALLED, installedPage );
 		pages.put( ProgramArtifactType.AVAILABLE, availablePage );
 		pages.put( ProgramArtifactType.UPDATES, updatesPage );
-		pages.put( ProgramArtifactType.SOURCES, sourcesPage );
+		pages.put( ProgramArtifactType.SOURCES, productMarketPage );
 
-		checkInfo = new CheckInfoPane( program );
+		checkInfo = new UpdateCheckInformationPane( program );
 
 		layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiManager.PAD ) );
@@ -116,10 +114,6 @@ public class ProductTool extends GuidedTool {
 	protected void deactivate() throws ToolException {
 		log.debug( "Product tool deactivate" );
 		super.deactivate();
-
-		// Pull all the action handlers
-		getProgram().getActionLibrary().getAction( "refresh" ).pullAction( refreshStateAction );
-		getProgram().getActionLibrary().getAction( "add-market" ).pullAction( addMarketAction );
 	}
 
 	@Override
@@ -139,9 +133,9 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 
-		Platform.runLater( new UpdateInstalledProducts() );
-		Platform.runLater( new UpdateAvailableProducts() );
-		Platform.runLater( new UpdateUpdatableProducts() );
+		getProgram().getExecutor().submit( new UpdateInstalledProducts() );
+		getProgram().getExecutor().submit( new UpdateAvailableProducts() );
+		getProgram().getExecutor().submit( new UpdateUpdatableProducts() );
 
 		String selected = parameters.getFragment();
 		// TODO Be sure the guide also changes selection
@@ -206,43 +200,7 @@ public class ProductTool extends GuidedTool {
 		return sources;
 	}
 
-	private class AddSourceAction extends Action {
-
-		protected AddSourceAction( Program program ) {
-			super( program );
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return true;
-		}
-
-		@Override
-		public void handle( Event event ) {
-			// TODO Implement AddSourceAction.handle()
-		}
-
-	}
-
-	private class RefreshStateAction extends Action {
-
-		protected RefreshStateAction( Program program ) {
-			super( program );
-		}
-
-		@Override
-		public boolean isEnabled() {
-			return true;
-		}
-
-		@Override
-		public void handle( Event event ) {
-			if( currentPage != null ) currentPage.updateState();
-		}
-
-	}
-
-	private abstract class ArtifactPage extends BorderPane {
+	private abstract class ProductToolPage extends BorderPane {
 
 		private Label title;
 
@@ -250,13 +208,13 @@ public class ProductTool extends GuidedTool {
 
 		private VBox nodes;
 
-		public ArtifactPage( Program program ) {
+		public ProductToolPage() {
 			setId( "tool-artifact-panel" );
 
 			title = new Label( "" );
 			title.setId( "tool-artifact-page-title" );
 
-			buttonBox = new HBox();
+			buttonBox = new HBox( UiManager.PAD );
 
 			BorderPane header = new BorderPane();
 			header.prefWidthProperty().bind( this.widthProperty() );
@@ -278,26 +236,15 @@ public class ProductTool extends GuidedTool {
 
 	}
 
-	private abstract class ProductPage extends ArtifactPage {
-
-		Button refreshButton;
-
-		private VBox productList;
+	private abstract class ProductPage extends ProductToolPage {
 
 		private List<ProductPane> sources;
 
+		private VBox productList;
+
 		public ProductPage( Program program ) {
-			super( program );
 			sources = new CopyOnWriteArrayList<>();
-
-			refreshButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "refresh" ) );
-			refreshButton.setId( "tool-artifact-page-refresh" );
-
 			setCenter( productList = new VBox() );
-		}
-
-		Button getRefreshButton() {
-			return refreshButton;
 		}
 
 		public List<ProductPane> getSourcePanels() {
@@ -372,14 +319,17 @@ public class ProductTool extends GuidedTool {
 		InstalledPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.INSTALLED ) );
+
+			Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
+			refreshButton.setOnAction( event -> updateState() );
+
 			getButtonBox().addAll( refreshButton );
 		}
 
 		@Override
 		protected void updateState() {
-			System.out.println( "Update state for installed products" );
-			Platform.runLater( new UpdateInstalledProducts() );
-			getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
+			log.trace( "Update installed products" );
+			getProgram().getExecutor().submit( new UpdateInstalledProducts() );
 		}
 
 	}
@@ -389,14 +339,17 @@ public class ProductTool extends GuidedTool {
 		AvailablePage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.AVAILABLE ) );
+
+			Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
+			refreshButton.setOnAction( event -> getProgram().getExecutor().submit( new UpdateAvailableProducts( true ) ) );
+
 			getButtonBox().addAll( refreshButton );
 		}
 
 		@Override
 		protected void updateState() {
-			System.out.println( "Update state for available products" );
-			Platform.runLater( new UpdateAvailableProducts() );
-			getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
+			log.trace( "Update available products" );
+			getProgram().getExecutor().submit( new UpdateAvailableProducts() );
 		}
 
 	}
@@ -406,41 +359,47 @@ public class ProductTool extends GuidedTool {
 		UpdatesPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.UPDATES ) );
-			getButtonBox().addAll( refreshButton );
+
+			Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
+			Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
+
+			refreshButton.setOnAction( event -> getProgram().getExecutor().submit( new UpdateUpdatableProducts( true ) ) );
+			downloadAllButton.setOnAction( event -> downloadAll() );
+
+			getButtonBox().addAll( refreshButton, downloadAllButton );
 		}
 
 		@Override
 		protected void updateState() {
-			System.out.println( "Update state for available updates" );
-			Platform.runLater( new UpdateUpdatableProducts() );
-			getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
+			log.trace( "Update available updates" );
+			getProgram().getExecutor().submit( new UpdateUpdatableProducts() );
+		}
+
+		private void downloadAll() {
+			log.trace( "Download all available updates" );
+			try {
+				getProgram().getUpdateManager().stagePostedUpdates();
+			} catch( Exception exception ) {
+				log.warn( "Error staging updates", exception );
+			}
 		}
 
 	}
 
-	private class SourcesPage extends ArtifactPage {
+	private class ProductMarketPage extends ProductToolPage {
 
-		private Button addButton;
-
-		SourcesPage( Program program ) {
-			super( program );
+		ProductMarketPage( Program program ) {
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.SOURCES ) );
 
-			addButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "add-market" ) );
-			addButton.setId( "tool-artifact-page-add" );
+			Button addButton = new Button( "", program.getIconLibrary().getIcon( "add-market" ) );
 
 			getButtonBox().addAll( addButton );
 		}
 
-		Button getAddButton() {
-			return addButton;
-		}
-
 		@Override
 		protected void updateState() {
-			System.out.println( "Update state for product markets" );
-			//Platform.runLater( new UpdateProductMarkets() );
-			getProgram().getActionLibrary().getAction( "add-market" ).pushAction( addMarketAction );
+			log.trace( "Update product markets" );
+			//getProgram().getExecutor().submit( new UpdateProductMarkets() );
 		}
 
 	}
@@ -481,7 +440,7 @@ public class ProductTool extends GuidedTool {
 
 		private Button installButton;
 
-		public ProductPane( ProductSource source, ProductCard update ) {
+		ProductPane( ProductSource source, ProductCard update ) {
 			super( "fillx, hidemode 3, insets " + UiManager.PAD + " " + UiManager.PAD + ", gap " + UiManager.PAD + " " + UiManager.PAD );
 
 			this.source = source;
@@ -600,7 +559,7 @@ public class ProductTool extends GuidedTool {
 
 	}
 
-	private class CheckInfoPane extends HBox implements SettingsListener {
+	private class UpdateCheckInformationPane extends HBox implements SettingsListener {
 
 		private Program program;
 
@@ -608,7 +567,7 @@ public class ProductTool extends GuidedTool {
 
 		private Label nextUpdateCheckField;
 
-		public CheckInfoPane( Program program ) {
+		UpdateCheckInformationPane( Program program ) {
 			this.program = program;
 			Label lastUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" ) );
 			Label nextUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" ) );
@@ -622,7 +581,7 @@ public class ProductTool extends GuidedTool {
 			program.getUpdateManager().getSettings().addSettingsListener( this );
 		}
 
-		public void updateInfo() {
+		void updateInfo() {
 			long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
 			long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
 
@@ -649,13 +608,25 @@ public class ProductTool extends GuidedTool {
 
 	}
 
-	private class UpdateAvailableProducts implements Runnable {
+	private class UpdateAvailableProducts extends Task<Void> {
+
+		private boolean force;
+
+		UpdateAvailableProducts() {
+			this( false );
+		}
+
+		UpdateAvailableProducts( boolean force ) {
+			this.force = force;
+		}
 
 		@Override
-		public void run() {
-			//			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getAvailableProducts() );
+		public Void call() {
+			TaskManager.taskThreadCheck();
+			//			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getAvailableProducts( force ) );
 			//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-			//			availablePage.setProducts( cards );
+			//			Platform.runLater( () -> availablePage.setProducts( cards ) );
+			return null;
 		}
 
 	}
@@ -663,26 +634,56 @@ public class ProductTool extends GuidedTool {
 	/**
 	 * Should be run on the FX platform thread.
 	 */
-	private class UpdateInstalledProducts implements Runnable {
+	private class UpdateInstalledProducts extends Task<Void> {
 
 		@Override
-		public void run() {
+		public Void call() {
+			TaskManager.taskThreadCheck();
 			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getProductCards() );
 			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-			installedPage.setProducts( cards );
+			Platform.runLater( () -> installedPage.setProducts( cards ) );
+			return null;
 		}
 
 	}
 
-	private class UpdateUpdatableProducts implements Runnable {
+	private class UpdateUpdatableProducts extends Task<Void> {
 
-		@Override
-		public void run() {
-			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getPostedUpdates() );
-			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-			updatesPage.setProducts( cards );
+		private boolean force;
+
+		UpdateUpdatableProducts() {
+			this( false );
 		}
 
+		UpdateUpdatableProducts( boolean force ) {
+			this.force = force;
+		}
+
+		@Override
+		public Void call() {
+			TaskManager.taskThreadCheck();
+			try {
+				List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().findPostedUpdates( force ) );
+				cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
+				Platform.runLater( () -> updatesPage.setProducts( cards ) );
+			} catch( Exception exception ) {
+				log.warn( "Error checking for updates", exception );
+				// TODO Notify the user there was a problem getting posted updates
+			}
+			return null;
+		}
+
+	}
+
+	private class UpdateProductMarkets extends Task<Void> {
+
+		@Override
+		public Void call() throws Exception {
+			List<CatalogCard> cards = new ArrayList<>( getProgram().getUpdateManager().getCatalogs() );
+			//cards.sort( new CatalogCardComparator( getProgram(), CatalogCardComparator.Field.NAME ) );
+			//Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
+			return null;
+		}
 	}
 
 }

@@ -490,11 +490,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 	}
 
-	public Set<ProductCard> getPostedUpdates() {
-		return new HashSet<>( postedUpdateCache );
-	}
-
-	public Set<ProductCard> findPostedUpdates() throws Exception {
+	public Set<ProductCard> findPostedUpdates() throws ExecutionException, InterruptedException, URISyntaxException {
 		return findPostedUpdates( false );
 	}
 
@@ -614,7 +610,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		stageSelectedUpdates( findPostedUpdates( true ) );
+		stageSelectedUpdates( findPostedUpdates() );
 		return updates.size();
 	}
 
