@@ -36,7 +36,7 @@ public class ProductTool extends GuidedTool {
 
 	private static final int ICON_SIZE = 48;
 
-	private Action addSourceAction;
+	private Action addMarketAction;
 
 	private Action refreshStateAction;
 
@@ -65,7 +65,7 @@ public class ProductTool extends GuidedTool {
 		setGraphic( program.getIconLibrary().getIcon( "artifact" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "artifact-name" ) );
 
-		addSourceAction = new AddSourceAction( program );
+		addMarketAction = new AddSourceAction( program );
 		refreshStateAction = new RefreshStateAction( program );
 
 		installedPage = new InstalledPage( program );
@@ -83,8 +83,7 @@ public class ProductTool extends GuidedTool {
 
 		layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiManager.PAD ) );
-		// TODO Switch this back to installedPage
-		layoutPane.setCenter( availablePage );
+		layoutPane.setCenter( installedPage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
 	}
@@ -107,9 +106,6 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool activate" );
 		super.activate();
 
-		getProgram().getActionLibrary().getAction( "add-market" ).pushAction( addSourceAction );
-		getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
-
 		String selected = getSettings().get( "selected", ProgramArtifactType.INSTALLED );
 		// TODO Be sure the guide also changes selection
 		//getGuide().setSelected( selected );
@@ -121,8 +117,9 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool deactivate" );
 		super.deactivate();
 
+		// Pull all the action handlers
 		getProgram().getActionLibrary().getAction( "refresh" ).pullAction( refreshStateAction );
-		getProgram().getActionLibrary().getAction( "add-market" ).pullAction( addSourceAction );
+		getProgram().getActionLibrary().getAction( "add-market" ).pullAction( addMarketAction );
 	}
 
 	@Override
@@ -283,7 +280,7 @@ public class ProductTool extends GuidedTool {
 
 	private abstract class ProductPage extends ArtifactPage {
 
-		private Button refreshButton;
+		Button refreshButton;
 
 		private VBox productList;
 
@@ -295,8 +292,6 @@ public class ProductTool extends GuidedTool {
 
 			refreshButton = ActionUtil.createButton( program, program.getActionLibrary().getAction( "refresh" ) );
 			refreshButton.setId( "tool-artifact-page-refresh" );
-
-			getButtonBox().addAll( refreshButton );
 
 			setCenter( productList = new VBox() );
 		}
@@ -377,12 +372,14 @@ public class ProductTool extends GuidedTool {
 		InstalledPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.INSTALLED ) );
+			getButtonBox().addAll( refreshButton );
 		}
 
 		@Override
 		protected void updateState() {
 			System.out.println( "Update state for installed products" );
 			Platform.runLater( new UpdateInstalledProducts() );
+			getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
 		}
 
 	}
@@ -392,12 +389,14 @@ public class ProductTool extends GuidedTool {
 		AvailablePage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.AVAILABLE ) );
+			getButtonBox().addAll( refreshButton );
 		}
 
 		@Override
 		protected void updateState() {
 			System.out.println( "Update state for available products" );
 			Platform.runLater( new UpdateAvailableProducts() );
+			getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
 		}
 
 	}
@@ -407,11 +406,14 @@ public class ProductTool extends GuidedTool {
 		UpdatesPage( Program program ) {
 			super( program );
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.UPDATES ) );
+			getButtonBox().addAll( refreshButton );
 		}
 
 		@Override
 		protected void updateState() {
 			System.out.println( "Update state for available updates" );
+			Platform.runLater( new UpdateUpdatableProducts() );
+			getProgram().getActionLibrary().getAction( "refresh" ).pushAction( refreshStateAction );
 		}
 
 	}
@@ -428,7 +430,6 @@ public class ProductTool extends GuidedTool {
 			addButton.setId( "tool-artifact-page-add" );
 
 			getButtonBox().addAll( addButton );
-
 		}
 
 		Button getAddButton() {
@@ -437,9 +438,9 @@ public class ProductTool extends GuidedTool {
 
 		@Override
 		protected void updateState() {
-			System.out.println( "Update state for product sources" );
-
-			//Set<UpdateSource> updateSources = getProgram().getUpdateManager().getUpdateSources();
+			System.out.println( "Update state for product markets" );
+			//Platform.runLater( new UpdateProductMarkets() );
+			getProgram().getActionLibrary().getAction( "add-market" ).pushAction( addMarketAction );
 		}
 
 	}
