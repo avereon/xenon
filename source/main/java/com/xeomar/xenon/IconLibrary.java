@@ -38,12 +38,13 @@ public class IconLibrary {
 		register( "update", UpdateIcon.class );
 		register( "about", ExclamationIcon.class );
 
-		register( "workarea-new", WorkareaIcon.class);
-		register( "workarea-rename", WorkareaRenameIcon.class);
-		register( "workarea-close", WorkareaCloseIcon.class);
+		register( "workarea-new", WorkareaIcon.class );
+		register( "workarea-rename", WorkareaRenameIcon.class );
+		register( "workarea-close", WorkareaCloseIcon.class );
 
 		register( "refresh", RefreshIcon.class );
 		register( "download", DownloadIcon.class );
+		register( "market", MarketIcon.class );
 		register( "module", ModuleIcon.class );
 		register( "remove", DeleteIcon.class );
 	}

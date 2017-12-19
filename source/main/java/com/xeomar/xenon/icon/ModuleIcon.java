@@ -11,24 +11,24 @@ public class ModuleIcon extends ProgramIcon {
 
 		// Outline
 		beginPath();
-		moveTo(g(16),g(7));
-		lineTo(g(24),g(11));
-		lineTo(g(24),g(21));
-		lineTo(g(16),g(25));
-		lineTo(g(8),g(21));
-		lineTo(g(8),g(11));
+		moveTo( g( 16 ), g( 7 ) );
+		lineTo( g( 24 ), g( 11 ) );
+		lineTo( g( 24 ), g( 21 ) );
+		lineTo( g( 16 ), g( 25 ) );
+		lineTo( g( 8 ), g( 21 ) );
+		lineTo( g( 8 ), g( 11 ) );
 		closePath();
-		fill(GradientShade.LIGHT);
+		fill( GradientShade.LIGHT );
 		draw();
 
 		// Edges
 		beginPath();
-		moveTo(g(16),g(25));
-		lineTo(g(16),g(15));
-		moveTo(g(8),g(11));
-		lineTo(g(16),g(15));
-		moveTo(g(24),g(11));
-		lineTo(g(16),g(15));
+		moveTo( g( 16 ), g( 25 ) );
+		lineTo( g( 16 ), g( 15 ) );
+		moveTo( g( 8 ), g( 11 ) );
+		lineTo( g( 16 ), g( 15 ) );
+		moveTo( g( 24 ), g( 11 ) );
+		lineTo( g( 16 ), g( 15 ) );
 		draw();
 	}
 
