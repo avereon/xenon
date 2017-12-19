@@ -20,10 +20,10 @@ public class MarketCardTest {
 		MarketCard card = YmlUtil.load( input, MarketCard.class );
 		assertThat( card.getName(), is( "Xeomar" ) );
 		assertThat( card.getIconUri(), is( "http://xeomar.com/download/image/xeomar.png" ) );
-		assertThat( card.getCardUri(), is( "http://xeomar.com/download/{0}/catalog/card/{1}" ) );
+		assertThat( card.getCardUri(), is( "http://xeomar.com/download/xenon/catalog/card/{0}" ) );
 
 		List<String> products = new ArrayList<>();
-		products.add( "http://xeomar.com/download/{0}/product/card/{1}" );
+		products.add( "http://xeomar.com/download/xenon/product/card/{0}" );
 		assertThat( card.getProducts(), contains( products.toArray() ) );
 	}
 
