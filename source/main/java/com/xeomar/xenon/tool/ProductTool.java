@@ -13,7 +13,8 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramArtifactType;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
-import com.xeomar.xenon.update.CatalogCard;
+import com.xeomar.xenon.update.CatalogCardComparator;
+import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.FxUtil;
@@ -388,18 +389,45 @@ public class ProductTool extends GuidedTool {
 
 	private class ProductMarketPage extends ProductToolPage {
 
+		private VBox marketList;
+
 		ProductMarketPage( Program program ) {
 			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.SOURCES ) );
 
 			Button addButton = new Button( "", program.getIconLibrary().getIcon( "add-market" ) );
 
 			getButtonBox().addAll( addButton );
+			setCenter( marketList = new VBox() );
 		}
 
 		@Override
 		protected void updateState() {
 			log.trace( "Update product markets" );
-			//getProgram().getExecutor().submit( new UpdateProductMarkets() );
+			getProgram().getExecutor().submit( new UpdateProductMarkets() );
+		}
+
+		void setMarkets( List<MarketCard> markets ) {
+			List<MarketPane> sources = new ArrayList<>( markets.size() );
+
+			// NEXT Add market panels to tool
+
+			marketList.getChildren().clear();
+			marketList.getChildren().addAll( sources );
+
+			updateMarketStates();
+		}
+
+		void updateMarketStates() {
+			for( Node node : marketList.getChildren() ) {
+				((MarketPane)node).updateMarketState();
+			}
+		}
+
+		public void updateMarketState( MarketCard card ) {
+			for( Node node : marketList.getChildren() ) {
+				MarketPane panel = (MarketPane)node;
+				if( panel.getSource().equals( card ) ) panel.updateMarketState();
+			}
 		}
 
 	}
@@ -559,6 +587,26 @@ public class ProductTool extends GuidedTool {
 
 	}
 
+	private class MarketPane extends MigPane {
+
+		private MarketCard source;
+
+		public MarketPane( MarketCard source ) {
+			this.source = source;
+
+			Program program = getProgram();
+		}
+
+		MarketCard getSource() {
+			return source;
+		}
+
+		void updateMarketState() {
+			// TODO Update the market state
+		}
+
+	}
+
 	private class UpdateCheckInformationPane extends HBox implements SettingsListener {
 
 		private Program program;
@@ -679,9 +727,9 @@ public class ProductTool extends GuidedTool {
 
 		@Override
 		public Void call() throws Exception {
-			List<CatalogCard> cards = new ArrayList<>( getProgram().getUpdateManager().getCatalogs() );
-			//cards.sort( new CatalogCardComparator( getProgram(), CatalogCardComparator.Field.NAME ) );
-			//Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
+			List<MarketCard> cards = new ArrayList<>( getProgram().getUpdateManager().getCatalogs() );
+			cards.sort( new CatalogCardComparator( getProgram(), CatalogCardComparator.Field.NAME ) );
+			Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
 			return null;
 		}
 	}

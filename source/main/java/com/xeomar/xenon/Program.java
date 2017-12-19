@@ -22,6 +22,7 @@ import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.*;
 import com.xeomar.xenon.tool.settings.SettingsTool;
+import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
@@ -63,6 +64,8 @@ public class Program extends Application implements ProgramProduct {
 	private SplashScreenPane splashScreen;
 
 	private TaskManager taskManager;
+
+	private MarketCard defaultMarket;
 
 	private ProductCard card;
 
@@ -289,6 +292,10 @@ public class Program extends Application implements ProgramProduct {
 			current.show();
 			current.requestFocus();
 		} );
+	}
+
+	public MarketCard getMarket() {
+		return defaultMarket;
 	}
 
 	@Override
@@ -670,8 +677,13 @@ public class Program extends Application implements ProgramProduct {
 		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
 	}
 
-	private UpdateManager configureUpdateManager( UpdateManager updateManager ) {
-		// Register the product.
+	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
+		updateManager.setSettings( programSettings );
+
+		// Register the catalog
+		updateManager.addCatalog( defaultMarket = MarketCard.forProduct() );
+
+		// Register the product
 		updateManager.registerProduct( this );
 		updateManager.setEnabled( getCard(), true );
 		updateManager.setUpdatable( getCard(), true );
@@ -679,7 +691,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// Configure the update manager
 		updateManager.setUpdaterPath( getHomeFolder().resolve( UpdateManager.UPDATER_JAR_NAME ) );
-		updateManager.setSettings( programSettings );
 
 		return updateManager;
 	}

@@ -129,7 +129,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Settings settings;
 
-	private Set<CatalogCard> catalogs;
+	private Set<MarketCard> catalogs;
 
 	private Map<String, Module> modules;
 
@@ -187,22 +187,22 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return catalogs.size();
 	}
 
-	public void addCatalog( CatalogCard source ) {
+	public void addCatalog( MarketCard source ) {
 		catalogs.add( source );
 		saveSettings();
 	}
 
-	public void removeCatalog( CatalogCard source ) {
+	public void removeCatalog( MarketCard source ) {
 		catalogs.remove( source );
 		saveSettings();
 	}
 
-	public void setCatalogEnabled( CatalogCard catalog, boolean enabled ) {
+	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
 		catalog.setEnabled( enabled );
 		saveSettings();
 	}
 
-	public Set<CatalogCard> getCatalogs() {
+	public Set<MarketCard> getCatalogs() {
 		return new HashSet<>( catalogs );
 	}
 
@@ -947,10 +947,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
 
 		//		// TODO Load the product catalogs
-		//		Set<CatalogCard> catalogsSet = new CopyOnWriteArraySet<CatalogCard>();
+		//		Set<MarketCard> catalogsSet = new CopyOnWriteArraySet<MarketCard>();
 		//		Set<Settings> catalogsSettings = settings.getChildNodes( CATALOGS_SETTINGS_KEY );
 		//		for( Settings catalogSettings : catalogsSettings ) {
-		//			CatalogCard catalog = new CatalogCard();
+		//			MarketCard catalog = new MarketCard();
 		//			catalog.loadSettings( catalogSettings );
 		//			catalogsSet.add( catalog );
 		//		}
