@@ -407,12 +407,14 @@ public class ProductTool extends GuidedTool {
 		}
 
 		void setMarkets( List<MarketCard> markets ) {
-			List<MarketPane> sources = new ArrayList<>( markets.size() );
-
-			// NEXT Add market panels to tool
+			// Add a product pane for each card
+			List<MarketPane> panes = new ArrayList<>( markets.size() );
+			for( MarketCard market : markets ) {
+				panes.add( new MarketPane( market ) );
+			}
 
 			marketList.getChildren().clear();
-			marketList.getChildren().addAll( sources );
+			marketList.getChildren().addAll( panes );
 
 			updateMarketStates();
 		}
@@ -469,12 +471,10 @@ public class ProductTool extends GuidedTool {
 		private Button installButton;
 
 		ProductPane( ProductSource source, ProductCard update ) {
-			super( "fillx, hidemode 3, insets " + UiManager.PAD + " " + UiManager.PAD + ", gap " + UiManager.PAD + " " + UiManager.PAD );
-
 			this.source = source;
 			this.update = update;
 
-			setId( "tool-artifact-product" );
+			setId( "tool-product-artifact" );
 
 			Program program = getProgram();
 
@@ -483,24 +483,24 @@ public class ProductTool extends GuidedTool {
 			//Node productIcon = program.getIconLibrary().getIcon( iconUri, ICON_SIZE );
 
 			iconLabel = new Label( null, productIcon );
-			iconLabel.setId( "tool-artifact-product-icon" );
+			iconLabel.setId( "tool-product-artifact-icon" );
 			nameLabel = new Label( source.getCard().getName() );
-			nameLabel.setId( "tool-artifact-product-name" );
+			nameLabel.setId( "tool-product-artifact-name" );
 			versionLabel = new Label( update == null ? source.getCard().getRelease().toHumanString( TimeZone.getDefault() ) : update.getRelease().toHumanString( TimeZone.getDefault() ) );
-			versionLabel.setId( "tool-artifact-product-version" );
+			versionLabel.setId( "tool-product-artifact-version" );
 			summaryLabel = new Label( source.getCard().getSummary() );
-			summaryLabel.setId( "tool-artifact-product-summary" );
+			summaryLabel.setId( "tool-product-artifact-summary" );
 			hyphenLabel = new Label( "-" );
 			providerLabel = new Label( source.getCard().getProvider() );
-			providerLabel.setId( "tool-artifact-product-provider" );
+			providerLabel.setId( "tool-product-artifact-provider" );
 			releaseLabel = new Label( source.getCard().getRelease().toHumanString( TimeZone.getDefault() ) );
-			releaseLabel.setId( "tool-artifact-product-release" );
+			releaseLabel.setId( "tool-product-artifact-release" );
 			stateLabel = new Label( "State" );
-			stateLabel.setId( "tool-artifact-product-state" );
+			stateLabel.setId( "tool-product-artifact-state" );
 			selectCheckBox = new CheckBox();
-			selectCheckBox.setId( "tool-artifact-product-select" );
+			selectCheckBox.setId( "tool-product-artifact-select" );
 			enableCheckBox = new CheckBox();
-			enableCheckBox.setId( "tool-artifact-product-enable" );
+			enableCheckBox.setId( "tool-product-artifact-enable" );
 
 			// Try to do all actions without a selection box
 			// Or use the selection checkbox as an enabled checkbox
@@ -591,10 +591,42 @@ public class ProductTool extends GuidedTool {
 
 		private MarketCard source;
 
+		private Label iconLabel;
+
+		private Label nameLabel;
+
+		private Label uriLabel;
+
+		private Button enableButton;
+
+		private Button removeButton;
+
 		public MarketPane( MarketCard source ) {
 			this.source = source;
 
+			setId( "tool-product-market" );
+
 			Program program = getProgram();
+
+			String iconUri = source.getIconUri();
+			Node marketIcon = program.getIconLibrary().getIcon( "market", ICON_SIZE );
+			//Node marketIcon = program.getIconLibrary().getIcon( iconUri, ICON_SIZE );
+
+			iconLabel = new Label( null, marketIcon );
+			iconLabel.setId( "tool-product-market-icon" );
+			nameLabel = new Label( source.getName() );
+			nameLabel.setId( "tool-product-market-name" );
+			uriLabel = new Label( source.getCardUri() );
+			uriLabel.setId( "tool-product-market-uri" );
+
+			enableButton = new Button( "", getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
+			removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
+
+			add( iconLabel, "spany, aligny center" );
+			add( nameLabel, "pushx" );
+			add( enableButton );
+			add( uriLabel, "newline" );
+			add( removeButton );
 		}
 
 		MarketCard getSource() {
@@ -603,6 +635,8 @@ public class ProductTool extends GuidedTool {
 
 		void updateMarketState() {
 			// TODO Update the market state
+			enableButton.setGraphic( getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
+			removeButton.setVisible( source.isRemovable() );
 		}
 
 	}

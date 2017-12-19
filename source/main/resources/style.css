@@ -104,11 +104,19 @@
 	-fx-font-size: 2em;
 }
 
-#tool-artifact-product {
+#tool-product-artifact {
 	-fx-background-color: -ex-background-text;
 }
 
-#tool-artifact-product-name {
+#tool-product-artifact-name {
+	-fx-font-weight: bold;
+}
+
+#tool-product-market {
+	-fx-background-color: -ex-background-text;
+}
+
+#tool-product-market-name {
 	-fx-font-weight: bold;
 }
 

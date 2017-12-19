@@ -46,8 +46,8 @@ public class MarketCard {
 		MarketCard card = new MarketCard();
 
 		card.name = (String)values.get( "name" );
-		card.iconUri = (String)values.get( "icon" );
-		card.cardUri = source == null ? (String)values.get( "card" ) : source.toString();
+		card.iconUri = (String)values.get( "iconUri" );
+		card.cardUri = source == null ? (String)values.get( "cardUri" ) : source.toString();
 
 		Object enabledValue = values.get("enabled" );
 		card.enabled = enabledValue != null && Boolean.parseBoolean( enabledValue.toString() );
