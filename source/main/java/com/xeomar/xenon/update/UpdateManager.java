@@ -610,13 +610,17 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		stageSelectedUpdates( findPostedUpdates() );
+		stageUpdates( findPostedUpdates() );
 		return updates.size();
 	}
 
 	public Path getProductInstallFolder( ProductCard card ) {
 		Path installFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
 		return installFolder.resolve( card.getGroup() + "." + card.getArtifact() );
+	}
+
+	public Map<ProductCard, Set<ProductResource>> stageUpdates( ProductCard... updateCards ) throws IOException {
+		return stageUpdates( Set.of( updateCards ) );
 	}
 
 	/**
@@ -627,7 +631,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @return true if one or more product packs were staged.
 	 * @throws IOException If an IO error occurs
 	 */
-	public Map<ProductCard, Set<ProductResource>> stageSelectedUpdates( Set<ProductCard> updateCards ) throws IOException {
+	public Map<ProductCard, Set<ProductResource>> stageUpdates( Set<ProductCard> updateCards ) throws IOException {
 		if( updateCards.size() == 0 ) return null;
 
 		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
@@ -1224,6 +1228,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Wait for all resources to be downloaded.
 		for( ProductCard card : cards ) {
 			Set<ProductResource> resources = productResources.get( card );
+			if( resources == null ) continue;
 			for( ProductResource resource : resources ) {
 				try {
 					resource.waitFor();

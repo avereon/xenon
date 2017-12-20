@@ -317,7 +317,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		@Override
 		public Void call() throws Exception {
-			stageSelectedUpdates( selectedUpdates );
+			stageUpdates( selectedUpdates );
 			handleApplyUpdates( selectedUpdates );
 			return null;
 		}

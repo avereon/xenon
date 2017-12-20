@@ -23,10 +23,8 @@ import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import org.slf4j.Logger;
@@ -431,10 +429,6 @@ public class ProductTool extends GuidedTool {
 
 		private ProductCard update;
 
-//		private CheckBox selectCheckBox;
-//
-//		private CheckBox enableCheckBox;
-
 		private Label iconLabel;
 
 		private Label nameLabel;
@@ -451,15 +445,9 @@ public class ProductTool extends GuidedTool {
 
 		private Label stateLabel;
 
-//		private Pane actionButtonBox;
-//
-//		private Pane removeButtonBox;
-
-		private Button enableButton;
+		private Button actionButton;
 
 		private Button removeButton;
-
-		private Button installButton;
 
 		ProductPane( ProductCard source, ProductCard update ) {
 			this.source = source;
@@ -488,30 +476,17 @@ public class ProductTool extends GuidedTool {
 			releaseLabel.setId( "tool-product-artifact-release" );
 			stateLabel = new Label( "State" );
 			stateLabel.setId( "tool-product-artifact-state" );
-//			selectCheckBox = new CheckBox();
-//			selectCheckBox.setId( "tool-product-artifact-select" );
-//			enableCheckBox = new CheckBox();
-//			enableCheckBox.setId( "tool-product-artifact-enable" );
 
-			// Try to do all actions without a selection box
-			// Or use the selection checkbox as an enabled checkbox
-			//add( selectCheckBox, "spany, aligny center" );
-
-//			actionButtonBox = new HBox();
-//			((HBox)actionButtonBox).setAlignment( Pos.CENTER );
-//			removeButtonBox = new HBox();
-//			((HBox)removeButtonBox).setAlignment( Pos.CENTER );
-
-			enableButton = ActionUtil.createToolBarButton( program, "enable" );
+			actionButton = ActionUtil.createToolBarButton( program, "enable" );
 			removeButton = ActionUtil.createToolBarButton( program, "remove" );
-			installButton = ActionUtil.createToolBarButton( program, "install" );
+			removeButton.setOnAction( ( event ) -> removeProduct() );
 
 			add( iconLabel, "spany, aligny center" );
 			add( nameLabel );
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
 			add( stateLabel, "tag right" );
-			add( enableButton );
+			add( actionButton );
 
 			add( summaryLabel, "newline, spanx 3" );
 			add( versionLabel, "tag right" );
@@ -528,23 +503,17 @@ public class ProductTool extends GuidedTool {
 			return update;
 		}
 
-//		public boolean isSelected() {
-//			return selectCheckBox.isSelected();
-//		}
-//
-//		public void setSelected( boolean selected ) {
-//			selectCheckBox.setSelected( selected );
-//		}
-
 		void updateProductState() {
 			ProductCard card = source;
-			UpdateManager manager = getProgram().getUpdateManager();
+			Program program = getProgram();
+			UpdateManager manager = program.getUpdateManager();
 
 			boolean isStaged = update == null ? manager.isStaged( card ) : manager.isReleaseStaged( update );
-			boolean isProgram = getProgram().getCard().equals( card );
+			boolean isProgram = program.getCard().equals( card );
 			boolean isEnabled = manager.isEnabled( card );
 			boolean isInstalled = manager.isInstalled( card );
 			boolean isInstalledProductsPanel = FxUtil.isChildOf( this, installedPage );
+			boolean isAvailableProductsPanel = FxUtil.isChildOf( this, availablePage );
 			boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, updatesPage );
 
 			// Determine state string key.
@@ -559,14 +528,68 @@ public class ProductTool extends GuidedTool {
 				}
 			}
 			if( isStaged ) stateLabelKey = "downloaded";
-			stateLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
+			stateLabel.setText( program.getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
 
+			// Configure the action button
 			if( isInstalledProductsPanel ) {
+				actionButton.setVisible( true );
+				actionButton.setDisable( isProgram );
+				actionButton.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disabled" : "enabled" ) );
+				actionButton.setOnAction( ( event ) -> toggleEnabled() );
+
 				removeButton.setVisible( true );
 				removeButton.setDisable( isProgram );
-			} else if( isUpdatableProductsPanel ) {
+			} else if( isAvailableProductsPanel ) {
+				actionButton.setVisible( true );
+				actionButton.setDisable( false );
+				actionButton.setGraphic( program.getIconLibrary().getIcon( "install" ) );
+				actionButton.setOnAction( ( event ) -> installProduct() );
+
 				removeButton.setVisible( false );
+				removeButton.setDisable( true );
+			} else if( isUpdatableProductsPanel ) {
+				actionButton.setVisible( true );
+				actionButton.setDisable( false );
+				actionButton.setGraphic( program.getIconLibrary().getIcon( "download" ) );
+				actionButton.setOnAction( ( event ) -> updateProduct() );
+
+				removeButton.setVisible( false );
+				removeButton.setDisable( true );
 			}
+		}
+
+		private void toggleEnabled() {
+			getProgram().getUpdateManager().setEnabled( source, !getProgram().getUpdateManager().isEnabled( source ) );
+		}
+
+		private void installProduct() {
+			getProgram().getExecutor().submit( () -> {
+				try {
+					getProgram().getUpdateManager().installProducts( source );
+				} catch( Exception exception ) {
+					log.warn( "Error installing product", exception );
+				}
+			} );
+		}
+
+		private void updateProduct() {
+			getProgram().getExecutor().submit( () -> {
+				try {
+					getProgram().getUpdateManager().stageUpdates( source );
+				} catch( Exception exception ) {
+					log.warn( "Error updating product", exception );
+				}
+			} );
+		}
+
+		private void removeProduct() {
+			getProgram().getExecutor().submit( () -> {
+				try {
+					getProgram().getUpdateManager().uninstallProducts( source );
+				} catch( Exception exception ) {
+					log.warn( "Error uninstalling product", exception );
+				}
+			} );
 		}
 
 	}
