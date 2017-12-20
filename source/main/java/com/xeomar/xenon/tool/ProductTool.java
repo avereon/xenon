@@ -168,6 +168,7 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setCenter( currentPage );
 	}
 
+	// NEXT Remove use of ProductSource class
 	private List<ProductSource> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();
@@ -291,7 +292,7 @@ public class ProductTool extends GuidedTool {
 			// Add a product pane for each card
 			sources.clear();
 			for( ProductSource source : valid ) {
-				sources.add( new ProductPane( source, productUpdates.get( source.getCard().getProductKey() ) ) );
+				sources.add( new ProductPane( source.getCard(), productUpdates.get( source.getCard().getProductKey() ) ) );
 			}
 
 			productList.getChildren().clear();
@@ -309,7 +310,7 @@ public class ProductTool extends GuidedTool {
 		public void updateProductState( ProductCard card ) {
 			for( Node node : productList.getChildren() ) {
 				ProductPane panel = (ProductPane)node;
-				if( panel.getSource().getCard().equals( card ) ) panel.updateProductState();
+				if( panel.getSource().equals( card ) ) panel.updateProductState();
 			}
 		}
 
@@ -436,13 +437,13 @@ public class ProductTool extends GuidedTool {
 
 	private class ProductPane extends MigPane {
 
-		private ProductSource source;
+		private ProductCard source;
 
 		private ProductCard update;
 
-		private CheckBox selectCheckBox;
-
-		private CheckBox enableCheckBox;
+//		private CheckBox selectCheckBox;
+//
+//		private CheckBox enableCheckBox;
 
 		private Label iconLabel;
 
@@ -460,9 +461,9 @@ public class ProductTool extends GuidedTool {
 
 		private Label stateLabel;
 
-		private Pane actionButtonBox;
-
-		private Pane removeButtonBox;
+//		private Pane actionButtonBox;
+//
+//		private Pane removeButtonBox;
 
 		private Button enableButton;
 
@@ -470,7 +471,7 @@ public class ProductTool extends GuidedTool {
 
 		private Button installButton;
 
-		ProductPane( ProductSource source, ProductCard update ) {
+		ProductPane( ProductCard source, ProductCard update ) {
 			this.source = source;
 			this.update = update;
 
@@ -478,38 +479,38 @@ public class ProductTool extends GuidedTool {
 
 			Program program = getProgram();
 
-			String iconUri = source.getCard().getIconUri();
+			String iconUri = source.getIconUri();
 			Node productIcon = program.getIconLibrary().getIcon( "module", ICON_SIZE );
 			//Node productIcon = program.getIconLibrary().getIcon( iconUri, ICON_SIZE );
 
 			iconLabel = new Label( null, productIcon );
 			iconLabel.setId( "tool-product-artifact-icon" );
-			nameLabel = new Label( source.getCard().getName() );
+			nameLabel = new Label( source.getName() );
 			nameLabel.setId( "tool-product-artifact-name" );
-			versionLabel = new Label( update == null ? source.getCard().getRelease().toHumanString( TimeZone.getDefault() ) : update.getRelease().toHumanString( TimeZone.getDefault() ) );
+			versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update.getRelease().toHumanString( TimeZone.getDefault() ) );
 			versionLabel.setId( "tool-product-artifact-version" );
-			summaryLabel = new Label( source.getCard().getSummary() );
+			summaryLabel = new Label( source.getSummary() );
 			summaryLabel.setId( "tool-product-artifact-summary" );
 			hyphenLabel = new Label( "-" );
-			providerLabel = new Label( source.getCard().getProvider() );
+			providerLabel = new Label( source.getProvider() );
 			providerLabel.setId( "tool-product-artifact-provider" );
-			releaseLabel = new Label( source.getCard().getRelease().toHumanString( TimeZone.getDefault() ) );
+			releaseLabel = new Label( source.getRelease().toHumanString( TimeZone.getDefault() ) );
 			releaseLabel.setId( "tool-product-artifact-release" );
 			stateLabel = new Label( "State" );
 			stateLabel.setId( "tool-product-artifact-state" );
-			selectCheckBox = new CheckBox();
-			selectCheckBox.setId( "tool-product-artifact-select" );
-			enableCheckBox = new CheckBox();
-			enableCheckBox.setId( "tool-product-artifact-enable" );
+//			selectCheckBox = new CheckBox();
+//			selectCheckBox.setId( "tool-product-artifact-select" );
+//			enableCheckBox = new CheckBox();
+//			enableCheckBox.setId( "tool-product-artifact-enable" );
 
 			// Try to do all actions without a selection box
 			// Or use the selection checkbox as an enabled checkbox
 			//add( selectCheckBox, "spany, aligny center" );
 
-			actionButtonBox = new HBox();
-			((HBox)actionButtonBox).setAlignment( Pos.CENTER );
-			removeButtonBox = new HBox();
-			((HBox)removeButtonBox).setAlignment( Pos.CENTER );
+//			actionButtonBox = new HBox();
+//			((HBox)actionButtonBox).setAlignment( Pos.CENTER );
+//			removeButtonBox = new HBox();
+//			((HBox)removeButtonBox).setAlignment( Pos.CENTER );
 
 			enableButton = ActionUtil.createToolBarButton( program, "enable" );
 			removeButton = ActionUtil.createToolBarButton( program, "remove" );
@@ -520,16 +521,16 @@ public class ProductTool extends GuidedTool {
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
 			add( stateLabel, "tag right" );
-			add( actionButtonBox );
+			add( enableButton );
 
 			add( summaryLabel, "newline, spanx 3" );
 			add( versionLabel, "tag right" );
-			add( removeButtonBox );
+			add( removeButton );
 
 			// Trying to update the product state before being added to a page causes incorrect state
 		}
 
-		public ProductSource getSource() {
+		public ProductCard getSource() {
 			return source;
 		}
 
@@ -537,16 +538,16 @@ public class ProductTool extends GuidedTool {
 			return update;
 		}
 
-		public boolean isSelected() {
-			return selectCheckBox.isSelected();
-		}
-
-		public void setSelected( boolean selected ) {
-			selectCheckBox.setSelected( selected );
-		}
+//		public boolean isSelected() {
+//			return selectCheckBox.isSelected();
+//		}
+//
+//		public void setSelected( boolean selected ) {
+//			selectCheckBox.setSelected( selected );
+//		}
 
 		void updateProductState() {
-			ProductCard card = source.getCard();
+			ProductCard card = source;
 			UpdateManager manager = getProgram().getUpdateManager();
 
 			boolean isStaged = update == null ? manager.isStaged( card ) : manager.isReleaseStaged( update );
@@ -571,17 +572,10 @@ public class ProductTool extends GuidedTool {
 			stateLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
 
 			if( isInstalledProductsPanel ) {
-				actionButtonBox.getChildren().clear();
-				actionButtonBox.getChildren().add( enableButton );
-				removeButtonBox.getChildren().add( removeButton );
+				removeButton.setVisible( true );
 				removeButton.setDisable( isProgram );
-				selectCheckBox.setSelected( !isProgram );
-				selectCheckBox.setDisable( isProgram );
 			} else if( isUpdatableProductsPanel ) {
-				actionButtonBox.getChildren().clear();
-				actionButtonBox.getChildren().add( installButton );
-				removeButtonBox.getChildren().clear();
-				selectCheckBox.setSelected( true );
+				removeButton.setVisible( false );
 			}
 		}
 

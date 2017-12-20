@@ -8,6 +8,7 @@ import com.xeomar.xenon.update.UpdateManager;
  * 
  * @author Mark Soderquist
  */
+@Deprecated
 public class ProductSource {
 
 	private ProductCard card;

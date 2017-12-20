@@ -504,8 +504,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws ExecutionException, InterruptedException, URISyntaxException {
-		Set<ProductCard> newCards = new HashSet<>();
-		if( !isEnabled() ) return newCards;
+		Set<ProductCard> availableCards = new HashSet<>();
+		if( !isEnabled() ) return availableCards;
 
 		// If the posted update cache is still valid return the updates in the cache.
 		long postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
@@ -543,32 +543,32 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Determine what products have posted updates.
 		ExecutionException executionException = null;
 		InterruptedException interruptedException = null;
-		for( ProductCard oldCard : oldCards ) {
+		for( ProductCard installedCard : oldCards ) {
 			try {
-				DownloadTask task = tasks.get( oldCard );
+				DownloadTask task = tasks.get( installedCard );
 				if( task == null ) continue;
 
 				Download download = task.get();
-				ProductCard newCard = new ProductCard();
+				ProductCard availableCard = new ProductCard();
 				try( InputStream input = download.getInputStream() ) {
-					newCard.loadCard( input, task.getUri() );
+					availableCard.loadCard( input, task.getUri() );
 				} catch( IOException exception ) {
 					log.warn( "Error loading product card: " + task.getUri(), exception );
 					continue;
 				}
 
 				// Validate the pack key.
-				if( !oldCard.getProductKey().equals( newCard.getProductKey() ) ) {
-					log.warn( "Pack mismatch: " + oldCard.getProductKey() + " != " + newCard.getProductKey() );
+				if( !installedCard.getProductKey().equals( availableCard.getProductKey() ) ) {
+					log.warn( "Pack mismatch: " + installedCard.getProductKey() + " != " + availableCard.getProductKey() );
 					continue;
 				}
 
-				log.debug( "Old release: " + oldCard.getProductKey() + " " + oldCard.getRelease() );
-				log.debug( "New release: " + newCard.getProductKey() + " " + newCard.getRelease() );
+				log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
+				log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
 
-				if( newCard.getRelease().compareTo( oldCard.getRelease() ) > 0 ) {
-					log.debug( "Update found for: " + oldCard.getProductKey() + " > " + newCard.getRelease() );
-					newCards.add( newCard );
+				if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
+					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+					availableCards.add( availableCard );
 				}
 			} catch( ExecutionException exception ) {
 				if( executionException == null ) executionException = exception;
@@ -578,7 +578,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 
 		// If there is an exception and there are no updates, throw the exception.
-		if( newCards.size() == 0 ) {
+		if( availableCards.size() == 0 ) {
 			if( uriSyntaxException != null ) throw uriSyntaxException;
 			if( executionException != null ) throw executionException;
 			if( interruptedException != null ) throw interruptedException;
@@ -586,9 +586,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		// Cache the discovered updates.
 		postedUpdateCacheTime = System.currentTimeMillis();
-		postedUpdateCache = new CopyOnWriteArraySet<>( newCards );
+		postedUpdateCache = new CopyOnWriteArraySet<>( availableCards );
 
-		return newCards;
+		return availableCards;
 	}
 
 	public boolean cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
