@@ -168,8 +168,7 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setCenter( currentPage );
 	}
 
-	// NEXT Remove use of ProductSource class
-	private List<ProductSource> createSourceList( List<ProductCard> cards ) {
+	private List<ProductCard> createSourceList( List<ProductCard> cards ) {
 		// Clean out duplicate releases and create unique product list.
 		List<ProductCard> uniqueList = new ArrayList<>();
 		Map<String, List<ProductCard>> cardMap = new HashMap<>();
@@ -190,12 +189,12 @@ public class ProductTool extends GuidedTool {
 		}
 
 		// Create the sources.
-		List<ProductSource> sources = new ArrayList<>();
+		List<ProductCard> sources = new ArrayList<>();
 		for( ProductCard card : uniqueList ) {
 			List<ProductCard> releases = cardMap.get( card.getProductKey() );
 			if( releases != null ) {
 				releases.sort( Collections.reverseOrder( new ProductCardComparator( getProgram(), ProductCardComparator.Field.RELEASE ) ) );
-				sources.add( new ProductSource( releases.get( 0 ) ) );
+				sources.add( releases.get( 0 ) );
 			}
 		}
 
@@ -280,19 +279,10 @@ public class ProductTool extends GuidedTool {
 				cards = newCards;
 			}
 
-			// Create a valid list of product sources
-			List<ProductSource> check = createSourceList( cards );
-			List<ProductSource> valid = new ArrayList<>( check.size() );
-
-			// Filter out sources with invalid sources.
-			for( ProductSource source : check ) {
-				if( source.getCard() != null ) valid.add( source );
-			}
-
 			// Add a product pane for each card
 			sources.clear();
-			for( ProductSource source : valid ) {
-				sources.add( new ProductPane( source.getCard(), productUpdates.get( source.getCard().getProductKey() ) ) );
+			for( ProductCard source : createSourceList( cards ) ) {
+				sources.add( new ProductPane( source, productUpdates.get( source.getProductKey() ) ) );
 			}
 
 			productList.getChildren().clear();
