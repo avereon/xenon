@@ -9,15 +9,15 @@ public class DownloadIcon extends ProgramIcon {
 		double ox = g( 16 );
 		double oy = g( 23 );
 
-		double m = g( 18 );
+		double m = g( 20 );
 
 		double shaft = g( 3 );
 		double width = g( 9 );
 
 		double za = g( 1 );
 
-		fillCenteredOval( ox, oy, g( 10 ), g( 4 ) );
-		drawCenteredOval( ox, oy, g( 10 ), g( 4 ) );
+		fillCenteredOval( ox, oy, g( 12 ), g( 6 ) );
+		drawCenteredOval( ox, oy, g( 12 ), g( 6 ) );
 
 		beginPath();
 		moveTo( ox - za, oy );

@@ -44,7 +44,6 @@ public class ProgramUpdateManager extends UpdateManager {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		List<String> commandList = new ArrayList<>( Arrays.asList( extras ) );
-		// FIXME The --title flag should come from Annex
 		commandList.add( UpdateFlag.TITLE );
 		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", program.getCard().getName() ) );
 		String[] commands = commandList.toArray( new String[ commandList.size() ] );
@@ -219,7 +218,7 @@ public class ProgramUpdateManager extends UpdateManager {
 							if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
 						} );
 					} else {
-						// NEXT Use the notice tool to notify the user of posted updates
+						// TODO Use the notice tool to notify the user of posted updates
 						String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
 						//DefaultNotice notice = new DefaultNotice( NoticeKey.UPDATES_FOUND, "notice", message );
 						//program.getNoticeManager().submit( notice );
