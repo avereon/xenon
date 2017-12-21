@@ -46,7 +46,9 @@ public class IconLibrary {
 		register( "download", DownloadIcon.class );
 		register( "market", MarketIcon.class );
 		register( "module", ModuleIcon.class );
-		register( "remove", DeleteIcon.class );
+		register( "enable", LightningIcon.class );
+		register( "disable", DisableIcon.class );
+		register( "remove", ExitIcon.class );
 	}
 
 	public ProgramIcon getIcon( String id ) {

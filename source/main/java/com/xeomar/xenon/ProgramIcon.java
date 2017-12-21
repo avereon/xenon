@@ -276,6 +276,10 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().rect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
+	protected void addOval(double cx, double cy, double rx, double ry ) {
+		getGraphicsContext2D().arc( xformX( cx ), xformY( cy ), xformX( rx ), xformY( ry ), 0, 360 );
+	}
+
 	protected void curveTo( double xc, double yc, double x1, double y1 ) {
 		getGraphicsContext2D().quadraticCurveTo( xformX( xc ), xformY( yc ), xformX( x1 ), xformY( y1 ) );
 	}

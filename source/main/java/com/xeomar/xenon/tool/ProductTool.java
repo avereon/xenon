@@ -477,20 +477,20 @@ public class ProductTool extends GuidedTool {
 			stateLabel = new Label( "State" );
 			stateLabel.setId( "tool-product-artifact-state" );
 
-			actionButton = ActionUtil.createToolBarButton( program, "enable" );
-			removeButton = ActionUtil.createToolBarButton( program, "remove" );
+			actionButton = new Button( "", program.getIconLibrary().getIcon( "enable" ) );
+			removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
 			removeButton.setOnAction( ( event ) -> removeProduct() );
 
 			add( iconLabel, "spany, aligny center" );
 			add( nameLabel );
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
-			add( stateLabel, "tag right" );
-			add( actionButton );
-
-			add( summaryLabel, "newline, spanx 3" );
 			add( versionLabel, "tag right" );
 			add( removeButton );
+
+			add( summaryLabel, "newline, spanx 3" );
+			add( stateLabel, "tag right" );
+			add( actionButton );
 
 			// Trying to update the product state before being added to a page causes incorrect state
 		}
@@ -534,7 +534,7 @@ public class ProductTool extends GuidedTool {
 			if( isInstalledProductsPanel ) {
 				actionButton.setVisible( true );
 				actionButton.setDisable( isProgram );
-				actionButton.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disabled" : "enabled" ) );
+				actionButton.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disable" : "enable" ) );
 				actionButton.setOnAction( ( event ) -> toggleEnabled() );
 
 				removeButton.setVisible( true );
@@ -631,9 +631,9 @@ public class ProductTool extends GuidedTool {
 
 			add( iconLabel, "spany, aligny center" );
 			add( nameLabel, "pushx" );
-			add( enableButton );
-			add( uriLabel, "newline" );
 			add( removeButton );
+			add( uriLabel, "newline" );
+			add( enableButton );
 		}
 
 		MarketCard getSource() {
@@ -643,7 +643,8 @@ public class ProductTool extends GuidedTool {
 		void updateMarketState() {
 			// TODO Update the market state
 			enableButton.setGraphic( getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
-			removeButton.setVisible( source.isRemovable() );
+			enableButton.setDisable( !source.isRemovable() );
+			removeButton.setDisable( !source.isRemovable() );
 		}
 
 	}
