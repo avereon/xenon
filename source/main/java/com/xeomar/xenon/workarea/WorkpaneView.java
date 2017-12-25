@@ -2,8 +2,6 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
@@ -38,10 +36,15 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
 
+		// Add a focus listener to the tabs so when a tab is focused, the tool
+		// is activated. This may happen even if the tab is not selected.
 		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
-			if( newValue ) activateTool( (Tool)tools.getSelectionModel().getSelectedItem().getContent() );
+			Tab tab = tools.getSelectionModel().getSelectedItem();
+			if( newValue && tab != null) activateTool( (Tool)tab.getContent() );
 		} );
 
+		// Add a selection listener to the tabs so when a tab is selected, the tool
+		// is activated. This may happen even if the tab is not focused.
 		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
 			if( tools.focusedProperty().getValue() && newValue != null) activateTool( (Tool)newValue.getContent() );
 		} );
