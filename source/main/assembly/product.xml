@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<!-- This must match the install descriptor except for the format. -->
+<assembly>
+	<id>product</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<fileSets>
+		<!-- TODO Rename and add later
+		<fileSet>
+			<directory>source/main/assembly/resources</directory>
+			<outputDirectory>/bin</outputDirectory>
+			<includes>
+				<include>escape.exe</include>
+				<include>escape.ini</include>
+				<include>escape32.exe</include>
+				<include>escape64.exe</include>
+				<include>escape.reg</include>
+				<include>program.ico</include>
+				<include>program.png</include>
+				<include>splash.bmp</include>
+			</includes>
+		</fileSet>
+		-->
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+			<outputDirectory>/lib</outputDirectory>
+			<scope>runtime</scope>
+		</dependencySet>
+	</dependencySets>
+</assembly>
