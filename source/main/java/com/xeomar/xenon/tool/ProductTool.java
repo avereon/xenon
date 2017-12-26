@@ -16,7 +16,6 @@ import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.update.CatalogCardComparator;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.UpdateManager;
-import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
@@ -144,7 +143,7 @@ public class ProductTool extends GuidedTool {
 
 	@Override
 	protected void resourceRefreshed() throws ToolException {
-		log.debug( "Product tool resource refreshed" );
+		log.trace( "Product tool resource refreshed" );
 		super.resourceRefreshed();
 	}
 
@@ -154,7 +153,7 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		log.debug( "Product page selected: " + pageId );
+		log.trace( "Product page selected: " + pageId );
 
 		if( pageId == null ) return;
 
@@ -445,9 +444,9 @@ public class ProductTool extends GuidedTool {
 
 		private Label stateLabel;
 
-		private Button actionButton;
+		private Button actionButton1;
 
-		private Button removeButton;
+		private Button actionButton2;
 
 		ProductPane( ProductCard source, ProductCard update ) {
 			this.source = source;
@@ -477,20 +476,19 @@ public class ProductTool extends GuidedTool {
 			stateLabel = new Label( "State" );
 			stateLabel.setId( "tool-product-artifact-state" );
 
-			actionButton = new Button( "", program.getIconLibrary().getIcon( "enable" ) );
-			removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
-			removeButton.setOnAction( ( event ) -> removeProduct() );
+			actionButton1 = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
+			actionButton2 = new Button( "", program.getIconLibrary().getIcon( "enable" ) );
 
 			add( iconLabel, "spany, aligny center" );
 			add( nameLabel );
 			add( hyphenLabel );
 			add( providerLabel, "pushx" );
 			add( versionLabel, "tag right" );
-			add( removeButton );
+			add( actionButton1 );
 
 			add( summaryLabel, "newline, spanx 3" );
 			add( stateLabel, "tag right" );
-			add( actionButton );
+			add( actionButton2 );
 
 			// Trying to update the product state before being added to a page causes incorrect state
 		}
@@ -532,29 +530,30 @@ public class ProductTool extends GuidedTool {
 
 			// Configure the action button
 			if( isInstalledProductsPanel ) {
-				actionButton.setVisible( true );
-				actionButton.setDisable( isProgram );
-				actionButton.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disable" : "enable" ) );
-				actionButton.setOnAction( ( event ) -> toggleEnabled() );
+				actionButton1.setVisible( true );
+				actionButton1.setDisable( isProgram );
+				actionButton1.setOnAction( ( event ) -> removeProduct() );
 
-				removeButton.setVisible( true );
-				removeButton.setDisable( isProgram );
+				actionButton2.setVisible( true );
+				actionButton2.setDisable( isProgram );
+				actionButton2.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disable" : "enable" ) );
+				actionButton2.setOnAction( ( event ) -> toggleEnabled() );
 			} else if( isAvailableProductsPanel ) {
-				actionButton.setVisible( true );
-				actionButton.setDisable( false );
-				actionButton.setGraphic( program.getIconLibrary().getIcon( "install" ) );
-				actionButton.setOnAction( ( event ) -> installProduct() );
+				actionButton1.setVisible( true );
+				actionButton1.setDisable( false );
+				actionButton1.setGraphic( program.getIconLibrary().getIcon( "install" ) );
+				actionButton1.setOnAction( ( event ) -> installProduct() );
 
-				removeButton.setVisible( false );
-				removeButton.setDisable( true );
+				actionButton2.setVisible( false );
+				actionButton2.setDisable( true );
 			} else if( isUpdatableProductsPanel ) {
-				actionButton.setVisible( true );
-				actionButton.setDisable( false );
-				actionButton.setGraphic( program.getIconLibrary().getIcon( "download" ) );
-				actionButton.setOnAction( ( event ) -> updateProduct() );
+				actionButton1.setVisible( true );
+				actionButton1.setDisable( false );
+				actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
+				actionButton1.setOnAction( ( event ) -> updateProduct() );
 
-				removeButton.setVisible( false );
-				removeButton.setDisable( true );
+				actionButton2.setVisible( false );
+				actionButton2.setDisable( true );
 			}
 		}
 
@@ -755,7 +754,7 @@ public class ProductTool extends GuidedTool {
 			try {
 				List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().findPostedUpdates( force ) );
 				cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
-				Platform.runLater( () -> updatesPage.setProducts( cards ) );
+				Platform.runLater( () -> updatesPage.setProducts( cards, true ) );
 			} catch( Exception exception ) {
 				log.warn( "Error checking for updates", exception );
 				// TODO Notify the user there was a problem getting posted updates

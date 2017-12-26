@@ -260,24 +260,24 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
 	}
 
-		public void uninstallProducts( ProductCard... cards ) throws Exception {
-			uninstallProducts( new HashSet<>( Arrays.asList( cards ) ) );
-		}
+	public void uninstallProducts( ProductCard... cards ) throws Exception {
+		uninstallProducts( new HashSet<>( Arrays.asList( cards ) ) );
+	}
 
-		public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
-			log.trace( "Number of products to remove: " + cards.size() );
+	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
+		log.trace( "Number of products to remove: " + cards.size() );
 
-	//		// Remove the products.
-	//		Set<InstalledProduct> removedProducts = new HashSet<InstalledProduct>();
-	//		for( ProductCard card : cards ) {
-	//			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-	//			removeProductImpl( getProduct( card.getProductKey() ) );
-	//		}
-	//
-	//		Set<InstalledProduct> products = getStoredRemovedProducts();
-	//		products.addAll( removedProducts );
-	//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
-		}
+		//		// Remove the products.
+		//		Set<InstalledProduct> removedProducts = new HashSet<InstalledProduct>();
+		//		for( ProductCard card : cards ) {
+		//			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+		//			removeProductImpl( getProduct( card.getProductKey() ) );
+		//		}
+		//
+		//		Set<InstalledProduct> products = getStoredRemovedProducts();
+		//		products.addAll( removedProducts );
+		//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
+	}
 
 	public int getInstalledProductCount() {
 		return productCards.size();
@@ -521,20 +521,20 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		Set<ProductCard> oldCards = getProductCards();
 		Map<ProductCard, DownloadTask> tasks = new HashMap<>();
 		URISyntaxException uriSyntaxException = null;
-		for( ProductCard oldCard : oldCards ) {
+		for( ProductCard installedCard : oldCards ) {
 			try {
-				URI codebase = resolveCardUri( oldCard, oldCard.getCardUri() );
+				URI codebase = resolveCardUri( installedCard, installedCard.getCardUri() );
 				URI uri = getResolvedUpdateUri( codebase );
 				if( uri == null ) {
-					log.warn( "Installed pack does not have source defined: " + oldCard.toString() );
+					log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
 					continue;
 				} else {
 					log.debug( "Installed pack source: " + uri );
 				}
 
 				DownloadTask task = new DownloadTask( program, uri );
+				tasks.put( installedCard, task );
 				program.getExecutor().submit( task );
-				tasks.put( oldCard, task );
 			} catch( URISyntaxException exception ) {
 				uriSyntaxException = exception;
 			}
@@ -548,9 +548,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				DownloadTask task = tasks.get( installedCard );
 				if( task == null ) continue;
 
-				Download download = task.get();
 				ProductCard availableCard = new ProductCard();
-				try( InputStream input = download.getInputStream() ) {
+				try( InputStream input = task.get().getInputStream() ) {
 					availableCard.loadCard( input, task.getUri() );
 				} catch( IOException exception ) {
 					log.warn( "Error loading product card: " + task.getUri(), exception );
@@ -642,6 +641,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		// Download the product resources.
 		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( updateCards );
+		log.debug( "Product resource count: " + productResources.size() );
 
 		// Create an update for each product.
 		for( ProductCard updateCard : updateCards ) {
@@ -682,8 +682,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			// Notify listeners the update is staged.
 			new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
 
-			log.trace( "Update staged: ", updateCard.getName(), " ", updateCard.getRelease() );
-			log.trace( "Update pack:   ", updatePack );
+			// NEXT Need to create pack with build
+			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
+			log.debug( "Update pack:   " + updatePack );
 		}
 		saveSettings();
 
