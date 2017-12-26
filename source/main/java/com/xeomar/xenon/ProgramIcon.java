@@ -103,8 +103,9 @@ public abstract class ProgramIcon extends Canvas {
 	private double yOffset;
 
 	static {
+		//setColorTheme( new ColorTheme( new Color( 0.5, 0.75, 1.0, 1.0 ) ) );
 		setColorTheme( new ColorTheme( new Color( 0.8, 0.8, 0.8, 1.0 ) ) );
-		//setColorTheme( new ColorTheme( Color.GRAY.darker() ) );
+		//setColorTheme( new ColorTheme( Color.GRAY ) );
 	}
 
 	public ProgramIcon() {
@@ -120,8 +121,8 @@ public abstract class ProgramIcon extends Canvas {
 		// A luminance greater than 0.5 is "bright"
 		// A luminance less than 0.5 is "dark"
 		double y = Colors.getLuminance( theme.getPrimary() );
-		if( y < 0.5 ) {
-			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 1.5, 1 );
+		if( y < 0.2 ) {
+			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 1.75, 1 );
 		} else {
 			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 0.25, 1 );
 		}
@@ -276,7 +277,7 @@ public abstract class ProgramIcon extends Canvas {
 		getGraphicsContext2D().rect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
-	protected void addOval(double cx, double cy, double rx, double ry ) {
+	protected void addOval( double cx, double cy, double rx, double ry ) {
 		getGraphicsContext2D().arc( xformX( cx ), xformY( cy ), xformX( rx ), xformY( ry ), 0, 360 );
 	}
 
@@ -306,6 +307,10 @@ public abstract class ProgramIcon extends Canvas {
 
 	protected void setDrawPaint( Paint paint ) {
 		getGraphicsContext2D().setStroke( paint );
+	}
+
+	protected void setFill( GradientShade shade ) {
+		setFillPaint( getIconFillPaint( shade ) );
 	}
 
 	protected void setFillPaint( Paint paint ) {
@@ -438,29 +443,36 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	protected Paint getIconFillPaint( GradientShade shade ) {
-		double a = 1;
-		double b = 0;
+		double buffer = 0.2;
+		double y = Colors.getLuminance( theme.getPrimary() );
+
+		double a = 0.75;
+		double b = 0.25;
+		double c = 0.2 * y;
 
 		switch( shade ) {
 			case LIGHT: {
-				a = 0.9;
-				b = 0.7;
+				a = 1 - buffer;
+				b = 0.4;
 				break;
 			}
 			case MEDIUM: {
-				a = 0.8;
-				b = 0.2;
+				a = 0.75;
+				b = 0.35;
 				break;
 			}
 			case DARK: {
-				a = 0.3;
-				b = 0.1;
+				a = 0.6;
+				b = 0 + buffer;
 				break;
 			}
 		}
 
-		Color colorA = Colors.getShade( getIconFillColor(), a );
-		Color colorB = Colors.getShade( getIconFillColor(), b );
+		Color colorA = Colors.getShade( getIconFillColor(), a + c );
+		Color colorB = Colors.getShade( getIconFillColor(), b + c );
+
+		//		Color colorA = Colors.mix( getIconFillColor(), Color.WHITE, a );
+		//		Color colorB = Colors.mix( getIconFillColor(), Color.WHITE, b );
 
 		return getGradientPaint( colorA, colorB );
 	}
@@ -515,7 +527,7 @@ public abstract class ProgramIcon extends Canvas {
 	}
 
 	private Paint getGradientPaint( Color a, Color b ) {
-		return new LinearGradient( 0, 0, xformX( 1 ), xformX( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
+		return new LinearGradient( xformX( 0.2 ), xformX( 0.2 ), xformX( 0.8 ), xformX( 0.8 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
 	}
 
 	private void fireRender() {

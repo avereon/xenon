@@ -6,6 +6,7 @@ public class ModuleIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
+		setFill( GradientShade.DARK );
 		fillCenteredOval( g( 16 ), g( 16 ), g( 13 ), g( 13 ) );
 		drawCenteredOval( g( 16 ), g( 16 ), g( 13 ), g( 13 ) );
 
@@ -18,7 +19,7 @@ public class ModuleIcon extends ProgramIcon {
 		lineTo( g( 8 ), g( 21 ) );
 		lineTo( g( 8 ), g( 11 ) );
 		closePath();
-		fill( GradientShade.LIGHT );
+		fill( GradientShade.MEDIUM );
 		draw();
 
 		// Edges

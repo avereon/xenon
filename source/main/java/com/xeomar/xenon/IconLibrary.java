@@ -17,7 +17,8 @@ public class IconLibrary {
 		register( "program", XRingIcon.class );
 		register( "new", DocumentIcon.class );
 		register( "open", FolderIcon.class );
-		register( "save", SaveIcon.class );
+		//register( "save", SaveIcon.class );
+		register( "save", LightningIcon.class );
 		register( "close", CloseIcon.class );
 		register( "exit", ExitIcon.class );
 
@@ -35,7 +36,7 @@ public class IconLibrary {
 
 		register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
-		register( "update", UpdateIcon.class );
+		register( "update", DownloadIcon.class );
 		register( "about", ExclamationIcon.class );
 
 		register( "workarea-new", WorkareaIcon.class );
