@@ -89,8 +89,6 @@ public class TaskTool extends ProgramTool {
 
 		@Override
 		public void handleEvent( TaskEvent event ) {
-			log.debug( "Task event: " + event.getType() );
-
 			Task task = event.getTask();
 
 			Platform.runLater( () -> {
