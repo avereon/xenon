@@ -3,18 +3,13 @@ package com.xeomar.xenon.tool.settings;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.resource.type.ProgramGuideType;
-import com.xeomar.xenon.tool.GuideNode;
-import com.xeomar.xenon.tool.GuidedTool;
+import com.xeomar.xenon.tool.guide.GuideNode;
+import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SettingsTool extends GuidedTool {
 

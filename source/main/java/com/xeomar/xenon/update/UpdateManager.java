@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -523,7 +522,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		URISyntaxException uriSyntaxException = null;
 		for( ProductCard installedCard : oldCards ) {
 			try {
-				URI codebase = resolveCardUri( installedCard, installedCard.getCardUri() );
+				URI codebase = installedCard.getCardUri( getProductChannel() );
 				URI uri = getResolvedUpdateUri( codebase );
 				if( uri == null ) {
 					log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
@@ -1209,19 +1208,23 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		for( ProductCard card : cards ) {
 			try {
-				URI codebase = resolveCardUri( card, card.getCardUri() );
-				Set<ProductResource> resources = new PackProvider( program, card ).getResources( codebase );
+				URI codebase =  card.getCardUri( getProductChannel() );
+				log.debug( "Resource codebase: " + codebase );
+				PackProvider provider = new PackProvider( program, card, getProductChannel() );
+				Set<ProductResource> resources = provider.getResources( codebase );
+
+				log.debug( "Product resource count: " + resources.size() );
 
 				for( ProductResource resource : resources ) {
 					URI uri = getResolvedUpdateUri( resource.getUri() );
-					log.trace( "Resource source: " + uri );
+					log.debug( "Resource source: " + uri );
 
 					// Submit download resource task
 					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
 				}
 
 				productResources.put( card, resources );
-			} catch( Exception exception ) {
+			} catch( URISyntaxException exception ) {
 				log.error( "Error creating pack download", exception );
 			}
 		}
@@ -1233,7 +1236,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			for( ProductResource resource : resources ) {
 				try {
 					resource.waitFor();
-					log.trace( "Resource target: " + resource.getLocalFile() );
+					log.debug( "Resource target: " + resource.getLocalFile() );
 
 					// TODO Verify resources are secure by checking digital signatures.
 					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
@@ -1248,11 +1251,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return productResources;
 	}
 
-	private URI resolveCardUri( ProductCard card, String uri ) throws URISyntaxException {
-		String channel = "latest";
-		String artifact = card.getArtifact();
-		return new URI( MessageFormat.format( uri, artifact, channel ) );
+	private String getProductChannel() {
+		return "latest";
 	}
+
+	//	private URI resolveCardUri( ProductCard card, String uri ) throws URISyntaxException {
+	//		String artifact = card.getArtifact();
+	//		String channel = "latest";
+	//		return new URI( MessageFormat.format( uri, artifact, channel ) );
+	//	}
 
 	//	/**
 	//	 * A folder module is and unpacked module contained in a folder.

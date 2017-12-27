@@ -6,7 +6,7 @@ import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
-import com.xeomar.xenon.resource.type.ProgramArtifactType;
+import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -240,7 +240,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void showUpdates() {
 			try {
-				URI uri = URI.create( ProgramArtifactType.uri + "#" + ProgramArtifactType.UPDATES );
+				URI uri = URI.create( ProgramProductType.uri + "#" + ProgramProductType.UPDATES );
 				program.getResourceManager().open( uri );
 			} catch( Exception exception ) {
 				log.error( "Error opening artifact tool ", exception );

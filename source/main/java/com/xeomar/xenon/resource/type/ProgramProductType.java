@@ -8,15 +8,15 @@ import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
-import com.xeomar.xenon.tool.Guide;
-import com.xeomar.xenon.tool.GuideNode;
+import com.xeomar.xenon.tool.guide.Guide;
+import com.xeomar.xenon.tool.guide.GuideNode;
 import javafx.scene.control.TreeItem;
 
 import java.net.URI;
 
-public class ProgramArtifactType extends ResourceType {
+public class ProgramProductType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:artifact" );
+	public static final URI uri = URI.create( "program:product" );
 
 	public static final String INSTALLED = "installed";
 
@@ -26,8 +26,8 @@ public class ProgramArtifactType extends ResourceType {
 
 	public static final String SOURCES = "sources";
 
-	public ProgramArtifactType( Product product ) {
-		super( product, "artifact" );
+	public ProgramProductType( Product product ) {
+		super( product, "product" );
 	}
 
 	@Override
@@ -64,25 +64,25 @@ public class ProgramArtifactType extends ResourceType {
 
 		GuideNode installed = new GuideNode();
 		installed.setId( INSTALLED );
-		installed.setName( rb.getString( "tool", "artifact-installed" ) );
+		installed.setName( rb.getString( "tool", "product-installed" ) );
 
 		GuideNode available = new GuideNode();
 		available.setId( AVAILABLE );
-		available.setName( rb.getString( "tool", "artifact-available" ) );
+		available.setName( rb.getString( "tool", "product-available" ) );
 
 		GuideNode updates = new GuideNode();
 		updates.setId( UPDATES );
-		updates.setName( rb.getString( "tool", "artifact-updates" ) );
+		updates.setName( rb.getString( "tool", "product-updates" ) );
 
 		GuideNode sources = new GuideNode();
 		sources.setId( SOURCES );
-		sources.setName( rb.getString( "tool", "artifact-sources" ) );
+		sources.setName( rb.getString( "tool", "product-sources" ) );
 
-		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "artifact" ) ) );
-		root.getChildren().add( new TreeItem<>( installed, library.getIcon( "artifact" ) ) );
-		root.getChildren().add( new TreeItem<>( available, library.getIcon( "artifact" ) ) );
-		root.getChildren().add( new TreeItem<>( updates, library.getIcon( "artifact" ) ) );
-		root.getChildren().add( new TreeItem<>( sources, library.getIcon( "artifact" ) ) );
+		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "product" ) ) );
+		root.getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
+		root.getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
+		root.getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
+		root.getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
 	}
 
 }

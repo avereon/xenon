@@ -7,7 +7,8 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.resource.type.ProgramGuideType;
+import com.xeomar.xenon.tool.guide.GuideNode;
+import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.management.*;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

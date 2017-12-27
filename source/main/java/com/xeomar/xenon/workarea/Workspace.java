@@ -103,9 +103,10 @@ public class Workspace implements Configurable {
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
-		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
-		help.getItems().add( new SeparatorMenuItem() );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
+		help.getItems().add( new SeparatorMenuItem() );
+		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
 		help.getItems().add( new SeparatorMenuItem() );
 		help.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
 		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );

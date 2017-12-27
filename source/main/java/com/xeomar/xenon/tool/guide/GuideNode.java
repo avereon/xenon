@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.tool.settings.SettingsPage;

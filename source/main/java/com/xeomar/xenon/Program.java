@@ -21,7 +21,9 @@ import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.*;
+import com.xeomar.xenon.tool.guide.GuideTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
+import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
@@ -115,6 +117,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private UpdateAction updateAction;
 
+	private TaskAction taskAction;
+
 	private Path home;
 
 	public static void main( String[] commands ) {
@@ -131,6 +135,7 @@ public class Program extends Application implements ProgramProduct {
 		productAction = new ProductAction( this );
 		updateAction = new UpdateAction( this );
 		restartAction = new RestartAction( this );
+		taskAction = new TaskAction( this );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
@@ -602,6 +607,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction );
+		getActionLibrary().getAction( "task" ).pushAction( taskAction );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction );
 		getActionLibrary().getAction( "product" ).pushAction( productAction );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
@@ -613,6 +619,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
+		getActionLibrary().getAction( "task" ).pullAction( taskAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
@@ -635,11 +642,13 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriResourceType( ProgramSettingsType.uri, new ProgramSettingsType( this ) );
 		manager.registerUriResourceType( ProgramWelcomeType.uri, new ProgramWelcomeType( this ) );
 		manager.registerUriResourceType( ProgramNoticeType.uri, new ProgramNoticeType( this ) );
-		manager.registerUriResourceType( ProgramArtifactType.uri, new ProgramArtifactType( this ) );
+		manager.registerUriResourceType( ProgramProductType.uri, new ProgramProductType( this ) );
+		manager.registerUriResourceType( ProgramTaskType.uri, new ProgramTaskType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( ProgramArtifactType.uri );
+		manager.unregisterUriResourceType( ProgramTaskType.uri );
+		manager.unregisterUriResourceType( ProgramProductType.uri );
 		manager.unregisterUriResourceType( ProgramNoticeType.uri );
 		manager.unregisterUriResourceType( ProgramWelcomeType.uri );
 		manager.unregisterUriResourceType( ProgramSettingsType.uri );
@@ -652,11 +661,13 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
-		registerTool( manager, ProgramArtifactType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "artifact", "artifact" );
+		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, ProgramArtifactType.class, ProductTool.class );
+		unregisterTool( manager, ProgramTaskType.class, TaskTool.class );
+		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
 		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );

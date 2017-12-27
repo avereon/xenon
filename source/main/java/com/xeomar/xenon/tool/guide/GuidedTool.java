@@ -1,8 +1,9 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.beans.value.ChangeListener;

@@ -1,13 +1,13 @@
 package com.xeomar.xenon.resource.type;
 
+import com.xeomar.product.Product;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
-import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
-import com.xeomar.xenon.tool.Guide;
+import com.xeomar.xenon.tool.guide.Guide;
 import javafx.scene.control.TreeItem;
 
 import java.net.URI;

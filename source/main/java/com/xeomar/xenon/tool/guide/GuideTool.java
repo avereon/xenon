@@ -1,7 +1,8 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;

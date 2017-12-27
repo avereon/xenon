@@ -10,9 +10,11 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.resource.type.ProgramArtifactType;
+import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
+import com.xeomar.xenon.tool.guide.GuideNode;
+import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.update.CatalogCardComparator;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.UpdateManager;
@@ -60,9 +62,9 @@ public class ProductTool extends GuidedTool {
 
 		Program program = getProgram();
 
-		setId( "tool-artifact" );
-		setGraphic( program.getIconLibrary().getIcon( "artifact" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "artifact-name" ) );
+		setId( "tool-product" );
+		setGraphic( program.getIconLibrary().getIcon( "product" ) );
+		setTitle( product.getResourceBundle().getString( "tool", "product-name" ) );
 
 		installedPage = new InstalledPage( program );
 		availablePage = new AvailablePage( program );
@@ -70,10 +72,10 @@ public class ProductTool extends GuidedTool {
 		productMarketPage = new ProductMarketPage( program );
 
 		pages = new HashMap<>();
-		pages.put( ProgramArtifactType.INSTALLED, installedPage );
-		pages.put( ProgramArtifactType.AVAILABLE, availablePage );
-		pages.put( ProgramArtifactType.UPDATES, updatesPage );
-		pages.put( ProgramArtifactType.SOURCES, productMarketPage );
+		pages.put( ProgramProductType.INSTALLED, installedPage );
+		pages.put( ProgramProductType.AVAILABLE, availablePage );
+		pages.put( ProgramProductType.UPDATES, updatesPage );
+		pages.put( ProgramProductType.SOURCES, productMarketPage );
 
 		checkInfo = new UpdateCheckInformationPane( program );
 
@@ -102,7 +104,7 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool activate" );
 		super.activate();
 
-		String selected = getSettings().get( "selected", ProgramArtifactType.INSTALLED );
+		String selected = getSettings().get( "selected", ProgramProductType.INSTALLED );
 		// TODO Be sure the guide also changes selection
 		//getGuide().setSelected( selected );
 		selectPage( selected );
@@ -207,10 +209,10 @@ public class ProductTool extends GuidedTool {
 		private VBox nodes;
 
 		public ProductToolPage() {
-			setId( "tool-artifact-panel" );
+			setId( "tool-product-panel" );
 
 			title = new Label( "" );
-			title.setId( "tool-artifact-page-title" );
+			title.setId( "tool-product-page-title" );
 
 			buttonBox = new HBox( UiManager.PAD );
 
@@ -307,7 +309,7 @@ public class ProductTool extends GuidedTool {
 
 		InstalledPage( Program program ) {
 			super( program );
-			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.INSTALLED ) );
+			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.INSTALLED ) );
 
 			Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
 			refreshButton.setOnAction( event -> updateState() );
@@ -327,7 +329,7 @@ public class ProductTool extends GuidedTool {
 
 		AvailablePage( Program program ) {
 			super( program );
-			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.AVAILABLE ) );
+			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.AVAILABLE ) );
 
 			Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
 			refreshButton.setOnAction( event -> getProgram().getExecutor().submit( new UpdateAvailableProducts( true ) ) );
@@ -347,7 +349,7 @@ public class ProductTool extends GuidedTool {
 
 		UpdatesPage( Program program ) {
 			super( program );
-			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.UPDATES ) );
+			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.UPDATES ) );
 
 			Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
 			Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
@@ -380,7 +382,7 @@ public class ProductTool extends GuidedTool {
 		private VBox marketList;
 
 		ProductMarketPage( Program program ) {
-			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "artifact-" + ProgramArtifactType.SOURCES ) );
+			setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.SOURCES ) );
 
 			Button addButton = new Button( "", program.getIconLibrary().getIcon( "add-market" ) );
 

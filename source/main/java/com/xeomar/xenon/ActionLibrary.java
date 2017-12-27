@@ -69,6 +69,8 @@ public class ActionLibrary {
 		register( bundle, "workarea-rename" );
 		register( bundle, "workarea-close" );
 
+		register( bundle, "task" );
+
 		register( bundle, "refresh" );
 		register( bundle, "enable" );
 		register( bundle, "disable" );

@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.guide;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -21,7 +21,7 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
-	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
+	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem;
 
 	public Guide() {
 		selectionMode = SelectionMode.SINGLE;
