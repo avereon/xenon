@@ -344,6 +344,10 @@ public class Program extends Application implements ProgramProduct {
 		return notifier;
 	}
 
+	public TaskManager getTaskManager() {
+		return taskManager;
+	}
+
 	public ExecutorService getExecutor() {
 		return taskManager;
 	}
