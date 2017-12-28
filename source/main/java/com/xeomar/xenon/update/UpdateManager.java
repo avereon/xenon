@@ -25,8 +25,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-//import java.io.File;
-
 /**
  * The update manager handles discovery, staging and applying product updates.
  * <p>
@@ -188,17 +186,17 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void addCatalog( MarketCard source ) {
 		catalogs.add( source );
-		saveSettings();
+		storeCatalogs();
 	}
 
 	public void removeCatalog( MarketCard source ) {
 		catalogs.remove( source );
-		saveSettings();
+		storeCatalogs();
 	}
 
 	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
 		catalog.setEnabled( enabled );
-		saveSettings();
+		storeCatalogs();
 	}
 
 	public Set<MarketCard> getCatalogs() {
@@ -373,7 +371,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void setCheckOption( CheckOption checkOption ) {
 		this.checkOption = checkOption;
-		saveSettings();
+		settings.getNode( "update" ).set( CHECK, checkOption.name().toLowerCase() );
 	}
 
 	public FoundOption getFoundOption() {
@@ -382,7 +380,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void setFoundOption( FoundOption foundOption ) {
 		this.foundOption = foundOption;
-		saveSettings();
+		settings.getNode( "update" ).set( FOUND, foundOption.name().toLowerCase() );
 	}
 
 	public ApplyOption getApplyOption() {
@@ -391,7 +389,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void setApplyOption( ApplyOption applyOption ) {
 		this.applyOption = applyOption;
-		saveSettings();
+		settings.getNode( "update" ).set( APPLY, applyOption.name().toLowerCase() );
 	}
 
 	public long getLastUpdateCheck() {
@@ -681,11 +679,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			// Notify listeners the update is staged.
 			new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
 
-			// NEXT Need to create pack with build
 			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
 			log.debug( "Update pack:   " + updatePack );
 		}
-		saveSettings();
+
+		storeUpdates();
 
 		return productResources;
 	}
@@ -713,7 +711,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			for( ProductUpdate update : remove ) {
 				updates.remove( update );
 			}
-			saveSettings();
+			storeUpdates();
 		}
 
 		Set<ProductCard> cards = new HashSet<ProductCard>();
@@ -816,7 +814,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void clearStagedUpdates() {
 		// Remove the updates settings.
 		updates.clear();
-		saveSettings();
+		storeUpdates();
 	}
 
 	//	public void loadProducts( File... folders ) throws Exception {
@@ -1053,19 +1051,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return this;
 	}
 
-	private void saveSettings() {
-		Settings updateSettings = settings.getNode( "update" );
-		updateSettings.set( CHECK, checkOption.name().toLowerCase() );
-		updateSettings.set( FOUND, foundOption.name().toLowerCase() );
-		updateSettings.set( APPLY, applyOption.name().toLowerCase() );
+	private void storeCatalogs() {
+		// NEXT Store the catalogs
+		// Put the list of catalogs in a catalogs.xml or catalogs.yaml?
+	}
 
-		// TODO Store the catalogs
-		// settings.putNodeSet( CATALOGS_SETTINGS_KEY, catalogs );
-
-		// TODO Store the updates
-		// settings.putNodeMap( UPDATES_SETTINGS_KEY, updates );
-
-		settings.flush();
+	private void storeUpdates() {
+		// NEXT Store the updates
+		// Put the list of updates in a updates.xml or updates.yaml?
 	}
 
 	private boolean isReservedProduct( ProductCard card ) {
@@ -1208,7 +1201,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		for( ProductCard card : cards ) {
 			try {
-				URI codebase =  card.getCardUri( getProductChannel() );
+				URI codebase = card.getCardUri( getProductChannel() );
 				log.debug( "Resource codebase: " + codebase );
 				PackProvider provider = new PackProvider( program, card, getProductChannel() );
 				Set<ProductResource> resources = provider.getResources( codebase );
