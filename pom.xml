@@ -8,7 +8,7 @@
 		<groupId>com.xeomar.pom</groupId>
 		<artifactId>jar</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
-		<relativePath></relativePath>
+		<relativePath/>
 	</parent>
 
 	<!-- Update the product roadmap when the version changes -->
@@ -39,27 +39,8 @@
 	</repositories>
 
 	<properties>
-		<!-- project.timestamp comes from the top pom -->
-
-		<!-- TODO Is this property used? -->
-		<!-- The name of the product that will be put in the product card and used by the installer -->
-		<!--
-		<product-name>${project.name}</product-name>
-		-->
-
-		<!-- TODO Is this property used? -->
-		<!-- The product identifier that will be put in the product card and used by the installer -->
-		<!--
-		<product-identifier>${project.artifactId}</product-identifier>
-		-->
-
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
-
-		<!-- TODO Is this property used? -->
-		<!--
-		<package-stage-folder>program</package-stage-folder>
-		-->
 
 		<slf4j.version>1.8.0-beta0</slf4j.version>
 		<testfx.version>4.0.10-alpha</testfx.version>
