@@ -40,11 +40,30 @@
 
 	<properties>
 		<!-- project.timestamp comes from the top pom -->
+
+		<!-- TODO Is this property used? -->
+		<!-- The name of the product that will be put in the product card and used by the installer -->
+		<!--
 		<product-name>${project.name}</product-name>
-		<product-identifier>xenon</product-identifier>
+		-->
+
+		<!-- TODO Is this property used? -->
+		<!-- The product identifier that will be put in the product card and used by the installer -->
+		<!--
+		<product-identifier>${project.artifactId}</product-identifier>
+		-->
+
+		<!-- The folder used to set up the installer files -->
+		<product-pack-folder>pack/program</product-pack-folder>
+
+		<!-- TODO Is this property used? -->
+		<!--
 		<package-stage-folder>program</package-stage-folder>
+		-->
+
 		<slf4j.version>1.8.0-beta0</slf4j.version>
 		<testfx.version>4.0.10-alpha</testfx.version>
+		<izpack.version>5.1.2</izpack.version>
 	</properties>
 
 	<dependencies>
@@ -177,38 +196,12 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>com.xeomar.xenon.Program</mainClass>
-							<!--<classpathLayoutType>custom</classpathLayoutType>-->
-							<!--<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}-->
-							<!--</customClasspathLayout>-->
+							<classpathLayoutType>custom</classpathLayoutType>
+							<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}</customClasspathLayout>
 						</manifest>
 					</archive>
 				</configuration>
 			</plugin>
-
-			<!--
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<mainClass>com.xeomar.xenon.Program</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			-->
 
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -229,7 +222,6 @@
 					</execution>
 
 					<!-- Generate the installer resources -->
-					<!--
 					<execution>
 						<id>assembly-install</id>
 						<phase>package</phase>
@@ -245,7 +237,89 @@
 							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
 					</execution>
-					-->
+				</executions>
+			</plugin>
+
+			<!-- Copy extra installer resources. -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-izpack-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>${basedir}/source/main/izpack</directory>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-izpack-resources-filter</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>${basedir}/source/main/izpack</directory>
+									<filtering>true</filtering>
+									<excludes>
+										<exclude>bin</exclude>
+									</excludes>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-windows-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>${basedir}/source/main/pack/windows</directory>
+									<excludes>
+										<exclude>bin</exclude>
+									</excludes>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/target/pack/windows</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Generate the installer -->
+			<plugin>
+				<groupId>org.codehaus.izpack</groupId>
+				<artifactId>izpack-maven-plugin</artifactId>
+				<version>${izpack.version}</version>
+				<executions>
+					<execution>
+						<id>izpack.deploy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>izpack</goal>
+						</goals>
+						<configuration>
+							<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
+							<baseDir>${project.build.directory}</baseDir>
+							<classifier>install</classifier>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 

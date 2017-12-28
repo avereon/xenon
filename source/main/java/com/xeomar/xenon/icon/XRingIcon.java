@@ -1,6 +1,5 @@
 package com.xeomar.xenon.icon;
 
-import com.xeomar.xenon.util.JavaFxStarter;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
@@ -77,10 +76,10 @@ public class XRingIcon extends XIcon {
 	}
 
 	public static void main( String[] commands ) {
-		JavaFxStarter.startAndWait( 1000 );
-		proof( new XRingIcon() );
+		//proof( new XRingIcon() );
 		//save( new XRingIcon(), "Downloads/program.png" );
 		//save( new XRingIcon(), "../../software/xenon/source/main/resources/program.png");
+		save( new XRingIcon(), "../../software/xenon/source/main/assembly/program.png");
 	}
 
 }

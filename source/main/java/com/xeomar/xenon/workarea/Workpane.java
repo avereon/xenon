@@ -467,7 +467,6 @@ public class Workpane extends Pane implements Configurable {
 
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
-				System.out.println( "Activate: " + activeTool.getClass().getSimpleName() );
 				activeTool.callActivate();
 				if( activeTool.getSettings() != null ) activeTool.getSettings().set( "active", true );
 			}

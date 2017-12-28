@@ -109,7 +109,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Verify there is a tool to use
 		if( tool == null ) {
 			String title = program.getResourceBundle().getString( "program", "no-tool-for-resource-title" );
-			String message = program.getResourceBundle().getString( "program", "no-tool-for-resource-message" );
+			String message = program.getResourceBundle().getString( "program", "no-tool-for-resource-message", resource.getUri().toString() );
 			program.getNotifier().warning( title, (Object)message, resource.getName() );
 			return null;
 		}
