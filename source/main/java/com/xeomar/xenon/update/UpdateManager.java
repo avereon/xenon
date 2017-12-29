@@ -186,17 +186,17 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void addCatalog( MarketCard source ) {
 		catalogs.add( source );
-		storeCatalogs();
+		saveCatalogs();
 	}
 
 	public void removeCatalog( MarketCard source ) {
 		catalogs.remove( source );
-		storeCatalogs();
+		saveCatalogs();
 	}
 
 	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
 		catalog.setEnabled( enabled );
-		storeCatalogs();
+		saveCatalogs();
 	}
 
 	public Set<MarketCard> getCatalogs() {
@@ -371,7 +371,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void setCheckOption( CheckOption checkOption ) {
 		this.checkOption = checkOption;
-		settings.getNode( "update" ).set( CHECK, checkOption.name().toLowerCase() );
+		settings.set( CHECK, checkOption.name().toLowerCase() );
 	}
 
 	public FoundOption getFoundOption() {
@@ -380,7 +380,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void setFoundOption( FoundOption foundOption ) {
 		this.foundOption = foundOption;
-		settings.getNode( "update" ).set( FOUND, foundOption.name().toLowerCase() );
+		settings.set( FOUND, foundOption.name().toLowerCase() );
 	}
 
 	public ApplyOption getApplyOption() {
@@ -389,7 +389,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void setApplyOption( ApplyOption applyOption ) {
 		this.applyOption = applyOption;
-		settings.getNode( "update" ).set( APPLY, applyOption.name().toLowerCase() );
+		settings.set( APPLY, applyOption.name().toLowerCase() );
 	}
 
 	public long getLastUpdateCheck() {
@@ -683,7 +683,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			log.debug( "Update pack:   " + updatePack );
 		}
 
-		storeUpdates();
+		saveUpdates();
 
 		return productResources;
 	}
@@ -711,7 +711,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			for( ProductUpdate update : remove ) {
 				updates.remove( update );
 			}
-			storeUpdates();
+			saveUpdates();
 		}
 
 		Set<ProductCard> cards = new HashSet<ProductCard>();
@@ -814,7 +814,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void clearStagedUpdates() {
 		// Remove the updates settings.
 		updates.clear();
-		storeUpdates();
+		saveUpdates();
 	}
 
 	//	public void loadProducts( File... folders ) throws Exception {
@@ -1051,14 +1051,28 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return this;
 	}
 
-	private void storeCatalogs() {
-		// NEXT Store the catalogs
-		// Put the list of catalogs in a catalogs.xml or catalogs.yaml?
+	private void loadCatalogs() {
+		// NEXT Load the catalogs
 	}
 
-	private void storeUpdates() {
-		// NEXT Store the updates
+	private void saveCatalogs() {
+		// NEXT Save the catalogs
+		// Put the list of catalogs in a catalogs.xml or catalogs.yaml?
+
+//		Path path = program.getSettingsManager().getSettingsPath();
+//		program.getHomeFolder();
+	}
+
+	private void loadUpdates() {
+		// NEXT Load the updates
+	}
+
+	private void saveUpdates() {
+		// NEXT Save the updates
 		// Put the list of updates in a updates.xml or updates.yaml?
+		// The update packs should be moved to cache/updates.
+
+		// Storing lists of things is a pain!!!
 	}
 
 	private boolean isReservedProduct( ProductCard card ) {

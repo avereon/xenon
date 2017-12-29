@@ -693,7 +693,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
-		updateManager.setSettings( programSettings );
+		updateManager.setSettings( programSettings.getNode( "update" ) );
 
 		// Register the catalog
 		updateManager.addCatalog( defaultMarket = MarketCard.forProduct() );

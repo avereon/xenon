@@ -92,10 +92,7 @@ public class RestartShutdownHook extends Thread {
 
 	private static String getRestartExecutablePath( Program service ) {
 		String executablePath = OperatingSystem.getJavaExecutablePath();
-
-		String launcherPath = getWindowsLauncherPath( service );
-		if( new File( launcherPath ).exists() ) executablePath = launcherPath;
-
+		if( isWindowsLauncherFound( service ) ) executablePath = getWindowsLauncherPath( service );
 		return executablePath;
 	}
 
