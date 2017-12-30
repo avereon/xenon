@@ -1,14 +1,14 @@
 package com.xeomar.xenon.update;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 public class MarketCard {
 
@@ -29,45 +29,53 @@ public class MarketCard {
 	private List<String> products;
 
 	public static MarketCard forProduct() throws IOException {
-		return loadYaml( MarketCard.class.getResourceAsStream( CARD ) );
+		return loadCard( MarketCard.class.getResourceAsStream( CARD ) );
 	}
 
 	public static MarketCard loadCard( InputStream input ) throws IOException {
-		return loadCard( input, null );
+		return new ObjectMapper().readerFor( new TypeReference<MarketCard>() {} ).readValue( input );
 	}
 
-	@SuppressWarnings( "unchecked" )
-	public static MarketCard loadCard( InputStream input, URI source ) throws IOException {
-		return null;
+	public MarketCard updateWith( MarketCard card, URI source ) {
+		this.name = card.name;
+		this.iconUri = card.iconUri;
+		this.cardUri = card.cardUri;
+		this.enabled = card.enabled;
+		this.removable = card.removable;
+		this.products = card.products;
+
+		if( source != null ) this.cardUri = source.toString();
+
+		return this;
 	}
 
-	@Deprecated
-	public static MarketCard loadYaml( InputStream input ) throws IOException {
-		return loadYaml( input, null );
-	}
-
-	@Deprecated
-	@SuppressWarnings( "unchecked" )
-	public static MarketCard loadYaml( InputStream input, URI source ) throws IOException {
-		Map<String, Object> values;
-		try( InputStream stream = input ) {
-			values = (Map<String, Object>)new Yaml().load( stream );
-		}
-
-		MarketCard card = new MarketCard();
-
-		card.name = (String)values.get( "name" );
-		card.iconUri = (String)values.get( "iconUri" );
-		card.cardUri = source == null ? (String)values.get( "cardUri" ) : source.toString();
-
-		Object enabledValue = values.get( "enabled" );
-		card.enabled = enabledValue != null && Boolean.parseBoolean( enabledValue.toString() );
-
-		Object removableValue = values.get( "removable" );
-		card.removable = removableValue != null && Boolean.parseBoolean( removableValue.toString() );
-
-		return card;
-	}
+//	@Deprecated
+//	public static MarketCard loadYaml( InputStream input ) throws IOException {
+//		return loadYaml( input, null );
+//	}
+//
+//	@Deprecated
+//	@SuppressWarnings( "unchecked" )
+//	public static MarketCard loadYaml( InputStream input, URI source ) throws IOException {
+//		Map<String, Object> values;
+//		try( InputStream stream = input ) {
+//			values = (Map<String, Object>)new Yaml().load( stream );
+//		}
+//
+//		MarketCard card = new MarketCard();
+//
+//		card.name = (String)values.get( "name" );
+//		card.iconUri = (String)values.get( "iconUri" );
+//		card.cardUri = source == null ? (String)values.get( "cardUri" ) : source.toString();
+//
+//		Object enabledValue = values.get( "enabled" );
+//		card.enabled = enabledValue != null && Boolean.parseBoolean( enabledValue.toString() );
+//
+//		Object removableValue = values.get( "removable" );
+//		card.removable = removableValue != null && Boolean.parseBoolean( removableValue.toString() );
+//
+//		return card;
+//	}
 
 	public String getName() {
 		return name;

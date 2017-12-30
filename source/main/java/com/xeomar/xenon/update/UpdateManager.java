@@ -547,7 +547,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 				ProductCard availableCard = new ProductCard();
 				try( InputStream input = task.get().getInputStream() ) {
-					availableCard.loadYaml( input, task.getUri() );
+					availableCard.updateWith( ProductCard.loadCard( input ), task.getUri() );
 				} catch( IOException exception ) {
 					log.warn( "Error loading product card: " + task.getUri(), exception );
 					continue;
@@ -944,9 +944,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		this.settings = settings;
 
-		this.checkOption = CheckOption.valueOf( settings.getString( CHECK, CheckOption.MANUAL ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( settings.getString( FOUND, FoundOption.SELECT ).toUpperCase() );
-		this.applyOption = ApplyOption.valueOf( settings.getString( APPLY, ApplyOption.VERIFY ).toUpperCase() );
+		this.checkOption = CheckOption.valueOf( settings.getString( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( settings.getString( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
+		this.applyOption = ApplyOption.valueOf( settings.getString( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
 
 		//		// TODO Load the product catalogs
 		//		Set<MarketCard> catalogsSet = new CopyOnWriteArraySet<MarketCard>();
@@ -1059,8 +1059,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// NEXT Save the catalogs
 		// Put the list of catalogs in a catalogs.xml or catalogs.yaml?
 
-//		Path path = program.getSettingsManager().getSettingsPath();
-//		program.getHomeFolder();
+		//		Path path = program.getSettingsManager().getSettingsPath();
+		//		program.getHomeFolder();
 	}
 
 	private void loadUpdates() {
@@ -1472,7 +1472,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
-			if( CHECK.equals( event.getKey() ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toUpperCase() ) );
+			if( CHECK.equals( event.getKey() ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 			if( event.getKey().startsWith( CHECK ) ) scheduleUpdateCheck( false );
 		}
 

@@ -1,17 +1,10 @@
-name: Xeomar
-iconUri: http://xeomar.com/download/image/xeomar.png
-cardUri: http://xeomar.com/download/xenon/catalog/card/{0}
-enabled: true
-removable: false
-
-products:
-  - http://xeomar.com/download/xenon/product/card/{0}
-
-#  - http://xeomar.com/download/product/elements/card
-#  - http://xeomar.com/download/product/fitfoil/card
-#  - http://xeomar.com/download/product/labyrinth/card
-#  - http://xeomar.com/download/product/openderby/card
-#  - http://xeomar.com/download/product/novaworx/card
-#  - http://xeomar.com/download/product/proplexity/card
-#  - http://xeomar.com/download/product/serenity/card
-#  - http://xeomar.com/download/product/shellport/card
+{
+  "name" : "${project.name}",
+  "iconUri" : "http://xeomar.com/images/icons/${project.artifactId}.png",
+  "cardUri" : "http://xeomar.com/download/${project.artifactId}/product/card/{0}",
+  "enabled" : "true",
+  "removable" : "false",
+  "products" : [
+    "http://xeomar.com/download/xenon/product/card/{0}"
+  ]
+}
