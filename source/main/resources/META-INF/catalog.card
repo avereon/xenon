@@ -1,7 +1,7 @@
 {
-  "name" : "${project.name}",
-  "iconUri" : "http://xeomar.com/images/icons/${project.artifactId}.png",
-  "cardUri" : "http://xeomar.com/download/${project.artifactId}/product/card/{0}",
+  "name" : "${project.organization.name}",
+  "iconUri" : "http://xeomar.com/images/icons/xeomar.png",
+  "cardUri" : "http://xeomar.com/download/${project.artifactId}/catalog/card/{0}",
   "enabled" : "true",
   "removable" : "false",
   "products" : [

@@ -1,5 +1,6 @@
 package com.xeomar.xenon.update;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -10,11 +11,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+@JsonIgnoreProperties( ignoreUnknown = true )
 public class MarketCard {
 
 	public static final String CARD = "/META-INF/catalog.card";
 
 	private static final Logger log = LoggerFactory.getLogger( MarketCard.class );
+
+	// TODO Use Lombok when it is supported in Java 9
 
 	private String name;
 
@@ -49,33 +53,33 @@ public class MarketCard {
 		return this;
 	}
 
-//	@Deprecated
-//	public static MarketCard loadYaml( InputStream input ) throws IOException {
-//		return loadYaml( input, null );
-//	}
-//
-//	@Deprecated
-//	@SuppressWarnings( "unchecked" )
-//	public static MarketCard loadYaml( InputStream input, URI source ) throws IOException {
-//		Map<String, Object> values;
-//		try( InputStream stream = input ) {
-//			values = (Map<String, Object>)new Yaml().load( stream );
-//		}
-//
-//		MarketCard card = new MarketCard();
-//
-//		card.name = (String)values.get( "name" );
-//		card.iconUri = (String)values.get( "iconUri" );
-//		card.cardUri = source == null ? (String)values.get( "cardUri" ) : source.toString();
-//
-//		Object enabledValue = values.get( "enabled" );
-//		card.enabled = enabledValue != null && Boolean.parseBoolean( enabledValue.toString() );
-//
-//		Object removableValue = values.get( "removable" );
-//		card.removable = removableValue != null && Boolean.parseBoolean( removableValue.toString() );
-//
-//		return card;
-//	}
+	//	@Deprecated
+	//	public static MarketCard loadYaml( InputStream input ) throws IOException {
+	//		return loadYaml( input, null );
+	//	}
+	//
+	//	@Deprecated
+	//	@SuppressWarnings( "unchecked" )
+	//	public static MarketCard loadYaml( InputStream input, URI source ) throws IOException {
+	//		Map<String, Object> values;
+	//		try( InputStream stream = input ) {
+	//			values = (Map<String, Object>)new Yaml().load( stream );
+	//		}
+	//
+	//		MarketCard card = new MarketCard();
+	//
+	//		card.name = (String)values.get( "name" );
+	//		card.iconUri = (String)values.get( "iconUri" );
+	//		card.cardUri = source == null ? (String)values.get( "cardUri" ) : source.toString();
+	//
+	//		Object enabledValue = values.get( "enabled" );
+	//		card.enabled = enabledValue != null && Boolean.parseBoolean( enabledValue.toString() );
+	//
+	//		Object removableValue = values.get( "removable" );
+	//		card.removable = removableValue != null && Boolean.parseBoolean( removableValue.toString() );
+	//
+	//		return card;
+	//	}
 
 	public String getName() {
 		return name;
