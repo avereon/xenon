@@ -29,15 +29,26 @@ public class MarketCard {
 	private List<String> products;
 
 	public static MarketCard forProduct() throws IOException {
-		return loadCard( MarketCard.class.getResourceAsStream( CARD ) );
+		return loadYaml( MarketCard.class.getResourceAsStream( CARD ) );
 	}
 
 	public static MarketCard loadCard( InputStream input ) throws IOException {
-		return loadCard( input , null );
+		return loadCard( input, null );
 	}
 
 	@SuppressWarnings( "unchecked" )
 	public static MarketCard loadCard( InputStream input, URI source ) throws IOException {
+		return null;
+	}
+
+	@Deprecated
+	public static MarketCard loadYaml( InputStream input ) throws IOException {
+		return loadYaml( input, null );
+	}
+
+	@Deprecated
+	@SuppressWarnings( "unchecked" )
+	public static MarketCard loadYaml( InputStream input, URI source ) throws IOException {
 		Map<String, Object> values;
 		try( InputStream stream = input ) {
 			values = (Map<String, Object>)new Yaml().load( stream );
@@ -49,7 +60,7 @@ public class MarketCard {
 		card.iconUri = (String)values.get( "iconUri" );
 		card.cardUri = source == null ? (String)values.get( "cardUri" ) : source.toString();
 
-		Object enabledValue = values.get("enabled" );
+		Object enabledValue = values.get( "enabled" );
 		card.enabled = enabledValue != null && Boolean.parseBoolean( enabledValue.toString() );
 
 		Object removableValue = values.get( "removable" );

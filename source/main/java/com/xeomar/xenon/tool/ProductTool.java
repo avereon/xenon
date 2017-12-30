@@ -15,7 +15,7 @@ import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
-import com.xeomar.xenon.update.CatalogCardComparator;
+import com.xeomar.xenon.update.MarketCardComparator;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.FxUtil;
@@ -104,7 +104,7 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool activate" );
 		super.activate();
 
-		String selected = getSettings().get( "selected", ProgramProductType.INSTALLED );
+		String selected = getSettings().getString( "selected", ProgramProductType.INSTALLED );
 		// TODO Be sure the guide also changes selection
 		//getGuide().setSelected( selected );
 		selectPage( selected );
@@ -771,7 +771,7 @@ public class ProductTool extends GuidedTool {
 		@Override
 		public Void call() throws Exception {
 			List<MarketCard> cards = new ArrayList<>( getProgram().getUpdateManager().getCatalogs() );
-			cards.sort( new CatalogCardComparator( getProgram(), CatalogCardComparator.Field.NAME ) );
+			cards.sort( new MarketCardComparator( getProgram(), MarketCardComparator.Field.NAME ) );
 			Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
 			return null;
 		}

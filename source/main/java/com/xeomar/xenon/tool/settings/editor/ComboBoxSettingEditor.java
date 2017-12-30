@@ -27,7 +27,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, null );
+		String value = setting.getSettings().getString( key, null );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 

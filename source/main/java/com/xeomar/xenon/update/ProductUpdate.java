@@ -50,8 +50,8 @@ public final class ProductUpdate implements Configurable {
 	public void setSettings( Settings settings ) {
 		this.settings = settings;
 //		card = new ProductCard( settings.getNode( "card" ) );
-		String sourcePath = settings.get( "source", null );
-		String targetPath = settings.get( "target", null );
+		String sourcePath = settings.getString( "source", null );
+		String targetPath = settings.getString( "target", null );
 		source = sourcePath == null ? null : Paths.get( sourcePath );
 		target = targetPath == null ? null : Paths.get( targetPath );
 	}

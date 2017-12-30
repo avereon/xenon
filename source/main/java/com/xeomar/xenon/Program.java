@@ -446,7 +446,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 
 		// Update the product card
-		card.loadCard();
+		card.loadYaml();
 		Platform.runLater( () -> splashScreen.update() );
 
 		// Start the resource manager

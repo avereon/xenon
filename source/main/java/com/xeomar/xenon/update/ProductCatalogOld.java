@@ -139,11 +139,11 @@ public class ProductCatalogOld implements Configurable {
 
 		this.settings = settings;
 
-		name = settings.get( "name", null );
+		name = settings.getString( "name", null );
 		enabled = settings.getBoolean( "enabled", true );
 		removable = settings.getBoolean( "removable", true );
-		String iconUriString = settings.get( "iconUri", null );
-		String sourceUriString = settings.get( "sourceUri", null );
+		String iconUriString = settings.getString( "iconUri", null );
+		String sourceUriString = settings.getString( "sourceUri", null );
 
 		if( iconUriString != null ) {
 			try {

@@ -33,7 +33,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, null );
+		String value = setting.getSettings().getString( key, null );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
@@ -95,7 +95,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
 			case ESCAPE: {
-				field.setText( setting.getSettings().get( key, null ) );
+				field.setText( setting.getSettings().getString( key, null ) );
 				break;
 			}
 			case ENTER: {

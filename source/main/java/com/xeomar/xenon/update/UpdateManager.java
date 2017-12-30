@@ -434,12 +434,12 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				delay = startup ? 0 : NO_CHECK;
 				break;
 			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
+				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.getString( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
 				delay = getNextIntervalTime( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
 				break;
 			}
 			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.getString( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = checkSettings.getInteger( SCHEDULE_HOUR, 0 );
 				delay = getNextScheduleTime( System.currentTimeMillis(), scheduleWhen, scheduleHour );
 				break;
@@ -547,7 +547,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 				ProductCard availableCard = new ProductCard();
 				try( InputStream input = task.get().getInputStream() ) {
-					availableCard.loadCard( input, task.getUri() );
+					availableCard.loadYaml( input, task.getUri() );
 				} catch( IOException exception ) {
 					log.warn( "Error loading product card: " + task.getUri(), exception );
 					continue;
@@ -944,9 +944,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		this.settings = settings;
 
-		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT ).toUpperCase() );
-		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY ).toUpperCase() );
+		this.checkOption = CheckOption.valueOf( settings.getString( CHECK, CheckOption.MANUAL ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( settings.getString( FOUND, FoundOption.SELECT ).toUpperCase() );
+		this.applyOption = ApplyOption.valueOf( settings.getString( APPLY, ApplyOption.VERIFY ).toUpperCase() );
 
 		//		// TODO Load the product catalogs
 		//		Set<MarketCard> catalogsSet = new CopyOnWriteArraySet<MarketCard>();
@@ -1440,7 +1440,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 			this.settings = settings;
 
-			String targetPath = settings.get( "target", null );
+			String targetPath = settings.getString( "target", null );
 			target = targetPath == null ? null : Paths.get( targetPath );
 			settings.set( "target", target == null ? null : target.toString() );
 		}

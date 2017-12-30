@@ -210,7 +210,7 @@ public class UiManager {
 		// Link the workareas to the workspaces
 		for( Workarea workarea : areas.values() ) {
 			Settings settings = workarea.getSettings();
-			Workspace workspace = workspaces.get( settings.get( PARENT_WORKSPACE_ID ) );
+			Workspace workspace = workspaces.get( settings.getString( PARENT_WORKSPACE_ID ) );
 			workspace.addWorkarea( workarea );
 			if( workarea.isActive() ) workspace.setActiveWorkarea( workarea );
 		}
@@ -222,7 +222,7 @@ public class UiManager {
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
 			Settings settings = edge.getSettings();
-			Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+			Workpane workpane = panes.get( settings.getString( PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( edge ) ) {
 					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
@@ -240,7 +240,7 @@ public class UiManager {
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
 			Settings settings = view.getSettings();
-			Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+			Workpane workpane = panes.get( settings.getString( PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( view ) ) {
 					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
@@ -264,20 +264,20 @@ public class UiManager {
 
 	private boolean linkEdge( WorkpaneEdge edge ) {
 		Settings settings = edge.getSettings();
-		Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+		Workpane workpane = panes.get( settings.getString( PARENT_WORKPANE_ID ) );
 
 		switch( edge.getOrientation() ) {
 			case VERTICAL: {
-				WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
-				WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
+				WorkpaneEdge t = lookupEdge( workpane, settings.getString( "t" ) );
+				WorkpaneEdge b = lookupEdge( workpane, settings.getString( "b" ) );
 				if( t == null || b == null ) return false;
 				edge.setEdge( Side.TOP, t );
 				edge.setEdge( Side.BOTTOM, b );
 				break;
 			}
 			case HORIZONTAL: {
-				WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
-				WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
+				WorkpaneEdge l = lookupEdge( workpane, settings.getString( "l" ) );
+				WorkpaneEdge r = lookupEdge( workpane, settings.getString( "r" ) );
 				if( l == null || r == null ) return false;
 				edge.setEdge( Side.LEFT, l );
 				edge.setEdge( Side.RIGHT, r );
@@ -290,12 +290,12 @@ public class UiManager {
 
 	private boolean linkView( WorkpaneView view ) {
 		Settings settings = view.getSettings();
-		Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+		Workpane workpane = panes.get( settings.getString( PARENT_WORKPANE_ID ) );
 
-		WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
-		WorkpaneEdge l = lookupEdge( workpane, settings.get( "l" ) );
-		WorkpaneEdge r = lookupEdge( workpane, settings.get( "r" ) );
-		WorkpaneEdge b = lookupEdge( workpane, settings.get( "b" ) );
+		WorkpaneEdge t = lookupEdge( workpane, settings.getString( "t" ) );
+		WorkpaneEdge l = lookupEdge( workpane, settings.getString( "l" ) );
+		WorkpaneEdge r = lookupEdge( workpane, settings.getString( "r" ) );
+		WorkpaneEdge b = lookupEdge( workpane, settings.getString( "b" ) );
 
 		if( t == null || l == null || r == null || b == null ) return false;
 
@@ -377,7 +377,7 @@ public class UiManager {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.AREA, id );
 			Settings workpaneSettings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
 
-			Workspace workspace = workspaces.get( settings.get( PARENT_WORKSPACE_ID ) );
+			Workspace workspace = workspaces.get( settings.getString( PARENT_WORKSPACE_ID ) );
 
 			// If the workspace is not found, then the workarea is orphaned...delete the settings
 			if( workspace == null ) {
@@ -404,7 +404,7 @@ public class UiManager {
 		try {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.EDGE, id );
 
-			Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+			Workpane workpane = panes.get( settings.getString( PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( workpane == null ) {
@@ -413,7 +413,7 @@ public class UiManager {
 				return;
 			}
 
-			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
+			Orientation orientation = Orientation.valueOf( settings.getString( "orientation" ).toUpperCase() );
 			WorkpaneEdge edge = new WorkpaneEdge( orientation );
 			edge.setSettings( settings );
 
@@ -427,7 +427,7 @@ public class UiManager {
 		try {
 			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, id );
 
-			Workpane workpane = panes.get( settings.get( PARENT_WORKPANE_ID ) );
+			Workpane workpane = panes.get( settings.getString( PARENT_WORKPANE_ID ) );
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( workpane == null ) {
@@ -447,9 +447,9 @@ public class UiManager {
 
 	private void restoreWorktool( String id ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-		String toolType = settings.get( "type" );
-		String uriString = settings.get( "uri" );
-		WorkpaneView view = views.get( settings.get( PARENT_WORKPANEVIEW_ID ) );
+		String toolType = settings.getString( "type" );
+		String uriString = settings.getString( "uri" );
+		WorkpaneView view = views.get( settings.getString( PARENT_WORKPANEVIEW_ID ) );
 
 		try {
 			// If the view is not found, then the tool is orphaned...delete the settings

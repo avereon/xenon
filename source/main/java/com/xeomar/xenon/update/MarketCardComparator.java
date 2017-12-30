@@ -4,7 +4,7 @@ import com.xeomar.xenon.ProgramProduct;
 
 import java.util.Comparator;
 
-public class CatalogCardComparator  implements Comparator<MarketCard> {
+public class MarketCardComparator implements Comparator<MarketCard> {
 
 	public enum Field {
 		NAME
@@ -14,7 +14,7 @@ public class CatalogCardComparator  implements Comparator<MarketCard> {
 
 	private Field field;
 
-	public CatalogCardComparator( ProgramProduct product, Field field  ) {
+	public MarketCardComparator( ProgramProduct product, Field field  ) {
 		this.product = product;
 		this.field = field;
 	}
