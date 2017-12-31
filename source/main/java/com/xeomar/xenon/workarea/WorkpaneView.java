@@ -256,7 +256,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		this.settings = settings;
 
 		// Restore state from settings
-		String placementValue = settings.getString( "placement" );
+		String placementValue = settings.get( "placement" );
 		if( placementValue != null ) setPlacement( Workpane.Placement.valueOf( placementValue.toUpperCase() ) );
 
 		// Persist state to settings

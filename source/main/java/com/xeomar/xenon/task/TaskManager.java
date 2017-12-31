@@ -241,7 +241,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	@Override
 	public void setSettings( Settings settings ) {
 		this.settings = settings;
-		this.maxThreadCount = settings.getInteger( "thread-count", maxThreadCount );
+		this.maxThreadCount = settings.get( "thread-count", Integer.class, maxThreadCount );
 	}
 
 	@Override

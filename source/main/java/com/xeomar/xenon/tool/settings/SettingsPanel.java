@@ -213,7 +213,7 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
 
@@ -285,7 +285,7 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 
 			// Forward the event to the editor
 			editor.handleEvent( event );

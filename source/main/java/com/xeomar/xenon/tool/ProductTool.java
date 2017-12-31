@@ -688,7 +688,7 @@ public class ProductTool extends GuidedTool {
 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 			switch( event.getKey() ) {
 				case UpdateManager.LAST_CHECK_TIME:
 				case UpdateManager.NEXT_CHECK_TIME: {

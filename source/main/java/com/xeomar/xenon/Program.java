@@ -179,8 +179,8 @@ public class Program extends Application implements ProgramProduct {
 		// Get default settings map
 		Properties properties = new Properties();
 		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
-		Map<String, String> values = new HashMap<>();
-		properties.forEach( ( k, v ) -> values.put( (String)k, (String)v ) );
+		Map<String, Object> values = new HashMap<>();
+		properties.forEach( ( k, v ) -> values.put( (String)k, v ) );
 
 		// Get the program settings after the settings manager and before the task manager
 		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
