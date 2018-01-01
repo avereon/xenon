@@ -948,26 +948,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
 
-		//		// TODO Load the product catalogs
-		//		Set<MarketCard> catalogsSet = new CopyOnWriteArraySet<MarketCard>();
-		//		Set<Settings> catalogsSettings = settings.getChildNodes( CATALOGS_SETTINGS_KEY );
-		//		for( Settings catalogSettings : catalogsSettings ) {
-		//			MarketCard catalog = new MarketCard();
-		//			catalog.loadSettings( catalogSettings );
-		//			catalogsSet.add( catalog );
-		//		}
-		//		this.catalogs = catalogsSet;
-		//
-		//		// TODO Load the product updates
-		//		Map<String, ProductUpdate> updatesMap = new ConcurrentHashMap<String, ProductUpdate>();
-		//		Map<String, Settings> updatesSettings = settings.getNodeMap( UPDATES_SETTINGS_KEY, this.updates );
-		//		for( String key : updatesSettings.keySet() ) {
-		//			Settings updateSettings = updatesSettings.get( key );
-		//			ProductUpdate update = new ProductUpdate();
-		//			update.loadSettings( updateSettings );
-		//			updatesMap.put( key, update );
-		//		}
-		//		this.updates = updatesMap;
+		// Load the product catalogs
+		loadCatalogs();
+
+		// Load the product updates
+		loadUpdates();
 	}
 
 	@Override
@@ -1052,27 +1037,21 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	private void loadCatalogs() {
-		// NEXT Load the catalogs
+		// NOTE The TypeReference must have the parameterized type in it, regardless of what IntelliJ IDEA says
+		catalogs = settings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
 	}
 
 	private void saveCatalogs() {
-		// NEXT Save the catalogs
-		// Put the list of catalogs in a catalogs.xml or catalogs.yaml?
-
-		//		Path path = program.getSettingsManager().getSettingsPath();
-		//		program.getHomeFolder();
+		settings.set( CATALOGS_SETTINGS_KEY, catalogs );
 	}
 
 	private void loadUpdates() {
-		// NEXT Load the updates
+		// NOTE The TypeReference must have the parameterized type in it, regardless of what IntelliJ IDEA says
+		updates = settings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
 	private void saveUpdates() {
-		// NEXT Save the updates
-		// Put the list of updates in a updates.xml or updates.yaml?
-		// The update packs should be moved to cache/updates.
-
-		// Storing lists of things is a pain!!!
+		settings.set( UPDATES_SETTINGS_KEY, updates );
 	}
 
 	private boolean isReservedProduct( ProductCard card ) {

@@ -15,9 +15,10 @@ import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
-import com.xeomar.xenon.update.MarketCardComparator;
 import com.xeomar.xenon.update.MarketCard;
+import com.xeomar.xenon.update.MarketCardComparator;
 import com.xeomar.xenon.update.UpdateManager;
+import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
@@ -25,9 +26,12 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbee.javafx.scene.layout.MigPane;
@@ -200,6 +204,34 @@ public class ProductTool extends GuidedTool {
 		return sources;
 	}
 
+	private void handleStagedUpdates() {
+		// Run on the FX thread
+		updatesPage.updateState();
+
+		// Ask the user about restarting.
+		if( getProgram().getUpdateManager().areUpdatesStaged() ) {
+			String title = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String header = "";
+			String message = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+
+			Stage stage = getProgram().getWorkspaceManager().getActiveWorkspace().getStage();
+			stage.requestFocus();
+
+			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+			alert.setTitle( title );
+			alert.setHeaderText( header );
+			alert.setContentText( message );
+
+			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+
+			if( result.isPresent() && result.get() == ButtonType.YES ) {
+				// NEXT Restart the program to get the updates
+				//				getWorkPane().closeTool( ProductOrganizer.this );
+				//				EventQueue.invokeLater( new RequestProgramRestart() );
+			}
+		}
+	}
+
 	private abstract class ProductToolPage extends BorderPane {
 
 		private Label title;
@@ -370,6 +402,7 @@ public class ProductTool extends GuidedTool {
 			log.trace( "Download all available updates" );
 			try {
 				getProgram().getUpdateManager().stagePostedUpdates();
+				Platform.runLater( ProductTool.this::handleStagedUpdates );
 			} catch( Exception exception ) {
 				log.warn( "Error staging updates", exception );
 			}
@@ -577,6 +610,7 @@ public class ProductTool extends GuidedTool {
 			getProgram().getExecutor().submit( () -> {
 				try {
 					getProgram().getUpdateManager().stageUpdates( source );
+					Platform.runLater( ProductTool.this::handleStagedUpdates );
 				} catch( Exception exception ) {
 					log.warn( "Error updating product", exception );
 				}

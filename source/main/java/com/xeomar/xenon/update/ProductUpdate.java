@@ -1,5 +1,6 @@
 package com.xeomar.xenon.update;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
@@ -21,6 +22,7 @@ public final class ProductUpdate implements Configurable {
 
 	private Path target;
 
+	@JsonIgnore
 	private Settings settings;
 
 	/*

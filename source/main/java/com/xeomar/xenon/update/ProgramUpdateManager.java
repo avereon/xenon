@@ -226,13 +226,13 @@ public class ProgramUpdateManager extends UpdateManager {
 					break;
 				}
 				case STORE: {
-					// TODO Store (download) all updates without user intervention.
-					// TODO program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
+					// Store (download) all updates without user intervention.
+					program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
 					break;
 				}
 				case STAGE: {
-					// TODO Stage all updates without user intervention.
-					// TODO program.getExecutor().submit( new StageUpdates( postedUpdates ) );
+					// Stage all updates without user intervention.
+					program.getExecutor().submit( new StageUpdates( postedUpdates ) );
 					break;
 				}
 			}
@@ -287,7 +287,6 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	}
 
-	// TODO Is this class needed?
 	private final class StageCachedUpdates extends ProgramTask<Void> {
 
 		private Set<ProductCard> selectedUpdates;

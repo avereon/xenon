@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class MarketCard {
@@ -127,6 +128,19 @@ public class MarketCard {
 
 	public void setProducts( List<String> products ) {
 		this.products = products;
+	}
+
+	@Override
+	public boolean equals( Object object ) {
+		if( this == object ) return true;
+		if( !(object instanceof MarketCard) ) return false;
+		MarketCard that = (MarketCard)object;
+		return Objects.equals( cardUri, that.cardUri );
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash( cardUri );
 	}
 
 }
