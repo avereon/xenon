@@ -30,7 +30,7 @@ public class FontSettingEditor extends SettingEditor {
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().getString( key, "SansSerif|12" );
+		String value = setting.getSettings().get( key, "SansSerif|12" );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 

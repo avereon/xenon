@@ -261,12 +261,12 @@ public class Workspace implements Configurable {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
-		id = settings.getString( "id" );
+		id = settings.get( "id" );
 
-		Double x = settings.getDouble( "x", null );
-		Double y = settings.getDouble( "y", null );
-		Double w = settings.getDouble( "w", UiManager.DEFAULT_WIDTH );
-		Double h = settings.getDouble( "h", UiManager.DEFAULT_HEIGHT );
+		Double x = settings.get( "x", Double.class, null );
+		Double y = settings.get( "y", Double.class, null );
+		Double w = settings.get( "w", Double.class, UiManager.DEFAULT_WIDTH );
+		Double h = settings.get( "h", Double.class, UiManager.DEFAULT_HEIGHT );
 
 		// Due to differences in how FX handles stage size (width and height) on
 		// different operating systems, the width and height from the scene, not the
@@ -287,8 +287,8 @@ public class Workspace implements Configurable {
 		// if( w != null ) stage.setWidth( w );
 		// if( h != null ) stage.setHeight( h );
 
-		stage.setMaximized( settings.getBoolean( "maximized", false ) );
-		setActive( settings.getBoolean( "active", false ) );
+		stage.setMaximized( settings.get( "maximized", Boolean.class, false ) );
+		setActive( settings.get( "active", Boolean.class, false ) );
 
 		// Add the property listeners
 		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {

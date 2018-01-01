@@ -104,7 +104,7 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool activate" );
 		super.activate();
 
-		String selected = getSettings().getString( "selected", ProgramProductType.INSTALLED );
+		String selected = getSettings().get( "selected", ProgramProductType.INSTALLED );
 		// TODO Be sure the guide also changes selection
 		//getGuide().setSelected( selected );
 		selectPage( selected );

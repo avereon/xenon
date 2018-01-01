@@ -26,7 +26,7 @@ public class ProgramServer {
 
 	public boolean start() {
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		int port = programSettings.getInteger( "program-port", 0 );
+		int port = programSettings.get( "program-port", Integer.class, 0 );
 
 		// Start the program server
 		try {

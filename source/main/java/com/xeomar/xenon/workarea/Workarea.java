@@ -105,8 +105,8 @@ public class Workarea implements Configurable {
 
 		this.settings = settings;
 
-		setName( settings.getString( "name" ) );
-		setActive( settings.getBoolean( "active", false ) );
+		setName( settings.get( "name" ) );
+		setActive( settings.get( "active", Boolean.class, false ) );
 	}
 
 	@Override

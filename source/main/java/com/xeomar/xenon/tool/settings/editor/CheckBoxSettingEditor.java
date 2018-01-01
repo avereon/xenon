@@ -24,7 +24,7 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		boolean selected = setting.getSettings().getBoolean( key, false );
+		boolean selected = setting.getSettings().get( key, Boolean.class, false );
 
 		String label = product.getResourceBundle().getString( "settings", rbKey );
 

@@ -505,9 +505,9 @@ public class Workpane extends Pane implements Configurable {
 
 					Settings settings = view.getSettings();
 					if( settings != null ) {
-						boolean isActive = settings.getBoolean( "active", false );
-						boolean isDefault = settings.getBoolean( "default", false );
-						boolean isMaximized = settings.getBoolean( "maximized", false );
+						boolean isActive = settings.get( "active", Boolean.class, false );
+						boolean isDefault = settings.get( "default", Boolean.class, false );
+						boolean isMaximized = settings.get( "maximized", Boolean.class, false );
 
 						if( isActive ) setActiveView( view );
 						if( isDefault ) setDefaultView( view );

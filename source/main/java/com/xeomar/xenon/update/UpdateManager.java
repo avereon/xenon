@@ -330,7 +330,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public boolean isEnabled( ProductCard card ) {
-		return program.getSettingsManager().getProductSettings( card ).getBoolean( PRODUCT_ENABLED_KEY, false );
+		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY,Boolean.class, false );
 	}
 
 	public void setEnabled( ProductCard card, boolean enabled ) {
@@ -393,11 +393,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public long getLastUpdateCheck() {
-		return getSettings().getLong( LAST_CHECK_TIME, 0L );
+		return getSettings().get( LAST_CHECK_TIME, Long.class, 0L );
 	}
 
 	public long getNextUpdateCheck() {
-		return getSettings().getLong( NEXT_CHECK_TIME, 0L );
+		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
 	}
 
 	/**
@@ -434,13 +434,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				delay = startup ? 0 : NO_CHECK;
 				break;
 			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.getString( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
+				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
 				delay = getNextIntervalTime( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
 				break;
 			}
 			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.getString( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
-				int scheduleHour = checkSettings.getInteger( SCHEDULE_HOUR, 0 );
+				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleTime( System.currentTimeMillis(), scheduleWhen, scheduleHour );
 				break;
 			}
@@ -944,9 +944,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		this.settings = settings;
 
-		this.checkOption = CheckOption.valueOf( settings.getString( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( settings.getString( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
-		this.applyOption = ApplyOption.valueOf( settings.getString( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
+		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
+		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
 
 		//		// TODO Load the product catalogs
 		//		Set<MarketCard> catalogsSet = new CopyOnWriteArraySet<MarketCard>();
@@ -1440,7 +1440,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 			this.settings = settings;
 
-			String targetPath = settings.getString( "target", null );
+			String targetPath = settings.get( "target" );
 			target = targetPath == null ? null : Paths.get( targetPath );
 			settings.set( "target", target == null ? null : target.toString() );
 		}

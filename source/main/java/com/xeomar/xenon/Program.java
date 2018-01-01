@@ -187,7 +187,7 @@ public class Program extends Application implements ProgramProduct {
 		programSettings.setDefaultValues( values );
 		time( "settings" );
 
-		boolean singleton = programSettings.getBoolean( "shutdown-keepalive", false );
+		boolean singleton = programSettings.get( "shutdown-keepalive", Boolean.class, false );
 
 		// Check for another instance after getting the settings but before the
 		// splash screen is shown. The fastest way to check might be to try and
@@ -258,8 +258,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public boolean requestExit( boolean force ) {
-		boolean shutdownVerify = programSettings.getBoolean( "shutdown-verify", true );
-		boolean shutdownKeepAlive = programSettings.getBoolean( "shutdown-keepalive", false );
+		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
+		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
 
 		// If the user desires, prompt to exit the program
 		if( !force && shutdownVerify ) {
