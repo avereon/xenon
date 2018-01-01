@@ -400,14 +400,15 @@ public class ProductTool extends GuidedTool {
 
 		private void downloadAll() {
 			log.trace( "Download all available updates" );
-			try {
-				getProgram().getUpdateManager().stagePostedUpdates();
-				Platform.runLater( ProductTool.this::handleStagedUpdates );
-			} catch( Exception exception ) {
-				log.warn( "Error staging updates", exception );
-			}
+			getProgram().getExecutor().submit( () -> {
+				try {
+					getProgram().getUpdateManager().stagePostedUpdates();
+					Platform.runLater( ProductTool.this::handleStagedUpdates );
+				} catch( Exception exception ) {
+					log.warn( "Error staging updates", exception );
+				}
+			} );
 		}
-
 	}
 
 	private class ProductMarketPage extends ProductToolPage {
