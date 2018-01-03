@@ -20,7 +20,10 @@ import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
-import com.xeomar.xenon.tool.*;
+import com.xeomar.xenon.tool.AboutTool;
+import com.xeomar.xenon.tool.ProductTool;
+import com.xeomar.xenon.tool.ProgramTool;
+import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.tool.guide.GuideTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
@@ -287,7 +290,14 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public com.xeomar.util.Parameters getProgramParameters() {
-		if( parameters == null ) configureHome( parameters = com.xeomar.util.Parameters.parse( getParameters().getRaw() ) );
+		if( parameters == null ) {
+			Parameters fxParameters = getParameters();
+			if( fxParameters == null ) {
+				configureHome( parameters = com.xeomar.util.Parameters.create() );
+			} else {
+				configureHome( parameters = com.xeomar.util.Parameters.parse( fxParameters.getRaw() ) );
+			}
+		}
 		return parameters;
 	}
 
