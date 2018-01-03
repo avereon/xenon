@@ -1,4 +1,4 @@
-package com.xeomar.xenon.workarea;
+package com.xeomar.xenon.workspace;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
@@ -7,6 +7,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.util.ActionUtil;
+import com.xeomar.xenon.workarea.Workarea;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -47,6 +48,8 @@ public class Workspace implements Configurable {
 	private MenuBar menubar;
 
 	private ToolBar toolbar;
+
+	private HBox statusbar;
 
 	private Pane workpaneContainer;
 
@@ -159,11 +162,15 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
 
+		// STATUS BAR
+		statusbar = new HBox();
+		statusbar.getChildren().addAll( new Label( "Status Bar"));
+
 		// Workarea Container
 		workpaneContainer = new StackPane();
 
+		// FIXME The following background image is for development purposes.
 		// TODO Remove the development background image
-		// The following background image is for development purposes.
 		Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
 		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
@@ -174,13 +181,14 @@ public class Workspace implements Configurable {
 		layout = new BorderPane();
 		layout.setTop( bars );
 		layout.setCenter( workpaneContainer );
+		layout.setBottom( statusbar );
 
-		// Create the scene
+		// Create the stage
 		stage = new Stage();
 		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
 		stage.setOnCloseRequest( event -> {
-			program.getWorkspaceManager().requestCloseWorkspace( this );
 			event.consume();
+			program.getWorkspaceManager().requestCloseWorkspace( this );
 		} );
 	}
 

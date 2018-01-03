@@ -408,8 +408,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private void printHeader( ProductCard metadata ) {
 		ExecMode execMode = getExecMode();
-		System.err.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
-		System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
+		if( execMode == ExecMode.TEST ) return;
+		System.out.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
+		//System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
 	}
 
 	public ExecMode getExecMode() {

@@ -7,6 +7,7 @@ import com.xeomar.xenon.resource.OpenResourceRequest;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.*;
+import com.xeomar.xenon.workspace.Workspace;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;

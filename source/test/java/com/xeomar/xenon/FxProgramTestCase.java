@@ -27,19 +27,22 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	protected ProductCard metadata;
 
+	private void printMemoryUse() {
+		Runtime.getRuntime().gc();
+		Thread.yield();
+		long max = Runtime.getRuntime().maxMemory();
+		long total = Runtime.getRuntime().totalMemory();
+		long used = total - Runtime.getRuntime().freeMemory();
+		System.out.println( String.format( "Memory: %s / %s / %s", FileUtil.getHumanBinSize(used), FileUtil.getHumanBinSize(total), FileUtil.getHumanBinSize( max ) ) );
+	}
+
+
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
 	@Before
 	public void setup() throws Exception {
 		// Intentionally do not call super.setup()
-
-		Runtime.getRuntime().gc();
-
-		long max = Runtime.getRuntime().maxMemory();
-		long total = Runtime.getRuntime().totalMemory();
-		long used = total - Runtime.getRuntime().freeMemory();
-		System.out.println( "Memory: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) );
 
 		// Remove the existing program data folder
 		try {
@@ -78,6 +81,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
+
+		printMemoryUse();
 	}
 
 	@Override

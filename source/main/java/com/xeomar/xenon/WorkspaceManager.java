@@ -3,7 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.workarea.Workspace;
+import com.xeomar.xenon.workspace.Workspace;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -143,6 +143,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 		// TODO Remove the workspace, workpane, workpane components, tool settings, etc.
 		// TODO Remove the workspace from the workspace collection
+		workspaces.remove( workspace );
 	}
 
 	void hideWindows() {
