@@ -225,8 +225,8 @@ public class ProductTool extends GuidedTool {
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {
-				// NEXT Restart the program to get the updates
-				//				getWorkPane().closeTool( ProductOrganizer.this );
+				getWorkpane().closeTool( this );
+				// NEXT Restart the program to install the updates
 				//				EventQueue.invokeLater( new RequestProgramRestart() );
 			}
 		}
