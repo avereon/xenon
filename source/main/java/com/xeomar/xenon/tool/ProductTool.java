@@ -5,10 +5,7 @@ import com.xeomar.product.ProductCardComparator;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.DateUtil;
-import com.xeomar.xenon.BundleKey;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.task.Task;
@@ -226,8 +223,7 @@ public class ProductTool extends GuidedTool {
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {
 				getWorkpane().closeTool( this );
-				// NEXT Restart the program to install the updates
-				//				EventQueue.invokeLater( new RequestProgramRestart() );
+				getProgram().getTaskManager().submit( new RequestProgramRestart() );
 			}
 		}
 	}
@@ -810,6 +806,15 @@ public class ProductTool extends GuidedTool {
 			Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
 			return null;
 		}
+	}
+
+	private class RequestProgramRestart implements Runnable {
+
+		@Override
+		public void run() {
+			getProgram().restart( ProgramFlag.NOUPDATECHECK );;
+		}
+
 	}
 
 }
