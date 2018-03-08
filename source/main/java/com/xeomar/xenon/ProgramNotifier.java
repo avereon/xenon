@@ -55,12 +55,12 @@ public class ProgramNotifier {
 
 	/* Notify methods */
 
-	public void notify( Object message, String... parameters ) {
-		notify( null, message, parameters );
+	public void notify( String title, String header, Object message, String... parameters ) {
+		notify( null, title, header, message, parameters );
 	}
 
-	public void notify( String title, Object message, String... parameters ) {
-		alert( Alert.AlertType.INFORMATION, null, title, message, parameters );
+	public void notify( Node icon, String title, String header, Object message, String... parameters ) {
+		alert( Alert.AlertType.INFORMATION, icon, title, header, message, parameters );
 	}
 
 	private Object formatMessage( Throwable throwable, Object message ) {
@@ -71,7 +71,12 @@ public class ProgramNotifier {
 		return message;
 	}
 
+	@Deprecated
 	private void alert( Alert.AlertType type, Node graphic, String title, Object message, String... parameters ) {
+		alert( type, graphic, title, null, message, parameters );
+	}
+
+	private void alert( Alert.AlertType type, Node icon, String title, String header, Object message, String... parameters ) {
 		try {
 			StringBuilder builder = new StringBuilder();
 
@@ -102,7 +107,8 @@ public class ProgramNotifier {
 				if( message instanceof Node ) alert.getDialogPane().setContent( (Node)message );
 				if( type != null ) alert.setAlertType( type );
 				if( title != null ) alert.setTitle( title );
-				if( graphic != null ) alert.setGraphic( graphic );
+				if( header != null ) alert.setHeaderText( header );
+				if( icon != null ) alert.setGraphic( icon );
 				alert.setContentText( content );
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				DialogUtil.show( stage, alert );

@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.settings.Settings;
+import com.xeomar.util.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,9 @@ public class ProgramServer {
 				try {
 					Socket client = server.accept();
 					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
-					program.processCommands( commands );
+					com.xeomar.util.Parameters parameters = Parameters.parse( commands );
+					program.processCommands( parameters );
+					program.processResources( parameters );
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {

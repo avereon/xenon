@@ -5,10 +5,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductEvent;
 import com.xeomar.product.ProductEventListener;
 import com.xeomar.settings.Settings;
-import com.xeomar.util.FileUtil;
-import com.xeomar.util.JavaUtil;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.OperatingSystem;
+import com.xeomar.util.*;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
@@ -59,6 +56,8 @@ public class Program extends Application implements ProgramProduct {
 	public static final String STYLESHEET = "style.css";
 
 	private static final long MANAGER_ACTION_SECONDS = 10;
+
+	private static final String PROGRAM_RELEASE_SETTINGS_KEY = "product-release";
 
 	private static Logger log = LogUtil.get( Program.class );
 
@@ -166,10 +165,10 @@ public class Program extends Application implements ProgramProduct {
 		// Configure logging
 		LogUtil.configureLogging( this, getProgramParameters().get( ProgramFlag.LOG_LEVEL ) );
 
-		// Create the program event watcher after configuring the logging
+		// Create the program event watcher, depends on logging
 		addEventListener( watcher = new ProgramEventWatcher() );
 
-		// Fire the program starting event after the event watcher is created
+		// Fire the program starting event, depends on the event watcher
 		fireEvent( new ProgramStartingEvent( this ) );
 
 		// Determine the program exec mode
@@ -190,19 +189,18 @@ public class Program extends Application implements ProgramProduct {
 		programSettings.setDefaultValues( values );
 		time( "settings" );
 
-		boolean singleton = programSettings.get( "shutdown-keepalive", Boolean.class, false );
+		//peerCheck();
+		time( "peer-check" );
 
-		// Check for another instance after getting the settings but before the
-		// splash screen is shown. The fastest way to check might be to try and
-		// bind to the port defined in the settings. The OS will quickly deny the
-		// bind. Call Platform.exit() if there is already an instance.
-		// See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
-		if( singleton && !(programServer = new ProgramServer( this )).start() ) Platform.exit();
+		if( processCommands( getProgramParameters() ) ) Platform.exit();
+		time( "process-commands" );
 
-		// Create the program notifier after creating the program settings
-		notifier = new ProgramNotifier( this );
+		// NEXT Check for staged updates
+		//processStagedUpdates();
+		time( "process-staged-updates" );
 
-		// Create the executor service
+		// Create the task manager, depends on program settings
+		// The task manager is created in the init() method so it is available during unit tests
 		log.trace( "Starting task manager..." );
 		taskManager = new TaskManager();
 		taskManager.setSettings( programSettings );
@@ -210,6 +208,8 @@ public class Program extends Application implements ProgramProduct {
 		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );
 		time( "taskManager" );
+
+		// The start( Stage ) method is called next on the FX thread
 	}
 
 	@Override
@@ -301,14 +301,6 @@ public class Program extends Application implements ProgramProduct {
 		return parameters;
 	}
 
-	public void processCommands( String[] commands ) {
-		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
-		Platform.runLater( () -> {
-			current.show();
-			current.requestFocus();
-		} );
-	}
-
 	public MarketCard getMarket() {
 		return defaultMarket;
 	}
@@ -342,51 +334,51 @@ public class Program extends Application implements ProgramProduct {
 		return productBundle;
 	}
 
-	public long getStartTime() {
+	public final long getStartTime() {
 		return programStartTime;
 	}
 
-	public Path getDataFolder() {
+	public final Path getDataFolder() {
 		return programDataFolder;
 	}
 
-	public ProgramNotifier getNotifier() {
+	public final ProgramNotifier getNotifier() {
 		return notifier;
 	}
 
-	public TaskManager getTaskManager() {
+	public final TaskManager getTaskManager() {
 		return taskManager;
 	}
 
-	public ExecutorService getExecutor() {
+	public final ExecutorService getExecutor() {
 		return taskManager;
 	}
 
-	public IconLibrary getIconLibrary() {
+	public final IconLibrary getIconLibrary() {
 		return iconLibrary;
 	}
 
-	public ActionLibrary getActionLibrary() {
+	public final ActionLibrary getActionLibrary() {
 		return actionLibrary;
 	}
 
-	public SettingsManager getSettingsManager() {
+	public final SettingsManager getSettingsManager() {
 		return settingsManager;
 	}
 
-	public ToolManager getToolManager() {
+	public final ToolManager getToolManager() {
 		return toolManager;
 	}
 
-	public ResourceManager getResourceManager() {
+	public final ResourceManager getResourceManager() {
 		return resourceManager;
 	}
 
-	public WorkspaceManager getWorkspaceManager() {
+	public final WorkspaceManager getWorkspaceManager() {
 		return workspaceManager;
 	}
 
-	public UpdateManager getUpdateManager() {
+	public final UpdateManager getUpdateManager() {
 		return updateManager;
 	}
 
@@ -406,11 +398,75 @@ public class Program extends Application implements ProgramProduct {
 		//System.err.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
+	/**
+	 * Check for another instance after getting the settings but before the
+	 * splash screen is shown. The fastest way to check might be to try and
+	 * bind to the port defined in the settings. The OS will quickly deny the
+	 * bind. Call Platform.exit() if there is already an instance.
+	 * <p>
+	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
+	 * </p>
+	 */
+	private void peerCheck() {
+		ProgramServer server = new ProgramServer( this );
+		if( server.start() ) {
+			programServer = server;
+		} else {
+			// Running as a peer
+			// TODO Connect to server, pass parameters, output results and exit when complete
+			Platform.exit();
+		}
+	}
+
+	boolean processCommands( com.xeomar.util.Parameters parameters ) {
+		if( parameters.isSet( ProgramFlag.WATCH ) ) {
+			return true;
+		} else if( parameters.isSet( ProgramFlag.VERSION ) ) {
+			return true;
+		} else if( parameters.isSet( ProgramFlag.HELP ) ) {
+			printHelp( parameters.get( ProgramFlag.HELP ) );
+			return true;
+		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			printStatus();
+			return true;
+		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
+			requestExit( true );
+			return true;
+		}
+
+		return false;
+	}
+
+	void processResources( com.xeomar.util.Parameters parameters  ) {
+		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
+		Platform.runLater( () -> {
+			current.show();
+			current.requestFocus();
+		} );
+
+		// TODO Process the provided commands
+	}
+
 	private void printHeader( ProductCard metadata ) {
 		ExecMode execMode = getExecMode();
 		if( execMode == ExecMode.TEST ) return;
 		System.out.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
 		//System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
+	}
+
+	private void printStatus() {
+		log.info( "Status: " + (isRunning() ? "RUNNING" : "STOPPED") );
+	}
+
+	private void printHelp( String category ) {
+		if( category == null ) category = "general";
+
+		switch( category ) {
+			case "general": {
+				System.out.println( "Usage: " + card.getArtifact() + "[command...] [file...]" );
+				break;
+			}
+		}
 	}
 
 	public ExecMode getExecMode() {
@@ -481,19 +537,19 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
-		// Create the workspace manager
-		log.trace( "Starting workspace manager..." );
-		workspaceManager = new WorkspaceManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Workspace manager started." );
-
 		// Start the update manager
 		log.trace( "Starting update manager..." );
 		updateManager = configureUpdateManager( new ProgramUpdateManager( Program.this ) ).start();
 		updateManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Update manager started." );
+
+		// Create the workspace manager
+		log.trace( "Starting workspace manager..." );
+		workspaceManager = new WorkspaceManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Workspace manager started." );
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
@@ -505,7 +561,10 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
 		Platform.runLater( () -> splashScreen.done() );
 
-		// Check for updates.
+		// Create the program notifier, depends on workspace manager
+		notifier = new ProgramNotifier( this );
+
+		// Schedule the first update check
 		updateManager.scheduleUpdateCheck( true );
 
 		// Give the slash screen time to render and the user to see it
@@ -721,6 +780,27 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
+	private void checkIfUpdated() {
+		if( !isProgramUpdated() ) return;
+
+		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
+		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
+		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message" );
+
+		getNotifier().notify( title, header, message );
+	}
+
+	private boolean isProgramUpdated() {
+		// Get the previous release.
+		Release that = Release.decode( programSettings.get( PROGRAM_RELEASE_SETTINGS_KEY, (String)null ) );
+
+		// Set the current release.
+		programSettings.set( PROGRAM_RELEASE_SETTINGS_KEY, Release.encode( this.getCard().getRelease() ) );
+
+		// Return the result.
+		return that != null && this.getCard().getRelease().compareTo( that ) > 0;
+	}
+
 	private class Startup extends Task<Void> {
 
 		@Override
@@ -734,8 +814,8 @@ public class Program extends Application implements ProgramProduct {
 			splashScreen.hide();
 			time( "splash hidden" );
 
-			workspaceManager.getActiveWorkspace().getStage().show();
-			workspaceManager.getActiveWorkspace().getStage().toFront();
+			getWorkspaceManager().getActiveWorkspace().getStage().show();
+			getWorkspaceManager().getActiveWorkspace().getStage().toFront();
 
 			// Program started event should be fired after the window is shown
 			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
@@ -745,6 +825,15 @@ public class Program extends Application implements ProgramProduct {
 			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
+
+			// TODO Check to see if the application was updated
+			checkIfUpdated();
+
+			// TODO Show user notifications
+			//getTaskManager().submit( new ShowApplicationNotices() );
+
+			// TODO Open resources specified on the command line
+			//getResourceManager().open( resourceManager.createResources( parameters.getUris() ), false );
 		}
 
 		@Override

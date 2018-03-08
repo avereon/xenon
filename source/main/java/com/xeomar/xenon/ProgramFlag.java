@@ -16,6 +16,34 @@ public interface ProgramFlag {
 
 	String NOUPDATECHECK = "noupdatecheck";
 
+	/**
+	 * Print the help information and exit.
+	 */
+	String HELP = "help";
+
+	/**
+	 * Print the status information and exit.
+	 */
+	String STATUS = "status";
+
+	/**
+	 * Request the program stop.
+	 */
+	String STOP = "stop";
+
+	/**
+	 * Print the version information and exit.
+	 */
+	String VERSION = "version";
+
+	/**
+	 * Watch the host instance
+	 */
+	String WATCH = "watch";
+
+	/**
+	 * Reset the program settings to defaults.
+	 */
 	String RESET = "reset";
 
 }

@@ -34,7 +34,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Program program;
 
-	private Settings settings;
+	private StoredSettings settings;
 
 	private SettingsListener settingsWatcher;
 
@@ -201,6 +201,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	@Override
 	public SettingsManager stop() {
+		settings.flush();
 		return this;
 	}
 
