@@ -40,8 +40,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -205,6 +204,8 @@ public class Program extends Application implements ProgramProduct {
 
 		// NEXT Check for staged updates
 		//processStagedUpdates();
+		// Of course the update manager is still null at this point
+		//getUpdateManager().updateProduct();
 		time( "process-staged-updates" );
 
 		// Create the task manager, depends on program settings
@@ -429,6 +430,12 @@ public class Program extends Application implements ProgramProduct {
 		return true;
 	}
 
+	/**
+	 * Process program commands that affect the startup behavior of the product.
+	 *
+	 * @param parameters The command line parameters
+	 * @return True if the program should exit, false otherwise.
+	 */
 	boolean processCommands( com.xeomar.util.Parameters parameters ) {
 		if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			return true;
@@ -448,6 +455,11 @@ public class Program extends Application implements ProgramProduct {
 		return false;
 	}
 
+	/**
+	 * Process the resources specified on the command line.
+	 *
+	 * @param parameters The command line parameters
+	 */
 	void processResources( com.xeomar.util.Parameters parameters ) {
 		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
 		Platform.runLater( () -> {
@@ -467,9 +479,31 @@ public class Program extends Application implements ProgramProduct {
 		}
 	}
 
+	/**
+	 * Print the ASCII art title. The text is loaded from the resource /ascii-art-title.txt.
+	 * <p>
+	 * The text was generated using the Standard FIGlet font:
+	 * <a href="http://patorjk.com/software/taag/#p=display&h=0&f=Standard&t=XENON">XENON</a>
+	 */
+	private void printAsciiArtTitle() {
+		try {
+			InputStream input = getClass().getResourceAsStream( "/ascii-art-title.txt" );
+			BufferedReader reader = new BufferedReader( new InputStreamReader( input, "UTF-8" ) );
+
+			String line;
+			while( (line = reader.readLine()) != null ) {
+				System.out.println( line );
+			}
+			System.out.println(  );
+		} catch( IOException exception ) {
+			// Intentionally ignore exception
+		}
+	}
+
 	private void printHeader( ProductCard metadata ) {
 		ExecMode execMode = getExecMode();
 		if( execMode == ExecMode.TEST ) return;
+		printAsciiArtTitle();
 		System.out.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
 		//System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
 	}
