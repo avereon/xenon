@@ -159,18 +159,22 @@ public class Program extends Application implements ProgramProduct {
 
 		// Load the product card
 		card = new ProductCard();
+		time( "card" );
 
 		// Print the program header
 		printHeader( card );
+		time( "print-header" );
 
 		// Configure logging
 		LogUtil.configureLogging( this, getProgramParameters().get( ProgramFlag.LOG_LEVEL ) );
+		time( "configure-logging" );
 
 		// Create the program event watcher, depends on logging
 		addEventListener( watcher = new ProgramEventWatcher() );
 
 		// Fire the program starting event, depends on the event watcher
 		fireEvent( new ProgramStartingEvent( this ) );
+		time( "program-start-event" );
 
 		// Determine the program exec mode
 		String prefix = getExecModePrefix();
@@ -190,14 +194,14 @@ public class Program extends Application implements ProgramProduct {
 		programSettings.setDefaultValues( values );
 		time( "settings" );
 
+		// Run the peer check before processing commands in case there is a peer already
 		if( peerCheck() ) {
-			requestExit( true );
 			time( "peer-check" );
 			return;
 		}
 
+		// If there is not a peer, process the commands before processing the updates
 		if( processCommands( getProgramParameters() ) ) {
-			requestExit( true );
 			time( "process-commands" );
 			return;
 		}
@@ -404,7 +408,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		//System.err.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	/**
@@ -427,6 +431,7 @@ public class Program extends Application implements ProgramProduct {
 			// TODO Start client that will connect to server, pass parameters, output results and exit when complete
 		}
 
+		requestExit( true );
 		return true;
 	}
 
@@ -440,12 +445,15 @@ public class Program extends Application implements ProgramProduct {
 		if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			return true;
 		} else if( parameters.isSet( ProgramFlag.VERSION ) ) {
+			requestExit( true );
 			return true;
 		} else if( parameters.isSet( ProgramFlag.HELP ) ) {
 			printHelp( parameters.get( ProgramFlag.HELP ) );
+			requestExit( true );
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
 			printStatus();
+			requestExit( true );
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
 			requestExit( true );

@@ -2,6 +2,7 @@ package com.xeomar.xenon;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Parameters;
+import com.xeomar.util.TestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +40,17 @@ public class ProgramServer {
 			programSettings.flush();
 			log.info( "Program server listening on port " + localPort );
 
-			new Thread( handler = new SocketHandler(), "ProgramServerThread" ).start();
+			Thread serverThread = new Thread( handler = new SocketHandler(), "ProgramServerThread" );
+			serverThread.setDaemon( true );
+			serverThread.start();
 		} catch( BindException exception ) {
 			log.info( "Program already running" );
 
 			// Send the command line parameters
 			try {
+				// WRITE the command line parameters to a peer
 				Socket socket = new Socket( InetAddress.getLoopbackAddress(), port );
-				List<String> commandList = program.getParameters().getRaw();
+				List<String> commandList = program.getProgramParameters().getOriginalCommands();
 				String[] commands = commandList.toArray( new String[ commandList.size() ] );
 				new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
 				socket.close();
@@ -79,15 +83,16 @@ public class ProgramServer {
 			run = true;
 			while( run ) {
 				try {
+					// READ the command line parameters from a peer
 					Socket client = server.accept();
 					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
 					com.xeomar.util.Parameters parameters = Parameters.parse( commands );
+					log.warn( "Parameters from peer: " + parameters );
 					program.processCommands( parameters );
 					program.processResources( parameters );
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {
-					exception.printStackTrace( System.out );
 					String message = exception.getMessage();
 					message = message == null ? "null" : message.toLowerCase();
 					if( !"socket closed".equals( message ) ) log.error( "Error waiting for connection", exception );
