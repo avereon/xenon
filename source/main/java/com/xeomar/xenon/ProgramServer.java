@@ -87,7 +87,10 @@ public class ProgramServer {
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {
-					if( !"socket closed".equals( exception.getMessage().toLowerCase() ) ) log.error( "Error waiting for connection", exception );
+					exception.printStackTrace( System.out );
+					String message = exception.getMessage();
+					message = message == null ? "null" : message.toLowerCase();
+					if( !"socket closed".equals( message ) ) log.error( "Error waiting for connection", exception );
 				}
 			}
 		}
