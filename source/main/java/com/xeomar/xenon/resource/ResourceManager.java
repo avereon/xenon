@@ -563,6 +563,16 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		save( resource, null, false, false );
 	}
 
+	public Resource createResource( Object descriptor ) throws ResourceException {
+		if( descriptor instanceof URI ) {
+			return (createResource( (URI)descriptor ));
+		} else if( descriptor instanceof File ) {
+			return (createResource( ((File)descriptor).toURI() ));
+		} else {
+			return (createResource( descriptor.toString() ));
+		}
+	}
+
 	/**
 	 * Create a resource from a string. This resource is considered to be an old resource. See {@link Resource#isNew()}
 	 *
@@ -632,13 +642,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		List<Resource> resources = new ArrayList<>( descriptors.size() );
 
 		for( Object descriptor : descriptors ) {
-			if( descriptor instanceof URI ) {
-				resources.add( createResource( (URI)descriptor ) );
-			} else if( descriptor instanceof File ) {
-				resources.add( createResource( ((File)descriptor).toURI() ) );
-			} else {
-				resources.add( createResource( descriptor.toString() ) );
-			}
+			resources.add( createResource( descriptor ) );
 		}
 
 		return resources;

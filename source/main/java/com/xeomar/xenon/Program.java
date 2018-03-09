@@ -11,6 +11,7 @@ import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.event.ProgramStoppingEvent;
+import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceManager;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.resource.type.*;
@@ -48,6 +49,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -189,11 +191,17 @@ public class Program extends Application implements ProgramProduct {
 		programSettings.setDefaultValues( values );
 		time( "settings" );
 
-		//peerCheck();
-		time( "peer-check" );
+		if( peerCheck() ) {
+			requestExit( true );
+			time( "peer-check" );
+			return;
+		}
 
-		if( processCommands( getProgramParameters() ) ) Platform.exit();
-		time( "process-commands" );
+		if( processCommands( getProgramParameters() ) ) {
+			requestExit( true );
+			time( "process-commands" );
+			return;
+		}
 
 		// NEXT Check for staged updates
 		//processStagedUpdates();
@@ -407,15 +415,18 @@ public class Program extends Application implements ProgramProduct {
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private void peerCheck() {
+	private boolean peerCheck() {
 		ProgramServer server = new ProgramServer( this );
+
 		if( server.start() ) {
 			programServer = server;
+			return false;
 		} else {
 			// Running as a peer
-			// TODO Connect to server, pass parameters, output results and exit when complete
-			Platform.exit();
+			// TODO Start client that will connect to server, pass parameters, output results and exit when complete
 		}
+
+		return true;
 	}
 
 	boolean processCommands( com.xeomar.util.Parameters parameters ) {
@@ -437,14 +448,23 @@ public class Program extends Application implements ProgramProduct {
 		return false;
 	}
 
-	void processResources( com.xeomar.util.Parameters parameters  ) {
+	void processResources( com.xeomar.util.Parameters parameters ) {
 		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
 		Platform.runLater( () -> {
 			current.show();
 			current.requestFocus();
 		} );
 
-		// TODO Process the provided commands
+		// Open the resources provided on the command line
+		for( String uri : parameters.getUris() ) {
+			try {
+				getResourceManager().openResourcesAndWait( getResourceManager().createResource( uri ) );
+			} catch( ExecutionException | ResourceException exception ) {
+				log.warn( "Unable to open: " + uri );
+			} catch( InterruptedException exception ) {
+				// Intentionally ignore exception
+			}
+		}
 	}
 
 	private void printHeader( ProductCard metadata ) {
@@ -833,7 +853,7 @@ public class Program extends Application implements ProgramProduct {
 			//getTaskManager().submit( new ShowApplicationNotices() );
 
 			// TODO Open resources specified on the command line
-			//getResourceManager().open( resourceManager.createResources( parameters.getUris() ), false );
+			processResources( getProgramParameters() );
 		}
 
 		@Override
