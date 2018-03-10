@@ -27,6 +27,9 @@ public class ProgramServer {
 	}
 
 	public boolean start() {
+		// When running as a test don't start the program server
+		if( TestUtil.isTest() ) return true;
+
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		int port = programSettings.get( "program-port", Integer.class, 0 );
 
