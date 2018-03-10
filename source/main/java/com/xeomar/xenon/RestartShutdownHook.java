@@ -81,13 +81,12 @@ public class RestartShutdownHook extends Thread {
 
 		// Add the collected URIs.
 		if( uris.size() > 0 ) {
-			builder.command().add( "--" );
 			for( String uri : uris ) {
 				builder.command().add( uri );
 			}
 		}
 
-		log.trace( "Restart command: ", TextUtil.toString( builder.command(), " " ) );
+		log.debug( "Restart command: " + TextUtil.toString( builder.command(), " " ) );
 	}
 
 	private static String getRestartExecutablePath( Program service ) {
