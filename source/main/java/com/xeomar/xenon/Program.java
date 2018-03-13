@@ -195,16 +195,12 @@ public class Program extends Application implements ProgramProduct {
 		time( "settings" );
 
 		// Run the peer check before processing commands in case there is a peer already
-		if( peerCheck() ) {
-			time( "peer-check" );
-			return;
-		}
+		if( peerFound() ) return;
+		time( "peer-found" );
 
 		// If there is not a peer, process the commands before processing the updates
-		if( processCommands( getProgramParameters() ) ) {
-			time( "process-commands" );
-			return;
-		}
+		if( processCommands( getProgramParameters() ) ) return;
+		time( "process-commands" );
 
 		// NEXT Check for staged updates
 		//processStagedUpdates();
@@ -420,17 +416,16 @@ public class Program extends Application implements ProgramProduct {
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private boolean peerCheck() {
-		ProgramServer server = new ProgramServer( this );
+	private boolean peerFound() {
+		int port = programSettings.get( "program-port", Integer.class, 0 );
+		ProgramServer server = new ProgramServer( this, port );
 
-		if( server.start() ) {
+		if( server.start( ) ) {
 			programServer = server;
 			return false;
-		} else {
-			// Running as a peer
-			// TODO Start client that will connect to server, pass parameters, output results and exit when complete
 		}
 
+		new ProgramPeer( this, port ).run();
 		requestExit( true );
 		return true;
 	}
@@ -502,7 +497,7 @@ public class Program extends Application implements ProgramProduct {
 			while( (line = reader.readLine()) != null ) {
 				System.out.println( line );
 			}
-			System.out.println(  );
+			System.out.println();
 		} catch( IOException exception ) {
 			// Intentionally ignore exception
 		}

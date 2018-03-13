@@ -22,8 +22,15 @@ public class ProgramServer {
 
 	private SocketHandler handler;
 
-	public ProgramServer( Program program ) {
+	private int requestedPort;
+
+	public ProgramServer( Program program, int requestedPort ) {
 		this.program = program;
+		this.requestedPort = requestedPort;
+	}
+
+	public int getLocalPort() {
+		return server == null ? 0 : server.getLocalPort();
 	}
 
 	public boolean start() {
@@ -31,13 +38,12 @@ public class ProgramServer {
 		if( TestUtil.isTest() ) return true;
 
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		int port = programSettings.get( "program-port", Integer.class, 0 );
 
 		// Start the program server
 		try {
 			server = new ServerSocket();
 			server.setReuseAddress( true );
-			server.bind( new InetSocketAddress( InetAddress.getLoopbackAddress(), port ) );
+			server.bind( new InetSocketAddress( InetAddress.getLoopbackAddress(), requestedPort ) );
 			int localPort = server.getLocalPort();
 			programSettings.set( "program-port", localPort );
 			programSettings.flush();
@@ -47,20 +53,6 @@ public class ProgramServer {
 			serverThread.setDaemon( true );
 			serverThread.start();
 		} catch( BindException exception ) {
-			log.info( "Program already running" );
-
-			// Send the command line parameters
-			try {
-				// WRITE the command line parameters to a peer
-				Socket socket = new Socket( InetAddress.getLoopbackAddress(), port );
-				List<String> commandList = program.getProgramParameters().getOriginalCommands();
-				String[] commands = commandList.toArray( new String[ commandList.size() ] );
-				new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
-				socket.close();
-			} catch( IOException socketException ) {
-				log.error( "Error sending commands to program", socketException );
-			}
-
 			return false;
 		} catch( IOException exception ) {
 			log.error( "Error starting program server", exception );
