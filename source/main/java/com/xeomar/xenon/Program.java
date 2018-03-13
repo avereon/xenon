@@ -486,7 +486,7 @@ public class Program extends Application implements ProgramProduct {
 	 * Print the ASCII art title. The text is loaded from the resource /ascii-art-title.txt.
 	 * <p>
 	 * The text was generated using the Standard FIGlet font:
-	 * <a href="http://patorjk.com/software/taag/#p=display&h=0&f=Standard&t=XENON">XENON</a>
+	 * <a href="http://patorjk.com/software/taag/#p=display&h=0&f=Bulbhead&t=XENON">XENON</a>
 	 */
 	private void printAsciiArtTitle() {
 		try {
