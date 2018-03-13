@@ -1,17 +1,19 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
 
 public class ProgramPeer {
 
-	private static final Logger log = LoggerFactory.getLogger( ProgramPeer.class );
+	private static Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 
@@ -24,8 +26,8 @@ public class ProgramPeer {
 
 	public void run() {
 		// Running as a peer
-		if( log.isDebugEnabled()) {
-			log.debug( "Program already running on port " + port );
+		if( log.isDebugEnabled() ) {
+			log.debug( "Program already running on port {}", port );
 		} else {
 			log.info( "Program already running" );
 		}
@@ -37,9 +39,7 @@ public class ProgramPeer {
 			String[] commands = commandList.toArray( new String[ commandList.size() ] );
 			new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
 
-			// TODO Read in output from the host and print it to the command line
-			// NOTE How to determine the log level?
-			// NOTE Can I just get back log event objects?
+			// TODO Read log events from the host and submit them to the logging framework
 
 			socket.close();
 		} catch( IOException socketException ) {
