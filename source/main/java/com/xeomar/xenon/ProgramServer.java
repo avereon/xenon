@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.settings.Settings;
+import com.xeomar.util.LogUtil;
 import com.xeomar.util.Parameters;
 import com.xeomar.util.TestUtil;
 import org.slf4j.Logger;
@@ -9,12 +10,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
 
 public class ProgramServer {
 
-	private static final Logger log = LoggerFactory.getLogger( ProgramServer.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 
@@ -72,6 +77,8 @@ public class ProgramServer {
 
 	private class SocketHandler implements Runnable {
 
+		private Handler peerLogHandler;
+
 		private boolean run;
 
 		public void run() {
@@ -83,8 +90,13 @@ public class ProgramServer {
 					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
 					com.xeomar.util.Parameters parameters = Parameters.parse( commands );
 					log.warn( "Parameters from peer: " + parameters );
+
+					// TODO Register a log event listener to send events to the peer
+
 					program.processCommands( parameters );
 					program.processResources( parameters );
+
+					// TODO Unregister the log event listener
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {
@@ -104,6 +116,25 @@ public class ProgramServer {
 			} finally {
 				server = null;
 			}
+		}
+
+	}
+
+	public class LogHandler extends Handler {
+
+		@Override
+		public void publish( LogRecord record ) {
+			System.err.println( "SEND TO PEER> " + record.getMessage() );
+		}
+
+		@Override
+		public void flush() {
+
+		}
+
+		@Override
+		public void close() throws SecurityException {
+
 		}
 
 	}

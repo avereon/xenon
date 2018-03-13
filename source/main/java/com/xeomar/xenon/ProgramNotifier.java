@@ -1,5 +1,6 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -11,9 +12,11 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 public class ProgramNotifier {
 
-	private static final Logger log = LoggerFactory.getLogger( ProgramNotifier.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

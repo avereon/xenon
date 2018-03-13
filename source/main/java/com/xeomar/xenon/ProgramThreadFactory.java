@@ -3,12 +3,13 @@ package com.xeomar.xenon;
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProgramThreadFactory implements ThreadFactory {
 
-	private static Logger log = LogUtil.get( Program.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static AtomicInteger count = new AtomicInteger();
 

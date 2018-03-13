@@ -1,14 +1,12 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.JavaUtil;
-import com.xeomar.util.OperatingSystem;
-import com.xeomar.util.Parameters;
-import com.xeomar.util.TextUtil;
+import com.xeomar.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URI;
@@ -24,7 +22,7 @@ import java.util.Map;
  */
 public class RestartShutdownHook extends Thread {
 
-	private static final Logger log = LoggerFactory.getLogger( RestartShutdownHook.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private volatile ProcessBuilder builder;
 

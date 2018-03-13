@@ -11,6 +11,7 @@ import com.xeomar.xenon.resource.event.*;
 import org.slf4j.Logger;
 
 import javax.swing.undo.UndoManager;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class Resource extends Node implements Configurable {
 
 	//	private static final String UNDO_MANAGER = "resource.undo.manager";
 
-	private static Logger log = LogUtil.get( Resource.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	// Name is not stored in the node data, it is derived
 	private String name;

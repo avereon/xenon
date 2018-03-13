@@ -1,5 +1,6 @@
 package com.xeomar.xenon.util;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ActionProxy;
 import com.xeomar.xenon.Program;
 import javafx.scene.control.Button;
@@ -15,9 +16,11 @@ import javafx.scene.layout.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 public class ActionUtil {
 
-	private static Logger log = LoggerFactory.getLogger( ActionUtil.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 

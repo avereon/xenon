@@ -25,8 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TaskTool extends ProgramTool {
 
-	private static final Logger log = LoggerFactory.getLogger( TaskTool.class );
-
 	private TaskWatcher taskWatcher;
 
 	private VBox taskPanes;

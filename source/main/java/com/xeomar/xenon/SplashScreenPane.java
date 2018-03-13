@@ -11,13 +11,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
+
 public class SplashScreenPane extends Pane {
 
 	private static final int WIDTH = 320;
 
 	private static final int HEIGHT = 180;
 
-	private static final Logger log = LogUtil.get( SplashScreenPane.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private String title;
 

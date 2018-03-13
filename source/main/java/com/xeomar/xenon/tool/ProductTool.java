@@ -5,6 +5,7 @@ import com.xeomar.product.ProductCardComparator;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.DateUtil;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.*;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramProductType;
@@ -33,12 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbee.javafx.scene.layout.MigPane;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ProductTool extends GuidedTool {
 
-	private static final Logger log = LoggerFactory.getLogger( ProductTool.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final int ICON_SIZE = 48;
 

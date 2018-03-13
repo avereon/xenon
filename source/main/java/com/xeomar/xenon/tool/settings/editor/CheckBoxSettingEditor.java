@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 public class CheckBoxSettingEditor extends SettingEditor implements ChangeListener<Boolean> {
 
-	private static Logger log = LoggerFactory.getLogger( CheckBoxSettingEditor.class );
-
 	private CheckBox checkbox;
 
 	public CheckBoxSettingEditor( ProgramProduct product, Setting setting ) {

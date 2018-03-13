@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 /*
@@ -76,8 +77,6 @@ public abstract class ProgramImage extends Canvas {
 	protected static final double RADIANS_PER_DEGREE = Math.PI / 180;
 
 	protected static final double DEGREES_PER_RADIAN = 180 / Math.PI;
-
-	private static Logger log = LogUtil.get( ProgramImage.class );
 
 	private static final double DEFAULT_SIZE = 256;
 

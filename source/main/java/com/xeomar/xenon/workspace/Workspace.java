@@ -2,6 +2,7 @@ package com.xeomar.xenon.workspace;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiManager;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +31,7 @@ import java.util.Set;
  */
 public class Workspace implements Configurable {
 
-	private static final Logger log = LoggerFactory.getLogger( Workspace.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

@@ -16,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +47,7 @@ public class Workpane extends Pane implements Configurable {
 
 	public static final double DEFAULT_EDGE_SIDE = 5;
 
-	private static final Logger log = LogUtil.get( Workpane.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private WorkpaneEdge topWall;
 

@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderStroke;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +41,7 @@ public class UiManager {
 
 	private static final int RESTORE_TOOL_TIMEOUT = 10;
 
-	private static Logger log = LogUtil.get( UiManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

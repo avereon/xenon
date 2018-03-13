@@ -2,8 +2,11 @@ package com.xeomar.xenon;
 
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
+import com.xeomar.util.LogUtil;
+import org.slf4j.Logger;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 
 public abstract class Module implements Product, Comparable<Module> {

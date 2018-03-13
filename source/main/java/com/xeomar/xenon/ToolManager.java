@@ -18,6 +18,7 @@ import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ToolManager implements Controllable<ToolManager> {
 
-	private static Logger log = LogUtil.get( ToolManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

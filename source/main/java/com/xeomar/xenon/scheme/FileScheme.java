@@ -11,13 +11,14 @@ import org.slf4j.Logger;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileScheme extends BaseScheme {
 
-	private static Logger log = LogUtil.get( FileScheme.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	/**
 	 * The key to the cached file object.

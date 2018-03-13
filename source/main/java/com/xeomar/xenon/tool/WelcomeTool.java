@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiManager;
@@ -15,9 +16,11 @@ import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 public class WelcomeTool extends ProgramTool {
 
-	private static final Logger log = LoggerFactory.getLogger( WelcomeTool.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final double PAD = 2 * UiManager.PAD;
 

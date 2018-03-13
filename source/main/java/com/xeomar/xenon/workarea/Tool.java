@@ -17,6 +17,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public abstract class Tool extends Control implements Configurable {
 
-	private static final Logger log = LogUtil.get( Tool.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String ICON_PROPERTY = "icon";
 

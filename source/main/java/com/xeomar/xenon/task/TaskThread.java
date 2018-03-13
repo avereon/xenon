@@ -1,11 +1,14 @@
 package com.xeomar.xenon.task;
 
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 public final class TaskThread extends Thread {
 
-	private Logger log  = LoggerFactory.getLogger( TaskThread.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public TaskThread( ThreadGroup group, Runnable target, String name, long stackSize ) {
 		super( group, target, name, stackSize );

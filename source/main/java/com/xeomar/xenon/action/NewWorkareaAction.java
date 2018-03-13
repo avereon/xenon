@@ -11,11 +11,12 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 public class NewWorkareaAction extends Action<ActionEvent> {
 
-	private static Logger log = LogUtil.get( NewWorkareaAction.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public NewWorkareaAction( Program program ) {
 		super( program );

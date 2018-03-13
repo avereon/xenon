@@ -2,6 +2,7 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.product.ProductCard;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
@@ -15,13 +16,14 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class ProgramUpdateManager extends UpdateManager {
 
-	private static final Logger log = LoggerFactory.getLogger( ProgramUpdateManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

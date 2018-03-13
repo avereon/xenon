@@ -3,11 +3,13 @@ package com.xeomar.xenon.update;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -16,8 +18,6 @@ import java.util.Objects;
 public class MarketCard {
 
 	public static final String CARD = "/META-INF/catalog.card";
-
-	private static final Logger log = LoggerFactory.getLogger( MarketCard.class );
 
 	// TODO Use Lombok when it is supported in Java 9
 

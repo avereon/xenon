@@ -3,6 +3,7 @@ package com.xeomar.xenon.transaction;
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,7 +17,7 @@ public class Txn {
 		AFTER
 	}
 
-	private static final Logger log = LogUtil.get( Txn.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final TxnEventComparator eventComparator = new TxnEventComparator();
 

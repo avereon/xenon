@@ -9,16 +9,16 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private static Logger log = LogUtil.get( WorkspaceManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 
@@ -26,9 +26,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Workspace activeWorkspace;
 
-	private CountDownLatch stopLatch;
-
-	public WorkspaceManager( Program program ) {
+	WorkspaceManager( Program program ) {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
 	}
@@ -44,7 +42,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	@Override
-	public WorkspaceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+	public WorkspaceManager awaitStart( long timeout, TimeUnit unit ) {
 		return this;
 	}
 
@@ -54,7 +52,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	@Override
-	public WorkspaceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+	public WorkspaceManager awaitRestart( long timeout, TimeUnit unit ) {
 		return this;
 	}
 
@@ -62,12 +60,13 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		// If this is called after Platform.exit(), which is usually the case
 		// then the result of closing the stages is unpredictable. Not trying to
 		// close the stages seems to work fine and the program exits normally.
-		// ... but during unit testing, Platform.exit() cannot be called or
-		// it hangs the tests. Furthermore, the test will end up calling
+		//
+		// ... But during unit testing, Platform.exit() cannot be called or
+		// it hangs the tests. Furthermore, the tests will need to call
 		// Program.stop() which, in turn, calls WorkspaceManager.stop(), which
 		// should close the stages or they stay open during the duration of the
 		// testing process.
-
+		//
 		// RESULT Do not close the stages in this method. The unit tests will just
 		// have to close the stages as part of the cleanup.
 
@@ -75,17 +74,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	@Override
-	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		//		if( stopLatch != null ) {
-		//			try {
-		//				System.out.println( "Waiting for workspace manager to stop" );
-		//				stopLatch.await( 10, TimeUnit.SECONDS );
-		//				System.out.println( "Workspace manager stopped" );
-		//			} catch( InterruptedException exception ) {
-		//				log.error( "Timeout waiting for windows to close", exception );
-		//			}
-		//		}
-
+	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) {
+		// This method intentionally does nothing. See explanation in stop() method.
 		return this;
 	}
 
@@ -142,8 +132,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		workspace.getStage().close();
 
 		// TODO Remove the workspace, workpane, workpane components, tool settings, etc.
-		// TODO Remove the workspace from the workspace collection
-		workspaces.remove( workspace );
+
+		removeWorkspace( workspace );
 	}
 
 	void hideWindows() {

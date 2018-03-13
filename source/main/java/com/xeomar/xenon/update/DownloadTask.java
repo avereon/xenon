@@ -1,12 +1,14 @@
 package com.xeomar.xenon.update;
 
 import com.xeomar.product.Product;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Path;
@@ -16,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class DownloadTask extends Task<Download> {
 
-	private static final Logger log = LoggerFactory.getLogger( DownloadTask.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 

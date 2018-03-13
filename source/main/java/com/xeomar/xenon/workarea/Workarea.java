@@ -2,6 +2,7 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.workspace.Workspace;
 import javafx.beans.property.BooleanProperty;
@@ -13,12 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Workarea implements Configurable {
-
-	private static final Logger log = LoggerFactory.getLogger( Workarea.class );
 
 	private StringProperty name = new SimpleStringProperty();
 

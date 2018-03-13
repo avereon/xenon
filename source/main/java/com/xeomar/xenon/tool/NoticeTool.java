@@ -5,6 +5,8 @@ import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.Workpane;
 
+// FIXME Unfinished
+
 public class NoticeTool extends ProgramTool {
 
 	public NoticeTool( ProgramProduct product, Resource resource ) {

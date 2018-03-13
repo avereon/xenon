@@ -41,6 +41,7 @@ import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -60,7 +61,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String PROGRAM_RELEASE_SETTINGS_KEY = "product-release";
 
-	private static Logger log = LogUtil.get( Program.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static long programStartTime = System.currentTimeMillis();
 

@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 public class Guide {
 
-	private static final Logger log = LoggerFactory.getLogger( Guide.class );
-
 	public static final String GUIDE_KEY = GuideTool.class.getName() + ":guide";
 
 	private TreeItem<GuideNode> root;

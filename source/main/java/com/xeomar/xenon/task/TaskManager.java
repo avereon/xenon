@@ -6,6 +6,7 @@ import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +25,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
 
-	private static final Logger log = LogUtil.get( TaskManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ThreadPoolExecutor executor;
 

@@ -18,8 +18,6 @@ import java.util.Set;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private static final Logger log = LoggerFactory.getLogger( GuidedTool.class );
-
 	private GuideListener guideListener = new GuideListener();
 
 	public GuidedTool( ProgramProduct product, Resource resource ) {

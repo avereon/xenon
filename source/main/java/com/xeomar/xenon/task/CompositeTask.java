@@ -17,8 +17,8 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 	private HashSet<Future<?>> futures;
 
 	public CompositeTask() {
-		tasks = new HashSet<Task<?>>();
-		progresses = new HashMap<Task<?>, Long>();
+		tasks = new HashSet<>();
+		progresses = new HashMap<>();
 	}
 
 	public CompositeTask( Collection<? extends Task<?>> tasks ) {
@@ -31,7 +31,7 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 	public void addTask( Task<?> task ) {
 		tasks.add( task );
 		total += task.getMaximum() - task.getMinimum();
-		progresses.put( task, new Long( task.getProgress() ) );
+		progresses.put( task, task.getProgress() );
 		updateProgress();
 	}
 
@@ -43,14 +43,14 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 	}
 
 	public Set<Future<?>> getFutures() {
-		return new HashSet<Future<?>>( futures );
+		return new HashSet<>( futures );
 	}
 
 	@Override
 	public Object call() throws Exception {
 		ExecutorService executor = getTaskManager();
 
-		futures = new HashSet<Future<?>>( tasks.size() );
+		futures = new HashSet<>( tasks.size() );
 
 		// Submit all the tasks for execution.
 		for( Task<?> task : tasks ) {

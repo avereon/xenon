@@ -6,9 +6,11 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.event.ProgramSettingsEvent;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
+
 public class ProgramEventWatcher implements ProductEventListener {
 
-	private static Logger log = LogUtil.get( ProgramEventWatcher.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	@Override
 	public void handleEvent( ProductEvent event ) {

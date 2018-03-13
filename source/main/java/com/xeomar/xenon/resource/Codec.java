@@ -1,5 +1,6 @@
 package com.xeomar.xenon.resource;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public abstract class Codec {
 
-	private static final Logger log = LoggerFactory.getLogger( Codec.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ResourceType type;
 

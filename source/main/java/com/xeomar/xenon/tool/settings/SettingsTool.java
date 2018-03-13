@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool.settings;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
@@ -11,9 +12,11 @@ import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 public class SettingsTool extends GuidedTool {
 
-	private static final Logger log = LoggerFactory.getLogger( SettingsTool.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public SettingsTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );

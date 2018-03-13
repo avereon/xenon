@@ -11,11 +11,12 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 public class RenameWorkareaAction extends Action {
 
-	private static Logger log = LogUtil.get( RenameWorkareaAction.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Workarea workarea;
 

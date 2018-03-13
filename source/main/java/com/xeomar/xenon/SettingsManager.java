@@ -7,6 +7,7 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.settings.StoredSettings;
 import com.xeomar.util.Controllable;
+import com.xeomar.util.LogUtil;
 import com.xeomar.util.PathUtil;
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
@@ -22,13 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final Logger log = LoggerFactory.getLogger( SettingsManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String ROOT = "settings";
 

@@ -3,6 +3,7 @@ package com.xeomar.xenon.tool.settings;
 import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiManager;
 import com.xeomar.xenon.node.NodeEvent;
@@ -18,12 +19,13 @@ import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
 public class SettingsPanel extends VBox {
 
-	private static final Logger log = LoggerFactory.getLogger( SettingsPanel.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	//	private String[] fontNames;
 	//

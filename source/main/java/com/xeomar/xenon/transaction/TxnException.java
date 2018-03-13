@@ -1,5 +1,6 @@
 package com.xeomar.xenon.transaction;
 
+@SuppressWarnings( { "unused", "WeakerAccess" } )
 public class TxnException extends Exception {
 
 	public TxnException() {

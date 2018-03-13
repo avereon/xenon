@@ -4,12 +4,13 @@ import com.xeomar.product.ProductBundle;
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = LogUtil.get( ActionLibrary.class );
+	private static Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Map<String, ActionProxy> actions;
 

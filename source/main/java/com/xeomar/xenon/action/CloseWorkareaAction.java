@@ -15,8 +15,6 @@ import java.util.Optional;
 
 public class CloseWorkareaAction extends Action {
 
-	private static Logger log = LogUtil.get( CloseWorkareaAction.class );
-
 	public CloseWorkareaAction( Program program ) {
 		super( program );
 	}
