@@ -10,15 +10,17 @@ import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class ProgramUpdateManager extends UpdateManager {
@@ -41,13 +43,21 @@ public class ProgramUpdateManager extends UpdateManager {
 		program.getExecutor().submit( new CheckForUpdates( program, interactive ) );
 	}
 
+	/**
+	 *
+	 * @param extras Extra commands to add to the update program when launched.
+	 * @return The number of updates applied or -1 to cancel
+	 * @throws Exception If an error occurs
+	 */
 	@Override
 	public int applyStagedUpdates( String... extras ) throws Exception {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
+		String programName = program.getCard().getName();
+
 		List<String> commandList = new ArrayList<>( Arrays.asList( extras ) );
 		commandList.add( UpdateFlag.TITLE );
-		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", program.getCard().getName() ) );
+		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", programName ) );
 		String[] commands = commandList.toArray( new String[ commandList.size() ] );
 
 		/*
@@ -57,28 +67,37 @@ public class ProgramUpdateManager extends UpdateManager {
 		 */
 		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return super.applyStagedUpdates( commands );
 
-		//		/*
-		//		 * If the ServiceFlag.NOUPDATECHECK is not set, that means the program was
-		//		 * started normally and the user should be asked what to do about the staged
-		//		 * updates. The options are Yes (install the updates), No (do not install
-		//		 * the updates) and Cancel (discard the updates).
-		//		 */
-		//		Icon icon = program.getIconLibrary().getIcon( "program", 64 );
-		//		String title = Bundles.getString( BundleKey.LABELS, "updates" );
-		//		String message = MessageFormat.format( Bundles.getString( BundleKey.MESSAGES, "updates.staged" ), program.getCard().getName() );
-		//
-		//		Object[] options = new Object[3];
-		//		options[0] = ProductUtil.getString( program, BundleKey.LABELS, "yes" );
-		//		options[1] = ProductUtil.getString( program, BundleKey.LABELS, "no" );
-		//		options[2] = ProductUtil.getString( program, BundleKey.LABELS, "updates.discard" );
-		//
-		//		int result = program.notify( title, message, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon, options, null );
-		//
-		//		if( result == JOptionPane.YES_OPTION ) {
-		//			return super.applyStagedUpdates( commands );
-		//		} else if( result == JOptionPane.CANCEL_OPTION ) {
-		//			clearStagedUpdates();
-		//		}
+		/*
+		 * If the ServiceFlag.NOUPDATECHECK is not set, that means the program was
+		 * started normally and the user should be asked what to do about the staged
+		 * updates. The options are Yes (install the updates), No (do not install
+		 * the updates) and Discard (discard the updates).
+		 */
+		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-staged-header", programName );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-staged-message" );
+
+		ButtonType discard = new ButtonType( program.getResourceBundle().getString( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
+		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, discard, ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+		alert.setGraphic( program.getIconLibrary().getIcon( "update", 64 ) );
+		alert.setTitle( title );
+		alert.setHeaderText( header );
+
+		// Get the dialog window and set the icons
+		Stage stage = (Stage)alert.getDialogPane().getScene().getWindow();
+		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
+
+		Optional<ButtonType> result = DialogUtil.showAndWait( null, alert );
+
+		if( result.isPresent() ) {
+			if( result.get() == ButtonType.YES ) {
+				return super.applyStagedUpdates( commands );
+			} else if( result.get() == ButtonType.CANCEL ) {
+				return -1;
+			} else if( result.get() == discard ) {
+				clearStagedUpdates();
+			}
+		}
 
 		return 0;
 	}

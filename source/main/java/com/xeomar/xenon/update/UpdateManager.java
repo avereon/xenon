@@ -742,35 +742,36 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return internal != null && internal.getRelease().equals( card.getRelease() );
 	}
 
-	//	/**
-	//	 * Apply updates. If updates are found then the method returns the number of
-	//	 * updates applied.
-	//	 *
-	//	 * @return The number of updates applied.
-	//	 */
-	//	public final int updateProduct() {
-	//		if( service.getHomeFolder() == null ) {
-	//			Log.write( Log.WARN, "Program not executed from updatable location." );
-	//			return 0;
-	//		}
-	//
-	//		Log.write( Log.DEBUG, "Checking for staged updates..." );
-	//
-	//		// If updates are staged, apply them.
-	//		int result = 0;
-	//		int updateCount = getStagedUpdateCount();
-	//		if( updateCount > 0 ) {
-	//			Log.write( "Staged updates detected: ", updateCount );
-	//			try {
-	//				result = applyStagedUpdates();
-	//			} catch( Exception exception ) {
-	//				Log.write( exception );
-	//			}
-	//		} else {
-	//			Log.write( Log.TRACE, "No staged updates detected." );
-	//		}
-	//		return result;
-	//	}
+	/**
+	 * Apply updates. If updates are found then the method returns the number of
+	 * updates applied.
+	 *
+	 * @return The number of updates applied.
+	 */
+	public final int updateProduct() {
+		if( program.getHomeFolder() == null ) {
+			log.warn( "Program not executed from updatable location." );
+			return 0;
+		}
+
+		log.trace( "Checking for staged updates..." );
+
+		// If updates are staged, apply them.
+		int result = 0;
+		int updateCount = getStagedUpdateCount();
+		if( updateCount > 0 ) {
+			log.info( "Staged updates detected: {}", updateCount );
+			try {
+				result = applyStagedUpdates();
+			} catch( Exception exception ) {
+				log.warn("Failed to apply staged updates", exception );
+			}
+		} else {
+			log.debug( "No staged updates detected." );
+		}
+		return result;
+	}
+
 
 	/**
 	 * Launch the update program to apply the staged updates. This method is
@@ -783,9 +784,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @throws Exception
 	 */
 	public int applyStagedUpdates( String... extras ) throws Exception {
+		log.info( "Update manager enabled: " + isEnabled() );
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
-		log.trace( "Starting update process..." );
+		log.info( "Starting update process..." );
 
 		// Copy the updater to a temporary location.
 		Path updaterSource = updater;
@@ -798,7 +800,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
 
 		// Register a shutdown hook to start the updater.
-		// TODO Register update shutdown hook and finish implementation
+		// NEXT Register update shutdown hook and finish implementation
 		//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
 		//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
 		//		log.trace( "Update shutdown hook registered." );
@@ -1037,7 +1039,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	private void loadCatalogs() {
-		// NOTE The TypeReference must have the parameterized type in it, regardless of what IntelliJ IDEA says
+		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		catalogs = settings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
 	}
 
@@ -1046,7 +1048,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	private void loadUpdates() {
-		// NOTE The TypeReference must have the parameterized type in it, regardless of what IntelliJ IDEA says
+		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		updates = settings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
