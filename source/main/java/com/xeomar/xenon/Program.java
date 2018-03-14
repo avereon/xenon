@@ -170,6 +170,9 @@ public class Program extends Application implements ProgramProduct {
 		LogUtil.configureLogging( this, getProgramParameters().get( ProgramFlag.LOG_LEVEL ) );
 		time( "configure-logging" );
 
+		// Configure home folder
+		configureHome( parameters );
+
 		// Create the product bundle
 		productBundle = new ProductBundle( getClass().getClassLoader() );
 
@@ -312,9 +315,9 @@ public class Program extends Application implements ProgramProduct {
 		if( parameters == null ) {
 			Parameters fxParameters = getParameters();
 			if( fxParameters == null ) {
-				configureHome( parameters = com.xeomar.util.Parameters.create() );
+				parameters = com.xeomar.util.Parameters.create();
 			} else {
-				configureHome( parameters = com.xeomar.util.Parameters.parse( fxParameters.getRaw() ) );
+				parameters = com.xeomar.util.Parameters.parse( fxParameters.getRaw() );
 			}
 		}
 		return parameters;
@@ -414,7 +417,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
 	/**
@@ -470,8 +473,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private boolean processStagedUpdates() {
 		int result = updateManager.updateProduct();
-		if( result < 0 ) requestExit( true );
-		return result < 0;
+		if( result != 0 ) requestExit( true );
+		return result != 0;
 	}
 
 	/**
@@ -721,7 +724,8 @@ public class Program extends Application implements ProgramProduct {
 
 				// Copy the updater library.
 				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "../updater/target/updater-" + card.getRelease().getVersion() + ".jar" );
-				Path updaterTarget = home.resolve( "updater.jar" );
+				if( !Files.exists( updaterSource ) ) log.warn( "Development updater not found: {}", updaterSource );
+				Path updaterTarget = home.resolve( UpdateManager.UPDATER_JAR_NAME );
 				FileUtil.copy( updaterSource, updaterTarget );
 				log.debug( "Updater copied: " + updaterSource );
 			}
