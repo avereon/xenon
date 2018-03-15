@@ -83,7 +83,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private IconLibrary iconLibrary;
 
-	private ProductBundle productBundle;
+	private ProductBundle programResourceBundle;
 
 	private ActionLibrary actionLibrary;
 
@@ -162,44 +162,57 @@ public class Program extends Application implements ProgramProduct {
 		card = new ProductCard();
 		time( "card" );
 
+		// Initialize the program parameters
+		parameters = initProgramParameters();
+		time( "parameters" );
+
 		// Print the program header
-		printHeader( card );
+		printHeader( card, parameters );
 		time( "print-header" );
 
 		// Configure logging
-		LogUtil.configureLogging( this, getProgramParameters().get( ProgramFlag.LOG_LEVEL ) );
+		LogUtil.configureLogging( this, parameters.get( ProgramFlag.LOG_LEVEL ) );
 		time( "configure-logging" );
 
 		// Configure home folder
 		configureHome( parameters );
+		time( "configure-home" );
 
-		// Create the product bundle
-		productBundle = new ProductBundle( getClass().getClassLoader() );
+		// Create the product resource bundle
+		programResourceBundle = new ProductBundle( getClass().getClassLoader() );
+		time( "resource-bundle" );
 
-		// Create the program event watcher, depends on logging
-		addEventListener( watcher = new ProgramEventWatcher() );
-
-		// Fire the program starting event, depends on the event watcher
-		fireEvent( new ProgramStartingEvent( this ) );
-		time( "program-start-event" );
-
-		// Determine the program exec mode
+		// Determine the program exec mode, depends on program parameters
 		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
-		// Create the settings manager before getting the program settings
-		settingsManager = new SettingsManager( this ).start();
-
-		// Get default settings map
+		// Load the default settings values
 		Properties properties = new Properties();
 		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
-		Map<String, Object> values = new HashMap<>();
-		properties.forEach( ( k, v ) -> values.put( (String)k, v ) );
+		Map<String, Object> defaultSettingsValues = new HashMap<>();
+		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
-		// Get the program settings after the settings manager and before the task manager
+		// Create the settings manager, depends on default settings values
+		settingsManager = new SettingsManager( this ).start();
+
+		// Create the program settings, depends on settings manager
 		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
-		programSettings.setDefaultValues( values );
+		programSettings.setDefaultValues( defaultSettingsValues );
 		time( "settings" );
+
+		// Check for the VERSION CL parameter, depends on program settings
+		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
+			printVersion( card );
+			requestExit( true );
+			return;
+		}
+
+		// Check for the HELP CL parameter, depends on program settings
+		if( getProgramParameters().isSet( ProgramFlag.HELP ) ) {
+			printHelp( getProgramParameters().get( ProgramFlag.HELP ) );
+			requestExit( true );
+			return;
+		}
 
 		// Run the peer check before processing commands in case there is a peer already
 		if( peerCheck() ) return;
@@ -243,6 +256,13 @@ public class Program extends Application implements ProgramProduct {
 		if( stage.getStyle() == StageStyle.DECORATED ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
+
+		// Create the program event watcher, depends on logging
+		addEventListener( watcher = new ProgramEventWatcher() );
+
+		// Fire the program starting event, depends on the event watcher
+		fireEvent( new ProgramStartingEvent( this ) );
+		time( "program-start-event" );
 
 		// Submit the startup task
 		taskManager.submit( new Startup() );
@@ -312,14 +332,6 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public com.xeomar.util.Parameters getProgramParameters() {
-		if( parameters == null ) {
-			Parameters fxParameters = getParameters();
-			if( fxParameters == null ) {
-				parameters = com.xeomar.util.Parameters.create();
-			} else {
-				parameters = com.xeomar.util.Parameters.parse( fxParameters.getRaw() );
-			}
-		}
 		return parameters;
 	}
 
@@ -353,7 +365,7 @@ public class Program extends Application implements ProgramProduct {
 
 	@Override
 	public ProductBundle getResourceBundle() {
-		return productBundle;
+		return programResourceBundle;
 	}
 
 	public final long getStartTime() {
@@ -421,6 +433,25 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
+	 * Initialize the program parameters by converting the FX parameters object
+	 * into a program parameters object.
+	 *
+	 * @return The program parameters object
+	 */
+	private com.xeomar.util.Parameters initProgramParameters() {
+		com.xeomar.util.Parameters parameters;
+
+		Parameters fxParameters = getParameters();
+		if( fxParameters == null ) {
+			parameters = com.xeomar.util.Parameters.create();
+		} else {
+			parameters = com.xeomar.util.Parameters.parse( fxParameters.getRaw() );
+		}
+
+		return parameters;
+	}
+
+	/**
 	 * Check for another instance of the program is running after getting the
 	 * settings but before the splash screen is shown. The fastest way to check
 	 * is to try and bind to the port defined in the settings. The OS will
@@ -452,14 +483,8 @@ public class Program extends Application implements ProgramProduct {
 	boolean processCommands( com.xeomar.util.Parameters parameters ) {
 		if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			return true;
-		} else if( parameters.isSet( ProgramFlag.VERSION ) ) {
-			requestExit( true );
-			return true;
-		} else if( parameters.isSet( ProgramFlag.HELP ) ) {
-			printHelp( parameters.get( ProgramFlag.HELP ) );
-			requestExit( true );
-			return true;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			// TODO Status may not need to go to the host
 			printStatus();
 			requestExit( true );
 			return true;
@@ -516,18 +541,33 @@ public class Program extends Application implements ProgramProduct {
 			while( (line = reader.readLine()) != null ) {
 				System.out.println( line );
 			}
-			System.out.println();
 		} catch( IOException exception ) {
 			// Intentionally ignore exception
 		}
 	}
 
-	private void printHeader( ProductCard metadata ) {
+	private void printHeader( ProductCard card, com.xeomar.util.Parameters parameters ) {
 		ExecMode execMode = getExecMode();
 		if( execMode == ExecMode.TEST ) return;
+
+		boolean fullVersion = parameters.isSet( ProgramFlag.VERSION );
+
+		String versionString = card.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]");
+		String releaseString = versionString + " " + card.getRelease().getTimestampString();
+
 		printAsciiArtTitle();
-		System.out.println( metadata.getName() + " " + metadata.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]") );
+		System.out.println( card.getName() + " " + releaseString );
 		//System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
+		System.out.println();
+	}
+
+	private void printVersion( ProductCard card ) {
+		System.out.println( card.getName() + " home=" + getHomeFolder() );
+		System.out.println( card.getName() + " data=" + getDataFolder() );
+		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
+		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
+		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
+		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
 	}
 
 	private void printStatus() {
@@ -567,7 +607,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private void doStartupTasks() throws Exception {
 		// Create the action library
-		actionLibrary = new ActionLibrary( productBundle );
+		actionLibrary = new ActionLibrary( programResourceBundle );
 		registerActionHandlers();
 
 		// Create the UI factory
