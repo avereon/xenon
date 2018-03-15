@@ -756,12 +756,13 @@ public class Program extends Application implements ProgramProduct {
 			}
 
 			// Check the execmode flag to detect when running in development
-			if( home == null && parameters.isSet( ProgramFlag.EXECMODE ) ) {
+			if( home == null && getExecMode() == ExecMode.DEV ) {
 				home = Paths.get( System.getProperty( "user.dir" ), "target/install" );
 				Files.createDirectories( home );
 
 				// Copy the updater library.
-				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "../updater/target/updater-" + card.getRelease().getVersion() + ".jar" );
+				// NEXT Continue to figure out how to handle the updater in development
+				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "/target/pack/program/lib/annex.jar" );
 				if( !Files.exists( updaterSource ) ) log.warn( "Development updater not found: {}", updaterSource );
 				Path updaterTarget = home.resolve( UpdateManager.UPDATER_JAR_NAME );
 				FileUtil.copy( updaterSource, updaterTarget );
