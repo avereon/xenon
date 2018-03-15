@@ -166,17 +166,17 @@ public class Program extends Application implements ProgramProduct {
 		parameters = initProgramParameters();
 		time( "parameters" );
 
-		// Configure logging
+		// Print the program header, depends on parameters
+		printHeader( card, parameters );
+		time( "print-header" );
+
+		// Configure logging, depends on parameters
 		LogUtil.configureLogging( this, parameters );
 		time( "configure-logging" );
 
-		// Configure home folder
+		// Configure home folder, depends on logging
 		configureHome( parameters );
 		time( "configure-home" );
-
-		// Print the program header
-		printHeader( card, parameters );
-		time( "print-header" );
 
 		// Create the product resource bundle
 		programResourceBundle = new ProductBundle( getClass().getClassLoader() );
