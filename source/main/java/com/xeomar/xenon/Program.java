@@ -550,15 +550,13 @@ public class Program extends Application implements ProgramProduct {
 		ExecMode execMode = getExecMode();
 		if( execMode == ExecMode.TEST ) return;
 
-		boolean fullVersion = parameters.isSet( ProgramFlag.VERSION );
-
+		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
 		String versionString = card.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]");
 		String releaseString = versionString + " " + card.getRelease().getTimestampString();
 
 		printAsciiArtTitle();
-		System.out.println( card.getName() + " " + releaseString );
-		//System.err.println( "Java " + System.getProperty( "java.runtime.version" ) );
 		System.out.println();
+		System.out.println( card.getName() + " " + (versionParameterSet ? releaseString : versionString) );
 	}
 
 	private void printVersion( ProductCard card ) {
