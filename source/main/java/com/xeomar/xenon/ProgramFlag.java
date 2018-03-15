@@ -1,6 +1,8 @@
 package com.xeomar.xenon;
 
-public interface ProgramFlag {
+import com.xeomar.util.LogFlag;
+
+public interface ProgramFlag extends LogFlag {
 
 	String EXECMODE = "execmode";
 
