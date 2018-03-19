@@ -30,6 +30,7 @@ import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
+import com.xeomar.xenon.workspace.Workspace;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -439,6 +440,9 @@ public class Program extends Application implements ProgramProduct {
 	 * @return The program parameters object
 	 */
 	private com.xeomar.util.Parameters initProgramParameters() {
+		// The parameters may have been set in the constructor
+		if( parameters != null ) return parameters;
+
 		com.xeomar.util.Parameters parameters;
 
 		Parameters fxParameters = getParameters();
@@ -586,7 +590,7 @@ public class Program extends Application implements ProgramProduct {
 	public ExecMode getExecMode() {
 		if( execMode != null ) return execMode;
 
-		String execModeParameter = getProgramParameters().get( ProgramFlag.EXECMODE );
+		String execModeParameter = parameters.get( ProgramFlag.EXECMODE );
 		if( execModeParameter != null ) {
 			try {
 				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );
