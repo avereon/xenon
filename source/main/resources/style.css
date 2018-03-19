@@ -52,6 +52,11 @@
 	-fx-background-color: -ex-background-tabs
 }
 
+/* Workspace */
+.workspace {
+	-fx-background-color: gray;
+}
+
 /* Tools */
 .tool {
 	-fx-background-color: -ex-background-text

@@ -170,6 +170,7 @@ public class Workspace implements Configurable {
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
+		workpaneContainer.getStyleClass().add( "workspace" );
 
 		// FIXME The following background image is for development purposes.
 		// TODO Remove the development background image
