@@ -2,7 +2,7 @@ package com.xeomar.xenon.tool.task;
 
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskEvent;
@@ -16,8 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.Map;
@@ -45,7 +43,7 @@ public class TaskTool extends ProgramTool {
 		taskPanes = new VBox();
 
 		BorderPane layoutPane = new BorderPane();
-		layoutPane.setPadding( new Insets( UiManager.PAD ) );
+		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
 		//layoutPane.setTop( summaryProgress );
 		layoutPane.setCenter( taskPanes );
 		getChildren().add( layoutPane );

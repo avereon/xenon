@@ -5,7 +5,7 @@ import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.xenon.ProgramSettings;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Node;
@@ -2039,7 +2039,7 @@ public class Workpane extends Pane implements Configurable {
 		if( paneSettings == null ) return;
 
 		Settings settings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
-		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+		settings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
 		edge.setSettings( settings );
 	}
 
@@ -2048,7 +2048,7 @@ public class Workpane extends Pane implements Configurable {
 		if( paneSettings == null ) return;
 
 		Settings settings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
-		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+		settings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
 		view.setSettings( settings );
 	}
 

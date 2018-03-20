@@ -31,7 +31,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
@@ -83,7 +82,7 @@ public class ProductTool extends GuidedTool {
 		checkInfo = new UpdateCheckInformationPane( program );
 
 		layoutPane = new BorderPane();
-		layoutPane.setPadding( new Insets( UiManager.PAD ) );
+		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
 		layoutPane.setCenter( installedPage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
@@ -244,7 +243,7 @@ public class ProductTool extends GuidedTool {
 			title = new Label( "" );
 			title.setId( "tool-product-page-title" );
 
-			buttonBox = new HBox( UiManager.PAD );
+			buttonBox = new HBox( UiFactory.PAD );
 
 			BorderPane header = new BorderPane();
 			header.prefWidthProperty().bind( this.widthProperty() );

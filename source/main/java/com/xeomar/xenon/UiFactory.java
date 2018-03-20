@@ -23,7 +23,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class UiManager {
+public class UiFactory {
 
 	public static final double DEFAULT_WIDTH = 960;
 
@@ -65,7 +65,7 @@ public class UiManager {
 
 	private Condition startedCondition = restoreLock.newCondition();
 
-	public UiManager( Program program ) {
+	public UiFactory( Program program ) {
 		this.program = program;
 	}
 

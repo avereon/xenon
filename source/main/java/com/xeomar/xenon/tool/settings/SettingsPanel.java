@@ -5,7 +5,7 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.product.Product;
@@ -17,7 +17,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
@@ -105,8 +104,8 @@ public class SettingsPanel extends VBox {
 
 	private Pane createSettingsPane( Product product, SettingsPage page, SettingGroup group ) {
 		GridPane pane = new GridPane();
-		pane.setHgap( UiManager.PAD );
-		pane.setVgap( UiManager.PAD );
+		pane.setHgap( UiFactory.PAD );
+		pane.setVgap( UiFactory.PAD );
 		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		int row = 0;

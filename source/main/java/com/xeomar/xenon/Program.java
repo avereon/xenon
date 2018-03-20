@@ -30,7 +30,6 @@ import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
-import com.xeomar.xenon.workspace.Workspace;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -613,11 +612,11 @@ public class Program extends Application implements ProgramProduct {
 		registerActionHandlers();
 
 		// Create the UI factory
-		UiManager uiManager = new UiManager( Program.this );
+		UiFactory uiFactory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
 		int managerCount = 4;
-		int steps = managerCount + uiManager.getToolCount();
+		int steps = managerCount + uiFactory.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
@@ -654,8 +653,8 @@ public class Program extends Application implements ProgramProduct {
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiManager.restoreUi( splashScreen ) );
-		uiManager.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> uiFactory.restoreUi( splashScreen ) );
+		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
 		// Finish the splash screen

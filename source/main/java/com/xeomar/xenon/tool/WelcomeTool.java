@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.Workpane;
@@ -14,7 +14,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
@@ -22,7 +21,7 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private static final double PAD = 2 * UiManager.PAD;
+	private static final double PAD = 2 * UiFactory.PAD;
 
 	private static final double ICON_SIZE = 64;
 

@@ -67,7 +67,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
 		WaitForAsyncUtils.waitForFxEvents();
 
-		// Now add the workpane watcher
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 	}
 

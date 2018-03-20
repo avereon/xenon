@@ -25,10 +25,10 @@ public class ActionUtil {
 	public static final String SHORTCUT_SEPARATOR = "-";
 
 	public static Menu createMenu( Program program, String id ) {
-		return createMenu( program.getActionLibrary().getAction( id ) );
+		return createMenu( program, program.getActionLibrary().getAction( id ) );
 	}
 
-	public static Menu createMenu( ActionProxy action ) {
+	public static Menu createMenu( Program program, ActionProxy action ) {
 		Menu item = new Menu();
 
 		item.setId( "menu-" + action.getId() );
@@ -37,7 +37,8 @@ public class ActionUtil {
 		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
+		// NEXT *MEMORY LEAK* Adding this listener is part of the cause of the memory leak
+		//action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
 	}
@@ -70,8 +71,9 @@ public class ActionUtil {
 		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
-		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
+		// NEXT *MEMORY LEAK* Adding this listener is part of the cause of the memory leak
+		//action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
+		//action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
 	}
@@ -87,7 +89,8 @@ public class ActionUtil {
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
-		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
+		// NEXT *MEMORY LEAK* Adding this listener is part of the cause of the memory leak
+		//action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 
 		return button;
 	}

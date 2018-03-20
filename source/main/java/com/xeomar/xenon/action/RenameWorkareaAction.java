@@ -3,7 +3,7 @@ package com.xeomar.xenon.action;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.event.Event;
@@ -46,7 +46,6 @@ public class RenameWorkareaAction extends Action {
 	}
 
 	private void renameWorkarea( String name ) {
-		UiManager uiManager = new UiManager( getProgram() );
 		try {
 			workarea.setName( name );
 		} catch( Exception exception ) {

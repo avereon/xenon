@@ -151,7 +151,7 @@
 				<configuration>
 					<runOrder>alphabetical</runOrder>
 					<argLine>
-						-Xmx2g
+						-Xmx256m
 						--add-opens=java.base/java.util=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
@@ -163,7 +163,7 @@
 						<prism.text>t2k</prism.text>
 						<testfx.robot>glass</testfx.robot>
 						<testfx.headless>true</testfx.headless>
-						<testfx.setup.timeout>1000</testfx.setup.timeout>
+						<testfx.setup.timeout>2000</testfx.setup.timeout>
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>

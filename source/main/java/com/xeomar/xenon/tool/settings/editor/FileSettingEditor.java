@@ -2,7 +2,7 @@ package com.xeomar.xenon.tool.settings.editor;
 
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
@@ -56,7 +56,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		// Add the components
 		GridPane buttonBox = new GridPane();
 		GridPane.setHgrow( field, Priority.ALWAYS );
-		buttonBox.setHgap( UiManager.PAD );
+		buttonBox.setHgap( UiFactory.PAD );
 		buttonBox.addRow( 0, field, button );
 
 		pane.addRow( row, label, buttonBox );

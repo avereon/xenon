@@ -5,7 +5,7 @@ import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.workarea.Workarea;
@@ -18,7 +18,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -166,7 +165,7 @@ public class Workspace implements Configurable {
 
 		// STATUS BAR
 		statusbar = new HBox();
-		statusbar.getChildren().addAll( new Label( "Status Bar"));
+		statusbar.getChildren().addAll( new Label( "Status Bar" ) );
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
@@ -174,9 +173,9 @@ public class Workspace implements Configurable {
 
 		// FIXME The following background image is for development purposes.
 		// TODO Remove the development background image
-		//Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
-		//BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
-		//workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
+		Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
+		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
+		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
 		VBox bars = new VBox();
 		bars.getChildren().addAll( menubar, toolbar );
@@ -276,8 +275,8 @@ public class Workspace implements Configurable {
 
 		Double x = settings.get( "x", Double.class, null );
 		Double y = settings.get( "y", Double.class, null );
-		Double w = settings.get( "w", Double.class, UiManager.DEFAULT_WIDTH );
-		Double h = settings.get( "h", Double.class, UiManager.DEFAULT_HEIGHT );
+		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
+		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
 
 		// Due to differences in how FX handles stage size (width and height) on
 		// different operating systems, the width and height from the scene, not the
