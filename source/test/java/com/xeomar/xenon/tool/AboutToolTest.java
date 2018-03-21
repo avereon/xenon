@@ -1,16 +1,20 @@
 package com.xeomar.xenon.tool;
 
 import com.xeomar.xenon.FxProgramTestCase;
+import com.xeomar.xenon.workarea.Workpane;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith( Parameterized.class )
 public class AboutToolTest extends FxProgramTestCase {
 
 	@Parameterized.Parameters
 	public static Object[][] data() {
-		return new Object[50][0];
+		return new Object[5][0];
 	}
 
 //	@Test
@@ -23,10 +27,10 @@ public class AboutToolTest extends FxProgramTestCase {
 
 	@Test
 	public void testOpenTool() throws Exception {
-//		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-//		assertThat( pane.getTools().size(), is( 0 ) );
-//
-//		clickOn( "#menu-help" );
+		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		assertThat( pane.getTools().size(), is( 0 ) );
+
+		clickOn( "#menu-help" );
 //		clickOn( "#menuitem-about" );
 //		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 //		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
