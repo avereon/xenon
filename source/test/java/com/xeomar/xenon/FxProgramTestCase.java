@@ -28,7 +28,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	protected ProductCard metadata;
 
 	private void printMemoryUse() {
-		Runtime.getRuntime().gc();
+		System.gc();
 		Thread.yield();
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
