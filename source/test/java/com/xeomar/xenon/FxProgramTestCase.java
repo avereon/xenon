@@ -27,13 +27,13 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	protected ProductCard metadata;
 
-	private void printMemoryUse() {
+	private void printMemoryUse( String prefix ) {
 		System.gc();
 		Thread.yield();
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		System.out.println( String.format( "Memory: %s / %s / %s", FileUtil.getHumanBinSize(used), FileUtil.getHumanBinSize(total), FileUtil.getHumanBinSize( max ) ) );
+		System.out.println( String.format( "%s memory: %s / %s / %s", prefix, FileUtil.getHumanBinSize(used), FileUtil.getHumanBinSize(total), FileUtil.getHumanBinSize( max ) ) );
 	}
 
 
@@ -68,6 +68,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		WaitForAsyncUtils.waitForFxEvents();
 
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
+
+		printMemoryUse( "Startup");
 	}
 
 	/**
@@ -81,7 +83,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
 
-		printMemoryUse();
+		printMemoryUse( "Cleanup");
 	}
 
 	@Override

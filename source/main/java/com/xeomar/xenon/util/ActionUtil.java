@@ -36,8 +36,8 @@ public class ActionUtil {
 		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		// NEXT *MEMORY LEAK* Adding this listener is part of the cause of the memory leak
-		//action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
+		// NEXT *MEMORY LEAK* Adding these listeners is part of the cause of the memory leak
+		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
 	}
@@ -63,16 +63,16 @@ public class ActionUtil {
 		}
 
 		item.setId( "menuitem-" + action.getId() );
-//		item.setOnAction( action );
-//		item.setMnemonicParsing( true );
-//		item.setDisable( !action.isEnabled() );
-//		item.setText( action.getMnemonicName() );
-//		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
-//		item.setAccelerator( parseShortcut( action.getShortcut() ) );
+		item.setOnAction( action );
+		item.setMnemonicParsing( true );
+		item.setDisable( !action.isEnabled() );
+		item.setText( action.getMnemonicName() );
+		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		// NEXT *MEMORY LEAK* Adding this listener is part of the cause of the memory leak
-		//action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
-		//action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
+		// NEXT *MEMORY LEAK* Adding these listeners is part of the cause of the memory leak
+		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
+		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
 	}
@@ -88,8 +88,8 @@ public class ActionUtil {
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
-		// NEXT *MEMORY LEAK* Adding this listener is part of the cause of the memory leak
-		//action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
+		// NEXT *MEMORY LEAK* Adding these listeners is part of the cause of the memory leak
+		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 
 		return button;
 	}

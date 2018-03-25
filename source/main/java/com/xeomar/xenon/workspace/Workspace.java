@@ -107,17 +107,14 @@ public class Workspace implements Configurable {
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
-//		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
-//		help.getItems().add( new SeparatorMenuItem() );
-//		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
-//		help.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
-//		help.getItems().add( new SeparatorMenuItem() );
-//		help.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
-//		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
-		//help.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
-		MenuItem aboutMenuItem = new MenuItem();
-		//aboutMenuItem.setId( "menuitem-about" );
-		help.getItems().add( aboutMenuItem );
+		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
+		help.getItems().add( new SeparatorMenuItem() );
+		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
+		help.getItems().add( new SeparatorMenuItem() );
+		help.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
+		help.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
 
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
