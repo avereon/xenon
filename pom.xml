@@ -163,6 +163,7 @@
 						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
+						<java.awt.headless>true</java.awt.headless>
 						<prism.text>t2k</prism.text>
 						<prism.order>sw</prism.order>
 						<testfx.robot>glass</testfx.robot>
