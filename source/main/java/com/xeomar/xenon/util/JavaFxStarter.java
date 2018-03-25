@@ -9,6 +9,8 @@ public final class JavaFxStarter extends Application {
 
 	private final static Object startLock = new Object();
 
+	private static Throwable throwable;
+
 	private static boolean started;
 
 	public JavaFxStarter() {}
@@ -25,7 +27,7 @@ public final class JavaFxStarter extends Application {
 		}
 	}
 
-	public static void startAndWait( long timeout ) {
+	public static void startAndWait( long timeout ) throws RuntimeException {
 		long limit = System.currentTimeMillis() + timeout;
 
 		synchronized( startLock ) {
@@ -37,10 +39,12 @@ public final class JavaFxStarter extends Application {
 				} catch( IllegalStateException exception ) {
 					// Platform was already started by a different class
 					setStarted();
+				} catch( Throwable throwable ) {
+					JavaFxStarter.throwable = throwable;
 				}
 			} ).start();
 
-			while( !started ) {
+			while( !started && throwable == null ) {
 				try {
 					startLock.wait( timeout );
 				} catch( InterruptedException exception ) {
@@ -50,6 +54,8 @@ public final class JavaFxStarter extends Application {
 					throw new RuntimeException( new TimeoutException( "FX platform start timeout after " + timeout + " ms" ) );
 				}
 			}
+
+			if( throwable != null ) throw new RuntimeException( throwable );
 		}
 	}
 
