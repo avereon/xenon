@@ -6,7 +6,9 @@ import com.xeomar.util.OperatingSystem;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
+import javafx.application.Platform;
 import javafx.stage.Stage;
+import junit.framework.AssertionFailedError;
 import org.junit.After;
 import org.junit.Before;
 import org.testfx.api.FxToolkit;
@@ -19,6 +21,8 @@ import java.nio.file.Path;
 
 public abstract class FxProgramTestCase extends ApplicationTest {
 
+	private final long max = Runtime.getRuntime().maxMemory();
+
 	protected Program program;
 
 	protected ProgramWatcher programWatcher;
@@ -27,15 +31,25 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	protected ProductCard metadata;
 
-	private void printMemoryUse( String prefix ) {
+	private long initialMemoryUse;
+
+	private long getMemoryUse( String prefix ) {
+		WaitForAsyncUtils.waitForFxEvents();
+
 		System.gc();
 		Thread.yield();
-		long max = Runtime.getRuntime().maxMemory();
-		long total = Runtime.getRuntime().totalMemory();
-		long used = total - Runtime.getRuntime().freeMemory();
-		System.out.println( String.format( "%s memory: %s / %s / %s", prefix, FileUtil.getHumanBinSize(used), FileUtil.getHumanBinSize(total), FileUtil.getHumanBinSize( max ) ) );
+		System.gc();
+		Thread.yield();
+
+		long alloc = Runtime.getRuntime().totalMemory();
+		long used = alloc - Runtime.getRuntime().freeMemory();
+		System.out.println( String.format( "%s memory: %s / %s / %s", prefix, FileUtil.getHumanBinSize( used ), FileUtil.getHumanBinSize( alloc ), FileUtil.getHumanBinSize( max ) ) );
+		return used;
 	}
 
+	protected double getAllowedMemoryGrowth() {
+		return 0.1;
+	}
 
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
@@ -49,7 +63,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 			String prefix = ExecMode.TEST.getPrefix();
 			ProductCard metadata = new ProductCard();
 			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-			if( Files.exists(programDataFolder) ) FileUtil.delete( programDataFolder );
+			if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
 		}
@@ -62,14 +76,12 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
 		program.addEventListener( programWatcher = new ProgramWatcher() );
-		metadata = program.getCard();
-
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
-		WaitForAsyncUtils.waitForFxEvents();
+		metadata = program.getCard();
 
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 
-		printMemoryUse( "Startup");
+		initialMemoryUse = getMemoryUse( "Startup" );
 	}
 
 	/**
@@ -83,10 +95,25 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
 
-		printMemoryUse( "Cleanup");
+		long finalMemoryUse = getMemoryUse( "Cleanup" );
+
+		double increase = (double)finalMemoryUse / (double)initialMemoryUse - 1;
+		if( increase > getAllowedMemoryGrowth() ) {
+			String message = String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increase * 100 );
+			throw new AssertionFailedError( message );
+		}
 	}
 
 	@Override
-	public void start( Stage stage ) throws Exception {}
+	public void start( Stage stage ) {}
+
+	protected void closeProgram() {
+		closeProgram( false );
+	}
+
+	protected void closeProgram( boolean force ) {
+		Platform.runLater( () -> program.requestExit( force ) );
+		WaitForAsyncUtils.waitForFxEvents();
+	}
 
 }

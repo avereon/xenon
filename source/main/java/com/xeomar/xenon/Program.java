@@ -320,13 +320,9 @@ public class Program extends Application implements ProgramProduct {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 
-		if( !force && (shutdownKeepAlive || JavaUtil.isTest()) ) {
-			log.debug( "Program keep alive" );
-			workspaceManager.hideWindows();
-		} else {
-			log.debug( "Program exit" );
-			Platform.exit();
-		}
+		workspaceManager.hideWindows();
+
+		if( !TestUtil.isTest() && ( force || !shutdownKeepAlive ) ) Platform.exit();
 
 		return true;
 	}

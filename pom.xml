@@ -156,7 +156,7 @@
 					<reuseForks>false</reuseForks>
 					<runOrder>alphabetical</runOrder>
 					<argLine>
-						-Xmx256m
+						-Xmx128m
 						--add-opens=java.base/java.util=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
@@ -168,7 +168,7 @@
 						<prism.order>sw</prism.order>
 						<testfx.robot>glass</testfx.robot>
 						<testfx.headless>true</testfx.headless>
-						<testfx.setup.timeout>2000</testfx.setup.timeout>
+						<testfx.setup.timeout>5000</testfx.setup.timeout>
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
