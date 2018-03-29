@@ -2,7 +2,6 @@ package com.xeomar.xenon.task;
 
 import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
@@ -206,7 +205,6 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		protected void setException( Throwable throwable ) {
 			task.setState( State.FAILED );
 			super.setException( throwable );
-			log.error( "Error running task", throwable );
 		}
 
 	}
