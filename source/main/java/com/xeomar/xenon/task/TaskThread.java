@@ -20,7 +20,6 @@ public final class TaskThread extends Thread {
 			super.run();
 		} catch( Throwable throwable ) {
 			if( !TestUtil.isTest() ) log.error( "Error running task", throwable );
-			throw throwable;
 		}
 	}
 

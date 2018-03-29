@@ -48,7 +48,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	}
 
 	protected double getAllowedMemoryGrowth() {
-		return 0.1;
+		return 0.15;
 	}
 
 	/**
