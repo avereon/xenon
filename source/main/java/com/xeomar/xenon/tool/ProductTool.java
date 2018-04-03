@@ -801,19 +801,20 @@ public class ProductTool extends GuidedTool {
 	private class UpdateProductMarkets extends Task<Void> {
 
 		@Override
-		public Void call() throws Exception {
+		public Void call() {
 			List<MarketCard> cards = new ArrayList<>( getProgram().getUpdateManager().getCatalogs() );
 			cards.sort( new MarketCardComparator( getProgram(), MarketCardComparator.Field.NAME ) );
 			Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
 			return null;
 		}
+
 	}
 
 	private class RequestProgramRestart implements Runnable {
 
 		@Override
 		public void run() {
-			getProgram().restart( ProgramFlag.NOUPDATECHECK );
+			Platform.runLater( () -> getProgram().restart( ProgramFlag.NOUPDATECHECK ) );
 		}
 
 	}
