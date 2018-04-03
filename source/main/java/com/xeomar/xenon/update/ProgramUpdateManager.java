@@ -356,7 +356,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) program.restart( ProgramFlag.NOUPDATECHECK );
+				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.restart( ProgramFlag.NOUPDATECHECK )  );
 			} );
 		}
 

@@ -813,7 +813,7 @@ public class ProductTool extends GuidedTool {
 
 		@Override
 		public void run() {
-			getProgram().restart( ProgramFlag.NOUPDATECHECK );;
+			getProgram().restart( ProgramFlag.NOUPDATECHECK );
 		}
 
 	}

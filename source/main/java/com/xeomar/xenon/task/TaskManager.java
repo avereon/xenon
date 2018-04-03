@@ -42,22 +42,24 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	private Set<TaskListener> listeners;
 
 	public TaskManager() {
-		queue = new LinkedBlockingQueue<Runnable>();
+		queue = new LinkedBlockingQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		listeners = new CopyOnWriteArraySet<TaskListener>();
+		listeners = new CopyOnWriteArraySet<>();
 	}
 
 	public static void taskThreadCheck() {
-		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		if( !TaskManager.isTaskThread() ) {
+			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
-		String callingClass = stack[ 2 ].getClassName();
-		String callingMethod = stack[ 2 ].getMethodName();
-		String callingFile = stack[ 2 ].getFileName();
-		int callingLine = stack[ 2 ].getLineNumber();
+			String callingClass = stack[ 2 ].getClassName();
+			String callingMethod = stack[ 2 ].getMethodName();
+			String callingFile = stack[ 2 ].getFileName();
+			int callingLine = stack[ 2 ].getLineNumber();
 
-		String caller = callingClass + "." + callingMethod + "(" + callingFile + ":" + callingLine + ")";
+			String caller = callingClass + "." + callingMethod + "(" + callingFile + ":" + callingLine + ")";
 
-		if( !TaskManager.isTaskThread() ) throw new RuntimeException( caller + " not called on task thread" );
+			throw new RuntimeException( caller + " not called on task thread" );
+		}
 	}
 
 	@Override
@@ -263,8 +265,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	}
 
 	private static boolean isTaskThread() {
-		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-		return TaskThread.class.getName().equals( stack[ stack.length - 1 ].getClassName() );
+		return Thread.currentThread() instanceof TaskThread;
 	}
 
 	private void checkRunning() {
@@ -273,21 +274,28 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private class TaskManagerExecutor extends ThreadPoolExecutor {
 
-		public TaskManagerExecutor( int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory ) {
+		TaskManagerExecutor( int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory ) {
 			super( corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory );
 		}
 
-		@SuppressWarnings( "unchecked" )
+		@Override
 		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
 			RunnableFuture<T> future;
 			if( callable instanceof Task ) {
-				Task task = (Task)callable;
-				task.setTaskManager( TaskManager.this );
-				future = task.createFuture( callable );
+				future = ((Task<T>)callable).createFuture( TaskManager.this );
 			} else {
-				future = new FutureTask<T>( callable );
+				future = new FutureTask<>( callable );
 			}
 			return future;
+		}
+
+		@Override
+		protected void afterExecute( Runnable runnable, Throwable throwable ) {
+			try {
+				((FutureTask)runnable).get();
+			} catch( Throwable getThrowable ) {
+				log.error( "Exception executing task", getThrowable );
+			}
 		}
 
 	}

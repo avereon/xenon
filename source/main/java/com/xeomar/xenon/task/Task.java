@@ -148,13 +148,14 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		return manager;
 	}
 
-	void setTaskManager( TaskManager manager ) {
+	private void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
 		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
 	}
 
-	FutureTask<V> createFuture( Callable<V> callable ) {
-		return this.future = new TaskFuture<V>( this );
+	FutureTask<V> createFuture( TaskManager manager ) {
+		setTaskManager( manager );
+		return this.future = new TaskFuture<>( this );
 	}
 
 	private void fireTaskEvent( TaskEvent.Type type ) {
