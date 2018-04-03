@@ -14,12 +14,7 @@ public class WorkpaneWatcher implements WorkpaneListener {
 
 	@Override
 	public synchronized void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
-		try {
-			Thread.sleep( 10 );
-		} catch( InterruptedException e ) {
-			e.printStackTrace();
-		}
-		//System.out.println( "Add event: " + event.toString() );
+		System.out.println( "Add event: " + event.toString() );
 		events.offer( event );
 		notifyAll();
 	}
