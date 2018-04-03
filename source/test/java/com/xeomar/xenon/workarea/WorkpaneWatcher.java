@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WorkpaneWatcher implements WorkpaneListener {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
+	private static final long DEFAULT_WAIT_TIMEOUT = 10000;
 
 	private Queue<WorkpaneEvent> events = new ConcurrentLinkedQueue<>();
 
