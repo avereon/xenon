@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public abstract class FxUtilTest extends FxPlatformTestCase {
+public class FxUtilTest extends FxPlatformTestCase {
 
 	@Test
 	public void testIsChildOfFalse() {
