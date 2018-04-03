@@ -285,16 +285,13 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public void restart( String... commands ) {
-		log.info( "Restart requested..." );
 		// Register a shutdown hook to restart the application.
 		RestartShutdownHook restartShutdownHook = new RestartShutdownHook( this, commands );
 		Runtime.getRuntime().addShutdownHook( restartShutdownHook );
-		log.info( "Shutdown hook added." );
 
 		// Request the program stop.
 		if( !requestExit() ) {
 			Runtime.getRuntime().removeShutdownHook( restartShutdownHook );
-			log.info( "Shutdown hook removed." );
 			return;
 		}
 
@@ -307,7 +304,6 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public boolean requestExit( boolean force ) {
-		log.info( "Exit requested..." );
 		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
 		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
 
@@ -315,13 +311,11 @@ public class Program extends Application implements ProgramProduct {
 
 		// If the user desires, prompt to exit the program
 		if( !force && shutdownVerify ) {
-			log.info( "Notify user... on thread " + Thread.currentThread().getName() );
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 			alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
 			alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
 			alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
 
-			log.info( "Show user notification..." );
 			Stage stage = getWorkspaceManager().getActiveWorkspace().getStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
