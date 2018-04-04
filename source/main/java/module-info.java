@@ -1,4 +1,4 @@
-module xenon {
+module com.xeomar.xenon {
 
 	requires java.logging;
 	requires java.management;
@@ -8,8 +8,12 @@ module xenon {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.xeomar.annex;
-	requires com.xeomar.util;
+	requires com.xeomar.razor;
 	requires jackson.annotations;
 	requires org.slf4j;
+
+	exports com.xeomar.xenon;
+
+	opens com.xeomar.xenon.update;
 
 }

@@ -80,7 +80,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public static final String DEFAULT_CATALOG_FILE_NAME = "catalog.card";
 
-	public static final String DEFAULT_PRODUCT_FILE_NAME = "product.card";
+	public static final String DEFAULT_PRODUCT_FILE_NAME = "META-INF/product.card";
 
 	public static final String PRODUCT_DESCRIPTOR_PATH = "META-INF/" + DEFAULT_PRODUCT_FILE_NAME;
 
@@ -547,7 +547,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 				ProductCard availableCard = new ProductCard();
 				try( InputStream input = task.get().getInputStream() ) {
-					availableCard.updateWith( ProductCard.loadCard( input ), task.getUri() );
+					availableCard.load( input, task.getUri() );
 				} catch( IOException exception ) {
 					log.warn( "Error loading product card: " + task.getUri(), exception );
 					continue;

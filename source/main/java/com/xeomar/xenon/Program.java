@@ -160,7 +160,7 @@ public class Program extends Application implements ProgramProduct {
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product card
-		card = new ProductCard();
+		card = initProductCard();
 		time( "card" );
 
 		// Initialize the program parameters
@@ -180,7 +180,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "configure-home" );
 
 		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( getClass().getClassLoader() );
+		programResourceBundle = new ProductBundle( getClass() );
 		time( "resource-bundle" );
 
 		// Determine the program exec mode, depends on program parameters
@@ -430,6 +430,16 @@ public class Program extends Application implements ProgramProduct {
 		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
+	private ProductCard initProductCard() {
+		ProductCard card = null;
+		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
+			card = this.card = new ProductCard().init( input );
+		} catch( IOException exception ) {
+			exception.printStackTrace( System.err );
+		}
+		return card;
+	}
+
 	/**
 	 * Initialize the program parameters by converting the FX parameters object
 	 * into a program parameters object.
@@ -553,7 +563,8 @@ public class Program extends Application implements ProgramProduct {
 
 		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
 		String versionString = card.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]");
-		String releaseString = versionString + " " + card.getRelease().getTimestampString();
+		//String releaseString = versionString + " " + card.getRelease().getTimestampString();
+		String releaseString = "";
 
 		printAsciiArtTitle();
 		System.out.println();
@@ -618,7 +629,13 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
-		card.updateWith( ProductCard.loadCard(), null );
+		try( InputStream input = getClass().getResourceAsStream( ProductCard.CARD ) ) {
+			this.card.load( input, null );
+		} catch( IOException exception ) {
+			exception.printStackTrace( System.err );
+		}
+
+		//card.updateWith( ProductCard.load(), null );
 		Platform.runLater( () -> splashScreen.update() );
 
 		// Start the resource manager
