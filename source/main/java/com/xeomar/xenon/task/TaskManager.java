@@ -4,6 +4,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
+import com.xeomar.util.TestUtil;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -294,7 +295,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 			try {
 				((FutureTask)runnable).get();
 			} catch( Throwable getThrowable ) {
-				log.error( "Exception executing task", getThrowable );
+				if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
 			}
 		}
 

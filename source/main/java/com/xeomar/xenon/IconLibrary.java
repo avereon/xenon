@@ -89,7 +89,7 @@ public class IconLibrary {
 
 		ProgramImage icon;
 		try {
-			icon = renderer.newInstance();
+			icon = renderer.getConstructor().newInstance();
 		} catch( Exception exception ) {
 			icon = new BrokenIcon();
 		}
