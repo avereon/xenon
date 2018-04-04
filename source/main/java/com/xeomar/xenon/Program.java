@@ -507,7 +507,15 @@ public class Program extends Application implements ProgramProduct {
 		return false;
 	}
 
+	/**
+	 * Process staged updates unless the NOUPDATE flag is set. If there are no
+	 * staged updates then the method returns false. If no updates were processed
+	 * due to user input then the method returns false.
+	 *
+	 * @return True if the program should be restarted, false otherwise.
+	 */
 	private boolean processStagedUpdates() {
+		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
 		int result = updateManager.updateProduct();
 		if( result != 0 ) requestExit( true );
 		return result != 0;

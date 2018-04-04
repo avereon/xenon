@@ -18,6 +18,9 @@ public interface ProgramFlag extends LogFlag {
 
 	String NOUPDATECHECK = "noupdatecheck";
 
+	// FIXME Should this be used in place of NOUPDATECHECK
+	String UPDATE_IN_PROGRESS = "updateinprogress";
+
 	/**
 	 * Print the help information and exit.
 	 */
