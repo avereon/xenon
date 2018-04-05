@@ -10,7 +10,6 @@ module com.xeomar.xenon {
 	requires com.fasterxml.jackson.databind;
 	requires com.xeomar.annex;
 	requires com.xeomar.razor;
-	requires jackson.annotations;
 	requires org.slf4j;
 
 	exports com.xeomar.xenon;
