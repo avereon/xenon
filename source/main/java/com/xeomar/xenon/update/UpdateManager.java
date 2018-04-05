@@ -545,9 +545,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				DownloadTask task = tasks.get( installedCard );
 				if( task == null ) continue;
 
-				ProductCard availableCard = new ProductCard();
+				ProductCard availableCard;
 				try( InputStream input = task.get().getInputStream() ) {
-					availableCard.load( input, task.getUri() );
+					availableCard = new ProductCard().load( input, task.getUri() );
 				} catch( IOException exception ) {
 					log.warn( "Error loading product card: " + task.getUri(), exception );
 					continue;

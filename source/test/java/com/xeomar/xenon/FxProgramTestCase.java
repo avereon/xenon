@@ -61,7 +61,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		// Remove the existing program data folder
 		try {
 			String prefix = ExecMode.TEST.getPrefix();
-			ProductCard metadata = new ProductCard();
+			ProductCard metadata = new ProductCard().init( Program.class );
 			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 			if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
 		} catch( IOException exception ) {

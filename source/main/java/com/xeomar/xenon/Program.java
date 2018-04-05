@@ -157,10 +157,16 @@ public class Program extends Application implements ProgramProduct {
 	public void init() throws Exception {
 		time( "init" );
 
+		String baseName = "bundles/action";
+		Locale locale = Locale.getDefault();
+		java.lang.Module module = getClass().getModule();
+		ResourceBundle resourceBundle = ResourceBundle.getBundle( baseName, locale, module );
+
+
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product card
-		card = initProductCard();
+		card = new ProductCard().init( getClass() );
 		time( "card" );
 
 		// Initialize the program parameters
@@ -430,15 +436,15 @@ public class Program extends Application implements ProgramProduct {
 		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
-	private ProductCard initProductCard() {
-		ProductCard card = null;
-		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
-			card = this.card = new ProductCard().init( input );
-		} catch( IOException exception ) {
-			exception.printStackTrace( System.err );
-		}
-		return card;
-	}
+//	private ProductCard initProductCard() {
+//		ProductCard card = null;
+//		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
+//			card = this.card = new ProductCard().init( input );
+//		} catch( IOException exception ) {
+//			exception.printStackTrace( System.err );
+//		}
+//		return card;
+//	}
 
 	/**
 	 * Initialize the program parameters by converting the FX parameters object
@@ -637,11 +643,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
-		try( InputStream input = getClass().getResourceAsStream( ProductCard.CARD ) ) {
-			this.card.load( input, null );
-		} catch( IOException exception ) {
-			exception.printStackTrace( System.err );
-		}
+		this.card.load( getClass() );
 
 		//card.updateWith( ProductCard.load(), null );
 		Platform.runLater( () -> splashScreen.update() );
