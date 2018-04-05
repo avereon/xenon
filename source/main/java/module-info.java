@@ -1,7 +1,10 @@
+import java.util.spi.ResourceBundleProvider;
+
 module com.xeomar.xenon {
 
 	requires java.logging;
 	requires java.management;
+	requires java.sql; // Wish this weren't required
 	requires javafx.controls;
 	requires javafx.swing;
 	requires commons.io;
@@ -14,6 +17,11 @@ module com.xeomar.xenon {
 
 	exports com.xeomar.xenon;
 
+	opens bundles;
+	opens settings;
+	opens com.xeomar.xenon;
 	opens com.xeomar.xenon.update;
+
+	//provides ResourceBundleProvider with com.xeomar.xenon.ProgramResourceBundleProvider;
 
 }
