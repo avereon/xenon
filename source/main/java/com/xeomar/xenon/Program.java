@@ -180,7 +180,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "configure-home" );
 
 		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( getClass() );
+		programResourceBundle = new ProductBundle( getClass(), "/bundles" );
 		time( "resource-bundle" );
 
 		// Determine the program exec mode, depends on program parameters
