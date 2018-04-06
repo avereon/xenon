@@ -49,8 +49,17 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
+		<!-- Runtime dependencies -->
 		<slf4j.version>1.8.0-beta0</slf4j.version>
+		<miglayout.version>5.1</miglayout.version>
+		<controlsfx.version>9.0.0</controlsfx.version>
+		<undofx.version>2.0.0</undofx.version>
+
+		<!-- Test dependencies -->
 		<testfx.version>4.0.12-alpha</testfx.version>
+		<monocle.version>jdk-9+181</monocle.version>
+
+		<!-- Build dependencies -->
 		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
 	</properties>
 
@@ -83,19 +92,19 @@
 		<dependency>
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
-			<version>5.0</version>
+			<version>${miglayout.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>9.0.0</version>
+			<version>${controlsfx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.fxmisc.undo</groupId>
 			<artifactId>undofx</artifactId>
-			<version>1.3.1</version>
+			<version>${undofx.version}</version>
 		</dependency>
 
 		<dependency>
@@ -120,15 +129,15 @@
 
 		<dependency>
 			<groupId>org.testfx</groupId>
-			<artifactId>openjfx-monocle</artifactId>
-			<version>jdk-9+181</version>
+			<artifactId>testfx-junit</artifactId>
+			<version>${testfx.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.testfx</groupId>
-			<artifactId>testfx-junit</artifactId>
-			<version>${testfx.version}</version>
+			<artifactId>openjfx-monocle</artifactId>
+			<version>${monocle.version}</version>
 			<scope>test</scope>
 		</dependency>
 
