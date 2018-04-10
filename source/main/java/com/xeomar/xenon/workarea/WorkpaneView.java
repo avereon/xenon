@@ -89,6 +89,8 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
 
+		// Tab D&D support: https://bugs.openjdk.java.net/browse/JDK-8092098
+
 		tab.setOnCloseRequest( event -> {
 			event.consume();
 			tool.close();
