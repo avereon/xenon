@@ -54,7 +54,8 @@
 
 /* Workspace */
 .workspace {
-	-fx-background-color: gray;
+	/* Will override the user preference background */
+	/*-fx-background-color: #80a0c0ff;*/
 }
 
 /* Tools */
@@ -63,7 +64,8 @@
 }
 
 .tool .tree-view {
-	-fx-background-color: -ex-background-text;
+	/*-fx-background-color: -ex-background-text;*/
+	-fx-background-color: transparent;
 }
 
 .tool .tree-cell {

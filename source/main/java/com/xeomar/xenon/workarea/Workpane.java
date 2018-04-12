@@ -6,6 +6,7 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.util.Colors;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Node;

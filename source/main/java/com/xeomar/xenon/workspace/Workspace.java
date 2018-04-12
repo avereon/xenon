@@ -8,6 +8,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.util.ActionUtil;
+import com.xeomar.xenon.util.Colors;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
@@ -171,12 +173,6 @@ public class Workspace implements Configurable {
 		workpaneContainer = new StackPane();
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		// FIXME The following background image is for development purposes.
-		// TODO Remove the development background image
-		Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
-		BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
-		workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
-
 		VBox bars = new VBox();
 		bars.getChildren().addAll( menubar, toolbar );
 
@@ -316,6 +312,21 @@ public class Workspace implements Configurable {
 		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
 			if( !stage.isMaximized() ) settings.set( "h", newValue );
 		} );
+
+		// FIXME This is not the correct settings object
+		updateBackgroundFromSettings( settings );
+	}
+
+	private void updateBackgroundFromSettings( Settings settings ) {
+		Color color1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
+
+		// FIXME The following background image is for development purposes.
+		// TODO Remove the development background image
+		//Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
+		//BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
+		//workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
+
+		workpaneContainer.setBackground( new Background( new BackgroundFill( color1,CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 
 	@Override
