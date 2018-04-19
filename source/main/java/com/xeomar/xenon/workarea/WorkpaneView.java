@@ -54,7 +54,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		return settings == null ? null : settings.getName();
 	}
 
-	public TabPane getToolTabPane() {
+	private TabPane getToolTabPane() {
 		return tools;
 	}
 
