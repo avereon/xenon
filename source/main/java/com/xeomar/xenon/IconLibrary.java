@@ -34,6 +34,8 @@ public class IconLibrary {
 		register( "setting", SettingIcon.class );
 		register( "settings", SettingsIcon.class );
 
+		register( "guide", GuideIcon.class );
+
 		register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
 		register( "update", DownloadIcon.class );
