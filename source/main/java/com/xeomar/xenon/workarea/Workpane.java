@@ -1088,7 +1088,7 @@ public class Workpane extends Pane implements Configurable {
 		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
 
 		double edgeSize = getEdgeSize();
-		double edgeHalf = edgeSize / 2;
+		double edgeHalf = 0.5 * edgeSize;
 		double edgeRest = edgeSize - edgeHalf;
 
 		double x1 = view.getEdge( Side.LEFT ).getPosition();
@@ -1119,7 +1119,8 @@ public class Workpane extends Pane implements Configurable {
 
 		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		layoutInArea( view, x, y, w, h, 0, HPos.LEFT, VPos.TOP );
+		// In the end we are still dealing with pixels so cast the bounds to int
+		layoutInArea( view, (int)x, (int)y, (int)w, (int)h, 0, HPos.LEFT, VPos.TOP );
 		view.setVisible( true );
 	}
 
@@ -1168,7 +1169,8 @@ public class Workpane extends Pane implements Configurable {
 
 		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		// In the end we are still dealing with pixels so cast the bounds to int
+		layoutInArea( edge, (int)x, (int)y, (int)w, (int)h, 0, HPos.CENTER, VPos.CENTER );
 		edge.setVisible( true );
 	}
 
