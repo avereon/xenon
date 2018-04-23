@@ -7,24 +7,20 @@ public class GuideIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		beginPath();
-		moveTo( g( 6 ), g( 9 ) );
-		lineTo( g( 6 ), g( 26 ) );
-		lineTo( g( 13 ), g( 26 ) );
-		moveTo( g( 6 ), g( 16 ) );
-		lineTo( g( 13 ), g( 16 ) );
+		moveTo( g( 11 ), g( 9 ) );
+		lineTo( g( 11 ), g( 27 ) );
+		lineTo( g( 17 ), g( 27 ) );
+		moveTo( g( 11 ), g( 15 ) );
+		lineTo( g( 17 ), g( 15 ) );
 		draw();
 
-		fillCenteredOval( g( 6 ), g( 6 ), g( 3 ), g( 3 ) );
-		fillCenteredOval( g( 16 ), g( 16 ), g( 3 ), g( 3 ) );
-		fillCenteredOval( g( 16 ), g( 26 ), g( 3 ), g( 3 ) );
+		fillCenteredOval( g( 11 ), g( 5 ), g( 4 ), g( 4 ) );
+		fillCenteredOval( g( 21 ), g( 15 ), g( 4 ), g( 4 ) );
+		fillCenteredOval( g( 21 ), g( 27 ), g( 4 ), g( 4 ) );
 
-		drawCenteredOval( g( 6 ), g( 6 ), g( 3 ), g( 3 ) );
-		drawCenteredOval( g( 16 ), g( 16 ), g( 3 ), g( 3 ) );
-		drawCenteredOval( g( 16 ), g( 26 ), g( 3 ), g( 3 ) );
-
-		drawLine( g( 12 ), g( 6 ), g( 28 ), g( 6 ) );
-		drawLine( g( 22 ), g( 16 ), g( 28 ), g( 16 ) );
-		drawLine( g( 22 ), g( 26 ), g( 28 ), g( 26 ) );
+		drawCenteredOval( g( 11 ), g( 5 ), g( 4 ), g( 4 ) );
+		drawCenteredOval( g( 21 ), g( 15 ), g( 4 ), g( 4 ) );
+		drawCenteredOval( g( 21 ), g( 27 ), g( 4 ), g( 4 ) );
 	}
 
 	public static void main( String[] commands ) {
