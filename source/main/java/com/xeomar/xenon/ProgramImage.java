@@ -1,8 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.Colors;
-import com.xeomar.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.VPos;
@@ -20,12 +18,10 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 /*

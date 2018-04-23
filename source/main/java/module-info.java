@@ -19,6 +19,4 @@ module com.xeomar.xenon {
 	opens com.xeomar.xenon;
 	opens com.xeomar.xenon.update;
 
-	//provides ResourceBundleProvider with com.xeomar.xenon.ProgramResourceBundleProvider;
-
 }
