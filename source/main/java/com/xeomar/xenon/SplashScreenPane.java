@@ -1,6 +1,9 @@
 package com.xeomar.xenon;
 
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.util.FxUtil;
+import javafx.application.Platform;
+import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -8,6 +11,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
@@ -18,6 +22,12 @@ public class SplashScreenPane extends Pane {
 	private static final int WIDTH = 320;
 
 	private static final int HEIGHT = 180;
+
+	private static final int TITLE_PAD = 40;
+
+	private static final int BAR_SIZE = 5;
+
+	private static final int BAR_PAD = 20;
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -34,18 +44,21 @@ public class SplashScreenPane extends Pane {
 
 		// The background is a workaround to the stage color changing on Windows
 		Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
-		background.setFill( Color.GRAY.darker() );
+		background.setFill( new Color( 0.5, 0.5, 0.55, 1.0 ) );
 
-		progressBar = new Rectangle( 0, 170, 0, 180 );
+		Text titleText = new Text( title );
+		titleText.setFill( new Color( 0.9, 0.9, 0.9, 1.0 ) );
+		titleText.setBoundsType( TextBoundsType.VISUAL );
+		titleText.setFont( new Font( 60 ) );
+		titleText.setX( TITLE_PAD );
+		titleText.setY( TITLE_PAD + titleText.getLayoutBounds().getHeight() );
+
+		progressBar = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, 0, BAR_SIZE );
 		progressBar.setFill( new Color( 0.7, 0.7, 0.7, 1.0 ) );
 
-		Text titleText = new Text( 20, 100, title );
-		titleText.setFill( new Color( 0.9, 0.9, 0.9, 1.0 ) );
-		titleText.setFont( new Font( 40 ) );
-
 		getChildren().add( background );
-		getChildren().add( new Circle( -40, 80, 160, new Color( 0.5, 0.5, 0.6, 0.5 ) ) );
-		getChildren().add( new Circle( 80, -200, 360, new Color( 0.5, 0.6, 0.6, 0.5 ) ) );
+		getChildren().add( new Circle( -40, 80, 160, new Color( 1, 1, 1, 0.1 ) ) );
+		getChildren().add( new Circle( 80, -240, 360, new Color( 1, 1, 1, 0.1 ) ) );
 		getChildren().add( titleText );
 		getChildren().add( progressBar );
 
@@ -74,18 +87,33 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public void update() {
-		progress++;
-		progressBar.setWidth( getWidth() * ((double)progress / (double)steps) );
+		setProgress( ((double)progress++ / (double)steps) );
+	}
+
+	public void setProgress( double progress ) {
+		if( progress >= 1.0 ) progressBar.setFill( Color.WHITE );
+		progressBar.setWidth( (getWidth() - 2 * BAR_PAD) * progress );
 	}
 
 	public void done() {
 		progress = steps;
-		progressBar.setWidth( getWidth() );
-		progressBar.setFill( Color.WHITE );
+		setProgress( 1 );
 	}
 
 	public void hide() {
 		getScene().getWindow().hide();
+	}
+
+	public static void main( String[] commands ) {
+		JavaFxStarter.startAndWait( 1000 );
+		Platform.runLater( () -> {
+			SplashScreenPane splash = new SplashScreenPane( "Test" );
+			splash.setProgress( 0.8 );
+			Scene scene = new Scene( splash, WIDTH, HEIGHT );
+			Stage stage = new Stage();
+			stage.setScene( scene );
+			stage.show();
+		} );
 	}
 
 }
