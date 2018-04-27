@@ -70,7 +70,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		// RESULT Do not close the stages in this method. The unit tests will just
 		// have to close the stages as part of the cleanup.
 
-		// NEXT *MEMORY LEAK* The following line help not have a memory leak when running unit tests
 		activeWorkspace = null;
 		workspaces.clear();
 

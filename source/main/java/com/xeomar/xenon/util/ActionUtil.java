@@ -36,7 +36,6 @@ public class ActionUtil {
 		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		// NEXT *MEMORY LEAK* Adding these listeners is part of the cause of the memory leak
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
 		return item;
@@ -70,7 +69,6 @@ public class ActionUtil {
 		item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
-		// NEXT *MEMORY LEAK* Adding these listeners is part of the cause of the memory leak
 		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
 
@@ -88,7 +86,6 @@ public class ActionUtil {
 		button.setDisable( !action.isEnabled() );
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
-		// NEXT *MEMORY LEAK* Adding these listeners is part of the cause of the memory leak
 		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
 
 		return button;
