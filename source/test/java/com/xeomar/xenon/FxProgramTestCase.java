@@ -33,6 +33,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	private long initialMemoryUse;
 
+	private long finalMemoryUse;
+
 	private long getMemoryUse( String prefix ) {
 		WaitForAsyncUtils.waitForFxEvents();
 
@@ -45,10 +47,6 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		long used = alloc - Runtime.getRuntime().freeMemory();
 		System.out.println( String.format( "%s memory: %s / %s / %s", prefix, FileUtil.getHumanBinSize( used ), FileUtil.getHumanBinSize( alloc ), FileUtil.getHumanBinSize( max ) ) );
 		return used;
-	}
-
-	protected double getAllowedMemoryGrowth() {
-		return 0.15;
 	}
 
 	/**
@@ -95,13 +93,9 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
 
-		long finalMemoryUse = getMemoryUse( "Cleanup" );
+		finalMemoryUse = getMemoryUse( "Cleanup" );
 
-		double increase = (double)finalMemoryUse / (double)initialMemoryUse - 1;
-		if( increase > getAllowedMemoryGrowth() ) {
-			String message = String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increase * 100 );
-			throw new AssertionFailedError( message );
-		}
+		assertSafeMemoryProfile();
 	}
 
 	@Override
@@ -114,6 +108,17 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	protected void closeProgram( boolean force ) {
 		Platform.runLater( () -> program.requestExit( force ) );
 		WaitForAsyncUtils.waitForFxEvents();
+	}
+
+	protected double getAllowedMemoryGrowth() {
+		return 0.25;
+	}
+
+	private void assertSafeMemoryProfile() {
+		double increase = (double)finalMemoryUse / (double)initialMemoryUse - 1;
+		if( increase > getAllowedMemoryGrowth() ) {
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increase * 100 ) );
+		}
 	}
 
 }
