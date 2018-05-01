@@ -1,17 +1,17 @@
 package com.xeomar.xenon.resource;
 
-import com.xeomar.xenon.LogUtil;
-import com.xeomar.xenon.ResourceManager;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.node.Node;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.event.*;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import javax.swing.undo.UndoManager;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +20,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 public class Resource extends Node implements Configurable {
+
+	public static final int RESOURCE_READY_TIMEOUT = 10;
 
 	public static final String MEDIA_TYPE_RESOURCE_KEY = "resource.media.type";
 
@@ -45,7 +47,7 @@ public class Resource extends Node implements Configurable {
 
 	//	private static final String UNDO_MANAGER = "resource.undo.manager";
 
-	private static Logger log = LogUtil.get( Resource.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	// Name is not stored in the node data, it is derived
 	private String name;
@@ -393,7 +395,7 @@ public class Resource extends Node implements Configurable {
 		// If the path is null return the entire URI.
 		if( name == null && uri != null ) {
 			path = uri.getPath();
-			if( StringUtils.isEmpty( path ) ) name = uri.toString();
+			if( TextUtil.isEmpty( path ) ) name = uri.toString();
 		}
 
 		// Get the folder name from the path.

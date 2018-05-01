@@ -1,8 +1,8 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.UiManager;
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.xenon.ProgramProduct;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
@@ -26,14 +26,14 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 
 	private Button button;
 
-	public FileSettingEditor( Product product, Setting setting ) {
+	public FileSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, null );
+		String value = setting.getSettings().get( key );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
@@ -56,7 +56,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		// Add the components
 		GridPane buttonBox = new GridPane();
 		GridPane.setHgrow( field, Priority.ALWAYS );
-		buttonBox.setHgap( UiManager.PAD );
+		buttonBox.setHgap( UiFactory.PAD );
 		buttonBox.addRow( 0, field, button );
 
 		pane.addRow( row, label, buttonBox );
@@ -82,8 +82,8 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	 * @param event
 	 */
 	@Override
-	public void settingsEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) field.setText( event.getNewValue() );
+	public void handleEvent( SettingsEvent event ) {
+		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
 			case ESCAPE: {
-				field.setText( setting.getSettings().get( key, null ) );
+				field.setText( setting.getSettings().get( key ) );
 				break;
 			}
 			case ENTER: {

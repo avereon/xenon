@@ -1,7 +1,8 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import com.xeomar.xenon.util.FontUtil;
@@ -13,17 +14,18 @@ import org.controlsfx.dialog.FontSelectorDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 public class FontSettingEditor extends SettingEditor {
 
-	private static Logger log = LoggerFactory.getLogger( FontSettingEditor.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Label label;
 
 	private Button button;
 
-	public FontSettingEditor( Product product, Setting setting ) {
+	public FontSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 
@@ -59,8 +61,8 @@ public class FontSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void settingsEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) updateFont( event.getNewValue() );
+	public void handleEvent( SettingsEvent event ) {
+		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
 	}
 
 	private void updateFont( String value ) {

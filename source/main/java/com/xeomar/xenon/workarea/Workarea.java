@@ -1,17 +1,13 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.IdGenerator;
-import com.xeomar.xenon.ProgramSettings;
-import com.xeomar.xenon.UiManager;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
+import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.workspace.Workspace;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.geometry.Side;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -19,8 +15,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Workarea implements Configurable {
-
-	private static final Logger log = LoggerFactory.getLogger( Workarea.class );
 
 	private StringProperty name = new SimpleStringProperty();
 
@@ -40,6 +34,7 @@ public class Workarea implements Configurable {
 
 	public Workarea() {
 		workpane = new Workpane();
+		workpane.setEdgeSize( UiFactory.PAD );
 		propertyChangeListeners = new CopyOnWriteArraySet<>();
 	}
 
@@ -85,9 +80,9 @@ public class Workarea implements Configurable {
 		this.workspace = workspace;
 
 		if( this.workspace != null ) {
-			settings.set( UiManager.PARENT_WORKSPACE_ID, this.workspace.getSettings().getName() );
+			settings.set( UiFactory.PARENT_WORKSPACE_ID, this.workspace.getSettings().getName() );
 		} else {
-			settings.set( UiManager.PARENT_WORKSPACE_ID, null );
+			settings.set( UiFactory.PARENT_WORKSPACE_ID, null );
 		}
 
 		firePropertyChange( "workspace", oldWorkspace, this.workspace );
@@ -108,7 +103,7 @@ public class Workarea implements Configurable {
 		this.settings = settings;
 
 		setName( settings.get( "name" ) );
-		setActive( settings.getBoolean( "active", false ) );
+		setActive( settings.get( "active", Boolean.class, false ) );
 	}
 
 	@Override

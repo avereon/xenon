@@ -1,17 +1,21 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.product.ProductMetadata;
+import com.xeomar.product.Product;
+import com.xeomar.product.ProductCard;
+import com.xeomar.util.LogUtil;
+import org.slf4j.Logger;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
+import java.nio.file.Path;
 
 public abstract class Module implements Product, Comparable<Module> {
 
 	protected Program program;
 
-	protected ProductMetadata card;
+	protected ProductCard card;
 
-	public Module( Program program, ProductMetadata moduleCard ) {
+	public Module( Program program, ProductCard moduleCard ) {
 		this.program = program;
 		this.card = moduleCard;
 	}
@@ -26,7 +30,7 @@ public abstract class Module implements Product, Comparable<Module> {
 	 * @return
 	 */
 	@Override
-	public ProductMetadata getMetadata() {
+	public ProductCard getCard() {
 		return card;
 	}
 
@@ -58,8 +62,8 @@ public abstract class Module implements Product, Comparable<Module> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public File getDataFolder() {
-		return new File( program.getDataFolder(), card.getProductKey() );
+	public Path getDataFolder() {
+		return program.getDataFolder().resolve( card.getProductKey() );
 	}
 
 	/**

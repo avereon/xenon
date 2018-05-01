@@ -52,9 +52,20 @@
 	-fx-background-color: -ex-background-tabs
 }
 
+/* Workspace */
+.workspace {
+	/* Will override the user preference background */
+	/*-fx-background-color: #80a0c0ff;*/
+}
+
 /* Tools */
+.tool {
+	-fx-background-color: -ex-background-text
+}
+
 .tool .tree-view {
-	-fx-background-color: -ex-background-text;
+	/*-fx-background-color: -ex-background-text;*/
+	-fx-background-color: transparent;
 }
 
 .tool .tree-cell {
@@ -92,16 +103,28 @@
 	-fx-opacity: 0.3;
 }
 
-#tool-about {
-	-fx-background-color: -ex-background-text
-}
-
 #tool-about .text-area {
 	-fx-background-color: transparent;
 }
 
-#tool-settings {
-	-fx-background-color: -ex-background-text
+#tool-product-page-title {
+	-fx-font-size: 2em;
+}
+
+#tool-product-artifact {
+	-fx-background-color: -ex-background-text;
+}
+
+#tool-product-artifact-name {
+	-fx-font-weight: bold;
+}
+
+#tool-product-market {
+	-fx-background-color: -ex-background-text;
+}
+
+#tool-product-market-name {
+	-fx-font-weight: bold;
 }
 
 #tool-welcome {

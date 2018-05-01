@@ -1,5 +1,6 @@
 package com.xeomar.xenon.util;
 
+import com.xeomar.util.LogUtil;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -7,12 +8,13 @@ import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class FontUtil {
 
-	private static Logger log = LoggerFactory.getLogger( FontUtil.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static List<String> monoFamilyList;
 

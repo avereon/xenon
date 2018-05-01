@@ -1,6 +1,6 @@
 package com.xeomar.xenon.event;
 
-public class SettingsLoadedEvent extends SettingsEvent {
+public class SettingsLoadedEvent extends ProgramSettingsEvent {
 
 	private String root;
 

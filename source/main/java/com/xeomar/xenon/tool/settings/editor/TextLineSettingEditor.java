@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+
+import java.util.Objects;
 
 public class TextLineSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
@@ -26,11 +28,11 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 
 	private TextInputControl text;
 
-	public TextLineSettingEditor( Product product, Setting setting ) {
+	public TextLineSettingEditor( ProgramProduct product, Setting setting ) {
 		this( product, setting, Type.FIELD );
 	}
 
-	TextLineSettingEditor( Product product, Setting setting, Type type ) {
+	TextLineSettingEditor( ProgramProduct product, Setting setting, Type type ) {
 		super( product, setting );
 		this.type = type;
 	}
@@ -38,21 +40,21 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, null );
+		String value = setting.getSettings().get( key );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
 		switch( type ) {
-			case AREA : {
-				text = new TextArea(  );
+			case AREA: {
+				text = new TextArea();
 				break;
 			}
-			case PASSWORD : {
-				text = new PasswordField(  );
+			case PASSWORD: {
+				text = new PasswordField();
 				break;
 			}
-			default : {
-				text = new TextField(  );
+			default: {
+				text = new TextField();
 				break;
 			}
 		}
@@ -85,17 +87,17 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 	}
 
 	@Override
-	public void settingsEvent( SettingsEvent event ) {
+	public void handleEvent( SettingsEvent event ) {
 		// If the values are the same, don't set the text because it moves the cursor
-		if( event.getNewValue().equals( text.getText() ) ) return;
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) text.setText( event.getNewValue() );
+		if( Objects.equals( event.getNewValue(), text.getText() ) ) return;
+		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) text.setText( event.getNewValue().toString() );
 	}
 
 	@Override
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
 			case ESCAPE: {
-				text.setText( setting.getSettings().get( key, null ) );
+				text.setText( setting.getSettings().get( key ) );
 				break;
 			}
 			case ENTER: {

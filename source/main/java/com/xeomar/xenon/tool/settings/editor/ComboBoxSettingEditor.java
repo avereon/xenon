@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import com.xeomar.xenon.tool.settings.SettingOption;
@@ -20,14 +20,14 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	private ComboBox<SettingOption> combobox;
 
-	public ComboBoxSettingEditor( Product product, Setting setting ) {
+	public ComboBoxSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, null );
+		String value = setting.getSettings().get( key );
 
 		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
 
@@ -75,9 +75,10 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	// Setting listener
 	@Override
-	public void settingsEvent( SettingsEvent event ) {
-		SettingOption option = setting.getOption( event.getNewValue() );
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) combobox.getSelectionModel().select( option );
+	public void handleEvent( SettingsEvent event ) {
+		Object newValue = event.getNewValue();
+		SettingOption option = setting.getOption( newValue == null ? null : newValue.toString() );
+		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) combobox.getSelectionModel().select( option );
 	}
 
 }

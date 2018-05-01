@@ -1,6 +1,6 @@
 package com.xeomar.xenon.task;
 
-import com.xeomar.xenon.util.ThreadUtil;
+import com.xeomar.util.ThreadUtil;
 
 final class MockTask extends Task<Object> {
 

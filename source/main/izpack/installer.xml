@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<izpack:installation version="5.0" xmlns:izpack="http://izpack.org/schema/installation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
+
+	<info>
+		<!-- The project.name is specified in the maven pom file -->
+		<appname>${project.name}</appname>
+		<!-- The project.version is specified in the maven pom file -->
+		<appversion>${project.version}</appversion>
+		<authors>
+			<author name="Xeomar" email="contact@xeomar.com"/>
+		</authors>
+		<javaversion>1.8</javaversion>
+		<run-privileged condition="izpack.windowsinstall"/>
+		<uninstaller name="remove.jar" path="${INSTALL_PATH}/lib"/>
+		<writeinstallationinformation>no</writeinstallationinformation>
+	</info>
+
+	<variables>
+		<!-- The project.artifactId is specified in the maven pom file -->
+		<variable name="IDENTIFIER" value="${project.artifactId}"/>
+		<variable name="JAR_NAME" value="${project.artifactId}.jar"/>
+		<variable name="TargetPanel.dir.windows" value="${APPLICATIONS_DEFAULT_ROOT}${APP_NAME}"/>
+		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}Programs/${IDENTIFIER}/${project.version}"/>
+		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
+	</variables>
+	
+	<conditions>
+		<condition type="variable" id="archX32">
+			<name>os.arch</name>
+			<value>x86</value>
+		</condition>
+		<condition type="variable" id="archX64">
+			<name>os.arch</name>
+			<value>amd64</value>
+		</condition>
+	</conditions>
+
+	<guiprefs width="1200" height="675" resizable="no">
+		<modifier key="useFlags" value="yes"/>
+		<modifier key="langDisplayType" value="native"/>
+	</guiprefs>
+
+	<locale>
+		<langpack iso3="eng"/>
+		<langpack iso3="spa"/>
+	</locale>
+
+	<resources>
+		<!-- <res id="InfoPanel.info" src="readme.txt" /> <res id="LicencePanel.licence" src="licence.txt" /> -->
+
+		<!-- Language selection screen image -->
+		<res id="installer.langsel.img" src="main/izpack/banner.png"/>
+
+		<!-- Resource filtered by Maven -->
+		<res id="shortcutSpec.xml" src="main/izpack/shortcut.spec.windows.xml"/>
+		<res id="Unix_shortcutSpec.xml" src="main/izpack/shortcut.spec.unix.xml"/>
+	</resources>
+
+	<panels>
+		<panel classname="HelloPanel"/>
+		<!-- <panel classname="InfoPanel"/> <panel classname="LicencePanel"/> -->
+		<panel classname="TargetPanel"/>
+		<panel classname="PacksPanel"/>
+		<panel classname="InstallPanel"/>
+		<panel classname="ShortcutPanel"/>
+		<panel classname="SimpleFinishPanel"/>
+	</panels>
+
+	<packs>
+
+		<!-- The project.name is specified in the maven pom file -->
+		<pack name="${project.name}" required="yes">
+			<description>Required program files.</description>
+			<!-- The product-pack-folder is specified in the maven pom file -->
+			<fileset dir="${product-pack-folder}" targetdir="$INSTALL_PATH"/>
+			<!--
+			<singlefile src="${product-pack-folder}/${project.artifactId}32.exe" target="$INSTALL_PATH/${project.artifactId}.exe" os="windows" condition="archX32" />
+			<singlefile src="${product-pack-folder}/${project.artifactId}64.exe" target="$INSTALL_PATH/${project.artifactId}.exe" os="windows" condition="archX64" />
+			-->
+		</pack>
+
+	</packs>
+
+	<natives>
+		<native type="izpack" name="ShellLink.dll"/>
+		<native type="izpack" name="ShellLink_x64.dll"/>
+	</natives>
+
+</izpack:installation>

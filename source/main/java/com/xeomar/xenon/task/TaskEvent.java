@@ -1,8 +1,8 @@
 package com.xeomar.xenon.task;
 
-import java.util.EventObject;
+import com.xeomar.product.ProductEvent;
 
-public class TaskEvent extends EventObject {
+public class TaskEvent extends ProductEvent {
 
 	public enum Type {
 		TASK_SUBMITTED, TASK_START, TASK_PROGRESS, TASK_FINISH

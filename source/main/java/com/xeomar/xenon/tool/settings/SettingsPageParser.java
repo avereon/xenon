@@ -1,7 +1,8 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.Settings;
+import com.xeomar.settings.Settings;
+import com.xeomar.product.Product;
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,12 +12,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SettingsPageParser {
 
-	private static final Logger log = LoggerFactory.getLogger( SettingsPageParser.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String SETTINGS = "settings";
 

@@ -1,17 +1,13 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.util.JavaFxStarter;
 import org.junit.Before;
+import org.testfx.framework.junit.ApplicationTest;
 
-public abstract class FxPlatformTestCase extends BaseTestCase {
+public abstract class FxPlatformTestCase extends ApplicationTest {
 
 	@Before
 	public void setup() throws Exception {
-		try {
-			JavaFxStarter.startAndWait( 2000 );
-		} catch( IllegalStateException exception ) {
-			// Intentionally ignore exception
-		}
+		//JavaFxStarter.startAndWait( 5000 );
 	}
 
 }

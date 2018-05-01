@@ -1,9 +1,7 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
@@ -37,14 +35,26 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
-		tools.getSelectionModel().selectedItemProperty().addListener( new TabSelectionWatcher() );
+
+		// Add a focus listener to the tabs so when a tab is focused, the tool
+		// is activated. This may happen even if the tab is not selected.
+		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
+			Tab tab = tools.getSelectionModel().getSelectedItem();
+			if( newValue && tab != null) activateTool( (Tool)tab.getContent() );
+		} );
+
+		// Add a selection listener to the tabs so when a tab is selected, the tool
+		// is activated. This may happen even if the tab is not focused.
+		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
+			if( tools.focusedProperty().getValue() && newValue != null) activateTool( (Tool)newValue.getContent() );
+		} );
 	}
 
 	public String getViewId() {
 		return settings == null ? null : settings.getName();
 	}
 
-	public TabPane getToolTabPane() {
+	private TabPane getToolTabPane() {
 		return tools;
 	}
 
@@ -54,7 +64,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	 * @return A list of the tools in the view.
 	 */
 	public List<Tool> getTools() {
-		List<Tool> toolList = new ArrayList<Tool>();
+		List<Tool> toolList = new ArrayList<>();
 
 		for( Tab tab : tools.getTabs() ) {
 			toolList.add( (Tool)tab.getContent() );
@@ -69,18 +79,22 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
+		tool.setToolView( this );
+		tool.callAllocate();
 
 		Tab tab = new Tab( tool.getTitle(), tool );
+		tab.graphicProperty().bind( tool.graphicProperty() );
 		tab.textProperty().bind( tool.titleProperty() );
+		tools.getTabs().add( index, tab );
+
+		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
+
+		// Tab D&D support: https://bugs.openjdk.java.net/browse/JDK-8092098
+
 		tab.setOnCloseRequest( event -> {
 			event.consume();
 			tool.close();
 		} );
-		tool.setToolView( this );
-		tool.callAllocate();
-		tools.getTabs().add( index, tab );
-
-		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
 
 		return tool;
 	}
@@ -274,15 +288,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		//if( parent != null ) updateIcons();
 	}
 
-	private class TabSelectionWatcher implements ChangeListener<Tab> {
-
-		@Override
-		public void changed( ObservableValue<? extends Tab> observable, Tab oldTab, Tab tab ) {
-			if( tab == null ) return;
-			Tool tool = (Tool)tab.getContent();
-			if( isActive() && tab.isSelected() && tool != null ) getWorkpane().setActiveTool( tool );
-		}
-
+	private void activateTool( Tool tool ) {
+		Workpane workpane = getWorkpane();
+		if( workpane.getActiveTool() == tool ) return;
+		workpane.setActiveTool( tool );
 	}
 
 }

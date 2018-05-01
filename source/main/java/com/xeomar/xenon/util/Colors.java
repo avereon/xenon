@@ -46,9 +46,9 @@ public class Colors {
 		if( factor < 0 ) factor = 0;
 		if( factor > 1 ) factor = 1;
 
-		double d = Math.abs( 0.5 - factor ) / 0.5;
+		//double d = Math.abs( 0.5 - factor ) / 0.5;
 
-		return mix( color, new Color( factor, factor, factor, color.getOpacity() ), d );
+		return mix( color, new Color( factor, factor, factor, color.getOpacity() ), 1.0);
 	}
 
 	/**

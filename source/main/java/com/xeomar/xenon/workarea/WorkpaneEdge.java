@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -252,7 +252,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 		this.settings = settings;
 
 		// Restore state from settings
-		if( settings.get( "position" ) != null ) setPosition( settings.getDouble( "position" ) );
+		if( settings.get( "position" ) != null ) setPosition( settings.get( "position", Double.class ) );
 
 		// Persist state to settings
 		settings.set( "orientation", getOrientation().name().toLowerCase() );

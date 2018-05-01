@@ -1,6 +1,6 @@
 package com.xeomar.xenon.scheme;
 
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.NullCodecException;
@@ -11,13 +11,14 @@ import org.slf4j.Logger;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileScheme extends BaseScheme {
 
-	private static Logger log = LogUtil.get( FileScheme.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	/**
 	 * The key to the cached file object.
@@ -62,15 +63,15 @@ public class FileScheme extends BaseScheme {
 //		String iconName = "file";
 //		if( folder ) iconName = "folder";
 //		if( drive ) iconName = "drive";
-//		resource.putResource( UiUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
+//		resource.putResource( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
 //
 //		// Set the resource display name.
-//		resource.putResource( UiUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
+//		resource.putResource( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
 //
 //		// Set the resource display description.
 //		String description = fsv.getSystemTypeDescription( file );
 //		if( folder && StringUtils.isEmpty( description ) ) description = ProductUtil.getString( program, BundleKey.LABELS, "folder" );
-//		resource.putResource( UiUtil.DISPLAY_DESC, description );
+//		resource.putResource( FxUtil.DISPLAY_DESC, description );
 	}
 
 	@Override

@@ -1,18 +1,25 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.settings.Settings;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.Parameters;
+import com.xeomar.util.TestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
 
 public class ProgramServer {
 
-	private static final Logger log = LoggerFactory.getLogger( ProgramServer.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 
@@ -20,39 +27,37 @@ public class ProgramServer {
 
 	private SocketHandler handler;
 
-	public ProgramServer( Program program ) {
+	private int requestedPort;
+
+	public ProgramServer( Program program, int requestedPort ) {
 		this.program = program;
+		this.requestedPort = requestedPort;
+	}
+
+	public int getLocalPort() {
+		return server == null ? 0 : server.getLocalPort();
 	}
 
 	public boolean start() {
+		// When running as a test don't start the program server
+		if( TestUtil.isTest() ) return true;
+
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		int port = programSettings.getInteger( "program-port", 0 );
 
 		// Start the program server
 		try {
 			server = new ServerSocket();
 			server.setReuseAddress( true );
-			server.bind( new InetSocketAddress( InetAddress.getLoopbackAddress(), port ) );
+			server.bind( new InetSocketAddress( InetAddress.getLoopbackAddress(), requestedPort ) );
 			int localPort = server.getLocalPort();
 			programSettings.set( "program-port", localPort );
 			programSettings.flush();
 			log.info( "Program server listening on port " + localPort );
 
-			new Thread( handler = new SocketHandler(), "ProgramServerThread" ).start();
+			Thread serverThread = new Thread( handler = new SocketHandler(), "ProgramServerThread" );
+			serverThread.setDaemon( true );
+			serverThread.start();
 		} catch( BindException exception ) {
-			log.info( "Program already running" );
-
-			// Send the command line parameters
-			try {
-				Socket socket = new Socket( InetAddress.getLoopbackAddress(), port );
-				List<String> commandList = program.getParameters().getRaw();
-				String[] commands = commandList.toArray( new String[ commandList.size() ] );
-				new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
-				socket.close();
-			} catch( IOException socketException ) {
-				log.error( "Error sending commands to program", socketException );
-			}
-
 			return false;
 		} catch( IOException exception ) {
 			log.error( "Error starting program server", exception );
@@ -72,19 +77,32 @@ public class ProgramServer {
 
 	private class SocketHandler implements Runnable {
 
+		private Handler peerLogHandler;
+
 		private boolean run;
 
 		public void run() {
 			run = true;
 			while( run ) {
 				try {
+					// READ the command line parameters from a peer
 					Socket client = server.accept();
 					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
-					program.processCommands( commands );
+					com.xeomar.util.Parameters parameters = Parameters.parse( commands );
+					log.warn( "Parameters from peer: " + parameters );
+
+					// TODO Register a log event listener to send events to the peer
+
+					program.processCommands( parameters );
+					program.processResources( parameters );
+
+					// TODO Unregister the log event listener
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {
-					if( !"socket closed".equals( exception.getMessage().toLowerCase() ) ) log.error( "Error waiting for connection", exception );
+					String message = exception.getMessage();
+					message = message == null ? "null" : message.toLowerCase();
+					if( !"socket closed".equals( message ) ) log.error( "Error waiting for connection", exception );
 				}
 			}
 		}
@@ -98,6 +116,25 @@ public class ProgramServer {
 			} finally {
 				server = null;
 			}
+		}
+
+	}
+
+	public class LogHandler extends Handler {
+
+		@Override
+		public void publish( LogRecord record ) {
+			System.err.println( "SEND TO PEER> " + record.getMessage() );
+		}
+
+		@Override
+		public void flush() {
+
+		}
+
+		@Override
+		public void close() throws SecurityException {
+
 		}
 
 	}

@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
@@ -13,18 +13,16 @@ import org.slf4j.LoggerFactory;
 
 public class CheckBoxSettingEditor extends SettingEditor implements ChangeListener<Boolean> {
 
-	private static Logger log = LoggerFactory.getLogger( CheckBoxSettingEditor.class );
-
 	private CheckBox checkbox;
 
-	public CheckBoxSettingEditor( Product product, Setting setting ) {
+	public CheckBoxSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		boolean selected = setting.getSettings().getBoolean( key, false );
+		boolean selected = setting.getSettings().get( key, Boolean.class, false );
 
 		String label = product.getResourceBundle().getString( "settings", rbKey );
 
@@ -63,8 +61,8 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	// Setting node listener
 	@Override
-	public void settingsEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue() ) );
+	public void handleEvent( SettingsEvent event ) {
+		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) checkbox.setSelected( Boolean.parseBoolean( event.getNewValue().toString() ) );
 	}
 
 }

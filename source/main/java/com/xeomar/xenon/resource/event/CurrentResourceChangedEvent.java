@@ -1,9 +1,9 @@
 package com.xeomar.xenon.resource.event;
 
-import com.xeomar.xenon.ProgramEvent;
+import com.xeomar.product.ProductEvent;
 import com.xeomar.xenon.resource.Resource;
 
-public class CurrentResourceChangedEvent extends ProgramEvent {
+public class CurrentResourceChangedEvent extends ProductEvent {
 
 	private Resource current;
 

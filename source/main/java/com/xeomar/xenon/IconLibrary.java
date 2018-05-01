@@ -10,14 +10,15 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	private Map<String, Class<? extends ProgramIcon>> icons;
+	private Map<String, Class<? extends ProgramImage>> icons;
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
 		register( "program", XRingIcon.class );
 		register( "new", DocumentIcon.class );
 		register( "open", FolderIcon.class );
-		register( "save", SaveIcon.class );
+		//register( "save", SaveIcon.class );
+		register( "save", LightningIcon.class );
 		register( "close", CloseIcon.class );
 		register( "exit", ExitIcon.class );
 
@@ -33,21 +34,33 @@ public class IconLibrary {
 		register( "setting", SettingIcon.class );
 		register( "settings", SettingsIcon.class );
 
+		register( "guide", GuideIcon.class );
+
 		register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
-		register( "update", UpdateIcon.class );
+		register( "task", TaskQueueIcon.class );
+		register( "product", ProductIcon.class );
+		register( "update", DownloadIcon.class );
 		register( "about", ExclamationIcon.class );
 
-		register( "workarea-new", WorkareaIcon.class);
-		register( "workarea-rename", WorkareaRenameIcon.class);
-		register( "workarea-close", WorkareaCloseIcon.class);
+		register( "workarea-new", WorkareaIcon.class );
+		register( "workarea-rename", WorkareaRenameIcon.class );
+		register( "workarea-close", WorkareaCloseIcon.class );
+
+		register( "refresh", RefreshIcon.class );
+		register( "download", DownloadIcon.class );
+		register( "market", MarketIcon.class );
+		register( "module", ModuleIcon.class );
+		register( "enable", LightningIcon.class );
+		register( "disable", DisableIcon.class );
+		register( "remove", ExitIcon.class );
 	}
 
-	public ProgramIcon getIcon( String id ) {
+	public ProgramImage getIcon( String id ) {
 		return getIcon( id, DEFAULT_SIZE );
 	}
 
-	public ProgramIcon getIcon( String id, double size ) {
+	public ProgramImage getIcon( String id, double size ) {
 		return getIconRenderer( id ).setSize( size );
 	}
 
@@ -71,16 +84,16 @@ public class IconLibrary {
 		return images;
 	}
 
-	public void register( String id, Class<? extends ProgramIcon> icon ) {
+	public void register( String id, Class<? extends ProgramImage> icon ) {
 		icons.put( id, icon );
 	}
 
-	private ProgramIcon getIconRenderer( String id ) {
-		Class<? extends ProgramIcon> renderer = icons.get( id );
+	private ProgramImage getIconRenderer( String id ) {
+		Class<? extends ProgramImage> renderer = icons.get( id );
 
-		ProgramIcon icon;
+		ProgramImage icon;
 		try {
-			icon = renderer.newInstance();
+			icon = renderer.getConstructor().newInstance();
 		} catch( Exception exception ) {
 			icon = new BrokenIcon();
 		}

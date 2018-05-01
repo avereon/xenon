@@ -2,6 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramWelcomeType;
 import javafx.event.Event;
 
@@ -18,7 +19,11 @@ public class WelcomeAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		program.getResourceManager().open( program.getResourceManager().createResource( ProgramWelcomeType.URI ) );
+		try {
+			getProgram().getResourceManager().open( ProgramWelcomeType.uri );
+		} catch( ResourceException exception ) {
+			log.error( "Error opening welcome tool", exception );
+		}
 	}
 
 }

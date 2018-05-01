@@ -1,5 +1,7 @@
 package com.xeomar.xenon;
 
+import com.xeomar.xenon.resource.ResourceManager;
+import com.xeomar.xenon.task.TaskManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,6 +12,8 @@ import static org.junit.Assert.assertThat;
 
 public class ToolManagerTest extends BaseTestCase {
 
+	private TaskManager taskManager;
+
 	private ResourceManager resourceManager;
 
 	private ToolManager toolManager;
@@ -17,6 +21,7 @@ public class ToolManagerTest extends BaseTestCase {
 	@Override
 	public void setup() throws Exception {
 		super.setup();
+		taskManager = new TaskManager().start();
 		resourceManager = new ResourceManager( program );
 		toolManager = new ToolManager( program );
 	}
@@ -33,13 +38,25 @@ public class ToolManagerTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testOpenToolWithNullResource() {
+	public void testOpenToolNotOnTaskThread() {
 		try {
 			toolManager.openTool( null );
-			Assert.fail( "Should throw a NullPointerException" );
+			Assert.fail( "Should throw a RuntimeException" );
 		} catch( Exception exception ) {
-			assertThat( exception, is( instanceOf( NullPointerException.class ) ) );
+			assertThat( exception, is( instanceOf( RuntimeException.class ) ) );
 		}
+	}
+
+	@Test
+	public void testOpenToolWithNullResource() {
+		taskManager.submit( () -> {
+			try {
+				toolManager.openTool( null );
+				Assert.fail( "Should throw a NullPointerException" );
+			} catch( Exception exception ) {
+				assertThat( exception, is( instanceOf( NullPointerException.class ) ) );
+			}
+		} );
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.xeomar.xenon.task;
 
-import com.xeomar.xenon.util.ThreadUtil;
+import com.xeomar.util.ThreadUtil;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

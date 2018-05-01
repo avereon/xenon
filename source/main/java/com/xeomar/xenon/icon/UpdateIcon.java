@@ -1,7 +1,7 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
-import com.xeomar.xenon.util.JavaFxStarter;
+import com.xeomar.xenon.JavaFxStarter;
 
 public class UpdateIcon extends ProgramIcon {
 

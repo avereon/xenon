@@ -22,7 +22,7 @@ the following basic features:
 |0.5|Program settings, settings tool| Complete |
 |0.6|Update manager, product updates| In Progress |
 |0.7|Module manager, module tool|
-|0.8|
+|0.8|Status bar, memory status, task status|
 |0.9|
 |1.0|Completed basic product|
 

@@ -1,11 +1,13 @@
 package com.xeomar.xenon.task;
 
-import com.xeomar.xenon.LogUtil;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
-import com.xeomar.xenon.util.Controllable;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
+import com.xeomar.util.Controllable;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.TestUtil;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +26,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
 
-	private static final Logger log = LogUtil.get( TaskManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ThreadPoolExecutor executor;
 
@@ -41,9 +43,24 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	private Set<TaskListener> listeners;
 
 	public TaskManager() {
-		queue = new LinkedBlockingQueue<Runnable>();
+		queue = new LinkedBlockingQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		listeners = new CopyOnWriteArraySet<TaskListener>();
+		listeners = new CopyOnWriteArraySet<>();
+	}
+
+	public static void taskThreadCheck() {
+		if( !TaskManager.isTaskThread() ) {
+			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+
+			String callingClass = stack[ 2 ].getClassName();
+			String callingMethod = stack[ 2 ].getMethodName();
+			String callingFile = stack[ 2 ].getFileName();
+			int callingLine = stack[ 2 ].getLineNumber();
+
+			String caller = callingClass + "." + callingMethod + "(" + callingFile + ":" + callingLine + ")";
+
+			throw new RuntimeException( caller + " not called on task thread" );
+		}
 	}
 
 	@Override
@@ -87,9 +104,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks ) throws InterruptedException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAll( tasks );
 	}
@@ -98,9 +115,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAll( tasks, timeout, unit );
 	}
@@ -109,9 +126,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks ) throws InterruptedException, ExecutionException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAny( tasks );
 	}
@@ -120,9 +137,9 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public <T> T invokeAny( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
 		checkRunning();
 
-//		for( Callable<T> task : tasks ) {
-//			if( task instanceof Task ) submitted( (Task)task );
-//		}
+		//		for( Callable<T> task : tasks ) {
+		//			if( task instanceof Task ) submitted( (Task)task );
+		//		}
 
 		return executor.invokeAny( tasks, timeout, unit );
 	}
@@ -228,7 +245,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	@Override
 	public void setSettings( Settings settings ) {
 		this.settings = settings;
-		this.maxThreadCount = settings.getInteger( "thread-count", maxThreadCount );
+		this.maxThreadCount = settings.get( "thread-count", Integer.class, maxThreadCount );
 	}
 
 	@Override
@@ -244,10 +261,12 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		listeners.remove( listener );
 	}
 
-	void fireTaskEvent( TaskEvent event ) {
-		for( TaskListener listener : listeners ) {
-			listener.handleEvent( event );
-		}
+	Set<TaskListener> getTaskListeners() {
+		return listeners;
+	}
+
+	private static boolean isTaskThread() {
+		return Thread.currentThread() instanceof TaskThread;
 	}
 
 	private void checkRunning() {
@@ -256,21 +275,28 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private class TaskManagerExecutor extends ThreadPoolExecutor {
 
-		public TaskManagerExecutor( int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory ) {
+		TaskManagerExecutor( int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory ) {
 			super( corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory );
 		}
 
-		@SuppressWarnings( "unchecked" )
+		@Override
 		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
 			RunnableFuture<T> future;
 			if( callable instanceof Task ) {
-				Task task = (Task)callable;
-				task.setTaskManager( TaskManager.this );
-				future = task.createFuture( callable );
+				future = ((Task<T>)callable).createFuture( TaskManager.this );
 			} else {
-				future = new FutureTask<T>( callable );
+				future = new FutureTask<>( callable );
 			}
 			return future;
+		}
+
+		@Override
+		protected void afterExecute( Runnable runnable, Throwable throwable ) {
+			try {
+				((FutureTask)runnable).get();
+			} catch( Throwable getThrowable ) {
+				if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
+			}
 		}
 
 	}

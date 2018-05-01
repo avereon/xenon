@@ -1,11 +1,12 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.IdGenerator;
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.IdGenerator;
 import com.xeomar.xenon.ProgramSettings;
-import com.xeomar.xenon.UiManager;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
+import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.util.Colors;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Node;
@@ -16,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +48,7 @@ public class Workpane extends Pane implements Configurable {
 
 	public static final double DEFAULT_EDGE_SIDE = 5;
 
-	private static final Logger log = LogUtil.get( Workpane.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private WorkpaneEdge topWall;
 
@@ -505,9 +507,9 @@ public class Workpane extends Pane implements Configurable {
 
 					Settings settings = view.getSettings();
 					if( settings != null ) {
-						boolean isActive = settings.getBoolean( "active", false );
-						boolean isDefault = settings.getBoolean( "default", false );
-						boolean isMaximized = settings.getBoolean( "maximized", false );
+						boolean isActive = settings.get( "active", Boolean.class, false );
+						boolean isDefault = settings.get( "default", Boolean.class, false );
+						boolean isMaximized = settings.get( "maximized", Boolean.class, false );
 
 						if( isActive ) setActiveView( view );
 						if( isDefault ) setDefaultView( view );
@@ -1086,7 +1088,7 @@ public class Workpane extends Pane implements Configurable {
 		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
 
 		double edgeSize = getEdgeSize();
-		double edgeHalf = edgeSize / 2;
+		double edgeHalf = 0.5 * edgeSize;
 		double edgeRest = edgeSize - edgeHalf;
 
 		double x1 = view.getEdge( Side.LEFT ).getPosition();
@@ -1117,7 +1119,8 @@ public class Workpane extends Pane implements Configurable {
 
 		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		layoutInArea( view, x, y, w, h, 0, HPos.LEFT, VPos.TOP );
+		// In the end we are still dealing with pixels so cast the bounds to int
+		layoutInArea( view, (int)x, (int)y, (int)w, (int)h, 0, HPos.LEFT, VPos.TOP );
 		view.setVisible( true );
 	}
 
@@ -1166,7 +1169,8 @@ public class Workpane extends Pane implements Configurable {
 
 		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		// In the end we are still dealing with pixels so cast the bounds to int
+		layoutInArea( edge, (int)x, (int)y, (int)w, (int)h, 0, HPos.CENTER, VPos.CENTER );
 		edge.setVisible( true );
 	}
 
@@ -2038,7 +2042,7 @@ public class Workpane extends Pane implements Configurable {
 		if( paneSettings == null ) return;
 
 		Settings settings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
-		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+		settings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
 		edge.setSettings( settings );
 	}
 
@@ -2047,7 +2051,7 @@ public class Workpane extends Pane implements Configurable {
 		if( paneSettings == null ) return;
 
 		Settings settings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
-		settings.set( UiManager.PARENT_WORKPANE_ID, getSettings().getName() );
+		settings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
 		view.setSettings( settings );
 	}
 

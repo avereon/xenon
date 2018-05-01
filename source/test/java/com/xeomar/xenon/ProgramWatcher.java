@@ -1,26 +1,29 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.ProductEvent;
+import com.xeomar.product.ProductEventListener;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
-public class ProgramWatcher implements ProgramEventListener {
+public class ProgramWatcher implements ProductEventListener {
 
 	public static final long DEFAULT_WAIT_TIMEOUT = 10000;
 
-	private Queue<ProgramEvent> events = new ConcurrentLinkedQueue<>();
+	private Queue<ProductEvent> events = new ConcurrentLinkedQueue<>();
 
 	@Override
-	public synchronized void eventOccurred( ProgramEvent event ) {
+	public synchronized void handleEvent( ProductEvent event ) {
 		events.offer( event );
 		notifyAll();
 	}
 
-	public void waitForEvent( Class<? extends ProgramEvent> type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( Class<? extends ProductEvent> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	public void waitForNextEvent( Class<? extends ProgramEvent> type ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( Class<? extends ProductEvent> type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
@@ -34,7 +37,7 @@ public class ProgramWatcher implements ProgramEventListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForEvent( Class<? extends ProgramEvent> type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( Class<? extends ProductEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
@@ -58,13 +61,13 @@ public class ProgramWatcher implements ProgramEventListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForNextEvent( Class<? extends ProgramEvent> type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForNextEvent( Class<? extends ProductEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		events.remove( type );
 		waitForEvent( type, timeout );
 	}
 
-	private ProgramEvent findNext( Class<? extends ProgramEvent> type ) {
-		ProgramEvent event;
+	private ProductEvent findNext( Class<? extends ProductEvent> type ) {
+		ProductEvent event;
 		while( (event = events.poll()) != null ) {
 			if( event.getClass().isAssignableFrom(  type ) ) return event;
 		}

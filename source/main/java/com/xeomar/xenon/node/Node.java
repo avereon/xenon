@@ -1,16 +1,17 @@
 package com.xeomar.xenon.node;
 
-import com.xeomar.xenon.LogUtil;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.transaction.*;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Node implements TxnEventDispatcher, Cloneable {
 
-	private static final Logger log = LogUtil.get( Node.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	/**
 	 * The modified flag key.

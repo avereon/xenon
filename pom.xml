@@ -8,7 +8,7 @@
 		<groupId>com.xeomar.pom</groupId>
 		<artifactId>jar</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
-		<relativePath></relativePath>
+		<relativePath/>
 	</parent>
 
 	<!-- Update the product roadmap when the version changes -->
@@ -38,17 +38,44 @@
 		</repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>xeo</id>
+			<url>https://code.xeomar.com/repo/xeo</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<properties>
-		<project.timestamp>${maven.build.timestamp}</project.timestamp>
-		<product-name>${project.name}</product-name>
-		<product-identifier>xenon</product-identifier>
-		<package-stage-folder>program</package-stage-folder>
-		<slf4j.version>1.8.0-alpha2</slf4j.version>
-		<testfx.version>4.0.8-alpha</testfx.version>
-		<jarsigner.skip>true</jarsigner.skip>
+		<!-- The folder used to set up the installer files -->
+		<product-pack-folder>pack/program</product-pack-folder>
+
+		<!-- Runtime dependencies -->
+		<slf4j.version>1.8.0-beta0</slf4j.version>
+		<miglayout.version>5.1</miglayout.version>
+		<controlsfx.version>9.0.0</controlsfx.version>
+		<undofx.version>2.0.0</undofx.version>
+
+		<!-- Test dependencies -->
+		<testfx.version>4.0.12-alpha</testfx.version>
+		<monocle.version>jdk-9+181</monocle.version>
+
+		<!-- Build dependencies -->
+		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.xeomar</groupId>
+			<artifactId>razor</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.xeomar</groupId>
+			<artifactId>annex</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -63,51 +90,39 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.3.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.5</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.18</version>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-javafx</artifactId>
+			<version>${miglayout.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.40.14</version>
+			<version>${controlsfx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.fxmisc.undo</groupId>
 			<artifactId>undofx</artifactId>
-			<version>1.3.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-library</artifactId>
-			<version>1.3</version>
-			<scope>test</scope>
+			<version>${undofx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-core</artifactId>
+			<version>${testfx.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.testfx</groupId>
+					<artifactId>testfx-internal-java8</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>testfx-internal-java9</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -119,6 +134,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>openjfx-monocle</artifactId>
+			<version>${monocle.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -126,37 +148,39 @@
 		<resources>
 			<resource>
 				<directory>source/main/resources</directory>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>**/*.properties</exclude>
-					<exclude>**/*.yaml</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>source/main/resources</directory>
 				<filtering>true</filtering>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.yaml</include>
-				</includes>
 			</resource>
 		</resources>
 
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<forkCount>1</forkCount>
+					<reuseForks>false</reuseForks>
+					<runOrder>alphabetical</runOrder>
+					<argLine>
+						-Xmx128m
+						--add-opens=java.base/java.util=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+					</argLine>
+					<systemPropertyVariables>
+						<java.awt.headless>true</java.awt.headless>
+						<prism.text>t2k</prism.text>
+						<prism.order>sw</prism.order>
+						<testfx.robot>glass</testfx.robot>
+						<testfx.headless>true</testfx.headless>
+						<testfx.setup.timeout>5000</testfx.setup.timeout>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<!--<executions>-->
-				<!--<execution>-->
-				<!--<id>jar</id>-->
-				<!--<phase>package</phase>-->
-				<!--<goals>-->
-				<!--<goal>jar</goal>-->
-				<!--&lt;!&ndash; <goal>sign</goal> &ndash;&gt;-->
-				<!--</goals>-->
-				<!--</execution>-->
-				<!--</executions>-->
 				<configuration>
 					<archive>
 						<!-- Indexing the jar breaks the use of the Class-Path entry. -->
@@ -164,147 +188,204 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>com.xeomar.xenon.Program</mainClass>
-							<!--<classpathLayoutType>custom</classpathLayoutType>-->
-							<!--<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}-->
-							<!--</customClasspathLayout>-->
+							<classpathLayoutType>custom</classpathLayoutType>
+							<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}</customClasspathLayout>
 						</manifest>
 					</archive>
 				</configuration>
 			</plugin>
 
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
-						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jlink-plugin</artifactId>
+				<version>3.0.0-alpha-1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jlink</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<mainClass>com.xeomar.xenon.Program</mainClass>
-						</manifest>
-					</archive>
+					<ignoreSigningInformation>true</ignoreSigningInformation>
 				</configuration>
+			</plugin>
+			-->
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<!-- Generate the package resource -->
+					<execution>
+						<id>assembly-product</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<attach>false</attach>
+							<descriptors>
+								<descriptor>source/main/assembly/product.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+
+					<!-- Generate the installer resources -->
+					<execution>
+						<id>assembly-install</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<attach>false</attach>
+							<descriptors>
+								<descriptor>source/main/assembly/install.xml</descriptor>
+							</descriptors>
+							<finalName>${product-pack-folder}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Copy extra installer resources. -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-izpack-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>${basedir}/source/main/izpack</directory>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-izpack-resources-filter</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>${basedir}/source/main/izpack</directory>
+									<filtering>true</filtering>
+									<excludes>
+										<exclude>bin</exclude>
+									</excludes>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-windows-resources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>${basedir}/source/main/pack/windows</directory>
+									<excludes>
+										<exclude>bin</exclude>
+									</excludes>
+								</resource>
+							</resources>
+							<outputDirectory>${basedir}/target/pack/windows</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Generate the installer -->
+			<plugin>
+				<groupId>org.codehaus.izpack</groupId>
+				<artifactId>izpack-maven-plugin</artifactId>
+				<version>${izpack.version}</version>
+				<executions>
+					<execution>
+						<id>izpack.deploy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>izpack</goal>
+						</goals>
+						<configuration>
+							<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
+							<baseDir>${project.build.directory}</baseDir>
+							<classifier>install</classifier>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<!-- Add the catalog card -->
+								<artifact>
+									<file>target/main/java/META-INF/catalog.card</file>
+									<classifier>catalog</classifier>
+									<type>card</type>
+								</artifact>
+								<!-- Add the product card -->
+								<artifact>
+									<file>target/main/java/META-INF/product.card</file>
+									<classifier>product</classifier>
+									<type>card</type>
+								</artifact>
+								<!-- Add the product pack -->
+								<artifact>
+									<file>target/${project.artifactId}-${project.version}-product.zip</file>
+									<classifier>product</classifier>
+									<type>pack</type>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
 	</build>
-
-	<profiles>
-
-		<!-- Profile for Java 8 -->
-		<profile>
-			<id>java8</id>
-			<activation>
-				<jdk>1.8</jdk>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>8</source>
-							<target>8</target>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<runOrder>alphabetical</runOrder>
-							<systemPropertyVariables>
-								<java.awt.headless>true</java.awt.headless>
-								<glass.platform>Monocle</glass.platform>
-								<monocle.platform>Headless</monocle.platform>
-								<testfx.robot>glass</testfx.robot>
-								<prism.order>sw</prism.order>
-								<prism.text>t2k</prism.text>
-							</systemPropertyVariables>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<!-- Profile for Java 9 -->
-		<profile>
-			<id>java9</id>
-			<activation>
-				<jdk>9</jdk>
-			</activation>
-
-			<dependencies>
-
-				<dependency>
-					<groupId>org.testfx</groupId>
-					<artifactId>testfx-core</artifactId>
-					<version>${testfx.version}</version>
-					<scope>test</scope>
-					<exclusions>
-						<exclusion>
-							<groupId>org.testfx</groupId>
-							<artifactId>testfx-internal-java8</artifactId>
-						</exclusion>
-					</exclusions>
-				</dependency>
-
-				<dependency>
-					<groupId>org.testfx</groupId>
-					<artifactId>testfx-internal-java9</artifactId>
-					<version>${testfx.version}</version>
-					<scope>test</scope>
-				</dependency>
-
-				<dependency>
-					<groupId>org.testfx</groupId>
-					<artifactId>openjfx-monocle</artifactId>
-					<version>jdk-9+181</version>
-					<scope>test</scope>
-				</dependency>
-
-			</dependencies>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>9</source>
-							<target>9</target>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<runOrder>alphabetical</runOrder>
-							<argLine>--add-opens=java.base/java.util=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
-							<systemPropertyVariables>
-								<java.awt.headless>true</java.awt.headless>
-								<prism.order>sw</prism.order>
-								<prism.text>t2k</prism.text>
-								<testfx.robot>glass</testfx.robot>
-								<testfx.headless>true</testfx.headless>
-								<testfx.setup.timeout>2500</testfx.setup.timeout>
-							</systemPropertyVariables>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-	</profiles>
 
 </project>

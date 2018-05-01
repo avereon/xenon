@@ -1,32 +1,39 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.xenon.ProductTool;
+import com.xeomar.product.ProductCard;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.*;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.ProgramSettings;
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.product.ProductMetadata;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.resource.type.ProgramGuideType;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.*;
+import com.xeomar.xenon.tool.guide.GuideNode;
+import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
+import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AboutTool extends ProductTool {
+public class AboutTool extends GuidedTool {
 
-	private static final Logger log = LoggerFactory.getLogger( AboutTool.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
+	public static final String SUMMARY = "summary";
+
+	public static final String PRODUCTS = "products";
+
+	public static final String DETAILS = "details";
 
 	private String titleSuffix;
 
@@ -44,10 +51,11 @@ public class AboutTool extends ProductTool {
 
 	private TextArea detailsText;
 
-	public AboutTool( Product product, Resource resource ) {
+	public AboutTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-about" );
 
+		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
 
 		summaryText = new TextArea();
@@ -67,17 +75,9 @@ public class AboutTool extends ProductTool {
 		detailsPane.setCenter( detailsText );
 
 		nodes = new ConcurrentHashMap<>();
-		nodes.put( "summary", summaryPane );
-		nodes.put( "products", productsPane );
-		nodes.put( "details", detailsPane );
-
-		selectedPage( "summary" );
-	}
-
-	public Set<String> getResourceDependencies() {
-		Set<String> resources = new HashSet<>();
-		resources.add( ProgramGuideType.URI );
-		return resources;
+		nodes.put( SUMMARY, summaryPane );
+		nodes.put( PRODUCTS, productsPane );
+		nodes.put( DETAILS, detailsPane );
 	}
 
 	public String getTitleSuffix() {
@@ -91,52 +91,50 @@ public class AboutTool extends ProductTool {
 	@Override
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
+		super.allocate();
 	}
 
 	@Override
 	protected void display() throws ToolException {
 		log.debug( "Tool display" );
+		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
 		log.debug( "Tool activate" );
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.setActive( true );
+		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
 		log.debug( "Tool deactivate" );
+		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
 		log.debug( "Tool conceal" );
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.setActive( false );
+		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
 		log.debug( "Tool deallocate" );
+		super.deallocate();
 	}
 
 	@Override
-	protected void resourceReady() throws ToolException {
-		log.debug( "Resource ready" );
-
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		guide.selectedItemProperty().addListener( ( obs, oldSelection, newSelection ) -> {
-			selectedPage( newSelection );
-		} );
-
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+		super.resourceReady( parameters );
 		resourceRefreshed();
+		selectedPage( SUMMARY );
 	}
 
 	@Override
-	protected void resourceRefreshed() {
-		ProductMetadata metadata = getResource().getModel();
+	protected void resourceRefreshed() throws ToolException {
+		super.resourceRefreshed();
+		ProductCard metadata = getResource().getModel();
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );
 		} else {
@@ -147,7 +145,7 @@ public class AboutTool extends ProductTool {
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
 	}
 
-	private String getSummaryText( ProductMetadata metadata ) {
+	private String getSummaryText( ProductCard metadata ) {
 		Version version = new Version( metadata.getVersion() );
 
 		StringBuilder builder = new StringBuilder();
@@ -205,7 +203,7 @@ public class AboutTool extends ProductTool {
 	}
 
 	private String getDetailsText( Program program ) {
-		ProductMetadata metadata = program.getMetadata();
+		ProductCard metadata = program.getCard();
 		StringBuilder builder = new StringBuilder();
 
 		// Framework summary
@@ -229,7 +227,7 @@ public class AboutTool extends ProductTool {
 		builder.append( "\n" );
 		builder.append( getHeader( "Program details" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getProductDetails( program.getMetadata() ), 4, " " ) );
+		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getProgramDetails( program ), 4, " " ) );
 
@@ -309,7 +307,7 @@ public class AboutTool extends ProductTool {
 		return builder.toString();
 	}
 
-	private String getProductDetails( ProductMetadata card ) {
+	private String getProductDetails( ProductCard card ) {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "Product:     " + card.getName() + "\n" );
@@ -321,7 +319,7 @@ public class AboutTool extends ProductTool {
 		builder.append( "Artifact:    " + card.getArtifact() + "\n" );
 		builder.append( "Version:     " + card.getVersion() + "\n" );
 		builder.append( "Timestamp:   " + card.getTimestamp() + "\n" );
-		//builder.append( "Source URI:  " + card.getSourceUri() + "\n" );
+		builder.append( "Source URI:  " + card.getCardUri() + "\n" );
 
 		//		ProductManager productManager = getProgram().getProductManager();
 		//		builder.append( "Enabled:     " + productManager.isEnabled( card ) + "\n" );
@@ -353,8 +351,8 @@ public class AboutTool extends ProductTool {
 		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) + "\n" );
 
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		long lastUpdateCheck = programSettings.getLong( "/manager/product/update/check/last", 0L );
-		long nextUpdateCheck = programSettings.getLong( "/manager/product/update/check/next", 0L );
+		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
+		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
 		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
@@ -365,7 +363,14 @@ public class AboutTool extends ProductTool {
 	private String getMemoryDetail() {
 		StringBuilder builder = new StringBuilder();
 
+		long max = Runtime.getRuntime().maxMemory();
+		long total = Runtime.getRuntime().totalMemory();
+		long used = total - Runtime.getRuntime().freeMemory();
+		builder.append( "Summary: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
+
+
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
+		builder.append( "\n" );
 		builder.append( "Heap use:     " + bean.getHeapMemoryUsage() + "\n" );
 		builder.append( "Non-heap use: " + bean.getNonHeapMemoryUsage() + "\n" );
 
@@ -399,9 +404,9 @@ public class AboutTool extends ProductTool {
 		return builder.toString();
 	}
 
-	private void selectedPage( TreeItem<GuideNode> item ) {
-		if( item == null ) return;
-		selectedPage( item.getValue().getId() );
+	@Override
+	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
+		if( newNode != null ) selectedPage( newNode.getId() );
 	}
 
 	private void selectedPage( String item ) {

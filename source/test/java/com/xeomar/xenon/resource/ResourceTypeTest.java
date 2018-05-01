@@ -1,7 +1,7 @@
 package com.xeomar.xenon.resource;
 
 import com.xeomar.xenon.BaseTestCase;
-import com.xeomar.xenon.product.Product;
+import com.xeomar.product.Product;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;

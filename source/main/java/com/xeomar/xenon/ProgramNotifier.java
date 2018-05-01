@@ -1,17 +1,22 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 public class ProgramNotifier {
 
-	private static final Logger log = LoggerFactory.getLogger( ProgramNotifier.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 
@@ -53,12 +58,12 @@ public class ProgramNotifier {
 
 	/* Notify methods */
 
-	public void notify( Object message, String... parameters ) {
-		notify( null, message, parameters );
+	public void notify( String title, String header, Object message, String... parameters ) {
+		notify( null, title, header, message, parameters );
 	}
 
-	public void notify( String title, Object message, String... parameters ) {
-		alert( Alert.AlertType.INFORMATION, null, title, message, parameters );
+	public void notify( Node icon, String title, String header, Object message, String... parameters ) {
+		alert( Alert.AlertType.INFORMATION, icon, title, header, message, parameters );
 	}
 
 	private Object formatMessage( Throwable throwable, Object message ) {
@@ -69,7 +74,12 @@ public class ProgramNotifier {
 		return message;
 	}
 
+	@Deprecated
 	private void alert( Alert.AlertType type, Node graphic, String title, Object message, String... parameters ) {
+		alert( type, graphic, title, null, message, parameters );
+	}
+
+	private void alert( Alert.AlertType type, Node icon, String title, String header, Object message, String... parameters ) {
 		try {
 			StringBuilder builder = new StringBuilder();
 
@@ -100,10 +110,11 @@ public class ProgramNotifier {
 				if( message instanceof Node ) alert.getDialogPane().setContent( (Node)message );
 				if( type != null ) alert.setAlertType( type );
 				if( title != null ) alert.setTitle( title );
-				if( graphic != null ) alert.setGraphic( graphic );
+				if( header != null ) alert.setHeaderText( header );
+				if( icon != null ) alert.setGraphic( icon );
 				alert.setContentText( content );
-				alert.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
-				alert.show();
+				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+				DialogUtil.show( stage, alert );
 			} );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.out );

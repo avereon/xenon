@@ -1,6 +1,6 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.util.OperatingSystem;
+import com.xeomar.util.OperatingSystem;
 import org.junit.After;
 import org.junit.Before;
 
@@ -10,15 +10,12 @@ public abstract class BaseTestCase {
 
 	@Before
 	public void setup() throws Exception {
-		//  -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw
-		//		System.setProperty( "glass.platform", "Monocle" );
-		//		System.setProperty( "monocle.platform", "Headless" );
-		//		System.setProperty( "prism.order", "sw" );
-
 		//Log.setLevel( Log.NONE );
 
 		// Be sure that the OperatingSystem class is properly set
 		OperatingSystem.reset();
+
+		program = new Program();
 	}
 
 	@After

@@ -1,12 +1,12 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.LogUtil;
-import com.xeomar.xenon.UiManager;
+import com.xeomar.settings.Settings;
+import com.xeomar.util.Configurable;
+import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceEvent;
 import com.xeomar.xenon.resource.ResourceListener;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.util.Configurable;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -17,6 +17,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public abstract class Tool extends Control implements Configurable {
 
-	private static final Logger log = LogUtil.get( Tool.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String ICON_PROPERTY = "icon";
 
@@ -127,7 +128,7 @@ public abstract class Tool extends Control implements Configurable {
 		graphicProperty.setValue( graphic );
 	}
 
-	public ObjectProperty graphicProperty() {
+	public ObjectProperty<Node> graphicProperty() {
 		return graphicProperty;
 	}
 
@@ -168,7 +169,7 @@ public abstract class Tool extends Control implements Configurable {
 
 	public void setToolView( WorkpaneView parent ) {
 		this.parent = parent;
-		if( settings != null ) settings.set( UiManager.PARENT_WORKPANEVIEW_ID, parent == null ? null : parent.getViewId() );
+		if( settings != null ) settings.set( UiFactory.PARENT_WORKPANEVIEW_ID, parent == null ? null : parent.getViewId() );
 	}
 
 	public Workpane getWorkpane() {
@@ -205,13 +206,13 @@ public abstract class Tool extends Control implements Configurable {
 		return tool;
 	}
 
-	public void setSettings( Settings settings ){
+	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 
 		this.settings = settings;
 	}
 
-	public Settings getSettings(){
+	public Settings getSettings() {
 		return settings;
 	}
 
@@ -270,9 +271,13 @@ public abstract class Tool extends Control implements Configurable {
 	protected void deallocate() throws ToolException {}
 
 	/**
-	 * Called when the resource is ready to be used by the tool.
+	 * Called when the resource is ready to be used by the tool. This method is
+	 * called each time the resource edited by this tool is opened. If it is
+	 * opened another time it may have different parameters.
+	 *
+	 * @param parameters
 	 */
-	protected void resourceReady() throws ToolException {}
+	protected void resourceReady( ToolParameters parameters ) throws ToolException {}
 
 	/**
 	 * Called when the resource data is refreshed.
@@ -368,9 +373,9 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceReady() {
+	public void callResourceReady( ToolParameters parameters ) {
 		try {
-			resourceReady();
+			resourceReady( parameters );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}

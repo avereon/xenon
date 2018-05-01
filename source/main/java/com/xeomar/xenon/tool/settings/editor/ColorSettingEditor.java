@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.settings.editor;
 
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.SettingsEvent;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.tool.settings.Setting;
 import com.xeomar.xenon.tool.settings.SettingEditor;
 import com.xeomar.xenon.util.Colors;
@@ -18,7 +18,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 
 	private ColorPicker colorPicker;
 
-	public ColorSettingEditor( Product product, Setting setting ) {
+	public ColorSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 
@@ -64,8 +64,8 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	}
 
 	@Override
-	public void settingsEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.UPDATED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue() ) );
+	public void handleEvent( SettingsEvent event ) {
+		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue().toString() ) );
 	}
 
 }

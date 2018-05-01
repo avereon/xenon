@@ -1,22 +1,27 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.ProductCard;
+import com.xeomar.util.FileUtil;
+import com.xeomar.util.OperatingSystem;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
-import com.xeomar.xenon.product.ProductMetadata;
-import com.xeomar.xenon.util.OperatingSystem;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
+import javafx.application.Platform;
 import javafx.stage.Stage;
-import org.apache.commons.io.FileUtils;
+import junit.framework.AssertionFailedError;
 import org.junit.After;
 import org.junit.Before;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public abstract class FxProgramTestCase extends ApplicationTest {
+
+	private final long max = Runtime.getRuntime().maxMemory();
 
 	protected Program program;
 
@@ -24,39 +29,57 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	protected WorkpaneWatcher workpaneWatcher;
 
-	protected ProductMetadata metadata;
+	protected ProductCard metadata;
+
+	private long initialMemoryUse;
+
+	private long finalMemoryUse;
+
+	private long getMemoryUse( String prefix ) {
+		WaitForAsyncUtils.waitForFxEvents();
+
+		System.gc();
+		Thread.yield();
+		System.gc();
+		Thread.yield();
+
+		long alloc = Runtime.getRuntime().totalMemory();
+		long used = alloc - Runtime.getRuntime().freeMemory();
+		System.out.println( String.format( "%s memory: %s / %s / %s", prefix, FileUtil.getHumanBinSize( used ), FileUtil.getHumanBinSize( alloc ), FileUtil.getHumanBinSize( max ) ) );
+		return used;
+	}
 
 	/**
-	 * Overrides setup() in FxPlatformTestCase and does not call super.setup().
+	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
 	@Before
 	public void setup() throws Exception {
 		// Intentionally do not call super.setup()
 
-		// WORKAROUND The parameters defined below are null during testing due to Java 9 incompatibility
-		// NOTE These are also used in ProgramTestCase
-		System.setProperty( ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-		System.setProperty( ProgramParameter.LOG_LEVEL, "error" );
-
 		// Remove the existing program data folder
 		try {
 			String prefix = ExecMode.TEST.getPrefix();
-			ProductMetadata metadata = new ProductMetadata();
-			File programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
-			if( programDataFolder != null && programDataFolder.exists() ) FileUtils.forceDelete( programDataFolder );
+			ProductCard metadata = new ProductCard().init( Program.class );
+			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+			if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
 		}
 
-		program = (Program)FxToolkit.setupApplication( Program.class, ProgramParameter.EXECMODE, ProgramParameter.EXECMODE_TEST );
-		program.addEventListener( programWatcher = new ProgramWatcher() );
-		metadata = program.getMetadata();
+		// For the parameters to be available using Java 9, the following needs to be added
+		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
+		// is not exposed, nor is there a "proper" way to access it:
+		//
+		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
+		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
+		program.addEventListener( programWatcher = new ProgramWatcher() );
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
+		metadata = program.getCard();
+
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 
-		// Wait for things to settle
-		WaitForAsyncUtils.waitForFxEvents();
+		initialMemoryUse = getMemoryUse( "Startup" );
 	}
 
 	/**
@@ -69,9 +92,33 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
+
+		finalMemoryUse = getMemoryUse( "Cleanup" );
+
+		assertSafeMemoryProfile();
 	}
 
 	@Override
-	public void start( Stage stage ) throws Exception {}
+	public void start( Stage stage ) {}
+
+	protected void closeProgram() {
+		closeProgram( false );
+	}
+
+	protected void closeProgram( boolean force ) {
+		Platform.runLater( () -> program.requestExit( force ) );
+		WaitForAsyncUtils.waitForFxEvents();
+	}
+
+	protected double getAllowedMemoryGrowth() {
+		return 0.25;
+	}
+
+	private void assertSafeMemoryProfile() {
+		double increase = (double)finalMemoryUse / (double)initialMemoryUse - 1;
+		if( increase > getAllowedMemoryGrowth() ) {
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increase * 100 ) );
+		}
+	}
 
 }

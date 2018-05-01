@@ -15,7 +15,7 @@ public class SaveIcon extends ProgramIcon {
 		double width = g( 9 );
 
 		// Disk
-		setFillPaint( getIconFillPaint( GradientShade.MEDIUM ) );
+		setFillPaint( getIconFillPaint( GradientShade.DARK ) );
 		fillCenteredOval( ox, oy, g( 10 ), g( 6 ) );
 		drawCenteredOval( ox, oy, g( 10 ), g( 6 ) );
 
@@ -28,7 +28,6 @@ public class SaveIcon extends ProgramIcon {
 		lineTo( ox + shaft, oy - m );
 		lineTo( ox + shaft, oy - width - g( 1 ) );
 		lineTo( ox + width, oy - width - g( 1 ) );
-		setFillPaint( getIconFillPaint( GradientShade.LIGHT ) );
 		closePath();
 		fillAndDraw();
 	}

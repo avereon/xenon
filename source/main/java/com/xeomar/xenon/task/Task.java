@@ -1,8 +1,9 @@
 package com.xeomar.xenon.task;
 
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.*;
 
 public abstract class Task<V> implements Callable<V>, Future<V> {
 
-	private static final Logger log = LoggerFactory.getLogger( Task.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public enum State {
 		WAITING,
@@ -147,21 +148,20 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		return manager;
 	}
 
-	void setTaskManager( TaskManager manager ) {
+	private void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
 		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
 	}
 
-	FutureTask<V> createFuture( Callable<V> callable ) {
-		return this.future = new TaskFuture<V>( this );
+	FutureTask<V> createFuture( TaskManager manager ) {
+		setTaskManager( manager );
+		return this.future = new TaskFuture<>( this );
 	}
 
 	private void fireTaskEvent( TaskEvent.Type type ) {
 		TaskEvent event = new TaskEvent( this, this, type );
-		for( TaskListener listener : listeners ) {
-			listener.handleEvent( event );
-		}
-		getTaskManager().fireTaskEvent( event );
+		event.fire( getTaskManager().getTaskListeners() );
+		event.fire( listeners );
 	}
 
 	private void setState( State state ) {
@@ -206,7 +206,6 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		protected void setException( Throwable throwable ) {
 			task.setState( State.FAILED );
 			super.setException( throwable );
-			log.error( "Error running task", throwable );
 		}
 
 	}

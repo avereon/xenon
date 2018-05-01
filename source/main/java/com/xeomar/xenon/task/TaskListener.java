@@ -1,7 +1,5 @@
 package com.xeomar.xenon.task;
 
-public interface TaskListener {
+import com.xeomar.product.ProductEventListener;
 
-	public void handleEvent( TaskEvent event );
-
-}
+public interface TaskListener extends ProductEventListener<TaskEvent> {}

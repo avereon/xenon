@@ -8,13 +8,13 @@ import java.util.concurrent.TimeoutException;
 
 public class WorkpaneWatcher implements WorkpaneListener {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 5000;
+	private static final long DEFAULT_WAIT_TIMEOUT = 10000;
 
 	private Queue<WorkpaneEvent> events = new ConcurrentLinkedQueue<>();
 
 	@Override
 	public synchronized void handle( WorkpaneEvent event ) throws WorkpaneVetoException {
-		//System.out.println( "Add event: " + event );
+		System.out.println( "Add event: " + event.toString() );
 		events.offer( event );
 		notifyAll();
 	}
@@ -40,9 +40,11 @@ public class WorkpaneWatcher implements WorkpaneListener {
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
 	public synchronized void waitForEvent( WorkpaneEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
-		boolean shouldWait = timeout > 0;
-		long start = System.currentTimeMillis();
+		if( timeout <=0 ) return;
+
 		long duration = 0;
+		boolean shouldWait = true;
+		long start = System.currentTimeMillis();
 
 		while( shouldWait && findNext( type ) == null ) {
 			wait( timeout - duration );
@@ -51,7 +53,6 @@ public class WorkpaneWatcher implements WorkpaneListener {
 		}
 
 		duration = System.currentTimeMillis() - start;
-
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type );
 	}
 

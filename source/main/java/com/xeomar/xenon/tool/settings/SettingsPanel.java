@@ -1,12 +1,14 @@
 package com.xeomar.xenon.tool.settings;
 
-import com.xeomar.xenon.UiManager;
+import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
+import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.ProgramProduct;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.node.NodeEvent;
 import com.xeomar.xenon.node.NodeListener;
-import com.xeomar.xenon.product.Product;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.settings.SettingsEvent;
-import com.xeomar.xenon.settings.SettingsListener;
+import com.xeomar.product.Product;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -15,14 +17,14 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
 public class SettingsPanel extends VBox {
 
-	private static final Logger log = LoggerFactory.getLogger( SettingsPanel.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	//	private String[] fontNames;
 	//
@@ -102,8 +104,8 @@ public class SettingsPanel extends VBox {
 
 	private Pane createSettingsPane( Product product, SettingsPage page, SettingGroup group ) {
 		GridPane pane = new GridPane();
-		pane.setHgap( UiManager.PAD );
-		pane.setVgap( UiManager.PAD );
+		pane.setHgap( UiFactory.PAD );
+		pane.setVgap( UiFactory.PAD );
 		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		int row = 0;
@@ -145,8 +147,8 @@ public class SettingsPanel extends VBox {
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( Product.class, Setting.class );
-			editor = constructor.newInstance( product, setting );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, Setting.class );
+			editor = constructor.newInstance( (ProgramProduct)product, setting );
 		} catch( Exception exception ) {
 			log.error( "Error creating setting editor: " + editorClass.getName(), exception );
 		}
@@ -192,7 +194,7 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void settingsEvent( SettingsEvent event ) {
+		public void handleEvent( SettingsEvent event ) {
 			if( this.key == null ) return;
 			if( key.equals( event.getKey() ) ) group.updateState();
 		}
@@ -211,8 +213,8 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void settingsEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
 
@@ -283,11 +285,11 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void settingsEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.UPDATED ) return;
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 
 			// Forward the event to the editor
-			editor.settingsEvent( event );
+			editor.handleEvent( event );
 		}
 
 	}

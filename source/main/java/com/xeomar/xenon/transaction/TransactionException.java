@@ -1,8 +1,7 @@
 package com.xeomar.xenon.transaction;
 
+@SuppressWarnings( { "unused", "WeakerAccess" } )
 public class TransactionException extends RuntimeException {
-
-	private static final long serialVersionUID = -4305434261080128225L;
 
 	public TransactionException() {}
 

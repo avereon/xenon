@@ -1,14 +1,16 @@
 package com.xeomar.xenon;
 
-import com.xeomar.xenon.product.ProductBundle;
+import com.xeomar.product.ProductBundle;
+import com.xeomar.util.LogUtil;
 import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = LogUtil.get( ActionLibrary.class );
+	private static Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Map<String, ActionProxy> actions;
 
@@ -54,19 +56,29 @@ public class ActionLibrary {
 		register( bundle, "help-content" );
 		register( bundle, "welcome" );
 		register( bundle, "notice" );
-		//		register( bundle, "products" );
+		register( bundle, "product" );
 		register( bundle, "update" );
 		register( bundle, "about" );
 
-		//		register( bundle, "development" );
+		register( bundle, "development" );
 		//		register( bundle, "settings-reset" );
 		//		register( bundle, "workers" );
-		//		register( bundle, "restart" );
+		register( bundle, "restart" );
 
 		register( bundle, "workarea" );
 		register( bundle, "workarea-new" );
 		register( bundle, "workarea-rename" );
 		register( bundle, "workarea-close" );
+
+		register( bundle, "task" );
+
+		register( bundle, "refresh" );
+		register( bundle, "enable" );
+		register( bundle, "disable" );
+		register( bundle, "install" );
+		register( bundle, "remove" );
+		register( bundle, "add-market" );
+		register( bundle, "remove-market" );
 	}
 
 	public ActionProxy getAction( String id ) {
@@ -79,11 +91,11 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = bundle.getString( "action", id + ".icon" );
-		String name = bundle.getString( "action", id + ".name" );
-		String type = bundle.getString( "action", id + ".type" );
-		String mnemonic = bundle.getString( "action", id + ".mnemonic" );
-		String shortcut = bundle.getString( "action", id + ".shortcut" );
+		String icon = bundle.getString( BundleKey.ACTION, id + ".icon" );
+		String name = bundle.getString( BundleKey.ACTION, id + ".name" );
+		String type = bundle.getString( BundleKey.ACTION, id + ".type" );
+		String mnemonic = bundle.getString( BundleKey.ACTION, id + ".mnemonic" );
+		String shortcut = bundle.getString( BundleKey.ACTION, id + ".shortcut" );
 
 		int mnemonicValue = ActionProxy.NO_MNEMONIC;
 		try {

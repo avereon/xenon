@@ -1,40 +1,42 @@
 package com.xeomar.xenon;
 
+import com.xeomar.product.Product;
+import com.xeomar.product.ProductCard;
+import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
+import com.xeomar.settings.StoredSettings;
+import com.xeomar.util.Controllable;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.PathUtil;
 import com.xeomar.xenon.event.SettingsLoadedEvent;
 import com.xeomar.xenon.event.SettingsSavedEvent;
-import com.xeomar.xenon.product.Product;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
-import com.xeomar.xenon.settings.Settings;
-import com.xeomar.xenon.settings.SettingsEvent;
-import com.xeomar.xenon.settings.SettingsListener;
-import com.xeomar.xenon.settings.StoredSettings;
-import com.xeomar.xenon.tool.Guide;
-import com.xeomar.xenon.tool.GuideNode;
+import com.xeomar.xenon.tool.guide.Guide;
+import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsPageParser;
-import com.xeomar.xenon.util.Controllable;
-import com.xeomar.xenon.util.Paths;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final Logger log = LoggerFactory.getLogger( SettingsManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String ROOT = "settings";
 
 	private Program program;
 
-	private Settings settings;
+	private StoredSettings settings;
 
 	private SettingsListener settingsWatcher;
 
@@ -42,7 +44,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public SettingsManager( Program program ) {
 		this.program = program;
-		this.settings = new StoredSettings( new File( program.getDataFolder(), ROOT ) );
+		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.settingsPages = new ConcurrentHashMap<>();
 		this.settingsWatcher = new SettingsWatcher( program );
 	}
@@ -54,7 +56,19 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public Settings getSettings( String root, String path ) {
-		return getSettings( Paths.resolve( root, path ) );
+		return getSettings( PathUtil.resolve( root, path ) );
+	}
+
+	public Settings getProductSettings( Product product ) {
+		return getSettings( getSettingsPath( product.getCard() ) );
+	}
+
+	public Settings getProductSettings( ProductCard card ) {
+		return getSettings( getSettingsPath( card ) );
+	}
+
+	private static final String getSettingsPath( ProductCard card ) {
+		return ProgramSettings.PRODUCT + card.getProductKey();
 	}
 
 	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
@@ -97,22 +111,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( settingsPages );
 
 		// Get the settings program resource
-		Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		try {
+			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.uri );
 			program.getResourceManager().openResourcesAndWait( settingsResource );
+
+			// Get the resource guide
+			Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
+			if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
+
+			// Get the guide root node
+			TreeItem<GuideNode> root = guide.getRoot();
+			if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
+
+			addChildNodes( root, pages );
 		} catch( Exception exception ) {
 			log.error( "Error getting settings resource", exception );
 		}
-
-		// Get the resource guide
-		Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
-		if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
-
-		// Get the guide root node
-		TreeItem<GuideNode> root = guide.getRoot();
-		if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
-
-		addChildNodes( root, pages );
 	}
 
 	private void addChildNodes( TreeItem<GuideNode> root, Map<String, SettingsPage> pages ) {
@@ -189,6 +203,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	@Override
 	public SettingsManager stop() {
+		settings.flush();
 		return this;
 	}
 
@@ -206,7 +221,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 
 		@Override
-		public void settingsEvent( SettingsEvent event ) {
+		public void handleEvent( SettingsEvent event ) {
 			switch( event.getType() ) {
 				case LOADED: {
 					program.fireEvent( new SettingsLoadedEvent( this, event.getPath() ) );
