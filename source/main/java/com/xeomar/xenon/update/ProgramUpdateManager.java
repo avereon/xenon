@@ -10,7 +10,6 @@ import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -85,7 +84,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		// Get the dialog window and set the icons
 		Stage stage = (Stage)alert.getDialogPane().getScene().getWindow();
-		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
+		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 
 		Optional<ButtonType> result = DialogUtil.showAndWait( null, alert );
 

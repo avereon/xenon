@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -138,16 +139,20 @@ public abstract class ProgramImage extends Canvas {
 	public ProgramImage setSize( double size ) {
 		setHeight( size );
 		setWidth( size );
-		//fireRender();
 		return this;
 	}
 
 	public Image getImage() {
-		fireRender();
-		return SwingFXUtils.toFXImage( getBufferedImage(), new WritableImage( (int)getWidth(), (int)getHeight() ) );
+		// Apparently the following does not work to create Stage icons
+		// Use the #getStageIcon() method for creating Stage icons.
+		Pane pane = new Pane( this );
+		pane.setBackground( Background.EMPTY );
+		Scene scene = new Scene( pane );
+		scene.setFill( Color.TRANSPARENT );
+		return scene.snapshot( new WritableImage( (int)getWidth(), (int)getHeight() ) );
 	}
 
-	public BufferedImage getBufferedImage() {
+	public Image getStageIcon() {
 		// Apparently images created from the snapshot method are not usable as
 		// application icons. The following workaround creates an image that is
 		// usable as an application icon. It may be more efficient to create
@@ -161,18 +166,20 @@ public abstract class ProgramImage extends Canvas {
 		Scene scene = new Scene( pane );
 		scene.setFill( Color.TRANSPARENT );
 
-		//				// Just for research, set different color backgrounds per xformX
-		//				int xformX = Math.min( width, height );
-		//				if( xformX == 16 ) scene.setFillColor( Color.PURPLE );
-		//				if( xformX == 24 ) scene.setFillColor( Color.BLUE );
-		//				if( xformX == 32 ) scene.setFillColor( Color.GREEN );
-		//				if( xformX == 64 ) scene.setFillColor( Color.YELLOW );
-		//				if( xformX == 128 ) scene.setFillColor( Color.ORANGE );
-		//				if( xformX == 256 ) scene.setFillColor( Color.RED );
+		//		// Just for research, set different color backgrounds per size
+		//		int size = Math.min( width, height );
+		//		if( size == 16 ) scene.setFill( Color.RED );
+		//		if( size == 24 ) scene.setFill( Color.ORANGE );
+		//		if( size == 32 ) scene.setFill( Color.YELLOW );
+		//		if( size == 48 ) scene.setFill( Color.YELLOWGREEN );
+		//		if( size == 64 ) scene.setFill( Color.GREEN );
+		//		if( size == 96 ) scene.setFill( Color.CYAN );
+		//		if( size == 128 ) scene.setFill( Color.BLUE );
+		//		if( size == 256 ) scene.setFill( Color.PURPLE );
 
 		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
 		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
-		return buffer;
+		return SwingFXUtils.toFXImage( buffer, new WritableImage( (int)getWidth(), (int)getHeight() ) );
 	}
 
 	public static void proof( ProgramImage icon ) {
@@ -204,26 +211,26 @@ public abstract class ProgramImage extends Canvas {
 		Platform.runLater( () -> {
 			String title = icon.getClass().getSimpleName();
 
-			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).fireRender().getImage(), 16 ) );
-			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).fireRender().getImage(), 8 ) );
+			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
+			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
 
-			ProgramImage icon128 = icon.copy().setSize( 128 ).fireRender();
+			ProgramImage icon128 = icon.copy().setSize( 128 );
 			AnchorPane.setTopAnchor( icon128, 0.0 );
 			AnchorPane.setLeftAnchor( icon128, 0.0 );
 
-			ProgramImage icon64 = icon.copy().setSize( 64 ).fireRender();
+			ProgramImage icon64 = icon.copy().setSize( 64 );
 			AnchorPane.setTopAnchor( icon64, 128.0 );
 			AnchorPane.setLeftAnchor( icon64, 128.0 );
 
-			ProgramImage icon32 = icon.copy().setSize( 32 ).fireRender();
+			ProgramImage icon32 = icon.copy().setSize( 32 );
 			AnchorPane.setTopAnchor( icon32, 192.0 );
 			AnchorPane.setLeftAnchor( icon32, 192.0 );
 
-			ProgramImage icon16 = icon.copy().setSize( 16 ).fireRender();
+			ProgramImage icon16 = icon.copy().setSize( 16 );
 			AnchorPane.setTopAnchor( icon16, 224.0 );
 			AnchorPane.setLeftAnchor( icon16, 224.0 );
 
-			ProgramImage icon8 = icon.copy().setSize( 8 ).fireRender();
+			ProgramImage icon8 = icon.copy().setSize( 8 );
 			AnchorPane.setTopAnchor( icon8, 240.0 );
 			AnchorPane.setLeftAnchor( icon8, 240.0 );
 
@@ -236,9 +243,16 @@ public abstract class ProgramImage extends Canvas {
 			pane.add( imageView32, 2, 2 );
 			pane.add( iconPane, 1, 2 );
 
+			List<Image> stageIcons = new ArrayList<>();
+			stageIcons.add( icon.copy().setSize( 128 ).getStageIcon() );
+			stageIcons.add( icon.copy().setSize( 64 ).getStageIcon() );
+			stageIcons.add( icon.copy().setSize( 48 ).getStageIcon() );
+			stageIcons.add( icon.copy().setSize( 32 ).getStageIcon() );
+			stageIcons.add( icon.copy().setSize( 16 ).getStageIcon() );
+
 			Stage stage = new Stage();
 			stage.setTitle( title );
-			stage.getIcons().addAll( icon128.copy().getImage(), icon64.copy().getImage(), icon32.copy().getImage(), icon16.copy().getImage() );
+			stage.getIcons().addAll( stageIcons );
 			stage.setScene( new Scene( pane ) );
 
 			stage.setResizable( true );
@@ -256,7 +270,7 @@ public abstract class ProgramImage extends Canvas {
 			try {
 				icon.fireRender();
 				File file = new File( path ).getCanonicalFile();
-				ImageIO.write( icon.getBufferedImage(), "png", file );
+				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", file );
 			} catch( Exception exception ) {
 				exception.printStackTrace();
 			}
