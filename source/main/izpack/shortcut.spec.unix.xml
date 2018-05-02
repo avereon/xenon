@@ -15,7 +15,7 @@
 		startMenu="no"
 		startup="no"
 		target="java"
-		commandLine="-jar ${INSTALL_PATH}/lib/${project.artifactId}.jar"
+		commandLine="-p ${INSTALL_PATH}/lib -m com.xeomar.xenon/com.xeomar.xenon.Product"
 		workingDirectory="${INSTALL_PATH}"
 		description="${project.name} application framework."
 		iconFile="${INSTALL_PATH}/bin/program.png"
@@ -26,6 +26,7 @@
 		categories="Application;"
 	/>
 
+	<!--
 	<shortcut
 		name="${project.name} Uninstall"
 		programGroup="yes"
@@ -48,5 +49,6 @@
 		tryexec="java -jar ${INSTALL_PATH}/lib/remove.jar"
 		description="Uninstall ${project.name} application framework."
 	/>
+	-->
 
 </izpack:shortcuts>

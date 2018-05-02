@@ -7,6 +7,7 @@
 		location="applications"
 	/>
 
+	<!-- FIXME The command target should be ${project.name} and not the Java VM -->
 	<shortcut
 		name="${project.name}"
 		programGroup="yes"
@@ -15,15 +16,35 @@
 		startMenu="no"
 		startup="no"
 		target="javaw"
-		commandLine="-jar &quot;${INSTALL_PATH}\lib\${project.artifactId}.jar&quot;"
+		commandLine="-p &quot;${INSTALL_PATH}\lib&quot; -m com.xeomar.xenon/com.xeomar.xenon.Program"
 		workingDirectory="${INSTALL_PATH}"
 		description="${project.name} application framework."
 		iconFile="${INSTALL_PATH}\bin\program.ico"
 		iconIndex="0"
 		type="Application"
 		encoding="UTF-8"
-		initialState="noShow"
 	/>
+
+	<!-- The same windows shortcut except with the window minimized by default -->
+	<!--
+	<shortcut
+			name="${project.name} Server"
+			programGroup="yes"
+			desktop="yes"
+			applications="yes"
+			startMenu="no"
+			startup="no"
+			target="javaw"
+			commandLine="-p &quot;${INSTALL_PATH}\lib&quot; -m com.xeomar.xenon/com.xeomar.xenon.Program \-\-server"
+			workingDirectory="${INSTALL_PATH}"
+			description="${project.name} application framework."
+			iconFile="${INSTALL_PATH}\bin\program.ico"
+			iconIndex="0"
+			type="Application"
+			encoding="UTF-8"
+			initialState="noShow"
+	/>
+	-->
 
 	<shortcut
 		name="${project.name} Uninstall"
