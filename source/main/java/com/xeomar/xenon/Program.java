@@ -788,13 +788,30 @@ public class Program extends Application implements ProgramProduct {
 				home = Paths.get( System.getProperty( "user.dir" ), "target/install" );
 				Files.createDirectories( home );
 
-				// Copy the updater library.
 				// NEXT Continue to figure out how to handle the updater in development
+
+				// More than just the annex.jar file will be needed because annex.jar
+				// is not a standalone jar. This is due to the new Java module
+				// functionality which causes problems with the standalone uber-jar
+				// concept. Instead, all the modules needed to run Annex need to be
+				// copied to a temporary location and Annex run from that location.
+
+				// However, in a development environment, what would Annex update? The
+				// program will not be executed from a location that looks like the
+				// installed program location and therefore would not be a location to
+				// update. It might be worth "updating" a mock location to prove the
+				// logic but restarting the application based on the initial start
+				// parameters would not start the program from the mock location.
+
+				// Setup the update program
 				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "/target/pack/program/lib/annex.jar" );
-				if( !Files.exists( updaterSource ) ) log.warn( "Development updater not found: {}", updaterSource );
-				Path updaterTarget = home.resolve( UpdateManager.UPDATER_JAR_NAME );
-				FileUtil.copy( updaterSource, updaterTarget );
-				log.debug( "Updater copied: " + updaterSource );
+				if( Files.exists( updaterSource ) ) {
+					Path updaterTarget = home.resolve( UpdateManager.UPDATER_JAR_NAME );
+					FileUtil.copy( updaterSource, updaterTarget );
+					log.debug( "Updater copied: " + updaterSource );
+				} else {
+					log.warn( "Development updater not found: {}", updaterSource );
+				}
 			}
 
 			// Use the user directory as a last resort.
