@@ -20,15 +20,20 @@ import java.util.Map;
  *
  * @author soderquistmv
  */
-public class RestartShutdownHook extends Thread {
+public class ProgramShutdownHook extends Thread {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private volatile ProcessBuilder builder;
 
-	public RestartShutdownHook( Program service, String... commands ) {
-		super( "Restart Hook" );
+	private Program service;
 
+	public ProgramShutdownHook( Program service ) {
+		super( "Restart Hook" );
+		this.service = service;
+	}
+
+	public ProgramShutdownHook configureForRestart( String... commands ) {
 		builder = new ProcessBuilder( getRestartExecutablePath( service ) );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
@@ -85,6 +90,8 @@ public class RestartShutdownHook extends Thread {
 		}
 
 		log.debug( "Restart command: " + TextUtil.toString( builder.command(), " " ) );
+
+		return this;
 	}
 
 	private static String getRestartExecutablePath( Program service ) {
@@ -107,6 +114,9 @@ public class RestartShutdownHook extends Thread {
 
 		try {
 			builder.start();
+
+			// FIXME After the process is started send data to the new process via stdin
+
 		} catch( IOException exception ) {
 			log.error( "Error restarting program", exception );
 		}

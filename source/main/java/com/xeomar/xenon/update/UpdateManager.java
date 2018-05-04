@@ -789,24 +789,37 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		log.info( "Starting update process..." );
 
-		// Copy the updater to a temporary location.
-		Path updaterSource = updater;
-		Path updaterTarget = FileUtil.TEMP_FOLDER.resolve( program.getCard().getArtifact() + "-updater.jar" );
-
-		//		Path updaterLogFolder = service.getDataFolder().resolve( Program.LOG_FOLDER_NAME );
-		//		Path updaterLogFile = updaterLogFolder.resolve( UPDATER_LOG_NAME );
-
-		if( updaterSource == null || !Files.exists( updaterSource ) ) throw new RuntimeException( "Update library not found: " + updaterSource );
-		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
-
-		// Register a shutdown hook to start the updater.
-		// NEXT Register update shutdown hook and finish implementation
-		//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
-		//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
-		//		log.trace( "Update shutdown hook registered." );
-
-		// Store the update count because the collection will be cleared.
+		// Store the update count to be returned after the collection is cleared
 		int count = updates.size();
+
+		// 1. Stage the updater in a temporary location. This will include all the
+		//    modules need to run the updater. Might be easier to just copy the
+		//    entire module path, even if some things are not needed. It's likely
+		//    most things will be needed.
+		//
+		// 2. Configure a shutdown hook, possibly the ProgramShutdownHook, to start
+		//    the updater program upon exit of this program. The updater program
+		//    will in turn restart this program after the updates are complete.
+		//
+		// 3. Return the number of updates to be applied.
+
+//		// Copy the updater to a temporary location.
+//
+//		// FIXME Updater source is no longer just a file
+//		Path updaterSource = updater;
+//		Path updaterTarget = FileUtil.TEMP_FOLDER.resolve( program.getCard().getArtifact() + "-updater.jar" );
+//
+//		//		Path updaterLogFolder = service.getDataFolder().resolve( Program.LOG_FOLDER_NAME );
+//		//		Path updaterLogFile = updaterLogFolder.resolve( UPDATER_LOG_NAME );
+//
+//		if( updaterSource == null || !Files.exists( updaterSource ) ) throw new RuntimeException( "Update library not found: " + updaterSource );
+//		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
+//
+//		// Register a shutdown hook to start the updater.
+//		// NEXT Register update shutdown hook and finish implementation (can this just be part of the ProgramShutdownHook?)
+//		//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
+//		//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
+//		//		log.trace( "Update shutdown hook registered." );
 
 		clearStagedUpdates();
 
