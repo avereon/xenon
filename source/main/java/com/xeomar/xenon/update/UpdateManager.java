@@ -9,6 +9,7 @@ import com.xeomar.util.*;
 import com.xeomar.xenon.Module;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
+import com.xeomar.xenon.ProgramShutdownHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -796,11 +797,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		//    modules need to run the updater. Might be easier to just copy the
 		//    entire module path, even if some things are not needed. It's likely
 		//    most things will be needed.
-		//
+		String updaterModulePath = "";
+
 		// 2. Configure a shutdown hook, possibly the ProgramShutdownHook, to start
 		//    the updater program upon exit of this program. The updater program
 		//    will in turn restart this program after the updates are complete.
-		//
+		ProgramShutdownHook shutdownHook = new ProgramShutdownHook( program );
+		shutdownHook.configureForUpdate( updaterModulePath );
+
 		// 3. Return the number of updates to be applied.
 
 //		// Copy the updater to a temporary location.

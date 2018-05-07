@@ -178,13 +178,12 @@
 				</configuration>
 			</plugin>
 
+			<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<archive>
-						<!-- Indexing the jar breaks the use of the Class-Path entry. -->
-						<!-- <index>true</index> -->
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<mainClass>com.xeomar.xenon.Program</mainClass>
@@ -194,6 +193,7 @@
 					</archive>
 				</configuration>
 			</plugin>
+			-->
 
 			<!--
 			<plugin>
