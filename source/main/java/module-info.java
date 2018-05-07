@@ -11,6 +11,7 @@ module com.xeomar.xenon {
 	requires com.xeomar.annex;
 	requires com.xeomar.razor;
 	requires org.slf4j;
+	requires miglayout.javafx;
 
 	exports com.xeomar.xenon;
 

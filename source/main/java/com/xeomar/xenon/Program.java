@@ -289,19 +289,34 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "Task manager stopped." );
 	}
 
-	public void restart( String... commands ) {
-		// Register a shutdown hook to restart the application.
+	public void requestRestart( String... commands ) {
+		// Register a shutdown hook to restart the program
 		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForRestart( commands );
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.
-		if( !requestExit() ) {
+		if( !requestExit( true ) ) {
 			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
 			return;
 		}
 
-		// The shutdown hook should restart the application.
+		// The shutdown hook should restart the program
 		log.info( "Restarting..." );
+	}
+
+	public void requestUpdate( String... commands ) {
+		// Register a shutdown hook to update the program
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( commands );
+		Runtime.getRuntime().addShutdownHook( programShutdownHook );
+
+		// Request the program stop.
+		if( !requestExit( true ) ) {
+			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
+			return;
+		}
+
+		// The shutdown hook should update the program
+		log.info( "Updating..." );
 	}
 
 	public boolean requestExit() {
@@ -327,7 +342,8 @@ public class Program extends Application implements ProgramProduct {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 
-		workspaceManager.hideWindows();
+		// The workspaceManager can be null if the application is already running as a peer
+		if( workspaceManager != null ) workspaceManager.hideWindows();
 
 		if( !TestUtil.isTest() && (force || !shutdownKeepAlive) ) Platform.exit();
 
@@ -784,33 +800,8 @@ public class Program extends Application implements ProgramProduct {
 
 			// Check the execmode flag to detect when running in development
 			if( home == null && getExecMode() == ExecMode.DEV ) {
-				home = Paths.get( System.getProperty( "user.dir" ), "target/install" );
+				home = Paths.get( System.getProperty( "user.dir" ), "target/program" );
 				Files.createDirectories( home );
-
-				// NEXT Continue to figure out how to handle the updater in development
-
-				// More than just the annex.jar file will be needed because annex.jar
-				// is not a standalone jar. This is due to the new Java module
-				// functionality which causes problems with the standalone uber-jar
-				// concept. Instead, all the modules needed to run Annex need to be
-				// copied to a temporary location and Annex run from that location.
-
-				// However, in a development environment, what would Annex update? The
-				// program will not be executed from a location that looks like the
-				// installed program location and therefore would not be a location to
-				// update. It might be worth "updating" a mock location to prove the
-				// logic but restarting the application based on the initial start
-				// parameters would not start the program from the mock location.
-
-				// Setup the update program
-				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "/target/pack/program/lib/annex.jar" );
-				if( Files.exists( updaterSource ) ) {
-					Path updaterTarget = home.resolve( UpdateManager.UPDATER_JAR_NAME );
-					FileUtil.copy( updaterSource, updaterTarget );
-					log.debug( "Updater copied: " + updaterSource );
-				} else {
-					log.warn( "Development updater not found: {}", updaterSource );
-				}
 			}
 
 			// Use the user directory as a last resort.
@@ -935,9 +926,6 @@ public class Program extends Application implements ProgramProduct {
 		updateManager.setEnabled( getCard(), true );
 		updateManager.setUpdatable( getCard(), true );
 		updateManager.setRemovable( getCard(), false );
-
-		// Configure the update manager
-		updateManager.setUpdaterPath( getHomeFolder().resolve( UpdateManager.UPDATER_JAR_NAME ) );
 
 		return updateManager;
 	}

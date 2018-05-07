@@ -43,13 +43,12 @@ public class ProgramUpdateManager extends UpdateManager {
 	}
 
 	/**
-	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied or -1 to cancel
 	 * @throws Exception If an error occurs
 	 */
 	@Override
-	public int applyStagedUpdates( String... extras ) throws Exception {
+	public int applyStagedUpdates( String... extras ) {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		String programName = program.getCard().getName();
@@ -61,7 +60,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		/*
 		 * If the ServiceFlag.NOUPDATECHECK is set that means that the program was
-		 * started as a result of a program restart due to staged updates and the
+		 * started as a result of a program requestRestart due to staged updates and the
 		 * updates should be applied without user interaction.
 		 */
 		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return super.applyStagedUpdates( commands );
@@ -340,13 +339,18 @@ public class ProgramUpdateManager extends UpdateManager {
 			return null;
 		}
 
+		/**
+		 * Nearly identical to ProductTool.handleStagedUpdates()
+		 * @param selectedUpdates
+		 */
 		private void handleApplyUpdates( Set<ProductCard> selectedUpdates ) {
 			if( selectedUpdates.size() == 0 ) return;
 
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 			Platform.runLater( () -> {
+				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 				alert.setTitle( title );
 				alert.setHeaderText( header );
@@ -355,7 +359,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.restart( ProgramFlag.NOUPDATECHECK )  );
+				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.requestRestart( "--" + ProgramFlag.NOUPDATECHECK ) );
 			} );
 		}
 

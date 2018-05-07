@@ -202,6 +202,9 @@ public class ProductTool extends GuidedTool {
 		return sources;
 	}
 
+	/**
+	 * Nearly identical to ProgramUpdateManager.handleStagedUpdates()
+	 */
 	private void handleStagedUpdates() {
 		// Run on the FX thread
 		updatesPage.updateState();
@@ -209,22 +212,20 @@ public class ProductTool extends GuidedTool {
 		// Ask the user about restarting.
 		if( getProgram().getUpdateManager().areUpdatesStaged() ) {
 			String title = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = "";
+			String header = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
 			String message = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
-
-			Stage stage = getProgram().getWorkspaceManager().getActiveWorkspace().getStage();
-			stage.requestFocus();
 
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 			alert.setTitle( title );
 			alert.setHeaderText( header );
 			alert.setContentText( message );
 
+			Stage stage = getProgram().getWorkspaceManager().getActiveWorkspace().getStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {
 				getWorkpane().closeTool( this );
-				getProgram().getTaskManager().submit( new RequestProgramRestart() );
+				getProgram().requestUpdate( );
 			}
 		}
 	}
@@ -806,15 +807,6 @@ public class ProductTool extends GuidedTool {
 			cards.sort( new MarketCardComparator( getProgram(), MarketCardComparator.Field.NAME ) );
 			Platform.runLater( () -> productMarketPage.setMarkets( cards ) );
 			return null;
-		}
-
-	}
-
-	private class RequestProgramRestart implements Runnable {
-
-		@Override
-		public void run() {
-			Platform.runLater( () -> getProgram().restart( ProgramFlag.NOUPDATECHECK ) );
 		}
 
 	}

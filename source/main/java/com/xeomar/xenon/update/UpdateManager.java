@@ -6,13 +6,14 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.Module;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramFlag;
-import com.xeomar.xenon.ProgramShutdownHook;
+import javafx.application.Platform;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -85,8 +86,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public static final String PRODUCT_DESCRIPTOR_PATH = "META-INF/" + DEFAULT_PRODUCT_FILE_NAME;
 
-	public static final String UPDATER_JAR_NAME = "updater.jar";
-
 	public static final String UPDATER_LOG_NAME = "updater.log";
 
 	public static final String UPDATE_FOLDER_NAME = "updates";
@@ -140,8 +139,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	private FoundOption foundOption;
 
 	private ApplyOption applyOption;
-
-	private Path updater;
 
 	private Map<String, Product> products;
 
@@ -331,7 +328,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public boolean isEnabled( ProductCard card ) {
-		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY,Boolean.class, false );
+		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
 	public void setEnabled( ProductCard card, boolean enabled ) {
@@ -346,24 +343,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		log.trace( "Set enabled: ", settings.getPath(), ": ", enabled );
 
 		new UpdateManagerEvent( this, enabled ? UpdateManagerEvent.Type.PRODUCT_ENABLED : UpdateManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
-	}
-
-	/**
-	 * Get the path to the updater library.
-	 *
-	 * @return
-	 */
-	public Path getUpdaterPath() {
-		return updater;
-	}
-
-	/**
-	 * Get the path to the updater library.
-	 *
-	 * @param file
-	 */
-	public void setUpdaterPath( Path file ) {
-		this.updater = file;
 	}
 
 	public CheckOption getCheckOption() {
@@ -481,7 +460,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			int stagedUpdateCount = stagePostedUpdates();
 			if( stagedUpdateCount > 0 ) {
 				log.debug( "Staged updates found, restarting..." );
-				program.restart( ProgramFlag.NOUPDATECHECK );
+				program.requestRestart( ProgramFlag.NOUPDATECHECK );
 			}
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
@@ -563,10 +542,12 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
 				log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
 
-				if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
-					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
-					availableCards.add( availableCard );
-				}
+				// FIXME Force available update for testing
+				availableCards.add( availableCard );
+				//				if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
+				//					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+				//					availableCards.add( availableCard );
+				//				}
 			} catch( ExecutionException exception ) {
 				if( executionException == null ) executionException = exception;
 			} catch( InterruptedException exception ) {
@@ -749,7 +730,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 *
 	 * @return The number of updates applied.
 	 */
-	public final int updateProduct() {
+	public final int updateProduct( String... extras ) {
 		if( program.getHomeFolder() == null ) {
 			log.warn( "Program not executed from updatable location." );
 			return 0;
@@ -763,16 +744,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( updateCount > 0 ) {
 			log.info( "Staged updates detected: {}", updateCount );
 			try {
-				result = applyStagedUpdates();
+				result = applyStagedUpdates( extras );
 			} catch( Exception exception ) {
-				log.warn("Failed to apply staged updates", exception );
+				log.warn( "Failed to apply staged updates", exception );
 			}
 		} else {
 			log.debug( "No staged updates detected." );
 		}
 		return result;
 	}
-
 
 	/**
 	 * Launch the update program to apply the staged updates. This method is
@@ -782,9 +762,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied.
-	 * @throws Exception
 	 */
-	public int applyStagedUpdates( String... extras ) throws Exception {
+	public int applyStagedUpdates( String... extras ) {
 		log.info( "Update manager enabled: " + isEnabled() );
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
@@ -793,44 +772,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Store the update count to be returned after the collection is cleared
 		int count = updates.size();
 
-		// 1. Stage the updater in a temporary location. This will include all the
-		//    modules need to run the updater. Might be easier to just copy the
-		//    entire module path, even if some things are not needed. It's likely
-		//    most things will be needed.
-		String updaterModulePath = "";
-
-		// 2. Configure a shutdown hook, possibly the ProgramShutdownHook, to start
-		//    the updater program upon exit of this program. The updater program
-		//    will in turn restart this program after the updates are complete.
-		ProgramShutdownHook shutdownHook = new ProgramShutdownHook( program );
-		shutdownHook.configureForUpdate( updaterModulePath );
-
-		// 3. Return the number of updates to be applied.
-
-//		// Copy the updater to a temporary location.
-//
-//		// FIXME Updater source is no longer just a file
-//		Path updaterSource = updater;
-//		Path updaterTarget = FileUtil.TEMP_FOLDER.resolve( program.getCard().getArtifact() + "-updater.jar" );
-//
-//		//		Path updaterLogFolder = service.getDataFolder().resolve( Program.LOG_FOLDER_NAME );
-//		//		Path updaterLogFile = updaterLogFolder.resolve( UPDATER_LOG_NAME );
-//
-//		if( updaterSource == null || !Files.exists( updaterSource ) ) throw new RuntimeException( "Update library not found: " + updaterSource );
-//		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
-//
-//		// Register a shutdown hook to start the updater.
-//		// NEXT Register update shutdown hook and finish implementation (can this just be part of the ProgramShutdownHook?)
-//		//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
-//		//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
-//		//		log.trace( "Update shutdown hook registered." );
+		Platform.runLater( () -> program.requestUpdate( "--" + ProgramFlag.NOUPDATECHECK ) );
 
 		clearStagedUpdates();
 
 		return count;
 	}
 
-	public void clearStagedUpdates() {
+	void clearStagedUpdates() {
 		// Remove the updates settings.
 		updates.clear();
 		saveUpdates();

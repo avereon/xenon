@@ -212,7 +212,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		new Thread( () -> {
 			stop();
 			try {
-				// TODO Make task manager restart timeout a setting?
+				// TODO Make task manager requestRestart timeout a setting?
 				awaitStop( 10, TimeUnit.SECONDS );
 				start();
 			} catch( InterruptedException exception ) {
