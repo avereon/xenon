@@ -177,7 +177,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "print-header" );
 
 		// Configure logging, depends on parameters
-		LogUtil.configureLogging( this, parameters );
+		LogUtil.configureLogging( card.getArtifact(), this, parameters );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging

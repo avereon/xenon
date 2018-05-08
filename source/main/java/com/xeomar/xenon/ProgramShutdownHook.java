@@ -7,11 +7,14 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -95,6 +98,8 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( "Updating " + program.getCard().getName() );
 		builder.command().add( "--" + UpdateFlag.LOG_LEVEL );
+		builder.command().add( "trace" );
+		builder.command().add( "--" + UpdateFlag.LOG_FILE );
 		builder.command().add( "xenon-annex.log" );
 		builder.command().add( UpdateFlag.STREAM );
 
@@ -150,7 +155,7 @@ public class ProgramShutdownHook extends Thread {
 
 		StringBuilder updaterModulePath = new StringBuilder( tempUpdaterModulePaths.get( 0 ).toString() );
 		for( int index = 1; index < tempUpdaterModulePaths.size(); index++ ) {
-			updaterModulePath.append( File.separator ).append( tempUpdaterModulePaths.get( index ).toString() );
+			updaterModulePath.append( File.pathSeparator ).append( tempUpdaterModulePaths.get( index ).toString() );
 		}
 
 		return updaterModulePath.toString();
@@ -210,8 +215,18 @@ public class ProgramShutdownHook extends Thread {
 			Process process = builder.start();
 			if( stdInput != null ) {
 				process.getOutputStream().write( stdInput );
-				process.getOutputStream().flush();
+				process.getOutputStream().close();
+
+				try( InputStream input = process.getInputStream() ) {
+					int read;
+					byte[] buffer = new byte[ 128 ];
+					while( (read = input.read( buffer )) > 0 ) {
+						System.out.write( buffer, 0, read );
+						System.out.flush();
+					}
+				}
 			}
+
 		} catch( IOException exception ) {
 			log.error( "Error restarting program", exception );
 		}
