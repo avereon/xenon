@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.annex.UpdateFlag;
+import com.xeomar.annex.UpdateTask;
 import com.xeomar.util.*;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -41,7 +42,6 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
 
 		Parameters extraParameters = Parameters.parse( commands );
 
@@ -62,6 +62,8 @@ public class ProgramShutdownHook extends Thread {
 		for( String uri : extraParameters.getUris() ) {
 			if( !uris.contains( uri ) ) uris.add( uri );
 		}
+
+		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
 
 		// Add the collected flags.
 		for( String flag : flags.keySet() ) {
@@ -93,17 +95,21 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = stageUpdater();
 		String moduleMain = com.xeomar.annex.Program.class.getModule().getName();
 		String moduleMainClass = com.xeomar.annex.Program.class.getName();
-		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
 
+		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( "Updating " + program.getCard().getName() );
-		builder.command().add( "--" + UpdateFlag.LOG_LEVEL );
-		builder.command().add( "trace" );
-		builder.command().add( "--" + UpdateFlag.LOG_FILE );
+		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "xenon-annex.log" );
+		builder.command().add( UpdateFlag.LOG_LEVEL );
+		builder.command().add( "trace" );
 		builder.command().add( UpdateFlag.STREAM );
 
 		StringBuffer updaterCommands = new StringBuffer();
+		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
+		updaterCommands.append( UpdateTask.LOG ).append( " HELLO WORLD\n" );
+		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
+
 		// TODO Add parameters to update Xenon
 		// TODO Add parameters to requestRestart Xenon
 		//Parameters extraParameters = Parameters.parse( commands );
@@ -147,7 +153,8 @@ public class ProgramShutdownHook extends Thread {
 					tempUpdaterModulePaths.add( updaterModuleRoot.resolve( source.getFileName() ) );
 				}
 			}
-			FileUtil.deleteOnExit( updaterModuleRoot );
+			// FIXME Deleting the updater files when the JVM exits usually causes the updater to fail to start
+			//FileUtil.deleteOnExit( updaterModuleRoot );
 		} catch( IOException exception ) {
 			log.error( "Unable to stage updater", exception );
 			return null;
@@ -169,8 +176,6 @@ public class ProgramShutdownHook extends Thread {
 		RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
 		for( String command : runtimeBean.getInputArguments() ) {
 			// Skip some commands
-			if( "abort".equals( command ) ) continue;
-			if( "exit".equals( command ) ) continue;
 			if( command.equals( "exit" ) ) continue;
 			if( command.equals( "abort" ) ) continue;
 			if( command.startsWith( "--module-path" ) ) continue;
@@ -212,19 +217,20 @@ public class ProgramShutdownHook extends Thread {
 		if( builder == null ) return;
 
 		try {
+			builder.inheritIO();
 			Process process = builder.start();
 			if( stdInput != null ) {
 				process.getOutputStream().write( stdInput );
 				process.getOutputStream().close();
 
-				try( InputStream input = process.getInputStream() ) {
-					int read;
-					byte[] buffer = new byte[ 128 ];
-					while( (read = input.read( buffer )) > 0 ) {
-						System.out.write( buffer, 0, read );
-						System.out.flush();
-					}
-				}
+//				try( InputStream input = process.getInputStream() ) {
+//					int read;
+//					byte[] buffer = new byte[ 128 ];
+//					while( (read = input.read( buffer )) > 0 ) {
+//						System.out.write( buffer, 0, read );
+//						System.out.flush();
+//					}
+//				}
 			}
 
 		} catch( IOException exception ) {
