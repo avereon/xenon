@@ -3,14 +3,11 @@ package com.xeomar.xenon;
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.annex.UpdateTask;
 import com.xeomar.util.*;
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -116,7 +113,8 @@ public class ProgramShutdownHook extends Thread {
 		StringBuffer updaterCommands = new StringBuffer();
 		updaterCommands.append( UpdateTask.LOG ).append( " Updating " + program.getCard().getName() + "\n" );
 
-		updaterCommands.append( UpdateTask.MOVE ).append( " currentPath archivePath\n");
+		updaterCommands.append( UpdateTask.MOVE ).append( " installPath archivePath\n");
+		updaterCommands.append( UpdateTask.UNPACK ).append( " updatePack installPath\n");
 
 		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
 
