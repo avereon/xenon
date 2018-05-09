@@ -114,9 +114,11 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( UpdateFlag.STREAM );
 
 		StringBuffer updaterCommands = new StringBuffer();
-		//updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
-		updaterCommands.append( UpdateTask.LOG ).append( " \"HELLO WORLD\"\n" );
-		//updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
+		updaterCommands.append( UpdateTask.LOG ).append( " Updating " + program.getCard().getName() + "\n" );
+
+		updaterCommands.append( UpdateTask.MOVE ).append( " currentPath archivePath\n");
+
+		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
 
 		// TODO Add parameters to update Xenon
 		// TODO Add parameters to restart Xenon
