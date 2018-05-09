@@ -108,7 +108,7 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( "\"Updating " + program.getCard().getName() + "\"" );
 		builder.command().add( UpdateFlag.LOG_FILE );
-		builder.command().add( logFile.toString().replace( "\\", "/" ) );
+		builder.command().add( "%h/" + logFile.toString().replace( "\\", "/" ) );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
 		builder.command().add( "trace" );
 		builder.command().add( UpdateFlag.STREAM );

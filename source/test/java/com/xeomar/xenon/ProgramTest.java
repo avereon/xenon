@@ -11,7 +11,7 @@ public interface ProgramTest {
 		values.add( ProgramFlag.EXECMODE_TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
 		values.add( "none" );
-		return values.toArray( new String[values.size()] );
+		return values.toArray( new String[ 0 ] );
 	}
 
 }
