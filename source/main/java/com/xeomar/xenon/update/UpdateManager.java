@@ -772,7 +772,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Store the update count to be returned after the collection is cleared
 		int count = updates.size();
 
-		Platform.runLater( () -> program.requestUpdate( "--" + ProgramFlag.NOUPDATECHECK ) );
+		Platform.runLater( () -> program.requestUpdate( ProgramFlag.NOUPDATECHECK ) );
 
 		clearStagedUpdates();
 

@@ -3,7 +3,9 @@ package com.xeomar.xenon;
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.annex.UpdateTask;
 import com.xeomar.util.*;
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -19,9 +21,12 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * This shutdown hook is used when a program requestRestart is requested. When a requestRestart is requested the program registers an instance of this shutdown hook, and stops the program, which triggers this shutdown hook to start the program again.
+ * This shutdown hook is used when a program restart is requested. When a
+ * restart is requested the program registers an instance of this shutdown
+ * hook and stops the program, which triggers this shutdown hook to start
+ * the program again.
  *
- * @author soderquistmv
+ * @author Mark Soderquist
  */
 public class ProgramShutdownHook extends Thread {
 
@@ -34,7 +39,7 @@ public class ProgramShutdownHook extends Thread {
 	private volatile byte[] stdInput;
 
 	public ProgramShutdownHook( Program program ) {
-		super( "Restart Hook" );
+		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
 	}
 
@@ -96,22 +101,25 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = com.xeomar.annex.Program.class.getModule().getName();
 		String moduleMainClass = com.xeomar.annex.Program.class.getName();
 
+		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
+		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log") );
+
 		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
 		builder.command().add( UpdateFlag.TITLE );
-		builder.command().add( "Updating " + program.getCard().getName() );
+		builder.command().add( "\"Updating " + program.getCard().getName() + "\"" );
 		builder.command().add( UpdateFlag.LOG_FILE );
-		builder.command().add( "xenon-annex.log" );
+		builder.command().add( logFile.toString().replace( "\\", "/" ) );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
 		builder.command().add( "trace" );
 		builder.command().add( UpdateFlag.STREAM );
 
 		StringBuffer updaterCommands = new StringBuffer();
-		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
-		updaterCommands.append( UpdateTask.LOG ).append( " HELLO WORLD\n" );
-		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
+		//updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
+		updaterCommands.append( UpdateTask.LOG ).append( " \"HELLO WORLD\"\n" );
+		//updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
 
 		// TODO Add parameters to update Xenon
-		// TODO Add parameters to requestRestart Xenon
+		// TODO Add parameters to restart Xenon
 		//Parameters extraParameters = Parameters.parse( commands );
 		//builder.command().add( "--" + ProgramFlag.NOUPDATECHECK );
 		stdInput = updaterCommands.toString().getBytes( TextUtil.CHARSET );
@@ -128,7 +136,7 @@ public class ProgramShutdownHook extends Thread {
 	 * <p>
 	 * More than just the updater jar file will be needed because the updater
 	 * is not a standalone jar anymore. This is due to the new Java module
-	 * functionality which causes problems with the standalone uber-jar
+	 * functionality which causes problems with the standalone shaded jar
 	 * concept. Instead, all the modules needed to run the updater need to be
 	 * copied to a temporary location and the updater run from that location.
 	 *
@@ -137,11 +145,16 @@ public class ProgramShutdownHook extends Thread {
 	private String stageUpdater() {
 		List<Path> tempUpdaterModulePaths = new ArrayList<>();
 		try {
-			Path updaterModuleRoot = Paths.get( FileUtils.getTempDirectoryPath() );
-			if( program.getExecMode() == ExecMode.DEV ) updaterModuleRoot = Paths.get( System.getProperty( "user.dir" ), "target/updater" );
+			// Determine where to put the updater
+			String updaterModuleFolderName = program.getCard().getArtifact() + "-updater";
+			Path updaterModuleRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterModuleFolderName );
+			if( program.getExecMode() == ExecMode.DEV ) updaterModuleRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterModuleFolderName );
+			FileUtils.deleteDirectory( updaterModuleRoot.toFile() );
 			Files.createDirectories( updaterModuleRoot );
 
+			// Copy all the modules needed for the updater
 			for( URI uri : JavaUtil.getModulePath() ) {
+				log.debug( "Copying: " + uri );
 				Path source = Paths.get( uri );
 				if( Files.isDirectory( source ) ) {
 					Path target = updaterModuleRoot.resolve( UUID.randomUUID().toString() );
@@ -153,8 +166,7 @@ public class ProgramShutdownHook extends Thread {
 					tempUpdaterModulePaths.add( updaterModuleRoot.resolve( source.getFileName() ) );
 				}
 			}
-			// FIXME Deleting the updater files when the JVM exits usually causes the updater to fail to start
-			//FileUtil.deleteOnExit( updaterModuleRoot );
+			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 		} catch( IOException exception ) {
 			log.error( "Unable to stage updater", exception );
 			return null;
@@ -217,22 +229,12 @@ public class ProgramShutdownHook extends Thread {
 		if( builder == null ) return;
 
 		try {
-			builder.inheritIO();
+			builder.redirectOutput( ProcessBuilder.Redirect.INHERIT ).redirectError( ProcessBuilder.Redirect.INHERIT );
 			Process process = builder.start();
 			if( stdInput != null ) {
 				process.getOutputStream().write( stdInput );
 				process.getOutputStream().close();
-
-//				try( InputStream input = process.getInputStream() ) {
-//					int read;
-//					byte[] buffer = new byte[ 128 ];
-//					while( (read = input.read( buffer )) > 0 ) {
-//						System.out.write( buffer, 0, read );
-//						System.out.flush();
-//					}
-//				}
 			}
-
 		} catch( IOException exception ) {
 			log.error( "Error restarting program", exception );
 		}

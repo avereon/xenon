@@ -160,7 +160,6 @@ public class Program extends Application implements ProgramProduct {
 		String baseName = "bundles/action";
 		Locale locale = Locale.getDefault();
 		java.lang.Module module = getClass().getModule();
-		ResourceBundle resourceBundle = ResourceBundle.getBundle( baseName, locale, module );
 
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
@@ -177,7 +176,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "print-header" );
 
 		// Configure logging, depends on parameters
-		LogUtil.configureLogging( card.getArtifact(), this, parameters );
+		LogUtil.configureLogging( this, parameters );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging

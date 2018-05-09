@@ -62,7 +62,7 @@ public class ProgramCardTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testProgramDataFolder() throws Exception {
+	public void testProgramDataFolder() {
 		String prefix = ExecMode.TEST.getPrefix();
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		assertThat( program.getDataFolder(), is( programDataFolder ) );
