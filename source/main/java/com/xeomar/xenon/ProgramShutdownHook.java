@@ -116,7 +116,8 @@ public class ProgramShutdownHook extends Thread {
 		StringBuffer updaterCommands = new StringBuffer();
 		updaterCommands.append( UpdateTask.LOG ).append( " Updating " + program.getCard().getName() + "\n" );
 
-		updaterCommands.append( UpdateTask.MOVE ).append( " currentPath archivePath\n");
+		updaterCommands.append( UpdateTask.MOVE ).append( " installPath archivePath\n");
+		updaterCommands.append( UpdateTask.OVERLAY ).append( " updatePack installPath\n");
 
 		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
 
