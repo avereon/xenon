@@ -19,6 +19,8 @@ import java.lang.invoke.MethodHandles;
 
 public class SplashScreenPane extends Pane {
 
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
 	private static final int WIDTH = 320;
 
 	private static final int HEIGHT = 180;
@@ -29,7 +31,11 @@ public class SplashScreenPane extends Pane {
 
 	private static final int BAR_PAD = 20;
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Color barBackgroundColor = new Color( 0.0, 0.0, 0.0, 0.2 );
+
+	private static final Color progressColor = new Color( 0.7, 0.7, 0.7, 1.0 );
+
+	private static final Color completedColor = new Color( 0.2, 0.8, 0.2, 1.0 );
 
 	private String title;
 
@@ -53,14 +59,16 @@ public class SplashScreenPane extends Pane {
 		titleText.setX( TITLE_PAD );
 		titleText.setY( TITLE_PAD + titleText.getLayoutBounds().getHeight() );
 
+		Rectangle progressTray = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, WIDTH - 2 * BAR_PAD, BAR_SIZE );
+		progressTray.setFill( barBackgroundColor );
+
 		progressBar = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, 0, BAR_SIZE );
-		progressBar.setFill( new Color( 0.7, 0.7, 0.7, 1.0 ) );
+		progressBar.setFill( progressColor );
 
 		getChildren().add( background );
 		getChildren().add( new Circle( -40, 80, 160, new Color( 1, 1, 1, 0.1 ) ) );
 		getChildren().add( new Circle( 80, -240, 360, new Color( 1, 1, 1, 0.1 ) ) );
-		getChildren().add( titleText );
-		getChildren().add( progressBar );
+		getChildren().addAll( titleText, progressTray, progressBar );
 
 		setWidth( WIDTH );
 		setHeight( HEIGHT );
@@ -91,7 +99,7 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public void setProgress( double progress ) {
-		if( progress >= 1.0 ) progressBar.setFill( Color.WHITE );
+		if( progress >= 1.0 ) progressBar.setFill( completedColor );
 		progressBar.setWidth( (getWidth() - 2 * BAR_PAD) * progress );
 	}
 
