@@ -8,6 +8,7 @@ module com.xeomar.xenon {
 	requires commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
+	requires com.fasterxml.jackson.annotation;
 	requires com.xeomar.annex;
 	requires com.xeomar.razor;
 	requires org.slf4j;

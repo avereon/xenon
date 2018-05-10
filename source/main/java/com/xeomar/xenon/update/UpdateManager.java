@@ -670,11 +670,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return productResources;
 	}
 
-	public String getStagedUpdateFileName( ProductCard card ) {
+	private String getStagedUpdateFileName( ProductCard card ) {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	public Set<ProductCard> getStagedUpdates() {
+	public Set<ProductUpdate> getStagedUpdates() {
 		Set<ProductUpdate> staged = new HashSet<>();
 		Set<ProductUpdate> remove = new HashSet<>();
 
@@ -696,15 +696,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			saveUpdates();
 		}
 
-		Set<ProductCard> cards = new HashSet<ProductCard>();
-		for( ProductUpdate update : staged ) {
-			cards.add( update.getCard() );
-		}
-
-		return cards;
+		return staged;
 	}
 
-	public int getStagedUpdateCount() {
+	int getStagedUpdateCount() {
 		return getStagedUpdates().size();
 	}
 
@@ -713,7 +708,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public boolean isStaged( ProductCard card ) {
-		return getStagedUpdates().contains( card );
+		for( ProductUpdate update : getStagedUpdates() ) {
+			if( card.equals( update.getCard() ) ) return true;
+		}
+		return false;
 	}
 
 	public boolean isReleaseStaged( ProductCard card ) {

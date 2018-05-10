@@ -2,7 +2,9 @@ package com.xeomar.xenon;
 
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.annex.UpdateTask;
+import com.xeomar.product.ProductCard;
 import com.xeomar.util.*;
+import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
@@ -110,11 +112,18 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( "trace" );
 		builder.command().add( UpdateFlag.STREAM );
 
-		StringBuffer updaterCommands = new StringBuffer();
+		StringBuilder updaterCommands = new StringBuilder();
 		updaterCommands.append( UpdateTask.LOG ).append( " Updating " + program.getCard().getName() + "\n" );
 
-		updaterCommands.append( UpdateTask.MOVE ).append( " installPath archivePath\n");
-		updaterCommands.append( UpdateTask.UNPACK ).append( " updatePack installPath\n");
+		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
+			// TODO The update object has the paths we need
+			//Path file = program.getUpdateManager().getStagedUpdateFileName( update );
+			//log.warn( "Preparing update: " + file );
+
+			// TODO Should I group the moves together? There are pros and cons.
+			updaterCommands.append( UpdateTask.MOVE ).append( " installPath archivePath\n");
+			updaterCommands.append( UpdateTask.UNPACK ).append( " updatePack installPath\n");
+		}
 
 		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
 
