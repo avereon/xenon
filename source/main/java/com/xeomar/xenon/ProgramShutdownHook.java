@@ -29,20 +29,30 @@ import java.util.*;
  */
 public class ProgramShutdownHook extends Thread {
 
+	public enum Mode {
+		RESTART,
+		UPDATE
+	}
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private volatile Program program;
+
+	private volatile Mode mode;
 
 	private volatile ProcessBuilder builder;
 
 	private volatile byte[] stdInput;
 
-	public ProgramShutdownHook( Program program ) {
+	ProgramShutdownHook( Program program ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
+		this.mode = Mode.RESTART;
 	}
 
-	public ProgramShutdownHook configureForRestart( String... extraCommands ) {
+	synchronized ProgramShutdownHook configureForRestart( String... extraCommands ) {
+		mode = Mode.RESTART;
+
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
@@ -53,17 +63,20 @@ public class ProgramShutdownHook extends Thread {
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
-		printCommand( "Restart command: " );
+		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+
 		return this;
 	}
 
-	public ProgramShutdownHook configureForUpdate( String... extraCommands ) {
+	synchronized ProgramShutdownHook configureForUpdate( String... extraCommands ) {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
 		// like the installed program location and therefore would not be a
 		// location to update. It might be worth "updating" a mock location to
 		// prove the logic, but restarting the application based on the initial
 		// start parameters would not start the program at the mock location.
+
+		mode = Mode.UPDATE;
 
 		String updaterModulePath = stageUpdater();
 		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
@@ -84,26 +97,33 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( "trace" );
 		builder.command().add( UpdateFlag.STREAM );
 
-		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
+		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
+		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
+		//ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
 		// TODO Add parameters to update Xenon
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			// TODO The update object has the paths we need
-			//Path file = program.getUpdateManager().getStagedUpdateFileName( update );
-			//log.warn( "Preparing update: " + file );
 
-			Path updatePack = update.getSource();
+			String name = update.getCard().getProductKey();
+			String version = update.getCard().getVersion();
+			Path archive = program.getDataFolder().resolve( "backup" ).resolve( name + "-" + version );
 
-			String updatePackPath = updatePack.toString().replace( File.separator, "/" );
+			String updatePath = update.getSource().toString().replace( File.separator, "/" );
+			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
+			String archivePath = archive.toString().replace( File.separator, "/" );
 
-			// TODO Should I group the moves together? There are pros and cons.
-			ucb.add( UpdateTask.ECHO ).add( "installPath" ).add( "archivePath" ).line();
-			ucb.add( UpdateTask.ECHO ).add( updatePackPath ).add( "installPath" ).line();
+			// TODO Where should the old application be archived?
+			// Somewhere in the data path?
+			// How many do we keep?
+			// How is that managed?
+
+			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
+			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
+			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 		}
-
-		ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
 		// Add parameters to restart Xenon
 		String modulePath = System.getProperty( "jdk.module.path" );
@@ -116,7 +136,6 @@ public class ProgramShutdownHook extends Thread {
 
 		stdInput = ucb.toString().getBytes( TextUtil.CHARSET );
 
-		printCommand( "Update command: " );
 		return this;
 	}
 
@@ -137,7 +156,7 @@ public class ProgramShutdownHook extends Thread {
 	private String stageUpdater() {
 		List<Path> tempUpdaterModulePaths = new ArrayList<>();
 		try {
-			// Determine where to put the updater
+			// Determine where to add the updater
 			String updaterModuleFolderName = program.getCard().getArtifact() + "-updater";
 			Path updaterModuleRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterModuleFolderName );
 			if( program.getExecMode() == ExecMode.DEV ) updaterModuleRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterModuleFolderName );
@@ -172,7 +191,7 @@ public class ProgramShutdownHook extends Thread {
 		return updaterModulePath.toString();
 	}
 
-	private List<String> createProcessCommands( String modulePath, String moduleMain, String moduleMainClass, String... extraCommands ) {
+	private List<String> createProcessCommands( String modulePath, String moduleMain, String moduleMainClass ) {
 		List<String> commands = new ArrayList<>();
 		commands.add( getRestartExecutablePath( program ) );
 
@@ -201,22 +220,12 @@ public class ProgramShutdownHook extends Thread {
 	private List<String> getProgramParameterCommands( String... extraCommands ) {
 		Parameters extraParameters = Parameters.parse( extraCommands );
 
+		extraParameters.add( program.getProgramParameters() );
+
 		// Collect program flags.
 		Map<String, List<String>> flags = new HashMap<>();
-		for( String name : program.getProgramParameters().getFlags() ) {
-			flags.put( name, program.getProgramParameters().getValues( name ) );
-		}
 		for( String name : extraParameters.getFlags() ) {
 			flags.put( name, extraParameters.getValues( name ) );
-		}
-
-		// Collect program URIs.
-		List<String> uris = new ArrayList<>();
-		for( String uri : program.getProgramParameters().getUris() ) {
-			if( !uris.contains( uri ) ) uris.add( uri );
-		}
-		for( String uri : extraParameters.getUris() ) {
-			if( !uris.contains( uri ) ) uris.add( uri );
 		}
 
 		List<String> commands = new ArrayList<>();
@@ -225,10 +234,11 @@ public class ProgramShutdownHook extends Thread {
 		for( String flag : flags.keySet() ) {
 			List<String> values = flags.get( flag );
 			commands.add( flag );
-			if( values.size() > 1 && !"true".equals( values.get( 0 ) ) ) commands.addAll( values );
+			if( values.size() > 1 || !"true".equals( values.get( 0 ) ) ) commands.addAll( values );
 		}
 
 		// Add the collected URIs.
+		List<String> uris = extraParameters.getUris();
 		if( uris.size() > 0 ) commands.addAll( uris );
 
 		return commands;
@@ -246,10 +256,6 @@ public class ProgramShutdownHook extends Thread {
 
 	private static String getWindowsLauncherPath( Program program ) {
 		return program.getHomeFolder().toString() + File.separator + program.getCard().getArtifact() + ".exe";
-	}
-
-	private void printCommand( String label ) {
-		log.debug( label + TextUtil.toString( builder.command(), " " ) );
 	}
 
 	@Override
