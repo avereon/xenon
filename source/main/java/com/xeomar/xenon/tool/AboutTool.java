@@ -301,7 +301,7 @@ public class AboutTool extends GuidedTool {
 	private String getProgramDetails( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
-		//builder.append( "Home folder: " + program.getHomeFolder() + "\n" );
+		builder.append( "Home folder: " + program.getHomeFolder() + "\n" );
 		builder.append( "Data folder: " + program.getDataFolder() + "\n" );
 
 		return builder.toString();

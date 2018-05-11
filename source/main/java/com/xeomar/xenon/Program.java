@@ -787,23 +787,36 @@ public class Program extends Application implements ProgramProduct {
 			// If the HOME flag was specified on the command line use it.
 			if( home == null && parameters.isSet( ProgramFlag.HOME ) ) home = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// Check the code source.
-			if( home == null ) {
-				try {
-					URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) ) home = Paths.get( uri ).getParent();
-				} catch( URISyntaxException exception ) {
-					log.error( "Error using class location to determine program home", exception );
+			// Find the URI from which this class was loaded
+			try {
+				URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+				// Check the code source.
+				if( home == null ) {
+					boolean localJar = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" );
+
+					// If the URI is a local jar file then assume it is located under the
+					// standard folder structure. The standard location is under:
+					// <program home>/lib/<program jar>
+					if( localJar ) home = Paths.get( uri ).getParent().getParent();
 				}
+
+				// Check the execmode flag to detect when running in development
+				String devProgramHome = "target/program";
+
+				if( home == null && getExecMode() == ExecMode.DEV ) {
+					boolean mavenManaged = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( "/target/main/java/" );
+					if( mavenManaged ) home = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
+				}
+
+				if( home == null && getExecMode() == ExecMode.DEV ) {
+					home = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
+					Files.createDirectories( home );
+				}
+			} catch( URISyntaxException exception ) {
+				log.error( "Error using class location to determine program home", exception );
 			}
 
-			// Check the execmode flag to detect when running in development
-			if( home == null && getExecMode() == ExecMode.DEV ) {
-				home = Paths.get( System.getProperty( "user.dir" ), "target/program" );
-				Files.createDirectories( home );
-			}
-
-			// Use the user directory as a last resort.
+			// Use the user directory as a last resort (usually for unit tests)
 			if( home == null ) home = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path.
@@ -812,11 +825,10 @@ public class Program extends Application implements ProgramProduct {
 			log.error( "Error configuring home folder", exception );
 		}
 
-		log.debug( "Home: " + home );
-		//		log.debug( "Log : "+ logFilePattern );
-
 		// Set install folder on product card
 		card.setInstallFolder( home );
+
+		log.debug( "Program home: " + home );
 	}
 
 	private void registerIcons() {}
