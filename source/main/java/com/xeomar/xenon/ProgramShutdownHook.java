@@ -1,8 +1,8 @@
 package com.xeomar.xenon;
 
+import com.xeomar.annex.UpdateCommandBuilder;
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.annex.UpdateTask;
-import com.xeomar.product.ProductCard;
 import com.xeomar.util.*;
 import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
@@ -42,53 +42,22 @@ public class ProgramShutdownHook extends Thread {
 		this.program = program;
 	}
 
-	public ProgramShutdownHook configureForRestart( String... commands ) {
+	public ProgramShutdownHook configureForRestart( String... extraCommands ) {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		Parameters extraParameters = Parameters.parse( commands );
+		List<String> commands = createProcessCommands( modulePath, moduleMain, moduleMainClass );
+		commands.addAll( getProgramParameterCommands( extraCommands ) );
 
-		// Collect program flags.
-		Map<String, List<String>> flags = new HashMap<>();
-		for( String name : program.getProgramParameters().getFlags() ) {
-			flags.put( name, program.getProgramParameters().getValues( name ) );
-		}
-		for( String name : extraParameters.getFlags() ) {
-			flags.put( name, extraParameters.getValues( name ) );
-		}
-
-		// Collect program URIs.
-		List<String> uris = new ArrayList<>();
-		for( String uri : program.getProgramParameters().getUris() ) {
-			if( !uris.contains( uri ) ) uris.add( uri );
-		}
-		for( String uri : extraParameters.getUris() ) {
-			if( !uris.contains( uri ) ) uris.add( uri );
-		}
-
-		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
-
-		// Add the collected flags.
-		for( String flag : flags.keySet() ) {
-			builder.command().add( flag );
-			for( String value : flags.get( flag ) ) {
-				builder.command().add( value );
-			}
-		}
-
-		// Add the collected URIs.
-		if( uris.size() > 0 ) {
-			for( String uri : uris ) {
-				builder.command().add( uri );
-			}
-		}
+		builder = new ProcessBuilder( commands );
+		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		printCommand( "Restart command: " );
 		return this;
 	}
 
-	public ProgramShutdownHook configureForUpdate( String... commands ) {
+	public ProgramShutdownHook configureForUpdate( String... extraCommands ) {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
 		// like the installed program location and therefore would not be a
@@ -96,42 +65,56 @@ public class ProgramShutdownHook extends Thread {
 		// prove the logic, but restarting the application based on the initial
 		// start parameters would not start the program at the mock location.
 
-		String modulePath = stageUpdater();
-		String moduleMain = com.xeomar.annex.Program.class.getModule().getName();
-		String moduleMainClass = com.xeomar.annex.Program.class.getName();
+		String updaterModulePath = stageUpdater();
+		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
+		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
-		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log") );
+		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
+		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = createProcessBuilder( modulePath, moduleMain, moduleMainClass );
+		builder = new ProcessBuilder( createProcessCommands( updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
+		builder.directory( new File( System.getProperty( "user.dir" ) ) );
+
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( "\"Updating " + program.getCard().getName() + "\"" );
 		builder.command().add( UpdateFlag.LOG_FILE );
-		builder.command().add( "%h/" + logFile.toString().replace( "\\", "/" ) );
+		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
 		builder.command().add( "trace" );
 		builder.command().add( UpdateFlag.STREAM );
 
-		StringBuilder updaterCommands = new StringBuilder();
-		updaterCommands.append( UpdateTask.LOG ).append( " Updating " + program.getCard().getName() + "\n" );
+		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 
+		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
+
+		// TODO Add parameters to update Xenon
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			// TODO The update object has the paths we need
 			//Path file = program.getUpdateManager().getStagedUpdateFileName( update );
 			//log.warn( "Preparing update: " + file );
 
+			Path updatePack = update.getSource();
+
+			String updatePackPath = updatePack.toString().replace( File.separator, "/" );
+
 			// TODO Should I group the moves together? There are pros and cons.
-			updaterCommands.append( UpdateTask.MOVE ).append( " installPath archivePath\n");
-			updaterCommands.append( UpdateTask.UNPACK ).append( " updatePack installPath\n");
+			ucb.add( UpdateTask.ECHO ).add( "installPath" ).add( "archivePath" ).line();
+			ucb.add( UpdateTask.ECHO ).add( updatePackPath ).add( "installPath" ).line();
 		}
 
-		updaterCommands.append( UpdateTask.PAUSE ).append( " 1000\n" );
+		ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
-		// TODO Add parameters to update Xenon
-		// TODO Add parameters to restart Xenon
-		//Parameters extraParameters = Parameters.parse( commands );
-		//builder.command().add( "--" + ProgramFlag.NOUPDATECHECK );
-		stdInput = updaterCommands.toString().getBytes( TextUtil.CHARSET );
+		// Add parameters to restart Xenon
+		String modulePath = System.getProperty( "jdk.module.path" );
+		String moduleMain = System.getProperty( "jdk.module.main" );
+		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
+		List<String> commands = createProcessCommands( modulePath, moduleMain, moduleMainClass );
+		commands.addAll( getProgramParameterCommands( extraCommands ) );
+		//commands.add( ProgramFlag.NOUPDATECHECK );
+		ucb.add( UpdateTask.LAUNCH ).add( commands ).line();
+
+		stdInput = ucb.toString().getBytes( TextUtil.CHARSET );
 
 		printCommand( "Update command: " );
 		return this;
@@ -189,9 +172,9 @@ public class ProgramShutdownHook extends Thread {
 		return updaterModulePath.toString();
 	}
 
-	private ProcessBuilder createProcessBuilder( String modulePath, String moduleMain, String moduleMainClass ) {
-		ProcessBuilder builder = new ProcessBuilder( getRestartExecutablePath( program ) );
-		builder.directory( new File( System.getProperty( "user.dir" ) ) );
+	private List<String> createProcessCommands( String modulePath, String moduleMain, String moduleMainClass, String... extraCommands ) {
+		List<String> commands = new ArrayList<>();
+		commands.add( getRestartExecutablePath( program ) );
 
 		// Add the VM parameters to the commands.
 		RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
@@ -203,16 +186,52 @@ public class ProgramShutdownHook extends Thread {
 			if( command.startsWith( "-Djdk.module.main" ) ) continue;
 			if( command.startsWith( "-Djdk.module.main.class" ) ) continue;
 
-			if( !builder.command().contains( command ) ) builder.command().add( command );
+			if( !commands.contains( command ) ) commands.add( command );
 		}
 
 		// Add the module information
-		builder.command().add( "-p" );
-		builder.command().add( modulePath );
-		builder.command().add( "-m" );
-		builder.command().add( moduleMain + "/" + moduleMainClass );
+		commands.add( "-p" );
+		commands.add( modulePath );
+		commands.add( "-m" );
+		commands.add( moduleMain + "/" + moduleMainClass );
 
-		return builder;
+		return commands;
+	}
+
+	private List<String> getProgramParameterCommands( String... extraCommands ) {
+		Parameters extraParameters = Parameters.parse( extraCommands );
+
+		// Collect program flags.
+		Map<String, List<String>> flags = new HashMap<>();
+		for( String name : program.getProgramParameters().getFlags() ) {
+			flags.put( name, program.getProgramParameters().getValues( name ) );
+		}
+		for( String name : extraParameters.getFlags() ) {
+			flags.put( name, extraParameters.getValues( name ) );
+		}
+
+		// Collect program URIs.
+		List<String> uris = new ArrayList<>();
+		for( String uri : program.getProgramParameters().getUris() ) {
+			if( !uris.contains( uri ) ) uris.add( uri );
+		}
+		for( String uri : extraParameters.getUris() ) {
+			if( !uris.contains( uri ) ) uris.add( uri );
+		}
+
+		List<String> commands = new ArrayList<>();
+
+		// Add the collected flags.
+		for( String flag : flags.keySet() ) {
+			List<String> values = flags.get( flag );
+			commands.add( flag );
+			if( values.size() > 1 && !"true".equals( values.get( 0 ) ) ) commands.addAll( values );
+		}
+
+		// Add the collected URIs.
+		if( uris.size() > 0 ) commands.addAll( uris );
+
+		return commands;
 	}
 
 	private static String getRestartExecutablePath( Program service ) {
@@ -238,6 +257,7 @@ public class ProgramShutdownHook extends Thread {
 		if( builder == null ) return;
 
 		try {
+			// Only redirect stdout and stderr
 			builder.redirectOutput( ProcessBuilder.Redirect.INHERIT ).redirectError( ProcessBuilder.Redirect.INHERIT );
 			Process process = builder.start();
 			if( stdInput != null ) {
