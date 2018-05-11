@@ -57,8 +57,7 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		List<String> commands = createProcessCommands( modulePath, moduleMain, moduleMainClass );
-		commands.addAll( getProgramParameterCommands( extraCommands ) );
+		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
 
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
@@ -86,7 +85,7 @@ public class ProgramShutdownHook extends Thread {
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( createProcessCommands( updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
@@ -103,10 +102,7 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
 		//ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
-		// TODO Add parameters to update Xenon
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
-			// TODO The update object has the paths we need
-
 			String name = update.getCard().getProductKey();
 			String version = update.getCard().getVersion();
 			Path archive = program.getDataFolder().resolve( "backup" ).resolve( name + "-" + version );
@@ -114,11 +110,6 @@ public class ProgramShutdownHook extends Thread {
 			String updatePath = update.getSource().toString().replace( File.separator, "/" );
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
-
-			// TODO Where should the old application be archived?
-			// Somewhere in the data path?
-			// How many do we keep?
-			// How is that managed?
 
 			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
 			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
@@ -129,8 +120,7 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		List<String> commands = createProcessCommands( modulePath, moduleMain, moduleMainClass );
-		commands.addAll( getProgramParameterCommands( extraCommands ) );
+		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
 		//commands.add( ProgramFlag.NOUPDATECHECK );
 		ucb.add( UpdateTask.LAUNCH ).add( commands ).line();
 
@@ -189,73 +179,6 @@ public class ProgramShutdownHook extends Thread {
 		}
 
 		return updaterModulePath.toString();
-	}
-
-	private List<String> createProcessCommands( String modulePath, String moduleMain, String moduleMainClass ) {
-		List<String> commands = new ArrayList<>();
-		commands.add( getRestartExecutablePath( program ) );
-
-		// Add the VM parameters to the commands.
-		RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
-		for( String command : runtimeBean.getInputArguments() ) {
-			// Skip some commands
-			if( command.equals( "exit" ) ) continue;
-			if( command.equals( "abort" ) ) continue;
-			if( command.startsWith( "--module-path" ) ) continue;
-			if( command.startsWith( "-Djdk.module.main" ) ) continue;
-			if( command.startsWith( "-Djdk.module.main.class" ) ) continue;
-
-			if( !commands.contains( command ) ) commands.add( command );
-		}
-
-		// Add the module information
-		commands.add( "-p" );
-		commands.add( modulePath );
-		commands.add( "-m" );
-		commands.add( moduleMain + "/" + moduleMainClass );
-
-		return commands;
-	}
-
-	private List<String> getProgramParameterCommands( String... extraCommands ) {
-		Parameters extraParameters = Parameters.parse( extraCommands );
-
-		extraParameters.add( program.getProgramParameters() );
-
-		// Collect program flags.
-		Map<String, List<String>> flags = new HashMap<>();
-		for( String name : extraParameters.getFlags() ) {
-			flags.put( name, extraParameters.getValues( name ) );
-		}
-
-		List<String> commands = new ArrayList<>();
-
-		// Add the collected flags.
-		for( String flag : flags.keySet() ) {
-			List<String> values = flags.get( flag );
-			commands.add( flag );
-			if( values.size() > 1 || !"true".equals( values.get( 0 ) ) ) commands.addAll( values );
-		}
-
-		// Add the collected URIs.
-		List<String> uris = extraParameters.getUris();
-		if( uris.size() > 0 ) commands.addAll( uris );
-
-		return commands;
-	}
-
-	private static String getRestartExecutablePath( Program service ) {
-		String executablePath = OperatingSystem.getJavaExecutablePath();
-		if( isWindowsLauncherFound( service ) ) executablePath = getWindowsLauncherPath( service );
-		return executablePath;
-	}
-
-	private static boolean isWindowsLauncherFound( Program service ) {
-		return new File( getWindowsLauncherPath( service ) ).exists();
-	}
-
-	private static String getWindowsLauncherPath( Program program ) {
-		return program.getHomeFolder().toString() + File.separator + program.getCard().getArtifact() + ".exe";
 	}
 
 	@Override
