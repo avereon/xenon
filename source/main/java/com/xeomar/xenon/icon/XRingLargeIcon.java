@@ -19,9 +19,16 @@ public class XRingLargeIcon extends XLargeIcon {
 		double innerRingMin = 5;
 
 		// Xenon hue: 263
-		Color dkXenon = Color.web( "#9965e6" );
-		Color mdXenon = Color.web( "#b691ed" );
-		Color ltXenon = Color.web( "#d3bdf4" );
+		//Color dkXenon = Color.web( "#9965e6" );
+		//Color mdXenon = Color.web( "#b691ed" );
+		//Color ltXenon = Color.web( "#d3bdf4" );
+
+		Color mdRing = Color.web( "#80a0c0");
+		Color ltRing = Color.web( "#84d1f9");
+
+		Color jetCenter = Color.web( "#ffffcc");
+		Color jetMiddle = Color.web( "#ffff80");
+		Color jetTip = Color.web( "#ff8040");
 
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 13 ) * g( 13 )) );
@@ -29,17 +36,15 @@ public class XRingLargeIcon extends XLargeIcon {
 		//		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
 		//		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
 		//		jetPaintStops.add( new Stop( 0.8, Color.web( "#aa80ff" ) ) );
-		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeee00" ) ) );
-		jetPaintStops.add( new Stop( 0.4, Color.web( "#eeee00" ) ) );
-		jetPaintStops.add( new Stop( 0.8, Color.web( "#ff8000" ) ) );
+		jetPaintStops.add( new Stop( 0.1, jetCenter ) );
+		//jetPaintStops.add( new Stop( 0.5, jetMiddle ) );
+		jetPaintStops.add( new Stop( 1.0, jetTip ) );
 		Paint jetPaint = radialPaint( g( 16 ), g( 16 ), jetRadius, jetPaintStops );
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-		//		ringPaintStops.add( new Stop( 0.6, Color.web( "#ffee80" ) ) );
-		//		ringPaintStops.add( new Stop( 0.9, Color.web( "#ff6000" ) ) );
-		ringPaintStops.add( new Stop( 0.6, ltXenon ) );
-		ringPaintStops.add( new Stop( 0.9, mdXenon ) );
+		ringPaintStops.add( new Stop( 0.6, ltRing ) );
+		ringPaintStops.add( new Stop( 0.9, mdRing ) );
 		Paint ringPaint = radialPaint( g( 16 ), g( 16 ) * outerRingMax / outerRingMin, g( outerRingMax ), ringPaintStops );
 
 		// Bottom of jet
