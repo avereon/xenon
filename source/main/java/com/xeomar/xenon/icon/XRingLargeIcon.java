@@ -10,10 +10,13 @@ import java.util.List;
 /**
  * Use <a href="http://www.pic2icon.com/windows7_vista_icon_generator.php">Pic2Icon</a> to convert to Windows icon.
  */
-public class XRingIcon extends XIcon {
+public class XRingLargeIcon extends XLargeIcon {
 
 	protected void render() {
-		double ringScale = 7.0 / 11.0;
+		double outerRingMax = 15;
+		double outerRingMin = 11;
+		double innerRingMax = 7;
+		double innerRingMin = 5;
 
 		// Xenon hue: 263
 		Color dkXenon = Color.web( "#9965e6" );
@@ -21,7 +24,7 @@ public class XRingIcon extends XIcon {
 		Color ltXenon = Color.web( "#d3bdf4" );
 
 		// Jet paint
-		double jetRadius = Math.sqrt( 2 * (g( 10 ) * g( 10 )) );
+		double jetRadius = Math.sqrt( 2 * (g( 13 ) * g( 13 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
 		//		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
 		//		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
@@ -37,7 +40,7 @@ public class XRingIcon extends XIcon {
 		//		ringPaintStops.add( new Stop( 0.9, Color.web( "#ff6000" ) ) );
 		ringPaintStops.add( new Stop( 0.6, ltXenon ) );
 		ringPaintStops.add( new Stop( 0.9, mdXenon ) );
-		Paint ringPaint = radialPaint( g( 16 ), (1 / ringScale) * g( 16 ), g( 11 ), ringPaintStops );
+		Paint ringPaint = radialPaint( g( 16 ), g( 16 ) * outerRingMax / outerRingMin, g( outerRingMax ), ringPaintStops );
 
 		// Bottom of jet
 		getGraphicsContext2D().save();
@@ -49,15 +52,15 @@ public class XRingIcon extends XIcon {
 
 		// Ring
 		beginPath();
-		addArc( g( 16 ), g( 16 ), g( 11 ), g( ringScale * 11 ), 0, 360 );
-		moveTo( g( 21 ), g( 16 ) );
-		addArc( g( 16 ), g( 16 ), g( 5 ), g( 2.5 ), 0, 360 );
+		addArc( g( 16 ), g( 16 ), g( outerRingMax ), g( outerRingMin ), 0, 360 );
+		moveTo( g( 16 + innerRingMax ), g( 16 ) );
+		addArc( g( 16 ), g( 16 ), g( innerRingMax ), g( innerRingMin ), 0, 360 );
 		closePath();
 		getGraphicsContext2D().save();
-		getGraphicsContext2D().scale( 1, ringScale );
-		fill( ringPaint );
+		getGraphicsContext2D().scale( 1, outerRingMin / outerRingMax );
+		fillAndDraw( ringPaint );
 		getGraphicsContext2D().restore();
-		draw();
+		//draw();
 
 		// Top of jet
 		getGraphicsContext2D().save();
@@ -76,7 +79,7 @@ public class XRingIcon extends XIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new XRingIcon() );
+		proof( new XRingLargeIcon() );
 		//save( new XRingIcon(), "Downloads/program.png" );
 		//save( new XRingIcon(), "../../software/xenon/source/main/resources/program.png");
 		//save( new XRingIcon(), "../../software/xenon/source/main/assembly/program.png");
