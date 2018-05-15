@@ -14,7 +14,7 @@ public class IconLibrary {
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( "program", XRingLargeIcon.class );
+		register( "program", WingDiscLargeIcon.class );
 		register( "new", DocumentIcon.class );
 		register( "open", FolderIcon.class );
 		//register( "save", SaveIcon.class );
