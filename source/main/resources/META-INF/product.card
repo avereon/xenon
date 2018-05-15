@@ -6,6 +6,7 @@
   "iconUri" : "http://xeomar.com/images/icons/${project.artifactId}.png",
   "name" : "${project.name}",
   "provider" : "${project.organization.name}",
+  "providerUrl" : "${project.organization.url}",
   "inception" : "${project.inceptionYear}",
   "summary" : "Java application platform",
   "description" : "${project.description}",

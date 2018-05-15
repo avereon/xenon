@@ -1,28 +1,35 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
+import com.xeomar.xenon.util.Colors;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Stop;
 
 public class WingDiscIcon extends ProgramIcon {
 
-	private double POINT_RADIUS = g( 2 );
+	double POINT_RADIUS;
 
-	private double DISC_RADIUS = g( 5 );
+	double DISC_RADIUS;
 
-	private double zx = g( 16 );
+	double zx;
 
-	private double zy = g( 7 );
+	double zy;
 
-	private double yx = g( 7 );
+	double yx;
 
-	private double yy = g( 25 );
+	double yy;
 
-	private double xx = g( 16 );
+	double xx;
 
-	private double xy = g( 22 );
+	double xy;
 
-	private double wx = g( 25 );
+	double wx;
 
-	private double wy = g( 25 );
+	double wy;
+
+	double vx;
+
+	double vy;
 
 	private double bx;
 
@@ -35,10 +42,6 @@ public class WingDiscIcon extends ProgramIcon {
 	private double fx;
 
 	private double fy;
-
-	private double nx;
-
-	private double ny;
 
 	private double frontStartAngleDeg;
 
@@ -56,11 +59,55 @@ public class WingDiscIcon extends ProgramIcon {
 
 	private double rightArcSpanAngleDeg;
 
-	private double discArcStartAngleDeg;
-
-	private double discArcSpanAngleDeg;
-
 	public WingDiscIcon() {
+		POINT_RADIUS = g( 2 );
+		DISC_RADIUS = g( 5 );
+		zx = g( 16 );
+		zy = g( 7 );
+		yx = g( 7 );
+		yy = g( 25 );
+		xx = g( 16 );
+		xy = g( 22 );
+		wx = g( 25 );
+		wy = g( 25 );
+		vx = xx;
+		vy = xy;
+
+	}
+
+	@Override
+	protected void render() {
+		calculateNumbers();
+
+		Color discColor1 = Color.YELLOW;
+		Color discColor2 = Color.ORANGE;
+		//setFillPaint( linearPaint( xx, xy, vx, vy + DISC_RADIUS, new Stop( 0, discColor1 ), new Stop( 1, discColor2 ) ) );
+		setFillPaint( radialPaint( vx, vy - DISC_RADIUS, 2* DISC_RADIUS, new Stop( 0.4, discColor1 ), new Stop( 1, discColor2 ) ) );
+		fillCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
+		drawCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
+
+		Color wingColor1 = Color.WHITE;
+		Color wingColor2 = Colors.mix(Color.STEELBLUE, Color.WHITE, 0.3 );
+		setFillPaint( linearPaint( zx, zy-POINT_RADIUS, zx, wy + POINT_RADIUS, new Stop(0,wingColor1), new Stop( 1, wingColor2 ) ) );
+		arrow();
+		fill();
+		arrow();
+		draw();
+	}
+
+	private void arrow() {
+		beginPath();
+		addArc( zx, zy, POINT_RADIUS, POINT_RADIUS, frontStartAngleDeg, frontSpanAngleDeg );
+		lineTo( bx, by );
+		addArc( yx, yy, POINT_RADIUS, POINT_RADIUS, leftArcStartAngleDeg, leftArcSpanAngleDeg );
+		lineTo( dx, dy );
+		addArc( xx, xy, POINT_RADIUS, POINT_RADIUS, backArcStartAngleDeg, backArcSpanAngleDeg );
+		lineTo( fx, fy );
+		addArc( wx, wy, POINT_RADIUS, POINT_RADIUS, rightArcStartAngleDeg, rightArcSpanAngleDeg );
+		closePath();
+	}
+
+	private void calculateNumbers() {
 		double frontTangent = (yy - zy) / (zx - yx);
 		double frontNormal = 1 / frontTangent;
 		double frontNormalAngle = Math.atan( frontNormal );
@@ -94,49 +141,6 @@ public class WingDiscIcon extends ProgramIcon {
 
 		fx = wx - Math.cos( backTangentAngle ) * POINT_RADIUS;
 		fy = wy + Math.sin( backTangentAngle ) * POINT_RADIUS;
-
-		double theta = Math.atan2( POINT_RADIUS, Math.sqrt( Math.pow( DISC_RADIUS, 2 ) - Math.pow( POINT_RADIUS, 2 ) ) );
-		double kappa = backNormalAngle - theta;
-		nx = xx + Math.cos( kappa ) * DISC_RADIUS;
-		ny = xy + Math.sin( kappa ) * DISC_RADIUS;
-
-		double discArcStartAngle = 2 * Math.PI - kappa;
-		double discArcSpanAngle = Math.PI - 2 * kappa;
-		discArcStartAngleDeg = discArcStartAngle * DEGREES_PER_RADIAN;
-		discArcSpanAngleDeg = -discArcSpanAngle * DEGREES_PER_RADIAN;
-	}
-
-	@Override
-	protected void render() {
-		arrow();
-		fill();
-		disc();
-		fill();
-
-		arrow();
-		draw();
-		disc();
-		draw();
-	}
-
-	private void arrow() {
-		beginPath();
-		addArc( zx, zy, POINT_RADIUS, POINT_RADIUS, frontStartAngleDeg, frontSpanAngleDeg );
-		lineTo( bx, by );
-		addArc( yx, yy, POINT_RADIUS, POINT_RADIUS, leftArcStartAngleDeg, leftArcSpanAngleDeg );
-		lineTo( dx, dy );
-		addArc( xx, xy, POINT_RADIUS, POINT_RADIUS, backArcStartAngleDeg, backArcSpanAngleDeg );
-		lineTo( fx, fy );
-		addArc( wx, wy, POINT_RADIUS, POINT_RADIUS, rightArcStartAngleDeg, rightArcSpanAngleDeg );
-		closePath();
-	}
-
-	private void disc() {
-		beginPath();
-		addArc( xx, xy, POINT_RADIUS, POINT_RADIUS, backArcStartAngleDeg, backArcSpanAngleDeg );
-		lineTo( nx, ny );
-		addArc( xx, xy, DISC_RADIUS, DISC_RADIUS, discArcStartAngleDeg, discArcSpanAngleDeg );
-		closePath();
 	}
 
 	public static void main( String[] commands ) {

@@ -18,6 +18,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -193,7 +194,7 @@ public abstract class ProgramImage extends Canvas {
 			VBox pane = new VBox();
 			pane.getChildren().add( icon );
 
-			Stage stage = new Stage();
+			Stage stage = new Stage(StageStyle.UTILITY);
 			stage.setTitle( title );
 			stage.setScene( new Scene( pane ) );
 
@@ -263,14 +264,21 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public static void save( ProgramImage icon, String path ) {
+		try {
+			save( icon, new File( path ).getCanonicalFile() );
+		} catch( Exception exception ) {
+			exception.printStackTrace();
+		}
+	}
+
+	public static void save( ProgramImage icon, File path ) {
 		JavaFxStarter.startAndWait( 1000 );
 
 		// Render and save the icon
 		Platform.runLater( () -> {
 			try {
 				icon.fireRender();
-				File file = new File( path ).getCanonicalFile();
-				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", file );
+				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
 			} catch( Exception exception ) {
 				exception.printStackTrace();
 			}
@@ -606,6 +614,14 @@ public abstract class ProgramImage extends Canvas {
 		return getGradientPaint( colorA, colorB );
 	}
 
+	protected Paint linearPaint( double x1, double y1, double x2, double y2, Stop... stops ) {
+		return new LinearGradient( x1, y1, x2, y2, false, CycleMethod.NO_CYCLE, stops );
+	}
+
+	protected Paint linearPaint( double x1, double y1, double x2, double y2, List<Stop> stops ) {
+		return new LinearGradient( x1, y1, x2, y2, false, CycleMethod.NO_CYCLE, stops );
+	}
+
 	protected Paint radialPaint( double x, double y, double r, Stop... stops ) {
 		return new RadialGradient( 0, 0, xformX( x ), xformY( y ), xformX( r ), false, CycleMethod.NO_CYCLE, stops );
 	}
@@ -668,7 +684,7 @@ public abstract class ProgramImage extends Canvas {
 		setLineJoin( StrokeLineJoin.ROUND );
 		setLineWidth( getIconDrawWidth() );
 		setDrawPaint( getIconDrawColor() );
-		setFillPaint( getIconFillPaint( GradientShade.MEDIUM ) );
+		setFillPaint( getIconFillPaint() );
 		setFillRule( FillRule.EVEN_ODD );
 
 		// Start rendering by clearing the icon area
