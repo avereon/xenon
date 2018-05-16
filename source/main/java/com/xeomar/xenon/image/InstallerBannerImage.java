@@ -7,6 +7,8 @@ import com.xeomar.xenon.icon.WingDiscLargeIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import java.net.URL;
+
 public class InstallerBannerImage extends ProgramImage {
 
 	public InstallerBannerImage() {
@@ -26,8 +28,10 @@ public class InstallerBannerImage extends ProgramImage {
 		setFillPaint( Color.BLACK );
 
 		ProductCard card = new ProductCard();
+		String providerUrl = "";
 		try {
-			card.init( Program.class );
+			card.load( Program.class );
+			providerUrl = new URL( card.getProviderUrl()).getHost();
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
@@ -38,7 +42,7 @@ public class InstallerBannerImage extends ProgramImage {
 
 		// Draw the program web address
 		setTextAlign( TextAlignment.CENTER );
-		fillText( card.getProviderUrl(), 2, 13.0 / 16, 3.0 / 16.0, 2 );
+		fillText( providerUrl, 2, 13.0 / 16, 3.0 / 16.0, 2 );
 	}
 
 	public static void main( String[] commands ) {
