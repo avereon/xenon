@@ -20,8 +20,8 @@ public class WingDiscLargeIcon extends WingDiscIcon {
 	}
 
 	public static void main( String[] commands ) {
-		//proof( new WingDiscLargeIcon() );
-		save( new WingDiscLargeIcon(), new File( System.getProperty( "user.home"), "Downloads/arcos.png" ) );
+		proof( new WingDiscLargeIcon() );
+		//save( new WingDiscLargeIcon(), new File( System.getProperty( "user.home"), "Downloads/arcos.png" ) );
 	}
 
 }
