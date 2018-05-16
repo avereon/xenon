@@ -19,7 +19,6 @@
 	<variables>
 		<!-- The project.artifactId is specified in the maven pom file -->
 		<variable name="IDENTIFIER" value="${project.artifactId}"/>
-		<variable name="JAR_NAME" value="${project.artifactId}.jar"/>
 		<variable name="TargetPanel.dir.windows" value="${APPLICATIONS_DEFAULT_ROOT}${APP_NAME}"/>
 		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}Programs/${IDENTIFIER}/${project.version}"/>
 		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
@@ -36,7 +35,8 @@
 		</condition>
 	</conditions>
 
-	<guiprefs width="1200" height="675" resizable="no">
+	<!-- Use the golden ration for the frame size -->
+	<guiprefs width="640" height="395" resizable="no">
 		<modifier key="useFlags" value="yes"/>
 		<modifier key="langDisplayType" value="native"/>
 	</guiprefs>
