@@ -2,6 +2,9 @@ package com.xeomar.xenon.icon;
 
 import java.io.File;
 
+/**
+ * Use <a href="http://www.pic2icon.com/">Pic2Icon</a> to convert to Windows icon.
+ */
 public class WingDiscLargeIcon extends WingDiscIcon {
 
 	public WingDiscLargeIcon() {
@@ -21,7 +24,7 @@ public class WingDiscLargeIcon extends WingDiscIcon {
 
 	public static void main( String[] commands ) {
 		proof( new WingDiscLargeIcon() );
-		//save( new WingDiscLargeIcon(), new File( System.getProperty( "user.home"), "Downloads/arcos.png" ) );
+		//save( new WingDiscLargeIcon(), new File( System.getProperty( "user.home"), "Downloads/program.png" ) );
 	}
 
 }

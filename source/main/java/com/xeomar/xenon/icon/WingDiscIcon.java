@@ -5,6 +5,9 @@ import com.xeomar.xenon.util.Colors;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 
+/**
+ * Use <a href="http://www.pic2icon.com/">Pic2Icon</a> to convert to Windows icon.
+ */
 public class WingDiscIcon extends ProgramIcon {
 
 	double POINT_RADIUS;

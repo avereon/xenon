@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Use <a href="http://www.pic2icon.com/windows7_vista_icon_generator.php">Pic2Icon</a> to convert to Windows icon.
+ * Use <a href="http://www.pic2icon.com/">Pic2Icon</a> to convert to Windows icon.
  */
 public class XRingLargeIcon extends XLargeIcon {
 
@@ -18,40 +18,31 @@ public class XRingLargeIcon extends XLargeIcon {
 		double innerRingMax = 7;
 		double innerRingMin = 5;
 
-		// Xenon hue: 263
-		//Color dkXenon = Color.web( "#9965e6" );
-		//Color mdXenon = Color.web( "#b691ed" );
-		//Color ltXenon = Color.web( "#d3bdf4" );
+		// Ring colors
+		Color ringBase = Color.web( "#4FC3F7" );
+		Color ringHighlight = Color.web( "#81D4FA" );
 
-		Color mdRing = Color.web( "#80a0c0");
-		Color ltRing = Color.web( "#84d1f9");
-
-		Color jetCenter = Color.web( "#ffffcc");
-		Color jetMiddle = Color.web( "#ffff80");
-		Color jetTip = Color.web( "#ff8040");
+		// Jet colors
+		Color jetCenter = Color.web( "#FFF59D" );
+		Color jetTip = Color.web( "#FFA726" );
 
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 13 ) * g( 13 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
-		//		jetPaintStops.add( new Stop( 0.1, Color.web( "#eeeeee" ) ) );
-		//		jetPaintStops.add( new Stop( 0.4, Color.web( "#709acc" ) ) );
-		//		jetPaintStops.add( new Stop( 0.8, Color.web( "#aa80ff" ) ) );
 		jetPaintStops.add( new Stop( 0.1, jetCenter ) );
-		//jetPaintStops.add( new Stop( 0.5, jetMiddle ) );
 		jetPaintStops.add( new Stop( 1.0, jetTip ) );
 		Paint jetPaint = radialPaint( g( 16 ), g( 16 ), jetRadius, jetPaintStops );
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-		ringPaintStops.add( new Stop( 0.6, ltRing ) );
-		ringPaintStops.add( new Stop( 0.9, mdRing ) );
+		ringPaintStops.add( new Stop( 0.6, ringHighlight ) );
+		ringPaintStops.add( new Stop( 0.9, ringBase ) );
 		Paint ringPaint = radialPaint( g( 16 ), g( 16 ) * outerRingMax / outerRingMin, g( outerRingMax ), ringPaintStops );
 
 		// Bottom of jet
 		getGraphicsContext2D().save();
 		clip( g( 0 ), g( 16 ), g( 32 ), g( 16 ) );
 		xPath();
-		//fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
 		fillAndDraw( jetPaint );
 		getGraphicsContext2D().restore();
 
@@ -65,13 +56,11 @@ public class XRingLargeIcon extends XLargeIcon {
 		getGraphicsContext2D().scale( 1, outerRingMin / outerRingMax );
 		fillAndDraw( ringPaint );
 		getGraphicsContext2D().restore();
-		//draw();
 
 		// Top of jet
 		getGraphicsContext2D().save();
 		clip( g( 0 ), g( 0 ), g( 32 ), g( 16 ) );
 		xPath();
-		//fillAndDraw( getIconFillPaint( GradientShade.LIGHT ) );
 		fillAndDraw( jetPaint );
 		getGraphicsContext2D().restore();
 	}

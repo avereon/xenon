@@ -194,7 +194,7 @@ public abstract class ProgramImage extends Canvas {
 			VBox pane = new VBox();
 			pane.getChildren().add( icon );
 
-			Stage stage = new Stage(StageStyle.UTILITY);
+			Stage stage = new Stage();
 			stage.setTitle( title );
 			stage.setScene( new Scene( pane ) );
 
@@ -256,7 +256,7 @@ public abstract class ProgramImage extends Canvas {
 			stage.getIcons().addAll( stageIcons );
 			stage.setScene( new Scene( pane ) );
 
-			stage.setResizable( true );
+			stage.setResizable( false );
 			stage.centerOnScreen();
 			stage.sizeToScene();
 			stage.show();

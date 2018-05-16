@@ -4,6 +4,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramImage;
 import com.xeomar.xenon.icon.WingDiscLargeIcon;
+import com.xeomar.xenon.icon.XRingLargeIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
@@ -22,7 +23,7 @@ public class InstallerBannerImage extends ProgramImage {
 		double offset = (zoom * 0.5) - 0.5;
 		move( -offset, -offset );
 		zoom( zoom, zoom );
-		draw( new WingDiscLargeIcon() );
+		draw( new XRingLargeIcon() );
 		reset();
 
 		setFillPaint( Color.BLACK );
