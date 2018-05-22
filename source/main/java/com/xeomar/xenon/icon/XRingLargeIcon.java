@@ -19,8 +19,15 @@ public class XRingLargeIcon extends XLargeIcon {
 		double innerRingMin = 5;
 
 		// Ring colors
-		Color ringBase = Color.web( "#4FC3F7" );
-		Color ringHighlight = Color.web( "#81D4FA" );
+		// Blue
+//		Color ringBase = Color.web( "#64B5F6" );
+//		Color ringHighlight = Color.web( "#90CAF9" );
+		// Indigo
+//		Color ringBase = Color.web( "#7986CB" );
+//		Color ringHighlight = Color.web( "#9FA8DA" );
+		// Purple
+		Color ringBase = Color.web( "#9575CD" );
+		Color ringHighlight = Color.web( "#B39DDB" );
 
 		// Jet colors
 		Color jetCenter = Color.web( "#FFF59D" );
