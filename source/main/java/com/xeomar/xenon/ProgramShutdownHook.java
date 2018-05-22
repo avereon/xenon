@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -94,7 +92,7 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
 		builder.command().add( "trace" );
-		builder.command().add( UpdateFlag.STREAM );
+		builder.command().add( UpdateFlag.STDIN );
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
