@@ -26,8 +26,9 @@ public class XRingLargeIcon extends XLargeIcon {
 //		Color ringBase = Color.web( "#7986CB" );
 //		Color ringHighlight = Color.web( "#9FA8DA" );
 		// Purple
-		Color ringBase = Color.web( "#9575CD" );
-		Color ringHighlight = Color.web( "#B39DDB" );
+		Color ringBase = Color.web( "#7986CB" );
+		//Color ringBase = Color.web( "#B39DDB" );
+		Color ringHighlight = Color.web( "#D1C4E9" );
 
 		// Jet colors
 		Color jetCenter = Color.web( "#FFF59D" );
@@ -42,8 +43,8 @@ public class XRingLargeIcon extends XLargeIcon {
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-		ringPaintStops.add( new Stop( 0.6, ringHighlight ) );
-		ringPaintStops.add( new Stop( 0.9, ringBase ) );
+		ringPaintStops.add( new Stop( 0.5, ringHighlight ) );
+		ringPaintStops.add( new Stop( 1.0, ringBase ) );
 		Paint ringPaint = radialPaint( g( 16 ), g( 16 ) * outerRingMax / outerRingMin, g( outerRingMax ), ringPaintStops );
 
 		// Bottom of jet
