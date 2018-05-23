@@ -225,7 +225,12 @@ public class ProductTool extends GuidedTool {
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {
 				getWorkpane().closeTool( this );
-				getProgram().requestUpdate( );
+				getProgram().getTaskManager().submit( () -> {
+					// FIXME This is the right idea but the method is overridden
+					// Need a way to call applyStagedUpdates in the UpdateManager class
+					// when the class is a ProgramUpdateManager.
+					getProgram().getUpdateManager().applyStagedUpdates();
+				} );
 			}
 		}
 	}
