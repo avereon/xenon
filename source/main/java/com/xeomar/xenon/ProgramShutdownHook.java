@@ -91,14 +91,14 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
-		builder.command().add( "trace" );
+		builder.command().add( "debug" );
 		builder.command().add( UpdateFlag.STDIN );
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		//ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
+		ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
@@ -110,7 +110,9 @@ public class ProgramShutdownHook extends Thread {
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
 			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
-			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
+			// FIXME Apparently the move option breaks in Windows, but unpack still works
+			// FIXME Probably means something has a handle on the folder that we don't expect
+			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 		}
 
@@ -185,7 +187,7 @@ public class ProgramShutdownHook extends Thread {
 
 		try {
 			// Only redirect stdout and stderr
-			builder.redirectOutput( ProcessBuilder.Redirect.INHERIT ).redirectError( ProcessBuilder.Redirect.INHERIT );
+			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
 			if( stdInput != null ) {
 				process.getOutputStream().write( stdInput );
