@@ -48,7 +48,7 @@ public class ProgramUpdateManager extends UpdateManager {
 	 * @throws Exception If an error occurs
 	 */
 	@Override
-	public int applyStagedUpdates( String... extras ) {
+	public int userApplyStagedUpdates( String... extras ) {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		String programName = program.getCard().getName();

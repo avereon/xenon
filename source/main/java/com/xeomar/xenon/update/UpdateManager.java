@@ -730,7 +730,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	public final int updateProduct( String... extras ) {
 		if( program.getHomeFolder() == null ) {
-			log.warn( "Program not executed from updatable location." );
+			log.warn( "Program not running from updatable location." );
 			return 0;
 		}
 
@@ -742,7 +742,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( updateCount > 0 ) {
 			log.info( "Staged updates detected: {}", updateCount );
 			try {
-				result = applyStagedUpdates( extras );
+				result = userApplyStagedUpdates( extras );
 			} catch( Exception exception ) {
 				log.warn( "Failed to apply staged updates", exception );
 			}
@@ -750,6 +750,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			log.debug( "No staged updates detected." );
 		}
 		return result;
+	}
+
+	public int userApplyStagedUpdates( String... extras ) {
+		return applyStagedUpdates( extras );
 	}
 
 	/**
@@ -772,6 +776,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		Platform.runLater( () -> program.requestUpdate( ProgramFlag.NOUPDATECHECK ) );
 
+		// Be sure to request the update before clearing the staged updates
 		clearStagedUpdates();
 
 		return count;
