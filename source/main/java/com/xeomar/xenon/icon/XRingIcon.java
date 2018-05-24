@@ -72,9 +72,9 @@ public class XRingIcon extends XIcon {
 
 	public static void main( String[] commands ) {
 		proof( new XRingIcon() );
-		//save( new XRingIcon(), "Downloads/program.png" );
-		//save( new XRingIcon(), "../../software/xenon/source/main/resources/program.png");
-		//save( new XRingIcon(), "../../software/xenon/source/main/assembly/program.png");
+		//save( new XRingIcon(), "Downloads/xenon.png" );
+		//save( new XRingIcon(), "../../software/xenon/source/main/resources/xenon.png");
+		//save( new XRingIcon(), "../../software/xenon/source/main/assembly/xenon.png");
 	}
 
 }

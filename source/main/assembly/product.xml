@@ -14,14 +14,14 @@
 			<includes>
 				<!-- TODO Rename and add later -->
 				<!--
-				<include>program.exe</include>
-				<include>program.ini</include>
-				<include>program32.exe</include>
-				<include>program64.exe</include>
-				<include>program.reg</include>
-				<include>program.ico</include>
+				<include>${artifact.artifactId}.exe</include>
+				<include>${artifact.artifactId}.ini</include>
+				<include>${artifact.artifactId}32.exe</include>
+				<include>${artifact.artifactId}64.exe</include>
+				<include>${artifact.artifactId}.reg</include>
 				-->
-				<include>program.png</include>
+				<include>${artifact.artifactId}.ico</include>
+				<include>${artifact.artifactId}.png</include>
 			</includes>
 		</fileSet>
 	</fileSets>

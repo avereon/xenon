@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,26 +20,22 @@ public class XRingLargeIcon extends XLargeIcon {
 		double innerRingMin = 5;
 
 		// Ring colors
-		// Blue
-//		Color ringBase = Color.web( "#64B5F6" );
-//		Color ringHighlight = Color.web( "#90CAF9" );
-		// Indigo
-//		Color ringBase = Color.web( "#7986CB" );
-//		Color ringHighlight = Color.web( "#9FA8DA" );
-		// Purple
-		Color ringBase = Color.web( "#7986CB" );
-		//Color ringBase = Color.web( "#B39DDB" );
-		Color ringHighlight = Color.web( "#D1C4E9" );
+		// Blue 200
+		Color ringHighlight = Color.web( "#90CAF9" );
+		// Blue 400
+		Color ringBase = Color.web( "#42A5F5" );
 
 		// Jet colors
+		// Yellow A200
 		Color jetCenter = Color.web( "#FFF59D" );
-		Color jetTip = Color.web( "#FFA726" );
+		// Orange 500
+		Color jetTip = Color.web( "#FF9800" );
 
 		// Jet paint
-		double jetRadius = Math.sqrt( 2 * (g( 13 ) * g( 13 )) );
+		double jetRadius = Math.sqrt( 2 * (g( 15 ) * g( 15 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
-		jetPaintStops.add( new Stop( 0.1, jetCenter ) );
-		jetPaintStops.add( new Stop( 1.0, jetTip ) );
+		jetPaintStops.add( new Stop( 0.2, jetCenter ) );
+		jetPaintStops.add( new Stop( 0.9, jetTip ) );
 		Paint jetPaint = radialPaint( g( 16 ), g( 16 ), jetRadius, jetPaintStops );
 
 		// Ring paint
@@ -81,10 +78,9 @@ public class XRingLargeIcon extends XLargeIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new XRingLargeIcon() );
-		//save( new XRingIcon(), "Downloads/program.png" );
-		//save( new XRingIcon(), "../../software/xenon/source/main/resources/program.png");
-		//save( new XRingIcon(), "../../software/xenon/source/main/assembly/program.png");
+		//proof( new XRingLargeIcon() );
+		//save( new XRingLargeIcon(), new File( System.getProperty( "user.home" ), "Downloads/xenon.png" ) );
+		save( new XRingLargeIcon(), "../../software/xenon/source/main/assembly/xenon.png");
 	}
 
 }

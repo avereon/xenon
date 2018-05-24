@@ -38,7 +38,7 @@
 			commandLine="-p &quot;${INSTALL_PATH}\lib&quot; -m com.xeomar.xenon/com.xeomar.xenon.Program \-\-server"
 			workingDirectory="${INSTALL_PATH}"
 			description="${project.name} application framework."
-			iconFile="${INSTALL_PATH}\bin\program.ico"
+			iconFile="${INSTALL_PATH}\bin\xenon.ico"
 			iconIndex="0"
 			type="Application"
 			encoding="UTF-8"

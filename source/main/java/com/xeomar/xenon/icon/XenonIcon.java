@@ -44,7 +44,7 @@ public class XenonIcon extends XLargeIcon {
 
 	public static void main( String[] commands ) {
 		proof( new XenonIcon() );
-		//		save( new XenonIcon(), "../../software/xenon/source/main/resources/program.png");
+		//		save( new XenonIcon(), "../../software/xenon/source/main/resources/xenon.png");
 	}
 
 }
