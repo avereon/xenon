@@ -28,7 +28,7 @@
 	<dependencySets>
 		<dependencySet>
 			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
-			<outputDirectory>/lib</outputDirectory>
+			<outputDirectory>/mod</outputDirectory>
 			<scope>runtime</scope>
 		</dependencySet>
 	</dependencySets>

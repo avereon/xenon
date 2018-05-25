@@ -15,7 +15,7 @@
 		startMenu="no"
 		startup="no"
 		target="java"
-		commandLine="-p ${INSTALL_PATH}/lib -m com.xeomar.xenon/com.xeomar.xenon.Product"
+		commandLine="-p ${INSTALL_PATH}/mod -m com.xeomar.xenon/com.xeomar.xenon.Product"
 		workingDirectory="${INSTALL_PATH}"
 		description="${project.name} modular application framework."
 		iconFile="${INSTALL_PATH}/bin/xenon.png"
@@ -35,7 +35,7 @@
 		startMenu="no"
 		startup="no"
 		target="java"
-		commandLine="-jar ${INSTALL_PATH}/bin/uninstall.jar"
+		commandLine="-jar ${INSTALL_PATH}/jar/uninstall.jar"
 		initialState="noShow"
 		iconFile="trashcan_full"
 		iconIndex="0"
@@ -46,7 +46,7 @@
 		KdeUsername="root"
 		createForAll="false"
 		categories="Application;"
-		tryexec="java -jar ${INSTALL_PATH}/bin/uninstall.jar"
+		tryexec="java -jar ${INSTALL_PATH}/jar/uninstall.jar"
 		description="Uninstall ${project.name} application framework."
 	/>
 	-->
