@@ -39,7 +39,7 @@
 	</conditions>
 
 	<!-- Use the golden ration for the frame size -->
-	<guiprefs width="640" height="395" resizable="no">
+	<guiprefs width="600" height="370" resizable="no">
 		<modifier key="useFlags" value="yes"/>
 		<modifier key="langDisplayType" value="native"/>
 	</guiprefs>

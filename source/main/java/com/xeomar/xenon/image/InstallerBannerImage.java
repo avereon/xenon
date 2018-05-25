@@ -16,8 +16,8 @@ public class InstallerBannerImage extends ProgramImage {
 	private URL providerUrl;
 
 	public InstallerBannerImage() {
-		setWidth( 400 );
-		setHeight( 400 );
+		setWidth( 540 );
+		setHeight( 180 );
 
 		try {
 			card = new ProductCard();
@@ -26,7 +26,6 @@ public class InstallerBannerImage extends ProgramImage {
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
-
 	}
 
 	@Override
@@ -34,20 +33,20 @@ public class InstallerBannerImage extends ProgramImage {
 		double ratio = getHeight() / getWidth();
 		double scale = 0.9;
 		double offset = 0.5 - (scale * 0.5);
-		move( offset, 0.5 * (ratio - 1) + offset );
+		move( offset, offset );
 		zoom( scale, scale );
 		draw( new XRingLargeIcon() );
 		reset();
 
-//		setFillPaint( Color.web( "#202020" ) );
-//
-//		// Draw the program name
-//		setTextAlign( TextAlignment.CENTER );
-//		fillText( card.getName(), 0.5, 0.2 + offset, 0.3, 0.9 );
-//
-//		// Draw the program web address
-//		setTextAlign( TextAlignment.CENTER );
-//		fillText( providerUrl.getHost(), 0.5, ratio - offset, 2.5 / 16.0, 2 );
+		// Draw the program name
+		setFillPaint( Color.web( "#202020" ) );
+		setTextAlign( TextAlignment.CENTER );
+		fillText( card.getName(), 2.0, 0.6, 0.65, 2.0 );
+
+		// Draw the program web address
+		setFillPaint( Color.web( "#202020" ) );
+		setTextAlign( TextAlignment.CENTER );
+		fillText( providerUrl.getHost(), 2.0, 0.85, 0.2, 2 );
 	}
 
 	public static void main( String[] commands ) {
