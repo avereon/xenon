@@ -7,17 +7,21 @@ import javafx.scene.paint.Stop;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XenonIcon extends XLargeIcon {
+public class XCircleIcon extends XLargeIcon {
 
 	@Override
 	protected void render() {
 		// Ring colors
-		Color ringBase = Color.web( "#4FC3F7" );
-		Color ringHighlight = Color.web( "#81D4FA" );
+		// Blue 200
+		Color ringHighlight = Color.web( "#90CAF9" );
+		// Blue 400
+		Color ringBase = Color.web( "#42A5F5" );
 
 		// Jet colors
+		// Yellow A200
 		Color jetCenter = Color.web( "#FFF59D" );
-		Color jetTip = Color.web( "#FFA726" );
+		// Orange 500
+		Color jetTip = Color.web( "#FF9800" );
 
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 13 ) * g( 13 )) );
@@ -43,8 +47,8 @@ public class XenonIcon extends XLargeIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new XenonIcon() );
-		//		save( new XenonIcon(), "../../software/xenon/source/main/resources/xenon.png");
+		proof( new XCircleIcon() );
+		//save( new XCircleIcon(), "../../software/xenon/source/main/resources/xenon.png");
 	}
 
 }

@@ -23,8 +23,8 @@ public class WingDiscLargeIcon extends WingDiscIcon {
 	}
 
 	public static void main( String[] commands ) {
+		//save( new WingDiscLargeIcon(), new File( System.getProperty( "user.home"), "Downloads/xeomar.png" ) );
 		proof( new WingDiscLargeIcon() );
-		//save( new WingDiscLargeIcon(), new File( System.getProperty( "user.home"), "Downloads/xenon.png" ) );
 	}
 
 }

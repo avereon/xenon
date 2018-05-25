@@ -62,7 +62,11 @@ public class WingDiscIcon extends ProgramIcon {
 
 	private double rightArcSpanAngleDeg;
 
-	private Color primary = Color.web( "#aaccee" );
+	private Color primaryHighlight = Color.web( "#C5CAE9" );
+
+	private Color primary = Color.web( "#3F51B5" );
+
+	private Color secondaryHighlight = Color.web( "#ffff00" );
 
 	private Color secondary = Color.web( "#ff6030" );
 
@@ -86,17 +90,16 @@ public class WingDiscIcon extends ProgramIcon {
 	protected void render() {
 		calculateNumbers();
 
-		Color discColor1 = Color.YELLOW;
+		Color discColor1 = secondaryHighlight;
 		Color discColor2 = secondary;
 		//setFillPaint( linearPaint( xx, xy, vx, vy + DISC_RADIUS, new Stop( 0, discColor1 ), new Stop( 1, discColor2 ) ) );
 		setFillPaint( radialPaint( vx, vy - DISC_RADIUS, 2 * DISC_RADIUS, new Stop( 0.2, discColor1 ), new Stop( 1, discColor2 ) ) );
 		fillCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
 		drawCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
 
-		//Color wingColor1 = primary;
-		//Color wingColor2 = primary;
-		//setFillPaint( linearPaint( zx, zy - POINT_RADIUS, zx, wy + POINT_RADIUS, new Stop( 0, wingColor1 ), new Stop( 1, wingColor2 ) ) );
-		setFillPaint( primary );
+		Color wingColor1 = primaryHighlight;
+		Color wingColor2 = primary;
+		setFillPaint( linearPaint( 0,0,1,1, new Stop( 0, wingColor1 ), new Stop( 1, wingColor2 ) ) );
 		arrow();
 		fill();
 		arrow();

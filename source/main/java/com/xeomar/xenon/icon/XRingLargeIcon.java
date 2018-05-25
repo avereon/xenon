@@ -78,9 +78,9 @@ public class XRingLargeIcon extends XLargeIcon {
 	}
 
 	public static void main( String[] commands ) {
-		//proof( new XRingLargeIcon() );
+		proof( new XRingLargeIcon() );
 		//save( new XRingLargeIcon(), new File( System.getProperty( "user.home" ), "Downloads/xenon.png" ) );
-		save( new XRingLargeIcon(), "../../software/xenon/source/main/assembly/xenon.png");
+		//save( new XRingLargeIcon(), "../../software/xenon/source/main/assembly/xenon.png");
 	}
 
 }
