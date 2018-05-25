@@ -6,14 +6,13 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.*;
 import com.xeomar.xenon.Module;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramFlag;
 import javafx.application.Platform;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -451,7 +450,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
-	// NEXT Overlay ProgramProductManager methods implementations
 	public void checkForUpdates() {
 		if( !isEnabled() ) return;
 
@@ -465,10 +463,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
-	}
-
-	public Set<ProductCard> findPostedUpdates() throws ExecutionException, InterruptedException, URISyntaxException {
-		return findPostedUpdates( false );
 	}
 
 	/**
@@ -542,12 +536,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
 				log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
 
-				// FIXME Force available update for testing
-				availableCards.add( availableCard );
-				//				if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
-				//					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
-				//					availableCards.add( availableCard );
-				//				}
+				if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
+					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+					availableCards.add( availableCard );
+				}
 			} catch( ExecutionException exception ) {
 				if( executionException == null ) executionException = exception;
 			} catch( InterruptedException exception ) {
@@ -588,7 +580,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		stageUpdates( findPostedUpdates() );
+		stageUpdates( findPostedUpdates( false ) );
 		return updates.size();
 	}
 
@@ -597,8 +589,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return installFolder.resolve( card.getGroup() + "." + card.getArtifact() );
 	}
 
-	public Map<ProductCard, Set<ProductResource>> stageUpdates( ProductCard... updateCards ) throws IOException {
-		return stageUpdates( Set.of( updateCards ) );
+	public void stageUpdates( ProductCard... updateCards ) throws IOException {
+		stageUpdates( Set.of( updateCards ) );
 	}
 
 	/**
@@ -609,8 +601,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @return true if one or more product packs were staged.
 	 * @throws IOException If an IO error occurs
 	 */
-	public Map<ProductCard, Set<ProductResource>> stageUpdates( Set<ProductCard> updateCards ) throws IOException {
-		if( updateCards.size() == 0 ) return null;
+	void stageUpdates( Set<ProductCard> updateCards ) throws IOException {
+		if( updateCards.size() == 0 ) return;
 
 		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
 		Files.createDirectories( stageFolder );
@@ -653,7 +645,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
 
 			// Remove any old staged updates for this product.
-			updates.remove( update );
+			updates.remove( update.getCard().getProductKey(), update );
 
 			// Add the update to the set of staged updates.
 			updates.put( update.getCard().getProductKey(), update );
@@ -667,7 +659,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		saveUpdates();
 
-		return productResources;
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -691,7 +682,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Remove updates that cannot be found.
 		if( remove.size() > 0 ) {
 			for( ProductUpdate update : remove ) {
-				updates.remove( update );
+				updates.remove( update.getCard().getProductKey(), update );
 			}
 			saveUpdates();
 		}
