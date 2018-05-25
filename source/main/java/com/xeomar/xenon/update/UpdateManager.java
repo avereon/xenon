@@ -540,6 +540,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
 					availableCards.add( availableCard );
 				}
+
+				// NEXT Remove need for forced updates
+				// Forced updates are used for development
+				boolean forceUpdates = true;
+				if( forceUpdates ) {
+					log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+					availableCards.add( availableCard );
+				}
 			} catch( ExecutionException exception ) {
 				if( executionException == null ) executionException = exception;
 			} catch( InterruptedException exception ) {
@@ -561,11 +569,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return availableCards;
 	}
 
-	public boolean cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
+	void cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
-	public boolean stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
+	void stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
