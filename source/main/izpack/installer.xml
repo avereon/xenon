@@ -12,7 +12,7 @@
 		</authors>
 		<javaversion>1.8</javaversion>
 		<run-privileged condition="izpack.windowsinstall"/>
-		<uninstaller name="remove.jar" path="${INSTALL_PATH}/bin/uninstall.jar"/>
+		<uninstaller name="uninstall.jar" path="${INSTALL_PATH}/lib"/>
 		<writeinstallationinformation>no</writeinstallationinformation>
 	</info>
 

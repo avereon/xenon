@@ -100,6 +100,7 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
 		ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
+		// FIXME The updates have been cleared by this point
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
 			String version = update.getCard().getVersion();

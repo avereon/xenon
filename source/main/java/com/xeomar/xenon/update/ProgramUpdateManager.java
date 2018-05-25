@@ -45,25 +45,28 @@ public class ProgramUpdateManager extends UpdateManager {
 	/**
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied or -1 to cancel
-	 * @throws Exception If an error occurs
 	 */
 	@Override
 	public int userApplyStagedUpdates( String... extras ) {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
+
+		/*
+		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
+		 * was started as a result of a program update and the staged updates can
+		 * be cleared.
+		 */
+		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) {
+			int count = getStagedUpdateCount();
+			clearStagedUpdates();
+			return count;
+		}
 
 		String programName = program.getCard().getName();
 
 		List<String> commandList = new ArrayList<>( Arrays.asList( extras ) );
 		commandList.add( UpdateFlag.TITLE );
 		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", programName ) );
-		String[] commands = commandList.toArray( new String[ commandList.size() ] );
-
-		/*
-		 * If the ServiceFlag.NOUPDATECHECK is set that means that the program was
-		 * started as a result of a program requestRestart due to staged updates and the
-		 * updates should be applied without user interaction.
-		 */
-		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return super.applyStagedUpdates( commands );
+		String[] commands = commandList.toArray( new String[ 0 ] );
 
 		/*
 		 * If the ServiceFlag.NOUPDATECHECK is not set, that means the program was
@@ -165,7 +168,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private boolean interactive;
 
-		public CheckForUpdates( Program program, boolean interactive ) {
+		CheckForUpdates( Program program, boolean interactive ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-check" ) );
 			this.interactive = interactive;
 		}
@@ -274,7 +277,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> postedUpdates;
 
-		public StoreUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
+		StoreUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-selected" ) );
 			this.installedPacks = installedPacks;
 			this.postedUpdates = postedUpdates;
@@ -310,7 +313,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> selectedUpdates;
 
-		public StageCachedUpdates( Set<ProductCard> selectedUpdates ) {
+		StageCachedUpdates( Set<ProductCard> selectedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-cached" ) );
 			this.selectedUpdates = selectedUpdates;
 		}
@@ -327,7 +330,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> selectedUpdates;
 
-		public StageUpdates( Set<ProductCard> selectedUpdates ) {
+		StageUpdates( Set<ProductCard> selectedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
 			this.selectedUpdates = selectedUpdates;
 		}
@@ -341,7 +344,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		/**
 		 * Nearly identical to ProductTool.handleStagedUpdates()
-		 * @param selectedUpdates
+		 * @param selectedUpdates The updates selected by the user
 		 */
 		private void handleApplyUpdates( Set<ProductCard> selectedUpdates ) {
 			if( selectedUpdates.size() == 0 ) return;
