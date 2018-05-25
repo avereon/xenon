@@ -43,6 +43,13 @@ public class ProgramUpdateManager extends UpdateManager {
 	}
 
 	/**
+	 * Return values:
+	 * <ul>
+	 * <li>-1 : Will not apply updates and will exit the program</li>
+	 * <li>0 : Will not apply updates but will still run the program</li>
+	 * <li>&gt;0 : Will apply updates and restart the program</li>
+	 * </ul>
+	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied or -1 to cancel
 	 */
@@ -56,9 +63,8 @@ public class ProgramUpdateManager extends UpdateManager {
 		 * be cleared.
 		 */
 		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) {
-			int count = getStagedUpdateCount();
 			clearStagedUpdates();
-			return count;
+			return 0;
 		}
 
 		String programName = program.getCard().getName();
@@ -97,6 +103,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				return -1;
 			} else if( result.get() == discard ) {
 				clearStagedUpdates();
+				return 0;
 			}
 		}
 
@@ -344,6 +351,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		/**
 		 * Nearly identical to ProductTool.handleStagedUpdates()
+		 *
 		 * @param selectedUpdates The updates selected by the user
 		 */
 		private void handleApplyUpdates( Set<ProductCard> selectedUpdates ) {
