@@ -98,9 +98,7 @@ public class ProgramShutdownHook extends Thread {
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		ucb.add( UpdateTask.PAUSE ).add( "1000" ).line();
 
-		// FIXME The updates have been cleared by this point
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
 			String version = update.getCard().getVersion();
@@ -110,10 +108,11 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
-			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
-			// FIXME Apparently the move option breaks in Windows, but unpack still works
-			// FIXME Probably means something has a handle on the folder that we don't expect
-			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
+//			// FIXME Apparently the move option breaks in Windows, but unpack still works
+//			// FIXME Probably means something has a handle on the folder that we don't expect
+//			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
+//			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
+
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 		}
 
@@ -122,7 +121,6 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
-		//commands.add( ProgramFlag.NOUPDATECHECK );
 		ucb.add( UpdateTask.LAUNCH ).add( commands ).line();
 
 		stdInput = ucb.toString().getBytes( TextUtil.CHARSET );
