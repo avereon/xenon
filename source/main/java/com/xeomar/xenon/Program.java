@@ -76,6 +76,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProductCard card;
 
+	private Path programHomeFolder;
+
 	private Path programDataFolder;
 
 	private Settings programSettings;
@@ -123,8 +125,6 @@ public class Program extends Application implements ProgramProduct {
 	private UpdateAction updateAction;
 
 	private TaskAction taskAction;
-
-	private Path home;
 
 	public static void main( String[] commands ) {
 		launch( commands );
@@ -175,8 +175,12 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card, parameters );
 		time( "print-header" );
 
-		// Configure logging, depends on parameters
-		LogUtil.configureLogging( this, parameters );
+		// Determine the program exec mode, depends on program parameters
+		String prefix = getExecModePrefix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
+
+		// Configure logging, depends on programDataFolder
+		LogUtil.configureLogging( this, parameters, programDataFolder );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
@@ -186,10 +190,6 @@ public class Program extends Application implements ProgramProduct {
 		// Create the product resource bundle
 		programResourceBundle = new ProductBundle( getClass(), "/bundles" );
 		time( "resource-bundle" );
-
-		// Determine the program exec mode, depends on program parameters
-		String prefix = getExecModePrefix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
 		// Load the default settings values
 		Properties properties = new Properties();
@@ -368,7 +368,7 @@ public class Program extends Application implements ProgramProduct {
 	 * @return The home folder
 	 */
 	public Path getHomeFolder() {
-		return home;
+		return programHomeFolder;
 	}
 
 	@Override
@@ -785,50 +785,51 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( home == null && parameters.isSet( ProgramFlag.HOME ) ) home = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
 			// Find the URI from which this class was loaded
 			try {
 				URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
 				// Check the code source.
-				if( home == null ) {
+				if( programHomeFolder == null ) {
 					boolean localJar = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" );
 
 					// If the URI is a local jar file then assume it is located under the
 					// standard folder structure. The standard location is under:
 					// <program home>/lib/<program jar>
-					if( localJar ) home = Paths.get( uri ).getParent().getParent();
+					if( localJar ) programHomeFolder = Paths.get( uri ).getParent().getParent();
 				}
 
 				// Check the execmode flag to detect when running in development
 				String devProgramHome = "target/program";
 
-				if( home == null && getExecMode() == ExecMode.DEV ) {
+				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
 					boolean mavenManaged = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( "/target/main/java/" );
-					if( mavenManaged ) home = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
+					if( mavenManaged ) programHomeFolder = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
 				}
 
-				if( home == null && getExecMode() == ExecMode.DEV ) {
-					home = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
-					Files.createDirectories( home );
+				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
+					programHomeFolder = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
+					Files.createDirectories( programHomeFolder );
 				}
 			} catch( URISyntaxException exception ) {
 				log.error( "Error using class location to determine program home", exception );
 			}
 
 			// Use the user directory as a last resort (usually for unit tests)
-			if( home == null ) home = Paths.get( System.getProperty( "user.dir" ) );
+			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path.
-			if( home != null ) home = home.toFile().getCanonicalFile().toPath();
+			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
 		}
 
 		// Set install folder on product card
-		card.setInstallFolder( home );
+		card.setInstallFolder( programHomeFolder );
 
-		log.debug( "Program home: " + home );
+		log.debug( "Program home: " + programHomeFolder );
+		log.debug( "Program data: " + programDataFolder );
 	}
 
 	private void registerIcons() {}
