@@ -56,7 +56,7 @@
 		<undofx.version>2.0.0</undofx.version>
 
 		<!-- Test dependencies -->
-		<testfx.version>4.0.12-alpha</testfx.version>
+		<testfx.version>4.0.13-alpha</testfx.version>
 		<monocle.version>jdk-9+181</monocle.version>
 
 		<!-- Build dependencies -->
@@ -110,19 +110,6 @@
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-core</artifactId>
-			<version>${testfx.version}</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.testfx</groupId>
-					<artifactId>testfx-internal-java8</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.testfx</groupId>
-			<artifactId>testfx-internal-java9</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
 		</dependency>
