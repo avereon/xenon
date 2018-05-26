@@ -6,6 +6,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
+import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Module;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
@@ -541,10 +542,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					availableCards.add( availableCard );
 				}
 
-				// NEXT Remove need for forced updates
+				// NEXT Remove use of forced updates
 				// Forced updates are used for development
-				boolean forceUpdates = true;
-				if( forceUpdates ) {
+				if( program.getExecMode() == ExecMode.DEV ) {
 					log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
 					availableCards.add( availableCard );
 				}
