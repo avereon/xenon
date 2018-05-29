@@ -703,11 +703,11 @@ public class Program extends Application implements ProgramProduct {
 		// Create the program notifier, depends on workspace manager
 		notifier = new ProgramNotifier( this );
 
-		// Schedule the first update check
-		getUpdateManager().scheduleUpdateCheck( true );
-
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
+
+		// Schedule the first update check
+		getUpdateManager().scheduleUpdateCheck( true );
 	}
 
 	private void doShutdownTasks() {

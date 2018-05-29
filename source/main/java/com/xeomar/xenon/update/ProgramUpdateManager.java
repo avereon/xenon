@@ -35,7 +35,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	@Override
 	public void checkForUpdates() {
-		checkForUpdates( false );
+		checkForUpdates( true );
 	}
 
 	public void checkForUpdates( boolean interactive ) {
