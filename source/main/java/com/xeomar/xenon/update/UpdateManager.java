@@ -126,6 +126,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Settings settings;
 
+	private Settings updateSettings;
+
 	private Set<MarketCard> catalogs;
 
 	private Map<String, Module> modules;
@@ -909,7 +911,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void setSettings( Settings settings ) {
 		if( settings == null || this.settings != null ) return;
 
+		// FIXME The settings passed in serve two purposes but should not
+
 		this.settings = settings;
+
+		this.updateSettings = settings.getNode( "update" );
 
 		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
@@ -938,8 +944,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	@Override
 	public UpdateManager start() {
-		//		cleanRemovedProducts();
-		//
+		//		purgeRemovedProducts();
+
 		getSettings().addSettingsListener( new SettingsChangeHandler() );
 
 		// Create the update check timer.
@@ -1005,20 +1011,20 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private void loadCatalogs() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		catalogs = settings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
+		catalogs = updateSettings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
 	}
 
 	private void saveCatalogs() {
-		settings.set( CATALOGS_SETTINGS_KEY, catalogs );
+		updateSettings.set( CATALOGS_SETTINGS_KEY, catalogs );
 	}
 
 	private void loadUpdates() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		updates = settings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
+		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
 	private void saveUpdates() {
-		settings.set( UPDATES_SETTINGS_KEY, updates );
+		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
 	}
 
 	private boolean isReservedProduct( ProductCard card ) {

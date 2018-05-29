@@ -13,6 +13,10 @@
 	-ex-background-tabs: rgba( 241, 241, 241, 0.4 );
 }
 
+.prompt {
+	-fx-padding: 0 0.3em 0 0;
+}
+
 /* ScrollPane */
 .workpane .scroll-pane {
 	-fx-background-color: transparent;

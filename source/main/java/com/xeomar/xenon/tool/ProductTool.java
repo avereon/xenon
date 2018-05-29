@@ -697,8 +697,18 @@ public class ProductTool extends GuidedTool {
 			this.program = program;
 			Label lastUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" ) );
 			Label nextUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" ) );
+			lastUpdateCheckLabel.setId( "product-update-check-last-prompt" );
+			nextUpdateCheckLabel.setId( "product-update-check-next-prompt" );
+			lastUpdateCheckLabel.getStyleClass().add( "prompt" );
+			nextUpdateCheckLabel.getStyleClass().add( "prompt" );
+
 			lastUpdateCheckField = new Label();
 			nextUpdateCheckField = new Label();
+			lastUpdateCheckField.setId( "product-update-check-last-field" );
+			nextUpdateCheckField.setId( "product-update-check-next-field" );
+
+			lastUpdateCheckLabel.setLabelFor( lastUpdateCheckField );
+			nextUpdateCheckLabel.setLabelFor( nextUpdateCheckField );
 
 			Pane spring = new Pane();
 			HBox.setHgrow( spring, Priority.ALWAYS );
@@ -710,10 +720,12 @@ public class ProductTool extends GuidedTool {
 		void updateInfo() {
 			long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
 			long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
+			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
 			String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
+			String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
 			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
-			String nextUpdateCheckText = nextUpdateCheck == 0 ? unknown : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 
 			Platform.runLater( () -> {
 				lastUpdateCheckField.setText( lastUpdateCheckText );

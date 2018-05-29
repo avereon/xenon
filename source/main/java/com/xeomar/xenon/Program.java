@@ -179,7 +179,7 @@ public class Program extends Application implements ProgramProduct {
 		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
-		// Configure logging, depends on programDataFolder
+		// Configure logging, depends on program data folder
 		LogUtil.configureLogging( this, parameters, programDataFolder );
 		time( "configure-logging" );
 
@@ -197,7 +197,7 @@ public class Program extends Application implements ProgramProduct {
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
-		// Create the settings manager, depends on default settings values
+		// Create the settings manager, depends on default settings values, program data folder
 		settingsManager = new SettingsManager( this ).start();
 
 		// Create the program settings, depends on settings manager
@@ -928,7 +928,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
-		updateManager.setSettings( programSettings.getNode( "update" ) );
+		updateManager.setSettings( programSettings );
 
 		// Register the catalog
 		updateManager.addCatalog( defaultMarket = MarketCard.forProduct() );

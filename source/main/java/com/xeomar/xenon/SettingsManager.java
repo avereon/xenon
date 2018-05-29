@@ -222,14 +222,18 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
+			String message = event.getPath();
 			switch( event.getType() ) {
 				case LOADED: {
-					program.fireEvent( new SettingsLoadedEvent( this, event.getPath() ) );
+					program.fireEvent( new SettingsLoadedEvent( this, message ) );
 					break;
 				}
 				case SAVED: {
-					program.fireEvent( new SettingsSavedEvent( this, event.getPath() ) );
+					program.fireEvent( new SettingsSavedEvent( this, message ) );
 					break;
+				}
+				case CHANGED: {
+					log.debug( "Setting changed: " + event.getPath() + ":" + event.getKey() + "=" + event.getNewValue() );
 				}
 			}
 		}
