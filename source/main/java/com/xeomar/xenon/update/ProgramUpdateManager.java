@@ -35,7 +35,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	@Override
 	public void checkForUpdates() {
-		checkForUpdates( true );
+		checkForUpdates( false );
 	}
 
 	public void checkForUpdates( boolean interactive ) {
@@ -229,29 +229,7 @@ public class ProgramUpdateManager extends UpdateManager {
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
 			switch( getFoundOption() ) {
 				case SELECT: {
-					if( interactive ) {
-						// Directly notify the user.
-						String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-						String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-						String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-
-						Platform.runLater( () -> {
-							Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-							alert.setTitle( title );
-							alert.setHeaderText( header );
-							alert.setContentText( message );
-
-							Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-							Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-							if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
-						} );
-					} else {
-						// TODO Use the notice tool to notify the user of posted updates
-						String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-						//DefaultNotice notice = new DefaultNotice( NoticeKey.UPDATES_FOUND, "notice", message );
-						//program.getNoticeManager().submit( notice );
-					}
+					notifyUsersOfUpdates( interactive );
 					break;
 				}
 				case STORE: {
@@ -265,6 +243,32 @@ public class ProgramUpdateManager extends UpdateManager {
 					break;
 				}
 			}
+		}
+
+		private void notifyUsersOfUpdates( boolean interactive ) {
+			//			if( interactive ) {
+			// Directly notify the user.
+			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
+			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+
+			Platform.runLater( () -> {
+				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+				alert.setTitle( title );
+				alert.setHeaderText( header );
+				alert.setContentText( message );
+
+				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+
+				if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
+			} );
+			//			} else {
+			//				// TODO Use the notice tool to notify the user of posted updates when not interactive
+			//				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
+			//				//DefaultNotice notice = new DefaultNotice( NoticeKey.UPDATES_FOUND, "notice", message );
+			//				//program.getNoticeManager().submit( notice );
+			//			}
 		}
 
 		private void showUpdates() {
