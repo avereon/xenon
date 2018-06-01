@@ -98,7 +98,7 @@ public class ProgramShutdownHook extends Thread {
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		ucb.add( UpdateTask.PAUSE ).add( "5000" ).add( "Waiting for " + program.getCard().getName() + " to terminate..." ).line();
+		ucb.add( UpdateTask.PAUSE ).add( "20000" ).add( "Waiting for " + program.getCard().getName() + " to terminate..." ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
@@ -109,10 +109,13 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
-			// FIXME Apparently the move option breaks in Windows, but unpack still works
-			// FIXME Probably means something has a handle on the folder that we don't expect
-			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
-			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
+			// NOTE Apparently the move option does not in Windows, but unpack does
+			// Even waiting for a long period of time didn't solve the issue of not
+			// being able to move the folder. Also, all the files in the folder can
+			// removed (maybe an option to just move the contents of the folder),
+			// just not the program home folder.
+			//ucb.add( UpdateTask.DELETE).add( archivePath ).line();
+			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 		}
