@@ -108,10 +108,10 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
-//			// FIXME Apparently the move option breaks in Windows, but unpack still works
-//			// FIXME Probably means something has a handle on the folder that we don't expect
-//			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
-//			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
+			// FIXME Apparently the move option breaks in Windows, but unpack still works
+			// FIXME Probably means something has a handle on the folder that we don't expect
+			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
+			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 		}
