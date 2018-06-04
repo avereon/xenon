@@ -1424,9 +1424,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			CheckOption newCheckOption = CheckOption.valueOf( event.getNewValue().toString().toUpperCase() );
-			if( CHECK.equals( event.getKey() ) ) setCheckOption( newCheckOption );
-			if( event.getKey().startsWith( CHECK ) ) scheduleUpdateCheck( false );
+
+			String key = event.getKey();
+
+			if( CHECK.equals( key ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+			if( key.startsWith( CHECK ) ) scheduleUpdateCheck( false );
+
+			// TODO Handle NOTICE changes
+			// TODO Handle FOUND changes
+			// TODO Handle APPLY changes
 		}
 
 	}
