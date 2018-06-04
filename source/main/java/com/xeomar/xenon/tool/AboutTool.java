@@ -3,6 +3,7 @@ package com.xeomar.xenon.tool;
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.*;
+import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.ProgramSettings;
@@ -301,7 +302,7 @@ public class AboutTool extends GuidedTool {
 	private String getProgramDetails( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
-		//builder.append( "Home folder: " + program.getHomeFolder() + "\n" );
+		builder.append( "Home folder: " + program.getHomeFolder() + "\n" );
 		builder.append( "Data folder: " + program.getDataFolder() + "\n" );
 
 		return builder.toString();
@@ -354,8 +355,11 @@ public class AboutTool extends GuidedTool {
 		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
 		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
-		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
-		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? "unknown" : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
+
+		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
+		String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
+		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
 
 		return builder.toString();
 	}

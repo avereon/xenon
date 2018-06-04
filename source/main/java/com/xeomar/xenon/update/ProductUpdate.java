@@ -62,8 +62,8 @@ public final class ProductUpdate implements Configurable {
 	public Settings getSettings(  ) {
 		return settings;
 //		card.saveSettings( settings.getNode( "card" ) );
-//		settings.put( "source", source.getPath() );
-//		settings.put( "target", target.getPath() );
+//		settings.add( "source", source.getPath() );
+//		settings.add( "target", target.getPath() );
 	}
 
 	@Override

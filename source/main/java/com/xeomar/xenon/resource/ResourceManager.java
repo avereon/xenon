@@ -524,7 +524,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			//			}
 			//
 			//			File parent = file.isFile() ? file.getParentFile() : file;
-			//			settings.put( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
+			//			settings.add( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
 		}
 
 		if( saveAsResource != null ) {

@@ -10,7 +10,6 @@ import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -44,28 +43,36 @@ public class ProgramUpdateManager extends UpdateManager {
 	}
 
 	/**
+	 * Return values:
+	 * <ul>
+	 * <li>-1 : Will not apply updates and will exit the program</li>
+	 * <li>0 : Will not apply updates but will still run the program</li>
+	 * <li>&gt;0 : Will apply updates and restart the program</li>
+	 * </ul>
 	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied or -1 to cancel
-	 * @throws Exception If an error occurs
 	 */
 	@Override
-	public int applyStagedUpdates( String... extras ) throws Exception {
+	public int userApplyStagedUpdates( String... extras ) {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
+
+		/*
+		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
+		 * was started as a result of a program update and the staged updates can
+		 * be cleared.
+		 */
+		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) {
+			clearStagedUpdates();
+			return 0;
+		}
 
 		String programName = program.getCard().getName();
 
 		List<String> commandList = new ArrayList<>( Arrays.asList( extras ) );
 		commandList.add( UpdateFlag.TITLE );
 		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", programName ) );
-		String[] commands = commandList.toArray( new String[ commandList.size() ] );
-
-		/*
-		 * If the ServiceFlag.NOUPDATECHECK is set that means that the program was
-		 * started as a result of a program restart due to staged updates and the
-		 * updates should be applied without user interaction.
-		 */
-		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return super.applyStagedUpdates( commands );
+		String[] commands = commandList.toArray( new String[ 0 ] );
 
 		/*
 		 * If the ServiceFlag.NOUPDATECHECK is not set, that means the program was
@@ -85,7 +92,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		// Get the dialog window and set the icons
 		Stage stage = (Stage)alert.getDialogPane().getScene().getWindow();
-		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
+		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 
 		Optional<ButtonType> result = DialogUtil.showAndWait( null, alert );
 
@@ -96,6 +103,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				return -1;
 			} else if( result.get() == discard ) {
 				clearStagedUpdates();
+				return 0;
 			}
 		}
 
@@ -167,7 +175,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private boolean interactive;
 
-		public CheckForUpdates( Program program, boolean interactive ) {
+		CheckForUpdates( Program program, boolean interactive ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-check" ) );
 			this.interactive = interactive;
 		}
@@ -221,29 +229,7 @@ public class ProgramUpdateManager extends UpdateManager {
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
 			switch( getFoundOption() ) {
 				case SELECT: {
-					if( interactive ) {
-						// Directly notify the user.
-						String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-						String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-						String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-
-						Platform.runLater( () -> {
-							Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-							alert.setTitle( title );
-							alert.setHeaderText( header );
-							alert.setContentText( message );
-
-							Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-							Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-							if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
-						} );
-					} else {
-						// TODO Use the notice tool to notify the user of posted updates
-						String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-						//DefaultNotice notice = new DefaultNotice( NoticeKey.UPDATES_FOUND, "notice", message );
-						//program.getNoticeManager().submit( notice );
-					}
+					notifyUsersOfUpdates( interactive );
 					break;
 				}
 				case STORE: {
@@ -257,6 +243,32 @@ public class ProgramUpdateManager extends UpdateManager {
 					break;
 				}
 			}
+		}
+
+		private void notifyUsersOfUpdates( boolean interactive ) {
+			//			if( interactive ) {
+			// Directly notify the user.
+			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
+			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+
+			Platform.runLater( () -> {
+				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+				alert.setTitle( title );
+				alert.setHeaderText( header );
+				alert.setContentText( message );
+
+				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+
+				if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
+			} );
+			//			} else {
+			//				// TODO Use the notice tool to notify the user of posted updates when not interactive
+			//				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
+			//				//DefaultNotice notice = new DefaultNotice( NoticeKey.UPDATES_FOUND, "notice", message );
+			//				//program.getNoticeManager().submit( notice );
+			//			}
 		}
 
 		private void showUpdates() {
@@ -276,7 +288,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> postedUpdates;
 
-		public StoreUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
+		StoreUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-selected" ) );
 			this.installedPacks = installedPacks;
 			this.postedUpdates = postedUpdates;
@@ -312,7 +324,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> selectedUpdates;
 
-		public StageCachedUpdates( Set<ProductCard> selectedUpdates ) {
+		StageCachedUpdates( Set<ProductCard> selectedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-cached" ) );
 			this.selectedUpdates = selectedUpdates;
 		}
@@ -329,7 +341,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> selectedUpdates;
 
-		public StageUpdates( Set<ProductCard> selectedUpdates ) {
+		StageUpdates( Set<ProductCard> selectedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
 			this.selectedUpdates = selectedUpdates;
 		}
@@ -341,13 +353,19 @@ public class ProgramUpdateManager extends UpdateManager {
 			return null;
 		}
 
+		/**
+		 * Nearly identical to ProductTool.handleStagedUpdates()
+		 *
+		 * @param selectedUpdates The updates selected by the user
+		 */
 		private void handleApplyUpdates( Set<ProductCard> selectedUpdates ) {
 			if( selectedUpdates.size() == 0 ) return;
 
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 			Platform.runLater( () -> {
+				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 				alert.setTitle( title );
 				alert.setHeaderText( header );
@@ -356,7 +374,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.restart( ProgramFlag.NOUPDATECHECK )  );
+				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.requestRestart( ProgramFlag.NOUPDATECHECK ) );
 			} );
 		}
 

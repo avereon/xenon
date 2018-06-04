@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
+<!-- The generated shortcut file should be renamed to com.xeomar.xenon.Program.desktop -->
+
 <izpack:shortcuts version="5.0" xmlns:izpack="http://izpack.org/schema/shortcuts" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://izpack.org/schema/shortcuts http://izpack.org/schema/5.0/izpack-shortcuts-5.0.xsd">
 
 	<programGroup
@@ -15,10 +17,10 @@
 		startMenu="no"
 		startup="no"
 		target="java"
-		commandLine="-jar ${INSTALL_PATH}/lib/${project.artifactId}.jar"
+		commandLine="-p ${INSTALL_PATH}/mod -m com.xeomar.xenon/com.xeomar.xenon.Program"
 		workingDirectory="${INSTALL_PATH}"
-		description="${project.name} application framework."
-		iconFile="${INSTALL_PATH}/bin/program.png"
+		description="${project.name} modular application framework."
+		iconFile="${INSTALL_PATH}/bin/xenon.png"
 		iconIndex="0"
 		type="Application"
 		encoding="UTF-8"
@@ -26,6 +28,7 @@
 		categories="Application;"
 	/>
 
+	<!--
 	<shortcut
 		name="${project.name} Uninstall"
 		programGroup="yes"
@@ -34,7 +37,7 @@
 		startMenu="no"
 		startup="no"
 		target="java"
-		commandLine="-jar ${INSTALL_PATH}/lib/remove.jar"
+		commandLine="-jar ${INSTALL_PATH}/jar/uninstall.jar"
 		initialState="noShow"
 		iconFile="trashcan_full"
 		iconIndex="0"
@@ -45,8 +48,9 @@
 		KdeUsername="root"
 		createForAll="false"
 		categories="Application;"
-		tryexec="java -jar ${INSTALL_PATH}/lib/remove.jar"
+		tryexec="java -jar ${INSTALL_PATH}/jar/uninstall.jar"
 		description="Uninstall ${project.name} application framework."
 	/>
+	-->
 
 </izpack:shortcuts>

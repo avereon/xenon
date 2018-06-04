@@ -14,7 +14,7 @@ public class IconLibrary {
 
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
-		register( "program", XRingIcon.class );
+		register( "program", XRingLargeIcon.class );
 		register( "new", DocumentIcon.class );
 		register( "open", FolderIcon.class );
 		//register( "save", SaveIcon.class );
@@ -64,22 +64,14 @@ public class IconLibrary {
 		return getIconRenderer( id ).setSize( size );
 	}
 
-	public Image getIconImage( String id ) {
-		return getIconImage( id, DEFAULT_SIZE );
+	public Image[] getStageIcons( String id ) {
+		return getStageIcons( id, 16, 24, 32, 48, 64, 128, 256 );
 	}
 
-	public Image getIconImage( String id, int size ) {
-		return getIcon( id ).setSize( size ).getImage();
-	}
-
-	public Image[] getIconImages( String id ) {
-		return getIconImages( id, 16, 24, 32, 48, 64, 128, 256 );
-	}
-
-	public Image[] getIconImages( String id, int... sizes ) {
+	private Image[] getStageIcons( String id, int... sizes ) {
 		Image[] images = new Image[ sizes.length ];
 		for( int index = 0; index < sizes.length; index++ ) {
-			images[ index ] = getIconImage( id, sizes[ index ] );
+			images[ index ] = getIcon( id ).setSize( sizes[ index ] ).getStageIcon();
 		}
 		return images;
 	}

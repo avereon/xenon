@@ -76,6 +76,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProductCard card;
 
+	private Path programHomeFolder;
+
 	private Path programDataFolder;
 
 	private Settings programSettings;
@@ -124,8 +126,6 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskAction taskAction;
 
-	private Path home;
-
 	public static void main( String[] commands ) {
 		launch( commands );
 	}
@@ -160,8 +160,6 @@ public class Program extends Application implements ProgramProduct {
 		String baseName = "bundles/action";
 		Locale locale = Locale.getDefault();
 		java.lang.Module module = getClass().getModule();
-		ResourceBundle resourceBundle = ResourceBundle.getBundle( baseName, locale, module );
-
 
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
@@ -177,8 +175,12 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card, parameters );
 		time( "print-header" );
 
-		// Configure logging, depends on parameters
-		LogUtil.configureLogging( this, parameters );
+		// Determine the program exec mode, depends on program parameters
+		String prefix = getExecModePrefix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
+
+		// Configure logging, depends on program data folder
+		LogUtil.configureLogging( this, parameters, programDataFolder );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
@@ -189,17 +191,13 @@ public class Program extends Application implements ProgramProduct {
 		programResourceBundle = new ProductBundle( getClass(), "/bundles" );
 		time( "resource-bundle" );
 
-		// Determine the program exec mode, depends on program parameters
-		String prefix = getExecModePrefix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
-
 		// Load the default settings values
 		Properties properties = new Properties();
 		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
-		// Create the settings manager, depends on default settings values
+		// Create the settings manager, depends on default settings values, program data folder
 		settingsManager = new SettingsManager( this ).start();
 
 		// Create the program settings, depends on settings manager
@@ -290,19 +288,34 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "Task manager stopped." );
 	}
 
-	public void restart( String... commands ) {
-		// Register a shutdown hook to restart the application.
-		RestartShutdownHook restartShutdownHook = new RestartShutdownHook( this, commands );
-		Runtime.getRuntime().addShutdownHook( restartShutdownHook );
+	public void requestRestart( String... commands ) {
+		// Register a shutdown hook to restart the program
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForRestart( commands );
+		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.
-		if( !requestExit() ) {
-			Runtime.getRuntime().removeShutdownHook( restartShutdownHook );
+		if( !requestExit( true ) ) {
+			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
 			return;
 		}
 
-		// The shutdown hook should restart the application.
+		// The shutdown hook should restart the program
 		log.info( "Restarting..." );
+	}
+
+	public void requestUpdate( String... commands ) {
+		// Register a shutdown hook to update the program
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( commands );
+		Runtime.getRuntime().addShutdownHook( programShutdownHook );
+
+		// Request the program stop.
+		if( !requestExit( true ) ) {
+			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
+			return;
+		}
+
+		// The shutdown hook should update the program
+		log.info( "Updating..." );
 	}
 
 	public boolean requestExit() {
@@ -328,7 +341,8 @@ public class Program extends Application implements ProgramProduct {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 
-		workspaceManager.hideWindows();
+		// The workspaceManager can be null if the application is already running as a peer
+		if( workspaceManager != null ) workspaceManager.hideWindows();
 
 		if( !TestUtil.isTest() && (force || !shutdownKeepAlive) ) Platform.exit();
 
@@ -354,7 +368,7 @@ public class Program extends Application implements ProgramProduct {
 	 * @return The home folder
 	 */
 	public Path getHomeFolder() {
-		return home;
+		return programHomeFolder;
 	}
 
 	@Override
@@ -436,15 +450,15 @@ public class Program extends Application implements ProgramProduct {
 		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
-//	private ProductCard initProductCard() {
-//		ProductCard card = null;
-//		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
-//			card = this.card = new ProductCard().init( input );
-//		} catch( IOException exception ) {
-//			exception.printStackTrace( System.err );
-//		}
-//		return card;
-//	}
+	//	private ProductCard initProductCard() {
+	//		ProductCard card = null;
+	//		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
+	//			card = this.card = new ProductCard().init( input );
+	//		} catch( IOException exception ) {
+	//			exception.printStackTrace( System.err );
+	//		}
+	//		return card;
+	//	}
 
 	/**
 	 * Initialize the program parameters by converting the FX parameters object
@@ -689,11 +703,11 @@ public class Program extends Application implements ProgramProduct {
 		// Create the program notifier, depends on workspace manager
 		notifier = new ProgramNotifier( this );
 
-		// Schedule the first update check
-		getUpdateManager().scheduleUpdateCheck( true );
-
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
+
+		// Schedule the first update check
+		getUpdateManager().scheduleUpdateCheck( true );
 	}
 
 	private void doShutdownTasks() {
@@ -771,46 +785,51 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( home == null && parameters.isSet( ProgramFlag.HOME ) ) home = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// Check the code source.
-			if( home == null ) {
-				try {
-					URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-					if( "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" ) ) home = Paths.get( uri ).getParent();
-				} catch( URISyntaxException exception ) {
-					log.error( "Error using class location to determine program home", exception );
+			// Find the URI from which this class was loaded
+			try {
+				URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+				// Check the code source.
+				if( programHomeFolder == null ) {
+					boolean localJar = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" );
+
+					// If the URI is a local jar file then assume it is located under the
+					// standard folder structure. The standard location is under:
+					// <program home>/lib/<program jar>
+					if( localJar ) programHomeFolder = Paths.get( uri ).getParent().getParent();
 				}
+
+				// Check the execmode flag to detect when running in development
+				String devProgramHome = "target/program";
+
+				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
+					boolean mavenManaged = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( "/target/main/java/" );
+					if( mavenManaged ) programHomeFolder = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
+				}
+
+				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
+					programHomeFolder = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
+					Files.createDirectories( programHomeFolder );
+				}
+			} catch( URISyntaxException exception ) {
+				log.error( "Error using class location to determine program home", exception );
 			}
 
-			// Check the execmode flag to detect when running in development
-			if( home == null && getExecMode() == ExecMode.DEV ) {
-				home = Paths.get( System.getProperty( "user.dir" ), "target/install" );
-				Files.createDirectories( home );
-
-				// Copy the updater library.
-				// NEXT Continue to figure out how to handle the updater in development
-				Path updaterSource = Paths.get( System.getProperty( "user.dir" ), "/target/pack/program/lib/annex.jar" );
-				if( !Files.exists( updaterSource ) ) log.warn( "Development updater not found: {}", updaterSource );
-				Path updaterTarget = home.resolve( UpdateManager.UPDATER_JAR_NAME );
-				FileUtil.copy( updaterSource, updaterTarget );
-				log.debug( "Updater copied: " + updaterSource );
-			}
-
-			// Use the user directory as a last resort.
-			if( home == null ) home = Paths.get( System.getProperty( "user.dir" ) );
+			// Use the user directory as a last resort (usually for unit tests)
+			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path.
-			if( home != null ) home = home.toFile().getCanonicalFile().toPath();
+			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
 		}
 
-		log.debug( "Home: " + home );
-		//		log.debug( "Log : "+ logFilePattern );
-
 		// Set install folder on product card
-		card.setInstallFolder( home );
+		card.setInstallFolder( programHomeFolder );
+
+		log.debug( "Program home: " + programHomeFolder );
+		log.debug( "Program data: " + programDataFolder );
 	}
 
 	private void registerIcons() {}
@@ -909,7 +928,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
-		updateManager.setSettings( programSettings.getNode( "update" ) );
+		updateManager.setSettings( programSettings );
 
 		// Register the catalog
 		updateManager.addCatalog( defaultMarket = MarketCard.forProduct() );
@@ -919,9 +938,6 @@ public class Program extends Application implements ProgramProduct {
 		updateManager.setEnabled( getCard(), true );
 		updateManager.setUpdatable( getCard(), true );
 		updateManager.setRemovable( getCard(), false );
-
-		// Configure the update manager
-		updateManager.setUpdaterPath( getHomeFolder().resolve( UpdateManager.UPDATER_JAR_NAME ) );
 
 		return updateManager;
 	}

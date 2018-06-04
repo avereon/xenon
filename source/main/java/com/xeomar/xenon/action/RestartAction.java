@@ -18,7 +18,7 @@ public class RestartAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().restart( "--" + ProgramFlag.NOUPDATECHECK );
+		getProgram().requestRestart();
 	}
 
 }

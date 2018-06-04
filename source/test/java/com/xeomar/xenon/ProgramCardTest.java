@@ -55,14 +55,14 @@ public class ProgramCardTest extends ProgramTestCase {
 		assertThat( metadata.getProvider(), is( "Xeomar" ) );
 		assertThat( metadata.getInception(), is( inception ) );
 
-		assertThat( metadata.getSummary(), is( "Java application platform" ) );
+		assertThat( metadata.getSummary(), is( "Modular application platform" ) );
 		assertThat( metadata.getDescription(), is( description ) );
 		assertThat( metadata.getCopyrightSummary(), is( "All rights reserved" ) );
 		assertThat( metadata.getLicenseSummary(), is( name + " comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions." ) );
 	}
 
 	@Test
-	public void testProgramDataFolder() throws Exception {
+	public void testProgramDataFolder() {
 		String prefix = ExecMode.TEST.getPrefix();
 		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
 		assertThat( program.getDataFolder(), is( programDataFolder ) );

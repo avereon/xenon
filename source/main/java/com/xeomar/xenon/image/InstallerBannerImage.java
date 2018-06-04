@@ -1,40 +1,57 @@
 package com.xeomar.xenon.image;
 
+import com.xeomar.product.ProductCard;
+import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramImage;
-import com.xeomar.xenon.icon.XRingIcon;
+import com.xeomar.xenon.icon.XRingLargeIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import java.net.URL;
+
 public class InstallerBannerImage extends ProgramImage {
 
+	private ProductCard card;
+
+	private URL providerUrl;
+
 	public InstallerBannerImage() {
-		setWidth( 900 );
-		setHeight( 300 );
+		setWidth( 540 );
+		setHeight( 180 );
+
+		try {
+			card = new ProductCard();
+			card.load( Program.class );
+			providerUrl = new URL( card.getProviderUrl() );
+		} catch( Exception exception ) {
+			exception.printStackTrace();
+		}
 	}
 
 	@Override
 	protected void render() {
-		double zoom = 1.25;
-		double offset = (zoom * 0.5) - 0.5;
-		move( -offset, -offset );
-		zoom( zoom, zoom );
-		draw( new XRingIcon() );
+		double ratio = getHeight() / getWidth();
+		double scale = 0.9;
+		double offset = 0.5 - (scale * 0.5);
+		move( offset, offset );
+		zoom( scale, scale );
+		draw( new XRingLargeIcon() );
 		reset();
 
-		setFillPaint( Color.BLACK );
-
 		// Draw the program name
+		setFillPaint( Color.web( "#202020" ) );
 		setTextAlign( TextAlignment.CENTER );
-		fillText( "Xenon", 2, 0.5, 0.5, 2 );
+		fillText( card.getName(), 2.0, 0.6, 0.65, 2.0 );
 
 		// Draw the program web address
+		setFillPaint( Color.web( "#202020" ) );
 		setTextAlign( TextAlignment.CENTER );
-		fillText( "www.xeomar.com", 2, 13.0 / 16, 3.0 / 16.0, 2 );
+		fillText( providerUrl.getHost(), 2.0, 0.85, 0.2, 2 );
 	}
 
 	public static void main( String[] commands ) {
-		//proof( new InstallerBannerImage() );
-		save( new InstallerBannerImage(), "../../software/xenon/source/main/izpack/banner.png" );
+		proof( new InstallerBannerImage() );
+		//save( new InstallerBannerImage(), "../../software/xenon/source/main/izpack/banner.png" );
 	}
 
 }

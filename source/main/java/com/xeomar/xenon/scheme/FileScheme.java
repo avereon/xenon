@@ -349,7 +349,7 @@ public class FileScheme extends BaseScheme {
 //			Path path = getFile( resource ).getParentFile().toPath();
 //			try {
 //				WatchKey key = path.register( watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
-//				watchServicePaths.put( key, path );
+//				watchServicePaths.add( key, path );
 //				resource.putResource( "java.nio.file.WatchKey", key );
 //			} catch( IOException exception ) {
 //				Log.write( exception );

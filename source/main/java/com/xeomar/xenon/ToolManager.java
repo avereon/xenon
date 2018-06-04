@@ -244,7 +244,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	@Override
 	public ToolManager restart() {
-		// TODO Implement ToolManager.restart()
+		// TODO Implement ToolManager.requestRestart()
 		return this;
 	}
 

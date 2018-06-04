@@ -6,9 +6,11 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
+import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Module;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +86,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public static final String PRODUCT_DESCRIPTOR_PATH = "META-INF/" + DEFAULT_PRODUCT_FILE_NAME;
 
-	public static final String UPDATER_JAR_NAME = "updater.jar";
-
 	public static final String UPDATER_LOG_NAME = "updater.log";
 
 	public static final String UPDATE_FOLDER_NAME = "updates";
@@ -126,6 +126,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Settings settings;
 
+	private Settings updateSettings;
+
 	private Set<MarketCard> catalogs;
 
 	private Map<String, Module> modules;
@@ -139,8 +141,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	private FoundOption foundOption;
 
 	private ApplyOption applyOption;
-
-	private Path updater;
 
 	private Map<String, Product> products;
 
@@ -330,7 +330,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public boolean isEnabled( ProductCard card ) {
-		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY,Boolean.class, false );
+		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
 	public void setEnabled( ProductCard card, boolean enabled ) {
@@ -345,24 +345,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		log.trace( "Set enabled: ", settings.getPath(), ": ", enabled );
 
 		new UpdateManagerEvent( this, enabled ? UpdateManagerEvent.Type.PRODUCT_ENABLED : UpdateManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
-	}
-
-	/**
-	 * Get the path to the updater library.
-	 *
-	 * @return
-	 */
-	public Path getUpdaterPath() {
-		return updater;
-	}
-
-	/**
-	 * Get the path to the updater library.
-	 *
-	 * @param file
-	 */
-	public void setUpdaterPath( Path file ) {
-		this.updater = file;
 	}
 
 	public CheckOption getCheckOption() {
@@ -471,7 +453,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
-	// NEXT Overlay ProgramProductManager methods implementations
 	public void checkForUpdates() {
 		if( !isEnabled() ) return;
 
@@ -480,15 +461,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			int stagedUpdateCount = stagePostedUpdates();
 			if( stagedUpdateCount > 0 ) {
 				log.debug( "Staged updates found, restarting..." );
-				program.restart( ProgramFlag.NOUPDATECHECK );
+				program.requestRestart( ProgramFlag.NOUPDATECHECK );
 			}
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
-	}
-
-	public Set<ProductCard> findPostedUpdates() throws ExecutionException, InterruptedException, URISyntaxException {
-		return findPostedUpdates( false );
 	}
 
 	/**
@@ -566,6 +543,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
 					availableCards.add( availableCard );
 				}
+
+				// NEXT Remove use of forced updates
+				// Forced updates are used for development
+				if( program.getExecMode() == ExecMode.DEV ) {
+					log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+					availableCards.add( availableCard );
+				}
 			} catch( ExecutionException exception ) {
 				if( executionException == null ) executionException = exception;
 			} catch( InterruptedException exception ) {
@@ -587,11 +571,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return availableCards;
 	}
 
-	public boolean cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
+	void cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
-	public boolean stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
+	void stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
@@ -606,7 +590,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 */
 	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		stageUpdates( findPostedUpdates() );
+		stageUpdates( findPostedUpdates( false ) );
 		return updates.size();
 	}
 
@@ -615,8 +599,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return installFolder.resolve( card.getGroup() + "." + card.getArtifact() );
 	}
 
-	public Map<ProductCard, Set<ProductResource>> stageUpdates( ProductCard... updateCards ) throws IOException {
-		return stageUpdates( Set.of( updateCards ) );
+	public void stageUpdates( ProductCard... updateCards ) throws IOException {
+		stageUpdates( Set.of( updateCards ) );
 	}
 
 	/**
@@ -627,8 +611,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @return true if one or more product packs were staged.
 	 * @throws IOException If an IO error occurs
 	 */
-	public Map<ProductCard, Set<ProductResource>> stageUpdates( Set<ProductCard> updateCards ) throws IOException {
-		if( updateCards.size() == 0 ) return null;
+	void stageUpdates( Set<ProductCard> updateCards ) throws IOException {
+		if( updateCards.size() == 0 ) return;
 
 		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
 		Files.createDirectories( stageFolder );
@@ -671,7 +655,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
 
 			// Remove any old staged updates for this product.
-			updates.remove( update );
+			updates.remove( update.getCard().getProductKey(), update );
 
 			// Add the update to the set of staged updates.
 			updates.put( update.getCard().getProductKey(), update );
@@ -685,14 +669,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		saveUpdates();
 
-		return productResources;
 	}
 
-	public String getStagedUpdateFileName( ProductCard card ) {
+	private String getStagedUpdateFileName( ProductCard card ) {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	public Set<ProductCard> getStagedUpdates() {
+	public Set<ProductUpdate> getStagedUpdates() {
 		Set<ProductUpdate> staged = new HashSet<>();
 		Set<ProductUpdate> remove = new HashSet<>();
 
@@ -709,20 +692,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Remove updates that cannot be found.
 		if( remove.size() > 0 ) {
 			for( ProductUpdate update : remove ) {
-				updates.remove( update );
+				updates.remove( update.getCard().getProductKey(), update );
 			}
 			saveUpdates();
 		}
 
-		Set<ProductCard> cards = new HashSet<ProductCard>();
-		for( ProductUpdate update : staged ) {
-			cards.add( update.getCard() );
-		}
-
-		return cards;
+		return staged;
 	}
 
-	public int getStagedUpdateCount() {
+	int getStagedUpdateCount() {
 		return getStagedUpdates().size();
 	}
 
@@ -731,7 +709,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public boolean isStaged( ProductCard card ) {
-		return getStagedUpdates().contains( card );
+		for( ProductUpdate update : getStagedUpdates() ) {
+			if( card.equals( update.getCard() ) ) return true;
+		}
+		return false;
 	}
 
 	public boolean isReleaseStaged( ProductCard card ) {
@@ -748,9 +729,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 *
 	 * @return The number of updates applied.
 	 */
-	public final int updateProduct() {
+	public final int updateProduct( String... extras ) {
 		if( program.getHomeFolder() == null ) {
-			log.warn( "Program not executed from updatable location." );
+			log.warn( "Program not running from updatable location." );
 			return 0;
 		}
 
@@ -762,9 +743,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( updateCount > 0 ) {
 			log.info( "Staged updates detected: {}", updateCount );
 			try {
-				result = applyStagedUpdates();
+				result = userApplyStagedUpdates( extras );
 			} catch( Exception exception ) {
-				log.warn("Failed to apply staged updates", exception );
+				log.warn( "Failed to apply staged updates", exception );
 			}
 		} else {
 			log.debug( "No staged updates detected." );
@@ -772,6 +753,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return result;
 	}
 
+	public int userApplyStagedUpdates( String... extras ) {
+		return applyStagedUpdates( extras );
+	}
 
 	/**
 	 * Launch the update program to apply the staged updates. This method is
@@ -781,39 +765,22 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied.
-	 * @throws Exception
 	 */
-	public int applyStagedUpdates( String... extras ) throws Exception {
+	public int applyStagedUpdates( String... extras ) {
 		log.info( "Update manager enabled: " + isEnabled() );
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		log.info( "Starting update process..." );
 
-		// Copy the updater to a temporary location.
-		Path updaterSource = updater;
-		Path updaterTarget = FileUtil.TEMP_FOLDER.resolve( program.getCard().getArtifact() + "-updater.jar" );
-
-		//		Path updaterLogFolder = service.getDataFolder().resolve( Program.LOG_FOLDER_NAME );
-		//		Path updaterLogFile = updaterLogFolder.resolve( UPDATER_LOG_NAME );
-
-		if( updaterSource == null || !Files.exists( updaterSource ) ) throw new RuntimeException( "Update library not found: " + updaterSource );
-		if( !FileUtil.copy( updaterSource, updaterTarget ) ) throw new RuntimeException( "Update library not staged: " + updaterTarget );
-
-		// Register a shutdown hook to start the updater.
-		// NEXT Register update shutdown hook and finish implementation
-		//		UpdateShutdownHook updateShutdownHook = new UpdateShutdownHook( service, updates, updaterTarget, updaterLogFile, extras );
-		//		Runtime.getRuntime().addShutdownHook( updateShutdownHook );
-		//		log.trace( "Update shutdown hook registered." );
-
-		// Store the update count because the collection will be cleared.
+		// Store the update count to be returned after the collection is cleared
 		int count = updates.size();
 
-		clearStagedUpdates();
+		Platform.runLater( () -> program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS ) );
 
 		return count;
 	}
 
-	public void clearStagedUpdates() {
+	void clearStagedUpdates() {
 		// Remove the updates settings.
 		updates.clear();
 		saveUpdates();
@@ -944,7 +911,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void setSettings( Settings settings ) {
 		if( settings == null || this.settings != null ) return;
 
+		// FIXME The settings passed in serve two purposes but should not
+
 		this.settings = settings;
+
+		this.updateSettings = settings.getNode( "update" );
 
 		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
@@ -973,8 +944,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	@Override
 	public UpdateManager start() {
-		//		cleanRemovedProducts();
-		//
+		//		purgeRemovedProducts();
+
 		getSettings().addSettingsListener( new SettingsChangeHandler() );
 
 		// Create the update check timer.
@@ -1040,20 +1011,20 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private void loadCatalogs() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		catalogs = settings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
+		catalogs = updateSettings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
 	}
 
 	private void saveCatalogs() {
-		settings.set( CATALOGS_SETTINGS_KEY, catalogs );
+		updateSettings.set( CATALOGS_SETTINGS_KEY, catalogs );
 	}
 
 	private void loadUpdates() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		updates = settings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
+		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
 	private void saveUpdates() {
-		settings.set( UPDATES_SETTINGS_KEY, updates );
+		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
 	}
 
 	private boolean isReservedProduct( ProductCard card ) {
@@ -1453,8 +1424,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			if( CHECK.equals( event.getKey() ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-			if( event.getKey().startsWith( CHECK ) ) scheduleUpdateCheck( false );
+
+			String key = event.getKey();
+
+			if( CHECK.equals( key ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+			if( key.startsWith( CHECK ) ) scheduleUpdateCheck( false );
+
+			// TODO Handle NOTICE changes
+			// TODO Handle FOUND changes
+			// TODO Handle APPLY changes
 		}
 
 	}

@@ -15,7 +15,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -183,7 +182,7 @@ public class Workspace implements Configurable {
 
 		// Create the stage
 		stage = new Stage();
-		stage.getIcons().addAll( program.getIconLibrary().getIconImages( "program" ) );
+		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			event.consume();
 			program.getWorkspaceManager().requestCloseWorkspace( this );
