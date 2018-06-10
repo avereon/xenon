@@ -18,7 +18,6 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -469,8 +468,8 @@ public class UiFactory {
 			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
 			openToolRequest.setResource( resource );
 
-			// Restore the tool on a task thread
-			ProgramTool tool = program.getExecutor().submit( () -> program.getToolManager().restoreTool( openToolRequest, toolType ) ).get( RESTORE_TOOL_TIMEOUT, TimeUnit.SECONDS );
+			// Restore the tool
+			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
 			if( tool == null ) {
 				log.warn( "Removing unknown tool: " + id );
 				settings.delete();
@@ -482,8 +481,6 @@ public class UiFactory {
 			viewToolSet.add( tool );
 
 			tools.put( id, tool );
-		} catch( TimeoutException exception ) {
-			log.warn( "Timeout restoring tool: " + toolType, exception );
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool", exception );
 		}

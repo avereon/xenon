@@ -16,6 +16,7 @@ import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -151,16 +152,11 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param openToolRequest
 	 * @param toolClassName
 	 * @return The restored tool
-	 * @apiNode Should be called from a @code{TaskThread}
+	 * @apiNote Could be called from a @code{task thread} or an @code{FX application thread}
 	 */
 	public ProgramTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
-		TaskManager.taskThreadCheck();
-
 		// Run this class through the alias map
 		toolClassName = getToolClassName( toolClassName );
-
-		// Check the calling thread
-		TaskManager.taskThreadCheck();
 
 		// Find the registered tool type metadata
 		ToolMetadata toolMetadata = null;
@@ -266,21 +262,42 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
+	// Safe to call on any thread
 	private ProgramTool getToolInstance( OpenToolRequest request ) {
 		Resource resource = request.getResource();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
+		Product product = toolClassMetadata.get( toolClass ).getProduct();
 
-		// Have to have a ProductTool to support modules
-		try {
-			// Create the new tool instance
-			Product product = toolClassMetadata.get( toolClass ).getProduct();
-			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
-			return constructor.newInstance( product, resource );
-		} catch( Exception exception ) {
-			log.error( "Error creating instance: " + toolClass.getName(), exception );
+		Task<ProgramTool> createToolTask = new Task<>() {
+
+			@Override
+			protected ProgramTool call() {
+
+				// Have to have a ProductTool to support modules
+				try {
+					// Create the new tool instance
+					Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
+					return constructor.newInstance( product, resource );
+				} catch( Exception exception ) {
+					log.error( "Error creating instance: " + toolClass.getName(), exception );
+				}
+				return null;
+			}
+
+		};
+
+		if( Platform.isFxApplicationThread() ) {
+			createToolTask.run();
+		} else {
+			Platform.runLater( createToolTask );
 		}
 
-		return null;
+		try {
+			return createToolTask.get( 10, TimeUnit.SECONDS );
+		} catch( Exception exception ) {
+			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
+			return null;
+		}
 	}
 
 	private void createToolSettings( ProgramTool tool ) {
