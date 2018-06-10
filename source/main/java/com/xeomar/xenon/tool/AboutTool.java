@@ -14,11 +14,14 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
 import java.lang.invoke.MethodHandles;
@@ -40,7 +43,7 @@ public class AboutTool extends GuidedTool {
 
 	private Map<String, Node> nodes;
 
-	private BorderPane summaryPane;
+	private SummaryPane summaryPane;
 
 	private TextArea summaryText;
 
@@ -59,10 +62,12 @@ public class AboutTool extends GuidedTool {
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
 
-		summaryText = new TextArea();
-		summaryText.setEditable( false );
-		summaryPane = new BorderPane();
-		summaryPane.setCenter( summaryText );
+		summaryPane = new SummaryPane();
+
+		//		summaryText = new TextArea();
+		//		summaryText.setEditable( false );
+		//		summaryPane = new BorderPane();
+		//		summaryPane.setCenter( summaryText );
 
 		productsText = new TextArea();
 		productsText.setEditable( false );
@@ -141,9 +146,42 @@ public class AboutTool extends GuidedTool {
 		} else {
 			setTitle( metadata.getName() + " - " + titleSuffix );
 		}
-		summaryText.setText( getSummaryText( metadata ) );
+		//summaryText.setText( getSummaryText( metadata ) );
+		summaryPane.update( metadata );
 		productsText.setText( getProductsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+	}
+
+	private class SummaryPane extends MigPane {
+
+		private Label name;
+
+		private Label version;
+
+		private Label provider;
+
+		private ImageView osIcon;
+
+		private Label osName;
+
+		public SummaryPane() {
+			add( osIcon = new ImageView() );
+			add( osName = new Label( "" ) );
+		}
+
+		public void update( ProductCard card ) {
+			String osProperty = System.getProperty( "os.name" ).toLowerCase();
+			String input = getClass().getResource( "/icons/" + osProperty + ".png" ).toExternalForm();
+			if( input != null ) {
+				osIcon.setImage( new Image( input, 64, 64, true, true ) );
+			} else {
+				log.error( "Unable to load OS icon: icons/" + osProperty + ".svg" );
+			}
+
+			osName.setText( System.getProperty( "os.name" ) );
+
+		}
+
 	}
 
 	private String getSummaryText( ProductCard metadata ) {
@@ -370,8 +408,7 @@ public class AboutTool extends GuidedTool {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "Summary: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
-
+		builder.append( "Summary: " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
 
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
 		builder.append( "\n" );
