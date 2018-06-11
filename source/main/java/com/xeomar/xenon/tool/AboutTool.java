@@ -16,6 +16,7 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -170,18 +171,7 @@ public class AboutTool extends GuidedTool {
 		private Label osName;
 
 		public SummaryPane() {
-
-			WebView view = new WebView();
-			view.getEngine().setUserStyleSheetLocation( getClass().getResource("/icons/style.css").toExternalForm() );
-			view.getEngine().load( getClass().getResource( "/icons/linux.svg" ).toExternalForm() );
-//			double size = Math.max( view.getPrefWidth(), view.getPrefHeight() );
-//			view.setZoom( 64 / size );
-//			view.setMaxWidth( 64 );
-//			view.setMaxHeight( 64 );
-
-			add( view );
-
-			//add( getProgram().getIconLibrary().getIcon( OperatingSystem.getFamily().toString().toLowerCase() ) );
+			add( getProgram().getIconLibrary().getIcon( OperatingSystem.getFamily().toString().toLowerCase(), 64 ) );
 			add( osName = new Label( System.getProperty( "os.name" ) ) );
 		}
 
