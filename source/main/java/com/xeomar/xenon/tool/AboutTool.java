@@ -19,13 +19,18 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebView;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.*;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -165,21 +170,23 @@ public class AboutTool extends GuidedTool {
 		private Label osName;
 
 		public SummaryPane() {
-			add( osIcon = new ImageView() );
-			add( osName = new Label( "" ) );
+
+			WebView view = new WebView();
+			view.getEngine().setUserStyleSheetLocation( getClass().getResource("/icons/style.css").toExternalForm() );
+			view.getEngine().load( getClass().getResource( "/icons/linux.svg" ).toExternalForm() );
+//			double size = Math.max( view.getPrefWidth(), view.getPrefHeight() );
+//			view.setZoom( 64 / size );
+//			view.setMaxWidth( 64 );
+//			view.setMaxHeight( 64 );
+
+			add( view );
+
+			//add( getProgram().getIconLibrary().getIcon( OperatingSystem.getFamily().toString().toLowerCase() ) );
+			add( osName = new Label( System.getProperty( "os.name" ) ) );
 		}
 
 		public void update( ProductCard card ) {
-			String osProperty = System.getProperty( "os.name" ).toLowerCase();
-			String input = getClass().getResource( "/icons/" + osProperty + ".png" ).toExternalForm();
-			if( input != null ) {
-				osIcon.setImage( new Image( input, 64, 64, true, true ) );
-			} else {
-				log.error( "Unable to load OS icon: icons/" + osProperty + ".svg" );
-			}
-
-			osName.setText( System.getProperty( "os.name" ) );
-
+			//
 		}
 
 	}
