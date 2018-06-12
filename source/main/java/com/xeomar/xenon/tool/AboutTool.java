@@ -160,25 +160,65 @@ public class AboutTool extends GuidedTool {
 
 	private class SummaryPane extends MigPane {
 
-		private Label name;
+		private Label productName;
 
-		private Label version;
+		private Label productVersion;
 
-		private Label provider;
+		private Label productProvider;
 
-		private ImageView osIcon;
+		private Label javaName;
+
+		private Label javaVersion;
+
+		private Label javaProvider;
 
 		private Label osName;
 
+		private Label osVersion;
+
+		private Label osProvider;
+
 		public SummaryPane() {
-			add( getProgram().getIconLibrary().getIcon( OperatingSystem.getFamily().toString().toLowerCase(), 64 ) );
-			add( osName = new Label( System.getProperty( "os.name" ) ) );
+			String osFamily = OperatingSystem.getFamily().toString().toLowerCase();
+
+			add( getProgram().getIconLibrary().getIcon( "program", 64 ), "newline, span 1 2" );
+			add( productName = makeLabel( "tool-about-name" ) );
+			add( productProvider = makeLabel( "tool-about-provider" ) );
+			add( productVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+
+			add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
+			add( javaName = makeLabel( "tool-about-name" ) );
+			add( javaProvider = makeLabel( "tool-about-provider" ) );
+			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+
+			add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
+			add( osName = makeLabel( "tool-about-name" ) );
+			add( osProvider = makeLabel( "tool-about-provider" ) );
+			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 		}
 
 		public void update( ProductCard card ) {
-			//
+			productName.setText( card.getName() );
+			productVersion.setText( new Version( card.getVersion() ).toHumanString() );
+			productProvider.setText( card.getProvider() );
+
+			String javaVm = System.getProperty( "java.vm.name" );
+			String javaRuntimeVersion = System.getProperty( "java.runtime.version" );
+			javaName.setText( "Java" );
+			javaVersion.setText( javaVm + " " + javaRuntimeVersion );
+			javaProvider.setText( System.getProperty( "java.vendor" ) );
+
+			osName.setText( OperatingSystem.getFamily().toString() );
+			osVersion.setText( System.getProperty( "os.version" ) );
+			osProvider.setText( OperatingSystem.getProvider() );
 		}
 
+	}
+
+	private Label makeLabel( String labelClass ) {
+		Label label = new Label();
+		label.getStyleClass().addAll( labelClass );
+		return label;
 	}
 
 	private String getSummaryText( ProductCard metadata ) {
