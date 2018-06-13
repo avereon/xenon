@@ -56,7 +56,7 @@ public class IconLibrary {
 		register( "remove", ExitIcon.class );
 
 		register( "java", JavaIcon.class );
-		register( "windows", OsLinuxIcon.class );
+		register( "linux", OsLinuxIcon.class );
 		register( "macosx", OsMacIcon.class );
 		register( "windows", OsWindowsIcon.class );
 	}

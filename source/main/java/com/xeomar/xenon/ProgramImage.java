@@ -18,7 +18,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
