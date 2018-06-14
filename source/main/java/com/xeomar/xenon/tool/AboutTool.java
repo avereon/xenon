@@ -16,22 +16,14 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebView;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.*;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
