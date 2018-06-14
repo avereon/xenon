@@ -54,11 +54,6 @@ public class IconLibrary {
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
 		register( "remove", ExitIcon.class );
-
-		register( "java", JavaIcon.class );
-		register( "linux", OsLinuxIcon.class );
-		register( "macosx", OsMacIcon.class );
-		register( "windows", OsWindowsIcon.class );
 	}
 
 	public ProgramImage getIcon( String id ) {
