@@ -181,36 +181,35 @@ public class AboutTool extends GuidedTool {
 		public SummaryPane() {
 			String osFamily = OperatingSystem.getFamily().toString().toLowerCase();
 
-			add( getProgram().getIconLibrary().getIcon( "program", 64 ), "newline, span 1 2" );
-			add( productName = makeLabel( "tool-about-name" ) );
-			add( productProvider = makeLabel( "tool-about-provider" ) );
+			add( getProgram().getIconLibrary().getIcon( "program", 96 ), "spany, aligny top" );
+			add( productName = makeLabel( "tool-about-title" ) );
 			add( productVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+			add( productProvider = makeLabel( "tool-about-provider" ), "newline" );
 
-			add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
-			add( javaName = makeLabel( "tool-about-name" ) );
-			add( javaProvider = makeLabel( "tool-about-provider" ) );
+			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
+			add( javaName = makeLabel( "tool-about-name" ), "newline" );
 			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
 
-			add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
-			add( osName = makeLabel( "tool-about-name" ) );
-			add( osProvider = makeLabel( "tool-about-provider" ) );
+			//add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
+			add( osName = makeLabel( "tool-about-name" ), "newline" );
 			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+			add( osProvider = makeLabel( "tool-about-provider" ), "newline" );
 		}
 
 		public void update( ProductCard card ) {
 			productName.setText( card.getName() );
-			productVersion.setText( new Version( card.getVersion() ).toHumanString() );
-			productProvider.setText( card.getProvider() );
+			productVersion.setText( card.getRelease().toHumanString() );
+			productProvider.setText( "by " + card.getProvider() );
 
-			String javaVm = System.getProperty( "java.vm.name" );
-			String javaRuntimeVersion = System.getProperty( "java.runtime.version" );
-			javaName.setText( "Java" );
-			javaVersion.setText( javaVm + " " + javaRuntimeVersion );
-			javaProvider.setText( System.getProperty( "java.vendor" ) );
+			javaName.setText( System.getProperty( "java.vm.name" ) );
+			javaVersion.setText( System.getProperty( "java.version" ) + " " + System.getProperty( "java.version.date" ) );
+			javaProvider.setText( "by " + System.getProperty( "java.vendor" ) );
 
-			osName.setText( OperatingSystem.getFamily().toString() );
+			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
+			osName.setText( osNameString.substring(0, 1).toUpperCase() + osNameString.substring(1) );
 			osVersion.setText( System.getProperty( "os.version" ) );
-			osProvider.setText( OperatingSystem.getProvider() );
+			osProvider.setText( "by " + OperatingSystem.getProvider() );
 		}
 
 	}

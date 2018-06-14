@@ -111,16 +111,20 @@
 	-fx-background-color: transparent;
 }
 
+.tool-about-title {
+	-fx-font-size: 5em;
+}
+
 .tool-about-name {
-	-fx-font-size: 4em;
+	-fx-font-size: 2em;
 }
 
 .tool-about-provider {
-	-fx-font-size: 2em;
+	-fx-font-size: 1em;
 }
 
 .tool-about-version {
-	-fx-font-size: 2em;
+	-fx-font-size: 1em;
 }
 
 #tool-product-page-title {
