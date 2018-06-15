@@ -4,6 +4,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ExecMode;
+import com.xeomar.xenon.MemoryMonitor;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
@@ -13,6 +14,7 @@ import com.xeomar.xenon.workarea.Workarea;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -51,7 +53,9 @@ public class Workspace implements Configurable {
 
 	private ToolBar toolbar;
 
-	private HBox statusbar;
+	private BorderPane statusbar;
+
+	private MemoryMonitor memoryMonitor;
 
 	private Pane workpaneContainer;
 
@@ -165,8 +169,10 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		// STATUS BAR
-		statusbar = new HBox();
-		statusbar.getChildren().addAll( new Label( "Status Bar" ) );
+		 memoryMonitor = new MemoryMonitor();
+		statusbar = new BorderPane();
+		statusbar.setLeft( new Label("STATUS BAR") );
+		statusbar.setRight( memoryMonitor );
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
@@ -331,6 +337,11 @@ public class Workspace implements Configurable {
 	@Override
 	public Settings getSettings() {
 		return settings;
+	}
+
+	public void close() {
+		memoryMonitor.close();
+		getStage().close();
 	}
 
 	private void setStageTitle( String name ) {

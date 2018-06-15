@@ -132,11 +132,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void closeWorkspace( Workspace workspace ) {
-		workspace.getStage().close();
-
-		// TODO Remove the workspace, workpane, workpane components, tool settings, etc.
-
 		removeWorkspace( workspace );
+		workspace.close();
 	}
 
 	void hideWindows() {
