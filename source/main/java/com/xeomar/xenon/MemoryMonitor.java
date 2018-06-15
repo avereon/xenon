@@ -34,7 +34,7 @@ public class MemoryMonitor extends Label {
 	}
 
 	public MemoryMonitor() {
-		setMinHeight( 20 ); // 16 + 2px top and 2px bottom
+		//setMinHeight( 20 ); // 16 + 2px top and 2px bottom
 		setId( "status-bar-memory-monitor" );
 		monitors.add( this );
 	}

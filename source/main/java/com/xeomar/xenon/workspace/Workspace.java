@@ -169,10 +169,11 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		// STATUS BAR
-		 memoryMonitor = new MemoryMonitor();
+		memoryMonitor = new MemoryMonitor();
 		statusbar = new BorderPane();
-		statusbar.setLeft( new Label("STATUS BAR") );
+		statusbar.setLeft( new Label( "STATUS BAR" ) );
 		statusbar.setRight( memoryMonitor );
+		statusbar.getStyleClass().add( "status-bar" );
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
@@ -331,7 +332,7 @@ public class Workspace implements Configurable {
 		//BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		//workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
-		workpaneContainer.setBackground( new Background( new BackgroundFill( color1,CornerRadii.EMPTY, Insets.EMPTY ) ) );
+		workpaneContainer.setBackground( new Background( new BackgroundFill( color1, CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 
 	@Override
