@@ -5,7 +5,10 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductEvent;
 import com.xeomar.product.ProductEventListener;
 import com.xeomar.settings.Settings;
-import com.xeomar.util.*;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.OperatingSystem;
+import com.xeomar.util.Release;
+import com.xeomar.util.TestUtil;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
@@ -41,7 +44,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -805,11 +811,11 @@ public class Program extends Application implements ProgramProduct {
 
 				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
 					boolean mavenManaged = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( "/target/main/java/" );
-					if( mavenManaged ) programHomeFolder = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
-				}
-
-				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
-					programHomeFolder = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
+					if( mavenManaged ) {
+						programHomeFolder = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
+					} else {
+						programHomeFolder = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
+					}
 					Files.createDirectories( programHomeFolder );
 				}
 			} catch( URISyntaxException exception ) {
