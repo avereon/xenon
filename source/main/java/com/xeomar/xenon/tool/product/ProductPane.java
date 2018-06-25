@@ -42,6 +42,8 @@ class ProductPane extends MigPane {
 	private Button actionButton2;
 
 	ProductPane( ProductTool productTool, ProductCard source, ProductCard update ) {
+		super( "", "", "" );
+
 		this.productTool = productTool;
 		this.source = source;
 		this.update = update;

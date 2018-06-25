@@ -22,12 +22,12 @@ abstract class ProductToolPage extends BorderPane {
 		title = new Label( "" );
 		title.setId( "tool-product-page-title" );
 
+		// Can be styled with -fx-spacing
 		buttonBox = new HBox( UiFactory.PAD );
 
-		BorderPane header = new BorderPane();
+		BorderPane header = new BorderPane( null, null, buttonBox, null, title );
 		header.prefWidthProperty().bind( this.widthProperty() );
-		header.setLeft( title );
-		header.setRight( buttonBox );
+		header.getStyleClass().add( "tool-product-page-header" );
 
 		setTop( header );
 	}

@@ -135,12 +135,18 @@
 	-fx-font-size: 1em;
 }
 
+#tool-product .tool-product-page-header {
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 0.5em;
+}
+
 #tool-product-page-title {
 	-fx-font-size: 2em;
 }
 
 #tool-product-artifact {
 	-fx-background-color: -ex-background-text;
+	-fx-padding: 0.5em;
 }
 
 #tool-product-artifact-name {
@@ -149,6 +155,7 @@
 
 #tool-product-market {
 	-fx-background-color: -ex-background-text;
+	-fx-padding: 0.5em;
 }
 
 #tool-product-market-name {
