@@ -20,11 +20,11 @@ public class MarketCardTest {
 		InputStream input = getClass().getResourceAsStream( MarketCard.CARD );
 		MarketCard card = MarketCard.loadCard( input );
 		assertThat( card.getName(), is( "Xeomar" ) );
-		assertThat( card.getIconUri(), is( "http://xeomar.com/images/icons/xeomar.png" ) );
-		assertThat( card.getCardUri(), is( "http://xeomar.com/download/xenon/catalog/card/{0}" ) );
+		assertThat( card.getIconUri(), is( "https://xeomar.com/images/icons/xeomar.png" ) );
+		assertThat( card.getCardUri(), is( "https://xeomar.com/download/xenon/catalog/card/{0}" ) );
 
 		List<String> products = new ArrayList<>();
-		products.add( "http://xeomar.com/download/xenon/product/card/{0}" );
+		products.add( "https://xeomar.com/download/xenon/product/card/{0}" );
 		assertThat( card.getProducts(), contains( products.toArray() ) );
 	}
 

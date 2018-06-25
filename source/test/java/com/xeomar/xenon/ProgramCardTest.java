@@ -51,7 +51,7 @@ public class ProgramCardTest extends ProgramTestCase {
 		assertTrue( "Incorrect timestamp format: " + metadata.getTimestamp(), metadata.getTimestamp().matches( timestampRegex ) );
 
 		assertThat( metadata.getName(), is( name ) );
-		assertThat( metadata.getIconUri(), is( "http://www.xeomar.com/images/icons/xenon.png" ) );
+		assertThat( metadata.getIconUri(), is( "https://www.xeomar.com/images/icons/xenon.png" ) );
 		assertThat( metadata.getProvider(), is( "Xeomar" ) );
 		assertThat( metadata.getInception(), is( inception ) );
 
