@@ -159,6 +159,10 @@
 	-fx-background-color: transparent;
 }
 
+#tool-welcome .tool-welcome-title {
+	-fx-font-size: 5em;
+}
+
 /* TitledPane */
 .titled-pane > *.content {
 	-fx-background-color: red;

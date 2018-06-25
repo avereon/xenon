@@ -37,6 +37,8 @@ public class AboutTool extends GuidedTool {
 
 	public static final String DETAILS = "details";
 
+	private static final double ICON_SIZE = 96;
+
 	private String titleSuffix;
 
 	private Map<String, Node> nodes;
@@ -173,16 +175,18 @@ public class AboutTool extends GuidedTool {
 		public SummaryPane() {
 			String osFamily = OperatingSystem.getFamily().toString().toLowerCase();
 
-			add( getProgram().getIconLibrary().getIcon( "program", 96 ), "spany, aligny top" );
+			add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ), "spany, aligny top" );
 			add( productName = makeLabel( "tool-about-title" ) );
 			add( productVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( productProvider = makeLabel( "tool-about-provider" ), "newline" );
 
+			add( makeLabel( "tool-about-separator" ), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
 			add( javaName = makeLabel( "tool-about-name" ), "newline" );
 			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
 
+			add( makeLabel( "tool-about-separator" ), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
 			add( osName = makeLabel( "tool-about-name" ), "newline" );
 			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
