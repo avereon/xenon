@@ -22,7 +22,7 @@ import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.AboutTool;
-import com.xeomar.xenon.tool.ProductTool;
+import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.tool.WelcomeTool;
 import com.xeomar.xenon.tool.guide.GuideTool;

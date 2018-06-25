@@ -1,7 +1,6 @@
 package com.xeomar.xenon.tool.product;
 
 import com.xeomar.xenon.resource.type.ProgramProductType;
-import com.xeomar.xenon.tool.ProductTool;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;

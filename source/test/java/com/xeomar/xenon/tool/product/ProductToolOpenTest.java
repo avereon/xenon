@@ -1,6 +1,5 @@
 package com.xeomar.xenon.tool.product;
 
-import com.xeomar.xenon.tool.ProductTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Test;
