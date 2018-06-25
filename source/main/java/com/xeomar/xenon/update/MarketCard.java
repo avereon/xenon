@@ -41,6 +41,10 @@ public class MarketCard {
 		return new ObjectMapper().readerFor( new TypeReference<MarketCard>() {} ).readValue( input );
 	}
 
+	public MarketCard copyFrom( MarketCard card ) {
+		return updateWith( card, null );
+	}
+
 	public MarketCard updateWith( MarketCard card, URI source ) {
 		this.name = card.name;
 		this.iconUri = card.iconUri;

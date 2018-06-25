@@ -939,6 +939,12 @@ public class Program extends Application implements ProgramProduct {
 		// Register the catalog
 		updateManager.addCatalog( defaultMarket = MarketCard.forProduct() );
 
+		// Remove the old catalog
+		MarketCard oldMarketCard = new MarketCard().copyFrom( MarketCard.forProduct() );
+		String oldUri =  MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
+		oldMarketCard.setCardUri( oldUri );
+		updateManager.removeCatalog( oldMarketCard );
+
 		// Register the product
 		updateManager.registerProduct( this );
 		updateManager.setEnabled( getCard(), true );
