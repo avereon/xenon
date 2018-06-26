@@ -17,6 +17,10 @@
 	-fx-padding: 0 0.3em 0 0;
 }
 
+.padded {
+	-fx-padding: 0.5em;
+}
+
 /* ScrollPane */
 .workpane .scroll-pane {
 	-fx-background-color: transparent;
@@ -135,18 +139,23 @@
 	-fx-font-size: 1em;
 }
 
-#tool-product .tool-product-page-header {
+#tool-product-page-header {
+	-fx-background-insets: 0 0 5px 0;
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 0.5em;
+	-fx-padding: 5px 5px 10px 5px;
 }
 
 #tool-product-page-title {
 	-fx-font-size: 2em;
 }
 
+#tool-product-page-header-buttons {
+	-fx-spacing: 5px;
+}
+
 #tool-product-artifact {
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 0.5em;
+	-fx-padding: 5px;
 }
 
 #tool-product-artifact-name {
@@ -155,11 +164,17 @@
 
 #tool-product-market {
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 0.5em;
+	-fx-padding: 5px;
 }
 
 #tool-product-market-name {
 	-fx-font-weight: bold;
+}
+
+#tool-product-page-footer {
+	-fx-background-insets: 5px 0 0 0;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 10px 5px 5px 5px;
 }
 
 #tool-welcome {
@@ -174,4 +189,3 @@
 .titled-pane > *.content {
 	-fx-background-color: red;
 }
-

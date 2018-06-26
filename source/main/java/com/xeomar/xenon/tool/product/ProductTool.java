@@ -64,9 +64,11 @@ public class ProductTool extends GuidedTool {
 		pages.put( ProgramProductType.SOURCES, productMarketPage );
 
 		checkInfo = new UpdateCheckInformationPane( program );
+		checkInfo.setId( "tool-product-page-footer" );
 
 		layoutPane = new BorderPane();
-		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
+		layoutPane.getStyleClass().add( "padded" );
+		layoutPane.setTop( installedPage.getHeader() );
 		layoutPane.setCenter( installedPage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
@@ -166,6 +168,7 @@ public class ProductTool extends GuidedTool {
 		currentPage = pages.get( pageId );
 		currentPage.updateState();
 
+		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );
 	}
 

@@ -15,8 +15,6 @@ class ProductMarketPage extends ProductToolPage {
 
 	private ProductTool productTool;
 
-	private VBox marketList;
-
 	ProductMarketPage( Program program, ProductTool productTool ) {
 		this.productTool = productTool;
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.SOURCES ) );
@@ -24,7 +22,6 @@ class ProductMarketPage extends ProductToolPage {
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add-market" ) );
 
 		getButtonBox().addAll( addButton );
-		setCenter( marketList = new VBox() );
 	}
 
 	@Override
@@ -40,20 +37,20 @@ class ProductMarketPage extends ProductToolPage {
 			panes.add( new MarketPane( productTool, market ) );
 		}
 
-		marketList.getChildren().clear();
-		marketList.getChildren().addAll( panes );
+		getChildren().clear();
+		getChildren().addAll( panes );
 
 		updateMarketStates();
 	}
 
 	void updateMarketStates() {
-		for( Node node : marketList.getChildren() ) {
+		for( Node node : getChildren() ) {
 			((MarketPane)node).updateMarketState();
 		}
 	}
 
 	public void updateMarketState( MarketCard card ) {
-		for( Node node : marketList.getChildren() ) {
+		for( Node node : getChildren() ) {
 			MarketPane panel = (MarketPane)node;
 			if( panel.getSource().equals( card ) ) panel.updateMarketState();
 		}

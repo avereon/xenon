@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool.product;
 
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.update.MarketCard;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -24,6 +25,8 @@ class MarketPane extends MigPane {
 	private Button removeButton;
 
 	public MarketPane( ProductTool productTool, MarketCard source ) {
+		super( "insets 0, gap " + UiFactory.PAD );
+
 		this.productTool = productTool;
 		this.source = source;
 

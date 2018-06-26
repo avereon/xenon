@@ -14,12 +14,9 @@ abstract class ProductPage extends ProductToolPage {
 
 	private List<ProductPane> sources;
 
-	private VBox productList;
-
-	public ProductPage( Program program, ProductTool productTool ) {
+	ProductPage( Program program, ProductTool productTool ) {
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
-		setCenter( productList = new VBox() );
 	}
 
 	public List<ProductPane> getSourcePanels() {
@@ -30,7 +27,7 @@ abstract class ProductPage extends ProductToolPage {
 		setProducts( cards, false );
 	}
 
-	public void setProducts( List<ProductCard> cards, boolean isUpdate ) {
+	void setProducts( List<ProductCard> cards, boolean isUpdate ) {
 		// Create a map of the updates
 		Map<String, ProductCard> installedProducts = new HashMap<>();
 		Map<String, ProductCard> productUpdates = new HashMap<>();
@@ -59,20 +56,20 @@ abstract class ProductPage extends ProductToolPage {
 			sources.add( new ProductPane( productTool, source, productUpdates.get( source.getProductKey() ) ) );
 		}
 
-		productList.getChildren().clear();
-		productList.getChildren().addAll( sources );
+		getChildren().clear();
+		getChildren().addAll( sources );
 
 		updateProductStates();
 	}
 
 	void updateProductStates() {
-		for( Node node : productList.getChildren() ) {
+		for( Node node : getChildren() ) {
 			((ProductPane)node).updateProductState();
 		}
 	}
 
 	public void updateProductState( ProductCard card ) {
-		for( Node node : productList.getChildren() ) {
+		for( Node node : getChildren() ) {
 			ProductPane panel = (ProductPane)node;
 			if( panel.getSource().equals( card ) ) panel.updateProductState();
 		}

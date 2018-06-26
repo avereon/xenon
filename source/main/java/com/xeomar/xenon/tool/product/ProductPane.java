@@ -3,6 +3,7 @@ package com.xeomar.xenon.tool.product;
 import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.FxUtil;
 import javafx.application.Platform;
@@ -42,7 +43,7 @@ class ProductPane extends MigPane {
 	private Button actionButton2;
 
 	ProductPane( ProductTool productTool, ProductCard source, ProductCard update ) {
-		super( "", "", "" );
+		super( "insets 0, gap " + UiFactory.PAD );
 
 		this.productTool = productTool;
 		this.source = source;
@@ -54,7 +55,7 @@ class ProductPane extends MigPane {
 
 		String iconUri = source.getIconUri();
 		Node productIcon = program.getIconLibrary().getIcon( "module", ProductTool.ICON_SIZE );
-		//Node productIcon = program.getIconLibrary().getIcon( iconUri, ICON_SIZE );
+		//Node productIcon = program.getIconLibrary().getIcon( iconUri, ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );
