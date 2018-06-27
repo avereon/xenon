@@ -3,7 +3,6 @@ package com.xeomar.xenon.tool.product;
 import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.Program;
 import javafx.scene.Node;
-import javafx.scene.layout.VBox;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

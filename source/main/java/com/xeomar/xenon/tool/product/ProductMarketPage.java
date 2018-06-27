@@ -6,7 +6,6 @@ import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.update.MarketCard;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;

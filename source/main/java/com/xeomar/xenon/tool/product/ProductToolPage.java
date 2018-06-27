@@ -2,7 +2,6 @@ package com.xeomar.xenon.tool.product;
 
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 abstract class ProductToolPage extends VBox {
