@@ -115,6 +115,18 @@
 	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
+.memory-monitor {
+	-fx-background-color: yellow;
+}
+
+.memory-monitor-allocated {
+	-fx-background-color: orange;
+}
+
+.memory-monitor-used {
+	-fx-background-color: red;
+}
+
 #tool-about .text-area {
 	-fx-background-color: transparent;
 }
