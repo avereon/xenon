@@ -461,7 +461,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			int stagedUpdateCount = stagePostedUpdates();
 			if( stagedUpdateCount > 0 ) {
 				log.debug( "Staged updates found, restarting..." );
-				program.requestRestart( ProgramFlag.NOUPDATECHECK );
+				program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS );
 			}
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
