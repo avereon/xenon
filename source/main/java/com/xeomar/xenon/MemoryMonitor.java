@@ -13,6 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.Skin;
 import javafx.scene.control.skin.LabelSkin;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
 import java.text.DecimalFormat;
@@ -21,13 +24,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class MemoryMonitor extends Labeled {
+public class MemoryMonitor extends Pane {
 
 	private static final String DIVIDER = "/";
 
 	private static Set<MemoryMonitor> monitors;
-
-	private static Timer timer;
 
 	private static boolean showPercent;
 
@@ -37,15 +38,19 @@ public class MemoryMonitor extends Labeled {
 
 	private double usedPercent;
 
+	private Rectangle memoryMax;
+
 	private Rectangle memoryAllocated;
 
 	private Rectangle memoryUsed;
+
+	private Label label;
 
 	// IDEA updates every five seconds
 
 	static {
 		monitors = new CopyOnWriteArraySet<>();
-		timer = new Timer( "Memory Monitor Timer", true );
+		Timer timer = new Timer( "Memory Monitor Timer", true );
 		TimerTask task = new TimerTask() {
 
 			@Override
@@ -58,34 +63,27 @@ public class MemoryMonitor extends Labeled {
 	}
 
 	public MemoryMonitor() {
-		initialize();
-	}
-
-	private void initialize() {
 		getStyleClass().setAll( "memory-monitor" );
-		setAccessibleRole( AccessibleRole.TEXT );
-		// MemoryMonitors are not focus traversable, unlike most other UI Controls.
-		// focusTraversable is styleable through css. Calling setFocusTraversable
-		// makes it look to css like the user set the value and css will not
-		// override. Initializing focusTraversable by calling set on the
-		// CssMetaData ensures that css will be able to override the value.
-		((StyleableProperty<Boolean>)(WritableValue<Boolean>)focusTraversableProperty()).applyStyle( null, Boolean.FALSE );
+
+		label = new Label();
+		label.getStyleClass().add( "memory-monitor-label" );
+
+		memoryMax = new Rectangle();
+		memoryMax.getStyleClass().add( "memory-monitor-max" );
+		memoryMax.widthProperty().bind( label.widthProperty() );
+		memoryMax.heightProperty().bind( label.heightProperty() );
 
 		memoryAllocated = new Rectangle();
 		memoryAllocated.getStyleClass().add( "memory-monitor-allocated" );
+		memoryAllocated.heightProperty().bind( label.heightProperty() );
 
 		memoryUsed = new Rectangle();
 		memoryUsed.getStyleClass().add( "memory-monitor-used" );
+		memoryUsed.heightProperty().bind( label.heightProperty() );
 
-		getChildren().addAll( memoryAllocated, memoryUsed );
+		getChildren().addAll( memoryMax, memoryAllocated, memoryUsed, label );
 
 		monitors.add( this );
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	protected Skin<?> createDefaultSkin() {
-		return new MemoryMonitorSkin( this );
 	}
 
 	public void close() {
@@ -129,16 +127,14 @@ public class MemoryMonitor extends Labeled {
 	protected void layoutChildren() {
 		super.layoutChildren();
 
-		double width = super.getPrefWidth();
-		double height = super.getPrefHeight();
+		double width = super.getWidth();
+//		memoryAllocated.setX( 0 );
+//		memoryAllocated.setY( 0 );
+//		memoryUsed.setX( 0 );
+//		memoryUsed.setY( 0 );
 
-		System.out.println( "Memory monitor: " + width + " x " + height );
-
-		memoryAllocated.setWidth( 400 );
-		memoryAllocated.setHeight( 20 );
-
-		memoryUsed.setWidth( 200 );
-		memoryUsed.setHeight( 20 );
+		memoryAllocated.setWidth( width * allocatedPercent );
+		memoryUsed.setWidth( width * usedPercent );
 	}
 
 	@Override
@@ -149,7 +145,7 @@ public class MemoryMonitor extends Labeled {
 	private void update( double used, double allocated, String text ) {
 		this.allocatedPercent = allocated;
 		this.usedPercent = used;
-		setText( text );
+		this.label.setText( text );
 		requestLayout();
 	}
 

@@ -112,19 +112,25 @@
 }
 
 .status-bar {
-	-fx-padding: 0.2em 0.5em 0.2em 0.5em;
+	-fx-padding: 1mm 1mm 1mm 1mm;
 }
 
-.memory-monitor {
-	-fx-background-color: yellow;
+.memory-monitor {}
+
+.memory-monitor-max {
+	-fx-fill: #e0e0e0;
 }
 
 .memory-monitor-allocated {
-	-fx-background-color: orange;
+	-fx-fill: #c0c0c0;
 }
 
 .memory-monitor-used {
-	-fx-background-color: red;
+	-fx-fill: #a0a0a0;
+}
+
+.memory-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
 
 #tool-about .text-area {
