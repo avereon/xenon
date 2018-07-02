@@ -14,11 +14,11 @@
 }
 
 .prompt {
-	-fx-padding: 0 0.3em 0 0;
+	-fx-padding: 0 1mm 0 0;
 }
 
 .padded {
-	-fx-padding: 0.5em;
+	-fx-padding: 1.5mm;
 }
 
 /* ScrollPane */
@@ -158,9 +158,9 @@
 }
 
 #tool-product-page-header {
-	-fx-background-insets: 0 0 5px 0;
+	-fx-background-insets: 0 0 1mm 0;
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 5px 5px 10px 5px;
+	-fx-padding: 1mm 1mm 2mm 1mm;
 }
 
 #tool-product-page-title {
@@ -168,12 +168,12 @@
 }
 
 #tool-product-page-header-buttons {
-	-fx-spacing: 5px;
+	-fx-spacing: 1mm;
 }
 
 #tool-product-artifact {
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 5px;
+	-fx-padding: 1mm;
 }
 
 #tool-product-artifact-name {
@@ -182,7 +182,7 @@
 
 #tool-product-market {
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 5px;
+	-fx-padding: 1mm;
 }
 
 #tool-product-market-name {
@@ -190,9 +190,9 @@
 }
 
 #tool-product-page-footer {
-	-fx-background-insets: 5px 0 0 0;
+	-fx-background-insets: 1mm 0 0 0;
 	-fx-background-color: -ex-background-text;
-	-fx-padding: 10px 5px 5px 5px;
+	-fx-padding: 2mm 1mm 1mm 1mm;
 }
 
 #tool-welcome {
