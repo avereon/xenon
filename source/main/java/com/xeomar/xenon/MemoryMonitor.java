@@ -70,16 +70,12 @@ public class MemoryMonitor extends Pane {
 
 		memoryMax = new Rectangle();
 		memoryMax.getStyleClass().add( "memory-monitor-max" );
-		memoryMax.widthProperty().bind( label.widthProperty() );
-		memoryMax.heightProperty().bind( label.heightProperty() );
 
 		memoryAllocated = new Rectangle();
 		memoryAllocated.getStyleClass().add( "memory-monitor-allocated" );
-		memoryAllocated.heightProperty().bind( label.heightProperty() );
 
 		memoryUsed = new Rectangle();
 		memoryUsed.getStyleClass().add( "memory-monitor-used" );
-		memoryUsed.heightProperty().bind( label.heightProperty() );
 
 		getChildren().addAll( memoryMax, memoryAllocated, memoryUsed, label );
 
@@ -127,19 +123,17 @@ public class MemoryMonitor extends Pane {
 	protected void layoutChildren() {
 		super.layoutChildren();
 
-		double width = super.getWidth();
-//		memoryAllocated.setX( 0 );
-//		memoryAllocated.setY( 0 );
-//		memoryUsed.setX( 0 );
-//		memoryUsed.setY( 0 );
+		double width = super.getWidth()-1;
+		double height = super.getHeight() - 1;
+
+		memoryMax.setWidth( width );
+		memoryMax.setHeight( height );
 
 		memoryAllocated.setWidth( width * allocatedPercent );
-		memoryUsed.setWidth( width * usedPercent );
-	}
+		memoryAllocated.setHeight( height );
 
-	@Override
-	protected void layoutInArea( Node child, double areaX, double areaY, double areaWidth, double areaHeight, double areaBaselineOffset, Insets margin, boolean fillWidth, boolean fillHeight, HPos halignment, VPos valignment ) {
-		super.layoutInArea( child, areaX, areaY, areaWidth, areaHeight, areaBaselineOffset, margin, fillWidth, fillHeight, halignment, valignment );
+		memoryUsed.setWidth( width * usedPercent );
+		memoryUsed.setHeight( height );
 	}
 
 	private void update( double used, double allocated, String text ) {

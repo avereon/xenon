@@ -3,10 +3,7 @@ package com.xeomar.xenon.workspace;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.ExecMode;
-import com.xeomar.xenon.MemoryMonitor;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.Colors;
@@ -56,6 +53,8 @@ public class Workspace implements Configurable {
 	private BorderPane statusbar;
 
 	private MemoryMonitor memoryMonitor;
+
+	private TaskMonitor taskMonitor;
 
 	private Pane workpaneContainer;
 
@@ -169,10 +168,21 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		// STATUS BAR
+		taskMonitor = new TaskMonitor( program.getTaskManager() );
 		memoryMonitor = new MemoryMonitor();
+
+		HBox leftStatusBarItems = new HBox();
+		leftStatusBarItems.getStyleClass().addAll( "box" );
+
+		HBox rightStatusBarItems = new HBox();
+		rightStatusBarItems.getStyleClass().addAll( "box" );
+
+		leftStatusBarItems.getChildren().addAll( new Label( "STATUS BAR" ) );
+		rightStatusBarItems.getChildren().addAll( taskMonitor, memoryMonitor );
+
 		statusbar = new BorderPane();
-		statusbar.setLeft( new Label( "STATUS BAR" ) );
-		statusbar.setRight( memoryMonitor );
+		statusbar.setLeft( leftStatusBarItems );
+		statusbar.setRight( rightStatusBarItems );
 		statusbar.getStyleClass().add( "status-bar" );
 
 		// Workarea Container

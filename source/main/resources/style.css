@@ -115,6 +115,10 @@
 	-fx-padding: 1mm 1mm 1mm 1mm;
 }
 
+.status-bar > .box {
+	-fx-spacing: 1mm;
+}
+
 .memory-monitor {}
 
 .memory-monitor-max {
@@ -131,6 +135,16 @@
 
 .memory-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
+
+.task-monitor {}
+
+.task-monitor-max {
+	-fx-fill: #e0e0e0;
+}
+
+.task-monitor-used {
+	-fx-fill: #a0a0a0;
 }
 
 #tool-about .text-area {
