@@ -7,13 +7,13 @@ import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.Workpane;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.text.Font;
 import org.slf4j.Logger;
+import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
 
@@ -23,7 +23,7 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double PAD = 2 * UiFactory.PAD;
 
-	private static final double ICON_SIZE = 64;
+	private static final double ICON_SIZE = 96;
 
 	private static final double SLOPE_RADIUS = 5000;
 
@@ -36,18 +36,22 @@ public class WelcomeTool extends ProgramTool {
 		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );
 
 		Label label = new Label( product.getCard().getName(), icon );
-		label.setFont( new Font( label.getFont().getSize() * 4 ) );
-		label.setPadding( new Insets( PAD, PAD, PAD, PAD ) );
+		label.getStyleClass().add( "tool-welcome-title" );
 
-		Ellipse slope = new Ellipse( 0, ICON_SIZE + 2 * PAD + SLOPE_RADIUS, SLOPE_RADIUS, SLOPE_RADIUS );
-		slope.getStyleClass().add( "accent" );
+		Ellipse accent = new Ellipse( 0, ICON_SIZE + 2 * PAD + SLOPE_RADIUS, SLOPE_RADIUS, SLOPE_RADIUS );
+		accent.getStyleClass().add( "accent" );
 
-		AnchorPane anchorPane = new AnchorPane();
-		anchorPane.getChildren().addAll( label, slope );
-		AnchorPane.setTopAnchor( label, 0.0 );
-		AnchorPane.setLeftAnchor( label, 0.0 );
+		Pane accentPane = new Pane();
+		accentPane.getChildren().addAll( accent );
 
-		getChildren().addAll( anchorPane );
+		MigPane contentPane = new MigPane();
+		contentPane.add( icon, "spany, aligny top" );
+		contentPane.add( label );
+
+		StackPane stack = new StackPane();
+		stack.getChildren().addAll( accentPane, contentPane );
+
+		getChildren().addAll( stack );
 	}
 
 	@Override
@@ -59,7 +63,7 @@ public class WelcomeTool extends ProgramTool {
 	protected void display() throws ToolException {
 		log.debug( "Tool display" );
 		Workpane workpane = getWorkpane();
-		if( workpane != null  ) workpane.setMaximizedView( getToolView() );
+		if( workpane != null ) workpane.setMaximizedView( getToolView() );
 	}
 
 	@Override

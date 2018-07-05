@@ -14,11 +14,12 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
 import java.lang.invoke.MethodHandles;
@@ -36,11 +37,13 @@ public class AboutTool extends GuidedTool {
 
 	public static final String DETAILS = "details";
 
+	private static final double ICON_SIZE = 96;
+
 	private String titleSuffix;
 
 	private Map<String, Node> nodes;
 
-	private BorderPane summaryPane;
+	private SummaryPane summaryPane;
 
 	private TextArea summaryText;
 
@@ -59,10 +62,12 @@ public class AboutTool extends GuidedTool {
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
 		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
 
-		summaryText = new TextArea();
-		summaryText.setEditable( false );
-		summaryPane = new BorderPane();
-		summaryPane.setCenter( summaryText );
+		summaryPane = new SummaryPane();
+
+		//		summaryText = new TextArea();
+		//		summaryText.setEditable( false );
+		//		summaryPane = new BorderPane();
+		//		summaryPane.setCenter( summaryText );
 
 		productsText = new TextArea();
 		productsText.setEditable( false );
@@ -141,9 +146,74 @@ public class AboutTool extends GuidedTool {
 		} else {
 			setTitle( metadata.getName() + " - " + titleSuffix );
 		}
-		summaryText.setText( getSummaryText( metadata ) );
+		//summaryText.setText( getSummaryText( metadata ) );
+		summaryPane.update( metadata );
 		productsText.setText( getProductsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+	}
+
+	private class SummaryPane extends MigPane {
+
+		private Label productName;
+
+		private Label productVersion;
+
+		private Label productProvider;
+
+		private Label javaName;
+
+		private Label javaVersion;
+
+		private Label javaProvider;
+
+		private Label osName;
+
+		private Label osVersion;
+
+		private Label osProvider;
+
+		public SummaryPane() {
+			String osFamily = OperatingSystem.getFamily().toString().toLowerCase();
+
+			add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ), "spany, aligny top" );
+			add( productName = makeLabel( "tool-about-title" ) );
+			add( productVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+			add( productProvider = makeLabel( "tool-about-provider" ), "newline" );
+
+			add( makeLabel( "tool-about-separator" ), "newline" );
+			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
+			add( javaName = makeLabel( "tool-about-name" ), "newline" );
+			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
+
+			add( makeLabel( "tool-about-separator" ), "newline" );
+			//add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
+			add( osName = makeLabel( "tool-about-name" ), "newline" );
+			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
+			add( osProvider = makeLabel( "tool-about-provider" ), "newline" );
+		}
+
+		public void update( ProductCard card ) {
+			productName.setText( card.getName() );
+			productVersion.setText( card.getRelease().toHumanString() );
+			productProvider.setText( "by " + card.getProvider() );
+
+			javaName.setText( System.getProperty( "java.vm.name" ) );
+			javaVersion.setText( System.getProperty( "java.version" ) + " " + System.getProperty( "java.version.date" ) );
+			javaProvider.setText( "by " + System.getProperty( "java.vendor" ) );
+
+			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
+			osName.setText( osNameString.substring(0, 1).toUpperCase() + osNameString.substring(1) );
+			osVersion.setText( System.getProperty( "os.version" ) );
+			osProvider.setText( "by " + OperatingSystem.getProvider() );
+		}
+
+	}
+
+	private Label makeLabel( String labelClass ) {
+		Label label = new Label();
+		label.getStyleClass().addAll( labelClass );
+		return label;
 	}
 
 	private String getSummaryText( ProductCard metadata ) {
@@ -370,8 +440,7 @@ public class AboutTool extends GuidedTool {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "Summary: " + FileUtil.getHumanBinSize(used) + " / " + FileUtil.getHumanBinSize(total) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
-
+		builder.append( "Summary: " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
 
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
 		builder.append( "\n" );

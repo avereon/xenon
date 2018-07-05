@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Path;
@@ -58,6 +59,7 @@ public class DownloadTask extends Task<Download> {
 
 	private Download download() throws IOException {
 		URLConnection connection = uri.toURL().openConnection();
+		if( connection instanceof HttpURLConnection ) ((HttpURLConnection)connection).setInstanceFollowRedirects( true );
 		connection.setConnectTimeout( connectTimeout );
 		connection.setReadTimeout( readTimeout );
 		connection.setUseCaches( false );
@@ -66,6 +68,12 @@ public class DownloadTask extends Task<Download> {
 		int length = connection.getContentLength();
 		String encoding = connection.getContentEncoding();
 		InputStream input = connection.getInputStream();
+
+		if( connection instanceof HttpURLConnection ) {
+			HttpURLConnection httpConnection =((HttpURLConnection)connection);
+			int status = httpConnection.getResponseCode();
+			if( status >= 300 ) throw new IOException( status + " " + httpConnection.getResponseMessage() );
+		}
 
 		setMinimum( 0 );
 		setMaximum( length );

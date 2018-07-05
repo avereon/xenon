@@ -14,7 +14,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.xeomar</groupId>
 	<artifactId>xenon</artifactId>
-	<version>0.6</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -143,6 +143,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<!-- Works with Java 9.0.4 and Surefire 2.20.1 -->
+				<version>2.20.1</version>
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
@@ -155,12 +157,22 @@
 						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
-						<java.awt.headless>true</java.awt.headless>
-						<prism.text>t2k</prism.text>
-						<prism.order>sw</prism.order>
-						<testfx.robot>glass</testfx.robot>
-						<testfx.headless>true</testfx.headless>
+						<!-- Set testfx.setup.timeout to a reasonable time -->
+						<!-- This might be as low as 1000 for a fast computer -->
+						<!-- This might be as high as 5000 for a slow computer -->
 						<testfx.setup.timeout>5000</testfx.setup.timeout>
+						<!-- Set testfx.headless to true to run FX tests in headless mode -->
+						<testfx.headless>true</testfx.headless>
+						<!-- Set testfx.robot to glass when running tests in headless mode -->
+						<testfx.robot>glass</testfx.robot>
+						<!-- Set prism.order to sw when running tests in headless mode -->
+						<!-- https://wiki.openjdk.java.net/display/OpenJFX/Monocle -->
+						<prism.order>sw</prism.order>
+						<!-- Not sure what this setting does but it's in all the examples found -->
+						<prism.text>t2k</prism.text>
+
+						<!-- Set java.awt.headless to true when running tests in headless mode -->
+						<java.awt.headless>true</java.awt.headless>
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>

@@ -296,7 +296,6 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		@Override
 		public Void call() throws Exception {
-			//TaskPanel.showProgress( program, program.getTaskManager(), program.getActiveFrame().getDialogPane() );
 			cacheSelectedUpdates( postedUpdates );
 			handleCachedUpdates( installedPacks, postedUpdates );
 			return null;
@@ -374,7 +373,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.requestRestart( ProgramFlag.NOUPDATECHECK ) );
+				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS ) );
 			} );
 		}
 

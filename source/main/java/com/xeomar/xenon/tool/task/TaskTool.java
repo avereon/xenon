@@ -1,5 +1,7 @@
 package com.xeomar.xenon.tool.task;
 
+import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.UiFactory;
@@ -12,18 +14,28 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TaskTool extends ProgramTool {
 
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
 	private TaskWatcher taskWatcher;
+
+	private HBox buttons;
 
 	private VBox taskPanes;
 
@@ -39,13 +51,13 @@ public class TaskTool extends ProgramTool {
 		tasks = new ConcurrentHashMap<>();
 		taskWatcher = new TaskWatcher();
 
-		// TODO Should probably wrap this in a scroll pane
-		taskPanes = new VBox();
+		Button startTask = new Button( "Random Test Task" );
+		startTask.setOnAction( ( event ) -> startRandomTasks() );
 
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
-		//layoutPane.setTop( summaryProgress );
-		layoutPane.setCenter( taskPanes );
+		if( getProgram().getExecMode() == ExecMode.DEV ) layoutPane.setTop( new HBox( startTask ) );
+		layoutPane.setCenter( new ScrollPane( taskPanes = new VBox() ) );
 		getChildren().add( layoutPane );
 	}
 
@@ -53,6 +65,58 @@ public class TaskTool extends ProgramTool {
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		getProgram().getTaskManager().addTaskListener( taskWatcher );
+		Platform.runLater( this::init );
+	}
+
+	private void init () {
+		for( Task task : getProgram().getTaskManager().getTasks()) {
+			if( !task.isDone() ) addTaskPane( task );
+		}
+	}
+
+	private void addTaskPane( Task task ) {
+		TaskPane pane = new TaskPane( task );
+		tasks.put( task, pane );
+		taskPanes.getChildren().add( pane );
+	}
+
+	private void startRandomTasks() {
+		getProgram().getTaskManager().submit( new RandomTask( 1000 + (long)(4000 * new Random().nextDouble()) ) );
+	}
+
+	private class RandomTask extends Task<Void> {
+
+		// Roughly 1000ms / 120hz;
+		private long delay = 8;
+
+		public RandomTask() {
+			this( 5000 );
+		}
+
+		public RandomTask( long duration ) {
+			super( "Random Task" );
+			setMinimum( 0 );
+			setMaximum( duration );
+		}
+
+		@Override
+		public Void call() {
+			long time = 0;
+
+			//System.out.println( "Running random task ("+ getMaximum() +")");
+			while( time < getMaximum() ) {
+				try {
+					Thread.sleep( delay );
+				} catch( InterruptedException exception ) {
+					break;
+				}
+				time += delay;
+				setProgress( time );
+			}
+
+			return null;
+		}
+
 	}
 
 	private class TaskPane extends MigPane {
@@ -90,9 +154,7 @@ public class TaskTool extends ProgramTool {
 			Platform.runLater( () -> {
 				switch( event.getType() ) {
 					case TASK_SUBMITTED: {
-						TaskPane pane = new TaskPane( task );
-						tasks.put( task, pane );
-						taskPanes.getChildren().add( pane );
+						addTaskPane( task );
 						break;
 					}
 					case TASK_START:

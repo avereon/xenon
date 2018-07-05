@@ -3,9 +3,7 @@ package com.xeomar.xenon.workspace;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.ExecMode;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.Colors;
@@ -51,7 +49,11 @@ public class Workspace implements Configurable {
 
 	private ToolBar toolbar;
 
-	private HBox statusbar;
+	private BorderPane statusbar;
+
+	private MemoryMonitor memoryMonitor;
+
+	private TaskMonitor taskMonitor;
 
 	private Pane workpaneContainer;
 
@@ -165,8 +167,22 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		// STATUS BAR
-		statusbar = new HBox();
-		statusbar.getChildren().addAll( new Label( "Status Bar" ) );
+		taskMonitor = new TaskMonitor( program.getTaskManager() );
+		memoryMonitor = new MemoryMonitor();
+
+		HBox leftStatusBarItems = new HBox();
+		leftStatusBarItems.getStyleClass().addAll( "box" );
+
+		HBox rightStatusBarItems = new HBox();
+		rightStatusBarItems.getStyleClass().addAll( "box" );
+
+		leftStatusBarItems.getChildren().addAll( new Label( "STATUS BAR" ) );
+		rightStatusBarItems.getChildren().addAll( taskMonitor, memoryMonitor );
+
+		statusbar = new BorderPane();
+		statusbar.setLeft( leftStatusBarItems );
+		statusbar.setRight( rightStatusBarItems );
+		statusbar.getStyleClass().add( "status-bar" );
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
@@ -325,12 +341,18 @@ public class Workspace implements Configurable {
 		//BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
 		//workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
-		workpaneContainer.setBackground( new Background( new BackgroundFill( color1,CornerRadii.EMPTY, Insets.EMPTY ) ) );
+		workpaneContainer.setBackground( new Background( new BackgroundFill( color1, CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 
 	@Override
 	public Settings getSettings() {
 		return settings;
+	}
+
+	public void close() {
+		memoryMonitor.close();
+		taskMonitor.close();
+		getStage().close();
 	}
 
 	private void setStageTitle( String name ) {

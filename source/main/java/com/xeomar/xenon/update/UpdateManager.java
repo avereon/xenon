@@ -389,6 +389,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @param startup True if the method is called at program start
 	 */
 	public synchronized void scheduleUpdateCheck( boolean startup ) {
+		// Don't schedule tasks if the UPDATE_IN_PROGRESS flag is set
+		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) return;
+
 		if( task != null ) {
 			boolean alreadyRun = task.scheduledExecutionTime() < System.currentTimeMillis();
 			task.cancel();
@@ -396,16 +399,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
 		}
 
-		// Don't schedule tasks if the NOUPDATECHECK flag is set
-		if( program.getProgramParameters().isSet( ProgramFlag.NOUPDATECHECK ) ) return;
-
 		Settings checkSettings = getSettings();
 
 		long lastUpdateCheck = getLastUpdateCheck();
 		long timeSinceLastCheck = System.currentTimeMillis() - lastUpdateCheck;
 		long delay;
 
-		// This is required to avoid a memory use problem during testing
+		// FIXME This is required to avoid a memory use problem during testing
 		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
 
 		switch( checkOption ) {
@@ -417,13 +417,13 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				break;
 			case INTERVAL: {
 				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-				delay = getNextIntervalTime( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
+				delay = getNextIntervalDelay( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
 				break;
 			}
 			case SCHEDULE: {
 				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
-				delay = getNextScheduleTime( System.currentTimeMillis(), scheduleWhen, scheduleHour );
+				delay = getNextScheduleDelay( System.currentTimeMillis(), scheduleWhen, scheduleHour );
 				break;
 			}
 			default: {
@@ -433,7 +433,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 
 		if( delay == NO_CHECK ) {
-			log.debug( "No update check scheduled." );
+			log.debug( "Future update check not scheduled." );
 			return;
 		}
 
@@ -461,7 +461,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			int stagedUpdateCount = stagePostedUpdates();
 			if( stagedUpdateCount > 0 ) {
 				log.debug( "Staged updates found, restarting..." );
-				program.requestRestart( ProgramFlag.NOUPDATECHECK );
+				program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS );
 			}
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
@@ -843,7 +843,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return true;
 	}
 
-	public static long getNextIntervalTime( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck, long timeSinceLastCheck ) {
+	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck, long timeSinceLastCheck ) {
 		long delay;
 		long intervalDelay = 0;
 		switch( intervalUnit ) {
@@ -875,7 +875,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return delay;
 	}
 
-	public static long getNextScheduleTime( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
+	public static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
 		Calendar calendar = new GregorianCalendar( DateUtil.DEFAULT_TIME_ZONE );
 
 		// Calculate the next update check.
@@ -885,18 +885,19 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		calendar.set( Calendar.SECOND, 0 );
 		calendar.set( Calendar.MILLISECOND, 0 );
 		if( scheduleWhen != CheckWhen.DAILY ) calendar.set( Calendar.DAY_OF_WEEK, scheduleWhen.ordinal() );
-		long result = calendar.getTimeInMillis() - currentTime;
+
+		long delay = calendar.getTimeInMillis() - currentTime;
 
 		// If past the scheduled time, add a day or week.
-		if( result < 0 ) {
+		if( delay < 0 ) {
 			if( scheduleWhen == CheckWhen.DAILY ) {
-				result += 24 * MILLIS_IN_HOUR;
+				delay += 24 * MILLIS_IN_HOUR;
 			} else {
-				result += 7 * 24 * MILLIS_IN_HOUR;
+				delay += 7 * 24 * MILLIS_IN_HOUR;
 			}
 		}
 
-		return result;
+		return delay;
 	}
 
 	public void addProductManagerListener( UpdateManagerListener listener ) {

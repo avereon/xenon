@@ -14,7 +14,11 @@
 }
 
 .prompt {
-	-fx-padding: 0 0.3em 0 0;
+	-fx-padding: 0 1mm 0 0;
+}
+
+.padded {
+	-fx-padding: 1.5mm;
 }
 
 /* ScrollPane */
@@ -107,16 +111,83 @@
 	-fx-opacity: 0.3;
 }
 
+.status-bar {
+	-fx-padding: 1mm 1mm 1mm 1mm;
+}
+
+.status-bar > .box {
+	-fx-spacing: 1mm;
+}
+
+.memory-monitor {}
+
+.memory-monitor-max {
+	-fx-fill: #e0e0e0;
+}
+
+.memory-monitor-allocated {
+	-fx-fill: #c0c0c0;
+}
+
+.memory-monitor-used {
+	-fx-fill: #a0a0a0;
+}
+
+.memory-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
+
+.task-monitor {}
+
+.task-monitor-max {
+	-fx-fill: #e0e0e0;
+}
+
+.task-monitor-used {
+	-fx-fill: #a0a0a0;
+}
+
 #tool-about .text-area {
 	-fx-background-color: transparent;
+}
+
+#tool-about .label {
+	-fx-padding: -0.25em;
+}
+
+#tool-about .tool-about-title {
+	-fx-font-size: 5em;
+}
+
+#tool-about .tool-about-name {
+	-fx-font-size: 2em;
+}
+
+#tool-about .tool-about-provider {
+	-fx-font-size: 1em;
+}
+
+#tool-about .tool-about-version {
+	-fx-font-size: 1em;
+}
+
+#tool-product-page-header {
+	-fx-background-insets: 0 0 1mm 0;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 1mm 1mm 2mm 1mm;
 }
 
 #tool-product-page-title {
 	-fx-font-size: 2em;
 }
 
+#tool-product-page-header-buttons {
+	-fx-spacing: 1mm;
+}
+
 #tool-product-artifact {
 	-fx-background-color: -ex-background-text;
+	-fx-padding: 1mm;
 }
 
 #tool-product-artifact-name {
@@ -125,18 +196,28 @@
 
 #tool-product-market {
 	-fx-background-color: -ex-background-text;
+	-fx-padding: 1mm;
 }
 
 #tool-product-market-name {
 	-fx-font-weight: bold;
 }
 
+#tool-product-page-footer {
+	-fx-background-insets: 1mm 0 0 0;
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 2mm 1mm 1mm 1mm;
+}
+
 #tool-welcome {
 	-fx-background-color: transparent;
+}
+
+#tool-welcome .tool-welcome-title {
+	-fx-font-size: 5em;
 }
 
 /* TitledPane */
 .titled-pane > *.content {
 	-fx-background-color: red;
 }
-
