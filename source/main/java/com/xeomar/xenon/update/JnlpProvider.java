@@ -50,9 +50,8 @@ public class JnlpProvider implements ProductResourceProvider {
 			resources.add( new ProductResource( ProductResource.Type.PACK, uri ) );
 		}
 		for( String extension : extensions ) {
-			URI uri = codebase.resolve( extension );
-			Future<XmlDescriptor> future = program.getExecutor().submit( new DescriptorDownloadTask( program, uri ) );
-			resources.addAll( new JnlpProvider( future.get(), program ).getResources( codebase ) );
+			Future<Download> future = program.getExecutor().submit( new DownloadTask( program, codebase.resolve( extension ) ) );
+			resources.addAll( new JnlpProvider( new XmlDescriptor( future.get().getInputStream() ), program ).getResources( codebase ) );
 		}
 
 		return resources;
