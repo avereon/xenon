@@ -166,8 +166,9 @@
 						<!-- Set testfx.robot to glass when running tests in headless mode -->
 						<testfx.robot>glass</testfx.robot>
 						<!-- Set prism.order to sw when running tests in headless mode -->
+						<!-- https://wiki.openjdk.java.net/display/OpenJFX/Monocle -->
 						<prism.order>sw</prism.order>
-						<!-- Not sure what this setting does but it is all the examples I found -->
+						<!-- Not sure what this setting does but it's in all the examples found -->
 						<prism.text>t2k</prism.text>
 
 						<!-- Set java.awt.headless to true when running tests in headless mode -->
