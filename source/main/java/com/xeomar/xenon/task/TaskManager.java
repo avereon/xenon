@@ -8,10 +8,7 @@ import com.xeomar.util.TestUtil;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class TaskManager implements ExecutorService, Configurable, Controllable<TaskManager> {
@@ -40,9 +37,12 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private BlockingQueue<Runnable> queue;
 
+	private Queue<Task> tasks;
+
 	private Set<TaskListener> listeners;
 
 	public TaskManager() {
+		tasks = new ConcurrentLinkedQueue<>();
 		queue = new LinkedBlockingQueue<>();
 		group = new ThreadGroup( getClass().getName() );
 		listeners = new CopyOnWriteArraySet<>();
@@ -159,8 +159,16 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		return executor.awaitTermination( timeout, unit );
 	}
 
+	public long getTaskCount() {
+		return getTasks().size();
+	}
+
+	public Set<Task> getTasks() {
+		return new HashSet<>( tasks );
+	}
+
 	public int getThreadCount() {
-		return maxThreadCount;
+		return executor.getMaximumPoolSize();
 	}
 
 	public void setThreadCount( int count ) {
@@ -281,9 +289,10 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 		@Override
 		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
-			RunnableFuture<T> future;
+			FutureTask<T> future;
 			if( callable instanceof Task ) {
 				future = ((Task<T>)callable).createFuture( TaskManager.this );
+				tasks.add( (Task<T>)callable );
 			} else {
 				future = new FutureTask<>( callable );
 			}
@@ -291,9 +300,11 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		}
 
 		@Override
-		protected void afterExecute( Runnable runnable, Throwable throwable ) {
+		protected void afterExecute( Runnable task, Throwable throwable ) {
+			if( task instanceof Task.TaskFuture ) tasks.remove( ((Task.TaskFuture)task).getTask() );
+
 			try {
-				((FutureTask)runnable).get();
+				((FutureTask)task).get();
 			} catch( Throwable getThrowable ) {
 				if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
 			}

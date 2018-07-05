@@ -11,7 +11,6 @@ import com.xeomar.xenon.workarea.Workarea;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -352,6 +351,7 @@ public class Workspace implements Configurable {
 
 	public void close() {
 		memoryMonitor.close();
+		taskMonitor.close();
 		getStage().close();
 	}
 

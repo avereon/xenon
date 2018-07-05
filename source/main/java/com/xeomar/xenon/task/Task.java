@@ -171,13 +171,17 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		}
 	}
 
-	private static class TaskFuture<W> extends FutureTask<W> {
+	static class TaskFuture<W> extends FutureTask<W> {
 
 		private Task<?> task;
 
 		private TaskFuture( Task<W> task ) {
 			super( task );
 			this.task = task;
+		}
+
+		public Task getTask() {
+			return task;
 		}
 
 		@Override
