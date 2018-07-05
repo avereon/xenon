@@ -143,9 +143,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<!-- Works with Java 9.0.4 and Surefire 2.20.1 -->
+				<version>2.20.1</version>
 				<configuration>
 					<forkCount>1</forkCount>
-					<reuseForks>false</reuseForks>
+					<reuseForks>true</reuseForks>
 					<runOrder>alphabetical</runOrder>
 					<argLine>
 						-Xmx128m
@@ -155,12 +157,19 @@
 						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
-						<java.awt.headless>true</java.awt.headless>
-						<prism.text>t2k</prism.text>
-						<prism.order>sw</prism.order>
-						<testfx.robot>glass</testfx.robot>
-						<testfx.headless>true</testfx.headless>
+						<!-- Set testfx.setup.timeout to a reasonable time -->
 						<testfx.setup.timeout>5000</testfx.setup.timeout>
+						<!-- Set testfx.headless to true to run FX tests in headless mode -->
+						<testfx.headless>true</testfx.headless>
+						<!-- Set testfx.robot to glass when running tests in headless mode -->
+						<testfx.robot>glass</testfx.robot>
+						<!-- Set prism.order to sw when running tests in headless mode -->
+						<prism.order>sw</prism.order>
+						<!-- Not sure what this setting does but it is all the examples I found -->
+						<prism.text>t2k</prism.text>
+
+						<!-- Set java.awt.headless to true when running tests in headless mode -->
+						<java.awt.headless>true</java.awt.headless>
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
