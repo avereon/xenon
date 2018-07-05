@@ -296,7 +296,6 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		@Override
 		public Void call() throws Exception {
-			//TaskPanel.showProgress( program, program.getTaskManager(), program.getActiveFrame().getDialogPane() );
 			cacheSelectedUpdates( postedUpdates );
 			handleCachedUpdates( installedPacks, postedUpdates );
 			return null;
