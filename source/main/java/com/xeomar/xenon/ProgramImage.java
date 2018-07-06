@@ -2,7 +2,6 @@ package com.xeomar.xenon;
 
 import com.xeomar.xenon.util.Colors;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -19,11 +18,13 @@ import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+//import javafx.embed.swing.SwingFXUtils;
+
+//import javafx.embed.swing.SwingFXUtils;
 
 /*
 Conversion chart
@@ -153,11 +154,6 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public Image getStageIcon() {
-		// Apparently images created from the snapshot method are not usable as
-		// application icons. The following workaround creates an image that is
-		// usable as an application icon. It may be more efficient to create
-		// images differently if they are not needed for application icons.
-
 		int width = (int)getWidth();
 		int height = (int)getHeight();
 
@@ -177,9 +173,15 @@ public abstract class ProgramImage extends Canvas {
 		//		if( size == 128 ) scene.setFill( Color.BLUE );
 		//		if( size == 256 ) scene.setFill( Color.PURPLE );
 
-		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
-		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
-		return SwingFXUtils.toFXImage( buffer, new WritableImage( (int)getWidth(), (int)getHeight() ) );
+		// Apparently images created from the snapshot method are not usable as
+		// application icons. The following workaround creates an image that is
+		// usable as an application icon. It may be more efficient to create
+		// images differently if they are not needed for application icons.
+		//		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
+		//		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
+		//		return SwingFXUtils.toFXImage( buffer, new WritableImage( (int)getWidth(), (int)getHeight() ) );
+
+		return scene.snapshot( new WritableImage( width, height ) );
 	}
 
 	public static void proof( ProgramImage icon ) {
@@ -271,19 +273,19 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public static void save( ProgramImage icon, File path ) {
-		JavaFxStarter.startAndWait( 1000 );
-
-		// Render and save the icon
-		Platform.runLater( () -> {
-			try {
-				icon.fireRender();
-				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
-			} catch( Exception exception ) {
-				exception.printStackTrace();
-			}
-		} );
-
-		Platform.exit();
+		//		JavaFxStarter.startAndWait( 1000 );
+		//
+		//		// Render and save the icon
+		//		Platform.runLater( () -> {
+		//			try {
+		//				icon.fireRender();
+		//				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
+		//			} catch( Exception exception ) {
+		//				exception.printStackTrace();
+		//			}
+		//		} );
+		//
+		//		Platform.exit();
 	}
 
 	protected abstract void render();
