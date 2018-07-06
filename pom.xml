@@ -140,20 +140,6 @@
 		</resources>
 
 		<plugins>
-			<!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-jdeps-plugin</artifactId>-->
-				<!--<version>3.1.1</version>-->
-				<!--<executions>-->
-					<!--<execution>-->
-						<!--<goals>-->
-							<!--<goal>jdkinternals</goal>-->
-							<!--<goal>test-jdkinternals</goal>-->
-						<!--</goals>-->
-					<!--</execution>-->
-				<!--</executions>-->
-			<!--</plugin>-->
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -190,39 +176,6 @@
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
-
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>com.xeomar.xenon.Program</mainClass>
-							<classpathLayoutType>custom</classpathLayoutType>
-							<customClasspathLayout>$${artifact.artifactId}.$${artifact.extension}</customClasspathLayout>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			-->
-
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			-->
 
 			<!--
 			<plugin>
