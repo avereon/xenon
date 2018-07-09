@@ -2,20 +2,8 @@ package com.xeomar.xenon;
 
 import com.xeomar.util.FileUtil;
 import javafx.application.Platform;
-import javafx.beans.value.WritableValue;
-import javafx.css.StyleableProperty;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.VPos;
-import javafx.scene.AccessibleRole;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
-import javafx.scene.control.Skin;
-import javafx.scene.control.skin.LabelSkin;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
 import java.text.DecimalFormat;
@@ -82,6 +70,14 @@ public class MemoryMonitor extends Pane {
 		monitors.add( this );
 	}
 
+	public static boolean isShowPercent() {
+		return showPercent;
+	}
+
+	public static void setShowPercent( boolean showPercent ) {
+		MemoryMonitor.showPercent = showPercent;
+	}
+
 	public void close() {
 		monitors.remove( this );
 	}
@@ -95,9 +91,9 @@ public class MemoryMonitor extends Pane {
 		float allocatedPercent = (float)allocated / (float)maximum;
 		float usedPercent = (float)used / (float)maximum;
 
-		String usedSize = FileUtil.getHumanSize( used );
-		String allocatedSize = FileUtil.getHumanSize( allocated );
-		String maximumSize = FileUtil.getHumanSize( maximum );
+		String usedSize = FileUtil.getHumanBinSize( used );
+		String allocatedSize = FileUtil.getHumanBinSize( allocated );
+		String maximumSize = FileUtil.getHumanBinSize( maximum );
 
 		String text;
 		if( isShowPercent() ) {
@@ -109,14 +105,6 @@ public class MemoryMonitor extends Pane {
 		for( MemoryMonitor monitor : monitors ) {
 			Platform.runLater( () -> monitor.update( usedPercent, allocatedPercent, text ) );
 		}
-	}
-
-	public static boolean isShowPercent() {
-		return showPercent;
-	}
-
-	public static void setShowPercent( boolean showPercent ) {
-		MemoryMonitor.showPercent = showPercent;
 	}
 
 	@Override
