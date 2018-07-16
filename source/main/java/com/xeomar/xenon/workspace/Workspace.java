@@ -81,6 +81,11 @@ public class Workspace implements Configurable {
 		// MENUBAR
 		menubar = new MenuBar();
 
+		Menu prog = ActionUtil.createMenu( program, "program" );
+		prog.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		prog.getItems().add( new SeparatorMenuItem() );
+		prog.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
+
 		Menu file = ActionUtil.createMenu( program, "file" );
 		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
@@ -88,8 +93,6 @@ public class Workspace implements Configurable {
 		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		file.getItems().add( new SeparatorMenuItem() );
-		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 
 		Menu edit = ActionUtil.createMenu( program, "edit" );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
@@ -102,8 +105,6 @@ public class Workspace implements Configurable {
 		edit.getItems().add( new SeparatorMenuItem() );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
 		Menu view = ActionUtil.createMenu( program, "view" );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
@@ -123,11 +124,8 @@ public class Workspace implements Configurable {
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
-		if( program.getExecMode() == ExecMode.DEV ) {
-			menubar.getMenus().addAll( file, edit, view, help, dev );
-		} else {
-			menubar.getMenus().addAll( file, edit, view, help );
-		}
+		menubar.getMenus().addAll( prog, file, edit, view, help );
+		if( program.getExecMode() == ExecMode.DEV ) menubar.getMenus().add( dev );
 
 		// TOOLBAR
 
