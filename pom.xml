@@ -78,6 +78,46 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.javafx</groupId>
+			<artifactId>controls</artifactId>
+			<version>11-ea</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.controls.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.javafx</groupId>
+			<artifactId>base</artifactId>
+			<version>11-ea</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.base.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.javafx</groupId>
+			<artifactId>graphics</artifactId>
+			<version>11-ea</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.graphics.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.javafx</groupId>
+			<artifactId>swing</artifactId>
+			<version>11-ea</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.swing.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.javafx</groupId>
+			<artifactId>web</artifactId>
+			<version>11-ea</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.web.jar</systemPath>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4j.version}</version>
