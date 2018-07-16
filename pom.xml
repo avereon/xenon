@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -78,43 +79,43 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
+			<groupId>org.openjfx</groupId>
 			<artifactId>controls</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.controls.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.controls.jar</systemPath>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
+			<groupId>org.openjfx</groupId>
 			<artifactId>base</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.base.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.base.jar</systemPath>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
+			<groupId>org.openjfx</groupId>
 			<artifactId>graphics</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.graphics.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.graphics.jar</systemPath>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
+			<groupId>org.openjfx</groupId>
 			<artifactId>swing</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.swing.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.swing.jar</systemPath>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
+			<groupId>org.openjfx</groupId>
 			<artifactId>web</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/osx/javafx.web.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.web.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -395,5 +396,54 @@
 
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os>
+					<name>linux</name>
+				</os>
+			</activation>
+			<properties>
+				<os.name>linux</os.name>
+			</properties>
+		</profile>
+		<profile>
+			<id>osx</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+				</os>
+			</activation>
+			<properties>
+				<os.name>mac</os.name>
+			</properties>
+		</profile>
+		<profile>
+			<id>windows</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<properties>
+				<os.name>win</os.name>
+			</properties>
+		</profile>
+		<profile>
+			<id>javafx.platform.custom</id>
+			<activation>
+				<property>
+					<name>javafx.platform</name>
+				</property>
+			</activation>
+			<properties>
+				<javafx.platform.linux>${javafx.platform}</javafx.platform.linux>
+				<javafx.platform.mac>${javafx.platform}</javafx.platform.mac>
+				<javafx.platform.win>${javafx.platform}</javafx.platform.win>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
