@@ -37,6 +37,11 @@
 			<id>xeo</id>
 			<url>https://code.xeomar.com/repo/xeo</url>
 		</repository>
+		<repository>
+			<id>oss-sonatype</id>
+			<!--<url>https://oss.sonatype.org/content/repositories/public/</url>-->
+			<url>https://oss.sonatype.org/content/repositories/snapshots/org/openjfx</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -62,6 +67,8 @@
 
 		<!-- Build dependencies -->
 		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
+
+		<os.name>unknown</os.name>
 	</properties>
 
 	<dependencies>
@@ -80,42 +87,50 @@
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>controls</artifactId>
+			<artifactId>javafx-base</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.controls.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.base.jar</systemPath>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>base</artifactId>
+			<artifactId>javafx-controls</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.base.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.controls.jar</systemPath>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>graphics</artifactId>
+			<artifactId>javafx-graphics</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.graphics.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.graphics.jar</systemPath>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>swing</artifactId>
+			<artifactId>javafx-media</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.swing.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.media.jar</systemPath>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
-			<artifactId>web</artifactId>
+			<artifactId>javafx-swing</artifactId>
 			<version>11-ea</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${os.name}/javafx.web.jar</systemPath>
+			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.swing.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>11-ea</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.web.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -216,6 +231,50 @@
 						<java.awt.headless>true</java.awt.headless>
 					</systemPropertyVariables>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeScope>compile</includeScope>
+							<stripVersion>true</stripVersion>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>bash</executable>
+							<arguments>
+								<argument>${project.basedir}/source/main/bin/module-patch.sh</argument>
+								<argument>${project.build.directory}/dependency/reactfx.jar</argument>
+								<argument>${project.build.directory}/dependency/undofx.jar</argument>
+								<argument>${project.build.directory}/dependency/jackson-annotations.jar</argument>
+								<argument>${project.build.directory}/dependency/jackson-databind.jar</argument>
+								<argument>${project.build.directory}/dependency/commons-io.jar</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<!--
@@ -406,7 +465,7 @@
 				</os>
 			</activation>
 			<properties>
-				<os.name>linux</os.name>
+				<javafx.platform>linux</javafx.platform>
 			</properties>
 		</profile>
 		<profile>
@@ -417,7 +476,7 @@
 				</os>
 			</activation>
 			<properties>
-				<os.name>mac</os.name>
+				<javafx.platform>mac</javafx.platform>
 			</properties>
 		</profile>
 		<profile>
@@ -428,7 +487,7 @@
 				</os>
 			</activation>
 			<properties>
-				<os.name>win</os.name>
+				<javafx.platform>win</javafx.platform>
 			</properties>
 		</profile>
 		<profile>
