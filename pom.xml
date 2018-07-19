@@ -37,11 +37,6 @@
 			<id>xeo</id>
 			<url>https://code.xeomar.com/repo/xeo</url>
 		</repository>
-		<repository>
-			<id>oss-sonatype</id>
-			<!--<url>https://oss.sonatype.org/content/repositories/public/</url>-->
-			<url>https://oss.sonatype.org/content/repositories/snapshots/org/openjfx</url>
-		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -56,6 +51,7 @@
 		<product-pack-folder>pack/program</product-pack-folder>
 
 		<!-- Runtime dependencies -->
+		<javafx.version>11-ea-18</javafx.version>
 		<slf4j.version>1.8.0-beta0</slf4j.version>
 		<miglayout.version>5.1</miglayout.version>
 		<controlsfx.version>9.0.0</controlsfx.version>
@@ -86,51 +82,45 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-base</artifactId>
-			<version>11-ea</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.base.jar</systemPath>
+			<groupId>org.javafx</groupId>
+			<artifactId>javafx.base</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>11-ea</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.controls.jar</systemPath>
+			<groupId>org.javafx</groupId>
+			<artifactId>javafx.controls</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-graphics</artifactId>
-			<version>11-ea</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.graphics.jar</systemPath>
+			<groupId>org.javafx</groupId>
+			<artifactId>javafx.graphics</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-media</artifactId>
-			<version>11-ea</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.media.jar</systemPath>
+			<groupId>org.javafx</groupId>
+			<artifactId>javafx.media</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-swing</artifactId>
-			<version>11-ea</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.swing.jar</systemPath>
+			<groupId>org.javafx</groupId>
+			<artifactId>javafx.swing</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-web</artifactId>
-			<version>11-ea</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/source/main/module/javafx/${javafx.platform}/javafx.web.jar</systemPath>
+			<groupId>org.javafx</groupId>
+			<artifactId>javafx.web</artifactId>
+			<version>${javafx.version}</version>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 
 		<dependency>
@@ -488,19 +478,6 @@
 			</activation>
 			<properties>
 				<javafx.platform>win</javafx.platform>
-			</properties>
-		</profile>
-		<profile>
-			<id>javafx.platform.custom</id>
-			<activation>
-				<property>
-					<name>javafx.platform</name>
-				</property>
-			</activation>
-			<properties>
-				<javafx.platform.linux>${javafx.platform}</javafx.platform.linux>
-				<javafx.platform.mac>${javafx.platform}</javafx.platform.mac>
-				<javafx.platform.win>${javafx.platform}</javafx.platform.win>
 			</properties>
 		</profile>
 	</profiles>
