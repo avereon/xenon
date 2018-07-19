@@ -6,7 +6,7 @@ module com.xeomar.xenon {
 	requires javafx.controls;
 	requires javafx.swing;
 	requires javafx.web;
-	requires commons.io;
+	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
