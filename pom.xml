@@ -446,40 +446,4 @@
 		</plugins>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>linux</id>
-			<activation>
-				<os>
-					<name>linux</name>
-				</os>
-			</activation>
-			<properties>
-				<javafx.platform>linux</javafx.platform>
-			</properties>
-		</profile>
-		<profile>
-			<id>macosx</id>
-			<activation>
-				<os>
-					<name>mac os x</name>
-				</os>
-			</activation>
-			<properties>
-				<javafx.platform>mac</javafx.platform>
-			</properties>
-		</profile>
-		<profile>
-			<id>windows</id>
-			<activation>
-				<os>
-					<family>windows</family>
-				</os>
-			</activation>
-			<properties>
-				<javafx.platform>win</javafx.platform>
-			</properties>
-		</profile>
-	</profiles>
-
 </project>
