@@ -82,45 +82,27 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
-			<artifactId>javafx.base</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>${javafx.platform}</classifier>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>11-ea+19</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
-			<artifactId>javafx.controls</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>${javafx.platform}</classifier>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-media</artifactId>
+			<version>11-ea+19</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
-			<artifactId>javafx.graphics</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>${javafx.platform}</classifier>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>11-ea+19</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.javafx</groupId>
-			<artifactId>javafx.media</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>${javafx.platform}</classifier>
-		</dependency>
-
-		<dependency>
-			<groupId>org.javafx</groupId>
-			<artifactId>javafx.swing</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>${javafx.platform}</classifier>
-		</dependency>
-
-		<dependency>
-			<groupId>org.javafx</groupId>
-			<artifactId>javafx.web</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>${javafx.platform}</classifier>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>11-ea+19</version>
 		</dependency>
 
 		<dependency>
