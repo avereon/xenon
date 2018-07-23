@@ -52,10 +52,10 @@
 
 		<!-- Runtime dependencies -->
 		<javafx.version>11-ea-18</javafx.version>
-		<slf4j.version>1.8.0-beta0</slf4j.version>
+		<slf4j.version>1.8.0-beta2</slf4j.version>
 		<miglayout.version>5.1</miglayout.version>
 		<controlsfx.version>9.0.0</controlsfx.version>
-		<undofx.version>2.0.0</undofx.version>
+		<undofx.version>2.1.0</undofx.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>4.0.13-alpha</testfx.version>
@@ -63,8 +63,6 @@
 
 		<!-- Build dependencies -->
 		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
-
-		<os.name>unknown</os.name>
 	</properties>
 
 	<dependencies>
@@ -236,7 +234,6 @@
 								<argument>${project.build.directory}/dependency/undofx.jar</argument>
 								<argument>${project.build.directory}/dependency/jackson-annotations.jar</argument>
 								<argument>${project.build.directory}/dependency/jackson-databind.jar</argument>
-								<argument>${project.build.directory}/dependency/commons-io.jar</argument>
 							</arguments>
 						</configuration>
 					</execution>
