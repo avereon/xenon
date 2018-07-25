@@ -10,7 +10,6 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
@@ -75,7 +74,11 @@ public class SettingsTool extends GuidedTool {
 
 	@Override
 	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
-		if( newNode != null ) selectPage( newNode.getPage() );
+		if( newNode != null ) selectPage( newNode.getId() );
+	}
+
+	private void selectPage( String id ) {
+		selectPage( getProgram().getSettingsManager().getSettingsPage( id ) );
 	}
 
 	private void selectPage( SettingsPage page ) {

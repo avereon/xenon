@@ -20,7 +20,6 @@ import com.xeomar.xenon.tool.settings.SettingsPageParser;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -107,6 +106,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 	}
 
+	public SettingsPage getSettingsPage( String id ) {
+		return settingsPages.get( id );
+	}
+
 	private void updateSettingsGuide() {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( settingsPages );
 
@@ -166,7 +169,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		guideNode.setId( page.getId() );
 		guideNode.setIcon( page.getIcon() );
 		guideNode.setName( page.getTitle() );
-		guideNode.setPage( page );
+		//guideNode.setPage( page );
 
 		TreeItem<GuideNode> child = new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
 		root.getChildren().add( child );
