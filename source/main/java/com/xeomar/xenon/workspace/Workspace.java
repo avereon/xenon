@@ -80,6 +80,7 @@ public class Workspace implements Configurable {
 
 		// MENUBAR
 		menubar = new MenuBar();
+		// FIXME This does not work if there are two menu bars (like this program uses)
 		menubar.setUseSystemMenuBar( true );
 
 		Menu prog = ActionUtil.createMenu( program, "program" );
