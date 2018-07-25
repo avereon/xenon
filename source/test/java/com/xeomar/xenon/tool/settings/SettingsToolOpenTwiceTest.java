@@ -15,15 +15,13 @@ public class SettingsToolOpenTwiceTest extends SettingsToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		clickOn( "#menu-edit" );
-		clickOn( "#menuitem-settings" );
+		openTool();
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
-		clickOn( "#menu-edit" );
-		clickOn( "#menuitem-settings" );
+		openTool();
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
