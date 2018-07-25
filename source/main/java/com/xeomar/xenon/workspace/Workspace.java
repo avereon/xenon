@@ -80,6 +80,7 @@ public class Workspace implements Configurable {
 
 		// MENUBAR
 		menubar = new MenuBar();
+		menubar.setUseSystemMenuBar( true );
 
 		Menu prog = ActionUtil.createMenu( program, "program" );
 		prog.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
@@ -127,7 +128,7 @@ public class Workspace implements Configurable {
 		menubar.getMenus().addAll( prog, file, edit, view, help );
 		if( program.getExecMode() == ExecMode.DEV ) menubar.getMenus().add( dev );
 
-		// TOOLBAR
+		// Workarea menu
 
 		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
 		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
@@ -147,6 +148,8 @@ public class Workspace implements Configurable {
 		workareaSelector.setItems( workareas );
 		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
+
+		// TOOLBAR
 
 		toolbar = new ToolBar();
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
