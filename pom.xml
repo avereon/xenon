@@ -79,6 +79,8 @@
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Wait for Java 11 and OpenJFX to be more mature -->
+		<!--
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
@@ -96,6 +98,7 @@
 			<artifactId>javafx-web</artifactId>
 			<version>11-ea+19</version>
 		</dependency>
+		-->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
