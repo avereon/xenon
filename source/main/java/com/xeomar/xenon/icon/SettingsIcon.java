@@ -4,56 +4,68 @@ import com.xeomar.xenon.ProgramIcon;
 
 public class SettingsIcon extends ProgramIcon {
 
+	private static final int SLIDER_LEFT = 3;
+
+	private static final int SLIDER_WIDTH = 26;
+
+	private static final int BUTTON_RADIUS = 2;
+
+	private static final int Y1 = 8;
+
+	private static final int Y2 = 16;
+
+	private static final int Y3 = 24;
+
+	private static final int B1 = 11;
+
+	private static final int B2 = 19;
+
+	private static final int B3 = 9;
+
 	@Override
 	protected void render() {
 		renderSliders();
 	}
 
 	private void renderSliders() {
-		int r = 4;
-
-		int y1 = 5;
-		int y2 = 15;
-		int y3 = 25;
-
-		int b1 = 11;
-		int b2 = 19;
-		int b3 = 9;
-
-		drawLine( g( 3 ), g( y1 ), g( 26 ), g( y1 ) );
-		drawLine( g( 3 ), g( y2 ), g( 26 ), g( y2 ) );
-		drawLine( g( 3 ), g( y3 ), g( 26 ), g( y3 ) );
-
-		fillCenteredOval( g( b1 ), g( y1 ), g( r ), g( r ) );
-		drawCenteredOval( g( b1 ), g( y1 ), g( r ), g( r ) );
-
-		fillCenteredOval( g( b2 ), g( y2 ), g( r ), g( r ) );
-		drawCenteredOval( g( b2 ), g( y2 ), g( r ), g( r ) );
-
-		fillCenteredOval( g( b3 ), g( y3 ), g( r ), g( r ) );
-		drawCenteredOval( g( b3 ), g( y3 ), g( r ), g( r ) );
+		renderSlider( B1, Y1 );
+		renderSlider( B2, Y2 );
+		renderSlider( B3, Y3 );
 	}
 
-	private void renderBars() {
-		fillRect( g( 3 ), g( 7 ), g( 26 ), g( 4 ) );
-		drawRect( g( 3 ), g( 7 ), g( 26 ), g( 4 ) );
-
-		fillRect( g( 3 ), g( 15 ), g( 26 ), g( 4 ) );
-		drawRect( g( 3 ), g( 15 ), g( 26 ), g( 4 ) );
-
-		fillRect( g( 3 ), g( 23 ), g( 26 ), g( 4 ) );
-		drawRect( g( 3 ), g( 23 ), g( 26 ), g( 4 ) );
+	private void renderSlider( int b, int y ) {
+		renderTray( SLIDER_LEFT, y - BUTTON_RADIUS, SLIDER_WIDTH, 2 * BUTTON_RADIUS );
+		//renderButton( b, y, BUTTON_RADIUS );
 	}
 
-	private void renderBubbles() {
-		fillCenteredOval( g( 16 ), g( 6 ), g( 3 ), g( 3 ) );
-		drawCenteredOval( g( 16 ), g( 6 ), g( 3 ), g( 3 ) );
+	private void renderTray( int x, int y, int w, int h ) {
 
-		fillCenteredOval( g( 16 ), g( 16 ), g( 3 ), g( 3 ) );
-		drawCenteredOval( g( 16 ), g( 16 ), g( 3 ), g( 3 ) );
+		// Pill box
+		beginPath();
+		int r = h / 2;
+		moveTo( g( x + r ), g( y ) );
+		addArc( g( x + r ), g( y + r ), g( r ), g( r ), 90, 180 );
+		lineTo( g( x + w - r ), g( y + h ) );
+		addArc( g( x + w - r ), g( y + r ), g( r ), g( r ), 270, 180 );
+		closePath();
 
-		fillCenteredOval( g( 16 ), g( 26 ), g( 3 ), g( 3 ) );
-		drawCenteredOval( g( 16 ), g( 26 ), g( 3 ), g( 3 ) );
+		// Square box
+		//		beginPath();
+		//		moveTo( g( x ), g( y ) );
+		//		lineTo( g( x ), g( y + h ) );
+		//		lineTo( g( x + w ), g( y + h ) );
+		//		lineTo( g( x + w ), g( y ) );
+		//		closePath();
+
+		setFillPaint( getIconDrawColor() );
+		fill();
+	}
+
+	private void renderButton( int x, int y, int r ) {
+		//setFill( GradientShade.DARK );
+		setFillPaint( getIconDrawColor() );
+		fillCenteredOval( g( x ), g( y ), g( r ), g( r ) );
+		drawCenteredOval( g( x ), g( y ), g( r ), g( r ) );
 	}
 
 	public static void main( String[] commands ) {

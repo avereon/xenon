@@ -257,9 +257,11 @@ public abstract class ProgramImage extends Canvas {
 			stage.getIcons().addAll( stageIcons );
 			stage.setScene( new Scene( pane ) );
 
-			stage.setResizable( false );
-			stage.centerOnScreen();
+			// The following line causes the stage not to show on Linux
+			//stage.setResizable( false );
+
 			stage.sizeToScene();
+			stage.centerOnScreen();
 			stage.show();
 		} );
 	}
