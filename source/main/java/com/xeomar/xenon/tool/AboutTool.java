@@ -195,11 +195,11 @@ public class AboutTool extends GuidedTool {
 
 		public void update( ProductCard card ) {
 			productName.setText( card.getName() );
-			productVersion.setText( card.getRelease().toHumanString() );
+			productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
 			productProvider.setText( "by " + card.getProvider() );
 
 			javaName.setText( System.getProperty( "java.vm.name" ) );
-			javaVersion.setText( System.getProperty( "java.version" ) + " " + System.getProperty( "java.version.date" ) );
+			javaVersion.setText( System.getProperty( "java.version" ) + "  " + System.getProperty( "java.version.date" ) );
 			javaProvider.setText( "by " + System.getProperty( "java.vendor" ) );
 
 			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
@@ -217,12 +217,10 @@ public class AboutTool extends GuidedTool {
 	}
 
 	private String getSummaryText( ProductCard metadata ) {
-		Version version = new Version( metadata.getVersion() );
-
 		StringBuilder builder = new StringBuilder();
 		builder.append( metadata.getName() );
 		builder.append( " " );
-		builder.append( version.toHumanString() );
+		builder.append( metadata.getRelease().toHumanString( TimeZone.getDefault() ) );
 		builder.append( "\n  by " );
 		builder.append( metadata.getProvider() );
 		builder.append( "\n" );
