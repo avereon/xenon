@@ -1,9 +1,7 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.tool;
 
 import com.xeomar.product.Product;
-import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
-import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.scene.Node;
 
 public class ToolMetadata {

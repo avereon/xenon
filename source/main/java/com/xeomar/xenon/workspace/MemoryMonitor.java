@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.workspace;
 
 import com.xeomar.util.FileUtil;
 import javafx.application.Platform;

@@ -50,7 +50,7 @@ public class Workspace implements Configurable {
 
 	private ToolBar toolbar;
 
-	private BorderPane statusbar;
+	private StatusBar statusBar;
 
 	private MemoryMonitor memoryMonitor;
 
@@ -170,6 +170,7 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		// STATUS BAR
+		statusBar = new StatusBar();
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
 		memoryMonitor = new MemoryMonitor();
 
@@ -179,13 +180,13 @@ public class Workspace implements Configurable {
 		HBox rightStatusBarItems = new HBox();
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
-		leftStatusBarItems.getChildren().addAll( new Label( "STATUS BAR" ) );
+		leftStatusBarItems.getChildren().addAll( statusBar );
 		rightStatusBarItems.getChildren().addAll( taskMonitor, memoryMonitor );
 
-		statusbar = new BorderPane();
-		statusbar.setLeft( leftStatusBarItems );
-		statusbar.setRight( rightStatusBarItems );
-		statusbar.getStyleClass().add( "status-bar" );
+		BorderPane statusBarContainer = new BorderPane();
+		statusBarContainer.setLeft( leftStatusBarItems );
+		statusBarContainer.setRight( rightStatusBarItems );
+		statusBarContainer.getStyleClass().add( "status-bar" );
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
@@ -197,7 +198,7 @@ public class Workspace implements Configurable {
 		layout = new BorderPane();
 		layout.setTop( bars );
 		layout.setCenter( workpaneContainer );
-		layout.setBottom( statusbar );
+		layout.setBottom( statusBarContainer );
 
 		// Create the stage
 		stage = new Stage();
@@ -279,6 +280,10 @@ public class Workspace implements Configurable {
 
 		// Send a program event when active area changes
 		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+	}
+
+	public StatusBar getStatusBar() {
+		return statusBar;
 	}
 
 	@Override

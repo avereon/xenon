@@ -1,8 +1,9 @@
-package com.xeomar.xenon.tool;
+package com.xeomar.xenon.tool.basic;
 
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 
 // FIXME Unfinished

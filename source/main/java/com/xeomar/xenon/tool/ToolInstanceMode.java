@@ -1,4 +1,4 @@
-package com.xeomar.xenon.workspace;
+package com.xeomar.xenon.tool;
 
 /**
  * The various modes that tools instances can be handled.

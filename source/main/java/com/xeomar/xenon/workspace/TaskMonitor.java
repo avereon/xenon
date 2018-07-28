@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.workspace;
 
 import com.xeomar.xenon.task.TaskEvent;
 import com.xeomar.xenon.task.TaskListener;

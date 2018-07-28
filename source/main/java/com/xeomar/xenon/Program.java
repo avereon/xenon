@@ -21,18 +21,20 @@ import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
-import com.xeomar.xenon.tool.AboutTool;
-import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.ProgramTool;
-import com.xeomar.xenon.tool.WelcomeTool;
+import com.xeomar.xenon.tool.ToolInstanceMode;
+import com.xeomar.xenon.tool.ToolMetadata;
+import com.xeomar.xenon.tool.basic.AboutTool;
+import com.xeomar.xenon.tool.basic.NoticeTool;
+import com.xeomar.xenon.tool.basic.WelcomeTool;
 import com.xeomar.xenon.tool.guide.GuideTool;
+import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -684,8 +686,8 @@ public class Program extends Application implements ProgramProduct {
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
-		registerTools( toolManager );
 		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		registerTools( toolManager );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
@@ -903,6 +905,10 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
+
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.AboutTool", AboutTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.NoticeTool", NoticeTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.WelcomeTool", WelcomeTool.class );
 	}
 
 	private void unregisterTools( ToolManager manager ) {

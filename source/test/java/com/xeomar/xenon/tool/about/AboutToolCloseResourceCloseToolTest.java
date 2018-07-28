@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.about;
 
 import com.xeomar.xenon.resource.type.ProgramAboutType;
-import com.xeomar.xenon.tool.AboutTool;
+import com.xeomar.xenon.tool.basic.AboutTool;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
