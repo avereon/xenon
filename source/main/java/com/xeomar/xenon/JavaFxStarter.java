@@ -17,12 +17,12 @@ public final class JavaFxStarter extends Application {
 
 	@Override
 	public void start( Stage primaryStage ) {
-		setStarted();
+		setStarted( true );
 	}
 
-	private static void setStarted() {
+	private static void setStarted( boolean started ) {
 		synchronized( startLock ) {
-			started = true;
+			JavaFxStarter.started = started;
 			startLock.notifyAll();
 		}
 	}
@@ -38,7 +38,7 @@ public final class JavaFxStarter extends Application {
 					JavaFxStarter.launch();
 				} catch( IllegalStateException exception ) {
 					// Platform was already started by a different class
-					setStarted();
+					setStarted( true );
 				} catch( Throwable throwable ) {
 					JavaFxStarter.throwable = throwable;
 				}
