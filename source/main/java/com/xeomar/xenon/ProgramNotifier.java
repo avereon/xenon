@@ -100,7 +100,7 @@ public class ProgramNotifier {
 				builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
 			}
 
-			final String content = String.format( builder.toString(), parameters );
+			final String content = String.format( builder.toString(), (Object[])parameters );
 
 			log.info( content );
 
