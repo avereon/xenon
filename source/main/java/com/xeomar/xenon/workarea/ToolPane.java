@@ -1,58 +1,62 @@
 package com.xeomar.xenon.workarea;
 
+import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseEvent;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
 class ToolPane extends TabPane {
 
+	private Map<String, DndTab> tabIdMap;
+
 	ToolPane() {
-		this( (Tab[])null );
+		this( (DndTab[])null );
 	}
 
-	private ToolPane( Tab... tabs ) {
+	private ToolPane( DndTab... tabs ) {
 		super( tabs );
+		tabIdMap = new ConcurrentHashMap<>();
 
-		// NEXT Add mouse listeners to handle drag and drop
-		// Tab D&D support: https://bugs.openjdk.java.net/browse/JDK-8092098
+		getTabs().addListener( (ListChangeListener<Tab>)listener -> {
+			while( listener.next() ) {
+				for( Tab tab : listener.getRemoved() ) {
+					if( tab != null && !getTabs().contains( tab ) ) tabIdMap.remove( tab );
+				}
 
-		setOnMousePressed( event -> {
-			//System.out.println( "Mouse pressed: event=" + event );
-
-			// NEXT Try to figure out what tab was pressed...
-			System.out.println( "Tab: " + getTab( event ) );
-
+				for( Tab tab : listener.getAddedSubList() ) {
+					if( tab != null ) tabIdMap.put( tab.getId(), (DndTab)tab );
+				}
+			}
 		} );
 
-		//		setOnMouseDragged( event -> {
-		//			//System.out.println("Mouse dragged: source=" + event.getSource() + " target=" + event.getTarget() );
-		//		} );
-		//
-		//		setOnMouseReleased( event -> {
-		//			System.out.println( "Mouse released: event=" + event );
-		//		});
+		if( tabs != null ) {
+			for( DndTab tab : tabs ) {
+				tabIdMap.put( tab.getId(), tab );
+			}
+		}
+
+		// Add mouse listeners to handle drag and drop
+		setOnMousePressed( event -> Objects.requireNonNull( getTab( event ) ).getDndSupport().mousePressed( event ) );
+		setOnMouseDragged( event -> Objects.requireNonNull( getTab( event ) ).getDndSupport().mouseDragged( event ) );
+		setOnMouseReleased( event -> Objects.requireNonNull( getTab( event ) ).getDndSupport().mouseReleased( event ) );
 
 		// TODO Make this a user setting
 		setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
 	}
 
-	private Tab getTab( MouseEvent event ) {
+	private DndTab getTab( MouseEvent event ) {
 		Node node = (Node)event.getTarget();
+
 		while( node != null ) {
-			//System.out.println( "node: " + node );
-			//TabHeaderSkin skin = event.getSource();
-
-//			if( node.contains( event.getX(), event.getY() ) ) {
-//				System.out.println( "Found node by coordinates: " + node );
-//			}
-
-			if( node.getStyleClass().contains( "tab" ) ) {
-				System.out.println( "Found node by style: " + node );
-			}
-
+			if( node.getStyleClass().contains( "tab" ) ) return tabIdMap.get( node.getId() );
 			node = node.getParent();
 		}
+
 		return null;
 	}
 

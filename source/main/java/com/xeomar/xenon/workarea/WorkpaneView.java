@@ -82,7 +82,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		tool.setToolView( this );
 		tool.callAllocate();
 
-		Tab tab = new Tab( tool.getTitle(), tool );
+		DndTab tab = new DndTab( tool.getTitle(), tool );
 		tab.graphicProperty().bind( tool.graphicProperty() );
 		tab.textProperty().bind( tool.titleProperty() );
 		tools.getTabs().add( index, tab );

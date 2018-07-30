@@ -1,10 +1,14 @@
 package com.xeomar.xenon.workarea;
 
-import javafx.event.*;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
+import javafx.scene.input.MouseEvent;
+
+import java.util.UUID;
 
 public class DndTab extends Tab {
+
+	private DndSupport dndSupport;
 
 	public DndTab() {
 		this( null );
@@ -16,20 +20,43 @@ public class DndTab extends Tab {
 
 	public DndTab( String text, Node content ) {
 		super( text, content );
-		System.out.println( "New DndTab: " + text );
+		setId( UUID.randomUUID().toString() );
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public EventDispatchChain buildEventDispatchChain( EventDispatchChain tail ) {
-		System.out.println( "DndTab.buildEventDispatchChain()..." );
-		return tail.prepend( eventHandlerManager );
+	public DndSupport getDndSupport() {
+		if( dndSupport == null ) dndSupport = new DndSupport();
+		return dndSupport;
 	}
 
-	private final EventDispatcher eventHandlerManager = ( event, tail ) -> {
-		System.out.println( "dispatchEvent: " + event );
+	class DndSupport {
 
-		return null;
-	};
+		private Node tabSkin;
+
+		public Node getTabSkin() {
+			return tabSkin;
+		}
+
+		public void setTabSkin( Node tabSkin ) {
+			this.tabSkin = tabSkin;
+		}
+
+		public void mousePressed( MouseEvent event ) {
+			System.out.println( "Moused pressed: " + event );
+			// NEXT Collect original event coordinates
+		}
+
+		public void mouseDragged( MouseEvent event ) {
+			System.out.println( "Moused dragged: " + event );
+			// NEXT Generate node for dragging
+		}
+
+		public void mouseReleased( MouseEvent event ) {
+			System.out.println( "Moused released: " + event );
+
+			// Remove DndSupport
+			dndSupport = null;
+		}
+
+	}
 
 }
