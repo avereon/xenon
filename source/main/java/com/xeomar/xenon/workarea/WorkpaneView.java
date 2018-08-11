@@ -24,7 +24,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private Workpane.Placement placement;
 
-	private ToolPane tools;
+	private TabPane tools;
 
 	private Workpane parent;
 
@@ -34,7 +34,9 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
-		setCenter( tools = new ToolPane() );
+		setCenter( tools = new TabPane() );
+
+		tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
 
 		// Add a focus listener to the tabs so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
@@ -82,7 +84,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		tool.setToolView( this );
 		tool.callAllocate();
 
-		DndTab tab = new DndTab( tool.getTitle(), tool );
+		Tab tab = new Tab( tool.getTitle(), tool );
 		tab.graphicProperty().bind( tool.graphicProperty() );
 		tab.textProperty().bind( tool.titleProperty() );
 		tools.getTabs().add( index, tab );
