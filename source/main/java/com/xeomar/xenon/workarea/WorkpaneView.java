@@ -4,6 +4,8 @@ import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private Workpane.Placement placement;
 
-	private ToolPane tools;
+	private TabPane tools;
 
 	private Workpane parent;
 
@@ -32,21 +34,21 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
-		setCenter( tools = new ToolPane() );
+		setCenter( tools = new TabPane() );
 
-		// TODO tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
+		tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
 
 		// Add a focus listener to the tabs so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
 		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
-			ToolTab tab = tools.getSelectionModel().getSelectedItem();
-			if( newValue && tab != null) activateTool( tab.getTool() );
+			Tab tab = tools.getSelectionModel().getSelectedItem();
+			if( newValue && tab != null) activateTool( (Tool)tab.getContent() );
 		} );
 
 		// Add a selection listener to the tabs so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
 		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
-			if( tools.focusedProperty().getValue() && newValue != null) activateTool( newValue.getTool() );
+			if( tools.focusedProperty().getValue() && newValue != null) activateTool( (Tool)newValue.getContent() );
 		} );
 	}
 
@@ -54,7 +56,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		return settings == null ? null : settings.getName();
 	}
 
-	private ToolPane getToolTabPane() {
+	private TabPane getToolTabPane() {
 		return tools;
 	}
 
@@ -66,8 +68,8 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public List<Tool> getTools() {
 		List<Tool> toolList = new ArrayList<>();
 
-		for( ToolTab tab : tools.getTabs() ) {
-			toolList.add( tab.getTool() );
+		for( Tab tab : tools.getTabs() ) {
+			toolList.add( (Tool)tab.getContent() );
 		}
 
 		return Collections.unmodifiableList( toolList );
@@ -82,7 +84,9 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		tool.setToolView( this );
 		tool.callAllocate();
 
-		ToolTab tab = new ToolTab( tool );
+		Tab tab = new Tab( tool.getTitle(), tool );
+		tab.graphicProperty().bind( tool.graphicProperty() );
+		tab.textProperty().bind( tool.titleProperty() );
 		tools.getTabs().add( index, tab );
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
@@ -104,9 +108,9 @@ public class WorkpaneView extends BorderPane implements Configurable {
 			if( tools.getTabs().size() > 1 ) {
 				int index = getToolIndex( tool );
 				if( index < tools.getTabs().size() - 1 ) {
-					next = tools.getTabs().get( index + 1 ).getTool();
+					next = (Tool)tools.getTabs().get( index + 1 ).getContent();
 				} else if( index >= 1 ) {
-					next = tools.getTabs().get( index - 1 ).getTool();
+					next = (Tool)tools.getTabs().get( index - 1 ).getContent();
 				}
 			}
 
@@ -151,8 +155,8 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	int getToolIndex( Tool tool ) {
 		int index = 0;
 
-		for( ToolTab tab : tools.getTabs() ) {
-			if( tab.getTool() == tool ) return index;
+		for( Tab tab : tools.getTabs() ) {
+			if( tab.getContent() == tool ) return index;
 			index++;
 		}
 
