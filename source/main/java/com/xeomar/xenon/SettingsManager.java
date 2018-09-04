@@ -39,12 +39,15 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private SettingsListener settingsWatcher;
 
-	private final Map<String, SettingsPage> settingsPages;
+	private final Map<String, SettingsPage> allSettingsPages;
+
+	private final Map<String, SettingsPage> rootSettingsPages;
 
 	public SettingsManager( Program program ) {
 		this.program = program;
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
-		this.settingsPages = new ConcurrentHashMap<>();
+		this.allSettingsPages = new ConcurrentHashMap<>();
+		this.rootSettingsPages = new ConcurrentHashMap<>();
 		this.settingsWatcher = new SettingsWatcher( program );
 	}
 
@@ -82,12 +85,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public void addSettingsPages( Map<String, SettingsPage> pages ) {
-		synchronized( settingsPages ) {
+		synchronized( rootSettingsPages ) {
 			log.debug( "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
-				settingsPages.putIfAbsent( page.getId(), page );
+				rootSettingsPages.putIfAbsent( page.getId(), page );
 			}
 
 			Platform.runLater( this::updateSettingsGuide );
@@ -95,11 +98,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
-		synchronized( settingsPages ) {
+		synchronized( rootSettingsPages ) {
 			log.debug( "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
-				settingsPages.remove( page.getId() );
+				rootSettingsPages.remove( page.getId() );
 			}
 
 			Platform.runLater( this::updateSettingsGuide );
@@ -107,11 +110,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public SettingsPage getSettingsPage( String id ) {
-		return settingsPages.get( id );
+		return allSettingsPages.get( id );
 	}
 
 	private void updateSettingsGuide() {
-		Map<String, SettingsPage> pages = Collections.unmodifiableMap( settingsPages );
+		Map<String, SettingsPage> pages = Collections.unmodifiableMap( rootSettingsPages );
 
 		// Get the settings program resource
 		try {
@@ -132,7 +135,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 	}
 
-	private void addChildNodes( TreeItem<GuideNode> root, Map<String, SettingsPage> pages ) {
+	private void addChildNodes( TreeItem<GuideNode> parent, Map<String, SettingsPage> pages ) {
 		// Create a map of the title keys except the general key, it gets special handling
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
@@ -151,19 +154,21 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Collections.sort( titles );
 
 		// Clear the guide nodes
-		root.getChildren().clear();
+		parent.getChildren().clear();
 
 		// Add the general node to the guide
-		addGuideNode( root, pages.get( "general" ) );
+		addGuideNode( parent, pages.get( "general" ) );
 
 		// Add the remaining nodes to the guide
 		for( String title : titles ) {
-			addGuideNode( root, pages.get( titledKeys.get( title ) ) );
+			addGuideNode( parent, pages.get( titledKeys.get( title ) ) );
 		}
 	}
 
 	private void addGuideNode( TreeItem<GuideNode> root, SettingsPage page ) {
 		if( page == null ) return;
+
+		allSettingsPages.put( page.getId(), page );
 
 		GuideNode guideNode = new GuideNode();
 		guideNode.setId( page.getId() );
