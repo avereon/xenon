@@ -195,11 +195,20 @@ public class AboutTool extends GuidedTool {
 
 		public void update( ProductCard card ) {
 			productName.setText( card.getName() );
-			productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
+			if( card.getRelease().getVersion().isSnapshot() ) {
+				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
+			} else {
+				productVersion.setText( card.getRelease().getVersion().toHumanString() );
+			}
 			productProvider.setText( "by " + card.getProvider() );
 
+			String javaVersionDate = System.getProperty( "java.version.date" );
 			javaName.setText( System.getProperty( "java.vm.name" ) );
-			javaVersion.setText( System.getProperty( "java.version" ) + "  " + System.getProperty( "java.version.date" ) );
+			if( javaVersionDate == null ) {
+				javaVersion.setText( System.getProperty( "java.version" ) );
+			} else {
+				javaVersion.setText( System.getProperty( "java.version" ) + "  " + System.getProperty( "java.version.date" ) );
+			}
 			javaProvider.setText( "by " + System.getProperty( "java.vendor" ) );
 
 			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
