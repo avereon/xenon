@@ -13,6 +13,20 @@
 	-ex-background-tabs: rgba( 241, 241, 241, 0.4 );
 }
 
+#menu-development > .label {
+	-fx-text-fill: red;
+	-fx-font-weight: 700;
+}
+#menu-development:hover > .label {
+	-fx-text-fill: -fx-text-background-color;
+}
+#menu-development {
+	-fx-background-color: transparent;
+}
+#menu-development:hover  {
+	-fx-background-color: red;
+}
+
 .prompt {
 	-fx-padding: 0 1mm 0 0;
 }
