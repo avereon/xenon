@@ -405,7 +405,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		long timeSinceLastCheck = System.currentTimeMillis() - lastUpdateCheck;
 		long delay;
 
-		// FIXME This is required to avoid a memory use problem during testing
+		// This is ensures updates are not checked during testing
 		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
 
 		switch( checkOption ) {
@@ -544,7 +544,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					availableCards.add( availableCard );
 				}
 
-				// NEXT Remove use of forced updates
+				// TODO Remove use of forced updates
 				// Forced updates are used for development
 				if( program.getExecMode() == ExecMode.DEV ) {
 					log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
@@ -572,10 +572,12 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	void cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
+		// TODO Finish implementing UpdateManager.cacheSelectedUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
 	void stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
+		// TODO Finish implementing UpdateManager.stageCachedUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
@@ -668,7 +670,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 
 		saveUpdates();
-
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -914,13 +915,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 		// FIXME The settings passed in serve two purposes but should not
 
+		// What are these setting if the update node is retrieved below
 		this.settings = settings;
-
-		this.updateSettings = settings.getNode( "update" );
 
 		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
+
+		// These settings are apparently used to store the catalogs and updates
+		this.updateSettings = settings.getNode( "update" );
 
 		// Load the product catalogs
 		loadCatalogs();
