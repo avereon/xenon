@@ -508,7 +508,6 @@ public class UiFactory {
 			if( settings1 == null ) return -1;
 			if( settings2 == null ) return 1;
 
-			// FIXME Order is not being saved so it isn't used
 			Integer order1 = settings1.get( "order", Integer.class );
 			Integer order2 = settings2.get( "order", Integer.class );
 
@@ -516,7 +515,7 @@ public class UiFactory {
 			if( order1 == null ) return -1;
 			if( order2 == null ) return 1;
 
-			return order2 - order1;
+			return order1 - order2;
 		}
 	}
 
