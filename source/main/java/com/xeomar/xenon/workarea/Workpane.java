@@ -2,11 +2,10 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
-import com.xeomar.util.LogUtil;
 import com.xeomar.util.IdGenerator;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiFactory;
-import com.xeomar.xenon.util.Colors;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Node;
@@ -443,10 +442,8 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	private void doSetActiveTool( Tool tool, boolean setView ) {
-		if( tool != null ) {
-			WorkpaneView view = tool.getToolView();
-			if( view == null || !getViews().contains( view ) ) return;
-		}
+		// Make sure the tool is contained by this workpane
+		if( tool != null && tool.getWorkpane() != this ) return;
 
 		Tool activeTool;
 		startOperation();

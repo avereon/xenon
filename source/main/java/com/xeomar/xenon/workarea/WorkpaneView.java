@@ -2,6 +2,7 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
@@ -42,13 +43,22 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		// is activated. This may happen even if the tab is not selected.
 		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
 			Tab tab = tools.getSelectionModel().getSelectedItem();
-			if( newValue && tab != null) activateTool( (Tool)tab.getContent() );
+			if( newValue && tab != null ) activateTool( (Tool)tab.getContent() );
 		} );
 
 		// Add a selection listener to the tabs so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
 		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
-			if( tools.focusedProperty().getValue() && newValue != null) activateTool( (Tool)newValue.getContent() );
+			if( tools.focusedProperty().getValue() && newValue != null ) activateTool( (Tool)newValue.getContent() );
+		} );
+
+		// Add a listener to the tab list to store the order when the tabs change
+		tools.getTabs().addListener( (ListChangeListener<? super Tab>)( change ) -> {
+			int index = 0;
+			for( Tab tab : tools.getTabs() ){
+				((Tool)tab.getContent()).getSettings().set( "order", index );
+				index++;
+			}
 		} );
 	}
 
