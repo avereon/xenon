@@ -56,7 +56,8 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		tools.getTabs().addListener( (ListChangeListener<? super Tab>)( change ) -> {
 			int index = 0;
 			for( Tab tab : tools.getTabs() ){
-				((Tool)tab.getContent()).getSettings().set( "order", index );
+				Settings settings = ((Tool)tab.getContent()).getSettings();
+				if( settings != null ) settings.set( "order", index );
 				index++;
 			}
 		} );
