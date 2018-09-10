@@ -16,6 +16,9 @@ module com.xeomar.xenon {
 	requires miglayout.javafx;
 
 	exports com.xeomar.xenon;
+	exports com.xeomar.xenon.resource;
+	exports com.xeomar.xenon.task;
+	exports com.xeomar.xenon.update;
 
 	opens bundles;
 	opens settings;

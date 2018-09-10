@@ -33,7 +33,6 @@ import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Application;
-import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
@@ -48,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -69,7 +69,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private static long programStartTime = System.currentTimeMillis();
+	/* This field is used for timing checks */
+	@SuppressWarnings( "unused" )
+	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
 	private com.xeomar.util.Parameters parameters;
 
@@ -161,10 +163,6 @@ public class Program extends Application implements ProgramProduct {
 	@Override
 	public void init() throws Exception {
 		time( "init" );
-
-		String baseName = "bundles/action";
-		Locale locale = Locale.getDefault();
-		java.lang.Module module = getClass().getModule();
 
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
@@ -325,15 +323,9 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Updating..." );
 	}
 
-	public boolean requestExit() {
-		return requestExit( false );
-	}
-
 	public boolean requestExit( boolean force ) {
 		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
 		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
-
-		Platform.isSupported( ConditionalFeature.SCENE3D );
 
 		// If the user desires, prompt to exit the program
 		if( !force && shutdownVerify ) {
@@ -393,10 +385,6 @@ public class Program extends Application implements ProgramProduct {
 		return programResourceBundle;
 	}
 
-	public final long getStartTime() {
-		return programStartTime;
-	}
-
 	public final Path getDataFolder() {
 		return programDataFolder;
 	}
@@ -441,10 +429,12 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
+	@SuppressWarnings( { "unused", "WeakerAccess" } )
 	public void addEventListener( ProductEventListener listener ) {
 		this.listeners.add( listener );
 	}
 
+	@SuppressWarnings( { "unused", "WeakerAccess" } )
 	public void removeEventListener( ProductEventListener listener ) {
 		this.listeners.remove( listener );
 	}
@@ -456,16 +446,6 @@ public class Program extends Application implements ProgramProduct {
 	private static void time( String markerName ) {
 		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
-
-	//	private ProductCard initProductCard() {
-	//		ProductCard card = null;
-	//		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
-	//			card = this.card = new ProductCard().init( input );
-	//		} catch( IOException exception ) {
-	//			exception.printStackTrace( System.err );
-	//		}
-	//		return card;
-	//	}
 
 	/**
 	 * Initialize the program parameters by converting the FX parameters object into a program parameters object.
