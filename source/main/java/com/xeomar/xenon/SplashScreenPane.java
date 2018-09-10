@@ -1,9 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.util.FxUtil;
 import javafx.application.Platform;
-import javafx.geometry.Bounds;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -13,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -31,17 +30,13 @@ public class SplashScreenPane extends Pane {
 
 	private static final int BAR_PAD = 20;
 
-	private static final Color barBackgroundColor = new Color( 0.0, 0.0, 0.0, 0.2 );
-
-	private static final Color progressColor = new Color( 0.7, 0.7, 0.7, 1.0 );
-
-	private static final Color completedColor = new Color( 0.2, 0.8, 0.2, 1.0 );
-
 	private String title;
 
 	private int steps;
 
 	private int progress;
+
+	private Rectangle progressTray;
 
 	private Rectangle progressBar;
 
@@ -59,11 +54,11 @@ public class SplashScreenPane extends Pane {
 		titleText.setX( TITLE_PAD );
 		titleText.setY( TITLE_PAD + titleText.getLayoutBounds().getHeight() );
 
-		Rectangle progressTray = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, WIDTH - 2 * BAR_PAD, BAR_SIZE );
-		progressTray.setFill( barBackgroundColor );
+		progressTray = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, WIDTH - 2 * BAR_PAD, BAR_SIZE );
+		progressTray.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-tray");
 
 		progressBar = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, 0, BAR_SIZE );
-		progressBar.setFill( progressColor );
+		progressBar.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-incomplete");
 
 		getChildren().add( background );
 		getChildren().add( new Circle( -40, 80, 160, new Color( 1, 1, 1, 0.1 ) ) );
@@ -88,7 +83,9 @@ public class SplashScreenPane extends Pane {
 
 	public SplashScreenPane show( Stage stage ) {
 		stage.setTitle( title );
-		stage.setScene( new Scene( this, getWidth(), getHeight(), Color.BLACK ) );
+		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
+		scene.getStylesheets().add( Program.STYLESHEET );
+		stage.setScene( scene );
 		stage.sizeToScene();
 		stage.show();
 		return this;
@@ -99,7 +96,11 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public void setProgress( double progress ) {
-		if( progress >= 1.0 ) progressBar.setFill( completedColor );
+		if( progress >= 1.0 ) {
+			progressTray.setVisible( false );
+			progressBar.getStyleClass().remove( "splashscreen-progress-incomplete" );
+			progressBar.getStyleClass().add( "splashscreen-progress-complete" );
+		}
 		progressBar.setWidth( (getWidth() - 2 * BAR_PAD) * progress );
 	}
 
@@ -118,7 +119,9 @@ public class SplashScreenPane extends Pane {
 			SplashScreenPane splash = new SplashScreenPane( "Test" );
 			splash.setProgress( 0.8 );
 			Scene scene = new Scene( splash, WIDTH, HEIGHT );
+			scene.getStylesheets().add( Program.STYLESHEET );
 			Stage stage = new Stage();
+			stage.initStyle( StageStyle.UTILITY );
 			stage.setScene( scene );
 			stage.show();
 		} );
