@@ -64,6 +64,11 @@ local.properties
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
+.idea/**/compiler.xml
+.idea/**/encodings.xml
+.idea/**/misc.xml
+.idea/**/modules.xml
+.idea/**/vcs.xml
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/dictionaries
@@ -109,12 +114,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
-### Intellij+all Patch ###
-# Ignores the whole idea folder
-# See https://github.com/joeblau/gitignore.io/issues/186 and https://github.com/joeblau/gitignore.io/issues/360
-
-.idea/
 
 ### Java ###
 # Compiled class file
