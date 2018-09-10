@@ -1,6 +1,8 @@
 package com.xeomar.xenon.tool.guide;
 
+import com.xeomar.settings.Settings;
 import com.xeomar.xenon.ProgramProduct;
+import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.*;
@@ -101,7 +103,15 @@ public class GuideTool extends ProgramTool {
 		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
 	}
 
-	private static class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
+	private void expandNode( TreeItem<GuideNode> item ) {
+		System.out.println( "Should expand node");
+	}
+
+	private void collapeNode( TreeItem<GuideNode> item ) {
+		System.out.println( "Should collapse node");
+	}
+
+	private class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
 
 		private Guide guide;
 
@@ -112,6 +122,9 @@ public class GuideTool extends ProgramTool {
 		@Override
 		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+			if( settings.get( "workspace-guide-auto-collapse", Boolean.class ) ) collapeNode( oldSelection );
+			if( settings.get( "workspace-guide-auto-expand", Boolean.class ) ) expandNode( newSelection );
 			guide.setSelectedItem( newSelection );
 		}
 
