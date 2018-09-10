@@ -212,7 +212,7 @@ public class AboutTool extends GuidedTool {
 			javaProvider.setText( "by " + System.getProperty( "java.vendor" ) );
 
 			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
-			osName.setText( osNameString.substring(0, 1).toUpperCase() + osNameString.substring(1) );
+			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( System.getProperty( "os.version" ) );
 			osProvider.setText( "by " + OperatingSystem.getProvider() );
 		}
@@ -381,6 +381,7 @@ public class AboutTool extends GuidedTool {
 
 		builder.append( "Home folder: " + program.getHomeFolder() + "\n" );
 		builder.append( "Data folder: " + program.getDataFolder() + "\n" );
+		builder.append( "Log file:    " + LogUtil.getLogFile() + "\n" );
 
 		return builder.toString();
 	}

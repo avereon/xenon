@@ -5,10 +5,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductEvent;
 import com.xeomar.product.ProductEventListener;
 import com.xeomar.settings.Settings;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.OperatingSystem;
-import com.xeomar.util.Release;
-import com.xeomar.util.TestUtil;
+import com.xeomar.util.*;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
@@ -179,7 +176,7 @@ public class Program extends Application implements ProgramProduct {
 		parameters = initProgramParameters();
 		time( "parameters" );
 
-		// Print the program header, depends on parameters
+		// Print the program header, depends on card and parameters
 		printHeader( card, parameters );
 		time( "print-header" );
 
@@ -187,7 +184,9 @@ public class Program extends Application implements ProgramProduct {
 		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
-		// Configure logging, depends on program data folder
+		// Configure logging, depends on parameters and program data folder
+		com.xeomar.util.Parameters logParameters = com.xeomar.util.Parameters.parse( LogFlag.LOG_FILE, card.getArtifact() + ".log" );
+		parameters.add( logParameters );
 		LogUtil.configureLogging( this, parameters, programDataFolder );
 		time( "configure-logging" );
 
@@ -201,8 +200,8 @@ public class Program extends Application implements ProgramProduct {
 
 		// Load the default settings values
 		Properties properties = new Properties();
-		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
+		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), TextUtil.CHARSET ) );
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
 		// Create the settings manager, depends on default settings values, program data folder
@@ -229,7 +228,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Run the peer check before processing commands in case there is a peer already
 		if( peerCheck() ) return;
-		time( "peer-found" );
+		time( "peer-check" );
 
 		// If there is not a peer, process the commands before processing the updates
 		if( processCommands( getProgramParameters() ) ) return;
@@ -469,8 +468,7 @@ public class Program extends Application implements ProgramProduct {
 	//	}
 
 	/**
-	 * Initialize the program parameters by converting the FX parameters object
-	 * into a program parameters object.
+	 * Initialize the program parameters by converting the FX parameters object into a program parameters object.
 	 *
 	 * @return The program parameters object
 	 */
@@ -491,10 +489,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Check for another instance of the program is running after getting the
-	 * settings but before the splash screen is shown. The fastest way to check
-	 * is to try and bind to the port defined in the settings. The OS will
-	 * quickly deny the bind if the port is already bound.
+	 * Check for another instance of the program is running after getting the settings but before the splash screen is shown. The fastest way to check is to try and bind to the port defined in the settings. The OS will quickly deny the bind
+	 * if the port is already bound.
 	 * <p>
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
@@ -536,9 +532,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Process staged updates unless the NOUPDATE flag is set. If there are no
-	 * staged updates then the method returns false. If no updates were processed
-	 * due to user input then the method returns false.
+	 * Process staged updates unless the NOUPDATE flag is set. If there are no staged updates then the method returns false. If no updates were processed due to user input then the method returns false.
 	 *
 	 * @return True if the program should be restarted, false otherwise.
 	 */
@@ -582,7 +576,7 @@ public class Program extends Application implements ProgramProduct {
 	private void printAsciiArtTitle() {
 		try {
 			InputStream input = getClass().getResourceAsStream( "/ascii-art-title.txt" );
-			BufferedReader reader = new BufferedReader( new InputStreamReader( input, "UTF-8" ) );
+			BufferedReader reader = new BufferedReader( new InputStreamReader( input, TextUtil.CHARSET ) );
 
 			String line;
 			while( (line = reader.readLine()) != null ) {
@@ -947,7 +941,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Remove the old catalog
 		MarketCard oldMarketCard = new MarketCard().copyFrom( MarketCard.forProduct() );
-		String oldUri =  MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
+		String oldUri = MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
 		oldMarketCard.setCardUri( oldUri );
 		updateManager.removeCatalog( oldMarketCard );
 
@@ -1006,14 +1000,14 @@ public class Program extends Application implements ProgramProduct {
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
-			// TODO Check to see if the application was updated
+			// Check to see if the application was updated
 			checkIfUpdated();
+
+			// Open resources specified on the command line
+			processResources( getProgramParameters() );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
-
-			// TODO Open resources specified on the command line
-			processResources( getProgramParameters() );
 		}
 
 		@Override
@@ -1034,7 +1028,7 @@ public class Program extends Application implements ProgramProduct {
 	private class Shutdown extends Task<Void> {
 
 		@Override
-		protected Void call() throws Exception {
+		protected Void call() {
 			doShutdownTasks();
 			return null;
 		}
