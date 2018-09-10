@@ -305,14 +305,17 @@ public class AboutTool extends GuidedTool {
 		builder.append( "\n" );
 		builder.append( getHeader( "Program details" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
-		builder.append( "\n" );
 		builder.append( Indenter.indent( getProgramDetails( program ), 4, " " ) );
+
+		// Product details
+		builder.append( "\n" );
+		builder.append( getHeader( "Product details" ) );
+		builder.append( "\n" );
+		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
 
 		// Operating system
 		builder.append( "\n" );
 		builder.append( getHeader( "Operating system" ) );
-
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getOperatingSystemDetail(), 4, " " ) );
 
@@ -405,7 +408,7 @@ public class AboutTool extends GuidedTool {
 		//		builder.append( "Updatable:   " + productManager.isUpdatable( card ) + "\n" );
 		//		builder.append( "Removable:   " + productManager.isRemovable( card ) + "\n" );
 
-		return builder.toString().trim();
+		return builder.toString();
 	}
 
 	private String getOperatingSystemDetail() {
