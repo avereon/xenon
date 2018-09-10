@@ -120,9 +120,7 @@ public class GuideTool extends ProgramTool {
 			if( !FxUtil.isParentOf( item, selectedItem ) ) collapseItems.add( item );
 		}
 
-		if( expand ) {
-			selectedItem.setExpanded( true );
-		}
+		if( expand && selectedItem != null ) selectedItem.setExpanded( true );
 
 		if( expand && collapse ) {
 			for( TreeItem<GuideNode> item : collapseItems ) {
