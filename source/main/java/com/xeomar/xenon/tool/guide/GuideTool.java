@@ -150,7 +150,7 @@ public class GuideTool extends ProgramTool {
 		@Override
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
 			System.out.println( "Guide selected item: " + newSelection );
-			newSelection.setExpanded( true );
+			guideView.getSelectionModel().select( newSelection );
 		}
 
 	}

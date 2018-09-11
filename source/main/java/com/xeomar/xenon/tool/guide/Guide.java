@@ -68,16 +68,17 @@ public class Guide {
 		if( node != null ) setSelectedItem( node );
 	}
 
-	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> parent, String id ) {
-		// FIXME This tree search does not work correctly
-		for( TreeItem<GuideNode> node : parent.getChildren() ) {
-			System.out.println( " --> " + node.getValue().getId() );
-			if( node.getValue().getId().equals( id ) ) {
-				return node;
-			} else {
-				return findItem( node, id );
-			}
+	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {
+		if( node == null ) return null;
+
+		if( node != root && node.getValue().getId().equals( id ) ) return node;
+
+		for( TreeItem<GuideNode> child : node.getChildren() ) {
+			System.out.println( " --> " + child.getValue().getId() );
+			TreeItem<GuideNode> check = findItem( child, id );
+			if( check != null ) return check;
 		}
+
 		return null;
 	}
 
