@@ -18,7 +18,9 @@ public class GuideTool extends ProgramTool {
 
 	private TreeView<GuideNode> guideView;
 
-	private SelectedItemListener selectedItemListener;
+	private GuideViewSelectedItemListener selectedItemListener;
+
+	private GuideSelectedItemListener guideSelectedItemListener;
 
 	private ActiveGuideListener activeGuideListener;
 
@@ -100,11 +102,24 @@ public class GuideTool extends ProgramTool {
 
 		// Add the selected item listener
 		if( selectedItemListener != null ) guideView.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
-		guideView.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new SelectedItemListener( guide ) );
+		guideView.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new GuideViewSelectedItemListener( guide ) );
 
 		// Add the guide active property listener
 		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
 		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
+
+		// Add the guide selected item property listener
+		if( guideSelectedItemListener != null ) guide.selectedItemProperty().removeListener( guideSelectedItemListener );
+		guide.selectedItemProperty().addListener( guideSelectedItemListener = new GuideSelectedItemListener() );
+
+		// Set the active node
+		TreeItem<GuideNode> item = guide.selectedItemProperty().get();
+		System.out.println( "Guide pre-selected item: " + item );
+		if( item == null ) {
+			guideView.getSelectionModel().selectIndices( 0 );
+		} else {
+			item.setExpanded( true );
+		}
 	}
 
 	private void expandAndCollapsePaths( TreeItem<GuideNode> selectedItem ) {
@@ -130,16 +145,25 @@ public class GuideTool extends ProgramTool {
 
 	}
 
-	private class SelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
+	private class GuideSelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
+
+		@Override
+		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
+			System.out.println( "Guide selected item: " + newSelection );
+			newSelection.setExpanded( true );
+		}
+
+	}
+
+	private class GuideViewSelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
 
 		private Guide guide;
 
-		SelectedItemListener( Guide guide ) {
+		GuideViewSelectedItemListener( Guide guide ) {
 			this.guide = guide;
 		}
 
 		@Override
-		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
 			guide.setSelectedItem( newSelection );
 			expandAndCollapsePaths( newSelection );

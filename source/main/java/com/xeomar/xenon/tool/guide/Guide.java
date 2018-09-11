@@ -6,8 +6,6 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Guide {
 
@@ -63,14 +61,24 @@ public class Guide {
 		selectedItem.set( value );
 	}
 
-//	final void setSelected( String id ) {
-//		log.warn( "Guide.setSelected() not working properly");
-//		for( TreeItem<GuideNode> node : getRoot().getChildren()){
-//			if( node.getValue().getId().equals( id ) ) {
-//				setSelectedItem( node );
-//				return;
-//			}
-//		}
-//	}
+	public final void setSelected( String id ) {
+		System.out.println( "Looking for node with id: " + id );
+		TreeItem<GuideNode> node = findItem( getRoot(), id );
+		System.out.println( " -> Node found: " + node );
+		if( node != null ) setSelectedItem( node );
+	}
+
+	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> parent, String id ) {
+		// FIXME This tree search does not work correctly
+		for( TreeItem<GuideNode> node : parent.getChildren() ) {
+			System.out.println( " --> " + node.getValue().getId() );
+			if( node.getValue().getId().equals( id ) ) {
+				return node;
+			} else {
+				return findItem( node, id );
+			}
+		}
+		return null;
+	}
 
 }
