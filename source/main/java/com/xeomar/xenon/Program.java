@@ -196,16 +196,16 @@ public class Program extends Application implements ProgramProduct {
 		programResourceBundle = new ProductBundle( getClass(), "/bundles" );
 		time( "resource-bundle" );
 
+		// Create the settings manager, depends on program data folder
+		settingsManager = new SettingsManager( this ).start();
+
 		// Load the default settings values
 		Properties properties = new Properties();
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
 		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), TextUtil.CHARSET ) );
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
-		// Create the settings manager, depends on default settings values, program data folder
-		settingsManager = new SettingsManager( this ).start();
-
-		// Create the program settings, depends on settings manager
+		// Create the program settings, depends on settings manager and default settings values
 		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( defaultSettingsValues );
 		time( "settings" );

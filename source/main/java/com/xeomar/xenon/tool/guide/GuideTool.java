@@ -16,7 +16,7 @@ import java.util.List;
 
 public class GuideTool extends ProgramTool {
 
-	private TreeView<GuideNode> guideView;
+	private TreeView<GuideNode> guideTree;
 
 	private GuideViewSelectedItemListener selectedItemListener;
 
@@ -29,8 +29,9 @@ public class GuideTool extends ProgramTool {
 		setId( "tool-guide" );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
-		getChildren().add( guideView = new TreeView<>() );
-		guideView.setShowRoot( false );
+		guideTree = new TreeView<>();
+		guideTree.setShowRoot( false );
+		getChildren().add( guideTree );
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class GuideTool extends ProgramTool {
 
 		// Set guide tree root
 		TreeItem root = guide.getRoot();
-		if( root != null ) guideView.setRoot( root );
+		if( root != null ) guideTree.setRoot( root );
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class GuideTool extends ProgramTool {
 	@SuppressWarnings( "unchecked" )
 	private void setResourceGuide( Resource resource ) {
 		if( resource == null ) {
-			guideView.setRoot( null );
+			guideTree.setRoot( null );
 			return;
 		}
 
@@ -95,14 +96,15 @@ public class GuideTool extends ProgramTool {
 		if( guide == null ) return;
 
 		// Set the guide view root
-		guideView.setRoot( guide.getRoot() );
+		guideTree.setRoot( guide.getRoot() );
+		// TODO guideTree.setSelectionModel( guide.getSelectionModel() );
 
 		// Set the guide view selection mode
-		guideView.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
+		guideTree.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
 
-		// Add the selected item listener
-		if( selectedItemListener != null ) guideView.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
-		guideView.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new GuideViewSelectedItemListener( guide ) );
+		// Add the tree selected item listener
+		if( selectedItemListener != null ) guideTree.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
+		guideTree.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new GuideViewSelectedItemListener( guide ) );
 
 		// Add the guide active property listener
 		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
@@ -112,11 +114,11 @@ public class GuideTool extends ProgramTool {
 		if( guideSelectedItemListener != null ) guide.selectedItemProperty().removeListener( guideSelectedItemListener );
 		guide.selectedItemProperty().addListener( guideSelectedItemListener = new GuideSelectedItemListener() );
 
-		// Set the active node
+		// Set the selected item
 		TreeItem<GuideNode> item = guide.selectedItemProperty().get();
 		System.out.println( "Guide pre-selected item: " + item );
 		if( item == null ) {
-			guideView.getSelectionModel().selectIndices( 0 );
+			guideTree.getSelectionModel().selectIndices( 0 );
 		} else {
 			item.setExpanded( true );
 		}
@@ -129,9 +131,9 @@ public class GuideTool extends ProgramTool {
 
 		List<TreeItem<GuideNode>> collapseItems = new ArrayList<>();
 
-		int count = guideView.getExpandedItemCount();
+		int count = guideTree.getExpandedItemCount();
 		for( int index = 0; index < count; index++ ) {
-			TreeItem<GuideNode> item = guideView.getTreeItem( index );
+			TreeItem<GuideNode> item = guideTree.getTreeItem( index );
 			if( !FxUtil.isParentOf( item, selectedItem ) ) collapseItems.add( item );
 		}
 
@@ -150,7 +152,7 @@ public class GuideTool extends ProgramTool {
 		@Override
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
 			System.out.println( "Guide selected item: " + newSelection );
-			guideView.getSelectionModel().select( newSelection );
+			guideTree.getSelectionModel().select( newSelection );
 		}
 
 	}
@@ -183,9 +185,9 @@ public class GuideTool extends ProgramTool {
 		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue observable, Boolean oldSelection, Boolean newSelection ) {
 			if( newSelection ) {
-				guideView.setRoot( guide.getRoot() );
+				guideTree.setRoot( guide.getRoot() );
 			} else {
-				guideView.setRoot( null );
+				guideTree.setRoot( null );
 			}
 		}
 

@@ -83,32 +83,13 @@ public class SettingsTool extends GuidedTool {
 		if( newNode != null ) selectPage( newNode.getId() );
 	}
 
-	@Override
-	public void setSettings( Settings settings ) {
-		this.settings = settings;
-
-		String id = settings.get( PAGE_ID );
-		Platform.runLater( () -> {
-			selectPage( id );
-			getGuide().setSelected( id );
-		} );
-	}
-
-	@Override
-	public Settings getSettings() {
-		return settings;
-	}
-
 	private void selectPage( String id ) {
 		if( id == null ) return;
 		selectPage( getProgram().getSettingsManager().getSettingsPage( id ) );
 	}
 
 	private void selectPage( SettingsPage page ) {
-		log.debug( "Settings page selected: " + page );
 		if( page == null ) return;
-
-		getSettings().set( PAGE_ID, page.getId() );
 
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );
 		ScrollPane scroller = new ScrollPane( panel );

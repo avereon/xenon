@@ -125,17 +125,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
 			if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
 
-			// Get the guide root node
-			TreeItem<GuideNode> root = guide.getRoot();
-			if( root == null ) guide.setRoot( root = new TreeItem<>( new GuideNode(), program.getIconLibrary().getIcon( "settings" ) ) );
-
-			addChildNodes( root, pages );
+			// Create the guide tree
+			createGuide( guide.getRoot(), pages );
 		} catch( Exception exception ) {
 			log.error( "Error getting settings resource", exception );
 		}
 	}
 
-	private void addChildNodes( TreeItem<GuideNode> parent, Map<String, SettingsPage> pages ) {
+	private void createGuide( TreeItem<GuideNode> parent, Map<String, SettingsPage> pages ) {
 		// Create a map of the title keys except the general key, it gets special handling
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
@@ -165,7 +162,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 	}
 
-	private void addGuideNode( TreeItem<GuideNode> root, SettingsPage page ) {
+	private void addGuideNode( TreeItem<GuideNode> parent, SettingsPage page ) {
 		if( page == null ) return;
 
 		allSettingsPages.put( page.getId(), page );
@@ -174,12 +171,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		guideNode.setId( page.getId() );
 		guideNode.setIcon( page.getIcon() );
 		guideNode.setName( page.getTitle() );
-		//guideNode.setPage( page );
 
 		TreeItem<GuideNode> child = new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
-		root.getChildren().add( child );
+		parent.getChildren().add( child );
 
-		addChildNodes( child, page.getPages() );
+		createGuide( child, page.getPages() );
 	}
 
 	@Override

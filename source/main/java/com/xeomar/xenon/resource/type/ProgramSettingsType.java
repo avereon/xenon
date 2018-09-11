@@ -8,7 +8,6 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.tool.guide.Guide;
-import javafx.scene.control.TreeItem;
 
 import java.net.URI;
 
@@ -35,9 +34,7 @@ public class ProgramSettingsType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
-		Guide guide = new Guide();
-		guide.setRoot( new TreeItem<>() );
-		resource.putResource( Guide.GUIDE_KEY, guide);
+		resource.putResource( Guide.GUIDE_KEY, new Guide());
 		return true;
 	}
 

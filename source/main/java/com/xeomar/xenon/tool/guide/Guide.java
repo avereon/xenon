@@ -17,20 +17,28 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
+	@Deprecated
 	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem;
 
+	// NOTE Should the selected item model use the TreeItem(not encouraged),
+	// the GuideNode(possibly a good option) or the GuideNode id(good option
+	// for storing in settings). Either way the code must be able to restore
+	// the selected state from just ids since they will be stored in settings.
+	// But using just ids may not perform well and TreeItems are ultimately
+	// needed for the TreeView in the GuideTool.
+	//
+	// It turns out that multiple selections are even worse because the
+	// TreeView will only take indicies.
+
 	public Guide() {
-		selectionMode = SelectionMode.SINGLE;
+		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
 		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
+		setSelectionMode( SelectionMode.SINGLE );
 	}
 
 	public TreeItem<GuideNode> getRoot() {
 		return root;
-	}
-
-	public void setRoot( TreeItem<GuideNode> root ) {
-		this.root = root;
 	}
 
 	public SelectionMode getSelectionMode() {
@@ -53,28 +61,28 @@ public class Guide {
 		return activeProperty;
 	}
 
-	public final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
+	/* Only intended to be used by the GuideTool */
+	@Deprecated
+	final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
 		return selectedItem.getReadOnlyProperty();
 	}
 
+	@Deprecated
 	final void setSelectedItem( TreeItem<GuideNode> value ) {
 		selectedItem.set( value );
 	}
 
-	public final void setSelected( String id ) {
-		System.out.println( "Looking for node with id: " + id );
+	@Deprecated
+	protected final void setSelected( String id ) {
 		TreeItem<GuideNode> node = findItem( getRoot(), id );
-		System.out.println( " -> Node found: " + node );
 		if( node != null ) setSelectedItem( node );
 	}
 
 	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {
-		if( node == null ) return null;
-
+		if( node == null || id == null ) return null;
 		if( node != root && node.getValue().getId().equals( id ) ) return node;
 
 		for( TreeItem<GuideNode> child : node.getChildren() ) {
-			System.out.println( " --> " + child.getValue().getId() );
 			TreeItem<GuideNode> check = findItem( child, id );
 			if( check != null ) return check;
 		}
