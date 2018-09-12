@@ -1,11 +1,12 @@
 package com.xeomar.xenon.tool.guide;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+
+import java.util.List;
 
 public class Guide {
 
@@ -30,10 +31,13 @@ public class Guide {
 	// It turns out that multiple selections are even worse because the
 	// TreeView will only take indicies.
 
+	private ReadOnlyListWrapper<String> selectedItems;
+
 	public Guide() {
 		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
 		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
+		selectedItems = new ReadOnlyListWrapper<>( this, "selectedItems", FXCollections.observableArrayList() );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
@@ -61,6 +65,27 @@ public class Guide {
 		return activeProperty;
 	}
 
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final ReadOnlyListProperty<String> getSelectedItemsProperty() {
+		return selectedItems.getReadOnlyProperty();
+	}
+
+	final void setSelectedItems( String... items ) {
+		selectedItems.setAll(  items  );
+	}
+
+	final List<String> getSelectedItems() {
+		return selectedItems.getReadOnlyProperty();
+	}
+
+	void temp() {
+		getSelectedItemsProperty().addListener( (ListChangeListener<String>)( event) -> System.out.println( event.getList()) );
+	}
+
+	final List<Integer> getSelectedIndicies() {
+		return List.of( 0 );
+	}
+
 	/* Only intended to be used by the GuideTool */
 	@Deprecated
 	final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
@@ -76,6 +101,14 @@ public class Guide {
 	protected final void setSelected( String id ) {
 		TreeItem<GuideNode> node = findItem( getRoot(), id );
 		if( node != null ) setSelectedItem( node );
+	}
+
+	private List<Integer> getIndex( String id ) {
+//		return getRoot().getChildren().stream().flatMap( (item) -> {
+//			if(  item.getValue().getId() == id ) return 0;
+//			return 0;
+//		} ).collect( Collector.asList() );
+		return List.of( 0 );
 	}
 
 	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {

@@ -15,6 +15,12 @@ public class GuideNode extends Node {
 		defineBusinessKey( NAME );
 	}
 
+	public GuideNode init( String id, String name ) {
+		setId( id );
+		setName( name );
+		return this;
+	}
+
 	public String getId() {
 		return getValue( ID );
 	}
