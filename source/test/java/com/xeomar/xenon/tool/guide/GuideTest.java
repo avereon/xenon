@@ -34,10 +34,10 @@ public class GuideTest {
 		guide.getRoot().getChildren().add( tools );
 
 		guide.setSelectedItems( "general" );
-		assertThat( guide.getSelectedIndicies(), CoreMatchers.hasItems( 0 ) );
+		assertThat( guide.getSelectedIndexes(), CoreMatchers.hasItems( 0 ) );
 
 		guide.setSelectedItems( "workspace" );
-		assertThat( guide.getSelectedIndicies(), CoreMatchers.hasItems( 1 ) );
+		assertThat( guide.getSelectedIndexes(), CoreMatchers.hasItems( 4 ) );
 	}
 
 }

@@ -18,6 +18,7 @@ import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.settings.SettingsPage;
 import com.xeomar.xenon.tool.settings.SettingsPageParser;
 import javafx.application.Platform;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import org.slf4j.Logger;
 
@@ -124,6 +125,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			// Get the resource guide
 			Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
 			if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
+
+			guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 			// Create the guide tree
 			createGuide( guide.getRoot(), pages );

@@ -6,7 +6,11 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Guide {
 
@@ -71,7 +75,7 @@ public class Guide {
 	}
 
 	final void setSelectedItems( String... items ) {
-		selectedItems.setAll(  items  );
+		selectedItems.setAll( items );
 	}
 
 	final List<String> getSelectedItems() {
@@ -79,11 +83,11 @@ public class Guide {
 	}
 
 	void temp() {
-		getSelectedItemsProperty().addListener( (ListChangeListener<String>)( event) -> System.out.println( event.getList()) );
+		getSelectedItemsProperty().addListener( (ListChangeListener<String>)( event ) -> System.out.println( event.getList() ) );
 	}
 
-	final List<Integer> getSelectedIndicies() {
-		return List.of( 0 );
+	final List<Integer> getSelectedIndexes() {
+		return getIndexes( getSelectedItems() );
 	}
 
 	/* Only intended to be used by the GuideTool */
@@ -103,12 +107,32 @@ public class Guide {
 		if( node != null ) setSelectedItem( node );
 	}
 
-	private List<Integer> getIndex( String id ) {
-//		return getRoot().getChildren().stream().flatMap( (item) -> {
-//			if(  item.getValue().getId() == id ) return 0;
-//			return 0;
-//		} ).collect( Collector.asList() );
-		return List.of( 0 );
+	private List<Integer> getIndexes( List<String> ids ) {
+		Map<String, Integer> map = mapTree( getRoot() );
+
+		List<Integer> list = new ArrayList<>();
+		for( String id : ids ) {
+			list.add( map.get( id ) );
+		}
+
+		return list;
+	}
+
+	private Map<String, Integer> mapTree( TreeItem<GuideNode> node ) {
+		Map<String, Integer> map = new ConcurrentHashMap<>();
+		mapTree( node, map, new AtomicInteger( 0 ) );
+		return map;
+	}
+
+	private void mapTree( TreeItem<GuideNode> node, Map<String, Integer> map, AtomicInteger index ) {
+		if( node != root ) {
+			map.put( node.getValue().getId(), index.getAndIncrement() );
+			System.out.println( node.getValue().getId() + " -> " + map.get( node.getValue().getId() ) );
+		}
+
+		for( TreeItem<GuideNode> item : node.getChildren() ) {
+			mapTree( item, map, index );
+		}
 	}
 
 	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {
