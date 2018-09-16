@@ -1,16 +1,12 @@
 package com.xeomar.xenon.tool.guide;
 
+import com.xeomar.xenon.util.FxUtil;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 public class Guide {
 
@@ -35,7 +31,9 @@ public class Guide {
 	// It turns out that multiple selections are even worse because the
 	// TreeView will only take indicies.
 
-	private ReadOnlyListWrapper<String> selectedItems;
+	private ReadOnlyStringWrapper selectedId;
+
+	private ReadOnlyListWrapper<TreeItem<GuideNode>> selectedItems;
 
 	public Guide() {
 		this.root = new TreeItem<>( new GuideNode() );
@@ -70,27 +68,59 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final ReadOnlyListProperty<String> getSelectedItemsProperty() {
+	final void setExpandedIds( String... ids ) {
+		Set<String> idSet = Set.of( ids );
+		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
+			if( item == root ) continue;
+			item.setExpanded( idSet.contains( item.getValue().getId() ) );
+		}
+	}
+
+	final Set<String> getExpandedIds() {
+		Set<String> idSet = new HashSet<>();
+		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
+			if( item == root ) continue;
+			if( item.isExpanded() ) idSet.add( item.getValue().getId() );
+		}
+		return idSet;
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final ReadOnlyListProperty<TreeItem<GuideNode>> selectedItemsProperty() {
 		return selectedItems.getReadOnlyProperty();
 	}
 
-	final void setSelectedItems( String... items ) {
+	final List<TreeItem<GuideNode>> getSelectedItems() {
+		return Collections.unmodifiableList( selectedItems.get() );
+	}
+
+	final void setSelectedItems( List<TreeItem<GuideNode>> items ) {
 		selectedItems.setAll( items );
 	}
 
-	final List<String> getSelectedItems() {
-		return selectedItems.getReadOnlyProperty();
+	final List<String> getSelectedIds() {
+		List<String> ids = new ArrayList<>( selectedItems.size() );
+
+		for( TreeItem<GuideNode> item : getSelectedItems() ) {
+			ids.add( item.getValue().getId() );
+		}
+
+		return ids;
 	}
 
-	void temp() {
-		getSelectedItemsProperty().addListener( (ListChangeListener<String>)( event ) -> System.out.println( event.getList() ) );
+	final void setSelectedIds( String... ids ) {
+		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
+
+		List<TreeItem<GuideNode>> newItems = new ArrayList<>( ids.length );
+		for( String id : ids ) {
+			TreeItem<GuideNode> item = itemMap.get( id );
+			if( item != null ) newItems.add( item );
+		}
+
+		setSelectedItems( newItems );
 	}
 
-	final List<Integer> getSelectedIndexes() {
-		return getIndexes( getSelectedItems() );
-	}
-
-	/* Only intended to be used by the GuideTool */
+	/* Only intended to be used by the GuideTool and GuidedTools */
 	@Deprecated
 	final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
 		return selectedItem.getReadOnlyProperty();
@@ -103,36 +133,21 @@ public class Guide {
 
 	@Deprecated
 	protected final void setSelected( String id ) {
-		TreeItem<GuideNode> node = findItem( getRoot(), id );
+		TreeItem<GuideNode> node = findItem( id );
 		if( node != null ) setSelectedItem( node );
 	}
 
-	private List<Integer> getIndexes( List<String> ids ) {
-		Map<String, Integer> map = mapTree( getRoot() );
-
-		List<Integer> list = new ArrayList<>();
-		for( String id : ids ) {
-			list.add( map.get( id ) );
+	private Map<String, TreeItem<GuideNode>> getItemMap() {
+		Map<String, TreeItem<GuideNode>> itemMap = new HashMap<>();
+		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
+			if( item == root ) continue;
+			itemMap.put( item.getValue().getId(), item );
 		}
-
-		return list;
+		return itemMap;
 	}
 
-	private Map<String, Integer> mapTree( TreeItem<GuideNode> node ) {
-		Map<String, Integer> map = new ConcurrentHashMap<>();
-		mapTree( node, map, new AtomicInteger( 0 ) );
-		return map;
-	}
-
-	private void mapTree( TreeItem<GuideNode> node, Map<String, Integer> map, AtomicInteger index ) {
-		if( node != root ) {
-			map.put( node.getValue().getId(), index.getAndIncrement() );
-			System.out.println( node.getValue().getId() + " -> " + map.get( node.getValue().getId() ) );
-		}
-
-		for( TreeItem<GuideNode> item : node.getChildren() ) {
-			mapTree( item, map, index );
-		}
+	private TreeItem<GuideNode> findItem( String id ) {
+		return findItem( root, id );
 	}
 
 	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {

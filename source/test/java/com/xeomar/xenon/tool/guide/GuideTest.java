@@ -2,14 +2,39 @@ package com.xeomar.xenon.tool.guide;
 
 import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertThat;
 
 public class GuideTest {
 
+	private Guide guide;
+
+	@Before
+	public void setup() {
+		this.guide = createGuide();
+	}
+
 	@Test
 	public void testSetSelectedItems() {
+		guide.setSelectedIds( "general" );
+		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
+
+		guide.setSelectedIds( "workspace", "tools" );
+		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
+	}
+
+	@Test
+	public void testSetExpandedItems() {
+		guide.setExpandedIds( "general" );
+		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
+
+		guide.setExpandedIds( "workspace", "tools" );
+		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
+	}
+
+	private Guide createGuide() {
 		Guide guide = new Guide();
 
 		TreeItem<GuideNode> general = new TreeItem<>( new GuideNode().init( "general", "General" ) );
@@ -33,11 +58,6 @@ public class GuideTest {
 		guide.getRoot().getChildren().add( network );
 		guide.getRoot().getChildren().add( tools );
 
-		guide.setSelectedItems( "general" );
-		assertThat( guide.getSelectedIndexes(), CoreMatchers.hasItems( 0 ) );
-
-		guide.setSelectedItems( "workspace" );
-		assertThat( guide.getSelectedIndexes(), CoreMatchers.hasItems( 4 ) );
+		return guide;
 	}
-
 }

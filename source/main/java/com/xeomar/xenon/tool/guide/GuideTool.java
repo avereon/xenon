@@ -13,7 +13,9 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GuideTool extends ProgramTool {
 
@@ -21,9 +23,11 @@ public class GuideTool extends ProgramTool {
 
 	private GuideViewSelectedItemListener selectedItemListener;
 
-	private GuideViewSelectedIndiciesListener selectedIndiciesListener;
+	private GuideViewSelectedItemsListener selectedItemsListener;
 
 	private GuideSelectedItemListener guideSelectedItemListener;
+
+	private GuideSelectedItemsListener guideSelectedItemsListener;
 
 	private ActiveGuideListener activeGuideListener;
 
@@ -100,7 +104,6 @@ public class GuideTool extends ProgramTool {
 
 		// Set the guide view root
 		guideTree.setRoot( guide.getRoot() );
-		// TODO guideTree.setSelectionModel( guide.getSelectionModel() );
 
 		// Set the guide view selection mode
 		guideTree.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
@@ -109,25 +112,68 @@ public class GuideTool extends ProgramTool {
 		if( selectedItemListener != null ) guideTree.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
 		guideTree.getSelectionModel().selectedItemProperty().addListener( selectedItemListener = new GuideViewSelectedItemListener( guide ) );
 
-		if( selectedIndiciesListener != null ) guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedIndiciesListener );
-		guideTree.getSelectionModel().getSelectedIndices().addListener( selectedIndiciesListener = new GuideViewSelectedIndiciesListener() );
+		// Add the tree selected items listener
+		if( selectedItemsListener != null ) guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
+		guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener = new GuideViewSelectedItemsListener( guide ) );
+
+		// TODO Add the tree expanded item listener
 
 		// Add the guide active property listener
 		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
 		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
 
 		// Add the guide selected item property listener
+		// This listens to the guide for changes to the selected item
 		if( guideSelectedItemListener != null ) guide.selectedItemProperty().removeListener( guideSelectedItemListener );
 		guide.selectedItemProperty().addListener( guideSelectedItemListener = new GuideSelectedItemListener() );
+
+		if( guideSelectedItemsListener != null ) guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
+		guide.selectedItemsProperty().addListener( guideSelectedItemsListener = new GuideSelectedItemsListener() );
 
 		// Set the selected item
 		TreeItem<GuideNode> item = guide.selectedItemProperty().get();
 		System.out.println( "Guide pre-selected item: " + item );
 		if( item == null ) {
-			guideTree.getSelectionModel().selectIndices( 0 );
+			guideTree.getSelectionModel().selectFirst();
 		} else {
 			item.setExpanded( true );
 		}
+	}
+
+	/**
+	 * Called when the selected items change in the guide and the TreeView
+	 * needs to be updated. Per the TreeView documentation the last item in
+	 * the list becomes the "single" selected item.
+	 *
+	 * @param selectedItems The selected items list.
+	 */
+	private void setSelectedItems( List<? extends TreeItem<GuideNode>> selectedItems ) {
+		// The tree should already be expanded before calling this method
+
+		// Map the guide view tree item ids to indexes
+		int count = guideTree.getExpandedItemCount();
+		Map<String, Integer> indexMap = new HashMap<>( count );
+		for( int index = 0; index < count; index++ ) {
+			TreeItem<GuideNode> item = guideTree.getTreeItem( index );
+			indexMap.put( item.getValue().getId(), index );
+		}
+
+		// Determine the selected node indexes
+		List<Integer> indexList = new ArrayList<>( selectedItems.size() );
+		for( TreeItem<GuideNode> item : selectedItems ) {
+			Integer index = indexMap.get( item.getValue().getId() );
+			if( index != null ) indexList.add( index );
+		}
+
+		// Clear the existing selection
+		guideTree.getSelectionModel().clearSelection();
+
+		// If there are no selected items just return
+		if( indexList.size() == 0 ) return;
+
+		// Set the selected indexes
+		int[] indexes = indexList.stream().mapToInt( i -> i ).toArray();
+		guideTree.getSelectionModel().selectIndices( indexes[ 0 ], indexes );
 	}
 
 	private void expandAndCollapsePaths( TreeItem<GuideNode> selectedItem ) {
@@ -153,6 +199,8 @@ public class GuideTool extends ProgramTool {
 
 	}
 
+	@Deprecated
+	// Won't need this if the selected items listener works
 	private class GuideViewSelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
 
 		private Guide guide;
@@ -163,31 +211,50 @@ public class GuideTool extends ProgramTool {
 
 		@Override
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
-			expandAndCollapsePaths( newSelection );
-			guide.setSelectedItem( newSelection );
+			//guide.setSelectedItem( newSelection );
+			//expandAndCollapsePaths( newSelection );
 		}
 
 	}
 
-	private class GuideViewSelectedIndiciesListener implements ListChangeListener<Integer> {
+	private class GuideViewSelectedItemsListener implements ListChangeListener<Integer> {
+
+		private Guide guide;
+
+		public GuideViewSelectedItemsListener( Guide guide ) {
+			this.guide = guide;
+		}
 
 		@Override
 		public void onChanged( Change<? extends Integer> change ) {
-			StringBuilder builder = new StringBuilder();
+			List<TreeItem<GuideNode>> items = new ArrayList<>(change.getList().size());
 			for( int index : change.getList() ) {
-				builder.append( index ).append( "," );
+				System.out.println( "Selected index: " + index );
+				TreeItem<GuideNode> item = guideTree.getTreeItem( index );
+				items.add( item );
+				expandAndCollapsePaths( item );
 			}
-			System.out.println( "Selected: " + builder.toString() );
+			guide.setSelectedItems(items);
 		}
 
 	}
 
+	@Deprecated
+	// Won't need this if the other listener works correctly
 	private class GuideSelectedItemListener implements javafx.beans.value.ChangeListener<TreeItem<GuideNode>> {
 
 		@Override
 		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldSelection, TreeItem<GuideNode> newSelection ) {
-			System.out.println( "Guide selected item: " + newSelection );
-			guideTree.getSelectionModel().select( newSelection );
+			//guideTree.getSelectionModel().select( newSelection );
+		}
+
+	}
+
+	private class GuideSelectedItemsListener implements ListChangeListener<TreeItem<GuideNode>> {
+
+		@Override
+		public void onChanged( Change<? extends TreeItem<GuideNode>> change ) {
+			//setSelectedItems( change.getList() );
 		}
 
 	}

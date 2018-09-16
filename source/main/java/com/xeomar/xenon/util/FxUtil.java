@@ -3,6 +3,9 @@ package com.xeomar.xenon.util;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FxUtil {
 
 	public static boolean isChildOf( Node node, Node container ) {
@@ -22,5 +25,18 @@ public class FxUtil {
 
 		return false;
 	}
+
+	public static <T> List<TreeItem<T>> flatTree( TreeItem<T> root ) {
+		List<TreeItem<T>> list = new ArrayList<>();
+		list.add( root );
+
+		for( TreeItem<T> item : root.getChildren() ) {
+			list.addAll( flatTree( item ) );
+		}
+
+		return list;
+	}
+
+
 
 }
