@@ -18,28 +18,15 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
-	@Deprecated
 	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem;
 
-	// NOTE Should the selected item model use the TreeItem(not encouraged),
-	// the GuideNode(possibly a good option) or the GuideNode id(good option
-	// for storing in settings). Either way the code must be able to restore
-	// the selected state from just ids since they will be stored in settings.
-	// But using just ids may not perform well and TreeItems are ultimately
-	// needed for the TreeView in the GuideTool.
-	//
-	// It turns out that multiple selections are even worse because the
-	// TreeView will only take indicies.
-
-	private ReadOnlyStringWrapper selectedId;
-
-	private ReadOnlyListWrapper<TreeItem<GuideNode>> selectedItems;
+	private ReadOnlySetWrapper<TreeItem<GuideNode>> selectedItems;
 
 	public Guide() {
 		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
 		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
-		selectedItems = new ReadOnlyListWrapper<>( this, "selectedItems", FXCollections.observableArrayList() );
+		selectedItems = new ReadOnlySetWrapper<>( this, "selectedItems", FXCollections.observableSet( new HashSet<>() ) );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
@@ -86,16 +73,21 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final ReadOnlyListProperty<TreeItem<GuideNode>> selectedItemsProperty() {
+	final ReadOnlySetProperty<TreeItem<GuideNode>> selectedItemsProperty() {
 		return selectedItems.getReadOnlyProperty();
 	}
 
-	final List<TreeItem<GuideNode>> getSelectedItems() {
-		return Collections.unmodifiableList( selectedItems.get() );
+	final Set<TreeItem<GuideNode>> getSelectedItems() {
+		return Collections.unmodifiableSet( selectedItems.get() );
 	}
 
-	final void setSelectedItems( List<TreeItem<GuideNode>> items ) {
-		selectedItems.setAll( items );
+	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
+		//selectedItems.clear();
+		System.out.println( "Incoming call: " + Guide.itemsToString( items ) );
+
+		// FIXME Changing the values in an observable set is not producing the events I want
+		// Maybe changing it to "just" an observable object will work
+		//selectedItems.setValue( FXCollections.observableSet( items ) );
 	}
 
 	final List<String> getSelectedIds() {
@@ -111,7 +103,7 @@ public class Guide {
 	final void setSelectedIds( String... ids ) {
 		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
 
-		List<TreeItem<GuideNode>> newItems = new ArrayList<>( ids.length );
+		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.length );
 		for( String id : ids ) {
 			TreeItem<GuideNode> item = itemMap.get( id );
 			if( item != null ) newItems.add( item );
@@ -121,17 +113,14 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	@Deprecated
 	final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
 		return selectedItem.getReadOnlyProperty();
 	}
 
-	@Deprecated
 	final void setSelectedItem( TreeItem<GuideNode> value ) {
 		selectedItem.set( value );
 	}
 
-	@Deprecated
 	protected final void setSelected( String id ) {
 		TreeItem<GuideNode> node = findItem( id );
 		if( node != null ) setSelectedItem( node );
@@ -160,6 +149,20 @@ public class Guide {
 		}
 
 		return null;
+	}
+
+	static String itemsToString( Set<? extends TreeItem<GuideNode>> nodes ) {
+		if( nodes == null ) return null;
+		if( nodes.size() == 0 ) return "";
+
+		StringBuilder builder = new StringBuilder();
+		for( TreeItem<GuideNode> node : nodes ) {
+			builder.append( node.getValue().getId() ).append( "," );
+		}
+
+		String ids = builder.toString();
+		ids = ids.substring( 0, ids.length() - 1 );
+		return ids;
 	}
 
 }
