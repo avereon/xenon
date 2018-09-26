@@ -7,9 +7,9 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.*;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.collections.SetChangeListener;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -254,20 +254,25 @@ public class GuideTool extends ProgramTool {
 
 	}
 
-	private class GuideSelectedItemsListener implements SetChangeListener<TreeItem<GuideNode>> {
+	private class GuideSelectedItemsListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void onChanged( Change<? extends TreeItem<GuideNode>> change ) {
-			// Disable the guide view selection change listeners
-			guideTree.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
-			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
+		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
 
-			setSelectedItems( change.getSet() );
-
-			// Re-enable the guide view selection change listeners
-			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
-			guideTree.getSelectionModel().selectedItemProperty().addListener( selectedItemListener );
 		}
+
+//		@Override
+//		public void onChanged( Change<? extends TreeItem<GuideNode>> change ) {
+//			// Disable the guide view selection change listeners
+//			guideTree.getSelectionModel().selectedItemProperty().removeListener( selectedItemListener );
+//			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
+//
+//			setSelectedItems( change.getSet() );
+//
+//			// Re-enable the guide view selection change listeners
+//			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
+//			guideTree.getSelectionModel().selectedItemProperty().addListener( selectedItemListener );
+//		}
 
 	}
 

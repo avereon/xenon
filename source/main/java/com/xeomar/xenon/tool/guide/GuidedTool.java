@@ -9,7 +9,6 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.SetChangeListener;
 import javafx.scene.control.TreeItem;
 
 import java.net.URI;
@@ -98,57 +97,62 @@ public abstract class GuidedTool extends ProgramTool {
 
 	}
 
-	private class GuideSelectedNodesListener implements SetChangeListener<TreeItem<GuideNode>> {
+	private class GuideSelectedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void onChanged( Change<? extends TreeItem<GuideNode>> change ) {
-			Set<GuideNode> oldNodes = new HashSet<>();
-			Set<GuideNode> newNodes = new HashSet<>();
+		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
 
-			//while( change.next() ) {
-			boolean added = change.wasAdded();
-			boolean removed = change.wasRemoved();
-			//				boolean updated = change.wasUpdated();
-			//				boolean permutated = change.wasPermutated();
-			//				boolean replaced = change.wasReplaced();
-			//				System.out.println( "Change u=" + updated + " a=" + added + " r=" + removed + " p=" + permutated + " c=" + replaced );
-
-			//				if( change.wasRemoved() ) {
-			//					List<? extends TreeItem<GuideNode>> oldItems = change.getRemoved();
-			//					for( TreeItem<GuideNode> item : oldItems ) {
-			//						oldNodes.add( item.getValue() );
-			//					}
-			//				}
-			//
-			//				if( change.wasAdded() ) {
-			//					List<? extends TreeItem<GuideNode>> newItems = change.getAddedSubList();
-			//					for( TreeItem<GuideNode> item : newItems ) {
-			//						newNodes.add( item.getValue() );
-			//					}
-			//				}
-
-			//}
-
-			for( TreeItem<? extends GuideNode> item : change.getSet() ) {
-				newNodes.add( item.getValue() );
-			}
-
-			//			oldNodes.add( change.getElementRemoved().getValue() );
-			//			newNodes.add( change.getElementAdded().getValue() );
-			//
-			//			System.out.println( "Old selected nodes: " + nodesToString( oldNodes ) );
-			System.out.println( "a=" + added + "  r=" + removed + "  New selected nodes: " + nodesToString( newNodes ) );
-
-			guideNodesChanged( oldNodes, newNodes );
-
-			if( newNodes.size() == 0 ) {
-				getSettings().set( GUIDE_SELECTED_IDS, null );
-				System.out.println( "Guide nodes cleared" );
-			} else {
-				getSettings().set( GUIDE_SELECTED_IDS, nodesToString( newNodes ) );
-				//guideNodesSelected( newNodes );
-			}
 		}
+
+		//		@Override
+//		public void onChanged( Change<? extends TreeItem<GuideNode>> change ) {
+//			Set<GuideNode> oldNodes = new HashSet<>();
+//			Set<GuideNode> newNodes = new HashSet<>();
+//
+//			//while( change.next() ) {
+//			boolean added = change.wasAdded();
+//			boolean removed = change.wasRemoved();
+//			//				boolean updated = change.wasUpdated();
+//			//				boolean permutated = change.wasPermutated();
+//			//				boolean replaced = change.wasReplaced();
+//			//				System.out.println( "Change u=" + updated + " a=" + added + " r=" + removed + " p=" + permutated + " c=" + replaced );
+//
+//			//				if( change.wasRemoved() ) {
+//			//					List<? extends TreeItem<GuideNode>> oldItems = change.getRemoved();
+//			//					for( TreeItem<GuideNode> item : oldItems ) {
+//			//						oldNodes.add( item.getValue() );
+//			//					}
+//			//				}
+//			//
+//			//				if( change.wasAdded() ) {
+//			//					List<? extends TreeItem<GuideNode>> newItems = change.getAddedSubList();
+//			//					for( TreeItem<GuideNode> item : newItems ) {
+//			//						newNodes.add( item.getValue() );
+//			//					}
+//			//				}
+//
+//			//}
+//
+//			for( TreeItem<? extends GuideNode> item : change.getSet() ) {
+//				newNodes.add( item.getValue() );
+//			}
+//
+//			//			oldNodes.add( change.getElementRemoved().getValue() );
+//			//			newNodes.add( change.getElementAdded().getValue() );
+//			//
+//			//			System.out.println( "Old selected nodes: " + nodesToString( oldNodes ) );
+//			System.out.println( "a=" + added + "  r=" + removed + "  New selected nodes: " + nodesToString( newNodes ) );
+//
+//			guideNodesChanged( oldNodes, newNodes );
+//
+//			if( newNodes.size() == 0 ) {
+//				getSettings().set( GUIDE_SELECTED_IDS, null );
+//				System.out.println( "Guide nodes cleared" );
+//			} else {
+//				getSettings().set( GUIDE_SELECTED_IDS, nodesToString( newNodes ) );
+//				//guideNodesSelected( newNodes );
+//			}
+//		}
 
 	}
 

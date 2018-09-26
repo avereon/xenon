@@ -1,8 +1,10 @@
 package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.xenon.util.FxUtil;
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
@@ -20,13 +22,13 @@ public class Guide {
 
 	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem;
 
-	private ReadOnlySetWrapper<TreeItem<GuideNode>> selectedItems;
+	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
 		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
 		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
-		selectedItems = new ReadOnlySetWrapper<>( this, "selectedItems", FXCollections.observableSet( new HashSet<>() ) );
+		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems" );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
@@ -73,7 +75,7 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final ReadOnlySetProperty<TreeItem<GuideNode>> selectedItemsProperty() {
+	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> selectedItemsProperty() {
 		return selectedItems.getReadOnlyProperty();
 	}
 
@@ -91,9 +93,10 @@ public class Guide {
 	}
 
 	final List<String> getSelectedIds() {
-		List<String> ids = new ArrayList<>( selectedItems.size() );
+		Set<TreeItem<GuideNode>> selectedItems = getSelectedItems();
 
-		for( TreeItem<GuideNode> item : getSelectedItems() ) {
+		List<String> ids = new ArrayList<>( selectedItems.size() );
+		for( TreeItem<GuideNode> item : selectedItems ) {
 			ids.add( item.getValue().getId() );
 		}
 
