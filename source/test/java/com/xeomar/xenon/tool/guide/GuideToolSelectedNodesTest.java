@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool.guide;
 
+import com.xeomar.settings.MapSettings;
 import com.xeomar.xenon.FxProgramTestCase;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
@@ -24,6 +25,7 @@ public class GuideToolSelectedNodesTest extends FxProgramTestCase {
 
 		Resource resource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		this.mockGuidedTool = new MockGuidedTool( program, resource );
+		this.mockGuidedTool.setSettings( new MapSettings() );
 		// Need to call resourceReady to register the listeners
 		this.mockGuidedTool.resourceReady( null );
 	}
