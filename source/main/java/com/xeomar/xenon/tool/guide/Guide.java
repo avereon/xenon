@@ -77,10 +77,6 @@ public class Guide {
 		return idSet;
 	}
 
-	void updateExpandedItems() {
-		setExpandedItems( FxUtil.flatTree( root ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
-	}
-
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> expandedItemsProperty() {
 		return expandedItems.getReadOnlyProperty();
@@ -127,13 +123,12 @@ public class Guide {
 		return item == null ? null : (GuideNode)item.getValue();
 	}
 
+	private void updateExpandedItems() {
+		setExpandedItems( FxUtil.flatTree( root ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
+	}
+
 	private Map<String, TreeItem<GuideNode>> getItemMap() {
-		Map<String, TreeItem<GuideNode>> itemMap = new HashMap<>();
-		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
-			if( item == root ) continue;
-			itemMap.put( item.getValue().getId(), item );
-		}
-		return itemMap;
+		return FxUtil.flatTree( root ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
 	}
 
 	private TreeItem<GuideNode> findItem( String id ) {

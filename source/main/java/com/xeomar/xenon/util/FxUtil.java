@@ -32,15 +32,11 @@ public class FxUtil {
 
 	public static <T> List<TreeItem<T>> flatTree( TreeItem<T> item, boolean includeItem ) {
 		List<TreeItem<T>> list = new ArrayList<>();
-		if( includeItem ) list.add( item );
 
-		for( TreeItem<T> child : item.getChildren() ) {
-			list.addAll( flatTree( child, true ) );
-		}
+		if( includeItem ) list.add( item );
+		item.getChildren().forEach( ( child ) -> list.addAll( flatTree( child, true ) ) );
 
 		return list;
 	}
-
-
 
 }
