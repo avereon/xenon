@@ -9,6 +9,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Guide {
 
@@ -20,12 +21,17 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
+	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
+
 	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
 		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
+		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
+		root.addEventHandler( TreeItem.branchExpandedEvent(), ( event ) -> updateExpandedItems() );
+		root.addEventHandler( TreeItem.branchCollapsedEvent(), ( event ) -> updateExpandedItems() );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
@@ -69,6 +75,19 @@ public class Guide {
 			if( item.isExpanded() ) idSet.add( item.getValue().getId() );
 		}
 		return idSet;
+	}
+
+	void updateExpandedItems() {
+		setExpandedItems( FxUtil.flatTree( root ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> expandedItemsProperty() {
+		return expandedItems.getReadOnlyProperty();
+	}
+
+	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
+		expandedItems.set( items );
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
@@ -133,13 +152,35 @@ public class Guide {
 		return null;
 	}
 
+	/**
+	 * Get a string of the tree item guide node ids.
+	 * <p>
+	 * Used for debugging.
+	 *
+	 * @param nodes The set of tree items
+	 * @return A comma delimited string of the node ids
+	 */
+	@SuppressWarnings( "unused" )
 	static String itemsToString( Set<? extends TreeItem<GuideNode>> nodes ) {
+		return nodesToString( nodes.stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
+	}
+
+	/**
+	 * Get a string of the guide node ids.
+	 * <p>
+	 * Used for debugging.
+	 *
+	 * @param nodes The set of nodes
+	 * @return A comma delimited string of the node ids
+	 */
+	@SuppressWarnings( "unused" )
+	static String nodesToString( Set<GuideNode> nodes ) {
 		if( nodes == null ) return null;
 		if( nodes.size() == 0 ) return "";
 
 		StringBuilder builder = new StringBuilder();
-		for( TreeItem<GuideNode> node : nodes ) {
-			builder.append( node.getValue().getId() ).append( "," );
+		for( GuideNode node : nodes ) {
+			builder.append( node.getId() ).append( "," );
 		}
 
 		String ids = builder.toString();

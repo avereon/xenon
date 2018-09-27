@@ -134,32 +134,35 @@ public class GuideTool extends ProgramTool {
 	private void setSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
 		// The tree should already be expanded before calling this method
 		for( TreeItem<GuideNode> item : selectedItems ) {
+			item = item.getParent();
 			while( item != null ) {
 				item.setExpanded( true );
 				item = item.getParent();
 			}
 		}
 
+		// FIXME The following logic leaves selected item artifacts when auto-expand is on
+
 		// Map the guide view tree item ids to indexes
-		int count = guideTree.getExpandedItemCount();
-		Map<String, Integer> indexMap = new HashMap<>( count );
-		for( int index = 0; index < count; index++ ) {
-			TreeItem<GuideNode> item = guideTree.getTreeItem( index );
-			indexMap.put( item.getValue().getId(), index );
+		int index = 0;
+		TreeItem<GuideNode> item;
+		Map<String, Integer> indexMap = new HashMap<>( );
+		while( (item = guideTree.getTreeItem( index )) != null ) {
+			indexMap.put( item.getValue().getId(), index++ );
 		}
 
 		// Determine the selected node indexes
 		List<Integer> indexList = new ArrayList<>( selectedItems.size() );
-		for( TreeItem<GuideNode> item : selectedItems ) {
-			Integer index = indexMap.get( item.getValue().getId() );
-			if( index != null ) indexList.add( index );
+		for( TreeItem<GuideNode> selectedItem : selectedItems ) {
+			Integer itemIndex = indexMap.get( selectedItem.getValue().getId() );
+			if( itemIndex != null ) indexList.add( itemIndex );
 		}
 
 		// If there are no selected items just return
 		if( indexList.size() == 0 ) return;
 
 		// Set the selected indexes
-		int[] indexes = indexList.stream().mapToInt( i -> i ).toArray();
+		int[] indexes = indexList.stream().mapToInt( value -> value ).toArray();
 		guideTree.getSelectionModel().selectIndices( indexes[ 0 ], indexes );
 	}
 

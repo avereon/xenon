@@ -79,7 +79,7 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void guideNodesChanged( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
 		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 

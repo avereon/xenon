@@ -26,12 +26,16 @@ public class FxUtil {
 		return false;
 	}
 
-	public static <T> List<TreeItem<T>> flatTree( TreeItem<T> root ) {
-		List<TreeItem<T>> list = new ArrayList<>();
-		list.add( root );
+	public static <T> List<TreeItem<T>> flatTree( TreeItem<T> item ) {
+		return flatTree( item, false );
+	}
 
-		for( TreeItem<T> item : root.getChildren() ) {
-			list.addAll( flatTree( item ) );
+	public static <T> List<TreeItem<T>> flatTree( TreeItem<T> item, boolean includeItem ) {
+		List<TreeItem<T>> list = new ArrayList<>();
+		if( includeItem ) list.add( item );
+
+		for( TreeItem<T> child : item.getChildren() ) {
+			list.addAll( flatTree( child, true ) );
 		}
 
 		return list;
