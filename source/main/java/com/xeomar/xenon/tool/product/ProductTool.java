@@ -139,8 +139,8 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
-		if( newNode != null ) selectPage( newNode.getId() );
+	protected void guideNodesChanged( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
 	InstalledPage getInstalledPage() {

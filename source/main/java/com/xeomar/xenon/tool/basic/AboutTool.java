@@ -134,7 +134,7 @@ public class AboutTool extends GuidedTool {
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		resourceRefreshed();
-		selectedPage( SUMMARY );
+		selectPage( SUMMARY );
 	}
 
 	@Override
@@ -489,11 +489,11 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
-		if( newNode != null ) selectedPage( newNode.getId() );
+	protected void guideNodesChanged( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
-	private void selectedPage( String item ) {
+	private void selectPage( String item ) {
 		getChildren().clear();
 		if( item != null ) getChildren().add( nodes.get( item ) );
 	}

@@ -20,14 +20,11 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
-	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem;
-
 	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
 		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
-		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
@@ -104,20 +101,6 @@ public class Guide {
 		}
 
 		setSelectedItems( newItems );
-	}
-
-	/* Only intended to be used by GuideTool and GuidedTools */
-	final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
-		return selectedItem.getReadOnlyProperty();
-	}
-
-	final void setSelectedItem( TreeItem<GuideNode> value ) {
-		selectedItem.set( value );
-	}
-
-	protected final void setSelected( String id ) {
-		TreeItem<GuideNode> node = findItem( id );
-		if( node != null ) setSelectedItem( node );
 	}
 
 	protected final GuideNode getNode( String id ) {

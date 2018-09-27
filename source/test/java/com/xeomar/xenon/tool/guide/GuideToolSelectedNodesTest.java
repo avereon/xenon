@@ -66,11 +66,6 @@ public class GuideToolSelectedNodesTest extends FxProgramTestCase {
 		}
 
 		@Override
-		protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
-			// TODO Remove
-		}
-
-		@Override
 		protected void guideNodesChanged( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
 			guideNodesChangedCallCount++;
 			this.selectedNodes = newNodes;

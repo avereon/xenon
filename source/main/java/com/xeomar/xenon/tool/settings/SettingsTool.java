@@ -9,11 +9,11 @@ import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
-import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Set;
 
 public class SettingsTool extends GuidedTool {
 
@@ -79,8 +79,8 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
-		if( newNode != null ) selectPage( newNode.getId() );
+	protected void guideNodesChanged( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
 	private void selectPage( String id ) {
