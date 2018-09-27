@@ -20,7 +20,7 @@ public class NoticeAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			getProgram().getResourceManager().open( ProgramNoticeType.uri );
+			getProgram().getResourceManager().open( ProgramNoticeType.URI );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening notice tool", exception );
 		}

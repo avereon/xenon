@@ -23,7 +23,7 @@ public class SettingsAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			getProgram().getResourceManager().open( ProgramSettingsType.uri );
+			getProgram().getResourceManager().open( ProgramSettingsType.URI );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening settings tool", exception );
 		}

@@ -1,7 +1,7 @@
 package com.xeomar.xenon.resource;
 
-import com.xeomar.xenon.Program;
 import com.xeomar.product.Product;
+import com.xeomar.xenon.Program;
 
 import java.util.Collections;
 import java.util.Set;
@@ -83,6 +83,10 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 		return product.getResourceBundle().getString( "resource", rbKey + "-description" );
 	}
 
+	/**
+	 * Return if this resource type is program defined, true otherwise.
+	 * @return false if this resource type is program defined, true otherwise
+	 */
 	public boolean isUserType() {
 		return true;
 	}

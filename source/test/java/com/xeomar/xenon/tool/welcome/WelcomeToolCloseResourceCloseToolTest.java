@@ -21,7 +21,7 @@ public class WelcomeToolCloseResourceCloseToolTest extends WelcomeToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<ProgramTool> future = program.getResourceManager().open( ProgramWelcomeType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramWelcomeType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );

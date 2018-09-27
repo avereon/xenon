@@ -4,11 +4,9 @@ import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.ResourceType;
 
-import java.net.URI;
-
 public class ProgramTaskType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:task" );
+	public static final java.net.URI URI = java.net.URI.create( "program:task" );
 
 	public ProgramTaskType( Product product ) {
 		super( product, "task" );

@@ -19,7 +19,7 @@ public class TaskToolCloseResourceCloseToolTest extends TaskToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), Matchers.is( 0 ) );
 
-		Future<ProgramTool> future = program.getResourceManager().open( ProgramTaskType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramTaskType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertThat( pane.getTools().size(), Matchers.is( 1 ) );

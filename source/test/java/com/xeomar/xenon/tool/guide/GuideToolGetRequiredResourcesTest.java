@@ -14,7 +14,7 @@ public class GuideToolGetRequiredResourcesTest extends GuideToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramGuideType.uri );
+		Resource resource = new Resource( ProgramGuideType.URI );
 		GuideTool tool = new GuideTool( program, resource );
 
 		Set<URI> resources = tool.getResourceDependencies();

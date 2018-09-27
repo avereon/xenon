@@ -462,7 +462,7 @@ public class UiFactory {
 
 			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
-			program.getResourceManager().loadResource( resource );
+			program.getResourceManager().loadResources( resource );
 
 			// Create an open tool request
 			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );

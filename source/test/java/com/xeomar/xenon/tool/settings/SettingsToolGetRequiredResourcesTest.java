@@ -15,10 +15,10 @@ public class SettingsToolGetRequiredResourcesTest extends SettingsToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramSettingsType.uri );
+		Resource resource = new Resource( ProgramSettingsType.URI );
 		SettingsTool tool = new SettingsTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();
-		Assert.assertThat( resources, containsInAnyOrder( ProgramGuideType.uri ) );
+		Assert.assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
 	}
 
 }

@@ -15,10 +15,10 @@ public class ProductToolGetRequiredResourcesTest extends ProductToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramProductType.uri );
+		Resource resource = new Resource( ProgramProductType.URI );
 		ProductTool tool = new ProductTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();
-		assertThat( resources, containsInAnyOrder( ProgramGuideType.uri ) );
+		assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
 	}
 
 }

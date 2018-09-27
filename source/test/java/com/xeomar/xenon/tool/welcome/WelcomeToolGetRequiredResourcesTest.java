@@ -15,7 +15,7 @@ public class WelcomeToolGetRequiredResourcesTest extends WelcomeToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramWelcomeType.uri );
+		Resource resource = new Resource( ProgramWelcomeType.URI );
 		WelcomeTool tool = new WelcomeTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();
 		assertThat( resources.size(), is( 0 ) );

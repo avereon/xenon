@@ -28,7 +28,7 @@ public class Guide {
 		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
 		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
-		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems" );
+		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
@@ -79,21 +79,12 @@ public class Guide {
 		return selectedItems.getReadOnlyProperty();
 	}
 
-	final Set<TreeItem<GuideNode>> getSelectedItems() {
-		return Collections.unmodifiableSet( selectedItems.get() );
-	}
-
 	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
-		//selectedItems.clear();
-		System.out.println( "Incoming call: " + Guide.itemsToString( items ) );
-
-		// FIXME Changing the values in an observable set is not producing the events I want
-		// Maybe changing it to "just" an observable object will work
-		//selectedItems.setValue( FXCollections.observableSet( items ) );
+		selectedItems.set( items );
 	}
 
 	final List<String> getSelectedIds() {
-		Set<TreeItem<GuideNode>> selectedItems = getSelectedItems();
+		Set<TreeItem<GuideNode>> selectedItems = Collections.unmodifiableSet( this.selectedItems.get() );
 
 		List<String> ids = new ArrayList<>( selectedItems.size() );
 		for( TreeItem<GuideNode> item : selectedItems ) {
@@ -115,7 +106,7 @@ public class Guide {
 		setSelectedItems( newItems );
 	}
 
-	/* Only intended to be used by the GuideTool and GuidedTools */
+	/* Only intended to be used by GuideTool and GuidedTools */
 	final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
 		return selectedItem.getReadOnlyProperty();
 	}
@@ -127,6 +118,11 @@ public class Guide {
 	protected final void setSelected( String id ) {
 		TreeItem<GuideNode> node = findItem( id );
 		if( node != null ) setSelectedItem( node );
+	}
+
+	protected final GuideNode getNode( String id ) {
+		TreeItem item = findItem( id );
+		return item == null ? null : (GuideNode)item.getValue();
 	}
 
 	private Map<String, TreeItem<GuideNode>> getItemMap() {

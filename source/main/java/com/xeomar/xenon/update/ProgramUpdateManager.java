@@ -273,7 +273,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void showUpdates() {
 			try {
-				URI uri = URI.create( ProgramProductType.uri + "#" + ProgramProductType.UPDATES );
+				URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
 				program.getResourceManager().open( uri );
 			} catch( Exception exception ) {
 				log.error( "Error opening artifact tool ", exception );

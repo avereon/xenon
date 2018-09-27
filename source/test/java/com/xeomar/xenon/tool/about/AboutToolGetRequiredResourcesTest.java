@@ -16,10 +16,10 @@ public class AboutToolGetRequiredResourcesTest extends AboutToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramAboutType.uri );
+		Resource resource = new Resource( ProgramAboutType.URI );
 		AboutTool tool = new AboutTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();
-		assertThat( resources, containsInAnyOrder( ProgramGuideType.uri ) );
+		assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
 	}
 
 }

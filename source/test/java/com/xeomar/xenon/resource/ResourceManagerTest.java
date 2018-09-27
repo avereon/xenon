@@ -97,7 +97,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 		resource.addResourceListener( watcher );
 		assertThat( resource.isLoaded(), is( false ) );
 
-		manager.loadResource( resource );
+		manager.loadResources( resource );
 		watcher.waitForEvent( ResourceLoadedEvent.class );
 		assertThat( resource.isOpen(), is( true ) );
 		assertThat( resource.isLoaded(), is( true ) );

@@ -853,23 +853,23 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerResourceTypes( ResourceManager manager ) {
-		manager.registerUriResourceType( ProgramGuideType.uri, new ProgramGuideType( this ) );
-		manager.registerUriResourceType( ProgramAboutType.uri, new ProgramAboutType( this ) );
-		manager.registerUriResourceType( ProgramSettingsType.uri, new ProgramSettingsType( this ) );
-		manager.registerUriResourceType( ProgramWelcomeType.uri, new ProgramWelcomeType( this ) );
-		manager.registerUriResourceType( ProgramNoticeType.uri, new ProgramNoticeType( this ) );
-		manager.registerUriResourceType( ProgramProductType.uri, new ProgramProductType( this ) );
-		manager.registerUriResourceType( ProgramTaskType.uri, new ProgramTaskType( this ) );
+		manager.registerUriResourceType( ProgramGuideType.URI, new ProgramGuideType( this ) );
+		manager.registerUriResourceType( ProgramAboutType.URI, new ProgramAboutType( this ) );
+		manager.registerUriResourceType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
+		manager.registerUriResourceType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
+		manager.registerUriResourceType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
+		manager.registerUriResourceType( ProgramProductType.URI, new ProgramProductType( this ) );
+		manager.registerUriResourceType( ProgramTaskType.URI, new ProgramTaskType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( ProgramTaskType.uri );
-		manager.unregisterUriResourceType( ProgramProductType.uri );
-		manager.unregisterUriResourceType( ProgramNoticeType.uri );
-		manager.unregisterUriResourceType( ProgramWelcomeType.uri );
-		manager.unregisterUriResourceType( ProgramSettingsType.uri );
-		manager.unregisterUriResourceType( ProgramAboutType.uri );
-		manager.unregisterUriResourceType( ProgramGuideType.uri );
+		manager.unregisterUriResourceType( ProgramTaskType.URI );
+		manager.unregisterUriResourceType( ProgramProductType.URI );
+		manager.unregisterUriResourceType( ProgramNoticeType.URI );
+		manager.unregisterUriResourceType( ProgramWelcomeType.URI );
+		manager.unregisterUriResourceType( ProgramSettingsType.URI );
+		manager.unregisterUriResourceType( ProgramAboutType.URI );
+		manager.unregisterUriResourceType( ProgramGuideType.URI );
 	}
 
 	private void registerTools( ToolManager manager ) {

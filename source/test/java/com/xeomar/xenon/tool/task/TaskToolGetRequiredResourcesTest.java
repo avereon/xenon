@@ -11,7 +11,7 @@ public class TaskToolGetRequiredResourcesTest extends TaskToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramTaskType.uri );
+		Resource resource = new Resource( ProgramTaskType.URI );
 		TaskTool tool = new TaskTool( program, resource );
 		assertThat( tool.getResourceDependencies().size(), is( 0 ) );
 	}

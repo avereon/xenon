@@ -119,7 +119,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		// Get the settings program resource
 		try {
-			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.uri );
+			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 			program.getResourceManager().openResourcesAndWait( settingsResource );
 
 			// Get the resource guide

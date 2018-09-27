@@ -35,7 +35,7 @@ public abstract class GuidedTool extends ProgramTool {
 
 	public Set<URI> getResourceDependencies() {
 		Set<URI> resources = new HashSet<>();
-		resources.add( ProgramGuideType.uri );
+		resources.add( ProgramGuideType.URI );
 		return resources;
 	}
 
@@ -84,6 +84,7 @@ public abstract class GuidedTool extends ProgramTool {
 	 * @param oldNode
 	 * @param newNode
 	 */
+	@Deprecated
 	protected abstract void guideNodeChanged( GuideNode oldNode, GuideNode newNode );
 
 	protected void guideNodesChanged( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
@@ -112,58 +113,9 @@ public abstract class GuidedTool extends ProgramTool {
 				newNodes.add( node.getValue() );
 			}
 
-			guideNodesChanged( oldNodes, newNodes );
+			// If old and new are different, notify
+			if( !oldNodes.equals( newNodes ) ) guideNodesChanged( oldNodes, newNodes );
 		}
-
-		//		@Override
-		//		public void onChanged( Change<? extends TreeItem<GuideNode>> change ) {
-		//			Set<GuideNode> oldNodes = new HashSet<>();
-		//			Set<GuideNode> newNodes = new HashSet<>();
-		//
-		//			//while( change.next() ) {
-		//			boolean added = change.wasAdded();
-		//			boolean removed = change.wasRemoved();
-		//			//				boolean updated = change.wasUpdated();
-		//			//				boolean permutated = change.wasPermutated();
-		//			//				boolean replaced = change.wasReplaced();
-		//			//				System.out.println( "Change u=" + updated + " a=" + added + " r=" + removed + " p=" + permutated + " c=" + replaced );
-		//
-		//			//				if( change.wasRemoved() ) {
-		//			//					List<? extends TreeItem<GuideNode>> oldItems = change.getRemoved();
-		//			//					for( TreeItem<GuideNode> item : oldItems ) {
-		//			//						oldNodes.add( item.getValue() );
-		//			//					}
-		//			//				}
-		//			//
-		//			//				if( change.wasAdded() ) {
-		//			//					List<? extends TreeItem<GuideNode>> newItems = change.getAddedSubList();
-		//			//					for( TreeItem<GuideNode> item : newItems ) {
-		//			//						newNodes.add( item.getValue() );
-		//			//					}
-		//			//				}
-		//
-		//			//}
-		//
-		//			for( TreeItem<? extends GuideNode> item : change.getSet() ) {
-		//				newNodes.add( item.getValue() );
-		//			}
-		//
-		//			//			oldNodes.add( change.getElementRemoved().getValue() );
-		//			//			newNodes.add( change.getElementAdded().getValue() );
-		//			//
-		//			//			System.out.println( "Old selected nodes: " + nodesToString( oldNodes ) );
-		//			System.out.println( "a=" + added + "  r=" + removed + "  New selected nodes: " + nodesToString( newNodes ) );
-		//
-		//			guideNodesChanged( oldNodes, newNodes );
-		//
-		//			if( newNodes.size() == 0 ) {
-		//				getSettings().set( GUIDE_SELECTED_IDS, null );
-		//				System.out.println( "Guide nodes cleared" );
-		//			} else {
-		//				getSettings().set( GUIDE_SELECTED_IDS, nodesToString( newNodes ) );
-		//				//guideNodesSelected( newNodes );
-		//			}
-		//		}
 
 	}
 

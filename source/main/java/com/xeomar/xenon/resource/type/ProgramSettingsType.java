@@ -9,11 +9,9 @@ import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.tool.guide.Guide;
 
-import java.net.URI;
-
 public class ProgramSettingsType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:settings" );
+	public static final java.net.URI URI = java.net.URI.create( "program:settings" );
 
 	public static final String KEY = "settings";
 
@@ -21,16 +19,25 @@ public class ProgramSettingsType extends ResourceType {
 		super( product, KEY );
 	}
 
+	/**
+	 * @see #isUserType()
+	 */
 	@Override
 	public boolean isUserType() {
 		return false;
 	}
 
+	/**
+	 * @see #getDefaultCodec()
+	 */
 	@Override
 	public Codec getDefaultCodec() {
 		return null;
 	}
 
+	/**
+	 * @see #resourceDefault(Program, Resource)
+	 */
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );

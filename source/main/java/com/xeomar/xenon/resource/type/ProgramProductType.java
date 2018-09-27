@@ -12,11 +12,9 @@ import com.xeomar.xenon.tool.guide.Guide;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import javafx.scene.control.TreeItem;
 
-import java.net.URI;
-
 public class ProgramProductType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:product" );
+	public static final java.net.URI URI = java.net.URI.create( "program:product" );
 
 	public static final String INSTALLED = "installed";
 
