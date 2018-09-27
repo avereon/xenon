@@ -7,6 +7,7 @@ import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -65,7 +66,13 @@ public abstract class GuidedTool extends ProgramTool {
 
 		if( this.settings != null ) this.settings = settings;
 
-		//Platform.runLater( () -> getGuide().setSelected( settings.get( GUIDE_SELECTED_IDS ) ) );
+
+
+		// Set the expanded ids before setting the selected ids
+		String selectedIds = settings.get( GUIDE_SELECTED_IDS );
+		if( selectedIds != null ) {
+			Platform.runLater( () -> getGuide().setSelectedIds( selectedIds.split( "," )) );
+		}
 	}
 
 	protected Guide getGuide() {
@@ -90,7 +97,10 @@ public abstract class GuidedTool extends ProgramTool {
 			}
 
 			// If old and new are different, notify
-			if( !oldNodes.equals( newNodes ) ) guideNodesChanged( oldNodes, newNodes );
+			if( !oldNodes.equals( newNodes ) ) {
+				guideNodesChanged( oldNodes, newNodes );
+				getSettings().set( GUIDE_SELECTED_IDS, nodesToString( newNodes ) );
+			}
 		}
 
 	}

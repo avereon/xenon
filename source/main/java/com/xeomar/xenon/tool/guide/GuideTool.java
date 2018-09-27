@@ -115,14 +115,13 @@ public class GuideTool extends ProgramTool {
 		if( guideSelectedItemsListener != null ) guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
 		guide.selectedItemsProperty().addListener( guideSelectedItemsListener = new GuideSelectedItemsListener() );
 
-//		// Set the selected items
-//		Set<TreeItem<GuideNode>> items = guide.selectedItemsProperty().get();
-//		System.out.println( "Guide pre-selected item: " + items );
-//		if( items == null ) {
-//			guideTree.getSelectionModel().selectFirst();
-//		} else {
-//			items.setExpanded( true );
-//		}
+		// Set the selected items
+		Set<TreeItem<GuideNode>> items = guide.selectedItemsProperty().get();
+		if( items == null ) {
+			guideTree.getSelectionModel().selectFirst();
+		} else {
+			setSelectedItems( items );
+		}
 	}
 
 	/**
@@ -134,6 +133,12 @@ public class GuideTool extends ProgramTool {
 	 */
 	private void setSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
 		// The tree should already be expanded before calling this method
+		for( TreeItem<GuideNode> item : selectedItems ) {
+			while( item != null ) {
+				item.setExpanded( true );
+				item = item.getParent();
+			}
+		}
 
 		// Map the guide view tree item ids to indexes
 		int count = guideTree.getExpandedItemCount();
@@ -149,9 +154,6 @@ public class GuideTool extends ProgramTool {
 			Integer index = indexMap.get( item.getValue().getId() );
 			if( index != null ) indexList.add( index );
 		}
-
-		// Clear the existing selection
-		//guideTree.getSelectionModel().clearSelection();
 
 		// If there are no selected items just return
 		if( indexList.size() == 0 ) return;
