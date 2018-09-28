@@ -68,8 +68,8 @@ public class TaskTool extends ProgramTool {
 		Platform.runLater( this::init );
 	}
 
-	private void init () {
-		for( Task task : getProgram().getTaskManager().getTasks()) {
+	private void init() {
+		for( Task task : getProgram().getTaskManager().getTasks() ) {
 			if( !task.isDone() ) addTaskPane( task );
 		}
 	}
@@ -81,20 +81,21 @@ public class TaskTool extends ProgramTool {
 	}
 
 	private void startRandomTasks() {
-		getProgram().getTaskManager().submit( new RandomTask( 1000 + (long)(4000 * new Random().nextDouble()) ) );
+		long duration = 1000 + (long)(7000 * new Random().nextDouble());
+		getProgram().getTaskManager().submit( new RandomTask( duration ) );
 	}
 
 	private class RandomTask extends Task<Void> {
 
-		// Roughly 1000ms / 120hz;
-		private long delay = 8;
+		// The delay between progress checks ~ 1000ms / 120hz;
+		private static final long DELAY = 1000 / 120;
 
 		public RandomTask() {
 			this( 5000 );
 		}
 
 		public RandomTask( long duration ) {
-			super( "Random Task" );
+			super( "Random Task (" + duration + "ms)" );
 			setMinimum( 0 );
 			setMaximum( duration );
 		}
@@ -106,11 +107,11 @@ public class TaskTool extends ProgramTool {
 			//System.out.println( "Running random task ("+ getMaximum() +")");
 			while( time < getMaximum() ) {
 				try {
-					Thread.sleep( delay );
+					Thread.sleep( DELAY );
 				} catch( InterruptedException exception ) {
 					break;
 				}
-				time += delay;
+				time += DELAY;
 				setProgress( time );
 			}
 

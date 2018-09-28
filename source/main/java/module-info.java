@@ -6,7 +6,7 @@ module com.xeomar.xenon {
 	requires javafx.controls;
 	requires javafx.swing;
 	requires javafx.web;
-	requires commons.io;
+	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
@@ -16,6 +16,9 @@ module com.xeomar.xenon {
 	requires miglayout.javafx;
 
 	exports com.xeomar.xenon;
+	exports com.xeomar.xenon.resource;
+	exports com.xeomar.xenon.task;
+	exports com.xeomar.xenon.update;
 
 	opens bundles;
 	opens settings;

@@ -18,6 +18,7 @@ public class ActionLibrary {
 		this.actions = new ConcurrentHashMap<>();
 
 		// Create default actions
+		register( bundle, "program" );
 		register( bundle, "file" );
 		register( bundle, "new" );
 		register( bundle, "open" );

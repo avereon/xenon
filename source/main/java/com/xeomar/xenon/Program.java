@@ -5,10 +5,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductEvent;
 import com.xeomar.product.ProductEventListener;
 import com.xeomar.settings.Settings;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.OperatingSystem;
-import com.xeomar.util.Release;
-import com.xeomar.util.TestUtil;
+import com.xeomar.util.*;
 import com.xeomar.xenon.action.*;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
@@ -21,20 +18,21 @@ import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
 import com.xeomar.xenon.task.TaskManager;
-import com.xeomar.xenon.tool.AboutTool;
-import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.ProgramTool;
-import com.xeomar.xenon.tool.WelcomeTool;
+import com.xeomar.xenon.tool.ToolInstanceMode;
+import com.xeomar.xenon.tool.ToolMetadata;
+import com.xeomar.xenon.tool.basic.AboutTool;
+import com.xeomar.xenon.tool.basic.NoticeTool;
+import com.xeomar.xenon.tool.basic.WelcomeTool;
 import com.xeomar.xenon.tool.guide.GuideTool;
+import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Application;
-import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
@@ -49,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -70,7 +69,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private static long programStartTime = System.currentTimeMillis();
+	/* This field is used for timing checks */
+	@SuppressWarnings( "unused" )
+	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
 	private com.xeomar.util.Parameters parameters;
 
@@ -163,10 +164,6 @@ public class Program extends Application implements ProgramProduct {
 	public void init() throws Exception {
 		time( "init" );
 
-		String baseName = "bundles/action";
-		Locale locale = Locale.getDefault();
-		java.lang.Module module = getClass().getModule();
-
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product card
@@ -177,7 +174,7 @@ public class Program extends Application implements ProgramProduct {
 		parameters = initProgramParameters();
 		time( "parameters" );
 
-		// Print the program header, depends on parameters
+		// Print the program header, depends on card and parameters
 		printHeader( card, parameters );
 		time( "print-header" );
 
@@ -185,7 +182,9 @@ public class Program extends Application implements ProgramProduct {
 		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
-		// Configure logging, depends on program data folder
+		// Configure logging, depends on parameters and program data folder
+		com.xeomar.util.Parameters logParameters = com.xeomar.util.Parameters.parse( LogFlag.LOG_FILE, card.getArtifact() + ".log" );
+		parameters.add( logParameters );
 		LogUtil.configureLogging( this, parameters, programDataFolder );
 		time( "configure-logging" );
 
@@ -197,16 +196,16 @@ public class Program extends Application implements ProgramProduct {
 		programResourceBundle = new ProductBundle( getClass(), "/bundles" );
 		time( "resource-bundle" );
 
-		// Load the default settings values
-		Properties properties = new Properties();
-		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), "utf-8" ) );
-		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
-
-		// Create the settings manager, depends on default settings values, program data folder
+		// Create the settings manager, depends on program data folder
 		settingsManager = new SettingsManager( this ).start();
 
-		// Create the program settings, depends on settings manager
+		// Load the default settings values
+		Properties properties = new Properties();
+		Map<String, Object> defaultSettingsValues = new HashMap<>();
+		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), TextUtil.CHARSET ) );
+		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
+
+		// Create the program settings, depends on settings manager and default settings values
 		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( defaultSettingsValues );
 		time( "settings" );
@@ -227,7 +226,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Run the peer check before processing commands in case there is a peer already
 		if( peerCheck() ) return;
-		time( "peer-found" );
+		time( "peer-check" );
 
 		// If there is not a peer, process the commands before processing the updates
 		if( processCommands( getProgramParameters() ) ) return;
@@ -324,15 +323,9 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Updating..." );
 	}
 
-	public boolean requestExit() {
-		return requestExit( false );
-	}
-
 	public boolean requestExit( boolean force ) {
 		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
 		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
-
-		Platform.isSupported( ConditionalFeature.SCENE3D );
 
 		// If the user desires, prompt to exit the program
 		if( !force && shutdownVerify ) {
@@ -392,10 +385,6 @@ public class Program extends Application implements ProgramProduct {
 		return programResourceBundle;
 	}
 
-	public final long getStartTime() {
-		return programStartTime;
-	}
-
 	public final Path getDataFolder() {
 		return programDataFolder;
 	}
@@ -440,10 +429,12 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
+	@SuppressWarnings( { "unused", "WeakerAccess" } )
 	public void addEventListener( ProductEventListener listener ) {
 		this.listeners.add( listener );
 	}
 
+	@SuppressWarnings( { "unused", "WeakerAccess" } )
 	public void removeEventListener( ProductEventListener listener ) {
 		this.listeners.remove( listener );
 	}
@@ -456,19 +447,8 @@ public class Program extends Application implements ProgramProduct {
 		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
 	}
 
-	//	private ProductCard initProductCard() {
-	//		ProductCard card = null;
-	//		try( InputStream input = getClass().getResourceAsStream( ProductCard.INFO ) ) {
-	//			card = this.card = new ProductCard().init( input );
-	//		} catch( IOException exception ) {
-	//			exception.printStackTrace( System.err );
-	//		}
-	//		return card;
-	//	}
-
 	/**
-	 * Initialize the program parameters by converting the FX parameters object
-	 * into a program parameters object.
+	 * Initialize the program parameters by converting the FX parameters object into a program parameters object.
 	 *
 	 * @return The program parameters object
 	 */
@@ -489,10 +469,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Check for another instance of the program is running after getting the
-	 * settings but before the splash screen is shown. The fastest way to check
-	 * is to try and bind to the port defined in the settings. The OS will
-	 * quickly deny the bind if the port is already bound.
+	 * Check for another instance of the program is running after getting the settings but before the splash screen is shown. The fastest way to check is to try and bind to the port defined in the settings. The OS will quickly deny the bind
+	 * if the port is already bound.
 	 * <p>
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
@@ -534,9 +512,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Process staged updates unless the NOUPDATE flag is set. If there are no
-	 * staged updates then the method returns false. If no updates were processed
-	 * due to user input then the method returns false.
+	 * Process staged updates unless the NOUPDATE flag is set. If there are no staged updates then the method returns false. If no updates were processed due to user input then the method returns false.
 	 *
 	 * @return True if the program should be restarted, false otherwise.
 	 */
@@ -580,7 +556,7 @@ public class Program extends Application implements ProgramProduct {
 	private void printAsciiArtTitle() {
 		try {
 			InputStream input = getClass().getResourceAsStream( "/ascii-art-title.txt" );
-			BufferedReader reader = new BufferedReader( new InputStreamReader( input, "UTF-8" ) );
+			BufferedReader reader = new BufferedReader( new InputStreamReader( input, TextUtil.CHARSET ) );
 
 			String line;
 			while( (line = reader.readLine()) != null ) {
@@ -684,8 +660,8 @@ public class Program extends Application implements ProgramProduct {
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
-		registerTools( toolManager );
 		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		registerTools( toolManager );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
@@ -877,23 +853,23 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerResourceTypes( ResourceManager manager ) {
-		manager.registerUriResourceType( ProgramGuideType.uri, new ProgramGuideType( this ) );
-		manager.registerUriResourceType( ProgramAboutType.uri, new ProgramAboutType( this ) );
-		manager.registerUriResourceType( ProgramSettingsType.uri, new ProgramSettingsType( this ) );
-		manager.registerUriResourceType( ProgramWelcomeType.uri, new ProgramWelcomeType( this ) );
-		manager.registerUriResourceType( ProgramNoticeType.uri, new ProgramNoticeType( this ) );
-		manager.registerUriResourceType( ProgramProductType.uri, new ProgramProductType( this ) );
-		manager.registerUriResourceType( ProgramTaskType.uri, new ProgramTaskType( this ) );
+		manager.registerUriResourceType( ProgramGuideType.URI, new ProgramGuideType( this ) );
+		manager.registerUriResourceType( ProgramAboutType.URI, new ProgramAboutType( this ) );
+		manager.registerUriResourceType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
+		manager.registerUriResourceType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
+		manager.registerUriResourceType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
+		manager.registerUriResourceType( ProgramProductType.URI, new ProgramProductType( this ) );
+		manager.registerUriResourceType( ProgramTaskType.URI, new ProgramTaskType( this ) );
 	}
 
 	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( ProgramTaskType.uri );
-		manager.unregisterUriResourceType( ProgramProductType.uri );
-		manager.unregisterUriResourceType( ProgramNoticeType.uri );
-		manager.unregisterUriResourceType( ProgramWelcomeType.uri );
-		manager.unregisterUriResourceType( ProgramSettingsType.uri );
-		manager.unregisterUriResourceType( ProgramAboutType.uri );
-		manager.unregisterUriResourceType( ProgramGuideType.uri );
+		manager.unregisterUriResourceType( ProgramTaskType.URI );
+		manager.unregisterUriResourceType( ProgramProductType.URI );
+		manager.unregisterUriResourceType( ProgramNoticeType.URI );
+		manager.unregisterUriResourceType( ProgramWelcomeType.URI );
+		manager.unregisterUriResourceType( ProgramSettingsType.URI );
+		manager.unregisterUriResourceType( ProgramAboutType.URI );
+		manager.unregisterUriResourceType( ProgramGuideType.URI );
 	}
 
 	private void registerTools( ToolManager manager ) {
@@ -903,6 +879,10 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
+
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.AboutTool", AboutTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.NoticeTool", NoticeTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.WelcomeTool", WelcomeTool.class );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
@@ -941,7 +921,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Remove the old catalog
 		MarketCard oldMarketCard = new MarketCard().copyFrom( MarketCard.forProduct() );
-		String oldUri =  MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
+		String oldUri = MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
 		oldMarketCard.setCardUri( oldUri );
 		updateManager.removeCatalog( oldMarketCard );
 
@@ -1000,14 +980,14 @@ public class Program extends Application implements ProgramProduct {
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
-			// TODO Check to see if the application was updated
+			// Check to see if the application was updated
 			checkIfUpdated();
+
+			// Open resources specified on the command line
+			processResources( getProgramParameters() );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
-
-			// TODO Open resources specified on the command line
-			processResources( getProgramParameters() );
 		}
 
 		@Override
@@ -1028,7 +1008,7 @@ public class Program extends Application implements ProgramProduct {
 	private class Shutdown extends Task<Void> {
 
 		@Override
-		protected Void call() throws Exception {
+		protected Void call() {
 			doShutdownTasks();
 			return null;
 		}

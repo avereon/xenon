@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -49,7 +50,7 @@ public class Workspace implements Configurable {
 
 	private ToolBar toolbar;
 
-	private BorderPane statusbar;
+	private StatusBar statusBar;
 
 	private MemoryMonitor memoryMonitor;
 
@@ -79,6 +80,13 @@ public class Workspace implements Configurable {
 
 		// MENUBAR
 		menubar = new MenuBar();
+		// FIXME This does not work if there are two menu bars (like this program uses)
+		menubar.setUseSystemMenuBar( true );
+
+		Menu prog = ActionUtil.createMenu( program, "program" );
+		prog.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		prog.getItems().add( new SeparatorMenuItem() );
+		prog.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 
 		Menu file = ActionUtil.createMenu( program, "file" );
 		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
@@ -87,8 +95,6 @@ public class Workspace implements Configurable {
 		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		file.getItems().add( new SeparatorMenuItem() );
-		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 
 		Menu edit = ActionUtil.createMenu( program, "edit" );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
@@ -101,8 +107,6 @@ public class Workspace implements Configurable {
 		edit.getItems().add( new SeparatorMenuItem() );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
 		Menu view = ActionUtil.createMenu( program, "view" );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
@@ -121,14 +125,12 @@ public class Workspace implements Configurable {
 
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
+		dev.setId( "menu-development" );
 
-		if( program.getExecMode() == ExecMode.DEV ) {
-			menubar.getMenus().addAll( file, edit, view, help, dev );
-		} else {
-			menubar.getMenus().addAll( file, edit, view, help );
-		}
+		menubar.getMenus().addAll( prog, file, edit, view, help );
+		if( program.getExecMode() == ExecMode.DEV ) menubar.getMenus().add( dev );
 
-		// TOOLBAR
+		// Workarea menu
 
 		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
 		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
@@ -149,6 +151,8 @@ public class Workspace implements Configurable {
 		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
+		// TOOLBAR
+
 		toolbar = new ToolBar();
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
@@ -167,6 +171,7 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		// STATUS BAR
+		statusBar = new StatusBar();
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
 		memoryMonitor = new MemoryMonitor();
 
@@ -176,13 +181,13 @@ public class Workspace implements Configurable {
 		HBox rightStatusBarItems = new HBox();
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
-		leftStatusBarItems.getChildren().addAll( new Label( "STATUS BAR" ) );
+		leftStatusBarItems.getChildren().addAll( statusBar );
 		rightStatusBarItems.getChildren().addAll( taskMonitor, memoryMonitor );
 
-		statusbar = new BorderPane();
-		statusbar.setLeft( leftStatusBarItems );
-		statusbar.setRight( rightStatusBarItems );
-		statusbar.getStyleClass().add( "status-bar" );
+		BorderPane statusBarContainer = new BorderPane();
+		statusBarContainer.setLeft( leftStatusBarItems );
+		statusBarContainer.setRight( rightStatusBarItems );
+		statusBarContainer.getStyleClass().add( "status-bar" );
 
 		// Workarea Container
 		workpaneContainer = new StackPane();
@@ -194,10 +199,11 @@ public class Workspace implements Configurable {
 		layout = new BorderPane();
 		layout.setTop( bars );
 		layout.setCenter( workpaneContainer );
-		layout.setBottom( statusbar );
+		layout.setBottom( statusBarContainer );
 
 		// Create the stage
 		stage = new Stage();
+		Image image;
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			event.consume();
@@ -275,6 +281,10 @@ public class Workspace implements Configurable {
 
 		// Send a program event when active area changes
 		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+	}
+
+	public StatusBar getStatusBar() {
+		return statusBar;
 	}
 
 	@Override

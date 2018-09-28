@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool.about;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramAboutType;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
-import com.xeomar.xenon.tool.AboutTool;
+import com.xeomar.xenon.tool.basic.AboutTool;
 import org.junit.Test;
 
 import java.net.URI;
@@ -16,10 +16,10 @@ public class AboutToolGetRequiredResourcesTest extends AboutToolTest {
 
 	@Test
 	public void execute() {
-		Resource resource = new Resource( ProgramAboutType.uri );
+		Resource resource = new Resource( ProgramAboutType.URI );
 		AboutTool tool = new AboutTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();
-		assertThat( resources, containsInAnyOrder( ProgramGuideType.uri ) );
+		assertThat( resources, containsInAnyOrder( ProgramGuideType.URI ) );
 	}
 
 }

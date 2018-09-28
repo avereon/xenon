@@ -1,7 +1,6 @@
 package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.xenon.node.Node;
-import com.xeomar.xenon.tool.settings.SettingsPage;
 
 public class GuideNode extends Node {
 
@@ -11,11 +10,15 @@ public class GuideNode extends Node {
 
 	public static final String NAME = "name";
 
-	public static final String PAGE = "page";
-
 	public GuideNode() {
 		definePrimaryKey( ID );
 		defineBusinessKey( NAME );
+	}
+
+	public GuideNode init( String id, String name ) {
+		setId( id );
+		setName( name );
+		return this;
 	}
 
 	public String getId() {
@@ -40,18 +43,6 @@ public class GuideNode extends Node {
 
 	public void setName( String name ) {
 		setValue( NAME, name );
-	}
-
-	// FIXME GuideNode should not have anything relating to a specific tool
-	@Deprecated
-	public SettingsPage getPage() {
-		return getValue( PAGE );
-	}
-
-	// FIXME GuideNode should not have anything relating to a specific tool
-	@Deprecated
-	public void setPage(SettingsPage page ) {
-		setValue( PAGE, page );
 	}
 
 	public String toString() {

@@ -2,6 +2,7 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.control.Tab;
@@ -36,17 +37,29 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
 
+		tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
+
 		// Add a focus listener to the tabs so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
 		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
 			Tab tab = tools.getSelectionModel().getSelectedItem();
-			if( newValue && tab != null) activateTool( (Tool)tab.getContent() );
+			if( newValue && tab != null ) activateTool( (Tool)tab.getContent() );
 		} );
 
 		// Add a selection listener to the tabs so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
 		tools.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
-			if( tools.focusedProperty().getValue() && newValue != null) activateTool( (Tool)newValue.getContent() );
+			if( tools.focusedProperty().getValue() && newValue != null ) activateTool( (Tool)newValue.getContent() );
+		} );
+
+		// Add a listener to the tab list to store the order when the tabs change
+		tools.getTabs().addListener( (ListChangeListener<? super Tab>)( change ) -> {
+			int index = 0;
+			for( Tab tab : tools.getTabs() ){
+				Settings settings = ((Tool)tab.getContent()).getSettings();
+				if( settings != null ) settings.set( "order", index );
+				index++;
+			}
 		} );
 	}
 
@@ -88,8 +101,6 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		tools.getTabs().add( index, tab );
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
-
-		// Tab D&D support: https://bugs.openjdk.java.net/browse/JDK-8092098
 
 		tab.setOnCloseRequest( event -> {
 			event.consume();

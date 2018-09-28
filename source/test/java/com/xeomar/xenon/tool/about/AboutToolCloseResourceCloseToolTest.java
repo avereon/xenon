@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.about;
 
 import com.xeomar.xenon.resource.type.ProgramAboutType;
-import com.xeomar.xenon.tool.AboutTool;
+import com.xeomar.xenon.tool.basic.AboutTool;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
@@ -20,7 +20,7 @@ public class AboutToolCloseResourceCloseToolTest extends AboutToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<ProgramTool> future = program.getResourceManager().open( ProgramAboutType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( AboutTool.class ) );

@@ -10,7 +10,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
@@ -25,7 +24,7 @@ public class ProgramNotifier {
 	}
 
 	public void error( Object message ) {
-		error( null, message, null );
+		error( null, message );
 	}
 
 	/* Error methods */
@@ -101,7 +100,7 @@ public class ProgramNotifier {
 				builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
 			}
 
-			final String content = String.format( builder.toString(), parameters );
+			final String content = String.format( builder.toString(), (Object[])parameters );
 
 			log.info( content );
 

@@ -1,6 +1,6 @@
 package com.xeomar.xenon.workarea;
 
-import com.xeomar.xenon.ToolMetadata;
+import com.xeomar.xenon.tool.ToolMetadata;
 
 import java.util.Comparator;
 

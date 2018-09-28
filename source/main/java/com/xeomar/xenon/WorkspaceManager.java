@@ -116,7 +116,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public void requestCloseWorkspace( Workspace workspace ) {
 		boolean closeProgram = workspaces.size() == 1;
 		if( closeProgram ) {
-			program.requestExit();
+			program.requestExit( false );
 		} else {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 			alert.setTitle( program.getResourceBundle().getString( "workspace", "workspace.close.title" ) );

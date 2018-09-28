@@ -12,12 +12,11 @@ import com.xeomar.xenon.tool.guide.Guide;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import javafx.scene.control.TreeItem;
 
-import java.net.URI;
 import java.util.Map;
 
 public class ProgramAboutType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:about" );
+	public static final java.net.URI URI = java.net.URI.create( "program:about" );
 
 	private Map<TreeItem<String>, String> pages;
 
@@ -43,16 +42,15 @@ public class ProgramAboutType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( getProduct().getCard() );
-		resource.putResource( Guide.GUIDE_KEY, new Guide() );
 		updateGuide( program, resource );
 		return true;
 	}
 
 	private void updateGuide( Program program, Resource resource ) {
 		Guide guide = resource.getResource( Guide.GUIDE_KEY );
+		if( guide != null ) return;
 
-		TreeItem<GuideNode> root = guide.getRoot();
-		if( root != null ) return;
+		resource.putResource( Guide.GUIDE_KEY, guide = new Guide() );
 
 		IconLibrary library = program.getIconLibrary();
 		ProductBundle rb = getProduct().getResourceBundle();
@@ -60,19 +58,17 @@ public class ProgramAboutType extends ResourceType {
 		GuideNode summaryNode = new GuideNode();
 		summaryNode.setId( "summary" );
 		summaryNode.setName( rb.getString( "tool", "about-summary" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( summaryNode, library.getIcon( "about" ) ) );
 
 		GuideNode productsNode = new GuideNode();
 		productsNode.setId( "products");
 		productsNode.setName( rb.getString( "tool", "about-products" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( productsNode, library.getIcon( "about" ) ) );
 
 		GuideNode detailsNode = new GuideNode();
 		detailsNode.setId( "details" );
 		detailsNode.setName( rb.getString( "tool", "about-details" ) );
-
-		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "about" ) ) );
-		root.getChildren().add( new TreeItem<>( summaryNode, library.getIcon( "about" ) ) );
-		root.getChildren().add( new TreeItem<>( productsNode, library.getIcon( "about" ) ) );
-		root.getChildren().add( new TreeItem<>( detailsNode, library.getIcon( "about" ) ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( detailsNode, library.getIcon( "about" ) ) );
 	}
 
 }

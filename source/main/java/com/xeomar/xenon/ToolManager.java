@@ -10,11 +10,12 @@ import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.ProgramTool;
+import com.xeomar.xenon.tool.ToolInstanceMode;
+import com.xeomar.xenon.tool.ToolMetadata;
 import com.xeomar.xenon.workarea.Tool;
 import com.xeomar.xenon.workarea.ToolParameters;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
-import com.xeomar.xenon.workspace.ToolInstanceMode;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.slf4j.Logger;
@@ -215,6 +216,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		String alias = null;
 		if( className != null ) alias = aliases.get( className );
 		return alias == null ? className : alias;
+	}
+
+	public void addToolAlias( String oldName, Class<? extends ProgramTool> newClass ) {
+		addToolAlias( oldName, newClass.getName() );
 	}
 
 	public void addToolAlias( String oldName, String newName ) {

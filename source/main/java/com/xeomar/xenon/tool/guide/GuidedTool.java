@@ -1,33 +1,61 @@
 package com.xeomar.xenon.tool.guide;
 
+import com.xeomar.settings.Settings;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private GuideListener guideListener = new GuideListener();
+	private static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
+
+	private static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
+
+	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
+
+	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
+
+	private Settings settings;
 
 	public GuidedTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 	}
 
+	@Override
 	public Set<URI> getResourceDependencies() {
 		Set<URI> resources = new HashSet<>();
-		resources.add( ProgramGuideType.uri );
+		resources.add( ProgramGuideType.URI );
 		return resources;
+	}
+
+	@Override
+	public void setSettings( Settings settings ) {
+		super.setSettings( settings );
+
+		if( this.settings != null ) this.settings = settings;
+
+		String expandedIds = settings.get( GUIDE_EXPANDED_IDS );
+		if( expandedIds != null ) {
+			Platform.runLater( () -> getGuide().setExpandedIds( expandedIds.split( "," ) ) );
+		}
+
+		// Set the expanded ids before setting the selected ids
+		String selectedIds = settings.get( GUIDE_SELECTED_IDS );
+		if( selectedIds != null ) {
+			Platform.runLater( () -> getGuide().setSelectedIds( selectedIds.split( "," ) ) );
+		}
 	}
 
 	@Override
@@ -45,26 +73,53 @@ public abstract class GuidedTool extends ProgramTool {
 	@Override
 	protected void deallocate() throws ToolException {
 		super.deallocate();
-		getGuide().selectedItemProperty().removeListener( guideListener );
+		getGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
+		getGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
 	}
 
 	@Override
 	protected void resourceReady( ToolParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
-		getGuide().selectedItemProperty().addListener( guideListener );
+		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
+		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
 	}
 
 	protected Guide getGuide() {
 		return (Guide)getResource().getResource( Guide.GUIDE_KEY );
 	}
 
-	protected abstract void guideNodeChanged( GuideNode oldNode, GuideNode newNode );
+	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
 
-	private class GuideListener implements ChangeListener<TreeItem<GuideNode>> {
+	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
+
+	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed( ObservableValue<? extends TreeItem<GuideNode>> observable, TreeItem<GuideNode> oldItem, TreeItem<GuideNode> newItem ) {
-			guideNodeChanged( oldItem == null ? null : oldItem.getValue(), newItem == null ? null : newItem.getValue() );
+		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
+			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
+
+			// If old and new are different, notify
+			if( !oldNodes.equals( newNodes ) ) {
+				guideNodesExpanded( oldNodes, newNodes );
+				getSettings().set( GUIDE_EXPANDED_IDS, Guide.nodesToString( newNodes ) );
+			}
+		}
+
+	}
+
+	private class GuideSelectedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
+
+		@Override
+		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
+			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
+
+			// If old and new are different, notify
+			if( !oldNodes.equals( newNodes ) ) {
+				guideNodesSelected( oldNodes, newNodes );
+				getSettings().set( GUIDE_SELECTED_IDS, Guide.nodesToString( newNodes ) );
+			}
 		}
 
 	}

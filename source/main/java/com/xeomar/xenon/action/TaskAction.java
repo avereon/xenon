@@ -20,7 +20,7 @@ public class TaskAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			getProgram().getResourceManager().open( ProgramTaskType.uri );
+			getProgram().getResourceManager().open( ProgramTaskType.URI );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening task tool", exception );
 		}

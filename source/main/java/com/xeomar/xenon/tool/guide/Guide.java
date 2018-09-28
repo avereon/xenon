@@ -1,13 +1,15 @@
 package com.xeomar.xenon.tool.guide;
 
+import com.xeomar.xenon.util.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Guide {
 
@@ -19,20 +21,22 @@ public class Guide {
 
 	private BooleanProperty activeProperty;
 
-	private ReadOnlyObjectWrapper<TreeItem<GuideNode>> selectedItem;
+	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
+
+	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
-		selectionMode = SelectionMode.SINGLE;
+		this.root = new TreeItem<>( new GuideNode() );
 		activeProperty = new SimpleBooleanProperty( false );
-		selectedItem = new ReadOnlyObjectWrapper<>( this, "selectedItem" );
+		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
+		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
+		root.addEventHandler( TreeItem.branchExpandedEvent(), ( event ) -> updateExpandedItems() );
+		root.addEventHandler( TreeItem.branchCollapsedEvent(), ( event ) -> updateExpandedItems() );
+		setSelectionMode( SelectionMode.SINGLE );
 	}
 
 	public TreeItem<GuideNode> getRoot() {
 		return root;
-	}
-
-	public void setRoot( TreeItem<GuideNode> root ) {
-		this.root = root;
 	}
 
 	public SelectionMode getSelectionMode() {
@@ -55,22 +59,128 @@ public class Guide {
 		return activeProperty;
 	}
 
-	public final ReadOnlyObjectProperty<TreeItem<GuideNode>> selectedItemProperty() {
-		return selectedItem.getReadOnlyProperty();
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final void setExpandedIds( String... ids ) {
+		Set<String> idSet = Set.of( ids );
+		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
+			if( item == root ) continue;
+			item.setExpanded( idSet.contains( item.getValue().getId() ) );
+		}
 	}
 
-	final void setSelectedItem( TreeItem<GuideNode> value ) {
-		selectedItem.set( value );
+	final Set<String> getExpandedIds() {
+		Set<String> idSet = new HashSet<>();
+		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
+			if( item == root ) continue;
+			if( item.isExpanded() ) idSet.add( item.getValue().getId() );
+		}
+		return idSet;
 	}
 
-//	final void setSelected( String id ) {
-//		log.warn( "Guide.setSelected() not working properly");
-//		for( TreeItem<GuideNode> node : getRoot().getChildren()){
-//			if( node.getValue().getId().equals( id ) ) {
-//				setSelectedItem( node );
-//				return;
-//			}
-//		}
-//	}
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> expandedItemsProperty() {
+		return expandedItems.getReadOnlyProperty();
+	}
+
+	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
+		expandedItems.set( items );
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> selectedItemsProperty() {
+		return selectedItems.getReadOnlyProperty();
+	}
+
+	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
+		selectedItems.set( items );
+	}
+
+	final List<String> getSelectedIds() {
+		Set<TreeItem<GuideNode>> selectedItems = Collections.unmodifiableSet( this.selectedItems.get() );
+
+		List<String> ids = new ArrayList<>( selectedItems.size() );
+		for( TreeItem<GuideNode> item : selectedItems ) {
+			ids.add( item.getValue().getId() );
+		}
+
+		return ids;
+	}
+
+	final void setSelectedIds( String... ids ) {
+		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
+
+		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.length );
+		for( String id : ids ) {
+			TreeItem<GuideNode> item = itemMap.get( id );
+			if( item != null ) newItems.add( item );
+		}
+
+		setSelectedItems( newItems );
+	}
+
+	protected final GuideNode getNode( String id ) {
+		TreeItem item = findItem( id );
+		return item == null ? null : (GuideNode)item.getValue();
+	}
+
+	private void updateExpandedItems() {
+		setExpandedItems( FxUtil.flatTree( root ).stream().filter( (TreeItem::isExpanded) ).filter( ( item ) -> !item.isLeaf() ).collect( Collectors.toSet() ) );
+	}
+
+	private Map<String, TreeItem<GuideNode>> getItemMap() {
+		return FxUtil.flatTree( root ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
+	}
+
+	private TreeItem<GuideNode> findItem( String id ) {
+		return findItem( root, id );
+	}
+
+	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {
+		if( node == null || id == null ) return null;
+		if( node != root && node.getValue().getId().equals( id ) ) return node;
+
+		for( TreeItem<GuideNode> child : node.getChildren() ) {
+			TreeItem<GuideNode> check = findItem( child, id );
+			if( check != null ) return check;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get a string of the tree item guide node ids.
+	 * <p>
+	 * Used for debugging.
+	 *
+	 * @param nodes The set of tree items
+	 * @return A comma delimited string of the node ids
+	 */
+	@SuppressWarnings( "unused" )
+	static String itemsToString( Set<? extends TreeItem<GuideNode>> nodes ) {
+		return nodesToString( nodes.stream().map( TreeItem::getValue ).collect( Collectors.toSet() ) );
+	}
+
+	/**
+	 * Get a string of the guide node ids.
+	 * <p>
+	 * Used for debugging.
+	 *
+	 * @param nodes The set of nodes
+	 * @return A comma delimited string of the node ids
+	 */
+	@SuppressWarnings( "unused" )
+	static String nodesToString( Set<GuideNode> nodes ) {
+		if( nodes == null ) return null;
+		if( nodes.size() == 0 ) return "";
+
+		StringBuilder builder = new StringBuilder();
+		for( GuideNode node : nodes ) {
+			builder.append( node.getId() ).append( "," );
+		}
+
+		String ids = builder.toString();
+		ids = ids.substring( 0, ids.length() - 1 );
+		return ids;
+	}
 
 }

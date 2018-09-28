@@ -13,6 +13,37 @@
 	-ex-background-tabs: rgba( 241, 241, 241, 0.4 );
 }
 
+.splashscreen-progress {
+	-fx-arc-height: 10;
+	-fx-arc-width: 5;
+}
+
+.splashscreen-progress-tray {
+	-fx-fill: dimgray;
+}
+
+.splashscreen-progress-incomplete {
+	-fx-fill: lightgray;
+}
+
+.splashscreen-progress-complete {
+	-fx-fill: dodgerblue;
+}
+
+#menu-development > .label {
+	-fx-text-fill: red;
+	-fx-font-weight: 700;
+}
+#menu-development:hover > .label {
+	-fx-text-fill: -fx-text-background-color;
+}
+#menu-development {
+	-fx-background-color: transparent;
+}
+#menu-development:hover  {
+	-fx-background-color: red;
+}
+
 .prompt {
 	-fx-padding: 0 1mm 0 0;
 }

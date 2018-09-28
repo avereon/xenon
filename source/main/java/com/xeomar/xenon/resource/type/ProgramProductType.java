@@ -12,11 +12,9 @@ import com.xeomar.xenon.tool.guide.Guide;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import javafx.scene.control.TreeItem;
 
-import java.net.URI;
-
 public class ProgramProductType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:product" );
+	public static final java.net.URI URI = java.net.URI.create( "program:product" );
 
 	public static final String INSTALLED = "installed";
 
@@ -38,8 +36,7 @@ public class ProgramProductType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( program.getCard() );
-		resource.putResource( Guide.GUIDE_KEY, new Guide() );
-		updateGuide( program, resource );
+		createGuide( program, resource );
 		return true;
 	}
 
@@ -53,36 +50,34 @@ public class ProgramProductType extends ResourceType {
 		return null;
 	}
 
-	private void updateGuide( Program program, Resource resource ) {
+	private void createGuide( Program program, Resource resource ) {
 		Guide guide = resource.getResource( Guide.GUIDE_KEY );
-
-		TreeItem<GuideNode> root = guide.getRoot();
-		if( root != null ) return;
+		if( guide != null ) return;
 
 		IconLibrary library = program.getIconLibrary();
 		ProductBundle rb = getProduct().getResourceBundle();
 
+		resource.putResource( Guide.GUIDE_KEY, guide = new Guide() );
+
 		GuideNode installed = new GuideNode();
 		installed.setId( INSTALLED );
 		installed.setName( rb.getString( "tool", "product-installed" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
 
 		GuideNode available = new GuideNode();
 		available.setId( AVAILABLE );
 		available.setName( rb.getString( "tool", "product-available" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
 
 		GuideNode updates = new GuideNode();
 		updates.setId( UPDATES );
 		updates.setName( rb.getString( "tool", "product-updates" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
 
 		GuideNode sources = new GuideNode();
 		sources.setId( SOURCES );
 		sources.setName( rb.getString( "tool", "product-sources" ) );
-
-		guide.setRoot( root = new TreeItem<>( new GuideNode(), library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
-		root.getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
 	}
 
 }

@@ -4,11 +4,9 @@ import com.xeomar.product.Product;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.ResourceType;
 
-import java.net.URI;
-
 public class ProgramNoticeType extends ResourceType {
 
-	public static final URI uri = URI.create( "program:notice" );
+	public static final java.net.URI URI = java.net.URI.create( "program:notice" );
 
 	public ProgramNoticeType( Product product ) {
 		super( product, "notice" );

@@ -20,7 +20,7 @@ public class WelcomeAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			getProgram().getResourceManager().open( ProgramWelcomeType.uri );
+			getProgram().getResourceManager().open( ProgramWelcomeType.URI );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening welcome tool", exception );
 		}

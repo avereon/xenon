@@ -22,7 +22,7 @@ public class ProductAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			URI uri = URI.create( ProgramProductType.uri + "#" + ProgramProductType.INSTALLED );
+			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.INSTALLED );
 			getProgram().getResourceManager().open( uri );
 		} catch( ResourceException exception ) {
 			log.error( "Error opening product tool", exception );

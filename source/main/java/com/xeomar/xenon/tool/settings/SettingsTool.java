@@ -1,5 +1,6 @@
 package com.xeomar.xenon.tool.settings;
 
+import com.xeomar.settings.Settings;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
@@ -10,13 +11,17 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Set;
 
 public class SettingsTool extends GuidedTool {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
+	private static final String PAGE_ID = "page-id";
+
+	private Settings settings;
 
 	public SettingsTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -74,12 +79,16 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void guideNodeChanged( GuideNode oldNode, GuideNode newNode ) {
-		if( newNode != null ) selectPage( newNode.getPage() );
+	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
+	}
+
+	private void selectPage( String id ) {
+		if( id == null ) return;
+		selectPage( getProgram().getSettingsManager().getSettingsPage( id ) );
 	}
 
 	private void selectPage( SettingsPage page ) {
-		log.debug( "Settings page selected: " + page );
 		if( page == null ) return;
 
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );

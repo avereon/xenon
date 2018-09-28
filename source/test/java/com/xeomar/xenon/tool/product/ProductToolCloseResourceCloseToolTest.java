@@ -19,7 +19,7 @@ public class ProductToolCloseResourceCloseToolTest extends ProductToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<ProgramTool> future = program.getResourceManager().open( ProgramProductType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramProductType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );

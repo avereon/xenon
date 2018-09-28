@@ -19,7 +19,7 @@ public class SettingsToolCloseResourceCloseToolTest extends SettingsToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<ProgramTool> future = program.getResourceManager().open( ProgramSettingsType.uri );
+		Future<ProgramTool> future = program.getResourceManager().open( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );

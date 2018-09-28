@@ -462,7 +462,7 @@ public class UiFactory {
 
 			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
-			program.getResourceManager().loadResource( resource );
+			program.getResourceManager().loadResources( resource );
 
 			// Create an open tool request
 			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
@@ -515,7 +515,7 @@ public class UiFactory {
 			if( order1 == null ) return -1;
 			if( order2 == null ) return 1;
 
-			return order2 - order1;
+			return order1 - order2;
 		}
 	}
 

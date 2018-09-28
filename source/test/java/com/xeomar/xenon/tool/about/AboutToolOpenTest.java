@@ -1,6 +1,6 @@
 package com.xeomar.xenon.tool.about;
 
-import com.xeomar.xenon.tool.AboutTool;
+import com.xeomar.xenon.tool.basic.AboutTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Test;

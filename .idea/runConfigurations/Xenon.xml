@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Xenon" type="Application" factoryName="Application" singleton="true">
+    <option name="MAIN_CLASS_NAME" value="com.xeomar.xenon.Program" />
+    <module name="xenon" />
+    <option name="PROGRAM_PARAMETERS" value="--execmode=dev --log-level info" />
+    <option name="VM_PARAMETERS" value="-Xmx256m" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

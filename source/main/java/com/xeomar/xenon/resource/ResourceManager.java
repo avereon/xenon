@@ -630,7 +630,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @return The list of resources created from the descriptors
 	 */
 	public Collection<Resource> createResources( Object... descriptors ) throws ResourceException {
-		return createResources( Arrays.asList( descriptors ) );
+		return createResources( List.of( descriptors ) );
 	}
 
 	/**
@@ -652,10 +652,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Request that the specified resources be opened. This method submits a task to the task manager and returns immediately.
 	 *
-	 * @param resource The resource to open
+	 * @param resources The resources to open
 	 */
-	public void openResources( Resource resource ) throws ResourceException {
-		openResources( Collections.singletonList( resource ) );
+	public void openResources( Resource... resources ) throws ResourceException {
+		openResources( List.of( resources ) );
 	}
 
 	/**
@@ -670,13 +670,13 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
-	 * @param resource The resource to open
+	 * @param resources The resources to open
 	 * @throws ExecutionException If there was an exception opening the resource
 	 * @throws InterruptedException If the process of opening the resource was interrupted
 	 * @implNote Do not call from a UI thread
 	 */
-	public void openResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		openResourcesAndWait( Collections.singletonList( resource ) );
+	public void openResourcesAndWait( Resource... resources ) throws ExecutionException, InterruptedException {
+		openResourcesAndWait( List.of( resources ) );
 	}
 
 	/**
@@ -694,10 +694,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Request that the specified resources be loaded. This method submits a task to the task manager and returns immediately.
 	 *
-	 * @param resource The resource to load
+	 * @param resources The resources to load
 	 */
-	public Future<Collection<Resource>> loadResource( Resource resource ) {
-		return loadResources( Collections.singletonList( resource ) );
+	public Future<Collection<Resource>> loadResources( Resource... resources ) {
+		return loadResources( List.of( resources ) );
 	}
 
 	/**
@@ -712,13 +712,13 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
 	 *
-	 * @param resource The resource to load
+	 * @param resources The resources to load
 	 * @throws ExecutionException If there was an exception loading the resource
 	 * @throws InterruptedException If the process of loading the resource was interrupted
 	 * @implNote Do not call from a UI thread
 	 */
-	public void loadResourcesAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		loadResourcesAndWait( Collections.singletonList( resource ) );
+	public void loadResourcesAndWait( Resource... resources ) throws ExecutionException, InterruptedException {
+		loadResourcesAndWait( List.of( resources ) );
 	}
 
 	/**
@@ -1304,7 +1304,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				if( !resource.isOpen() ) return null;
 
 				// Start loading the resource, but don't wait
-				if( !resource.isLoaded() ) loadResource( resource );
+				if( !resource.isLoaded() ) loadResources( resource );
 			} catch( Exception exception ) {
 				program.getNotifier().error( exception );
 				return null;
@@ -1407,7 +1407,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		//
 		//				// Open the selected resources.
 		//				Codec codec = tool.getSelectedCodec();
-		//				List<Resource> resources = Arrays.asList( tool.getSelectedResources() );
+		//				List<Resource> resources = List.of( tool.getSelectedResources() );
 		//				program.getTaskManager().submit( new OpenActionTask( resources, codec, program.getActiveWorkPane().getActiveView(), true ) );
 		//			}
 		//
@@ -1539,7 +1539,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private ResourceTask( Resource... resources ) {
 			super( program );
-			this.resources = Arrays.asList( resources );
+			this.resources = List.of( resources );
 		}
 
 		private ResourceTask( Collection<Resource> resources ) {

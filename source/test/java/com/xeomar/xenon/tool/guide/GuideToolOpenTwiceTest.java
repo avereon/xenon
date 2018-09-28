@@ -16,14 +16,14 @@ public class GuideToolOpenTwiceTest extends GuideToolTest {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		program.getResourceManager().open( ProgramGuideType.uri );
+		program.getResourceManager().open( ProgramGuideType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
 		// Try to open the tool again and make sure there is still only one
 
-		program.getResourceManager().open( ProgramGuideType.uri );
+		program.getResourceManager().open( ProgramGuideType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( GuideTool.class ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
