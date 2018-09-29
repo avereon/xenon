@@ -60,14 +60,6 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setExpandedIds( String... ids ) {
-		Set<String> idSet = Set.of( ids );
-		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
-			if( item == root ) continue;
-			item.setExpanded( idSet.contains( item.getValue().getId() ) );
-		}
-	}
-
 	final Set<String> getExpandedIds() {
 		Set<String> idSet = new HashSet<>();
 		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
@@ -78,23 +70,27 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
+	final void setExpandedIds( String... ids ) {
+		FxUtil.checkFxUserThread();
+		Set<String> idSet = Set.of( ids );
+		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
+			if( item == root ) continue;
+			item.setExpanded( idSet.contains( item.getValue().getId() ) );
+		}
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
 	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> expandedItemsProperty() {
 		return expandedItems.getReadOnlyProperty();
 	}
 
+	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
+		FxUtil.checkFxUserThread();
 		expandedItems.set( items );
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> selectedItemsProperty() {
-		return selectedItems.getReadOnlyProperty();
-	}
-
-	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
-		selectedItems.set( items );
-	}
-
 	final List<String> getSelectedIds() {
 		Set<TreeItem<GuideNode>> selectedItems = Collections.unmodifiableSet( this.selectedItems.get() );
 
@@ -106,7 +102,9 @@ public class Guide {
 		return ids;
 	}
 
+	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setSelectedIds( String... ids ) {
+		FxUtil.checkFxUserThread();
 		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
 
 		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.length );
@@ -116,6 +114,17 @@ public class Guide {
 		}
 
 		setSelectedItems( newItems );
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final ReadOnlyObjectProperty<Set<TreeItem<GuideNode>>> selectedItemsProperty() {
+		return selectedItems.getReadOnlyProperty();
+	}
+
+	/* Only intended to be used by the GuideTool and GuidedTools */
+	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
+		FxUtil.checkFxUserThread();
+		selectedItems.set( items );
 	}
 
 	protected final GuideNode getNode( String id ) {

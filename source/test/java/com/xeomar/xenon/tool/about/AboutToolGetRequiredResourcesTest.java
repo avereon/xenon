@@ -3,7 +3,6 @@ package com.xeomar.xenon.tool.about;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramAboutType;
 import com.xeomar.xenon.resource.type.ProgramGuideType;
-import com.xeomar.xenon.tool.basic.AboutTool;
 import org.junit.Test;
 
 import java.net.URI;
