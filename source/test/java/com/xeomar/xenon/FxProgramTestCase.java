@@ -79,7 +79,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 
-		initialMemoryUse = getMemoryUse( "Startup" );
+		initialMemoryUse = getMemoryUse( "Start " );
 	}
 
 	/**
@@ -93,7 +93,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
 
-		finalMemoryUse = getMemoryUse( "Cleanup" );
+		finalMemoryUse = getMemoryUse( "Finish" );
 
 		assertSafeMemoryProfile();
 	}
@@ -110,14 +110,19 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		WaitForAsyncUtils.waitForFxEvents();
 	}
 
-	protected double getAllowedMemoryGrowth() {
-		return 0.25;
+	protected double getAllowedMemoryGrowthSize() {
+		return 20;
+	}
+
+	protected double getAllowedMemoryGrowthPercent() {
+		return 0.50;
 	}
 
 	private void assertSafeMemoryProfile() {
-		double increase = (double)finalMemoryUse / (double)initialMemoryUse - 1;
-		if( increase > getAllowedMemoryGrowth() ) {
-			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increase * 100 ) );
+		double increaseSize = (double)finalMemoryUse - (double)initialMemoryUse;
+		double increasePercent = (double)finalMemoryUse / (double)initialMemoryUse;
+		if( increaseSize > getAllowedMemoryGrowthSize() || increasePercent > getAllowedMemoryGrowthPercent() ) {
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increasePercent * 100 ) );
 		}
 	}
 
