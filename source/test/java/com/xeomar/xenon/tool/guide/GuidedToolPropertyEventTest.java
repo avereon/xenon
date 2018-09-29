@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class GuideToolSelectedNodesTest extends FxProgramTestCase {
+public class GuidedToolPropertyEventTest extends FxProgramTestCase {
 
 	private MockGuidedTool mockGuidedTool;
 
@@ -31,7 +31,26 @@ public class GuideToolSelectedNodesTest extends FxProgramTestCase {
 	}
 
 	@Test
-	public void testGuidedToolReceivesGuideNodeSelectionChanges() {
+	public void testGuidedToolReceivesGuideNodeExpandedChanges() {
+		// Assert initial state
+		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
+
+		mockGuidedTool.getGuide().setExpandedIds( "general" );
+		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
+	}
+
+	@Test
+	public void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() {
+		// Assert initial state
+		mockGuidedTool.getGuide().setExpandedIds( "general" );
+		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
+
+		mockGuidedTool.getGuide().setExpandedIds( "general" );
+		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
+	}
+
+	@Test
+	public void testGuidedToolReceivesGuideNodeSelectedChanges() {
 		// Assert initial state
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
@@ -40,36 +59,54 @@ public class GuideToolSelectedNodesTest extends FxProgramTestCase {
 	}
 
 	@Test
-	public void testGuidedToolDoesNotReceivesGuideNodeSelectionChangeWhenSelectionDoesNotChange() {
+	public void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() {
 		// Assert initial state
 		mockGuidedTool.getGuide().setSelectedIds( "general" );
-		assertThat( mockGuidedTool.getGuideNodesChangedCallCount(), is( 1 ) );
+		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 
 		mockGuidedTool.getGuide().setSelectedIds( "general" );
-		assertThat( mockGuidedTool.getGuideNodesChangedCallCount(), is( 1 ) );
+		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}
 
 	private class MockGuidedTool extends GuidedTool {
 
+		private Set<GuideNode> expandedNodes = new HashSet<>();
+
 		private Set<GuideNode> selectedNodes = new HashSet<>();
 
-		private int guideNodesChangedCallCount;
+		private int guideNodesExpandedEventCount;
+
+		private int guideNodesSelectedEventCount;
 
 		public MockGuidedTool( ProgramProduct product, Resource resource ) {
 			super( product, resource );
+		}
+
+		public Set<GuideNode> getExpandedNodes() {
+			return expandedNodes;
 		}
 
 		public Set<GuideNode> getSelectedNodes() {
 			return selectedNodes;
 		}
 
-		public int getGuideNodesChangedCallCount() {
-			return guideNodesChangedCallCount;
+		public int getGuideNodesExpandedEventCount() {
+			return guideNodesExpandedEventCount;
+		}
+
+		public int getGuideNodesSelectedEventCount() {
+			return guideNodesSelectedEventCount;
+		}
+
+		@Override
+		protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+			guideNodesExpandedEventCount++;
+			this.expandedNodes = newNodes;
 		}
 
 		@Override
 		protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
-			guideNodesChangedCallCount++;
+			guideNodesSelectedEventCount++;
 			this.selectedNodes = newNodes;
 		}
 
