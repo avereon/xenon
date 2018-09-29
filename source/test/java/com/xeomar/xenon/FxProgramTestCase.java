@@ -36,18 +36,10 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	private long finalMemoryUse;
 
-	private long getMemoryUse( String prefix ) {
+	private long getMemoryUse() {
 		WaitForAsyncUtils.waitForFxEvents();
-
 		System.gc();
-		Thread.yield();
-		System.gc();
-		Thread.yield();
-
-		long alloc = Runtime.getRuntime().totalMemory();
-		long used = alloc - Runtime.getRuntime().freeMemory();
-		System.out.println( String.format( "%s memory: %s / %s / %s", prefix, FileUtil.getHumanBinSize( used ), FileUtil.getHumanBinSize( alloc ), FileUtil.getHumanBinSize( max ) ) );
-		return used;
+		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
 
 	/**
@@ -80,7 +72,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 
-		initialMemoryUse = getMemoryUse( "Start " );
+		initialMemoryUse = getMemoryUse();
 	}
 
 	/**
@@ -94,7 +86,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStoppedEvent.class );
 		program.removeEventListener( programWatcher );
 
-		finalMemoryUse = getMemoryUse( "Finish" );
+		finalMemoryUse = getMemoryUse();
 
 		assertSafeMemoryProfile();
 	}
@@ -121,6 +113,8 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
+		System.out.println( String.format( "Memory use: %s - %s = %s", FileUtil.getHumanBinSize( finalMemoryUse ), FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( increaseSize ) ) );
+
 		if( ((double)increaseSize / (double)SizeUnit.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
 			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %s", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), FileUtil.getHumanBinSize( increaseSize ) ) );
 		}
