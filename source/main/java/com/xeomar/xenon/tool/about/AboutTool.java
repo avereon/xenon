@@ -13,6 +13,7 @@ import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -150,6 +151,13 @@ public class AboutTool extends GuidedTool {
 		summaryPane.update( metadata );
 		productsText.setText( getProductsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+	}
+
+	@Override
+	public void setSettings( Settings settings ) {
+		super.setSettings( settings );
+
+		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	private class SummaryPane extends MigPane {
