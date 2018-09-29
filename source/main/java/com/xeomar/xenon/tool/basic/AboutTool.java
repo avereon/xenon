@@ -162,6 +162,8 @@ public class AboutTool extends GuidedTool {
 
 		private Label javaName;
 
+		private Label javaVmName;
+
 		private Label javaVersion;
 
 		private Label javaProvider;
@@ -183,6 +185,7 @@ public class AboutTool extends GuidedTool {
 			add( makeLabel( "tool-about-separator" ), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
 			add( javaName = makeLabel( "tool-about-name" ), "newline" );
+			add( javaVmName = makeLabel( "tool-about-version" ), "newline" );
 			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
 
@@ -194,27 +197,29 @@ public class AboutTool extends GuidedTool {
 		}
 
 		public void update( ProductCard card ) {
+			String from = getProgram().getResourceBundle().getString( "tool", "about-from" );
 			productName.setText( card.getName() );
 			if( card.getRelease().getVersion().isSnapshot() ) {
 				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
 			} else {
 				productVersion.setText( card.getRelease().getVersion().toHumanString() );
 			}
-			productProvider.setText( "by " + card.getProvider() );
+			productProvider.setText( from + " " + card.getProvider() );
 
+			javaName.setText( System.getProperty( "java.runtime.name" ) );
+			javaVmName.setText( System.getProperty( "java.vm.name" ) );
 			String javaVersionDate = System.getProperty( "java.version.date" );
-			javaName.setText( System.getProperty( "java.vm.name" ) );
 			if( javaVersionDate == null ) {
-				javaVersion.setText( System.getProperty( "java.version" ) );
+				javaVersion.setText( System.getProperty( "java.runtime.version" ) );
 			} else {
-				javaVersion.setText( System.getProperty( "java.version" ) + "  " + System.getProperty( "java.version.date" ) );
+				javaVersion.setText( System.getProperty( "java.runtime.version" ) + "  " + javaVersionDate );
 			}
-			javaProvider.setText( "by " + System.getProperty( "java.vendor" ) );
+			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
 			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( System.getProperty( "os.version" ) );
-			osProvider.setText( "by " + OperatingSystem.getProvider() );
+			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 		}
 
 	}
