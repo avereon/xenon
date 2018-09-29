@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool.basic;
+package com.xeomar.xenon.tool.about;
 
 import com.xeomar.product.ProductCard;
 import com.xeomar.settings.Settings;

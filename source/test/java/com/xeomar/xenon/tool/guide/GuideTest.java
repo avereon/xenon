@@ -1,7 +1,6 @@
 package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.xenon.BaseTestCase;
-import com.xeomar.xenon.resource.Resource;
 import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -12,8 +11,6 @@ import static org.junit.Assert.assertThat;
 public class GuideTest extends BaseTestCase {
 
 	private Guide guide;
-
-	private Resource resource;
 
 	@Before
 	public void setup() throws Exception {

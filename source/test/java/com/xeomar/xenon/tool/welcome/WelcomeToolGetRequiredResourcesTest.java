@@ -2,7 +2,6 @@ package com.xeomar.xenon.tool.welcome;
 
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramWelcomeType;
-import com.xeomar.xenon.tool.basic.WelcomeTool;
 import org.junit.Test;
 
 import java.net.URI;
