@@ -120,7 +120,7 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		double increaseSize = (double)finalMemoryUse - (double)initialMemoryUse;
-		double increasePercent = (double)finalMemoryUse / (double)initialMemoryUse;
+		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 		if( increaseSize > getAllowedMemoryGrowthSize() || increasePercent > getAllowedMemoryGrowthPercent() ) {
 			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increasePercent * 100 ) );
 		}
