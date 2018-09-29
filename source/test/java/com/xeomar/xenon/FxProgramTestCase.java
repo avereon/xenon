@@ -3,6 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.product.ProductCard;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.OperatingSystem;
+import com.xeomar.util.SizeUnit;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
@@ -119,9 +120,12 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 	}
 
 	private void assertSafeMemoryProfile() {
-		double increaseSize = (double)finalMemoryUse - (double)initialMemoryUse;
+		long increaseSize = finalMemoryUse - initialMemoryUse;
+		if( ((double)increaseSize / (double)SizeUnit.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %s", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), FileUtil.getHumanBinSize( increaseSize ) ) );
+		}
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
-		if( increaseSize > getAllowedMemoryGrowthSize() || increasePercent > getAllowedMemoryGrowthPercent() ) {
+		if( increasePercent > getAllowedMemoryGrowthPercent() ) {
 			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increasePercent * 100 ) );
 		}
 	}
