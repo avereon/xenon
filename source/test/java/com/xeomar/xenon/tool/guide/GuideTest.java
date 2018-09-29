@@ -1,6 +1,8 @@
 package com.xeomar.xenon.tool.guide;
 
-import com.xeomar.xenon.BaseTestCase;
+import com.xeomar.xenon.FxProgramTestCase;
+import com.xeomar.xenon.util.FxUtil;
+import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -8,7 +10,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertThat;
 
-public class GuideTest extends BaseTestCase {
+public class GuideTest extends FxProgramTestCase {
 
 	private Guide guide;
 
@@ -19,20 +21,24 @@ public class GuideTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testSetSelectedItems() {
-		guide.setSelectedIds( "general" );
+	public void testSetSelectedItems() throws Exception {
+		Platform.runLater( () -> guide.setSelectedIds( "general" ) );
+		FxUtil.fxWait( 1000 );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
 
-		guide.setSelectedIds( "workspace", "tools" );
+		Platform.runLater( () -> guide.setSelectedIds( "workspace", "tools" ) );
+		FxUtil.fxWait( 1000 );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
 	@Test
-	public void testSetExpandedItems() {
-		guide.setExpandedIds( "general" );
+	public void testSetExpandedItems() throws Exception {
+		Platform.runLater( () -> guide.setExpandedIds( "general" ) );
+		FxUtil.fxWait( 1000 );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
 
-		guide.setExpandedIds( "workspace", "tools" );
+		Platform.runLater( () -> guide.setExpandedIds( "workspace", "tools" ) );
+		FxUtil.fxWait( 1000 );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
