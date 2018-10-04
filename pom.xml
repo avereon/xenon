@@ -51,8 +51,9 @@
 		<product-pack-folder>pack/program</product-pack-folder>
 
 		<!-- Runtime dependencies -->
+		<java.version>11</java.version>
 		<javafx.version>11</javafx.version>
-		<controlsfx.version>8.40.14</controlsfx.version>
+		<controlsfx.version>9.0.0</controlsfx.version>
 		<undofx.version>2.1.0</undofx.version>
 		<slf4j.version>1.8.0-beta2</slf4j.version>
 		<miglayout.version>5.1</miglayout.version>
@@ -74,6 +75,7 @@
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!-- TODO Need to fix annex first -->
 		<dependency>
 			<groupId>com.xeomar</groupId>
 			<artifactId>annex</artifactId>
@@ -142,11 +144,38 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Apparently this causes duplicate modules to be loaded -->
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>openjfx-monocle</artifactId>
 			<version>${monocle.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-controls</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-graphics</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-swing</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-fxml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-web</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 	</dependencies>
@@ -165,8 +194,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -177,12 +206,12 @@
 				<!-- Does not work with Java 10 and Surefire 2.22.0 -->
 				<version>${surefire.version}</version>
 				<configuration>
+					<skip>true</skip>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
 					<runOrder>alphabetical</runOrder>
 					<argLine>
 						-Xmx128m
-						--list-modules
 						--add-opens=java.base/java.util=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
@@ -430,5 +459,98 @@
 
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os>
+					<family>linux</family>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.5.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jlink</executable>
+									<arguments>
+										<argument>--module-path</argument>
+										<argument>${java.home}/jmods:${basedir}/target/dependency/:${basedir}/target</argument>
+										<argument>--add-modules</argument>
+										<argument>com.xeomar.xenon</argument>
+										<argument>--output</argument>
+										<argument>${basedir}/target/jlink</argument>
+										<argument>--launcher</argument>
+										<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
+
+										<argument>--strip-debug</argument>
+										<argument>--no-header-files</argument>
+										<argument>--no-man-pages</argument>
+										<!-- Valid value: 0, 1, 2 -->
+										<argument>--compress</argument>
+										<argument>2</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!--<profile>-->
+			<!--<id>windows</id>-->
+			<!--<activation>-->
+				<!--<os>-->
+					<!--<family>windows</family>-->
+				<!--</os>-->
+			<!--</activation>-->
+			<!--<build>-->
+				<!--<plugins>-->
+					<!--<plugin>-->
+						<!--<groupId>org.codehaus.mojo</groupId>-->
+						<!--<artifactId>exec-maven-plugin</artifactId>-->
+						<!--<version>1.5.0</version>-->
+						<!--<executions>-->
+							<!--<execution>-->
+								<!--<phase>package</phase>-->
+								<!--<goals>-->
+									<!--<goal>exec</goal>-->
+								<!--</goals>-->
+								<!--<configuration>-->
+									<!--<executable>${java.home}/bin/jlink</executable>-->
+									<!--<arguments>-->
+										<!--<argument>&#45;&#45;module-path</argument>-->
+										<!--<argument>${java.home}/jmods;${basedir}/target/dependency/;${basedir}/target</argument>-->
+										<!--<argument>&#45;&#45;add-modules</argument>-->
+										<!--<argument>com.xeomar.amroc</argument>-->
+										<!--<argument>&#45;&#45;output</argument>-->
+										<!--<argument>${basedir}/target/jlink</argument>-->
+										<!--<argument>&#45;&#45;launcher</argument>-->
+										<!--<argument>amroc=com.xeomar.amroc/com.xeomar.amroc.Program</argument>-->
+
+										<!--<argument>&#45;&#45;strip-debug</argument>-->
+										<!--<argument>&#45;&#45;no-header-files</argument>-->
+										<!--<argument>&#45;&#45;no-man-pages</argument>-->
+										<!--&lt;!&ndash; Valid value: 0, 1, 2 &ndash;&gt;-->
+										<!--<argument>&#45;&#45;compress</argument>-->
+										<!--<argument>2</argument>-->
+									<!--</arguments>-->
+								<!--</configuration>-->
+							<!--</execution>-->
+						<!--</executions>-->
+					<!--</plugin>-->
+				<!--</plugins>-->
+			<!--</build>-->
+		<!--</profile>-->
+	</profiles>
 
 </project>
