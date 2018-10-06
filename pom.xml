@@ -75,7 +75,6 @@
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
-		<!-- TODO Need to fix annex first -->
 		<dependency>
 			<groupId>com.xeomar</groupId>
 			<artifactId>annex</artifactId>
@@ -100,17 +99,17 @@
 			<version>${javafx.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.controlsfx</groupId>
-			<artifactId>controlsfx</artifactId>
-			<version>${controlsfx.version}</version>
-		</dependency>
+		<!--<dependency>-->
+		<!--<groupId>org.controlsfx</groupId>-->
+		<!--<artifactId>controlsfx</artifactId>-->
+		<!--<version>${controlsfx.version}</version>-->
+		<!--</dependency>-->
 
-		<dependency>
-			<groupId>org.fxmisc.undo</groupId>
-			<artifactId>undofx</artifactId>
-			<version>${undofx.version}</version>
-		</dependency>
+		<!--<dependency>-->
+		<!--<groupId>org.fxmisc.undo</groupId>-->
+		<!--<artifactId>undofx</artifactId>-->
+		<!--<version>${undofx.version}</version>-->
+		<!--</dependency>-->
 
 		<dependency>
 			<groupId>com.miglayout</groupId>
@@ -258,23 +257,81 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.6.0</version>
+				<groupId>com.xeomar</groupId>
+				<artifactId>snare</artifactId>
+				<version>1.0-SNAPSHOT</version>
 				<executions>
 					<execution>
+						<id>patch-dependencies</id>
 						<phase>prepare-package</phase>
+						<goals>
+							<goal>patch</goal>
+						</goals>
+						<configuration>
+							<modulePath>${project.build.directory}/dependency</modulePath>
+							<jars>
+								<jar>
+									<name>commons-io.jar</name>
+								</jar>
+								<jar>
+									<name>jackson-core.jar</name>
+								</jar>
+								<jar>
+									<name>jackson-annotations.jar</name>
+								</jar>
+								<jar>
+									<name>jackson-databind.jar</name>
+									<modules>
+										<module>com.fasterxml.jackson.core</module>
+										<module>com.fasterxml.jackson.annotation</module>
+									</modules>
+								</jar>
+								<jar>
+									<name>miglayout-core.jar</name>
+								</jar>
+								<jar>
+									<name>miglayout-javafx.jar</name>
+									<modules>
+										<module>miglayout.core</module>
+										<module>javafx.base</module>
+										<module>javafx.graphics</module>
+										<module>javafx.controls</module>
+									</modules>
+								</jar>
+							</jars>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
 						<goals>
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>bash</executable>
+							<executable>${java.home}/bin/jlink</executable>
 							<arguments>
-								<argument>${project.basedir}/source/main/bin/module-patch.sh</argument>
-								<argument>${project.build.directory}/dependency/reactfx.jar</argument>
-								<argument>${project.build.directory}/dependency/undofx.jar</argument>
-								<argument>${project.build.directory}/dependency/jackson-annotations.jar</argument>
-								<argument>${project.build.directory}/dependency/jackson-databind.jar</argument>
+								<argument>--module-path</argument>
+								<argument>${jlink.module.path}</argument>
+								<argument>--add-modules</argument>
+								<argument>com.xeomar.xenon</argument>
+								<argument>--output</argument>
+								<argument>${basedir}/target/jlink</argument>
+								<argument>--launcher</argument>
+								<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
+
+								<argument>--strip-debug</argument>
+								<argument>--no-header-files</argument>
+								<argument>--no-man-pages</argument>
+								<!-- Valid value: 0, 1, 2 -->
+								<argument>--compress</argument>
+								<argument>2</argument>
 							</arguments>
 						</configuration>
 					</execution>
@@ -459,98 +516,5 @@
 
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>linux</id>
-			<activation>
-				<os>
-					<family>linux</family>
-				</os>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.5.0</version>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${java.home}/bin/jlink</executable>
-									<arguments>
-										<argument>--module-path</argument>
-										<argument>${java.home}/jmods:${basedir}/target/dependency/:${basedir}/target</argument>
-										<argument>--add-modules</argument>
-										<argument>com.xeomar.xenon</argument>
-										<argument>--output</argument>
-										<argument>${basedir}/target/jlink</argument>
-										<argument>--launcher</argument>
-										<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
-
-										<argument>--strip-debug</argument>
-										<argument>--no-header-files</argument>
-										<argument>--no-man-pages</argument>
-										<!-- Valid value: 0, 1, 2 -->
-										<argument>--compress</argument>
-										<argument>2</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<!--<profile>-->
-			<!--<id>windows</id>-->
-			<!--<activation>-->
-				<!--<os>-->
-					<!--<family>windows</family>-->
-				<!--</os>-->
-			<!--</activation>-->
-			<!--<build>-->
-				<!--<plugins>-->
-					<!--<plugin>-->
-						<!--<groupId>org.codehaus.mojo</groupId>-->
-						<!--<artifactId>exec-maven-plugin</artifactId>-->
-						<!--<version>1.5.0</version>-->
-						<!--<executions>-->
-							<!--<execution>-->
-								<!--<phase>package</phase>-->
-								<!--<goals>-->
-									<!--<goal>exec</goal>-->
-								<!--</goals>-->
-								<!--<configuration>-->
-									<!--<executable>${java.home}/bin/jlink</executable>-->
-									<!--<arguments>-->
-										<!--<argument>&#45;&#45;module-path</argument>-->
-										<!--<argument>${java.home}/jmods;${basedir}/target/dependency/;${basedir}/target</argument>-->
-										<!--<argument>&#45;&#45;add-modules</argument>-->
-										<!--<argument>com.xeomar.amroc</argument>-->
-										<!--<argument>&#45;&#45;output</argument>-->
-										<!--<argument>${basedir}/target/jlink</argument>-->
-										<!--<argument>&#45;&#45;launcher</argument>-->
-										<!--<argument>amroc=com.xeomar.amroc/com.xeomar.amroc.Program</argument>-->
-
-										<!--<argument>&#45;&#45;strip-debug</argument>-->
-										<!--<argument>&#45;&#45;no-header-files</argument>-->
-										<!--<argument>&#45;&#45;no-man-pages</argument>-->
-										<!--&lt;!&ndash; Valid value: 0, 1, 2 &ndash;&gt;-->
-										<!--<argument>&#45;&#45;compress</argument>-->
-										<!--<argument>2</argument>-->
-									<!--</arguments>-->
-								<!--</configuration>-->
-							<!--</execution>-->
-						<!--</executions>-->
-					<!--</plugin>-->
-				<!--</plugins>-->
-			<!--</build>-->
-		<!--</profile>-->
-	</profiles>
 
 </project>

@@ -10,12 +10,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
-import org.controlsfx.dialog.FontSelectorDialog;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Optional;
 
 public class FontSettingEditor extends SettingEditor {
 
@@ -70,14 +67,14 @@ public class FontSettingEditor extends SettingEditor {
 		log.debug( "Setting font updated: " + font );
 		button.setText( font.getName() + " " + font.getSize() );
 		button.setFont( Font.font( font.getFamily(), FontUtil.getFontWeight( font.getStyle() ), FontUtil.getFontPosture( font.getStyle() ), -1 ) );
-		button.setOnAction( ( event ) -> {
-			FontSelectorDialog dialog = new FontSelectorDialog( font );
-			Optional<Font> optional = dialog.showAndWait();
-			optional.ifPresent( font1 -> {
-				log.debug( "Setting font selected: " + font1 );
-				setting.getSettings().set( setting.getKey(), FontUtil.encode( font1 ) );
-			} );
-		} );
+//		button.setOnAction( ( event ) -> {
+//			FontSelectorDialog dialog = new FontSelectorDialog( font );
+//			Optional<Font> optional = dialog.showAndWait();
+//			optional.ifPresent( font1 -> {
+//				log.debug( "Setting font selected: " + font1 );
+//				setting.getSettings().set( setting.getKey(), FontUtil.encode( font1 ) );
+//			} );
+//		} );
 	}
 
 }
