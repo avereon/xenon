@@ -6,13 +6,13 @@ import com.xeomar.util.*;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
-import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Application;
+import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -326,21 +326,27 @@ public class AboutTool extends GuidedTool {
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
 
+		// Runtime
+		builder.append( "\n" );
+		builder.append( getHeader( "Runtime details" ) );
+		builder.append( "\n" );
+		builder.append( Indenter.indent( getRuntimeDetail(), 4, " " ) );
+
 		// Operating system
 		builder.append( "\n" );
 		builder.append( getHeader( "Operating system" ) );
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getOperatingSystemDetail(), 4, " " ) );
 
-		// Runtime
+		// Execution
 		builder.append( "\n" );
-		builder.append( getHeader( "Runtime" ) );
+		builder.append( getHeader( "Execution details" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getRuntimeDetail( program ), 4, " " ) );
+		builder.append( Indenter.indent( getExecutionDetail( program ), 4, " " ) );
 
 		// Memory
 		builder.append( "\n" );
-		builder.append( getHeader( "Memory" ) );
+		builder.append( getHeader( "Memory details" ) );
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getMemoryDetail(), 4, " " ) );
 
@@ -424,6 +430,24 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
+	private String getRuntimeDetail() {
+		StringBuilder builder = new StringBuilder();
+
+		long max = Runtime.getRuntime().maxMemory();
+		long total = Runtime.getRuntime().totalMemory();
+		long used = total - Runtime.getRuntime().freeMemory();
+		builder.append( "JVM Memory:     " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
+
+		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
+		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() + "\n" );
+
+		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
+		builder.append( "3D Accelerated: " + scene3d + "\n" );
+
+		return builder.toString();
+
+	}
+
 	private String getOperatingSystemDetail() {
 		StringBuilder builder = new StringBuilder();
 
@@ -436,7 +460,7 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
-	private String getRuntimeDetail( Program program ) {
+	private String getExecutionDetail( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
 		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
@@ -445,13 +469,13 @@ public class AboutTool extends GuidedTool {
 		builder.append( "Current time:      " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) + "\n" );
 		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) + "\n" );
 
-		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
 		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
 		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
 		String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+		builder.append( "\n" );
 		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
 		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
 
@@ -461,13 +485,7 @@ public class AboutTool extends GuidedTool {
 	private String getMemoryDetail() {
 		StringBuilder builder = new StringBuilder();
 
-		long max = Runtime.getRuntime().maxMemory();
-		long total = Runtime.getRuntime().totalMemory();
-		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "Summary: " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
-
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
-		builder.append( "\n" );
 		builder.append( "Heap use:     " + bean.getHeapMemoryUsage() + "\n" );
 		builder.append( "Non-heap use: " + bean.getNonHeapMemoryUsage() + "\n" );
 
