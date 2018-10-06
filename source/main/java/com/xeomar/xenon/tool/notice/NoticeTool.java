@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool.basic;
+package com.xeomar.xenon.tool.notice;
 
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;

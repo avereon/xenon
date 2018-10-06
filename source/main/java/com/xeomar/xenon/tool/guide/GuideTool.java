@@ -111,7 +111,7 @@ public class GuideTool extends ProgramTool {
 		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
 
 		// Add the guide selected item property listener
-		// This listens to the guide for changes to the selected item
+		// This listens to the guide for changes to the selected items
 		if( guideSelectedItemsListener != null ) guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
 		guide.selectedItemsProperty().addListener( guideSelectedItemsListener = new GuideSelectedItemsListener() );
 
@@ -132,14 +132,14 @@ public class GuideTool extends ProgramTool {
 	 * @param selectedItems The selected items list.
 	 */
 	private void setSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
-		// The tree should already be expanded before calling this method
-		for( TreeItem<GuideNode> item : selectedItems ) {
-			item = item.getParent();
-			while( item != null ) {
-				item.setExpanded( true );
-				item = item.getParent();
-			}
-		}
+//		// The tree should already be expanded before calling this method
+//		for( TreeItem<GuideNode> item : selectedItems ) {
+//			item = item.getParent();
+//			while( item != null ) {
+//				item.setExpanded( true );
+//				item = item.getParent();
+//			}
+//		}
 
 		// FIXME The following logic leaves selected item artifacts when auto-expand is on
 

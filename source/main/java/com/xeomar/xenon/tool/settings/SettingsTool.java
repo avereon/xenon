@@ -5,10 +5,12 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
+import com.xeomar.xenon.resource.type.ProgramSettingsType;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
+import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 
@@ -76,6 +78,13 @@ public class SettingsTool extends GuidedTool {
 	@Override
 	public void resourceRefreshed() throws ToolException {
 		super.resourceRefreshed();
+	}
+
+	@Override
+	public void setSettings( Settings settings ) {
+		super.setSettings( settings );
+
+		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramSettingsType.GENERAL ).split( "," )[ 0 ] ) );
 	}
 
 	@Override

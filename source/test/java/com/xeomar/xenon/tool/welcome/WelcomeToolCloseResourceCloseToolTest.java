@@ -2,7 +2,6 @@ package com.xeomar.xenon.tool.welcome;
 
 import com.xeomar.xenon.resource.type.ProgramWelcomeType;
 import com.xeomar.xenon.tool.ProgramTool;
-import com.xeomar.xenon.tool.basic.WelcomeTool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneEvent;
 import org.junit.Test;

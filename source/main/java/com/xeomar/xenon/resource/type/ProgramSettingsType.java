@@ -15,6 +15,8 @@ public class ProgramSettingsType extends ResourceType {
 
 	public static final String KEY = "settings";
 
+	public static final String GENERAL = "general";
+
 	public ProgramSettingsType( Product product ) {
 		super( product, KEY );
 	}

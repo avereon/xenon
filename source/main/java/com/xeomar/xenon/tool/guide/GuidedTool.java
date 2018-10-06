@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
+	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 
-	private static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
+	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
 
 	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
 
@@ -46,16 +46,9 @@ public abstract class GuidedTool extends ProgramTool {
 
 		if( this.settings != null ) this.settings = settings;
 
-		String expandedIds = settings.get( GUIDE_EXPANDED_IDS );
-		if( expandedIds != null ) {
-			Platform.runLater( () -> getGuide().setExpandedIds( expandedIds.split( "," ) ) );
-		}
-
 		// Set the expanded ids before setting the selected ids
-		String selectedIds = settings.get( GUIDE_SELECTED_IDS );
-		if( selectedIds != null ) {
-			Platform.runLater( () -> getGuide().setSelectedIds( selectedIds.split( "," ) ) );
-		}
+		Platform.runLater( () -> getGuide().setExpandedIds( settings.get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ) );
+		Platform.runLater( () -> getGuide().setSelectedIds( settings.get( GUIDE_SELECTED_IDS, "" ).split( "," ) ) );
 	}
 
 	@Override

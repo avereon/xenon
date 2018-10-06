@@ -2,6 +2,7 @@ package com.xeomar.xenon.tool.product;
 
 import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductCardComparator;
+import com.xeomar.settings.Settings;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
@@ -13,6 +14,7 @@ import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
@@ -136,6 +138,13 @@ public class ProductTool extends GuidedTool {
 	protected void resourceRefreshed() throws ToolException {
 		log.trace( "Product tool resource refreshed" );
 		super.resourceRefreshed();
+	}
+
+	@Override
+	public void setSettings( Settings settings ) {
+		super.setSettings( settings );
+
+		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
 	}
 
 	@Override

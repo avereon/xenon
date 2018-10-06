@@ -1,4 +1,4 @@
-package com.xeomar.xenon.tool.basic;
+package com.xeomar.xenon.tool.welcome;
 
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;

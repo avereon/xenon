@@ -1,5 +1,6 @@
 package com.xeomar.xenon.util;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 
@@ -37,6 +38,33 @@ public class FxUtil {
 		item.getChildren().forEach( ( child ) -> list.addAll( flatTree( child, true ) ) );
 
 		return list;
+	}
+
+	public static void checkFxUserThread() {
+		if( !Platform.isFxApplicationThread() ) throw new IllegalStateException( "Not on FX application thread; currentThread = " + Thread.currentThread().getName() );
+	}
+
+	public static void fxWait( long timeout ) throws InterruptedException {
+		WaitToken token = new WaitToken();
+		Platform.runLater( token );
+		token.fxWait( timeout );
+	}
+
+	private static class WaitToken implements Runnable {
+
+		boolean released;
+
+		public synchronized void run() {
+			this.released = true;
+			this.notifyAll();
+		}
+
+		public synchronized void fxWait( long timeout ) throws InterruptedException {
+			while( !released ) {
+				wait( timeout );
+			}
+		}
+
 	}
 
 }
