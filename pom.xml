@@ -60,7 +60,7 @@
 
 		<!-- Test dependencies -->
 		<surefire.version>2.22.0</surefire.version>
-		<testfx.version>4.0.14-alpha</testfx.version>
+		<testfx.version>4.0.15-alpha</testfx.version>
 		<monocle.version>jdk-11+23</monocle.version>
 
 		<!-- Build dependencies -->
@@ -203,10 +203,6 @@
 					<runOrder>alphabetical</runOrder>
 					<argLine>
 						-Xmx128m
-						--add-opens=java.base/java.util=ALL-UNNAMED
-						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
-						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->
