@@ -313,7 +313,6 @@
 								<argument>${basedir}/target/jlink</argument>
 								<argument>--launcher</argument>
 								<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
-
 								<argument>--strip-debug</argument>
 								<argument>--no-header-files</argument>
 								<argument>--no-man-pages</argument>
@@ -325,25 +324,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jlink-plugin</artifactId>
-				<version>3.0.0-alpha-1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jlink</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<ignoreSigningInformation>true</ignoreSigningInformation>
-				</configuration>
-			</plugin>
-			-->
 
 			<!-- FIXME Need new assemblies and installers -->
 			<plugin>

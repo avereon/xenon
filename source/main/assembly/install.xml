@@ -12,24 +12,14 @@
 			<directory>source/main/assembly/resources</directory>
 			<outputDirectory>/bin</outputDirectory>
 			<includes>
-				<!-- TODO Rename and add later -->
-				<!--
-				<include>${artifact.artifactId}.exe</include>
-				<include>${artifact.artifactId}.ini</include>
-				<include>${artifact.artifactId}32.exe</include>
-				<include>${artifact.artifactId}64.exe</include>
-				<include>${artifact.artifactId}.reg</include>
-				-->
 				<include>${artifact.artifactId}.ico</include>
 				<include>${artifact.artifactId}.png</include>
+				<include>${artifact.artifactId}.svg</include>
 			</includes>
 		</fileSet>
+		<fileSet>
+			<directory>target/jlink</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
 	</fileSets>
-	<dependencySets>
-		<dependencySet>
-			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
-			<outputDirectory>/mod</outputDirectory>
-			<scope>runtime</scope>
-		</dependencySet>
-	</dependencySets>
 </assembly>
