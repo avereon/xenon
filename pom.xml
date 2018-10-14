@@ -69,12 +69,6 @@
 
 	<dependencies>
 
-		<dependency>
-			<groupId>com.xeomar</groupId>
-			<artifactId>annex</artifactId>
-			<version>0.1-SNAPSHOT</version>
-		</dependency>
-
 		<!-- Provided by annex -->
 		<!--
 		<dependency>
@@ -87,20 +81,32 @@
 		<!-- Provided by annex -->
 		<!--
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>${slf4j.version}</version>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
 		</dependency>
 		-->
 
 		<!-- Provided by annex -->
 		<!--
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>${controlsfx.version}</version>
 		</dependency>
 		-->
+
+		<dependency>
+			<groupId>com.xeomar</groupId>
+			<artifactId>annex</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -113,15 +119,6 @@
 			<artifactId>javafx-web</artifactId>
 			<version>${javafx.version}</version>
 		</dependency>
-
-		<!-- Provided by annex -->
-		<!--
-		<dependency>
-			<groupId>org.controlsfx</groupId>
-			<artifactId>controlsfx</artifactId>
-			<version>${controlsfx.version}</version>
-		</dependency>
-		-->
 
 		<!--<dependency>-->
 		<!--<groupId>org.fxmisc.undo</groupId>-->
