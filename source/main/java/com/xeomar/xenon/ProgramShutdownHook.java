@@ -3,7 +3,10 @@ package com.xeomar.xenon;
 import com.xeomar.annex.UpdateCommandBuilder;
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.annex.UpdateTask;
-import com.xeomar.util.*;
+import com.xeomar.util.FileUtil;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.ProcessCommands;
+import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -11,11 +14,11 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This shutdown hook is used when a program restart is requested. When a
@@ -157,19 +160,22 @@ public class ProgramShutdownHook extends Thread {
 			Files.createDirectories( updaterModuleRoot );
 
 			// Copy all the modules needed for the updater
-			for( URI uri : JavaUtil.getModulePath() ) {
-				log.debug( "Copying: " + uri );
-				Path source = Paths.get( uri );
-				if( Files.isDirectory( source ) ) {
-					Path target = updaterModuleRoot.resolve( UUID.randomUUID().toString() );
-					FileUtils.copyDirectory( source.toFile(), target.toFile() );
-					tempUpdaterModulePaths.add( target );
-				} else {
-					Path target = updaterModuleRoot.resolve( source.getFileName() );
-					FileUtils.copyFile( source.toFile(), target.toFile() );
-					tempUpdaterModulePaths.add( updaterModuleRoot.resolve( source.getFileName() ) );
-				}
-			}
+			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterModuleRoot );
+			FileUtil.copy( program.getHomeFolder(), updaterModuleRoot );
+			//			for( URI uri : JavaUtil.getModulePath() ) {
+			//				log.debug( "Copying: " + uri );
+			//				Path source = Paths.get( uri );
+			//				if( Files.isDirectory( source ) ) {
+			//					Path target = updaterModuleRoot.resolve( UUID.randomUUID().toString() );
+			//					FileUtils.copyDirectory( source.toFile(), target.toFile() );
+			//					tempUpdaterModulePaths.add( target );
+			//				} else {
+			//					Path target = updaterModuleRoot.resolve( source.getFileName() );
+			//					FileUtils.copyFile( source.toFile(), target.toFile() );
+			//					tempUpdaterModulePaths.add( updaterModuleRoot.resolve( source.getFileName() ) );
+			//				}
+			//			}
+
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 		} catch( IOException exception ) {
 			log.error( "Unable to stage updater", exception );
