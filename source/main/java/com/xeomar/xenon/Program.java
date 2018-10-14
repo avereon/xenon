@@ -768,7 +768,7 @@ public class Program extends Application implements ProgramProduct {
 
 			// Apparently, when running a linked program, there is not a jdk.module.path system property
 			// The program home should be the java home when running as a linked application
-			boolean isLinked = System.getProperty("jdk.module.path") == null;
+			boolean isLinked = System.getProperty( "jdk.module.path" ) == null;
 			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
 			// However, when in development, don't use the java home

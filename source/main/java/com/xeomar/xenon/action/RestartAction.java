@@ -2,7 +2,6 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramFlag;
 import javafx.event.Event;
 
 public class RestartAction extends Action {
@@ -18,7 +17,11 @@ public class RestartAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		getProgram().requestRestart();
+		try {
+			getProgram().requestRestart();
+		} catch( Throwable throwable ) {
+			log.error( "Error requesting restart", throwable );
+		}
 	}
 
 }
