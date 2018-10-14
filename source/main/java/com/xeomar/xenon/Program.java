@@ -22,12 +22,12 @@ import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.tool.ToolInstanceMode;
 import com.xeomar.xenon.tool.ToolMetadata;
 import com.xeomar.xenon.tool.about.AboutTool;
-import com.xeomar.xenon.tool.notice.NoticeTool;
-import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.tool.guide.GuideTool;
+import com.xeomar.xenon.tool.notice.NoticeTool;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
+import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
@@ -48,9 +48,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -769,34 +766,13 @@ public class Program extends Application implements ProgramProduct {
 			// If the HOME flag was specified on the command line use it.
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// Find the URI from which this class was loaded
-			try {
-				URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-				// Check the code source.
-				if( programHomeFolder == null ) {
-					boolean localJar = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" );
+			// Apparently, when running a linked program, there is not a jdk.module.path system property
+			// The program home should be the java home when running as a linked application
+			boolean isLinked = System.getProperty("jdk.module.path") == null;
+			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
-					// If the URI is a local jar file then assume it is located under the
-					// standard folder structure. The standard location is under:
-					// <program home>/lib/<program jar>
-					if( localJar ) programHomeFolder = Paths.get( uri ).getParent().getParent();
-				}
-
-				// Check the execmode flag to detect when running in development
-				String devProgramHome = "target/program";
-
-				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
-					boolean mavenManaged = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( "/target/main/java/" );
-					if( mavenManaged ) {
-						programHomeFolder = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
-					} else {
-						programHomeFolder = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
-					}
-					Files.createDirectories( programHomeFolder );
-				}
-			} catch( URISyntaxException exception ) {
-				log.error( "Error using class location to determine program home", exception );
-			}
+			// However, when in development, don't use the java home
+			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
