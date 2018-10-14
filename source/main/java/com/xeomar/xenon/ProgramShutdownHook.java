@@ -78,7 +78,13 @@ public class ProgramShutdownHook extends Thread {
 
 		mode = Mode.UPDATE;
 
-		String updaterModulePath = stageUpdater();
+		// Stage the updater
+		String updaterHome = stageUpdater();
+
+		String javaPath = updaterHome + "/bin/java";
+
+		// FIXME When running as a linked program there is not a module path
+		String updaterModulePath = null;
 		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
 		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
 
@@ -152,16 +158,18 @@ public class ProgramShutdownHook extends Thread {
 	private String stageUpdater() {
 		List<Path> tempUpdaterModulePaths = new ArrayList<>();
 		try {
+			// FIXME This was an odd place for the updater: /home/ecco/target/xenon-updater
+
 			// Determine where to add the updater
-			String updaterModuleFolderName = program.getCard().getArtifact() + "-updater";
-			Path updaterModuleRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterModuleFolderName );
-			if( program.getExecMode() == ExecMode.DEV ) updaterModuleRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterModuleFolderName );
-			FileUtils.deleteDirectory( updaterModuleRoot.toFile() );
-			Files.createDirectories( updaterModuleRoot );
+			String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
+			Path updaterHomeRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterHomeFolderName );
+			if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
+			FileUtils.deleteDirectory( updaterHomeRoot.toFile() );
+			Files.createDirectories( updaterHomeRoot );
 
 			// Copy all the modules needed for the updater
-			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterModuleRoot );
-			FileUtil.copy( program.getHomeFolder(), updaterModuleRoot );
+			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
+			FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
 			//			for( URI uri : JavaUtil.getModulePath() ) {
 			//				log.debug( "Copying: " + uri );
 			//				Path source = Paths.get( uri );
@@ -182,12 +190,12 @@ public class ProgramShutdownHook extends Thread {
 			return null;
 		}
 
-		StringBuilder updaterModulePath = new StringBuilder( tempUpdaterModulePaths.get( 0 ).toString() );
+		StringBuilder updaterHomePath = new StringBuilder( tempUpdaterModulePaths.get( 0 ).toString() );
 		for( int index = 1; index < tempUpdaterModulePaths.size(); index++ ) {
-			updaterModulePath.append( File.pathSeparator ).append( tempUpdaterModulePaths.get( index ).toString() );
+			updaterHomePath.append( File.pathSeparator ).append( tempUpdaterModulePaths.get( index ).toString() );
 		}
 
-		return updaterModulePath.toString();
+		return updaterHomePath.toString();
 	}
 
 	@Override
