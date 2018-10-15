@@ -316,7 +316,7 @@
 								<argument>${basedir}/target/jlink</argument>
 								<argument>--launcher</argument>
 								<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
-								<argument>--strip-debug</argument>
+								<!--<argument>&#45;&#45;strip-debug</argument>-->
 								<argument>--no-header-files</argument>
 								<argument>--no-man-pages</argument>
 								<!-- Valid value: 0, 1, 2 -->
@@ -328,7 +328,6 @@
 				</executions>
 			</plugin>
 
-			<!-- FIXME Need new assemblies and installers -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>

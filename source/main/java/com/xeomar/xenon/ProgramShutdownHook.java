@@ -17,7 +17,6 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,16 +82,14 @@ public class ProgramShutdownHook extends Thread {
 
 		String javaPath = updaterHome + "/bin/java";
 
-		// FIXME When running as a linked program there is not a module path
-		String updaterModulePath = null;
+		// Linked programs do not have a module path
 		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
-		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain ) );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
@@ -156,46 +153,29 @@ public class ProgramShutdownHook extends Thread {
 	 * @return The stage updater module path
 	 */
 	private String stageUpdater() {
-		List<Path> tempUpdaterModulePaths = new ArrayList<>();
 		try {
-			// FIXME This was an odd place for the updater: /home/ecco/target/xenon-updater
-
-			// Determine where to add the updater
+			// Determine where to put the updater
 			String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
 			Path updaterHomeRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterHomeFolderName );
 			if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
+
+			// Cleanup from prior updates
 			FileUtils.deleteDirectory( updaterHomeRoot.toFile() );
+
+			// Create the updater home folders
 			Files.createDirectories( updaterHomeRoot );
 
 			// Copy all the modules needed for the updater
 			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
 			FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
-			//			for( URI uri : JavaUtil.getModulePath() ) {
-			//				log.debug( "Copying: " + uri );
-			//				Path source = Paths.get( uri );
-			//				if( Files.isDirectory( source ) ) {
-			//					Path target = updaterModuleRoot.resolve( UUID.randomUUID().toString() );
-			//					FileUtils.copyDirectory( source.toFile(), target.toFile() );
-			//					tempUpdaterModulePaths.add( target );
-			//				} else {
-			//					Path target = updaterModuleRoot.resolve( source.getFileName() );
-			//					FileUtils.copyFile( source.toFile(), target.toFile() );
-			//					tempUpdaterModulePaths.add( updaterModuleRoot.resolve( source.getFileName() ) );
-			//				}
-			//			}
 
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
+
+			return updaterHomeRoot.toString();
 		} catch( IOException exception ) {
 			log.error( "Unable to stage updater", exception );
 			return null;
 		}
-
-		StringBuilder updaterHomePath = new StringBuilder( tempUpdaterModulePaths.get( 0 ).toString() );
-		for( int index = 1; index < tempUpdaterModulePaths.size(); index++ ) {
-			updaterHomePath.append( File.pathSeparator ).append( tempUpdaterModulePaths.get( index ).toString() );
-		}
-
-		return updaterHomePath.toString();
 	}
 
 	@Override
