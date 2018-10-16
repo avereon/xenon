@@ -9,6 +9,10 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
+			<directory>target/jlink</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+		<fileSet>
 			<directory>source/main/assembly/resources</directory>
 			<outputDirectory>/bin</outputDirectory>
 			<includes>
@@ -17,9 +21,22 @@
 				<include>${artifact.artifactId}.svg</include>
 			</includes>
 		</fileSet>
-		<fileSet>
-			<directory>target/jlink</directory>
-			<outputDirectory>/</outputDirectory>
-		</fileSet>
 	</fileSets>
+	<files>
+		<file>
+			<source>target/jlink/bin/java</source>
+			<outputDirectory>/bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>target/jlink/bin/keytool</source>
+			<outputDirectory>/bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>target/jlink/bin/xenon</source>
+			<outputDirectory>/bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+	</files>
 </assembly>
