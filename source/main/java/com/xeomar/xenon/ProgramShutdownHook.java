@@ -126,9 +126,7 @@ public class ProgramShutdownHook extends Thread {
 			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
-			ucb.add( UpdateTask.PERMISSIONS ).add( "700").add( targetPath + "/bin/java" );
-			ucb.add( UpdateTask.PERMISSIONS ).add( "700").add( targetPath + "/bin/keytool" );
-			ucb.add( UpdateTask.PERMISSIONS ).add( "700").add( targetPath + "/bin/" + program.getCard().getArtifact() );
+			ucb.add( UpdateTask.PERMISSIONS ).add( "700" ).add( targetPath + "/bin/java" ).add( targetPath + "/bin/keytool" ).add( targetPath + "/bin/" + program.getCard().getArtifact() ).line();
 		}
 
 		// Add parameters to restart Xenon
