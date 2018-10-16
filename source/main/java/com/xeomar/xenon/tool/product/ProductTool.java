@@ -12,6 +12,7 @@ import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
@@ -220,6 +221,8 @@ public class ProductTool extends GuidedTool {
 	 */
 	void handleStagedUpdates() {
 		// Run on the FX thread
+		FxUtil.checkFxUserThread();
+
 		updatesPage.updateState();
 
 		// Ask the user about restarting.

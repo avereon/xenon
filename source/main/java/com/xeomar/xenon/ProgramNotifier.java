@@ -8,7 +8,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -42,7 +41,7 @@ public class ProgramNotifier {
 	}
 
 	public void error( String title, Throwable throwable, Object message, String... parameters ) {
-		alert( Alert.AlertType.ERROR, null, title, formatMessage( throwable, message ), parameters );
+		alert( Alert.AlertType.ERROR, null, title, null, formatMessage( throwable, message ), parameters );
 	}
 
 	/* Warning methods */
@@ -52,7 +51,7 @@ public class ProgramNotifier {
 	}
 
 	public void warning( String title, Object message, String... parameters ) {
-		alert( Alert.AlertType.WARNING, null, title, message, parameters );
+		alert( Alert.AlertType.WARNING, null, title, null, message, parameters );
 	}
 
 	/* Notify methods */
@@ -73,51 +72,48 @@ public class ProgramNotifier {
 		return message;
 	}
 
-	@Deprecated
-	private void alert( Alert.AlertType type, Node graphic, String title, Object message, String... parameters ) {
-		alert( type, graphic, title, null, message, parameters );
-	}
-
 	private void alert( Alert.AlertType type, Node icon, String title, String header, Object message, String... parameters ) {
 		try {
-			StringBuilder builder = new StringBuilder();
-
-			if( message instanceof Node ) {
-				if( message instanceof TextInputControl ) {
-					// Handle text input controls
-					builder = new StringBuilder( ((TextInputControl)message).getText() );
-				} else if( message instanceof TextFlow ) {
-					// Handle text flow nodes
-					TextFlow flow = (TextFlow)message;
-					for( Node node : flow.getChildren() ) {
-						Text text = (Text)node;
-						builder.append( text.getText() );
-					}
-				} else {
-					builder = new StringBuilder( message.toString() );
-				}
-			} else {
-				builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
-			}
-
-			final String content = String.format( builder.toString(), (Object[])parameters );
+			final String content = getAlertContent( message, parameters );
 
 			log.info( content );
 
 			Platform.runLater( () -> {
-				Alert alert = new Alert( Alert.AlertType.NONE );
+				Alert alert = new Alert( Alert.AlertType.NONE, content );
 				if( message instanceof Node ) alert.getDialogPane().setContent( (Node)message );
 				if( type != null ) alert.setAlertType( type );
 				if( title != null ) alert.setTitle( title );
 				if( header != null ) alert.setHeaderText( header );
 				if( icon != null ) alert.setGraphic( icon );
-				alert.setContentText( content );
-				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-				DialogUtil.show( stage, alert );
+				DialogUtil.show( program.getWorkspaceManager().getActiveWorkspace().getStage(), alert );
 			} );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.out );
 		}
+	}
+
+	private String getAlertContent( Object message, Object[] parameters ) {
+		StringBuilder builder = new StringBuilder();
+
+		if( message instanceof Node ) {
+			if( message instanceof TextInputControl ) {
+				// Handle text input controls
+				builder = new StringBuilder( ((TextInputControl)message).getText() );
+			} else if( message instanceof TextFlow ) {
+				// Handle text flow nodes
+				TextFlow flow = (TextFlow)message;
+				for( Node node : flow.getChildren() ) {
+					Text text = (Text)node;
+					builder.append( text.getText() );
+				}
+			} else {
+				builder = new StringBuilder( message.toString() );
+			}
+		} else {
+			builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
+		}
+
+		return String.format( builder.toString(), parameters );
 	}
 
 }
