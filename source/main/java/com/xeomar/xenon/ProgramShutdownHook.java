@@ -84,12 +84,13 @@ public class ProgramShutdownHook extends Thread {
 
 		// Linked programs do not have a module path
 		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
+		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain, updaterModuleMainClass ) );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
