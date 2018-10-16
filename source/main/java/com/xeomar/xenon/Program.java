@@ -180,9 +180,7 @@ public class Program extends Application implements ProgramProduct {
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
 		// Configure logging, depends on parameters and program data folder
-		com.xeomar.util.Parameters logParameters = com.xeomar.util.Parameters.parse( LogFlag.LOG_FILE, card.getArtifact() + ".log" );
-		parameters.add( logParameters );
-		LogUtil.configureLogging( this, parameters, programDataFolder );
+		LogUtil.configureLogging( this, parameters, programDataFolder, card.getArtifact() + ".log" );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
