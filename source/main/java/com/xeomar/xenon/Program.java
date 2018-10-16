@@ -48,6 +48,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -240,6 +241,8 @@ public class Program extends Application implements ProgramProduct {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		Thread.currentThread().setUncaughtExceptionHandler( new ProgramUncaughtExceptionHandler() );
+
 		// Do not implicitly close the program
 		Platform.setImplicitExit( false );
 
@@ -777,6 +780,8 @@ public class Program extends Application implements ProgramProduct {
 
 			// Canonicalize the home path.
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
+
+			if( Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
 		}

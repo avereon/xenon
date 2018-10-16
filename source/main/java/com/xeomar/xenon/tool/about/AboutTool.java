@@ -401,9 +401,9 @@ public class AboutTool extends GuidedTool {
 	private String getProgramDetails( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "Home folder: " + program.getHomeFolder() + "\n" );
-		builder.append( "Data folder: " + program.getDataFolder() + "\n" );
-		builder.append( "Log file:    " + LogUtil.getLogFile() + "\n" );
+		builder.append( "Home folder: " + program.getHomeFolder() ).append( "\n" );
+		builder.append( "Data folder: " + program.getDataFolder() ).append( "\n" );
+		builder.append( "Log file:    " + LogUtil.getLogFile() ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -411,21 +411,21 @@ public class AboutTool extends GuidedTool {
 	private String getProductDetails( ProductCard card ) {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "Product:     " + card.getName() + "\n" );
-		builder.append( "Provider:    " + card.getProvider() + "\n" );
-		builder.append( "Inception:   " + card.getInception() + "\n" );
-		builder.append( "Summary:     " + card.getSummary() + "\n" );
+		builder.append( "Product:     " + card.getName() ).append( "\n" );
+		builder.append( "Provider:    " + card.getProvider() ).append( "\n" );
+		builder.append( "Inception:   " + card.getInception() ).append( "\n" );
+		builder.append( "Summary:     " + card.getSummary() ).append( "\n" );
 
-		builder.append( "Group:       " + card.getGroup() + "\n" );
-		builder.append( "Artifact:    " + card.getArtifact() + "\n" );
-		builder.append( "Version:     " + card.getVersion() + "\n" );
-		builder.append( "Timestamp:   " + card.getTimestamp() + "\n" );
-		builder.append( "Source URI:  " + card.getCardUri() + "\n" );
+		builder.append( "Group:       " + card.getGroup() ).append( "\n" );
+		builder.append( "Artifact:    " + card.getArtifact() ).append( "\n" );
+		builder.append( "Version:     " + card.getVersion() ).append( "\n" );
+		builder.append( "Timestamp:   " + card.getTimestamp() ).append( "\n" );
+		builder.append( "Source URI:  " + card.getCardUri() ).append( "\n" );
 
 		//		ProductManager productManager = getProgram().getProductManager();
-		//		builder.append( "Enabled:     " + productManager.isEnabled( card ) + "\n" );
-		//		builder.append( "Updatable:   " + productManager.isUpdatable( card ) + "\n" );
-		//		builder.append( "Removable:   " + productManager.isRemovable( card ) + "\n" );
+		//		builder.append( "Enabled:     " + productManager.isEnabled( card )).append( "\n" );
+		//		builder.append( "Updatable:   " + productManager.isUpdatable( card )).append( "\n" );
+		//		builder.append( "Removable:   " + productManager.isRemovable( card )).append( "\n" );
 
 		return builder.toString();
 	}
@@ -436,13 +436,13 @@ public class AboutTool extends GuidedTool {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "JVM Memory:     " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) + "\n" );
+		builder.append( "JVM Memory:     " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) ).append( "\n" );
 
 		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
-		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() + "\n" );
+		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() ).append( "\n" );
 
 		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
-		builder.append( "3D Accelerated: " + scene3d + "\n" );
+		builder.append( "3D Accelerated: " + scene3d ).append( "\n" );
 
 		return builder.toString();
 
@@ -452,10 +452,10 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
-		builder.append( "Name:        " + bean.getName() + "\n" );
-		builder.append( "Arch:        " + bean.getArch() + "\n" );
-		builder.append( "Version:     " + bean.getVersion() + "\n" );
-		builder.append( "Processors:  " + bean.getAvailableProcessors() + "\n" );
+		builder.append( "Name:        " + bean.getName() ).append( "\n" );
+		builder.append( "Arch:        " + bean.getArch() ).append( "\n" );
+		builder.append( "Version:     " + bean.getVersion() ).append( "\n" );
+		builder.append( "Processors:  " + bean.getAvailableProcessors() ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -465,9 +465,9 @@ public class AboutTool extends GuidedTool {
 
 		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
 		long uptime = bean.getUptime();
-		builder.append( "Start time:        " + DateUtil.format( new Date( bean.getStartTime() ), DateUtil.DEFAULT_DATE_FORMAT ) + "\n" );
-		builder.append( "Current time:      " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) + "\n" );
-		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) + "\n" );
+		builder.append( "Start time:        " + DateUtil.format( new Date( bean.getStartTime() ), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
+		builder.append( "Current time:      " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
+		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) ).append( "\n" );
 
 		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
 		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
@@ -476,8 +476,8 @@ public class AboutTool extends GuidedTool {
 		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
 		String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
 		builder.append( "\n" );
-		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
-		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) + "\n" );
+		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) ).append( "\n" );
+		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -486,13 +486,13 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
-		builder.append( "Heap use:     " + bean.getHeapMemoryUsage() + "\n" );
-		builder.append( "Non-heap use: " + bean.getNonHeapMemoryUsage() + "\n" );
+		builder.append( "Heap use:     " + bean.getHeapMemoryUsage() ).append( "\n" );
+		builder.append( "Non-heap use: " + bean.getNonHeapMemoryUsage() ).append( "\n" );
 
 		builder.append( "\n" );
 		List<MemoryPoolMXBean> pools = ManagementFactory.getMemoryPoolMXBeans();
 		for( MemoryPoolMXBean pool : pools ) {
-			builder.append( pool.getName() + " (" + pool.getType() + "): " + pool.getUsage() + "\n" );
+			builder.append( pool.getName() + " (" + pool.getType() + "): " + pool.getUsage() ).append( "\n" );
 		}
 
 		return builder.toString();
@@ -503,8 +503,8 @@ public class AboutTool extends GuidedTool {
 
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 
-		builder.append( "Current thread count:        " + bean.getThreadCount() + "\n" );
-		builder.append( "Maximum thread count:        " + bean.getPeakThreadCount() + "\n" );
+		builder.append( "Current thread count:        " + bean.getThreadCount() ).append( "\n" );
+		builder.append( "Maximum thread count:        " + bean.getPeakThreadCount() ).append( "\n" );
 
 		builder.append( "\n" );
 		List<ThreadInfo> threads = Arrays.asList( bean.getThreadInfo( bean.getAllThreadIds() ) );
