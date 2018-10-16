@@ -116,15 +116,19 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
-			// NOTE Apparently the move option does not in Windows, but unpack does
-			// Even waiting for a long period of time didn't solve the issue of not
-			// being able to move the folder. Also, all the files in the folder can
-			// removed (maybe an option to just move the contents of the folder),
-			// just not the program home folder.
+			// NOTE Apparently the move option does not work in Windows, but unpack
+			// does. Even waiting for a long period of time didn't solve the issue of
+			// not being able to move the folder. Also, all the files in the folder
+			// can be removed (maybe an option to just move the contents of the
+			// folder), just not the program home folder.
+
 			//ucb.add( UpdateTask.DELETE).add( archivePath ).line();
 			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
+			ucb.add( UpdateTask.PERMISSIONS ).add( "700").add( targetPath + "/bin/java" );
+			ucb.add( UpdateTask.PERMISSIONS ).add( "700").add( targetPath + "/bin/keytool" );
+			ucb.add( UpdateTask.PERMISSIONS ).add( "700").add( targetPath + "/bin/" + program.getCard().getArtifact() );
 		}
 
 		// Add parameters to restart Xenon
