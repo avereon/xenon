@@ -305,6 +305,7 @@ public class Workspace implements Configurable {
 		// properties below.
 		stage.setScene( scene = new Scene( layout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
+		stage.sizeToScene();
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
