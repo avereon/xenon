@@ -228,11 +228,11 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
 			if( interactive ) {
-				notifyUsersOfUpdates( interactive );
+				notifyUsersOfUpdates( true );
 			} else {
 				switch( getFoundOption() ) {
 					case SELECT: {
-						notifyUsersOfUpdates( interactive );
+						notifyUsersOfUpdates( false );
 						break;
 					}
 					case STORE: {
@@ -251,7 +251,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void notifyUsersOfUpdates( boolean interactive ) {
 			//			if( interactive ) {
-			// Directly notify the user.
+			// Directly notify the user with a dialog
 			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
 			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
