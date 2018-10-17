@@ -227,20 +227,24 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
-			switch( getFoundOption() ) {
-				case SELECT: {
-					notifyUsersOfUpdates( interactive );
-					break;
-				}
-				case STORE: {
-					// Store (download) all updates without user intervention.
-					program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
-					break;
-				}
-				case STAGE: {
-					// Stage all updates without user intervention.
-					program.getExecutor().submit( new StageUpdates( postedUpdates ) );
-					break;
+			if( interactive ) {
+				notifyUsersOfUpdates( interactive );
+			} else {
+				switch( getFoundOption() ) {
+					case SELECT: {
+						notifyUsersOfUpdates( interactive );
+						break;
+					}
+					case STORE: {
+						// Store (download) all updates without user intervention.
+						program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
+						break;
+					}
+					case STAGE: {
+						// Stage all updates without user intervention.
+						program.getExecutor().submit( new StageUpdates( postedUpdates ) );
+						break;
+					}
 				}
 			}
 		}
