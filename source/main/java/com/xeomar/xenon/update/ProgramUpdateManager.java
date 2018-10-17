@@ -13,13 +13,13 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class ProgramUpdateManager extends UpdateManager {
@@ -31,6 +31,11 @@ public class ProgramUpdateManager extends UpdateManager {
 	public ProgramUpdateManager( Program program ) {
 		super( program );
 		this.program = program;
+	}
+
+	public void showUpdateFoundDialog() {
+		StageUpdates task = new StageUpdates( Set.of() );
+		task.handleApplyUpdates( );
 	}
 
 	@Override
@@ -352,27 +357,34 @@ public class ProgramUpdateManager extends UpdateManager {
 		@Override
 		public Void call() throws Exception {
 			stageUpdates( selectedUpdates );
-			handleApplyUpdates( selectedUpdates );
+			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
 			return null;
 		}
 
 		/**
 		 * Nearly identical to ProductTool.handleStagedUpdates()
-		 *
-		 * @param selectedUpdates The updates selected by the user
 		 */
-		private void handleApplyUpdates( Set<ProductCard> selectedUpdates ) {
-			if( selectedUpdates.size() == 0 ) return;
-
+		private void handleApplyUpdates( ) {
 			Platform.runLater( () -> {
 				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+				//String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+
+				String message = "Updates have been downloaded but will not be applied until the application is restarted.\n\nWould you like to restart now?";
+
+				System.out.println( "MVS: " + message );
 
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 				alert.setTitle( title );
 				alert.setHeaderText( header );
 				alert.setContentText( message );
+
+				// NEXT Handle the text wrapping better
+				Text content = new Text( message );
+				content.getStyleClass().add( "fx-label");
+				content.setWrappingWidth( 300 );
+
+				//alert.getDialogPane().setContent( content );
 
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );

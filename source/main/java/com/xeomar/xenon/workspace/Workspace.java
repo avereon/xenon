@@ -125,6 +125,7 @@ public class Workspace implements Configurable {
 
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
+		dev.getItems().add( ActionUtil.createMenuItem( program, "test-update-found") );
 		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );

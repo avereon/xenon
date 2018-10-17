@@ -685,9 +685,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
-
-		// Schedule the first update check
-		getUpdateManager().scheduleUpdateCheck( true );
 	}
 
 	private void doShutdownTasks() {
@@ -781,7 +778,7 @@ public class Program extends Application implements ProgramProduct {
 			// Canonicalize the home path.
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
-			if( Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
+			if( !Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
 		}
@@ -807,6 +804,8 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "product" ).pushAction( productAction );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
+
+		getActionLibrary().getAction( "test-update-found" ).pushAction( new TestUpdateDialogAction( this ) );
 	}
 
 	private void unregisterActionHandlers() {
@@ -959,11 +958,14 @@ public class Program extends Application implements ProgramProduct {
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
+			// Open resources specified on the command line
+			processResources( getProgramParameters() );
+
 			// Check to see if the application was updated
 			checkIfUpdated();
 
-			// Open resources specified on the command line
-			processResources( getProgramParameters() );
+			// Schedule the first update check
+			getUpdateManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
