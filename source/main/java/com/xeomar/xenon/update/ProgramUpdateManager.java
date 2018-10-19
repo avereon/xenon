@@ -13,7 +13,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
@@ -368,23 +367,12 @@ public class ProgramUpdateManager extends UpdateManager {
 			Platform.runLater( () -> {
 				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-				//String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
-
-				String message = "Updates have been downloaded but will not be applied until the application is restarted.\n\nWould you like to restart now?";
-
-				System.out.println( "MVS: " + message );
+				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 				alert.setTitle( title );
 				alert.setHeaderText( header );
 				alert.setContentText( message );
-
-				// NEXT Handle the text wrapping better
-				Text content = new Text( message );
-				content.getStyleClass().add( "fx-label");
-				content.setWrappingWidth( 300 );
-
-				//alert.getDialogPane().setContent( content );
 
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
