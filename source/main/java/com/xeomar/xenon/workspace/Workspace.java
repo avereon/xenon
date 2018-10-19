@@ -125,6 +125,7 @@ public class Workspace implements Configurable {
 
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
+		dev.getItems().add( ActionUtil.createMenuItem( program, "test-update-found") );
 		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
@@ -305,6 +306,7 @@ public class Workspace implements Configurable {
 		// properties below.
 		stage.setScene( scene = new Scene( layout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
+		stage.sizeToScene();
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen

@@ -65,6 +65,7 @@ public class ActionLibrary {
 		//		register( bundle, "settings-reset" );
 		//		register( bundle, "workers" );
 		register( bundle, "restart" );
+		register( bundle, "test-update-found" );
 
 		register( bundle, "workarea" );
 		register( bundle, "workarea-new" );

@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class ProgramUpdateManager extends UpdateManager {
@@ -31,6 +30,11 @@ public class ProgramUpdateManager extends UpdateManager {
 	public ProgramUpdateManager( Program program ) {
 		super( program );
 		this.program = program;
+	}
+
+	public void showUpdateFoundDialog() {
+		StageUpdates task = new StageUpdates( Set.of() );
+		task.handleApplyUpdates( );
 	}
 
 	@Override
@@ -110,67 +114,6 @@ public class ProgramUpdateManager extends UpdateManager {
 		return 0;
 	}
 
-	//	private JComponent createUpdatesPanel( Set<ProductCard> installedPacks, Map<String, UpdateOption> updates ) {
-	//		JPanel updatesPanel = new JPanel();
-	//		updatesPanel.setLayout( new BorderLayout() );
-	//
-	//		JLabel message = new JLabel( Bundles.getString( BundleKey.MESSAGES, "updates.not.available" ) );
-	//		if( updates.size() > 0 ) message = new JLabel( Bundles.getString( BundleKey.MESSAGES, "updates.found" ) );
-	//		updatesPanel.add( message, BorderLayout.NORTH );
-	//
-	//		JPanel packUpdatesPanel = new JPanel();
-	//		packUpdatesPanel.setBorder( new EmptyBorder( 20, 0, 0, 0 ) );
-	//		packUpdatesPanel.setLayout( new SpringLayout() );
-	//		for( ProductCard pack : installedPacks ) {
-	//			UpdateOption update = updates.get( pack.getProductKey() );
-	//
-	//			JCheckBox checkbox = null;
-	//			JLabel nameLabel = new JLabel( pack.getName() );
-	//			JLabel versionLabel = new JLabel( pack.getRelease().getVersion().toHumanString() );
-	//			JLabel timestampLabel = new JLabel( pack.getRelease().getDateString( TimeZone.getDefault() ) );
-	//
-	//			nameLabel.setFont( nameLabel.getFont().deriveFont( Font.PLAIN ) );
-	//			versionLabel.setFont( versionLabel.getFont().deriveFont( Font.PLAIN ) );
-	//			timestampLabel.setFont( timestampLabel.getFont().deriveFont( Font.PLAIN ) );
-	//
-	//			if( update == null ) {
-	//				checkbox = new JCheckBox();
-	//				checkbox.setEnabled( false );
-	//			} else {
-	//				checkbox = update.getCheckbox();
-	//				checkbox.setSelected( true );
-	//
-	//				// Use the version and timestamp of the update.
-	//				versionLabel.setText( update.getPack().getRelease().getVersion().toHumanString() );
-	//				timestampLabel.setText( update.getPack().getRelease().getDateString( TimeZone.getDefault() ) );
-	//
-	//				// Add the mouse listener to the components.
-	//				nameLabel.addMouseListener( new UpdateOptionClickHandler( checkbox ) );
-	//				versionLabel.addMouseListener( new UpdateOptionClickHandler( checkbox ) );
-	//				timestampLabel.addMouseListener( new UpdateOptionClickHandler( checkbox ) );
-	//			}
-	//
-	//			packUpdatesPanel.add( checkbox );
-	//			packUpdatesPanel.add( nameLabel );
-	//			packUpdatesPanel.add( versionLabel );
-	//			packUpdatesPanel.add( timestampLabel );
-	//		}
-	//
-	//		JComponent updateListComponent;
-	//		Layouts.makeGrid( packUpdatesPanel, 4, 10, 0 );
-	//		if( updates.size() <= 4 ) {
-	//			updateListComponent = packUpdatesPanel;
-	//		} else {
-	//			JScrollPane scroller = new JScrollPane( packUpdatesPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
-	//			Dimension preferredSize = scroller.getPreferredSize();
-	//			scroller.setPreferredSize( new Dimension( preferredSize.width + 10, preferredSize.width / 2 + 10 ) );
-	//			updateListComponent = scroller;
-	//		}
-	//		updatesPanel.add( updateListComponent, BorderLayout.CENTER );
-	//
-	//		return updatesPanel;
-	//	}
-
 	private final class CheckForUpdates extends ProgramTask<Void> {
 
 		private boolean interactive;
@@ -227,27 +170,31 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
-			switch( getFoundOption() ) {
-				case SELECT: {
-					notifyUsersOfUpdates( interactive );
-					break;
-				}
-				case STORE: {
-					// Store (download) all updates without user intervention.
-					program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
-					break;
-				}
-				case STAGE: {
-					// Stage all updates without user intervention.
-					program.getExecutor().submit( new StageUpdates( postedUpdates ) );
-					break;
+			if( interactive ) {
+				notifyUsersOfUpdates( true );
+			} else {
+				switch( getFoundOption() ) {
+					case SELECT: {
+						notifyUsersOfUpdates( false );
+						break;
+					}
+					case STORE: {
+						// Store (download) all updates without user intervention.
+						program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
+						break;
+					}
+					case STAGE: {
+						// Stage all updates without user intervention.
+						program.getExecutor().submit( new StageUpdates( postedUpdates ) );
+						break;
+					}
 				}
 			}
 		}
 
 		private void notifyUsersOfUpdates( boolean interactive ) {
 			//			if( interactive ) {
-			// Directly notify the user.
+			// Directly notify the user with a dialog
 			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
 			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
@@ -348,18 +295,14 @@ public class ProgramUpdateManager extends UpdateManager {
 		@Override
 		public Void call() throws Exception {
 			stageUpdates( selectedUpdates );
-			handleApplyUpdates( selectedUpdates );
+			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
 			return null;
 		}
 
 		/**
 		 * Nearly identical to ProductTool.handleStagedUpdates()
-		 *
-		 * @param selectedUpdates The updates selected by the user
 		 */
-		private void handleApplyUpdates( Set<ProductCard> selectedUpdates ) {
-			if( selectedUpdates.size() == 0 ) return;
-
+		private void handleApplyUpdates( ) {
 			Platform.runLater( () -> {
 				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
@@ -378,84 +321,5 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 	}
-
-	//	private static final class UpdateOption implements Comparable<UpdateOption> {
-	//
-	//		private ProductCard pack;
-	//
-	//		private JCheckBox checkbox;
-	//
-	//		public UpdateOption( ProductCard pack ) {
-	//			this.pack = pack;
-	//			checkbox = new JCheckBox();
-	//		}
-	//
-	//		public ProductCard getPack() {
-	//			return pack;
-	//		}
-	//
-	//		public JCheckBox getCheckbox() {
-	//			return checkbox;
-	//		}
-	//
-	//		public boolean isSelected() {
-	//			return checkbox.isSelected();
-	//		}
-	//
-	//		@Override
-	//		public int compareTo( UpdateOption update ) {
-	//			return this.pack.getSourceUri().compareTo( update.pack.getSourceUri() );
-	//		}
-	//
-	//		public static final Set<ProductCard> getSelectedPacks( Map<String, UpdateOption> updateOptions ) {
-	//			Set<ProductCard> packs = new HashSet<ProductCard>();
-	//
-	//			for( UpdateOption option : updateOptions.values() ) {
-	//				if( option.isSelected() ) packs.add( option.getPack() );
-	//			}
-	//
-	//			return packs;
-	//		}
-	//
-	//	}
-
-	//	private static final class UpdateOptionClickHandler extends MouseAdapter {
-	//
-	//		private JCheckBox checkbox;
-	//
-	//		public UpdateOptionClickHandler( JCheckBox checkbox ) {
-	//			this.checkbox = checkbox;
-	//		}
-	//
-	//		@Override
-	//		public void mousePressed( MouseEvent event ) {
-	//			checkbox.dispatchEvent( cloneEvent( event ) );
-	//		}
-	//
-	//		@Override
-	//		public void mouseClicked( MouseEvent event ) {
-	//			checkbox.dispatchEvent( cloneEvent( event ) );
-	//		}
-	//
-	//		@Override
-	//		public void mouseReleased( MouseEvent event ) {
-	//			checkbox.dispatchEvent( cloneEvent( event ) );
-	//		}
-	//
-	//		@Override
-	//		public void mouseEntered( MouseEvent event ) {
-	//			checkbox.dispatchEvent( cloneEvent( event ) );
-	//		}
-	//
-	//		@Override
-	//		public void mouseExited( MouseEvent event ) {
-	//			checkbox.dispatchEvent( cloneEvent( event ) );
-	//		}
-	//
-	//		private MouseEvent cloneEvent( MouseEvent event ) {
-	//			return new MouseEvent( checkbox, event.getID(), event.getWhen(), event.getModifiers(), 0, 0, event.getXOnScreen(), event.getYOnScreen(), event.getClickCount(), event.isPopupTrigger(), event.getButton() );
-	//		}
-	//
-	//	}
 
 }

@@ -82,12 +82,15 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public SplashScreenPane show( Stage stage ) {
-		stage.setTitle( title );
 		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
 		scene.getStylesheets().add( Program.STYLESHEET );
+
+		stage.setTitle( title );
 		stage.setScene( scene );
 		stage.sizeToScene();
+		stage.centerOnScreen();
 		stage.show();
+		stage.toFront();
 		return this;
 	}
 
@@ -118,12 +121,9 @@ public class SplashScreenPane extends Pane {
 		Platform.runLater( () -> {
 			SplashScreenPane splash = new SplashScreenPane( "Test" );
 			splash.setProgress( 0.8 );
-			Scene scene = new Scene( splash, WIDTH, HEIGHT );
-			scene.getStylesheets().add( Program.STYLESHEET );
 			Stage stage = new Stage();
 			stage.initStyle( StageStyle.UTILITY );
-			stage.setScene( scene );
-			stage.show();
+			splash.show( stage );
 		} );
 	}
 

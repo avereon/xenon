@@ -60,7 +60,7 @@
 
 		<!-- Test dependencies -->
 		<surefire.version>2.22.0</surefire.version>
-		<testfx.version>4.0.14-alpha</testfx.version>
+		<testfx.version>4.0.15-alpha</testfx.version>
 		<monocle.version>jdk-11+23</monocle.version>
 
 		<!-- Build dependencies -->
@@ -69,11 +69,32 @@
 
 	<dependencies>
 
+		<!-- Provided by annex -->
+		<!--
 		<dependency>
 			<groupId>com.xeomar</groupId>
 			<artifactId>razor</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
+		-->
+
+		<!-- Provided by annex -->
+		<!--
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		-->
+
+		<!-- Provided by annex -->
+		<!--
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>${controlsfx.version}</version>
+		</dependency>
+		-->
 
 		<dependency>
 			<groupId>com.xeomar</groupId>
@@ -82,9 +103,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
@@ -100,12 +121,6 @@
 		</dependency>
 
 		<!--<dependency>-->
-		<!--<groupId>org.controlsfx</groupId>-->
-		<!--<artifactId>controlsfx</artifactId>-->
-		<!--<version>${controlsfx.version}</version>-->
-		<!--</dependency>-->
-
-		<!--<dependency>-->
 		<!--<groupId>org.fxmisc.undo</groupId>-->
 		<!--<artifactId>undofx</artifactId>-->
 		<!--<version>${undofx.version}</version>-->
@@ -115,18 +130,6 @@
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
 			<version>${miglayout.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
@@ -203,10 +206,6 @@
 					<runOrder>alphabetical</runOrder>
 					<argLine>
 						-Xmx128m
-						--add-opens=java.base/java.util=ALL-UNNAMED
-						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
-						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -302,6 +301,7 @@
 				<version>1.5.0</version>
 				<executions>
 					<execution>
+						<id>jlink</id>
 						<phase>package</phase>
 						<goals>
 							<goal>exec</goal>
@@ -312,13 +312,12 @@
 								<argument>--module-path</argument>
 								<argument>${jlink.module.path}</argument>
 								<argument>--add-modules</argument>
-								<argument>com.xeomar.xenon</argument>
+								<argument>com.xeomar.xenon,org.slf4j.jul</argument>
 								<argument>--output</argument>
 								<argument>${basedir}/target/jlink</argument>
 								<argument>--launcher</argument>
 								<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
-
-								<argument>--strip-debug</argument>
+								<!--<argument>&#45;&#45;strip-debug</argument>-->
 								<argument>--no-header-files</argument>
 								<argument>--no-man-pages</argument>
 								<!-- Valid value: 0, 1, 2 -->
@@ -330,26 +329,6 @@
 				</executions>
 			</plugin>
 
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jlink-plugin</artifactId>
-				<version>3.0.0-alpha-1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jlink</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<ignoreSigningInformation>true</ignoreSigningInformation>
-				</configuration>
-			</plugin>
-			-->
-
-			<!-- FIXME Need new assemblies and installers -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>

@@ -3,7 +3,10 @@ package com.xeomar.xenon;
 import com.xeomar.annex.UpdateCommandBuilder;
 import com.xeomar.annex.UpdateFlag;
 import com.xeomar.annex.UpdateTask;
-import com.xeomar.util.*;
+import com.xeomar.util.FileUtil;
+import com.xeomar.util.LogUtil;
+import com.xeomar.util.ProcessCommands;
+import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -11,11 +14,10 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
 
 /**
  * This shutdown hook is used when a program restart is requested. When a
@@ -75,7 +77,12 @@ public class ProgramShutdownHook extends Thread {
 
 		mode = Mode.UPDATE;
 
-		String updaterModulePath = stageUpdater();
+		// Stage the updater
+		String updaterHome = stageUpdater();
+
+		String javaPath = updaterHome + "/bin/java";
+
+		// Linked programs do not have a module path
 		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
 		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
 
@@ -83,7 +90,7 @@ public class ProgramShutdownHook extends Thread {
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain, updaterModuleMainClass ) );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
@@ -109,15 +116,17 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
-			// NOTE Apparently the move option does not in Windows, but unpack does
-			// Even waiting for a long period of time didn't solve the issue of not
-			// being able to move the folder. Also, all the files in the folder can
-			// removed (maybe an option to just move the contents of the folder),
-			// just not the program home folder.
+			// NOTE Apparently the move option does not work in Windows, but unpack
+			// does. Even waiting for a long period of time didn't solve the issue of
+			// not being able to move the folder. Also, all the files in the folder
+			// can be removed (maybe an option to just move the contents of the
+			// folder), just not the program home folder.
+
 			//ucb.add( UpdateTask.DELETE).add( archivePath ).line();
 			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
+			ucb.add( UpdateTask.PERMISSIONS ).add( "700" ).add( targetPath + "/bin/java" ).add( targetPath + "/bin/keytool" ).add( targetPath + "/bin/" + program.getCard().getArtifact() ).line();
 		}
 
 		// Add parameters to restart Xenon
@@ -147,41 +156,29 @@ public class ProgramShutdownHook extends Thread {
 	 * @return The stage updater module path
 	 */
 	private String stageUpdater() {
-		List<Path> tempUpdaterModulePaths = new ArrayList<>();
 		try {
-			// Determine where to add the updater
-			String updaterModuleFolderName = program.getCard().getArtifact() + "-updater";
-			Path updaterModuleRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterModuleFolderName );
-			if( program.getExecMode() == ExecMode.DEV ) updaterModuleRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterModuleFolderName );
-			FileUtils.deleteDirectory( updaterModuleRoot.toFile() );
-			Files.createDirectories( updaterModuleRoot );
+			// Determine where to put the updater
+			String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
+			Path updaterHomeRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterHomeFolderName );
+			if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
+
+			// Cleanup from prior updates
+			FileUtils.deleteDirectory( updaterHomeRoot.toFile() );
+
+			// Create the updater home folders
+			Files.createDirectories( updaterHomeRoot );
 
 			// Copy all the modules needed for the updater
-			for( URI uri : JavaUtil.getModulePath() ) {
-				log.debug( "Copying: " + uri );
-				Path source = Paths.get( uri );
-				if( Files.isDirectory( source ) ) {
-					Path target = updaterModuleRoot.resolve( UUID.randomUUID().toString() );
-					FileUtils.copyDirectory( source.toFile(), target.toFile() );
-					tempUpdaterModulePaths.add( target );
-				} else {
-					Path target = updaterModuleRoot.resolve( source.getFileName() );
-					FileUtils.copyFile( source.toFile(), target.toFile() );
-					tempUpdaterModulePaths.add( updaterModuleRoot.resolve( source.getFileName() ) );
-				}
-			}
+			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
+			FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
+
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
+
+			return updaterHomeRoot.toString();
 		} catch( IOException exception ) {
 			log.error( "Unable to stage updater", exception );
 			return null;
 		}
-
-		StringBuilder updaterModulePath = new StringBuilder( tempUpdaterModulePaths.get( 0 ).toString() );
-		for( int index = 1; index < tempUpdaterModulePaths.size(); index++ ) {
-			updaterModulePath.append( File.pathSeparator ).append( tempUpdaterModulePaths.get( index ).toString() );
-		}
-
-		return updaterModulePath.toString();
 	}
 
 	@Override

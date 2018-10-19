@@ -2,11 +2,12 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.update.ProgramUpdateManager;
 import javafx.event.Event;
 
-public class RestartAction extends Action {
+public class TestUpdateDialogAction extends Action {
 
-	public RestartAction( Program program ) {
+	public TestUpdateDialogAction( Program program ) {
 		super( program );
 	}
 
@@ -18,9 +19,9 @@ public class RestartAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			getProgram().requestRestart();
+			((ProgramUpdateManager)getProgram().getUpdateManager()).showUpdateFoundDialog();
 		} catch( Throwable throwable ) {
-			log.error( "Error requesting restart", throwable );
+			log.error( "Error showing update found dialog", throwable );
 		}
 	}
 

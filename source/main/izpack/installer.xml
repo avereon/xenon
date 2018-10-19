@@ -81,6 +81,9 @@
 			<singlefile src="${product-pack-folder}/${project.artifactId}32.exe" target="$INSTALL_PATH/${project.artifactId}.exe" os="windows" condition="archX32" />
 			<singlefile src="${product-pack-folder}/${project.artifactId}64.exe" target="$INSTALL_PATH/${project.artifactId}.exe" os="windows" condition="archX64" />
 			-->
+			<executable targetfile="$INSTALL_PATH/bin/java" stage="never" />
+			<executable targetfile="$INSTALL_PATH/bin/keytool" stage="never" />
+			<executable targetfile="$INSTALL_PATH/bin/${project.artifactId}" stage="never" />
 		</pack>
 
 	</packs>

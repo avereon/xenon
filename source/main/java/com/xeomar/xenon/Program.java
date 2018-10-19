@@ -22,12 +22,12 @@ import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.tool.ToolInstanceMode;
 import com.xeomar.xenon.tool.ToolMetadata;
 import com.xeomar.xenon.tool.about.AboutTool;
-import com.xeomar.xenon.tool.notice.NoticeTool;
-import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.tool.guide.GuideTool;
+import com.xeomar.xenon.tool.notice.NoticeTool;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
+import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
@@ -48,8 +48,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -183,9 +181,7 @@ public class Program extends Application implements ProgramProduct {
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
 
 		// Configure logging, depends on parameters and program data folder
-		com.xeomar.util.Parameters logParameters = com.xeomar.util.Parameters.parse( LogFlag.LOG_FILE, card.getArtifact() + ".log" );
-		parameters.add( logParameters );
-		LogUtil.configureLogging( this, parameters, programDataFolder );
+		LogUtil.configureLogging( this, parameters, programDataFolder, card.getArtifact() + ".log" );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
@@ -245,6 +241,8 @@ public class Program extends Application implements ProgramProduct {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		Thread.currentThread().setUncaughtExceptionHandler( new ProgramUncaughtExceptionHandler() );
+
 		// Do not implicitly close the program
 		Platform.setImplicitExit( false );
 
@@ -687,9 +685,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
-
-		// Schedule the first update check
-		getUpdateManager().scheduleUpdateCheck( true );
 	}
 
 	private void doShutdownTasks() {
@@ -769,40 +764,21 @@ public class Program extends Application implements ProgramProduct {
 			// If the HOME flag was specified on the command line use it.
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// Find the URI from which this class was loaded
-			try {
-				URI uri = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-				// Check the code source.
-				if( programHomeFolder == null ) {
-					boolean localJar = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( ".jar" );
+			// Apparently, when running a linked program, there is not a jdk.module.path system property
+			// The program home should be the java home when running as a linked application
+			boolean isLinked = System.getProperty( "jdk.module.path" ) == null;
+			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
-					// If the URI is a local jar file then assume it is located under the
-					// standard folder structure. The standard location is under:
-					// <program home>/lib/<program jar>
-					if( localJar ) programHomeFolder = Paths.get( uri ).getParent().getParent();
-				}
-
-				// Check the execmode flag to detect when running in development
-				String devProgramHome = "target/program";
-
-				if( programHomeFolder == null && getExecMode() == ExecMode.DEV ) {
-					boolean mavenManaged = "file".equals( uri.getScheme() ) && uri.getPath().endsWith( "/target/main/java/" );
-					if( mavenManaged ) {
-						programHomeFolder = Paths.get( uri ).getParent().getParent().getParent().resolve( devProgramHome );
-					} else {
-						programHomeFolder = Paths.get( System.getProperty( "user.dir" ), devProgramHome );
-					}
-					Files.createDirectories( programHomeFolder );
-				}
-			} catch( URISyntaxException exception ) {
-				log.error( "Error using class location to determine program home", exception );
-			}
+			// However, when in development, don't use the java home
+			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path.
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
+
+			if( !Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
 		}
@@ -828,6 +804,8 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "product" ).pushAction( productAction );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
+
+		getActionLibrary().getAction( "test-update-found" ).pushAction( new TestUpdateDialogAction( this ) );
 	}
 
 	private void unregisterActionHandlers() {
@@ -980,11 +958,14 @@ public class Program extends Application implements ProgramProduct {
 			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
 			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
+			// Open resources specified on the command line
+			processResources( getProgramParameters() );
+
 			// Check to see if the application was updated
 			checkIfUpdated();
 
-			// Open resources specified on the command line
-			processResources( getProgramParameters() );
+			// Schedule the first update check
+			getUpdateManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );

@@ -389,7 +389,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @param startup True if the method is called at program start
 	 */
 	public synchronized void scheduleUpdateCheck( boolean startup ) {
-		// Don't schedule tasks if the UPDATE_IN_PROGRESS flag is set
+		// Don't schedule update checks if the UPDATE_IN_PROGRESS flag is set
+		// TODO Unless the program was updated, then it should be safe to schedule update checks
 		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) return;
 
 		if( task != null ) {
