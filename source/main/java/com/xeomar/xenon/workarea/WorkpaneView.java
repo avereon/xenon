@@ -38,6 +38,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		setCenter( tools = new TabPane() );
 
 		tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
+		tools.setTabDragPolicy( TabPane.TabDragPolicy.REORDER );
 
 		// Add a focus listener to the tabs so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
