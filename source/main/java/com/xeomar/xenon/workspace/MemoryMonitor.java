@@ -1,6 +1,7 @@
 package com.xeomar.xenon.workspace;
 
 import com.xeomar.util.FileUtil;
+import com.xeomar.xenon.util.LambdaTask;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -9,10 +10,11 @@ import javafx.scene.shape.Rectangle;
 import java.text.DecimalFormat;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class MemoryMonitor extends Pane {
+
+	private static final int DEFAULT_POLL_INTERVAL = 2000;
 
 	private static final String DIVIDER = "/";
 
@@ -34,20 +36,10 @@ public class MemoryMonitor extends Pane {
 
 	private Label label;
 
-	// IDEA updates every five seconds
-
 	static {
 		monitors = new CopyOnWriteArraySet<>();
 		Timer timer = new Timer( "Memory Monitor Timer", true );
-		TimerTask task = new TimerTask() {
-
-			@Override
-			public void run() {
-				update();
-			}
-
-		};
-		timer.schedule( task, 0, 2000 );
+		timer.schedule( LambdaTask.build( MemoryMonitor::update ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
 	}
 
 	public MemoryMonitor() {
@@ -68,6 +60,9 @@ public class MemoryMonitor extends Pane {
 		getChildren().addAll( memoryMax, memoryAllocated, memoryUsed, label );
 
 		monitors.add( this );
+
+		// If the memory monitor is clicked then call the garbage collector
+		this.setOnMouseClicked( (event ) -> Runtime.getRuntime().gc() );
 	}
 
 	public static boolean isShowPercent() {

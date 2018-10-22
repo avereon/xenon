@@ -40,7 +40,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	private State state = State.WAITING;
 
-	private Priority priority = Priority.MEDIUM;
+	private Priority priority;
 
 	private String name;
 
@@ -50,9 +50,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	private Set<TaskListener> listeners;
 
-	private long minimum = 0;
-
-	private long maximum = 1;
+	private long total = 1;
 
 	private long progress;
 
@@ -67,7 +65,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 	public Task( String name, Priority priority ) {
 		this.name = name;
 		this.priority = priority;
-		listeners = new CopyOnWriteArraySet<TaskListener>();
+		listeners = new CopyOnWriteArraySet<>();
 	}
 
 	@Override
@@ -111,20 +109,16 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		this.priority = priority;
 	}
 
-	public long getMinimum() {
-		return minimum;
+	public double getPercent() {
+		return (double)progress / (double)total;
 	}
 
-	public void setMinimum( long min ) {
-		this.minimum = min;
+	public long getTotal() {
+		return total;
 	}
 
-	public long getMaximum() {
-		return maximum;
-	}
-
-	public void setMaximum( long max ) {
-		this.maximum = max;
+	public void setTotal( long max ) {
+		this.total = max;
 	}
 
 	public long getProgress() {
@@ -193,7 +187,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 		@Override
 		protected void done() {
-			task.setProgress( task.getMaximum() );
+			task.setProgress( task.getTotal() );
 			task.fireTaskEvent( TaskEvent.Type.TASK_FINISH );
 			if( isCancelled() ) task.setState( State.CANCELLED );
 			task.setTaskManager( null );

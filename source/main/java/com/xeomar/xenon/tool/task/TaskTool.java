@@ -96,8 +96,8 @@ public class TaskTool extends ProgramTool {
 
 		public RandomTask( long duration ) {
 			super( "Random Task (" + duration + "ms)" );
-			setMinimum( 0 );
-			setMaximum( duration );
+			//setMinimum( 0 );
+			setTotal( duration );
 		}
 
 		@Override
@@ -105,7 +105,7 @@ public class TaskTool extends ProgramTool {
 			long time = 0;
 
 			//System.out.println( "Running random task ("+ getMaximum() +")");
-			while( time < getMaximum() ) {
+			while( time < getTotal() ) {
 				try {
 					Thread.sleep( DELAY );
 				} catch( InterruptedException exception ) {
@@ -162,7 +162,7 @@ public class TaskTool extends ProgramTool {
 					case TASK_PROGRESS: {
 						TaskPane pane = tasks.get( task );
 						if( pane != null ) {
-							long total = task.getMaximum() - task.getMinimum();
+							long total = task.getTotal();
 							long progress = task.getProgress();
 							pane.setProgress( (double)progress / (double)total );
 						}

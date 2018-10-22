@@ -30,7 +30,7 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 
 	public void addTask( Task<?> task ) {
 		tasks.add( task );
-		total += task.getMaximum() - task.getMinimum();
+		total += task.getTotal();
 		progresses.put( task, task.getProgress() );
 		updateProgress();
 	}
@@ -38,7 +38,7 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 	public void removeTask( Task<?> task ) {
 		tasks.remove( task );
 		progresses.remove( task );
-		total -= task.getMaximum() - task.getMinimum();
+		total -= task.getTotal();
 		updateProgress();
 	}
 
@@ -70,12 +70,7 @@ public class CompositeTask extends Task<Object> implements TaskListener {
 	}
 
 	@Override
-	public long getMinimum() {
-		return 0;
-	}
-
-	@Override
-	public long getMaximum() {
+	public long getTotal() {
 		return total;
 	}
 

@@ -147,11 +147,15 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		return new ArrayList<>( tasks );
 	}
 
-	public int getThreadCount() {
+	public int getCurrentThreadCount() {
+		return executor.getPoolSize();
+	}
+
+	public int getMaxThreadCount() {
 		return executor.getMaximumPoolSize();
 	}
 
-	public void setThreadCount( int count ) {
+	public void setMaxThreadCount( int count ) {
 		if( count > MAX_THREAD_COUNT ) count = MAX_THREAD_COUNT;
 		minThreadCount = Math.max( MIN_THREAD_COUNT, count / 2 );
 		maxThreadCount = Math.min( MAX_THREAD_COUNT, Math.max( minThreadCount, count ) );
@@ -185,7 +189,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	@Override
 	public TaskManager start() {
 		if( isRunning() ) return this;
-		log.trace( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
+		log.debug( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
 		executor = new TaskManagerExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory( group ) );
 		return this;
 	}

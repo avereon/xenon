@@ -174,8 +174,12 @@
 	-fx-fill: #e0e0e0;
 }
 
+.task-monitor-pool {
+	-fx-fill: #00a000;
+}
+
 .task-monitor-used {
-	-fx-fill: #a0a0a0;
+	-fx-fill: #a00000;
 }
 
 #tool-about .text-area {

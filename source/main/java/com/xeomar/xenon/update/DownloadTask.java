@@ -4,7 +4,6 @@ import com.xeomar.product.Product;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.task.Task;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,8 +74,7 @@ public class DownloadTask extends Task<Download> {
 			if( status >= 300 ) throw new IOException( status + " " + httpConnection.getResponseMessage() );
 		}
 
-		setMinimum( 0 );
-		setMaximum( length );
+		setTotal( length );
 
 		byte[] buffer = new byte[ 8192 ];
 		Download download = new Download( uri, length, encoding, target );
