@@ -20,6 +20,8 @@ public class TaskMonitor extends Pane {
 
 	private Rectangle max;
 
+	private Rectangle used;
+
 	private Rectangle pool;
 
 	private List<Rectangle> bars = new ArrayList<>();
@@ -40,10 +42,13 @@ public class TaskMonitor extends Pane {
 		max = new Rectangle();
 		max.getStyleClass().add( "task-monitor-max" );
 
+		used = new Rectangle();
+		used.getStyleClass().add( "task-monitor-used" );
+
 		pool = new Rectangle();
 		pool.getStyleClass().add( "task-monitor-pool" );
 
-		getChildren().addAll( max, pool, label );
+		getChildren().addAll( max, used, pool, label );
 
 		taskWatcher = new TaskWatcher();
 		taskManager.addTaskListener( taskWatcher );
@@ -56,18 +61,18 @@ public class TaskMonitor extends Pane {
 	@Override
 	protected void layoutChildren() {
 		super.layoutChildren();
-		determineBars();
 
 		double width = super.getWidth() - 1;
 		double height = super.getHeight() - 1;
 
-		double threadCount = taskManager.getMaxThreadCount();
-		double taskWidth = width / threadCount;
+		double maxThreadCount = taskManager.getMaxThreadCount();
+		double taskWidth = width / maxThreadCount;
 
 		List<Task> tasks = taskManager.getTasks();
 		int taskCount = tasks.size();
 
-		for( int index = 0; index < threadCount; index++ ) {
+		determineBars();
+		for( int index = 0; index < maxThreadCount; index++ ) {
 			Rectangle bar = bars.get( index );
 			bar.setX( taskWidth * index );
 			bar.setWidth( taskWidth );
@@ -84,8 +89,13 @@ public class TaskMonitor extends Pane {
 			}
 		}
 
-		pool.setWidth( width * Math.min( taskManager.getCurrentThreadCount() / threadCount, 1.0 ) );
+		double poolX = width * Math.min( taskManager.getCurrentThreadCount() / maxThreadCount, 1.0 );
+		pool.setX( poolX );
+		pool.setWidth( width - poolX );
 		pool.setHeight( height );
+
+		used.setWidth( width * Math.min( taskCount / maxThreadCount, 1.0 ) );
+		used.setHeight( height );
 
 		max.setWidth( width );
 		max.setHeight( height );
@@ -93,17 +103,17 @@ public class TaskMonitor extends Pane {
 
 	private void determineBars() {
 		int count = taskManager.getMaxThreadCount();
-		if( count != priorThreadCount ) {
-			priorThreadCount = count;
-			getChildren().removeAll( bars );
-			bars = new ArrayList<>();
-			for( int index = 0; index < count; index++ ) {
-				Rectangle bar = new Rectangle();
-				bar.getStyleClass().add( "task-monitor-used" );
-				bars.add( new Rectangle() );
-			}
-			getChildren().addAll( bars );
+		if( count == priorThreadCount ) return;
+
+		priorThreadCount = count;
+		getChildren().removeAll( bars );
+		bars = new ArrayList<>();
+		for( int index = 0; index < count; index++ ) {
+			Rectangle bar = new Rectangle();
+			bar.getStyleClass().add( "task-monitor-progress" );
+			bars.add( bar );
 		}
+		getChildren().addAll( bars );
 	}
 
 	@Override

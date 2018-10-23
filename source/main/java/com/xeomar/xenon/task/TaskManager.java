@@ -190,7 +190,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	public TaskManager start() {
 		if( isRunning() ) return this;
 		log.debug( "Task manager thread counts: " + minThreadCount + " min " + maxThreadCount + " max" );
-		executor = new TaskManagerExecutor( minThreadCount, maxThreadCount, 1, TimeUnit.SECONDS, queue, new TaskThreadFactory( group ) );
+		executor = new TaskManagerExecutor( minThreadCount, maxThreadCount, 2, TimeUnit.SECONDS, queue, new TaskThreadFactory( group ) );
 		return this;
 	}
 

@@ -175,11 +175,16 @@
 }
 
 .task-monitor-pool {
-	-fx-fill: #00a000;
+	-fx-fill: #80808040;
 }
 
 .task-monitor-used {
-	-fx-fill: #a00000;
+	-fx-fill: derive( -fx-accent, 50% );
+/*	-fx-fill: -fx-control-inner-background; */
+}
+
+.task-monitor-progress {
+	-fx-fill: -fx-accent;
 }
 
 #tool-about .text-area {
