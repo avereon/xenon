@@ -152,6 +152,10 @@
 
 .memory-monitor {}
 
+.memory-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
+
 .memory-monitor-max {
 	-fx-fill: #e0e0e0;
 }
@@ -164,11 +168,11 @@
 	-fx-fill: #a0a0a0;
 }
 
-.memory-monitor-label {
+.task-monitor {}
+
+.task-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
-
-.task-monitor {}
 
 .task-monitor-max {
 	-fx-fill: #e0e0e0;

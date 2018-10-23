@@ -40,15 +40,18 @@ public class TaskMonitor extends Pane {
 		label.getStyleClass().add( "task-monitor-label" );
 
 		max = new Rectangle();
+		max.setManaged( false );
 		max.getStyleClass().add( "task-monitor-max" );
 
 		used = new Rectangle();
+		used.setManaged( false );
 		used.getStyleClass().add( "task-monitor-used" );
 
 		pool = new Rectangle();
+		pool.setManaged( false );
 		pool.getStyleClass().add( "task-monitor-pool" );
 
-		getChildren().addAll( max, used, pool, label );
+		getChildren().addAll( max, used, pool );
 
 		taskWatcher = new TaskWatcher();
 		taskManager.addTaskListener( taskWatcher );
@@ -110,10 +113,13 @@ public class TaskMonitor extends Pane {
 		bars = new ArrayList<>();
 		for( int index = 0; index < count; index++ ) {
 			Rectangle bar = new Rectangle();
+			bar.setManaged( false );
 			bar.getStyleClass().add( "task-monitor-progress" );
 			bars.add( bar );
 		}
 		getChildren().addAll( bars );
+		getChildren().remove( label );
+		getChildren().add( label );
 	}
 
 	@Override

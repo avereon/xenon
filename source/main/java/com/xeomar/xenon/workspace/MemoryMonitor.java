@@ -49,12 +49,15 @@ public class MemoryMonitor extends Pane {
 		label.getStyleClass().add( "memory-monitor-label" );
 
 		memoryMax = new Rectangle();
+		memoryMax.setManaged( false );
 		memoryMax.getStyleClass().add( "memory-monitor-max" );
 
 		memoryAllocated = new Rectangle();
+		memoryAllocated.setManaged( false );
 		memoryAllocated.getStyleClass().add( "memory-monitor-allocated" );
 
 		memoryUsed = new Rectangle();
+		memoryUsed.setManaged( false );
 		memoryUsed.getStyleClass().add( "memory-monitor-used" );
 
 		getChildren().addAll( memoryMax, memoryAllocated, memoryUsed, label );
@@ -62,7 +65,7 @@ public class MemoryMonitor extends Pane {
 		monitors.add( this );
 
 		// If the memory monitor is clicked then call the garbage collector
-		this.setOnMouseClicked( (event ) -> Runtime.getRuntime().gc() );
+		this.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 	}
 
 	public static boolean isShowPercent() {
@@ -106,7 +109,7 @@ public class MemoryMonitor extends Pane {
 	protected void layoutChildren() {
 		super.layoutChildren();
 
-		double width = super.getWidth()-1;
+		double width = super.getWidth() - 1;
 		double height = super.getHeight() - 1;
 
 		memoryMax.setWidth( width );
