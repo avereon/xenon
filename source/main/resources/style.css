@@ -27,7 +27,7 @@
 }
 
 .splashscreen-progress-complete {
-	-fx-fill: dodgerblue;
+	-fx-fill: derive( -fx-accent, 50% );
 }
 
 #menu-development > .label {
@@ -180,7 +180,6 @@
 
 .task-monitor-used {
 	-fx-fill: derive( -fx-accent, 50% );
-/*	-fx-fill: -fx-control-inner-background; */
 }
 
 .task-monitor-progress {
