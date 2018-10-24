@@ -165,10 +165,10 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( new Separator() );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
-		//		toolbar.getItems().add( new Separator() );
-		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
-		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
-		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
 
 		toolbar.getItems().add( ActionUtil.createSpring() );
 
