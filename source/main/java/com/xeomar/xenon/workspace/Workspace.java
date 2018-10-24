@@ -29,6 +29,9 @@ import org.slf4j.Logger;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -379,37 +382,48 @@ public class Workspace implements Configurable {
 	}
 
 	private void updateBackgroundFromSettings( Settings settings ) {
+		// Back layer
 		boolean backDirection = "0".equals( settings.get( "workspace-scenery-back-direction", "0" ) );
 		Color backColor1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
 		Color backColor2 = Colors.web( settings.get( "workspace-scenery-back-color2", "#ffffffff" ) );
-		LinearGradient back;
+		LinearGradient backLayer;
 		Stop[] stops = new Stop[]{ new Stop( 0, backColor1 ), new Stop( 1, backColor2 ) };
 		if( backDirection ) {
-			back = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops );
+			backLayer = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops );
 		} else {
-			back = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops );
+			backLayer = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops );
 		}
 
-		// NEXT Add image fill
+		// Image layer
 		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
-		ImagePattern image = null;
+		String imageFile = settings.get( "workspace-scenery-image-file", (String)null );
+		Path imagePath = imageFile == null ? null : Paths.get( imageFile );
+		ImagePattern imageLayer = null;
+		if( imageEnabled && imagePath != null && Files.exists( imagePath ) ) {
+			Image image = new Image( imagePath.toUri().toString() );
+			imageLayer = new ImagePattern( image, 0, 0, 1, 1, true );
+		}
 
+		// FIXME The ImagePattern class does not allow for style and alignment
+
+		// Tint layer
 		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
 		boolean tintDirection = "0".equals( settings.get( "workspace-scenery-tint-direction", "0" ) );
 		Color tintColor1 = Colors.web( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
 		Color tintColor2 = Colors.web( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
-		LinearGradient tint;
+		LinearGradient tintLayer;
 		Stop[] tintStops = new Stop[]{ new Stop( 0, tintColor1 ), new Stop( 1, tintColor2 ) };
 		if( tintDirection ) {
-			tint = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, tintStops );
+			tintLayer = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, tintStops );
 		} else {
-			tint = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, tintStops );
+			tintLayer = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, tintStops );
 		}
 
+		// Fill collection
 		List<BackgroundFill> fills = new ArrayList<>();
-		fills.add( new BackgroundFill( back, CornerRadii.EMPTY, Insets.EMPTY ) );
-		if( imageEnabled ) fills.add( new BackgroundFill( image, CornerRadii.EMPTY, Insets.EMPTY ) );
-		if( tintEnabled ) fills.add( new BackgroundFill( tint, CornerRadii.EMPTY, Insets.EMPTY ) );
+		fills.add( new BackgroundFill( backLayer, CornerRadii.EMPTY, Insets.EMPTY ) );
+		if( imageEnabled ) fills.add( new BackgroundFill( imageLayer, CornerRadii.EMPTY, Insets.EMPTY ) );
+		if( tintEnabled ) fills.add( new BackgroundFill( tintLayer, CornerRadii.EMPTY, Insets.EMPTY ) );
 
 		workpaneContainer.setBackground( new Background( fills, null ) );
 	}
