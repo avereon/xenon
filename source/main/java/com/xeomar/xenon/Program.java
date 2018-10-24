@@ -672,7 +672,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiFactory.restoreUi( splashScreen ) );
+		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
 		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 

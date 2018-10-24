@@ -80,7 +80,7 @@ public class UiFactory {
 		return getChildNodeNames( ProgramSettings.TOOL ).size();
 	}
 
-	public void restoreUi( SplashScreenPane splashScreen ) {
+	public void restore( SplashScreenPane splashScreen ) {
 		restoreLock.lock();
 		try {
 			List<String> workspaceIds = getChildNodeNames( ProgramSettings.WORKSPACE );

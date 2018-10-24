@@ -1,10 +1,13 @@
 package com.xeomar.xenon.workspace;
 
 import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ExecMode;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.resource.ResourceException;
@@ -19,14 +22,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -72,6 +77,10 @@ public class Workspace implements Configurable {
 
 	private Settings settings;
 
+	private Settings backgroundSettings;
+
+	private SettingsListener backgroundSettingsHandler;
+
 	private String id;
 
 	public Workspace( Program program ) {
@@ -79,6 +88,7 @@ public class Workspace implements Configurable {
 
 		workareas = FXCollections.observableArrayList();
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
+		backgroundSettingsHandler = new BackgroundSettingsHandler();
 
 		// FIXME Should this default setup be defined in config files or something else?
 
@@ -312,6 +322,8 @@ public class Workspace implements Configurable {
 	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 
+		// The incoming settings are the workspace settings
+
 		this.settings = settings;
 		id = settings.get( "id" );
 
@@ -360,20 +372,46 @@ public class Workspace implements Configurable {
 			if( !stage.isMaximized() ) settings.set( "h", newValue );
 		} );
 
-		// FIXME This is not the correct settings object
-		updateBackgroundFromSettings( settings );
+		backgroundSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
+		updateBackgroundFromSettings( backgroundSettings );
+		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
 	}
 
 	private void updateBackgroundFromSettings( Settings settings ) {
-		Color color1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
+		boolean backDirection = "0".equals( settings.get( "workspace-scenery-back-direction", "0" ) );
+		Color backColor1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
+		Color backColor2 = Colors.web( settings.get( "workspace-scenery-back-color2", "#ffffffff" ) );
+		LinearGradient back;
+		Stop[] stops = new Stop[]{ new Stop( 0, backColor1 ), new Stop( 1, backColor2 ) };
+		if( backDirection ) {
+			back = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops );
+		} else {
+			back = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops );
+		}
 
-		// FIXME The following background image is for development purposes.
-		// TODO Remove the development background image
-		//Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
-		//BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
-		//workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
+		// NEXT Add image fill
+		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
+		ImagePattern image = null;
 
-		workpaneContainer.setBackground( new Background( new BackgroundFill( color1, CornerRadii.EMPTY, Insets.EMPTY ) ) );
+		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
+		boolean tintDirection = "0".equals( settings.get( "workspace-scenery-tint-direction", "0" ) );
+		Color tintColor1 = Colors.web( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
+		Color tintColor2 = Colors.web( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
+		LinearGradient tint;
+		Stop[] tintStops = new Stop[]{ new Stop( 0, tintColor1 ), new Stop( 1, tintColor2 ) };
+		if( tintDirection ) {
+			tint = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, tintStops );
+		} else {
+			tint = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, tintStops );
+		}
+
+		List<BackgroundFill> fills = new ArrayList<>();
+		fills.add( new BackgroundFill( back, CornerRadii.EMPTY, Insets.EMPTY ) );
+		if( imageEnabled ) fills.add( new BackgroundFill( image, CornerRadii.EMPTY, Insets.EMPTY ) );
+		if( tintEnabled ) fills.add( new BackgroundFill( tint, CornerRadii.EMPTY, Insets.EMPTY ) );
+
+		workpaneContainer.setBackground( new Background( fills, null ) );
 	}
 
 	@Override
@@ -394,6 +432,17 @@ public class Workspace implements Configurable {
 	private Workarea determineNextActiveWorkarea() {
 		int index = workareas.indexOf( getActiveWorkarea() );
 		return workareas.get( index == 0 ? 1 : index - 1 );
+	}
+
+	private class BackgroundSettingsHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+
+			updateBackgroundFromSettings( backgroundSettings );
+		}
+
 	}
 
 	private class WorkareaPropertyWatcher implements PropertyChangeListener {
