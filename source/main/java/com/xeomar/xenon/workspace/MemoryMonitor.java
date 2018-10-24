@@ -63,9 +63,6 @@ public class MemoryMonitor extends Pane {
 		getChildren().addAll( memoryMax, memoryAllocated, memoryUsed, label );
 
 		monitors.add( this );
-
-		// If the memory monitor is clicked then call the garbage collector
-		this.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 	}
 
 	public static boolean isShowPercent() {

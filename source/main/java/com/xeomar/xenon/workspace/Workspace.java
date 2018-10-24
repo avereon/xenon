@@ -3,8 +3,12 @@ package com.xeomar.xenon.workspace;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.*;
+import com.xeomar.xenon.ExecMode;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
+import com.xeomar.xenon.resource.ResourceException;
+import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.Colors;
 import com.xeomar.xenon.workarea.Workarea;
@@ -125,7 +129,7 @@ public class Workspace implements Configurable {
 
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-update-found") );
+		dev.getItems().add( ActionUtil.createMenuItem( program, "test-update-found" ) );
 		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
@@ -173,8 +177,24 @@ public class Workspace implements Configurable {
 
 		// STATUS BAR
 		statusBar = new StatusBar();
+
+		// Task Monitor
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
+
+		// If the task monitor is clicked then open the task tool
+		taskMonitor.setOnMouseClicked( ( event ) -> {
+			try {
+				program.getResourceManager().open( ProgramTaskType.URI );
+			} catch( ResourceException exception ) {
+				log.error( "Error opening task tool", exception );
+			}
+		} );
+
+		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
+
+		// If the memory monitor is clicked then call the garbage collector
+		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
 		HBox leftStatusBarItems = new HBox();
 		leftStatusBarItems.getStyleClass().addAll( "box" );
