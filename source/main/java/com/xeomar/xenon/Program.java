@@ -261,7 +261,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "staged-updates" );
 
 		// Show the splash screen
-		if( stage.getStyle() == StageStyle.DECORATED ) stage.initStyle( StageStyle.UTILITY );
+		stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
 
@@ -961,14 +961,14 @@ public class Program extends Application implements ProgramProduct {
 			// Open resources specified on the command line
 			processResources( getProgramParameters() );
 
-			// Check to see if the application was updated
-			checkIfUpdated();
-
 			// Schedule the first update check
 			getUpdateManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
+
+			// Check to see if the application was updated
+			checkIfUpdated();
 		}
 
 		@Override
