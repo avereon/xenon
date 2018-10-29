@@ -13,7 +13,6 @@ import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
-import com.xeomar.xenon.util.Colors;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,19 +21,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.invoke.MethodHandles;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -67,6 +60,8 @@ public class Workspace implements Configurable {
 	private MemoryMonitor memoryMonitor;
 
 	private TaskMonitor taskMonitor;
+
+	private WorkspaceBackground background;
 
 	private Pane workpaneContainer;
 
@@ -227,6 +222,10 @@ public class Workspace implements Configurable {
 		workpaneContainer = new StackPane();
 		workpaneContainer.getStyleClass().add( "workspace" );
 
+		// Workarea Background
+		background = new WorkspaceBackground();
+		workpaneContainer.getChildren().add( background );
+
 		VBox bars = new VBox();
 		bars.getChildren().addAll( menubar, toolbar );
 
@@ -377,55 +376,8 @@ public class Workspace implements Configurable {
 
 		backgroundSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
-		updateBackgroundFromSettings( backgroundSettings );
+		background.updateBackgroundFromSettings( backgroundSettings );
 		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
-	}
-
-	private void updateBackgroundFromSettings( Settings settings ) {
-		// Back layer
-		boolean backDirection = "0".equals( settings.get( "workspace-scenery-back-direction", "0" ) );
-		Color backColor1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
-		Color backColor2 = Colors.web( settings.get( "workspace-scenery-back-color2", "#ffffffff" ) );
-		LinearGradient backLayer;
-		Stop[] stops = new Stop[]{ new Stop( 0, backColor1 ), new Stop( 1, backColor2 ) };
-		if( backDirection ) {
-			backLayer = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops );
-		} else {
-			backLayer = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops );
-		}
-
-		// Image layer
-		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
-		String imageFile = settings.get( "workspace-scenery-image-file", (String)null );
-		Path imagePath = imageFile == null ? null : Paths.get( imageFile );
-		ImagePattern imageLayer = null;
-		if( imageEnabled && imagePath != null && Files.exists( imagePath ) ) {
-			Image image = new Image( imagePath.toUri().toString() );
-			imageLayer = new ImagePattern( image, 0, 0, 1, 1, true );
-		}
-
-		// FIXME The ImagePattern class does not allow for style and alignment
-
-		// Tint layer
-		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
-		boolean tintDirection = "0".equals( settings.get( "workspace-scenery-tint-direction", "0" ) );
-		Color tintColor1 = Colors.web( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
-		Color tintColor2 = Colors.web( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
-		LinearGradient tintLayer;
-		Stop[] tintStops = new Stop[]{ new Stop( 0, tintColor1 ), new Stop( 1, tintColor2 ) };
-		if( tintDirection ) {
-			tintLayer = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, tintStops );
-		} else {
-			tintLayer = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, tintStops );
-		}
-
-		// Fill collection
-		List<BackgroundFill> fills = new ArrayList<>();
-		fills.add( new BackgroundFill( backLayer, CornerRadii.EMPTY, Insets.EMPTY ) );
-		if( imageEnabled ) fills.add( new BackgroundFill( imageLayer, CornerRadii.EMPTY, Insets.EMPTY ) );
-		if( tintEnabled ) fills.add( new BackgroundFill( tintLayer, CornerRadii.EMPTY, Insets.EMPTY ) );
-
-		workpaneContainer.setBackground( new Background( fills, null ) );
 	}
 
 	@Override
@@ -453,8 +405,7 @@ public class Workspace implements Configurable {
 		@Override
 		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-
-			updateBackgroundFromSettings( backgroundSettings );
+			background.updateBackgroundFromSettings( backgroundSettings );
 		}
 
 	}
