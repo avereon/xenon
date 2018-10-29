@@ -24,6 +24,10 @@ public class WorkspaceBackground extends Pane {
 
 	private Pane tintPane;
 
+	private String style = "fill";
+
+	private String align = "center";
+
 	public WorkspaceBackground() {
 		backPane = new Pane();
 		imagePane = new ImageView();
@@ -34,12 +38,57 @@ public class WorkspaceBackground extends Pane {
 
 		backPane.prefWidthProperty().bind( this.widthProperty() );
 		backPane.prefHeightProperty().bind( this.heightProperty() );
-		imagePane.fitWidthProperty().bind( this.widthProperty() );
-		imagePane.fitHeightProperty().bind( this.heightProperty() );
 		tintPane.prefWidthProperty().bind( this.widthProperty() );
 		tintPane.prefHeightProperty().bind( this.heightProperty() );
 
 		getChildren().addAll( backPane, imagePane, tintPane );
+	}
+
+	@Override
+	protected void layoutChildren() {
+		super.layoutChildren();
+
+		Image image = imagePane.getImage();
+		if( image == null ) return;
+
+		boolean tallSpace = getHeight() > getWidth();
+
+		boolean tall = image.getHeight() > image.getWidth();
+		switch( style ) {
+			case "fill": {
+				if( tallSpace ) {
+					imagePane.setFitWidth( getWidth() );
+				} else {
+					imagePane.setFitHeight( getHeight() );
+				}
+				break;
+			}
+			case "fit": {
+				//				imagePane.fitHeightProperty().bind( this.heightProperty() );
+				//				imagePane.fitWidthProperty().bind( this.widthProperty() );
+				//				imagePane.setPreserveRatio( true );
+				break;
+			}
+			case "stretch": {
+				//				imagePane.fitWidthProperty().bind( this.widthProperty() );
+				//				imagePane.fitHeightProperty().bind( this.heightProperty() );
+				//				imagePane.setPreserveRatio( false );
+				break;
+			}
+			case "tile": {
+				// Not implemented
+				break;
+			}
+			case "anchor": {
+				// No scaling should be applied, just anchor the image according to the align parameter\
+				//				imagePane.fitWidthProperty().unbind();
+				//				imagePane.fitHeightProperty().unbind();
+				//				imagePane.setFitWidth( image.getWidth() );
+				//				imagePane.setFitHeight( image.getHeight() );
+				//				imagePane.setPreserveRatio( true );
+				break;
+			}
+		}
 	}
 
 	void updateBackgroundFromSettings( Settings settings ) {
@@ -89,10 +138,7 @@ public class WorkspaceBackground extends Pane {
 	}
 
 	private void setImageConstraints( Image image, String style, String align ) {
-		boolean wide = image.getWidth() > image.getHeight();
-		boolean tall = image.getHeight() > image.getWidth();
-		// TODO  What if the image is square? Then it's neither wide nor tall.
-
+		imagePane.setPreserveRatio( !"stretch".equals( style ) );
 	}
 
 }

@@ -163,14 +163,14 @@
 					<option key="fit" />
 					<option key="stretch" />
 					<option key="tile" />
-					<option key="align" />
+					<option key="anchor" />
 				</setting>
 				<setting key="workspace-scenery-image-align" editor="combobox">
 					<dependency key="workspace-scenery-image-enabled" value="true" />
 					<dependency key="workspace-scenery-image-style" value="fill" />
 					<dependency key="workspace-scenery-image-style" value="fit" operator="or" />
 					<dependency key="workspace-scenery-image-style" value="tile" operator="or" />
-					<dependency key="workspace-scenery-image-style" value="align" operator="or" />
+					<dependency key="workspace-scenery-image-style" value="anchor" operator="or" />
 					<option key="northwest" />
 					<option key="north" />
 					<option key="northeast" />

@@ -1,6 +1,7 @@
 package com.xeomar.xenon.util;
 
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 
@@ -8,6 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FxUtil {
+
+	public static Pos parseAlign( String align ) {
+		switch( align ) {
+			case "northwest" : return Pos.TOP_LEFT;
+			case "north" : return Pos.TOP_CENTER;
+			case "northeast" : return Pos.TOP_RIGHT;
+			case "west" : return Pos.CENTER_LEFT;
+			case "center" : return Pos.CENTER;
+			case "east" : return Pos.CENTER_RIGHT;
+			case "southwest" : return Pos.BOTTOM_LEFT;
+			case "south" : return Pos.BOTTOM_CENTER;
+			case "southeast" : return Pos.BOTTOM_RIGHT;
+		}
+		return Pos.CENTER;
+	}
 
 	public static boolean isChildOf( Node node, Node container ) {
 		while( (node = node.getParent()) != null ) {
