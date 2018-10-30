@@ -154,6 +154,7 @@
 
 .memory-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-text-alignment: center;
 }
 
 .memory-monitor-max {
@@ -172,6 +173,7 @@
 
 .task-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-text-alignment: center;
 }
 
 .task-monitor-max {

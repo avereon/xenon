@@ -17,9 +17,10 @@ import com.xeomar.xenon.workarea.Workarea;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -57,7 +58,11 @@ public class Workspace implements Configurable {
 
 	private StatusBar statusBar;
 
+	private Group memoryMonitorContainer;
+
 	private MemoryMonitor memoryMonitor;
+
+	private Group taskMonitorContainer;
 
 	private TaskMonitor taskMonitor;
 
@@ -79,6 +84,14 @@ public class Workspace implements Configurable {
 
 	private SettingsListener backgroundSettingsHandler;
 
+	private Settings memoryMonitorSettings;
+
+	private MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
+
+	private Settings taskMonitorSettings;
+
+	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
+
 	private String id;
 
 	public Workspace( Program program ) {
@@ -87,6 +100,8 @@ public class Workspace implements Configurable {
 		workareas = FXCollections.observableArrayList();
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
+		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
+		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 
 		// FIXME Should this default setup be defined in config files or something else?
 
@@ -188,6 +203,7 @@ public class Workspace implements Configurable {
 
 		// Task Monitor
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
+		taskMonitorContainer = new Group();
 
 		// If the task monitor is clicked then open the task tool
 		taskMonitor.setOnMouseClicked( ( event ) -> {
@@ -200,6 +216,7 @@ public class Workspace implements Configurable {
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
+		memoryMonitorContainer = new Group();
 
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
@@ -211,7 +228,7 @@ public class Workspace implements Configurable {
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
 		leftStatusBarItems.getChildren().addAll( statusBar );
-		rightStatusBarItems.getChildren().addAll( taskMonitor, memoryMonitor );
+		rightStatusBarItems.getChildren().addAll( taskMonitorContainer, memoryMonitorContainer );
 
 		BorderPane statusBarContainer = new BorderPane();
 		statusBarContainer.setLeft( leftStatusBarItems );
@@ -236,7 +253,6 @@ public class Workspace implements Configurable {
 
 		// Create the stage
 		stage = new Stage();
-		Image image;
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			event.consume();
@@ -378,6 +394,16 @@ public class Workspace implements Configurable {
 		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
 		background.updateBackgroundFromSettings( backgroundSettings );
 		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
+
+		memoryMonitorSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		memoryMonitorSettings.removeSettingsListener( memoryMonitorSettingsHandler );
+		updateMemoryMonitorFromSettings( memoryMonitorSettings );
+		memoryMonitorSettings.addSettingsListener( memoryMonitorSettingsHandler );
+
+		taskMonitorSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		taskMonitorSettings.removeSettingsListener( taskMonitorSettingsHandler );
+		updateTaskMonitorFromSettings( taskMonitorSettings );
+		taskMonitorSettings.addSettingsListener( taskMonitorSettingsHandler );
 	}
 
 	@Override
@@ -400,12 +426,60 @@ public class Workspace implements Configurable {
 		return workareas.get( index == 0 ? 1 : index - 1 );
 	}
 
+	private void updateMemoryMonitorFromSettings( Settings settings ) {
+		Boolean enabled = settings.get( "workspace-memory-monitor-enabled", Boolean.class, Boolean.TRUE );
+		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
+		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
+
+		updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
+		memoryMonitor.setTextVisible( showText );
+		memoryMonitor.setShowPercent( showPercent );
+	}
+
+	private void updateTaskMonitorFromSettings( Settings settings ) {
+		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
+		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
+		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
+
+		updateContainer( taskMonitorContainer, taskMonitor, enabled );
+		taskMonitor.setTextVisible( showText );
+		taskMonitor.setShowPercent( showPercent );
+	}
+
+	private void updateContainer( Group container, Node tool, boolean enabled ) {
+		if( enabled ) {
+			if( !container.getChildren().contains( tool ) ) container.getChildren().add( tool );
+		} else {
+			container.getChildren().remove( tool );
+		}
+	}
+
 	private class BackgroundSettingsHandler implements SettingsListener {
 
 		@Override
 		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 			background.updateBackgroundFromSettings( backgroundSettings );
+		}
+
+	}
+
+	private class MemoryMonitorSettingsHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+			updateMemoryMonitorFromSettings( memoryMonitorSettings );
+		}
+
+	}
+
+	private class TaskMonitorSettingsHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+			updateTaskMonitorFromSettings( taskMonitorSettings );
 		}
 
 	}

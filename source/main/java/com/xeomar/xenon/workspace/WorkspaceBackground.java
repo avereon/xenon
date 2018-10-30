@@ -148,6 +148,7 @@ public class WorkspaceBackground extends Pane {
 	 */
 	private void useFillBackgroundWorkaround( boolean force ) {
 		if( !"fill".equals( style ) ) return;
+		if( image == null ) return;
 
 		double spaceWidth = getWidth();
 		double spaceHeight = getHeight();

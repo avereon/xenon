@@ -9,12 +9,17 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskMonitor extends Pane {
 
 	private static final double MINIMUM_WIDTH = 100;
+
+	private static final String DIVIDER = "/";
+
+	private static DecimalFormat percentFormat = new DecimalFormat( "#0" );
 
 	private TaskManager taskManager;
 
@@ -28,9 +33,15 @@ public class TaskMonitor extends Pane {
 
 	private Label label;
 
-	private TaskWatcher taskWatcher;
+	private boolean textVisible;
+
+	private boolean showPercent;
+
+	private int maxThreadCount;
 
 	private int priorThreadCount;
+
+	private TaskWatcher taskWatcher;
 
 	public TaskMonitor( TaskManager taskManager ) {
 		this.taskManager = taskManager;
@@ -51,10 +62,33 @@ public class TaskMonitor extends Pane {
 		pool.setManaged( false );
 		pool.getStyleClass().add( "task-monitor-pool" );
 
-		getChildren().addAll( max, used, pool );
+		getChildren().addAll( max, used, pool, label );
 
 		taskWatcher = new TaskWatcher();
 		taskManager.addTaskListener( taskWatcher );
+	}
+
+	@Override
+	protected double computeMinWidth( double height ) {
+		return getInsets().getLeft() + MINIMUM_WIDTH + getInsets().getRight();
+	}
+
+	public boolean isTextVisible() {
+		return textVisible;
+	}
+
+	public void setTextVisible( boolean visible ) {
+		this.textVisible = visible;
+		update();
+	}
+
+	public boolean isShowPercent() {
+		return showPercent;
+	}
+
+	public void setShowPercent( boolean showPercent ) {
+		this.showPercent = showPercent;
+		update();
 	}
 
 	public void close() {
@@ -67,8 +101,6 @@ public class TaskMonitor extends Pane {
 
 		double width = super.getWidth() - 1;
 		double height = super.getHeight() - 1;
-
-		double maxThreadCount = taskManager.getMaxThreadCount();
 		double taskWidth = width / maxThreadCount;
 
 		List<Task> tasks = taskManager.getTasks();
@@ -92,12 +124,12 @@ public class TaskMonitor extends Pane {
 			}
 		}
 
-		double poolX = width * Math.min( taskManager.getCurrentThreadCount() / maxThreadCount, 1.0 );
+		double poolX = width * Math.min( taskManager.getCurrentThreadCount() / (double)maxThreadCount, 1.0 );
 		pool.setX( poolX );
 		pool.setWidth( width - poolX );
 		pool.setHeight( height );
 
-		used.setWidth( width * Math.min( taskCount / maxThreadCount, 1.0 ) );
+		used.setWidth( width * Math.min( taskCount / (double)maxThreadCount, 1.0 ) );
 		used.setHeight( height );
 
 		max.setWidth( width );
@@ -105,13 +137,12 @@ public class TaskMonitor extends Pane {
 	}
 
 	private void determineBars() {
-		int count = taskManager.getMaxThreadCount();
-		if( count == priorThreadCount ) return;
+		if( maxThreadCount == priorThreadCount ) return;
 
-		priorThreadCount = count;
+		priorThreadCount = maxThreadCount;
 		getChildren().removeAll( bars );
 		bars = new ArrayList<>();
-		for( int index = 0; index < count; index++ ) {
+		for( int index = 0; index < maxThreadCount; index++ ) {
 			Rectangle bar = new Rectangle();
 			bar.setManaged( false );
 			bar.getStyleClass().add( "task-monitor-progress" );
@@ -122,16 +153,38 @@ public class TaskMonitor extends Pane {
 		getChildren().add( label );
 	}
 
-	@Override
-	protected double computeMinWidth( double height ) {
-		return getInsets().getLeft() + MINIMUM_WIDTH + getInsets().getRight();
+	private void update() {
+		maxThreadCount = taskManager.getMaxThreadCount();
+		int currentThreadCount = taskManager.getCurrentThreadCount();
+		int taskCount = taskManager.getTasks().size();
+
+		String text;
+		if( isTextVisible() ) {
+			if( isShowPercent() ) {
+				double usedPercent = taskCount / (double)maxThreadCount;
+				double allocatedPercent = currentThreadCount / (double)maxThreadCount;
+				text = percentFormat.format( usedPercent * 100 ) + "% " + DIVIDER + " " + percentFormat.format( allocatedPercent * 100 ) + "% " + DIVIDER + " " + maxThreadCount;
+			} else {
+				text = taskCount + " " + DIVIDER + " " + currentThreadCount + " " + DIVIDER + " " + maxThreadCount;
+			}
+		} else {
+			// Use a space character so the preferred size is calculated correctly
+			text = " ";
+		}
+
+		this.label.setText( text );
+		requestLayout();
+	}
+
+	private void requestUpdate() {
+		update();
 	}
 
 	private class TaskWatcher implements TaskListener {
 
 		@Override
 		public void handleEvent( TaskEvent event ) {
-			Platform.runLater( TaskMonitor.this::requestLayout );
+			Platform.runLater( TaskMonitor.this::requestUpdate );
 		}
 
 	}

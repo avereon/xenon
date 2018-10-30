@@ -14,15 +14,25 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class MemoryMonitor extends Pane {
 
+	private static final double MINIMUM_WIDTH = 100;
+
 	private static final int DEFAULT_POLL_INTERVAL = 2000;
 
 	private static final String DIVIDER = "/";
 
+	private static DecimalFormat percentFormat = new DecimalFormat( "#0" );
+
 	private static Set<MemoryMonitor> monitors;
 
-	private static boolean showPercent;
+	private boolean textVisible;
 
-	private static DecimalFormat percentFormat = new DecimalFormat( "#0" );
+	private boolean showPercent;
+
+	private long used;
+
+	private long allocated;
+
+	private long maximum;
 
 	private double allocatedPercent;
 
@@ -39,7 +49,7 @@ public class MemoryMonitor extends Pane {
 	static {
 		monitors = new CopyOnWriteArraySet<>();
 		Timer timer = new Timer( "Memory Monitor Timer", true );
-		timer.schedule( LambdaTask.build( MemoryMonitor::update ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
+		timer.schedule( LambdaTask.build( MemoryMonitor::requestUpdate ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
 	}
 
 	public MemoryMonitor() {
@@ -65,41 +75,31 @@ public class MemoryMonitor extends Pane {
 		monitors.add( this );
 	}
 
-	public static boolean isShowPercent() {
+	public boolean isTextVisible() {
+		return textVisible;
+	}
+
+	public void setTextVisible( boolean visible ) {
+		this.textVisible = visible;
+		update();
+	}
+
+	public boolean isShowPercent() {
 		return showPercent;
 	}
 
-	public static void setShowPercent( boolean showPercent ) {
-		MemoryMonitor.showPercent = showPercent;
+	public void setShowPercent( boolean showPercent ) {
+		this.showPercent = showPercent;
+		update();
 	}
 
 	public void close() {
 		monitors.remove( this );
 	}
 
-	private static void update() {
-		Runtime runtime = Runtime.getRuntime();
-		long maximum = runtime.maxMemory();
-		long allocated = runtime.totalMemory();
-		long used = allocated - runtime.freeMemory();
-
-		float allocatedPercent = (float)allocated / (float)maximum;
-		float usedPercent = (float)used / (float)maximum;
-
-		String usedSize = FileUtil.getHumanBinSize( used );
-		String allocatedSize = FileUtil.getHumanBinSize( allocated );
-		String maximumSize = FileUtil.getHumanBinSize( maximum );
-
-		String text;
-		if( isShowPercent() ) {
-			text = percentFormat.format( usedPercent * 100 ) + "% " + DIVIDER + " " + percentFormat.format( allocatedPercent * 100 ) + "% " + DIVIDER + " " + maximumSize;
-		} else {
-			text = usedSize + " " + DIVIDER + " " + allocatedSize + " " + DIVIDER + " " + maximumSize;
-		}
-
-		for( MemoryMonitor monitor : monitors ) {
-			Platform.runLater( () -> monitor.update( usedPercent, allocatedPercent, text ) );
-		}
+	@Override
+	protected double computeMinWidth( double height ) {
+		return getInsets().getLeft() + MINIMUM_WIDTH + getInsets().getRight();
 	}
 
 	@Override
@@ -119,11 +119,45 @@ public class MemoryMonitor extends Pane {
 		memoryUsed.setHeight( height );
 	}
 
-	private void update( double used, double allocated, String text ) {
-		this.allocatedPercent = allocated;
-		this.usedPercent = used;
+	private void update() {
+		allocatedPercent = (float)allocated / (float)maximum;
+		usedPercent = (float)used / (float)maximum;
+
+		String text;
+		if( isTextVisible() ) {
+			String maximumSize = FileUtil.getHumanBinSize( maximum );
+			if( isShowPercent() ) {
+				text = percentFormat.format( usedPercent * 100 ) + "% " + DIVIDER + " " + percentFormat.format( allocatedPercent * 100 ) + "% " + DIVIDER + " " + maximumSize;
+			} else {
+				String allocatedSize = FileUtil.getHumanBinSize( allocated );
+				String usedSize = FileUtil.getHumanBinSize( used );
+				text = usedSize + " " + DIVIDER + " " + allocatedSize + " " + DIVIDER + " " + maximumSize;
+			}
+		} else {
+			// Use a space character so the preferred size is calculated correctly
+			text = " ";
+		}
+
 		this.label.setText( text );
 		requestLayout();
+	}
+
+	private void update( long maximum, long allocated, long used ) {
+		this.maximum = maximum;
+		this.allocated = allocated;
+		this.used = used;
+		update();
+	}
+
+	private static void requestUpdate() {
+		Runtime runtime = Runtime.getRuntime();
+		long maximum = runtime.maxMemory();
+		long allocated = runtime.totalMemory();
+		long used = allocated - runtime.freeMemory();
+
+		for( MemoryMonitor monitor : monitors ) {
+			Platform.runLater( () -> monitor.update( maximum, allocated, used ) );
+		}
 	}
 
 }
