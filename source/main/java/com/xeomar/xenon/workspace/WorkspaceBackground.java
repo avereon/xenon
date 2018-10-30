@@ -2,6 +2,7 @@ package com.xeomar.xenon.workspace;
 
 import com.xeomar.settings.Settings;
 import com.xeomar.xenon.util.Colors;
+import com.xeomar.xenon.util.FxUtil;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -22,9 +23,13 @@ public class WorkspaceBackground extends Pane {
 
 	private Pane tintPane;
 
-	private String style = "fill";
+	private Image image;
 
-	private String align = "center";
+	private String style;
+
+	private String align;
+
+	private double priorSpaceRatio;
 
 	public WorkspaceBackground() {
 		backPane = new Pane();
@@ -36,117 +41,20 @@ public class WorkspaceBackground extends Pane {
 
 		backPane.prefWidthProperty().bind( this.widthProperty() );
 		backPane.prefHeightProperty().bind( this.heightProperty() );
+		imagePane.prefWidthProperty().bind( this.widthProperty() );
+		imagePane.prefHeightProperty().bind( this.heightProperty() );
 		tintPane.prefWidthProperty().bind( this.widthProperty() );
 		tintPane.prefHeightProperty().bind( this.heightProperty() );
 
 		getChildren().addAll( backPane, imagePane, tintPane );
 
-		Rectangle clipRectangle = new Rectangle();
-		this.setClip( clipRectangle );
-		this.layoutBoundsProperty().addListener( ( observable, oldValue, newValue ) -> {
-			clipRectangle.setWidth( newValue.getWidth() );
-			clipRectangle.setHeight( newValue.getHeight() );
+		Rectangle clip = new Rectangle();
+		this.setClip( clip );
+		this.layoutBoundsProperty().addListener( ( observable, oldBounds, newBounds ) -> {
+			clip.setWidth( newBounds.getWidth() );
+			clip.setHeight( newBounds.getHeight() );
+			useFillBackgroundWorkaround( false );
 		} );
-	}
-
-	@Override
-	protected void layoutChildren() {
-		super.layoutChildren();
-
-		if( imagePane.getBackground() == null ) return;
-		Image image = imagePane.getBackground().getImages().get( 0 ).getImage();
-
-		double spaceWidth = getWidth();
-		double spaceHeight = getHeight();
-		double imageWidth = image.getWidth();
-		double imageHeight = image.getHeight();
-
-		boolean tallSpace = spaceHeight > spaceWidth;
-
-		switch( style ) {
-			case "fill": {
-				//				if( tallSpace ) {
-				//					imagePane.setFitHeight( spaceWidth );
-				//				} else {
-				//					imagePane.setFitWidth( spaceHeight );
-				//				}
-				break;
-			}
-			case "fit": {
-				//				imagePane.fitHeightProperty().bind( this.heightProperty() );
-				//				imagePane.fitWidthProperty().bind( this.widthProperty() );
-				//				imagePane.setPreserveRatio( true );
-				break;
-			}
-			case "stretch": {
-				imagePane.setPrefWidth( spaceWidth );
-				imagePane.setPrefHeight( spaceHeight );
-				break;
-			}
-			case "tile": {
-				// Not implemented
-				break;
-			}
-			case "anchor": {
-				// No scaling should be applied, just anchor the image according to the align parameter
-				imagePane.setPrefWidth( imageWidth );
-				imagePane.setPrefHeight( imageHeight );
-				break;
-			}
-		}
-
-		// Start with the image centered.
-		double x = (spaceWidth - imageWidth) / 2;
-		double y = (spaceHeight - imageHeight) / 2;
-
-		switch( align ) {
-			case "northwest": {
-				x = 0;
-				y = 0;
-				break;
-			}
-			case "north": {
-				y = 0;
-				break;
-			}
-			case "northeast": {
-				x = spaceWidth - imageWidth;
-				y = 0;
-				break;
-			}
-			case "west": {
-				x = 0;
-				break;
-			}
-			case "center": {
-				break;
-			}
-			case "east": {
-				x = spaceWidth - imageWidth;
-				break;
-			}
-			case "southwest": {
-				x = 0;
-				y = spaceHeight - imageHeight;
-				break;
-			}
-			case "south": {
-				y = spaceHeight - imageHeight;
-				break;
-			}
-			case "southeast": {
-				x = spaceWidth - imageWidth;
-				y = spaceHeight - imageHeight;
-				break;
-			}
-		}
-
-		//System.out.println( "x=" + x + "  y=" + y );
-
-		if( !"stretch".equals( style ) ) {
-			imagePane.setLayoutX( x );
-			imagePane.setLayoutY( y );
-		}
 	}
 
 	void updateBackgroundFromSettings( Settings settings ) {
@@ -163,12 +71,11 @@ public class WorkspaceBackground extends Pane {
 		}
 
 		// Image layer
-		Image image = null;
+		image = null;
 		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
 		String imageFile = settings.get( "workspace-scenery-image-file", (String)null );
 		Path imagePath = imageFile == null ? null : Paths.get( imageFile );
 		if( imageEnabled && imagePath != null && Files.exists( imagePath ) ) image = new Image( imagePath.toUri().toString() );
-
 		style = settings.get( "workspace-scenery-image-style", "fill" );
 		align = settings.get( "workspace-scenery-image-align", "center" );
 
@@ -187,18 +94,87 @@ public class WorkspaceBackground extends Pane {
 
 		backPane.setBackground( new Background( new BackgroundFill( backFill, null, null ) ) );
 
-		// NEXT The BackgroundImage class may have enough parameters to do what I want
-		if( image == null ) {
-			imagePane.setBackground( null );
-		} else {
-			imagePane.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, null, null ) ) );
-		}
+		configureImagePane();
 		imagePane.setVisible( imageEnabled );
 
 		tintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
 		tintPane.setVisible( tintEnabled );
+	}
 
-		requestLayout();
+	private void configureImagePane() {
+		if( image == null ) {
+			imagePane.setBackground( null );
+			return;
+		}
+
+		BackgroundImage background = null;
+		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );
+
+		switch( style ) {
+			case "fill": {
+				// JavaFX cover
+				useFillBackgroundWorkaround( true );
+				break;
+			}
+			case "fit": {
+				// JavaFX contain
+				BackgroundSize size = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, false );
+				background = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
+				break;
+			}
+			case "stretch": {
+				BackgroundSize size = new BackgroundSize( 1, 1, true, true, false, false );
+				background = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
+				break;
+			}
+			case "tile": {
+				BackgroundSize size = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, false );
+				background = new BackgroundImage( image, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, position, size );
+				break;
+			}
+			case "anchor": {
+				BackgroundSize size = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, false );
+				background = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
+				break;
+			}
+		}
+
+		if( background != null ) imagePane.setBackground( new Background( background ) );
+	}
+
+	/**
+	 * This workaround is in place to handle updating the fill style because the
+	 * BackgroundSize cover flag does not respect BackgroundPosition yet.
+	 */
+	private void useFillBackgroundWorkaround( boolean force ) {
+		if( !"fill".equals( style ) ) return;
+
+		double spaceWidth = getWidth();
+		double spaceHeight = getHeight();
+		double imageWidth = image.getWidth();
+		double imageHeight = image.getHeight();
+
+		double spaceRatio = spaceWidth / spaceHeight;
+		double imageRatio = imageWidth / imageHeight;
+		if( spaceWidth == 0 || spaceHeight == 0 ) spaceRatio = Double.POSITIVE_INFINITY;
+
+		boolean swap = (priorSpaceRatio > imageRatio && spaceRatio < imageRatio) || (priorSpaceRatio < imageRatio && spaceRatio > imageRatio);
+		boolean change = force || swap;
+
+		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );
+		if( change && spaceRatio < imageRatio ) {
+			// Switch to tall settings
+			BackgroundSize size = new BackgroundSize( BackgroundSize.AUTO, 1, false, true, false, false );
+			BackgroundImage newBackground = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
+			imagePane.setBackground( new Background( newBackground ) );
+		} else if( change && spaceRatio >= imageRatio ) {
+			// Switch to wide settings
+			BackgroundSize size = new BackgroundSize( 1, BackgroundSize.AUTO, true, false, false, false );
+			BackgroundImage newBackground = new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size );
+			imagePane.setBackground( new Background( newBackground ) );
+		}
+
+		priorSpaceRatio = spaceRatio;
 	}
 
 }

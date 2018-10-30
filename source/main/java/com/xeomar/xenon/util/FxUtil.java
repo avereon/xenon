@@ -2,8 +2,10 @@ package com.xeomar.xenon.util;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.BackgroundPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,21 @@ public class FxUtil {
 			case "southeast" : return Pos.BOTTOM_RIGHT;
 		}
 		return Pos.CENTER;
+	}
+
+	public static BackgroundPosition parseBackgroundPosition( String align ) {
+		switch( align ) {
+			case "northwest" : return new BackgroundPosition( Side.LEFT, 0, true, Side.TOP, 0, true );
+			case "north" : return new BackgroundPosition( Side.LEFT, 0.5, true, Side.TOP, 0, true );
+			case "northeast" : return new BackgroundPosition( Side.LEFT, 1, true, Side.TOP, 0, true );
+			case "west" : return new BackgroundPosition( Side.LEFT, 0, true, Side.TOP, 0.5, true );
+			case "center" : return new BackgroundPosition( Side.LEFT, 0.5, true, Side.TOP, 0.5, true );
+			case "east" : return new BackgroundPosition( Side.LEFT, 1, true, Side.TOP, 0.5, true );
+			case "southwest" : return new BackgroundPosition( Side.LEFT, 0, true, Side.TOP, 1, true );
+			case "south" : return new BackgroundPosition( Side.LEFT, 0.5, true, Side.TOP, 1, true );
+			case "southeast" : return new BackgroundPosition( Side.LEFT, 1, true, Side.TOP, 1, true );
+		}
+		return BackgroundPosition.CENTER;
 	}
 
 	public static boolean isChildOf( Node node, Node container ) {
