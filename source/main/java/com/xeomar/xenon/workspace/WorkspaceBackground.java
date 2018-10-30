@@ -3,14 +3,12 @@ package com.xeomar.xenon.workspace;
 import com.xeomar.settings.Settings;
 import com.xeomar.xenon.util.Colors;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +18,7 @@ public class WorkspaceBackground extends Pane {
 
 	private Pane backPane;
 
-	private ImageView imagePane;
+	private Pane imagePane;
 
 	private Pane tintPane;
 
@@ -30,7 +28,7 @@ public class WorkspaceBackground extends Pane {
 
 	public WorkspaceBackground() {
 		backPane = new Pane();
-		imagePane = new ImageView();
+		imagePane = new Pane();
 		tintPane = new Pane();
 
 		imagePane.setVisible( false );
@@ -42,25 +40,36 @@ public class WorkspaceBackground extends Pane {
 		tintPane.prefHeightProperty().bind( this.heightProperty() );
 
 		getChildren().addAll( backPane, imagePane, tintPane );
+
+		Rectangle clipRectangle = new Rectangle();
+		this.setClip( clipRectangle );
+		this.layoutBoundsProperty().addListener( ( observable, oldValue, newValue ) -> {
+			clipRectangle.setWidth( newValue.getWidth() );
+			clipRectangle.setHeight( newValue.getHeight() );
+		} );
 	}
 
 	@Override
 	protected void layoutChildren() {
 		super.layoutChildren();
 
-		Image image = imagePane.getImage();
-		if( image == null ) return;
+		if( imagePane.getBackground() == null ) return;
+		Image image = imagePane.getBackground().getImages().get( 0 ).getImage();
 
-		boolean tallSpace = getHeight() > getWidth();
+		double spaceWidth = getWidth();
+		double spaceHeight = getHeight();
+		double imageWidth = image.getWidth();
+		double imageHeight = image.getHeight();
 
-		boolean tall = image.getHeight() > image.getWidth();
+		boolean tallSpace = spaceHeight > spaceWidth;
+
 		switch( style ) {
 			case "fill": {
-				if( tallSpace ) {
-					imagePane.setFitWidth( getWidth() );
-				} else {
-					imagePane.setFitHeight( getHeight() );
-				}
+				//				if( tallSpace ) {
+				//					imagePane.setFitHeight( spaceWidth );
+				//				} else {
+				//					imagePane.setFitWidth( spaceHeight );
+				//				}
 				break;
 			}
 			case "fit": {
@@ -70,9 +79,8 @@ public class WorkspaceBackground extends Pane {
 				break;
 			}
 			case "stretch": {
-				//				imagePane.fitWidthProperty().bind( this.widthProperty() );
-				//				imagePane.fitHeightProperty().bind( this.heightProperty() );
-				//				imagePane.setPreserveRatio( false );
+				imagePane.setPrefWidth( spaceWidth );
+				imagePane.setPrefHeight( spaceHeight );
 				break;
 			}
 			case "tile": {
@@ -80,14 +88,64 @@ public class WorkspaceBackground extends Pane {
 				break;
 			}
 			case "anchor": {
-				// No scaling should be applied, just anchor the image according to the align parameter\
-				//				imagePane.fitWidthProperty().unbind();
-				//				imagePane.fitHeightProperty().unbind();
-				//				imagePane.setFitWidth( image.getWidth() );
-				//				imagePane.setFitHeight( image.getHeight() );
-				//				imagePane.setPreserveRatio( true );
+				// No scaling should be applied, just anchor the image according to the align parameter
+				imagePane.setPrefWidth( imageWidth );
+				imagePane.setPrefHeight( imageHeight );
 				break;
 			}
+		}
+
+		// Start with the image centered.
+		double x = (spaceWidth - imageWidth) / 2;
+		double y = (spaceHeight - imageHeight) / 2;
+
+		switch( align ) {
+			case "northwest": {
+				x = 0;
+				y = 0;
+				break;
+			}
+			case "north": {
+				y = 0;
+				break;
+			}
+			case "northeast": {
+				x = spaceWidth - imageWidth;
+				y = 0;
+				break;
+			}
+			case "west": {
+				x = 0;
+				break;
+			}
+			case "center": {
+				break;
+			}
+			case "east": {
+				x = spaceWidth - imageWidth;
+				break;
+			}
+			case "southwest": {
+				x = 0;
+				y = spaceHeight - imageHeight;
+				break;
+			}
+			case "south": {
+				y = spaceHeight - imageHeight;
+				break;
+			}
+			case "southeast": {
+				x = spaceWidth - imageWidth;
+				y = spaceHeight - imageHeight;
+				break;
+			}
+		}
+
+		//System.out.println( "x=" + x + "  y=" + y );
+
+		if( !"stretch".equals( style ) ) {
+			imagePane.setLayoutX( x );
+			imagePane.setLayoutY( y );
 		}
 	}
 
@@ -111,8 +169,8 @@ public class WorkspaceBackground extends Pane {
 		Path imagePath = imageFile == null ? null : Paths.get( imageFile );
 		if( imageEnabled && imagePath != null && Files.exists( imagePath ) ) image = new Image( imagePath.toUri().toString() );
 
-		String style = settings.get( "workspace-scenery-image-style", "fill" );
-		String align = settings.get( "workspace-scenery-image-align", "center" );
+		style = settings.get( "workspace-scenery-image-style", "fill" );
+		align = settings.get( "workspace-scenery-image-align", "center" );
 
 		// Tint layer
 		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
@@ -129,16 +187,18 @@ public class WorkspaceBackground extends Pane {
 
 		backPane.setBackground( new Background( new BackgroundFill( backFill, null, null ) ) );
 
-		imagePane.setImage( image );
+		// NEXT The BackgroundImage class may have enough parameters to do what I want
+		if( image == null ) {
+			imagePane.setBackground( null );
+		} else {
+			imagePane.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, null, null ) ) );
+		}
 		imagePane.setVisible( imageEnabled );
-		setImageConstraints( image, style, align );
 
 		tintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
 		tintPane.setVisible( tintEnabled );
-	}
 
-	private void setImageConstraints( Image image, String style, String align ) {
-		imagePane.setPreserveRatio( !"stretch".equals( style ) );
+		requestLayout();
 	}
 
 }
