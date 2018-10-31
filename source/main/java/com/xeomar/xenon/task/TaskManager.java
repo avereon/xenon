@@ -17,7 +17,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 	private static final int HIGH_THREAD_COUNT = 32;
 
-	private static final int THREAD_IDLE_SECONDS = 10;
+	private static final int THREAD_IDLE_SECONDS = 2;
 
 	private static final int PROCESSOR_COUNT = Runtime.getRuntime().availableProcessors();
 

@@ -17,9 +17,9 @@ public class TaskMonitor extends AbstractMonitor {
 
 	private Rectangle max;
 
-	private Rectangle used;
+	private Rectangle tasks;
 
-	private Rectangle pool;
+	private Rectangle threads;
 
 	private List<Rectangle> bars = new ArrayList<>();
 
@@ -46,15 +46,15 @@ public class TaskMonitor extends AbstractMonitor {
 		max.setManaged( false );
 		max.getStyleClass().add( "task-monitor-max" );
 
-		used = new Rectangle();
-		used.setManaged( false );
-		used.getStyleClass().add( "task-monitor-used" );
+		tasks = new Rectangle();
+		tasks.setManaged( false );
+		tasks.getStyleClass().add( "task-monitor-tasks" );
 
-		pool = new Rectangle();
-		pool.setManaged( false );
-		pool.getStyleClass().add( "task-monitor-pool" );
+		threads = new Rectangle();
+		threads.setManaged( false );
+		threads.getStyleClass().add( "task-monitor-threads" );
 
-		getChildren().addAll( max, used, pool, label );
+		getChildren().addAll( max, threads, tasks, label );
 
 		taskWatcher = new TaskWatcher();
 		taskManager.addTaskListener( taskWatcher );
@@ -111,13 +111,11 @@ public class TaskMonitor extends AbstractMonitor {
 			}
 		}
 
-		double poolX = width * Math.min( taskManager.getCurrentThreadCount() / (double)maxThreadCount, 1.0 );
-		pool.setX( poolX );
-		pool.setWidth( width - poolX );
-		pool.setHeight( height );
+		threads.setWidth( width * Math.min( taskManager.getCurrentThreadCount() / (double)maxThreadCount, 1.0 ) );
+		threads.setHeight( height );
 
-		used.setWidth( width * Math.min( taskCount / (double)maxThreadCount, 1.0 ) );
-		used.setHeight( height );
+		this.tasks.setWidth( width * Math.min( taskCount / (double)maxThreadCount, 1.0 ) );
+		this.tasks.setHeight( height );
 
 		max.setWidth( width );
 		max.setHeight( height );
@@ -127,6 +125,7 @@ public class TaskMonitor extends AbstractMonitor {
 		if( maxThreadCount == priorThreadCount ) return;
 
 		priorThreadCount = maxThreadCount;
+		getChildren().remove( label );
 		getChildren().removeAll( bars );
 		bars = new ArrayList<>();
 		for( int index = 0; index < maxThreadCount; index++ ) {
@@ -136,7 +135,6 @@ public class TaskMonitor extends AbstractMonitor {
 			bars.add( bar );
 		}
 		getChildren().addAll( bars );
-		getChildren().remove( label );
 		getChildren().add( label );
 	}
 

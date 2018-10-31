@@ -165,7 +165,7 @@
 }
 
 .memory-monitor-used {
-	-fx-fill: #a0a0a0;
+	-fx-fill: -fx-accent;
 }
 
 .task-monitor {}
@@ -178,12 +178,12 @@
 	-fx-fill: #e0e0e0;
 }
 
-.task-monitor-pool {
-	-fx-fill: #80808040;
+.task-monitor-threads {
+	-fx-fill: #c0c0c0;
 }
 
-.task-monitor-used {
-	-fx-fill: derive( -fx-accent, 50% );
+.task-monitor-tasks {
+	-fx-fill: derive( -fx-accent, 80% );
 }
 
 .task-monitor-progress {
