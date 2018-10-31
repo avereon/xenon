@@ -2,7 +2,7 @@ package com.xeomar.xenon.task;
 
 import java.util.concurrent.Callable;
 
-public class TaskWrapper<T> extends Task {
+public class TaskWrapper<T> extends Task<T> {
 
 	private Callable<T> callable;
 

@@ -271,7 +271,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 		@Override
 		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
-			if( !(callable instanceof Task ) ) callable = new TaskWrapper( callable );
+			if( !(callable instanceof Task ) ) callable = new TaskWrapper<>( callable );
 			tasks.add( (Task<T>)callable );
 			return ((Task<T>)callable).createFuture( TaskManager.this );
 		}
