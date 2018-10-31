@@ -6,14 +6,14 @@ import com.xeomar.xenon.task.TaskListener;
 import com.xeomar.xenon.task.TaskManager;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskMonitor extends Pane {
+public class TaskMonitor extends StackPane {
 
 	private static final double MINIMUM_WIDTH = 100;
 
