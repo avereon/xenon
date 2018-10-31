@@ -207,6 +207,7 @@
 					<dependency key="workspace-task-monitor-enabled" value="true" />
 					<dependency key="workspace-task-monitor-text" value="true" />
 				</setting>
+				<!--
 				<setting key="workspace-task-monitor-foreground" editor="color">
 					<dependency key="workspace-task-monitor-enabled" value="true" />
 				</setting>
@@ -219,6 +220,7 @@
 				<setting key="workspace-task-monitor-tasks" editor="color">
 					<dependency key="workspace-task-monitor-enabled" value="true" />
 				</setting>
+				-->
 			</group>
 		</page>
 
@@ -232,6 +234,7 @@
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 					<dependency key="workspace-memory-monitor-text" value="true" />
 				</setting>
+				<!--
 				<setting key="workspace-memory-monitor-foreground" editor="color">
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 				</setting>
@@ -247,6 +250,7 @@
 				<setting key="workspace-memory-monitor-refresh" editor="textline">
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 				</setting>
+				-->
 			</group>
 		</page>
 	</page>
