@@ -4,23 +4,13 @@ import com.xeomar.util.FileUtil;
 import com.xeomar.xenon.util.LambdaTask;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
-import java.text.DecimalFormat;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class MemoryMonitor extends StackPane {
-
-	private static final double MINIMUM_WIDTH = 100;
-
-	private static final int DEFAULT_POLL_INTERVAL = 2000;
-
-	private static final String DIVIDER = "/";
-
-	private static DecimalFormat percentFormat = new DecimalFormat( "#0" );
+public class MemoryMonitor extends AbstractMonitor {
 
 	private static Set<MemoryMonitor> monitors;
 
@@ -95,11 +85,6 @@ public class MemoryMonitor extends StackPane {
 
 	public void close() {
 		monitors.remove( this );
-	}
-
-	@Override
-	protected double computeMinWidth( double height ) {
-		return getInsets().getLeft() + MINIMUM_WIDTH + getInsets().getRight();
 	}
 
 	@Override
