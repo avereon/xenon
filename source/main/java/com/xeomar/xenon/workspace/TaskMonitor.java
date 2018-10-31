@@ -6,20 +6,12 @@ import com.xeomar.xenon.task.TaskListener;
 import com.xeomar.xenon.task.TaskManager;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskMonitor extends Pane {
-
-	private static final double MINIMUM_WIDTH = 100;
-
-	private static final String DIVIDER = "/";
-
-	private static DecimalFormat percentFormat = new DecimalFormat( "#0" );
+public class TaskMonitor extends AbstractMonitor {
 
 	private TaskManager taskManager;
 
@@ -66,11 +58,6 @@ public class TaskMonitor extends Pane {
 
 		taskWatcher = new TaskWatcher();
 		taskManager.addTaskListener( taskWatcher );
-	}
-
-	@Override
-	protected double computeMinWidth( double height ) {
-		return getInsets().getLeft() + MINIMUM_WIDTH + getInsets().getRight();
 	}
 
 	public boolean isTextVisible() {
