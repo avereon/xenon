@@ -108,22 +108,30 @@ public class MemoryMonitor extends AbstractMonitor {
 		allocatedPercent = (float)allocated / (float)maximum;
 		usedPercent = (float)used / (float)maximum;
 
-		String text;
+		// Use a space character so the preferred size is calculated correctly
+		StringBuilder text = new StringBuilder( " " );
 		if( isTextVisible() ) {
-			String maximumSize = FileUtil.getHumanBinSize( maximum );
-			if( isShowPercent() ) {
-				text = percentFormat.format( usedPercent * 100 ) + "% " + DIVIDER + " " + percentFormat.format( allocatedPercent * 100 ) + "% " + DIVIDER + " " + maximumSize;
-			} else {
-				String allocatedSize = FileUtil.getHumanBinSize( allocated );
-				String usedSize = FileUtil.getHumanBinSize( used );
-				text = usedSize + " " + DIVIDER + " " + allocatedSize + " " + DIVIDER + " " + maximumSize;
-			}
-		} else {
-			// Use a space character so the preferred size is calculated correctly
-			text = " ";
+			boolean isPercent = isShowPercent();
+
+			String percentUsed = percentFormat.format( usedPercent * 100 ) + "%";
+			String percentAllocated = percentFormat.format( allocatedPercent * 100 ) + "%";
+
+			String usedSize = FileUtil.getHumanSizeBase2( used, true, false );
+			String allocatedSize = FileUtil.getHumanSizeBase2( allocated, true, false );
+			String maximumSize = FileUtil.getHumanSizeBase2( maximum, true );
+
+			text.append( isPercent ? percentUsed : usedSize );
+//			text.append( " " );
+//			text.append( DIVIDER );
+//			text.append( " " );
+//			text.append( isPercent ? percentAllocated : allocatedSize );
+			text.append( " " );
+			text.append( DIVIDER );
+			text.append( " " );
+			text.append( maximumSize );
 		}
 
-		this.label.setText( text );
+		this.label.setText( text.toString() );
 		requestLayout();
 	}
 

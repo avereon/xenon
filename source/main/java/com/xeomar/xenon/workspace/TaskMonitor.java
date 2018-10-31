@@ -143,21 +143,29 @@ public class TaskMonitor extends AbstractMonitor {
 		int currentThreadCount = taskManager.getCurrentThreadCount();
 		int taskCount = taskManager.getTasks().size();
 
-		String text;
+		// Use a space character so the preferred size is calculated correctly
+		StringBuilder text = new StringBuilder( " " );
+
 		if( isTextVisible() ) {
-			if( isShowPercent() ) {
-				double usedPercent = taskCount / (double)maxThreadCount;
-				double allocatedPercent = currentThreadCount / (double)maxThreadCount;
-				text = percentFormat.format( usedPercent * 100 ) + "% " + DIVIDER + " " + percentFormat.format( allocatedPercent * 100 ) + "% " + DIVIDER + " " + maxThreadCount;
-			} else {
-				text = taskCount + " " + DIVIDER + " " + currentThreadCount + " " + DIVIDER + " " + maxThreadCount;
-			}
-		} else {
-			// Use a space character so the preferred size is calculated correctly
-			text = " ";
+			boolean isPercent = isShowPercent();
+			double usedPercent = taskCount / (double)maxThreadCount;
+			double allocatedPercent = currentThreadCount / (double)maxThreadCount;
+
+			String percentUsed = percentFormat.format( usedPercent * 100 ) + "%";
+			String percentAllocated = percentFormat.format( allocatedPercent * 100 ) + "%";
+
+			text.append( isPercent ? percentUsed : taskCount );
+			//			text.append( " " );
+			//			text.append( DIVIDER );
+			//			text.append( " " );
+			//			text.append( isPercent ? percentAllocated : currentThreadCount );
+			text.append( " " );
+			text.append( DIVIDER );
+			text.append( " " );
+			text.append( maxThreadCount );
 		}
 
-		this.label.setText( text );
+		this.label.setText( text.toString() );
 		requestLayout();
 	}
 

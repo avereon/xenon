@@ -317,6 +317,7 @@
 				</setting>
 			</group>
 		</page>
+		<!--
 		<page id="resource-manager">
 			<group id="options">
 				<setting key="resource-showuri" editor="checkbox" />
@@ -327,6 +328,7 @@
 				<setting key="resource-color-modified" editor="color" />
 			</group>
 		</page>
+		-->
 	</page>
 
 </settings>

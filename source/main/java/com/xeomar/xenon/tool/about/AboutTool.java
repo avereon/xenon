@@ -436,7 +436,7 @@ public class AboutTool extends GuidedTool {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "JVM Memory:     " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) ).append( "\n" );
+		builder.append( "JVM Memory:     " + FileUtil.getHumanSizeBase2( used ) + " / " + FileUtil.getHumanSizeBase2( total ) + " / " + FileUtil.getHumanSizeBase2( max ) ).append( "\n" );
 
 		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
 		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() ).append( "\n" );
