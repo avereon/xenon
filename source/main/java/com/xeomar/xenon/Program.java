@@ -677,7 +677,9 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "User interface restored." );
 
 		// Finish the splash screen
-		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
+		int totalSteps = splashScreen.getSteps();
+		int completedSteps = splashScreen.getCompletedSteps();
+		if( completedSteps != totalSteps ) log.warn( "Startup step mismatch: " + completedSteps + " of " + totalSteps );
 		Platform.runLater( () -> splashScreen.done() );
 
 		// Create the program notifier, depends on workspace manager

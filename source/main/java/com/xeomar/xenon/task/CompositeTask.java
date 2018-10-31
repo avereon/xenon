@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+@Deprecated
 public class CompositeTask extends Task<Object> implements TaskListener {
 
 	private Set<Task<?>> tasks;

@@ -503,8 +503,8 @@ public class AboutTool extends GuidedTool {
 
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 
+		builder.append( "Highest thread count:        " + bean.getPeakThreadCount() ).append( "\n" );
 		builder.append( "Current thread count:        " + bean.getThreadCount() ).append( "\n" );
-		builder.append( "Maximum thread count:        " + bean.getPeakThreadCount() ).append( "\n" );
 
 		builder.append( "\n" );
 		List<ThreadInfo> threads = Arrays.asList( bean.getThreadInfo( bean.getAllThreadIds() ) );

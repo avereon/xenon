@@ -9,20 +9,23 @@ public final class TaskThreadFactory implements ThreadFactory {
 
 	private final AtomicInteger threadNumber = new AtomicInteger( 1 );
 
+	private final TaskManager manager;
+
 	private final ThreadGroup group;
 
 	private final String prefix;
 
-	public TaskThreadFactory( ThreadGroup group) {
+	public TaskThreadFactory( TaskManager manager, ThreadGroup group) {
+		this.manager = manager;
 		this.group = group;
-		prefix = "TaskPool-" + poolNumber.getAndIncrement() + "-Thread-";
+		prefix = "TaskPool-" + poolNumber.getAndIncrement() + "-worker-";
 	}
 
 	@Override
 	public Thread newThread( Runnable runnable ) {
-		Thread thread = new TaskThread( group, runnable, prefix + threadNumber.getAndIncrement(), 0 );
-		if( thread.getPriority() != Thread.NORM_PRIORITY ) thread.setPriority( Thread.NORM_PRIORITY );
-		if( !thread.isDaemon() ) thread.setDaemon( true );
+		Thread thread = new TaskThread( manager, group, runnable, prefix + threadNumber.getAndIncrement(), 0 );
+		thread.setPriority( Thread.NORM_PRIORITY );
+		thread.setDaemon( true );
 		return thread;
 	}
 

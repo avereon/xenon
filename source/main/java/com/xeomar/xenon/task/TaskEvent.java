@@ -5,7 +5,7 @@ import com.xeomar.product.ProductEvent;
 public class TaskEvent extends ProductEvent {
 
 	public enum Type {
-		TASK_SUBMITTED, TASK_START, TASK_PROGRESS, TASK_FINISH
+		TASK_SUBMITTED, TASK_START, TASK_PROGRESS, TASK_FINISH, THREAD_CREATE, THREAD_FINISH
 	}
 
 	private static final long serialVersionUID = 6199687149599225794L;
