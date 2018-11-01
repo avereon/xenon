@@ -1,7 +1,7 @@
 package com.xeomar.xenon.workspace;
 
 import com.xeomar.util.FileUtil;
-import com.xeomar.xenon.util.LambdaTask;
+import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Rectangle;
@@ -39,7 +39,7 @@ public class MemoryMonitor extends AbstractMonitor {
 	static {
 		monitors = new CopyOnWriteArraySet<>();
 		Timer timer = new Timer( "Memory Monitor Timer", true );
-		timer.schedule( LambdaTask.build( MemoryMonitor::requestUpdate ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
+		timer.schedule( Lambda.timerTask( MemoryMonitor::requestUpdate ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
 	}
 
 	public MemoryMonitor() {

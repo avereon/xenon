@@ -6,10 +6,9 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.ExecMode;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.Module;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramFlag;
+import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -383,8 +382,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may
-	 * safely be called as many times as necessary from any thread.
+	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
@@ -470,8 +468,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Gets the set of posted product updates. If there are no posted updates
-	 * found an empty set is returned.
+	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
 	 * @throws ExecutionException If a task execution exception occurs
@@ -607,15 +604,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Attempt to stage the product packs described by the specified product
-	 * cards.
+	 * Attempt to stage the product packs described by the specified product cards.
 	 *
 	 * @param updateCards The set of update cards to stage
 	 * @return true if one or more product packs were staged.
 	 * @throws IOException If an IO error occurs
 	 */
-	void stageUpdates( Set<ProductCard> updateCards ) throws IOException {
-		if( updateCards.size() == 0 ) return;
+	Map<ProductCard, Set<ProductResource>> stageUpdates( Set<ProductCard> updateCards ) throws IOException {
+		if( updateCards.size() == 0 ) return new HashMap<>();
 
 		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
 		Files.createDirectories( stageFolder );
@@ -627,8 +623,17 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( updateCards );
 		log.debug( "Product resource count: " + productResources.size() );
 
+		createProductUpdates( productResources, stageFolder );
+
+		return productResources;
+	}
+
+	private void createProductUpdates( Map<ProductCard, Set<ProductResource>> productResources, Path stageFolder ) throws IOException {
+		// FIXME Creating an update for the product should probably be a task
+		// that is dependent on the downloads tasks for the product
+
 		// Create an update for each product.
-		for( ProductCard updateCard : updateCards ) {
+		for( ProductCard updateCard : productResources.keySet() ) {
 			// Verify the product is registered
 			ProductCard productCard = productCards.get( updateCard.getProductKey() );
 			if( productCard == null ) {
@@ -640,8 +645,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			Path installFolder = productCard.getInstallFolder();
 			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
 			if( !installFolderValid ) {
-				log.warn( "Product not installed: " + updateCard );
-				log.debug( "Missing install folder: " + installFolder );
+				log.warn( "Missing install folder: " + installFolder );
+				log.warn( "Product not installed:  " + updateCard );
 				continue;
 			}
 
@@ -653,7 +658,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			}
 
 			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( updateCard ) );
-			createUpdatePack( productResources.get( updateCard ), updatePack );
+			CreateUpdatePack createUpdatePackTask = new CreateUpdatePack( program, updateCard, productResources.get( updateCard ), updatePack );
+			program.getTaskManager().submit( createUpdatePackTask );
 
 			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
 
@@ -662,15 +668,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 			// Add the update to the set of staged updates.
 			updates.put( update.getCard().getProductKey(), update );
-
-			// Notify listeners the update is staged.
-			new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
-
-			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
-			log.debug( "Update pack:   " + updatePack );
 		}
 
-		saveUpdates();
+		program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -696,7 +696,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			for( ProductUpdate update : remove ) {
 				updates.remove( update.getCard().getProductKey(), update );
 			}
-			saveUpdates();
+			saveUpdates( updates );
 		}
 
 		return staged;
@@ -726,8 +726,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Apply updates. If updates are found then the method returns the number of
-	 * updates applied.
+	 * Apply updates. If updates are found then the method returns the number of updates applied.
 	 *
 	 * @return The number of updates applied.
 	 */
@@ -760,10 +759,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is
-	 * generally called when the program starts and, if the update program is
-	 * successfully started, the program should be terminated to allow for the
-	 * updates to be applied.
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * applied.
 	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied.
@@ -785,7 +782,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	void clearStagedUpdates() {
 		// Remove the updates settings.
 		updates.clear();
-		saveUpdates();
+		saveUpdates( updates );
 	}
 
 	//	public void loadProducts( File... folders ) throws Exception {
@@ -1028,7 +1025,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
-	private void saveUpdates() {
+	private void saveUpdates( Map<String, ProductUpdate> updates ) {
 		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
 	}
 
@@ -1133,17 +1130,39 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
-	private void createUpdatePack( Set<ProductResource> resources, Path update ) throws IOException {
-		Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+	private class CreateUpdatePack extends ProgramTask<Void> {
 
-		copyProductResources( resources, updateFolder );
+		private ProductCard productCard;
 
-		FileUtil.deleteOnExit( updateFolder );
+		private Set<ProductResource> resources;
 
-		FileUtil.zip( updateFolder, update );
+		private Path update;
+
+		public CreateUpdatePack( Program program, ProductCard productCard, Set<ProductResource> resources, Path update ) {
+			super( program, "Create update pack: " + productCard.getName() );
+			this.productCard = productCard;
+			this.resources = resources;
+			this.update = update;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+			copyProductResources( resources, updateFolder );
+			FileUtil.deleteOnExit( updateFolder );
+			FileUtil.zip( updateFolder, update );
+
+			// Notify listeners the update is staged.
+			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, productCard ).fire( listeners );
+
+			log.debug( "Update staged: " + productCard.getProductKey() + " " + productCard.getRelease() );
+			log.debug( "           to: " + update );
+			return null;
+		}
+
 	}
 
-	private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
+	private static void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
 		if( resources == null ) return;
 
 		for( ProductResource resource : resources ) {

@@ -9,6 +9,7 @@ import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -34,7 +35,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	public void showUpdateFoundDialog() {
 		StageUpdates task = new StageUpdates( Set.of() );
-		task.handleApplyUpdates( );
+		task.handleApplyUpdates();
 	}
 
 	@Override
@@ -294,15 +295,34 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		@Override
 		public Void call() throws Exception {
-			stageUpdates( selectedUpdates );
-			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
+			// FIXME Create all the download tasks in stageUpdates()
+			// TODO then create a new task that depends on all those to trigger handleApplyUpdates()
+			Map<ProductCard, Set<ProductResource>> resources = stageUpdates( selectedUpdates );
+			program.getTaskManager().submit( Lambda.task( "", () -> waitForResources( resources ) ) );
 			return null;
+		}
+
+		private void waitForResources( Map<ProductCard, Set<ProductResource>> resources ) {
+			// Wait for the product resources to finish downloading
+			for( Set<ProductResource> productResources : resources.values() ) {
+				for( ProductResource resource : productResources ) {
+					try {
+						resource.waitFor();
+					} catch( InterruptedException exception ) {
+						return;
+					} catch( ExecutionException exception ) {
+						log.error( "Error waiting for resource", exception );
+					}
+				}
+			}
+
+			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
 		}
 
 		/**
 		 * Nearly identical to ProductTool.handleStagedUpdates()
 		 */
-		private void handleApplyUpdates( ) {
+		private void handleApplyUpdates() {
 			Platform.runLater( () -> {
 				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );

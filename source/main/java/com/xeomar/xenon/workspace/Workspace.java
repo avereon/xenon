@@ -14,6 +14,7 @@ import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.workarea.Workarea;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -479,7 +480,7 @@ public class Workspace implements Configurable {
 		@Override
 		public void handleEvent( SettingsEvent event ) {
 			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			updateTaskMonitorFromSettings( taskMonitorSettings );
+			Platform.runLater( () -> updateTaskMonitorFromSettings( taskMonitorSettings ) );
 		}
 
 	}
