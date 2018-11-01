@@ -9,7 +9,6 @@ import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -295,10 +294,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		@Override
 		public Void call() throws Exception {
-			// FIXME Create all the download tasks in stageUpdates()
-			// TODO then create a new task that depends on all those to trigger handleApplyUpdates()
-			Map<ProductCard, Set<ProductResource>> resources = stageUpdates( selectedUpdates );
-			program.getTaskManager().submit( Lambda.task( "", () -> waitForResources( resources ) ) );
+			stageUpdates( selectedUpdates );
 			return null;
 		}
 

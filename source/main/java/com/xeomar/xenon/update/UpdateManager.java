@@ -21,10 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -610,8 +607,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * @return true if one or more product packs were staged.
 	 * @throws IOException If an IO error occurs
 	 */
-	Map<ProductCard, Set<ProductResource>> stageUpdates( Set<ProductCard> updateCards ) throws IOException {
-		if( updateCards.size() == 0 ) return new HashMap<>();
+	void stageUpdates( Set<ProductCard> updateCards ) throws IOException {
+		if( updateCards.size() == 0 ) return;
 
 		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
 		Files.createDirectories( stageFolder );
@@ -619,58 +616,31 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		log.debug( "Number of packs to stage: " + updateCards.size() );
 		log.trace( "Pack stage folder: " + stageFolder );
 
-		// Download the product resources.
-		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( updateCards );
-		log.debug( "Product resource count: " + productResources.size() );
+		// NEXT For each update card create the following tasks:
+		Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
+		for( ProductCard card : updateCards ) {
+			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
+			CreateUpdate createUpdateTask = new CreateUpdate( program, card, updatePack );
+			updateFutures.add( program.getTaskManager().submit( createUpdateTask ) );
+		}
 
-		createProductUpdates( productResources, stageFolder );
-
-		return productResources;
-	}
-
-	private void createProductUpdates( Map<ProductCard, Set<ProductResource>> productResources, Path stageFolder ) throws IOException {
-		// FIXME Creating an update for the product should probably be a task
-		// that is dependent on the downloads tasks for the product
-
-		// Create an update for each product.
-		for( ProductCard updateCard : productResources.keySet() ) {
-			// Verify the product is registered
-			ProductCard productCard = productCards.get( updateCard.getProductKey() );
-			if( productCard == null ) {
-				log.warn( "Product not registered: " + updateCard );
-				continue;
+		for( Future<ProductUpdate> updateFuture : updateFutures ) {
+			try {
+				ProductUpdate update = updateFuture.get();
+				// Remove any old staged updates for this product.
+				updates.remove( update.getCard().getProductKey(), update );
+				// Add the update to the set of staged updates.
+				updates.put( update.getCard().getProductKey(), update );
+			} catch( ExecutionException exception ) {
+				log.error( "Error creating product update pack", exception );
+			} catch( InterruptedException exception ) {
+				break;
 			}
-
-			// Verify the product is installed
-			Path installFolder = productCard.getInstallFolder();
-			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
-			if( !installFolderValid ) {
-				log.warn( "Missing install folder: " + installFolder );
-				log.warn( "Product not installed:  " + updateCard );
-				continue;
-			}
-
-			// Verify the resources have all been staged successfully
-			Set<ProductResource> resources = productResources.get( updateCard );
-			if( !areResourcesValid( resources ) ) {
-				log.warn( "Update missing resources: " + updateCard );
-				continue;
-			}
-
-			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( updateCard ) );
-			CreateUpdatePack createUpdatePackTask = new CreateUpdatePack( program, updateCard, productResources.get( updateCard ), updatePack );
-			program.getTaskManager().submit( createUpdatePackTask );
-
-			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
-
-			// Remove any old staged updates for this product.
-			updates.remove( update.getCard().getProductKey(), update );
-
-			// Add the update to the set of staged updates.
-			updates.put( update.getCard().getProductKey(), update );
 		}
 
 		program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
+
+		log.debug( "Product update count: " + updates.size() );
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -1130,71 +1100,25 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
-	private class CreateUpdatePack extends ProgramTask<Void> {
+	private class DownloadResources extends ProgramTask<Set<ProductResource>> {
 
-		private ProductCard productCard;
+		private ProductCard updateCard;
 
-		private Set<ProductResource> resources;
-
-		private Path update;
-
-		public CreateUpdatePack( Program program, ProductCard productCard, Set<ProductResource> resources, Path update ) {
-			super( program, "Create update pack: " + productCard.getName() );
-			this.productCard = productCard;
-			this.resources = resources;
-			this.update = update;
+		DownloadResources( Program program, ProductCard updateCard ) {
+			super( program, "Create update pack: " + updateCard.getName() );
+			this.updateCard = updateCard;
 		}
 
 		@Override
-		public Void call() throws Exception {
-			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
-			copyProductResources( resources, updateFolder );
-			FileUtil.deleteOnExit( updateFolder );
-			FileUtil.zip( updateFolder, update );
+		public Set<ProductResource> call() {
+			Set<ProductResource> resources = new HashSet<>();
 
-			// Notify listeners the update is staged.
-			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, productCard ).fire( listeners );
-
-			log.debug( "Update staged: " + productCard.getProductKey() + " " + productCard.getRelease() );
-			log.debug( "           to: " + update );
-			return null;
-		}
-
-	}
-
-	private static void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
-		if( resources == null ) return;
-
-		for( ProductResource resource : resources ) {
-			if( resource.getLocalFile() == null ) continue;
-			switch( resource.getType() ) {
-				case FILE: {
-					// Just copy the file.
-					String path = resource.getUri().getPath();
-					String name = path.substring( path.lastIndexOf( "/" ) + 1 );
-					Path target = folder.resolve( name );
-					FileUtil.copy( resource.getLocalFile(), target );
-					break;
-				}
-				case PACK: {
-					// Unpack the file.
-					FileUtil.unzip( resource.getLocalFile(), folder );
-					break;
-				}
-			}
-		}
-	}
-
-	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
-		// Determine all the resources to download.
-		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
-
-		for( ProductCard card : cards ) {
+			// Determine all the resources to download.
 			try {
-				URI codebase = card.getCardUri( getProductChannel() );
+				URI codebase = updateCard.getCardUri( getProductChannel() );
 				log.debug( "Resource codebase: " + codebase );
-				PackProvider provider = new PackProvider( program, card, getProductChannel() );
-				Set<ProductResource> resources = provider.getResources( codebase );
+				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
+				resources = provider.getResources( codebase );
 
 				log.debug( "Product resource count: " + resources.size() );
 
@@ -1205,17 +1129,11 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					// Submit download resource task
 					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
 				}
-
-				productResources.put( card, resources );
 			} catch( URISyntaxException exception ) {
 				log.error( "Error creating pack download", exception );
 			}
-		}
 
-		// Wait for all resources to be downloaded.
-		for( ProductCard card : cards ) {
-			Set<ProductResource> resources = productResources.get( card );
-			if( resources == null ) continue;
+			// Wait for all resources to be downloaded.
 			for( ProductResource resource : resources ) {
 				try {
 					resource.waitFor();
@@ -1229,9 +1147,90 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					log.error( "Error downloading resource: " + resource, exception );
 				}
 			}
+
+			return resources;
+		}
+	}
+
+	private class CreateUpdate extends ProgramTask<ProductUpdate> {
+
+		private ProductCard updateCard;
+
+		private Path updatePack;
+
+		private Future<Set<ProductResource>> downloadFuture;
+
+		CreateUpdate( Program program, ProductCard updateCard, Path updatePack ) {
+			super( program, "Create update pack: " + updateCard.getName() );
+			downloadFuture = program.getTaskManager().submit( new DownloadResources( program, updateCard ) );
+			this.updateCard = updateCard;
+			this.updatePack = updatePack;
 		}
 
-		return productResources;
+		@Override
+		public ProductUpdate call() throws Exception {
+			Set<ProductResource> resources = downloadFuture.get();
+
+			// Verify the product is registered
+			ProductCard productCard = productCards.get( updateCard.getProductKey() );
+			if( productCard == null ) {
+				log.warn( "Product not registered: " + updateCard );
+				return null;
+			}
+
+			// Verify the product is installed
+			Path installFolder = productCard.getInstallFolder();
+			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
+			if( !installFolderValid ) {
+				log.warn( "Missing install folder: " + installFolder );
+				log.warn( "Product not installed:  " + updateCard );
+				return null;
+			}
+
+			// Verify the resources have all been staged successfully
+			//Set<ProductResource> resources = productResources.get( updateCard );
+			if( !areResourcesValid( resources ) ) {
+				log.warn( "Update missing resources: " + updateCard );
+				return null;
+			}
+
+			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+			copyProductResources( resources, updateFolder );
+			FileUtil.deleteOnExit( updateFolder );
+			FileUtil.zip( updateFolder, updatePack );
+
+			// Notify listeners the update is staged.
+			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+
+			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
+			log.debug( "           to: " + updatePack );
+
+			return new ProductUpdate( updateCard, updatePack, installFolder );
+		}
+
+		private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
+			if( resources == null ) return;
+
+			for( ProductResource resource : resources ) {
+				if( resource.getLocalFile() == null ) continue;
+				switch( resource.getType() ) {
+					case FILE: {
+						// Just copy the file.
+						String path = resource.getUri().getPath();
+						String name = path.substring( path.lastIndexOf( "/" ) + 1 );
+						Path target = folder.resolve( name );
+						FileUtil.copy( resource.getLocalFile(), target );
+						break;
+					}
+					case PACK: {
+						// Unpack the file.
+						FileUtil.unzip( resource.getLocalFile(), folder );
+						break;
+					}
+				}
+			}
+		}
+
 	}
 
 	private String getProductChannel() {

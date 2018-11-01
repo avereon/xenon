@@ -116,8 +116,8 @@ public class MemoryMonitor extends AbstractMonitor {
 			String percentUsed = percentFormat.format( usedPercent * 100 ) + "%";
 			String percentAllocated = percentFormat.format( allocatedPercent * 100 ) + "%";
 
-			String usedSize = FileUtil.getHumanSizeBase2( used, true, false );
-			String allocatedSize = FileUtil.getHumanSizeBase2( allocated, true, false );
+			String usedSize = FileUtil.getHumanSizeBase2( used, true );
+			String allocatedSize = FileUtil.getHumanSizeBase2( allocated, true );
 			String maximumSize = FileUtil.getHumanSizeBase2( maximum, true );
 
 			text.append( isPercent ? percentUsed : usedSize );
