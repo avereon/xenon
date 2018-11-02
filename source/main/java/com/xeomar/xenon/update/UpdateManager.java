@@ -9,7 +9,6 @@ import com.xeomar.util.*;
 import com.xeomar.xenon.*;
 import com.xeomar.xenon.Module;
 import com.xeomar.xenon.util.Lambda;
-import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,23 +35,40 @@ import java.util.concurrent.*;
 public class UpdateManager implements Controllable<UpdateManager>, Configurable {
 
 	public enum CheckOption {
-		MANUAL, STARTUP, INTERVAL, SCHEDULE
+		MANUAL,
+		STARTUP,
+		INTERVAL,
+		SCHEDULE
 	}
 
 	public enum CheckInterval {
-		MONTH, WEEK, DAY, HOUR
+		MONTH,
+		WEEK,
+		DAY,
+		HOUR
 	}
 
 	public enum CheckWhen {
-		DAILY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+		DAILY,
+		SUNDAY,
+		MONDAY,
+		TUESDAY,
+		WEDNESDAY,
+		THURSDAY,
+		FRIDAY,
+		SATURDAY
 	}
 
 	public enum FoundOption {
-		SELECT, STORE, STAGE
+		SELECT,
+		STORE,
+		STAGE
 	}
 
 	public enum ApplyOption {
-		VERIFY, IGNORE, RESTART
+		VERIFY,
+		IGNORE,
+		RESTART
 	}
 
 	private static final Logger log = LoggerFactory.getLogger( UpdateManager.class );
@@ -451,102 +467,12 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
-	 * @throws ExecutionException   If a task execution exception occurs
+	 * @throws ExecutionException If a task execution exception occurs
 	 * @throws InterruptedException If the calling thread is interrupted
-	 * @throws URISyntaxException   If a URI cannot be resolved correctly
+	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
-	public Set<ProductCard> findPostedUpdates( boolean force ) throws ExecutionException, InterruptedException, URISyntaxException {
-		Set<ProductCard> availableCards = new HashSet<>();
-		if( !isEnabled() ) return availableCards;
-
-		// If the posted update cache is still valid return the updates in the cache.
-		long postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
-		if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return new HashSet<>( postedUpdateCache );
-
-		// Update when the last update check occurred.
-		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
-
-		// Schedule the next update check.
-		scheduleUpdateCheck( false );
-
-		// Download the descriptors for each product.
-		Set<ProductCard> oldCards = getProductCards();
-		Map<ProductCard, DownloadTask> tasks = new HashMap<>();
-		URISyntaxException uriSyntaxException = null;
-		for( ProductCard installedCard : oldCards ) {
-			try {
-				URI codebase = installedCard.getCardUri( getProductChannel() );
-				URI uri = getResolvedUpdateUri( codebase );
-				if( uri == null ) {
-					log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
-					continue;
-				} else {
-					log.debug( "Installed pack source: " + uri );
-				}
-
-				DownloadTask task = new DownloadTask( program, uri );
-				tasks.put( installedCard, task );
-				program.getExecutor().submit( task );
-			} catch( URISyntaxException exception ) {
-				uriSyntaxException = exception;
-			}
-		}
-
-		// Determine what products have posted updates.
-		ExecutionException executionException = null;
-		InterruptedException interruptedException = null;
-		for( ProductCard installedCard : oldCards ) {
-			try {
-				DownloadTask task = tasks.get( installedCard );
-				if( task == null ) continue;
-
-				ProductCard availableCard;
-				try( InputStream input = task.get().getInputStream() ) {
-					availableCard = new ProductCard().load( input, task.getUri() );
-				} catch( IOException exception ) {
-					log.warn( "Error loading product card: " + task.getUri(), exception );
-					continue;
-				}
-
-				// Validate the pack key.
-				if( !installedCard.getProductKey().equals( availableCard.getProductKey() ) ) {
-					log.warn( "Pack mismatch: " + installedCard.getProductKey() + " != " + availableCard.getProductKey() );
-					continue;
-				}
-
-				log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
-				log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
-
-				if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
-					log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
-					availableCards.add( availableCard );
-				}
-
-				// TODO Remove use of forced updates
-				// Forced updates are used for development
-				if( program.getExecMode() == ExecMode.DEV ) {
-					log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
-					availableCards.add( availableCard );
-				}
-			} catch( ExecutionException exception ) {
-				if( executionException == null ) executionException = exception;
-			} catch( InterruptedException exception ) {
-				if( interruptedException == null ) interruptedException = exception;
-			}
-		}
-
-		// If there is an exception and there are no updates, throw the exception.
-		if( availableCards.size() == 0 ) {
-			if( uriSyntaxException != null ) throw uriSyntaxException;
-			if( executionException != null ) throw executionException;
-			if( interruptedException != null ) throw interruptedException;
-		}
-
-		// Cache the discovered updates.
-		postedUpdateCacheTime = System.currentTimeMillis();
-		postedUpdateCache = new CopyOnWriteArraySet<>( availableCards );
-
-		return availableCards;
+	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
+		return new FindPostedUpdatesTask( program, force ).call();
 	}
 
 	void cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
@@ -563,10 +489,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Attempt to stage the product packs from posted updates.
 	 *
 	 * @return true if one or more product packs were staged.
-	 * @throws IOException          If an IO error occurs
-	 * @throws ExecutionException   If an execution error occurs
+	 * @throws IOException If an IO error occurs
+	 * @throws ExecutionException If an execution error occurs
 	 * @throws InterruptedException If the method is interrupted
-	 * @throws URISyntaxException   If a URI cannot be resolved correctly
+	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
@@ -581,64 +507,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	public void stageUpdates( ProductCard... updateCards ) throws Exception {
 		new StageUpdates( program, Set.of( updateCards ) ).call();
-	}
-
-	final class StageUpdates extends ProgramTask<Integer> {
-
-		/**
-		 * Attempt to stage the product packs described by the specified product cards.
-		 *
-		 * @param updateCards The set of update cards to stage
-		 */
-		Set<ProductCard> updateCards;
-
-		public StageUpdates( Program program, Set<ProductCard> updateCards ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-			this.updateCards = updateCards;
-		}
-
-		@Override
-		public Integer call() throws Exception {
-			if( updateCards.size() == 0 ) return 0;
-
-			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
-			try {
-				Files.createDirectories( stageFolder );
-			} catch( IOException exception ) {
-				log.warn( "Error creating update stage folder: " + stageFolder, exception );
-				return 0;
-			}
-
-			log.debug( "Number of packs to stage: " + updateCards.size() );
-			log.trace( "Pack stage folder: " + stageFolder );
-
-			Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
-			for( ProductCard card : updateCards ) {
-				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
-				updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
-			}
-
-			for( Future<ProductUpdate> updateFuture : updateFutures ) {
-				try {
-					ProductUpdate update = updateFuture.get();
-					// Remove any old staged updates for this product.
-					updates.remove( update.getCard().getProductKey(), update );
-					// Add the update to the set of staged updates.
-					updates.put( update.getCard().getProductKey(), update );
-				} catch( ExecutionException exception ) {
-					log.error( "Error creating product update pack", exception );
-				} catch( InterruptedException exception ) {
-					break;
-				}
-			}
-
-			program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
-
-			log.debug( "Product update count: " + updates.size() );
-
-			return updates.size();
-		}
-
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -738,13 +606,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		log.info( "Starting update process..." );
-
-		// Store the update count to be returned after the collection is cleared
-		int count = updates.size();
-
-		Platform.runLater( () -> program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS ) );
-
-		return count;
+		return updates.size();
 	}
 
 	void clearStagedUpdates() {
@@ -1098,123 +960,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
-	private class CreateUpdate extends ProgramTask<ProductUpdate> {
-
-		private Set<ProductResource> resources;
-
-		private ProductCard updateCard;
-
-		private Path updatePack;
-
-		CreateUpdate( Program program, ProductCard updateCard, Path updatePack ) {
-			super( program, "Stage update for: " + updateCard.getName() );
-			resources = new HashSet<>();
-			this.updateCard = updateCard;
-			this.updatePack = updatePack;
-
-			// Determine all the resources to download.
-			try {
-				URI codebase = updateCard.getCardUri( getProductChannel() );
-				log.debug( "Resource codebase: " + codebase );
-				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
-				resources = provider.getResources( codebase );
-				setTotal( resources.size() );
-
-				log.debug( "Product resource count: " + resources.size() );
-
-				for( ProductResource resource : resources ) {
-					URI uri = getResolvedUpdateUri( resource.getUri() );
-					log.debug( "Resource source: " + uri );
-
-					// Submit download resource task
-					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
-				}
-			} catch( URISyntaxException exception ) {
-				log.error( "Error creating pack download", exception );
-			}
-		}
-
-		@Override
-		public ProductUpdate call() throws Exception {
-			// Wait for all resources to be downloaded.
-			for( ProductResource resource : resources ) {
-				try {
-					resource.waitFor();
-					log.debug( "Resource target: " + resource.getLocalFile() );
-
-					// TODO Verify resources are secure by checking digital signatures.
-					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
-
-				} catch( Exception exception ) {
-					resource.setThrowable( exception );
-					log.error( "Error downloading resource: " + resource, exception );
-				}
-			}
-
-			// Verify the product is registered
-			ProductCard productCard = productCards.get( updateCard.getProductKey() );
-			if( productCard == null ) {
-				log.warn( "Product not registered: " + updateCard );
-				return null;
-			}
-
-			// Verify the product is installed
-			Path installFolder = productCard.getInstallFolder();
-			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
-			if( !installFolderValid ) {
-				log.warn( "Missing install folder: " + installFolder );
-				log.warn( "Product not installed:  " + updateCard );
-				return null;
-			}
-
-			// Verify the resources have all been staged successfully
-			//Set<ProductResource> resources = productResources.get( updateCard );
-			if( !areResourcesValid( resources ) ) {
-				log.warn( "Update missing resources: " + updateCard );
-				return null;
-			}
-
-			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
-			copyProductResources( resources, updateFolder );
-			FileUtil.deleteOnExit( updateFolder );
-
-			setTotal( FileUtil.getRecursiveSize( updateFolder ) );
-			FileUtil.zip( updateFolder, updatePack, this::setProgress );
-
-			// Notify listeners the update is staged.
-			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
-
-			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
-			log.debug( "           to: " + updatePack );
-
-			return new ProductUpdate( updateCard, updatePack, installFolder );
-		}
-
-		private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
-			if( resources == null ) return;
-
-			for( ProductResource resource : resources ) {
-				if( resource.getLocalFile() == null ) continue;
-				switch( resource.getType() ) {
-					case FILE: {
-						// Just copy the file.
-						String path = resource.getUri().getPath();
-						String name = path.substring( path.lastIndexOf( "/" ) + 1 );
-						Path target = folder.resolve( name );
-						FileUtil.copy( resource.getLocalFile(), target );
-						break;
-					}
-					case PACK: {
-						// Unpack the file.
-						FileUtil.unzip( resource.getLocalFile(), folder );
-						break;
-					}
-				}
-			}
-		}
-
-	}
-
 	private String getProductChannel() {
 		return "latest";
 	}
@@ -1367,6 +1112,315 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		setRemovable( card, true );
 	}
 
+	final class FindPostedUpdatesTask extends ProgramTask<Set<ProductCard>> {
+
+		private boolean force;
+
+		private long postedCacheAge;
+
+		private Set<ProductCard> oldCards;
+
+		private Set<ProductCard> availableCards;
+
+		private Map<ProductCard, DownloadTask> tasks;
+
+		private URISyntaxException uriSyntaxException;
+
+		public FindPostedUpdatesTask( Program program, boolean force ) {
+			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-find-posted" ) );
+
+			this.force = force;
+			this.availableCards = new HashSet<>();
+			this.postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
+
+			// If the posted update cache is still valid no further setup needed
+			if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return;
+
+			// Update when the last update check occurred.
+			getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+
+			// Schedule the next update check.
+			scheduleUpdateCheck( false );
+
+			// Download the descriptors for each product.
+			tasks = new HashMap<>();
+			oldCards = getProductCards();
+			for( ProductCard installedCard : oldCards ) {
+				try {
+					URI codebase = installedCard.getCardUri( getProductChannel() );
+					URI uri = getResolvedUpdateUri( codebase );
+					if( uri == null ) {
+						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
+						continue;
+					} else {
+						log.debug( "Installed pack source: " + uri );
+					}
+
+					DownloadTask task = new DownloadTask( program, uri );
+					tasks.put( installedCard, task );
+					program.getExecutor().submit( task );
+				} catch( URISyntaxException exception ) {
+					uriSyntaxException = exception;
+				}
+			}
+		}
+
+		public Set<ProductCard> call() throws Exception {
+			if( !isEnabled() ) return availableCards;
+
+			// If the posted update cache is still valid return the updates in the cache
+			if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return new HashSet<>( postedUpdateCache );
+
+			// Determine what products have posted updates.
+			ExecutionException executionException = null;
+			InterruptedException interruptedException = null;
+			for( ProductCard installedCard : oldCards ) {
+				try {
+					DownloadTask task = tasks.get( installedCard );
+					if( task == null ) continue;
+
+					ProductCard availableCard;
+					try( InputStream input = task.get().getInputStream() ) {
+						availableCard = new ProductCard().load( input, task.getUri() );
+					} catch( IOException exception ) {
+						log.warn( "Error loading product card: " + task.getUri(), exception );
+						continue;
+					}
+
+					// Validate the pack key.
+					if( !installedCard.getProductKey().equals( availableCard.getProductKey() ) ) {
+						log.warn( "Pack mismatch: " + installedCard.getProductKey() + " != " + availableCard.getProductKey() );
+						continue;
+					}
+
+					log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
+					log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
+
+					if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
+						log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+						availableCards.add( availableCard );
+					}
+
+					// TODO Remove use of forced updates
+					// Forced updates are used for development
+					if( program.getExecMode() == ExecMode.DEV ) {
+						log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+						availableCards.add( availableCard );
+					}
+				} catch( ExecutionException exception ) {
+					if( executionException == null ) executionException = exception;
+				} catch( InterruptedException exception ) {
+					if( interruptedException == null ) interruptedException = exception;
+				}
+			}
+
+			// If there is an exception and there are no updates, throw the exception.
+			if( availableCards.size() == 0 ) {
+				if( uriSyntaxException != null ) throw uriSyntaxException;
+				if( executionException != null ) throw executionException;
+				if( interruptedException != null ) throw interruptedException;
+			}
+
+			// Cache the discovered updates.
+			postedUpdateCacheTime = System.currentTimeMillis();
+			postedUpdateCache = new CopyOnWriteArraySet<>( availableCards );
+
+			return availableCards;
+		}
+	}
+
+	private final class CreateUpdate extends ProgramTask<ProductUpdate> {
+
+		private Set<ProductResource> resources;
+
+		private ProductCard updateCard;
+
+		private Path updatePack;
+
+		CreateUpdate( Program program, ProductCard updateCard, Path updatePack ) {
+			super( program, "Stage update: " + updateCard.getName() + " " + updateCard.getVersion() );
+			resources = new HashSet<>();
+			this.updateCard = updateCard;
+			this.updatePack = updatePack;
+
+			// Determine all the resources to download.
+			try {
+				URI codebase = updateCard.getCardUri( getProductChannel() );
+				log.debug( "Resource codebase: " + codebase );
+				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
+				resources = provider.getResources( codebase );
+				setTotal( resources.size() );
+
+				log.debug( "Product resource count: " + resources.size() );
+
+				for( ProductResource resource : resources ) {
+					URI uri = getResolvedUpdateUri( resource.getUri() );
+					log.debug( "Resource source: " + uri );
+
+					// Submit download resource task
+					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
+				}
+			} catch( URISyntaxException exception ) {
+				log.error( "Error creating pack download", exception );
+			}
+		}
+
+		@Override
+		public ProductUpdate call() throws Exception {
+			// Wait for all resources to be downloaded.
+			for( ProductResource resource : resources ) {
+				try {
+					resource.waitFor();
+					log.debug( "Resource target: " + resource.getLocalFile() );
+
+					// TODO Verify resources are secure by checking digital signatures.
+					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
+
+				} catch( Exception exception ) {
+					resource.setThrowable( exception );
+					log.error( "Error downloading resource: " + resource, exception );
+				}
+			}
+
+			// Verify the product is registered
+			ProductCard productCard = productCards.get( updateCard.getProductKey() );
+			if( productCard == null ) {
+				log.warn( "Product not registered: " + updateCard );
+				return null;
+			}
+
+			// Verify the product is installed
+			Path installFolder = productCard.getInstallFolder();
+			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
+			if( !installFolderValid ) {
+				log.warn( "Missing install folder: " + installFolder );
+				log.warn( "Product not installed:  " + updateCard );
+				return null;
+			}
+
+			// Verify the resources have all been staged successfully
+			//Set<ProductResource> resources = productResources.get( updateCard );
+			if( !areResourcesValid( resources ) ) {
+				log.warn( "Update missing resources: " + updateCard );
+				return null;
+			}
+
+			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+			copyProductResources( resources, updateFolder );
+			FileUtil.deleteOnExit( updateFolder );
+
+			setTotal( FileUtil.getRecursiveSize( updateFolder ) );
+			FileUtil.zip( updateFolder, updatePack, this::setProgress );
+
+			// Notify listeners the update is staged.
+			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+
+			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
+			log.debug( "           to: " + updatePack );
+
+			return new ProductUpdate( updateCard, updatePack, installFolder );
+		}
+
+		private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
+			if( resources == null ) return;
+
+			for( ProductResource resource : resources ) {
+				if( resource.getLocalFile() == null ) continue;
+				switch( resource.getType() ) {
+					case FILE: {
+						// Just copy the file.
+						String path = resource.getUri().getPath();
+						String name = path.substring( path.lastIndexOf( "/" ) + 1 );
+						Path target = folder.resolve( name );
+						FileUtil.copy( resource.getLocalFile(), target );
+						break;
+					}
+					case PACK: {
+						// Unpack the file.
+						FileUtil.unzip( resource.getLocalFile(), folder );
+						break;
+					}
+				}
+			}
+		}
+
+	}
+
+	final class StageUpdates extends ProgramTask<Integer> {
+
+		/**
+		 * Attempt to stage the product packs described by the specified product cards.
+		 *
+		 * @param updateCards The set of update cards to stage
+		 */
+		Set<ProductCard> updateCards;
+
+		private Set<Future<ProductUpdate>> updateFutures;
+
+		public StageUpdates( Program program, Set<ProductCard> updateCards ) {
+			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+			this.updateCards = updateCards;
+
+			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
+
+			log.debug( "Number of packs to stage: " + updateCards.size() );
+			log.trace( "Pack stage folder: " + stageFolder );
+
+			try {
+				Files.createDirectories( stageFolder );
+			} catch( IOException exception ) {
+				log.warn( "Error creating update stage folder: " + stageFolder, exception );
+				return;
+			}
+
+			updateFutures = new HashSet<>();
+			for( ProductCard card : updateCards ) {
+				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
+				updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
+			}
+		}
+
+		@Override
+		public Integer call() throws Exception {
+			if( updateCards.size() == 0 ) return 0;
+
+			for( Future<ProductUpdate> updateFuture : updateFutures ) {
+				try {
+					ProductUpdate update = updateFuture.get();
+					// Remove any old staged updates for this product.
+					updates.remove( update.getCard().getProductKey(), update );
+					// Add the update to the set of staged updates.
+					updates.put( update.getCard().getProductKey(), update );
+				} catch( ExecutionException exception ) {
+					log.error( "Error creating product update pack", exception );
+				} catch( InterruptedException exception ) {
+					break;
+				}
+			}
+
+			program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
+
+			log.debug( "Product update count: " + updates.size() );
+
+			return updates.size();
+		}
+
+	}
+
+	private final class SettingsChangeHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+
+			String key = event.getKey();
+
+			if( CHECK.equals( key ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+			if( key.startsWith( CHECK ) ) scheduleUpdateCheck( false );
+		}
+
+	}
+
 	/**
 	 * NOTE: This class is Persistent and changing the package will most likely result in a ClassNotFoundException being thrown at runtime.
 	 *
@@ -1420,24 +1474,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		@Override
 		public boolean equals( Object object ) {
 			return object instanceof InstalledProduct && this.toString().equals( object.toString() );
-		}
-
-	}
-
-	private final class SettingsChangeHandler implements SettingsListener {
-
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-
-			String key = event.getKey();
-
-			if( CHECK.equals( key ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-			if( key.startsWith( CHECK ) ) scheduleUpdateCheck( false );
-
-			// TODO Handle NOTICE changes
-			// TODO Handle FOUND changes
-			// TODO Handle APPLY changes
 		}
 
 	}

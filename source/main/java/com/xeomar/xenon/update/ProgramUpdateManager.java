@@ -103,7 +103,9 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		if( result.isPresent() ) {
 			if( result.get() == ButtonType.YES ) {
-				return super.applyStagedUpdates( commands );
+				int count = super.applyStagedUpdates( commands );
+				Platform.runLater( () -> program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS ) );
+				return count;
 			} else if( result.get() == ButtonType.CANCEL ) {
 				return -1;
 			} else if( result.get() == discard ) {
@@ -119,9 +121,12 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private boolean interactive;
 
+		private Future<Set<ProductCard>> postedUpdatesFuture;
+
 		CheckForUpdates( Program program, boolean interactive ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-check" ) );
 			this.interactive = interactive;
+			postedUpdatesFuture = program.getTaskManager().submit( new FindPostedUpdatesTask( program, interactive ) );
 		}
 
 		@Override
@@ -134,7 +139,7 @@ public class ProgramUpdateManager extends UpdateManager {
 			// Get the posted updates.
 			Set<ProductCard> postedUpdates = null;
 			try {
-				postedUpdates = findPostedUpdates( interactive );
+				postedUpdates = postedUpdatesFuture.get();
 			} catch( ExecutionException exception ) {
 				log.warn( exception.getClass().getName(), exception.getMessage() );
 				log.trace( "Error getting posted updates", exception );
