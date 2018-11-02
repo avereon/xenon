@@ -172,13 +172,14 @@ public class ProductTool extends GuidedTool {
 	private void selectPage( String pageId ) {
 		log.trace( "Product page selected: " + pageId );
 
-		if( pageId == null ) return;
+		if( pageId == null || pageId.isBlank() ) return;
 
 		getSettings().set( "selected", pageId );
 
 		currentPage = pages.get( pageId );
-		currentPage.updateState();
+		if( currentPage == null ) throw new NullPointerException( "Page ID returned a null page: " + pageId );
 
+		currentPage.updateState();
 		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );
 	}

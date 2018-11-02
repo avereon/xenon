@@ -620,8 +620,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
 		for( ProductCard card : updateCards ) {
 			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
-			CreateUpdate createUpdateTask = new CreateUpdate( program, card, updatePack );
-			updateFutures.add( program.getTaskManager().submit( createUpdateTask ) );
+			updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
 		}
 
 		for( Future<ProductUpdate> updateFuture : updateFutures ) {
@@ -1100,18 +1099,19 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
-	private class DownloadResources extends ProgramTask<Set<ProductResource>> {
+	private class CreateUpdate extends ProgramTask<ProductUpdate> {
+
+		private Set<ProductResource> resources;
 
 		private ProductCard updateCard;
 
-		DownloadResources( Program program, ProductCard updateCard ) {
-			super( program, "Create update pack: " + updateCard.getName() );
-			this.updateCard = updateCard;
-		}
+		private Path updatePack;
 
-		@Override
-		public Set<ProductResource> call() {
-			Set<ProductResource> resources = new HashSet<>();
+		CreateUpdate( Program program, ProductCard updateCard, Path updatePack ) {
+			super( program, "Stage update for: " + updateCard.getName() );
+			resources = new HashSet<>();
+			this.updateCard = updateCard;
+			this.updatePack = updatePack;
 
 			// Determine all the resources to download.
 			try {
@@ -1119,6 +1119,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				log.debug( "Resource codebase: " + codebase );
 				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
 				resources = provider.getResources( codebase );
+				setTotal( resources.size() );
 
 				log.debug( "Product resource count: " + resources.size() );
 
@@ -1132,7 +1133,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			} catch( URISyntaxException exception ) {
 				log.error( "Error creating pack download", exception );
 			}
+		}
 
+		@Override
+		public ProductUpdate call() throws Exception {
 			// Wait for all resources to be downloaded.
 			for( ProductResource resource : resources ) {
 				try {
@@ -1147,29 +1151,6 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					log.error( "Error downloading resource: " + resource, exception );
 				}
 			}
-
-			return resources;
-		}
-	}
-
-	private class CreateUpdate extends ProgramTask<ProductUpdate> {
-
-		private ProductCard updateCard;
-
-		private Path updatePack;
-
-		private Future<Set<ProductResource>> downloadFuture;
-
-		CreateUpdate( Program program, ProductCard updateCard, Path updatePack ) {
-			super( program, "Create update pack: " + updateCard.getName() );
-			downloadFuture = program.getTaskManager().submit( new DownloadResources( program, updateCard ) );
-			this.updateCard = updateCard;
-			this.updatePack = updatePack;
-		}
-
-		@Override
-		public ProductUpdate call() throws Exception {
-			Set<ProductResource> resources = downloadFuture.get();
 
 			// Verify the product is registered
 			ProductCard productCard = productCards.get( updateCard.getProductKey() );
@@ -1197,7 +1178,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
 			copyProductResources( resources, updateFolder );
 			FileUtil.deleteOnExit( updateFolder );
-			FileUtil.zip( updateFolder, updatePack );
+
+			setTotal( FileUtil.getRecursiveSize( updateFolder ) );
+			FileUtil.zip( updateFolder, updatePack, this::setProgress );
 
 			// Notify listeners the update is staged.
 			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );

@@ -110,7 +110,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 	}
 
 	public double getPercent() {
-		return (double)progress / (double)total;
+		return Math.min( 1.0, (double)progress / (double)total );
 	}
 
 	public long getTotal() {
