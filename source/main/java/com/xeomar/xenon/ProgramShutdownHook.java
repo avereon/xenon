@@ -94,7 +94,7 @@ public class ProgramShutdownHook extends Thread {
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
-		builder.command().add( "\"Updating " + program.getCard().getName() + "\"" );
+		builder.command().add( "Updating " + program.getCard().getName() );
 		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
