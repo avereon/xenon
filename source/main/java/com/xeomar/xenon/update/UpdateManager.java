@@ -604,19 +604,21 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Attempt to stage the product packs described by the specified product cards.
 	 *
 	 * @param updateCards The set of update cards to stage
-	 * @return true if one or more product packs were staged.
-	 * @throws IOException If an IO error occurs
 	 */
-	void stageUpdates( Set<ProductCard> updateCards ) throws IOException {
-		if( updateCards.size() == 0 ) return;
+	int stageUpdates( Set<ProductCard> updateCards ) {
+		if( updateCards.size() == 0 ) return 0;
 
 		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
-		Files.createDirectories( stageFolder );
+		try {
+			Files.createDirectories( stageFolder );
+		} catch( IOException exception ) {
+			log.warn( "Error creating update stage folder: " + stageFolder, exception );
+			return 0;
+		}
 
 		log.debug( "Number of packs to stage: " + updateCards.size() );
 		log.trace( "Pack stage folder: " + stageFolder );
 
-		// NEXT For each update card create the following tasks:
 		Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
 		for( ProductCard card : updateCards ) {
 			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
@@ -640,6 +642,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
 
 		log.debug( "Product update count: " + updates.size() );
+
+		return updates.size();
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {

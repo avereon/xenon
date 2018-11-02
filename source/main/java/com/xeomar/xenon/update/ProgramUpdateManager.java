@@ -285,34 +285,17 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	private final class StageUpdates extends ProgramTask<Void> {
 
-		private Set<ProductCard> selectedUpdates;
+		private int stagedUpdateCount;
 
 		StageUpdates( Set<ProductCard> selectedUpdates ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-			this.selectedUpdates = selectedUpdates;
+			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-apply-selected" ) );
+			this.stagedUpdateCount = stageUpdates( selectedUpdates );
 		}
 
 		@Override
 		public Void call() throws Exception {
-			stageUpdates( selectedUpdates );
+			if( stagedUpdateCount > 0 ) handleApplyUpdates();
 			return null;
-		}
-
-		private void waitForResources( Map<ProductCard, Set<ProductResource>> resources ) {
-			// Wait for the product resources to finish downloading
-			for( Set<ProductResource> productResources : resources.values() ) {
-				for( ProductResource resource : productResources ) {
-					try {
-						resource.waitFor();
-					} catch( InterruptedException exception ) {
-						return;
-					} catch( ExecutionException exception ) {
-						log.error( "Error waiting for resource", exception );
-					}
-				}
-			}
-
-			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
 		}
 
 		/**
