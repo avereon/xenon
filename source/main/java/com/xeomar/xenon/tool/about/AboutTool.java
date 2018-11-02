@@ -436,7 +436,7 @@ public class AboutTool extends GuidedTool {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "JVM Memory:     " + FileUtil.getHumanBinSize( used ) + " / " + FileUtil.getHumanBinSize( total ) + " / " + FileUtil.getHumanBinSize( max ) ).append( "\n" );
+		builder.append( "JVM Memory:     " + FileUtil.getHumanSizeBase2( used ) + " / " + FileUtil.getHumanSizeBase2( total ) + " / " + FileUtil.getHumanSizeBase2( max ) ).append( "\n" );
 
 		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
 		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() ).append( "\n" );
@@ -503,8 +503,8 @@ public class AboutTool extends GuidedTool {
 
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 
+		builder.append( "Highest thread count:        " + bean.getPeakThreadCount() ).append( "\n" );
 		builder.append( "Current thread count:        " + bean.getThreadCount() ).append( "\n" );
-		builder.append( "Maximum thread count:        " + bean.getPeakThreadCount() ).append( "\n" );
 
 		builder.append( "\n" );
 		List<ThreadInfo> threads = Arrays.asList( bean.getThreadInfo( bean.getAllThreadIds() ) );

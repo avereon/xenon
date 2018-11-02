@@ -3,7 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.product.ProductCard;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.OperatingSystem;
-import com.xeomar.util.SizeUnit;
+import com.xeomar.util.SizeUnitBase10;
 import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.workarea.WorkpaneWatcher;
@@ -113,14 +113,14 @@ public abstract class FxProgramTestCase extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
-		System.out.println( String.format( "Memory use: %s - %s = %s", FileUtil.getHumanBinSize( finalMemoryUse ), FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( increaseSize ) ) );
+		System.out.println( String.format( "Memory use: %s - %s = %s", FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ) ) );
 
-		if( ((double)increaseSize / (double)SizeUnit.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
-			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %s", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), FileUtil.getHumanBinSize( increaseSize ) ) );
+		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %s", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ) ) );
 		}
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 		if( increasePercent > getAllowedMemoryGrowthPercent() ) {
-			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanBinSize( initialMemoryUse ), FileUtil.getHumanBinSize( finalMemoryUse ), increasePercent * 100 ) );
+			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), increasePercent * 100 ) );
 		}
 	}
 

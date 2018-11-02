@@ -6,10 +6,9 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.ExecMode;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.Module;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.ProgramFlag;
+import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -383,8 +379,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may
-	 * safely be called as many times as necessary from any thread.
+	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
@@ -470,8 +465,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Gets the set of posted product updates. If there are no posted updates
-	 * found an empty set is returned.
+	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
 	 * @throws ExecutionException If a task execution exception occurs
@@ -607,8 +601,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Attempt to stage the product packs described by the specified product
-	 * cards.
+	 * Attempt to stage the product packs described by the specified product cards.
 	 *
 	 * @param updateCards The set of update cards to stage
 	 * @return true if one or more product packs were staged.
@@ -623,54 +616,30 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		log.debug( "Number of packs to stage: " + updateCards.size() );
 		log.trace( "Pack stage folder: " + stageFolder );
 
-		// Download the product resources.
-		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( updateCards );
-		log.debug( "Product resource count: " + productResources.size() );
-
-		// Create an update for each product.
-		for( ProductCard updateCard : updateCards ) {
-			// Verify the product is registered
-			ProductCard productCard = productCards.get( updateCard.getProductKey() );
-			if( productCard == null ) {
-				log.warn( "Product not registered: " + updateCard );
-				continue;
-			}
-
-			// Verify the product is installed
-			Path installFolder = productCard.getInstallFolder();
-			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
-			if( !installFolderValid ) {
-				log.warn( "Product not installed: " + updateCard );
-				log.debug( "Missing install folder: " + installFolder );
-				continue;
-			}
-
-			// Verify the resources have all been staged successfully
-			Set<ProductResource> resources = productResources.get( updateCard );
-			if( !areResourcesValid( resources ) ) {
-				log.warn( "Update missing resources: " + updateCard );
-				continue;
-			}
-
-			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( updateCard ) );
-			createUpdatePack( productResources.get( updateCard ), updatePack );
-
-			ProductUpdate update = new ProductUpdate( updateCard, updatePack, installFolder );
-
-			// Remove any old staged updates for this product.
-			updates.remove( update.getCard().getProductKey(), update );
-
-			// Add the update to the set of staged updates.
-			updates.put( update.getCard().getProductKey(), update );
-
-			// Notify listeners the update is staged.
-			new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
-
-			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
-			log.debug( "Update pack:   " + updatePack );
+		// NEXT For each update card create the following tasks:
+		Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
+		for( ProductCard card : updateCards ) {
+			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
+			updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
 		}
 
-		saveUpdates();
+		for( Future<ProductUpdate> updateFuture : updateFutures ) {
+			try {
+				ProductUpdate update = updateFuture.get();
+				// Remove any old staged updates for this product.
+				updates.remove( update.getCard().getProductKey(), update );
+				// Add the update to the set of staged updates.
+				updates.put( update.getCard().getProductKey(), update );
+			} catch( ExecutionException exception ) {
+				log.error( "Error creating product update pack", exception );
+			} catch( InterruptedException exception ) {
+				break;
+			}
+		}
+
+		program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
+
+		log.debug( "Product update count: " + updates.size() );
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -696,7 +665,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			for( ProductUpdate update : remove ) {
 				updates.remove( update.getCard().getProductKey(), update );
 			}
-			saveUpdates();
+			saveUpdates( updates );
 		}
 
 		return staged;
@@ -726,8 +695,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Apply updates. If updates are found then the method returns the number of
-	 * updates applied.
+	 * Apply updates. If updates are found then the method returns the number of updates applied.
 	 *
 	 * @return The number of updates applied.
 	 */
@@ -760,10 +728,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is
-	 * generally called when the program starts and, if the update program is
-	 * successfully started, the program should be terminated to allow for the
-	 * updates to be applied.
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * applied.
 	 *
 	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied.
@@ -785,7 +751,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	void clearStagedUpdates() {
 		// Remove the updates settings.
 		updates.clear();
-		saveUpdates();
+		saveUpdates( updates );
 	}
 
 	//	public void loadProducts( File... folders ) throws Exception {
@@ -1028,7 +994,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
-	private void saveUpdates() {
+	private void saveUpdates( Map<String, ProductUpdate> updates ) {
 		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
 	}
 
@@ -1133,49 +1099,27 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
-	private void createUpdatePack( Set<ProductResource> resources, Path update ) throws IOException {
-		Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+	private class CreateUpdate extends ProgramTask<ProductUpdate> {
 
-		copyProductResources( resources, updateFolder );
+		private Set<ProductResource> resources;
 
-		FileUtil.deleteOnExit( updateFolder );
+		private ProductCard updateCard;
 
-		FileUtil.zip( updateFolder, update );
-	}
+		private Path updatePack;
 
-	private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
-		if( resources == null ) return;
+		CreateUpdate( Program program, ProductCard updateCard, Path updatePack ) {
+			super( program, "Stage update for: " + updateCard.getName() );
+			resources = new HashSet<>();
+			this.updateCard = updateCard;
+			this.updatePack = updatePack;
 
-		for( ProductResource resource : resources ) {
-			if( resource.getLocalFile() == null ) continue;
-			switch( resource.getType() ) {
-				case FILE: {
-					// Just copy the file.
-					String path = resource.getUri().getPath();
-					String name = path.substring( path.lastIndexOf( "/" ) + 1 );
-					Path target = folder.resolve( name );
-					FileUtil.copy( resource.getLocalFile(), target );
-					break;
-				}
-				case PACK: {
-					// Unpack the file.
-					FileUtil.unzip( resource.getLocalFile(), folder );
-					break;
-				}
-			}
-		}
-	}
-
-	private Map<ProductCard, Set<ProductResource>> downloadProductResources( Set<ProductCard> cards ) {
-		// Determine all the resources to download.
-		Map<ProductCard, Set<ProductResource>> productResources = new HashMap<>();
-
-		for( ProductCard card : cards ) {
+			// Determine all the resources to download.
 			try {
-				URI codebase = card.getCardUri( getProductChannel() );
+				URI codebase = updateCard.getCardUri( getProductChannel() );
 				log.debug( "Resource codebase: " + codebase );
-				PackProvider provider = new PackProvider( program, card, getProductChannel() );
-				Set<ProductResource> resources = provider.getResources( codebase );
+				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
+				resources = provider.getResources( codebase );
+				setTotal( resources.size() );
 
 				log.debug( "Product resource count: " + resources.size() );
 
@@ -1186,17 +1130,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					// Submit download resource task
 					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
 				}
-
-				productResources.put( card, resources );
 			} catch( URISyntaxException exception ) {
 				log.error( "Error creating pack download", exception );
 			}
 		}
 
-		// Wait for all resources to be downloaded.
-		for( ProductCard card : cards ) {
-			Set<ProductResource> resources = productResources.get( card );
-			if( resources == null ) continue;
+		@Override
+		public ProductUpdate call() throws Exception {
+			// Wait for all resources to be downloaded.
 			for( ProductResource resource : resources ) {
 				try {
 					resource.waitFor();
@@ -1210,9 +1151,69 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 					log.error( "Error downloading resource: " + resource, exception );
 				}
 			}
+
+			// Verify the product is registered
+			ProductCard productCard = productCards.get( updateCard.getProductKey() );
+			if( productCard == null ) {
+				log.warn( "Product not registered: " + updateCard );
+				return null;
+			}
+
+			// Verify the product is installed
+			Path installFolder = productCard.getInstallFolder();
+			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
+			if( !installFolderValid ) {
+				log.warn( "Missing install folder: " + installFolder );
+				log.warn( "Product not installed:  " + updateCard );
+				return null;
+			}
+
+			// Verify the resources have all been staged successfully
+			//Set<ProductResource> resources = productResources.get( updateCard );
+			if( !areResourcesValid( resources ) ) {
+				log.warn( "Update missing resources: " + updateCard );
+				return null;
+			}
+
+			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+			copyProductResources( resources, updateFolder );
+			FileUtil.deleteOnExit( updateFolder );
+
+			setTotal( FileUtil.getRecursiveSize( updateFolder ) );
+			FileUtil.zip( updateFolder, updatePack, this::setProgress );
+
+			// Notify listeners the update is staged.
+			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+
+			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
+			log.debug( "           to: " + updatePack );
+
+			return new ProductUpdate( updateCard, updatePack, installFolder );
 		}
 
-		return productResources;
+		private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
+			if( resources == null ) return;
+
+			for( ProductResource resource : resources ) {
+				if( resource.getLocalFile() == null ) continue;
+				switch( resource.getType() ) {
+					case FILE: {
+						// Just copy the file.
+						String path = resource.getUri().getPath();
+						String name = path.substring( path.lastIndexOf( "/" ) + 1 );
+						Path target = folder.resolve( name );
+						FileUtil.copy( resource.getLocalFile(), target );
+						break;
+					}
+					case PACK: {
+						// Unpack the file.
+						FileUtil.unzip( resource.getLocalFile(), folder );
+						break;
+					}
+				}
+			}
+		}
+
 	}
 
 	private String getProductChannel() {

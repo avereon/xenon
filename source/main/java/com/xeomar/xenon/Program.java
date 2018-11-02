@@ -261,7 +261,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "staged-updates" );
 
 		// Show the splash screen
-		if( stage.getStyle() == StageStyle.DECORATED ) stage.initStyle( StageStyle.UTILITY );
+		stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
 
@@ -672,12 +672,14 @@ public class Program extends Application implements ProgramProduct {
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiFactory.restoreUi( splashScreen ) );
+		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
 		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
 		// Finish the splash screen
-		log.info( "Startup steps: " + splashScreen.getCompletedSteps() + " of " + splashScreen.getSteps() );
+		int totalSteps = splashScreen.getSteps();
+		int completedSteps = splashScreen.getCompletedSteps();
+		if( completedSteps != totalSteps ) log.warn( "Startup step mismatch: " + completedSteps + " of " + totalSteps );
 		Platform.runLater( () -> splashScreen.done() );
 
 		// Create the program notifier, depends on workspace manager
@@ -961,14 +963,14 @@ public class Program extends Application implements ProgramProduct {
 			// Open resources specified on the command line
 			processResources( getProgramParameters() );
 
-			// Check to see if the application was updated
-			checkIfUpdated();
-
 			// Schedule the first update check
 			getUpdateManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
+
+			// Check to see if the application was updated
+			checkIfUpdated();
 		}
 
 		@Override

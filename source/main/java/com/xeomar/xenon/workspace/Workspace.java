@@ -1,21 +1,28 @@
 package com.xeomar.xenon.workspace;
 
 import com.xeomar.settings.Settings;
+import com.xeomar.settings.SettingsEvent;
+import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.*;
+import com.xeomar.xenon.ExecMode;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramSettings;
+import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
+import com.xeomar.xenon.resource.ResourceException;
+import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
-import com.xeomar.xenon.util.Colors;
 import com.xeomar.xenon.workarea.Workarea;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
@@ -52,9 +59,15 @@ public class Workspace implements Configurable {
 
 	private StatusBar statusBar;
 
+	private Group memoryMonitorContainer;
+
 	private MemoryMonitor memoryMonitor;
 
+	private Group taskMonitorContainer;
+
 	private TaskMonitor taskMonitor;
+
+	private WorkspaceBackground background;
 
 	private Pane workpaneContainer;
 
@@ -68,6 +81,18 @@ public class Workspace implements Configurable {
 
 	private Settings settings;
 
+	private Settings backgroundSettings;
+
+	private SettingsListener backgroundSettingsHandler;
+
+	private Settings memoryMonitorSettings;
+
+	private MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
+
+	private Settings taskMonitorSettings;
+
+	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
+
 	private String id;
 
 	public Workspace( Program program ) {
@@ -75,6 +100,9 @@ public class Workspace implements Configurable {
 
 		workareas = FXCollections.observableArrayList();
 		activeWorkareaWatcher = new WorkareaPropertyWatcher();
+		backgroundSettingsHandler = new BackgroundSettingsHandler();
+		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
+		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 
 		// FIXME Should this default setup be defined in config files or something else?
 
@@ -125,7 +153,7 @@ public class Workspace implements Configurable {
 
 		Menu dev = ActionUtil.createMenu( program, "development" );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-update-found") );
+		dev.getItems().add( ActionUtil.createMenuItem( program, "test-update-found" ) );
 		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
@@ -161,10 +189,10 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( new Separator() );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
-		//		toolbar.getItems().add( new Separator() );
-		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
-		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
-		//		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
 
 		toolbar.getItems().add( ActionUtil.createSpring() );
 
@@ -173,8 +201,26 @@ public class Workspace implements Configurable {
 
 		// STATUS BAR
 		statusBar = new StatusBar();
+
+		// Task Monitor
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
+		taskMonitorContainer = new Group();
+
+		// If the task monitor is clicked then open the task tool
+		taskMonitor.setOnMouseClicked( ( event ) -> {
+			try {
+				program.getResourceManager().open( ProgramTaskType.URI );
+			} catch( ResourceException exception ) {
+				log.error( "Error opening task tool", exception );
+			}
+		} );
+
+		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
+		memoryMonitorContainer = new Group();
+
+		// If the memory monitor is clicked then call the garbage collector
+		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
 		HBox leftStatusBarItems = new HBox();
 		leftStatusBarItems.getStyleClass().addAll( "box" );
@@ -183,7 +229,7 @@ public class Workspace implements Configurable {
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
 		leftStatusBarItems.getChildren().addAll( statusBar );
-		rightStatusBarItems.getChildren().addAll( taskMonitor, memoryMonitor );
+		rightStatusBarItems.getChildren().addAll( taskMonitorContainer, memoryMonitorContainer );
 
 		BorderPane statusBarContainer = new BorderPane();
 		statusBarContainer.setLeft( leftStatusBarItems );
@@ -193,6 +239,10 @@ public class Workspace implements Configurable {
 		// Workarea Container
 		workpaneContainer = new StackPane();
 		workpaneContainer.getStyleClass().add( "workspace" );
+
+		// Workarea Background
+		background = new WorkspaceBackground();
+		workpaneContainer.getChildren().add( background );
 
 		VBox bars = new VBox();
 		bars.getChildren().addAll( menubar, toolbar );
@@ -204,7 +254,6 @@ public class Workspace implements Configurable {
 
 		// Create the stage
 		stage = new Stage();
-		Image image;
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			event.consume();
@@ -292,6 +341,8 @@ public class Workspace implements Configurable {
 	public void setSettings( Settings settings ) {
 		if( this.settings != null ) return;
 
+		// The incoming settings are the workspace settings
+
 		this.settings = settings;
 		id = settings.get( "id" );
 
@@ -340,20 +391,20 @@ public class Workspace implements Configurable {
 			if( !stage.isMaximized() ) settings.set( "h", newValue );
 		} );
 
-		// FIXME This is not the correct settings object
-		updateBackgroundFromSettings( settings );
-	}
+		backgroundSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
+		background.updateBackgroundFromSettings( backgroundSettings );
+		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
 
-	private void updateBackgroundFromSettings( Settings settings ) {
-		Color color1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
+		memoryMonitorSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		memoryMonitorSettings.removeSettingsListener( memoryMonitorSettingsHandler );
+		updateMemoryMonitorFromSettings( memoryMonitorSettings );
+		memoryMonitorSettings.addSettingsListener( memoryMonitorSettingsHandler );
 
-		// FIXME The following background image is for development purposes.
-		// TODO Remove the development background image
-		//Image image = new Image( getClass().getResourceAsStream( "/wallpaper.jpg" ) );
-		//BackgroundSize backgroundSize = new BackgroundSize( BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, false, true );
-		//workpaneContainer.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
-
-		workpaneContainer.setBackground( new Background( new BackgroundFill( color1, CornerRadii.EMPTY, Insets.EMPTY ) ) );
+		taskMonitorSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		taskMonitorSettings.removeSettingsListener( taskMonitorSettingsHandler );
+		updateTaskMonitorFromSettings( taskMonitorSettings );
+		taskMonitorSettings.addSettingsListener( taskMonitorSettingsHandler );
 	}
 
 	@Override
@@ -374,6 +425,64 @@ public class Workspace implements Configurable {
 	private Workarea determineNextActiveWorkarea() {
 		int index = workareas.indexOf( getActiveWorkarea() );
 		return workareas.get( index == 0 ? 1 : index - 1 );
+	}
+
+	private void updateMemoryMonitorFromSettings( Settings settings ) {
+		Boolean enabled = settings.get( "workspace-memory-monitor-enabled", Boolean.class, Boolean.TRUE );
+		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
+		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
+
+		updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
+		memoryMonitor.setTextVisible( showText );
+		memoryMonitor.setShowPercent( showPercent );
+	}
+
+	private void updateTaskMonitorFromSettings( Settings settings ) {
+		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
+		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
+		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
+
+		updateContainer( taskMonitorContainer, taskMonitor, enabled );
+		taskMonitor.setTextVisible( showText );
+		taskMonitor.setShowPercent( showPercent );
+	}
+
+	private void updateContainer( Group container, Node tool, boolean enabled ) {
+		if( enabled ) {
+			if( !container.getChildren().contains( tool ) ) container.getChildren().add( tool );
+		} else {
+			container.getChildren().remove( tool );
+		}
+	}
+
+	private class BackgroundSettingsHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+			background.updateBackgroundFromSettings( backgroundSettings );
+		}
+
+	}
+
+	private class MemoryMonitorSettingsHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+			updateMemoryMonitorFromSettings( memoryMonitorSettings );
+		}
+
+	}
+
+	private class TaskMonitorSettingsHandler implements SettingsListener {
+
+		@Override
+		public void handleEvent( SettingsEvent event ) {
+			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+			Platform.runLater( () -> updateTaskMonitorFromSettings( taskMonitorSettings ) );
+		}
+
 	}
 
 	private class WorkareaPropertyWatcher implements PropertyChangeListener {

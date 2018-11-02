@@ -202,7 +202,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	@Test
 	public void testNestedTask() throws Exception {
-		manager.setThreadCount( 1 );
+		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
 
@@ -221,7 +221,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	@Test
 	public void testNestedTaskWithException() throws Exception {
-		manager.setThreadCount( 1 );
+		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
 
@@ -256,7 +256,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	@Test
 	public void testTaskListener() throws Exception {
-		manager.setThreadCount( 1 );
+		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
 

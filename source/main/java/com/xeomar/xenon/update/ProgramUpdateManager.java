@@ -34,7 +34,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	public void showUpdateFoundDialog() {
 		StageUpdates task = new StageUpdates( Set.of() );
-		task.handleApplyUpdates( );
+		task.handleApplyUpdates();
 	}
 
 	@Override
@@ -295,14 +295,30 @@ public class ProgramUpdateManager extends UpdateManager {
 		@Override
 		public Void call() throws Exception {
 			stageUpdates( selectedUpdates );
-			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
 			return null;
+		}
+
+		private void waitForResources( Map<ProductCard, Set<ProductResource>> resources ) {
+			// Wait for the product resources to finish downloading
+			for( Set<ProductResource> productResources : resources.values() ) {
+				for( ProductResource resource : productResources ) {
+					try {
+						resource.waitFor();
+					} catch( InterruptedException exception ) {
+						return;
+					} catch( ExecutionException exception ) {
+						log.error( "Error waiting for resource", exception );
+					}
+				}
+			}
+
+			if( selectedUpdates.size() > 0 ) handleApplyUpdates();
 		}
 
 		/**
 		 * Nearly identical to ProductTool.handleStagedUpdates()
 		 */
-		private void handleApplyUpdates( ) {
+		private void handleApplyUpdates() {
 			Platform.runLater( () -> {
 				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );

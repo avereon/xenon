@@ -163,14 +163,14 @@
 					<option key="fit" />
 					<option key="stretch" />
 					<option key="tile" />
-					<option key="align" />
+					<option key="anchor" />
 				</setting>
 				<setting key="workspace-scenery-image-align" editor="combobox">
 					<dependency key="workspace-scenery-image-enabled" value="true" />
 					<dependency key="workspace-scenery-image-style" value="fill" />
 					<dependency key="workspace-scenery-image-style" value="fit" operator="or" />
 					<dependency key="workspace-scenery-image-style" value="tile" operator="or" />
-					<dependency key="workspace-scenery-image-style" value="align" operator="or" />
+					<dependency key="workspace-scenery-image-style" value="anchor" operator="or" />
 					<option key="northwest" />
 					<option key="north" />
 					<option key="northeast" />
@@ -207,6 +207,7 @@
 					<dependency key="workspace-task-monitor-enabled" value="true" />
 					<dependency key="workspace-task-monitor-text" value="true" />
 				</setting>
+				<!--
 				<setting key="workspace-task-monitor-foreground" editor="color">
 					<dependency key="workspace-task-monitor-enabled" value="true" />
 				</setting>
@@ -219,6 +220,7 @@
 				<setting key="workspace-task-monitor-tasks" editor="color">
 					<dependency key="workspace-task-monitor-enabled" value="true" />
 				</setting>
+				-->
 			</group>
 		</page>
 
@@ -232,6 +234,7 @@
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 					<dependency key="workspace-memory-monitor-text" value="true" />
 				</setting>
+				<!--
 				<setting key="workspace-memory-monitor-foreground" editor="color">
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 				</setting>
@@ -247,6 +250,7 @@
 				<setting key="workspace-memory-monitor-refresh" editor="textline">
 					<dependency key="workspace-memory-monitor-enabled" value="true" />
 				</setting>
+				-->
 			</group>
 		</page>
 	</page>
@@ -313,6 +317,7 @@
 				</setting>
 			</group>
 		</page>
+		<!--
 		<page id="resource-manager">
 			<group id="options">
 				<setting key="resource-showuri" editor="checkbox" />
@@ -323,6 +328,7 @@
 				<setting key="resource-color-modified" editor="color" />
 			</group>
 		</page>
+		-->
 	</page>
 
 </settings>

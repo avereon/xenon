@@ -2,6 +2,7 @@ package com.xeomar.xenon.update;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public final class ProductResource {
@@ -33,7 +34,7 @@ public final class ProductResource {
 		return uri;
 	}
 
-	public void waitFor() throws Exception {
+	public void waitFor() throws InterruptedException, ExecutionException {
 		file = future.get().getTarget();
 	}
 
@@ -52,7 +53,7 @@ public final class ProductResource {
 	public void setThrowable( Throwable throwable ) {
 		this.throwable = throwable;
 	}
-	
+
 	public boolean isValid() {
 		return throwable == null;
 	}

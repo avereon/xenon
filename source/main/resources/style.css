@@ -27,7 +27,7 @@
 }
 
 .splashscreen-progress-complete {
-	-fx-fill: dodgerblue;
+	-fx-fill: derive( -fx-accent, 50% );
 }
 
 #menu-development > .label {
@@ -152,6 +152,10 @@
 
 .memory-monitor {}
 
+.memory-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
+
 .memory-monitor-max {
 	-fx-fill: #e0e0e0;
 }
@@ -161,21 +165,29 @@
 }
 
 .memory-monitor-used {
-	-fx-fill: #a0a0a0;
-}
-
-.memory-monitor-label {
-	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+	-fx-fill: -fx-accent;
 }
 
 .task-monitor {}
+
+.task-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
 
 .task-monitor-max {
 	-fx-fill: #e0e0e0;
 }
 
-.task-monitor-used {
-	-fx-fill: #a0a0a0;
+.task-monitor-threads {
+	-fx-fill: #c0c0c0;
+}
+
+.task-monitor-tasks {
+	-fx-fill: derive( -fx-accent, 80% );
+}
+
+.task-monitor-progress {
+	-fx-fill: -fx-accent;
 }
 
 #tool-about .text-area {
