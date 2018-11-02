@@ -46,7 +46,6 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		queue = new LinkedBlockingQueue<>();
 		group = new ThreadGroup( getClass().getName() );
 		listeners = new CopyOnWriteArraySet<>();
-
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
@@ -93,10 +92,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 	 * @throws InterruptedException if the executing task is interrupted
 	 */
 	public <T> Future<T> invoke( Callable<T> task ) throws InterruptedException {
-		List<Callable<T>> tasks = new ArrayList<>();
-		tasks.add( task );
-		List<Future<T>> futures = invokeAll( tasks );
-		return futures.get( 0 );
+		return invokeAll( List.of( task ) ).get( 0 );
 	}
 
 	@Override
@@ -271,9 +267,12 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 		@Override
 		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
-			if( !(callable instanceof Task ) ) callable = new TaskWrapper<>( callable );
-			tasks.add( (Task<T>)callable );
-			return ((Task<T>)callable).createFuture( TaskManager.this );
+			if( !(callable instanceof Task) ) callable = new TaskWrapper<>( callable );
+
+			Task<T> task = (Task<T>)callable;
+			task.setTaskManager( TaskManager.this );
+			tasks.add( task );
+			return task.createFuture();
 		}
 
 		@Override

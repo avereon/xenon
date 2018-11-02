@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class ProgramUpdateManager extends UpdateManager {
 
@@ -33,7 +34,7 @@ public class ProgramUpdateManager extends UpdateManager {
 	}
 
 	public void showUpdateFoundDialog() {
-		StageUpdates task = new StageUpdates( Set.of() );
+		ApplyUpdates task = new ApplyUpdates( program, Set.of() );
 		task.handleApplyUpdates();
 	}
 
@@ -180,12 +181,12 @@ public class ProgramUpdateManager extends UpdateManager {
 					}
 					case STORE: {
 						// Store (download) all updates without user intervention.
-						program.getExecutor().submit( new StoreUpdates( installedPacks, postedUpdates ) );
+						program.getExecutor().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
 						break;
 					}
 					case STAGE: {
 						// Stage all updates without user intervention.
-						program.getExecutor().submit( new StageUpdates( postedUpdates ) );
+						program.getExecutor().submit( new ApplyUpdates( program, postedUpdates ) );
 						break;
 					}
 				}
@@ -235,7 +236,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private Set<ProductCard> postedUpdates;
 
-		StoreUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
+		StoreUpdates( Program program, Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-selected" ) );
 			this.installedPacks = installedPacks;
 			this.postedUpdates = postedUpdates;
@@ -283,18 +284,34 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	}
 
-	private final class StageUpdates extends ProgramTask<Void> {
+//	private final class StageUpdates extends ProgramTask<Integer> {
+//
+//		private Set<ProductCard> selectedUpdates;
+//
+//		StageUpdates( Program program, Set<ProductCard> selectedUpdates ) {
+//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+//			this.selectedUpdates = selectedUpdates;
+//		}
+//
+//		@Override
+//		public Integer call() throws Exception {
+//			return stageUpdates( selectedUpdates );
+//		}
+//
+//	}
 
-		private int stagedUpdateCount;
+	private final class ApplyUpdates extends ProgramTask<Void> {
 
-		StageUpdates( Set<ProductCard> selectedUpdates ) {
+		private Future<Integer> stageFuture;
+
+		ApplyUpdates( Program program, Set<ProductCard> selectedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-apply-selected" ) );
-			this.stagedUpdateCount = stageUpdates( selectedUpdates );
+			stageFuture = program.getTaskManager().submit( new StageUpdates( program, selectedUpdates ) );
 		}
 
 		@Override
 		public Void call() throws Exception {
-			if( stagedUpdateCount > 0 ) handleApplyUpdates();
+			if( stageFuture.get() > 0 ) handleApplyUpdates();
 			return null;
 		}
 

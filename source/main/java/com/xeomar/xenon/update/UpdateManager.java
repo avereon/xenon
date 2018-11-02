@@ -36,40 +36,23 @@ import java.util.concurrent.*;
 public class UpdateManager implements Controllable<UpdateManager>, Configurable {
 
 	public enum CheckOption {
-		MANUAL,
-		STARTUP,
-		INTERVAL,
-		SCHEDULE
+		MANUAL, STARTUP, INTERVAL, SCHEDULE
 	}
 
 	public enum CheckInterval {
-		MONTH,
-		WEEK,
-		DAY,
-		HOUR
+		MONTH, WEEK, DAY, HOUR
 	}
 
 	public enum CheckWhen {
-		DAILY,
-		SUNDAY,
-		MONDAY,
-		TUESDAY,
-		WEDNESDAY,
-		THURSDAY,
-		FRIDAY,
-		SATURDAY
+		DAILY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
 	}
 
 	public enum FoundOption {
-		SELECT,
-		STORE,
-		STAGE
+		SELECT, STORE, STAGE
 	}
 
 	public enum ApplyOption {
-		VERIFY,
-		IGNORE,
-		RESTART
+		VERIFY, IGNORE, RESTART
 	}
 
 	private static final Logger log = LoggerFactory.getLogger( UpdateManager.class );
@@ -468,9 +451,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
-	 * @throws ExecutionException If a task execution exception occurs
+	 * @throws ExecutionException   If a task execution exception occurs
 	 * @throws InterruptedException If the calling thread is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
+	 * @throws URISyntaxException   If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws ExecutionException, InterruptedException, URISyntaxException {
 		Set<ProductCard> availableCards = new HashSet<>();
@@ -580,14 +563,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	 * Attempt to stage the product packs from posted updates.
 	 *
 	 * @return true if one or more product packs were staged.
-	 * @throws IOException If an IO error occurs
-	 * @throws ExecutionException If an execution error occurs
+	 * @throws IOException          If an IO error occurs
+	 * @throws ExecutionException   If an execution error occurs
 	 * @throws InterruptedException If the method is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
+	 * @throws URISyntaxException   If a URI cannot be resolved correctly
 	 */
-	public int stagePostedUpdates() throws IOException, ExecutionException, InterruptedException, URISyntaxException {
+	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		stageUpdates( findPostedUpdates( false ) );
+		new StageUpdates( program, findPostedUpdates( false ) ).call();
 		return updates.size();
 	}
 
@@ -596,54 +579,66 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return installFolder.resolve( card.getGroup() + "." + card.getArtifact() );
 	}
 
-	public void stageUpdates( ProductCard... updateCards ) throws IOException {
-		stageUpdates( Set.of( updateCards ) );
+	public void stageUpdates( ProductCard... updateCards ) throws Exception {
+		new StageUpdates( program, Set.of( updateCards ) ).call();
 	}
 
-	/**
-	 * Attempt to stage the product packs described by the specified product cards.
-	 *
-	 * @param updateCards The set of update cards to stage
-	 */
-	int stageUpdates( Set<ProductCard> updateCards ) {
-		if( updateCards.size() == 0 ) return 0;
+	final class StageUpdates extends ProgramTask<Integer> {
 
-		Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
-		try {
-			Files.createDirectories( stageFolder );
-		} catch( IOException exception ) {
-			log.warn( "Error creating update stage folder: " + stageFolder, exception );
-			return 0;
+		/**
+		 * Attempt to stage the product packs described by the specified product cards.
+		 *
+		 * @param updateCards The set of update cards to stage
+		 */
+		Set<ProductCard> updateCards;
+
+		public StageUpdates( Program program, Set<ProductCard> updateCards ) {
+			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+			this.updateCards = updateCards;
 		}
 
-		log.debug( "Number of packs to stage: " + updateCards.size() );
-		log.trace( "Pack stage folder: " + stageFolder );
+		@Override
+		public Integer call() throws Exception {
+			if( updateCards.size() == 0 ) return 0;
 
-		Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
-		for( ProductCard card : updateCards ) {
-			Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
-			updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
-		}
-
-		for( Future<ProductUpdate> updateFuture : updateFutures ) {
+			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
 			try {
-				ProductUpdate update = updateFuture.get();
-				// Remove any old staged updates for this product.
-				updates.remove( update.getCard().getProductKey(), update );
-				// Add the update to the set of staged updates.
-				updates.put( update.getCard().getProductKey(), update );
-			} catch( ExecutionException exception ) {
-				log.error( "Error creating product update pack", exception );
-			} catch( InterruptedException exception ) {
-				break;
+				Files.createDirectories( stageFolder );
+			} catch( IOException exception ) {
+				log.warn( "Error creating update stage folder: " + stageFolder, exception );
+				return 0;
 			}
+
+			log.debug( "Number of packs to stage: " + updateCards.size() );
+			log.trace( "Pack stage folder: " + stageFolder );
+
+			Set<Future<ProductUpdate>> updateFutures = new HashSet<>();
+			for( ProductCard card : updateCards ) {
+				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
+				updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
+			}
+
+			for( Future<ProductUpdate> updateFuture : updateFutures ) {
+				try {
+					ProductUpdate update = updateFuture.get();
+					// Remove any old staged updates for this product.
+					updates.remove( update.getCard().getProductKey(), update );
+					// Add the update to the set of staged updates.
+					updates.put( update.getCard().getProductKey(), update );
+				} catch( ExecutionException exception ) {
+					log.error( "Error creating product update pack", exception );
+				} catch( InterruptedException exception ) {
+					break;
+				}
+			}
+
+			program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
+
+			log.debug( "Product update count: " + updates.size() );
+
+			return updates.size();
 		}
 
-		program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
-
-		log.debug( "Product update count: " + updates.size() );
-
-		return updates.size();
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
