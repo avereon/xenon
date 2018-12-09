@@ -6,7 +6,6 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.FxUtil;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -171,8 +170,7 @@ class ProductPane extends MigPane {
 	private void updateProduct() {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
-				productTool.getProgram().getUpdateManager().stageUpdates( source );
-				Platform.runLater( productTool::handleStagedUpdates );
+				productTool.getProgram().getUpdateManager().applySelectedUpdates( source );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}

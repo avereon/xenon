@@ -1,6 +1,5 @@
 package com.xeomar.xenon.update;
 
-import com.xeomar.annex.UpdateFlag;
 import com.xeomar.product.ProductCard;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
@@ -18,7 +17,8 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -33,9 +33,10 @@ public class ProgramUpdateManager extends UpdateManager {
 		this.program = program;
 	}
 
+	// This is a method for testing the update found dialog.
+	// It should not be used for production functionality.
 	public void showUpdateFoundDialog() {
-		ApplyUpdates task = new ApplyUpdates( program, Set.of() );
-		task.handleApplyUpdates();
+		new ApplyUpdates( program, Set.of() ).handleApplyUpdates();
 	}
 
 	@Override
@@ -55,11 +56,10 @@ public class ProgramUpdateManager extends UpdateManager {
 	 * <li>&gt;0 : Will apply updates and restart the program</li>
 	 * </ul>
 	 *
-	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied or -1 to cancel
 	 */
 	@Override
-	public int userApplyStagedUpdates( String... extras ) {
+	public int userApplyStagedUpdates() {
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		/*
@@ -73,17 +73,12 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 		String programName = program.getCard().getName();
-
-		List<String> commandList = new ArrayList<>( Arrays.asList( extras ) );
-		commandList.add( UpdateFlag.TITLE );
-		commandList.add( program.getResourceBundle().getString( BundleKey.UPDATE, "updater-updating", programName ) );
-		String[] commands = commandList.toArray( new String[ 0 ] );
-
 		/*
-		 * If the ServiceFlag.NOUPDATECHECK is not set, that means the program was
-		 * started normally and the user should be asked what to do about the staged
-		 * updates. The options are Yes (install the updates), No (do not install
-		 * the updates) and Discard (discard the updates).
+		 * If the ProgramFlag.UPDATE_IN_PROGRESS is not set, that means the program
+		 * was started normally and the user should be asked what to do about the
+		 * staged updates. The options are Yes (install the updates and restart the
+		 * program), No (do not install the updates, keep them for next time, and
+		 * start the program) and Discard (discard the updates and start the program).
 		 */
 		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-staged-header", programName );
@@ -103,9 +98,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		if( result.isPresent() ) {
 			if( result.get() == ButtonType.YES ) {
-				int count = super.applyStagedUpdates( commands );
-				Platform.runLater( () -> program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS ) );
-				return count;
+				return super.userApplyStagedUpdates();
 			} else if( result.get() == ButtonType.CANCEL ) {
 				return -1;
 			} else if( result.get() == discard ) {
@@ -115,6 +108,16 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Starts a new task to apply the selected updates.
+	 *
+	 * @param updates The updates to apply.
+	 */
+	@Override
+	public void applySelectedUpdates( Set<ProductCard> updates ) {
+		program.getTaskManager().submit( new ApplyUpdates( program, updates ) );
 	}
 
 	private final class CheckForUpdates extends ProgramTask<Void> {
@@ -289,21 +292,21 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	}
 
-//	private final class StageUpdates extends ProgramTask<Integer> {
-//
-//		private Set<ProductCard> selectedUpdates;
-//
-//		StageUpdates( Program program, Set<ProductCard> selectedUpdates ) {
-//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-//			this.selectedUpdates = selectedUpdates;
-//		}
-//
-//		@Override
-//		public Integer call() throws Exception {
-//			return stageUpdates( selectedUpdates );
-//		}
-//
-//	}
+	//	private final class StageUpdates extends ProgramTask<Integer> {
+	//
+	//		private Set<ProductCard> selectedUpdates;
+	//
+	//		StageUpdates( Program program, Set<ProductCard> selectedUpdates ) {
+	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+	//			this.selectedUpdates = selectedUpdates;
+	//		}
+	//
+	//		@Override
+	//		public Integer call() throws Exception {
+	//			return stageUpdates( selectedUpdates );
+	//		}
+	//
+	//	}
 
 	private final class ApplyUpdates extends ProgramTask<Void> {
 
@@ -337,7 +340,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) Platform.runLater( () -> program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS ) );
+				if( result.isPresent() && result.get() == ButtonType.YES ) ProgramUpdateManager.super.userApplyStagedUpdates();
 			} );
 		}
 

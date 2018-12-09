@@ -6,9 +6,10 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.*;
 import com.xeomar.xenon.Module;
+import com.xeomar.xenon.*;
 import com.xeomar.xenon.util.Lambda;
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -580,7 +581,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		if( updateCount > 0 ) {
 			log.info( "Staged updates detected: {}", updateCount );
 			try {
-				result = userApplyStagedUpdates( extras );
+				result = userApplyStagedUpdates();
 			} catch( Exception exception ) {
 				log.warn( "Failed to apply staged updates", exception );
 			}
@@ -590,27 +591,35 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return result;
 	}
 
-	public int userApplyStagedUpdates( String... extras ) {
-		return applyStagedUpdates( extras );
-	}
-
 	/**
-	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
-	 * applied.
+	 * Launch the update program to apply the staged updates. This method is
+	 * generally called when the program starts and, if the update program is
+	 * successfully started, the program should be terminated to allow for the
+	 * updates to be applied.
 	 *
-	 * @param extras Extra commands to add to the update program when launched.
 	 * @return The number of updates applied.
 	 */
-	public int applyStagedUpdates( String... extras ) {
+	public int userApplyStagedUpdates() {
+		// The updates should already be staged at this point
 		log.info( "Update manager enabled: " + isEnabled() );
 		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
 
 		log.info( "Starting update process..." );
+		Platform.runLater( () -> program.requestUpdate() );
 		return updates.size();
 	}
 
+	public void applySelectedUpdates( ProductCard update ) {
+		applySelectedUpdates( Set.of( update ) );
+	}
+
+	public void applySelectedUpdates( Set<ProductCard> updates ) {
+		// This should go through the process of downloading, staging and applying the updates
+		// It is overwritten by ProgramUpdateManager
+	}
+
 	void clearStagedUpdates() {
-		// Remove the updates settings.
+		// Remove the updates settings
 		updates.clear();
 		saveUpdates( updates );
 	}

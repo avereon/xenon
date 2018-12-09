@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -67,7 +68,7 @@ public class ProgramShutdownHook extends Thread {
 		return this;
 	}
 
-	synchronized ProgramShutdownHook configureForUpdate( String... extraCommands ) {
+	synchronized ProgramShutdownHook configureForUpdate( String... restartCommands ) {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
 		// like the installed program location and therefore would not be a
@@ -133,8 +134,8 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
-		ucb.add( UpdateTask.LAUNCH ).add( commands ).line();
+		List<String> moduleCommands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
+		ucb.add( UpdateTask.LAUNCH ).add( moduleCommands ).line();
 
 		stdInput = ucb.toString().getBytes( TextUtil.CHARSET );
 

@@ -306,9 +306,9 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Restarting..." );
 	}
 
-	public void requestUpdate( String... commands ) {
+	public void requestUpdate( String... restartCommands ) {
 		// Register a shutdown hook to update the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( commands );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( restartCommands );
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.

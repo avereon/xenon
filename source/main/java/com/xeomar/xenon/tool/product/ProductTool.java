@@ -4,22 +4,16 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductCardComparator;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.tool.guide.GuideNode;
 import com.xeomar.xenon.tool.guide.GuidedTool;
-import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -215,38 +209,6 @@ public class ProductTool extends GuidedTool {
 		}
 
 		return sources;
-	}
-
-	/**
-	 * Nearly identical to ProgramUpdateManager.handleStagedUpdates()
-	 */
-	void handleStagedUpdates() {
-		// Run on the FX thread
-		FxUtil.checkFxUserThread();
-
-		updatesPage.updateState();
-
-		// Ask the user about restarting.
-		if( getProgram().getUpdateManager().areUpdatesStaged() ) {
-			String title = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
-
-			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( title );
-			alert.setHeaderText( header );
-			alert.setContentText( message );
-
-			Stage stage = getProgram().getWorkspaceManager().getActiveWorkspace().getStage();
-			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-			if( result.isPresent() && result.get() == ButtonType.YES ) {
-				getWorkpane().closeTool( this );
-				getProgram().getTaskManager().submit( () -> {
-					getProgram().getUpdateManager().applyStagedUpdates();
-				} );
-			}
-		}
 	}
 
 }
