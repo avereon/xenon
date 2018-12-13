@@ -714,7 +714,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	public static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {
-		Calendar calendar = new GregorianCalendar( DateUtil.DEFAULT_TIME_ZONE );
+		Calendar calendar = new GregorianCalendar( TimeZone.getDefault() );
 
 		// Calculate the next update check.
 		calendar.setTimeInMillis( currentTime );
