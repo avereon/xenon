@@ -92,7 +92,7 @@
 				<setting key="product-update-found" editor="combobox">
 					<option key="select" />
 					<option key="store" />
-					<option key="stage" />
+					<option key="apply" />
 				</setting>
 				<setting key="product-update-apply" editor="combobox">
 					<dependency key="product-update-found" operator="not" value="store" />

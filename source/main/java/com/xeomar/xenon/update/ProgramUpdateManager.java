@@ -192,7 +192,7 @@ public class ProgramUpdateManager extends UpdateManager {
 						program.getExecutor().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
 						break;
 					}
-					case STAGE: {
+					case APPLY: {
 						// Stage all updates without user intervention.
 						program.getExecutor().submit( new ApplyUpdates( program, postedUpdates ) );
 						break;

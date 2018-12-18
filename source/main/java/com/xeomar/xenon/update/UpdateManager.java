@@ -63,7 +63,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public enum FoundOption {
 		SELECT,
 		STORE,
-		STAGE
+		APPLY
 	}
 
 	public enum ApplyOption {
