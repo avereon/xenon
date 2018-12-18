@@ -78,6 +78,7 @@
 					<option value="22" />
 					<option value="23" />
 				</setting>
+				<setting key="product-update-next-check-time" editor="update-checks"/>
 			</group>
 
 			<group id="updates-actions">

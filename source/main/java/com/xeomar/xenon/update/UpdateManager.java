@@ -429,6 +429,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		}
 
 		if( delay == NO_CHECK ) {
+			checkSettings.set( NEXT_CHECK_TIME, 0 );
 			log.debug( "Future update check not scheduled." );
 			return;
 		}

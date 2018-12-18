@@ -33,6 +33,7 @@ public abstract class SettingEditor implements SettingsListener {
 		addType( "font", FontSettingEditor.class );
 		//		//		addType( "link", LinkSettingEditor.class );
 		//		//		addType( "time", TimeSettingEditor.class );
+		addType( "update-checks", UpdateSettingViewer.class );
 	}
 
 	public SettingEditor( ProgramProduct product, Setting setting ) {
