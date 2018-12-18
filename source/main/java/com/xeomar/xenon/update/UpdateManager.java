@@ -756,6 +756,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// What are these setting if the update node is retrieved below
 		this.settings = settings;
 
+		if( "STAGE".equals( settings.get(FOUND, FoundOption.SELECT.name()).toUpperCase() ) ){
+			settings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
+		}
+
 		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
