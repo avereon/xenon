@@ -144,6 +144,7 @@ public class Workspace implements Configurable {
 		Menu help = ActionUtil.createMenu( program, "help" );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
 		help.getItems().add( new SeparatorMenuItem() );
+		help.getItems().add( ActionUtil.createMenuItem( program, "notice" ) );
 		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
 		help.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
 		help.getItems().add( new SeparatorMenuItem() );

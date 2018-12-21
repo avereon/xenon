@@ -5,10 +5,17 @@ import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.workarea.Workpane;
+import javafx.scene.layout.VBox;
 
-// FIXME Unfinished
-
+/**
+ * The notice tool displays the program notices that have been posted. The tool
+ * allows the user to close/dismiss notices or click on the notice to execute
+ * a program action.
+ */
 public class NoticeTool extends ProgramTool {
+
+	// NEXT There will need to be a notice manager to work with
+	private VBox noticeContainer;
 
 	public NoticeTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -21,5 +28,7 @@ public class NoticeTool extends ProgramTool {
 	public Workpane.Placement getPlacement() {
 		return Workpane.Placement.DOCK_RIGHT;
 	}
+
+	// TODO Unfinished
 
 }

@@ -857,6 +857,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramNoticeType.class, NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
 		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 
@@ -869,6 +870,7 @@ public class Program extends Application implements ProgramProduct {
 		unregisterTool( manager, ProgramTaskType.class, TaskTool.class );
 		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
+		unregisterTool( manager, ProgramNoticeType.class, NoticeTool.class );
 		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
