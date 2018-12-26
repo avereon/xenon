@@ -15,6 +15,8 @@ import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -26,8 +28,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+//import java.beans.PropertyChangeEvent;
+//import java.beans.PropertyChangeListener;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
@@ -77,7 +79,7 @@ public class Workspace implements Configurable {
 
 	private Workarea activeWorkarea;
 
-	private WorkareaPropertyWatcher activeWorkareaWatcher;
+	private WorkareaNameWatcher workareaNameWatcher;
 
 	private Settings settings;
 
@@ -99,7 +101,7 @@ public class Workspace implements Configurable {
 		this.program = program;
 
 		workareas = FXCollections.observableArrayList();
-		activeWorkareaWatcher = new WorkareaPropertyWatcher();
+		workareaNameWatcher = new WorkareaNameWatcher();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
@@ -309,7 +311,7 @@ public class Workspace implements Configurable {
 
 		// Disconnect the old active workarea area
 		if( activeWorkarea != null ) {
-			activeWorkarea.removePropertyChangeListener( activeWorkareaWatcher );
+			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
 			activeWorkarea.setActive( false );
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 		}
@@ -323,7 +325,7 @@ public class Workspace implements Configurable {
 			activeWorkarea.setActive( true );
 			setStageTitle( activeWorkarea.getName() );
 			workareaSelector.getSelectionModel().select( activeWorkarea );
-			activeWorkarea.addPropertyChangeListener( activeWorkareaWatcher );
+			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
 
 			// TODO Set the menu bar
 			// TODO Set the tool bar
@@ -486,17 +488,27 @@ public class Workspace implements Configurable {
 
 	}
 
-	private class WorkareaPropertyWatcher implements PropertyChangeListener {
+	// FIXME Need to change to a JavaFX ChangeListener
+//	private class WorkareaNameWatcher implements PropertyChangeListener {
+//
+//		@Override
+//		public void propertyChange( PropertyChangeEvent event ) {
+//			switch( event.getPropertyName() ) {
+//				case "name": {
+//					//workareaSelector.setValue( getActiveWorkarea() );
+//					setStageTitle( event.getNewValue().toString() );
+//					break;
+//				}
+//			}
+//		}
+//
+//	}
+
+	private class WorkareaNameWatcher implements ChangeListener<String> {
 
 		@Override
-		public void propertyChange( PropertyChangeEvent event ) {
-			switch( event.getPropertyName() ) {
-				case "name": {
-					//workareaSelector.setValue( getActiveWorkarea() );
-					setStageTitle( event.getNewValue().toString() );
-					break;
-				}
-			}
+		public void changed( ObservableValue<? extends String> name, String oldValue, String newValue ) {
+			setStageTitle( newValue );
 		}
 
 	}
@@ -507,7 +519,7 @@ public class Workspace implements Configurable {
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
 			textProperty().unbind();
-			if( item != null && !empty ) textProperty().bind( item.getNameValue() );
+			if( item != null && !empty ) textProperty().bind( item.nameProperty() );
 		}
 
 	}

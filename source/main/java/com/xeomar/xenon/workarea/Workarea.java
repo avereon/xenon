@@ -9,16 +9,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 public class Workarea implements Configurable {
 
-	private StringProperty name = new SimpleStringProperty();
+	private StringProperty name = new SimpleStringProperty( this, "name", "" );
 
-	private BooleanProperty active = new SimpleBooleanProperty();
+	private BooleanProperty active = new SimpleBooleanProperty( this, "active", false );
 
 	private Workspace workspace;
 
@@ -28,42 +23,37 @@ public class Workarea implements Configurable {
 
 	// private ToolBar extraToolBarItems
 
-	private Set<PropertyChangeListener> propertyChangeListeners;
-
 	private Settings settings;
 
 	public Workarea() {
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		propertyChangeListeners = new CopyOnWriteArraySet<>();
 	}
 
-	public String getName() {
-		return name.get();
-	}
-
-	public void setName( String newName ) {
-		String oldName = name.get();
-		name.set( newName );
-		settings.set( "name", newName );
-		if( isActive() ) firePropertyChange( "name", oldName, newName );
-	}
-
-	public StringProperty getNameValue() {
+	public final StringProperty nameProperty() {
 		return name;
 	}
 
-	public boolean isActive() {
+	public final String getName() {
+		return name.get();
+	}
+
+	public final void setName( String name ) {
+		this.name.set( name );
+		settings.set( "name", name );
+	}
+
+	public final BooleanProperty activeProperty() {
+		return active;
+	}
+
+	public final boolean isActive() {
 		return active.get();
 	}
 
-	public void setActive( boolean active ) {
+	public final void setActive( boolean active ) {
 		this.active.set( active );
 		settings.set( "active", active );
-	}
-
-	public BooleanProperty getActiveValue() {
-		return active;
 	}
 
 	public Workpane getWorkpane() {
@@ -84,16 +74,6 @@ public class Workarea implements Configurable {
 		} else {
 			settings.set( UiFactory.PARENT_WORKSPACE_ID, null );
 		}
-
-		firePropertyChange( "workspace", oldWorkspace, this.workspace );
-	}
-
-	public void addPropertyChangeListener( PropertyChangeListener listener ) {
-		propertyChangeListeners.add( listener );
-	}
-
-	public void removePropertyChangeListener( PropertyChangeListener listener ) {
-		propertyChangeListeners.remove( listener );
 	}
 
 	@Override
@@ -114,13 +94,6 @@ public class Workarea implements Configurable {
 	@Override
 	public String toString() {
 		return getName();
-	}
-
-	private void firePropertyChange( String property, Object oldValue, Object newValue ) {
-		PropertyChangeEvent event = new PropertyChangeEvent( this, property, oldValue, newValue );
-		for( PropertyChangeListener listener : propertyChangeListeners ) {
-			listener.propertyChange( event );
-		}
 	}
 
 }
