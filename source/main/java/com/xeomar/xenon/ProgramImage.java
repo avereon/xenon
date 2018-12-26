@@ -144,6 +144,8 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public Image getImage() {
+		int width = (int)getWidth();
+		int height = (int)getHeight();
 		Scene scene = getImageScene();
 
 		//		// Just for research, set different color backgrounds per size
@@ -157,8 +159,6 @@ public abstract class ProgramImage extends Canvas {
 		//		if( size == 128 ) scene.setFill( Color.BLUE );
 		//		if( size == 256 ) scene.setFill( Color.PURPLE );
 
-		int width = (int)getWidth();
-		int height = (int)getHeight();
 		WritableImage snapshot = scene.snapshot( new WritableImage( width, height ) );
 
 		// Just using the snapshot image does not work to create Stage icons
@@ -228,6 +228,7 @@ public abstract class ProgramImage extends Canvas {
 			pane.add( iconPane, 1, 2 );
 
 			List<Image> stageIcons = new ArrayList<>();
+			stageIcons.add( icon.copy().setSize( 256 ).getImage() );
 			stageIcons.add( icon.copy().setSize( 128 ).getImage() );
 			stageIcons.add( icon.copy().setSize( 64 ).getImage() );
 			stageIcons.add( icon.copy().setSize( 48 ).getImage() );
