@@ -69,16 +69,22 @@
 
 	<dependencies>
 
-		<!-- Provided by annex -->
+		<dependency>
+			<groupId>com.xeomar</groupId>
+			<artifactId>xevra</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Provided by xevra -->
 		<!--
 		<dependency>
 			<groupId>com.xeomar</groupId>
-			<artifactId>razor</artifactId>
+			<artifactId>zenna</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		-->
 
-		<!-- Provided by annex -->
+		<!-- Provided by xevra -->
 		<!--
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -87,7 +93,7 @@
 		</dependency>
 		-->
 
-		<!-- Provided by annex -->
+		<!-- Provided by xevra -->
 		<!--
 		<dependency>
 			<groupId>org.controlsfx</groupId>
@@ -95,18 +101,6 @@
 			<version>${controlsfx.version}</version>
 		</dependency>
 		-->
-
-		<dependency>
-			<groupId>com.xeomar</groupId>
-			<artifactId>annex</artifactId>
-			<version>0.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -118,6 +112,12 @@
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
 			<version>${miglayout.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
