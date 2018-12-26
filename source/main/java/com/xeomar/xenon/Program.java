@@ -261,6 +261,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "staged-updates" );
 
 		// Show the splash screen
+		// If there is a test failure here it is because tests were run in the same VM
 		stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
@@ -764,7 +765,8 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) )
+				programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
 			// Apparently, when running a linked program, there is not a jdk.module.path system property
 			// The program home should be the java home when running as a linked application
@@ -772,7 +774,8 @@ public class Program extends Application implements ProgramProduct {
 			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked ) programHomeFolder = Paths.get( "target/program" );
+			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked )
+				programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
