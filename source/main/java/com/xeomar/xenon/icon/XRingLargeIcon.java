@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +80,7 @@ public class XRingLargeIcon extends XLargeIcon {
 		proof( new XRingLargeIcon() );
 		//save( new XRingLargeIcon(), new File( System.getProperty( "user.home" ), "Downloads/xenon.png" ) );
 		//save( new XRingLargeIcon(), "../../software/xenon/source/main/assembly/xenon.png");
+		//save( new XRingLargeIcon(), "../../software/xenon/source/main/resources/program.png");
 	}
 
 }

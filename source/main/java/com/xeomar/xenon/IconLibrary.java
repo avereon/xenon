@@ -72,7 +72,7 @@ public class IconLibrary {
 	private Image[] getStageIcons( String id, int... sizes ) {
 		Image[] images = new Image[ sizes.length ];
 		for( int index = 0; index < sizes.length; index++ ) {
-			images[ index ] = getIcon( id ).setSize( sizes[ index ] ).getStageIcon();
+			images[ index ] = getIcon( id ).setSize( sizes[ index ] ).getImage();
 		}
 		return images;
 	}

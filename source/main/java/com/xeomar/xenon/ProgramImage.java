@@ -144,23 +144,7 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public Image getImage() {
-		// Apparently the following does not work to create Stage icons
-		// Use the #getStageIcon() method for creating Stage icons.
-		Pane pane = new Pane( this );
-		pane.setBackground( Background.EMPTY );
-		Scene scene = new Scene( pane );
-		scene.setFill( Color.TRANSPARENT );
-		return scene.snapshot( new WritableImage( (int)getWidth(), (int)getHeight() ) );
-	}
-
-	public Image getStageIcon() {
-		int width = (int)getWidth();
-		int height = (int)getHeight();
-
-		Pane pane = new Pane( this );
-		pane.setBackground( Background.EMPTY );
-		Scene scene = new Scene( pane );
-		scene.setFill( Color.TRANSPARENT );
+		Scene scene = getImageScene();
 
 		//		// Just for research, set different color backgrounds per size
 		//		int size = Math.min( width, height );
@@ -173,15 +157,13 @@ public abstract class ProgramImage extends Canvas {
 		//		if( size == 128 ) scene.setFill( Color.BLUE );
 		//		if( size == 256 ) scene.setFill( Color.PURPLE );
 
-		// Apparently images created from the snapshot method are not usable as
-		// application icons. The following workaround creates an image that is
-		// usable as an application icon. It may be more efficient to create
-		// images differently if they are not needed for application icons.
-		//		BufferedImage buffer = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
-		//		SwingFXUtils.fromFXImage( scene.snapshot( new WritableImage( width, height ) ), buffer );
-		//		return SwingFXUtils.toFXImage( buffer, new WritableImage( (int)getWidth(), (int)getHeight() ) );
+		int width = (int)getWidth();
+		int height = (int)getHeight();
+		WritableImage snapshot = scene.snapshot( new WritableImage( width, height ) );
 
-		return scene.snapshot( new WritableImage( width, height ) );
+		// Just using the snapshot image does not work to create Stage icons
+		// Creating a new WritableImage from the snapshot image seems to solve the problem
+		return new WritableImage( snapshot.getPixelReader(), width, height );
 	}
 
 	public static void proof( ProgramImage icon ) {
@@ -246,11 +228,11 @@ public abstract class ProgramImage extends Canvas {
 			pane.add( iconPane, 1, 2 );
 
 			List<Image> stageIcons = new ArrayList<>();
-			stageIcons.add( icon.copy().setSize( 128 ).getStageIcon() );
-			stageIcons.add( icon.copy().setSize( 64 ).getStageIcon() );
-			stageIcons.add( icon.copy().setSize( 48 ).getStageIcon() );
-			stageIcons.add( icon.copy().setSize( 32 ).getStageIcon() );
-			stageIcons.add( icon.copy().setSize( 16 ).getStageIcon() );
+			stageIcons.add( icon.copy().setSize( 128 ).getImage() );
+			stageIcons.add( icon.copy().setSize( 64 ).getImage() );
+			stageIcons.add( icon.copy().setSize( 48 ).getImage() );
+			stageIcons.add( icon.copy().setSize( 32 ).getImage() );
+			stageIcons.add( icon.copy().setSize( 16 ).getImage() );
 
 			Stage stage = new Stage();
 			stage.setTitle( title );
@@ -280,7 +262,6 @@ public abstract class ProgramImage extends Canvas {
 		//		// Render and save the icon
 		//		Platform.runLater( () -> {
 		//			try {
-		//				icon.fireRender();
 		//				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
 		//			} catch( Exception exception ) {
 		//				exception.printStackTrace();
@@ -652,6 +633,14 @@ public abstract class ProgramImage extends Canvas {
 		return clone;
 	}
 
+	private Scene getImageScene() {
+		Pane pane = new Pane( this );
+		pane.setBackground( Background.EMPTY );
+		Scene scene = new Scene( pane );
+		scene.setFill( Color.TRANSPARENT );
+		return scene;
+	}
+
 	private static Image resample( Image input, int scale ) {
 		int w = (int)input.getWidth();
 		int h = (int)input.getHeight();
@@ -679,7 +668,7 @@ public abstract class ProgramImage extends Canvas {
 		return new LinearGradient( xformX( 0.2 ), xformX( 0.2 ), xformX( 0.8 ), xformX( 0.8 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
 	}
 
-	public ProgramImage fireRender() {
+	private ProgramImage fireRender() {
 		double size = Math.min( getWidth(), getHeight() );
 
 		// Set the defaults
