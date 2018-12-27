@@ -3,6 +3,7 @@ package com.xeomar.xenon.workarea;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import com.xeomar.xenon.UiFactory;
+import com.xeomar.xenon.notice.NoticePane;
 import com.xeomar.xenon.workspace.Workspace;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -74,6 +75,19 @@ public class Workarea implements Configurable {
 		} else {
 			settings.set( UiFactory.PARENT_WORKSPACE_ID, null );
 		}
+	}
+
+	public void showNotice( NoticePane pane ) {
+		// TODO Show the notice pane...somewhere
+
+		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+			hideNotice( pane );
+			event.consume();
+		} );
+	}
+
+	private void hideNotice( NoticePane pane ) {
+
 	}
 
 	@Override

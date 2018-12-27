@@ -1089,7 +1089,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( resource.isReady() ) resource.refresh( this );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
-		log.trace( "Resource refresh: " + resource );
+		log.trace( "Resource loaded: " + resource );
 
 		return true;
 	}

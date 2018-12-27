@@ -3,6 +3,7 @@ package com.xeomar.xenon.util;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ActionProxy;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.UiFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
@@ -107,6 +108,12 @@ public class ActionUtil {
 		Region spring = new Region();
 		HBox.setHgrow( spring, Priority.ALWAYS );
 		return spring;
+	}
+
+	public static Region createPad() {
+		Region pad = new Region();
+		pad.setMinSize( UiFactory.PAD, UiFactory.PAD );
+		return pad;
 	}
 
 	private static KeyCombination parseShortcut( String shortcut ) {

@@ -455,7 +455,7 @@ public class UiFactory {
 		try {
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uri == null ) {
-				log.warn( "Removing orphaned tool: " + id );
+				log.warn( "Removing orphaned tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();
 				return;
 			}
@@ -471,7 +471,7 @@ public class UiFactory {
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
 			if( tool == null ) {
-				log.warn( "Removing unknown tool: " + id );
+				log.warn( "Removing unknown tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();
 				return;
 			}
@@ -482,7 +482,7 @@ public class UiFactory {
 
 			tools.put( id, tool );
 		} catch( Exception exception ) {
-			log.error( "Error restoring tool", exception );
+			log.error( "Error restoring tool: type=" + toolType, exception );
 		}
 	}
 

@@ -8,6 +8,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 public class Node implements TxnEventDispatcher, Cloneable {
 
@@ -323,6 +324,11 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 	protected Set<String> getValueKeys() {
 		return values == null ? Collections.emptySet() : values.keySet();
+	}
+
+	@SuppressWarnings( "unchecked" )
+	protected <T> Collection<T> getValues( Class<T> clazz ) {
+		return (Collection<T>)getValueKeys().stream().map( this::getValue ).filter( clazz::isInstance ).collect( Collectors.toUnmodifiableSet() );
 	}
 
 	protected <T> T getValue( String key ) {

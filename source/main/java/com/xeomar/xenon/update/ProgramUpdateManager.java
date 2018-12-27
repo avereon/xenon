@@ -6,6 +6,7 @@ import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
+import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
@@ -180,11 +181,11 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
 			if( interactive ) {
-				notifyUsersOfUpdates( true );
+				notifyUserOfUpdates( true );
 			} else {
 				switch( getFoundOption() ) {
 					case SELECT: {
-						notifyUsersOfUpdates( false );
+						notifyUserOfUpdates( false );
 						break;
 					}
 					case STORE: {
@@ -201,24 +202,28 @@ public class ProgramUpdateManager extends UpdateManager {
 			}
 		}
 
-		private void notifyUsersOfUpdates( boolean interactive ) {
+		private void notifyUserOfUpdates( boolean interactive ) {
 			//			if( interactive ) {
 			// Directly notify the user with a dialog
 			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
 			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
 
-			Platform.runLater( () -> {
-				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-				alert.setTitle( title );
-				alert.setHeaderText( header );
-				alert.setContentText( message );
+			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+			Notice notice = new Notice( header, message, uri );
+			program.getNoticeManager().addNotice( notice );
 
-				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-				if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
-			} );
+			//			Platform.runLater( () -> {
+			//				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+			//				alert.setTitle( title );
+			//				alert.setHeaderText( header );
+			//				alert.setContentText( message );
+			//
+			//				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			//				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+			//
+			//				if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
+			//			} );
 			//			} else {
 			//				// TODO Use the notice tool to notify the user of posted updates when not interactive
 			//				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );

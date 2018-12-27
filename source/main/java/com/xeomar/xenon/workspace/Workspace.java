@@ -146,7 +146,6 @@ public class Workspace implements Configurable {
 		Menu help = ActionUtil.createMenu( program, "help" );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
 		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( ActionUtil.createMenuItem( program, "notice" ) );
 		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
 		help.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
 		help.getItems().add( new SeparatorMenuItem() );
@@ -201,6 +200,8 @@ public class Workspace implements Configurable {
 
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
+		toolbar.getItems().add( ActionUtil.createPad() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "notice" ) );
 
 		// STATUS BAR
 		statusBar = new StatusBar();
@@ -225,30 +226,20 @@ public class Workspace implements Configurable {
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		HBox leftStatusBarItems = new HBox();
+		HBox leftStatusBarItems = new HBox( statusBar );
 		leftStatusBarItems.getStyleClass().addAll( "box" );
 
-		HBox rightStatusBarItems = new HBox();
+		HBox rightStatusBarItems = new HBox( taskMonitorContainer, memoryMonitorContainer );
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
-		leftStatusBarItems.getChildren().addAll( statusBar );
-		rightStatusBarItems.getChildren().addAll( taskMonitorContainer, memoryMonitorContainer );
-
-		BorderPane statusBarContainer = new BorderPane();
-		statusBarContainer.setLeft( leftStatusBarItems );
-		statusBarContainer.setRight( rightStatusBarItems );
+		BorderPane statusBarContainer = new BorderPane( null, null, rightStatusBarItems, null, leftStatusBarItems );
 		statusBarContainer.getStyleClass().add( "status-bar" );
 
 		// Workarea Container
-		workpaneContainer = new StackPane();
+		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		// Workarea Background
-		background = new WorkspaceBackground();
-		workpaneContainer.getChildren().add( background );
-
-		VBox bars = new VBox();
-		bars.getChildren().addAll( menubar, toolbar );
+		VBox bars = new VBox( menubar, toolbar );
 
 		layout = new BorderPane();
 		layout.setTop( bars );
@@ -487,22 +478,6 @@ public class Workspace implements Configurable {
 		}
 
 	}
-
-	// FIXME Need to change to a JavaFX ChangeListener
-//	private class WorkareaNameWatcher implements PropertyChangeListener {
-//
-//		@Override
-//		public void propertyChange( PropertyChangeEvent event ) {
-//			switch( event.getPropertyName() ) {
-//				case "name": {
-//					//workareaSelector.setValue( getActiveWorkarea() );
-//					setStageTitle( event.getNewValue().toString() );
-//					break;
-//				}
-//			}
-//		}
-//
-//	}
 
 	private class WorkareaNameWatcher implements ChangeListener<String> {
 

@@ -29,19 +29,19 @@ public abstract class BaseScheme implements Scheme {
 	}
 
 	@Override
-	public void init( Resource resource ) throws ResourceException {};
+	public void init( Resource resource ) throws ResourceException {}
 
 	@Override
-	public void open( Resource resource ) throws ResourceException {};
+	public void open( Resource resource ) throws ResourceException {}
 
 	@Override
-	public void load( Resource resource, Codec codec ) throws ResourceException {};
+	public void load( Resource resource, Codec codec ) throws ResourceException {}
 
 	@Override
-	public void save( Resource resource, Codec codec ) throws ResourceException {};
+	public void save( Resource resource, Codec codec ) throws ResourceException {}
 
 	@Override
-	public void close( Resource resource ) throws ResourceException {};
+	public void close( Resource resource ) throws ResourceException {}
 
 	@Override
 	public boolean create( Resource resource ) throws ResourceException {

@@ -11,6 +11,7 @@ import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.event.ProgramStoppingEvent;
+import com.xeomar.xenon.notice.NoticeManager;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceManager;
 import com.xeomar.xenon.resource.ResourceType;
@@ -106,6 +107,8 @@ public class Program extends Application implements ProgramProduct {
 	private WorkspaceManager workspaceManager;
 
 	private UpdateManager updateManager;
+
+	private NoticeManager noticeManager;
 
 	private ProgramEventWatcher watcher;
 
@@ -428,6 +431,10 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
+	public final NoticeManager getNoticeManager() {
+		return noticeManager;
+	}
+
 	@SuppressWarnings( { "unused", "WeakerAccess" } )
 	public void addEventListener( ProductEventListener listener ) {
 		this.listeners.add( listener );
@@ -633,7 +640,7 @@ public class Program extends Application implements ProgramProduct {
 		UiFactory uiFactory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
-		int managerCount = 4;
+		int managerCount = 5;
 		int steps = managerCount + uiFactory.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
@@ -671,6 +678,13 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
+		// Create the notice manager
+		log.trace( "Starting notice manager..." );
+		noticeManager = new NoticeManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Notice manager started." );
+
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
 		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
@@ -700,6 +714,14 @@ public class Program extends Application implements ProgramProduct {
 				updateManager.stop();
 				updateManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 				log.debug( "Update manager stopped." );
+			}
+
+			// Stop the NoticeManager
+			if( noticeManager != null ) {
+				log.trace( "Stopping notice manager..." );
+				noticeManager.stop();
+				noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+				log.debug( "Notice manager stopped." );
 			}
 
 			// Stop the workspace manager

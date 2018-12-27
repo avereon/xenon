@@ -65,6 +65,9 @@ public class Resource extends Node implements Configurable {
 
 	private volatile boolean saved;
 
+	// Ready to use flag. This indicates the resource is now ready to be used,
+	// particularly by tools. If the resource is new or has been loaded then the
+	// resource is "ready".
 	private volatile boolean ready;
 
 	public Resource( URI uri ) {
