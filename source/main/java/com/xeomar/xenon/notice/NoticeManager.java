@@ -5,6 +5,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramNoticeType;
+import javafx.application.Platform;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		program.getResourceManager().saveResources( resource );
 
 		// TODO Show the new notice in the workspace notice area
+		Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
 	}
 
 	public void removeNotice( Notice notice ) {

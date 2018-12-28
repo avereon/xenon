@@ -10,6 +10,8 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
+import com.xeomar.xenon.notice.Notice;
+import com.xeomar.xenon.notice.NoticePane;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
@@ -28,11 +30,12 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
-//import java.beans.PropertyChangeEvent;
-//import java.beans.PropertyChangeListener;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
+
+//import java.beans.PropertyChangeEvent;
+//import java.beans.PropertyChangeListener;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -200,6 +203,7 @@ public class Workspace implements Configurable {
 
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
+
 		toolbar.getItems().add( ActionUtil.createPad() );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "notice" ) );
 
@@ -300,31 +304,46 @@ public class Workspace implements Configurable {
 		// If the workarea is not already added, add it
 		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
 
-		// Disconnect the old active workarea area
+		// Disconnect the old active workarea
 		if( activeWorkarea != null ) {
 			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
 			activeWorkarea.setActive( false );
+			// TODO Remove the menu bar
+			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 		}
 
-		// Swap the workarea area on the stage
+		// Set the new active workarea
 		activeWorkarea = workarea;
 
-		// Connect the new active workarea area
+		// Connect the new active workarea
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
-			activeWorkarea.setActive( true );
-			setStageTitle( activeWorkarea.getName() );
-			workareaSelector.getSelectionModel().select( activeWorkarea );
-			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
-
 			// TODO Set the menu bar
 			// TODO Set the tool bar
-			// TODO Set the workpane
+			activeWorkarea.setActive( true );
+			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
+			workareaSelector.getSelectionModel().select( activeWorkarea );
+			setStageTitle( activeWorkarea.getName() );
 		}
 
 		// Send a program event when active area changes
 		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+	}
+
+	public void showNotice( Notice notice ) {
+		NoticePane pane = new NoticePane( program, notice);
+
+		// NEXT Show the notice pane...somewhere
+		// FIXME This adds the notice pane "full workarea"
+		workpaneContainer.getChildren().addAll( pane );
+
+		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+			workpaneContainer.getChildren().remove( pane );
+			event.consume();
+		} );
+
+		// NEXT Add a timer that closes the notice automatically
 	}
 
 	public StatusBar getStatusBar() {
