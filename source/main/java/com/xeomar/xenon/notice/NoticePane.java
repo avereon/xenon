@@ -17,10 +17,13 @@ public class NoticePane extends GridPane {
 
 	private Program program;
 
+	private Notice notice;
+
 	private Node closeIcon;
 
 	public NoticePane( Program program, Notice notice ) {
 		this.program = program;
+		this.notice = notice;
 		this.getStyleClass().addAll( "notice", "padded" );
 
 		Node noticeIcon = program.getIconLibrary().getIcon( "notice" );
@@ -44,14 +47,17 @@ public class NoticePane extends GridPane {
 		getChildren().addAll( noticeIcon, title, closeIcon, message );
 
 		onMouseClickedProperty().set( ( event ) -> {
-			try {
-				program.getResourceManager().open( notice.getAction() );
-			} catch( ResourceException exception ) {
-				log.warn( "Unable to execute notice action", exception );
-			} finally {
-				event.consume();
-			}
+			executeNoticeAction();
+			event.consume();
 		} );
+	}
+
+	public void executeNoticeAction() {
+		try {
+			program.getResourceManager().open( notice.getAction() );
+		} catch( ResourceException exception ) {
+			log.warn( "Unable to execute notice action", exception );
+		}
 	}
 
 	public Node getCloseButton() {

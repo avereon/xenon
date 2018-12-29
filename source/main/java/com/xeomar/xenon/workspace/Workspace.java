@@ -15,6 +15,7 @@ import com.xeomar.xenon.notice.NoticePane;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
+import com.xeomar.xenon.util.TimerUtil;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
 
 //import java.beans.PropertyChangeEvent;
 //import java.beans.PropertyChangeListener;
@@ -46,13 +48,17 @@ public class Workspace implements Configurable {
 
 	private Program program;
 
+	private String id;
+
 	private Stage stage;
 
 	private Scene scene;
 
 	private boolean active;
 
-	private BorderPane layout;
+	private StackPane workspaceStack;
+
+	private BorderPane workareaLayout;
 
 	private Pane menubarContainer;
 
@@ -76,6 +82,10 @@ public class Workspace implements Configurable {
 
 	private Pane workpaneContainer;
 
+	private VBox noticeContainer;
+
+	private BorderPane noticeLayout;
+
 	private ComboBox<Workarea> workareaSelector;
 
 	private ObservableList<Workarea> workareas;
@@ -98,7 +108,7 @@ public class Workspace implements Configurable {
 
 	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
 
-	private String id;
+	private static Timer timer = new Timer( true );
 
 	public Workspace( Program program ) {
 		this.program = program;
@@ -239,16 +249,25 @@ public class Workspace implements Configurable {
 		BorderPane statusBarContainer = new BorderPane( null, null, rightStatusBarItems, null, leftStatusBarItems );
 		statusBarContainer.getStyleClass().add( "status-bar" );
 
+		noticeContainer = new VBox();
+		noticeContainer.setPickOnBounds( false );
+
+		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
+		noticeLayout.setPickOnBounds( false );
+
 		// Workarea Container
-		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
+		workpaneContainer = new StackPane( background = new WorkspaceBackground(), noticeLayout );
 		workpaneContainer.getStyleClass().add( "workspace" );
+
+		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		workspaceStack.setPickOnBounds( false );
 
 		VBox bars = new VBox( menubar, toolbar );
 
-		layout = new BorderPane();
-		layout.setTop( bars );
-		layout.setCenter( workpaneContainer );
-		layout.setBottom( statusBarContainer );
+		workareaLayout = new BorderPane();
+		workareaLayout.setTop( bars );
+		workareaLayout.setCenter( workspaceStack );
+		workareaLayout.setBottom( statusBarContainer );
 
 		// Create the stage
 		stage = new Stage();
@@ -332,18 +351,21 @@ public class Workspace implements Configurable {
 	}
 
 	public void showNotice( Notice notice ) {
-		NoticePane pane = new NoticePane( program, notice);
+		NoticePane pane = new NoticePane( program, notice );
+		noticeContainer.getChildren().add( 0, pane );
 
-		// NEXT Show the notice pane...somewhere
-		// FIXME This adds the notice pane "full workarea"
-		workpaneContainer.getChildren().addAll( pane );
-
-		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
-			workpaneContainer.getChildren().remove( pane );
+		pane.onMouseClickedProperty().set( ( event ) -> {
+			noticeContainer.getChildren().remove( pane );
+			pane.executeNoticeAction();
 			event.consume();
 		} );
 
-		// NEXT Add a timer that closes the notice automatically
+		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+			noticeContainer.getChildren().remove( pane );
+			event.consume();
+		} );
+
+		TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), 5000 );
 	}
 
 	public StatusBar getStatusBar() {
@@ -357,7 +379,7 @@ public class Workspace implements Configurable {
 		// The incoming settings are the workspace settings
 
 		this.settings = settings;
-		id = settings.get( "id" );
+		this.id = settings.get( "id" );
 
 		Double x = settings.get( "x", Double.class, null );
 		Double y = settings.get( "y", Double.class, null );
@@ -368,7 +390,7 @@ public class Workspace implements Configurable {
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
-		stage.setScene( scene = new Scene( layout, w, h ) );
+		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.sizeToScene();
 
