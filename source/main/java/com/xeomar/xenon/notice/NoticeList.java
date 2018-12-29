@@ -20,6 +20,10 @@ public class NoticeList extends Node {
 		setValue( notice.getId(), null );
 	}
 
+	public void clearAll() {
+		getValueKeys().forEach( ( key) -> setValue(key,null) );
+	}
+
 	private class ReverseTimestampComparator implements Comparator<Notice> {
 
 		@Override

@@ -177,6 +177,10 @@
 	-fx-font-weight: bold;
 }
 
+.notice-buttons {
+	-fx-background-color: -ex-background-text;
+}
+
 .notice-message {
 	-fx-font-weight: normal;
 }

@@ -5,9 +5,12 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramNoticeType;
+import com.xeomar.xenon.tool.notice.NoticeTool;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class NoticeManager implements Controllable<NoticeManager> {
@@ -26,15 +29,28 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void addNotice( Notice notice ) {
 		((NoticeList)resource.getModel()).addNotice( notice );
-		program.getResourceManager().saveResources( resource );
+		resource.refresh( program.getResourceManager() );
 
-		// TODO Show the new notice in the workspace notice area
-		Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
+		Set<Tool> noticeTools = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().getTools( NoticeTool.class );
+		if( noticeTools.size() > 0 ) {
+			getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().setActiveTool( noticeTools.iterator().next() );
+		} else {
+			Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
+		}
 	}
 
 	public void removeNotice( Notice notice ) {
 		((NoticeList)resource.getModel()).removeNotice( notice );
-		program.getResourceManager().saveResources( resource );
+		resource.refresh( program.getResourceManager() );
+	}
+
+	public void clearAll() {
+		((NoticeList)resource.getModel()).clearAll();
+		resource.refresh( program.getResourceManager() );
+	}
+
+	public Program getProgram() {
+		return this.program;
 	}
 
 	@Override

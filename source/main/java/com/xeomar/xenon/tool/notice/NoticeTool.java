@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool.notice;
 
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.notice.Notice;
@@ -13,6 +14,8 @@ import com.xeomar.xenon.workarea.ToolException;
 import com.xeomar.xenon.workarea.ToolParameters;
 import com.xeomar.xenon.workarea.Workpane;
 import javafx.application.Platform;
+import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 
@@ -36,9 +39,18 @@ public class NoticeTool extends ProgramTool {
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "notice" ) );
 		setTitle( product.getResourceBundle().getString( "tool", "notice-name" ) );
 
-		noticeContainer = new VBox();
-		getChildren().addAll( noticeContainer );
+		String clearAllText = product.getResourceBundle().getString( BundleKey.TOOL, "notice-clear-all" );
+		Button clearAllButton = new Button( clearAllText );
+		clearAllButton.getStyleClass().addAll( "padded" );
+		clearAllButton.setOnMouseClicked( ( event ) -> this.clearAll() );
 
+		VBox buttonBox = new VBox( clearAllButton );
+		buttonBox.getStyleClass().addAll( "padded", "notice-buttons" );
+
+		BorderPane layout = new BorderPane( noticeContainer = new VBox(), buttonBox, null, null, null );
+		clearAllButton.prefWidthProperty().bind( layout.widthProperty() );
+
+		getChildren().addAll( layout );
 		updateNotices();
 
 		resourceWatcher = new ResourceWatcher();
@@ -54,6 +66,11 @@ public class NoticeTool extends ProgramTool {
 		super.resourceReady( parameters );
 
 		getResource().addResourceListener( resourceWatcher );
+	}
+
+	private void clearAll() {
+		getProgram().getNoticeManager().clearAll();
+		this.close();
 	}
 
 	private void updateNotices() {
@@ -77,7 +94,7 @@ public class NoticeTool extends ProgramTool {
 		@Override
 		public void eventOccurred( ResourceEvent event ) {
 			switch( event.getType() ) {
-				case SAVED: {
+				case REFRESHED: {
 					updateNotices();
 					break;
 				}
