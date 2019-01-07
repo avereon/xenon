@@ -11,6 +11,7 @@ import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.event.ProgramStoppingEvent;
+import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.notice.NoticeManager;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceManager;
@@ -391,6 +392,7 @@ public class Program extends Application implements ProgramProduct {
 		return programDataFolder;
 	}
 
+	@Deprecated
 	public final ProgramNotifier getNotifier() {
 		return notifier;
 	}
@@ -948,7 +950,7 @@ public class Program extends Application implements ProgramProduct {
 		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
 		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message" );
 
-		getNotifier().notify( title, header, message );
+		getNoticeManager().addNotice( new Notice( header, message ) );
 	}
 
 	private boolean isProgramUpdated() {

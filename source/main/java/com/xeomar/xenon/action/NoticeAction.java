@@ -4,7 +4,11 @@ import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramNoticeType;
+import com.xeomar.xenon.tool.notice.NoticeTool;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.event.Event;
+
+import java.util.Set;
 
 public class NoticeAction extends Action {
 
@@ -19,10 +23,16 @@ public class NoticeAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		try {
-			getProgram().getResourceManager().open( ProgramNoticeType.URI );
-		} catch( ResourceException exception ) {
-			log.error( "Error opening notice tool", exception );
+		Set<Tool> noticeTools = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().getTools( NoticeTool.class );
+
+		if( noticeTools.size() == 0 ) {
+			try {
+				getProgram().getResourceManager().open( ProgramNoticeType.URI );
+			} catch( ResourceException exception ) {
+				log.error( "Error opening notice tool", exception );
+			}
+		} else {
+			noticeTools.forEach( Tool::close );
 		}
 	}
 

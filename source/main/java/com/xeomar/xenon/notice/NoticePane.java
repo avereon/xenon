@@ -53,6 +53,7 @@ public class NoticePane extends GridPane {
 	}
 
 	public void executeNoticeAction() {
+		if( notice.getAction() == null ) return;
 		try {
 			program.getResourceManager().open( notice.getAction() );
 		} catch( ResourceException exception ) {
