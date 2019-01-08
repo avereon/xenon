@@ -159,16 +159,20 @@ public class ProgramUpdateManager extends UpdateManager {
 					final String message = postedUpdates == null ? updatesCannotConnect : updatesNotAvailable;
 
 					Platform.runLater( () -> {
-						Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-						stage.requestFocus();
-
-						Alert alert = new Alert( Alert.AlertType.INFORMATION );
-						alert.setTitle( title );
-						alert.setHeaderText( "" );
-						alert.setContentText( message );
-						alert.setDialogPane( alert.getDialogPane() );
-						DialogUtil.show( stage, alert );
+						program.getNoticeManager().addNotice( new Notice( title, message ) );
 					} );
+
+//					Platform.runLater( () -> {
+//						Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+//						stage.requestFocus();
+//
+//						Alert alert = new Alert( Alert.AlertType.INFORMATION );
+//						alert.setTitle( title );
+//						alert.setHeaderText( "" );
+//						alert.setContentText( message );
+//						alert.setDialogPane( alert.getDialogPane() );
+//						DialogUtil.show( stage, alert );
+//					} );
 
 				}
 				return null;
