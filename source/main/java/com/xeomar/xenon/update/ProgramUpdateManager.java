@@ -158,9 +158,7 @@ public class ProgramUpdateManager extends UpdateManager {
 					String updatesCannotConnect = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
 					final String message = postedUpdates == null ? updatesCannotConnect : updatesNotAvailable;
 
-					Platform.runLater( () -> {
-						program.getNoticeManager().addNotice( new Notice( title, message ) );
-					} );
+					Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
 
 //					Platform.runLater( () -> {
 //						Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
