@@ -35,14 +35,14 @@
 	<repositories>
 		<repository>
 			<id>xeo</id>
-			<url>https://code.xeomar.com/repo/xeo</url>
+			<url>https://repo.xeomar.com/xeo</url>
 		</repository>
 	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>
 			<id>xeo</id>
-			<url>https://code.xeomar.com/repo/xeo</url>
+			<url>https://repo.xeomar.com/xeo</url>
 		</pluginRepository>
 	</pluginRepositories>
 
