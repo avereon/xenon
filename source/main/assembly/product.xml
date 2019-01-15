@@ -25,17 +25,17 @@
 	<files>
 		<file>
 			<source>target/jlink/bin/java</source>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
 			<source>target/jlink/bin/keytool</source>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
 			<source>target/jlink/bin/xenon</source>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 	</files>
