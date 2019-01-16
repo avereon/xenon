@@ -1,11 +1,15 @@
 package com.xeomar.xenon.notice;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.node.Node;
+import org.slf4j.Logger;
 
-import java.net.URI;
+import java.lang.invoke.MethodHandles;
 import java.util.UUID;
 
 public class Notice extends Node {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String ID = "id";
 
@@ -26,10 +30,14 @@ public class Notice extends Node {
 	private static final String ACTION = "action";
 
 	public Notice( String title, String message ) {
-		this( title, message, null );
+		this( title, message, (Object)null );
 	}
 
-	public Notice( String title, String message, URI action ) {
+	public Notice( String title, String message, Runnable action ) {
+		this( title, message, (Object)action );
+	}
+
+	private Notice( String title, String message, Object action ) {
 		definePrimaryKey( ID );
 		defineBusinessKey( TITLE );
 
@@ -57,7 +65,7 @@ public class Notice extends Node {
 		return getValue( MESSAGE );
 	}
 
-	public URI getAction() {
+	public Runnable getAction() {
 		return getValue( ACTION );
 	}
 

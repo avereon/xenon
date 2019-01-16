@@ -6,7 +6,6 @@ import com.xeomar.util.Controllable;
 import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.resource.Resource;
-import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.ProgramTool;
@@ -122,11 +121,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Now that we have a tool...open dependent tools
 		for( URI dependency : tool.getResourceDependencies() ) {
-			try {
-				program.getResourceManager().open( dependency, true, false );
-			} catch( ResourceException exception ) {
-				log.error( "Error opening dependency: " + dependency, exception );
-			}
+			program.getResourceManager().open( dependency, true, false );
 		}
 
 		// Determine the placement override
@@ -313,8 +308,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	/**
-	 * This method creates a task that waits for the resource to be ready then
-	 * calls the tool resourceReady() method.
+	 * This method creates a task that waits for the resource to be ready then calls the tool resourceReady() method.
 	 *
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the resource is ready

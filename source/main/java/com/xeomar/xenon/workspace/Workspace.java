@@ -12,7 +12,6 @@ import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
 import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.notice.NoticePane;
-import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
 import com.xeomar.xenon.util.TimerUtil;
@@ -225,13 +224,7 @@ public class Workspace implements Configurable {
 		taskMonitorContainer = new Group();
 
 		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> {
-			try {
-				program.getResourceManager().open( ProgramTaskType.URI );
-			} catch( ResourceException exception ) {
-				log.error( "Error opening task tool", exception );
-			}
-		} );
+		taskMonitor.setOnMouseClicked( ( event ) -> program.getResourceManager().open( ProgramTaskType.URI ) );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();

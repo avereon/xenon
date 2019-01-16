@@ -2,7 +2,6 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramNoticeType;
 import com.xeomar.xenon.tool.notice.NoticeTool;
 import com.xeomar.xenon.workarea.Tool;
@@ -26,11 +25,7 @@ public class NoticeAction extends Action {
 		Set<Tool> noticeTools = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().getTools( NoticeTool.class );
 
 		if( noticeTools.size() == 0 ) {
-			try {
-				getProgram().getResourceManager().open( ProgramNoticeType.URI );
-			} catch( ResourceException exception ) {
-				log.error( "Error opening notice tool", exception );
-			}
+			getProgram().getResourceManager().open( ProgramNoticeType.URI );
 		} else {
 			noticeTools.forEach( Tool::close );
 		}

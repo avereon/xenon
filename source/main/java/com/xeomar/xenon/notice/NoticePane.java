@@ -2,7 +2,6 @@ package com.xeomar.xenon.notice;
 
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.resource.ResourceException;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -53,12 +52,7 @@ public class NoticePane extends GridPane {
 	}
 
 	public void executeNoticeAction() {
-		if( notice.getAction() == null ) return;
-		try {
-			program.getResourceManager().open( notice.getAction() );
-		} catch( ResourceException exception ) {
-			log.warn( "Unable to execute notice action", exception );
-		}
+		program.getTaskManager().submit( notice.getAction() );
 	}
 
 	public Node getCloseButton() {

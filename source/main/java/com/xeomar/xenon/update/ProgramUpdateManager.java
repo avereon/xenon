@@ -159,19 +159,6 @@ public class ProgramUpdateManager extends UpdateManager {
 					final String message = postedUpdates == null ? updatesCannotConnect : updatesNotAvailable;
 
 					Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
-
-//					Platform.runLater( () -> {
-//						Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-//						stage.requestFocus();
-//
-//						Alert alert = new Alert( Alert.AlertType.INFORMATION );
-//						alert.setTitle( title );
-//						alert.setHeaderText( "" );
-//						alert.setContentText( message );
-//						alert.setDialogPane( alert.getDialogPane() );
-//						DialogUtil.show( stage, alert );
-//					} );
-
 				}
 				return null;
 			}
@@ -205,41 +192,14 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 		private void notifyUserOfUpdates( boolean interactive ) {
-			//			if( interactive ) {
-			// Directly notify the user with a dialog
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+			if( interactive || getFoundOption() == FoundOption.SELECT ) {
+				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
+				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
 
-			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-			Notice notice = new Notice( header, message, uri );
-			program.getNoticeManager().addNotice( notice );
-
-			//			Platform.runLater( () -> {
-			//				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			//				alert.setTitle( title );
-			//				alert.setHeaderText( header );
-			//				alert.setContentText( message );
-			//
-			//				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-			//				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-			//
-			//				if( result.isPresent() && result.get() == ButtonType.YES ) program.getExecutor().submit( this::showUpdates );
-			//			} );
-			//			} else {
-			//				// TODO Use the notice tool to notify the user of posted updates when not interactive
-			//				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-			//				//DefaultNotice notice = new DefaultNotice( NoticeKey.UPDATES_FOUND, "notice", message );
-			//				//program.getNoticeManager().submit( notice );
-			//			}
-		}
-
-		private void showUpdates() {
-			try {
 				URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-				program.getResourceManager().open( uri );
-			} catch( Exception exception ) {
-				log.error( "Error opening artifact tool ", exception );
+				Notice notice = new Notice( header, message, () -> program.getResourceManager().open( uri ) );
+				program.getNoticeManager().addNotice( notice );
 			}
 		}
 
@@ -334,11 +294,18 @@ public class ProgramUpdateManager extends UpdateManager {
 		 * Nearly identical to ProductTool.handleStagedUpdates()
 		 */
 		private void handleApplyUpdates() {
-			Platform.runLater( () -> {
-				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
+			//			// Example:
+			//			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+			//			Notice notice = new Notice( header, message, uri );
+			//			program.getNoticeManager().addNotice( notice );
+
+			// NEXT Change this to a notice
+
+			Platform.runLater( () -> {
 				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 				alert.setTitle( title );
 				alert.setHeaderText( header );
