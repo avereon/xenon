@@ -59,7 +59,7 @@
 		<miglayout.version>5.1</miglayout.version>
 
 		<!-- Test dependencies -->
-		<surefire.version>2.22.0</surefire.version>
+		<surefire.version>3.0.0-M3</surefire.version>
 		<testfx.version>4.0.15-alpha</testfx.version>
 		<monocle.version>jdk-11+23</monocle.version>
 
@@ -73,6 +73,18 @@
 			<groupId>com.xeomar</groupId>
 			<artifactId>xevra</artifactId>
 			<version>0.1-SNAPSHOT</version>
+			<exclusions>
+				<!-- Let Xenon provide it's own version -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-controls</artifactId>
+				</exclusion>
+				<!-- Let Xenon provide it's own version -->
+				<exclusion>
+					<groupId>org.controlsfx</groupId>
+					<artifactId>controlsfx</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Provided by xevra -->
@@ -84,23 +96,17 @@
 		</dependency>
 		-->
 
-		<!-- Provided by xevra -->
-		<!--
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
 			<version>${javafx.version}</version>
 		</dependency>
-		-->
 
-		<!-- Provided by xevra -->
-		<!--
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
 		</dependency>
-		-->
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
