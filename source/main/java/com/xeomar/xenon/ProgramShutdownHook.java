@@ -1,8 +1,8 @@
 package com.xeomar.xenon;
 
-import com.xeomar.annex.UpdateCommandBuilder;
-import com.xeomar.annex.UpdateFlag;
-import com.xeomar.annex.UpdateTask;
+import com.xeomar.xevra.UpdateCommandBuilder;
+import com.xeomar.xevra.UpdateFlag;
+import com.xeomar.xevra.UpdateTask;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.ProcessCommands;
@@ -17,7 +17,6 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -84,8 +83,8 @@ public class ProgramShutdownHook extends Thread {
 		String javaPath = updaterHome + "/bin/java";
 
 		// Linked programs do not have a module path
-		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
-		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
+		String updaterModuleMain = com.xeomar.xevra.Program.class.getModule().getName();
+		String updaterModuleMainClass = com.xeomar.xevra.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );

@@ -173,7 +173,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard().getProductKey() );
-		includedProducts.add( new com.xeomar.annex.Program().getCard().getProductKey() );
+		includedProducts.add( new com.xeomar.xevra.Program().getCard().getProductKey() );
 	}
 
 	public int getCatalogCount() {

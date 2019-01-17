@@ -9,8 +9,8 @@ module com.xeomar.xenon {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	requires com.xeomar.annex;
-	requires com.xeomar.razor;
+	requires com.xeomar.xevra;
+	requires com.xeomar.zenna;
 	requires org.slf4j;
 	requires miglayout.javafx;
 
