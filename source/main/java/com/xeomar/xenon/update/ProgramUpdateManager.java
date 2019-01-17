@@ -300,22 +300,22 @@ public class ProgramUpdateManager extends UpdateManager {
 
 			//			// Example:
 			//			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-			//			Notice notice = new Notice( header, message, uri );
-			//			program.getNoticeManager().addNotice( notice );
+						Notice notice = new Notice( header, message, ProgramUpdateManager.super::userApplyStagedUpdates );
+						program.getNoticeManager().addNotice( notice );
 
-			// NEXT Change this to a notice
 
-			Platform.runLater( () -> {
-				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-				alert.setTitle( title );
-				alert.setHeaderText( header );
-				alert.setContentText( message );
-
-				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-				if( result.isPresent() && result.get() == ButtonType.YES ) ProgramUpdateManager.super.userApplyStagedUpdates();
-			} );
+			// NEXT Change this to a notice (implemented above)
+//			Platform.runLater( () -> {
+//				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+//				alert.setTitle( title );
+//				alert.setHeaderText( header );
+//				alert.setContentText( message );
+//
+//				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+//				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+//
+//				if( result.isPresent() && result.get() == ButtonType.YES ) ProgramUpdateManager.super.userApplyStagedUpdates();
+//			} );
 		}
 
 	}
