@@ -398,32 +398,27 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		Settings checkSettings = getSettings();
 
 		long lastUpdateCheck = getLastUpdateCheck();
-		long timeSinceLastCheck = System.currentTimeMillis() - lastUpdateCheck;
-		long delay;
+		long nextUpdateCheck = getNextUpdateCheck();
+		long delay = NO_CHECK;
 
 		// This is ensures updates are not checked during testing
 		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
 
 		switch( checkOption ) {
-			case MANUAL:
-				delay = NO_CHECK;
-				break;
 			case STARTUP:
-				delay = startup ? 0 : NO_CHECK;
+				if( startup ) delay = 0;
 				break;
 			case INTERVAL: {
 				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-				delay = getNextIntervalDelay( System.currentTimeMillis(), intervalUnit, lastUpdateCheck, timeSinceLastCheck );
+				delay = getNextIntervalDelay( System.currentTimeMillis(), intervalUnit, lastUpdateCheck );
+				if( nextUpdateCheck < System.currentTimeMillis() ) delay = 0;
 				break;
 			}
 			case SCHEDULE: {
 				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleDelay( System.currentTimeMillis(), scheduleWhen, scheduleHour );
-				break;
-			}
-			default: {
-				delay = NO_CHECK;
+				if( nextUpdateCheck < System.currentTimeMillis() ) delay = 0;
 				break;
 			}
 		}
@@ -682,7 +677,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return true;
 	}
 
-	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck, long timeSinceLastCheck ) {
+	public static long getNextIntervalDelay( long currentTime, CheckInterval intervalUnit, long lastUpdateCheck ) {
 		long delay;
 		long intervalDelay = 0;
 		switch( intervalUnit ) {
@@ -704,14 +699,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			}
 		}
 
-		if( timeSinceLastCheck > intervalDelay ) {
-			// Check now and schedule again.
-			delay = 0;
-		} else {
-			// Schedule the next interval.
-			delay = (lastUpdateCheck + intervalDelay) - currentTime;
-		}
-		return delay;
+		return (lastUpdateCheck + intervalDelay) - currentTime;
 	}
 
 	public static long getNextScheduleDelay( long currentTime, CheckWhen scheduleWhen, int scheduleHour ) {

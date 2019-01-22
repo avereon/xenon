@@ -135,6 +135,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskAction taskAction;
 
+	private Boolean isProgramUpdated;
+
 	public static void main( String[] commands ) {
 		launch( commands );
 	}
@@ -943,25 +945,25 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
-	private void checkIfUpdated() {
-		if( !isProgramUpdated() ) return;
-
+	private void notifyProgramUpdated() {
 		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
 		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
 		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message" );
-
 		getNoticeManager().addNotice( new Notice( header, message ) );
 	}
 
 	private boolean isProgramUpdated() {
-		// Get the previous release.
-		Release that = Release.decode( programSettings.get( PROGRAM_RELEASE_SETTINGS_KEY, (String)null ) );
+		if( isProgramUpdated == null ) {
+			// Get the previous release.
+			Release that = Release.decode( programSettings.get( PROGRAM_RELEASE_SETTINGS_KEY, (String)null ) );
 
-		// Set the current release.
-		programSettings.set( PROGRAM_RELEASE_SETTINGS_KEY, Release.encode( this.getCard().getRelease() ) );
+			// Set the current release.
+			programSettings.set( PROGRAM_RELEASE_SETTINGS_KEY, Release.encode( this.getCard().getRelease() ) );
 
-		// Return the result.
-		return that != null && this.getCard().getRelease().compareTo( that ) > 0;
+			// Return the result.
+			isProgramUpdated = that != null && this.getCard().getRelease().compareTo( that ) > 0;
+		}
+		return isProgramUpdated;
 	}
 
 	private class Startup extends Task<Void> {
@@ -999,7 +1001,7 @@ public class Program extends Application implements ProgramProduct {
 			//getTaskManager().submit( new ShowApplicationNotices() );
 
 			// Check to see if the application was updated
-			checkIfUpdated();
+			if( isProgramUpdated() ) notifyProgramUpdated();
 		}
 
 		@Override
