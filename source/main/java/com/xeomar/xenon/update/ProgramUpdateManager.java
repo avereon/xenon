@@ -236,8 +236,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.OK )
-					program.getExecutor().submit( new StageCachedUpdates( updates.getSelectedUpdates() ) );
+				if( result.isPresent() && result.get() == ButtonType.OK ) program.getExecutor().submit( new StageCachedUpdates( updates.getSelectedUpdates() ) );
 			} );
 		}
 
@@ -299,26 +298,18 @@ public class ProgramUpdateManager extends UpdateManager {
 			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
 			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
-			// Option 1: Notice only
-			//Notice notice = new Notice( header, message, ProgramUpdateManager.super::userApplyStagedUpdates );
+			// Notice that shows an alert
+			Notice notice = new Notice( header, message, () -> Platform.runLater( () -> {
+				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+				alert.setTitle( title );
+				alert.setHeaderText( header );
+				alert.setContentText( message );
 
+				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			// NEXT Change this to a notice (implemented above)
-			// Option 2: Notice that shows an alert
-			Notice notice = new Notice( header, message, () -> {
-				Platform.runLater( () -> {
-					Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-					alert.setTitle( title );
-					alert.setHeaderText( header );
-					alert.setContentText( message );
-
-					Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-					Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-					if( result.isPresent() && result.get() == ButtonType.YES )
-						ProgramUpdateManager.super.userApplyStagedUpdates();
-				} );
-			} );
+				if( result.isPresent() && result.get() == ButtonType.YES ) ProgramUpdateManager.super.userApplyStagedUpdates();
+			} ) );
 
 			program.getNoticeManager().addNotice( notice );
 		}
