@@ -388,8 +388,10 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// TODO Unless the program was updated, then it should be safe to schedule update checks
 		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) return;
 
+		long now = System.currentTimeMillis();
+
 		if( task != null ) {
-			boolean alreadyRun = task.scheduledExecutionTime() < System.currentTimeMillis();
+			boolean alreadyRun = task.scheduledExecutionTime() < now;
 			task.cancel();
 			task = null;
 			if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
@@ -401,7 +403,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		long nextUpdateCheck = getNextUpdateCheck();
 		long delay = NO_CHECK;
 
-		// This is ensures updates are not checked during testing
+		// This is ensures updates are not checked during tests
 		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
 
 		switch( checkOption ) {
@@ -410,15 +412,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				break;
 			case INTERVAL: {
 				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-				delay = getNextIntervalDelay( System.currentTimeMillis(), intervalUnit, lastUpdateCheck );
-				if( nextUpdateCheck < System.currentTimeMillis() ) delay = 0;
+				delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
+				if( nextUpdateCheck < (now - 1000) ) delay = 0;
 				break;
 			}
 			case SCHEDULE: {
 				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
-				delay = getNextScheduleDelay( System.currentTimeMillis(), scheduleWhen, scheduleHour );
-				if( nextUpdateCheck < System.currentTimeMillis() ) delay = 0;
+				delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
+				if( nextUpdateCheck < (now - 1000) ) delay = 0;
 				break;
 			}
 		}
@@ -429,18 +431,15 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			return;
 		}
 
-		// Create the update check task.
-		task = new UpdateCheckTask( this );
-
-		// Schedule the update check task.
-		timer.schedule( task, delay );
-
-		long nextCheckTime = System.currentTimeMillis() + delay;
-
-		// Set the next update check time in the settings.
+		// Set the next update check time before scheduling the
+		// task to prevent this method from looping rapidly
+		long nextCheckTime = now + delay;
 		checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
 
-		// Log the next update check time.
+		// Schedule the update check task
+		timer.schedule( task = new UpdateCheckTask( this ), delay );
+
+		// Log the next update check time
 		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
 		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
@@ -588,10 +587,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is
-	 * generally called when the program starts and, if the update program is
-	 * successfully started, the program should be terminated to allow for the
-	 * updates to be applied.
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * applied.
 	 *
 	 * @return The number of updates applied.
 	 */
@@ -744,7 +741,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		// What are these setting if the update node is retrieved below
 		this.settings = settings;
 
-		if( "STAGE".equals( settings.get(FOUND, FoundOption.SELECT.name()).toUpperCase() ) ){
+		if( "STAGE".equals( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() ) ) {
 			settings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
 
