@@ -65,7 +65,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final long MANAGER_ACTION_SECONDS = 10;
 
-	private static final String PROGRAM_RELEASE_SETTINGS_KEY = "product-release";
+	private static final String PROGRAM_RELEASE = "product-release";
+
+	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -791,8 +793,7 @@ public class Program extends Application implements ProgramProduct {
 	private void configureHome( com.xeomar.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
-			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) )
-				programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
+			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
 			// Apparently, when running a linked program, there is not a jdk.module.path system property
 			// The program home should be the java home when running as a linked application
@@ -800,8 +801,7 @@ public class Program extends Application implements ProgramProduct {
 			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked )
-				programHomeFolder = Paths.get( "target/program" );
+			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
@@ -946,23 +946,30 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void notifyProgramUpdated() {
+		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );
+		Release runtime = this.getCard().getRelease();
+		String priorVersion = prior.getVersion().toHumanString();
+		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
 		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
-		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message" );
-		getNoticeManager().addNotice( new Notice( header, message ) );
+		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message", priorVersion, runtimeVersion );
+		getNoticeManager().addNotice( new Notice( title, message ) );
 	}
 
 	private boolean isProgramUpdated() {
 		if( isProgramUpdated == null ) {
-			// Get the previous release.
-			Release that = Release.decode( programSettings.get( PROGRAM_RELEASE_SETTINGS_KEY, (String)null ) );
+			// Get the last release setting
+			Release previous = Release.decode( programSettings.get( PROGRAM_RELEASE, (String)null ) );
+			Release runtime = this.getCard().getRelease();
 
-			// Set the current release.
-			programSettings.set( PROGRAM_RELEASE_SETTINGS_KEY, Release.encode( this.getCard().getRelease() ) );
+			isProgramUpdated = previous != null && runtime.compareTo( previous ) > 0;
 
-			// Return the result.
-			isProgramUpdated = that != null && this.getCard().getRelease().compareTo( that ) > 0;
+			if( isProgramUpdated ) {
+				programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
+				programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
+			}
 		}
+
 		return isProgramUpdated;
 	}
 
