@@ -71,6 +71,12 @@
 
 		<dependency>
 			<groupId>com.xeomar</groupId>
+			<artifactId>zenna</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.xeomar</groupId>
 			<artifactId>xevra</artifactId>
 			<version>0.1-SNAPSHOT</version>
 			<exclusions>
@@ -84,17 +90,13 @@
 					<groupId>org.controlsfx</groupId>
 					<artifactId>controlsfx</artifactId>
 				</exclusion>
+				<!-- Let Xenon provide it's own version -->
+				<exclusion>
+					<groupId>com.xeomar</groupId>
+					<artifactId>zenna</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
-
-		<!-- Provided by xevra -->
-		<!--
-		<dependency>
-			<groupId>com.xeomar</groupId>
-			<artifactId>zenna</artifactId>
-			<version>0.1-SNAPSHOT</version>
-		</dependency>
-		-->
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -106,12 +108,6 @@
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-web</artifactId>
-			<version>${javafx.version}</version>
 		</dependency>
 
 		<dependency>
