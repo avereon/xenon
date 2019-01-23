@@ -267,8 +267,8 @@ public class Program extends Application implements ProgramProduct {
 		time( "staged-updates" );
 
 		// Show the splash screen
-		// If there is a test failure here it is because tests were run in the same VM
-		stage.initStyle( StageStyle.UTILITY );
+		// NOTE If there is a test failure here it is because tests were run in the same VM
+		if( !TestUtil.isTest() ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
 
