@@ -953,7 +953,7 @@ public class Program extends Application implements ProgramProduct {
 		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
 		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
 		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message", priorVersion, runtimeVersion );
-		getNoticeManager().addNotice( new Notice( title, message ) );
+		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
 	}
 
 	private boolean isProgramUpdated() {
