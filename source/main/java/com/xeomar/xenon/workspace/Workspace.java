@@ -361,6 +361,10 @@ public class Workspace implements Configurable {
 		TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), 5000 );
 	}
 
+	public void hideNotices() {
+		noticeContainer.getChildren().clear();
+	}
+
 	public StatusBar getStatusBar() {
 		return statusBar;
 	}

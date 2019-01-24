@@ -68,6 +68,11 @@ public class NoticeTool extends ProgramTool {
 		getResource().addResourceListener( resourceWatcher );
 	}
 
+	@Override
+	protected void display() {
+		getProgram().getWorkspaceManager().getActiveWorkspace().hideNotices();
+	}
+
 	private void clearAll() {
 		getProgram().getNoticeManager().clearAll();
 		this.close();
