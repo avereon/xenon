@@ -170,7 +170,7 @@
 
 .notice {
 	-fx-background-color: -ex-background-text;
-	-fx-width: 10cm;
+	-fx-pref-width: 8cm;
 }
 
 .notice-title {
