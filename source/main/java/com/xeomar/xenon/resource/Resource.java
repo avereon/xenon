@@ -1,6 +1,8 @@
 package com.xeomar.xenon.resource;
 
 import com.xeomar.settings.Settings;
+import com.xeomar.undo.BasicUndoManager;
+import com.xeomar.undo.UndoManager;
 import com.xeomar.util.Configurable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.TextUtil;
@@ -10,7 +12,6 @@ import com.xeomar.xenon.node.NodeListener;
 import com.xeomar.xenon.resource.event.*;
 import org.slf4j.Logger;
 
-import javax.swing.undo.UndoManager;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
@@ -64,6 +65,9 @@ public class Resource extends Node implements Configurable {
 
 	private volatile boolean saved;
 
+	// Ready to use flag. This indicates the resource is now ready to be used,
+	// particularly by tools. If the resource is new or has been loaded then the
+	// resource is "ready".
 	private volatile boolean ready;
 
 	public Resource( URI uri ) {
@@ -92,7 +96,7 @@ public class Resource extends Node implements Configurable {
 		ready = uri == null;
 
 		// Create the undo manager
-		undoManager = new UndoManager();
+		undoManager = new BasicUndoManager();
 
 		listeners = new CopyOnWriteArraySet<>();
 		addNodeListener( new NodeWatcher() );

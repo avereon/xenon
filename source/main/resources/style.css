@@ -168,6 +168,23 @@
 	-fx-fill: -fx-accent;
 }
 
+.notice {
+	-fx-background-color: -ex-background-text;
+	-fx-pref-width: 8cm;
+}
+
+.notice-title {
+	-fx-font-weight: bold;
+}
+
+.notice-buttons {
+	-fx-background-color: -ex-background-text;
+}
+
+.notice-message {
+	-fx-font-weight: normal;
+}
+
 .task-monitor {}
 
 .task-monitor-label {

@@ -9,7 +9,6 @@ import com.xeomar.xenon.resource.ResourceException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.*;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
@@ -54,24 +53,21 @@ public class FileScheme extends BaseScheme {
 		super.init( resource );
 
 		File file = getFile( resource );
-		FileSystemView fsv = FileSystemView.getFileSystemView();
-
 		boolean folder = file.isDirectory();
-		boolean drive = fsv.isDrive( file );
 
-//		// Set the resource display icon.
-//		String iconName = "file";
-//		if( folder ) iconName = "folder";
-//		if( drive ) iconName = "drive";
-//		resource.putResource( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
-//
-//		// Set the resource display name.
-//		resource.putResource( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
-//
-//		// Set the resource display description.
-//		String description = fsv.getSystemTypeDescription( file );
-//		if( folder && StringUtils.isEmpty( description ) ) description = ProductUtil.getString( program, BundleKey.LABELS, "folder" );
-//		resource.putResource( FxUtil.DISPLAY_DESC, description );
+		//		// Set the resource display icon.
+		//		String iconName = "file";
+		//		if( folder ) iconName = "folder";
+		//		if( drive ) iconName = "drive";
+		//		resource.putResource( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
+		//
+		//		// Set the resource display name.
+		//		resource.putResource( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
+		//
+		//		// Set the resource display description.
+		//		String description = fsv.getSystemTypeDescription( file );
+		//		if( folder && StringUtils.isEmpty( description ) ) description = ProductUtil.getString( program, BundleKey.LABELS, "folder" );
+		//		resource.putResource( FxUtil.DISPLAY_DESC, description );
 	}
 
 	@Override
@@ -198,9 +194,9 @@ public class FileScheme extends BaseScheme {
 	public List<Resource> getRoots() throws ResourceException {
 		if( roots == null ) {
 			roots = new ArrayList<>();
-//			for( File root : File.listRoots() ) {
-//				roots.add( program.getResourceManager().createResource( root ) );
-//			}
+			//			for( File root : File.listRoots() ) {
+			//				roots.add( program.getResourceManager().createResource( root ) );
+			//			}
 		}
 
 		return new ArrayList<Resource>( roots );
@@ -215,7 +211,7 @@ public class FileScheme extends BaseScheme {
 
 		if( children == null ) return new ArrayList<>();
 
-//		return program.getResourceManager().createResources( (Object[])children );
+		//		return program.getResourceManager().createResources( (Object[])children );
 		return null;
 	}
 
@@ -231,31 +227,26 @@ public class FileScheme extends BaseScheme {
 		return file.lastModified();
 	}
 
-//	public void startResourceWatching() {
-//		resourceWatcher.start();
-//	}
-//
-//	public void stopResourceWatching() {
-//		resourceWatcher.stop();
-//	}
+	//	public void startResourceWatching() {
+	//		resourceWatcher.start();
+	//	}
+	//
+	//	public void stopResourceWatching() {
+	//		resourceWatcher.stop();
+	//	}
 
 	/**
 	 * Get the file.
 	 */
 	private File getFile( Resource resource ) throws ResourceException {
-		File file = ( (File)resource.getResource( FILE_CACHE ) );
-
+		File file = resource.getResource( FILE_CACHE );
 		if( file != null ) return file;
 
-		file = new File( resource.getUri() );
-
 		// Get the canonical file.
-		if( !FileSystemView.getFileSystemView().isDrive( file ) ) {
-			try {
-				file = file.getCanonicalFile();
-			} catch( IOException exception ) {
-				throw new ResourceException( resource, exception );
-			}
+		try {
+			file = new File( resource.getUri() ).getCanonicalFile();
+		} catch( IOException exception ) {
+			throw new ResourceException( resource, exception );
 		}
 
 		resource.putResource( FILE_CACHE, file );
@@ -263,106 +254,106 @@ public class FileScheme extends BaseScheme {
 		return file;
 	}
 
-//	/*
-//	 * Reference:
-//	 * http://docs.oracle.com/javase/tutorial/essential/io/notification.html
-//	 */
-//	private class FileResourceWatcher extends Worker {
-//
-//		private WatchService watchService;
-//
-//		private Map<WatchKey, Path> watchServicePaths;
-//
-//		public FileResourceWatcher() {
-//			super( "File Resource Watcher", true );
-//			watchServicePaths = new ConcurrentHashMap<>();
-//		}
-//
-//		@Override
-//		public void startWorker() throws Exception {
-//			super.startWorker();
-//			watchService = FileSystems.getDefault().newWatchService();
-//		}
-//
-//		@Override
-//		public void stopWorker() throws Exception {
-//			if( watchService != null ) watchService.close();
-//			super.stopWorker();
-//		}
-//
-//		@Override
-//		public void run() {
-//			Path path = null;
-//			WatchKey key = null;
-//			Set<Resource> resources = new HashSet<Resource>();
-//			while( isExecutable() ) {
-//				try {
-//					try {
-//						key = watchService.take();
-//					} catch( InterruptedException exception ) {
-//						continue;
-//					} catch( ClosedWatchServiceException exception ) {
-//						return;
-//					}
-//
-//					//Log.write( Log.DEVEL, "Watch key: ", System.currentTimeMillis(), " ", key );
-//
-//					path = null;
-//					path = watchServicePaths.get( key );
-//					if( path == null ) continue;
-//
-//					// It is common to have multiple events for a single resource.
-//					for( WatchEvent<?> event : key.pollEvents() ) {
-//						WatchEvent.Kind<?> kind = event.kind();
-//						//Log.write( Log.DEVEL, "Watch event: ", event.kind(), " ", event.context(), " ", event.count() );
-//
-//						if( kind == OVERFLOW ) continue;
-//						if( event.context() == null ) continue;
-//
-//						URI uri = path.resolve( (Path)event.context() ).toUri();
-//						Resource resource = program.getResourceManager().createResource( uri );
-//						if( !resource.isOpen() ) continue;
-//
-//						// This logic is intended to catch double events and events from our own save.
-//						Long lastSavedTime = resource.getResource( Resource.RESOURCE_LAST_SAVED_KEY );
-//						resource.putResource( Resource.RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
-//
-//						// This timeout needs to be long enough for the OS to react.
-//						// In the case of network resources it can take a couple of seconds.
-//						if( lastSavedTime != null && System.currentTimeMillis() - lastSavedTime < 2500 ) continue;
-//
-//						resources.add( resource );
-//					}
-//
-//					for( Resource resource : resources ) {
-//						resource.setExternallyModified( true );
-//						//Log.write( Log.DEVEL, "Resource externally modified: ", resource );
-//					}
-//				} finally {
-//					if( resources != null ) resources.clear();
-//					if( key != null ) key.reset();
-//				}
-//			}
-//		}
-//
-//		public void registerWatch( Resource resource ) throws ResourceException {
-//			Path path = getFile( resource ).getParentFile().toPath();
-//			try {
-//				WatchKey key = path.register( watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
-//				watchServicePaths.add( key, path );
-//				resource.putResource( "java.nio.file.WatchKey", key );
-//			} catch( IOException exception ) {
-//				Log.write( exception );
-//			}
-//		}
-//
-//		public void removeWatch( Resource resource ) {
-//			WatchKey key = resource.getResource( "java.nio.file.WatchKey" );
-//			if( key == null ) return;
-//			key.cancel();
-//			watchServicePaths.remove( key );
-//		}
-//
-//	}
+	//	/*
+	//	 * Reference:
+	//	 * http://docs.oracle.com/javase/tutorial/essential/io/notification.html
+	//	 */
+	//	private class FileResourceWatcher extends Worker {
+	//
+	//		private WatchService watchService;
+	//
+	//		private Map<WatchKey, Path> watchServicePaths;
+	//
+	//		public FileResourceWatcher() {
+	//			super( "File Resource Watcher", true );
+	//			watchServicePaths = new ConcurrentHashMap<>();
+	//		}
+	//
+	//		@Override
+	//		public void startWorker() throws Exception {
+	//			super.startWorker();
+	//			watchService = FileSystems.getDefault().newWatchService();
+	//		}
+	//
+	//		@Override
+	//		public void stopWorker() throws Exception {
+	//			if( watchService != null ) watchService.close();
+	//			super.stopWorker();
+	//		}
+	//
+	//		@Override
+	//		public void run() {
+	//			Path path = null;
+	//			WatchKey key = null;
+	//			Set<Resource> resources = new HashSet<Resource>();
+	//			while( isExecutable() ) {
+	//				try {
+	//					try {
+	//						key = watchService.take();
+	//					} catch( InterruptedException exception ) {
+	//						continue;
+	//					} catch( ClosedWatchServiceException exception ) {
+	//						return;
+	//					}
+	//
+	//					//Log.write( Log.DEVEL, "Watch key: ", System.currentTimeMillis(), " ", key );
+	//
+	//					path = null;
+	//					path = watchServicePaths.get( key );
+	//					if( path == null ) continue;
+	//
+	//					// It is common to have multiple events for a single resource.
+	//					for( WatchEvent<?> event : key.pollEvents() ) {
+	//						WatchEvent.Kind<?> kind = event.kind();
+	//						//Log.write( Log.DEVEL, "Watch event: ", event.kind(), " ", event.context(), " ", event.count() );
+	//
+	//						if( kind == OVERFLOW ) continue;
+	//						if( event.context() == null ) continue;
+	//
+	//						URI uri = path.resolve( (Path)event.context() ).toUri();
+	//						Resource resource = program.getResourceManager().createResource( uri );
+	//						if( !resource.isOpen() ) continue;
+	//
+	//						// This logic is intended to catch double events and events from our own save.
+	//						Long lastSavedTime = resource.getResource( Resource.RESOURCE_LAST_SAVED_KEY );
+	//						resource.putResource( Resource.RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
+	//
+	//						// This timeout needs to be long enough for the OS to react.
+	//						// In the case of network resources it can take a couple of seconds.
+	//						if( lastSavedTime != null && System.currentTimeMillis() - lastSavedTime < 2500 ) continue;
+	//
+	//						resources.add( resource );
+	//					}
+	//
+	//					for( Resource resource : resources ) {
+	//						resource.setExternallyModified( true );
+	//						//Log.write( Log.DEVEL, "Resource externally modified: ", resource );
+	//					}
+	//				} finally {
+	//					if( resources != null ) resources.clear();
+	//					if( key != null ) key.reset();
+	//				}
+	//			}
+	//		}
+	//
+	//		public void registerWatch( Resource resource ) throws ResourceException {
+	//			Path path = getFile( resource ).getParentFile().toPath();
+	//			try {
+	//				WatchKey key = path.register( watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
+	//				watchServicePaths.add( key, path );
+	//				resource.putResource( "java.nio.file.WatchKey", key );
+	//			} catch( IOException exception ) {
+	//				Log.write( exception );
+	//			}
+	//		}
+	//
+	//		public void removeWatch( Resource resource ) {
+	//			WatchKey key = resource.getResource( "java.nio.file.WatchKey" );
+	//			if( key == null ) return;
+	//			key.cancel();
+	//			watchServicePaths.remove( key );
+	//		}
+	//
+	//	}
 
 }

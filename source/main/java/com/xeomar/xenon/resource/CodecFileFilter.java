@@ -1,12 +1,12 @@
 package com.xeomar.xenon.resource;
 
-import javax.swing.filechooser.FileFilter;
-import java.io.File;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
 
 /**
  * @author Mark Soderquist
  */
-public class CodecFileFilter extends FileFilter {
+public class CodecFileFilter implements DirectoryStream.Filter<Path> {
 
 	private Codec codec;
 
@@ -19,13 +19,8 @@ public class CodecFileFilter extends FileFilter {
 	}
 
 	@Override
-	public String getDescription() {
-		return codec.getName();
-	}
-
-	@Override
-	public boolean accept( File file ) {
-		return codec.isSupportedFileName( file.getName() );
+	public boolean accept( Path path ) {
+		return codec.isSupportedFileName( path.getFileName().toString() );
 	}
 
 }

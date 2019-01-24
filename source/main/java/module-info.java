@@ -4,14 +4,12 @@ module com.xeomar.xenon {
 	requires java.management;
 	requires java.sql;
 	requires javafx.controls;
-	requires javafx.swing;
-	requires javafx.web;
 	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	requires com.xeomar.annex;
-	requires com.xeomar.razor;
+	requires com.xeomar.xevra;
+	requires com.xeomar.zenna;
 	requires org.slf4j;
 	requires miglayout.javafx;
 

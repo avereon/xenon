@@ -39,9 +39,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * <p>
  * When a resource is saved it might also be necessary to update the resource
  * type.
- * <h2>Determining a Resource Editor</h2>
- * Once the resource type is determined an appropriate editor can be created for
- * it. It is possible to have more than one editor registered for the resource
+ * <h2>Determining a Resource Tool</h2>
+ * Once the resource type is determined an appropriate tool can be created for
+ * it. It is possible to have more than one tool registered for the resource
  * type. In this case a default may be specified or the user will need to
  * choose.
  *
@@ -84,7 +84,10 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 	}
 
 	/**
-	 * Return if this resource type is program defined, true otherwise.
+	 * Is this resource type a user defined resource type. Usually it is a user
+	 * defined resource type so this should return true. For program defined
+	 * resource types this should return false.
+	 *
 	 * @return false if this resource type is program defined, true otherwise
 	 */
 	public boolean isUserType() {

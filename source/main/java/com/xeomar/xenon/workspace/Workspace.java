@@ -10,11 +10,15 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.event.WorkareaChangedEvent;
-import com.xeomar.xenon.resource.ResourceException;
+import com.xeomar.xenon.notice.Notice;
+import com.xeomar.xenon.notice.NoticePane;
 import com.xeomar.xenon.resource.type.ProgramTaskType;
 import com.xeomar.xenon.util.ActionUtil;
+import com.xeomar.xenon.util.TimerUtil;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -26,11 +30,13 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
+
+//import java.beans.PropertyChangeEvent;
+//import java.beans.PropertyChangeListener;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -41,13 +47,17 @@ public class Workspace implements Configurable {
 
 	private Program program;
 
+	private String id;
+
 	private Stage stage;
 
 	private Scene scene;
 
 	private boolean active;
 
-	private BorderPane layout;
+	private StackPane workspaceStack;
+
+	private BorderPane workareaLayout;
 
 	private Pane menubarContainer;
 
@@ -71,13 +81,17 @@ public class Workspace implements Configurable {
 
 	private Pane workpaneContainer;
 
+	private VBox noticeContainer;
+
+	private BorderPane noticeLayout;
+
 	private ComboBox<Workarea> workareaSelector;
 
 	private ObservableList<Workarea> workareas;
 
 	private Workarea activeWorkarea;
 
-	private WorkareaPropertyWatcher activeWorkareaWatcher;
+	private WorkareaNameWatcher workareaNameWatcher;
 
 	private Settings settings;
 
@@ -93,13 +107,13 @@ public class Workspace implements Configurable {
 
 	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
 
-	private String id;
+	private static Timer timer = new Timer( true );
 
 	public Workspace( Program program ) {
 		this.program = program;
 
 		workareas = FXCollections.observableArrayList();
-		activeWorkareaWatcher = new WorkareaPropertyWatcher();
+		workareaNameWatcher = new WorkareaNameWatcher();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
@@ -199,6 +213,9 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
 
+		toolbar.getItems().add( ActionUtil.createPad() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "notice" ) );
+
 		// STATUS BAR
 		statusBar = new StatusBar();
 
@@ -207,13 +224,7 @@ public class Workspace implements Configurable {
 		taskMonitorContainer = new Group();
 
 		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> {
-			try {
-				program.getResourceManager().open( ProgramTaskType.URI );
-			} catch( ResourceException exception ) {
-				log.error( "Error opening task tool", exception );
-			}
-		} );
+		taskMonitor.setOnMouseClicked( ( event ) -> program.getResourceManager().open( ProgramTaskType.URI ) );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
@@ -222,35 +233,34 @@ public class Workspace implements Configurable {
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		HBox leftStatusBarItems = new HBox();
+		HBox leftStatusBarItems = new HBox( statusBar );
 		leftStatusBarItems.getStyleClass().addAll( "box" );
 
-		HBox rightStatusBarItems = new HBox();
+		HBox rightStatusBarItems = new HBox( taskMonitorContainer, memoryMonitorContainer );
 		rightStatusBarItems.getStyleClass().addAll( "box" );
 
-		leftStatusBarItems.getChildren().addAll( statusBar );
-		rightStatusBarItems.getChildren().addAll( taskMonitorContainer, memoryMonitorContainer );
-
-		BorderPane statusBarContainer = new BorderPane();
-		statusBarContainer.setLeft( leftStatusBarItems );
-		statusBarContainer.setRight( rightStatusBarItems );
+		BorderPane statusBarContainer = new BorderPane( null, null, rightStatusBarItems, null, leftStatusBarItems );
 		statusBarContainer.getStyleClass().add( "status-bar" );
 
+		noticeContainer = new VBox();
+		noticeContainer.setPickOnBounds( false );
+
+		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
+		noticeLayout.setPickOnBounds( false );
+
 		// Workarea Container
-		workpaneContainer = new StackPane();
+		workpaneContainer = new StackPane( background = new WorkspaceBackground(), noticeLayout );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		// Workarea Background
-		background = new WorkspaceBackground();
-		workpaneContainer.getChildren().add( background );
+		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		workspaceStack.setPickOnBounds( false );
 
-		VBox bars = new VBox();
-		bars.getChildren().addAll( menubar, toolbar );
+		VBox bars = new VBox( menubar, toolbar );
 
-		layout = new BorderPane();
-		layout.setTop( bars );
-		layout.setCenter( workpaneContainer );
-		layout.setBottom( statusBarContainer );
+		workareaLayout = new BorderPane();
+		workareaLayout.setTop( bars );
+		workareaLayout.setCenter( workspaceStack );
+		workareaLayout.setBottom( statusBarContainer );
 
 		// Create the stage
 		stage = new Stage();
@@ -306,31 +316,53 @@ public class Workspace implements Configurable {
 		// If the workarea is not already added, add it
 		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
 
-		// Disconnect the old active workarea area
+		// Disconnect the old active workarea
 		if( activeWorkarea != null ) {
-			activeWorkarea.removePropertyChangeListener( activeWorkareaWatcher );
+			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
 			activeWorkarea.setActive( false );
+			// TODO Remove the menu bar
+			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
 		}
 
-		// Swap the workarea area on the stage
+		// Set the new active workarea
 		activeWorkarea = workarea;
 
-		// Connect the new active workarea area
+		// Connect the new active workarea
 		if( activeWorkarea != null ) {
 			workpaneContainer.getChildren().add( activeWorkarea.getWorkpane() );
-			activeWorkarea.setActive( true );
-			setStageTitle( activeWorkarea.getName() );
-			workareaSelector.getSelectionModel().select( activeWorkarea );
-			activeWorkarea.addPropertyChangeListener( activeWorkareaWatcher );
-
 			// TODO Set the menu bar
 			// TODO Set the tool bar
-			// TODO Set the workpane
+			activeWorkarea.setActive( true );
+			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
+			workareaSelector.getSelectionModel().select( activeWorkarea );
+			setStageTitle( activeWorkarea.getName() );
 		}
 
 		// Send a program event when active area changes
 		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+	}
+
+	public void showNotice( Notice notice ) {
+		NoticePane pane = new NoticePane( program, notice );
+		noticeContainer.getChildren().add( 0, pane );
+
+		pane.onMouseClickedProperty().set( ( event ) -> {
+			noticeContainer.getChildren().remove( pane );
+			pane.executeNoticeAction();
+			event.consume();
+		} );
+
+		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+			noticeContainer.getChildren().remove( pane );
+			event.consume();
+		} );
+
+		TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), 5000 );
+	}
+
+	public void hideNotices() {
+		noticeContainer.getChildren().clear();
 	}
 
 	public StatusBar getStatusBar() {
@@ -344,7 +376,7 @@ public class Workspace implements Configurable {
 		// The incoming settings are the workspace settings
 
 		this.settings = settings;
-		id = settings.get( "id" );
+		this.id = settings.get( "id" );
 
 		Double x = settings.get( "x", Double.class, null );
 		Double y = settings.get( "y", Double.class, null );
@@ -355,7 +387,7 @@ public class Workspace implements Configurable {
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
-		stage.setScene( scene = new Scene( layout, w, h ) );
+		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.sizeToScene();
 
@@ -485,17 +517,11 @@ public class Workspace implements Configurable {
 
 	}
 
-	private class WorkareaPropertyWatcher implements PropertyChangeListener {
+	private class WorkareaNameWatcher implements ChangeListener<String> {
 
 		@Override
-		public void propertyChange( PropertyChangeEvent event ) {
-			switch( event.getPropertyName() ) {
-				case "name": {
-					//workareaSelector.setValue( getActiveWorkarea() );
-					setStageTitle( event.getNewValue().toString() );
-					break;
-				}
-			}
+		public void changed( ObservableValue<? extends String> name, String oldValue, String newValue ) {
+			setStageTitle( newValue );
 		}
 
 	}
@@ -506,7 +532,7 @@ public class Workspace implements Configurable {
 		protected void updateItem( Workarea item, boolean empty ) {
 			super.updateItem( item, empty );
 			textProperty().unbind();
-			if( item != null && !empty ) textProperty().bind( item.getNameValue() );
+			if( item != null && !empty ) textProperty().bind( item.nameProperty() );
 		}
 
 	}

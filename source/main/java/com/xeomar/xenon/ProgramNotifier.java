@@ -12,6 +12,10 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 
+/**
+ * @deprecated In favor of {@link com.xeomar.xenon.notice.NoticeManager}
+ */
+@Deprecated
 public class ProgramNotifier {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );

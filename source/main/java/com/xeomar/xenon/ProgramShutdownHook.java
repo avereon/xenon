@@ -1,8 +1,8 @@
 package com.xeomar.xenon;
 
-import com.xeomar.annex.UpdateCommandBuilder;
-import com.xeomar.annex.UpdateFlag;
-import com.xeomar.annex.UpdateTask;
+import com.xeomar.xevra.UpdateCommandBuilder;
+import com.xeomar.xevra.UpdateFlag;
+import com.xeomar.xevra.UpdateTask;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.ProcessCommands;
@@ -67,7 +67,7 @@ public class ProgramShutdownHook extends Thread {
 		return this;
 	}
 
-	synchronized ProgramShutdownHook configureForUpdate( String... extraCommands ) {
+	synchronized ProgramShutdownHook configureForUpdate( String... restartCommands ) {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
 		// like the installed program location and therefore would not be a
@@ -83,8 +83,8 @@ public class ProgramShutdownHook extends Thread {
 		String javaPath = updaterHome + "/bin/java";
 
 		// Linked programs do not have a module path
-		String updaterModuleMain = com.xeomar.annex.Program.class.getModule().getName();
-		String updaterModuleMainClass = com.xeomar.annex.Program.class.getName();
+		String updaterModuleMain = com.xeomar.xevra.Program.class.getModule().getName();
+		String updaterModuleMainClass = com.xeomar.xevra.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
@@ -94,7 +94,7 @@ public class ProgramShutdownHook extends Thread {
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
-		builder.command().add( "\"Updating " + program.getCard().getName() + "\"" );
+		builder.command().add( "Updating " + program.getCard().getName() );
 		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
@@ -133,8 +133,8 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
-		ucb.add( UpdateTask.LAUNCH ).add( commands ).line();
+		List<String> moduleCommands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
+		ucb.add( UpdateTask.LAUNCH ).add( moduleCommands ).line();
 
 		stdInput = ucb.toString().getBytes( TextUtil.CHARSET );
 

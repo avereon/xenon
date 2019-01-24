@@ -1,10 +1,13 @@
 package com.xeomar.xenon.tool.product;
 
+import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.type.ProgramProductType;
-import javafx.application.Platform;
 import javafx.scene.control.Button;
+
+import java.util.HashSet;
+import java.util.Set;
 
 class UpdatesPage extends ProductPage {
 
@@ -19,7 +22,7 @@ class UpdatesPage extends ProductPage {
 		Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
 
 		refreshButton.setOnAction( event -> productTool.getProgram().getExecutor().submit( new UpdateUpdatableProducts( productTool, true ) ) );
-		downloadAllButton.setOnAction( event -> downloadAll() );
+		downloadAllButton.setOnAction( event -> downloadAllSelected() );
 
 		getButtonBox().addAll( refreshButton, downloadAllButton );
 	}
@@ -30,15 +33,17 @@ class UpdatesPage extends ProductPage {
 		productTool.getProgram().getExecutor().submit( new UpdateUpdatableProducts( productTool ) );
 	}
 
-	private void downloadAll() {
+	private Set<ProductCard> getSelectedUpdates() {
+		Set<ProductCard> updates = new HashSet<>();
+		for( ProductPane pane : getSourcePanels() ) {
+			// TODO Only add if selected
+			updates.add( pane.getUpdate() );
+		}
+		return updates;
+	}
+
+	private void downloadAllSelected() {
 		ProductTool.log.trace( "Download all available updates" );
-		productTool.getProgram().getExecutor().submit( () -> {
-			try {
-				productTool.getProgram().getUpdateManager().stagePostedUpdates();
-				Platform.runLater( productTool::handleStagedUpdates );
-			} catch( Exception exception ) {
-				ProductTool.log.warn( "Error staging updates", exception );
-			}
-		} );
+		productTool.getProgram().getUpdateManager().applySelectedUpdates( getSelectedUpdates() );
 	}
 }

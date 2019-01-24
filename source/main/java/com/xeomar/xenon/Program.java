@@ -11,6 +11,8 @@ import com.xeomar.xenon.event.ProgramStartedEvent;
 import com.xeomar.xenon.event.ProgramStartingEvent;
 import com.xeomar.xenon.event.ProgramStoppedEvent;
 import com.xeomar.xenon.event.ProgramStoppingEvent;
+import com.xeomar.xenon.notice.Notice;
+import com.xeomar.xenon.notice.NoticeManager;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.ResourceManager;
 import com.xeomar.xenon.resource.ResourceType;
@@ -63,7 +65,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final long MANAGER_ACTION_SECONDS = 10;
 
-	private static final String PROGRAM_RELEASE_SETTINGS_KEY = "product-release";
+	private static final String PROGRAM_RELEASE = "product-release";
+
+	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -107,6 +111,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private UpdateManager updateManager;
 
+	private NoticeManager noticeManager;
+
 	private ProgramEventWatcher watcher;
 
 	private ProgramNotifier notifier;
@@ -130,6 +136,8 @@ public class Program extends Application implements ProgramProduct {
 	private UpdateAction updateAction;
 
 	private TaskAction taskAction;
+
+	private Boolean isProgramUpdated;
 
 	public static void main( String[] commands ) {
 		launch( commands );
@@ -261,7 +269,8 @@ public class Program extends Application implements ProgramProduct {
 		time( "staged-updates" );
 
 		// Show the splash screen
-		stage.initStyle( StageStyle.UTILITY );
+		// NOTE If there is a test failure here it is because tests were run in the same VM
+		if( !TestUtil.isTest() ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
 		time( "splash displayed" );
 
@@ -306,9 +315,9 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Restarting..." );
 	}
 
-	public void requestUpdate( String... commands ) {
+	public void requestUpdate( String... restartCommands ) {
 		// Register a shutdown hook to update the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( commands );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( restartCommands );
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.
@@ -387,6 +396,7 @@ public class Program extends Application implements ProgramProduct {
 		return programDataFolder;
 	}
 
+	@Deprecated
 	public final ProgramNotifier getNotifier() {
 		return notifier;
 	}
@@ -425,6 +435,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public final UpdateManager getUpdateManager() {
 		return updateManager;
+	}
+
+	public final NoticeManager getNoticeManager() {
+		return noticeManager;
 	}
 
 	@SuppressWarnings( { "unused", "WeakerAccess" } )
@@ -632,7 +646,7 @@ public class Program extends Application implements ProgramProduct {
 		UiFactory uiFactory = new UiFactory( Program.this );
 
 		// Set the number of startup steps
-		int managerCount = 4;
+		int managerCount = 5;
 		int steps = managerCount + uiFactory.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
@@ -670,6 +684,13 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
+		// Create the notice manager
+		log.trace( "Starting notice manager..." );
+		noticeManager = new NoticeManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Notice manager started." );
+
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
 		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
@@ -699,6 +720,14 @@ public class Program extends Application implements ProgramProduct {
 				updateManager.stop();
 				updateManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 				log.debug( "Update manager stopped." );
+			}
+
+			// Stop the NoticeManager
+			if( noticeManager != null ) {
+				log.trace( "Stopping notice manager..." );
+				noticeManager.stop();
+				noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+				log.debug( "Notice manager stopped." );
 			}
 
 			// Stop the workspace manager
@@ -780,6 +809,9 @@ public class Program extends Application implements ProgramProduct {
 			// Canonicalize the home path.
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
+			// Create the program home folder when in DEV mode
+			if( getExecMode() == ExecMode.DEV ) Files.createDirectories( programHomeFolder );
+
 			if( !Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
@@ -857,6 +889,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramNoticeType.class, NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
 		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 
@@ -869,6 +902,7 @@ public class Program extends Application implements ProgramProduct {
 		unregisterTool( manager, ProgramTaskType.class, TaskTool.class );
 		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
+		unregisterTool( manager, ProgramNoticeType.class, NoticeTool.class );
 		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
 		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
@@ -914,25 +948,32 @@ public class Program extends Application implements ProgramProduct {
 		return updateManager;
 	}
 
-	private void checkIfUpdated() {
-		if( !isProgramUpdated() ) return;
-
+	private void notifyProgramUpdated() {
+		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );
+		Release runtime = this.getCard().getRelease();
+		String priorVersion = prior.getVersion().toHumanString();
+		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
 		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
-		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message" );
-
-		getNotifier().notify( title, header, message );
+		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message", priorVersion, runtimeVersion );
+		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
 	}
 
 	private boolean isProgramUpdated() {
-		// Get the previous release.
-		Release that = Release.decode( programSettings.get( PROGRAM_RELEASE_SETTINGS_KEY, (String)null ) );
+		if( isProgramUpdated == null ) {
+			// Get the last release setting
+			Release previous = Release.decode( programSettings.get( PROGRAM_RELEASE, (String)null ) );
+			Release runtime = this.getCard().getRelease();
 
-		// Set the current release.
-		programSettings.set( PROGRAM_RELEASE_SETTINGS_KEY, Release.encode( this.getCard().getRelease() ) );
+			isProgramUpdated = previous != null && runtime.compareTo( previous ) > 0;
 
-		// Return the result.
-		return that != null && this.getCard().getRelease().compareTo( that ) > 0;
+			if( isProgramUpdated ) {
+				programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
+				programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
+			}
+		}
+
+		return isProgramUpdated;
 	}
 
 	private class Startup extends Task<Void> {
@@ -970,7 +1011,7 @@ public class Program extends Application implements ProgramProduct {
 			//getTaskManager().submit( new ShowApplicationNotices() );
 
 			// Check to see if the application was updated
-			checkIfUpdated();
+			if( isProgramUpdated() ) notifyProgramUpdated();
 		}
 
 		@Override

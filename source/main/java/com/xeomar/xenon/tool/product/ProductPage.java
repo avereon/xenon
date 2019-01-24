@@ -18,7 +18,7 @@ abstract class ProductPage extends ProductToolPage {
 		sources = new CopyOnWriteArrayList<>();
 	}
 
-	public List<ProductPane> getSourcePanels() {
+	List<ProductPane> getSourcePanels() {
 		return Collections.unmodifiableList( sources );
 	}
 
@@ -61,13 +61,13 @@ abstract class ProductPage extends ProductToolPage {
 		updateProductStates();
 	}
 
-	void updateProductStates() {
+	private void updateProductStates() {
 		for( Node node : getChildren() ) {
 			((ProductPane)node).updateProductState();
 		}
 	}
 
-	public void updateProductState( ProductCard card ) {
+	private void updateProductState( ProductCard card ) {
 		for( Node node : getChildren() ) {
 			ProductPane panel = (ProductPane)node;
 			if( panel.getSource().equals( card ) ) panel.updateProductState();

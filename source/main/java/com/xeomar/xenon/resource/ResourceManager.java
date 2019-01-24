@@ -347,14 +347,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Future<ProgramTool> open( URI uri ) throws ResourceException {
+	public Future<ProgramTool> open( URI uri ) {
 		return open( uri, true, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Future<ProgramTool> open( URI uri, boolean openTool, boolean setActive ) throws ResourceException {
+	public Future<ProgramTool> open( URI uri, boolean openTool, boolean setActive ) {
 		return open( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
 	}
 
@@ -1089,7 +1089,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( resource.isReady() ) resource.refresh( this );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
-		log.trace( "Resource refresh: " + resource );
+		log.trace( "Resource loaded: " + resource );
 
 		return true;
 	}

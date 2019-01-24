@@ -9,7 +9,7 @@ public final class ProductResource {
 
 	public enum Type {
 		FILE, PACK
-	};
+	}
 
 	private ProductResource.Type type;
 

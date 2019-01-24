@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.xeomar</groupId>
 	<artifactId>xenon</artifactId>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -35,14 +35,14 @@
 	<repositories>
 		<repository>
 			<id>xeo</id>
-			<url>https://code.xeomar.com/repo/xeo</url>
+			<url>https://repo.xeomar.com/xeo</url>
 		</repository>
 	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>
 			<id>xeo</id>
-			<url>https://code.xeomar.com/repo/xeo</url>
+			<url>https://repo.xeomar.com/xeo</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -52,16 +52,16 @@
 
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
-		<javafx.version>11</javafx.version>
+		<javafx.version>11.0.2</javafx.version>
 		<controlsfx.version>9.0.0</controlsfx.version>
 		<undofx.version>2.1.0</undofx.version>
 		<slf4j.version>1.8.0-beta2</slf4j.version>
 		<miglayout.version>5.1</miglayout.version>
 
 		<!-- Test dependencies -->
-		<surefire.version>2.22.0</surefire.version>
+		<surefire.version>3.0.0-M3</surefire.version>
 		<testfx.version>4.0.15-alpha</testfx.version>
-		<monocle.version>jdk-11+23</monocle.version>
+		<monocle.version>jdk-11+26</monocle.version>
 
 		<!-- Build dependencies -->
 		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
@@ -69,67 +69,57 @@
 
 	<dependencies>
 
-		<!-- Provided by annex -->
-		<!--
 		<dependency>
 			<groupId>com.xeomar</groupId>
-			<artifactId>razor</artifactId>
+			<artifactId>zenna</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
-		-->
 
-		<!-- Provided by annex -->
-		<!--
+		<dependency>
+			<groupId>com.xeomar</groupId>
+			<artifactId>xevra</artifactId>
+			<version>0.1-SNAPSHOT</version>
+			<exclusions>
+				<!-- Let Xenon provide it's own version -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-controls</artifactId>
+				</exclusion>
+				<!-- Let Xenon provide it's own version -->
+				<exclusion>
+					<groupId>org.controlsfx</groupId>
+					<artifactId>controlsfx</artifactId>
+				</exclusion>
+				<!-- Let Xenon provide it's own version -->
+				<exclusion>
+					<groupId>com.xeomar</groupId>
+					<artifactId>zenna</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
 			<version>${javafx.version}</version>
 		</dependency>
-		-->
 
-		<!-- Provided by annex -->
-		<!--
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
 		</dependency>
-		-->
 
 		<dependency>
-			<groupId>com.xeomar</groupId>
-			<artifactId>annex</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-javafx</artifactId>
+			<version>${miglayout.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
 			<version>${slf4j.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-swing</artifactId>
-			<version>${javafx.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-web</artifactId>
-			<version>${javafx.version}</version>
-		</dependency>
-
-		<!--<dependency>-->
-		<!--<groupId>org.fxmisc.undo</groupId>-->
-		<!--<artifactId>undofx</artifactId>-->
-		<!--<version>${undofx.version}</version>-->
-		<!--</dependency>-->
-
-		<dependency>
-			<groupId>com.miglayout</groupId>
-			<artifactId>miglayout-javafx</artifactId>
-			<version>${miglayout.version}</version>
 		</dependency>
 
 		<dependency>
@@ -206,6 +196,10 @@
 					<runOrder>alphabetical</runOrder>
 					<argLine>
 						-Xmx128m
+						--add-opens=java.base/java.util=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->

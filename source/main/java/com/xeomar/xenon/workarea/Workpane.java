@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class Workpane extends Pane implements Configurable {
 
@@ -180,11 +181,17 @@ public class Workpane extends Pane implements Configurable {
 	 * @return An unmodifiable set of the tools.
 	 */
 	public Set<Tool> getTools() {
-		Set<Tool> tools = new HashSet<Tool>();
-		for( WorkpaneView view : getViews() ) {
-			tools.addAll( view.getTools() );
-		}
+		Set<Tool> tools = new HashSet<>();
+		getViews().forEach( ( view ) -> tools.addAll( view.getTools() ) );
 		return Collections.unmodifiableSet( tools );
+	}
+
+	public Set<Tool> getTools( Class<? extends Tool> type ) {
+		return getTools().stream().filter( type::isInstance ).collect( Collectors.toUnmodifiableSet() );
+	}
+
+	public boolean hasTool( Class<? extends Tool> type ) {
+		return getTools( type ).size() > 0;
 	}
 
 	public double getEdgeSize() {
