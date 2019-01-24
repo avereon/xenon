@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.xeomar</groupId>
 	<artifactId>xenon</artifactId>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.7</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
