@@ -809,6 +809,9 @@ public class Program extends Application implements ProgramProduct {
 			// Canonicalize the home path.
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
+			// Create the program home folder when in DEV mode
+			if( getExecMode() == ExecMode.DEV ) Files.createDirectories( programHomeFolder );
+
 			if( !Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {
 			log.error( "Error configuring home folder", exception );
