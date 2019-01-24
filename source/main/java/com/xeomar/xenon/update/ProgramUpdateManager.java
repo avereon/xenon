@@ -149,17 +149,20 @@ public class ProgramUpdateManager extends UpdateManager {
 				log.trace( "Error getting posted updates", exception );
 			}
 
-			// Notify the user if updates are not available.
-			boolean notAvailable = postedUpdates == null || postedUpdates.size() == 0;
-			if( notAvailable ) {
+			// Notify the user if updates are not available
+			boolean available = postedUpdates != null && postedUpdates.size() > 0;
+			if( !available ) {
+
+				// If interactive notify the user
 				if( interactive ) {
 					String title = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 					String updatesNotAvailable = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
 					String updatesCannotConnect = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
 					final String message = postedUpdates == null ? updatesCannotConnect : updatesNotAvailable;
-
 					Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
 				}
+
+				// If not available just return here
 				return null;
 			}
 
@@ -170,37 +173,36 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
 			if( interactive ) {
-				notifyUserOfUpdates( true );
-			} else {
-				switch( getFoundOption() ) {
-					case SELECT: {
-						notifyUserOfUpdates( false );
-						break;
-					}
-					case STORE: {
-						// Store (download) all updates without user intervention.
-						program.getExecutor().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
-						break;
-					}
-					case APPLY: {
-						// Stage all updates without user intervention.
-						program.getExecutor().submit( new ApplyUpdates( program, postedUpdates ) );
-						break;
-					}
+				notifyUserOfUpdates();
+				return;
+			}
+
+			switch( getFoundOption() ) {
+				case SELECT: {
+					notifyUserOfUpdates();
+					break;
+				}
+				case STORE: {
+					// Store (download) all updates without user intervention.
+					program.getExecutor().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
+					break;
+				}
+				case APPLY: {
+					// Stage all updates without user intervention.
+					program.getExecutor().submit( new ApplyUpdates( program, postedUpdates ) );
+					break;
 				}
 			}
 		}
 
-		private void notifyUserOfUpdates( boolean interactive ) {
-			if( interactive || getFoundOption() == FoundOption.SELECT ) {
-				String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-				String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-				String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+		private void notifyUserOfUpdates() {
+			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
+			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
 
-				URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-				Notice notice = new Notice( header, message, () -> program.getResourceManager().open( uri ) );
-				program.getNoticeManager().addNotice( notice );
-			}
+			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+			Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
+			program.getNoticeManager().addNotice( notice );
 		}
 
 	}
