@@ -14,6 +14,7 @@ module com.xeomar.xenon {
 	requires miglayout.javafx;
 
 	exports com.xeomar.xenon;
+	exports com.xeomar.xenon.mod;
 	exports com.xeomar.xenon.resource;
 	exports com.xeomar.xenon.task;
 	exports com.xeomar.xenon.update;
@@ -23,4 +24,5 @@ module com.xeomar.xenon {
 	opens com.xeomar.xenon;
 	opens com.xeomar.xenon.update;
 
+	uses com.xeomar.xenon.mod.Mod;
 }
