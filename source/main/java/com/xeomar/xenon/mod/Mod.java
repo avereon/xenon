@@ -15,6 +15,8 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private ProductCard card;
 
+	public Mod() {}
+
 	@Override
 	public Program getProgram() {
 		return program;
