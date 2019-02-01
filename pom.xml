@@ -65,6 +65,8 @@
 
 		<!-- Build dependencies -->
 		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
+
+		<platform>unknown</platform>
 	</properties>
 
 	<dependencies>
@@ -336,7 +338,7 @@
 						<configuration>
 							<attach>false</attach>
 							<descriptors>
-								<descriptor>source/main/assembly/product.xml</descriptor>
+								<descriptor>source/main/assembly/product-${platform}.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
@@ -351,7 +353,7 @@
 						<configuration>
 							<attach>false</attach>
 							<descriptors>
-								<descriptor>source/main/assembly/install.xml</descriptor>
+								<descriptor>source/main/assembly/install-${platform}.xml</descriptor>
 							</descriptors>
 							<finalName>${product-pack-folder}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
@@ -401,7 +403,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>copy-windows-resources</id>
+						<id>copy-platform-resources</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy-resources</goal>
@@ -410,13 +412,13 @@
 							<encoding>UTF-8</encoding>
 							<resources>
 								<resource>
-									<directory>${basedir}/source/main/pack/windows</directory>
+									<directory>${basedir}/source/main/pack/${platform}</directory>
 									<excludes>
 										<exclude>bin</exclude>
 									</excludes>
 								</resource>
 							</resources>
-							<outputDirectory>${basedir}/target/pack/windows</outputDirectory>
+							<outputDirectory>${basedir}/target/pack/${platform}</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -437,7 +439,7 @@
 						<configuration>
 							<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
 							<baseDir>${project.build.directory}</baseDir>
-							<classifier>install</classifier>
+							<classifier>install-${platform}</classifier>
 						</configuration>
 					</execution>
 				</executions>
@@ -482,5 +484,27 @@
 
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os><family>unix</family></os>
+			</activation>
+			<properties>
+					<platform>linux</platform>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>windows</id>
+			<activation>
+				<os><family>windows</family></os>
+			</activation>
+			<properties>
+				<platform>windows</platform>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
