@@ -34,7 +34,7 @@
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/xenon.exe</source>
+			<source>target/jlink/bin/xenon.bat</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
