@@ -26,12 +26,17 @@ import java.util.concurrent.*;
 /**
  * The update manager handles discovery, staging and applying product updates.
  * <p>
- * Discovery involves checking for updates over the network (usually over the Internet) and comparing the release information of installed packs with the release information of the discovered packs. If the discovered pack is determined to
- * be newer than the installed pack it is considered an update.
+ * Discovery involves checking for updates over the network (usually over the
+ * Internet) and comparing the release information of installed packs with the
+ * release information of the discovered packs. If the discovered pack is
+ * determined to be newer than the installed pack it is considered an update.
  * <p>
- * Staging involves downloading new pack data and preparing it to be applied by the update application.
+ * Staging involves downloading new pack data and preparing it to be applied by
+ * the update application.
  * <p>
- * Applying involves configuring and executing a separate update process to apply the staged updates. This requires the calling process to terminate to allow the update process to change required files.
+ * Applying involves configuring and executing a separate update process to
+ * apply the staged updates. This requires the calling process to terminate to
+ * allow the update process to change required files.
  */
 public class UpdateManager implements Controllable<UpdateManager>, Configurable {
 
@@ -161,6 +166,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public UpdateManager( Program program ) {
 		this.program = program;
 
+		// NEXT Should module management and update management be separated???
 		catalogs = new CopyOnWriteArraySet<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
