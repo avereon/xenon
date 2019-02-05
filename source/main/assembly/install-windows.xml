@@ -2,7 +2,7 @@
 
 <!-- This must match the product descriptor except for the format. -->
 <assembly>
-	<id>install-${platform}</id>
+	<id>install-windows</id>
 	<formats>
 		<format>dir</format>
 	</formats>

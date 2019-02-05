@@ -472,7 +472,7 @@
 								</artifact>
 								<!-- Add the product pack -->
 								<artifact>
-									<file>target/${project.artifactId}-${project.version}-product.zip</file>
+									<file>target/${project.artifactId}-${project.version}-product-${platform}.zip</file>
 									<classifier>product</classifier>
 									<type>pack</type>
 								</artifact>

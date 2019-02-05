@@ -2,7 +2,7 @@
 
 <!-- This must match the install descriptor except for the format. -->
 <assembly>
-	<id>product-${platform}</id>
+	<id>product-linux</id>
 	<formats>
 		<format>zip</format>
 	</formats>
