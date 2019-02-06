@@ -2,7 +2,7 @@
 
 <!-- This must match the install descriptor except for the format. -->
 <assembly>
-	<id>product-windows</id>
+	<id>windows-product</id>
 	<formats>
 		<format>zip</format>
 	</formats>

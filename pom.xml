@@ -338,7 +338,7 @@
 						<configuration>
 							<attach>false</attach>
 							<descriptors>
-								<descriptor>source/main/assembly/product-${platform}.xml</descriptor>
+								<descriptor>source/main/assembly/${platform}-product.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
@@ -353,7 +353,7 @@
 						<configuration>
 							<attach>false</attach>
 							<descriptors>
-								<descriptor>source/main/assembly/install-${platform}.xml</descriptor>
+								<descriptor>source/main/assembly/${platform}-install.xml</descriptor>
 							</descriptors>
 							<finalName>${product-pack-folder}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
@@ -439,7 +439,7 @@
 						<configuration>
 							<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
 							<baseDir>${project.build.directory}</baseDir>
-							<classifier>install-${platform}</classifier>
+							<classifier>${platform}-install</classifier>
 						</configuration>
 					</execution>
 				</executions>
@@ -473,8 +473,8 @@
 								<!-- Add the product pack -->
 								<artifact>
 									<!-- target/xenon-0.8-SNAPSHOT-product-linux.zip -->
-									<file>target/${project.artifactId}-${project.version}-product-${platform}.zip</file>
-									<classifier>product-${platform}</classifier>
+									<file>target/${project.artifactId}-${project.version}-${platform}-product.zip</file>
+									<classifier>${platform}-product</classifier>
 									<type>pack</type>
 								</artifact>
 							</artifacts>

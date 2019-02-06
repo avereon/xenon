@@ -2,7 +2,7 @@
 
 <!-- This must match the product descriptor except for the format. -->
 <assembly>
-	<id>install-windows</id>
+	<id>linux-install</id>
 	<formats>
 		<format>dir</format>
 	</formats>
@@ -24,17 +24,17 @@
 	</fileSets>
 	<files>
 		<file>
-			<source>target/jlink/bin/java.exe</source>
+			<source>target/jlink/bin/java</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/keytool.exe</source>
+			<source>target/jlink/bin/keytool</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/xenon.bat</source>
+			<source>target/jlink/bin/xenon</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
