@@ -1,10 +1,10 @@
 {
   "name" : "${project.organization.name}",
   "iconUri" : "https://xeomar.com/images/icons/xeomar.png",
-  "cardUri" : "https://xeomar.com/download/${project.artifactId}/catalog/card/{0}",
+  "cardUri" : "https://xeomar.com/download",
   "enabled" : "true",
   "removable" : "false",
   "products" : [
-    "https://xeomar.com/download/xenon/product/card/{0}"
+    "https://xeomar.com/download"
   ]
 }

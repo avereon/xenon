@@ -12,8 +12,7 @@
   "description": "${project.description}",
   "copyrightSummary": "All rights reserved.",
   "licenseSummary": "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",
-  "cardUri": "https://xeomar.com/download/${project.artifactId}/product/card/{0}",
-  "packUri": "https://xeomar.com/download/${project.artifactId}/product/pack/{0}",
+  "productUri": "https://xeomar.com/download",
   "mainClass": "com.xeomar.xenon.Program",
   "javaVersion": "11",
   "maintainers": [

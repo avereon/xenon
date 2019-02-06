@@ -965,7 +965,20 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
+	private Map<String,String> getProductParameters( ProductCard card, String type ) {
+		Map<String,String> parameters = new HashMap<>();
+
+		parameters.put( "artifact", card.getArtifact() );
+		parameters.put( "category", "product" );
+		parameters.put( "channel", getProductChannel() );
+		parameters.put( "platform", OperatingSystem.getFamily().name().toLowerCase() );
+		parameters.put( "type", type );
+
+		return parameters;
+	}
+
 	private String getProductChannel() {
+		// FIXME This should be a setting
 		return "latest";
 	}
 
@@ -1113,7 +1126,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		modules.put( card.getProductKey(), module );
 
 		// Set the enabled flag.
-		setUpdatable( card, card.getCardUri() != null );
+		setUpdatable( card, card.getProductUri() != null );
 		setRemovable( card, true );
 	}
 
@@ -1152,7 +1165,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			oldCards = getProductCards();
 			for( ProductCard installedCard : oldCards ) {
 				try {
-					URI codebase = installedCard.getCardUri( getProductChannel() );
+					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
 					URI uri = getResolvedUpdateUri( codebase );
 					if( uri == null ) {
 						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
@@ -1250,9 +1263,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 			// Determine all the resources to download.
 			try {
-				URI codebase = updateCard.getCardUri( getProductChannel() );
+				URI codebase = updateCard.getProductUri( getProductParameters( updateCard, "card" ) );
 				log.debug( "Resource codebase: " + codebase );
-				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
+				PackProvider provider = new PackProvider( program, updateCard, getProductParameters( updateCard, "pack" ) );
 				resources = provider.getResources( codebase );
 				setTotal( resources.size() );
 
