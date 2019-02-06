@@ -26,6 +26,7 @@ public class NoticeAction extends Action {
 
 		if( noticeTools.size() == 0 ) {
 			getProgram().getResourceManager().open( ProgramNoticeType.URI );
+			getProgram().getNoticeManager().readAll();
 		} else {
 			noticeTools.forEach( Tool::close );
 		}

@@ -72,6 +72,7 @@ public class ActionUtil {
 
 		action.enabledProperty().addListener( ( event ) -> item.setDisable( !action.isEnabled() ) );
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
+		action.iconProperty().addListener( ( event ) -> item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
 		return item;
 	}
@@ -88,6 +89,7 @@ public class ActionUtil {
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
 		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
+		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
 		return button;
 	}
@@ -100,6 +102,7 @@ public class ActionUtil {
 		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 
 		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
+		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
 		return button;
 	}
