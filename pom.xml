@@ -472,8 +472,9 @@
 								</artifact>
 								<!-- Add the product pack -->
 								<artifact>
+									<!-- target/xenon-0.8-SNAPSHOT-product-linux.zip -->
 									<file>target/${project.artifactId}-${project.version}-product-${platform}.zip</file>
-									<classifier>product</classifier>
+									<classifier>product-${platform}</classifier>
 									<type>pack</type>
 								</artifact>
 							</artifacts>
