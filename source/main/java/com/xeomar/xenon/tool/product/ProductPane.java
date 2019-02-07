@@ -170,7 +170,7 @@ class ProductPane extends MigPane {
 	private void updateProduct() {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
-				productTool.getProgram().getUpdateManager().applySelectedUpdates( source );
+				productTool.getProgram().getUpdateManager().applySelectedUpdates( getUpdate() );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}
