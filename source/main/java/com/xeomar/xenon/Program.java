@@ -950,9 +950,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
-		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
-		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message", priorVersion, runtimeVersion );
+		String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+		String message = getResourceBundle().getString( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
 	}
 
