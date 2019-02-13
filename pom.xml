@@ -338,7 +338,6 @@
 						<configuration>
 						  <appendAssemblyId>false</appendAssemblyId>
 							<finalName>${platform}-product</finalName>
-							<packaging>pack</packaging>
 							<attach>false</attach>
 							<descriptors>
 								<descriptor>source/main/assembly/${platform}-product.xml</descriptor>
