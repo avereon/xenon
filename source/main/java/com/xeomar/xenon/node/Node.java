@@ -56,9 +56,9 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private List<String> primaryKeyList;
 
 	/**
-	 * The list of value keys that specify the business key.
+	 * The list of value keys that specify the natural key.
 	 */
-	private List<String> businessKeyList;
+	private List<String> naturalKeyList;
 
 	/**
 	 * The set of value keys that are read only.
@@ -207,7 +207,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 		List<String> keys = new ArrayList<>();
 		if( primaryKeyList != null ) keys.addAll( primaryKeyList );
-		if( businessKeyList != null ) keys.addAll( businessKeyList );
+		if( naturalKeyList != null ) keys.addAll( naturalKeyList );
 		if( allValues ) {
 			keys = new ArrayList<>();
 			if( values != null ) keys.addAll( values.keySet() );
@@ -243,8 +243,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 				if( !Objects.equals( this.getValue( key ), that.getValue( key ) ) ) return false;
 			}
 		}
-		if( businessKeyList != null ) {
-			for( String key : businessKeyList ) {
+		if( naturalKeyList != null ) {
+			for( String key : naturalKeyList ) {
 				if( !Objects.equals( this.getValue( key ), that.getValue( key ) ) ) return false;
 			}
 		}
@@ -262,8 +262,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 				if( value != null ) hashcode ^= value.hashCode();
 			}
 		}
-		if( businessKeyList != null ) {
-			for( String key : businessKeyList ) {
+		if( naturalKeyList != null ) {
+			for( String key : naturalKeyList ) {
 				Object value = getValue( key );
 				if( value != null ) hashcode ^= value.hashCode();
 			}
@@ -280,11 +280,11 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		}
 	}
 
-	protected void defineBusinessKey( String... keys ) {
-		if( businessKeyList == null ) {
-			businessKeyList = Collections.unmodifiableList( Arrays.asList( keys ) );
+	protected void defineNaturalKey( String... keys ) {
+		if( naturalKeyList == null ) {
+			naturalKeyList = Collections.unmodifiableList( Arrays.asList( keys ) );
 		} else {
-			throw new IllegalStateException( "Business key already set" );
+			throw new IllegalStateException( "Natural key already set" );
 		}
 	}
 

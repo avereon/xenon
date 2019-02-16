@@ -39,7 +39,7 @@ public class Notice extends Node {
 
 	private Notice( String title, String message, Object action ) {
 		definePrimaryKey( ID );
-		defineBusinessKey( TITLE );
+		defineNaturalKey( TITLE );
 
 		setValue( ID, UUID.randomUUID().toString() );
 		setValue( TIMESTAMP, System.currentTimeMillis() );

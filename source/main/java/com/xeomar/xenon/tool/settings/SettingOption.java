@@ -12,7 +12,7 @@ public class SettingOption extends Node {
 
 	public SettingOption() {
 		definePrimaryKey( KEY );
-		defineBusinessKey( NAME );
+		defineNaturalKey( NAME );
 	}
 
 	public String getKey() {
