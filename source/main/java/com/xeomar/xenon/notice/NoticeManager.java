@@ -133,8 +133,6 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void updateActionIcon( int count ) {
-		log.warn( "Unread notice count: " + count );
-
 		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "notice" ).setIcon( count == 0 ? "notice" : "notice-unread" ) );
 	}
 
