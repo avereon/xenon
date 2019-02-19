@@ -10,11 +10,11 @@
 	<fileSets>
 		<fileSet>
 			<directory>target/jlink</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 		</fileSet>
 		<fileSet>
 			<directory>source/main/assembly/resources</directory>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<includes>
 				<include>${artifact.artifactId}.ico</include>
 				<include>${artifact.artifactId}.png</include>
