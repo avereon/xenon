@@ -742,9 +742,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void setSettings( Settings settings ) {
 		if( settings == null || this.settings != null ) return;
 
-		// FIXME The settings passed in serve two purposes but should not
+		// FIXME The settings passed in serve two purposes (config and updates) but should not
 
-		// What are these setting if the update node is retrieved below
+		// What are these settings if the update node is retrieved below?
 		this.settings = settings;
 
 		if( "STAGE".equals( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() ) ) {
@@ -755,7 +755,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
 
-		// These settings are apparently used to store the catalogs and updates
+		// FIXME These settings are apparently used to store the catalogs and updates
+		// Maybe the catalogs and updates should be stored in a different location
 		this.updateSettings = settings.getNode( "update" );
 
 		// Load the product catalogs

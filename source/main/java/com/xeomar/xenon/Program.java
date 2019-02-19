@@ -925,6 +925,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
+		// FIXME Do I want the update settings in the program settings?
+		// There is also a set of comments regarding this issue in the UpdateManager class
 		updateManager.setSettings( programSettings );
 
 		// Register the catalog
