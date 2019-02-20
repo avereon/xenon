@@ -5,9 +5,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 
-public class NoticeUnread extends ProgramIcon {
+public class UnreadNoticeIcon extends ProgramIcon {
 
-	public NoticeUnread() {
+	public UnreadNoticeIcon() {
 		super();
 	}
 
@@ -53,7 +53,7 @@ public class NoticeUnread extends ProgramIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new NoticeUnread() );
+		proof( new UnreadNoticeIcon() );
 	}
 
 }
