@@ -187,12 +187,12 @@ public class ProgramShutdownHook extends Thread {
 
 		try {
 			// Only redirect stdout and stderr
-			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
+			//builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
-			if( stdInput != null ) {
-				process.getOutputStream().write( stdInput );
-				process.getOutputStream().close();
-			}
+//			if( stdInput != null ) {
+//				process.getOutputStream().write( stdInput );
+//				process.getOutputStream().close();
+//			}
 		} catch( IOException exception ) {
 			log.error( "Error restarting program", exception );
 		}
