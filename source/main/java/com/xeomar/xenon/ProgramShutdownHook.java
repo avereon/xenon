@@ -80,6 +80,7 @@ public class ProgramShutdownHook extends Thread {
 		// Stage the updater
 		String updaterHome = stageUpdater();
 
+		// NEXT The staged updater is not used...but should have been
 		String javaPath = updaterHome + "/bin/java";
 
 		// Linked programs do not have a module path
@@ -91,6 +92,7 @@ public class ProgramShutdownHook extends Thread {
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
 		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain, updaterModuleMainClass ) );
+		// NEXT This should be the new updater home from above...
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
 		builder.command().add( UpdateFlag.TITLE );
