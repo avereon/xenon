@@ -1,12 +1,9 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.*;
 import com.xeomar.xevra.UpdateCommandBuilder;
 import com.xeomar.xevra.UpdateFlag;
 import com.xeomar.xevra.UpdateTask;
-import com.xeomar.util.FileUtil;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.ProcessCommands;
-import com.xeomar.util.TextUtil;
 import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -79,9 +76,7 @@ public class ProgramShutdownHook extends Thread {
 
 		// Stage the updater
 		String updaterHome = stageUpdater();
-
-		// NEXT The staged updater is not used...but should have been
-		String javaPath = updaterHome + "/bin/java";
+		String updaterJavaExecutablePath = updaterHome + "/bin/" + OperatingSystem.getJavaExecutableName();
 
 		// Linked programs do not have a module path
 		String updaterModuleMain = com.xeomar.xevra.Program.class.getModule().getName();
@@ -91,9 +86,8 @@ public class ProgramShutdownHook extends Thread {
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain, updaterModuleMainClass ) );
-		// NEXT This should be the new updater home from above...
-		builder.directory( new File( System.getProperty( "user.dir" ) ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, null, updaterModuleMain, updaterModuleMainClass ) );
+		builder.directory( new File( updaterHome ) );
 
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( "Updating " + program.getCard().getName() );
@@ -118,6 +112,7 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
+			// FIXME This was broken previous to 21 Feb 2019. Try a move update again.
 			// NOTE Apparently the move option does not work in Windows, but unpack
 			// does. Even waiting for a long period of time didn't solve the issue of
 			// not being able to move the folder. Also, all the files in the folder
