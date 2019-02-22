@@ -54,7 +54,7 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
+		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
 
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
@@ -130,7 +130,7 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		List<String> moduleCommands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
+		List<String> moduleCommands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
 		ucb.add( UpdateTask.LAUNCH ).add( moduleCommands ).line();
 
 		updateCommandsForStdIn = ucb.toString().getBytes( TextUtil.CHARSET );
@@ -184,7 +184,7 @@ public class ProgramShutdownHook extends Thread {
 
 		try {
 			// Only redirect stdout and stderr
-			//builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
+			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
 			if( updateCommandsForStdIn != null ) {
 				process.getOutputStream().write( updateCommandsForStdIn );
