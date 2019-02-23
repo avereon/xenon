@@ -119,11 +119,13 @@ public class ProgramShutdownHook extends Thread {
 			// can be removed (maybe an option to just move the contents of the
 			// folder), just not the program home folder.
 
-			//ucb.add( UpdateTask.DELETE).add( archivePath ).line();
-			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
-
+			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
+			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
-			ucb.add( UpdateTask.PERMISSIONS ).add( "700" ).add( targetPath + "/bin/java" ).add( targetPath + "/bin/keytool" ).add( targetPath + "/bin/" + program.getCard().getArtifact() ).line();
+
+			String ext = OperatingSystem.isWindows() ? ".exe" : "";
+			String cmd = OperatingSystem.isWindows() ? ".bat" : "";
+			ucb.add( UpdateTask.PERMISSIONS ).add( "700" ).add( targetPath + "/bin/java" + ext ).add( targetPath + "/bin/keytool" + ext ).add( targetPath + "/bin/" + program.getCard().getArtifact() + cmd ).line();
 		}
 
 		// Add parameters to restart Xenon
