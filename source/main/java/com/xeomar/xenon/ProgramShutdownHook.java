@@ -1,10 +1,10 @@
 package com.xeomar.xenon;
 
 import com.xeomar.util.*;
+import com.xeomar.xenon.update.ProductUpdate;
 import com.xeomar.xevra.UpdateCommandBuilder;
 import com.xeomar.xevra.UpdateFlag;
 import com.xeomar.xevra.UpdateTask;
-import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
@@ -14,6 +14,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 
 /**
@@ -119,7 +120,7 @@ public class ProgramShutdownHook extends Thread {
 			// can be removed (maybe an option to just move the contents of the
 			// folder), just not the program home folder.
 
-			ucb.add( UpdateTask.DELETE).add( archivePath ).line();
+			ucb.add( UpdateTask.DELETE ).add( archivePath ).line();
 			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 
@@ -170,6 +171,11 @@ public class ProgramShutdownHook extends Thread {
 			// Copy all the modules needed for the updater
 			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
 			FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
+
+			// Fix the permissions on the executable
+			String ext = OperatingSystem.isWindows() ? ".exe" : "";
+			Path bin = updaterHomeRoot.resolve( "bin" ).resolve( "java" + ext );
+			Files.setPosixFilePermissions( bin, PosixFilePermissions.fromString( "rwx------" ) );
 
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
