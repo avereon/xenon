@@ -92,14 +92,14 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
-		builder.command().add( "debug" );
+		builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL, "info" ) );
 		builder.command().add( UpdateFlag.STDIN );
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		ucb.add( UpdateTask.PAUSE ).add( "200" ).add( "Waiting for " + program.getCard().getName() + " to terminate..." ).line();
+		ucb.add( UpdateTask.PAUSE ).add( "1000" ).add( "Preparing " + program.getCard().getName() + " update..." ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
@@ -121,9 +121,12 @@ public class ProgramShutdownHook extends Thread {
 			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
 
-			String ext = OperatingSystem.isWindows() ? ".exe" : "";
+			String exe = OperatingSystem.isWindows() ? ".exe" : "";
 			String cmd = OperatingSystem.isWindows() ? ".bat" : "";
-			ucb.add( UpdateTask.PERMISSIONS ).add( "700" ).add( targetPath + "/bin/java" + ext ).add( targetPath + "/bin/keytool" + ext ).add( targetPath + "/bin/" + program.getCard().getArtifact() + cmd ).line();
+			String javaFile = targetPath + "/bin/" + OperatingSystem.getJavaExecutableName() + exe;
+			String keytoolFile = targetPath + "/bin/keytool" + exe;
+			String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
+			ucb.add( UpdateTask.PERMISSIONS ).add( "777" ).add( javaFile ).add( keytoolFile ).add( scriptFile ).line();
 		}
 
 		// Add parameters to restart Xenon
