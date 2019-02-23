@@ -1324,6 +1324,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				return null;
 			}
 
+			// FIXME Is it necessary to zip everything up again???
 			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
 			copyProductResources( resources, updateFolder );
 			FileUtil.deleteOnExit( updateFolder );
