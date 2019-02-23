@@ -59,8 +59,6 @@ public class ProgramShutdownHook extends Thread {
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
 
-		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
-
 		return this;
 	}
 
@@ -101,7 +99,7 @@ public class ProgramShutdownHook extends Thread {
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		//ucb.add( UpdateTask.PAUSE ).add( "2000" ).add( "Waiting for " + program.getCard().getName() + " to terminate..." ).line();
+		ucb.add( UpdateTask.PAUSE ).add( "200" ).add( "Waiting for " + program.getCard().getName() + " to terminate..." ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
@@ -188,6 +186,8 @@ public class ProgramShutdownHook extends Thread {
 	@Override
 	public void run() {
 		if( builder == null ) return;
+
+		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		try {
 			// Only redirect stdout and stderr

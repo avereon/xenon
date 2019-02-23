@@ -24,6 +24,8 @@ public class DownloadTask extends Task<Download> {
 
 	public static final int DEFAULT_READ_TIMEOUT = 10000;
 
+	private static final int BUFFER_SIZE = 256 * 1024;
+
 	private Product product;
 
 	private URI uri;
@@ -76,7 +78,7 @@ public class DownloadTask extends Task<Download> {
 
 		setTotal( length );
 
-		byte[] buffer = new byte[ 8192 ];
+		byte[] buffer = new byte[ BUFFER_SIZE ];
 		Download download = new Download( uri, length, encoding, target );
 
 		try {
