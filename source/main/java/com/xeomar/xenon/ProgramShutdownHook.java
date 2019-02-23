@@ -14,7 +14,6 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 
 /**
@@ -175,7 +174,7 @@ public class ProgramShutdownHook extends Thread {
 			// Fix the permissions on the executable
 			String ext = OperatingSystem.isWindows() ? ".exe" : "";
 			Path bin = updaterHomeRoot.resolve( "bin" ).resolve( "java" + ext );
-			Files.setPosixFilePermissions( bin, PosixFilePermissions.fromString( "rwx------" ) );
+			bin.toFile().setExecutable( true, true );
 
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
