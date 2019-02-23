@@ -22,7 +22,7 @@
 	<variables>
 		<!-- The project.artifactId is specified in the maven pom file -->
 		<variable name="IDENTIFIER" value="${project.artifactId}"/>
-		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}${APP_NAME}"/>
+		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}\${APP_NAME}"/>
 		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}Programs/${IDENTIFIER}"/>
 		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
 	</variables>
