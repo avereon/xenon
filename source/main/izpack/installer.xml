@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<izpack:installation version="5.0" xmlns:izpack="http://izpack.org/schema/installation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
+<izpack:installation version="5.0" xmlns:izpack="http://izpack.org/schema/installation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
 
 	<info>
 		<!-- The project.name is specified in the maven pom file -->
@@ -26,7 +26,7 @@
 		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}Programs/${IDENTIFIER}"/>
 		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
 	</variables>
-	
+
 	<conditions>
 		<condition type="variable" id="archX32">
 			<name>os.arch</name>
@@ -77,14 +77,14 @@
 			<description>Required program files.</description>
 			<!-- The product-pack-folder is specified in the maven pom file -->
 			<fileset dir="${product-pack-folder}" targetdir="$INSTALL_PATH"/>
-			<!--
-			<singlefile src="${product-pack-folder}/${project.artifactId}32.exe" target="$INSTALL_PATH/${project.artifactId}.exe" os="windows" condition="archX32" />
-			<singlefile src="${product-pack-folder}/${project.artifactId}64.exe" target="$INSTALL_PATH/${project.artifactId}.exe" os="windows" condition="archX64" />
-			-->
-			<executable targetfile="$INSTALL_PATH/bin/java" stage="never" />
-			<executable targetfile="$INSTALL_PATH/bin/javaw" stage="never" />
-			<executable targetfile="$INSTALL_PATH/bin/keytool" stage="never" />
-			<executable targetfile="$INSTALL_PATH/bin/${project.artifactId}" stage="never" />
+			<executable stage="never" keep="true">
+				<os family="unix"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="java,keytool,${project.artifactId}"/>
+			</executable>
+			<executable stage="never" keep="true">
+				<os family="windows"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="java.exe,javaw.exe,keytool.exe,${project.artifactId}.bat"/>
+			</executable>
 		</pack>
 
 	</packs>
