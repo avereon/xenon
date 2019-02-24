@@ -123,10 +123,11 @@ public class ProgramShutdownHook extends Thread {
 
 			String exe = OperatingSystem.isWindows() ? ".exe" : "";
 			String cmd = OperatingSystem.isWindows() ? ".bat" : "";
-			String javaFile = targetPath + "/bin/" + OperatingSystem.getJavaExecutableName() + exe;
+			String javaFile = targetPath + "/bin/java" + exe;
+			String javawFile = targetPath + "/bin/javaw" + exe;
 			String keytoolFile = targetPath + "/bin/keytool" + exe;
 			String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
-			ucb.add( UpdateTask.PERMISSIONS ).add( "777" ).add( javaFile ).add( keytoolFile ).add( scriptFile ).line();
+			ucb.add( UpdateTask.PERMISSIONS ).add( "777" ).add( javaFile ).add( javawFile ).add( keytoolFile ).add( scriptFile ).line();
 		}
 
 		// Add parameters to restart Xenon
