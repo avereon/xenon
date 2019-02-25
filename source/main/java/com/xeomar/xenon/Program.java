@@ -964,11 +964,9 @@ public class Program extends Application implements ProgramProduct {
 			Release runtime = this.getCard().getRelease();
 
 			isProgramUpdated = previous != null && runtime.compareTo( previous ) > 0;
+			if( isProgramUpdated ) programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
 
-			if( isProgramUpdated ) {
-				programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
-				programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
-			}
+			programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
 		}
 
 		return isProgramUpdated;
