@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 
-<!-- This must match the product descriptor except for the format. -->
+<!-- This must match the install descriptor except for the format. -->
 <assembly>
-	<id>install</id>
+	<id>windows-product</id>
 	<formats>
-		<format>dir</format>
+		<format>jar</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
 			<directory>target/jlink</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 		</fileSet>
 		<fileSet>
 			<directory>source/main/assembly/resources</directory>
-			<outputDirectory>/bin</outputDirectory>
+			<outputDirectory>bin</outputDirectory>
 			<includes>
 				<include>${artifact.artifactId}.ico</include>
 				<include>${artifact.artifactId}.png</include>
@@ -24,17 +24,17 @@
 	</fileSets>
 	<files>
 		<file>
-			<source>target/jlink/bin/java</source>
+			<source>target/jlink/bin/java.exe</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/keytool</source>
+			<source>target/jlink/bin/keytool.exe</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/xenon</source>
+			<source>target/jlink/bin/xenon.bat</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>

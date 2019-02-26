@@ -29,7 +29,7 @@ public class SettingDependency extends Node {
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setOperator( Operator.AND );
 		definePrimaryKey( OPERATOR, KEY, VALUE );
-		defineBusinessKey( OPERATOR, KEY, VALUE );
+		defineNaturalKey( OPERATOR, KEY, VALUE );
 	}
 
 	public Operator getOperator() {

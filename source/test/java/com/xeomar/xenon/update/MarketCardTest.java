@@ -21,10 +21,10 @@ public class MarketCardTest {
 		MarketCard card = MarketCard.loadCard( input );
 		assertThat( card.getName(), is( "Xeomar" ) );
 		assertThat( card.getIconUri(), is( "https://xeomar.com/images/icons/xeomar.png" ) );
-		assertThat( card.getCardUri(), is( "https://xeomar.com/download/xenon/catalog/card/{0}" ) );
+		assertThat( card.getCardUri(), is( "https://xeomar.com/download" ) );
 
 		List<String> products = new ArrayList<>();
-		products.add( "https://xeomar.com/download/xenon/product/card/{0}" );
+		products.add( "https://xeomar.com/download" );
 		assertThat( card.getProducts(), contains( products.toArray() ) );
 	}
 

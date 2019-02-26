@@ -420,7 +420,7 @@ public class AboutTool extends GuidedTool {
 		builder.append( "Artifact:    " + card.getArtifact() ).append( "\n" );
 		builder.append( "Version:     " + card.getVersion() ).append( "\n" );
 		builder.append( "Timestamp:   " + card.getTimestamp() ).append( "\n" );
-		builder.append( "Source URI:  " + card.getCardUri() ).append( "\n" );
+		builder.append( "Source URI:  " + card.getProductUri() ).append( "\n" );
 
 		//		ProductManager productManager = getProgram().getProductManager();
 		//		builder.append( "Enabled:     " + productManager.isEnabled( card )).append( "\n" );

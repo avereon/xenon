@@ -1,13 +1,10 @@
 package com.xeomar.xenon;
 
+import com.xeomar.util.*;
+import com.xeomar.xenon.update.ProductUpdate;
 import com.xeomar.xevra.UpdateCommandBuilder;
 import com.xeomar.xevra.UpdateFlag;
 import com.xeomar.xevra.UpdateTask;
-import com.xeomar.util.FileUtil;
-import com.xeomar.util.LogUtil;
-import com.xeomar.util.ProcessCommands;
-import com.xeomar.util.TextUtil;
-import com.xeomar.xenon.update.ProductUpdate;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
@@ -42,7 +39,7 @@ public class ProgramShutdownHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
-	private volatile byte[] stdInput;
+	private volatile byte[] updateCommandsForStdIn;
 
 	ProgramShutdownHook( Program program ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
@@ -57,12 +54,10 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		List<String> commands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
+		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
 
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
-
-		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		return this;
 	}
@@ -79,8 +74,7 @@ public class ProgramShutdownHook extends Thread {
 
 		// Stage the updater
 		String updaterHome = stageUpdater();
-
-		String javaPath = updaterHome + "/bin/java";
+		String updaterJavaExecutablePath = updaterHome + "/bin/" + OperatingSystem.getJavaExecutableName();
 
 		// Linked programs do not have a module path
 		String updaterModuleMain = com.xeomar.xevra.Program.class.getModule().getName();
@@ -90,22 +84,22 @@ public class ProgramShutdownHook extends Thread {
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule( updaterModuleMain, updaterModuleMainClass ) );
-		builder.directory( new File( System.getProperty( "user.dir" ) ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, null, updaterModuleMain, updaterModuleMainClass ) );
+		builder.directory( new File( updaterHome ) );
 
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( "Updating " + program.getCard().getName() );
 		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
-		builder.command().add( "debug" );
+		builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL, "info" ) );
 		builder.command().add( UpdateFlag.STDIN );
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		//ucb.add( UpdateTask.PAUSE ).add( "30000" ).add( "Waiting for " + program.getCard().getName() + " to terminate..." ).line();
+		ucb.add( UpdateTask.PAUSE ).add( "1000" ).add( "Preparing " + program.getCard().getName() + " update..." ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
@@ -116,27 +110,34 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
+			// FIXME This was broken previous to 21 Feb 2019. Try a move update again.
 			// NOTE Apparently the move option does not work in Windows, but unpack
 			// does. Even waiting for a long period of time didn't solve the issue of
 			// not being able to move the folder. Also, all the files in the folder
 			// can be removed (maybe an option to just move the contents of the
 			// folder), just not the program home folder.
 
-			//ucb.add( UpdateTask.DELETE).add( archivePath ).line();
-			//ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
-
+			ucb.add( UpdateTask.DELETE ).add( archivePath ).line();
+			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
 			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
-			ucb.add( UpdateTask.PERMISSIONS ).add( "700" ).add( targetPath + "/bin/java" ).add( targetPath + "/bin/keytool" ).add( targetPath + "/bin/" + program.getCard().getArtifact() ).line();
+
+			String exe = OperatingSystem.isWindows() ? ".exe" : "";
+			String cmd = OperatingSystem.isWindows() ? ".bat" : "";
+			String javaFile = targetPath + "/bin/java" + exe;
+			String javawFile = targetPath + "/bin/javaw" + exe;
+			String keytoolFile = targetPath + "/bin/keytool" + exe;
+			String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
+			ucb.add( UpdateTask.PERMISSIONS ).add( "777" ).add( javaFile ).add( javawFile ).add( keytoolFile ).add( scriptFile ).line();
 		}
 
 		// Add parameters to restart Xenon
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		List<String> moduleCommands = ProcessCommands.forModule( modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
+		List<String> moduleCommands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
 		ucb.add( UpdateTask.LAUNCH ).add( moduleCommands ).line();
 
-		stdInput = ucb.toString().getBytes( TextUtil.CHARSET );
+		updateCommandsForStdIn = ucb.toString().getBytes( TextUtil.CHARSET );
 
 		return this;
 	}
@@ -172,6 +173,11 @@ public class ProgramShutdownHook extends Thread {
 			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
 			FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
 
+			// Fix the permissions on the executable
+			String ext = OperatingSystem.isWindows() ? ".exe" : "";
+			Path bin = updaterHomeRoot.resolve( "bin" ).resolve( "java" + ext );
+			bin.toFile().setExecutable( true, true );
+
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
 			return updaterHomeRoot.toString();
@@ -185,12 +191,14 @@ public class ProgramShutdownHook extends Thread {
 	public void run() {
 		if( builder == null ) return;
 
+		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+
 		try {
 			// Only redirect stdout and stderr
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
-			if( stdInput != null ) {
-				process.getOutputStream().write( stdInput );
+			if( updateCommandsForStdIn != null ) {
+				process.getOutputStream().write( updateCommandsForStdIn );
 				process.getOutputStream().close();
 			}
 		} catch( IOException exception ) {

@@ -349,11 +349,13 @@ public class Workspace implements Configurable {
 
 		pane.onMouseClickedProperty().set( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
+			program.getNoticeManager().readNotice();
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+			program.getNoticeManager().readNotice();
 			noticeContainer.getChildren().remove( pane );
 			event.consume();
 		} );

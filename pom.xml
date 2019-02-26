@@ -7,7 +7,7 @@
 
 	<parent>
 		<groupId>com.xeomar.pom</groupId>
-		<artifactId>jar</artifactId>
+		<artifactId>prd</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
@@ -323,164 +323,125 @@
 				</executions>
 			</plugin>
 
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<!-- Generate the package resource -->
-					<execution>
-						<id>assembly-product</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<attach>false</attach>
-							<descriptors>
-								<descriptor>source/main/assembly/product.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-
-					<!-- Generate the installer resources -->
-					<execution>
-						<id>assembly-install</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<attach>false</attach>
-							<descriptors>
-								<descriptor>source/main/assembly/install.xml</descriptor>
-							</descriptors>
-							<finalName>${product-pack-folder}</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Copy extra installer resources. -->
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-izpack-resources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<encoding>UTF-8</encoding>
-							<resources>
-								<resource>
-									<directory>${basedir}/source/main/izpack</directory>
-								</resource>
-							</resources>
-							<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-izpack-resources-filter</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<encoding>UTF-8</encoding>
-							<resources>
-								<resource>
-									<directory>${basedir}/source/main/izpack</directory>
-									<filtering>true</filtering>
-									<excludes>
-										<exclude>bin</exclude>
-									</excludes>
-								</resource>
-							</resources>
-							<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-windows-resources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<encoding>UTF-8</encoding>
-							<resources>
-								<resource>
-									<directory>${basedir}/source/main/pack/windows</directory>
-									<excludes>
-										<exclude>bin</exclude>
-									</excludes>
-								</resource>
-							</resources>
-							<outputDirectory>${basedir}/target/pack/windows</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Generate the installer -->
-			<plugin>
-				<groupId>org.codehaus.izpack</groupId>
-				<artifactId>izpack-maven-plugin</artifactId>
-				<version>${izpack.version}</version>
-				<executions>
-					<execution>
-						<id>izpack.deploy</id>
-						<phase>package</phase>
-						<goals>
-							<goal>izpack</goal>
-						</goals>
-						<configuration>
-							<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
-							<baseDir>${project.build.directory}</baseDir>
-							<classifier>install</classifier>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<!-- Add the catalog card -->
-								<artifact>
-									<file>target/main/java/META-INF/catalog.card</file>
-									<classifier>catalog</classifier>
-									<type>card</type>
-								</artifact>
-								<!-- Add the product card -->
-								<artifact>
-									<file>target/main/java/META-INF/product.card</file>
-									<classifier>product</classifier>
-									<type>card</type>
-								</artifact>
-								<!-- Add the product pack -->
-								<artifact>
-									<file>target/${project.artifactId}-${project.version}-product.zip</file>
-									<classifier>product</classifier>
-									<type>pack</type>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
+
 	</build>
+
+	<profiles>
+		<profile>
+			<id>platform-specific-assemblies</id>
+			<build>
+				<plugins>
+
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<!-- Assemble the installer files -->
+							<execution>
+								<id>assembly-install</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<attach>false</attach>
+									<descriptors>
+										<descriptor>source/main/assembly/${product.platform}-install.xml</descriptor>
+									</descriptors>
+									<finalName>${product-pack-folder}</finalName>
+									<appendAssemblyId>false</appendAssemblyId>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Copy extra installer resources -->
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-izpack-resources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<encoding>UTF-8</encoding>
+									<resources>
+										<resource>
+											<directory>${basedir}/source/main/izpack</directory>
+										</resource>
+									</resources>
+									<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-izpack-resources-filter</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<encoding>UTF-8</encoding>
+									<resources>
+										<resource>
+											<directory>${basedir}/source/main/izpack</directory>
+											<filtering>true</filtering>
+											<excludes>
+												<exclude>bin</exclude>
+											</excludes>
+										</resource>
+									</resources>
+									<outputDirectory>${basedir}/target/main/izpack</outputDirectory>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-platform-resources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<encoding>UTF-8</encoding>
+									<resources>
+										<resource>
+											<directory>${basedir}/source/main/pack/${product.platform}</directory>
+											<excludes>
+												<exclude>bin</exclude>
+											</excludes>
+										</resource>
+									</resources>
+									<outputDirectory>${basedir}/target/pack/${product.platform}</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Generate the installer -->
+					<plugin>
+						<groupId>org.codehaus.izpack</groupId>
+						<artifactId>izpack-maven-plugin</artifactId>
+						<version>${izpack.version}</version>
+						<executions>
+							<execution>
+								<id>izpack-deploy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>izpack</goal>
+								</goals>
+								<configuration>
+									<enableAttachArtifact>false</enableAttachArtifact>
+									<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
+									<baseDir>${project.build.directory}</baseDir>
+									<finalName>${product.platform}-install</finalName>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

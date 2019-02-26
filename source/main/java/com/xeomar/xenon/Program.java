@@ -44,10 +44,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
@@ -928,6 +925,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
+		// FIXME Do I want the update settings in the program settings?
+		// There is also a set of comments regarding this issue in the UpdateManager class
 		updateManager.setSettings( programSettings );
 
 		// Register the catalog
@@ -953,9 +952,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.title" );
-		String header = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.header" );
-		String message = getResourceBundle().getString( BundleKey.PROGRAM, "program.updated.message", priorVersion, runtimeVersion );
+		String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+		String message = getResourceBundle().getString( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
 	}
 
@@ -966,11 +964,9 @@ public class Program extends Application implements ProgramProduct {
 			Release runtime = this.getCard().getRelease();
 
 			isProgramUpdated = previous != null && runtime.compareTo( previous ) > 0;
+			if( isProgramUpdated ) programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
 
-			if( isProgramUpdated ) {
-				programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
-				programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
-			}
+			programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
 		}
 
 		return isProgramUpdated;

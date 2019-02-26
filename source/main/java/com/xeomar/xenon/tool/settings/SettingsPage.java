@@ -31,7 +31,7 @@ public class SettingsPage extends Node {
 		setValue( PAGES, new ConcurrentHashMap<>() );
 
 		definePrimaryKey( ID );
-		defineBusinessKey( TITLE );
+		defineNaturalKey( TITLE );
 
 		setModified( false );
 	}

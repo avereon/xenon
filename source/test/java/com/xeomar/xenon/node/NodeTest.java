@@ -945,7 +945,7 @@ public class NodeTest {
 
 	@Test
 	public void testToString() {
-		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		data.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.toString(), is( "MockNode[]" ) );
 
 		Date birthDate = new Date( 0 );
@@ -984,14 +984,14 @@ public class NodeTest {
 
 	@Test
 	public void testHashCode() {
-		data.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		data.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.hashCode(), is( 0 ) );
 
 		// Test the primary key
 		data.setValue( "id", 2849234 );
 		assertThat( data.hashCode(), is( 2849234 ) );
 
-		// Test the business key
+		// Test the natural key
 		data.setValue( "lastName", "Doe" );
 		assertThat( data.hashCode(), is( 2782408 ) );
 	}
@@ -999,9 +999,9 @@ public class NodeTest {
 	@Test
 	public void testEquals() {
 		MockNode data1 = new MockNode();
-		data1.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		data1.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		MockNode data2 = new MockNode();
-		data2.defineBusinessKey( "firstName", "lastName", "birthDate" );
+		data2.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		assertThat( data1.equals( data2 ), is( true ) );
 
 		// Test the primary key
@@ -1011,7 +1011,7 @@ public class NodeTest {
 		data2.setValue( "id", 2849234 );
 		assertThat( data1.equals( data2 ), is( true ) );
 
-		// Test the business key
+		// Test the natural key
 		data1.setValue( "lastName", "Doe" );
 		assertThat( data1.equals( data2 ), is( false ) );
 

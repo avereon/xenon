@@ -17,7 +17,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	private String id;
 
-	private String icon;
+	private StringProperty icon;
 
 	private String name;
 
@@ -35,6 +35,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 
 	public ActionProxy() {
 		mnemonic = NO_MNEMONIC;
+		icon = new SimpleStringProperty();
 		mnemonicName = new SimpleStringProperty();
 		enabledProperty = new SimpleBooleanProperty();
 		actionStack = new Stack<>();
@@ -49,11 +50,15 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	}
 
 	public String getIcon() {
-		return icon;
+		return icon.getValue();
 	}
 
 	public void setIcon( String icon ) {
-		this.icon = icon;
+		this.icon.setValue( icon );
+	}
+
+	public StringProperty iconProperty() {
+		return icon;
 	}
 
 	/**

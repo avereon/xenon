@@ -44,11 +44,6 @@ public class NoticePane extends GridPane {
 		GridPane.setColumnSpan( message, 2 );
 
 		getChildren().addAll( noticeIcon, title, closeIcon, message );
-
-		onMouseClickedProperty().set( ( event ) -> {
-			executeNoticeAction();
-			event.consume();
-		} );
 	}
 
 	public void executeNoticeAction() {

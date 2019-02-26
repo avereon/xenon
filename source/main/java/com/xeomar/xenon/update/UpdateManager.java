@@ -26,12 +26,17 @@ import java.util.concurrent.*;
 /**
  * The update manager handles discovery, staging and applying product updates.
  * <p>
- * Discovery involves checking for updates over the network (usually over the Internet) and comparing the release information of installed packs with the release information of the discovered packs. If the discovered pack is determined to
- * be newer than the installed pack it is considered an update.
+ * Discovery involves checking for updates over the network (usually over the
+ * Internet) and comparing the release information of installed packs with the
+ * release information of the discovered packs. If the discovered pack is
+ * determined to be newer than the installed pack it is considered an update.
  * <p>
- * Staging involves downloading new pack data and preparing it to be applied by the update application.
+ * Staging involves downloading new pack data and preparing it to be applied by
+ * the update application.
  * <p>
- * Applying involves configuring and executing a separate update process to apply the staged updates. This requires the calling process to terminate to allow the update process to change required files.
+ * Applying involves configuring and executing a separate update process to
+ * apply the staged updates. This requires the calling process to terminate to
+ * allow the update process to change required files.
  */
 public class UpdateManager implements Controllable<UpdateManager>, Configurable {
 
@@ -161,6 +166,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public UpdateManager( Program program ) {
 		this.program = program;
 
+		// NEXT Should module management and update management be separated???
 		catalogs = new CopyOnWriteArraySet<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
@@ -736,9 +742,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	public void setSettings( Settings settings ) {
 		if( settings == null || this.settings != null ) return;
 
-		// FIXME The settings passed in serve two purposes but should not
+		// FIXME The settings passed in serve two purposes (config and updates) but should not
 
-		// What are these setting if the update node is retrieved below
+		// What are these settings if the update node is retrieved below?
 		this.settings = settings;
 
 		if( "STAGE".equals( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() ) ) {
@@ -749,7 +755,8 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
 		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
 
-		// These settings are apparently used to store the catalogs and updates
+		// FIXME These settings are apparently used to store the catalogs and updates
+		// Maybe the catalogs and updates should be stored in a different location
 		this.updateSettings = settings.getNode( "update" );
 
 		// Load the product catalogs
@@ -959,7 +966,20 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		return products;
 	//	}
 
+	private Map<String,String> getProductParameters( ProductCard card, String type ) {
+		Map<String,String> parameters = new HashMap<>();
+
+		parameters.put( "artifact", card.getArtifact() );
+		parameters.put( "category", "product" );
+		parameters.put( "channel", getProductChannel() );
+		parameters.put( "platform", OperatingSystem.getFamily().name().toLowerCase() );
+		parameters.put( "type", type );
+
+		return parameters;
+	}
+
 	private String getProductChannel() {
+		// FIXME This should be a setting
 		return "latest";
 	}
 
@@ -1107,7 +1127,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		modules.put( card.getProductKey(), module );
 
 		// Set the enabled flag.
-		setUpdatable( card, card.getCardUri() != null );
+		setUpdatable( card, card.getProductUri() != null );
 		setRemovable( card, true );
 	}
 
@@ -1146,7 +1166,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 			oldCards = getProductCards();
 			for( ProductCard installedCard : oldCards ) {
 				try {
-					URI codebase = installedCard.getCardUri( getProductChannel() );
+					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
 					URI uri = getResolvedUpdateUri( codebase );
 					if( uri == null ) {
 						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
@@ -1244,9 +1264,9 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 			// Determine all the resources to download.
 			try {
-				URI codebase = updateCard.getCardUri( getProductChannel() );
+				URI codebase = updateCard.getProductUri( getProductParameters( updateCard, "card" ) );
 				log.debug( "Resource codebase: " + codebase );
-				PackProvider provider = new PackProvider( program, updateCard, getProductChannel() );
+				PackProvider provider = new PackProvider( program, updateCard, getProductParameters( updateCard, "pack" ) );
 				resources = provider.getResources( codebase );
 				setTotal( resources.size() );
 
@@ -1304,6 +1324,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 				return null;
 			}
 
+			// FIXME Is it necessary to zip everything up again???
 			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
 			copyProductResources( resources, updateFolder );
 			FileUtil.deleteOnExit( updateFolder );

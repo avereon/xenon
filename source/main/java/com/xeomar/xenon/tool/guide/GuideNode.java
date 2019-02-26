@@ -12,7 +12,7 @@ public class GuideNode extends Node {
 
 	public GuideNode() {
 		definePrimaryKey( ID );
-		defineBusinessKey( NAME );
+		defineNaturalKey( NAME );
 	}
 
 	public GuideNode init( String id, String name ) {

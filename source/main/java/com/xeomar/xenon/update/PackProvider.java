@@ -6,6 +6,7 @@ import com.xeomar.xenon.Program;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class PackProvider implements ProductResourceProvider {
@@ -14,12 +15,12 @@ public class PackProvider implements ProductResourceProvider {
 
 	private ProductCard card;
 
-	private String channel;
+	private Map<String,String> parameters;
 
-	public PackProvider( Program program, ProductCard card, String channel ) {
+	public PackProvider( Program program, ProductCard card, Map<String,String> parameters ) {
 		this.card = card;
 		this.program = program;
-		this.channel = channel;
+		this.parameters = parameters;
 	}
 
 	@Override
@@ -27,7 +28,7 @@ public class PackProvider implements ProductResourceProvider {
 		Set<ProductResource> resources = new HashSet<>();
 
 		// Add the product pack as a resource
-		resources.add( new ProductResource( ProductResource.Type.PACK, card.getPackUri( channel ) ) );
+		resources.add( new ProductResource( ProductResource.Type.PACK, card.getProductUri( parameters ) ) );
 
 //		// Determine what other resources need to be downloaded
 //		String[] files = card.getResourceUris( "file" );

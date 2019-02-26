@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!-- This must match the product descriptor except for the format. -->
+<assembly>
+	<id>windows-install</id>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<fileSets>
+		<fileSet>
+			<directory>target/jlink</directory>
+			<outputDirectory></outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>source/main/assembly/resources</directory>
+			<outputDirectory>bin</outputDirectory>
+			<includes>
+				<include>${artifact.artifactId}.ico</include>
+				<include>${artifact.artifactId}.png</include>
+				<include>${artifact.artifactId}.svg</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+	<files>
+		<file>
+			<source>target/jlink/bin/java.exe</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>target/jlink/bin/keytool.exe</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>target/jlink/bin/xenon.bat</source>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>0755</fileMode>
+		</file>
+	</files>
+</assembly>
