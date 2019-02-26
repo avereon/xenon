@@ -175,7 +175,7 @@ public class ProgramShutdownHook extends Thread {
 
 			// Fix the permissions on the executable
 			String ext = OperatingSystem.isWindows() ? ".exe" : "";
-			Path bin = updaterHomeRoot.resolve( "bin" ).resolve( "java" + ext );
+			Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
 			bin.toFile().setExecutable( true, true );
 
 			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
