@@ -81,7 +81,7 @@ public class ProgramShutdownHook extends Thread {
 		String updaterModuleMainClass = com.xeomar.xevra.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
-		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( program.getCard().getArtifact() + "-updater.log" ) );
+		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( "update.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
 		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, null, updaterModuleMain, updaterModuleMainClass ) );
