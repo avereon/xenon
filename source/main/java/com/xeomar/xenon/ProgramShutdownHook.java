@@ -98,8 +98,8 @@ public class ProgramShutdownHook extends Thread {
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
-		ucb.add( UpdateTask.ECHO ).add( "Updating " + program.getCard().getName() ).line();
-		ucb.add( UpdateTask.PAUSE ).add( "1000" ).add( "Preparing " + program.getCard().getName() + " update..." ).line();
+		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
+		ucb.add( UpdateTask.PAUSE, "1000", "Preparing " + program.getCard().getName() + " update..." ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
@@ -110,16 +110,9 @@ public class ProgramShutdownHook extends Thread {
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 			String archivePath = archive.toString().replace( File.separator, "/" );
 
-			// FIXME This was broken previous to 21 Feb 2019. Try a move update again.
-			// NOTE Apparently the move option does not work in Windows, but unpack
-			// does. Even waiting for a long period of time didn't solve the issue of
-			// not being able to move the folder. Also, all the files in the folder
-			// can be removed (maybe an option to just move the contents of the
-			// folder), just not the program home folder.
-
-			ucb.add( UpdateTask.DELETE ).add( archivePath ).line();
-			ucb.add( UpdateTask.MOVE ).add( targetPath ).add( archivePath ).line();
-			ucb.add( UpdateTask.UNPACK ).add( updatePath ).add( targetPath ).line();
+			ucb.add( UpdateTask.DELETE, archivePath ).line();
+			ucb.add( UpdateTask.MOVE, targetPath, archivePath ).line();
+			ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
 
 			String exe = OperatingSystem.isWindows() ? ".exe" : "";
 			String cmd = OperatingSystem.isWindows() ? ".bat" : "";
@@ -127,15 +120,16 @@ public class ProgramShutdownHook extends Thread {
 			String javawFile = targetPath + "/bin/javaw" + exe;
 			String keytoolFile = targetPath + "/bin/keytool" + exe;
 			String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
-			ucb.add( UpdateTask.PERMISSIONS ).add( "777" ).add( javaFile ).add( javawFile ).add( keytoolFile ).add( scriptFile ).line();
+			ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile ).line();
 		}
 
-		// Add parameters to restart Xenon
+		// Add parameters to restart program
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 		List<String> moduleCommands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
-		ucb.add( UpdateTask.LAUNCH ).add( moduleCommands ).line();
+		moduleCommands.addAll( List.of( restartCommands ) );
+		ucb.add( UpdateTask.LAUNCH, moduleCommands ).line();
 
 		updateCommandsForStdIn = ucb.toString().getBytes( TextUtil.CHARSET );
 
