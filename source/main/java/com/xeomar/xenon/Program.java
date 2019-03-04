@@ -299,7 +299,8 @@ public class Program extends Application implements ProgramProduct {
 
 	public void requestRestart( String... commands ) {
 		// Register a shutdown hook to restart the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForRestart( commands );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
+		programShutdownHook.configureForRestart( commands );
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.
@@ -314,8 +315,16 @@ public class Program extends Application implements ProgramProduct {
 
 	public void requestUpdate( String... restartCommands ) {
 		// Register a shutdown hook to update the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this ).configureForUpdate( restartCommands );
-		Runtime.getRuntime().addShutdownHook( programShutdownHook );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
+		try {
+			programShutdownHook.configureForUpdate( restartCommands );
+			Runtime.getRuntime().addShutdownHook( programShutdownHook );
+		} catch( IOException exception ) {
+			String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String message = getResourceBundle().getString( BundleKey.UPDATE, "update-stage-failure" );
+			getNoticeManager().addNotice( new Notice( title, message ) );
+			return;
+		}
 
 		// Request the program stop.
 		if( !requestExit( true ) ) {

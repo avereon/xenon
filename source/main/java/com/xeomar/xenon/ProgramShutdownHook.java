@@ -62,7 +62,7 @@ public class ProgramShutdownHook extends Thread {
 		return this;
 	}
 
-	synchronized ProgramShutdownHook configureForUpdate( String... restartCommands ) {
+	synchronized ProgramShutdownHook configureForUpdate( String... restartCommands ) throws IOException {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
 		// like the installed program location and therefore would not be a
@@ -150,35 +150,31 @@ public class ProgramShutdownHook extends Thread {
 	 *
 	 * @return The stage updater module path
 	 */
-	private String stageUpdater() {
-		try {
-			// Determine where to put the updater
-			String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
-			Path updaterHomeRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterHomeFolderName );
-			if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
+	private String stageUpdater() throws IOException {
+		// Determine where to put the updater
+		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
+		Path updaterHomeRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterHomeFolderName );
+		if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
 
-			// Cleanup from prior updates
-			FileUtils.deleteDirectory( updaterHomeRoot.toFile() );
+		// Cleanup from prior updates
+		FileUtil.delete( updaterHomeRoot );
+		//FileUtils.deleteDirectory( updaterHomeRoot.toFile() );
 
-			// Create the updater home folders
-			Files.createDirectories( updaterHomeRoot );
+		// Create the updater home folders
+		Files.createDirectories( updaterHomeRoot );
 
-			// Copy all the modules needed for the updater
-			log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
-			FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
+		// Copy all the modules needed for the updater
+		log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
+		FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
 
-			// Fix the permissions on the executable
-			String ext = OperatingSystem.isWindows() ? ".exe" : "";
-			Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
-			bin.toFile().setExecutable( true, true );
+		// Fix the permissions on the executable
+		String ext = OperatingSystem.isWindows() ? ".exe" : "";
+		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
+		bin.toFile().setExecutable( true, true );
 
-			// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
+		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
-			return updaterHomeRoot.toString();
-		} catch( IOException exception ) {
-			log.error( "Unable to stage updater", exception );
-			return null;
-		}
+		return updaterHomeRoot.toString();
 	}
 
 	@Override
