@@ -102,7 +102,6 @@ public class ProgramShutdownHook extends Thread {
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
-		ucb.add( UpdateTask.PAUSE, "1000", "Preparing " + program.getCard().getName() + " update..." ).line();
 
 		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
