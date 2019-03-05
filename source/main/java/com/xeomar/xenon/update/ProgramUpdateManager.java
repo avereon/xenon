@@ -196,13 +196,8 @@ public class ProgramUpdateManager extends UpdateManager {
 		}
 
 		private void notifyUserOfUpdates() {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-
 			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-			Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
-			program.getNoticeManager().addNotice( notice );
+			Platform.runLater( () -> program.getResourceManager().open( uri ) );
 		}
 
 	}
