@@ -34,6 +34,7 @@ import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -44,7 +45,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
@@ -331,6 +335,10 @@ public class Program extends Application implements ProgramProduct {
 			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
 			return;
 		}
+
+		// If the product tool is open, close it now
+		Set<Tool> tools = getWorkspaceManager().getActiveWorkpane().getTools( ProductTool.class );
+		if( tools.size() !=  0 ) tools.forEach( Tool::close );
 
 		// The shutdown hook should update the program
 		log.info( "Updating..." );

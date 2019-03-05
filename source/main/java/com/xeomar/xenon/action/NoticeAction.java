@@ -22,13 +22,13 @@ public class NoticeAction extends Action {
 
 	@Override
 	public void handle( Event event ) {
-		Set<Tool> noticeTools = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().getTools( NoticeTool.class );
+		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpane().getTools( NoticeTool.class );
 
-		if( noticeTools.size() == 0 ) {
+		if( tools.size() == 0 ) {
 			getProgram().getResourceManager().open( ProgramNoticeType.URI );
 			getProgram().getNoticeManager().readAll();
 		} else {
-			noticeTools.forEach( Tool::close );
+			tools.forEach( Tool::close );
 		}
 	}
 

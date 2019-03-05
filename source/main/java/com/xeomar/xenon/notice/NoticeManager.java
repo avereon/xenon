@@ -43,9 +43,9 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 		resource.refresh( program.getResourceManager() );
 
-		Set<Tool> noticeTools = getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().getTools( NoticeTool.class );
-		if( noticeTools.size() > 0 ) {
-			getProgram().getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().setActiveTool( noticeTools.iterator().next() );
+		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpane().getTools( NoticeTool.class );
+		if( tools.size() > 0 ) {
+			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
 		} else {
 			Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
 		}

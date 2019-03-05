@@ -3,6 +3,7 @@ package com.xeomar.xenon;
 import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workspace.Workspace;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -134,6 +135,10 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public void closeWorkspace( Workspace workspace ) {
 		removeWorkspace( workspace );
 		workspace.close();
+	}
+
+	public Workpane getActiveWorkpane() {
+		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
 	}
 
 	void hideWindows() {
