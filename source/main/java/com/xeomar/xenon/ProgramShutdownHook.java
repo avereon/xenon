@@ -14,6 +14,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,6 +48,7 @@ public class ProgramShutdownHook extends Thread {
 		this.mode = Mode.RESTART;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	synchronized ProgramShutdownHook configureForRestart( String... extraCommands ) {
 		mode = Mode.RESTART;
 
@@ -62,6 +64,7 @@ public class ProgramShutdownHook extends Thread {
 		return this;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	synchronized ProgramShutdownHook configureForUpdate( String... restartCommands ) throws IOException {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
@@ -127,9 +130,12 @@ public class ProgramShutdownHook extends Thread {
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-		List<String> moduleCommands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS );
-		moduleCommands.addAll( List.of( restartCommands ) );
-		ucb.add( UpdateTask.LAUNCH, moduleCommands ).line();
+
+		List<String> launchCommands = new ArrayList<>();
+		launchCommands.add( System.getProperty( "user.dir" ) );
+		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS ) );
+		launchCommands.addAll( List.of( restartCommands ) );
+		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
 
 		updateCommandsForStdIn = ucb.toString().getBytes( TextUtil.CHARSET );
 
@@ -170,6 +176,7 @@ public class ProgramShutdownHook extends Thread {
 		// Fix the permissions on the executable
 		String ext = OperatingSystem.isWindows() ? ".exe" : "";
 		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
+		//noinspection ResultOfMethodCallIgnored
 		bin.toFile().setExecutable( true, true );
 
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
