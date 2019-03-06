@@ -10,7 +10,6 @@ import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -39,7 +38,7 @@ public class ProgramUpdateManager extends UpdateManager {
 	// This is a method for testing the update found dialog.
 	// It should not be used for production functionality.
 	public void showUpdateFoundDialog() {
-		new ApplyUpdates( program, Set.of() ).handleApplyUpdates();
+		new ApplyUpdates( program, Set.of(), true ).handleApplyUpdates();
 	}
 
 	@Override
@@ -120,7 +119,11 @@ public class ProgramUpdateManager extends UpdateManager {
 	 */
 	@Override
 	public void applySelectedUpdates( Set<ProductCard> updates ) {
-		program.getTaskManager().submit( new ApplyUpdates( program, updates ) );
+		applySelectedUpdates( updates, false );
+	}
+
+	public void applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
+		program.getTaskManager().submit( new ApplyUpdates( program, updates, interactive ) );
 	}
 
 	private final class CheckForUpdates extends ProgramTask<Void> {
@@ -175,7 +178,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
 			if( interactive ) {
-				notifyUserOfUpdates();
+				openProductManager();
 				return;
 			}
 
@@ -191,15 +194,24 @@ public class ProgramUpdateManager extends UpdateManager {
 				}
 				case APPLY: {
 					// Stage all updates without user intervention.
-					program.getExecutor().submit( new ApplyUpdates( program, postedUpdates ) );
+					program.getExecutor().submit( new ApplyUpdates( program, postedUpdates, false ) );
 					break;
 				}
 			}
 		}
 
-		private void notifyUserOfUpdates() {
+		private void openProductManager() {
 			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
 			Platform.runLater( () -> program.getResourceManager().open( uri ) );
+		}
+
+		private void notifyUserOfUpdates() {
+			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+
+			Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
+			program.getNoticeManager().addNotice( notice );
 		}
 
 	}
@@ -276,10 +288,13 @@ public class ProgramUpdateManager extends UpdateManager {
 
 	private final class ApplyUpdates extends ProgramTask<Void> {
 
+		private boolean interactive;
+
 		private Future<Integer> stageFuture;
 
-		ApplyUpdates( Program program, Set<ProductCard> selectedUpdates ) {
+		ApplyUpdates( Program program, Set<ProductCard> selectedUpdates, boolean interactive ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-apply-selected" ) );
+			this.interactive = interactive;
 			stageFuture = program.getTaskManager().submit( new StageUpdates( program, selectedUpdates ) );
 		}
 
@@ -293,32 +308,33 @@ public class ProgramUpdateManager extends UpdateManager {
 		 * Nearly identical to ProductTool.handleStagedUpdates()
 		 */
 		private void handleApplyUpdates() {
+			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+
+			if( interactive ) {
+				Platform.runLater( this::showAlert );
+			} else {
+				program.getNoticeManager().addNotice( new Notice( header, message, () -> Platform.runLater( this::showAlert ) ) );
+			}
+		}
+
+		private void showAlert() {
 			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
 			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
-			// Notice that shows an alert
-			Notice notice = new Notice( header, message, () -> Platform.runLater( () -> {
-				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-				alert.setTitle( title );
-				alert.setHeaderText( header );
-				alert.setContentText( message );
+			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+			alert.setTitle( title );
+			alert.setHeaderText( header );
+			alert.setContentText( message );
 
-				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
-				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+			Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) {
-					Platform.runLater( () -> {
-						// If the product tool is open, close it now
-						Set<Tool> tools = program.getWorkspaceManager().getActiveWorkpane().getTools( ProductTool.class );
-						if( tools.size() != 0 ) tools.forEach( Tool::close );
-					} );
-
-					ProgramUpdateManager.super.userApplyStagedUpdates();
-				}
-			} ) );
-
-			program.getNoticeManager().addNotice( notice );
+			if( result.isPresent() && result.get() == ButtonType.YES ) {
+				program.getWorkspaceManager().requestToolsClose( ProductTool.class );
+				ProgramUpdateManager.super.userApplyStagedUpdates();
+			}
 		}
 
 	}

@@ -4,6 +4,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.type.ProgramProductType;
+import com.xeomar.xenon.update.ProgramUpdateManager;
 import javafx.scene.control.Button;
 
 import java.util.HashSet;
@@ -44,6 +45,8 @@ class UpdatesPage extends ProductPage {
 
 	private void downloadAllSelected() {
 		ProductTool.log.trace( "Download all available updates" );
-		productTool.getProgram().getUpdateManager().applySelectedUpdates( getSelectedUpdates() );
+		ProgramUpdateManager updateManager = (ProgramUpdateManager)productTool.getProgram().getUpdateManager();
+		updateManager.applySelectedUpdates( getSelectedUpdates(), true );
 	}
+
 }

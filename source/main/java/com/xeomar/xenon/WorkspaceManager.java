@@ -2,9 +2,12 @@ package com.xeomar.xenon;
 
 import com.xeomar.util.Controllable;
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.workarea.Tool;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workspace.Workspace;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -139,6 +142,13 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	public Workpane getActiveWorkpane() {
 		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
+	}
+
+	public void requestToolsClose( Class<? extends ProgramTool> type ) {
+		Platform.runLater( () -> {
+			Set<Tool> tools = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().getTools( type );
+			tools.forEach( Tool::close );
+		} );
 	}
 
 	void hideWindows() {

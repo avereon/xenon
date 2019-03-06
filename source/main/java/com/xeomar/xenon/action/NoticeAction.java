@@ -24,11 +24,13 @@ public class NoticeAction extends Action {
 	public void handle( Event event ) {
 		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpane().getTools( NoticeTool.class );
 
-		if( tools.size() == 0 ) {
-			getProgram().getResourceManager().open( ProgramNoticeType.URI );
-			getProgram().getNoticeManager().readAll();
-		} else {
+		if( tools.size() > 0 ) {
+			// Close the notice tools
 			tools.forEach( Tool::close );
+		} else {
+			// Open the notice tool
+			getProgram().getNoticeManager().readAll();
+			getProgram().getResourceManager().open( ProgramNoticeType.URI );
 		}
 	}
 
