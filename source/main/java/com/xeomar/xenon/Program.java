@@ -336,10 +336,6 @@ public class Program extends Application implements ProgramProduct {
 			return;
 		}
 
-		// If the product tool is open, close it now
-		Set<Tool> tools = getWorkspaceManager().getActiveWorkpane().getTools( ProductTool.class );
-		if( tools.size() !=  0 ) tools.forEach( Tool::close );
-
 		// The shutdown hook should update the program
 		log.info( "Updating..." );
 	}

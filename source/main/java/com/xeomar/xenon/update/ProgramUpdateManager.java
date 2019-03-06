@@ -8,7 +8,9 @@ import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.ProgramTask;
 import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.resource.type.ProgramProductType;
+import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -305,7 +307,15 @@ public class ProgramUpdateManager extends UpdateManager {
 				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.YES ) ProgramUpdateManager.super.userApplyStagedUpdates();
+				if( result.isPresent() && result.get() == ButtonType.YES ) {
+					Platform.runLater( () -> {
+						// If the product tool is open, close it now
+						Set<Tool> tools = program.getWorkspaceManager().getActiveWorkpane().getTools( ProductTool.class );
+						if( tools.size() != 0 ) tools.forEach( Tool::close );
+					} );
+
+					ProgramUpdateManager.super.userApplyStagedUpdates();
+				}
 			} ) );
 
 			program.getNoticeManager().addNotice( notice );
