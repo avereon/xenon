@@ -39,14 +39,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void addNotice( Notice notice ) {
 		((NoticeList)resource.getModel()).addNotice( notice );
-		setUnreadCount( getUnreadCount() + 1 );
 
 		resource.refresh( program.getResourceManager() );
 
-		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpane().getTools( NoticeTool.class );
+		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
 		if( tools.size() > 0 ) {
 			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
 		} else {
+			setUnreadCount( getUnreadCount() + 1 );
 			Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
 		}
 	}
@@ -73,12 +73,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return unreadCount;
 	}
 
-	public void readNotice() {
-		setUnreadCount( Math.max( 0, getUnreadCount() - 1 ) );
-	}
-
 	public void readAll() {
 		setUnreadCount( 0 );
+	}
+
+	public void readNotice() {
+		setUnreadCount( Math.max( 0, getUnreadCount() - 1 ) );
 	}
 
 	public Program getProgram() {
