@@ -36,6 +36,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 		setCenter( tools = new TabPane() );
+		setSnapToPixel( true );
 
 		tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );
 		tools.setTabDragPolicy( TabPane.TabDragPolicy.REORDER );
@@ -164,7 +165,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		}
 	}
 
-	int getToolIndex( Tool tool ) {
+	private int getToolIndex( Tool tool ) {
 		int index = 0;
 
 		for( Tab tab : tools.getTabs() ) {
@@ -245,19 +246,6 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		if( settings != null ) settings.set( "placement", placement == null ? null : placement.name().toLowerCase() );
 	}
 
-	public double getCenter( Orientation orientation ) {
-		switch( orientation ) {
-			case VERTICAL: {
-				return (topEdge.getPosition() + bottomEdge.getPosition()) / 2;
-			}
-			case HORIZONTAL: {
-				return (leftEdge.getPosition() + rightEdge.getPosition()) / 2;
-			}
-		}
-
-		return Double.NaN;
-	}
-
 	@Override
 	public void setSettings( Settings settings ) {
 		if( settings == null ) {
@@ -292,6 +280,19 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public Workpane getWorkpane() {
 		return parent;
+	}
+
+	double getCenter( Orientation orientation ) {
+		switch( orientation ) {
+			case VERTICAL: {
+				return (topEdge.getPosition() + bottomEdge.getPosition()) / 2;
+			}
+			case HORIZONTAL: {
+				return (leftEdge.getPosition() + rightEdge.getPosition()) / 2;
+			}
+		}
+
+		return Double.NaN;
 	}
 
 	void setWorkpane( Workpane parent ) {

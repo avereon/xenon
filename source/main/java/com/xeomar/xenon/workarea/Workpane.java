@@ -60,6 +60,8 @@ public class Workpane extends Pane implements Configurable {
 
 	private DoubleProperty edgeSize;
 
+	private WorkpaneLayout layout;
+
 	private ObjectProperty<WorkpaneView> activeViewProperty;
 
 	private ObjectProperty<WorkpaneView> defaultViewProperty;
@@ -79,6 +81,8 @@ public class Workpane extends Pane implements Configurable {
 	private Settings settings;
 
 	public Workpane() {
+		layout = new WorkpaneLayout( this );
+
 		getStyleClass().add( "workpane" );
 
 		edgeSize = new SimpleDoubleProperty( DEFAULT_EDGE_SIDE );
@@ -151,9 +155,7 @@ public class Workpane extends Pane implements Configurable {
 		Set<WorkpaneEdge> edges = new HashSet<>();
 
 		// Count the edges that are not walls
-		for( Node node : getChildren() ) {
-			if( node instanceof WorkpaneEdge ) edges.add( (WorkpaneEdge)node );
-		}
+		getChildren().filtered( ( c ) -> c instanceof WorkpaneEdge ).forEach( ( c ) -> edges.add( (WorkpaneEdge)c ) );
 		edges.remove( topWall );
 		edges.remove( bottomWall );
 		edges.remove( leftWall );
@@ -1061,135 +1063,12 @@ public class Workpane extends Pane implements Configurable {
 
 	@Override
 	protected void layoutChildren() {
-		Bounds bounds = getLayoutBounds();
-
-		//System.out.println( "Layout pane: w=" + bounds.getWidth() + " h=" + bounds.getHeight() );
-
-		WorkpaneView maximizedView = getMaximizedView();
-		if( maximizedView == null ) {
-			for( Node node : getChildren() ) {
-				if( node instanceof WorkpaneView ) {
-					layoutView( bounds, (WorkpaneView)node );
-				} else if( node instanceof WorkpaneEdge ) {
-					layoutEdge( bounds, (WorkpaneEdge)node );
-				}
-			}
-		} else {
-			for( Node node : getChildren() ) {
-				if( node == maximizedView ) {
-					layoutMaximized( bounds, (WorkpaneView)node );
-				} else {
-					node.setVisible( false );
-				}
-			}
-		}
+		layout.layout();
 	}
 
-	private void layoutView( Bounds bounds, WorkpaneView view ) {
-		if( bounds.getWidth() == 0 | bounds.getHeight() == 0 ) return;
-
-		Insets insets = getInsets();
-		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
-
-		double edgeSize = getEdgeSize();
-		double edgeHalf = 0.5 * edgeSize;
-		double edgeRest = edgeSize - edgeHalf;
-
-		double x1 = view.getEdge( Side.LEFT ).getPosition();
-		double y1 = view.getEdge( Side.TOP ).getPosition();
-		double x2 = view.getEdge( Side.RIGHT ).getPosition();
-		double y2 = view.getEdge( Side.BOTTOM ).getPosition();
-
-		double x = x1 * bounds.getWidth();
-		double y = y1 * bounds.getHeight();
-		double w = x2 * bounds.getWidth() - x;
-		double h = y2 * bounds.getHeight() - y;
-
-		// Leave space for the edges.
-		double north = 0;
-		double south = 0;
-		double east = 0;
-		double west = 0;
-
-		if( !view.getEdge( Side.TOP ).isWall() ) north = edgeRest;
-		if( !view.getEdge( Side.BOTTOM ).isWall() ) south = edgeHalf;
-		if( !view.getEdge( Side.LEFT ).isWall() ) west = edgeRest;
-		if( !view.getEdge( Side.RIGHT ).isWall() ) east = edgeHalf;
-
-		x += west + insets.getLeft();
-		y += north + insets.getTop();
-		w -= (west + east);
-		h -= (north + south);
-
-		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
-
-		// In the end we are still dealing with pixels so cast the bounds to int
-		layoutInArea( view, (int)x, (int)y, (int)w, (int)h, 0, HPos.LEFT, VPos.TOP );
-		view.setVisible( true );
-	}
-
-	private void layoutEdge( Bounds bounds, WorkpaneEdge edge ) {
-		if( bounds.getWidth() == 0 | bounds.getHeight() == 0 ) return;
-
-		Insets insets = getInsets();
-		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
-
-		double edgeSize = edge.isWall() ? 0 : getEdgeSize();
-		double edgeHalf = 0.5 * edgeSize;
-		double edgeRest = edgeSize - edgeHalf;
-		double position = edge.getPosition();
-
-		double x = 0;
-		double y = 0;
-		double w = 0;
-		double h = 0;
-
-		if( edge.getOrientation() == Orientation.VERTICAL ) {
-			x = position * bounds.getWidth() - edgeHalf;
-			y = edge.getEdge( Side.TOP ) == null ? 0 : edge.getEdge( Side.TOP ).getPosition() * bounds.getHeight();
-			w = edgeSize;
-			h = edge.getEdge( Side.BOTTOM ) == null ? 1 : edge.getEdge( Side.BOTTOM ).getPosition() * bounds.getHeight() - y;
-
-			double north = edge.getEdge( Side.TOP ) == null ? 0 : edge.getEdge( Side.TOP ).isWall() ? 0 : edgeRest;
-			double south = edge.getEdge( Side.BOTTOM ) == null ? 0 : edge.getEdge( Side.BOTTOM ).isWall() ? 0 : edgeHalf;
-
-			y += north;
-			h -= (north + south);
-		} else {
-			x = edge.getEdge( Side.LEFT ) == null ? 0 : edge.getEdge( Side.LEFT ).getPosition() * bounds.getWidth();
-			y = position * bounds.getHeight() - edgeHalf;
-			w = edge.getEdge( Side.RIGHT ) == null ? 1 : edge.getEdge( Side.RIGHT ).getPosition() * bounds.getWidth() - x;
-			h = edgeSize;
-
-			double west = edge.getEdge( Side.LEFT ) == null ? 0 : edge.getEdge( Side.LEFT ).isWall() ? 0 : edgeRest;
-			double east = edge.getEdge( Side.RIGHT ) == null ? 0 : edge.getEdge( Side.RIGHT ).isWall() ? 0 : edgeHalf;
-
-			x += west;
-			w -= (west + east);
-		}
-
-		x += insets.getLeft();
-		y += insets.getTop();
-
-		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
-
-		// In the end we are still dealing with pixels so cast the bounds to int
-		layoutInArea( edge, (int)x, (int)y, (int)w, (int)h, 0, HPos.CENTER, VPos.CENTER );
-		edge.setVisible( true );
-	}
-
-	private void layoutMaximized( Bounds bounds, WorkpaneView view ) {
-		Insets insets = getInsets();
-
-		double x = insets.getLeft();
-		double y = insets.getTop();
-		double w = bounds.getWidth() - insets.getLeft() - insets.getRight();
-		double h = bounds.getHeight() - insets.getTop() - insets.getBottom();
-
-		//System.out.println( "Layout view max: x=" + x + " y=" + y + " w=" + w + " h=" + h );
-
-		layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
-		view.setVisible( true );
+	@Override
+	protected void layoutInArea( Node node, double v, double v1, double v2, double v3, double v4, HPos hPos, VPos vPos ) {
+		super.layoutInArea( node, v, v1, v2, v3, v4, hPos, vPos );
 	}
 
 	/**

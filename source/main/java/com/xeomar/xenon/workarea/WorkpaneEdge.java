@@ -69,6 +69,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	public WorkpaneEdge( Orientation orientation, Side side ) {
 		getStyleClass().add( "workpane-edge" );
 		setOrientation( orientation );
+		setSnapToPixel( true );
 		setPosition( 0 );
 		this.side = side;
 
@@ -100,8 +101,10 @@ public class WorkpaneEdge extends Control implements Configurable {
 	}
 
 	/**
-	 * <p>This property controls how the WorkpaneEdge should be displayed to the user. {@link javafx.geometry.Orientation#HORIZONTAL} will result in a horizontal divider, while {@link javafx.geometry.Orientation#VERTICAL} will result in a
-	 * vertical divider.</p>
+	 * <p>This property controls how the WorkpaneEdge should be displayed to the
+	 * user. {@link javafx.geometry.Orientation#HORIZONTAL} will result in a
+	 * horizontal divider, while {@link javafx.geometry.Orientation#VERTICAL} will
+	 * result in a vertical divider.</p>
 	 *
 	 * @param value the orientation value
 	 */
@@ -125,7 +128,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 */
 	public final ObjectProperty<Orientation> orientationProperty() {
 		if( orientation == null ) {
-			orientation = new StyleableObjectProperty<Orientation>( null ) {
+			orientation = new StyleableObjectProperty<>( null ) {
 
 				@Override
 				public void invalidated() {
