@@ -332,7 +332,7 @@ public class ProgramUpdateManager extends UpdateManager {
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {
-				program.getWorkspaceManager().requestToolsClose( ProductTool.class );
+				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
 				ProgramUpdateManager.super.userApplyStagedUpdates();
 			}
 		}
