@@ -345,6 +345,8 @@ public class Workspace implements Configurable {
 
 	public void showNotice( Notice notice ) {
 		NoticePane pane = new NoticePane( program, notice );
+		pane.getStyleClass().remove( "notice" );
+		pane.getStyleClass().addAll( "notice-hover" );
 		noticeContainer.getChildren().add( 0, pane );
 
 		pane.onMouseClickedProperty().set( ( event ) -> {

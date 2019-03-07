@@ -15,11 +15,11 @@ public class Notice extends Node {
 
 	private static final String TIMESTAMP = "timestamp";
 
-	// ??? How severe/important is this message ???
+	// TODO How severe/important is this message ???
 	// Is this just a range 1-N? Or are these named?
 	private static final String SEVERITY = "severity";
 
-	// ??? What type of message is this message ???
+	// TODO What type of message is this message ???
 	// Similar to the Alert.AlertType: NONE, INFORMATION, WARNING, CONFIRMATION, ERROR
 	private static final String TYPE = "type";
 
