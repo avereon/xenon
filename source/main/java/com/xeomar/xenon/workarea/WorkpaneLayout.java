@@ -1,7 +1,6 @@
 package com.xeomar.xenon.workarea;
 
 import javafx.geometry.*;
-import javafx.scene.Node;
 
 public class WorkpaneLayout {
 
@@ -25,74 +24,27 @@ public class WorkpaneLayout {
 		}
 	}
 
-	private void layoutNormal(Bounds bounds) {
-		for( Node node : workpane.getChildren() ) {
-			if( node instanceof WorkpaneView ) {
-				layoutView( bounds, (WorkpaneView)node );
-			} else if( node instanceof WorkpaneEdge ) {
-				layoutEdge( bounds, (WorkpaneEdge)node );
-			}
-		}
+	private void layoutNormal( Bounds bounds ) {
+		// Edges must be laid out first
+		workpane.getChildren().filtered( ( c ) -> c instanceof WorkpaneEdge ).forEach( ( c ) -> layoutEdge( bounds, (WorkpaneEdge)c ) );
+
+		// Views depend on the edge bounds
+		workpane.getChildren().filtered( ( c ) -> c instanceof WorkpaneView ).forEach( ( c ) -> layoutView( (WorkpaneView)c ) );
 	}
 
-	private void layoutMaximized(Bounds bounds, WorkpaneView maximizedView) {
-		for( Node node : workpane.getChildren() ) {
+	private void layoutMaximized( Bounds bounds, WorkpaneView maximizedView ) {
+		workpane.getChildren().forEach( ( node ) -> {
 			if( node == maximizedView ) {
-				layoutMaximizedView( bounds, (WorkpaneView)node );
+				layoutMaximizedView( bounds, maximizedView );
 			} else {
 				node.setVisible( false );
 			}
-		}
-	}
-
-	private Bounds updateBounds( Bounds bounds, Insets insets ) {
-		return new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
-	}
-
-	private void layoutView( Bounds bounds, WorkpaneView view ) {
-		Insets insets = workpane.getInsets();
-		bounds = updateBounds( bounds, insets );
-
-		double edgeSize = workpane.getEdgeSize();
-		double edgeHalf = 0.5 * edgeSize;
-		double edgeRest = edgeSize - edgeHalf;
-
-		double x1 = view.getEdge( Side.LEFT ).getPosition();
-		double y1 = view.getEdge( Side.TOP ).getPosition();
-		double x2 = view.getEdge( Side.RIGHT ).getPosition();
-		double y2 = view.getEdge( Side.BOTTOM ).getPosition();
-
-		double x = x1 * bounds.getWidth();
-		double y = y1 * bounds.getHeight();
-		double w = x2 * bounds.getWidth() - x;
-		double h = y2 * bounds.getHeight() - y;
-
-		// Leave space for the edges.
-		double north = 0;
-		double south = 0;
-		double east = 0;
-		double west = 0;
-
-		if( !view.getEdge( Side.TOP ).isWall() ) north = edgeRest;
-		if( !view.getEdge( Side.BOTTOM ).isWall() ) south = edgeHalf;
-		if( !view.getEdge( Side.LEFT ).isWall() ) west = edgeRest;
-		if( !view.getEdge( Side.RIGHT ).isWall() ) east = edgeHalf;
-
-		x += west + insets.getLeft();
-		y += north + insets.getTop();
-		w -= (west + east);
-		h -= (north + south);
-
-		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
-
-		// In the end we are still dealing with pixels so cast the bounds to int
-		workpane.layoutInArea( view, (int)x, (int)y, (int)w, (int)h, 0, HPos.LEFT, VPos.TOP );
-		view.setVisible( true );
+		} );
 	}
 
 	private void layoutEdge( Bounds bounds, WorkpaneEdge edge ) {
 		Insets insets = workpane.getInsets();
-		bounds = updateBounds( bounds, insets );
+		bounds = new BoundingBox( 0, 0, bounds.getWidth() - insets.getLeft() - insets.getRight(), bounds.getHeight() - insets.getTop() - insets.getBottom() );
 
 		double edgeSize = edge.isWall() ? 0 : workpane.getEdgeSize();
 		double edgeHalf = 0.5 * edgeSize;
@@ -133,9 +85,31 @@ public class WorkpaneLayout {
 
 		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		// In the end we are still dealing with pixels so cast the bounds to int
-		workpane.layoutInArea( edge, (int)x, (int)y, (int)w, (int)h, 0, HPos.CENTER, VPos.CENTER );
+		workpane.layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
 		edge.setVisible( true );
+	}
+
+	private void layoutView( WorkpaneView view ) {
+		double x = view.getEdge( Side.LEFT ).getLayoutX();
+		double y = view.getEdge( Side.TOP ).getLayoutY();
+		double w = view.getEdge( Side.RIGHT ).getLayoutX() - x;
+		double h = view.getEdge( Side.BOTTOM ).getLayoutY() - y;
+
+		// Leave space for the edges.
+		double edgeSize = workpane.getEdgeSize();
+		double north = view.getEdge( Side.TOP ).isWall() ? 0 : edgeSize;
+		double west = view.getEdge( Side.LEFT ).isWall() ? 0 : edgeSize;
+
+		Insets insets = workpane.getInsets();
+		x += west + insets.getLeft();
+		y += north + insets.getTop();
+		w -= west;
+		h -= north;
+
+		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
+
+		workpane.layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		view.setVisible( true );
 	}
 
 	private void layoutMaximizedView( Bounds bounds, WorkpaneView view ) {

@@ -155,9 +155,7 @@ public class Workpane extends Pane implements Configurable {
 		Set<WorkpaneEdge> edges = new HashSet<>();
 
 		// Count the edges that are not walls
-		for( Node node : getChildren() ) {
-			if( node instanceof WorkpaneEdge ) edges.add( (WorkpaneEdge)node );
-		}
+		getChildren().filtered( ( c ) -> c instanceof WorkpaneEdge ).forEach( ( c ) -> edges.add( (WorkpaneEdge)c ) );
 		edges.remove( topWall );
 		edges.remove( bottomWall );
 		edges.remove( leftWall );
