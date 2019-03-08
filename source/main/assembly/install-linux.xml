@@ -2,7 +2,7 @@
 
 <!-- This must match the product descriptor except for the format. -->
 <assembly>
-	<id>linux-install</id>
+	<id>install-linux</id>
 	<formats>
 		<format>dir</format>
 	</formats>
