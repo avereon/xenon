@@ -345,9 +345,9 @@
 								</goals>
 								<configuration>
 									<attach>false</attach>
-									<descriptors>
-										<descriptor>source/main/assembly/${product.platform}-install.xml</descriptor>
-									</descriptors>
+									<descriptorRefs>
+										<descriptorRef>install-${product.platform}</descriptorRef>
+									</descriptorRefs>
 									<finalName>${product-pack-folder}</finalName>
 									<appendAssemblyId>false</appendAssemblyId>
 								</configuration>
