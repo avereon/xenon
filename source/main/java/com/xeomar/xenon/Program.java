@@ -34,7 +34,6 @@ import com.xeomar.xenon.update.MarketCard;
 import com.xeomar.xenon.update.ProgramUpdateManager;
 import com.xeomar.xenon.update.UpdateManager;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.workarea.Tool;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -385,6 +384,11 @@ public class Program extends Application implements ProgramProduct {
 	 */
 	public Path getHomeFolder() {
 		return programHomeFolder;
+	}
+
+	public boolean isProgramUpdated() {
+		if( isProgramUpdated == null ) isProgramUpdated = calcProgramUpdated();
+		return isProgramUpdated;
 	}
 
 	@Override
@@ -970,19 +974,17 @@ public class Program extends Application implements ProgramProduct {
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
 	}
 
-	private boolean isProgramUpdated() {
-		if( isProgramUpdated == null ) {
-			// Get the last release setting
-			Release previous = Release.decode( programSettings.get( PROGRAM_RELEASE, (String)null ) );
-			Release runtime = this.getCard().getRelease();
+	private boolean calcProgramUpdated() {
+		// Get the last release setting
+		Release previous = Release.decode( programSettings.get( PROGRAM_RELEASE, (String)null ) );
+		Release runtime = this.getCard().getRelease();
 
-			isProgramUpdated = previous != null && runtime.compareTo( previous ) > 0;
-			if( isProgramUpdated ) programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
+		boolean programUpdated = previous != null && runtime.compareTo( previous ) > 0;
 
-			programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
-		}
+		if( programUpdated ) programSettings.set( PROGRAM_RELEASE_PRIOR, Release.encode( previous ) );
+		programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
 
-		return isProgramUpdated;
+		return programUpdated;
 	}
 
 	private class Startup extends Task<Void> {
