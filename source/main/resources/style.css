@@ -226,8 +226,12 @@
 	-fx-font-size: 5em;
 }
 
-#tool-about .tool-about-name {
+#tool-about .tool-about-header {
 	-fx-font-size: 2em;
+}
+
+#tool-about .tool-about-name {
+	-fx-font-size: 1em;
 }
 
 #tool-about .tool-about-provider {

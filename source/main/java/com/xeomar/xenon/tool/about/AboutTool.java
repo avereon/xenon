@@ -168,6 +168,8 @@ public class AboutTool extends GuidedTool {
 
 		private Label productProvider;
 
+		private Label javaLabel;
+
 		private Label javaName;
 
 		private Label javaVmName;
@@ -176,14 +178,27 @@ public class AboutTool extends GuidedTool {
 
 		private Label javaProvider;
 
+		private Label osLabel;
+
 		private Label osName;
 
 		private Label osVersion;
 
 		private Label osProvider;
 
+		private Label informationLabel;
+
+		private String lastUpdateCheckPrompt;
+
+		private Label lastUpdateTimestamp;
+
+		private String nextUpdateCheckPrompt;
+
+		private Label nextUpdateTimestamp;
+
 		public SummaryPane() {
-			String osFamily = OperatingSystem.getFamily().toString().toLowerCase();
+			lastUpdateCheckPrompt = getProduct().getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" );
+			nextUpdateCheckPrompt = getProduct().getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" );
 
 			add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ), "spany, aligny top" );
 			add( productName = makeLabel( "tool-about-title" ) );
@@ -192,16 +207,23 @@ public class AboutTool extends GuidedTool {
 
 			add( makeLabel( "tool-about-separator" ), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
-			add( javaName = makeLabel( "tool-about-name" ), "newline" );
+			add( javaLabel = makeLabel( "tool-about-header" ), "newline" );
+			//add( javaName = makeLabel( "tool-about-name" ), "newline" );
 			add( javaVmName = makeLabel( "tool-about-version" ), "newline" );
 			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
 
 			add( makeLabel( "tool-about-separator" ), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
+			add( osLabel = makeLabel( "tool-about-header" ), "newline" );
 			add( osName = makeLabel( "tool-about-name" ), "newline" );
 			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( osProvider = makeLabel( "tool-about-provider" ), "newline" );
+
+			add( makeLabel( "tool-about-separator" ), "newline" );
+			add( informationLabel = makeLabel( "tool-about-header" ), "newline" );
+			add( lastUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
+			add( nextUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
 		}
 
 		public void update( ProductCard card ) {
@@ -214,7 +236,7 @@ public class AboutTool extends GuidedTool {
 			}
 			productProvider.setText( from + " " + card.getProvider() );
 
-			javaName.setText( System.getProperty( "java.runtime.name" ) );
+			javaLabel.setText( "Java" );
 			javaVmName.setText( System.getProperty( "java.vm.name" ) );
 			String javaVersionDate = System.getProperty( "java.version.date" );
 			if( javaVersionDate == null ) {
@@ -225,9 +247,29 @@ public class AboutTool extends GuidedTool {
 			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
 			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
+			osLabel.setText( getProduct().getResourceBundle().getString( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( System.getProperty( "os.version" ) );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
+
+			informationLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, "information" ) );
+			updateUpdateCheckInfo( lastUpdateTimestamp, nextUpdateTimestamp );
+		}
+
+		private void updateUpdateCheckInfo( Label lastUpdateCheckField, Label nextUpdateCheckField ) {
+			long lastUpdateCheck = getProgram().getUpdateManager().getLastUpdateCheck();
+			long nextUpdateCheck = getProgram().getUpdateManager().getNextUpdateCheck();
+			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+
+			String unknown = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
+			String notScheduled = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+
+			Platform.runLater( () -> {
+				lastUpdateCheckField.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );
+				nextUpdateCheckField.setText( nextUpdateCheckPrompt + "  " + nextUpdateCheckText );
+			} );
 		}
 
 	}
