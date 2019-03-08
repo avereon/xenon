@@ -433,7 +433,7 @@
 									<enableAttachArtifact>false</enableAttachArtifact>
 									<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
 									<baseDir>${project.build.directory}</baseDir>
-									<finalName>${product.platform}-install</finalName>
+									<finalName>install</finalName>
 								</configuration>
 							</execution>
 						</executions>
