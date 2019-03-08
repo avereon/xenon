@@ -3,7 +3,6 @@ package com.xeomar.xenon.action;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.Workarea;
 import javafx.event.Event;
@@ -39,7 +38,7 @@ public class RenameWorkareaAction extends Action {
 		dialog.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.rename.message" ) );
 		dialog.setContentText( program.getResourceBundle().getString( "workarea", "workarea.rename.prompt" ) );
 
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );
 
 		result.ifPresent( this::renameWorkarea );

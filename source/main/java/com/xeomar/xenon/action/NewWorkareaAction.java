@@ -36,7 +36,7 @@ public class NewWorkareaAction extends Action<ActionEvent> {
 		dialog.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.new.message" ) );
 		dialog.setContentText( program.getResourceBundle().getString( "workarea", "workarea.new.prompt" ) );
 
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );
 
 		result.ifPresent( this::createNewWorkarea );

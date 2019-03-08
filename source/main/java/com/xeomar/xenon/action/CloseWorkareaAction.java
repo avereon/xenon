@@ -1,6 +1,5 @@
 package com.xeomar.xenon.action;
 
-import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.util.DialogUtil;
@@ -9,7 +8,6 @@ import javafx.event.Event;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
 
 import java.util.Optional;
 
@@ -34,7 +32,7 @@ public class CloseWorkareaAction extends Action {
 		alert.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.close.message" ) );
 		alert.setContentText( program.getResourceBundle().getString( "workarea", "workarea.close.prompt", workarea.getName() ) );
 
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() && result.get() == ButtonType.OK ) closeWorkarea( workarea );

@@ -350,7 +350,7 @@ public class Program extends Application implements ProgramProduct {
 			alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
 			alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
 
-			Stage stage = getWorkspaceManager().getActiveWorkspace().getStage();
+			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
@@ -1000,8 +1000,8 @@ public class Program extends Application implements ProgramProduct {
 			splashScreen.hide();
 			time( "splash hidden" );
 
-			getWorkspaceManager().getActiveWorkspace().getStage().show();
-			getWorkspaceManager().getActiveWorkspace().getStage().toFront();
+			getWorkspaceManager().getActiveStage().show();
+			getWorkspaceManager().getActiveStage().toFront();
 
 			// Program started event should be fired after the window is shown
 			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );

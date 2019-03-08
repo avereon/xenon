@@ -89,7 +89,7 @@ public class ProgramNotifier {
 				if( title != null ) alert.setTitle( title );
 				if( header != null ) alert.setHeaderText( header );
 				if( icon != null ) alert.setGraphic( icon );
-				DialogUtil.show( program.getWorkspaceManager().getActiveWorkspace().getStage(), alert );
+				DialogUtil.show( program.getWorkspaceManager().getActiveStage(), alert );
 			} );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.out );

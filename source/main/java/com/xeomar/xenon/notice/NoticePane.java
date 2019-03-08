@@ -47,7 +47,9 @@ public class NoticePane extends GridPane {
 	}
 
 	public void executeNoticeAction() {
-		program.getTaskManager().submit( notice.getAction() );
+		Runnable action = notice.getAction();
+		if( action == null ) return;
+		program.getTaskManager().submit( action );
 	}
 
 	public Node getCloseButton() {

@@ -10,7 +10,7 @@ public class ProgramWorkspaceDefaultSceneSizeTest extends ProgramWorkspaceTest {
 
 	@Test
 	public void execute() {
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		Stage stage = program.getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getScene().getWidth(), is( 960d ) );
 		assertThat( stage.getScene().getHeight(), is( 540d ) );

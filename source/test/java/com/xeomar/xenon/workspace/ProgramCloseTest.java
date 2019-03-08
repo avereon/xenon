@@ -10,7 +10,7 @@ public class ProgramCloseTest extends ProgramWorkspaceTest {
 
 	@Test
 	public void execute() {
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		Stage stage = program.getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
 
 		closeProgram();

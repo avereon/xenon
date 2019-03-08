@@ -131,7 +131,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 			fileChooser.setInitialFileName( file.getName() );
 		}
 
-		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveWorkspace().getStage() );
+		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
 		if( selectedFile != null ) {
 			field.setText( selectedFile.toString() );
 			setting.getSettings().set( key, field.getText() );

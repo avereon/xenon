@@ -549,13 +549,12 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	public void close( Resource resource ) {
 		if( resource.isModified() && canSaveResource( resource ) ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
-			alert.initOwner( program.getWorkspaceManager().getActiveWorkspace().getStage() );
 			alert.setTitle( program.getResourceBundle().getString( "resource", "close-save-title" ) );
 			alert.setHeaderText( program.getResourceBundle().getString( "workarea", "close-save-message" ) );
 			alert.setContentText( program.getResourceBundle().getString( "resource", "close-save-prompt" ) );
 			alert.getButtonTypes().addAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
 
-			Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() != ButtonType.YES ) return;

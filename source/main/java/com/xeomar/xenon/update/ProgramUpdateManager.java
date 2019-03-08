@@ -244,7 +244,7 @@ public class ProgramUpdateManager extends UpdateManager {
 				alert.setTitle( title );
 				alert.getDialogPane().setContent( updates );
 
-				Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+				Stage stage = program.getWorkspaceManager().getActiveStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 				if( result.isPresent() && result.get() == ButtonType.OK ) program.getExecutor().submit( new StageCachedUpdates( updates.getSelectedUpdates() ) );
@@ -328,7 +328,7 @@ public class ProgramUpdateManager extends UpdateManager {
 			alert.setHeaderText( header );
 			alert.setContentText( message );
 
-			Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {

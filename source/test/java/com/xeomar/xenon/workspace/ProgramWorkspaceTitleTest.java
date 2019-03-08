@@ -10,7 +10,7 @@ public class ProgramWorkspaceTitleTest extends ProgramWorkspaceTest {
 
 	@Test
 	public void execute() {
-		Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+		Stage stage = program.getWorkspaceManager().getActiveStage();
 		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
 		assertThat( stage.isShowing(), is( true ) );
 		assertThat( stage.getTitle(), is( workareaName + " - " + metadata.getName() ) );

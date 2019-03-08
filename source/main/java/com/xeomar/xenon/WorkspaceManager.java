@@ -114,7 +114,15 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace getActiveWorkspace() {
-		return activeWorkspace;
+		if( activeWorkspace != null ) return activeWorkspace;
+		if( workspaces.size() > 0 ) return workspaces.iterator().next();
+		throw new IllegalStateException( "No workspaces exist" );
+	}
+
+	public Stage getActiveStage() {
+		if( activeWorkspace != null ) return activeWorkspace.getStage();
+		if( workspaces.size() > 0 ) return workspaces.iterator().next().getStage();
+		throw new IllegalStateException( "No available stage" );
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
@@ -128,14 +136,14 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 			alert.setContentText( program.getResourceBundle().getString( "workspace", "workspace.close.prompt" ) );
 			alert.initOwner( workspace.getStage() );
 
-			Stage stage = program.getWorkspaceManager().getActiveWorkspace().getStage();
+			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) closeWorkspace( workspace );
 		}
 	}
 
-	public void closeWorkspace( Workspace workspace ) {
+	private void closeWorkspace( Workspace workspace ) {
 		removeWorkspace( workspace );
 		workspace.close();
 	}
@@ -144,7 +152,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
 	}
 
-	public Set<Tool> getActiveTools(Class<?extends Tool> type) {
+	public Set<Tool> getActiveTools( Class<? extends Tool> type ) {
 		return getActiveWorkpane().getTools( type );
 	}
 
