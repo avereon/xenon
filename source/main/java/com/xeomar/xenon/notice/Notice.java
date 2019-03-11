@@ -1,11 +1,11 @@
 package com.xeomar.xenon.notice;
 
+import com.xeomar.util.HashUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.node.Node;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.UUID;
 
 public class Notice extends Node {
 
@@ -30,18 +30,14 @@ public class Notice extends Node {
 	private static final String ACTION = "action";
 
 	public Notice( String title, String message ) {
-		this( title, message, (Object)null );
+		this( title, message, null );
 	}
 
 	public Notice( String title, String message, Runnable action ) {
-		this( title, message, (Object)action );
-	}
-
-	private Notice( String title, String message, Object action ) {
 		definePrimaryKey( ID );
 		defineNaturalKey( TITLE );
 
-		setValue( ID, UUID.randomUUID().toString() );
+		setValue( ID, HashUtil.hash( title + message ) );
 		setValue( TIMESTAMP, System.currentTimeMillis() );
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );

@@ -46,8 +46,8 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		if( tools.size() > 0 ) {
 			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
 		} else {
-			setUnreadCount( getUnreadCount() + 1 );
 			Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
+			setUnreadCount( getUnreadCount() + 1 );
 		}
 	}
 
