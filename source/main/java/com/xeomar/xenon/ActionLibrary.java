@@ -62,10 +62,13 @@ public class ActionLibrary {
 		register( bundle, "about" );
 
 		register( bundle, "development" );
+		register( bundle, "test-action-1" );
+		register( bundle, "test-action-2" );
+		register( bundle, "test-action-3" );
+		register( bundle, "test-action-4" );
+		register( bundle, "test-action-5" );
 		//		register( bundle, "settings-reset" );
-		//		register( bundle, "workers" );
 		register( bundle, "restart" );
-		register( bundle, "test-update-found" );
 
 		register( bundle, "workarea" );
 		register( bundle, "workarea-new" );
@@ -93,18 +96,24 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = bundle.getString( BundleKey.ACTION, id + ".icon" );
-		String name = bundle.getString( BundleKey.ACTION, id + ".name" );
-		String type = bundle.getString( BundleKey.ACTION, id + ".type" );
-		String mnemonic = bundle.getString( BundleKey.ACTION, id + ".mnemonic" );
-		String shortcut = bundle.getString( BundleKey.ACTION, id + ".shortcut" );
+		String icon = bundle.getStringOrNull( BundleKey.ACTION, id + ".icon" );
+		String name = bundle.getStringOrNull( BundleKey.ACTION, id + ".name" );
+		String type = bundle.getStringOrNull( BundleKey.ACTION, id + ".type" );
+		String mnemonic = bundle.getStringOrNull( BundleKey.ACTION, id + ".mnemonic" );
+		String shortcut = bundle.getStringOrNull( BundleKey.ACTION, id + ".shortcut" );
 
+		if( icon == null ) icon = "";
+		if( name == null ) name = id;
+		// It's ok for type to be null
 		int mnemonicValue = ActionProxy.NO_MNEMONIC;
-		try {
-			mnemonicValue = Integer.parseInt( mnemonic );
-		} catch( NumberFormatException exception ) {
-			// Intentionally ignore exception
+		if( mnemonic != null ) {
+			try {
+				mnemonicValue = Integer.parseInt( mnemonic );
+			} catch( NumberFormatException exception ) {
+				// Intentionally ignore exception
+			}
 		}
+		// It's ok for shortcut to be null
 
 		proxy.setId( id );
 		proxy.setIcon( icon );

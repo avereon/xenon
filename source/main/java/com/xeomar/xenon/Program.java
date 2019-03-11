@@ -853,7 +853,15 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 
-		getActionLibrary().getAction( "test-update-found" ).pushAction( new TestUpdateDialogAction( this ) );
+		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () ->{
+			((ProgramUpdateManager)getProgram().getUpdateManager()).showUpdateFoundDialog();
+		} ) );
+//		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
+//			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice A") );
+//		} ) );
+//		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
+//			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice B") );
+//		} ) );
 	}
 
 	private void unregisterActionHandlers() {
