@@ -1,18 +1,63 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
+import javafx.geometry.VPos;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
+import javafx.scene.text.TextAlignment;
+
+import java.util.function.IntSupplier;
 
 public class UnreadNoticeIcon extends ProgramIcon {
+
+	private int count = 8;
+
+	private IntSupplier f;
 
 	public UnreadNoticeIcon() {
 		super();
 	}
 
+	public UnreadNoticeIcon( IntSupplier f ) {
+		this.f = f;
+	}
+
 	@Override
 	protected void render() {
+		render2();
+	}
+
+	private void render2() {
+		beginPath();
+		moveTo( g( 31 ), g( 29 ) );
+		lineTo( g( 31 ), g( 16 ) );
+		addArc( g( 16 ), g( 16 ), g( 15 ), g( 13 ), 0, 270 );
+		closePath();
+
+		fill();
+		draw();
+
+		double size = 24;
+
+		int count = 0;
+		if( f != null ) count = f.getAsInt();
+		if( count > 0 ) {
+			setFillPaint( getIconDrawColor() );
+			if( count < 10 ) {
+				setTextAlign( TextAlignment.CENTER );
+				setTextBaseLine( VPos.BASELINE );
+				fillText( "1", g( 16 ), g( 24 ), g( size ) );
+			} else {
+				double r = 2;
+				fillCenteredOval( g( 10 ), g( 16 ), g( r ), g( r ) );
+				fillCenteredOval( g( 16 ), g( 16 ), g( r ), g( r ) );
+				fillCenteredOval( g( 22 ), g( 16 ), g( r ), g( r ) );
+			}
+		}
+	}
+
+	private void render1() {
 		Paint defaultDrawPaint = getIconDrawColor();
 
 		Color start = Color.rgb( 220, 192, 0 );
@@ -49,7 +94,6 @@ public class UnreadNoticeIcon extends ProgramIcon {
 		setDrawPaint( defaultDrawPaint );
 		fillOval( g( 14 ), g( 22 ), g( 4 ), g( 4 ) );
 		drawOval( g( 14 ), g( 22 ), g( 4 ), g( 4 ) );
-
 	}
 
 	public static void main( String[] commands ) {
