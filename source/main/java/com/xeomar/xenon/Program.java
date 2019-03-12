@@ -691,19 +691,19 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
+		// Create the notice manager
+		log.trace( "Starting notice manager..." );
+		noticeManager = new NoticeManager( Program.this ).start();
+		noticeManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Notice manager started." );
+
 		// Create the workspace manager
 		log.trace( "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
 		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
-
-		// Create the notice manager
-		log.trace( "Starting notice manager..." );
-		noticeManager = new NoticeManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Notice manager started." );
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
@@ -856,12 +856,12 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () ->{
 			((ProgramUpdateManager)getProgram().getUpdateManager()).showUpdateFoundDialog();
 		} ) );
-//		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
-//			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice A") );
-//		} ) );
-//		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
-//			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice B") );
-//		} ) );
+		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
+			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice A") );
+		} ) );
+		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
+			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice B") );
+		} ) );
 	}
 
 	private void unregisterActionHandlers() {

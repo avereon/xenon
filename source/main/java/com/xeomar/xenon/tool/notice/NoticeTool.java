@@ -84,7 +84,7 @@ public class NoticeTool extends ProgramTool {
 		Platform.runLater( () -> {
 			noticeContainer.getChildren().clear();
 			for( Notice notice : notices ) {
-				NoticePane noticePane = new NoticePane( getProgram(), notice );
+				NoticePane noticePane = new NoticePane( getProgram(), notice, false );
 				noticePane.onMouseClickedProperty().set( (event)->{
 					noticePane.executeNoticeAction();
 					event.consume();

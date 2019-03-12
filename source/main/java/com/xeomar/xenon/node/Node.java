@@ -383,7 +383,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		return getNodePath( null );
 	}
 
-	List<Node> getNodePath( Node stop ) {
+	private List<Node> getNodePath( Node stop ) {
 		List<Node> path = new ArrayList<>();
 		if( this != stop && parent != null ) path = parent.getNodePath();
 		path.add( this );
@@ -400,15 +400,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	private void doSetFlag( String key, boolean newValue ) {
-		if( newValue ) {
-			if( flags == null ) flags = new CopyOnWriteArraySet<>();
-			flags.add( key );
-		} else {
-			if( flags != null ) {
-				flags.remove( key );
-				if( flags.size() == 0 ) flags = null;
-			}
-		}
+		flags = updateSet( flags, key, newValue );
 
 		if( MODIFIED.equals( key ) ) {
 			if( !newValue ) {
@@ -445,20 +437,26 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		for( String key : values.keySet() ) {
 			Object value = values.get( key );
 			if( value != child ) continue;
-
-			Node valueChild = (Node)value;
-			if( modified ) {
-				if( modifiedChildren == null ) modifiedChildren = new CopyOnWriteArraySet<>();
-				modifiedChildren.add( child );
-			} else {
-				if( modifiedChildren != null ) modifiedChildren.remove( child );
-				if( modifiedChildren.size() == 0 ) modifiedChildren = null;
-			}
+			modifiedChildren = updateSet( modifiedChildren, child, modified );
 		}
 
 		updateModified();
 
 		return isModified() != previousModified;
+	}
+
+	private <T> Set<T> updateSet( Set<T> set, T child, boolean newValue ) {
+		if( newValue ) {
+			if( set == null ) set = new CopyOnWriteArraySet<>();
+			set.add( child );
+		} else {
+			if( set != null ) {
+				set.remove( child );
+				if( set.size() == 0 ) set = null;
+			}
+		}
+
+		return set;
 	}
 
 	private void checkForCircularReference( Node node ) {

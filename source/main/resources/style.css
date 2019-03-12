@@ -176,7 +176,7 @@
 	-fx-padding: 3mm;
 }
 
-.notice-hover {
+.notice-flyout {
 	-fx-background-color: -ex-background-note;
 	-fx-pref-width: 6cm;
 	-fx-background-radius: 1.5mm 0 0 1.5mm;

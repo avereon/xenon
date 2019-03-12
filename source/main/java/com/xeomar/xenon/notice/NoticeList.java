@@ -12,6 +12,10 @@ public class NoticeList extends Node {
 		return getValues( Notice.class ).stream().sorted( new ReverseTimestampComparator() ).collect( Collectors.toList() );
 	}
 
+	public Notice getNotice( String id ) {
+		return getValue( id );
+	}
+
 	public void addNotice( Notice notice ) {
 		setValue( notice.getId(), notice );
 	}
@@ -22,6 +26,10 @@ public class NoticeList extends Node {
 
 	public void clearAll() {
 		getValueKeys().forEach( ( key) -> setValue(key,null) );
+	}
+
+	public int size() {
+		return getValues( Notice.class ).size();
 	}
 
 	private class ReverseTimestampComparator implements Comparator<Notice> {

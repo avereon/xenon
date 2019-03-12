@@ -29,6 +29,8 @@ public class Notice extends Node {
 
 	private static final String ACTION = "action";
 
+	private static final String READ = "read";
+
 	public Notice( String title, String message ) {
 		this( title, message, null );
 	}
@@ -42,6 +44,7 @@ public class Notice extends Node {
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
 		setValue( ACTION, action );
+		setFlag( READ, false );
 		setModified( false );
 	}
 
@@ -63,6 +66,14 @@ public class Notice extends Node {
 
 	public Runnable getAction() {
 		return getValue( ACTION );
+	}
+
+	public boolean isRead() {
+		return getFlag( READ );
+	}
+
+	public void setRead( boolean read ) {
+		setFlag( READ, read );
 	}
 
 }

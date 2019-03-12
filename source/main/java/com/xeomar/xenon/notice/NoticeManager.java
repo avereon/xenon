@@ -30,7 +30,6 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public NoticeManager( Program program ) {
 		this.program = program;
-		unreadCount.addListener( ( event ) -> updateActionIcon( unreadCount.get() ) );
 	}
 
 	public List<Notice> getNotices() {
@@ -47,7 +46,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
 		} else {
 			Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
-			setUnreadCount( getUnreadCount() + 1 );
+			updateUnreadCount();
 		}
 	}
 
@@ -61,24 +60,18 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		resource.refresh( program.getResourceManager() );
 	}
 
-	public Integer getUnreadCount() {
-		return unreadCount.getValue();
-	}
-
-	public void setUnreadCount( Integer count ) {
-		unreadCount.setValue( count );
-	}
-
 	public IntegerProperty unreadCountProperty() {
 		return unreadCount;
 	}
 
 	public void readAll() {
-		setUnreadCount( 0 );
+		((NoticeList)resource.getModel()).getNotices().forEach( ( n ) -> n.setRead( true ) );
+		updateUnreadCount();
 	}
 
-	public void readNotice() {
-		setUnreadCount( Math.max( 0, getUnreadCount() - 1 ) );
+	public void readNotice( Notice notice ) {
+		notice.setRead( true );
+		updateUnreadCount();
 	}
 
 	public Program getProgram() {
@@ -132,8 +125,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return (NoticeList)resource.getModel();
 	}
 
-	private void updateActionIcon( int count ) {
-		Platform.runLater( () -> getProgram().getActionLibrary().getAction( "notice" ).setIcon( count == 0 ? "notice" : "notice-unread" ) );
+	private Integer getUnreadCount() {
+		return unreadCount.getValue();
+	}
+
+	private void updateUnreadCount() {
+		unreadCount.setValue( (int)((NoticeList)resource.getModel()).getNotices().stream().filter( ( n ) -> !n.isRead() ).count() );
 	}
 
 }

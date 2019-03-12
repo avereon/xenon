@@ -359,6 +359,10 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setFill( paint );
 	}
 
+	protected void setFillPaintColor( Color color ) {
+		getGraphicsContext2D().setFill( getGradientPaint( themeFillColor, color ) );
+	}
+
 	protected void setFillRule( FillRule rule ) {
 		getGraphicsContext2D().setFillRule( FillRule.EVEN_ODD );
 	}

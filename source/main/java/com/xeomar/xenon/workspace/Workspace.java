@@ -219,7 +219,15 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( workareaSelector );
 
 		toolbar.getItems().add( ActionUtil.createPad() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "notice" ) );
+		Button noticeButton = ActionUtil.createToolBarButton( program, "notice" );
+		noticeButton.setContentDisplay( ContentDisplay.RIGHT );
+		noticeButton.setText( "0" );
+		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
+			int count = newValue.intValue();
+			noticeButton.setText( String.valueOf( count ) );
+			Platform.runLater( () -> program.getActionLibrary().getAction( "notice" ).setIcon( count == 0 ? "notice" : "notice-unread" ) );
+		} );
+		toolbar.getItems().add( noticeButton );
 
 		// STATUS BAR
 		statusBar = new StatusBar();
@@ -349,21 +357,19 @@ public class Workspace implements Configurable {
 	}
 
 	public void showNotice( Notice notice ) {
-		NoticePane pane = new NoticePane( program, notice );
-		pane.getStyleClass().remove( "notice" );
-		pane.getStyleClass().addAll( "notice-hover" );
+		NoticePane pane = new NoticePane( program, notice, true );
 		noticeContainer.getChildren().add( 0, pane );
 
 		pane.onMouseClickedProperty().set( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
-			program.getNoticeManager().readNotice();
+			program.getNoticeManager().readNotice( notice );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
-			program.getNoticeManager().readNotice();
 			noticeContainer.getChildren().remove( pane );
+			program.getNoticeManager().readNotice( notice );
 			event.consume();
 		} );
 

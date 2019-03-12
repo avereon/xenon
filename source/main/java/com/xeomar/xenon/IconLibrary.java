@@ -38,7 +38,7 @@ public class IconLibrary {
 
 		register( "welcome", WelcomeIcon.class );
 		register( "help-content", QuestionIcon.class );
-		register( "notice", UnreadNoticeIcon.class );
+		register( "notice", NoticeIcon.class );
 		register( "notice-unread", UnreadNoticeIcon.class );
 		register( "task", TaskQueueIcon.class );
 		register( "product", ProductIcon.class );
