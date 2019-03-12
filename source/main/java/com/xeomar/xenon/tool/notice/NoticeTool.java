@@ -15,6 +15,7 @@ import com.xeomar.xenon.workarea.ToolParameters;
 import com.xeomar.xenon.workarea.Workpane;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -47,7 +48,11 @@ public class NoticeTool extends ProgramTool {
 		VBox buttonBox = new VBox( clearAllButton );
 		buttonBox.getStyleClass().addAll( "padded", "notice-buttons" );
 
-		BorderPane layout = new BorderPane( noticeContainer = new VBox(), buttonBox, null, null, null );
+		ScrollPane scroller = new ScrollPane( noticeContainer = new VBox() );
+		scroller.setFitToWidth( true );
+		scroller.setFitToHeight( true );
+
+		BorderPane layout = new BorderPane( scroller, buttonBox, null, null, null );
 		clearAllButton.prefWidthProperty().bind( layout.widthProperty() );
 
 		getChildren().addAll( layout );
