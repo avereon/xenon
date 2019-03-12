@@ -258,12 +258,7 @@ public class Workspace implements Configurable {
 		noticeContainer = new VBox();
 		noticeContainer.setPickOnBounds( false );
 
-		ScrollPane scroller = new ScrollPane( noticeContainer );
-		scroller.setPickOnBounds( false );
-		scroller.setPrefViewportWidth( 0 );
-		scroller.setPrefViewportHeight( 0 );
-
-		noticeLayout = new BorderPane( null, null, scroller, null, null );
+		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
 		noticeLayout.setPickOnBounds( false );
 
 		// Workarea Container
