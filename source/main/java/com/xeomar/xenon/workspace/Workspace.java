@@ -262,7 +262,7 @@ public class Workspace implements Configurable {
 		noticeLayout.setPickOnBounds( false );
 
 		// Workarea Container
-		workpaneContainer = new StackPane( background = new WorkspaceBackground(), noticeLayout );
+		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
 		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
