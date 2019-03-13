@@ -1,3 +1,5 @@
+import com.xeomar.xenon.mod.Mod;
+
 module com.xeomar.xenon {
 
 	requires java.logging;
@@ -27,5 +29,5 @@ module com.xeomar.xenon {
 	opens com.xeomar.xenon;
 	opens com.xeomar.xenon.update;
 
-	uses com.xeomar.xenon.mod.Mod;
+	uses Mod;
 }

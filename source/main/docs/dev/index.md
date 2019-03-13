@@ -7,11 +7,11 @@ an integrated workspace experience. The features include:
   * Resource management
   * Workspace management
   * Module management
-  * Online module discovery
+  * Online mod discovery
   * Automated online updates
   
 Advanced features include:
 
   * General data model with transaction support
   * Integrated thread executor for long running background processes
-  * Integrated event distribution for cross module communication
+  * Integrated event distribution for cross mod communication

@@ -6,7 +6,7 @@ The ${project.name} command line follows the form:
 ### URL Parameters
 URL parameters indicate the resources that should be opened by ${project.name}.
 Any valid URL should be acceptable but may not be able to be supported by 
-${project.name} if a supporting module has not been installed. Also, special 
+${project.name} if a supporting mod has not been installed. Also, special 
 handling of file URLs is supported since most URL parameters are based on the 
 local file system. Any URL that does not specify a scheme will be interpreted
 as a file URL. Relative URLs will be resolved against user.path system property

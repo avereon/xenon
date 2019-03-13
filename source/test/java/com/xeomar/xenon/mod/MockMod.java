@@ -1,14 +1,11 @@
-package com.xeomar.xenon.resource;
+package com.xeomar.xenon.mod;
 
-import com.xeomar.product.ProductCard;
-import com.xeomar.xenon.Module;
-import com.xeomar.xenon.Program;
 import com.xeomar.product.ProductBundle;
 
-public class MockModule extends Module {
+public class MockMod extends Mod {
 
-	public MockModule( Program program, ProductCard card ) {
-		super( program, card );
+	public MockMod() {
+		super();
 	}
 
 	@Override

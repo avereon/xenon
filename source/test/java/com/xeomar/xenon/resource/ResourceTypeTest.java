@@ -2,6 +2,7 @@ package com.xeomar.xenon.resource;
 
 import com.xeomar.xenon.BaseTestCase;
 import com.xeomar.product.Product;
+import com.xeomar.xenon.mod.MockMod;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -14,7 +15,7 @@ public class ResourceTypeTest extends BaseTestCase {
 
 	@Override
 	public void setup() {
-		product = new MockModule( null, null );
+		product = new MockMod();
 	}
 
 	@Test

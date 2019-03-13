@@ -6,7 +6,7 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.Module;
+import com.xeomar.xenon.mod.Mod;
 import com.xeomar.xenon.*;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
@@ -38,7 +38,7 @@ import java.util.concurrent.*;
  * apply the staged updates. This requires the calling process to terminate to
  * allow the update process to change required files.
  */
-public class UpdateManager implements Controllable<UpdateManager>, Configurable {
+public abstract class UpdateManager implements Controllable<UpdateManager>, Configurable {
 
 	public enum CheckOption {
 		MANUAL,
@@ -131,7 +131,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 
 	private Set<MarketCard> catalogs;
 
-	private Map<String, Module> modules;
+	private Map<String, Mod> modules;
 
 	private Path homeModuleFolder;
 
@@ -205,7 +205,7 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 		return new HashSet<>( catalogs );
 	}
 
-	public Set<Module> getModules() {
+	public Set<Mod> getModules() {
 		return new HashSet<>( modules.values() );
 	}
 
@@ -1119,14 +1119,14 @@ public class UpdateManager implements Controllable<UpdateManager>, Configurable 
 	//		throw new NoSuchMethodException( "Module constructor not found: " + JavaUtil.getClassName( moduleClass ) + "( " + JavaUtil.getClassName( Service.class ) + ", " + JavaUtil.getClassName( ProductCard.class ) + " )" );
 	//	}
 
-	private void registerProduct( Module module, boolean updatable, boolean removable ) {
-		ProductCard card = module.getCard();
+	private void registerProduct( Mod mod, boolean updatable, boolean removable ) {
+		ProductCard card = mod.getCard();
 
 		// Register the product.
-		registerProduct( module );
+		registerProduct( mod );
 
-		// Add the module to the collection.
-		modules.put( card.getProductKey(), module );
+		// Add the mod to the collection.
+		modules.put( card.getProductKey(), mod );
 
 		// Set the enabled flag.
 		setUpdatable( card, card.getProductUri() != null );
