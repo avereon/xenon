@@ -249,7 +249,7 @@ public class AboutTool extends GuidedTool {
 			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
 			osLabel.setText( getProduct().getResourceBundle().getString( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
-			osVersion.setText( System.getProperty( "os.version" ) );
+			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
 			informationLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, "information" ) );
