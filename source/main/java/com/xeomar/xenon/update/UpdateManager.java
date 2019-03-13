@@ -6,15 +6,15 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.mod.Mod;
 import com.xeomar.xenon.*;
+import com.xeomar.xenon.mod.Mod;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -77,7 +77,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 		RESTART
 	}
 
-	private static final Logger log = LoggerFactory.getLogger( UpdateManager.class );
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String MODULE_INSTALL_FOLDER_NAME = "modules";
 
