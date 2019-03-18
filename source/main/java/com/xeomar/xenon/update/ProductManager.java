@@ -81,11 +81,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public static final String MODULE_INSTALL_FOLDER_NAME = "modules";
 
-	public static final String DEFAULT_CATALOG_FILE_NAME = "catalog.card";
+	public static final String DEFAULT_CATALOG_CARD_NAME = "catalog.card";
 
-	public static final String DEFAULT_PRODUCT_FILE_NAME = "META-INF/product.card";
+	public static final String PRODUCT_CATALOG_CARD_PATH = "META-INF/" + DEFAULT_CATALOG_CARD_NAME;
 
-	public static final String PRODUCT_DESCRIPTOR_PATH = "META-INF/" + DEFAULT_PRODUCT_FILE_NAME;
+	public static final String DEFAULT_PRODUCT_CARD_NAME = "product.card";
+
+	public static final String PRODUCT_PRODUCT_CARD_PATH = "META-INF/" + DEFAULT_PRODUCT_CARD_NAME;
 
 	public static final String UPDATER_LOG_NAME = "updater.log";
 
@@ -203,6 +205,25 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public Set<MarketCard> getCatalogs() {
 		return new HashSet<>( catalogs );
+	}
+
+	/**
+	 * Get the set of available modules for this product.
+	 *
+	 * @param force The user intentionally wants to load the available products
+	 * @return A set of the available product cards
+	 */
+	public Set<ProductCard> getAvailableProducts( boolean force ) {
+		log.warn( "Update available products" );
+
+		// TODO Implement ProductManager.getAvailableProducts()
+
+		// Load the product catalogs
+		// Determine all the product cards that need to be downloaded
+		// Download all the product cards
+		// Collect all the product cards into a set and return it
+
+		return new HashSet<>();
 	}
 
 	public Set<Mod> getModules() {

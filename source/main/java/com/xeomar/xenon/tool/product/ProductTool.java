@@ -120,7 +120,7 @@ public class ProductTool extends GuidedTool {
 		super.resourceReady( parameters );
 
 		getProgram().getExecutor().submit( new UpdateInstalledProducts( this ) );
-		getProgram().getExecutor().submit( new UpdateAvailableProducts() );
+		getProgram().getExecutor().submit( new UpdateAvailableProducts( this ) );
 		getProgram().getExecutor().submit( new UpdateUpdatableProducts( this ) );
 
 		String selected = parameters.getFragment();

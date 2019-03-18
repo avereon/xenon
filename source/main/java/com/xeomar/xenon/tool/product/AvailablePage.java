@@ -15,7 +15,7 @@ class AvailablePage extends ProductPage {
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.AVAILABLE ) );
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
-		refreshButton.setOnAction( event -> productTool.getProgram().getExecutor().submit( new UpdateAvailableProducts( true ) ) );
+		refreshButton.setOnAction( event -> productTool.getProgram().getExecutor().submit( new UpdateAvailableProducts( productTool, true ) ) );
 
 		getButtonBox().addAll( refreshButton );
 	}
@@ -23,7 +23,7 @@ class AvailablePage extends ProductPage {
 	@Override
 	protected void updateState() {
 		ProductTool.log.trace( "Update available products" );
-		productTool.getProgram().getExecutor().submit( new UpdateAvailableProducts() );
+		productTool.getProgram().getExecutor().submit( new UpdateAvailableProducts( productTool ) );
 	}
 
 }
