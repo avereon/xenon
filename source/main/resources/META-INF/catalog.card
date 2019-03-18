@@ -5,6 +5,7 @@
   "enabled" : "true",
   "removable" : "false",
   "products" : [
-    "https://xeomar.com/download?artifact=mouse"
+    "https://xeomar.com/download?artifact=mouse",
+    "https://xeomar.com/download?artifact=arrow"
   ]
 }

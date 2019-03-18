@@ -83,7 +83,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public static final String DEFAULT_CATALOG_CARD_NAME = "catalog.card";
 
-	public static final String PRODUCT_CATALOG_CARD_PATH = "META-INF/" + DEFAULT_CATALOG_CARD_NAME;
+	public static final String PRODUCT_CATALOG_CARD_PATH = MarketCard.CARD;
 
 	public static final String DEFAULT_PRODUCT_CARD_NAME = "product.card";
 
@@ -188,14 +188,16 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return catalogs.size();
 	}
 
-	public void addCatalog( MarketCard source ) {
+	public MarketCard addCatalog( MarketCard source ) {
 		catalogs.add( source );
 		saveCatalogs();
+		return source;
 	}
 
-	public void removeCatalog( MarketCard source ) {
+	public MarketCard removeCatalog( MarketCard source ) {
 		catalogs.remove( source );
 		saveCatalogs();
+		return source;
 	}
 
 	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
@@ -214,9 +216,16 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return A set of the available product cards
 	 */
 	public Set<ProductCard> getAvailableProducts( boolean force ) {
-		log.warn( "Update available products" );
+		//log.warn( "Update available products" );
 
 		// TODO Implement ProductManager.getAvailableProducts()
+
+		Set<String> productUris = new HashSet<>();
+		getCatalogs().forEach( ( m ) -> productUris.addAll( m.getProducts() ) );
+
+		for( String productUri : productUris ) {
+			log.warn( "Available product uri: " + productUri );
+		}
 
 		// Load the product catalogs
 		// Determine all the product cards that need to be downloaded
@@ -989,8 +998,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//		return products;
 	//	}
 
-	private Map<String,String> getProductParameters( ProductCard card, String type ) {
-		Map<String,String> parameters = new HashMap<>();
+	private Map<String, String> getProductParameters( ProductCard card, String type ) {
+		Map<String, String> parameters = new HashMap<>();
 
 		parameters.put( "artifact", card.getArtifact() );
 		parameters.put( "category", "product" );

@@ -954,14 +954,8 @@ public class Program extends Application implements ProgramProduct {
 		// There is also a set of comments regarding this issue in the ProductManager class
 		productManager.setSettings( programSettings );
 
-		// Register the catalog
-		productManager.addCatalog( defaultMarket = MarketCard.forProduct() );
-
-		// Remove the old catalog
-		MarketCard oldMarketCard = new MarketCard().copyFrom( MarketCard.forProduct() );
-		String oldUri = MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
-		oldMarketCard.setCardUri( oldUri );
-		productManager.removeCatalog( oldMarketCard );
+		// Register the product catalog by replacing the old catalog
+		productManager.addCatalog( productManager.removeCatalog( defaultMarket = MarketCard.forProduct() ) );
 
 		// Register the product
 		productManager.registerProduct( this );

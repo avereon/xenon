@@ -3,23 +3,17 @@ package com.xeomar.xenon.update;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xeomar.util.LogUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class MarketCard {
 
 	public static final String CARD = "/META-INF/catalog.card";
-
-	// TODO Use Lombok when it is supported in Java 9
 
 	private String name;
 
@@ -31,7 +25,7 @@ public class MarketCard {
 
 	private boolean removable;
 
-	private List<String> products;
+	private Set<String> products;
 
 	public static MarketCard forProduct() throws IOException {
 		return loadCard( MarketCard.class.getResourceAsStream( CARD ) );
@@ -126,11 +120,11 @@ public class MarketCard {
 		this.removable = removable;
 	}
 
-	public List<String> getProducts() {
+	public Set<String> getProducts() {
 		return products;
 	}
 
-	public void setProducts( List<String> products ) {
+	public void setProducts( Set<String> products ) {
 		this.products = products;
 	}
 
