@@ -24,13 +24,13 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class ProgramUpdateManager extends UpdateManager {
+public class ProgramProductManager extends ProductManager {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 
-	public ProgramUpdateManager( Program program ) {
+	public ProgramProductManager( Program program ) {
 		super( program );
 		this.program = program;
 	}
@@ -333,7 +333,7 @@ public class ProgramUpdateManager extends UpdateManager {
 
 			if( result.isPresent() && result.get() == ButtonType.YES ) {
 				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
-				ProgramUpdateManager.super.userApplyStagedUpdates();
+				ProgramProductManager.super.userApplyStagedUpdates();
 			}
 		}
 

@@ -257,8 +257,8 @@ public class AboutTool extends GuidedTool {
 		}
 
 		private void updateUpdateCheckInfo( Label lastUpdateCheckField, Label nextUpdateCheckField ) {
-			long lastUpdateCheck = getProgram().getUpdateManager().getLastUpdateCheck();
-			long nextUpdateCheck = getProgram().getUpdateManager().getNextUpdateCheck();
+			long lastUpdateCheck = getProgram().getProductManager().getLastUpdateCheck();
+			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
 			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
 			String unknown = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
@@ -511,8 +511,8 @@ public class AboutTool extends GuidedTool {
 		builder.append( "Current time:      " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
 		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) ).append( "\n" );
 
-		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
-		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
+		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
+		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
 		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );

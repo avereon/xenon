@@ -3,7 +3,7 @@ package com.xeomar.xenon.update;
 import com.xeomar.product.ProductCard;
 import com.xeomar.product.ProductEvent;
 
-public class UpdateManagerEvent extends ProductEvent {
+public class ProductManagerEvent extends ProductEvent {
 
 	public enum Type {
 		PRODUCT_CHANGED, PRODUCT_ENABLED, PRODUCT_DISABLED, PRODUCT_INSTALLED, PRODUCT_REMOVED, PRODUCT_STAGED, PRODUCT_UPDATED
@@ -13,7 +13,7 @@ public class UpdateManagerEvent extends ProductEvent {
 
 	private ProductCard card;
 
-	public UpdateManagerEvent( UpdateManager manager, Type type, ProductCard card ) {
+	public ProductManagerEvent( ProductManager manager, Type type, ProductCard card ) {
 		super( manager );
 		this.type = type;
 		this.card = card;

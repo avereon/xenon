@@ -5,7 +5,7 @@ import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.DateUtil;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.update.UpdateManager;
+import com.xeomar.xenon.update.ProductManager;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -44,12 +44,12 @@ class UpdateCheckInformationPane extends HBox implements SettingsListener {
 		HBox.setHgrow( spring, Priority.ALWAYS );
 		getChildren().addAll( lastUpdateCheckLabel, lastUpdateCheckField, spring, nextUpdateCheckLabel, nextUpdateCheckField );
 
-		program.getUpdateManager().getSettings().addSettingsListener( this );
+		program.getProductManager().getSettings().addSettingsListener( this );
 	}
 
 	void updateInfo() {
-		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
-		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
+		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
+		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
 		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
@@ -67,8 +67,8 @@ class UpdateCheckInformationPane extends HBox implements SettingsListener {
 	public void handleEvent( SettingsEvent event ) {
 		if( event.getType() != SettingsEvent.Type.CHANGED ) return;
 		switch( event.getKey() ) {
-			case UpdateManager.LAST_CHECK_TIME:
-			case UpdateManager.NEXT_CHECK_TIME: {
+			case ProductManager.LAST_CHECK_TIME:
+			case ProductManager.NEXT_CHECK_TIME: {
 				updateInfo();
 			}
 		}

@@ -103,7 +103,7 @@ public class ProgramShutdownHook extends Thread {
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
-		for( ProductUpdate update : program.getUpdateManager().getStagedUpdates() ) {
+		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 			String name = update.getCard().getProductKey();
 			String version = update.getCard().getVersion();
 			Path archive = program.getDataFolder().resolve( "backup" ).resolve( name + "-" + version );

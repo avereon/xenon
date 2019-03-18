@@ -21,7 +21,7 @@ class UpdateInstalledProducts extends Task<Void> {
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
-		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getUpdateManager().getProductCards() );
+		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getProductCards() );
 		cards.sort( new ProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 		Platform.runLater( () -> productTool.getInstalledPage().setProducts( cards ) );
 		return null;

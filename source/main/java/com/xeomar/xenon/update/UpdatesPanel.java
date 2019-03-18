@@ -6,6 +6,10 @@ import javafx.scene.layout.Pane;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @deprecated In favor of using the product tool to select updates
+ */
+@Deprecated
 public class UpdatesPanel extends Pane {
 
 	private Set<ProductCard> installedPacks;

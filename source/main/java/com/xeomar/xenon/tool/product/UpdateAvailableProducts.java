@@ -18,7 +18,7 @@ class UpdateAvailableProducts extends Task<Void> {
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
-		//			List<ProductCard> cards = new ArrayList<>( getProgram().getUpdateManager().getAvailableProducts( force ) );
+		//			List<ProductCard> cards = new ArrayList<>( getProgram().getProductManager().getAvailableProducts( force ) );
 		//			cards.sort( new ProductCardComparator( getProgram(), ProductCardComparator.Field.NAME ) );
 		//			Platform.runLater( () -> availablePage.setProducts( cards ) );
 		return null;

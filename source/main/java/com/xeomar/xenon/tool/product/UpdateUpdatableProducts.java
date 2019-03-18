@@ -28,7 +28,7 @@ class UpdateUpdatableProducts extends Task<Void> {
 	public Void call() {
 		TaskManager.taskThreadCheck();
 		try {
-			List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getUpdateManager().findPostedUpdates( force ) );
+			List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().findPostedUpdates( force ) );
 			cards.sort( new ProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 			Platform.runLater( () -> productTool.getUpdatesPage().setProducts( cards, true ) );
 		} catch( Exception exception ) {

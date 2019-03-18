@@ -80,8 +80,8 @@ public class UpdateSettingViewer extends SettingEditor {
 		String unknown = product.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
 		String notScheduled = product.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
 
-		long lastUpdateCheck = program.getUpdateManager().getLastUpdateCheck();
-		long nextUpdateCheck = program.getUpdateManager().getNextUpdateCheck();
+		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
+		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
 		// Update the labels

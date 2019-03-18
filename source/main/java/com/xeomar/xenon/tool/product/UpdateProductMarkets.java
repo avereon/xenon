@@ -16,7 +16,7 @@ class UpdateProductMarkets extends Task<Void> {
 
 	@Override
 	public Void call() {
-		List<MarketCard> cards = new ArrayList<>( productTool.getProgram().getUpdateManager().getCatalogs() );
+		List<MarketCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getCatalogs() );
 		cards.sort( new MarketCardComparator( productTool.getProgram(), MarketCardComparator.Field.NAME ) );
 		Platform.runLater( () -> productTool.getProductMarketPage().setMarkets( cards ) );
 		return null;

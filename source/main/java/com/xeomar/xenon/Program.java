@@ -31,8 +31,8 @@ import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.update.MarketCard;
-import com.xeomar.xenon.update.ProgramUpdateManager;
-import com.xeomar.xenon.update.UpdateManager;
+import com.xeomar.xenon.update.ProductManager;
+import com.xeomar.xenon.update.ProgramProductManager;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -109,7 +109,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private WorkspaceManager workspaceManager;
 
-	private UpdateManager updateManager;
+	private ProductManager productManager;
 
 	private NoticeManager noticeManager;
 
@@ -260,8 +260,8 @@ public class Program extends Application implements ProgramProduct {
 
 		// Start the update manager, depends on icon library
 		log.trace( "Starting update manager..." );
-		updateManager = configureUpdateManager( new ProgramUpdateManager( this ) ).start();
-		updateManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		productManager = configureUpdateManager( new ProgramProductManager( this ) ).start();
+		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Update manager started." );
 
 		// Process staged updates, depends on update manager
@@ -447,8 +447,8 @@ public class Program extends Application implements ProgramProduct {
 		return workspaceManager;
 	}
 
-	public final UpdateManager getUpdateManager() {
-		return updateManager;
+	public final ProductManager getProductManager() {
+		return productManager;
 	}
 
 	public final NoticeManager getNoticeManager() {
@@ -544,7 +544,7 @@ public class Program extends Application implements ProgramProduct {
 	 */
 	private boolean processStagedUpdates() {
 		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
-		int result = updateManager.updateProduct();
+		int result = productManager.updateProduct();
 		if( result != 0 ) requestExit( true );
 		return result != 0;
 	}
@@ -728,11 +728,11 @@ public class Program extends Application implements ProgramProduct {
 		try {
 			fireEvent( new ProgramStoppingEvent( this ) );
 
-			// Stop the UpdateManager
-			if( updateManager != null ) {
+			// Stop the ProductManager
+			if( productManager != null ) {
 				log.trace( "Stopping update manager..." );
-				updateManager.stop();
-				updateManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+				productManager.stop();
+				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 				log.debug( "Update manager stopped." );
 			}
 
@@ -854,7 +854,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () ->{
-			((ProgramUpdateManager)getProgram().getUpdateManager()).showUpdateFoundDialog();
+			((ProgramProductManager)getProgram().getProductManager()).showUpdateFoundDialog();
 		} ) );
 		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
 			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice A") );
@@ -949,27 +949,27 @@ public class Program extends Application implements ProgramProduct {
 		return taskManager;
 	}
 
-	private UpdateManager configureUpdateManager( UpdateManager updateManager ) throws IOException {
+	private ProductManager configureUpdateManager( ProductManager productManager ) throws IOException {
 		// FIXME Do I want the update settings in the program settings?
-		// There is also a set of comments regarding this issue in the UpdateManager class
-		updateManager.setSettings( programSettings );
+		// There is also a set of comments regarding this issue in the ProductManager class
+		productManager.setSettings( programSettings );
 
 		// Register the catalog
-		updateManager.addCatalog( defaultMarket = MarketCard.forProduct() );
+		productManager.addCatalog( defaultMarket = MarketCard.forProduct() );
 
 		// Remove the old catalog
 		MarketCard oldMarketCard = new MarketCard().copyFrom( MarketCard.forProduct() );
 		String oldUri = MarketCard.forProduct().getCardUri().replace( "https://", "http://" );
 		oldMarketCard.setCardUri( oldUri );
-		updateManager.removeCatalog( oldMarketCard );
+		productManager.removeCatalog( oldMarketCard );
 
 		// Register the product
-		updateManager.registerProduct( this );
-		updateManager.setEnabled( getCard(), true );
-		updateManager.setUpdatable( getCard(), true );
-		updateManager.setRemovable( getCard(), false );
+		productManager.registerProduct( this );
+		productManager.setEnabled( getCard(), true );
+		productManager.setUpdatable( getCard(), true );
+		productManager.setRemovable( getCard(), false );
 
-		return updateManager;
+		return productManager;
 	}
 
 	private void notifyProgramUpdated() {
@@ -1024,7 +1024,7 @@ public class Program extends Application implements ProgramProduct {
 			processResources( getProgramParameters() );
 
 			// Schedule the first update check
-			getUpdateManager().scheduleUpdateCheck( true );
+			getProductManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );

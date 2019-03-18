@@ -4,7 +4,7 @@ import com.xeomar.product.ProductCard;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
-import com.xeomar.xenon.update.UpdateManager;
+import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.util.FxUtil;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -100,7 +100,7 @@ class ProductPane extends MigPane {
 	void updateProductState() {
 		ProductCard card = source;
 		Program program = productTool.getProgram();
-		UpdateManager manager = program.getUpdateManager();
+		ProductManager manager = program.getProductManager();
 
 		boolean isStaged = update == null ? manager.isStaged( card ) : manager.isReleaseStaged( update );
 		boolean isProgram = program.getCard().equals( card );
@@ -154,13 +154,13 @@ class ProductPane extends MigPane {
 	}
 
 	private void toggleEnabled() {
-		productTool.getProgram().getUpdateManager().setEnabled( source, !productTool.getProgram().getUpdateManager().isEnabled( source ) );
+		productTool.getProgram().getProductManager().setEnabled( source, !productTool.getProgram().getProductManager().isEnabled( source ) );
 	}
 
 	private void installProduct() {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
-				productTool.getProgram().getUpdateManager().installProducts( source );
+				productTool.getProgram().getProductManager().installProducts( source );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error installing product", exception );
 			}
@@ -170,7 +170,7 @@ class ProductPane extends MigPane {
 	private void updateProduct() {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
-				productTool.getProgram().getUpdateManager().applySelectedUpdates( getUpdate() );
+				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}
@@ -180,7 +180,7 @@ class ProductPane extends MigPane {
 	private void removeProduct() {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
-				productTool.getProgram().getUpdateManager().uninstallProducts( source );
+				productTool.getProgram().getProductManager().uninstallProducts( source );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}

@@ -38,7 +38,7 @@ import java.util.concurrent.*;
  * apply the staged updates. This requires the calling process to terminate to
  * allow the update process to change required files.
  */
-public abstract class UpdateManager implements Controllable<UpdateManager>, Configurable {
+public abstract class ProductManager implements Controllable<ProductManager>, Configurable {
 
 	public enum CheckOption {
 		MANUAL,
@@ -161,9 +161,9 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 
 	private UpdateCheckTask task;
 
-	private Set<UpdateManagerListener> listeners;
+	private Set<ProductManagerListener> listeners;
 
-	public UpdateManager( Program program ) {
+	public ProductManager( Program program ) {
 		this.program = program;
 
 		// NEXT Should module management and update management be separated???
@@ -314,7 +314,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 		if( state == null ) return;
 
 		state.updatable = updatable;
-		new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
+		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
 	public boolean isRemovable( ProductCard card ) {
@@ -328,7 +328,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 		if( state == null ) return;
 
 		state.removable = removable;
-		new UpdateManagerEvent( this, UpdateManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
+		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
 	public boolean isEnabled( ProductCard card ) {
@@ -346,7 +346,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 		settings.flush();
 		log.trace( "Set enabled: ", settings.getPath(), ": ", enabled );
 
-		new UpdateManagerEvent( this, enabled ? UpdateManagerEvent.Type.PRODUCT_ENABLED : UpdateManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
+		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
 	}
 
 	public CheckOption getCheckOption() {
@@ -480,12 +480,12 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 	}
 
 	void cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
-		// TODO Finish implementing UpdateManager.cacheSelectedUpdates()
+		// TODO Finish implementing ProductManager.cacheSelectedUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
 	void stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
-		// TODO Finish implementing UpdateManager.stageCachedUpdates()
+		// TODO Finish implementing ProductManager.stageCachedUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
@@ -616,7 +616,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 
 	public void applySelectedUpdates( Set<ProductCard> updates ) {
 		// This should go through the process of downloading, staging and applying the updates
-		// It is overwritten by ProgramUpdateManager
+		// It is overwritten by ProgramProductManager
 	}
 
 	void clearStagedUpdates() {
@@ -732,11 +732,11 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 		return delay;
 	}
 
-	public void addProductManagerListener( UpdateManagerListener listener ) {
+	public void addProductManagerListener( ProductManagerListener listener ) {
 		listeners.add( listener );
 	}
 
-	public void removeProductManagerListener( UpdateManagerListener listener ) {
+	public void removeProductManagerListener( ProductManagerListener listener ) {
 		listeners.remove( listener );
 	}
 
@@ -783,7 +783,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 	}
 
 	@Override
-	public UpdateManager start() {
+	public ProductManager start() {
 		//		purgeRemovedProducts();
 
 		getSettings().addSettingsListener( new SettingsChangeHandler() );
@@ -816,12 +816,12 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 	}
 
 	@Override
-	public UpdateManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+	public ProductManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
 		return this;
 	}
 
 	@Override
-	public UpdateManager restart() {
+	public ProductManager restart() {
 		try {
 			stop();
 			awaitStop( 1, TimeUnit.SECONDS );
@@ -833,19 +833,19 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 	}
 
 	@Override
-	public UpdateManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+	public ProductManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
 		return this;
 	}
 
 	@Override
-	public UpdateManager stop() {
+	public ProductManager stop() {
 		if( timer != null ) timer.cancel();
 		timer = null;
 		return this;
 	}
 
 	@Override
-	public UpdateManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+	public ProductManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 		return this;
 	}
 
@@ -1335,7 +1335,7 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 			FileUtil.zip( updateFolder, updatePack, this::setProgress );
 
 			// Notify listeners the update is staged.
-			new UpdateManagerEvent( UpdateManager.this, UpdateManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
 
 			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
 			log.debug( "           to: " + updatePack );
@@ -1502,15 +1502,15 @@ public abstract class UpdateManager implements Controllable<UpdateManager>, Conf
 
 	private static final class UpdateCheckTask extends TimerTask {
 
-		private UpdateManager updateManager;
+		private ProductManager productManager;
 
-		UpdateCheckTask( UpdateManager updateManager ) {
-			this.updateManager = updateManager;
+		UpdateCheckTask( ProductManager productManager ) {
+			this.productManager = productManager;
 		}
 
 		@Override
 		public void run() {
-			updateManager.checkForUpdates();
+			productManager.checkForUpdates();
 		}
 
 	}

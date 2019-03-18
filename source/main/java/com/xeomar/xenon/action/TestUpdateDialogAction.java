@@ -2,7 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import com.xeomar.xenon.update.ProgramUpdateManager;
+import com.xeomar.xenon.update.ProgramProductManager;
 import javafx.event.Event;
 
 public class TestUpdateDialogAction extends Action {
@@ -19,7 +19,7 @@ public class TestUpdateDialogAction extends Action {
 	@Override
 	public void handle( Event event ) {
 		try {
-			((ProgramUpdateManager)getProgram().getUpdateManager()).showUpdateFoundDialog();
+			((ProgramProductManager)getProgram().getProductManager()).showUpdateFoundDialog();
 		} catch( Throwable throwable ) {
 			log.error( "Error showing update found dialog", throwable );
 		}
