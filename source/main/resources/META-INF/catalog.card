@@ -1,11 +1,10 @@
 {
   "name" : "${project.organization.name}",
-  "iconUri" : "https://xeomar.com/images/icons/xeomar.png",
+  "iconUri" : "xeomar",
   "cardUri" : "https://xeomar.com/download",
   "enabled" : "true",
   "removable" : "false",
   "products" : [
-    "https://xeomar.com/download?artifact=mouse",
-    "https://xeomar.com/download?artifact=arrow"
+    "https://xeomar.com/download?channel=latest&artifact=mouse&category=product&type=card"
   ]
 }

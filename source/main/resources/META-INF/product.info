@@ -4,7 +4,7 @@ version: ${project.version}
 timestamp: ${project.timestamp}
 
 name: ${project.name}
-icon: https://www.xeomar.com/images/icons/${project.artifactId}.png
+icon: program
 provider: ${project.organization.name}
 inception: ${project.inceptionYear}
 

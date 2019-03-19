@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -220,19 +221,23 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// TODO Implement ProductManager.getAvailableProducts()
 
-		Set<String> productUris = new HashSet<>();
-		getCatalogs().forEach( ( m ) -> productUris.addAll( m.getProducts() ) );
+		// Determine all the product cards that need to be downloaded
+		Set<String> productUris = getCatalogs().stream().flatMap( ( t ) -> t.getProducts().stream() ).collect( Collectors.toSet() );
 
-		for( String productUri : productUris ) {
-			log.warn( "Available product uri: " + productUri );
+		// Download all the product cards
+		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
+
+		// Collect all the product cards into a set and return it
+		Set<ProductCard> cards = new HashSet<>();
+		for( Future<Download> future : futures ) {
+			try {
+				cards.add( new ProductCard().load( future.get().getInputStream() ) );
+			} catch( Exception exception ) {
+				log.warn( "Error downloading product card", exception );
+			}
 		}
 
-		// Load the product catalogs
-		// Determine all the product cards that need to be downloaded
-		// Download all the product cards
-		// Collect all the product cards into a set and return it
-
-		return new HashSet<>();
+		return cards;
 	}
 
 	public Set<Mod> getModules() {
@@ -879,15 +884,20 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return this;
 	}
 
+	@SuppressWarnings( "Convert2Diamond" )
 	private void loadCatalogs() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		catalogs = updateSettings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
+
+		// Remove old catalog
+		catalogs.remove( new MarketCard( "https://xeomar.com/download/xenon/catalog/card/{0}" ) );
 	}
 
 	private void saveCatalogs() {
 		updateSettings.set( CATALOGS_SETTINGS_KEY, catalogs );
 	}
 
+	@SuppressWarnings( "Convert2Diamond" )
 	private void loadUpdates() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );

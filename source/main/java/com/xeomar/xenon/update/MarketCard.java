@@ -27,6 +27,12 @@ public class MarketCard {
 
 	private Set<String> products;
 
+	public MarketCard() {}
+
+	public MarketCard( String cardUri ) {
+		this.cardUri = cardUri;
+	}
+
 	public static MarketCard forProduct() throws IOException {
 		return loadCard( MarketCard.class.getResourceAsStream( CARD ) );
 	}

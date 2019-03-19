@@ -1,7 +1,9 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.icon.*;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
+
+	private static final String URL_CHECK = ":";
 
 	private Map<String, Class<? extends ProgramImage>> icons;
 
@@ -56,14 +60,21 @@ public class IconLibrary {
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
 		register( "remove", ExitIcon.class );
+
+		register( "xeomar", WingDiscLargeIcon.class );
 	}
 
-	public ProgramImage getIcon( String id ) {
+	public void register( String id, Class<? extends ProgramImage> icon ) {
+		if( id.contains( URL_CHECK ) ) throw new RuntimeException( "Icon id should not contain URL_CHECK string" );
+		icons.put( id, icon );
+	}
+
+	public Node getIcon( String id ) {
 		return getIcon( id, DEFAULT_SIZE );
 	}
 
-	public ProgramImage getIcon( String id, double size ) {
-		return getIconRenderer( id ).setSize( size );
+	public Node getIcon( String id, double size ) {
+		return id.contains( URL_CHECK ) ? getIconFromUrl( id, size ) : getIconRenderer( id ).setSize( size );
 	}
 
 	public Image[] getStageIcons( String id ) {
@@ -73,13 +84,9 @@ public class IconLibrary {
 	private Image[] getStageIcons( String id, int... sizes ) {
 		Image[] images = new Image[ sizes.length ];
 		for( int index = 0; index < sizes.length; index++ ) {
-			images[ index ] = getIcon( id ).setSize( sizes[ index ] ).getImage();
+			images[ index ] = getIconRenderer( id ).setSize( sizes[ index ] ).getImage();
 		}
 		return images;
-	}
-
-	public void register( String id, Class<? extends ProgramImage> icon ) {
-		icons.put( id, icon );
 	}
 
 	private ProgramImage getIconRenderer( String id ) {
@@ -93,6 +100,14 @@ public class IconLibrary {
 		}
 
 		return icon.setSize( DEFAULT_SIZE );
+	}
+
+	private Node getIconFromUrl( String url, double size ) {
+		ImageView view = new ImageView( url );
+		view.setFitWidth( size );
+		view.setFitHeight( size );
+		view.setSmooth( true );
+		return view;
 	}
 
 }

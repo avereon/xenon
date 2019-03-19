@@ -3,7 +3,7 @@
   "artifact": "${project.artifactId}",
   "version": "${project.version}",
   "timestamp": "${project.timestamp}",
-  "iconUri": "https://xeomar.com/images/icons/${project.artifactId}.png",
+  "iconUri": "program",
   "name": "${project.name}",
   "provider": "${project.organization.name}",
   "providerUrl": "${project.organization.url}",

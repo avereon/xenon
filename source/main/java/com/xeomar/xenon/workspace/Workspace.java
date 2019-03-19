@@ -224,8 +224,10 @@ public class Workspace implements Configurable {
 		noticeButton.setText( "0" );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
-			noticeButton.setText( String.valueOf( count ) );
-			Platform.runLater( () -> program.getActionLibrary().getAction( "notice" ).setIcon( count == 0 ? "notice" : "notice-unread" ) );
+			Platform.runLater( () -> {
+				program.getActionLibrary().getAction( "notice" ).setIcon( count == 0 ? "notice" : "notice-unread" );
+				noticeButton.setText( String.valueOf( count ) );
+			} );
 		} );
 		toolbar.getItems().add( noticeButton );
 

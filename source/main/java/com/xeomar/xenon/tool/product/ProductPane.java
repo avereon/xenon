@@ -53,8 +53,8 @@ class ProductPane extends MigPane {
 		Program program = productTool.getProgram();
 
 		String iconUri = source.getIconUri();
-		Node productIcon = program.getIconLibrary().getIcon( "module", ProductTool.ICON_SIZE );
-		//Node productIcon = program.getIconLibrary().getIcon( iconUri, ProductTool.ICON_SIZE );
+		//Node productIcon = program.getIconLibrary().getIcon( "module", ProductTool.ICON_SIZE );
+		Node productIcon = program.getIconLibrary().getIcon( iconUri, ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );

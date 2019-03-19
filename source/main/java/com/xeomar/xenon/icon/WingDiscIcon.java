@@ -1,7 +1,6 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
-import com.xeomar.xenon.util.Colors;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 
@@ -62,13 +61,13 @@ public class WingDiscIcon extends ProgramIcon {
 
 	private double rightArcSpanAngleDeg;
 
-	private Color primaryHighlight = Color.web( "#C5CAE9" );
+	private Color primaryHighlight = Color.web( "#FFFFFF" );
 
-	private Color primary = Color.web( "#3F51B5" );
+	private Color primary = Color.web( "#42A5F5" );
 
-	private Color secondaryHighlight = Color.web( "#ffff00" );
+	private Color secondaryHighlight = Color.web( "#FFF59D" );
 
-	private Color secondary = Color.web( "#ff6030" );
+	private Color secondary = Color.web( "#FF9800" );
 
 	public WingDiscIcon() {
 		POINT_RADIUS = g( 2 );
@@ -93,13 +92,14 @@ public class WingDiscIcon extends ProgramIcon {
 		Color discColor1 = secondaryHighlight;
 		Color discColor2 = secondary;
 		//setFillPaint( linearPaint( xx, xy, vx, vy + DISC_RADIUS, new Stop( 0, discColor1 ), new Stop( 1, discColor2 ) ) );
-		setFillPaint( radialPaint( vx, vy - DISC_RADIUS, 2 * DISC_RADIUS, new Stop( 0.2, discColor1 ), new Stop( 1, discColor2 ) ) );
+		setFillPaint( radialPaint( vx, vy - DISC_RADIUS, 2 * DISC_RADIUS, new Stop( 0.5, discColor1 ), new Stop( 1, discColor2 ) ) );
 		fillCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
 		drawCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
 
 		Color wingColor1 = primaryHighlight;
 		Color wingColor2 = primary;
 		setFillPaint( linearPaint( 0,0,1,1, new Stop( 0, wingColor1 ), new Stop( 1, wingColor2 ) ) );
+		//setFill( GradientShade.LIGHT );
 		arrow();
 		fill();
 		arrow();
