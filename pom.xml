@@ -231,9 +231,6 @@
 							<modulePath>${project.build.directory}/dependency</modulePath>
 							<jars>
 								<jar>
-									<name>commons-io.jar</name>
-								</jar>
-								<jar>
 									<name>jackson-core.jar</name>
 								</jar>
 								<jar>
@@ -252,10 +249,10 @@
 								<jar>
 									<name>miglayout-javafx.jar</name>
 									<modules>
-										<module>miglayout.core</module>
 										<module>javafx.base</module>
 										<module>javafx.graphics</module>
 										<module>javafx.controls</module>
+										<module>miglayout.core</module>
 									</modules>
 								</jar>
 							</jars>
