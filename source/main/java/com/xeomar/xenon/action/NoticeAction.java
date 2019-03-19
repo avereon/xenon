@@ -5,7 +5,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.type.ProgramNoticeType;
 import com.xeomar.xenon.tool.notice.NoticeTool;
 import com.xeomar.xenon.workarea.Tool;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 
 import java.util.Set;
 
@@ -21,7 +21,7 @@ public class NoticeAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpane().getTools( NoticeTool.class );
 
 		if( tools.size() > 0 ) {

@@ -4,7 +4,7 @@ import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.type.ProgramSettingsType;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 
 public class SettingsAction extends Action {
 
@@ -20,7 +20,7 @@ public class SettingsAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		getProgram().getResourceManager().open( ProgramSettingsType.URI );
 	}
 

@@ -2,7 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 
 public class ExitAction extends Action {
 
@@ -16,7 +16,7 @@ public class ExitAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		getProgram().requestExit( false );
 	}
 

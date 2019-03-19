@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-public class NewWorkareaAction extends Action<ActionEvent> {
+public class NewWorkareaAction extends Action {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 

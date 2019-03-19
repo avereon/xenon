@@ -9,7 +9,7 @@ import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.WorkpaneView;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -1325,7 +1325,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public void handle( Event event ) {
+		public void handle( ActionEvent event ) {
 			Collection<ResourceType> types = getResourceTypes();
 
 			ResourceType type = null;
@@ -1387,7 +1387,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public void handle( Event event ) {
+		public void handle( ActionEvent event ) {
 			// TODO Open a file dialog for the user to pick a file
 			// In Escape this opened a separate tool. Do I want to do the same?
 
@@ -1429,7 +1429,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public void handle( Event event ) {
+		public void handle( ActionEvent event ) {
 			resource = getCurrentResource();
 
 			if( saveAs ) {
@@ -1483,7 +1483,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public void handle( Event event ) {
+		public void handle( ActionEvent event ) {
 			try {
 				saveResources( getModifiedResources() );
 			} catch( Exception exception ) {
@@ -1500,7 +1500,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public void handle( Event event ) {
+		public void handle( ActionEvent event ) {
 			try {
 				closeResources( getCurrentResource() );
 			} catch( Exception exception ) {
@@ -1517,7 +1517,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		}
 
 		@Override
-		public void handle( Event event ) {
+		public void handle( ActionEvent event ) {
 			try {
 				closeResources( openResources );
 			} catch( Exception exception ) {

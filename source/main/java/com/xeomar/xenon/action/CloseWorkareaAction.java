@@ -4,7 +4,7 @@ import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.Workarea;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -23,7 +23,7 @@ public class CloseWorkareaAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		Program program = getProgram();
 		Workarea workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 

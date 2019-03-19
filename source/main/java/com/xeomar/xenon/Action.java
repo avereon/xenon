@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 
-public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
+public abstract class Action implements EventHandler<ActionEvent> {
 
 	protected static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -18,6 +18,8 @@ public abstract class Action<T extends ActionEvent> implements EventHandler<T> {
 	protected Action( Program program ) {
 		this.program = program;
 	}
+
+	public abstract void handle( ActionEvent event );
 
 	public boolean isEnabled() {
 		return enabled;

@@ -8,10 +8,8 @@ import java.util.Stack;
 
 /**
  * Associated with menu items and tool bar buttons as a proxy for that item so more than one action can be pushed and pulled from the proxy without loosing what was already registered.
- *
- * @param <T>
  */
-public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
+public class ActionProxy implements EventHandler<ActionEvent> {
 
 	public static final int NO_MNEMONIC = -1;
 
@@ -131,7 +129,7 @@ public class ActionProxy<T extends ActionEvent> implements EventHandler<T> {
 	}
 
 	@Override
-	public void handle( T event ) {
+	public void handle( ActionEvent event ) {
 		if( actionStack.size() == 0 ) return;
 		actionStack.peek().handle( event );
 	}

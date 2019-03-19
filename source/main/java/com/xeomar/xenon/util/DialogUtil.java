@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class DialogUtil {
 
-	public static void show( Stage owner, Dialog dialog ) {
+	public static <R> void show( Stage owner, Dialog<R>  dialog ) {
 		centerOnStage( owner, dialog );
 		dialog.initOwner( owner );
 		dialog.show();
@@ -20,7 +20,7 @@ public class DialogUtil {
 		return dialog.showAndWait();
 	}
 
-	private static void centerOnStage( Stage stage, Dialog dialog ) {
+	private static <R> void centerOnStage( Stage stage, Dialog<R> dialog ) {
 		// The following line is a workaround to dialogs showing with zero size on Linux
 		dialog.setResizable( true );
 
@@ -32,6 +32,7 @@ public class DialogUtil {
 
 		//Once the dialog is visible, remove the listeners
 		dialog.setOnShown( event -> {
+			event.consume();
 			dialog.widthProperty().removeListener( widthListener );
 			dialog.heightProperty().removeListener( heightListener );
 		} );

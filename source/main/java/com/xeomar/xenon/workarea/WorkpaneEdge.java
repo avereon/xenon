@@ -3,7 +3,6 @@ package com.xeomar.xenon.workarea;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.css.*;
 import javafx.geometry.Orientation;
@@ -28,7 +27,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	private static final PseudoClass VERTICAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "vertical" );
 
-	private ObjectProperty<Orientation> orientation;
+	private StyleableObjectProperty<Orientation> orientation;
 
 	private WorkpaneEdge topEdge;
 
@@ -102,9 +101,8 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	/**
 	 * <p>This property controls how the WorkpaneEdge should be displayed to the
-	 * user. {@link javafx.geometry.Orientation#HORIZONTAL} will result in a
-	 * horizontal divider, while {@link javafx.geometry.Orientation#VERTICAL} will
-	 * result in a vertical divider.</p>
+	 * user. Orientation.HORIZONTAL will result in a horizontal divider, while
+	 * Orientation.VERTICAL will result in a vertical divider.</p>
 	 *
 	 * @param value the orientation value
 	 */
@@ -126,7 +124,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 *
 	 * @return the orientation property for the WorkpaneEdge
 	 */
-	public final ObjectProperty<Orientation> orientationProperty() {
+	public final StyleableObjectProperty<Orientation> orientationProperty() {
 		if( orientation == null ) {
 			orientation = new StyleableObjectProperty<>( null ) {
 
@@ -224,7 +222,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 		}
 	}
 
-	public Set<WorkpaneView> getViews( Side direction ) {
+	Set<WorkpaneView> getViews( Side direction ) {
 		switch( direction ) {
 			case TOP: {
 				return topViews;
@@ -304,9 +302,9 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 		private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
-		private static final StyleConverter converter = StyleConverter.getEnumConverter( Orientation.class );
+		private static final StyleConverter<String, Orientation> converter = StyleConverter.getEnumConverter( Orientation.class );
 
-		private static final CssMetaData<WorkpaneEdge, Orientation> ORIENTATION = new CssMetaData<WorkpaneEdge, Orientation>( "-fx-orientation", converter, Orientation.HORIZONTAL ) {
+		private static final CssMetaData<WorkpaneEdge, Orientation> ORIENTATION = new CssMetaData<>( "-fx-orientation", converter, Orientation.HORIZONTAL ) {
 
 			@Override
 			public Orientation getInitialValue( WorkpaneEdge edge ) {
@@ -320,12 +318,12 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 			@Override
 			public StyleableProperty<Orientation> getStyleableProperty( WorkpaneEdge edge ) {
-				return (StyleableProperty<Orientation>)edge.orientationProperty();
+				return edge.orientationProperty();
 			}
 		};
 
 		static {
-			final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<CssMetaData<? extends Styleable, ?>>( Control.getClassCssMetaData() );
+			final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>( Control.getClassCssMetaData() );
 			styleables.add( ORIENTATION );
 			STYLEABLES = Collections.unmodifiableList( styleables );
 		}

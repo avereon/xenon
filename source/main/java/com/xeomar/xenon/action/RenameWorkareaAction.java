@@ -5,7 +5,7 @@ import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.workarea.Workarea;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class RenameWorkareaAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		Program program = getProgram();
 		workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 

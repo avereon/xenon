@@ -3,7 +3,7 @@ package com.xeomar.xenon.action;
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.type.ProgramProductType;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 
 import java.net.URI;
 
@@ -19,7 +19,7 @@ public class ProductAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.INSTALLED );
 		getProgram().getResourceManager().open( uri );
 	}

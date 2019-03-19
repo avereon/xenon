@@ -2,7 +2,7 @@ package com.xeomar.xenon.action;
 
 import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 
 public class RunnableTestAction extends Action {
 
@@ -19,7 +19,7 @@ public class RunnableTestAction extends Action {
 	}
 
 	@Override
-	public void handle( Event event ) {
+	public void handle( ActionEvent event ) {
 		try {
 			runnable.run();
 		} catch( Throwable throwable ) {
