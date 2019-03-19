@@ -280,6 +280,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void installProducts( Set<ProductCard> cards ) throws Exception {
 		log.debug( "Number of products to install: " + cards.size() );
 
+		// NEXT Implement ProductManager.installProducts()
+		log.warn( "... install products: " + cards.size() );
+
 		//		// Download the product resources.
 		//		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( cards );
 		//
