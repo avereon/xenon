@@ -6,7 +6,6 @@ module com.xeomar.xenon {
 	requires java.management;
 	requires java.sql;
 	requires javafx.controls;
-	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;

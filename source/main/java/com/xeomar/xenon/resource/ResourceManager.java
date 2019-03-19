@@ -13,7 +13,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import org.apache.commons.io.input.BoundedInputStream;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
@@ -1248,7 +1247,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( input == null ) return null;
 
 		byte[] buffer = new byte[ FIRST_LINE_LIMIT ];
-		BoundedInputStream boundedInput = new BoundedInputStream( input, FIRST_LINE_LIMIT );
+		LimitedInputStream boundedInput = new LimitedInputStream( input, FIRST_LINE_LIMIT );
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 
 		int read;

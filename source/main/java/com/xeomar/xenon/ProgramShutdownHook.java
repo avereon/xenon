@@ -5,7 +5,6 @@ import com.xeomar.xenon.update.ProductUpdate;
 import com.xeomar.xevra.UpdateCommandBuilder;
 import com.xeomar.xevra.UpdateFlag;
 import com.xeomar.xevra.UpdateTask;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -158,7 +157,7 @@ public class ProgramShutdownHook extends Thread {
 	private String stageUpdater() throws IOException {
 		// Determine where to put the updater
 		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
-		Path updaterHomeRoot = Paths.get( FileUtils.getTempDirectoryPath(), updaterHomeFolderName );
+		Path updaterHomeRoot = FileUtil.getTempFolder().resolve(  updaterHomeFolderName );
 		if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
 
 		// Cleanup from prior updates

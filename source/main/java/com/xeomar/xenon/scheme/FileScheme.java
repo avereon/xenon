@@ -1,12 +1,12 @@
 package com.xeomar.xenon.scheme;
 
+import com.xeomar.util.FileUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.Codec;
 import com.xeomar.xenon.resource.NullCodecException;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -173,7 +173,7 @@ public class FileScheme extends BaseScheme {
 	public boolean delete( Resource resource ) throws ResourceException {
 		try {
 			File file = getFile( resource );
-			FileUtils.forceDelete( file );
+			FileUtil.delete( file.toPath() );
 			return !file.exists();
 		} catch( Exception exception ) {
 			throw new ResourceException( resource, exception );

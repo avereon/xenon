@@ -55,6 +55,7 @@
 		<javafx.version>11.0.2</javafx.version>
 		<controlsfx.version>9.0.0</controlsfx.version>
 		<undofx.version>2.1.0</undofx.version>
+		<jackson-version>2.9.6</jackson-version>
 		<slf4j.version>1.8.0-beta2</slf4j.version>
 		<miglayout.version>5.1</miglayout.version>
 
@@ -78,23 +79,6 @@
 			<groupId>com.xeomar</groupId>
 			<artifactId>xevra</artifactId>
 			<version>0.1-SNAPSHOT</version>
-			<exclusions>
-				<!-- Let Xenon provide it's own version -->
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-controls</artifactId>
-				</exclusion>
-				<!-- Let Xenon provide it's own version -->
-				<exclusion>
-					<groupId>org.controlsfx</groupId>
-					<artifactId>controlsfx</artifactId>
-				</exclusion>
-				<!-- Let Xenon provide it's own version -->
-				<exclusion>
-					<groupId>com.xeomar</groupId>
-					<artifactId>zenna</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
