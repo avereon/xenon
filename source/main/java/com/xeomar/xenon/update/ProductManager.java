@@ -156,7 +156,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Set<ProductCard> postedUpdateCache;
 
-	private Set<String> includedProducts;
+	private Set<ProductCard> includedProducts;
 
 	private Set<ProductCard> availableCards;
 
@@ -183,8 +183,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Register included products
 		includedProducts = new HashSet<>();
-		includedProducts.add( program.getCard().getProductKey() );
-		includedProducts.add( new com.xeomar.xevra.Program().getCard().getProductKey() );
+		includedProducts.add( program.getCard() );
+		includedProducts.add( new com.xeomar.xevra.Program().getCard() );
 	}
 
 	public int getCatalogCount() {
@@ -918,7 +918,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	private boolean isReservedProduct( ProductCard card ) {
-		return includedProducts.contains( card.getProductKey() );
+		return includedProducts.contains( card );
 	}
 
 	//	private void installProductImpl( ProductCard card, Map<ProductCard, Set<ProductResource>> productResources ) throws Exception {
@@ -1109,7 +1109,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//
 	//	private ServiceModule loadModule( ProductCard card, ClassLoader loader, String source, boolean updatable, boolean removable ) throws Exception {
 	//		// Ignore included products.
-	//		if( includedProducts.contains( card.getProductKey() ) ) return null;
+	//		if( isReservedProduct( card ) ) return null;
 	//
 	//		// Check if module is already loaded.
 	//		ServiceModule module = modules.get( card.getProductKey() );

@@ -21,12 +21,12 @@ public class MarketCardTest {
 		InputStream input = getClass().getResourceAsStream( MarketCard.CARD );
 		MarketCard card = MarketCard.loadCard( input );
 		assertThat( card.getName(), is( "Xeomar" ) );
-		assertThat( card.getIconUri(), is( "https://xeomar.com/images/icons/xeomar.png" ) );
+		assertThat( card.getIconUri(), is( "provider" ) );
 		assertThat( card.getCardUri(), is( "https://xeomar.com/download" ) );
 
 		Set<String> products = new HashSet<>();
-		products.add( "https://xeomar.com/download?artifact=arrow" );
-		products.add( "https://xeomar.com/download?artifact=mouse" );
+//		products.add( "https://xeomar.com/download?artifact=arrow" );
+		products.add( "https://xeomar.com/download?channel=latest&artifact=mouse&category=product&type=card" );
 //		products.add( "https://xeomar.com/download?artifact=serra" );
 //		products.add( "https://xeomar.com/download?artifact=marra" );
 //		products.add( "https://xeomar.com/download?artifact=ocean" );
