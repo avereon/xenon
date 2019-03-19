@@ -53,8 +53,7 @@ class ProductPane extends MigPane {
 		Program program = productTool.getProgram();
 
 		String iconUri = source.getIconUri();
-		//Node productIcon = program.getIconLibrary().getIcon( "module", ProductTool.ICON_SIZE );
-		Node productIcon = program.getIconLibrary().getIcon( iconUri, ProductTool.ICON_SIZE );
+		Node productIcon = program.getIconLibrary().getIcon( iconUri, "product", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );
@@ -137,7 +136,7 @@ class ProductPane extends MigPane {
 		} else if( isAvailableProductsPanel ) {
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( false );
-			actionButton1.setGraphic( program.getIconLibrary().getIcon( "install" ) );
+			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> installProduct() );
 
 			actionButton2.setVisible( false );

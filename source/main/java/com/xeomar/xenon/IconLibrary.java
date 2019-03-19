@@ -19,12 +19,14 @@ public class IconLibrary {
 	public IconLibrary() {
 		icons = new ConcurrentHashMap<>();
 		register( "program", XRingLargeIcon.class );
-		register( "new", DocumentIcon.class );
-		register( "open", FolderIcon.class );
-		//register( "save", SaveIcon.class );
-		register( "save", LightningIcon.class );
-		register( "close", CloseIcon.class );
+		register( "resource-new", DocumentIcon.class );
+		register( "resource-open", FolderIcon.class );
+		//register( "resource-save", SaveIcon.class );
+		register( "resource-save", LightningIcon.class );
+		register( "resource-close", DocumentCloseIcon.class );
 		register( "exit", ExitIcon.class );
+
+		register( "close", ExitIcon.class );
 
 		register( "undo", UndoIcon.class );
 		register( "redo", RedoIcon.class );
@@ -53,15 +55,16 @@ public class IconLibrary {
 		register( "workarea-rename", WorkareaRenameIcon.class );
 		register( "workarea-close", WorkareaCloseIcon.class );
 
+		register( "add", AddIcon.class );
 		register( "refresh", RefreshIcon.class );
 		register( "download", DownloadIcon.class );
 		register( "market", MarketIcon.class );
 		register( "module", ModuleIcon.class );
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
-		register( "remove", ExitIcon.class );
+		register( "remove", DeleteIcon.class );
 
-		register( "xeomar", WingDiscLargeIcon.class );
+		register( "provider", WingDiscLargeIcon.class );
 	}
 
 	public void register( String id, Class<? extends ProgramImage> icon ) {
@@ -74,7 +77,24 @@ public class IconLibrary {
 	}
 
 	public Node getIcon( String id, double size ) {
-		return id.contains( URL_CHECK ) ? getIconFromUrl( id, size ) : getIconRenderer( id ).setSize( size );
+		//return id.contains( URL_CHECK ) ? getIconFromUrl( id, size ) : getIconRenderer( id ).setSize( size );
+		return getIcon( id, null, size );
+	}
+
+	public Node getIcon( String id, String backupId ) {
+		return getIcon( id, backupId, DEFAULT_SIZE );
+	}
+
+	public Node getIcon( String id, String backupId, double size ) {
+		Node node = null;
+
+		if( id.contains( URL_CHECK ) ) node = getIconFromUrl( id, size );
+		if( node == null ) node = getIconRenderer( id );
+		if( node == null ) node = getIconRenderer( backupId );
+		if( node == null ) node = new BrokenIcon().setSize( size );
+		if( node instanceof ProgramImage ) ((ProgramImage)node).setSize( size );
+
+		return node;
 	}
 
 	public Image[] getStageIcons( String id ) {
@@ -84,26 +104,24 @@ public class IconLibrary {
 	private Image[] getStageIcons( String id, int... sizes ) {
 		Image[] images = new Image[ sizes.length ];
 		for( int index = 0; index < sizes.length; index++ ) {
-			images[ index ] = getIconRenderer( id ).setSize( sizes[ index ] ).getImage();
+			ProgramImage image = getIconRenderer( id );
+			if( image == null ) image = new BrokenIcon();
+			images[ index ] = image.setSize( sizes[ index ] ).getImage();
 		}
 		return images;
 	}
 
 	private ProgramImage getIconRenderer( String id ) {
-		Class<? extends ProgramImage> renderer = icons.get( id );
-
-		ProgramImage icon;
 		try {
-			icon = renderer.getConstructor().newInstance();
+			return icons.get( id ).getConstructor().newInstance();
 		} catch( Exception exception ) {
-			icon = new BrokenIcon();
+			return null;
 		}
-
-		return icon.setSize( DEFAULT_SIZE );
 	}
 
 	private Node getIconFromUrl( String url, double size ) {
 		ImageView view = new ImageView( url );
+		if( view.getImage().isError() ) return null;
 		view.setFitWidth( size );
 		view.setFitHeight( size );
 		view.setSmooth( true );

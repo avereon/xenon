@@ -1,6 +1,6 @@
 package com.xeomar.xenon.icon;
 
-public class CloseIcon extends DocumentIcon {
+public class DocumentCloseIcon extends DocumentIcon {
 
 	public void render() {
 		super.render();
@@ -16,7 +16,7 @@ public class CloseIcon extends DocumentIcon {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new CloseIcon() );
+		proof( new DocumentCloseIcon() );
 	}
 
 }

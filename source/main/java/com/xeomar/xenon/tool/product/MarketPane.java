@@ -35,8 +35,7 @@ class MarketPane extends MigPane {
 		Program program = productTool.getProgram();
 
 		String iconUri = source.getIconUri();
-		//Node marketIcon = program.getIconLibrary().getIcon( "market", ProductTool.ICON_SIZE );
-		Node marketIcon = program.getIconLibrary().getIcon( iconUri, ProductTool.ICON_SIZE );
+		Node marketIcon = program.getIconLibrary().getIcon( iconUri, "market", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, marketIcon );
 		iconLabel.setId( "tool-product-market-icon" );

@@ -1,6 +1,6 @@
 {
   "name" : "${project.organization.name}",
-  "iconUri" : "xeomar",
+  "iconUri" : "provider",
   "cardUri" : "https://xeomar.com/download",
   "enabled" : "true",
   "removable" : "false",

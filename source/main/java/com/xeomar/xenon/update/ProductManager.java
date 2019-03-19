@@ -158,6 +158,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Set<String> includedProducts;
 
+	private Set<ProductCard> availableCards;
+
 	private long postedUpdateCacheTime;
 
 	private Timer timer;
@@ -217,9 +219,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return A set of the available product cards
 	 */
 	public Set<ProductCard> getAvailableProducts( boolean force ) {
-		//log.warn( "Update available products" );
-
-		// TODO Implement ProductManager.getAvailableProducts()
+		if( !force && availableCards != null ) return availableCards;
 
 		// Determine all the product cards that need to be downloaded
 		Set<String> productUris = getCatalogs().stream().flatMap( ( t ) -> t.getProducts().stream() ).collect( Collectors.toSet() );
@@ -227,17 +227,24 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Download all the product cards
 		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
 
+		log.warn( "Downloading available products..." );
 		// Collect all the product cards into a set and return it
 		Set<ProductCard> cards = new HashSet<>();
 		for( Future<Download> future : futures ) {
+			Download download = null;
 			try {
-				cards.add( new ProductCard().load( future.get().getInputStream() ) );
+				download = future.get();
+				cards.add( new ProductCard().load( download.getInputStream() ) );
 			} catch( Exception exception ) {
-				log.warn( "Error downloading product card", exception );
+				if( download == null ) {
+					log.warn( "Error downloading product card", exception );
+				} else {
+					log.warn( "Error downloading product card: " + download.getSource(), exception );
+				}
 			}
 		}
 
-		return cards;
+		return availableCards = cards;
 	}
 
 	public Set<Mod> getModules() {

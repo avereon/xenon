@@ -27,7 +27,7 @@ public class NoticePane extends GridPane {
 
 		Node noticeIcon = program.getIconLibrary().getIcon( "notice" );
 		Label title = new Label( notice.getTitle() );
-		closeIcon = program.getIconLibrary().getIcon( "remove" );
+		closeIcon = program.getIconLibrary().getIcon( "close" );
 		Label message = new Label( notice.getMessage() );
 		message.setWrapText( true );
 

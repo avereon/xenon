@@ -18,7 +18,7 @@ class ProductMarketPage extends ProductToolPage {
 		this.productTool = productTool;
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.SOURCES ) );
 
-		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add-market" ) );
+		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
 
 		getButtonBox().addAll( addButton );
 	}
