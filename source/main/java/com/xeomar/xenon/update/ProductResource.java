@@ -1,5 +1,7 @@
 package com.xeomar.xenon.update;
 
+import com.xeomar.util.UriUtil;
+
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
@@ -15,6 +17,8 @@ public final class ProductResource {
 
 	private URI uri;
 
+	private String name;
+
 	private Future<Download> future;
 
 	private Path file;
@@ -24,6 +28,7 @@ public final class ProductResource {
 	public ProductResource( ProductResource.Type type, URI uri ) {
 		this.type = type;
 		this.uri = uri;
+		this.name = UriUtil.parseName( uri );
 	}
 
 	public ProductResource.Type getType() {
@@ -32,6 +37,10 @@ public final class ProductResource {
 
 	public URI getUri() {
 		return uri;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public void waitFor() throws InterruptedException, ExecutionException {
@@ -63,4 +72,7 @@ public final class ProductResource {
 		return type.name() + ": " + uri;
 	}
 
+	private String parseName( URI uri ) {
+		return null;
+	}
 }

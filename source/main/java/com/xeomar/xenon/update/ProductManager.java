@@ -42,40 +42,23 @@ import java.util.stream.Collectors;
 public abstract class ProductManager implements Controllable<ProductManager>, Configurable {
 
 	public enum CheckOption {
-		MANUAL,
-		STARTUP,
-		INTERVAL,
-		SCHEDULE
+		MANUAL, STARTUP, INTERVAL, SCHEDULE
 	}
 
 	public enum CheckInterval {
-		MONTH,
-		WEEK,
-		DAY,
-		HOUR
+		MONTH, WEEK, DAY, HOUR
 	}
 
 	public enum CheckWhen {
-		DAILY,
-		SUNDAY,
-		MONDAY,
-		TUESDAY,
-		WEDNESDAY,
-		THURSDAY,
-		FRIDAY,
-		SATURDAY
+		DAILY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
 	}
 
 	public enum FoundOption {
-		SELECT,
-		STORE,
-		APPLY
+		SELECT, STORE, APPLY
 	}
 
 	public enum ApplyOption {
-		VERIFY,
-		IGNORE,
-		RESTART
+		VERIFY, IGNORE, RESTART
 	}
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
@@ -516,9 +499,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
-	 * @throws ExecutionException If a task execution exception occurs
+	 * @throws ExecutionException   If a task execution exception occurs
 	 * @throws InterruptedException If the calling thread is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
+	 * @throws URISyntaxException   If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
 		return new FindPostedUpdatesTask( program, force ).call();
@@ -538,10 +521,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * Attempt to stage the product packs from posted updates.
 	 *
 	 * @return true if one or more product packs were staged.
-	 * @throws IOException If an IO error occurs
-	 * @throws ExecutionException If an execution error occurs
+	 * @throws IOException          If an IO error occurs
+	 * @throws ExecutionException   If an execution error occurs
 	 * @throws InterruptedException If the method is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
+	 * @throws URISyntaxException   If a URI cannot be resolved correctly
 	 */
 	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
@@ -1376,6 +1359,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				return null;
 			}
 
+			stageResources();
+
+			// Notify listeners the update is staged.
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+
+			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
+			log.debug( "           to: " + updatePack );
+
+			return new ProductUpdate( updateCard, updatePack, installFolder );
+		}
+
+		private void stageResources() throws IOException {
 			// If there is only one resource and it is already an update pack then
 			// just copy it. Otherwise, collect all packs and files into one zip
 			// file as the update pack.
@@ -1391,14 +1386,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				FileUtil.zip( updateFolder, updatePack, this::setProgress );
 				FileUtil.deleteOnExit( updateFolder );
 			}
-
-			// Notify listeners the update is staged.
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
-
-			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
-			log.debug( "           to: " + updatePack );
-
-			return new ProductUpdate( updateCard, updatePack, installFolder );
 		}
 
 		private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
@@ -1408,15 +1395,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				if( resource.getLocalFile() == null ) continue;
 				switch( resource.getType() ) {
 					case FILE: {
-						// Just copy the file.
-						String path = resource.getUri().getPath();
-						String name = path.substring( path.lastIndexOf( "/" ) + 1 );
-						Path target = folder.resolve( name );
-						FileUtil.copy( resource.getLocalFile(), target );
+						// Just copy the file
+						FileUtil.copy( resource.getLocalFile(), folder.resolve( resource.getName() ) );
 						break;
 					}
 					case PACK: {
-						// Unpack the file.
+						// Unpack the file
 						FileUtil.unzip( resource.getLocalFile(), folder );
 						break;
 					}
