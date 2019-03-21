@@ -266,25 +266,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// NEXT Implement ProductManager.installProducts()
 		log.warn( "... install products: " + cards.size() );
 
-		//		// Download the product resources.
-		//		Map<ProductCard, Set<ProductResource>> productResources = downloadProductResources( cards );
-		//
-		//		// TODO All the product resources may not have been successfully downloaded.
-		//
-		//		// Install the products.
-		//		Set<InstalledProduct> installedProducts = new HashSet<InstalledProduct>();
-		//		for( ProductCard card : cards ) {
-		//			try {
-		//				installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-		//				installProductImpl( card, productResources );
-		//			} catch( Exception exception ) {
-		//				Log.write( exception );
-		//			}
-		//		}
-		//
-		//		Set<InstalledProduct> products = getStoredRemovedProducts();
-		//		products.removeAll( installedProducts );
-		//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
+		// Download the product resources.
+		Future<Integer> stageFuture = program.getTaskManager().submit( new InstallProducts( program, cards ) );
 	}
 
 	public void uninstallProducts( ProductCard... cards ) throws Exception {
@@ -537,9 +520,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return installFolder.resolve( card.getGroup() + "." + card.getArtifact() );
 	}
 
-	public void stageUpdates( ProductCard... updateCards ) throws Exception {
-		new StageUpdates( program, Set.of( updateCards ) ).call();
-	}
+	//	public void stageUpdates( ProductCard... updateCards ) throws Exception {
+	//		new StageUpdates( program, Set.of( updateCards ) ).call();
+	//	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
@@ -1465,6 +1448,81 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			program.getTaskManager().submit( Lambda.task( "Store staged update settings", () -> saveUpdates( updates ) ) );
 
 			log.debug( "Product update count: " + updates.size() );
+
+			return updates.size();
+		}
+
+	}
+
+	final class InstallProducts extends ProgramTask<Integer> {
+
+		/**
+		 * Attempt to stage the product packs described by the specified product cards.
+		 *
+		 * @param updateCards The set of update cards to stage
+		 */
+		Set<ProductCard> updateCards;
+
+		private Set<Future<ProductUpdate>> updateFutures;
+
+		public InstallProducts( Program program, Set<ProductCard> updateCards ) {
+			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+			this.updateCards = updateCards;
+
+			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
+
+			log.debug( "Number of packs to stage: " + updateCards.size() );
+			log.trace( "Pack stage folder: " + stageFolder );
+
+			try {
+				Files.createDirectories( stageFolder );
+			} catch( IOException exception ) {
+				log.warn( "Error creating install stage folder: " + stageFolder, exception );
+				return;
+			}
+
+			updateFutures = new HashSet<>();
+			for( ProductCard card : updateCards ) {
+				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
+				updateFutures.add( program.getTaskManager().submit( new CreateUpdate( program, card, updatePack ) ) );
+			}
+		}
+
+		@Override
+		public Integer call() throws Exception {
+			if( updateCards.size() == 0 ) return 0;
+
+
+			for( Future<ProductUpdate> updateFuture : updateFutures ) {
+				try {
+					ProductUpdate update = updateFuture.get();
+					// TODO The update may be null
+					// TODO Not all the resources may have downloaded
+
+					log.warn( "Product downloaded: " + update.getCard().getProductKey() );
+
+					//		// Install the products.
+					//		Set<InstalledProduct> installedProducts = new HashSet<InstalledProduct>();
+					//		for( ProductCard card : cards ) {
+					//			try {
+					//				installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+					//				installProductImpl( card, productResources );
+					//			} catch( Exception exception ) {
+					//				Log.write( exception );
+					//			}
+					//		}
+					//
+					//		Set<InstalledProduct> products = getStoredRemovedProducts();
+					//		products.removeAll( installedProducts );
+					//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
+				} catch( ExecutionException exception ) {
+					log.error( "Error creating product install pack", exception );
+				} catch( InterruptedException exception ) {
+					break;
+				}
+			}
+
+			log.debug( "Product install count: " + updates.size() );
 
 			return updates.size();
 		}
