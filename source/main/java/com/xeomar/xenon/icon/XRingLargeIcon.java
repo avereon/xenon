@@ -24,6 +24,9 @@ public class XRingLargeIcon extends XLargeIcon {
 		// Blue 400
 		Color ringBase = Color.web( "#42A5F5" );
 
+		ringHighlight = Color.web( "#D0D0D0");
+		ringBase = Color.web( "#A0A0A0");
+
 		// Jet colors
 		// Yellow A200
 		Color jetCenter = Color.web( "#FFF59D" );

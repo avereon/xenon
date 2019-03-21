@@ -26,7 +26,7 @@ public class FolderIcon extends ProgramIcon {
 		lineTo( g(27), g(25) );
 		lineTo( g(25), g(15) );
 		closePath();
-		fillAndDraw( getIconFillPaint( GradientShade.DARK ) );
+		fillAndDraw( getIconFillPaint( GradientTone.DARK ) );
 	}
 
 	public static void main( String[] commands ) {

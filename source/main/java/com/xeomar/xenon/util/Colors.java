@@ -18,37 +18,65 @@ public class Colors {
 
 	public static Color mix( Color color, Color mixer, double factor ) {
 		if( color == null || mixer == null ) return null;
+		factor = clamp( factor );
+		double mixFactor = 1 - factor;
 
-		double colorR = color.getRed();
-		double colorG = color.getGreen();
-		double colorB = color.getBlue();
-		double colorA = color.getOpacity();
+		double colorR = color.getRed() * mixFactor;
+		double colorG = color.getGreen() * mixFactor;
+		double colorB = color.getBlue() * mixFactor;
+		double colorA = color.getOpacity() * mixFactor;
 
-		double mixerR = mixer.getRed();
-		double mixerG = mixer.getGreen();
-		double mixerB = mixer.getBlue();
-		double mixerA = mixer.getOpacity();
+		double mixerR = mixer.getRed() * factor;
+		double mixerG = mixer.getGreen() * factor;
+		double mixerB = mixer.getBlue() * factor;
+		double mixerA = mixer.getOpacity() * factor;
 
 		double diffR = mixerR - colorR;
 		double diffG = mixerG - colorG;
 		double diffB = mixerB - colorB;
 		double diffA = mixerA - colorA;
 
-		double r = colorR + (diffR * factor);
-		double g = colorG + (diffG * factor);
-		double b = colorB + (diffB * factor);
-		double a = colorA + (diffA * factor);
+		double r = colorR + mixerR;
+		double g = colorG + mixerG;
+		double b = colorB + mixerB;
+		double a = colorA + mixerA;
 
 		return new Color( r, g, b, a );
 	}
 
+	/**
+	 * Generate a toned color by mixing the specified color with white (factor
+	 * 1.0) or black (factor -1.0).
+	 */
+	public static Color getTone( Color color, double factor ) {
+		//factor = clamp( factor );
+		if( factor > 0 ) return getTint( color, factor );
+		if( factor < 0 ) return getShade( color, -factor );
+		return color;
+	}
+
+	/**
+	 * Generate a tinted color by mixing the specified color with white.
+	 *
+	 * @param color
+	 * @param factor
+	 * @return
+	 */
+	public static Color getTint( Color color, double factor ) {
+		factor = clamp( factor );
+		return mix( color, new Color( 1, 1, 1, color.getOpacity() ), factor );
+	}
+
+	/**
+	 * Generate a shaded color by mixing the specified color with black.
+	 *
+	 * @param color
+	 * @param factor
+	 * @return
+	 */
 	public static Color getShade( Color color, double factor ) {
-		if( factor < 0 ) factor = 0;
-		if( factor > 1 ) factor = 1;
-
-		//double d = Math.abs( 0.5 - factor ) / 0.5;
-
-		return mix( color, new Color( factor, factor, factor, color.getOpacity() ), 1.0);
+		factor = clamp( factor );
+		return mix( color, new Color( 0, 0, 0, color.getOpacity() ), factor );
 	}
 
 	/**
@@ -56,8 +84,8 @@ public class Colors {
 	 * <p>
 	 * Derived from: http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
 	 *
-	 * @param color
-	 * @return
+	 * @param color The color for which to find the luminance.
+	 * @return A number between 0.0 and 1.0 representing the luminance.
 	 */
 	public static double getLuminance( Color color ) {
 		double r = color.getRed();
@@ -68,6 +96,15 @@ public class Colors {
 		double y = 0.2126f * r + 0.7152f * g + 0.0722f * b;
 
 		return y;
+	}
+
+	private static double clamp( double value ) {
+		if( value < 0 ) {
+			value = 0;
+		} else if( value > 1 ) {
+			value = 1;
+		}
+		return value;
 	}
 
 	private static float clamp( float value ) {

@@ -60,7 +60,7 @@ public class CutIcon extends ProgramIcon {
 		lineTo(g(18),g(25));
 		addArc(g(20),g(25),g(2),g(2),180,-90);
 		closePath();
-		fillAndDraw(GradientShade.LIGHT);
+		fillAndDraw( GradientTone.LIGHT);
 
 		// Hinge
 		double p = 17.75;

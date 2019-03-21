@@ -62,7 +62,7 @@ public class SettingsIcon extends ProgramIcon {
 	}
 
 	private void renderButton( int x, int y, int r ) {
-		//setFill( GradientShade.DARK );
+		//setFill( GradientTone.DARK );
 		setFillPaint( getIconDrawColor() );
 		fillCenteredOval( g( x ), g( y ), g( r ), g( r ) );
 		drawCenteredOval( g( x ), g( y ), g( r ), g( r ) );

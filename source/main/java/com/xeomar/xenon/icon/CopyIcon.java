@@ -14,7 +14,7 @@ public class CopyIcon extends ProgramIcon {
 
 		renderPage();
 		//setColorMode( ColorMode.PRIMARY );
-		fillAndDraw( GradientShade.LIGHT );
+		fillAndDraw( GradientTone.LIGHT );
 
 		reset();
 	}

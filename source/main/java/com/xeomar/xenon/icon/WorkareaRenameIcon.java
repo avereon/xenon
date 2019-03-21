@@ -8,7 +8,7 @@ public class WorkareaRenameIcon extends WorkareaIcon {
 	protected void render() {
 		super.render();
 
-		setFillPaint( getIconFillPaint( ProgramIcon.GradientShade.LIGHT ) );
+		setFillPaint( getIconFillPaint( GradientTone.LIGHT ) );
 		fillRect( g( 3 ), g( 11 ), g( 26 ), g( 10 ) );
 		drawRect( g( 3 ), g( 11 ), g( 26 ), g( 10 ) );
 		drawLine( g( 9 ), g( 13 ), g( 9 ), g( 19 ) );

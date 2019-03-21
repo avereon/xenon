@@ -96,7 +96,7 @@ public class CompassIcon extends ProgramIcon {
 		arrowPath();
 		fillAndDraw();
 		discPath();
-		fillAndDraw( GradientShade.LIGHT );
+		fillAndDraw( GradientTone.LIGHT );
 	}
 
 	private void arrowPath() {

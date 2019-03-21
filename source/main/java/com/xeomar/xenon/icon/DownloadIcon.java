@@ -30,7 +30,7 @@ public class DownloadIcon extends ProgramIcon {
 		lineTo( ox + width, oy - width - za );
 		lineTo( ox + za, oy );
 		closePath();
-		fillAndDraw( GradientShade.LIGHT );
+		fillAndDraw( GradientTone.LIGHT );
 	}
 
 	public static void main( String[] commands ) {

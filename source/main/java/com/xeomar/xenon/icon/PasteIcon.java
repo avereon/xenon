@@ -25,7 +25,7 @@ public class PasteIcon extends ProgramIcon {
 		lineTo( g( 27 ), g( 27 ) );
 		lineTo( g( 27 ), g( 9 ) );
 		closePath();
-		fillAndDraw( GradientShade.LIGHT );
+		fillAndDraw( GradientTone.LIGHT );
 
 		// Clip
 		beginPath();

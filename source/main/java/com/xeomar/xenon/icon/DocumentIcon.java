@@ -12,7 +12,7 @@ public class DocumentIcon extends ProgramIcon {
 
 		// Fold
 		fold( true );
-		fill( getIconFillPaint( GradientShade.DARK ) );
+		fill( getIconFillPaint( GradientTone.DARK ) );
 
 		// Page outline
 		page();

@@ -7,7 +7,7 @@ public class LightningIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		// Disk
-		setFillPaint( getIconFillPaint( GradientShade.DARK ) );
+		setFillPaint( getIconFillPaint( GradientTone.DARK ) );
 		fillCenteredOval( g( 16 ), g( 16 ), g( 12 ), g( 6 ) );
 		drawCenteredOval( g( 16 ), g( 16 ), g( 12 ), g( 6 ) );
 
@@ -21,7 +21,7 @@ public class LightningIcon extends ProgramIcon {
 		lineTo( g( 17 ), g( 13 ) );
 		lineTo( g( 21 ), g( 5 ) );
 		closePath();
-		fill( GradientShade.LIGHT );
+		fill( GradientTone.LIGHT );
 		draw();
 	}
 

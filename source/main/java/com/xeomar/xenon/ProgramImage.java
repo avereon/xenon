@@ -66,7 +66,7 @@ ZP - 31
 */
 public abstract class ProgramImage extends Canvas {
 
-	protected enum GradientShade {
+	protected enum GradientTone {
 		LIGHT,
 		MEDIUM,
 		DARK
@@ -78,23 +78,17 @@ public abstract class ProgramImage extends Canvas {
 
 	private static final double DEFAULT_SIZE = 256;
 
-	private static double DEFAULT_STROKE_WIDTH = 1.0 / 32.0;
+	private static ColorTheme DEFAULT_COLOR_THEME;
 
-	private static Color DEFAULT_STROKE_COLOR = new Color( 0.2, 0.2, 0.2, 1.0 );
+	private static double DEFAULT_DRAW_WIDTH;
 
-	private static Color DEFAULT_FILL_COLOR = new Color( 0.8, 0.8, 0.8, 1.0 );
+	private ColorTheme colorTheme;
 
-	private static double drawWidth = DEFAULT_STROKE_WIDTH;
+	private double drawWidth;
 
-	private static Color themeDrawColor;
+	private Color drawColor;
 
-	private static Color themeFillColor;
-
-	private static Color drawColor;
-
-	private static Color fillColor;
-
-	private static ColorTheme theme;
+	private Color fillColor;
 
 	private double xOffset;
 
@@ -105,9 +99,8 @@ public abstract class ProgramImage extends Canvas {
 	private Transform baseTransform = new Affine();
 
 	static {
-		//setColorTheme( new ColorTheme( new Color( 0.5, 0.75, 1.0, 1.0 ) ) );
-		setColorTheme( new ColorTheme( new Color( 0.8, 0.8, 0.8, 1.0 ) ) );
-		//setColorTheme( new ColorTheme( Color.GRAY ) );
+		setDefaultColorTheme( new ColorTheme( new Color( 0.8, 0.8, 0.8, 1.0 ) ) );
+		setDefaultDrawWidth( 1.0 / 32.0 );
 	}
 
 	public ProgramImage() {
@@ -115,25 +108,39 @@ public abstract class ProgramImage extends Canvas {
 		parentProperty().addListener( ( observable, oldValue, newValue ) -> { if( newValue != null ) fireRender(); } );
 	}
 
-	public static void setColorTheme( ColorTheme theme ) {
-		ProgramImage.theme = theme;
-		themeFillColor = theme.getPrimary();
-
-		// A luminance greater than 0.5 is "bright"
-		// A luminance less than 0.5 is "dark"
-		double y = Colors.getLuminance( theme.getPrimary() );
-		if( y < 0.2 ) {
-			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 1.75, 1 );
-		} else {
-			themeDrawColor = theme.getPrimary().deriveColor( 0, 1, 0.25, 1 );
-		}
+	public static ColorTheme getDefaultColorTheme() {
+		return DEFAULT_COLOR_THEME;
 	}
 
-	public static void setDrawColor( Color color ) {
+	public static void setDefaultColorTheme( ColorTheme theme ) {
+		DEFAULT_COLOR_THEME = theme;
+	}
+
+	public ColorTheme getColorTheme() {
+		return this.colorTheme == null ? DEFAULT_COLOR_THEME : this.colorTheme;
+	}
+
+	public void setColorTheme( ColorTheme theme ) {
+		this.colorTheme = theme;
+	}
+
+	public static double getDefaultDrawWidth() {
+		return DEFAULT_DRAW_WIDTH;
+	}
+
+	public static void setDefaultDrawWidth( double size ) {
+		DEFAULT_DRAW_WIDTH = size;
+	}
+
+	public void setDrawWidth( double width ) {
+		drawWidth = width;
+	}
+
+	public void setDrawColor( Color color ) {
 		drawColor = color;
 	}
 
-	public static void setFillColor( Color color ) {
+	public void setFillColor( Color color ) {
 		fillColor = color;
 	}
 
@@ -351,7 +358,7 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setStroke( paint );
 	}
 
-	protected void setFill( GradientShade shade ) {
+	protected void setFillTone( GradientTone shade ) {
 		setFillPaint( getIconFillPaint( shade ) );
 	}
 
@@ -359,12 +366,8 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setFill( paint );
 	}
 
-	protected void setFillPaintColor( Color color ) {
-		getGraphicsContext2D().setFill( getGradientPaint( themeFillColor, color ) );
-	}
-
 	protected void setFillRule( FillRule rule ) {
-		getGraphicsContext2D().setFillRule( FillRule.EVEN_ODD );
+		getGraphicsContext2D().setFillRule( rule );
 	}
 
 	protected void setTextAlign( TextAlignment alignment ) {
@@ -385,7 +388,7 @@ public abstract class ProgramImage extends Canvas {
 		draw();
 	}
 
-	protected void fillAndDraw( GradientShade shade ) {
+	protected void fillAndDraw( GradientTone shade ) {
 		fillAndDraw( getIconFillPaint( shade ) );
 	}
 
@@ -394,7 +397,7 @@ public abstract class ProgramImage extends Canvas {
 		draw( drawPaint );
 	}
 
-	protected void fillAndDraw( GradientShade shade, Paint drawPaint ) {
+	protected void fillAndDraw( GradientTone shade, Paint drawPaint ) {
 		fill( getIconFillPaint( shade ) );
 		draw( drawPaint );
 	}
@@ -409,7 +412,7 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setFill( getIconFillPaint() );
 	}
 
-	protected void fill( GradientShade shade ) {
+	protected void fill( GradientTone shade ) {
 		fill( getIconFillPaint( shade ) );
 	}
 
@@ -553,54 +556,61 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	protected double getIconDrawWidth() {
-		return drawWidth;
+		return drawWidth == 0.0 ? DEFAULT_DRAW_WIDTH : drawWidth;
 	}
 
 	protected Color getIconDrawColor() {
-		return drawColor == null ? themeDrawColor : drawColor;
+		return drawColor == null ? getThemeDrawColor() : drawColor;
 	}
 
 	protected Color getIconFillColor() {
-		return fillColor == null ? themeFillColor : fillColor;
+		return fillColor == null ? getThemeFillColor() : fillColor;
 	}
 
 	protected Paint getIconFillPaint() {
-		return getIconFillPaint( GradientShade.MEDIUM );
+		return getIconFillPaint( GradientTone.MEDIUM );
 	}
 
-	protected Paint getIconFillPaint( GradientShade shade ) {
-		double buffer = 0.2;
-		double y = Colors.getLuminance( theme.getPrimary() );
+	protected Paint getIconFillPaint( GradientTone tone ) {
+		Color color = getIconFillColor();
 
-		double a = 0.75;
-		double b = 0.25;
-		double c = 0.2 * y;
+		// The gradient range factor 0 to 2
+		// A value of 0 is just the color with no gradient at all
+		// A value of 2 is a gradient of white to black with no color at all
+		double range = 0.8;
 
-		switch( shade ) {
+		// The gradient offset factor 0 to 1
+		// This affects how "deep" the tone is
+		double offset = 0.2;
+
+		double a = 0.5 * range;
+		double b = -0.5 * range;
+
+		switch( tone ) {
 			case LIGHT: {
-				a = 1 - buffer;
-				b = 0.4;
-				break;
-			}
-			case MEDIUM: {
-				a = 0.75;
-				b = 0.35;
+				a += offset;
+				b += offset;
 				break;
 			}
 			case DARK: {
-				a = 0.6;
-				b = 0 + buffer;
+				a -= offset;
+				b -= offset;
 				break;
 			}
 		}
 
-		Color colorA = Colors.getShade( getIconFillColor(), a + c );
-		Color colorB = Colors.getShade( getIconFillColor(), b + c );
-
-		//		Color colorA = Colors.mix( getIconFillColor(), Color.WHITE, a );
-		//		Color colorB = Colors.mix( getIconFillColor(), Color.WHITE, b );
+		Color colorA = Colors.getTone( color, a );
+		Color colorB = Colors.getTone( color, b );
 
 		return getGradientPaint( colorA, colorB );
+	}
+
+	private Paint getGradientPaint( Color a, Color b ) {
+		return new LinearGradient( xformX( 0 ), xformX( 0 ), xformX( 1 ), xformX( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0.2, a ), new Stop( 0.8, b ) );
+	}
+
+	private Paint getGradientPaint( Color a, Color b, Color c ) {
+		return new LinearGradient( xformX( 0 ), xformX( 0 ), xformX( 1 ), xformX( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0.2, a ), new Stop( 0.5, b ), new Stop( 0.8, c ) );
 	}
 
 	protected Paint linearPaint( double x1, double y1, double x2, double y2, Stop... stops ) {
@@ -638,6 +648,23 @@ public abstract class ProgramImage extends Canvas {
 		return clone;
 	}
 
+	private Color getThemeDrawColor() {
+		Color primary = getColorTheme().getPrimary();
+
+		double y = Colors.getLuminance( primary );
+		if( y < 0.2 ) {
+			// Dark primary
+			return primary.deriveColor( 0, 1, 1.75, 1 );
+		} else {
+			// Light primary
+			return primary.deriveColor( 0, 1, 0.25, 1 );
+		}
+	}
+
+	private Color getThemeFillColor() {
+		return getColorTheme().getPrimary();
+	}
+
 	private Scene getImageScene() {
 		Pane pane = new Pane( this );
 		pane.setBackground( Background.EMPTY );
@@ -667,10 +694,6 @@ public abstract class ProgramImage extends Canvas {
 		}
 
 		return output;
-	}
-
-	private Paint getGradientPaint( Color a, Color b ) {
-		return new LinearGradient( xformX( 0.2 ), xformX( 0.2 ), xformX( 0.8 ), xformX( 0.8 ), false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
 	}
 
 	private ProgramImage fireRender() {
