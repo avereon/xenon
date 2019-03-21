@@ -1376,13 +1376,21 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				return null;
 			}
 
-			// FIXME Is it necessary to zip everything up again???
-			Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
-			copyProductResources( resources, updateFolder );
-			FileUtil.deleteOnExit( updateFolder );
-
-			setTotal( FileUtil.getRecursiveSize( updateFolder ) );
-			FileUtil.zip( updateFolder, updatePack, this::setProgress );
+			// If there is only one resource and it is already an update pack then
+			// just copy it. Otherwise, collect all packs and files into one zip
+			// file as the update pack.
+			if( resources.size() == 1 && resources.iterator().next().getType() == ProductResource.Type.PACK ) {
+				Path file = resources.iterator().next().getLocalFile();
+				setTotal( Files.size( file ) );
+				FileUtil.copy( resources.iterator().next().getLocalFile(), updatePack, this::setProgress );
+			} else {
+				// Collect everything into one zip file
+				Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
+				copyProductResources( resources, updateFolder );
+				setTotal( FileUtil.getDeepSize( updateFolder ) );
+				FileUtil.zip( updateFolder, updatePack, this::setProgress );
+				FileUtil.deleteOnExit( updateFolder );
+			}
 
 			// Notify listeners the update is staged.
 			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
