@@ -42,28 +42,45 @@ import java.util.stream.Collectors;
 public abstract class ProductManager implements Controllable<ProductManager>, Configurable {
 
 	public enum CheckOption {
-		MANUAL, STARTUP, INTERVAL, SCHEDULE
+		MANUAL,
+		STARTUP,
+		INTERVAL,
+		SCHEDULE
 	}
 
 	public enum CheckInterval {
-		MONTH, WEEK, DAY, HOUR
+		MONTH,
+		WEEK,
+		DAY,
+		HOUR
 	}
 
 	public enum CheckWhen {
-		DAILY, SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+		DAILY,
+		SUNDAY,
+		MONDAY,
+		TUESDAY,
+		WEDNESDAY,
+		THURSDAY,
+		FRIDAY,
+		SATURDAY
 	}
 
 	public enum FoundOption {
-		SELECT, STORE, APPLY
+		SELECT,
+		STORE,
+		APPLY
 	}
 
 	public enum ApplyOption {
-		VERIFY, IGNORE, RESTART
+		VERIFY,
+		IGNORE,
+		RESTART
 	}
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	public static final String MODULE_INSTALL_FOLDER_NAME = "modules";
+	public static final String MODULE_INSTALL_FOLDER_NAME = "mods";
 
 	public static final String DEFAULT_CATALOG_CARD_NAME = "catalog.card";
 
@@ -121,7 +138,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Path homeModuleFolder;
 
-	private Path userProductFolder;
+	private Path userModuleFolder;
 
 	private CheckOption checkOption;
 
@@ -300,7 +317,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return
 	 */
 	public boolean isInstalled( ProductCard card ) {
-		return productCards.get( card.getProductKey() ) != null;
+		return getProductCard( card ) != null;
+	}
+
+	public ProductCard getProductCard( ProductCard card ) {
+		return productCards.get( card.getProductKey() );
 	}
 
 	/**
@@ -310,8 +331,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return
 	 */
 	public boolean isReleaseInstalled( ProductCard card ) {
-		ProductCard internal = productCards.get( card.getProductKey() );
-		return internal != null && internal.getRelease().equals( card.getRelease() );
+		return isInstalled( card ) && getProductCard( card ).getRelease().equals( card.getRelease() );
 	}
 
 	public boolean isUpdatable( ProductCard card ) {
@@ -482,9 +502,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of posted updates.
-	 * @throws ExecutionException   If a task execution exception occurs
+	 * @throws ExecutionException If a task execution exception occurs
 	 * @throws InterruptedException If the calling thread is interrupted
-	 * @throws URISyntaxException   If a URI cannot be resolved correctly
+	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
 		return new FindPostedUpdatesTask( program, force ).call();
@@ -504,10 +524,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * Attempt to stage the product packs from posted updates.
 	 *
 	 * @return true if one or more product packs were staged.
-	 * @throws IOException          If an IO error occurs
-	 * @throws ExecutionException   If an execution error occurs
+	 * @throws IOException If an IO error occurs
+	 * @throws ExecutionException If an execution error occurs
 	 * @throws InterruptedException If the method is interrupted
-	 * @throws URISyntaxException   If a URI cannot be resolved correctly
+	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
@@ -804,12 +824,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Define the module folders.
 		homeModuleFolder = program.getHomeFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
-		userProductFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		userModuleFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
 
 		// Create the default module folders list.
 		List<Path> moduleFolders = new ArrayList<>();
 		moduleFolders.add( homeModuleFolder );
-		moduleFolders.add( userProductFolder );
+		moduleFolders.add( userModuleFolder );
 
 		// Check for module paths in the parameters.
 		List<String> modulePaths = program.getProgramParameters().getValues( "module" );
@@ -994,6 +1014,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		parameters.put( "type", type );
 
 		return parameters;
+	}
+
+	public Path getHomeModuleFolder() {
+		return homeModuleFolder;
+	}
+
+	public Path getUserModuleFolder() {
+		return userModuleFolder;
 	}
 
 	private String getProductChannel() {
@@ -1319,22 +1347,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				}
 			}
 
-			// Verify the product is registered
-			ProductCard productCard = productCards.get( updateCard.getProductKey() );
-			if( productCard == null ) {
-				log.warn( "Product not registered: " + updateCard );
-				return null;
-			}
-
-			// Verify the product is installed
-			Path installFolder = productCard.getInstallFolder();
-			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
-			if( !installFolderValid ) {
-				log.warn( "Missing install folder: " + installFolder );
-				log.warn( "Product not installed:  " + updateCard );
-				return null;
-			}
-
 			// Verify the resources have all been staged successfully
 			//Set<ProductResource> resources = productResources.get( updateCard );
 			if( !areResourcesValid( resources ) ) {
@@ -1342,18 +1354,21 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				return null;
 			}
 
-			stageResources();
+			stageResources( updatePack );
 
-			// Notify listeners the update is staged.
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+			Path installFolder = userModuleFolder.resolve( updateCard.getProductKey() );
+			if( isInstalled( updateCard ) ) installFolder = getProductCard( updateCard ).getInstallFolder();
 
 			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
 			log.debug( "           to: " + updatePack );
 
+			// Notify listeners the update is staged.
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
+
 			return new ProductUpdate( updateCard, updatePack, installFolder );
 		}
 
-		private void stageResources() throws IOException {
+		private void stageResources( Path updatePack ) throws IOException {
 			// If there is only one resource and it is already an update pack then
 			// just copy it. Otherwise, collect all packs and files into one zip
 			// file as the update pack.
@@ -1434,6 +1449,27 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			for( Future<ProductUpdate> updateFuture : updateFutures ) {
 				try {
 					ProductUpdate update = updateFuture.get();
+
+					// If the update is null then there was a problem creating the update locally
+					if( update == null ) continue;
+
+					ProductCard updateCard = update.getCard();
+
+					// Verify the product is registered
+					if( !isInstalled( updateCard ) ) {
+						log.warn( "Product not registered: " + updateCard );
+						continue;
+					}
+
+					// Verify the product is installed
+					Path installFolder = getProductCard( updateCard ).getInstallFolder();
+					boolean installFolderValid = installFolder != null && Files.exists( installFolder );
+					if( !installFolderValid ) {
+						log.warn( "Missing install folder: " + installFolder );
+						log.warn( "Product not installed:  " + updateCard );
+						continue;
+					}
+
 					// Remove any old staged updates for this product.
 					updates.remove( update.getCard().getProductKey(), update );
 					// Add the update to the set of staged updates.
@@ -1492,10 +1528,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		public Integer call() throws Exception {
 			if( updateCards.size() == 0 ) return 0;
 
-
 			for( Future<ProductUpdate> updateFuture : updateFutures ) {
 				try {
 					ProductUpdate update = updateFuture.get();
+
+					// If the update is null then there was a problem creating the update locally
+					if( update == null ) continue;
+
 					// TODO The update may be null
 					// TODO Not all the resources may have downloaded
 
@@ -1515,10 +1554,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					//		Set<InstalledProduct> products = getStoredRemovedProducts();
 					//		products.removeAll( installedProducts );
 					//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
-				} catch( ExecutionException exception ) {
-					log.error( "Error creating product install pack", exception );
 				} catch( InterruptedException exception ) {
 					break;
+				} catch( Exception exception ) {
+					log.error( "Error creating product install pack", exception );
 				}
 			}
 
