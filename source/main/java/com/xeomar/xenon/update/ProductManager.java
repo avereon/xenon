@@ -1019,7 +1019,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	@SuppressWarnings( "Convert2Diamond" )
 	private Set<InstalledProduct> getStoredRemovedProducts() {
-		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {} );
+		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {}, Set.of() );
 	}
 
 	private Map<String, String> getProductParameters( ProductCard card, String type ) {

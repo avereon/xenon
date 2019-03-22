@@ -168,6 +168,15 @@ public class Program extends Application implements ProgramProduct {
 
 	@Override
 	public void init() throws Exception {
+		try {
+			protectedInit();
+		} catch( Throwable throwable ) {
+			log.error( "Error initializing program", throwable );
+			throw throwable;
+		}
+	}
+
+	private void protectedInit()  throws Exception {
 		time( "init" );
 
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
@@ -249,6 +258,15 @@ public class Program extends Application implements ProgramProduct {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
+		try {
+			protectedStart( stage );
+		} catch( Throwable throwable ) {
+			log.error( "Error initializing program", throwable );
+			throw throwable;
+		}
+	}
+
+	private void protectedStart( Stage stage ) throws Exception {
 		Thread.currentThread().setUncaughtExceptionHandler( new ProgramUncaughtExceptionHandler() );
 
 		// Do not implicitly close the program
@@ -291,6 +309,15 @@ public class Program extends Application implements ProgramProduct {
 
 	@Override
 	public void stop() throws Exception {
+		try {
+			protectedStop();
+		} catch( Throwable throwable ) {
+			log.error( "Error initializing program", throwable );
+			throw throwable;
+		}
+	}
+
+	private void protectedStop() throws Exception {
 		taskManager.submit( new Shutdown() ).get();
 
 		// Stop the task manager
