@@ -25,6 +25,13 @@ public final class ProductResource {
 
 	private Throwable throwable;
 
+	public ProductResource( ProductResource.Type type, Path file ) {
+		this.type = type;
+		this.uri = file.toUri();
+		this.file = file;
+		this.name = file.getFileName().toString();
+	}
+
 	public ProductResource( ProductResource.Type type, URI uri ) {
 		this.type = type;
 		this.uri = uri;
@@ -44,7 +51,7 @@ public final class ProductResource {
 	}
 
 	public void waitFor() throws InterruptedException, ExecutionException {
-		file = future.get().getTarget();
+		if( file == null && future != null ) file = future.get().getTarget();
 	}
 
 	public Path getLocalFile() {
