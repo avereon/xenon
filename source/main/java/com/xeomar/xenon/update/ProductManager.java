@@ -279,17 +279,16 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public void installProducts( ProductCard... cards ) throws Exception {
-		installProducts( new HashSet<>( Arrays.asList( cards ) ) );
+		installProducts( Set.of( cards ) );
 	}
 
 	public void installProducts( Set<ProductCard> cards ) throws Exception {
-		// Download the product resources.
-		log.debug( "Number of products to install: " + cards.size() );
+		log.trace( "Number of products to install: " + cards.size() );
 		program.getTaskManager().submit( new InstallProducts( program, cards ) );
 	}
 
 	public void uninstallProducts( ProductCard... cards ) throws Exception {
-		uninstallProducts( new HashSet<>( Arrays.asList( cards ) ) );
+		uninstallProducts( Set.of( cards ) );
 	}
 
 	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
@@ -656,43 +655,43 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		saveUpdates( updates );
 	}
 
-	//	public void loadProducts( File... folders ) throws Exception {
-	//		ClassLoader parent = getClass().getClassLoader();
-	//
-	//		// Look for modules in the specified folders.
-	//		for( File folder : folders ) {
-	//			if( !folder.exists() ) continue;
-	//			if( !folder.isDirectory() ) continue;
-	//
-	//			// Look for simple modules (not common).
-	//			File[] jars = folder.listFiles( FileUtil.JAR_FILE_FILTER );
-	//			for( File jar : jars ) {
-	//				Log.write( Log.DEBUG, "Searching for module in: " + jar.toURI() );
-	//				URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
-	//				ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
-	//				if( !isReservedProduct( card ) ) loadSimpleModule( card, jar.toURI(), parent );
-	//			}
-	//
-	//			// Look for normal modules (most common).
-	//			File[] moduleFolders = folder.listFiles( FileUtil.FOLDER_FILTER );
-	//			for( File moduleFolder : moduleFolders ) {
-	//				Log.write( Log.DEBUG, "Searching for module in: " + moduleFolder.toURI() );
-	//
-	//				jars = moduleFolder.listFiles( FileUtil.JAR_FILE_FILTER );
-	//				for( File jar : jars ) {
-	//					try {
-	//						URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
-	//						ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
-	//						if( !isReservedProduct( card ) ) loadNormalModule( card, moduleFolder.toURI(), parent );
-	//					} catch( FileNotFoundException exception ) {
-	//						// Not finding a product card is a common situation with dependencies.
-	//					} catch( Throwable throwable ) {
-	//						Log.write( throwable, jar );
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
+	public void loadProducts( Path... folders ) {
+		ClassLoader parent = getClass().getClassLoader();
+
+		// Look for modules in the specified folders
+		for( Path folder : folders ) {
+			if( !Files.exists( folder ) ) continue;
+			if( !Files.isDirectory( folder ) ) continue;
+
+			//			// Look for simple modules (not common).
+			//			File[] jars = folder.listFiles( FileUtil.JAR_FILE_FILTER );
+			//			for( File jar : jars ) {
+			//				Log.write( Log.DEBUG, "Searching for module in: " + jar.toURI() );
+			//				URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
+			//				ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
+			//				if( !isReservedProduct( card ) ) loadSimpleModule( card, jar.toURI(), parent );
+			//			}
+
+			//			// Look for normal modules (most common).
+			//			File[] moduleFolders = folder.listFiles( FileUtil.FOLDER_FILTER );
+			//			for( File moduleFolder : moduleFolders ) {
+			//				Log.write( Log.DEBUG, "Searching for module in: " + moduleFolder.toURI() );
+			//
+			//				jars = moduleFolder.listFiles( FileUtil.JAR_FILE_FILTER );
+			//				for( File jar : jars ) {
+			//					try {
+			//						URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
+			//						ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
+			//						if( !isReservedProduct( card ) ) loadNormalModule( card, moduleFolder.toURI(), parent );
+			//					} catch( FileNotFoundException exception ) {
+			//						// Not finding a product card is a common situation with dependencies.
+			//					} catch( Throwable throwable ) {
+			//						Log.write( throwable, jar );
+			//					}
+			//				}
+			//			}
+		}
+	}
 
 	public static Map<String, ProductCard> getProductCardMap( Set<ProductCard> cards ) {
 		if( cards == null ) return null;
@@ -815,7 +814,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	@Override
 	public ProductManager start() {
-		//		purgeRemovedProducts();
+		purgeRemovedProducts();
 
 		getSettings().addSettingsListener( new SettingsChangeHandler() );
 
@@ -840,8 +839,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			}
 		}
 
-		// TODO Load modules
-		//		loadProducts( moduleFolders.toArray( new File[ moduleFolders.size() ] ) );
+		loadProducts( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		return this;
 	}
@@ -911,77 +909,75 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void installProductImpl( ProductCard card, Set<ProductResource> resources ) throws Exception {
 		Path installFolder = getProductInstallFolder( card );
 
-		log.warn( "Install product to: " + installFolder );
+		log.debug( "Install product to: " + installFolder );
 
-		// Install all the resource files to the install folder.
+		// Install all the resource files to the install folder
 		copyProductResources( resources, installFolder );
 
-		// NEXT Continue implementing ProductManager.installProductImpl()
-		// Load the product.
-		//loadProducts( userProductFolder );
+		// Load the product
+		loadProducts( getUserModuleFolder() );
 
-		// Set the enabled state.
+		// Set the enabled state
 		setEnabledImpl( card, isEnabled( card ) );
 
-		// Notify listeners of install.
-		//fireProductManagerEvent( new ProductManagerEvent( this, Type.PRODUCT_INSTALLED, card ) );
+		// Notify listeners of install
+		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
 
-		// Enable the product.
+		// Enable the product
 		setEnabled( card, true );
 	}
 
 	// TODO Rename to doRemoveProduct
 	private void removeProductImpl( Product product ) {
-		//		ProductCard card = product.getCard();
-		//
-		//		File installFolder = getProductInstallFolder( card );
-		//
-		//		Log.write( Log.TRACE, "Remove product from: " + installFolder );
-		//
-		//		// Disable the product.
-		//		setEnabled( card, false );
-		//
-		//		// Remove the module.
-		//		modules.remove( card.getProductKey() );
-		//
-		//		// Remove the product from the manager.
-		//		unregisterProduct( product );
-		//
-		//		// Remove the product settings.
+		ProductCard card = product.getCard();
+
+		Path installFolder = card.getInstallFolder();
+
+		log.debug( "Remove product from: " + installFolder );
+
+		// Disable the product.
+		setEnabled( card, false );
+
+		// Remove the module.
+		modules.remove( card.getProductKey() );
+
+		// Remove the product from the manager.
+		unregisterProduct( product );
+
+		// TODO Remove the product settings.
 		//		ProductUtil.getSettings( product ).removeNode();
-		//
-		//		// Notify listeners of remove.
-		//		fireProductManagerEvent( new ProductManagerEvent( this, Type.PRODUCT_REMOVED, card ) );
+
+		// Notify listeners of remove.
+		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_REMOVED, card ).fire( listeners );
 	}
 
-	// TODO Rename to doEnableProduct
-	// TODO Split this method into doEnableProduct and doDisableProduct?
+	// TODO Rename to doSetEnabled
 	private void setEnabledImpl( ProductCard card, boolean enabled ) {
-		//		ServiceModule module = modules.get( card.getProductKey() );
-		//		if( module == null ) return;
-		//
-		//		if( enabled ) {
-		//			//loaders.add( module.getClass().getClassLoader() );
-		//
-		//			try {
-		//				module.register();
-		//				module.create();
-		//			} catch( Throwable throwable ) {
-		//				Log.write( throwable );
-		//			}
-		//		} else {
-		//			try {
-		//				module.destroy();
-		//				module.unregister();
-		//			} catch( Throwable throwable ) {
-		//				Log.write( throwable );
-		//			}
-		//
-		//			//loaders.remove( module.getClass().getClassLoader() );
-		//		}
+		Mod module = modules.get( card.getProductKey() );
+		if( module == null ) return;
+
+		if( enabled ) {
+			//loaders.add( module.getClass().getClassLoader() );
+
+			try {
+				module.register();
+				module.create();
+			} catch( Throwable throwable ) {
+				log.error( "Error enabling mod: " + module, throwable );
+			}
+		} else {
+			try {
+				module.destroy();
+				module.unregister();
+			} catch( Throwable throwable ) {
+				log.error( "Error disabling mod: " + module, throwable );
+			}
+
+			//loaders.remove( module.getClass().getClassLoader() );
+		}
 	}
 
-	private void cleanRemovedProducts() {
+	private void purgeRemovedProducts() {
 		// Check for products marked for removal and remove the files.
 		Set<InstalledProduct> products = getStoredRemovedProducts();
 		for( InstalledProduct product : products ) {
@@ -1492,6 +1488,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	}
 
+	/**
+	 * This task is only applicable when a product is not already installed. If
+	 * the product is already installed it should go through the update process.
+	 */
 	final class InstallProducts extends ProgramTask<Integer> {
 
 		/**
