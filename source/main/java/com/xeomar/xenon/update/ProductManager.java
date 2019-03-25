@@ -106,6 +106,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
 
+	private static final String CHANNEL = "product-update-channel";
+
 	private static final String NOTICE = "product-update-notice";
 
 	private static final String FOUND = "product-update-found";
@@ -1043,9 +1045,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	private String getProductChannel() {
-		// FIXME This should be a setting
-		return "latest";
+		String channel = settings.get( CHANNEL, "latest" );
+		log.warn( "Using product channel: " + channel );
+		return channel;
 	}
+
+	// TODO Each product could use a different channel
+	// If not specified it should use the product channel
 
 	//	private URI resolveCardUri( ProductCard card, String uri ) throws URISyntaxException {
 	//		String artifact = card.getArtifact();
