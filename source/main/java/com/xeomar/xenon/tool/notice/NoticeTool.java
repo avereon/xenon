@@ -79,7 +79,7 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	private void clearAll() {
-		getProgram().getNoticeManager().clearAll();
+		getProgram().getNoticeManager().removeAll();
 		this.close();
 	}
 

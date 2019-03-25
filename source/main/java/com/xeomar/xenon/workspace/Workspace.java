@@ -109,7 +109,7 @@ public class Workspace implements Configurable {
 
 	private static Timer timer = new Timer( true );
 
-	public Workspace( Program program ) {
+	public Workspace( final Program program ) {
 		this.program = program;
 
 		workareas = FXCollections.observableArrayList();
@@ -123,6 +123,7 @@ public class Workspace implements Configurable {
 		// MENUBAR
 		menubar = new MenuBar();
 		// FIXME This does not work if there are two menu bars (like this program uses)
+		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
 
 		Menu prog = ActionUtil.createMenu( program, "program" );
@@ -286,6 +287,10 @@ public class Workspace implements Configurable {
 		} );
 	}
 
+	public Program getProgram() {
+		return program;
+	}
+
 	public Stage getStage() {
 		return stage;
 	}
@@ -355,7 +360,7 @@ public class Workspace implements Configurable {
 		}
 
 		// Send a program event when active area changes
-		program.fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+		getProgram().fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
 	}
 
 	public void showNotice( Notice notice ) {
@@ -364,14 +369,15 @@ public class Workspace implements Configurable {
 
 		pane.onMouseClickedProperty().set( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
-			program.getNoticeManager().readNotice( notice );
+			getProgram().getNoticeManager().readNotice( notice );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
-			program.getNoticeManager().readNotice( notice );
+			getProgram().getNoticeManager().readNotice( notice );
+				getProgram().getNoticeManager().removeNotice( notice );
 			event.consume();
 		} );
 
@@ -440,17 +446,17 @@ public class Workspace implements Configurable {
 			if( !stage.isMaximized() ) settings.set( "h", newValue );
 		} );
 
-		backgroundSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		backgroundSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
 		background.updateBackgroundFromSettings( backgroundSettings );
 		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
 
-		memoryMonitorSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		memoryMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		memoryMonitorSettings.removeSettingsListener( memoryMonitorSettingsHandler );
 		updateMemoryMonitorFromSettings( memoryMonitorSettings );
 		memoryMonitorSettings.addSettingsListener( memoryMonitorSettingsHandler );
 
-		taskMonitorSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		taskMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		taskMonitorSettings.removeSettingsListener( taskMonitorSettingsHandler );
 		updateTaskMonitorFromSettings( taskMonitorSettings );
 		taskMonitorSettings.addSettingsListener( taskMonitorSettingsHandler );
@@ -468,7 +474,7 @@ public class Workspace implements Configurable {
 	}
 
 	private void setStageTitle( String name ) {
-		stage.setTitle( name + " - " + program.getCard().getName() );
+		stage.setTitle( name + " - " + getProgram().getCard().getName() );
 	}
 
 	private Workarea determineNextActiveWorkarea() {

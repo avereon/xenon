@@ -55,7 +55,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		resource.refresh( program.getResourceManager() );
 	}
 
-	public void clearAll() {
+	public void removeAll() {
 		((NoticeList)resource.getModel()).clearAll();
 		resource.refresh( program.getResourceManager() );
 	}
