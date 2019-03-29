@@ -665,6 +665,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			if( !Files.exists( folder ) ) continue;
 			if( !Files.isDirectory( folder ) ) continue;
 
+			// NEXT Continue work on ProductManager.loadProducts()
+
 			//			// Look for simple modules (not common).
 			//			File[] jars = folder.listFiles( FileUtil.JAR_FILE_FILTER );
 			//			for( File jar : jars ) {
@@ -1053,14 +1055,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	// TODO Each product could use a different channel
 	// If not specified it should use the product channel
 
-	//	private URI resolveCardUri( ProductCard card, String uri ) throws URISyntaxException {
-	//		String artifact = card.getArtifact();
-	//		String channel = "latest";
-	//		return new URI( MessageFormat.format( uri, artifact, channel ) );
-	//	}
-
 	//	/**
-	//	 * A folder module is and unpacked module contained in a folder.
+	//	 * A folder module is an unpacked module contained in a folder.
 	//	 *
 	//	 * @param card
 	//	 * @param folder
