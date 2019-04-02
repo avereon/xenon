@@ -1,12 +1,12 @@
 package com.xeomar.xenon.image;
 
 import com.xeomar.product.ProductCard;
-import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramImage;
 import com.xeomar.xenon.icon.XRingLargeIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import java.io.InputStream;
 import java.net.URL;
 
 public class InstallerBannerImage extends ProgramImage {
@@ -20,8 +20,9 @@ public class InstallerBannerImage extends ProgramImage {
 		setHeight( 180 );
 
 		try {
-			card = new ProductCard();
-			card.load( Program.class );
+			try( InputStream input = getClass().getResourceAsStream( ProductCard.CARD ) ) {
+				card = new ProductCard().load( input, null );
+			}
 			providerUrl = new URL( card.getProviderUrl() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();

@@ -14,7 +14,7 @@ public class ResourceTypeTest extends BaseTestCase {
 	private Product product;
 
 	@Override
-	public void setup() {
+	public void setup() throws Exception {
 		product = new MockMod();
 	}
 

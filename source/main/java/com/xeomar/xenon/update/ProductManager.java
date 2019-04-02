@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -242,16 +244,15 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Collect all the product cards into a set and return it
 		Set<ProductCard> cards = new HashSet<>();
 		for( Future<Download> future : futures ) {
-			Download download = null;
 			try {
-				download = future.get();
-				cards.add( new ProductCard().load( download.getInputStream() ) );
-			} catch( Exception exception ) {
-				if( download == null ) {
-					log.warn( "Error downloading product card", exception );
-				} else {
+				Download download = future.get( 10, TimeUnit.SECONDS );
+				try( InputStream input = download.getInputStream() ) {
+					cards.add( new ProductCard().load( input ) );
+				} catch( Exception exception ) {
 					log.warn( "Error downloading product card: " + download.getSource(), exception );
 				}
+			} catch( Exception exception ) {
+				log.warn( "Error downloading product card", exception );
 			}
 		}
 
@@ -688,10 +689,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					try {
 						Files.list( moduleFolder ).filter( ( path ) -> path.toString().endsWith( ".jar" ) ).forEach( ( jar ) -> {
 							try {
-								URI uri = URI.create( "jar:" + jar.toUri().toASCIIString() + "!/" + PRODUCT_PRODUCT_CARD_PATH );
-								uri.toURL().openConnection().getInputStream();
-								ProductCard card = new ProductCard().load( uri.toURL().openConnection().getInputStream(), moduleFolder.toUri() );
-								if( !isReservedProduct( card ) ) loadNormalModule( card, moduleFolder.toUri(), parent );
+								//URI uri = URI.create( "jar:" + jar.toUri().toASCIIString() + "!/" + PRODUCT_PRODUCT_CARD_PATH );
+								//ProductCard card = new ProductCard().load( uri.toURL().openConnection().getInputStream(), moduleFolder.toUri() );
+								loadNormalModule( null, moduleFolder.toUri(), parent );
 							} catch( FileNotFoundException exception ) {
 								// Not finding a product card is a common situation with dependencies.
 							} catch( Throwable throwable ) {
@@ -1082,7 +1082,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//
 	//		// Create the class loader.
 	//		ProductClassLoader loader = new ProductClassLoader( new URL[]{ folder.toURL() }, parent, codebase );
-	//		return loadModule( card, loader, "FOLDER", true, true );
+	//		return loadModule( folder, loader, "FOLDER", true, true );
 	//	}
 	//
 	//	/**
@@ -1103,7 +1103,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//
 	//		// Create the class loader.
 	//		ProductClassLoader loader = new ProductClassLoader( new URL[]{ jarfile.toURI().toURL() }, parent, codebase );
-	//		return loadModule( card, loader, "SIMPLE", true, true );
+	//		return loadModule( jarfile.getParentFile(), loader, "SIMPLE", true, true );
 	//	}
 
 	/**
@@ -1118,14 +1118,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private Mod loadNormalModule( ProductCard card, URI moduleFolderUri, ClassLoader parent ) throws Exception {
 		// Get the folder to load from
 		Path folder = Paths.get( moduleFolderUri );
-		card.setInstallFolder( folder );
+		//card.setInstallFolder( folder );
 
 		// Get urls of all the jars
 		Set<URL> urls = Files.list( folder ).filter( ( path ) -> path.toString().endsWith( ".jar" ) ).map( path -> toUrl( path.toUri() ) ).collect( Collectors.toSet() );
 
 		// Create the class loader.
 		ProductClassLoader loader = new ProductClassLoader( urls.toArray( new URL[ urls.size() ] ), parent, moduleFolderUri );
-		return loadModule( card, loader, "NORMAL", true, true );
+		return loadModule( folder, loader, "NORMAL", true, true );
 	}
 
 	private URL toUrl( URI uri ) {
@@ -1137,22 +1137,45 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return null;
 	}
 
-	private Mod loadModule( ProductCard card, ClassLoader loader, String source, boolean updatable, boolean removable ) throws Exception {
-		// Ignore included products
-		if( isReservedProduct( card ) ) return null;
+	private Mod loadModule( Path source, ClassLoader loader, String type, boolean updatable, boolean removable ) throws Exception {
+		Mod module = null;
 
-		// Check if module is already loaded
-		Mod module = modules.get( card.getProductKey() );
-		if( module != null ) return module;
-
-		// NEXT Figure out how to load this as a service
-		//		// Validate class name.
-		//		String className = card.getProductClassName();
-		//		if( className == null ) return null;
-
-		// Load the module.
+		// Load the mod
 		try {
-			log.warn( "Loading " + source + " module: " + card.getProductKey() );
+			log.warn( "Loading " + type + " mod: " + source );
+
+			// In this context module refers to Java modules and mod refers to program mods
+			ModuleFinder moduleFinder = ModuleFinder.of( source );
+			Configuration parentConfiguration = ModuleLayer.boot().configuration();
+			Configuration moduleConfiguration = parentConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
+			ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
+
+			ServiceLoader<Mod> serviceLoader = ServiceLoader.load( moduleLayer, Mod.class );
+			System.err.println( "Serivces found: " + serviceLoader.stream().count() );
+
+			serviceLoader.forEach( ( service ) -> {
+				try {
+					ProductCard card = service.getCard();
+					System.err.println( "Mod: " + service.getClass().getName() );
+					System.err.println( "Product: " + card.getProductKey() );
+
+					service.init( program, service.getCard() );
+					service.register();
+					service.create();
+
+					// NEXT Continue work loading mods
+					//					// Ignore included products
+					//					if( isReservedProduct( card ) ) return null;
+					//
+					//					// Check if module is already loaded
+					//					Mod module = modules.get( card.getProductKey() );
+					//					if( module != null ) return module;
+
+				} catch( Throwable throwable ) {
+					log.error( "", throwable );
+				}
+
+			} );
 
 			//			Class<?> moduleClass = loader.loadClass( className );
 			//			Constructor<?> constructor = findConstructor( moduleClass );

@@ -694,7 +694,6 @@ public class Program extends Application implements ProgramProduct {
 		// Update the product card
 		this.card.load( getClass() );
 
-		//card.updateWith( ProductCard.load(), null );
 		Platform.runLater( () -> splashScreen.update() );
 
 		// Start the resource manager

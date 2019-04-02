@@ -4,7 +4,7 @@ import com.xeomar.product.ProductBundle;
 
 public class MockMod extends Mod {
 
-	public MockMod() {
+	public MockMod() throws Exception {
 		super();
 	}
 

@@ -15,7 +15,9 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private ProductCard card;
 
-	public Mod() {}
+	public Mod() throws Exception {
+		card = new ProductCard().load( this );
+	}
 
 	@Override
 	public Program getProgram() {
