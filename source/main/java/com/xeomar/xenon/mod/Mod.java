@@ -1,9 +1,13 @@
 package com.xeomar.xenon.mod;
 
 import com.xeomar.product.ProductCard;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramProduct;
+import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 
 /**
@@ -11,12 +15,18 @@ import java.nio.file.Path;
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
 	private Program program;
 
 	private ProductCard card;
 
-	public Mod() throws Exception {
-		card = new ProductCard().load( this );
+	public Mod() {
+		try {
+			card = new ProductCard().load( this );
+		} catch( IOException exception ) {
+			throw new RuntimeException( "Error loading product card: " + getClass().getName() );
+		}
 	}
 
 	@Override
