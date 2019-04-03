@@ -941,6 +941,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			//loaders.add( module.getClass().getClassLoader() );
 
 			try {
+				// FIXME Should register() be here? I think it may be better located with the load functionality.
 				module.register();
 				module.create();
 			} catch( Throwable throwable ) {
@@ -949,6 +950,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		} else {
 			try {
 				module.destroy();
+				// FIXME Should unregister() be here? I think it may be better located with the remove functionality.
 				module.unregister();
 			} catch( Throwable throwable ) {
 				log.error( "Error disabling mod: " + module, throwable );
