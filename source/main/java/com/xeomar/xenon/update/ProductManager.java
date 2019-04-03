@@ -1142,7 +1142,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Load the mod
 		try {
-			log.warn( "Loading " + type + " mod: " + source );
+			log.warn( "Loading mod: " + source );
 
 			// In this context module refers to Java modules and mod refers to program mods
 			ModuleFinder moduleFinder = ModuleFinder.of( source );
@@ -1153,36 +1153,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			ServiceLoader<Mod> serviceLoader = ServiceLoader.load( moduleLayer, Mod.class );
 			System.err.println( "Serivces found: " + serviceLoader.stream().count() );
 
-			serviceLoader.forEach( ( service ) -> {
-				try {
-					ProductCard card = service.getCard();
-					System.err.println( "Mod: " + service.getClass().getName() );
-					System.err.println( "Product: " + card.getProductKey() );
-
-					service.init( program, service.getCard() );
-					service.register();
-					service.create();
-
-					// NEXT Continue work loading mods
-					//					// Ignore included products
-					//					if( isReservedProduct( card ) ) return null;
-					//
-					//					// Check if module is already loaded
-					//					Mod module = modules.get( card.getProductKey() );
-					//					if( module != null ) return module;
-
-				} catch( Throwable throwable ) {
-					log.error( "", throwable );
-				}
-
-			} );
-
-			//			Class<?> moduleClass = loader.loadClass( className );
-			//			Constructor<?> constructor = findConstructor( moduleClass );
-			//
-			//			module = (ServiceModule)constructor.newInstance( service, card );
-			//			registerProduct( module, updatable, removable );
-			//			Log.write( Log.TRACE, source, " module loaded:  ", card.getProductKey() );
+			serviceLoader.forEach( this::loadMod );
 		} catch( Throwable throwable ) {
 			//			log.warn( source+ " module failed:  "+ card.getProductKey()+ " ("+ className+ ")" );
 			log.debug( "", throwable );
@@ -1190,6 +1161,26 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 
 		return module;
+	}
+
+	private void loadMod( Mod mod ) {
+		try {
+			log.warn( "Load mod: " + mod.getClass().getName() );
+
+			ProductCard card = mod.getCard();
+
+			// Ignore included products
+			if( isReservedProduct( card ) ) return;
+
+			// Check if module is already loaded
+			Mod loadedService = modules.get( card.getProductKey() );
+			if( loadedService != null ) return;
+
+			registerProduct( mod, true, true );
+			log.debug( "Mod loaded:  " + card.getProductKey() );
+		} catch( Throwable throwable ) {
+			log.error( "", throwable );
+		}
 	}
 
 	//	private Constructor<?> findConstructor( Class<?> moduleClass ) throws NoSuchMethodException, SecurityException {
