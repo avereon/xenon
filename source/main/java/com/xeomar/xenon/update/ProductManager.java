@@ -2,7 +2,6 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.product.Product;
 import com.xeomar.product.ProductCard;
-import com.xeomar.product.ProductClassLoader;
 import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
@@ -13,16 +12,13 @@ import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -301,16 +297,16 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to remove: " + cards.size() );
 
-		//		// Remove the products.
-		//		Set<InstalledProduct> removedProducts = new HashSet<InstalledProduct>();
-		//		for( ProductCard card : cards ) {
-		//			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-		//			removeProductImpl( getProduct( card.getProductKey() ) );
-		//		}
-		//
-		//		Set<InstalledProduct> products = getStoredRemovedProducts();
-		//		products.addAll( removedProducts );
-		//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
+		// Remove the products.
+		Set<InstalledProduct> removedProducts = new HashSet<>();
+		for( ProductCard card : cards ) {
+			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+			removeProductImpl( getProduct( card.getProductKey() ) );
+		}
+
+		Set<InstalledProduct> products = getStoredRemovedProducts();
+		products.addAll( removedProducts );
+		getSettings().set( REMOVES_SETTINGS_KEY, products );
 	}
 
 	public int getInstalledProductCount() {
@@ -663,45 +659,15 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public void loadProducts( Path... folders ) {
-		ClassLoader parent = getClass().getClassLoader();
-
-		// Look for modules in the specified folders
+		// Look for mods in the specified folders
 		for( Path folder : folders ) {
 			if( !Files.exists( folder ) ) continue;
 			if( !Files.isDirectory( folder ) ) continue;
 
-			// NEXT Continue work on ProductManager.loadProducts()
-
-			//			// Look for simple modules (not common)
-			//			File[] jars = folder.listFiles( FileUtil.JAR_FILE_FILTER );
-			//			for( File jar : jars ) {
-			//				Log.write( Log.DEBUG, "Searching for module in: " + jar.toURI() );
-			//				URI uri = URI.create( "jar:" + jar.toURI().toASCIIString() + "!/" + PRODUCT_DESCRIPTOR_PATH );
-			//				ProductCard card = new ProductCard( jar.getParentFile().toURI(), new XmlDescriptor( uri ) );
-			//				if( !isReservedProduct( card ) ) loadSimpleModule( card, jar.toURI(), parent );
-			//			}
-
-			// Look for normal modules (most common)
+			// NOTE Mods on the classpath are also found when looking for normal mods
+			// Look for normal mods (most common)
 			try {
-				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( ( moduleFolder ) -> {
-					log.debug( "Searching for module in: " + moduleFolder );
-
-					try {
-						Files.list( moduleFolder ).filter( ( path ) -> path.toString().endsWith( ".jar" ) ).forEach( ( jar ) -> {
-							try {
-								//URI uri = URI.create( "jar:" + jar.toUri().toASCIIString() + "!/" + PRODUCT_PRODUCT_CARD_PATH );
-								//ProductCard card = new ProductCard().load( uri.toURL().openConnection().getInputStream(), moduleFolder.toUri() );
-								loadNormalModule( null, moduleFolder.toUri(), parent );
-							} catch( FileNotFoundException exception ) {
-								// Not finding a product card is a common situation with dependencies.
-							} catch( Throwable throwable ) {
-								log.error( "Error loading product card from: " + jar, throwable );
-							}
-						} );
-					} catch( IOException exception ) {
-						log.error( "Error loading module from: " + folder, exception );
-					}
-				} );
+				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( ( modFolder ) -> loadMod( modFolder, "NORMAL" ) );
 			} catch( IOException exception ) {
 				log.error( "Error loading modules from: " + folder, exception );
 			}
@@ -1106,126 +1072,60 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//		return loadModule( jarfile.getParentFile(), loader, "SIMPLE", true, true );
 	//	}
 
-	/**
-	 * A normal module, the most common, is entirely contained in a folder.
-	 *
-	 * @param card
-	 * @param moduleFolderUri
-	 * @param parent
-	 * @return
-	 * @throws Exception
-	 */
-	private Mod loadNormalModule( ProductCard card, URI moduleFolderUri, ClassLoader parent ) throws Exception {
-		// Get the folder to load from
-		Path folder = Paths.get( moduleFolderUri );
-		//card.setInstallFolder( folder );
-
-		// Get urls of all the jars
-		Set<URL> urls = Files.list( folder ).filter( ( path ) -> path.toString().endsWith( ".jar" ) ).map( path -> toUrl( path.toUri() ) ).collect( Collectors.toSet() );
-
-		// Create the class loader.
-		ProductClassLoader loader = new ProductClassLoader( urls.toArray( new URL[ urls.size() ] ), parent, moduleFolderUri );
-		return loadModule( folder, loader, "NORMAL", true, true );
-	}
-
-	private URL toUrl( URI uri ) {
-		try {
-			return uri.toURL();
-		} catch( MalformedURLException e ) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private Mod loadModule( Path source, ClassLoader loader, String type, boolean updatable, boolean removable ) throws Exception {
-		Mod module = null;
-
-		// Load the mod
-		try {
-			log.warn( "Loading mod: " + source );
-
-			// In this context module refers to Java modules and mod refers to program mods
-			ModuleFinder moduleFinder = ModuleFinder.of( source );
-			Configuration parentConfiguration = ModuleLayer.boot().configuration();
-			Configuration moduleConfiguration = parentConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
-			ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
-
-			ServiceLoader<Mod> serviceLoader = ServiceLoader.load( moduleLayer, Mod.class );
-			System.err.println( "Serivces found: " + serviceLoader.stream().count() );
-
-			serviceLoader.forEach( this::loadMod );
-		} catch( Throwable throwable ) {
-			//			log.warn( source+ " module failed:  "+ card.getProductKey()+ " ("+ className+ ")" );
-			log.debug( "", throwable );
-			return null;
-		}
-
-		return module;
-	}
-
-	private void loadMod( Mod mod ) {
-		try {
-			log.warn( "Load mod: " + mod.getClass().getName() );
-
-			ProductCard card = mod.getCard();
-
-			// Ignore included products
-			if( isReservedProduct( card ) ) return;
-
-			// Check if module is already loaded
-			Mod loadedService = modules.get( card.getProductKey() );
-			if( loadedService != null ) return;
-
-			registerProduct( mod, true, true );
-			log.debug( "Mod loaded:  " + card.getProductKey() );
-		} catch( Throwable throwable ) {
-			log.error( "", throwable );
-		}
-	}
-
-	//	private Constructor<?> findConstructor( Class<?> moduleClass ) throws NoSuchMethodException, SecurityException {
-	//		// Look for a constructor that has assignable parameters.
-	//		Constructor<?>[] constructors = moduleClass.getConstructors();
-	//		if( constructors.length == 0 ) throw new NoSuchMethodException( "No constructors found: " + moduleClass.getName() );
+	//	/**
+	//	 * A normal module, the most common, is entirely contained in a folder.
+	//	 *
+	//	 * @param card
+	//	 * @param moduleFolderUri
+	//	 * @param parent
+	//	 * @return
+	//	 * @throws Exception
+	//	 */
+	//	private Mod loadNormalModule( ProductCard card, Path moduleFolder, ClassLoader parent ) throws IOException {
+	//		// Get the folder to load from
+	//		//Path folder = Paths.get( moduleFolderUri );
+	//		//card.setInstallFolder( folder );
 	//
-	//		for( Constructor<?> constructor : constructors ) {
-	//			Class<?>[] types = constructor.getParameterTypes();
+	//		// Get urls of all the jars
+	//		//Set<URL> urls = Files.list( folder ).filter( ( path ) -> path.toString().endsWith( ".jar" ) ).map( path -> toUrl( path.toUri() ) ).collect( Collectors.toSet() );
 	//
-	//			if( types.length != 2 ) continue;
-	//
-	//			boolean nameService = Service.class.getName().equals( types[ 0 ].getName() );
-	//			boolean nameProductCard = ProductCard.class.getName().equals( types[ 1 ].getName() );
-	//			boolean instanceofService = Service.class.isAssignableFrom( types[ 0 ] );
-	//			boolean instanceofProductCard = ProductCard.class.isAssignableFrom( types[ 1 ] );
-	//
-	//			if( nameService && !instanceofService ) {
-	//				Log.write( Log.WARN, "Class name matched but not assignable: ", Service.class.getName() );
-	//				Log.write( Log.WARN, "This is usually due to a copy of service.jar in the module folder." );
-	//			}
-	//
-	//			if( nameProductCard && !instanceofProductCard ) {
-	//				Log.write( Log.WARN, "Class name matched but not assignable: ", ProductCard.class.getName() );
-	//				Log.write( Log.WARN, "This is usually due to a copy of utility.jar in the module folder." );
-	//			}
-	//
-	//			if( instanceofService && instanceofProductCard ) return constructor;
-	//		}
-	//
-	//		throw new NoSuchMethodException( "Module constructor not found: " + JavaUtil.getClassName( moduleClass ) + "( " + JavaUtil.getClassName( Service.class ) + ", " + JavaUtil.getClassName( ProductCard.class ) + " )" );
+	//		// Create the class loader.
+	//		//ProductClassLoader loader = new ProductClassLoader( urls.toArray( new URL[ urls.size() ] ), parent, moduleFolderUri );
+	//		return loadModule( moduleFolder, null, "NORMAL", true, true );
 	//	}
 
-	private void registerProduct( Mod mod, boolean updatable, boolean removable ) {
+	private void loadMod( Path source, String type ) {
+		// In this context module refers to Java modules and mod refers to program mods
+		ModuleFinder moduleFinder = ModuleFinder.of( source );
+		Configuration bootConfiguration = ModuleLayer.boot().configuration();
+		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
+		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
+		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> registerMod( source, mod ) );
+	}
+
+	private void registerMod( Path source, Mod mod ) {
 		ProductCard card = mod.getCard();
 
-		// Register the product.
+		// Ignore included products
+		if( isReservedProduct( card ) ) return;
+
+		// Check if module is already loaded
+		if( modules.get( card.getProductKey() ) != null ) return;
+
+		// Set the mod install folder
+		card.setInstallFolder( source );
+
+		// Register the product
 		registerProduct( mod );
 
-		// Add the mod to the collection.
+		// Add the mod to the collection
 		modules.put( card.getProductKey(), mod );
 
-		// Set the enabled flag.
+		// Set the enabled flag
 		setUpdatable( card, card.getProductUri() != null );
 		setRemovable( card, true );
+
+		log.warn( "Mod registered: " + card.getProductKey() );
 	}
 
 	final class FindPostedUpdatesTask extends ProgramTask<Set<ProductCard>> {
