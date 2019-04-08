@@ -300,11 +300,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Remove the products.
 		Set<InstalledProduct> removedProducts = new HashSet<>();
 		for( ProductCard card : cards ) {
+			// NEXT Work on ProductManager.uninstallProducts()
+			System.err.println( "Product to uninstall: " + card );
 			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
 			removeProductImpl( getProduct( card.getProductKey() ) );
 		}
 
-		Set<InstalledProduct> products = getStoredRemovedProducts();
+		Set<InstalledProduct> products = new HashSet<>( getStoredRemovedProducts() );
 		products.addAll( removedProducts );
 		getSettings().set( REMOVES_SETTINGS_KEY, products );
 	}
@@ -372,13 +374,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void setEnabled( ProductCard card, boolean enabled ) {
 		if( isEnabled( card ) == enabled ) return;
 
-		// TODO Implement setEnabledImpl()
-		//		setEnabledImpl( card, enabled );
+		setEnabledImpl( card, enabled );
 
 		Settings settings = program.getSettingsManager().getProductSettings( card );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.trace( "Set enabled: ", settings.getPath(), ": ", enabled );
+		log.trace( "Set enabled: " + settings.getPath() + ": " + enabled );
 
 		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
 	}
@@ -899,7 +900,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		loadProducts( getUserModuleFolder() );
 
 		// Set the enabled state
-		setEnabledImpl( card, isEnabled( card ) );
+		//setEnabledImpl( card, isEnabled( card ) );
 
 		// Notify listeners of install
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
