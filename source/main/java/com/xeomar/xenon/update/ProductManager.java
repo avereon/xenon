@@ -659,22 +659,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		saveUpdates( updates );
 	}
 
-	public void loadProducts( Path... folders ) {
-		// Look for mods in the specified folders
-		for( Path folder : folders ) {
-			if( !Files.exists( folder ) ) continue;
-			if( !Files.isDirectory( folder ) ) continue;
-
-			// NOTE Mods on the classpath are also found when looking for normal mods
-			// Look for normal mods (most common)
-			try {
-				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( ( modFolder ) -> loadMod( modFolder, "NORMAL" ) );
-			} catch( IOException exception ) {
-				log.error( "Error loading modules from: " + folder, exception );
-			}
-		}
-	}
-
 	public static Map<String, ProductCard> getProductCardMap( Set<ProductCard> cards ) {
 		if( cards == null ) return null;
 
@@ -821,7 +805,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			}
 		}
 
-		loadProducts( moduleFolders.toArray( new Path[ 0 ] ) );
+		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
 		return this;
 	}
@@ -887,6 +871,24 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return includedProducts.contains( card );
 	}
 
+	private void loadModules( Path... folders ) {
+		// Look for mods on the module path
+		try {
+			loadMods( null, "MODULE_PATH" );
+		} catch( Exception exception ) {
+			log.error( "Error loading modules from module path", exception );
+		}
+
+		// Look for normal mods (most common)
+		Arrays.stream( folders ).filter( ( f ) -> Files.exists( f ) ).filter( ( f ) -> Files.isDirectory( f ) ).forEach( ( folder ) -> {
+			try {
+				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( ( modFolder ) -> loadMods( modFolder, "NORMAL" ) );
+			} catch( IOException exception ) {
+				log.error( "Error loading modules from: " + folder, exception );
+			}
+		} );
+	}
+
 	// TODO Rename to doInstallProduct
 	private void installProductImpl( ProductCard card, Set<ProductResource> resources ) throws Exception {
 		Path installFolder = getProductInstallFolder( card );
@@ -897,7 +899,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		copyProductResources( resources, installFolder );
 
 		// Load the product
-		loadProducts( getUserModuleFolder() );
+		loadModules( getUserModuleFolder() );
 
 		// Set the enabled state
 		//setEnabledImpl( card, isEnabled( card ) );
@@ -943,7 +945,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 			try {
 				// FIXME Should register() be here? I think it may be better located with the load functionality.
-				module.register();
+				//module.register();
 				module.create();
 			} catch( Throwable throwable ) {
 				log.error( "Error enabling mod: " + module, throwable );
@@ -952,7 +954,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			try {
 				module.destroy();
 				// FIXME Should unregister() be here? I think it may be better located with the remove functionality.
-				module.unregister();
+				//module.unregister();
 			} catch( Throwable throwable ) {
 				log.error( "Error disabling mod: " + module, throwable );
 			}
@@ -1097,13 +1099,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//		return loadModule( moduleFolder, null, "NORMAL", true, true );
 	//	}
 
-	private void loadMod( Path source, String type ) {
+	private void loadMods( Path source, String type ) {
 		// In this context module refers to Java modules and mod refers to program mods
-		ModuleFinder moduleFinder = ModuleFinder.of( source );
-		Configuration bootConfiguration = ModuleLayer.boot().configuration();
-		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
-		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
-		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> registerMod( source, mod ) );
+		if( source != null ) {
+			ModuleFinder moduleFinder = ModuleFinder.of( source );
+			Configuration bootConfiguration = ModuleLayer.boot().configuration();
+			Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
+			ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
+			ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> registerMod( source, mod ) );
+		} else {
+			ServiceLoader.load( Mod.class ).forEach( ( mod ) -> registerMod( null, mod ) );
+		}
 	}
 
 	private void registerMod( Path source, Mod mod ) {
@@ -1120,6 +1126,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Register the product
 		registerProduct( mod );
+
+		// FIXME Is this the right way to initialize the mod?
+		mod.init( program, card );
 
 		// Add the mod to the collection
 		modules.put( card.getProductKey(), mod );

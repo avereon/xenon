@@ -6,6 +6,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.util.FxUtil;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -154,12 +155,14 @@ class ProductPane extends MigPane {
 
 	private void toggleEnabled() {
 		productTool.getProgram().getProductManager().setEnabled( source, !productTool.getProgram().getProductManager().isEnabled( source ) );
+		updateProductState();
 	}
 
 	private void installProduct() {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
 				productTool.getProgram().getProductManager().installProducts( source );
+				Platform.runLater( this::updateProductState );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error installing product", exception );
 			}
@@ -170,6 +173,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
 				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() );
+				Platform.runLater( this::updateProductState );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}
@@ -180,6 +184,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
 				productTool.getProgram().getProductManager().uninstallProducts( source );
+				Platform.runLater( this::updateProductState );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}

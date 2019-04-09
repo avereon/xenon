@@ -276,13 +276,10 @@ public class Program extends Application implements ProgramProduct {
 		iconLibrary = new IconLibrary();
 		registerIcons();
 
-		// Start the update manager, depends on icon library
-		log.trace( "Starting update manager..." );
-		productManager = configureUpdateManager( new ProgramProductManager( this ) ).start();
-		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		log.debug( "Update manager started." );
+		// Create the update manager, depends on icon library
+		productManager = configureProductManager( new ProgramProductManager( this ) );
 
-		// Process staged updates, depends on update manager
+		// Process staged updates, depends on product manager
 		if( processStagedUpdates() ) return;
 		time( "staged-updates" );
 
@@ -696,6 +693,12 @@ public class Program extends Application implements ProgramProduct {
 
 		Platform.runLater( () -> splashScreen.update() );
 
+		// Start the product manager
+		log.trace( "Starting product manager..." );
+		productManager.start();
+		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "Product manager started." );
+
 		// Start the resource manager
 		log.trace( "Starting resource manager..." );
 		resourceManager = new ResourceManager( Program.this );
@@ -975,7 +978,7 @@ public class Program extends Application implements ProgramProduct {
 		return taskManager;
 	}
 
-	private ProductManager configureUpdateManager( ProductManager productManager ) throws IOException {
+	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
 		// FIXME Do I want the update settings in the program settings?
 		// There is also a set of comments regarding this issue in the ProductManager class
 		productManager.setSettings( programSettings );
