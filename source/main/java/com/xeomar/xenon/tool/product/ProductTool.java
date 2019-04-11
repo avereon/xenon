@@ -163,6 +163,10 @@ public class ProductTool extends GuidedTool {
 		return productMarketPage;
 	}
 
+	ProductToolPage getSelectedPage() {
+		return currentPage;
+	}
+
 	private void selectPage( String pageId ) {
 		log.trace( "Product page selected: " + pageId );
 

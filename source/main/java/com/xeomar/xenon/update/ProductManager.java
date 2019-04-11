@@ -297,12 +297,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to remove: " + cards.size() );
 
-		// TODO Wrap the following login in a task...like installProducts()
+		// FIXME Wrap the following login in a task...like installProducts()
 		// Remove the products.
 		Set<InstalledProduct> removedProducts = new HashSet<>();
 		for( ProductCard card : cards ) {
-			// NEXT Work on ProductManager.uninstallProducts()
-			System.err.println( "Product to uninstall: " + card );
 			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
 			removeProductImpl( getProduct( card.getProductKey() ) );
 		}
@@ -375,12 +373,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void setEnabled( ProductCard card, boolean enabled ) {
 		if( isEnabled( card ) == enabled ) return;
 
-		setEnabledImpl( card, enabled );
+		Mod mod = modules.get( card.getProductKey() );
+
+		// Should be before after setting the enabled flag
+		if( !enabled ) callModDestroy( mod );
 
 		Settings settings = program.getSettingsManager().getProductSettings( card );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
 		log.trace( "Set enabled: " + settings.getPath() + ": " + enabled );
+
+		// Should be called after setting the enabled flag
+		if( enabled ) callModCreate( mod );
 
 		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
 	}
@@ -815,7 +819,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			}
 		}
 
+		// Load the modules
 		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
+
+		// Allow the mods to register resources
+		modules.values().forEach( this::callModRegister );
 
 		return this;
 	}
@@ -844,7 +852,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	@Override
 	public ProductManager stop() {
-		modules.values().forEach( this::unregisterMod );
+		modules.values().forEach( this::callModUnregister );
 
 		if( timer != null ) timer.cancel();
 		timer = null;
@@ -854,6 +862,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	@Override
 	public ProductManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 		return this;
+	}
+
+	public void uiIsAvailable() {
+		modules.values().forEach( this::callModCreate );
+	}
+
+	public void uiWillStop() {
+		modules.values().forEach( this::callModDestroy );
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
@@ -910,11 +926,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Install all the resource files to the install folder
 		copyProductResources( resources, installFolder );
 
-		// Load the product
+		// Load the mods
 		loadModules( getUserModuleFolder() );
 
+		// Allow the mod to register resources
+		callModRegister( modules.get( card.getProductKey() ) );
+
 		// Set the enabled state
-		setEnabledImpl( card, isEnabled( card ) );
+		setEnabled( card, true );
 
 		// Notify listeners of install
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
@@ -931,7 +950,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Disable the product.
 		setEnabled( card, false );
 
-		unregisterMod( (Mod)product );
+		callModUnregister( (Mod)product );
 
 		// Remove the module.
 		modules.remove( card.getProductKey() );
@@ -946,31 +965,37 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_REMOVED, card ).fire( listeners );
 	}
 
-	// TODO Rename to doSetEnabled
-	private void setEnabledImpl( ProductCard card, boolean enabled ) {
-		Mod module = modules.get( card.getProductKey() );
-		if( module == null ) return;
+	private void callModRegister( Mod mod ) {
+		try {
+			mod.register();
+		} catch( Throwable throwable ) {
+			log.error( "Error registering mod: " + mod, throwable );
+		}
+	}
 
-		if( enabled ) {
-			//loaders.add( module.getClass().getClassLoader() );
+	private void callModCreate( Mod mod ) {
+		if( !isEnabled( mod.getCard() ) ) return;
+		try {
+			mod.create();
+		} catch( Throwable throwable ) {
+			log.error( "Error starting mod: " + mod, throwable );
+		}
+	}
 
-			try {
-				// FIXME Should register() be here? I think it may be better located with the load functionality.
-				//module.register();
-				module.create();
-			} catch( Throwable throwable ) {
-				log.error( "Error enabling mod: " + module, throwable );
-			}
-		} else {
-			try {
-				module.destroy();
-				// FIXME Should unregister() be here? I think it may be better located with the remove functionality.
-				//module.unregister();
-			} catch( Throwable throwable ) {
-				log.error( "Error disabling mod: " + module, throwable );
-			}
+	private void callModDestroy( Mod mod ) {
+		if( !isEnabled( mod.getCard() ) ) return;
+		try {
+			mod.destroy();
+		} catch( Throwable throwable ) {
+			log.error( "Error stopping mod: " + mod, throwable );
+		}
+	}
 
-			//loaders.remove( module.getClass().getClassLoader() );
+	private void callModUnregister( Mod mod ) {
+		try {
+			mod.unregister();
+		} catch( Throwable throwable ) {
+			log.error( "Error unregistering mod: " + mod, throwable );
 		}
 	}
 
@@ -978,13 +1003,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Check for products marked for removal and remove the files.
 		Set<InstalledProduct> products = getStoredRemovedProducts();
 		for( InstalledProduct product : products ) {
+			log.warn( "Purging: " + product );
 			try {
 				FileUtil.delete( product.getTarget() );
 			} catch( IOException exception ) {
 				log.error( "Error removing product: " + product, exception );
 			}
 		}
-		getSettings().getNode( REMOVES_SETTINGS_KEY ).delete();
+		getSettings().remove( REMOVES_SETTINGS_KEY );
 	}
 
 	private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
@@ -1111,7 +1137,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	//	}
 
 	private void loadModulePathMods() {
-		ServiceLoader.load( Mod.class ).forEach( ( mod ) -> registerMod( mod, null ) );
+		ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
 	}
 
 	private void loadStandardMods( Path source ) {
@@ -1120,10 +1146,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		Configuration bootConfiguration = ModuleLayer.boot().configuration();
 		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
 		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
-		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> registerMod( mod, source ) );
+		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 	}
 
-	private void registerMod( Mod mod, Path source ) {
+	private void loadMod( Mod mod, Path source ) {
 		ProductCard card = mod.getCard();
 
 		// Ignore included products
@@ -1148,15 +1174,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		setUpdatable( card, card.getProductUri() != null );
 		setRemovable( card, true );
 
-		mod.register();
-		if( isEnabled( card ) ) mod.create();
-
-		log.warn( "Mod registered: " + card.getProductKey() );
+		log.warn( "Mod loaded: " + card.getProductKey() );
 	}
 
-	private void unregisterMod( Mod mod ) {
-		if( isEnabled( mod.getCard() ) ) mod.destroy();
-		mod.unregister();
+	private void unloadMod( Mod mod ) {
+		// Not sure what to do to unload a mod
 	}
 
 	final class FindPostedUpdatesTask extends ProgramTask<Set<ProductCard>> {

@@ -162,7 +162,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
 				productTool.getProgram().getProductManager().installProducts( source );
-				Platform.runLater( this::updateProductState );
+				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error installing product", exception );
 			}
@@ -173,7 +173,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
 				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() );
-				Platform.runLater( this::updateProductState );
+				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}
@@ -184,7 +184,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getExecutor().submit( () -> {
 			try {
 				productTool.getProgram().getProductManager().uninstallProducts( source );
-				Platform.runLater( this::updateProductState );
+				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}

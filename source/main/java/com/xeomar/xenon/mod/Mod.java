@@ -45,22 +45,26 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	/**
-	 * Called by the program to register a module instance. This method is called before the program frame and workspaces are available.
+	 * Called by the program to register a module instance. This method is called
+	 * before the program frame and workspaces are available.
 	 */
 	public void register() {}
 
 	/**
-	 * Called by the program to create a module instance. This method is called after the program frame and workspaces are available.
+	 * Called by the program to create a module instance. This method is called
+	 * after the program frame and workspaces are available.
 	 */
 	public void create() {}
 
 	/**
-	 * Called by the program to destroy a module instance. This method is called before the program frame and workspaces are unavailable.
+	 * Called by the program to destroy a module instance. This method is called
+	 * before the program frame and workspaces are unavailable.
 	 */
 	public void destroy() {}
 
 	/**
-	 * Called by the program to unregister a module instance. This method is called after the program frame and workspaces are unavailable.
+	 * Called by the program to unregister a module instance. This method is
+	 * called after the program frame and workspaces are unavailable.
 	 */
 	public void unregister() {}
 
