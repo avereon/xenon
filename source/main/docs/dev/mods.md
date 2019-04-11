@@ -35,20 +35,20 @@ You should replace com.example.sample.SampleMod with your fully qualified class
 name:
 
 ~~~~
-provides com.xeomar.xenon.mod.Mod with com.example.sample.SampleMod
+provides Mod with com.example.sample.SampleMod
 ~~~~
 
 ## Implementation
 
-The implementing class must extend com.xeomar.xenon.mod.Mod. It must also have
-a no-args constructor and implement the register(), create(), destroy() and 
+The implementing class must extend com.xeomar.xenon.Mod. It must also have
+a no-args constructor and implement the register(), startup(), shutdown() and 
 unregister() methods.
 
 register() - Does there need to be register and unregister?
 
-create()
+startup()
 
-remove()
+shutdown()
 
 unregister() - Does there need to be register and unregister?
 
