@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.util.Colors;
+import com.xeomar.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;

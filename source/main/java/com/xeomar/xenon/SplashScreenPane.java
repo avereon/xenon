@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;

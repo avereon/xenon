@@ -7,7 +7,7 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
 import com.xeomar.xenon.*;
-import com.xeomar.xenon.mod.Mod;
+import com.xeomar.xenon.Mod;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -1003,7 +1003,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModCreate( Mod mod ) {
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
-			mod.create();
+			mod.startup();
 		} catch( Throwable throwable ) {
 			log.error( "Error starting mod: " + mod, throwable );
 		}
@@ -1012,7 +1012,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModDestroy( Mod mod ) {
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
-			mod.destroy();
+			mod.shutdown();
 		} catch( Throwable throwable ) {
 			log.error( "Error stopping mod: " + mod, throwable );
 		}

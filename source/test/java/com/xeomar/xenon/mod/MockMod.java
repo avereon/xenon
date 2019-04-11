@@ -1,6 +1,7 @@
 package com.xeomar.xenon.mod;
 
 import com.xeomar.product.ProductBundle;
+import com.xeomar.xenon.Mod;
 
 public class MockMod extends Mod {
 
@@ -12,10 +13,10 @@ public class MockMod extends Mod {
 	public void register() {}
 
 	@Override
-	public void create() {}
+	public void startup() {}
 
 	@Override
-	public void destroy() {}
+	public void shutdown() {}
 
 	@Override
 	public void unregister() {}

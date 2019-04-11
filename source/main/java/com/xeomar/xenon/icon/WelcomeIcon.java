@@ -1,7 +1,6 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
-import com.xeomar.xenon.JavaFxStarter;
 
 public class WelcomeIcon extends ProgramIcon {
 

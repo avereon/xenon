@@ -1,7 +1,7 @@
 package com.xeomar.xenon.icon;
 
 import com.xeomar.xenon.ProgramIcon;
-import com.xeomar.xenon.JavaFxStarter;
+import com.xeomar.xenon.util.JavaFxStarter;
 
 public class CompassIcon extends ProgramIcon {
 

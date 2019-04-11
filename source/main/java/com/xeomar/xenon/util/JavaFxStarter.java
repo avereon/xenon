@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.util;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
