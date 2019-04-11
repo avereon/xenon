@@ -18,7 +18,10 @@ public class ToolMetadata {
 
 	private ToolInstanceMode instanceMode;
 
-	public ToolMetadata() {}
+	public ToolMetadata( Product product, Class<? extends ProgramTool> type ) {
+		this.product = product;
+		this.type = type;
+	}
 
 	public Product getProduct() {
 		return product;

@@ -693,12 +693,6 @@ public class Program extends Application implements ProgramProduct {
 
 		Platform.runLater( () -> splashScreen.update() );
 
-		// Start the product manager
-		log.trace( "Starting product manager..." );
-		productManager.start();
-		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		log.debug( "Product manager started." );
-
 		// Start the resource manager
 		log.trace( "Starting resource manager..." );
 		resourceManager = new ResourceManager( Program.this );
@@ -720,6 +714,13 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
 
+		// Create the workspace manager
+		log.trace( "Starting workspace manager..." );
+		workspaceManager = new WorkspaceManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Workspace manager started." );
+
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
@@ -727,12 +728,11 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Notice manager started." );
 
-		// Create the workspace manager
-		log.trace( "Starting workspace manager..." );
-		workspaceManager = new WorkspaceManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Workspace manager started." );
+		// Start the product manager
+		log.trace( "Starting product manager..." );
+		productManager.start();
+		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "Product manager started." );
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
@@ -762,6 +762,14 @@ public class Program extends Application implements ProgramProduct {
 
 			// Notify the product manager the UI is ready
 			productManager.uiWillStop();
+
+			// Stop the product manager
+			if( productManager != null ) {
+				log.trace( "Stopping update manager..." );
+				productManager.stop();
+				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+				log.debug( "Update manager stopped." );
+			}
 
 			// Stop the NoticeManager
 			if( noticeManager != null ) {
@@ -798,14 +806,6 @@ public class Program extends Application implements ProgramProduct {
 				unregisterResourceTypes( resourceManager );
 				unregisterSchemes( resourceManager );
 				log.debug( "Resource manager stopped." );
-			}
-
-			// Stop the product manager
-			if( productManager != null ) {
-				log.trace( "Stopping update manager..." );
-				productManager.stop();
-				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				log.debug( "Update manager stopped." );
 			}
 
 			// Disconnect the settings listener
@@ -970,8 +970,8 @@ public class Program extends Application implements ProgramProduct {
 		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
-		ToolMetadata metadata = new ToolMetadata();
-		metadata.setProduct( this ).setType( toolClass ).setInstanceMode( mode ).setName( name ).setIcon( icon );
+		ToolMetadata metadata = new ToolMetadata(this, toolClass);
+		metadata.setInstanceMode( mode ).setName( name ).setIcon( icon );
 		manager.registerTool( type, metadata );
 	}
 
