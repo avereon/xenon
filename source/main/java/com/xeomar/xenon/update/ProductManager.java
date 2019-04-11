@@ -7,7 +7,6 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
 import com.xeomar.xenon.*;
-import com.xeomar.xenon.Mod;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -82,23 +81,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	public static final String MODULE_INSTALL_FOLDER_NAME = "modules";
-
-	public static final String DEFAULT_CATALOG_CARD_NAME = "catalog.card";
-
-	public static final String PRODUCT_CATALOG_CARD_PATH = MarketCard.CARD;
-
-	public static final String DEFAULT_PRODUCT_CARD_NAME = "product.card";
-
-	public static final String PRODUCT_PRODUCT_CARD_PATH = "META-INF/" + DEFAULT_PRODUCT_CARD_NAME;
-
-	public static final String UPDATER_LOG_NAME = "updater.log";
-
-	public static final String UPDATE_FOLDER_NAME = "updates";
-
 	public static final String LAST_CHECK_TIME = "product-update-last-check-time";
 
 	public static final String NEXT_CHECK_TIME = "product-update-next-check-time";
+
+	private static final String MODULE_INSTALL_FOLDER_NAME = "modules";
+
+	private static final String UPDATE_FOLDER_NAME = "updates";
 
 	private static final String CHECK = "product-update-check";
 
@@ -177,7 +166,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public ProductManager( Program program ) {
 		this.program = program;
 
-		// FIXME Should module management and update management be separated???
 		catalogs = new CopyOnWriteArraySet<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
@@ -263,6 +251,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return productKey == null ? program : products.get( productKey );
 	}
 
+	public Mod getMod( String productKey ) {
+		return modules.get( productKey );
+	}
+
 	public Set<ProductCard> getProductCards() {
 		return new HashSet<>( productCards.values() );
 	}
@@ -326,18 +318,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to remove: " + cards.size() );
-
-		// FIXME Wrap the following login in a task...like installProducts()
-		// Remove the products.
-		Set<InstalledProduct> removedProducts = new HashSet<>();
-		for( ProductCard card : cards ) {
-			removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-			removeProductImpl( getProduct( card.getProductKey() ) );
-		}
-
-		Set<InstalledProduct> products = new HashSet<>( getStoredRemovedProducts() );
-		products.addAll( removedProducts );
-		getSettings().set( REMOVES_SETTINGS_KEY, products );
+		program.getTaskManager().submit( new UninstallProducts( program, cards ) );
 	}
 
 	public int getInstalledProductCount() {
@@ -403,7 +384,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void setEnabled( ProductCard card, boolean enabled ) {
 		if( isEnabled( card ) == enabled ) return;
 
-		Mod mod = modules.get( card.getProductKey() );
+		Mod mod = getMod( card.getProductKey() );
 
 		// Should be before after setting the enabled flag
 		if( mod != null && !enabled ) callModDestroy( mod );
@@ -578,10 +559,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getUserModuleFolder().resolve( card.getGroup() + "." + card.getArtifact() );
 	}
 
-	//	public void stageUpdates( ProductCard... updateCards ) throws Exception {
-	//		new StageUpdates( program, Set.of( updateCards ) ).call();
-	//	}
-
 	private String getStagedUpdateFileName( ProductCard card ) {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
@@ -683,26 +660,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		applySelectedUpdates( Set.of( update ) );
 	}
 
-	public void applySelectedUpdates( Set<ProductCard> updates ) {
-		// This should go through the process of downloading, staging and applying the updates
-		// It is overwritten by ProgramProductManager
-	}
+	public abstract void applySelectedUpdates( Set<ProductCard> updates );
 
 	void clearStagedUpdates() {
 		// Remove the updates settings
 		updates.clear();
 		saveUpdates( updates );
-	}
-
-	public static Map<String, ProductCard> getProductCardMap( Set<ProductCard> cards ) {
-		if( cards == null ) return null;
-
-		Map<String, ProductCard> map = new HashMap<>();
-		for( ProductCard card : cards ) {
-			map.put( card.getProductKey(), card );
-		}
-
-		return map;
 	}
 
 	public static boolean areResourcesValid( Set<ProductResource> resources ) {
@@ -947,8 +910,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		} );
 	}
 
-	// TODO Rename to doInstallProduct
-	private void installProductImpl( ProductCard card, Set<ProductResource> resources ) throws Exception {
+	private void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
 		Path installFolder = getProductInstallFolder( card );
 
 		log.debug( "Install product to: " + installFolder );
@@ -960,7 +922,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		loadModules( getUserModuleFolder() );
 
 		// Allow the mod to register resources
-		callModRegister( modules.get( card.getProductKey() ) );
+		callModRegister( getMod( card.getProductKey() ) );
 
 		// Set the enabled state
 		setEnabled( card, true );
@@ -969,26 +931,27 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
 	}
 
-	// TODO Rename to doRemoveProduct
-	private void removeProductImpl( Product product ) {
-		ProductCard card = product.getCard();
+	private void doRemoveMod( Mod mod ) {
+		ProductCard card = mod.getCard();
 
 		Path installFolder = card.getInstallFolder();
 
 		log.debug( "Remove product from: " + installFolder );
 
-		// Disable the product.
+		// Disable the product
 		setEnabled( card, false );
 
-		callModUnregister( (Mod)product );
+		callModUnregister( mod );
 
-		// Remove the product from the manager.
-		unregisterProduct( (Mod)product );
+		unloadMod( mod );
 
-		// TODO Remove the product settings.
-		//		ProductUtil.getSettings( product ).removeNode();
+		// Remove the product from the manager
+		unregisterProduct( mod );
 
-		// Notify listeners of remove.
+		// Remove the product settings
+		program.getSettingsManager().getProductSettings( card ).delete();
+
+		// Notify listeners of remove
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_REMOVED, card ).fire( listeners );
 	}
 
@@ -1101,68 +1064,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	// TODO Each product could use a different channel
 	// If not specified it should use the product channel
 
-	//	/**
-	//	 * A folder module is an unpacked module contained in a folder.
-	//	 *
-	//	 * @param card
-	//	 * @param folder
-	//	 * @param parent
-	//	 * @return
-	//	 * @throws Exception
-	//	 */
-	//	private ServiceModule loadFolderModule( ProductCard card, File folder, ClassLoader parent ) throws Exception {
-	//		URI codebase = folder.toURI();
-	//
-	//		card.setInstallFolder( folder );
-	//
-	//		// Create the class loader.
-	//		ProductClassLoader loader = new ProductClassLoader( new URL[]{ folder.toURL() }, parent, codebase );
-	//		return loadModule( folder, loader, "FOLDER", true, true );
-	//	}
-	//
-	//	/**
-	//	 * A simple module is entirely contained inside a jar file.
-	//	 *
-	//	 * @param card
-	//	 * @param jarUri
-	//	 * @param parent
-	//	 * @return
-	//	 * @throws Exception
-	//	 */
-	//	private ServiceModule loadSimpleModule( ProductCard card, URI jarUri, ClassLoader parent ) throws Exception {
-	//		URI codebase = UriUtil.getParent( jarUri );
-	//
-	//		// Get the jar file.
-	//		File jarfile = new File( jarUri );
-	//		card.setInstallFolder( jarfile.getParentFile() );
-	//
-	//		// Create the class loader.
-	//		ProductClassLoader loader = new ProductClassLoader( new URL[]{ jarfile.toURI().toURL() }, parent, codebase );
-	//		return loadModule( jarfile.getParentFile(), loader, "SIMPLE", true, true );
-	//	}
-
-	//	/**
-	//	 * A normal module, the most common, is entirely contained in a folder.
-	//	 *
-	//	 * @param card
-	//	 * @param moduleFolderUri
-	//	 * @param parent
-	//	 * @return
-	//	 * @throws Exception
-	//	 */
-	//	private Mod loadNormalModule( ProductCard card, Path moduleFolder, ClassLoader parent ) throws IOException {
-	//		// Get the folder to load from
-	//		//Path folder = Paths.get( moduleFolderUri );
-	//		//card.setInstallFolder( folder );
-	//
-	//		// Get urls of all the jars
-	//		//Set<URL> urls = Files.list( folder ).filter( ( path ) -> path.toString().endsWith( ".jar" ) ).map( path -> toUrl( path.toUri() ) ).collect( Collectors.toSet() );
-	//
-	//		// Create the class loader.
-	//		//ProductClassLoader loader = new ProductClassLoader( urls.toArray( new URL[ urls.size() ] ), parent, moduleFolderUri );
-	//		return loadModule( moduleFolder, null, "NORMAL", true, true );
-	//	}
-
 	private void loadModulePathMods() {
 		ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
 	}
@@ -1183,7 +1084,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( isIncludedProduct( card ) ) return;
 
 		// Check if mod is already loaded
-		if( modules.get( card.getProductKey() ) != null ) return;
+		if( getMod( card.getProductKey() ) != null ) return;
 
 		// Initialize the mod
 		mod.init( program, card );
@@ -1498,7 +1399,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * This task is only applicable when a product is not already installed. If
 	 * the product is already installed it should go through the update process.
 	 */
-	final class InstallProducts extends ProgramTask<Integer> {
+	private final class InstallProducts extends ProgramTask<Integer> {
 
 		/**
 		 * Attempt to stage the product packs described by the specified product cards.
@@ -1509,7 +1410,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		private Set<Future<ProductUpdate>> updateFutures;
 
-		public InstallProducts( Program program, Set<ProductCard> updateCards ) {
+		InstallProducts( Program program, Set<ProductCard> updateCards ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
 			this.updateCards = updateCards;
 
@@ -1546,15 +1447,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					if( update == null ) continue;
 					ProductCard card = update.getCard();
 
-					// TODO Not all the resources may have downloaded
-
-					log.warn( "Product downloaded: " + update.getCard().getProductKey() );
+					log.debug( "Product downloaded: " + update.getCard().getProductKey() );
 
 					// Install the products.
 					try {
-						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
 						ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
-						installProductImpl( card, Set.of( resource ) );
+						doInstallMod( card, Set.of( resource ) );
+						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
 					} catch( Exception exception ) {
 						log.error( "Error installing: " + card, exception );
 					}
@@ -1565,15 +1464,40 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				}
 			}
 
-			// TODO Logic to remove products on next restart
+			log.debug( "Product install count: " + installedProducts.size() );
 
-			//		Set<InstalledProduct> products = getStoredRemovedProducts();
-			//		products.removeAll( installedProducts );
-			//		service.getSettings().putNodeSet( REMOVES_SETTINGS_KEY, products );
+			return installedProducts.size();
+		}
 
-			log.debug( "Product install count: " + updates.size() );
+	}
 
-			return updates.size();
+	private final class UninstallProducts extends ProgramTask<Integer> {
+
+		private Set<ProductCard> cards;
+
+		UninstallProducts( Program program, Set<ProductCard> cards ) {
+			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-remove-selected" ) );
+			this.cards = cards;
+		}
+
+		@Override
+		public Integer call() throws Exception {
+			// Remove the products.
+			Set<InstalledProduct> removedProducts = new HashSet<>();
+			for( ProductCard card : cards ) {
+				try {
+					doRemoveMod( getMod( card.getProductKey() ) );
+					removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+				} catch( Exception exception ) {
+					log.error( "Error uninstalling: " + card, exception );
+				}
+			}
+
+			Set<InstalledProduct> products = new HashSet<>( getStoredRemovedProducts() );
+			products.addAll( removedProducts );
+			getSettings().set( REMOVES_SETTINGS_KEY, products );
+
+			return removedProducts.size();
 		}
 
 	}
@@ -1593,19 +1517,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	/**
-	 * NOTE: This class is Persistent and changing the package will most likely result in a ClassNotFoundException being thrown at runtime.
-	 *
-	 * @author SoderquistMV
+	 * NOTE This class is Persistent and changing the package will most likely
+	 * result in a ClassNotFoundException being thrown at runtime.
 	 */
 	static final class InstalledProduct {
 
 		private Path target;
 
-		//		private Settings settings;
-
 		/*
 		 * This constructor is used by the settings API via reflection.
 		 */
+		@SuppressWarnings( "unused" )
 		public InstalledProduct() {}
 
 		public InstalledProduct( Path target ) {
@@ -1619,22 +1541,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		public void setTarget( Path target ) {
 			this.target = target;
 		}
-
-		//		@Override
-		//		public void setSettings( Settings settings ) {
-		//			if( settings == null || this.settings != null ) return;
-		//
-		//			this.settings = settings;
-		//
-		//			String targetPath = settings.get( "target" );
-		//			target = targetPath == null ? null : Paths.get( targetPath );
-		//			settings.set( "target", target == null ? null : target.toString() );
-		//		}
-		//
-		//		@Override
-		//		public Settings getSettings() {
-		//			return settings;
-		//		}
 
 		@Override
 		public String toString() {
