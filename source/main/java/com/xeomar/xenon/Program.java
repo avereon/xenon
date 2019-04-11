@@ -994,9 +994,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// Register the product
 		productManager.registerProduct( this );
-		productManager.setEnabled( getCard(), true );
-		productManager.setUpdatable( getCard(), true );
-		productManager.setRemovable( getCard(), false );
 
 		return productManager;
 	}

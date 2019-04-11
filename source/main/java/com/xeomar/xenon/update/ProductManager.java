@@ -268,17 +268,47 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public void registerProduct( Product product ) {
-		String productKey = product.getCard().getProductKey();
+		ProductCard card = product.getCard();
+
+		String productKey = card.getProductKey();
 		products.put( productKey, product );
-		productCards.put( productKey, product.getCard() );
+		productCards.put( productKey, card );
 		productStates.put( productKey, new ProductState() );
+
+		setUpdatable( card, true );
+		setRemovable( card, false );
+		setEnabled( card, true );
 	}
 
-	public void unregisterProduct( Product product ) {
+	private void registerProduct( Mod mod ) {
+		// Treat mods like other products
+		registerProduct( (Product)mod );
+
+		ProductCard card = mod.getCard();
+
+		// Add the mod to the collection
+		modules.put( card.getProductKey(), mod );
+
+		// Set the state flags
+		setUpdatable( card, card.getProductUri() != null );
+		setRemovable( card, true );
+	}
+
+	private void unregisterProduct( Product product ) {
 		String productKey = product.getCard().getProductKey();
 		products.remove( productKey );
 		productCards.remove( productKey );
 		productStates.remove( productKey );
+	}
+
+	private void unregisterProduct( Mod mod ) {
+		ProductCard card = mod.getCard();
+
+		// Remove the module.
+		modules.remove( card.getProductKey() );
+
+		// Treat mods like other products
+		unregisterProduct( (Product)mod );
 	}
 
 	public void installProducts( ProductCard... cards ) throws Exception {
@@ -376,7 +406,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		Mod mod = modules.get( card.getProductKey() );
 
 		// Should be before after setting the enabled flag
-		if( !enabled ) callModDestroy( mod );
+		if( mod != null && !enabled ) callModDestroy( mod );
 
 		Settings settings = program.getSettingsManager().getProductSettings( card );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
@@ -384,7 +414,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		log.trace( "Set enabled: " + settings.getPath() + ": " + enabled );
 
 		// Should be called after setting the enabled flag
-		if( enabled ) callModCreate( mod );
+		if( mod != null && enabled ) callModCreate( mod );
 
 		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
 	}
@@ -952,11 +982,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		callModUnregister( (Mod)product );
 
-		// Remove the module.
-		modules.remove( card.getProductKey() );
-
 		// Remove the product from the manager.
-		unregisterProduct( product );
+		unregisterProduct( (Mod)product );
 
 		// TODO Remove the product settings.
 		//		ProductUtil.getSettings( product ).removeNode();
@@ -1166,13 +1193,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Register the product
 		registerProduct( mod );
-
-		// Add the mod to the collection
-		modules.put( card.getProductKey(), mod );
-
-		// Set the enabled flag
-		setUpdatable( card, card.getProductUri() != null );
-		setRemovable( card, true );
 
 		log.warn( "Mod loaded: " + card.getProductKey() );
 	}
