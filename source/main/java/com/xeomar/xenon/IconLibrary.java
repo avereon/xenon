@@ -62,7 +62,7 @@ public class IconLibrary {
 		register( "module", ModuleIcon.class );
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
-		register( "remove", DeleteIcon.class );
+		register( "remove", CloseIcon.class );
 
 		register( "provider", WingDiscLargeIcon.class );
 	}

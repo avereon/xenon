@@ -72,8 +72,8 @@ class ProductPane extends MigPane {
 		stateLabel = new Label( "State" );
 		stateLabel.setId( "tool-product-artifact-state" );
 
-		actionButton1 = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
-		actionButton2 = new Button( "", program.getIconLibrary().getIcon( "enable" ) );
+		actionButton1 = new Button( "" );
+		actionButton2 = new Button( "" );
 
 		add( iconLabel, "spany, aligny center" );
 		add( nameLabel );
@@ -128,6 +128,7 @@ class ProductPane extends MigPane {
 		if( isInstalledProductsPanel ) {
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isProgram );
+			actionButton1.setGraphic( program.getIconLibrary().getIcon( "remove" ) );
 			actionButton1.setOnAction( ( event ) -> removeProduct() );
 
 			actionButton2.setVisible( true );

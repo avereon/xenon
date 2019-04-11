@@ -740,6 +740,9 @@ public class Program extends Application implements ProgramProduct {
 		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
+		// Notify the product manager the UI is ready
+		productManager.uiIsAvailable();
+
 		// Finish the splash screen
 		int totalSteps = splashScreen.getSteps();
 		int completedSteps = splashScreen.getCompletedSteps();
@@ -757,13 +760,8 @@ public class Program extends Application implements ProgramProduct {
 		try {
 			fireEvent( new ProgramStoppingEvent( this ) );
 
-			// Stop the ProductManager
-			if( productManager != null ) {
-				log.trace( "Stopping update manager..." );
-				productManager.stop();
-				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				log.debug( "Update manager stopped." );
-			}
+			// Notify the product manager the UI is ready
+			productManager.uiWillStop();
 
 			// Stop the NoticeManager
 			if( noticeManager != null ) {
@@ -800,6 +798,14 @@ public class Program extends Application implements ProgramProduct {
 				unregisterResourceTypes( resourceManager );
 				unregisterSchemes( resourceManager );
 				log.debug( "Resource manager stopped." );
+			}
+
+			// Stop the product manager
+			if( productManager != null ) {
+				log.trace( "Stopping update manager..." );
+				productManager.stop();
+				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+				log.debug( "Update manager stopped." );
 			}
 
 			// Disconnect the settings listener
