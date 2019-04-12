@@ -224,7 +224,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Download all the product cards
 		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
 
-		log.warn( "Downloading available products..." );
+		log.debug( "Downloading available products..." );
 		// Collect all the product cards into a set and return it
 		Set<ProductCard> cards = new HashSet<>();
 		for( Future<Download> future : futures ) {
@@ -993,7 +993,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Check for products marked for removal and remove the files.
 		Set<InstalledProduct> products = getStoredRemovedProducts();
 		for( InstalledProduct product : products ) {
-			log.warn( "Purging: " + product );
+			log.debug( "Purging: " + product );
 			try {
 				FileUtil.delete( product.getTarget() );
 			} catch( IOException exception ) {
@@ -1057,7 +1057,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private String getProductChannel() {
 		String channel = settings.get( CHANNEL, "latest" );
-		log.warn( "Using product channel: " + channel );
+		log.debug( "Using product channel: " + channel );
 		return channel;
 	}
 
@@ -1095,7 +1095,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Register the product
 		registerProduct( mod );
 
-		log.warn( "Mod loaded: " + card.getProductKey() );
+		log.debug( "Mod loaded: " + card.getProductKey() );
 	}
 
 	private void unloadMod( Mod mod ) {
