@@ -22,10 +22,8 @@ module com.xeomar.xenon {
 	exports com.xeomar.xenon.workarea;
 	exports com.xeomar.xenon.workspace;
 
-	opens bundles;
 	opens settings;
-	opens com.xeomar.xenon;
-	opens com.xeomar.xenon.update;
+	opens com.xeomar.xenon.bundles;
 
 	uses Mod;
 }
