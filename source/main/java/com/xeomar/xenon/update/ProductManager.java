@@ -959,7 +959,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		try {
 			mod.register();
 		} catch( Throwable throwable ) {
-			log.error( "Error registering mod: " + mod, throwable );
+			log.error( "Error registering mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
@@ -968,7 +968,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		try {
 			mod.startup();
 		} catch( Throwable throwable ) {
-			log.error( "Error starting mod: " + mod, throwable );
+			log.error( "Error starting mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
@@ -977,7 +977,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		try {
 			mod.shutdown();
 		} catch( Throwable throwable ) {
-			log.error( "Error stopping mod: " + mod, throwable );
+			log.error( "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
@@ -985,7 +985,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		try {
 			mod.unregister();
 		} catch( Throwable throwable ) {
-			log.error( "Error unregistering mod: " + mod, throwable );
+			log.error( "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
