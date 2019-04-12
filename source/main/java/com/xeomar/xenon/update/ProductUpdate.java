@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 /**
  * NOTE: This class is Persistent and changing the package will most likely
  * result in a ClassNotFoundException being thrown at runtime.
- * 
+ *
  * @author SoderquistMV
  */
 public final class ProductUpdate implements Configurable {
@@ -40,6 +40,10 @@ public final class ProductUpdate implements Configurable {
 		return card;
 	}
 
+	public void setCard( ProductCard card ) {
+		this.card = card;
+	}
+
 	public Path getSource() {
 		return source;
 	}
@@ -51,7 +55,7 @@ public final class ProductUpdate implements Configurable {
 	@Override
 	public void setSettings( Settings settings ) {
 		this.settings = settings;
-//		card = new ProductCard( settings.getNode( "card" ) );
+		//		card = new ProductCard( settings.getNode( "card" ) );
 		String sourcePath = settings.get( "source" );
 		String targetPath = settings.get( "target" );
 		source = sourcePath == null ? null : Paths.get( sourcePath );
@@ -59,11 +63,11 @@ public final class ProductUpdate implements Configurable {
 	}
 
 	@Override
-	public Settings getSettings(  ) {
+	public Settings getSettings() {
 		return settings;
-//		card.saveSettings( settings.getNode( "card" ) );
-//		settings.add( "source", source.getPath() );
-//		settings.add( "target", target.getPath() );
+		//		card.saveSettings( settings.getNode( "card" ) );
+		//		settings.add( "source", source.getPath() );
+		//		settings.add( "target", target.getPath() );
 	}
 
 	@Override
@@ -73,7 +77,7 @@ public final class ProductUpdate implements Configurable {
 
 	@Override
 	public boolean equals( Object object ) {
-		if( !( object instanceof ProductUpdate ) ) return false;
+		if( !(object instanceof ProductUpdate) ) return false;
 		ProductUpdate that = (ProductUpdate)object;
 		return this.card.equals( that.card );
 	}
