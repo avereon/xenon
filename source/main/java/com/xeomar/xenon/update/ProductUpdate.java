@@ -48,8 +48,16 @@ public final class ProductUpdate implements Configurable {
 		return source;
 	}
 
+	public void setSource( Path source ) {
+		this.source = source;
+	}
+
 	public Path getTarget() {
 		return target;
+	}
+
+	public void setTarget( Path target ) {
+		this.target = target;
 	}
 
 	@Override
