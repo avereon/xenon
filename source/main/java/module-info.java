@@ -24,5 +24,8 @@ module com.xeomar.xenon {
 	opens com.xeomar.xenon.bundles;
 	opens settings;
 
+	// WORKAROUND Dev time problem
+	opens com.xeomar.xenon.update to com.fasterxml.jackson.databind;
+
 	uses Mod;
 }
