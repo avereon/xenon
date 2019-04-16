@@ -1,7 +1,6 @@
 import com.xeomar.xenon.Mod;
 
 module com.xeomar.xenon {
-
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
@@ -9,8 +8,8 @@ module com.xeomar.xenon {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	requires com.xeomar.xevra;
 	requires com.xeomar.zenna;
+	requires com.xeomar.zevra;
 	requires org.slf4j;
 	requires miglayout.javafx;
 
@@ -22,8 +21,8 @@ module com.xeomar.xenon {
 	exports com.xeomar.xenon.workarea;
 	exports com.xeomar.xenon.workspace;
 
-	opens settings;
 	opens com.xeomar.xenon.bundles;
+	opens settings;
 
 	uses Mod;
 }

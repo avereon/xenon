@@ -71,13 +71,13 @@
 
 		<dependency>
 			<groupId>com.xeomar</groupId>
-			<artifactId>zenna</artifactId>
+			<artifactId>zevra</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.xeomar</groupId>
-			<artifactId>xevra</artifactId>
+			<artifactId>zenna</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
