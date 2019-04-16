@@ -2,9 +2,9 @@ package com.xeomar.xenon;
 
 import com.xeomar.util.*;
 import com.xeomar.xenon.update.ProductUpdate;
-import com.xeomar.xevra.UpdateCommandBuilder;
-import com.xeomar.xevra.UpdateFlag;
-import com.xeomar.xevra.UpdateTask;
+import com.xeomar.zenna.UpdateCommandBuilder;
+import com.xeomar.zenna.UpdateFlag;
+import com.xeomar.zenna.UpdateTask;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -79,8 +79,8 @@ public class ProgramShutdownHook extends Thread {
 		String updaterJavaExecutablePath = updaterHome + "/bin/" + OperatingSystem.getJavaExecutableName();
 
 		// Linked programs do not have a module path
-		String updaterModuleMain = com.xeomar.xevra.Program.class.getModule().getName();
-		String updaterModuleMainClass = com.xeomar.xevra.Program.class.getName();
+		String updaterModuleMain = com.xeomar.zenna.Program.class.getModule().getName();
+		String updaterModuleMainClass = com.xeomar.zenna.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
 		Path logFile = homeFolder.relativize( program.getDataFolder().resolve( "update.log" ) );

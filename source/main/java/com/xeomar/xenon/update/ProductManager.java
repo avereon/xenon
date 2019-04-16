@@ -178,7 +178,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
-		includedProducts.add( new com.xeomar.xevra.Program().getCard() );
+		includedProducts.add( new com.xeomar.zenna.Program().getCard() );
 	}
 
 	public int getCatalogCount() {
