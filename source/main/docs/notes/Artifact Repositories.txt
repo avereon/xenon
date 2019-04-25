@@ -27,6 +27,15 @@ also have logic to handle a "dumb" repository? And how "dumb" can the
 repository be before it becomes a problem? How much burden do we require of
 repository maintainers to have "smart" repositories?
 
+Repositories
+It's pretty easy these days to create a repository that is fairly "smart",
+especially if the repository is available on the Internet. Because the language
+of the Internet is HTTP then it can be used to provide a smarter repository
+experience. Not only that, but it can provide multiple experiences over time
+and even at the same time for smooth transitions. By making a well defined and
+hopefully simple set of rules how a client will interact with a repository and
+determine what resources it wants then a reasonable repository can be defined.
+
 namespace (helps distribute file structure)
 name
 version
