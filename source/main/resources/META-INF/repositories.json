@@ -1,0 +1,16 @@
+[
+	{
+		"name" : "${project.organization.name} Stable",
+		"repo" : "https://xeomar.com/download/stable",
+		"icon" : "provider",
+		"enabled" : "true",
+		"removable" : "false"
+	},
+	{
+		"name" : "${project.organization.name} Development",
+		"repo" : "https://xeomar.com/download/latest",
+		"icon" : "provider",
+		"enabled" : "true",
+		"removable" : "false"
+	}
+]

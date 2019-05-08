@@ -181,8 +181,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		includedProducts.add( new com.xeomar.zenna.Program().getCard() );
 	}
 
-	public int getCatalogCount() {
-		return catalogs.size();
+	public Set<MarketCard> getCatalogs() {
+		return new HashSet<>( catalogs );
 	}
 
 	public MarketCard addCatalog( MarketCard source ) {
@@ -197,13 +197,16 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return source;
 	}
 
-	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
-		catalog.setEnabled( enabled );
-		saveCatalogs();
+	public Optional<MarketCard> removeCatalog( String uri ) {
+		Optional<MarketCard> optional = catalogs.stream().filter((c)-> c.getCardUri().equals( uri )).findFirst();
+		optional.ifPresent( this::removeCatalog );
+		return optional;
 	}
 
-	public Set<MarketCard> getCatalogs() {
-		return new HashSet<>( catalogs );
+	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
+		if( !catalogs.contains( catalog ) ) return;
+		catalog.setEnabled( enabled );
+		saveCatalogs();
 	}
 
 	/**

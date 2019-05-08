@@ -10,6 +10,16 @@ import java.net.URI;
 import java.util.Objects;
 import java.util.Set;
 
+/*
+The catalog.card file, and therefore this class, server two purposes but
+probably should not. One purpose is to specify the repository location of the
+market/store/repo. The other purpose is to specify the products available at
+the market/store/repo.
+
+This dual purpose may simply be a historical artifact of how the original repo
+was set up and operated. It provided the initial repo configuration for the
+program and was a reasonable repo index at the same time.
+ */
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class MarketCard {
 
@@ -139,7 +149,7 @@ public class MarketCard {
 		if( this == object ) return true;
 		if( !(object instanceof MarketCard) ) return false;
 		MarketCard that = (MarketCard)object;
-		return Objects.equals( cardUri, that.cardUri );
+		return Objects.equals( this.cardUri, that.cardUri );
 	}
 
 	@Override

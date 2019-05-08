@@ -989,7 +989,10 @@ public class Program extends Application implements ProgramProduct {
 		// There is also a set of comments regarding this issue in the ProductManager class
 		productManager.setSettings( programSettings );
 
-		// Register the product catalog by replacing the old catalog
+		// Remove old catalogs
+		//productManager.removeCatalog( "https://xeomar.com/download" );
+
+		// Register the product catalogs
 		productManager.addCatalog( productManager.removeCatalog( defaultMarket = MarketCard.forProduct() ) );
 
 		// Register the product
