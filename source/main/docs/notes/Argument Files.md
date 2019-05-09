@@ -1,7 +1,8 @@
 # Argument Files
-Java has a new feature to add arguments to the JVM by specifying
-one or more argument files. Multiple files may be specified and
-it appears that the last one for a particular argument wins.
+Java has a new feature to add arguments to the JVM by specifying one or more 
+argument files. Multiple files may be specified and parameters are added in the 
+order they are specified. Unfortunately that does not work so well when used to 
+have a default set of arguments and an override set of arguments.
 
 Example:
 
