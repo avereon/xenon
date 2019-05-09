@@ -1,5 +1,11 @@
 package com.xeomar.xenon.update;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 
 public class RepoCard {
@@ -54,6 +60,14 @@ public class RepoCard {
 
 	public void setRemovable( boolean removable ) {
 		this.removable = removable;
+	}
+
+	public static List<RepoCard> forProduct() throws IOException {
+		return loadCards( RepoCard.class.getResourceAsStream( CONFIG ) );
+	}
+
+	public static List<RepoCard> loadCards( InputStream input ) throws IOException {
+		return new ObjectMapper().readerFor( new TypeReference<List<RepoCard>>() {} ).readValue( input );
 	}
 
 	@Override

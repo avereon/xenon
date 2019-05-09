@@ -1,16 +1,16 @@
 [
 	{
-		"name" : "${project.organization.name} Stable",
+		"name" : "${project.organization.name} Official",
 		"repo" : "https://xeomar.com/download/stable",
 		"icon" : "provider",
 		"enabled" : "true",
 		"removable" : "false"
 	},
 	{
-		"name" : "${project.organization.name} Development",
+		"name" : "${project.organization.name} Nightly",
 		"repo" : "https://xeomar.com/download/latest",
 		"icon" : "provider",
-		"enabled" : "true",
-		"removable" : "false"
+		"enabled" : "false",
+		"removable" : "true"
 	}
 ]

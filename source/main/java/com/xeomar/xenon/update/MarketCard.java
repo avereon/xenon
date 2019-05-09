@@ -20,6 +20,7 @@ This dual purpose may simply be a historical artifact of how the original repo
 was set up and operated. It provided the initial repo configuration for the
 program and was a reasonable repo index at the same time.
  */
+@Deprecated
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class MarketCard {
 
