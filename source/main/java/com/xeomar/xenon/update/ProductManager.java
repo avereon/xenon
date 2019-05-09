@@ -220,14 +220,15 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		lastAvailableCheck = System.currentTimeMillis();
 
 		// Download all the catalog cards
-		log.debug( "Downloading catalog cards..." );
+		log.warn( "Downloading catalog cards..." );
 		Set<CatalogCard> catalogCards = repoClient.getCatalogCards( getRepos() );
+		if( catalogCards.size() == 0 ) return Set.of();
 
 		// Determine all the product cards that need to be downloaded
-		Set<String> productUris = catalogCards.stream().flatMap( ( c ) -> c.getProducts().stream() ).collect( Collectors.toSet() );
+//		Set<String> productUris = catalogCards.stream().flatMap( ( c ) -> c.getProducts().stream() ).collect( Collectors.toSet() );
 
 		// Download all the product cards
-		log.debug( "Downloading product cards..." );
+		log.warn( "Downloading product cards..." );
 		Set<ProductCard> cards = repoClient.getProductCards( catalogCards );
 
 //		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );

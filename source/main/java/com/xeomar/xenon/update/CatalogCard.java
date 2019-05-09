@@ -14,7 +14,6 @@ public class CatalogCard {
 
 	private RepoCard repo;
 
-	// FIXME This should be a set of product coordinates
 	private Set<String> products = new HashSet<>();
 
 	public CatalogCard( RepoCard repo ) {

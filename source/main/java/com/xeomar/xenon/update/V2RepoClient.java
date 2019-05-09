@@ -2,6 +2,7 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.product.ProductCard;
 import com.xeomar.util.LogUtil;
+import com.xeomar.util.OperatingSystem;
 import com.xeomar.xenon.Program;
 import org.slf4j.Logger;
 
@@ -57,22 +58,24 @@ public class V2RepoClient implements RepoClient {
 	}
 
 	public Set<ProductCard> getProductCards( Set<CatalogCard> catalogs ) {
-		Set<Future<Download>> futures = catalogs.stream().map( ( c ) -> {
-			c.getProducts().forEach( (p) -> {
-				// NEXT Need to create a download for each product in each catalog with the catalog repo info
-			} );
-			DownloadTask task = new DownloadTask( program, getUriBase( c.getRepo() ).resolve( p.getArtifact() ));
-			Future<Download> future = program.getTaskManager().submit( task );
-			return future;
-		} ).collect( Collectors.toSet() );
+		String platform = OperatingSystem.getFamily().toString().toLowerCase();
+
+		Set<Future<Download>> futures = new HashSet<>();
+		for( CatalogCard catalog : catalogs ) {
+			for( String p : catalog.getProducts() ) {
+				URI uri = getUriBase( catalog.getRepo() ).resolve( p ).resolve( platform ).resolve( "product" ).resolve( "card" ).normalize();
+				DownloadTask task = new DownloadTask( program, uri );
+				futures.add( program.getTaskManager().submit( task ) );
+			}
+		}
 
 		// Collect all the product cards into a set and return it
-		Set<ProductCard> cards = new HashSet<>();
+		Set<ProductCard> productCards = new HashSet<>();
 		for( Future<Download> future : futures ) {
 			try {
 				Download download = future.get( 10, TimeUnit.SECONDS );
 				try( InputStream input = download.getInputStream() ) {
-					cards.add( new ProductCard().load( input ) );
+					productCards.add( new ProductCard().load( input ) );
 				} catch( Exception exception ) {
 					log.warn( "Error downloading product card: " + download.getSource(), exception );
 				}
@@ -81,7 +84,7 @@ public class V2RepoClient implements RepoClient {
 			}
 		}
 
-		return cards;
+		return productCards;
 	}
 
 	private URI getUriBase( RepoCard repo ) {
