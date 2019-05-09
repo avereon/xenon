@@ -3,7 +3,7 @@ package com.xeomar.xenon.tool.product;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.type.ProgramProductType;
-import com.xeomar.xenon.update.MarketCard;
+import com.xeomar.xenon.update.RepoCard;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 
@@ -29,10 +29,10 @@ class ProductMarketPage extends ProductToolPage {
 		productTool.getProgram().getExecutor().submit( new UpdateProductMarkets( productTool ) );
 	}
 
-	void setMarkets( List<MarketCard> markets ) {
+	void setMarkets( List<RepoCard> markets ) {
 		// Add a product pane for each card
 		List<MarketPane> panes = new ArrayList<>( markets.size() );
-		for( MarketCard market : markets ) {
+		for( RepoCard market : markets ) {
 			panes.add( new MarketPane( productTool, market ) );
 		}
 
@@ -48,7 +48,7 @@ class ProductMarketPage extends ProductToolPage {
 		}
 	}
 
-	public void updateMarketState( MarketCard card ) {
+	public void updateMarketState( RepoCard card ) {
 		for( Node node : getChildren() ) {
 			MarketPane panel = (MarketPane)node;
 			if( panel.getSource().equals( card ) ) panel.updateMarketState();

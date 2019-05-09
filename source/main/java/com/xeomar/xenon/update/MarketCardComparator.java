@@ -4,7 +4,7 @@ import com.xeomar.xenon.ProgramProduct;
 
 import java.util.Comparator;
 
-public class MarketCardComparator implements Comparator<MarketCard> {
+public class MarketCardComparator implements Comparator<RepoCard> {
 
 	public enum Field {
 		NAME
@@ -20,7 +20,7 @@ public class MarketCardComparator implements Comparator<MarketCard> {
 	}
 
 	@Override
-	public int compare( MarketCard card1, MarketCard card2 ) {
+	public int compare( RepoCard card1, RepoCard card2 ) {
 		if( card1.equals( product.getProgram().getMarket() ) ) return -1;
 		if( card2.equals( product.getProgram().getMarket() ) ) return 1;
 

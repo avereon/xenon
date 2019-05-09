@@ -2,7 +2,7 @@ package com.xeomar.xenon.tool.product;
 
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
-import com.xeomar.xenon.update.MarketCard;
+import com.xeomar.xenon.update.RepoCard;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,7 +12,7 @@ class MarketPane extends MigPane {
 
 	private ProductTool productTool;
 
-	private MarketCard source;
+	private RepoCard source;
 
 	private Label iconLabel;
 
@@ -24,7 +24,7 @@ class MarketPane extends MigPane {
 
 	private Button removeButton;
 
-	public MarketPane( ProductTool productTool, MarketCard source ) {
+	public MarketPane( ProductTool productTool, RepoCard source ) {
 		super( "insets 0, gap " + UiFactory.PAD );
 
 		this.productTool = productTool;
@@ -34,14 +34,14 @@ class MarketPane extends MigPane {
 
 		Program program = productTool.getProgram();
 
-		String iconUri = source.getIconUri();
+		String iconUri = source.getIcon();
 		Node marketIcon = program.getIconLibrary().getIcon( iconUri, "market", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, marketIcon );
 		iconLabel.setId( "tool-product-market-icon" );
 		nameLabel = new Label( source.getName() );
 		nameLabel.setId( "tool-product-market-name" );
-		uriLabel = new Label( source.getCardUri() );
+		uriLabel = new Label( source.getRepo() );
 		uriLabel.setId( "tool-product-market-uri" );
 
 		enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
@@ -54,7 +54,7 @@ class MarketPane extends MigPane {
 		add( enableButton );
 	}
 
-	MarketCard getSource() {
+	RepoCard getSource() {
 		return source;
 	}
 

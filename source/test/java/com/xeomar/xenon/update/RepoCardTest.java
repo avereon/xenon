@@ -1,16 +1,20 @@
 package com.xeomar.xenon.update;
 
-import org.junit.jupiter.api.Test;
+import com.xeomar.util.TextUtil;
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class RepoCardTest {
 
+	// Test that the catalog card can be unmarshalled
 	@Test
-	public void testLoadCards() throws Exception {
+	public void testLoadCard() throws Exception {
 		List<RepoCard> cards = RepoCard.forProduct();
 		assertThat( cards.size(), is( 2 ) );
 
@@ -25,6 +29,30 @@ public class RepoCardTest {
 		assertThat( cards.get( 1 ).getIcon(), is( "provider" ) );
 		assertThat( cards.get( 1 ).isEnabled(), is( false ) );
 		assertThat( cards.get( 1 ).isRemovable(), is( true ) );
+
+//		InputStream input = getClass().getResourceAsStream( RepoCard.CARD );
+//		RepoCard card = RepoCard.loadCard( input );
+
+//		assertThat( card.getName(), is( "Xeomar Official" ) );
+//		assertThat( card.getIconUri(), is( "provider" ) );
+//		assertThat( card.getCardUri(), is( "https://xeomar.com/download/stable" ) );
+
+//		Set<String> products = new HashSet<>();
+//		products.add( "https://xeomar.com/download?artifact=arrow" );
+//		products.add( "https://xeomar.com/download?channel=latest&artifact=mouse&category=product&type=card" );
+//		products.add( "https://xeomar.com/download?artifact=serra" );
+//		products.add( "https://xeomar.com/download?artifact=marra" );
+//		products.add( "https://xeomar.com/download?artifact=ocean" );
+//		products.add( "https://xeomar.com/download?artifact=weave" );
+//		products.add( "https://xeomar.com/download?artifact=arrow" );
+//		assertThat( card.getProducts(), containsInAnyOrder( products.toArray() ) );
+	}
+
+	@Test
+	public void testIgnoreMissingAndUnknownProperties() throws Exception {
+		String state = "[{\"name\" : \"Xeomar\", \"extra\" : \"unknown\"}]";
+		List<RepoCard> card = RepoCard.loadCards( new ByteArrayInputStream( state.getBytes( TextUtil.CHARSET) ) );
+		assertThat( card.get(0).getName(), CoreMatchers.is( "Xeomar" ) );
 	}
 
 }

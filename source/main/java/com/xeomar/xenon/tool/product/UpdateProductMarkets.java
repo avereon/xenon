@@ -1,7 +1,7 @@
 package com.xeomar.xenon.tool.product;
 
 import com.xeomar.xenon.task.Task;
-import com.xeomar.xenon.update.MarketCard;
+import com.xeomar.xenon.update.RepoCard;
 import com.xeomar.xenon.update.MarketCardComparator;
 import javafx.application.Platform;
 
@@ -16,7 +16,7 @@ class UpdateProductMarkets extends Task<Void> {
 
 	@Override
 	public Void call() {
-		List<MarketCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getCatalogs() );
+		List<RepoCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getRepos() );
 		cards.sort( new MarketCardComparator( productTool.getProgram(), MarketCardComparator.Field.NAME ) );
 		Platform.runLater( () -> productTool.getProductMarketPage().setMarkets( cards ) );
 		return null;

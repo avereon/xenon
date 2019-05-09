@@ -30,7 +30,7 @@ import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.tool.welcome.WelcomeTool;
-import com.xeomar.xenon.update.MarketCard;
+import com.xeomar.xenon.update.RepoCard;
 import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.update.ProgramProductManager;
 import com.xeomar.xenon.util.DialogUtil;
@@ -81,7 +81,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskManager taskManager;
 
-	private MarketCard defaultMarket;
+	private RepoCard defaultMarket;
 
 	private ProductCard card;
 
@@ -392,7 +392,7 @@ public class Program extends Application implements ProgramProduct {
 		return parameters;
 	}
 
-	public MarketCard getMarket() {
+	public RepoCard getMarket() {
 		return defaultMarket;
 	}
 
@@ -989,11 +989,10 @@ public class Program extends Application implements ProgramProduct {
 		// There is also a set of comments regarding this issue in the ProductManager class
 		productManager.setSettings( programSettings );
 
-		// Remove old catalogs
-		//productManager.removeCatalog( "https://xeomar.com/download" );
+		List<RepoCard> repos = RepoCard.forProduct();
 
 		// Register the product catalogs
-		productManager.addCatalog( productManager.removeCatalog( defaultMarket = MarketCard.forProduct() ) );
+		productManager.addRepo( repos.get(0) );
 
 		// Register the product
 		productManager.registerProduct( this );

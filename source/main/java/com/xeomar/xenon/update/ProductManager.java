@@ -105,7 +105,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private static final String APPLY = "product-update-apply";
 
-	private static final String CATALOGS_SETTINGS_KEY = "catalogs";
+	private static final String REPOS_SETTINGS_KEY = "repos";
 
 	private static final String REMOVES_SETTINGS_KEY = "removes";
 
@@ -125,7 +125,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Settings updateSettings;
 
-	private Set<MarketCard> catalogs;
+	private Set<RepoCard> repos;
 
 	private Map<String, Mod> modules;
 
@@ -163,10 +163,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private long lastAvailableCheck;
 
+	private RepoClient repoClient;
+
 	public ProductManager( Program program ) {
 		this.program = program;
 
-		catalogs = new CopyOnWriteArraySet<>();
+		repos = new CopyOnWriteArraySet<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
 		products = new ConcurrentHashMap<>();
@@ -175,38 +177,34 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		postedUpdateCache = new CopyOnWriteArraySet<>();
 		listeners = new CopyOnWriteArraySet<>();
 
+		repoClient = new V2RepoClient( program );
+
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
 		includedProducts.add( new com.xeomar.zenna.Program().getCard() );
 	}
 
-	public Set<MarketCard> getCatalogs() {
-		return new HashSet<>( catalogs );
+	public Set<RepoCard> getRepos() {
+		return new HashSet<>( repos );
 	}
 
-	public MarketCard addCatalog( MarketCard source ) {
-		catalogs.add( source );
-		saveCatalogs();
+	public RepoCard addRepo( RepoCard source ) {
+		repos.add( source );
+		saveRepos();
 		return source;
 	}
 
-	public MarketCard removeCatalog( MarketCard source ) {
-		catalogs.remove( source );
-		saveCatalogs();
+	public RepoCard removeRepo( RepoCard source ) {
+		repos.remove( source );
+		saveRepos();
 		return source;
 	}
 
-	public Optional<MarketCard> removeCatalog( String uri ) {
-		Optional<MarketCard> optional = catalogs.stream().filter((c)-> c.getCardUri().equals( uri )).findFirst();
-		optional.ifPresent( this::removeCatalog );
-		return optional;
-	}
-
-	public void setCatalogEnabled( MarketCard catalog, boolean enabled ) {
-		if( !catalogs.contains( catalog ) ) return;
+	public void setRepoEnabled( RepoCard catalog, boolean enabled ) {
+		if( !repos.contains( catalog ) ) return;
 		catalog.setEnabled( enabled );
-		saveCatalogs();
+		saveRepos();
 	}
 
 	/**
@@ -221,30 +219,59 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();
 		lastAvailableCheck = System.currentTimeMillis();
 
+		// Download all the catalog cards
+		log.debug( "Downloading catalog cards..." );
+		Set<CatalogCard> catalogCards = repoClient.getCatalogCards( getRepos() );
+
 		// Determine all the product cards that need to be downloaded
-		Set<String> productUris = getCatalogs().stream().flatMap( ( t ) -> t.getProducts().stream() ).collect( Collectors.toSet() );
+		Set<String> productUris = catalogCards.stream().flatMap( ( c ) -> c.getProducts().stream() ).collect( Collectors.toSet() );
 
 		// Download all the product cards
-		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
+		log.debug( "Downloading product cards..." );
+		Set<ProductCard> cards = repoClient.getProductCards( catalogCards );
 
-		log.debug( "Downloading available products..." );
-		// Collect all the product cards into a set and return it
-		Set<ProductCard> cards = new HashSet<>();
-		for( Future<Download> future : futures ) {
-			try {
-				Download download = future.get( 10, TimeUnit.SECONDS );
-				try( InputStream input = download.getInputStream() ) {
-					cards.add( new ProductCard().load( input ) );
-				} catch( Exception exception ) {
-					log.warn( "Error downloading product card: " + download.getSource(), exception );
-				}
-			} catch( Exception exception ) {
-				log.warn( "Error downloading product card", exception );
-			}
-		}
+//		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
+//
+//		// Collect all the product cards into a set and return it
+//		Set<ProductCard> cards = new HashSet<>();
+//		for( Future<Download> future : futures ) {
+//			try {
+//				Download download = future.get( 10, TimeUnit.SECONDS );
+//				try( InputStream input = download.getInputStream() ) {
+//					cards.add( new ProductCard().load( input ) );
+//				} catch( Exception exception ) {
+//					log.warn( "Error downloading product card: " + download.getSource(), exception );
+//				}
+//			} catch( Exception exception ) {
+//				log.warn( "Error downloading product card", exception );
+//			}
+//		}
 
 		return availableCards = cards;
 	}
+
+//	private Set<CatalogCard> downloadCatalogCards( Set<RepoCard> repos ) {
+//		// TODO Use the RepoClient to help download catalog cards
+//		// Go through each repo and create a download task for each repo catalog
+//		Set<Future<Download>> catalogCardFutures = getRepos().stream().map( ( r ) -> new DownloadTask( program, URI.create( r.getRepo() + "/" + CatalogCard.FILE ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
+//
+//		// Go through each future and download the catalog card
+//		Set<CatalogCard> catalogCards = new HashSet<>();
+//		for( Future<Download> future : catalogCardFutures ) {
+//			try {
+//				Download download = future.get( 10, TimeUnit.SECONDS );
+//				try( InputStream input = download.getInputStream() ) {
+//					catalogCards.add( CatalogCard.load( input ) );
+//				} catch( Exception exception ) {
+//					log.warn( "Error downloading catalog card: " + download.getSource(), exception );
+//				}
+//			} catch( Exception exception ) {
+//				log.warn( "Error downloading catalog card", exception );
+//			}
+//		}
+//
+//		return catalogCards;
+//	}
 
 	public Set<Mod> getModules() {
 		return new HashSet<>( modules.values() );
@@ -759,7 +786,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		this.updateSettings = settings.getNode( "update" );
 
 		// Load the product catalogs
-		loadCatalogs();
+		loadRepos();
 
 		// Load the product updates
 		loadUpdates();
@@ -869,16 +896,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
-	private void loadCatalogs() {
+	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		catalogs = updateSettings.get( CATALOGS_SETTINGS_KEY, new TypeReference<Set<MarketCard>>() {}, catalogs );
+		repos = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoCard>>() {}, repos );
 
-		// Remove old catalog
-		catalogs.remove( new MarketCard( "https://xeomar.com/download/xenon/catalog/card/{0}" ) );
+		// Remove old repos
+		repos.remove( new RepoCard( "https://xeomar.com/download/xenon/catalog/card/{0}" ) );
+		repos.remove( new RepoCard( "https://xeomar.com/download" ) );
 	}
 
-	private void saveCatalogs() {
-		updateSettings.set( CATALOGS_SETTINGS_KEY, catalogs );
+	private void saveRepos() {
+		updateSettings.set( REPOS_SETTINGS_KEY, repos );
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
