@@ -1,0 +1,3 @@
+-Xmn128m
+-Xmx256m
+-m com.xeomar.xenon/com.xeomar.xenon.Program

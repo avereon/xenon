@@ -19,6 +19,7 @@
 				<include>${artifact.artifactId}.ico</include>
 				<include>${artifact.artifactId}.png</include>
 				<include>${artifact.artifactId}.svg</include>
+				<include>default.args</include>
 			</includes>
 		</fileSet>
 	</fileSets>
