@@ -29,12 +29,28 @@ public class V2RepoClient implements RepoClient {
 	}
 
 	@Override
+	public URI getCatalogUri( RepoCard repo ) {
+		return UriUtil.addToPath( getRepoApi( repo ), "catalog" );
+	}
+
+	@Override
+	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
+		URI uri = getRepoApi( repo );
+		uri = UriUtil.addToPath( uri, product );
+		uri = UriUtil.addToPath( uri, OperatingSystem.getFamily().toString().toLowerCase() );
+		uri = UriUtil.addToPath( uri, asset );
+		uri = UriUtil.addToPath( uri, format );
+		return uri;
+	}
+
+	@Override
 	public Set<CatalogCard> getCatalogCards( Set<RepoCard> repos ) {
+		// WORKAROUND Repo cards need to be associated to download tasks
 		Map<Future<Download>, RepoCard> matchingRepoCards = new HashMap<>();
 
 		// Go through each repo and create a download task for each catalog
 		Set<Future<Download>> catalogCardFutures = repos.stream().map( ( repo ) -> {
-			DownloadTask task = new DownloadTask( program, UriUtil.addToPath( getRepoApi( repo ), "catalog" ) );
+			DownloadTask task = new DownloadTask( program, getCatalogUri( repo ) );
 			Future<Download> future = program.getTaskManager().submit( task );
 			matchingRepoCards.put( future, repo );
 			return future;
@@ -59,18 +75,10 @@ public class V2RepoClient implements RepoClient {
 	}
 
 	public Set<ProductCard> getProductCards( Set<CatalogCard> catalogs ) {
-		String platform = OperatingSystem.getFamily().toString().toLowerCase();
-
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
 			for( String p : catalog.getProducts() ) {
-				//URI uri = getRepoApi( catalog.getRepo() ).resolve( p ).resolve( platform ).resolve( "product" ).resolve( "card" ).normalize();
-				URI uri = getRepoApi( catalog.getRepo() );
-				uri = UriUtil.addToPath( uri, p );
-				uri = UriUtil.addToPath( uri, platform );
-				uri = UriUtil.addToPath( uri, "product" );
-				uri = UriUtil.addToPath( uri, "card" );
-				log.warn( "Looking for: " + uri );
+				URI uri = getProductUri( catalog.getRepo(), p, "product", "card" );
 				DownloadTask task = new DownloadTask( program, uri );
 				futures.add( program.getTaskManager().submit( task ) );
 			}
@@ -92,17 +100,6 @@ public class V2RepoClient implements RepoClient {
 		}
 
 		return productCards;
-	}
-
-	public DownloadTask getProductCardDownloadTask( ProductCard card ) {
-//		URI uri = getRepoApi( card.getProductUri() );
-//		uri = UriUtil.addToPath( uri, p );
-//		uri = UriUtil.addToPath( uri, platform );
-//		uri = UriUtil.addToPath( uri, "product" );
-//		uri = UriUtil.addToPath( uri, "card" );
-//		log.warn( "Looking for: " + uri );
-		DownloadTask task = new DownloadTask( program, uri );
-		return task;
 	}
 
 	private URI getRepoApi( RepoCard repo ) {

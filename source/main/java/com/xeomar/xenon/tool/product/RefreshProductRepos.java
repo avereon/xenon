@@ -8,11 +8,11 @@ import javafx.application.Platform;
 import java.util.ArrayList;
 import java.util.List;
 
-class UpdateProductRepos extends Task<Void> {
+class RefreshProductRepos extends Task<Void> {
 
 	private ProductTool productTool;
 
-	UpdateProductRepos( ProductTool productTool ) {this.productTool = productTool;}
+	RefreshProductRepos( ProductTool productTool ) {this.productTool = productTool;}
 
 	@Override
 	public Void call() {

@@ -12,11 +12,11 @@ import java.util.List;
 /**
  * Should be run on the FX platform thread.
  */
-class UpdateInstalledProducts extends Task<Void> {
+class RefreshInstalledProducts extends Task<Void> {
 
 	private ProductTool productTool;
 
-	public UpdateInstalledProducts( ProductTool productTool ) {this.productTool = productTool;}
+	public RefreshInstalledProducts( ProductTool productTool ) {this.productTool = productTool;}
 
 	@Override
 	public Void call() {

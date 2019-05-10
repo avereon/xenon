@@ -7,6 +7,7 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
 import com.xeomar.xenon.*;
+import com.xeomar.xenon.task.TaskFuture;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -1115,7 +1116,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		private Set<ProductCard> availableCards;
 
-		private Map<ProductCard, DownloadTask> tasks;
+		private Set<TaskFuture<Download>> taskFutures;
+
+		//private Map<ProductCard, DownloadTask> taskMap;
 
 		private URISyntaxException uriSyntaxException;
 
@@ -1135,31 +1138,97 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// Schedule the next update check.
 			scheduleUpdateCheck( false );
 
-			// Download the descriptors for each product.
-			tasks = new HashMap<>();
-			oldCards = getProductCards();
-			for( ProductCard installedCard : oldCards ) {
-				DownloadTask task = repoClient.getProductCardDownloadTask(  installedCard );
-				tasks.put( installedCard, task );
-				program.getExecutor().submit( task );
+			// WORKAROUND This is part of a task pattern
+			// This is part of a task pattern where this task is a collection of
+			// download tasks are created and submitted to the task manager in the
+			// constructor and processed in the call() method. This pattern gives a
+			// nice user experience but is not obvious in the code. The pattern might
+			// need to be extracted from the known implementations (3 as of this
+			// writing).
 
-//				try {
-//					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
-//					URI uri = getSchemeResolvedUri( codebase );
-//					if( uri == null ) {
-//						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
-//						continue;
-//					} else {
-//						log.debug( "Installed pack source: " + uri );
-//					}
-//
-//					DownloadTask task = new DownloadTask( program, uri );
-//					tasks.put( installedCard, task );
-//					program.getExecutor().submit( task );
-//				} catch( URISyntaxException exception ) {
-//					uriSyntaxException = exception;
-//				}
+			// Download the descriptors for each product.
+			taskFutures = new HashSet<>();
+			//taskMap = new HashMap<>();
+			oldCards = getProductCards();
+
+			// TODO For each repo, create download task for the installed products
+			// This should result in a number of download tasks repos.size() *
+			// products.size() that should be sent to the task manager. As all the
+			// download tasks are processed in the call() method below, they may, or
+			// may not, return a product card. Also, more than one product card may
+			// end up getting returned if a product is hosted in more than one repo.
+
+			for( ProductCard installedCard : oldCards ) {
+				for( RepoCard repo : getRepos() ) {
+					URI uri = repoClient.getProductUri( repo, installedCard.getArtifact(), "product", "card" );
+					DownloadTask<ProductCard> task = new DownloadTask( program, uri );
+					task.setCarryOn( installedCard );
+					// FIXME There needs to be more than one download per product card
+					//taskMap.put( installedCard, task );
+					taskFutures.add( program.getTaskManager().submit( task ) );
+				}
+
+				//				DownloadTask task = repoClient.getProductCardDownloadTask( installedCard );
+				//				tasks.put( installedCard, task );
+				//				program.getExecutor().submit( task );
+
+				//				try {
+				//					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
+				//					URI uri = getSchemeResolvedUri( codebase );
+				//					if( uri == null ) {
+				//						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
+				//						continue;
+				//					} else {
+				//						log.debug( "Installed pack source: " + uri );
+				//					}
+				//
+				//					DownloadTask task = new DownloadTask( program, uri );
+				//					tasks.put( installedCard, task );
+				//					program.getExecutor().submit( task );
+				//				} catch( URISyntaxException exception ) {
+				//					uriSyntaxException = exception;
+				//				}
 			}
+		}
+
+		/**
+		 * This method takes a set of download futures for product cards and
+		 * determines what products can be updated.
+		 *
+		 * @param futures
+		 * @return A map of the updateable product key to product card
+		 */
+		private Map<String, ProductCard> determineUpdateableVersions( Set<TaskFuture<Download>> futures ) {
+			Map<String, ProductCard> cards = new HashMap<>();
+
+			for( TaskFuture<Download> future : futures ) {
+				DownloadTask<ProductCard> task = (DownloadTask)future.getTask();
+				ProductCard currentProduct = task.getCarryOn();
+				String key = currentProduct.getProductKey();
+
+				try {
+					ProductCard postedProduct;
+					try( InputStream input = task.get().getInputStream() ) {
+						postedProduct = new ProductCard().load( input, task.getUri() );
+					} catch( IOException exception ) {
+						log.warn( "Error loading product card: " + task.getUri(), exception );
+						continue;
+					}
+
+					// We only want something in the result if the posted version is greater than the current version
+					if( Version.compareVersions( postedProduct.getVersion(), currentProduct.getVersion() ) > 1 ) {
+						// Determine the newer version if there is more than one posted version
+						cards.compute( key, ( k, v ) -> {
+							if( v != null && Version.compareVersions( v.getVersion(), postedProduct.getVersion() ) > 0 ) return v;
+							return postedProduct;
+						} );
+					}
+				} catch( ExecutionException | InterruptedException exception ) {
+					log.error( "Error downloading product card: " + key, exception );
+				}
+			}
+
+			return cards;
 		}
 
 		public Set<ProductCard> call() throws Exception {
@@ -1168,55 +1237,60 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// If the posted update cache is still valid return the updates in the cache
 			if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return new HashSet<>( postedUpdateCache );
 
-			// Determine what products have posted updates.
-			ExecutionException executionException = null;
-			InterruptedException interruptedException = null;
-			for( ProductCard installedCard : oldCards ) {
-				try {
-					DownloadTask task = tasks.get( installedCard );
-					if( task == null ) continue;
+			// Collect all the requested product cards
+			Map<String, ProductCard> updateableProductVersions = determineUpdateableVersions( taskFutures );
 
-					ProductCard availableCard;
-					try( InputStream input = task.get().getInputStream() ) {
-						availableCard = new ProductCard().load( input, task.getUri() );
-					} catch( IOException exception ) {
-						log.warn( "Error loading product card: " + task.getUri(), exception );
-						continue;
-					}
+			availableCards = new HashSet<>( updateableProductVersions.values() );
 
-					// Validate the pack key.
-					if( !installedCard.getProductKey().equals( availableCard.getProductKey() ) ) {
-						log.warn( "Pack mismatch: " + installedCard.getProductKey() + " != " + availableCard.getProductKey() );
-						continue;
-					}
-
-					log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
-					log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
-
-					if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
-						log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
-						availableCards.add( availableCard );
-					}
-
-					// TODO Remove use of forced updates
-					// Forced updates are used for development
-					if( program.getExecMode() == ExecMode.DEV ) {
-						log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
-						availableCards.add( availableCard );
-					}
-				} catch( ExecutionException exception ) {
-					if( executionException == null ) executionException = exception;
-				} catch( InterruptedException exception ) {
-					if( interruptedException == null ) interruptedException = exception;
-				}
-			}
+			//			// Determine what products have posted updates.
+			//			ExecutionException executionException = null;
+			//			InterruptedException interruptedException = null;
+			//			for( ProductCard installedCard : oldCards ) {
+			//				try {
+			//					//					DownloadTask task = taskMap.get( installedCard );
+			//					//					if( task == null ) continue;
+			//
+			//					ProductCard availableCard = updatableProductVersions.get( installedCard.getProductKey() );
+			//					//					try( InputStream input = task.get().getInputStream() ) {
+			//					//						availableCard = new ProductCard().load( input, task.getUri() );
+			//					//					} catch( IOException exception ) {
+			//					//						log.warn( "Error loading product card: " + task.getUri(), exception );
+			//					//						continue;
+			//					//					}
+			//
+			//					//					// Validate the pack key.
+			//					//					if( !installedCard.getProductKey().equals( availableCard.getProductKey() ) ) {
+			//					//						log.warn( "Pack mismatch: " + installedCard.getProductKey() + " != " + availableCard.getProductKey() );
+			//					//						continue;
+			//					//					}
+			//
+			//					log.debug( "Installed: " + installedCard.getProductKey() + " " + installedCard.getRelease() );
+			//					log.debug( "Available: " + availableCard.getProductKey() + " " + availableCard.getRelease() );
+			//
+			//					if( availableCard.getRelease().compareTo( installedCard.getRelease() ) > 0 ) {
+			//						log.debug( "Update found for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+			//						availableCards.add( availableCard );
+			//					}
+			//
+			//					// TODO Remove use of forced updates
+			//					// Forced updates are used for development
+			//					if( program.getExecMode() == ExecMode.DEV ) {
+			//						log.debug( "Update forced for: " + installedCard.getProductKey() + " > " + availableCard.getRelease() );
+			//						availableCards.add( availableCard );
+			//					}
+			//				} catch( ExecutionException exception ) {
+			//					if( executionException == null ) executionException = exception;
+			//				} catch( InterruptedException exception ) {
+			//					if( interruptedException == null ) interruptedException = exception;
+			//				}
+			//			}
 
 			// If there is an exception and there are no updates, throw the exception.
-			if( availableCards.size() == 0 ) {
-				if( uriSyntaxException != null ) throw uriSyntaxException;
-				if( executionException != null ) throw executionException;
-				if( interruptedException != null ) throw interruptedException;
-			}
+//			if( availableCards.size() == 0 ) {
+//				if( uriSyntaxException != null ) throw uriSyntaxException;
+////				if( executionException != null ) throw executionException;
+////				if( interruptedException != null ) throw interruptedException;
+//			}
 
 			// Cache the discovered updates.
 			postedUpdateCacheTime = System.currentTimeMillis();

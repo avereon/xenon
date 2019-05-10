@@ -2,7 +2,7 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.product.Product;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.task.Task;
+import com.xeomar.xenon.task.CarryOnTask;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -15,8 +15,11 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-public class DownloadTask extends Task<Download> {
+public class DownloadTask<B> extends CarryOnTask<Download, B> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -44,7 +47,7 @@ public class DownloadTask extends Task<Download> {
 	}
 
 	public DownloadTask( Product product, URI uri, Path target ) {
-		super( product.getResourceBundle().getString( "prompt", "download" ) + " " + uri.toString() );
+		super( product.getResourceBundle().getString( "prompt", "download" ) + " " + uri.toString(), Priority.LOW );
 		this.uri = uri;
 		this.target = target;
 	}
@@ -56,6 +59,16 @@ public class DownloadTask extends Task<Download> {
 	@Override
 	public Download call() throws IOException {
 		return download();
+	}
+
+	@Override
+	public Download get() throws InterruptedException, ExecutionException {
+		return super.get();
+	}
+
+	@Override
+	public Download get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
+		return super.get( duration, unit );
 	}
 
 	private Download download() throws IOException {

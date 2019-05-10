@@ -119,9 +119,9 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 
-		getProgram().getExecutor().submit( new UpdateInstalledProducts( this ) );
-		getProgram().getExecutor().submit( new UpdateAvailableProducts( this ) );
-		getProgram().getExecutor().submit( new UpdateUpdatableProducts( this ) );
+		getProgram().getExecutor().submit( new RefreshInstalledProducts( this ) );
+		getProgram().getExecutor().submit( new RefreshAvailableProducts( this ) );
+		getProgram().getExecutor().submit( new RefreshUpdatableProducts( this ) );
 
 		String selected = parameters.getFragment();
 		// TODO Be sure the guide also changes selection

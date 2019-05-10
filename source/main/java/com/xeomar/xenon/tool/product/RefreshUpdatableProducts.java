@@ -9,17 +9,17 @@ import javafx.application.Platform;
 import java.util.ArrayList;
 import java.util.List;
 
-class UpdateUpdatableProducts extends Task<Void> {
+class RefreshUpdatableProducts extends Task<Void> {
 
 	private ProductTool productTool;
 
 	private boolean force;
 
-	UpdateUpdatableProducts( ProductTool productTool ) {
+	RefreshUpdatableProducts( ProductTool productTool ) {
 		this( productTool, false );
 	}
 
-	UpdateUpdatableProducts( ProductTool productTool, boolean force ) {
+	RefreshUpdatableProducts( ProductTool productTool, boolean force ) {
 		this.productTool = productTool;
 		this.force = force;
 	}

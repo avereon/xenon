@@ -69,6 +69,10 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 		submit( task );
 	}
 
+	public <T> TaskFuture<T> submit( Task<T> task ) {
+		return (TaskFuture<T>)checkRunning().submit( task );
+	}
+
 	@Override
 	public <T> Future<T> submit( Callable<T> task ) {
 		return checkRunning().submit( task );
@@ -277,7 +281,7 @@ public class TaskManager implements ExecutorService, Configurable, Controllable<
 
 		@Override
 		protected void afterExecute( Runnable task, Throwable throwable ) {
-			if( task instanceof Task.TaskFuture ) tasks.remove( ((Task.TaskFuture)task).getTask() );
+			if( task instanceof TaskFuture ) tasks.remove( ((TaskFuture)task).getTask() );
 
 			try {
 				((FutureTask)task).get();

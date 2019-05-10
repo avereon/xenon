@@ -14,11 +14,11 @@ import java.util.concurrent.*;
  * The correct way to wait for the result is to obtain the Future object when
  * calling the submit( Task ) method and then call future.get().
  *
- * @param <V> The return type of the task.
+ * @param <R> The return type of the task.
  * @author Mark Soderquist
  */
 
-public abstract class Task<V> implements Callable<V>, Future<V> {
+public abstract class Task<R> implements Callable<R>, Future<R> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -44,7 +44,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 	private String name;
 
-	private TaskFuture<V> future;
+	private TaskFuture<R> future;
 
 	private TaskManager manager;
 
@@ -84,12 +84,12 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 	}
 
 	@Override
-	public V get() throws InterruptedException, ExecutionException {
+	public R get() throws InterruptedException, ExecutionException {
 		return future.get();
 	}
 
 	@Override
-	public V get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
+	public R get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
 		return future.get( duration, unit );
 	}
 
@@ -138,7 +138,7 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		listeners.remove( listener );
 	}
 
-	TaskManager getTaskManager() {
+	private TaskManager getTaskManager() {
 		return manager;
 	}
 
@@ -147,68 +147,21 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
 	}
 
-	FutureTask<V> createFuture() {
+	FutureTask<R> createFuture() {
 		return this.future = new TaskFuture<>( this );
 	}
 
-	private void fireTaskEvent( TaskEvent.Type type ) {
+	void fireTaskEvent( TaskEvent.Type type ) {
 		TaskEvent event = new TaskEvent( this, this, type );
 		event.fire( getTaskManager().getTaskListeners() );
 		event.fire( listeners );
 	}
 
-	private void setState( State state ) {
+	void setState( State state ) {
 		synchronized( stateLock ) {
 			this.state = state;
 			stateLock.notifyAll();
 		}
-	}
-
-	static class TaskFuture<W> extends FutureTask<W> {
-
-		private Task<?> task;
-
-		private Throwable exceptionSource;
-
-		private TaskFuture( Task<W> task ) {
-			super( task );
-			this.task = task;
-			this.exceptionSource = new TaskException();
-		}
-
-		public Task getTask() {
-			return task;
-		}
-
-		@Override
-		public void run() {
-			task.setState( State.RUNNING );
-			task.fireTaskEvent( TaskEvent.Type.TASK_START );
-			super.run();
-		}
-
-		@Override
-		protected void done() {
-			task.setProgress( task.getTotal() );
-			task.fireTaskEvent( TaskEvent.Type.TASK_FINISH );
-			if( isCancelled() ) task.setState( State.CANCELLED );
-			task.setTaskManager( null );
-			super.done();
-		}
-
-		@Override
-		protected void set( W value ) {
-			task.setState( State.SUCCESS );
-			super.set( value );
-		}
-
-		@Override
-		protected void setException( Throwable throwable ) {
-			task.setState( State.FAILED );
-			exceptionSource.initCause( throwable );
-			super.setException( exceptionSource );
-		}
-
 	}
 
 }
