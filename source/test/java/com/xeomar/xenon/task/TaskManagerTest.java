@@ -154,8 +154,10 @@ public class TaskManagerTest extends BaseTaskTest {
 			assertThat( task.get(), is( nullValue() ) );
 			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
-			assertThat( exception.getCause(), instanceOf( Exception.class ) );
-			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
+			assertThat( exception, instanceOf( ExecutionException.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskException.class ) );
+			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 		}
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
@@ -246,8 +248,10 @@ public class TaskManagerTest extends BaseTaskTest {
 			assertThat( nestedTask.get( 100, TimeUnit.MILLISECONDS ), is( nullValue() ) );
 			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
-			assertThat( exception.getCause(), instanceOf( Exception.class ) );
-			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
+			assertThat( exception, instanceOf( ExecutionException.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskException.class ) );
+			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 		}
 		assertThat( nestedTask.isDone(), is( true ) );
 		assertThat( nestedTask.isCancelled(), is( false ) );
