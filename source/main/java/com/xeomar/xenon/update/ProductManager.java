@@ -164,6 +164,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private RepoClient repoClient;
 
+	private boolean productReposRegistered;
+
 	public ProductManager( Program program ) {
 		this.program = program;
 
@@ -188,16 +190,24 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return new HashSet<>( repos );
 	}
 
-	public RepoCard addRepo( RepoCard source ) {
-		repos.add( source );
+	public void registerProductRepos( List<RepoCard> repos ) {
+		if( productReposRegistered ) return;
+		productReposRegistered = true;
+		this.repos.removeAll( repos );
+		this.repos.addAll( repos );
 		saveRepos();
-		return source;
 	}
 
-	public RepoCard removeRepo( RepoCard source ) {
-		repos.remove( source );
+	public RepoCard addRepo( RepoCard repo ) {
+		this.repos.add( repo );
 		saveRepos();
-		return source;
+		return repo;
+	}
+
+	public RepoCard removeRepo( RepoCard repo ) {
+		this.repos.remove( repo );
+		saveRepos();
+		return repo;
 	}
 
 	public void setRepoEnabled( RepoCard catalog, boolean enabled ) {
@@ -223,56 +233,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		Set<CatalogCard> catalogCards = repoClient.getCatalogCards( getRepos() );
 		if( catalogCards.size() == 0 ) return Set.of();
 
-		// Determine all the product cards that need to be downloaded
-		//		Set<String> productUris = catalogCards.stream().flatMap( ( c ) -> c.getProducts().stream() ).collect( Collectors.toSet() );
-
 		// Download all the product cards
 		log.warn( "Downloading product cards..." );
-		catalogCards.forEach( ( c ) -> c.getProducts().forEach( ( p ) -> log.warn( "  " + p ) ) );
 		Set<ProductCard> cards = repoClient.getProductCards( catalogCards );
-
-		//		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
-		//
-		//		// Collect all the product cards into a set and return it
-		//		Set<ProductCard> cards = new HashSet<>();
-		//		for( Future<Download> future : futures ) {
-		//			try {
-		//				Download download = future.get( 10, TimeUnit.SECONDS );
-		//				try( InputStream input = download.getInputStream() ) {
-		//					cards.add( new ProductCard().load( input ) );
-		//				} catch( Exception exception ) {
-		//					log.warn( "Error downloading product card: " + download.getSource(), exception );
-		//				}
-		//			} catch( Exception exception ) {
-		//				log.warn( "Error downloading product card", exception );
-		//			}
-		//		}
 
 		return availableCards = cards;
 	}
-
-	//	private Set<CatalogCard> downloadCatalogCards( Set<RepoCard> repos ) {
-	//		// TODO Use the RepoClient to help download catalog cards
-	//		// Go through each repo and create a download task for each repo catalog
-	//		Set<Future<Download>> catalogCardFutures = getRepos().stream().map( ( r ) -> new DownloadTask( program, URI.create( r.getRepo() + "/" + CatalogCard.FILE ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
-	//
-	//		// Go through each future and download the catalog card
-	//		Set<CatalogCard> catalogCards = new HashSet<>();
-	//		for( Future<Download> future : catalogCardFutures ) {
-	//			try {
-	//				Download download = future.get( 10, TimeUnit.SECONDS );
-	//				try( InputStream input = download.getInputStream() ) {
-	//					catalogCards.add( CatalogCard.load( input ) );
-	//				} catch( Exception exception ) {
-	//					log.warn( "Error downloading catalog card: " + download.getSource(), exception );
-	//				}
-	//			} catch( Exception exception ) {
-	//				log.warn( "Error downloading catalog card", exception );
-	//			}
-	//		}
-	//
-	//		return catalogCards;
-	//	}
 
 	public Set<Mod> getModules() {
 		return new HashSet<>( modules.values() );
@@ -899,11 +865,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	@SuppressWarnings( "Convert2Diamond" )
 	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		repos = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoCard>>() {}, repos );
+		repos.addAll( updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoCard>>() {}, repos ) );
 
 		// Remove old repos
 		repos.remove( new RepoCard( "https://xeomar.com/download/xenon/catalog/card/{0}" ) );
 		repos.remove( new RepoCard( "https://xeomar.com/download" ) );
+
+		// Force some values for normal repos
+		repos.forEach( ( r ) -> {
+			r.setRemovable( true );
+			r.setRank( 0 );
+		} );
 	}
 
 	private void saveRepos() {
@@ -1055,11 +1027,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 	}
 
-	private URI getResolvedUpdateUri( URI uri ) {
+	private URI getSchemeResolvedUri( URI uri ) {
 		if( uri == null ) return null;
-
-		if( uri.getScheme() == null ) uri = Paths.get( uri.getPath() ).toUri();
-		return uri;
+		return uri.getScheme() == null ? Paths.get( uri.getPath() ).toUri() : uri;
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
@@ -1067,6 +1037,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {}, Set.of() );
 	}
 
+	@Deprecated
 	private Map<String, String> getProductParameters( ProductCard card, String type ) {
 		Map<String, String> parameters = new HashMap<>();
 
@@ -1168,22 +1139,26 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			tasks = new HashMap<>();
 			oldCards = getProductCards();
 			for( ProductCard installedCard : oldCards ) {
-				try {
-					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
-					URI uri = getResolvedUpdateUri( codebase );
-					if( uri == null ) {
-						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
-						continue;
-					} else {
-						log.debug( "Installed pack source: " + uri );
-					}
+				DownloadTask task = repoClient.getProductCardDownloadTask(  installedCard );
+				tasks.put( installedCard, task );
+				program.getExecutor().submit( task );
 
-					DownloadTask task = new DownloadTask( program, uri );
-					tasks.put( installedCard, task );
-					program.getExecutor().submit( task );
-				} catch( URISyntaxException exception ) {
-					uriSyntaxException = exception;
-				}
+//				try {
+//					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
+//					URI uri = getSchemeResolvedUri( codebase );
+//					if( uri == null ) {
+//						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
+//						continue;
+//					} else {
+//						log.debug( "Installed pack source: " + uri );
+//					}
+//
+//					DownloadTask task = new DownloadTask( program, uri );
+//					tasks.put( installedCard, task );
+//					program.getExecutor().submit( task );
+//				} catch( URISyntaxException exception ) {
+//					uriSyntaxException = exception;
+//				}
 			}
 		}
 
@@ -1276,7 +1251,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				log.debug( "Product resource count: " + resources.size() );
 
 				for( ProductResource resource : resources ) {
-					URI uri = getResolvedUpdateUri( resource.getUri() );
+					URI uri = getSchemeResolvedUri( resource.getUri() );
 					log.debug( "Resource source: " + uri );
 
 					// Submit download resource task

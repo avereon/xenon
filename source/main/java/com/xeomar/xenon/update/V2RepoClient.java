@@ -32,7 +32,6 @@ public class V2RepoClient implements RepoClient {
 	public Set<CatalogCard> getCatalogCards( Set<RepoCard> repos ) {
 		Map<Future<Download>, RepoCard> matchingRepoCards = new HashMap<>();
 
-
 		// Go through each repo and create a download task for each catalog
 		Set<Future<Download>> catalogCardFutures = repos.stream().map( ( repo ) -> {
 			DownloadTask task = new DownloadTask( program, UriUtil.addToPath( getRepoApi( repo ), "catalog" ) );
@@ -65,7 +64,13 @@ public class V2RepoClient implements RepoClient {
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
 			for( String p : catalog.getProducts() ) {
-				URI uri = getRepoApi( catalog.getRepo() ).resolve( p ).resolve( platform ).resolve( "product" ).resolve( "card" ).normalize();
+				//URI uri = getRepoApi( catalog.getRepo() ).resolve( p ).resolve( platform ).resolve( "product" ).resolve( "card" ).normalize();
+				URI uri = getRepoApi( catalog.getRepo() );
+				uri = UriUtil.addToPath( uri, p );
+				uri = UriUtil.addToPath( uri, platform );
+				uri = UriUtil.addToPath( uri, "product" );
+				uri = UriUtil.addToPath( uri, "card" );
+				log.warn( "Looking for: " + uri );
 				DownloadTask task = new DownloadTask( program, uri );
 				futures.add( program.getTaskManager().submit( task ) );
 			}
@@ -77,7 +82,7 @@ public class V2RepoClient implements RepoClient {
 			try {
 				Download download = future.get( 10, TimeUnit.SECONDS );
 				try( InputStream input = download.getInputStream() ) {
-					productCards.add( new ProductCard().load( input ) );
+					productCards.add( new ProductCard().load( input, download.getSource() ) );
 				} catch( Exception exception ) {
 					log.warn( "Error downloading product card: " + download.getSource(), exception );
 				}
@@ -87,6 +92,17 @@ public class V2RepoClient implements RepoClient {
 		}
 
 		return productCards;
+	}
+
+	public DownloadTask getProductCardDownloadTask( ProductCard card ) {
+//		URI uri = getRepoApi( card.getProductUri() );
+//		uri = UriUtil.addToPath( uri, p );
+//		uri = UriUtil.addToPath( uri, platform );
+//		uri = UriUtil.addToPath( uri, "product" );
+//		uri = UriUtil.addToPath( uri, "card" );
+//		log.warn( "Looking for: " + uri );
+		DownloadTask task = new DownloadTask( program, uri );
+		return task;
 	}
 
 	private URI getRepoApi( RepoCard repo ) {

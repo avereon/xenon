@@ -81,8 +81,6 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskManager taskManager;
 
-	private RepoCard defaultMarket;
-
 	private ProductCard card;
 
 	private Path programHomeFolder;
@@ -176,7 +174,7 @@ public class Program extends Application implements ProgramProduct {
 		}
 	}
 
-	private void protectedInit()  throws Exception {
+	private void protectedInit() throws Exception {
 		time( "init" );
 
 		// NOTE Only do in init() what has to be done before the splash screen can be shown
@@ -390,10 +388,6 @@ public class Program extends Application implements ProgramProduct {
 
 	public com.xeomar.util.Parameters getProgramParameters() {
 		return parameters;
-	}
-
-	public RepoCard getMarket() {
-		return defaultMarket;
 	}
 
 	@Override
@@ -888,14 +882,14 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "update" ).pushAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 
-		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () ->{
+		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
 			((ProgramProductManager)getProgram().getProductManager()).showUpdateFoundDialog();
 		} ) );
 		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice A") );
+			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice A" ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice("Testing","Test Notice B") );
+			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
 		} ) );
 	}
 
@@ -970,7 +964,7 @@ public class Program extends Application implements ProgramProduct {
 		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
-		ToolMetadata metadata = new ToolMetadata(this, toolClass);
+		ToolMetadata metadata = new ToolMetadata( this, toolClass );
 		metadata.setInstanceMode( mode ).setName( name ).setIcon( icon );
 		manager.registerTool( type, metadata );
 	}
@@ -989,10 +983,8 @@ public class Program extends Application implements ProgramProduct {
 		// There is also a set of comments regarding this issue in the ProductManager class
 		productManager.setSettings( programSettings );
 
-		List<RepoCard> repos = RepoCard.forProduct();
-
-		// Register the product catalogs
-		productManager.addRepo( repos.get(0) );
+		// Register the product repos
+		productManager.registerProductRepos( RepoCard.forProduct() );
 
 		// Register the product
 		productManager.registerProduct( this );

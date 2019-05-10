@@ -36,6 +36,8 @@ public class RepoCard {
 
 	private boolean removable;
 
+	private int rank;
+
 	private Set<String> products = new HashSet<>();
 
 	public RepoCard() {}
@@ -109,7 +111,15 @@ public class RepoCard {
 		this.removable = removable;
 	}
 
-//	public Set<String> getProducts() {
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank( int rank ) {
+		this.rank = rank;
+	}
+
+	//	public Set<String> getProducts() {
 //		return products;
 //	}
 //

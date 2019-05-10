@@ -4,13 +4,15 @@
 		"repo" : "https://xeomar.com/download/stable",
 		"icon" : "provider",
 		"enabled" : "true",
-		"removable" : "false"
+		"removable" : "false",
+		"rank": -2
 	},
 	{
 		"name" : "${project.organization.name} Nightly",
 		"repo" : "https://xeomar.com/download/latest",
 		"icon" : "provider",
 		"enabled" : "false",
-		"removable" : "true"
+		"removable" : "true",
+		"rank": -1
 	}
 ]

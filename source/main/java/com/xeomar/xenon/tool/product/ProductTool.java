@@ -39,7 +39,7 @@ public class ProductTool extends GuidedTool {
 
 	private UpdatesPage updatesPage;
 
-	private ProductMarketPage productMarketPage;
+	private RepoPage repoPage;
 
 	public ProductTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -53,13 +53,13 @@ public class ProductTool extends GuidedTool {
 		installedPage = new InstalledPage( program, this );
 		availablePage = new AvailablePage( program, this );
 		updatesPage = new UpdatesPage( program, this );
-		productMarketPage = new ProductMarketPage( program, this );
+		repoPage = new RepoPage( program, this );
 
 		pages = new HashMap<>();
 		pages.put( ProgramProductType.INSTALLED, installedPage );
 		pages.put( ProgramProductType.AVAILABLE, availablePage );
 		pages.put( ProgramProductType.UPDATES, updatesPage );
-		pages.put( ProgramProductType.SOURCES, productMarketPage );
+		pages.put( ProgramProductType.SOURCES, repoPage );
 
 		checkInfo = new UpdateCheckInformationPane( program );
 		checkInfo.setId( "tool-product-page-footer" );
@@ -159,8 +159,8 @@ public class ProductTool extends GuidedTool {
 		return updatesPage;
 	}
 
-	ProductMarketPage getProductMarketPage() {
-		return productMarketPage;
+	RepoPage getRepoPage() {
+		return repoPage;
 	}
 
 	ProductToolPage getSelectedPage() {

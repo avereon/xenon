@@ -79,12 +79,12 @@ class ProductPane extends MigPane {
 		add( nameLabel );
 		add( hyphenLabel );
 		add( providerLabel, "pushx" );
-		add( versionLabel, "tag right" );
-		add( actionButton1 );
-
-		add( summaryLabel, "newline, spanx 3" );
 		add( stateLabel, "tag right" );
 		add( actionButton2 );
+
+		add( summaryLabel, "newline, spanx 3" );
+		add( versionLabel, "tag right" );
+		add( actionButton1 );
 
 		// Trying to update the product state before being added to a page causes incorrect state
 	}

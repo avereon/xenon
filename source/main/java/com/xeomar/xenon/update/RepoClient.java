@@ -10,4 +10,6 @@ public interface RepoClient {
 
 	Set<ProductCard> getProductCards( Set<CatalogCard> catalogs );
 
+	DownloadTask getProductCardDownloadTask( ProductCard card );
+
 }
