@@ -5,7 +5,7 @@
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.xeomar.xenon.Program" />
     <module name="mouse" />
-    <option name="PROGRAM_PARAMETERS" value="--execmode=dev --log-level info" />
+    <option name="PROGRAM_PARAMETERS" value="--execmode=dev --log-level debug" />
     <option name="VM_PARAMETERS" value="-Xmx256m" />
     <method v="2">
       <option name="Make" enabled="true" />

@@ -168,9 +168,12 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 
 		private Task<?> task;
 
+		private Throwable exceptionSource;
+
 		private TaskFuture( Task<W> task ) {
 			super( task );
 			this.task = task;
+			this.exceptionSource = new TaskException();
 		}
 
 		public Task getTask() {
@@ -202,7 +205,8 @@ public abstract class Task<V> implements Callable<V>, Future<V> {
 		@Override
 		protected void setException( Throwable throwable ) {
 			task.setState( State.FAILED );
-			super.setException( throwable );
+			exceptionSource.initCause( throwable );
+			super.setException( exceptionSource );
 		}
 
 	}
