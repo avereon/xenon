@@ -14,7 +14,11 @@ public class CatalogCard {
 
 	private RepoCard repo;
 
+	private long timestamp;
+
 	private Set<String> products = new HashSet<>();
+
+	public CatalogCard() {}
 
 	public CatalogCard( RepoCard repo ) {
 		this.repo = repo;
@@ -26,6 +30,14 @@ public class CatalogCard {
 
 	public void setRepo( RepoCard repo ) {
 		this.repo = repo;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp( long timestamp ) {
+		this.timestamp = timestamp;
 	}
 
 	public Set<String> getProducts() {

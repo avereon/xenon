@@ -3,6 +3,7 @@ package com.xeomar.xenon.update;
 import com.xeomar.product.ProductCard;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.OperatingSystem;
+import com.xeomar.util.UriUtil;
 import com.xeomar.xenon.Program;
 import org.slf4j.Logger;
 
@@ -31,9 +32,10 @@ public class V2RepoClient implements RepoClient {
 	public Set<CatalogCard> getCatalogCards( Set<RepoCard> repos ) {
 		Map<Future<Download>, RepoCard> matchingRepoCards = new HashMap<>();
 
+
 		// Go through each repo and create a download task for each catalog
 		Set<Future<Download>> catalogCardFutures = repos.stream().map( ( repo ) -> {
-			DownloadTask task = new DownloadTask( program, getUriBase( repo ).resolve( CatalogCard.FILE ) );
+			DownloadTask task = new DownloadTask( program, UriUtil.addToPath( getRepoApi( repo ), "catalog" ) );
 			Future<Download> future = program.getTaskManager().submit( task );
 			matchingRepoCards.put( future, repo );
 			return future;
@@ -63,7 +65,7 @@ public class V2RepoClient implements RepoClient {
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
 			for( String p : catalog.getProducts() ) {
-				URI uri = getUriBase( catalog.getRepo() ).resolve( p ).resolve( platform ).resolve( "product" ).resolve( "card" ).normalize();
+				URI uri = getRepoApi( catalog.getRepo() ).resolve( p ).resolve( platform ).resolve( "product" ).resolve( "card" ).normalize();
 				DownloadTask task = new DownloadTask( program, uri );
 				futures.add( program.getTaskManager().submit( task ) );
 			}
@@ -87,8 +89,8 @@ public class V2RepoClient implements RepoClient {
 		return productCards;
 	}
 
-	private URI getUriBase( RepoCard repo ) {
-		return URI.create( repo.getRepo() ).resolve( "v2" );
+	private URI getRepoApi( RepoCard repo ) {
+		return UriUtil.addToPath( URI.create( repo.getRepo() ), "v2" );
 	}
 
 }

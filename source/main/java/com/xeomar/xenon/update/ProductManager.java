@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -225,54 +224,55 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( catalogCards.size() == 0 ) return Set.of();
 
 		// Determine all the product cards that need to be downloaded
-//		Set<String> productUris = catalogCards.stream().flatMap( ( c ) -> c.getProducts().stream() ).collect( Collectors.toSet() );
+		//		Set<String> productUris = catalogCards.stream().flatMap( ( c ) -> c.getProducts().stream() ).collect( Collectors.toSet() );
 
 		// Download all the product cards
 		log.warn( "Downloading product cards..." );
+		catalogCards.forEach( ( c ) -> c.getProducts().forEach( ( p ) -> log.warn( "  " + p ) ) );
 		Set<ProductCard> cards = repoClient.getProductCards( catalogCards );
 
-//		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
-//
-//		// Collect all the product cards into a set and return it
-//		Set<ProductCard> cards = new HashSet<>();
-//		for( Future<Download> future : futures ) {
-//			try {
-//				Download download = future.get( 10, TimeUnit.SECONDS );
-//				try( InputStream input = download.getInputStream() ) {
-//					cards.add( new ProductCard().load( input ) );
-//				} catch( Exception exception ) {
-//					log.warn( "Error downloading product card: " + download.getSource(), exception );
-//				}
-//			} catch( Exception exception ) {
-//				log.warn( "Error downloading product card", exception );
-//			}
-//		}
+		//		Set<Future<Download>> futures = productUris.stream().map( ( u ) -> new DownloadTask( program, URI.create( u ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
+		//
+		//		// Collect all the product cards into a set and return it
+		//		Set<ProductCard> cards = new HashSet<>();
+		//		for( Future<Download> future : futures ) {
+		//			try {
+		//				Download download = future.get( 10, TimeUnit.SECONDS );
+		//				try( InputStream input = download.getInputStream() ) {
+		//					cards.add( new ProductCard().load( input ) );
+		//				} catch( Exception exception ) {
+		//					log.warn( "Error downloading product card: " + download.getSource(), exception );
+		//				}
+		//			} catch( Exception exception ) {
+		//				log.warn( "Error downloading product card", exception );
+		//			}
+		//		}
 
 		return availableCards = cards;
 	}
 
-//	private Set<CatalogCard> downloadCatalogCards( Set<RepoCard> repos ) {
-//		// TODO Use the RepoClient to help download catalog cards
-//		// Go through each repo and create a download task for each repo catalog
-//		Set<Future<Download>> catalogCardFutures = getRepos().stream().map( ( r ) -> new DownloadTask( program, URI.create( r.getRepo() + "/" + CatalogCard.FILE ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
-//
-//		// Go through each future and download the catalog card
-//		Set<CatalogCard> catalogCards = new HashSet<>();
-//		for( Future<Download> future : catalogCardFutures ) {
-//			try {
-//				Download download = future.get( 10, TimeUnit.SECONDS );
-//				try( InputStream input = download.getInputStream() ) {
-//					catalogCards.add( CatalogCard.load( input ) );
-//				} catch( Exception exception ) {
-//					log.warn( "Error downloading catalog card: " + download.getSource(), exception );
-//				}
-//			} catch( Exception exception ) {
-//				log.warn( "Error downloading catalog card", exception );
-//			}
-//		}
-//
-//		return catalogCards;
-//	}
+	//	private Set<CatalogCard> downloadCatalogCards( Set<RepoCard> repos ) {
+	//		// TODO Use the RepoClient to help download catalog cards
+	//		// Go through each repo and create a download task for each repo catalog
+	//		Set<Future<Download>> catalogCardFutures = getRepos().stream().map( ( r ) -> new DownloadTask( program, URI.create( r.getRepo() + "/" + CatalogCard.FILE ) ) ).map( ( t ) -> program.getTaskManager().submit( t ) ).collect( Collectors.toSet() );
+	//
+	//		// Go through each future and download the catalog card
+	//		Set<CatalogCard> catalogCards = new HashSet<>();
+	//		for( Future<Download> future : catalogCardFutures ) {
+	//			try {
+	//				Download download = future.get( 10, TimeUnit.SECONDS );
+	//				try( InputStream input = download.getInputStream() ) {
+	//					catalogCards.add( CatalogCard.load( input ) );
+	//				} catch( Exception exception ) {
+	//					log.warn( "Error downloading catalog card: " + download.getSource(), exception );
+	//				}
+	//			} catch( Exception exception ) {
+	//				log.warn( "Error downloading catalog card", exception );
+	//			}
+	//		}
+	//
+	//		return catalogCards;
+	//	}
 
 	public Set<Mod> getModules() {
 		return new HashSet<>( modules.values() );
