@@ -12,6 +12,7 @@ import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
@@ -228,6 +229,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();
 		lastAvailableCheck = System.currentTimeMillis();
+
+		// FIXME Implement the following with a chainable task implementation
 
 		// Download all the catalog cards
 		log.warn( "Downloading catalog cards..." );
@@ -1160,34 +1163,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 			for( ProductCard installedCard : oldCards ) {
 				for( RepoCard repo : getRepos() ) {
+					// FIXME This can be improved by using the repo catalogs
+					// and only looking for products hosted by a repo
 					URI uri = repoClient.getProductUri( repo, installedCard.getArtifact(), "product", "card" );
 					DownloadTask<ProductCard> task = new DownloadTask( program, uri );
 					task.setCarryOn( installedCard );
-					// FIXME There needs to be more than one download per product card
-					//taskMap.put( installedCard, task );
 					taskFutures.add( program.getTaskManager().submit( task ) );
 				}
-
-				//				DownloadTask task = repoClient.getProductCardDownloadTask( installedCard );
-				//				tasks.put( installedCard, task );
-				//				program.getExecutor().submit( task );
-
-				//				try {
-				//					URI codebase = installedCard.getProductUri( getProductParameters( installedCard, "card" ) );
-				//					URI uri = getSchemeResolvedUri( codebase );
-				//					if( uri == null ) {
-				//						log.warn( "Installed pack does not have source defined: " + installedCard.toString() );
-				//						continue;
-				//					} else {
-				//						log.debug( "Installed pack source: " + uri );
-				//					}
-				//
-				//					DownloadTask task = new DownloadTask( program, uri );
-				//					tasks.put( installedCard, task );
-				//					program.getExecutor().submit( task );
-				//				} catch( URISyntaxException exception ) {
-				//					uriSyntaxException = exception;
-				//				}
 			}
 		}
 
@@ -1218,13 +1200,22 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					// We only want something in the result if the posted version is greater than the current version
 					if( Version.compareVersions( postedProduct.getVersion(), currentProduct.getVersion() ) > 1 ) {
 						// Determine the newer version if there is more than one posted version
-						cards.compute( key, ( k, v ) -> {
-							if( v != null && Version.compareVersions( v.getVersion(), postedProduct.getVersion() ) > 0 ) return v;
+						cards.compute( key, ( k, installedProduct ) -> {
+							if( installedProduct != null && Version.compareVersions( installedProduct.getVersion(), postedProduct.getVersion() ) > 0 ) return installedProduct;
+							if( installedProduct != null ) log.debug( "Installed: " + installedProduct.getProductKey() + " " + installedProduct.getRelease() );
+							log.debug( "Available: " + postedProduct.getProductKey() + " " + postedProduct.getRelease() );
 							return postedProduct;
 						} );
 					}
-				} catch( ExecutionException | InterruptedException exception ) {
-					log.error( "Error downloading product card: " + key, exception );
+				} catch( ExecutionException exception ) {
+					if( exception.getCause().getCause() instanceof FileNotFoundException ) {
+						log.debug( "File not found: " + exception.getCause().getCause().getMessage() );
+					} else {
+						log.error( "Error downloading product card: " + key, exception );
+					}
+				} catch( InterruptedException exception ) {
+					if( exception.getCause().getCause() instanceof FileNotFoundException ) ;
+					log.warn( "Interrupted downloading product card: " + key );
 				}
 			}
 
@@ -1286,11 +1277,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			//			}
 
 			// If there is an exception and there are no updates, throw the exception.
-//			if( availableCards.size() == 0 ) {
-//				if( uriSyntaxException != null ) throw uriSyntaxException;
-////				if( executionException != null ) throw executionException;
-////				if( interruptedException != null ) throw interruptedException;
-//			}
+			//			if( availableCards.size() == 0 ) {
+			//				if( uriSyntaxException != null ) throw uriSyntaxException;
+			////				if( executionException != null ) throw executionException;
+			////				if( interruptedException != null ) throw interruptedException;
+			//			}
 
 			// Cache the discovered updates.
 			postedUpdateCacheTime = System.currentTimeMillis();
