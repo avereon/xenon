@@ -86,16 +86,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	public void setMaxThreadCount( int count ) {
 		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
-
 		if( settings != null ) settings.set( "thread-count", maxThreadCount );
-
-		if( isRunning() ) {
-			try {
-				restart();
-			} catch( Exception exception ) {
-				log.error( "Error restarting task manager with new thread count", exception );
-			}
-		}
+		if( executor != null ) executor.setCorePoolSize( maxThreadCount );
 	}
 
 	@Override
@@ -140,6 +132,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	public TaskManager stop() {
 		if( executor == null || executor.isShutdown() ) return this;
 		executor.shutdown();
+		executor = null;
 		return this;
 	}
 

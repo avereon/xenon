@@ -59,18 +59,18 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	}
 
 	public Task( String name ) {
-		this(  name, Priority.MEDIUM );
+		this( name, Priority.MEDIUM );
 	}
 
 	public Task( String name, Priority priority ) {
-		this( new Passthrough<>(), name, priority );
+		this( new TaskCallable<>(), name, priority );
 	}
 
-	private Task( Passthrough<R> passthrough, String name, Priority priority ) {
-		super( passthrough );
+	private Task( TaskCallable<R> taskCallable, String name, Priority priority ) {
+		super( taskCallable );
 		this.name = name;
 		this.priority = priority;
-		passthrough.setCallable( this );
+		taskCallable.setCallable( this );
 		listeners = new CopyOnWriteArraySet<>();
 	}
 
@@ -80,53 +80,6 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		fireTaskEvent( TaskEvent.Type.TASK_START );
 		super.run();
 	}
-
-	@Override
-	protected void done() {
-		setProgress( getTotal() );
-		fireTaskEvent( TaskEvent.Type.TASK_FINISH );
-		if( isCancelled() ) setState( Task.State.CANCELLED );
-		setTaskManager( null );
-		super.done();
-	}
-
-	@Override
-	protected void set( R value ) {
-		setState( Task.State.SUCCESS );
-		super.set( value );
-	}
-
-	@Override
-	protected void setException( Throwable throwable ) {
-		setState( Task.State.FAILED );
-		exceptionSource.initCause( throwable );
-		super.setException( exceptionSource );
-	}
-
-	//	@Override
-//	public boolean isDone() {
-//		return future != null && future.isDone();
-//	}
-//
-//	@Override
-//	public boolean isCancelled() {
-//		return future != null && future.isCancelled();
-//	}
-//
-//	@Override
-//	public boolean cancel( boolean mayInterruptIfRunning ) {
-//		return future != null && future.cancel( mayInterruptIfRunning );
-//	}
-//
-//	@Override
-//	public R get() throws InterruptedException, ExecutionException {
-//		return future.get();
-//	}
-//
-//	@Override
-//	public R get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
-//		return future.get( duration, unit );
-//	}
 
 	public String getName() {
 		return name == null ? getClass().getName() : name;
@@ -152,17 +105,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return total;
 	}
 
-	public void setTotal( long max ) {
-		this.total = max;
-	}
-
 	public long getProgress() {
 		return progress;
-	}
-
-	public void setProgress( long progress ) {
-		this.progress = progress;
-		fireTaskEvent( TaskEvent.Type.TASK_PROGRESS );
 	}
 
 	public void addTaskListener( TaskListener listener ) {
@@ -218,19 +162,40 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		};
 	}
 
-	private TaskManager getTaskManager() {
-		return manager;
+	@Override
+	protected void done() {
+		setProgress( getTotal() );
+		fireTaskEvent( TaskEvent.Type.TASK_FINISH );
+		if( isCancelled() ) setState( Task.State.CANCELLED );
+		setTaskManager( null );
+		super.done();
+	}
+
+	@Override
+	protected void set( R value ) {
+		setState( Task.State.SUCCESS );
+		super.set( value );
+	}
+
+	@Override
+	protected void setException( Throwable throwable ) {
+		setState( Task.State.FAILED );
+		exceptionSource.initCause( throwable );
+		super.setException( exceptionSource );
+	}
+
+	protected void setTotal( long max ) {
+		this.total = max;
+	}
+
+	protected void setProgress( long progress ) {
+		this.progress = progress;
+		fireTaskEvent( TaskEvent.Type.TASK_PROGRESS );
 	}
 
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
 		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
-	}
-
-	void fireTaskEvent( TaskEvent.Type type ) {
-		TaskEvent event = new TaskEvent( this, this, type );
-		event.fire( getTaskManager().getTaskListeners() );
-		event.fire( listeners );
 	}
 
 	void setState( State state ) {
@@ -240,13 +205,23 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		}
 	}
 
-	private static class Passthrough<T> implements Callable<T> {
+	private TaskManager getTaskManager() {
+		return manager;
+	}
+
+	private void fireTaskEvent( TaskEvent.Type type ) {
+		TaskEvent event = new TaskEvent( this, this, type );
+		if( getTaskManager() != null ) event.fire( getTaskManager().getTaskListeners() );
+		event.fire( listeners );
+	}
+
+	private static class TaskCallable<T> implements Callable<T> {
 
 		private Callable<T> callable;
 
-		public Passthrough() {}
+		TaskCallable() {}
 
-		public void setCallable( Callable<T> callable ) {
+		void setCallable( Callable<T> callable ) {
 			this.callable = callable;
 		}
 
