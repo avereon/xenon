@@ -47,7 +47,7 @@ public class ProgramProductManager extends ProductManager {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		program.getExecutor().submit( new CheckForUpdates( program, interactive ) );
+		program.getTaskManager().submit( new CheckForUpdates( program, interactive ) );
 	}
 
 	/**
@@ -189,12 +189,12 @@ public class ProgramProductManager extends ProductManager {
 				}
 				case STORE: {
 					// Store (download) all updates without user intervention.
-					program.getExecutor().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
+					program.getTaskManager().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
 					break;
 				}
 				case APPLY: {
 					// Stage all updates without user intervention.
-					program.getExecutor().submit( new ApplyUpdates( program, postedUpdates, false ) );
+					program.getTaskManager().submit( new ApplyUpdates( program, postedUpdates, false ) );
 					break;
 				}
 			}
@@ -247,7 +247,7 @@ public class ProgramProductManager extends ProductManager {
 				Stage stage = program.getWorkspaceManager().getActiveStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.OK ) program.getExecutor().submit( new StageCachedUpdates( updates.getSelectedUpdates() ) );
+				if( result.isPresent() && result.get() == ButtonType.OK ) program.getTaskManager().submit( new StageCachedUpdates( updates.getSelectedUpdates() ) );
 			} );
 		}
 

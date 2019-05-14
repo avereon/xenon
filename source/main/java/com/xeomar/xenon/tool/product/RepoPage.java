@@ -32,7 +32,7 @@ class RepoPage extends ProductToolPage {
 	@Override
 	protected void updateState() {
 		ProductTool.log.debug( "Update product repos" );
-		productTool.getProgram().getExecutor().submit( new RefreshProductRepos( productTool ) );
+		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool ) );
 	}
 
 	void setRepos( List<RepoCard> repos ) {

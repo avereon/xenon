@@ -57,7 +57,7 @@ final class MockTask extends Task<Object> {
 	public Object call() throws Exception {
 		if( delay > 0 ) ThreadUtil.pause( delay );
 		if( fail ) throw new Exception( EXCEPTION_MESSAGE );
-		if( nest != null ) manager.invoke( nest );
+		if( nest != null ) manager.submit( nest );
 		return object;
 	}
 

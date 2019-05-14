@@ -1,6 +1,7 @@
 package com.xeomar.xenon;
 
 import com.xeomar.xenon.resource.ResourceManager;
+import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,14 +50,14 @@ public class ToolManagerTest extends BaseTestCase {
 
 	@Test
 	public void testOpenToolWithNullResource() {
-		taskManager.submit( () -> {
+		taskManager.submit( Task.of( "", () -> {
 			try {
 				toolManager.openTool( null );
 				Assert.fail( "Should throw a NullPointerException" );
 			} catch( Exception exception ) {
 				assertThat( exception, is( instanceOf( NullPointerException.class ) ) );
 			}
-		} );
+		} ) );
 	}
 
 }

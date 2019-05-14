@@ -18,7 +18,7 @@ import java.util.concurrent.*;
  * @author Mark Soderquist
  */
 
-public abstract class Task<R> implements Callable<R>, Future<R> {
+public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -59,39 +59,45 @@ public abstract class Task<R> implements Callable<R>, Future<R> {
 	}
 
 	public Task( String name ) {
-		this( name, Priority.MEDIUM );
+		this(  name, Priority.MEDIUM );
 	}
 
 	public Task( String name, Priority priority ) {
+		this( new Passthrough<>(), name, priority );
+	}
+
+	private Task( Passthrough<R> passthrough, String name, Priority priority ) {
+		super( passthrough );
 		this.name = name;
 		this.priority = priority;
+		passthrough.setCallable( this );
 		listeners = new CopyOnWriteArraySet<>();
 	}
 
-	@Override
-	public boolean isDone() {
-		return future != null && future.isDone();
-	}
-
-	@Override
-	public boolean isCancelled() {
-		return future != null && future.isCancelled();
-	}
-
-	@Override
-	public boolean cancel( boolean mayInterruptIfRunning ) {
-		return future != null && future.cancel( mayInterruptIfRunning );
-	}
-
-	@Override
-	public R get() throws InterruptedException, ExecutionException {
-		return future.get();
-	}
-
-	@Override
-	public R get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
-		return future.get( duration, unit );
-	}
+//	@Override
+//	public boolean isDone() {
+//		return future != null && future.isDone();
+//	}
+//
+//	@Override
+//	public boolean isCancelled() {
+//		return future != null && future.isCancelled();
+//	}
+//
+//	@Override
+//	public boolean cancel( boolean mayInterruptIfRunning ) {
+//		return future != null && future.cancel( mayInterruptIfRunning );
+//	}
+//
+//	@Override
+//	public R get() throws InterruptedException, ExecutionException {
+//		return future.get();
+//	}
+//
+//	@Override
+//	public R get( long duration, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
+//		return future.get( duration, unit );
+//	}
 
 	public String getName() {
 		return name == null ? getClass().getName() : name;
@@ -138,6 +144,51 @@ public abstract class Task<R> implements Callable<R>, Future<R> {
 		listeners.remove( listener );
 	}
 
+	public static <N> Task<N> of( String name, Callable<N> callable ) {
+		if( callable == null ) throw new NullPointerException( "Callable cannot be null" );
+		return new Task<>( name ) {
+
+			@Override
+			public N call() throws Exception {
+				return callable.call();
+			}
+
+		};
+	}
+
+	public static Task<?> of( String name, Runnable runnable ) {
+		if( runnable == null ) throw new NullPointerException( "Runnable cannot be null" );
+
+		return new Task( name ) {
+
+			@Override
+			public Void call() {
+				runnable.run();
+				return null;
+			}
+
+		};
+	}
+
+	public static <N> Task<N> of( FutureTask<N> futureTask ) {
+		if( futureTask == null ) throw new NullPointerException( "FutureTask cannot be null" );
+
+		return new Task<>( "" ) {
+
+			@Override
+			public N call() {
+				futureTask.run();
+				try {
+					return futureTask.get();
+				} catch( InterruptedException | ExecutionException e ) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+
+		};
+	}
+
 	private TaskManager getTaskManager() {
 		return manager;
 	}
@@ -162,6 +213,23 @@ public abstract class Task<R> implements Callable<R>, Future<R> {
 			this.state = state;
 			stateLock.notifyAll();
 		}
+	}
+
+	private static class Passthrough<T> implements Callable<T> {
+
+		private Callable<T> callable;
+
+		public Passthrough() {}
+
+		public void setCallable( Callable<T> callable ) {
+			this.callable = callable;
+		}
+
+		@Override
+		public T call() throws Exception {
+			return callable.call();
+		}
+
 	}
 
 }

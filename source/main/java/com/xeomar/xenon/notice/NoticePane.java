@@ -2,6 +2,7 @@ package com.xeomar.xenon.notice;
 
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -49,7 +50,7 @@ public class NoticePane extends GridPane {
 	public void executeNoticeAction() {
 		Runnable action = notice.getAction();
 		if( action == null ) return;
-		program.getTaskManager().submit( action );
+		program.getTaskManager().submit( Task.of( "", action ) );
 	}
 
 	public Node getCloseButton() {

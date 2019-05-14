@@ -1320,7 +1320,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					log.debug( "Resource source: " + uri );
 
 					// Submit download resource task
-					resource.setFuture( program.getExecutor().submit( new DownloadTask( program, uri ) ) );
+					resource.setFuture( program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
 				}
 			} catch( URISyntaxException exception ) {
 				log.error( "Error creating pack download", exception );

@@ -83,7 +83,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( true ) );
 
 		try {
-			manager.submit( (Runnable)null );
+			manager.submit( Task.of( "", (Runnable)null ) );
 			fail( "TaskManager.submit(null) should throw a NullPointerException" );
 		} catch( NullPointerException exception ) {
 			assertThat( exception, instanceOf( NullPointerException.class ) );
@@ -97,7 +97,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( true ) );
 
 		try {
-			manager.submit( (Callable<?>)null );
+			manager.submit( Task.of( "", (Callable<?>)null ) );
 			fail( "TaskManager.submit(null) should throw a NullPointerException" );
 		} catch( NullPointerException exception ) {
 			assertThat( exception, instanceOf( NullPointerException.class ) );
@@ -278,11 +278,11 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 
-//		assertThat( listener.getEvents().get( 0 ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
-//		assertThat( listener.getEvents().get( 1 ).getType(), is( TaskEvent.Type.TASK_START ) );
-//		assertThat( listener.getEvents().get( 2 ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
-//		assertThat( listener.getEvents().get( 3 ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
-//		assertThat( listener.getEvents().size(), is( 4 ) );
+		//		assertThat( listener.getEvents().get( 0 ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
+		//		assertThat( listener.getEvents().get( 1 ).getType(), is( TaskEvent.Type.TASK_START ) );
+		//		assertThat( listener.getEvents().get( 2 ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
+		//		assertThat( listener.getEvents().get( 3 ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
+		//		assertThat( listener.getEvents().size(), is( 4 ) );
 	}
 
 }

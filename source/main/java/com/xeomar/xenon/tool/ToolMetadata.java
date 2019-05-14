@@ -1,12 +1,12 @@
 package com.xeomar.xenon.tool;
 
-import com.xeomar.product.Product;
+import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.workarea.Workpane;
 import javafx.scene.Node;
 
 public class ToolMetadata {
 
-	private Product product;
+	private ProgramProduct product;
 
 	private Class<? extends ProgramTool> type;
 
@@ -18,16 +18,16 @@ public class ToolMetadata {
 
 	private ToolInstanceMode instanceMode;
 
-	public ToolMetadata( Product product, Class<? extends ProgramTool> type ) {
+	public ToolMetadata( ProgramProduct product, Class<? extends ProgramTool> type ) {
 		this.product = product;
 		this.type = type;
 	}
 
-	public Product getProduct() {
+	public ProgramProduct getProduct() {
 		return product;
 	}
 
-	public ToolMetadata setProduct( Product product ) {
+	public ToolMetadata setProduct( ProgramProduct product ) {
 		this.product = product;
 		return this;
 	}

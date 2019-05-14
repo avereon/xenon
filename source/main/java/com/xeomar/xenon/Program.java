@@ -19,6 +19,7 @@ import com.xeomar.xenon.resource.ResourceType;
 import com.xeomar.xenon.resource.type.*;
 import com.xeomar.xenon.scheme.FileScheme;
 import com.xeomar.xenon.scheme.ProgramScheme;
+import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.tool.ToolInstanceMode;
@@ -30,13 +31,12 @@ import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.tool.settings.SettingsTool;
 import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.tool.welcome.WelcomeTool;
-import com.xeomar.xenon.update.RepoCard;
 import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.update.ProgramProductManager;
+import com.xeomar.xenon.update.RepoCard;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -56,7 +56,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Program extends Application implements ProgramProduct {
@@ -295,7 +294,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "program-start-event" );
 
 		// Submit the startup task
-		taskManager.submit( new Startup() );
+		taskManager.submit( Task.of( new Startup() ) );
 	}
 
 	public boolean isRunning() {
@@ -313,7 +312,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void protectedStop() throws Exception {
-		taskManager.submit( new Shutdown() ).get();
+		taskManager.submit( Task.of( new Shutdown() ) ).get();
 
 		// Stop the task manager
 		log.trace( "Stopping task manager..." );
@@ -437,9 +436,9 @@ public class Program extends Application implements ProgramProduct {
 		return taskManager;
 	}
 
-	public final ExecutorService getExecutor() {
-		return taskManager;
-	}
+//	public final ExecutorService getExecutor() {
+//		return taskManager;
+//	}
 
 	public final IconLibrary getIconLibrary() {
 		return iconLibrary;
@@ -1015,7 +1014,7 @@ public class Program extends Application implements ProgramProduct {
 		return programUpdated;
 	}
 
-	private class Startup extends Task<Void> {
+	private class Startup extends javafx.concurrent.Task<Void> {
 
 		@Override
 		protected Void call() throws Exception {
@@ -1068,7 +1067,7 @@ public class Program extends Application implements ProgramProduct {
 
 	}
 
-	private class Shutdown extends Task<Void> {
+	private class Shutdown extends javafx.concurrent.Task<Void> {
 
 		@Override
 		protected Void call() {

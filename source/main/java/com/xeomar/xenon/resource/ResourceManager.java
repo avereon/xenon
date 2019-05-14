@@ -157,11 +157,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	public void setCurrentResource( Resource resource ) {
-		program.getExecutor().submit( new SetCurrentResourceTask( resource ) );
+		program.getTaskManager().submit( new SetCurrentResourceTask( resource ) );
 	}
 
 	public void setCurrentResourceAndWait( Resource resource ) throws ExecutionException, InterruptedException {
-		program.getExecutor().submit( new SetCurrentResourceTask( resource ) ).get();
+		program.getTaskManager().submit( new SetCurrentResourceTask( resource ) ).get();
 	}
 
 	public List<Resource> getOpenResources() {
@@ -371,8 +371,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			request.setView( view );
 			request.setOpenTool( openTool );
 			request.setSetActive( setActive );
-			OpenActionTask task = new OpenActionTask( request );
-			futures.add( program.getExecutor().submit( task ) );
+			futures.add( program.getTaskManager().submit( new OpenActionTask( request ) ) );
 			setActive = false;
 		}
 
@@ -662,7 +661,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resources The resources to open
 	 */
 	public void openResources( Collection<Resource> resources ) throws ResourceException {
-		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) );
+		program.getTaskManager().submit( new OpenResourceTask( removeOpenResources( resources ) ) );
 	}
 
 	/**
@@ -686,7 +685,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void openResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-		program.getExecutor().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
+		program.getTaskManager().submit( new OpenResourceTask( removeOpenResources( resources ) ) ).get();
 	}
 
 	/**
@@ -704,7 +703,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resources The resources to load
 	 */
 	public Future<Collection<Resource>> loadResources( Collection<Resource> resources ) {
-		return program.getExecutor().submit( new LoadResourceTask( resources ) );
+		return program.getTaskManager().submit( new LoadResourceTask( resources ) );
 	}
 
 	/**
@@ -728,7 +727,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void loadResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-		program.getExecutor().submit( new LoadResourceTask( resources ) ).get();
+		program.getTaskManager().submit( new LoadResourceTask( resources ) ).get();
 	}
 
 	/**
@@ -746,7 +745,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resources The resources to save
 	 */
 	public void saveResources( Collection<Resource> resources ) {
-		program.getExecutor().submit( new SaveResourceTask( resources ) );
+		program.getTaskManager().submit( new SaveResourceTask( resources ) );
 	}
 
 	/**
@@ -770,7 +769,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void saveResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-		program.getExecutor().submit( new SaveResourceTask( resources ) ).get();
+		program.getTaskManager().submit( new SaveResourceTask( resources ) ).get();
 	}
 
 	/**
@@ -788,7 +787,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param resources The resources to close.
 	 */
 	public void closeResources( Collection<Resource> resources ) {
-		program.getExecutor().submit( new CloseResourceTask( resources ) );
+		program.getTaskManager().submit( new CloseResourceTask( resources ) );
 	}
 
 	/**
@@ -812,7 +811,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @implNote Do not call from a UI thread
 	 */
 	public void closeResourcesAndWait( Collection<Resource> resources ) throws ExecutionException, InterruptedException {
-		program.getExecutor().submit( new CloseResourceTask( resources ) ).get();
+		program.getTaskManager().submit( new CloseResourceTask( resources ) ).get();
 	}
 
 	/**
@@ -1340,7 +1339,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				//					if( result == JOptionPane.OK_OPTION ) type = panel.getResourceType();
 			}
 
-			program.getExecutor().submit( new LoadResource( type ) );
+			program.getTaskManager().submit( new LoadResource( type ) );
 		}
 
 		private class LoadResource extends Task<Resource> {

@@ -7,6 +7,7 @@ import com.xeomar.util.IdGenerator;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceType;
+import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskManager;
 import com.xeomar.xenon.tool.ProgramTool;
 import com.xeomar.xenon.tool.ToolInstanceMode;
@@ -16,7 +17,6 @@ import com.xeomar.xenon.workarea.ToolParameters;
 import com.xeomar.xenon.workarea.Workpane;
 import com.xeomar.xenon.workarea.WorkpaneView;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+
+//import javafx.concurrent.Task;
 
 public class ToolManager implements Controllable<ToolManager> {
 
@@ -266,25 +268,38 @@ public class ToolManager implements Controllable<ToolManager> {
 	private ProgramTool getToolInstance( OpenToolRequest request ) {
 		Resource resource = request.getResource();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
-		Product product = toolClassMetadata.get( toolClass ).getProduct();
+		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
-		Task<ProgramTool> createToolTask = new Task<>() {
-
-			@Override
-			protected ProgramTool call() {
-
-				// Have to have a ProductTool to support modules
-				try {
-					// Create the new tool instance
-					Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
-					return constructor.newInstance( product, resource );
-				} catch( Exception exception ) {
-					log.error( "Error creating instance: " + toolClass.getName(), exception );
-				}
-				return null;
+		Task<ProgramTool> createToolTask = Task.of( "", () -> {
+			// Have to have a ProductTool to support modules
+			try {
+				// Create the new tool instance
+				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
+				return constructor.newInstance( product, resource );
+			} catch( Exception exception ) {
+				log.error( "Error creating instance: " + toolClass.getName(), exception );
 			}
 
-		};
+			return null;
+		});
+
+//		Task<ProgramTool> createToolTask = new Task<>() {
+//
+//			@Override
+//			protected ProgramTool call() {
+//
+//				// Have to have a ProductTool to support modules
+//				try {
+//					// Create the new tool instance
+//					Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
+//					return constructor.newInstance( product, resource );
+//				} catch( Exception exception ) {
+//					log.error( "Error creating instance: " + toolClass.getName(), exception );
+//				}
+//				return null;
+//			}
+//
+//		};
 
 		if( Platform.isFxApplicationThread() ) {
 			createToolTask.run();
@@ -314,7 +329,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param tool The tool that should be notified when the resource is ready
 	 */
 	private void scheduleResourceReady( OpenToolRequest request, ProgramTool tool ) {
-		program.getExecutor().submit( () -> {
+		program.getTaskManager().submit( Task.of( "", () -> {
 			Resource resource = request.getResource();
 			try {
 				resource.waitForReady( Resource.RESOURCE_READY_TIMEOUT, TimeUnit.SECONDS );
@@ -322,7 +337,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			} catch( InterruptedException exception ) {
 				log.warn( "Wait for resource interrupted: " + resource, exception );
 			}
-		} );
+		}) );
 	}
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {

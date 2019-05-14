@@ -23,7 +23,7 @@ class InstalledPage extends ProductPage {
 	@Override
 	protected void updateState() {
 		ProductTool.log.trace( "Update installed products" );
-		productTool.getProgram().getExecutor().submit( new RefreshInstalledProducts(productTool) );
+		productTool.getProgram().getTaskManager().submit( new RefreshInstalledProducts(productTool) );
 	}
 
 }
