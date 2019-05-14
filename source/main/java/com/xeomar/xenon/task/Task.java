@@ -38,13 +38,13 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private final Object stateLock = new Object();
 
+	private final Throwable exceptionSource = new TaskException();
+
 	private State state = State.WAITING;
 
 	private Priority priority;
 
 	private String name;
-
-	private TaskFuture<R> future;
 
 	private TaskManager manager;
 
@@ -74,7 +74,36 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		listeners = new CopyOnWriteArraySet<>();
 	}
 
-//	@Override
+	@Override
+	public void run() {
+		setState( Task.State.RUNNING );
+		fireTaskEvent( TaskEvent.Type.TASK_START );
+		super.run();
+	}
+
+	@Override
+	protected void done() {
+		setProgress( getTotal() );
+		fireTaskEvent( TaskEvent.Type.TASK_FINISH );
+		if( isCancelled() ) setState( Task.State.CANCELLED );
+		setTaskManager( null );
+		super.done();
+	}
+
+	@Override
+	protected void set( R value ) {
+		setState( Task.State.SUCCESS );
+		super.set( value );
+	}
+
+	@Override
+	protected void setException( Throwable throwable ) {
+		setState( Task.State.FAILED );
+		exceptionSource.initCause( throwable );
+		super.setException( exceptionSource );
+	}
+
+	//	@Override
 //	public boolean isDone() {
 //		return future != null && future.isDone();
 //	}
@@ -180,8 +209,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 				futureTask.run();
 				try {
 					return futureTask.get();
-				} catch( InterruptedException | ExecutionException e ) {
-					e.printStackTrace();
+				} catch( InterruptedException | ExecutionException exception ) {
+					exception.printStackTrace();
 				}
 				return null;
 			}
@@ -196,10 +225,6 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
 		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
-	}
-
-	FutureTask<R> createFuture() {
-		return this.future = new TaskFuture<>( this );
 	}
 
 	void fireTaskEvent( TaskEvent.Type type ) {

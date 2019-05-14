@@ -1,6 +1,7 @@
 package com.xeomar.xenon.task;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
@@ -16,6 +17,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 	private TaskManager manager;
 
+	@Before
 	@Override
 	public void setup() {
 		// Use a different manager instance

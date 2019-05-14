@@ -64,75 +64,75 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		}
 	}
 
-	public <T> TaskFuture<T> submit( Task<T> task ) {
-		return (TaskFuture<T>)checkRunning().submit( (Callable<T>)task );
+	public <T> Task<T> submit( Task<T> task ) {
+		return (Task<T>)checkRunning().submit( (Callable<T>)task );
 	}
 
-//	@Override
-//	public void execute( Runnable task ) {
-//		submit( task );
-//	}
-//
-//	@Override
-//	public <T> Future<T> submit( Callable<T> task ) {
-//		return checkRunning().submit( task );
-//	}
-//
-//	@Override
-//	public Future<?> submit( Runnable task ) {
-//		return checkRunning().submit( task );
-//	}
-//
-//	@Override
-//	public <T> Future<T> submit( Runnable task, T result ) {
-//		return checkRunning().submit( task, result );
-//	}
-//
-//	/**
-//	 * Synchronously submit a task.
-//	 *
-//	 * @param task The task to execute
-//	 * @return The Future for the task
-//	 * @throws InterruptedException if the executing task is interrupted
-//	 */
-//	public <T> Future<T> invoke( Callable<T> task ) throws InterruptedException {
-//		return invokeAll( List.of( task ) ).get( 0 );
-//	}
-//
-//	@Override
-//	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks ) throws InterruptedException {
-//		return checkRunning().invokeAll( tasks );
-//	}
-//
-//	@Override
-//	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException {
-//		return checkRunning().invokeAll( tasks, timeout, unit );
-//	}
-//
-//	@Override
-//	public <T> T invokeAny( Collection<? extends Callable<T>> tasks ) throws InterruptedException, ExecutionException {
-//		return checkRunning().invokeAny( tasks );
-//	}
-//
-//	@Override
-//	public <T> T invokeAny( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
-//		return checkRunning().invokeAny( tasks, timeout, unit );
-//	}
-//
-//	@Override
-//	public void shutdown() {
-//		executor.shutdown();
-//	}
-//
-//	@Override
-//	public List<Runnable> shutdownNow() {
-//		return executor.shutdownNow();
-//	}
-//
-//	@Override
-//	public boolean awaitTermination( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return executor.awaitTermination( timeout, unit );
-//	}
+	//	@Override
+	//	public void execute( Runnable task ) {
+	//		submit( task );
+	//	}
+	//
+	//	@Override
+	//	public <T> Future<T> submit( Callable<T> task ) {
+	//		return checkRunning().submit( task );
+	//	}
+	//
+	//	@Override
+	//	public Future<?> submit( Runnable task ) {
+	//		return checkRunning().submit( task );
+	//	}
+	//
+	//	@Override
+	//	public <T> Future<T> submit( Runnable task, T result ) {
+	//		return checkRunning().submit( task, result );
+	//	}
+	//
+	//	/**
+	//	 * Synchronously submit a task.
+	//	 *
+	//	 * @param task The task to execute
+	//	 * @return The Future for the task
+	//	 * @throws InterruptedException if the executing task is interrupted
+	//	 */
+	//	public <T> Future<T> invoke( Callable<T> task ) throws InterruptedException {
+	//		return invokeAll( List.of( task ) ).get( 0 );
+	//	}
+	//
+	//	@Override
+	//	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks ) throws InterruptedException {
+	//		return checkRunning().invokeAll( tasks );
+	//	}
+	//
+	//	@Override
+	//	public <T> List<Future<T>> invokeAll( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return checkRunning().invokeAll( tasks, timeout, unit );
+	//	}
+	//
+	//	@Override
+	//	public <T> T invokeAny( Collection<? extends Callable<T>> tasks ) throws InterruptedException, ExecutionException {
+	//		return checkRunning().invokeAny( tasks );
+	//	}
+	//
+	//	@Override
+	//	public <T> T invokeAny( Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
+	//		return checkRunning().invokeAny( tasks, timeout, unit );
+	//	}
+	//
+	//	@Override
+	//	public void shutdown() {
+	//		executor.shutdown();
+	//	}
+	//
+	//	@Override
+	//	public List<Runnable> shutdownNow() {
+	//		return executor.shutdownNow();
+	//	}
+	//
+	//	@Override
+	//	public boolean awaitTermination( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return executor.awaitTermination( timeout, unit );
+	//	}
 
 	public long getTaskCount() {
 		return getTasks().size();
@@ -169,15 +169,15 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return executor != null && !executor.isTerminated();
 	}
 
-//	@Override
-//	public boolean isShutdown() {
-//		return executor == null || executor.isShutdown();
-//	}
-//
-//	@Override
-//	public boolean isTerminated() {
-//		return executor == null || executor.isTerminated();
-//	}
+	//	@Override
+	//	public boolean isShutdown() {
+	//		return executor == null || executor.isShutdown();
+	//	}
+	//
+	//	@Override
+	//	public boolean isTerminated() {
+	//		return executor == null || executor.isTerminated();
+	//	}
 
 	@Override
 	public TaskManager start() {
@@ -276,17 +276,21 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 			Task<T> task = (Task<T>)callable;
 			task.setTaskManager( TaskManager.this );
 			tasks.add( task );
-			return task.createFuture();
+			return task;
 		}
 
 		@Override
-		protected void afterExecute( Runnable task, Throwable throwable ) {
-			if( task instanceof TaskFuture ) tasks.remove( ((TaskFuture)task).getTask() );
+		protected void afterExecute( Runnable runnable, Throwable throwable ) {
+			if( runnable instanceof Task ) {
+				Task task = (Task)runnable;
 
-			try {
-				((FutureTask)task).get();
-			} catch( Throwable getThrowable ) {
-				if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
+				tasks.remove( task );
+
+				try {
+					task.get();
+				} catch( Throwable getThrowable ) {
+					if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
+				}
 			}
 		}
 

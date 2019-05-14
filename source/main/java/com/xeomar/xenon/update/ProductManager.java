@@ -7,7 +7,6 @@ import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
 import com.xeomar.xenon.*;
-import com.xeomar.xenon.task.TaskFuture;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -1119,7 +1118,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		private Set<ProductCard> availableCards;
 
-		private Set<TaskFuture<Download>> taskFutures;
+		private Set<Future<Download>> taskFutures;
 
 		//private Map<ProductCard, DownloadTask> taskMap;
 
@@ -1166,7 +1165,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					// FIXME This can be improved by using the repo catalogs
 					// and only looking for products hosted by a repo
 					URI uri = repoClient.getProductUri( repo, installedCard.getArtifact(), "product", "card" );
-					DownloadTask<ProductCard> task = new DownloadTask( program, uri );
+					DownloadTask<ProductCard> task = new DownloadTask<>( program, uri );
 					task.setCarryOn( installedCard );
 					taskFutures.add( program.getTaskManager().submit( task ) );
 				}
@@ -1180,11 +1179,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		 * @param futures
 		 * @return A map of the updateable product key to product card
 		 */
-		private Map<String, ProductCard> determineUpdateableVersions( Set<TaskFuture<Download>> futures ) {
+		private Map<String, ProductCard> determineUpdateableVersions( Set<Future<Download>> futures ) {
 			Map<String, ProductCard> cards = new HashMap<>();
 
-			for( TaskFuture<Download> future : futures ) {
-				DownloadTask<ProductCard> task = (DownloadTask)future.getTask();
+			for( Future<Download> future : futures ) {
+				DownloadTask<ProductCard> task = (DownloadTask<ProductCard>)future;
 				ProductCard currentProduct = task.getCarryOn();
 				String key = currentProduct.getProductKey();
 
