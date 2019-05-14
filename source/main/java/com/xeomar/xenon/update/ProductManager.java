@@ -527,16 +527,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
+		// NOTE Synchronous call
 		return new FindPostedUpdatesTask( program, force ).call();
 	}
 
-	void cacheSelectedUpdates( Set<ProductCard> packs ) throws Exception {
-		// TODO Finish implementing ProductManager.cacheSelectedUpdates()
+	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {
+		// TODO Finish implementing ProductManager.storeSelectedUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 
-	void stageCachedUpdates( Set<ProductCard> packs ) throws Exception {
-		// TODO Finish implementing ProductManager.stageCachedUpdates()
+	void applyStoredUpdates( Set<ProductCard> packs ) throws Exception {
+		// TODO Finish implementing ProductManager.applyStoredUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
 	}
 

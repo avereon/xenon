@@ -135,6 +135,8 @@ public class ProgramProductManager extends ProductManager {
 		CheckForUpdates( Program program, boolean interactive ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-check" ) );
 			this.interactive = interactive;
+
+			// FIXME Is this in the constructor to improve UX?
 			postedUpdatesFuture = program.getTaskManager().submit( new FindPostedUpdatesTask( program, interactive ) );
 		}
 
@@ -154,6 +156,8 @@ public class ProgramProductManager extends ProductManager {
 				log.trace( "Error getting posted updates", exception );
 			}
 
+			// FIXME From here down can be a new "task"
+
 			// Notify the user if updates are not available
 			boolean available = postedUpdates != null && postedUpdates.size() > 0;
 			if( !available ) {
@@ -171,6 +175,7 @@ public class ProgramProductManager extends ProductManager {
 				return null;
 			}
 
+			// FIXME NOTE The following logic just submits more tasks
 			if( program.isRunning() ) handleFoundUpdates( installedPacks, postedUpdates, interactive );
 
 			return null;
@@ -188,12 +193,12 @@ public class ProgramProductManager extends ProductManager {
 					break;
 				}
 				case STORE: {
-					// Store (download) all updates without user intervention.
+					// Store all updates without user intervention
 					program.getTaskManager().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
 					break;
 				}
 				case APPLY: {
-					// Stage all updates without user intervention.
+					// Apply all updates without user intervention
 					program.getTaskManager().submit( new ApplyUpdates( program, postedUpdates, false ) );
 					break;
 				}
@@ -230,12 +235,12 @@ public class ProgramProductManager extends ProductManager {
 
 		@Override
 		public Void call() throws Exception {
-			cacheSelectedUpdates( postedUpdates );
-			handleCachedUpdates( installedPacks, postedUpdates );
+			storeSelectedUpdates( postedUpdates );
+			handleStoredUpdates( installedPacks, postedUpdates );
 			return null;
 		}
 
-		private void handleCachedUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
+		private void handleStoredUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
 			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 			Platform.runLater( () -> {
 				UpdatesPanel updates = new UpdatesPanel( installedPacks, postedUpdates );
@@ -247,24 +252,24 @@ public class ProgramProductManager extends ProductManager {
 				Stage stage = program.getWorkspaceManager().getActiveStage();
 				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-				if( result.isPresent() && result.get() == ButtonType.OK ) program.getTaskManager().submit( new StageCachedUpdates( updates.getSelectedUpdates() ) );
+				if( result.isPresent() && result.get() == ButtonType.OK ) program.getTaskManager().submit( new ApplyStoredUpdates( updates.getSelectedUpdates() ) );
 			} );
 		}
 
 	}
 
-	private final class StageCachedUpdates extends ProgramTask<Void> {
+	private final class ApplyStoredUpdates extends ProgramTask<Void> {
 
 		private Set<ProductCard> selectedUpdates;
 
-		StageCachedUpdates( Set<ProductCard> selectedUpdates ) {
+		ApplyStoredUpdates( Set<ProductCard> selectedUpdates ) {
 			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-cached" ) );
 			this.selectedUpdates = selectedUpdates;
 		}
 
 		@Override
 		public Void call() throws Exception {
-			stageCachedUpdates( selectedUpdates );
+			applyStoredUpdates( selectedUpdates );
 			return null;
 		}
 
