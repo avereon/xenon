@@ -1,0 +1,57 @@
+Check for updates ->
+
+new CheckForUpdatesTask( interactive=true ) - Create and submit the FindPostedUpdatesTask
+
+new FindPostedUpdatesTask( program, interactive=true )
+
+new GetRepoCatalogTask( Set<RepoCard> )
+
+-> new Set<DownloadTask<CatalogCard>>
+new CollectDownloadsTask( Set<Future<DownloadTask<CatalogCard>>>) - This task
+specifically waits for all the downloads to complete. It could probably be
+generalized and generified to be used with all "wait for download" tasks.
+<- Map<RepoCard, Set<CatalogCard>> - Note that this return is a mix of the
+provided set of RepoCards from the previous task and the returned download
+objects.
+
+new GetProductCardTask( Map<RepoCard, Set<CatalogCard>> )
+
+-> new Set<DownloadTask<ProductCard>> - The set of product cards to download can
+reduced if the set of installed products is also provided. Otherwise, this
+task can be used to download all product cards. So it may depend on the need
+what parameters are supplied to the task.
+new CollectDownloadsTask( Set<Future<DownloadTask<ProductCard>>> )
+<- Map<RepoCard, Set<ProductCard>>
+
+new DetermineUpdateableVersionTask( Map<RepoCard, Set<ProductCard>>, installedProducts )
+<- Set<ProductCard> - This is the set of updates available for the installed products
+
+The FindPostedUpdatesTask receives the result of the above tasks and returns
+the result back to the CheckForUpdatesTask.
+
+The CheckForUpdatesTask notifies the user if updates are not available.
+if interactive -> new OpenProductManger() on the FxPlatformThread
+
+Otherwise, it processes the available updates according to the "updates found"
+option in the settings
+if !interactive ->
+
+if STORE -> new StoreUpdatesTask()
+  -> throws NotImplementedException
+
+if APPLY -> new ApplyUpdatesTask()
+-> new StageUpdatesTask(program, Set<ProductCard>, interactive)
+
+-> new Set<CreateUpdateTask>
+new CollectProductUpdatesTask( Set<Future<ProductUpdate>> )
+<- Set<ProductUpdate>
+
+new FinishStagingUpdatesTask( Set<ProductUpdate> )
+<- The count of how many updates were staged
+
+The count is returned to the ApplyUpdatesTask
+
+if interactive alert user a restart is required
+if the user chooes a restart, request a program restart
+
+if !interactive notify user a restart is recommended
