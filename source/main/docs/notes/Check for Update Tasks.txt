@@ -4,7 +4,7 @@ new CheckForUpdatesTask( interactive=true ) - Create and submit the FindPostedUp
 
 new FindPostedUpdatesTask( program, interactive=true )
 
-new GetRepoCatalogTask( Set<RepoCard> )
+new GetRepoCatalogsTask( Set<RepoCard> )
 
 -> new Set<DownloadTask<CatalogCard>>
 new CollectDownloadsTask( Set<Future<DownloadTask<CatalogCard>>>) - This task
@@ -14,7 +14,7 @@ generalized and generified to be used with all "wait for download" tasks.
 provided set of RepoCards from the previous task and the returned download
 objects.
 
-new GetProductCardTask( Map<RepoCard, Set<CatalogCard>> )
+new GetProductCardsTask( Map<RepoCard, CatalogCard> )
 
 -> new Set<DownloadTask<ProductCard>> - The set of product cards to download can
 reduced if the set of installed products is also provided. Otherwise, this

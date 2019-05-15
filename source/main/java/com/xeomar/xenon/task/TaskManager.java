@@ -77,11 +77,11 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	}
 
 	public int getCurrentThreadCount() {
-		return executor.getPoolSize();
+		return executor == null ? 0 : executor.getPoolSize();
 	}
 
 	public int getMaxThreadCount() {
-		return executor.getCorePoolSize();
+		return executor == null ? 0 : executor.getCorePoolSize();
 	}
 
 	public void setMaxThreadCount( int count ) {

@@ -47,7 +47,11 @@ public class ProgramProductManager extends ProductManager {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		program.getTaskManager().submit( new CheckForUpdates( program, interactive ) );
+		if( interactive ) {
+			new UpdateCheckPoc( program ).checkForUpdates( interactive );
+		} else {
+			program.getTaskManager().submit( new CheckForUpdates( program, interactive ) );
+		}
 	}
 
 	/**
