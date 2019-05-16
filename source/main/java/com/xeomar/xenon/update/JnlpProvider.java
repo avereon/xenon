@@ -16,13 +16,15 @@ public class JnlpProvider implements ProductResourceProvider {
 
 	private XmlDescriptor descriptor;
 
-	public JnlpProvider( XmlDescriptor descriptor, Program program ) {
+	private URI codebase;
+
+	public JnlpProvider( XmlDescriptor descriptor, Program program, URI codebase ) {
 		this.program = program;
 		this.descriptor = descriptor;
 	}
 
 	@Override
-	public Set<ProductResource> getResources( URI codebase ) throws Exception {
+	public Set<ProductResource> getResources() throws Exception {
 		return getResources( codebase, descriptor );
 	}
 
@@ -51,7 +53,7 @@ public class JnlpProvider implements ProductResourceProvider {
 		}
 		for( String extension : extensions ) {
 			Future<Download> future = program.getTaskManager().submit( new DownloadTask( program, codebase.resolve( extension ) ) );
-			resources.addAll( new JnlpProvider( new XmlDescriptor( future.get().getInputStream() ), program ).getResources( codebase ) );
+			resources.addAll( new JnlpProvider( new XmlDescriptor( future.get().getInputStream() ), program, codebase ).getResources() );
 		}
 
 		return resources;

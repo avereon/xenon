@@ -6,10 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /*
 The catalog.card file, and therefore this class, server two purposes but
@@ -38,8 +36,6 @@ public class RepoCard {
 
 	private int rank;
 
-	private Set<String> products = new HashSet<>();
-
 	public RepoCard() {}
 
 	public RepoCard( String repo ) {
@@ -53,23 +49,6 @@ public class RepoCard {
 	public static List<RepoCard> loadCards( InputStream input ) throws IOException {
 		return new ObjectMapper().readerFor( new TypeReference<List<RepoCard>>() {} ).readValue( input );
 	}
-
-	//	public RepoCard copyFrom( RepoCard card ) {
-	//		return updateWith( card, null );
-	//	}
-	//
-	//	public RepoCard updateWith( RepoCard card, URI source ) {
-	//		this.name = card.name;
-	//		this.iconUri = card.iconUri;
-	//		this.cardUri = card.cardUri;
-	//		this.enabled = card.enabled;
-	//		this.removable = card.removable;
-	//		this.products = card.products;
-	//
-	//		if( source != null ) this.cardUri = source.toString();
-	//
-	//		return this;
-	//	}
 
 	public String getName() {
 		return name;
@@ -118,14 +97,6 @@ public class RepoCard {
 	public void setRank( int rank ) {
 		this.rank = rank;
 	}
-
-	//	public Set<String> getProducts() {
-//		return products;
-//	}
-//
-//	public void setProducts( Set<String> products ) {
-//		this.products = products == null ? Set.of() : new HashSet<>( products );
-//	}
 
 	@Override
 	public String toString() {

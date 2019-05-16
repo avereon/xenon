@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.LongConsumer;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -85,9 +86,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public static final String NEXT_CHECK_TIME = "product-update-next-check-time";
 
-	private static final String MODULE_INSTALL_FOLDER_NAME = "modules";
+	static final String UPDATE_FOLDER_NAME = "updates";
 
-	private static final String UPDATE_FOLDER_NAME = "updates";
+	private static final String MODULE_INSTALL_FOLDER_NAME = "modules";
 
 	private static final String CHECK = "product-update-check";
 
@@ -733,6 +734,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return delay;
 	}
 
+	public Set<ProductManagerListener> getProductManagerListeners() {
+		return new HashSet<>( listeners );
+	}
+
 	public void addProductManagerListener( ProductManagerListener listener ) {
 		listeners.add( listener );
 	}
@@ -1017,7 +1022,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		getSettings().remove( REMOVES_SETTINGS_KEY );
 	}
 
-	private void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
+	void copyProductResources( Set<ProductResource> resources, Path folder ) throws IOException {
 		if( resources == null ) return;
 
 		for( ProductResource resource : resources ) {
@@ -1115,6 +1120,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Not sure what to do to unload a mod
 	}
 
+	@Deprecated
 	final class FindPostedUpdatesTask extends ProgramTask<Set<ProductCard>> {
 
 		private boolean force;
@@ -1297,6 +1303,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 	}
 
+	@Deprecated
 	private final class CreateUpdate extends ProgramTask<ProductUpdate> {
 
 		private Set<ProductResource> resources;
@@ -1315,8 +1322,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			try {
 				URI codebase = updateCard.getProductUri( getProductParameters( updateCard, "card" ) );
 				log.debug( "Resource codebase: " + codebase );
-				PackProvider provider = new PackProvider( program, updateCard, getProductParameters( updateCard, "pack" ) );
-				resources = provider.getResources( codebase );
+//				PackProvider provider = new PackProvider( program, repo, repoClient, updateCard );
+//				resources = provider.getResources(  );
 				setTotal( resources.size() );
 
 				log.debug( "Product resource count: " + resources.size() );
@@ -1340,9 +1347,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				try {
 					resource.waitFor();
 					log.debug( "Resource target: " + resource.getLocalFile() );
-
-					// TODO Verify resources are secure by checking digital signatures.
-					// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
 
 				} catch( Exception exception ) {
 					resource.setThrowable( exception );
@@ -1368,10 +1372,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// Notify listeners the update is staged.
 			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_STAGED, updateCard ).fire( listeners );
 
-			return new ProductUpdate( updateCard, updatePack, installFolder );
+			return new ProductUpdate( null, updateCard, updatePack, installFolder );
 		}
 
-		private void stageResources( Path updatePack, LongCallback progressCallback ) throws IOException {
+		private void stageResources( Path updatePack, LongConsumer progressCallback ) throws IOException {
 			// If there is only one resource and it is already an update pack then
 			// just copy it. Otherwise, collect all packs and files into one zip
 			// file as the update pack.
@@ -1391,6 +1395,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	}
 
+	@Deprecated
 	final class StageUpdates extends ProgramTask<Integer> {
 
 		/**

@@ -6,29 +6,32 @@ import com.xeomar.xenon.Program;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class PackProvider implements ProductResourceProvider {
 
 	private Program program;
 
+	private RepoCard repo;
+
+	private RepoClient repoClient;
+
 	private ProductCard card;
 
-	private Map<String,String> parameters;
-
-	public PackProvider( Program program, ProductCard card, Map<String,String> parameters ) {
-		this.card = card;
+	public PackProvider( Program program, RepoCard repo, RepoClient client, ProductCard card ) {
 		this.program = program;
-		this.parameters = parameters;
+		this.repo = repo;
+		this.repoClient = client;
+		this.card = card;
 	}
 
 	@Override
-	public Set<ProductResource> getResources( URI codebase ) throws URISyntaxException {
+	public Set<ProductResource> getResources() throws URISyntaxException {
 		Set<ProductResource> resources = new HashSet<>();
 
 		// Add the product pack as a resource
-		resources.add( new ProductResource( ProductResource.Type.PACK, card.getProductUri( parameters ) ) );
+		URI codebase = repoClient.getProductUri( repo, card.getArtifact(), "product", "pack" );
+		resources.add( new ProductResource( ProductResource.Type.PACK, codebase ) );
 
 //		// Determine what other resources need to be downloaded
 //		String[] files = card.getResourceUris( "file" );

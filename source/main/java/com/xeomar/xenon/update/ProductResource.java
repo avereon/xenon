@@ -10,7 +10,8 @@ import java.util.concurrent.Future;
 public final class ProductResource {
 
 	public enum Type {
-		FILE, PACK
+		FILE,
+		PACK
 	}
 
 	private ProductResource.Type type;
@@ -71,7 +72,14 @@ public final class ProductResource {
 	}
 
 	public boolean isValid() {
-		return throwable == null;
+		// TODO Verify resources are secure by checking digital signatures
+		// Reference: http://docs.oracle.com/javase/6/docs/technotes/guides/security/crypto/HowToImplAProvider.html#CheckJARFile
+		boolean signed = true;
+
+		// Check that there were no exceptions retrieving the resource
+		boolean complete = throwable == null;
+
+		return signed && complete;
 	}
 
 	@Override
@@ -79,7 +87,4 @@ public final class ProductResource {
 		return type.name() + ": " + uri;
 	}
 
-	private String parseName( URI uri ) {
-		return null;
-	}
 }

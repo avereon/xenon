@@ -7,8 +7,8 @@ import com.xeomar.xenon.resource.Resource;
 import com.xeomar.xenon.resource.ResourceException;
 import com.xeomar.xenon.resource.type.ProgramNoticeType;
 import com.xeomar.xenon.tool.notice.NoticeTool;
+import com.xeomar.xenon.util.FxUtil;
 import com.xeomar.xenon.workarea.Tool;
-import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.slf4j.Logger;
@@ -37,6 +37,8 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void addNotice( Notice notice ) {
+		FxUtil.checkFxUserThread();
+
 		((NoticeList)resource.getModel()).addNotice( notice );
 
 		resource.refresh( program.getResourceManager() );
@@ -45,7 +47,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		if( tools.size() > 0 ) {
 			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
 		} else {
-			Platform.runLater( () -> program.getWorkspaceManager().getActiveWorkspace().showNotice( notice ) );
+			getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
 			updateUnreadCount();
 		}
 	}

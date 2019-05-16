@@ -5,12 +5,7 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
-import com.xeomar.xenon.ProgramTask;
-import com.xeomar.xenon.notice.Notice;
-import com.xeomar.xenon.resource.type.ProgramProductType;
-import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.DialogUtil;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -18,11 +13,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class ProgramProductManager extends ProductManager {
 
@@ -35,23 +27,32 @@ public class ProgramProductManager extends ProductManager {
 		this.program = program;
 	}
 
-	// This is a method for testing the update found dialog.
-	// It should not be used for production functionality.
-	public void showUpdateFoundDialog() {
-		new ApplyUpdates( program, Set.of(), true ).handleApplyUpdates();
-	}
-
 	@Override
 	public void checkForUpdates() {
 		checkForUpdates( false );
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		if( interactive ) {
-			new UpdateCheckPoc( program ).checkForUpdates( interactive );
-		} else {
-			program.getTaskManager().submit( new CheckForUpdates( program, interactive ) );
-		}
+		// NEXT Go down the non-interactive path for testing
+		new UpdateCheckPoc( program ).checkForUpdates( false );
+		//		if( interactive ) {
+		//		} else {
+		//			program.getTaskManager().submit( new CheckForUpdates( program, interactive ) );
+		//		}
+	}
+
+	/**
+	 * Starts a new task to apply the selected updates.
+	 *
+	 * @param updates The updates to apply.
+	 */
+	@Override
+	public void applySelectedUpdates( Set<ProductCard> updates ) {
+		applySelectedUpdates( updates, false );
+	}
+
+	public void applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
+		new UpdateCheckPoc( program ).stageAndApplyUpdates( updates, interactive );
 	}
 
 	/**
@@ -116,168 +117,154 @@ public class ProgramProductManager extends ProductManager {
 		return 0;
 	}
 
-	/**
-	 * Starts a new task to apply the selected updates.
-	 *
-	 * @param updates The updates to apply.
-	 */
-	@Override
-	public void applySelectedUpdates( Set<ProductCard> updates ) {
-		applySelectedUpdates( updates, false );
-	}
+	//	private final class CheckForUpdates extends ProgramTask<Void> {
+	//
+	//		private boolean interactive;
+	//
+	//		private Future<Set<ProductCard>> postedUpdatesFuture;
+	//
+	//		CheckForUpdates( Program program, boolean interactive ) {
+	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-check" ) );
+	//			this.interactive = interactive;
+	//
+	//			// FIXME Is this in the constructor to improve UX?
+	//			postedUpdatesFuture = program.getTaskManager().submit( new FindPostedUpdatesTask( program, interactive ) );
+	//		}
+	//
+	//		@Override
+	//		public Void call() throws Exception {
+	//			if( !isEnabled() ) return null;
+	//
+	//			// Get the installed packs.
+	//			Set<ProductCard> installedPacks = getInstalledProductCards();
+	//
+	//			// Get the posted updates.
+	//			Set<ProductCard> postedUpdates = null;
+	//			try {
+	//				postedUpdates = postedUpdatesFuture.get();
+	//			} catch( ExecutionException exception ) {
+	//				log.warn( exception.getClass().getName(), exception.getMessage() );
+	//				log.trace( "Error getting posted updates", exception );
+	//			}
+	//
+	//			// FIXME From here down can be a new "task"
+	//
+	//			// Notify the user if updates are not available
+	//			boolean available = postedUpdates != null && postedUpdates.size() > 0;
+	//			if( !available ) {
+	//
+	//				// If interactive notify the user
+	//				if( interactive ) {
+	//					String title = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+	//					String updatesNotAvailable = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
+	//					String updatesCannotConnect = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
+	//					final String message = postedUpdates == null ? updatesCannotConnect : updatesNotAvailable;
+	//					Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
+	//				}
+	//
+	//				// If not available just return here
+	//				return null;
+	//			}
+	//
+	//			// FIXME NOTE The following logic just submits more tasks
+	//			if( program.isRunning() ) handleFoundUpdates( installedPacks, postedUpdates, interactive );
+	//
+	//			return null;
+	//		}
+	//
+	//		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
+	//			if( interactive ) {
+	//				openProductManager();
+	//				return;
+	//			}
+	//
+	//			switch( getFoundOption() ) {
+	//				case SELECT: {
+	//					notifyUserOfUpdates();
+	//					break;
+	//				}
+	//				case STORE: {
+	//					// Store all updates without user intervention
+	//					program.getTaskManager().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
+	//					break;
+	//				}
+	//				case APPLY: {
+	//					// Apply all updates without user intervention
+	//					program.getTaskManager().submit( new ApplyUpdates( program, postedUpdates, false ) );
+	//					break;
+	//				}
+	//			}
+	//		}
+	//
+	//		private void openProductManager() {
+	//			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+	//			Platform.runLater( () -> program.getResourceManager().open( uri ) );
+	//		}
+	//
+	//		private void notifyUserOfUpdates() {
+	//			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+	//			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+	//			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+	//
+	//			Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
+	//			program.getNoticeManager().addNotice( notice );
+	//		}
+	//
+	//	}
 
-	public void applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
-		program.getTaskManager().submit( new ApplyUpdates( program, updates, interactive ) );
-	}
+	//	private final class StoreUpdates extends ProgramTask<Void> {
+	//
+	//		private Set<ProductCard> installedPacks;
+	//
+	//		private Set<ProductCard> postedUpdates;
+	//
+	//		StoreUpdates( Program program, Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
+	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-selected" ) );
+	//			this.installedPacks = installedPacks;
+	//			this.postedUpdates = postedUpdates;
+	//		}
+	//
+	//		@Override
+	//		public Void call() throws Exception {
+	//			storeSelectedUpdates( postedUpdates );
+	//			handleStoredUpdates( installedPacks, postedUpdates );
+	//			return null;
+	//		}
+	//
+	//		private void handleStoredUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
+	//			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+	//			Platform.runLater( () -> {
+	//				UpdatesPanel updates = new UpdatesPanel( installedPacks, postedUpdates );
+	//
+	//				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.OK, ButtonType.CANCEL );
+	//				alert.setTitle( title );
+	//				alert.getDialogPane().setContent( updates );
+	//
+	//				Stage stage = program.getWorkspaceManager().getActiveStage();
+	//				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+	//
+	//				if( result.isPresent() && result.get() == ButtonType.OK ) program.getTaskManager().submit( new ApplyStoredUpdates( updates.getSelectedUpdates() ) );
+	//			} );
+	//		}
+	//
+	//	}
 
-	private final class CheckForUpdates extends ProgramTask<Void> {
-
-		private boolean interactive;
-
-		private Future<Set<ProductCard>> postedUpdatesFuture;
-
-		CheckForUpdates( Program program, boolean interactive ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-check" ) );
-			this.interactive = interactive;
-
-			// FIXME Is this in the constructor to improve UX?
-			postedUpdatesFuture = program.getTaskManager().submit( new FindPostedUpdatesTask( program, interactive ) );
-		}
-
-		@Override
-		public Void call() throws Exception {
-			if( !isEnabled() ) return null;
-
-			// Get the installed packs.
-			Set<ProductCard> installedPacks = getInstalledProductCards();
-
-			// Get the posted updates.
-			Set<ProductCard> postedUpdates = null;
-			try {
-				postedUpdates = postedUpdatesFuture.get();
-			} catch( ExecutionException exception ) {
-				log.warn( exception.getClass().getName(), exception.getMessage() );
-				log.trace( "Error getting posted updates", exception );
-			}
-
-			// FIXME From here down can be a new "task"
-
-			// Notify the user if updates are not available
-			boolean available = postedUpdates != null && postedUpdates.size() > 0;
-			if( !available ) {
-
-				// If interactive notify the user
-				if( interactive ) {
-					String title = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-					String updatesNotAvailable = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
-					String updatesCannotConnect = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
-					final String message = postedUpdates == null ? updatesCannotConnect : updatesNotAvailable;
-					Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
-				}
-
-				// If not available just return here
-				return null;
-			}
-
-			// FIXME NOTE The following logic just submits more tasks
-			if( program.isRunning() ) handleFoundUpdates( installedPacks, postedUpdates, interactive );
-
-			return null;
-		}
-
-		private void handleFoundUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates, boolean interactive ) {
-			if( interactive ) {
-				openProductManager();
-				return;
-			}
-
-			switch( getFoundOption() ) {
-				case SELECT: {
-					notifyUserOfUpdates();
-					break;
-				}
-				case STORE: {
-					// Store all updates without user intervention
-					program.getTaskManager().submit( new StoreUpdates( program, installedPacks, postedUpdates ) );
-					break;
-				}
-				case APPLY: {
-					// Apply all updates without user intervention
-					program.getTaskManager().submit( new ApplyUpdates( program, postedUpdates, false ) );
-					break;
-				}
-			}
-		}
-
-		private void openProductManager() {
-			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-			Platform.runLater( () -> program.getResourceManager().open( uri ) );
-		}
-
-		private void notifyUserOfUpdates() {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-
-			Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
-			program.getNoticeManager().addNotice( notice );
-		}
-
-	}
-
-	private final class StoreUpdates extends ProgramTask<Void> {
-
-		private Set<ProductCard> installedPacks;
-
-		private Set<ProductCard> postedUpdates;
-
-		StoreUpdates( Program program, Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-selected" ) );
-			this.installedPacks = installedPacks;
-			this.postedUpdates = postedUpdates;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			storeSelectedUpdates( postedUpdates );
-			handleStoredUpdates( installedPacks, postedUpdates );
-			return null;
-		}
-
-		private void handleStoredUpdates( Set<ProductCard> installedPacks, Set<ProductCard> postedUpdates ) {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			Platform.runLater( () -> {
-				UpdatesPanel updates = new UpdatesPanel( installedPacks, postedUpdates );
-
-				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.OK, ButtonType.CANCEL );
-				alert.setTitle( title );
-				alert.getDialogPane().setContent( updates );
-
-				Stage stage = program.getWorkspaceManager().getActiveStage();
-				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-				if( result.isPresent() && result.get() == ButtonType.OK ) program.getTaskManager().submit( new ApplyStoredUpdates( updates.getSelectedUpdates() ) );
-			} );
-		}
-
-	}
-
-	private final class ApplyStoredUpdates extends ProgramTask<Void> {
-
-		private Set<ProductCard> selectedUpdates;
-
-		ApplyStoredUpdates( Set<ProductCard> selectedUpdates ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-cached" ) );
-			this.selectedUpdates = selectedUpdates;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			applyStoredUpdates( selectedUpdates );
-			return null;
-		}
-
-	}
+	//	private final class ApplyStoredUpdates extends ProgramTask<Void> {
+	//
+	//		private Set<ProductCard> selectedUpdates;
+	//
+	//		ApplyStoredUpdates( Set<ProductCard> selectedUpdates ) {
+	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-cached" ) );
+	//			this.selectedUpdates = selectedUpdates;
+	//		}
+	//
+	//		@Override
+	//		public Void call() throws Exception {
+	//			applyStoredUpdates( selectedUpdates );
+	//			return null;
+	//		}
+	//
+	//	}
 
 	//	private final class StageUpdates extends ProgramTask<Integer> {
 	//
@@ -295,57 +282,57 @@ public class ProgramProductManager extends ProductManager {
 	//
 	//	}
 
-	private final class ApplyUpdates extends ProgramTask<Void> {
-
-		private boolean interactive;
-
-		private Future<Integer> stageFuture;
-
-		ApplyUpdates( Program program, Set<ProductCard> selectedUpdates, boolean interactive ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-apply-selected" ) );
-			this.interactive = interactive;
-			stageFuture = program.getTaskManager().submit( new StageUpdates( program, selectedUpdates ) );
-		}
-
-		@Override
-		public Void call() throws Exception {
-			if( stageFuture.get() > 0 ) handleApplyUpdates();
-			return null;
-		}
-
-		/**
-		 * Nearly identical to ProductTool.handleStagedUpdates()
-		 */
-		private void handleApplyUpdates() {
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
-
-			if( interactive ) {
-				Platform.runLater( this::showAlert );
-			} else {
-				program.getNoticeManager().addNotice( new Notice( header, message, () -> Platform.runLater( this::showAlert ) ) );
-			}
-		}
-
-		private void showAlert() {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
-
-			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( title );
-			alert.setHeaderText( header );
-			alert.setContentText( message );
-
-			Stage stage = program.getWorkspaceManager().getActiveStage();
-			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
-
-			if( result.isPresent() && result.get() == ButtonType.YES ) {
-				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
-				ProgramProductManager.super.userApplyStagedUpdates();
-			}
-		}
-
-	}
+//	private final class ApplyUpdates extends ProgramTask<Void> {
+//
+//		private boolean interactive;
+//
+//		private Future<Integer> stageFuture;
+//
+//		ApplyUpdates( Program program, Set<ProductCard> selectedUpdates, boolean interactive ) {
+//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-apply-selected" ) );
+//			this.interactive = interactive;
+//			stageFuture = program.getTaskManager().submit( new StageUpdates( program, selectedUpdates ) );
+//		}
+//
+//		@Override
+//		public Void call() throws Exception {
+//			if( stageFuture.get() > 0 ) handleApplyUpdates();
+//			return null;
+//		}
+//
+//		/**
+//		 * Nearly identical to ProductTool.handleStagedUpdates()
+//		 */
+//		private void handleApplyUpdates() {
+//			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+//			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+//
+//			if( interactive ) {
+//				Platform.runLater( this::showAlert );
+//			} else {
+//				program.getNoticeManager().addNotice( new Notice( header, message, () -> Platform.runLater( this::showAlert ) ) );
+//			}
+//		}
+//
+//		private void showAlert() {
+//			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+//			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+//			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+//
+//			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+//			alert.setTitle( title );
+//			alert.setHeaderText( header );
+//			alert.setContentText( message );
+//
+//			Stage stage = program.getWorkspaceManager().getActiveStage();
+//			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+//
+//			if( result.isPresent() && result.get() == ButtonType.YES ) {
+//				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
+//				ProgramProductManager.super.userApplyStagedUpdates();
+//			}
+//		}
+//
+//	}
 
 }

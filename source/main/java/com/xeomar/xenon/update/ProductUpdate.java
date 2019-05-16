@@ -18,6 +18,8 @@ public final class ProductUpdate implements Configurable {
 
 	private ProductCard card;
 
+	private RepoCard repo;
+
 	private Path source;
 
 	private Path target;
@@ -30,8 +32,9 @@ public final class ProductUpdate implements Configurable {
 	 */
 	public ProductUpdate() {}
 
-	public ProductUpdate( ProductCard card, Path source, Path target ) {
+	public ProductUpdate( RepoCard repo, ProductCard card, Path source, Path target ) {
 		this.card = card;
+		this.repo = repo;
 		this.source = source;
 		this.target = target;
 	}
@@ -42,6 +45,14 @@ public final class ProductUpdate implements Configurable {
 
 	public void setCard( ProductCard card ) {
 		this.card = card;
+	}
+
+	public RepoCard getRepo() {
+		return repo;
+	}
+
+	public void setRepo( RepoCard repo ) {
+		this.repo = repo;
 	}
 
 	public Path getSource() {
@@ -63,7 +74,6 @@ public final class ProductUpdate implements Configurable {
 	@Override
 	public void setSettings( Settings settings ) {
 		this.settings = settings;
-		//		card = new ProductCard( settings.getNode( "card" ) );
 		String sourcePath = settings.get( "source" );
 		String targetPath = settings.get( "target" );
 		source = sourcePath == null ? null : Paths.get( sourcePath );
@@ -73,9 +83,6 @@ public final class ProductUpdate implements Configurable {
 	@Override
 	public Settings getSettings() {
 		return settings;
-		//		card.saveSettings( settings.getNode( "card" ) );
-		//		settings.add( "source", source.getPath() );
-		//		settings.add( "target", target.getPath() );
 	}
 
 	@Override
