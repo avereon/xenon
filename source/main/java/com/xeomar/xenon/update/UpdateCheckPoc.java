@@ -46,11 +46,21 @@ public class UpdateCheckPoc {
 		program.getTaskManager().submit( new CheckForUpdatesTask( interactive ) );
 	}
 
+	public Set<ProductCard> findPostedUpdates( boolean force ) {
+		// TODO This method go through the logic as far as DetermineUpdateableVersionTask and return
+		return Set.of();
+	}
+
 	public void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
+		// TODO This method directly correlates to updating products from the ProductTool
+
 		Map<ProductCard, RepoCard> cards = new HashMap<>();
-		// TODO figure out the repos for the cards
 		// It will be interesting how to weave this into the existing logic
 		program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, false ) );
+	}
+
+	public void createProductUpdate( ProductCard card, Path updatePack ) {
+		// TODO This method should go through the logic to create a product update
 	}
 
 	// This is a method for testing the update found dialog.
