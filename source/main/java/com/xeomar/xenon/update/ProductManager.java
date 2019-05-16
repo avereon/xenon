@@ -229,17 +229,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		lastAvailableCheck = System.currentTimeMillis();
 
 		// FIXME Implement the following with a chainable task implementation
+		return new UpdateCheckPoc( program ).getAvailableProducts( force );
 
-		// Download all the catalog cards
-		log.warn( "Downloading catalog cards..." );
-		Set<CatalogCard> catalogCards = repoClient.getCatalogCards( getRepos() );
-		if( catalogCards.size() == 0 ) return Set.of();
-
-		// Download all the product cards
-		log.warn( "Downloading product cards..." );
-		Set<ProductCard> cards = repoClient.getProductCards( catalogCards );
-
-		return availableCards = cards;
+//		// Download all the catalog cards
+//		log.warn( "Downloading catalog cards..." );
+//		Set<CatalogCard> catalogCards = repoClient.getCatalogCards( getRepos() );
+//		if( catalogCards.size() == 0 ) return Set.of();
+//
+//		// Download all the product cards
+//		log.warn( "Downloading product cards..." );
+//		Set<ProductCard> cards = repoClient.getProductCards( catalogCards );
+//
+//		return availableCards = cards;
 	}
 
 	public Set<Mod> getModules() {

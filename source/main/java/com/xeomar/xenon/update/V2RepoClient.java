@@ -33,6 +33,7 @@ public class V2RepoClient implements RepoClient {
 		return UriUtil.addToPath( getRepoApi( repo ), "catalog" );
 	}
 
+	@Deprecated
 	@Override
 	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
 		URI uri = getRepoApi( repo );

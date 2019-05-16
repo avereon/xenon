@@ -43,7 +43,12 @@ public class UpdateCheckPoc {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		program.getTaskManager().submit( new CheckForUpdatesTask( interactive ) );
+		program.getTaskManager().submit( new DownloadCatalogCardTask( interactive ) );
+	}
+
+	public Set<ProductCard> getAvailableProducts( boolean force ) {
+		// TODO This method go through the logic as far as DownloadProductCardCollector and return
+		return Set.of();
 	}
 
 	public Set<ProductCard> findPostedUpdates( boolean force ) {
@@ -69,11 +74,11 @@ public class UpdateCheckPoc {
 		new ApplyUpdates( Set.of(), true ).call();
 	}
 
-	private class CheckForUpdatesTask extends Task<Map<RepoCard, Task<Download>>> {
+	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
 
 		private boolean interactive;
 
-		public CheckForUpdatesTask( boolean interactive ) {
+		public DownloadCatalogCardTask( boolean interactive ) {
 			this.interactive = interactive;
 		}
 
@@ -120,20 +125,20 @@ public class UpdateCheckPoc {
 				}
 			} );
 
-			program.getTaskManager().submit( new GetProductCardsTask( catalogs, interactive ) );
+			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
 
 			return catalogs;
 		}
 
 	}
 
-	private class GetProductCardsTask extends Task<Void> {
+	private class DownloadProductCardTask extends Task<Void> {
 
 		private Map<RepoCard, CatalogCard> catalogs;
 
 		private boolean interactive;
 
-		public GetProductCardsTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
+		public DownloadProductCardTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
 			this.catalogs = catalogs;
 			this.interactive = interactive;
 		}
@@ -354,7 +359,7 @@ public class UpdateCheckPoc {
 			// updates from those resources next and finally submits the task that
 			// collects all the product update futures.
 
-			Set<StageProductResources> updateTasks = cardsAndRepos.keySet().stream().map( ( card ) -> {
+			Set<ProductResourcesCollector> updateTasks = cardsAndRepos.keySet().stream().map( ( card ) -> {
 				try {
 					RepoCard repo = cardsAndRepos.get( card );
 					Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
@@ -363,7 +368,7 @@ public class UpdateCheckPoc {
 					Set<ProductResource> resources = startProductResourceDownloads( repo, card, updatePack );
 
 					// Return the task that will produce the ProductUpdate but don't submit it here
-					return new StageProductResources( repo, card, resources, updatePack );
+					return new ProductResourcesCollector( repo, card, resources, updatePack );
 				} catch( Exception exception ) {
 					return null;
 				}
@@ -372,7 +377,7 @@ public class UpdateCheckPoc {
 			// Submit the task that to produce the ProductUpdates here
 			Set<Future<ProductUpdate>> updateFutures = updateTasks.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
 
-			program.getTaskManager().submit( new CollectProductUpdateFutures( updateFutures, interactive ) );
+			program.getTaskManager().submit( new ProductUpdateCollector( updateFutures, interactive ) );
 
 			return updateFutures;
 		}
@@ -382,12 +387,12 @@ public class UpdateCheckPoc {
 		}
 
 		private Set<ProductResource> startProductResourceDownloads( RepoCard repo, ProductCard card, Path updatePack ) throws InterruptedException, ExecutionException {
-			return program.getTaskManager().submit( new DownloadProductResources( repo, card, updatePack ) ).get();
+			return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card, updatePack ) ).get();
 		}
 
 	}
 
-	private class DownloadProductResources extends Task<Set<ProductResource>> {
+	private class DownloadProductResourceTask extends Task<Set<ProductResource>> {
 
 		private RepoCard repo;
 
@@ -395,7 +400,7 @@ public class UpdateCheckPoc {
 
 		private Path localPackPath;
 
-		public DownloadProductResources( RepoCard repo, ProductCard card, Path localPackPath ) {
+		public DownloadProductResourceTask( RepoCard repo, ProductCard card, Path localPackPath ) {
 			// FIXME Localize this task name
 			super( "Stage update: " + card.getName() + " " + card.getVersion() );
 			this.repo = repo;
@@ -422,7 +427,7 @@ public class UpdateCheckPoc {
 
 	}
 
-	private class StageProductResources extends Task<ProductUpdate> {
+	private class ProductResourcesCollector extends Task<ProductUpdate> {
 
 		private RepoCard repo;
 
@@ -432,7 +437,7 @@ public class UpdateCheckPoc {
 
 		private Path localPackPath;
 
-		public StageProductResources( RepoCard repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
+		public ProductResourcesCollector( RepoCard repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
 			this.repo = repo;
 			this.product = product;
 			this.resources = resources;
@@ -497,13 +502,13 @@ public class UpdateCheckPoc {
 
 	}
 
-	private class CollectProductUpdateFutures extends Task<Set<ProductUpdate>> {
+	private class ProductUpdateCollector extends Task<Set<ProductUpdate>> {
 
 		private Set<Future<ProductUpdate>> updateFutures;
 
 		private boolean interactive;
 
-		public CollectProductUpdateFutures( Set<Future<ProductUpdate>> updateFutures, boolean interactive ) {
+		public ProductUpdateCollector( Set<Future<ProductUpdate>> updateFutures, boolean interactive ) {
 			this.updateFutures = updateFutures;
 			this.interactive = interactive;
 		}
