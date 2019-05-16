@@ -255,7 +255,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return modules.get( productKey );
 	}
 
-	public Set<ProductCard> getProductCards() {
+	/**
+	 * Get the product cards for the currently installed products including the
+	 * program and all mods.
+	 *
+	 * @return A new set of currently installed product cards
+	 */
+	public Set<ProductCard> getInstalledProductCards() {
 		return new HashSet<>( productCards.values() );
 	}
 
@@ -332,10 +338,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return
 	 */
 	public boolean isInstalled( ProductCard card ) {
-		return getProductCard( card ) != null;
+		return getInstalledProductCard( card ) != null;
 	}
 
-	public ProductCard getProductCard( ProductCard card ) {
+	public ProductCard getInstalledProductCard( ProductCard card ) {
 		return productCards.get( card.getProductKey() );
 	}
 
@@ -346,7 +352,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return
 	 */
 	public boolean isReleaseInstalled( ProductCard card ) {
-		return isInstalled( card ) && getProductCard( card ).getRelease().equals( card.getRelease() );
+		return isInstalled( card ) && getInstalledProductCard( card ).getRelease().equals( card.getRelease() );
 	}
 
 	public boolean isUpdatable( ProductCard card ) {
@@ -1152,7 +1158,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// Download the descriptors for each product.
 			taskFutures = new HashSet<>();
 			//taskMap = new HashMap<>();
-			oldCards = getProductCards();
+			oldCards = getInstalledProductCards();
 
 			// TODO For each repo, create download task for the installed products
 			// This should result in a number of download tasks repos.size() *
@@ -1354,7 +1360,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			stageResources( updatePack, this::setProgress );
 
 			Path installFolder = getProductInstallFolder( updateCard );
-			if( isInstalled( updateCard ) ) installFolder = getProductCard( updateCard ).getInstallFolder();
+			if( isInstalled( updateCard ) ) installFolder = getInstalledProductCard( updateCard ).getInstallFolder();
 
 			log.debug( "Update staged: " + updateCard.getProductKey() + " " + updateCard.getRelease() );
 			log.debug( "           to: " + updatePack );
@@ -1439,7 +1445,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					}
 
 					// Verify the product is installed
-					Path installFolder = getProductCard( updateCard ).getInstallFolder();
+					Path installFolder = getInstalledProductCard( updateCard ).getInstallFolder();
 					boolean installFolderValid = installFolder != null && Files.exists( installFolder );
 					if( !installFolderValid ) {
 						log.warn( "Missing install folder: " + installFolder );

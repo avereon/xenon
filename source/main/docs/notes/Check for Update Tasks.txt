@@ -24,7 +24,7 @@ new CollectDownloadsTask( Set<Future<DownloadTask<ProductCard>>> )
 <- Map<RepoCard, Set<ProductCard>>
 
 new DetermineUpdateableVersionTask( Map<RepoCard, Set<ProductCard>>, installedProducts )
-<- Set<ProductCard> - This is the set of updates available for the installed products
+<- Map<ProductCard,RepoCard> - This is the map of updates available for the installed products and what repo they are in
 
 The FindPostedUpdatesTask receives the result of the above tasks and returns
 the result back to the CheckForUpdatesTask.

@@ -149,7 +149,7 @@ public class ProgramProductManager extends ProductManager {
 			if( !isEnabled() ) return null;
 
 			// Get the installed packs.
-			Set<ProductCard> installedPacks = getProductCards();
+			Set<ProductCard> installedPacks = getInstalledProductCards();
 
 			// Get the posted updates.
 			Set<ProductCard> postedUpdates = null;

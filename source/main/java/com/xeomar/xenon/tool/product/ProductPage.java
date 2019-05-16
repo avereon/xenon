@@ -32,7 +32,7 @@ abstract class ProductPage extends ProductToolPage {
 		Map<String, ProductCard> productUpdates = new HashMap<>();
 		if( isUpdate ) {
 			// Installed product map
-			for( ProductCard card : productTool.getProgram().getProductManager().getProductCards() ) {
+			for( ProductCard card : productTool.getProgram().getProductManager().getInstalledProductCards() ) {
 				installedProducts.put( card.getProductKey(), card );
 			}
 

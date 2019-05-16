@@ -29,7 +29,7 @@ class RefreshUpdatableProducts extends Task<Void> {
 		TaskManager.taskThreadCheck();
 		try {
 			List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().findPostedUpdates( force ) );
-			cards.sort( new ProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
+			cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 			Platform.runLater( () -> productTool.getUpdatesPage().setProducts( cards, true ) );
 		} catch( Exception exception ) {
 			ProductTool.log.warn( "Error checking for updates", exception );

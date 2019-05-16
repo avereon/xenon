@@ -28,7 +28,7 @@ class RefreshAvailableProducts extends Task<Void> {
 	public Void call() {
 		TaskManager.taskThreadCheck();
 		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getAvailableProducts( force ) );
-		cards.sort( new ProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
+		cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 		Platform.runLater( () -> productTool.getAvailablePage().setProducts( cards ) );
 		return null;
 	}

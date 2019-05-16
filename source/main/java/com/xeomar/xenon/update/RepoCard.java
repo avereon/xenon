@@ -128,6 +128,11 @@ public class RepoCard {
 //	}
 
 	@Override
+	public String toString() {
+		return repo;
+	}
+
+	@Override
 	public boolean equals( Object object ) {
 		if( this == object ) return true;
 		if( !(object instanceof RepoCard) ) return false;

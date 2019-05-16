@@ -207,7 +207,7 @@ public class ProductTool extends GuidedTool {
 		for( ProductCard card : uniqueList ) {
 			List<ProductCard> releases = cardMap.get( card.getProductKey() );
 			if( releases != null ) {
-				releases.sort( Collections.reverseOrder( new ProductCardComparator( getProgram(), ProductCardComparator.Field.RELEASE ) ) );
+				releases.sort( Collections.reverseOrder( new ProgramProductCardComparator( getProgram(), ProductCardComparator.Field.RELEASE ) ) );
 				sources.add( releases.get( 0 ) );
 			}
 		}
