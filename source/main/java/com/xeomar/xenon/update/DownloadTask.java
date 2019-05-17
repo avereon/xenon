@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class DownloadTask<B> extends Task<Download> {
+public class DownloadTask extends Task<Download> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 

@@ -8,22 +8,20 @@ import java.util.function.Supplier;
 
 public class TaskChain<A, R> {
 
-	private Program program;
+	// The output of the prior task is the input to the task
+	private TaskChain< ? super A, R> prior;
 
-	private TaskChain<?, A> prior;
+	// The output of the task is the input to the next task
+	private Task<? extends R> task;
 
-	private TaskChain<R, ?> next;
+	// The output of the task is the input to the next task
+	private TaskChain< ? extends R, ?> next;
 
-	private Task<R> task;
+	public TaskChain() {}
 
-	public TaskChain( Program program ) {
-		this.program = program;
-	}
-
-	private <Q> TaskChain( TaskChain<Q, A> prior ) {
+	private <Q> TaskChain( TaskChain<? extends Q, ? super A> prior ) {
 		this.prior = prior;
 		prior.next = this;
-		this.program = prior.program;
 	}
 
 	public <Q> TaskChain<R, Q> run( Supplier<R> supplier ) {
@@ -31,37 +29,37 @@ public class TaskChain<A, R> {
 		return new TaskChain<>( this );
 	}
 
-	public <Q> TaskChain<R, Q> run( Function<A, R> function ) {
+	public <Q> TaskChain<R, ? extends Q> run( Function<? super A, ? extends R> function ) {
 		task = new FunctionTask<>( function );
 		return new TaskChain<>( this );
 	}
 
-	public R submit() throws ExecutionException, InterruptedException {
+	public R submit( Program program ) throws ExecutionException, InterruptedException {
 		TaskChain head = this;
 		while( head.prior != null ) head = head.prior;
 
-		return (R)head.crunch();
+		return (R)head.crunch( program );
 	}
 
-	private R crunch() throws ExecutionException, InterruptedException {
-		return crunch( null );
+	private R crunch( Program program ) throws ExecutionException, InterruptedException {
+		return crunch( program, null );
 	}
 
-	private R crunch( A a ) throws ExecutionException, InterruptedException {
-		if( task instanceof FunctionTask ) ((FunctionTask)task).setA( a );
+	private R crunch( Program program, A a ) throws ExecutionException, InterruptedException {
+		if( task instanceof FunctionTask ) ((FunctionTask<A, ? extends R>)task).setP( a );
 
 		R result = program.getTaskManager().submit( task ).get();
 
-		if( next.task != null ) return (R)next.crunch( result );
+		//if( next.task != null ) return (R)next.crunch( program, result );
 
 		return result;
 	}
 
-	private class SupplierTask<H> extends Task<H> {
+	private static class SupplierTask<H> extends Task<H> {
 
 		private Supplier<H> supplier;
 
-		public SupplierTask( Supplier<H> supplier ) {
+		SupplierTask( Supplier<H> supplier ) {
 			this.supplier = supplier;
 		}
 
@@ -72,23 +70,23 @@ public class TaskChain<A, R> {
 
 	}
 
-	private class FunctionTask<A, H> extends Task<H> {
+	private static class FunctionTask<P, H> extends Task<H> {
 
-		private A a;
+		private P p;
 
-		private Function<A, H> function;
+		private Function<? super P, ? extends H> function;
 
-		public FunctionTask( Function<A, H> function ) {
+		FunctionTask( Function<? super P, ? extends H> function ) {
 			this.function = function;
 		}
 
-		public void setA( A a ) {
-			this.a = a;
+		public void setP( P p ) {
+			this.p = p;
 		}
 
 		@Override
 		public H call() throws Exception {
-			return function.apply( a );
+			return function.apply( p );
 		}
 
 	}

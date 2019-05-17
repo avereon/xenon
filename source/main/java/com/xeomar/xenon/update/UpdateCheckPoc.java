@@ -56,12 +56,22 @@ public class UpdateCheckPoc {
 		//		.run( () -> {} ).map( () -> {} )
 		//		.run( () -> {} ).map( () -> {} ).submit();
 
+		Set.of( "A", "B" ).stream().map( ( e ) -> { return ""; } );
+
 		try {
-			Map<RepoCard, CatalogCard> repoCards =
-					(Map<RepoCard, CatalogCard>)new TaskChain<Void,Map<RepoCard, Task<Download>>>(program)
+			Map<RepoCard, CatalogCard> repoCards = new TaskChain()
 					.run( this::getRepoCardTaskMap )
 					.run( this::getRepoCardCatalogCardMap )
-					.submit();
+//					.run( this::startProductCardDownloadTasks )
+//					.run( this::collectProductCardDownloads)
+					.submit( program );
+
+			Map<RepoCard, Set<ProductCard>> repoCards = new TaskChain()
+				.run( this::getRepoCardTaskMap )
+				.run( this::getRepoCardCatalogCardMap )
+				.run( this::startProductCardDownloadTasks )
+				.run( this::collectProductCardDownloads)
+				.submit( program );
 
 			log.warn( "Number of cards loaded: " + repoCards.size() );
 		} catch( ExecutionException e ) {
@@ -106,24 +116,24 @@ public class UpdateCheckPoc {
 	}
 
 	// Minimized task
-	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
-
-		private boolean interactive;
-
-		public DownloadCatalogCardTask( boolean interactive ) {
-			this.interactive = interactive;
-		}
-
-		@Override
-		public Map<RepoCard, Task<Download>> call() throws Exception {
-			Map<RepoCard, Task<Download>> downloads = getRepoCardTaskMap();
-
-			program.getTaskManager().submit( new DownloadCatalogCardCollector( downloads, interactive ) );
-
-			return downloads;
-		}
-
-	}
+//	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
+//
+//		private boolean interactive;
+//
+//		public DownloadCatalogCardTask( boolean interactive ) {
+//			this.interactive = interactive;
+//		}
+//
+//		@Override
+//		public Map<RepoCard, Task<Download>> call() throws Exception {
+//			Map<RepoCard, Task<Download>> downloads = getRepoCardTaskMap();
+//
+//			program.getTaskManager().submit( new DownloadCatalogCardCollector( downloads, interactive ) );
+//
+//			return downloads;
+//		}
+//
+//	}
 
 	private Map<RepoCard, Task<Download>> getRepoCardTaskMap() {
 		Map<RepoCard, Task<Download>> downloads = new HashMap<>();
@@ -133,33 +143,33 @@ public class UpdateCheckPoc {
 		program.getProductManager().getRepos().forEach( ( r ) -> {
 			log.info( "Creating catalog downloads for repo: " + r.getName() );
 			URI uri = repoClient.getCatalogUri( r );
-			downloads.put( r, (Task<Download>)program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
+			downloads.put( r, program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
 		} );
 		return downloads;
 	}
 
 	// Minimized task
-	private class DownloadCatalogCardCollector extends Task<Map<RepoCard, CatalogCard>> {
-
-		private Map<RepoCard, Task<Download>> downloads;
-
-		private boolean interactive;
-
-		public DownloadCatalogCardCollector( Map<RepoCard, Task<Download>> downloads, boolean interactive ) {
-			this.downloads = downloads;
-			this.interactive = interactive;
-		}
-
-		@Override
-		public Map<RepoCard, CatalogCard> call() throws Exception {
-			Map<RepoCard, CatalogCard> catalogs = getRepoCardCatalogCardMap( downloads );
-
-			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
-
-			return catalogs;
-		}
-
-	}
+//	private class DownloadCatalogCardCollector extends Task<Map<RepoCard, CatalogCard>> {
+//
+//		private Map<RepoCard, Task<Download>> downloads;
+//
+//		private boolean interactive;
+//
+//		public DownloadCatalogCardCollector( Map<RepoCard, Task<Download>> downloads, boolean interactive ) {
+//			this.downloads = downloads;
+//			this.interactive = interactive;
+//		}
+//
+//		@Override
+//		public Map<RepoCard, CatalogCard> call() throws Exception {
+//			Map<RepoCard, CatalogCard> catalogs = getRepoCardCatalogCardMap( downloads );
+//
+//			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
+//
+//			return catalogs;
+//		}
+//
+//	}
 
 	private Map<RepoCard, CatalogCard> getRepoCardCatalogCardMap( Map<RepoCard, Task<Download>> downloads ) {
 		Map<RepoCard, CatalogCard> catalogs = new HashMap<>();
@@ -175,75 +185,86 @@ public class UpdateCheckPoc {
 		return catalogs;
 	}
 
-	private class DownloadProductCardTask extends Task<Void> {
+//	private class DownloadProductCardTask extends Task<Void> {
+//
+//		private Map<RepoCard, CatalogCard> catalogs;
+//
+//		private boolean interactive;
+//
+//		public DownloadProductCardTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
+//			this.catalogs = catalogs;
+//			this.interactive = interactive;
+//		}
+//
+//		@Override
+//		public Void call() throws Exception {
+//			Map<RepoCard, Set<Task<Download>>> downloads = startProductCardDownloadTasks(catalogs);
+//
+//			program.getTaskManager().submit( new DownloadProductCardCollector( downloads, interactive ) );
+//
+//			return null;
+//		}
+//
+//	}
 
-		private Map<RepoCard, CatalogCard> catalogs;
+	private Map<RepoCard, Set<Task<Download>>> startProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs) {
+		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
 
-		private boolean interactive;
+		catalogs.keySet().forEach( ( repo ) -> {
+			CatalogCard catalog = catalogs.get( repo );
 
-		public DownloadProductCardTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
-			this.catalogs = catalogs;
-			this.interactive = interactive;
-		}
+			Set<Task<Download>> repoDownloads = downloads.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
 
-		@Override
-		public Void call() throws Exception {
-			Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
-
-			catalogs.keySet().forEach( ( repo ) -> {
-				CatalogCard catalog = catalogs.get( repo );
-
-				Set<Task<Download>> repoDownloads = downloads.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
-
-				catalog.getProducts().forEach( ( product ) -> {
-					URI uri = repoClient.getProductUri( repo, product, "product", "card" );
-					repoDownloads.add( (Task<Download>)program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
-				} );
+			catalog.getProducts().forEach( ( product ) -> {
+				URI uri = repoClient.getProductUri( repo, product, "product", "card" );
+				repoDownloads.add( program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
 			} );
-
-			program.getTaskManager().submit( new DownloadProductCardCollector( downloads, interactive ) );
-
-			return null;
-		}
-
+		} );
+		return downloads;
 	}
 
-	private class DownloadProductCardCollector extends Task<Void> {
+//	private class DownloadProductCardCollector extends Task<Void> {
+//
+//		private Map<RepoCard, Set<Task<Download>>> downloads;
+//
+//		private boolean interactive;
+//
+//		public DownloadProductCardCollector( Map<RepoCard, Set<Task<Download>>> downloads, boolean interactive ) {
+//			this.downloads = downloads;
+//			this.interactive = interactive;
+//		}
+//
+//		@Override
+//		public Void call() throws Exception {
+//			boolean connectionErrors = false;
+//
+//			Map<RepoCard, Set<ProductCard>> products = collectProductCardDownloads(downloads);
+//
+//			program.getTaskManager().submit( new DetermineUpdateableVersionsTask( products, interactive, connectionErrors ) );
+//
+//			return null;
+//		}
+//
+//	}
 
-		private Map<RepoCard, Set<Task<Download>>> downloads;
+	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads(Map<RepoCard, Set<Task<Download>>> downloads) {
+		Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
 
-		private boolean interactive;
-
-		public DownloadProductCardCollector( Map<RepoCard, Set<Task<Download>>> downloads, boolean interactive ) {
-			this.downloads = downloads;
-			this.interactive = interactive;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
-
-			boolean connectionErrors = false;
-			downloads.keySet().forEach( ( r ) -> {
-				Set<Task<Download>> repoDownloads = downloads.get( r );
-				repoDownloads.forEach( ( t ) -> {
-					Set<ProductCard> productSet = products.computeIfAbsent( r, ( k ) -> new HashSet<>() );
-					try {
-						ProductCard product = new ProductCard().load( t.get().getInputStream(), t.get().getSource() );
-						productSet.add( product );
-						log.info( "Catalog loaded for " + product );
-					} catch( IOException | ExecutionException | InterruptedException exception ) {
-						exception.printStackTrace();
-						// FIXME Need to set connectionErrors = true;
-					}
-				} );
+		downloads.keySet().forEach( ( repo ) -> {
+			Set<Task<Download>> repoDownloads = downloads.get( repo );
+			repoDownloads.forEach( ( task ) -> {
+				Set<ProductCard> productSet = products.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
+				try {
+					ProductCard product = new ProductCard().load( task.get().getInputStream(), task.get().getSource() );
+					productSet.add( product );
+					log.info( "Catalog loaded for " + product );
+				} catch( IOException | ExecutionException | InterruptedException exception ) {
+					exception.printStackTrace();
+					// FIXME Need to set connectionErrors = true;
+				}
 			} );
-
-			program.getTaskManager().submit( new DetermineUpdateableVersionsTask( products, interactive, connectionErrors ) );
-
-			return null;
-		}
-
+		} );
+		return products;
 	}
 
 	private class DetermineUpdateableVersionsTask extends Task<Map<ProductCard, RepoCard>> {
