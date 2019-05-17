@@ -9,6 +9,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.task.Task;
+import com.xeomar.xenon.task.TaskChain;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.util.Lambda;
@@ -44,7 +45,7 @@ public class UpdateCheckPoc {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		program.getTaskManager().submit( new DownloadCatalogCardTask( interactive ) );
+		//program.getTaskManager().submit( new DownloadCatalogCardTask( interactive ) );
 
 		// NEXT The next trick is to link the first, second and third tasks together
 		// ...not using concrete classes, but wrapping each method in a task.
@@ -54,6 +55,20 @@ public class UpdateCheckPoc {
 		//		.run( () -> {} ).map( () -> {} )
 		//		.run( () -> {} ).map( () -> {} )
 		//		.run( () -> {} ).map( () -> {} ).submit();
+
+		try {
+			Map<RepoCard, CatalogCard> repoCards =
+					(Map<RepoCard, CatalogCard>)new TaskChain<Void,Map<RepoCard, Task<Download>>>(program)
+					.run( this::getRepoCardTaskMap )
+					.run( this::getRepoCardCatalogCardMap )
+					.submit();
+
+			log.warn( "Number of cards loaded: " + repoCards.size() );
+		} catch( ExecutionException e ) {
+			e.printStackTrace();
+		} catch( InterruptedException e ) {
+			e.printStackTrace();
+		}
 	}
 
 	public Set<ProductCard> getAvailableProducts( boolean force ) {
