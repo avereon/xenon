@@ -11,6 +11,7 @@ import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.DialogUtil;
+import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -44,6 +45,10 @@ public class UpdateCheckPoc {
 
 	public void checkForUpdates( boolean interactive ) {
 		program.getTaskManager().submit( new DownloadCatalogCardTask( interactive ) );
+
+		// NEXT The next trick is to link the first, second and third tasks together
+		// ...not using concrete classes, but wrapping each method in a task.
+
 	}
 
 	public Set<ProductCard> getAvailableProducts( boolean force ) {
@@ -66,14 +71,21 @@ public class UpdateCheckPoc {
 
 	public void createProductUpdate( ProductCard card, Path updatePack ) {
 		// TODO This method should go through the logic to create a product update
+		// Start with StageUpdates and end with ProductUpdateCollector
+
+		//Future<ProductUpdate> productUpdateFutures = stageUpdates( cardsAndRepos, false );
+		//Set<ProductResource> productResources = downloadProductResources( productUpdateFutures );
+		//ProductUpdate productUpdate = collectProductResources( productResources );
+		//Set<ProductUpdate> productUpdates = collectProductUpdates( productUpdate );
 	}
 
 	// This is a method for testing the update found dialog.
 	// It should not be used for production functionality.
 	public void showUpdateFoundDialog() {
-		new ApplyUpdates( Set.of(), true ).call();
+		updatesReadyToApply( true );
 	}
 
+	// Minimized task
 	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
 
 		private boolean interactive;
@@ -84,15 +96,7 @@ public class UpdateCheckPoc {
 
 		@Override
 		public Map<RepoCard, Task<Download>> call() throws Exception {
-			Map<RepoCard, Task<Download>> downloads = new HashMap<>();
-
-			// FIXME Temporarily look in all repos
-			//program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).forEach( ( r ) -> {
-			program.getProductManager().getRepos().stream().forEach( ( r ) -> {
-				log.info( "Creating catalog downloads for repo: " + r.getName() );
-				URI uri = repoClient.getCatalogUri( r );
-				downloads.put( r, (Task<Download>)program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
-			} );
+			Map<RepoCard, Task<Download>> downloads = getRepoCardTaskMap();
 
 			program.getTaskManager().submit( new DownloadCatalogCardCollector( downloads, interactive ) );
 
@@ -101,6 +105,20 @@ public class UpdateCheckPoc {
 
 	}
 
+	private Map<RepoCard, Task<Download>> getRepoCardTaskMap() {
+		Map<RepoCard, Task<Download>> downloads = new HashMap<>();
+
+		// FIXME Temporarily look in all repos
+		//program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).forEach( ( r ) -> {
+		program.getProductManager().getRepos().forEach( ( r ) -> {
+			log.info( "Creating catalog downloads for repo: " + r.getName() );
+			URI uri = repoClient.getCatalogUri( r );
+			downloads.put( r, (Task<Download>)program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
+		} );
+		return downloads;
+	}
+
+	// Minimized task
 	private class DownloadCatalogCardCollector extends Task<Map<RepoCard, CatalogCard>> {
 
 		private Map<RepoCard, Task<Download>> downloads;
@@ -114,22 +132,27 @@ public class UpdateCheckPoc {
 
 		@Override
 		public Map<RepoCard, CatalogCard> call() throws Exception {
-			Map<RepoCard, CatalogCard> catalogs = new HashMap<>();
-
-			downloads.keySet().forEach( ( r ) -> {
-				try {
-					catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
-					log.info( "Catalog loaded for " + r );
-				} catch( IOException | ExecutionException | InterruptedException exception ) {
-					exception.printStackTrace();
-				}
-			} );
+			Map<RepoCard, CatalogCard> catalogs = getRepoCardCatalogCardMap( downloads );
 
 			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
 
 			return catalogs;
 		}
 
+	}
+
+	private Map<RepoCard, CatalogCard> getRepoCardCatalogCardMap( Map<RepoCard, Task<Download>> downloads ) {
+		Map<RepoCard, CatalogCard> catalogs = new HashMap<>();
+
+		downloads.keySet().forEach( ( r ) -> {
+			try {
+				catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
+				log.info( "Catalog loaded for " + r );
+			} catch( IOException | ExecutionException | InterruptedException exception ) {
+				exception.printStackTrace();
+			}
+		} );
+		return catalogs;
 	}
 
 	private class DownloadProductCardTask extends Task<Void> {
@@ -502,6 +525,7 @@ public class UpdateCheckPoc {
 
 	}
 
+	// Minimized task
 	private class ProductUpdateCollector extends Task<Set<ProductUpdate>> {
 
 		private Set<Future<ProductUpdate>> updateFutures;
@@ -515,16 +539,14 @@ public class UpdateCheckPoc {
 
 		@Override
 		public Set<ProductUpdate> call() throws Exception {
-			Set<ProductUpdate> updates = updateFutures.stream().map( ( future ) -> {
-				try {
-					return future.get();
-				} catch( Exception exception ) {
-					return null;
-				}
-			} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
+			Set<ProductUpdate> updates = collectProductUpdates( updateFutures, interactive );
 
 			if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
-				program.getTaskManager().submit( new ApplyUpdates( updates, interactive ) );
+				//program.getTaskManager().submit( new UpdatesReadyToApply( interactive ) );
+
+				// TODO So...the trick is...can I replace the line above and the class below
+				// Because this is the last task and it returns void...this one is easy
+				program.getTaskManager().submit( Lambda.task( "", () -> updatesReadyToApply( interactive ) ) );
 			}
 
 			return updates;
@@ -532,55 +554,66 @@ public class UpdateCheckPoc {
 
 	}
 
-	private class ApplyUpdates extends Task<Void> {
+	// Minimized task
+	//	private class UpdatesReadyToApply extends Task<Void> {
+	//
+	//		private boolean interactive;
+	//
+	//		public UpdatesReadyToApply( boolean interactive ) {
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Void call() {
+	//			updatesReadyToApply( interactive );
+	//			return null;
+	//		}
+	//
+	//	}
 
-		private Set<ProductUpdate> updates;
-
-		private boolean interactive;
-
-		public ApplyUpdates( Set<ProductUpdate> updates, boolean interactive ) {
-			this.updates = updates;
-			this.interactive = interactive;
-		}
-
-		@Override
-		public Void call() {
-			if( interactive ) {
-				Platform.runLater( this::showAlert );
-			} else {
-				Platform.runLater( this::showNotice );
+	private Set<ProductUpdate> collectProductUpdates( Set<Future<ProductUpdate>> updateFutures, boolean interactive ) {
+		return updateFutures.stream().map( ( future ) -> {
+			try {
+				return future.get();
+			} catch( Exception exception ) {
+				return null;
 			}
+		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
+	}
 
-			return null;
+	private void updatesReadyToApply( boolean interactive ) {
+		if( interactive ) {
+			Platform.runLater( this::showAlert );
+		} else {
+			Platform.runLater( this::showNotice );
 		}
+	}
 
-		private void showAlert() {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+	private void showAlert() {
+		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
-			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( title );
-			alert.setHeaderText( header );
-			alert.setContentText( message );
+		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+		alert.setTitle( title );
+		alert.setHeaderText( header );
+		alert.setContentText( message );
 
-			Stage stage = program.getWorkspaceManager().getActiveStage();
-			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+		Stage stage = program.getWorkspaceManager().getActiveStage();
+		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			if( result.isPresent() && result.get() == ButtonType.YES ) {
-				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
-				program.getProductManager().userApplyStagedUpdates();
-			}
+		if( result.isPresent() && result.get() == ButtonType.YES ) {
+			program.getWorkspaceManager().requestCloseTools( ProductTool.class );
+			program.getProductManager().userApplyStagedUpdates();
 		}
+	}
 
-		private void showNotice() {
-			String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+	private void showNotice() {
+		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
-			Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
-			program.getNoticeManager().addNotice( notice );
-		}
-
+		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
+		program.getNoticeManager().addNotice( notice );
 	}
 
 }
