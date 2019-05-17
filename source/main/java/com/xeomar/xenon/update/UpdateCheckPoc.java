@@ -48,7 +48,12 @@ public class UpdateCheckPoc {
 
 		// NEXT The next trick is to link the first, second and third tasks together
 		// ...not using concrete classes, but wrapping each method in a task.
-
+		//new TaskChain().run( ()-> {} ).map( ()-> {} )
+		//		.run( () -> {} ).map( () -> {} )
+		//		.run( () -> {} ).map( () -> {} )
+		//		.run( () -> {} ).map( () -> {} )
+		//		.run( () -> {} ).map( () -> {} )
+		//		.run( () -> {} ).map( () -> {} ).submit();
 	}
 
 	public Set<ProductCard> getAvailableProducts( boolean force ) {

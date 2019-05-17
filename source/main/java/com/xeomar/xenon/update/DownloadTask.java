@@ -2,7 +2,7 @@ package com.xeomar.xenon.update;
 
 import com.xeomar.product.Product;
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.task.CarryOnTask;
+import com.xeomar.xenon.task.Task;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class DownloadTask<B> extends CarryOnTask<Download, B> {
+public class DownloadTask<B> extends Task<Download> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
