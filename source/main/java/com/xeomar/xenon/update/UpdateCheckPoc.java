@@ -45,35 +45,16 @@ public class UpdateCheckPoc {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		//program.getTaskManager().submit( new DownloadCatalogCardTask( interactive ) );
-
-		// NEXT The next trick is to link the first, second and third tasks together
-		// ...not using concrete classes, but wrapping each method in a task.
-		//new TaskChain().run( ()-> {} ).map( ()-> {} )
-		//		.run( () -> {} ).map( () -> {} )
-		//		.run( () -> {} ).map( () -> {} )
-		//		.run( () -> {} ).map( () -> {} )
-		//		.run( () -> {} ).map( () -> {} )
-		//		.run( () -> {} ).map( () -> {} ).submit();
-
-		Set.of( "A", "B" ).stream().map( ( e ) -> { return ""; } );
-
 		try {
-			Map<RepoCard, CatalogCard> repoCards = new TaskChain()
-					.run( this::getRepoCardTaskMap )
-					.run( this::getRepoCardCatalogCardMap )
-//					.run( this::startProductCardDownloadTasks )
-//					.run( this::collectProductCardDownloads)
+			Map<ProductCard, RepoCard> cards = new TaskChain<Map<ProductCard, RepoCard>>()
+					.run( this::startCatalogCardDownloads )
+					.run( this::collectCatalogCardDownloads )
+					.run( this::startProductCardDownloadTasks )
+					.run( this::collectProductCardDownloads )
+					.run( this::determineUpdateableVersions )
 					.submit( program );
 
-			Map<RepoCard, Set<ProductCard>> repoCards = new TaskChain()
-				.run( this::getRepoCardTaskMap )
-				.run( this::getRepoCardCatalogCardMap )
-				.run( this::startProductCardDownloadTasks )
-				.run( this::collectProductCardDownloads)
-				.submit( program );
-
-			log.warn( "Number of cards loaded: " + repoCards.size() );
+			log.warn( "Cards loaded: " + cards.toString() );
 		} catch( ExecutionException e ) {
 			e.printStackTrace();
 		} catch( InterruptedException e ) {
@@ -82,12 +63,33 @@ public class UpdateCheckPoc {
 	}
 
 	public Set<ProductCard> getAvailableProducts( boolean force ) {
-		// TODO This method go through the logic as far as DownloadProductCardCollector and return
+		try {
+			return new TaskChain<Map<ProductCard, RepoCard>>()
+					.run( this::startCatalogCardDownloads )
+					.run( this::collectCatalogCardDownloads )
+					.run( this::startAllProductCardDownloadTasks )
+					.run( this::collectProductCardDownloads )
+					.submit( program ).keySet();
+		} catch( Exception exception ) {
+			exception.printStackTrace();
+		}
 		return Set.of();
 	}
 
 	public Set<ProductCard> findPostedUpdates( boolean force ) {
-		// TODO This method go through the logic as far as DetermineUpdateableVersionTask and return
+		try {
+			return new TaskChain<Map<ProductCard, RepoCard>>()
+					.run( this::startCatalogCardDownloads )
+					.run( this::collectCatalogCardDownloads )
+					.run( this::startProductCardDownloadTasks )
+					.run( this::collectProductCardDownloads )
+					.run( this::determineUpdateableVersions )
+					.submit( program ).keySet();
+		} catch( ExecutionException e ) {
+			e.printStackTrace();
+		} catch( InterruptedException e ) {
+			e.printStackTrace();
+		}
 		return Set.of();
 	}
 
@@ -116,26 +118,26 @@ public class UpdateCheckPoc {
 	}
 
 	// Minimized task
-//	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
-//
-//		private boolean interactive;
-//
-//		public DownloadCatalogCardTask( boolean interactive ) {
-//			this.interactive = interactive;
-//		}
-//
-//		@Override
-//		public Map<RepoCard, Task<Download>> call() throws Exception {
-//			Map<RepoCard, Task<Download>> downloads = getRepoCardTaskMap();
-//
-//			program.getTaskManager().submit( new DownloadCatalogCardCollector( downloads, interactive ) );
-//
-//			return downloads;
-//		}
-//
-//	}
+	//	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
+	//
+	//		private boolean interactive;
+	//
+	//		public DownloadCatalogCardTask( boolean interactive ) {
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Map<RepoCard, Task<Download>> call() throws Exception {
+	//			Map<RepoCard, Task<Download>> downloads = getRepoCardTaskMap();
+	//
+	//			program.getTaskManager().submit( new DownloadCatalogCardCollector( downloads, interactive ) );
+	//
+	//			return downloads;
+	//		}
+	//
+	//	}
 
-	private Map<RepoCard, Task<Download>> getRepoCardTaskMap() {
+	private Map<RepoCard, Task<Download>> startCatalogCardDownloads() {
 		Map<RepoCard, Task<Download>> downloads = new HashMap<>();
 
 		// FIXME Temporarily look in all repos
@@ -149,35 +151,35 @@ public class UpdateCheckPoc {
 	}
 
 	// Minimized task
-//	private class DownloadCatalogCardCollector extends Task<Map<RepoCard, CatalogCard>> {
-//
-//		private Map<RepoCard, Task<Download>> downloads;
-//
-//		private boolean interactive;
-//
-//		public DownloadCatalogCardCollector( Map<RepoCard, Task<Download>> downloads, boolean interactive ) {
-//			this.downloads = downloads;
-//			this.interactive = interactive;
-//		}
-//
-//		@Override
-//		public Map<RepoCard, CatalogCard> call() throws Exception {
-//			Map<RepoCard, CatalogCard> catalogs = getRepoCardCatalogCardMap( downloads );
-//
-//			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
-//
-//			return catalogs;
-//		}
-//
-//	}
+	//	private class DownloadCatalogCardCollector extends Task<Map<RepoCard, CatalogCard>> {
+	//
+	//		private Map<RepoCard, Task<Download>> downloads;
+	//
+	//		private boolean interactive;
+	//
+	//		public DownloadCatalogCardCollector( Map<RepoCard, Task<Download>> downloads, boolean interactive ) {
+	//			this.downloads = downloads;
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Map<RepoCard, CatalogCard> call() throws Exception {
+	//			Map<RepoCard, CatalogCard> catalogs = getRepoCardCatalogCardMap( downloads );
+	//
+	//			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
+	//
+	//			return catalogs;
+	//		}
+	//
+	//	}
 
-	private Map<RepoCard, CatalogCard> getRepoCardCatalogCardMap( Map<RepoCard, Task<Download>> downloads ) {
+	private Map<RepoCard, CatalogCard> collectCatalogCardDownloads( Map<RepoCard, Task<Download>> downloads ) {
 		Map<RepoCard, CatalogCard> catalogs = new HashMap<>();
 
 		downloads.keySet().forEach( ( r ) -> {
 			try {
 				catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
-				log.info( "Catalog loaded for " + r );
+				log.info( "Catalog card loaded for " + r );
 			} catch( IOException | ExecutionException | InterruptedException exception ) {
 				exception.printStackTrace();
 			}
@@ -185,29 +187,35 @@ public class UpdateCheckPoc {
 		return catalogs;
 	}
 
-//	private class DownloadProductCardTask extends Task<Void> {
-//
-//		private Map<RepoCard, CatalogCard> catalogs;
-//
-//		private boolean interactive;
-//
-//		public DownloadProductCardTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
-//			this.catalogs = catalogs;
-//			this.interactive = interactive;
-//		}
-//
-//		@Override
-//		public Void call() throws Exception {
-//			Map<RepoCard, Set<Task<Download>>> downloads = startProductCardDownloadTasks(catalogs);
-//
-//			program.getTaskManager().submit( new DownloadProductCardCollector( downloads, interactive ) );
-//
-//			return null;
-//		}
-//
-//	}
+	// Minimized task
+	//	private class DownloadProductCardTask extends Task<Void> {
+	//
+	//		private Map<RepoCard, CatalogCard> catalogs;
+	//
+	//		private boolean interactive;
+	//
+	//		public DownloadProductCardTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
+	//			this.catalogs = catalogs;
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Void call() throws Exception {
+	//			Map<RepoCard, Set<Task<Download>>> downloads = startProductCardDownloadTasks(catalogs);
+	//
+	//			program.getTaskManager().submit( new DownloadProductCardCollector( downloads, interactive ) );
+	//
+	//			return null;
+	//		}
+	//
+	//	}
 
-	private Map<RepoCard, Set<Task<Download>>> startProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs) {
+	private Map<RepoCard, Set<Task<Download>>> startProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs ) {
+		// TODO Only collect products specified in parameter
+		return startAllProductCardDownloadTasks( catalogs );
+	}
+
+	private Map<RepoCard, Set<Task<Download>>> startAllProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs ) {
 		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
 
 		catalogs.keySet().forEach( ( repo ) -> {
@@ -223,31 +231,32 @@ public class UpdateCheckPoc {
 		return downloads;
 	}
 
-//	private class DownloadProductCardCollector extends Task<Void> {
-//
-//		private Map<RepoCard, Set<Task<Download>>> downloads;
-//
-//		private boolean interactive;
-//
-//		public DownloadProductCardCollector( Map<RepoCard, Set<Task<Download>>> downloads, boolean interactive ) {
-//			this.downloads = downloads;
-//			this.interactive = interactive;
-//		}
-//
-//		@Override
-//		public Void call() throws Exception {
-//			boolean connectionErrors = false;
-//
-//			Map<RepoCard, Set<ProductCard>> products = collectProductCardDownloads(downloads);
-//
-//			program.getTaskManager().submit( new DetermineUpdateableVersionsTask( products, interactive, connectionErrors ) );
-//
-//			return null;
-//		}
-//
-//	}
+	// Minimized task
+	//	private class DownloadProductCardCollector extends Task<Void> {
+	//
+	//		private Map<RepoCard, Set<Task<Download>>> downloads;
+	//
+	//		private boolean interactive;
+	//
+	//		public DownloadProductCardCollector( Map<RepoCard, Set<Task<Download>>> downloads, boolean interactive ) {
+	//			this.downloads = downloads;
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Void call() throws Exception {
+	//			boolean connectionErrors = false;
+	//
+	//			Map<RepoCard, Set<ProductCard>> products = collectProductCardDownloads(downloads);
+	//
+	//			program.getTaskManager().submit( new DetermineUpdateableVersionsTask( products, interactive, connectionErrors ) );
+	//
+	//			return null;
+	//		}
+	//
+	//	}
 
-	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads(Map<RepoCard, Set<Task<Download>>> downloads) {
+	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads( Map<RepoCard, Set<Task<Download>>> downloads ) {
 		Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
 
 		downloads.keySet().forEach( ( repo ) -> {
@@ -257,7 +266,7 @@ public class UpdateCheckPoc {
 				try {
 					ProductCard product = new ProductCard().load( task.get().getInputStream(), task.get().getSource() );
 					productSet.add( product );
-					log.info( "Catalog loaded for " + product );
+					log.info( "Product card loaded for " + product );
 				} catch( IOException | ExecutionException | InterruptedException exception ) {
 					exception.printStackTrace();
 					// FIXME Need to set connectionErrors = true;
@@ -267,63 +276,70 @@ public class UpdateCheckPoc {
 		return products;
 	}
 
-	private class DetermineUpdateableVersionsTask extends Task<Map<ProductCard, RepoCard>> {
+	// Minimized task
+//	private class DetermineUpdateableVersionsTask extends Task<Map<ProductCard, RepoCard>> {
+//
+//		private Map<RepoCard, Set<ProductCard>> products;
+//
+//		private boolean interactive;
+//
+//		private boolean connectionErrors;
+//
+//		public DetermineUpdateableVersionsTask( Map<RepoCard, Set<ProductCard>> products, boolean interactive, boolean connectionErrors ) {
+//			this.products = products;
+//			this.interactive = interactive;
+//		}
+//
+//		@Override
+//		public Map<ProductCard, RepoCard> call() throws Exception {
+//			Map<ProductCard, RepoCard> cards = determineUpdateableVersions( products );
+//
+//			program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, connectionErrors ) );
+//
+//			return cards;
+//		}
+//
+//	}
 
-		private Map<RepoCard, Set<ProductCard>> products;
+	private Map<ProductCard, RepoCard> determineUpdateableVersions( Map<RepoCard, Set<ProductCard>> products ) {
+		// If the installed versions were added to the incoming map then the
+		// sorting logic would find them properly and any version that is already
+		// installed can simply be ignored/removed.
+		RepoCard programInstalledRepo = new RepoCard( "installed" );
+		products.put( programInstalledRepo, program.getProductManager().getInstalledProductCards() );
 
-		private boolean interactive;
+		// Need to determine the latest version from the installed products and
+		// those versions available from the repositories. Luckily the versions
+		// from the repositories are in sets that can easily be sorted to find
+		// latest one. A map from product back to repo will need to be maintained
+		// to know what repo it came from.
 
-		private boolean connectionErrors;
+		// Create the product repo map and the product versions map
+		Map<ProductCard, RepoCard> productRepos = new HashMap<>();
+		Map<String, List<ProductCard>> productVersions = new HashMap<>();
+		products.keySet().forEach( ( r ) -> products.get( r ).forEach( ( p ) -> {
+			productRepos.put( p, r );
+			productVersions.computeIfAbsent( p.getProductKey(), ( k ) -> new ArrayList<>() ).add( p );
+		} ) );
 
-		public DetermineUpdateableVersionsTask( Map<RepoCard, Set<ProductCard>> products, boolean interactive, boolean connectionErrors ) {
-			this.products = products;
-			this.interactive = interactive;
-		}
+		// The key for the map is a ProductCard key
+		Map<ProductCard, RepoCard> cards = new HashMap<>();
 
-		@Override
-		public Map<ProductCard, RepoCard> call() throws Exception {
-			// If the installed versions were added to the incoming map then the
-			// sorting logic would find them properly and any version that is already
-			// installed can simply be ignored/removed.
-			RepoCard programInstalledRepo = new RepoCard( "installed" );
-			products.put( programInstalledRepo, program.getProductManager().getInstalledProductCards() );
+		// Sort all the latest product versions to the top of each list
+		Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
+		productVersions.keySet().forEach( ( k ) -> {
+			productVersions.get( k ).sort( comparator );
+			ProductCard version = productVersions.get( k ).get( 0 );
+			RepoCard repo = productRepos.get( version );
+			if( repo != programInstalledRepo ) cards.put( version, repo );
 
-			// Need to determine the latest version from the installed products and
-			// those versions available from the repositories. Luckily the versions
-			// from the repositories are in sets that can easily be sorted to find
-			// latest one. A map from product back to repo will need to be maintained
-			// to know what repo it came from.
+			ProductCard current = program.getProductManager().getInstalledProductCard( version );
+			if( current != null ) log.debug( "Installed: " + current.getProductKey() + " " + current.getRelease() );
+			log.debug( "Available: " + version.getProductKey() + " " + version.getRelease() );
+			log.info( "Latest version: " + version + " found in: " + repo );
+		} );
 
-			// Create the product repo map and the product versions map
-			Map<ProductCard, RepoCard> productRepos = new HashMap<>();
-			Map<String, List<ProductCard>> productVersions = new HashMap<>();
-			products.keySet().forEach( ( r ) -> products.get( r ).forEach( ( p ) -> {
-				productRepos.put( p, r );
-				productVersions.computeIfAbsent( p.getProductKey(), ( k ) -> new ArrayList<>() ).add( p );
-			} ) );
-
-			// The key for the map is a ProductCard key
-			Map<ProductCard, RepoCard> cards = new HashMap<>();
-
-			// Sort all the latest product versions to the top of each list
-			Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
-			productVersions.keySet().forEach( ( k ) -> {
-				productVersions.get( k ).sort( comparator );
-				ProductCard version = productVersions.get( k ).get( 0 );
-				RepoCard repo = productRepos.get( version );
-				if( repo != programInstalledRepo ) cards.put( version, repo );
-
-				ProductCard current = program.getProductManager().getInstalledProductCard( version );
-				if( current != null ) log.debug( "Installed: " + current.getProductKey() + " " + current.getRelease() );
-				log.debug( "Available: " + version.getProductKey() + " " + version.getRelease() );
-				log.info( "Latest version: " + version + " found in: " + repo );
-			} );
-
-			program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, connectionErrors ) );
-
-			return cards;
-		}
-
+		return cards;
 	}
 
 	private class HandleCheckForUpdatesActionTask extends Task<Void> {

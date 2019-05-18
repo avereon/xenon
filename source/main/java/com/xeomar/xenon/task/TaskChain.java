@@ -1,57 +1,58 @@
 package com.xeomar.xenon.task;
 
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class TaskChain<A, R> {
+public class TaskChain<K> {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	// The output of the prior task is the input to the task
-	private TaskChain< ? super A, R> prior;
+	private TaskChain<K> prior;
 
 	// The output of the task is the input to the next task
-	private Task<? extends R> task;
+	private TaskChain<K> next;
 
-	// The output of the task is the input to the next task
-	private TaskChain< ? extends R, ?> next;
+	private Task<?> task;
 
 	public TaskChain() {}
 
-	private <Q> TaskChain( TaskChain<? extends Q, ? super A> prior ) {
+	private TaskChain( TaskChain<K> prior ) {
 		this.prior = prior;
 		prior.next = this;
 	}
 
-	public <Q> TaskChain<R, Q> run( Supplier<R> supplier ) {
-		task = new SupplierTask<>( supplier );
+	public <W> TaskChain<K> run( Supplier<W> supplier ) {
+		this.task = new SupplierTask<>( supplier );
 		return new TaskChain<>( this );
 	}
 
-	public <Q> TaskChain<R, ? extends Q> run( Function<? super A, ? extends R> function ) {
-		task = new FunctionTask<>( function );
+	public <U, W> TaskChain<K> run( Function<U, W> function ) {
+		this.task = new FunctionTask<>( function );
 		return new TaskChain<>( this );
 	}
 
-	public R submit( Program program ) throws ExecutionException, InterruptedException {
+	public K submit( Program program ) throws ExecutionException, InterruptedException {
 		TaskChain head = this;
 		while( head.prior != null ) head = head.prior;
-
-		return (R)head.crunch( program );
+		return (K)head.crunch( program );
 	}
 
-	private R crunch( Program program ) throws ExecutionException, InterruptedException {
+	private <R> R crunch( Program program ) throws ExecutionException, InterruptedException {
 		return crunch( program, null );
 	}
 
-	private R crunch( Program program, A a ) throws ExecutionException, InterruptedException {
-		if( task instanceof FunctionTask ) ((FunctionTask<A, ? extends R>)task).setP( a );
-
-		R result = program.getTaskManager().submit( task ).get();
-
-		//if( next.task != null ) return (R)next.crunch( program, result );
-
+	private <P, R> R crunch( Program program, P parameter ) throws ExecutionException, InterruptedException {
+		log.warn( "Crunching: " + task.getClass().getName() );
+		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
+		R result = (R)program.getTaskManager().submit( task ).get();
+		if( next.task != null ) return (R)next.crunch( program, result );
 		return result;
 	}
 
@@ -70,23 +71,23 @@ public class TaskChain<A, R> {
 
 	}
 
-	private static class FunctionTask<P, H> extends Task<H> {
+	private static class FunctionTask<G, H> extends Task<H> {
 
-		private P p;
+		private G parameter;
 
-		private Function<? super P, ? extends H> function;
+		private Function<? super G, ? extends H> function;
 
-		FunctionTask( Function<? super P, ? extends H> function ) {
+		FunctionTask( Function<? super G, ? extends H> function ) {
 			this.function = function;
 		}
 
-		public void setP( P p ) {
-			this.p = p;
+		public void setParameter( G parameter ) {
+			this.parameter = parameter;
 		}
 
 		@Override
 		public H call() throws Exception {
-			return function.apply( p );
+			return function.apply( parameter );
 		}
 
 	}
