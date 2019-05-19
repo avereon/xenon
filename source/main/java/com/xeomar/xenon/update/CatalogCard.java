@@ -44,6 +44,12 @@ public class CatalogCard {
 		return products;
 	}
 
+	/**
+	 * The set of products in the repository. The set contains the product
+	 * artifact ids only.
+	 *
+	 * @param products
+	 */
 	public void setProducts( Set<String> products ) {
 		this.products = products == null ? Set.of() : new HashSet<>( products );
 	}

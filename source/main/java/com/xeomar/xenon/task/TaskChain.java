@@ -28,12 +28,12 @@ public class TaskChain<K> {
 		prior.next = this;
 	}
 
-	public <W> TaskChain<K> run( Supplier<W> supplier ) {
+	public <W> TaskChain<K> add( Supplier<W> supplier ) {
 		this.task = new SupplierTask<>( supplier );
 		return new TaskChain<>( this );
 	}
 
-	public <U, W> TaskChain<K> run( Function<U, W> function ) {
+	public <U, W> TaskChain<K> add( Function<U, W> function ) {
 		this.task = new FunctionTask<>( function );
 		return new TaskChain<>( this );
 	}

@@ -44,61 +44,83 @@ public class UpdateCheckPoc {
 		this.repoClient = new V2RepoClient( program );
 	}
 
-	public void checkForUpdates( boolean interactive ) {
+	public void checkForUpdates( Set<ProductCard> products, boolean interactive ) {
 		try {
-			Map<ProductCard, RepoCard> cards = new TaskChain<Map<ProductCard, RepoCard>>()
-					.run( this::startCatalogCardDownloads )
-					.run( this::collectCatalogCardDownloads )
-					.run( this::startProductCardDownloadTasks )
-					.run( this::collectProductCardDownloads )
-					.run( this::determineUpdateableVersions )
-					.submit( program );
-
+			Map<ProductCard, RepoCard> cards = findPostedUpdates( products, interactive );
 			log.warn( "Cards loaded: " + cards.toString() );
-		} catch( ExecutionException e ) {
-			e.printStackTrace();
-		} catch( InterruptedException e ) {
-			e.printStackTrace();
+
+			boolean available = cards.size() > 0;
+			//
+			//			if( interactive ) {
+			//				if( available ) {
+			//					openProductTool();
+			//				} else {
+			//					notifyUserOfNoUpdates( connectionErrors );
+			//				}
+			//			} else {
+			//				switch( program.getProductManager().getFoundOption() ) {
+			//					case SELECT: {
+			//						notifyUserOfUpdates();
+			//						break;
+			//					}
+			//					case STORE:
+			//					case APPLY: {
+			//						program.getTaskManager().submit( new StageUpdates( cards, interactive ) );
+			//						break;
+			//					}
+			//				}
+			//			}
+
+		} catch( Exception exception ) {
+			exception.printStackTrace();
 		}
 	}
 
 	public Set<ProductCard> getAvailableProducts( boolean force ) {
+		// TODO The force parameter just means to refresh the cache
+
 		try {
-			return new TaskChain<Map<ProductCard, RepoCard>>()
-					.run( this::startCatalogCardDownloads )
-					.run( this::collectCatalogCardDownloads )
-					.run( this::startAllProductCardDownloadTasks )
-					.run( this::collectProductCardDownloads )
-					.submit( program ).keySet();
+			TaskChain<Map<ProductCard, RepoCard>> chain = new TaskChain<>();
+			chain.add( this::startEnabledCatalogCardDownloads );
+			chain.add( this::collectCatalogCardDownloads );
+			chain.add( this::startAllProductCardDownloadTasks );
+			chain.add( this::collectProductCardDownloads );
+			return chain.submit( program ).keySet();
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
+
 		return Set.of();
 	}
 
-	public Set<ProductCard> findPostedUpdates( boolean force ) {
+	public Map<ProductCard, RepoCard> findPostedUpdates( Set<ProductCard> products, boolean force ) {
+		// TODO The force parameter just means to refresh the cache
+
 		try {
-			return new TaskChain<Map<ProductCard, RepoCard>>()
-					.run( this::startCatalogCardDownloads )
-					.run( this::collectCatalogCardDownloads )
-					.run( this::startProductCardDownloadTasks )
-					.run( this::collectProductCardDownloads )
-					.run( this::determineUpdateableVersions )
-					.submit( program ).keySet();
-		} catch( ExecutionException e ) {
-			e.printStackTrace();
-		} catch( InterruptedException e ) {
-			e.printStackTrace();
+			TaskChain<Map<ProductCard, RepoCard>> chain = new TaskChain<>();
+			chain.add( this::startCatalogCardDownloads );
+			chain.add( this::collectCatalogCardDownloads );
+			chain.add( ( catalogs ) -> startSelectedProductCardDownloadTasks( (Map)catalogs, products ) );
+			chain.add( this::collectProductCardDownloads );
+			chain.add( this::determineUpdateableVersions );
+			return chain.submit( program );
+		} catch( Exception exception ) {
+			exception.printStackTrace();
 		}
-		return Set.of();
+
+		return Map.of();
 	}
 
-	public void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
-		// TODO This method directly correlates to updating products from the ProductTool
+	public void stageAndApplyUpdates( Set<ProductCard> products, boolean interactive ) {
+		stageAndApplyUpdates( findPostedUpdates( products, interactive ), interactive );
+	}
 
-		Map<ProductCard, RepoCard> cards = new HashMap<>();
+		public void stageAndApplyUpdates( Map<ProductCard, RepoCard> updates, boolean interactive ) {
+		// TODO This method directly correlates to updating products from the ProductTool
 		// It will be interesting how to weave this into the existing logic
-		program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, false ) );
+
+		// FIXME This is not the correct implementation
+		//program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( updates, interactive, false ) );
 	}
 
 	public void createProductUpdate( ProductCard card, Path updatePack ) {
@@ -137,12 +159,17 @@ public class UpdateCheckPoc {
 	//
 	//	}
 
-	private Map<RepoCard, Task<Download>> startCatalogCardDownloads() {
+	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
+		// FIXME Temporarily look in all repos
+		//Set<RepoCard> repos = program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).collect( Collectors.toSet() );
+		Set<RepoCard> repos = program.getProductManager().getRepos();
+		return startCatalogCardDownloads( repos );
+	}
+
+	private Map<RepoCard, Task<Download>> startCatalogCardDownloads( Set<RepoCard> repos ) {
 		Map<RepoCard, Task<Download>> downloads = new HashMap<>();
 
-		// FIXME Temporarily look in all repos
-		//program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).forEach( ( r ) -> {
-		program.getProductManager().getRepos().forEach( ( r ) -> {
+		repos.forEach( ( r ) -> {
 			log.info( "Creating catalog downloads for repo: " + r.getName() );
 			URI uri = repoClient.getCatalogUri( r );
 			downloads.put( r, program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
@@ -210,9 +237,20 @@ public class UpdateCheckPoc {
 	//
 	//	}
 
-	private Map<RepoCard, Set<Task<Download>>> startProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs ) {
-		// TODO Only collect products specified in parameter
-		return startAllProductCardDownloadTasks( catalogs );
+	private Map<RepoCard, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs, Set<ProductCard> products ) {
+		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
+		Set<String> artifacts = products.stream().map( ProductCard::getArtifact ).collect( Collectors.toSet() );
+
+		catalogs.keySet().forEach( ( repo ) -> {
+			CatalogCard catalog = catalogs.get( repo );
+			Set<Task<Download>> repoDownloads = downloads.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
+			catalog.getProducts()
+					.stream()
+					.filter( artifacts::contains )
+					.forEach( ( product ) -> repoDownloads.add( program.getTaskManager().submit( new DownloadTask( program, repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
+		} );
+
+		return downloads;
 	}
 
 	private Map<RepoCard, Set<Task<Download>>> startAllProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs ) {
@@ -220,14 +258,10 @@ public class UpdateCheckPoc {
 
 		catalogs.keySet().forEach( ( repo ) -> {
 			CatalogCard catalog = catalogs.get( repo );
-
 			Set<Task<Download>> repoDownloads = downloads.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
-
-			catalog.getProducts().forEach( ( product ) -> {
-				URI uri = repoClient.getProductUri( repo, product, "product", "card" );
-				repoDownloads.add( program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
-			} );
+			catalog.getProducts().forEach( ( product ) -> repoDownloads.add( program.getTaskManager().submit( new DownloadTask( program, repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
 		} );
+
 		return downloads;
 	}
 
@@ -259,6 +293,7 @@ public class UpdateCheckPoc {
 	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads( Map<RepoCard, Set<Task<Download>>> downloads ) {
 		Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
 
+		// NEXT An NPE was caused by the following line
 		downloads.keySet().forEach( ( repo ) -> {
 			Set<Task<Download>> repoDownloads = downloads.get( repo );
 			repoDownloads.forEach( ( task ) -> {
@@ -273,33 +308,34 @@ public class UpdateCheckPoc {
 				}
 			} );
 		} );
+
 		return products;
 	}
 
 	// Minimized task
-//	private class DetermineUpdateableVersionsTask extends Task<Map<ProductCard, RepoCard>> {
-//
-//		private Map<RepoCard, Set<ProductCard>> products;
-//
-//		private boolean interactive;
-//
-//		private boolean connectionErrors;
-//
-//		public DetermineUpdateableVersionsTask( Map<RepoCard, Set<ProductCard>> products, boolean interactive, boolean connectionErrors ) {
-//			this.products = products;
-//			this.interactive = interactive;
-//		}
-//
-//		@Override
-//		public Map<ProductCard, RepoCard> call() throws Exception {
-//			Map<ProductCard, RepoCard> cards = determineUpdateableVersions( products );
-//
-//			program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, connectionErrors ) );
-//
-//			return cards;
-//		}
-//
-//	}
+	//	private class DetermineUpdateableVersionsTask extends Task<Map<ProductCard, RepoCard>> {
+	//
+	//		private Map<RepoCard, Set<ProductCard>> products;
+	//
+	//		private boolean interactive;
+	//
+	//		private boolean connectionErrors;
+	//
+	//		public DetermineUpdateableVersionsTask( Map<RepoCard, Set<ProductCard>> products, boolean interactive, boolean connectionErrors ) {
+	//			this.products = products;
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Map<ProductCard, RepoCard> call() throws Exception {
+	//			Map<ProductCard, RepoCard> cards = determineUpdateableVersions( products );
+	//
+	//			program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, connectionErrors ) );
+	//
+	//			return cards;
+	//		}
+	//
+	//	}
 
 	private Map<ProductCard, RepoCard> determineUpdateableVersions( Map<RepoCard, Set<ProductCard>> products ) {
 		// If the installed versions were added to the incoming map then the
@@ -364,7 +400,7 @@ public class UpdateCheckPoc {
 				if( available ) {
 					openProductTool();
 				} else {
-					notifyUserOfNoUpdates();
+					notifyUserOfNoUpdates( connectionErrors );
 				}
 			} else {
 				switch( program.getProductManager().getFoundOption() ) {
@@ -381,28 +417,6 @@ public class UpdateCheckPoc {
 			}
 
 			return null;
-		}
-
-		private void notifyUserOfNoUpdates() {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String updatesNotAvailable = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
-			String updatesCannotConnect = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
-			final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
-			Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
-		}
-
-		private void openProductTool() {
-			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-			Platform.runLater( () -> program.getResourceManager().open( uri ) );
-		}
-
-		private void notifyUserOfUpdates() {
-			String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-			URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
-
-			Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
-			Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
 		}
 
 	}
@@ -636,6 +650,30 @@ public class UpdateCheckPoc {
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
+	}
+
+	// Utility methods -----------------------------------------------------------
+
+	private void notifyUserOfNoUpdates( boolean connectionErrors ) {
+		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+		String updatesNotAvailable = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
+		String updatesCannotConnect = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
+		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
+		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
+	}
+
+	private void openProductTool() {
+		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+		Platform.runLater( () -> program.getResourceManager().open( uri ) );
+	}
+
+	private void notifyUserOfUpdates() {
+		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
+		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+
+		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
+		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
 	}
 
 	private void updatesReadyToApply( boolean interactive ) {

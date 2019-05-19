@@ -531,8 +531,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @throws InterruptedException If the calling thread is interrupted
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
-	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
-		return new UpdateCheckPoc( program ).findPostedUpdates( force );
+	public Map<ProductCard, RepoCard> findPostedUpdates( boolean force ) throws Exception {
+		Set<ProductCard> products = getInstalledProductCards();
+		return new UpdateCheckPoc( program ).findPostedUpdates( products, force );
 	}
 
 	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {

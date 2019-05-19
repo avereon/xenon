@@ -33,7 +33,6 @@ public class V2RepoClient implements RepoClient {
 		return UriUtil.addToPath( getRepoApi( repo ), "catalog" );
 	}
 
-	@Deprecated
 	@Override
 	public URI getProductUri( RepoCard repo, String product, String asset, String format ) {
 		URI uri = getRepoApi( repo );
@@ -44,6 +43,7 @@ public class V2RepoClient implements RepoClient {
 		return uri;
 	}
 
+	@Deprecated
 	@Override
 	public Set<CatalogCard> getCatalogCards( Set<RepoCard> repos ) {
 		// WORKAROUND Repo cards need to be associated to download tasks
@@ -75,6 +75,7 @@ public class V2RepoClient implements RepoClient {
 		return catalogCards;
 	}
 
+	@Deprecated
 	public Set<ProductCard> getProductCards( Set<CatalogCard> catalogs ) {
 		Set<Future<Download>> futures = new HashSet<>();
 		for( CatalogCard catalog : catalogs ) {
