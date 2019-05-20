@@ -40,7 +40,10 @@ public class TaskChain<K> {
 
 	public K submit( Program program ) throws ExecutionException, InterruptedException {
 		TaskChain head = this;
-		while( head.prior != null ) head = head.prior;
+		while( head.prior != null ) {
+			System.err.println( "<" );
+			head = head.prior;
+		}
 		return (K)head.crunch( program );
 	}
 
@@ -52,8 +55,7 @@ public class TaskChain<K> {
 		log.warn( "Crunching: " + task.getClass().getName() );
 		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
 		R result = (R)program.getTaskManager().submit( task ).get();
-		if( next.task != null ) return (R)next.crunch( program, result );
-		return result;
+		return next.task == null ? result : (R)next.crunch( program, result );
 	}
 
 	private static class SupplierTask<H> extends Task<H> {
