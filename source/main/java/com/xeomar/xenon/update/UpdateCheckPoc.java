@@ -127,8 +127,6 @@ public class UpdateCheckPoc {
 		// TODO This method directly correlates to updating products from the ProductTool
 		// It will be interesting how to weave this into the existing logic
 
-		// FIXME This is not the correct implementation
-
 		try {
 			TaskChain<Set<ProductUpdate>> chain = new TaskChain<>();
 			chain = chain.add( () -> stageUpdates( updates , interactive ) );
@@ -313,7 +311,6 @@ public class UpdateCheckPoc {
 	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads( Map<RepoCard, Set<Task<Download>>> downloads ) {
 		Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
 
-		// NEXT An NPE was caused by the following line
 		downloads.keySet().forEach( ( repo ) -> {
 			Set<Task<Download>> repoDownloads = downloads.get( repo );
 			repoDownloads.forEach( ( task ) -> {
