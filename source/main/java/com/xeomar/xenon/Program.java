@@ -33,7 +33,7 @@ import com.xeomar.xenon.tool.task.TaskTool;
 import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.update.ProgramProductManager;
-import com.xeomar.xenon.update.RepoCard;
+import com.xeomar.product.RepoCard;
 import com.xeomar.xenon.update.UpdateCheckPoc;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Application;
@@ -74,6 +74,10 @@ public class Program extends Application implements ProgramProduct {
 	/* This field is used for timing checks */
 	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
+
+	public static final String SETTINGS_DEFAULT_PROPERTIES = "/settings/default.properties";
+
+	public static final String SETTINGS_PAGES_XML = "/settings/pages.xml";
 
 	private com.xeomar.util.Parameters parameters;
 
@@ -213,7 +217,7 @@ public class Program extends Application implements ProgramProduct {
 		// Load the default settings values
 		Properties properties = new Properties();
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		properties.load( new InputStreamReader( getClass().getResourceAsStream( "/settings/default.properties" ), TextUtil.CHARSET ) );
+		properties.load( new InputStreamReader( getClass().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES ), TextUtil.CHARSET ) );
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
 		// Create the program settings, depends on settings manager and default settings values
@@ -698,7 +702,7 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "Resource manager started." );
 
 		// Load the settings pages
-		getSettingsManager().addSettingsPages( this, programSettings, "/settings/pages.xml" );
+		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES_XML );
 
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
@@ -754,11 +758,11 @@ public class Program extends Application implements ProgramProduct {
 		try {
 			fireEvent( new ProgramStoppingEvent( this ) );
 
-			// Notify the product manager the UI is ready
-			productManager.uiWillStop();
-
 			// Stop the product manager
 			if( productManager != null ) {
+				// Notify the product manager the UI is ready
+				productManager.uiWillStop();
+
 				log.trace( "Stopping update manager..." );
 				productManager.stop();
 				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
@@ -984,7 +988,7 @@ public class Program extends Application implements ProgramProduct {
 		productManager.setSettings( programSettings );
 
 		// Register the product repos
-		productManager.registerProductRepos( RepoCard.forProduct() );
+		productManager.registerProductRepos( RepoCard.forProduct( getClass() ) );
 
 		// Register the product
 		productManager.registerProduct( this );

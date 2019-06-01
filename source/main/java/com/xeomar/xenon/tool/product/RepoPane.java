@@ -2,7 +2,7 @@ package com.xeomar.xenon.tool.product;
 
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
-import com.xeomar.xenon.update.RepoCard;
+import com.xeomar.product.RepoCard;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

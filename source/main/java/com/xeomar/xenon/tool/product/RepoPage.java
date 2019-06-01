@@ -4,7 +4,7 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.resource.type.ProgramProductType;
-import com.xeomar.xenon.update.RepoCard;
+import com.xeomar.product.RepoCard;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import org.slf4j.Logger;

@@ -1,6 +1,8 @@
 package com.xeomar.xenon.update;
 
+import com.xeomar.product.CatalogCard;
 import com.xeomar.product.ProductCard;
+import com.xeomar.product.RepoCard;
 import com.xeomar.util.LogUtil;
 import com.xeomar.util.OperatingSystem;
 import com.xeomar.util.UriUtil;

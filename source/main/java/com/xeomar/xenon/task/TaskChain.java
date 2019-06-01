@@ -2,12 +2,12 @@ package com.xeomar.xenon.task;
 
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.util.Asynchronous;
+import com.xeomar.xenon.util.Synchronous;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class TaskChain<CHAIN_RESULT> {
 
@@ -15,44 +15,42 @@ public class TaskChain<CHAIN_RESULT> {
 
 	private Program program;
 
-	private Link first;
+	private Link<?> first;
 
-	public TaskChain( Program program) {
+	private Link<CHAIN_RESULT> last;
+
+	public TaskChain( Program program ) {
 		this.program = program;
 	}
 
-	public <R> Link<R> add( Supplier<R> supplier ) {
+	public <R> Link<R> add( ThrowingSupplier<R> supplier ) {
 		Link<R> link = new Link<>( new SupplierTask<>( supplier ) );
 		first = link;
 		return link;
 	}
 
-	public <P, R> Link<R> add( Function<P, R> function ) {
+	public <P, R> Link<R> add( ThrowingFunction<P, R> function ) {
 		Link<R> link = new Link<>( new FunctionTask<>( function ) );
 		first = link;
 		return link;
 	}
 
-	@SuppressWarnings( "unchecked" )
-	public CHAIN_RESULT submit() throws ExecutionException, InterruptedException {
-		return (CHAIN_RESULT)crunch();
-	}
-
-	private Object crunch() throws ExecutionException, InterruptedException {
-		Link<?> link = first;
-
-		Object parameter = null;
-		while( link != null ) {
-			parameter = crunch( parameter, link.task );
-			link = link.getNext();
-		}
-
-		return parameter;
-	}
-
-	private <P, R> R crunch( P parameter, Task<R> task ) throws ExecutionException, InterruptedException {
+	private <P, R> void submit( P parameter, Task<R> task ) {
 		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
-		return program.getTaskManager().submit( task ).get();
+		program.getTaskManager().submit( task );
+	}
+
+	private synchronized CHAIN_RESULT get() throws ExecutionException, InterruptedException {
+		while( last == null ) {
+			wait(1000);
+		}
+		return last.task.get();
+	}
+
+	@SuppressWarnings( "unchecked" )
+	private synchronized void setLast( Link<?> last ) {
+		this.last = (Link<CHAIN_RESULT>)last;
+		this.notifyAll();
 	}
 
 	public class Link<LINK_RESULT> {
@@ -62,10 +60,12 @@ public class TaskChain<CHAIN_RESULT> {
 		private Link<?> next;
 
 		Link( SupplierTask<LINK_RESULT> supplierTask ) {
+			supplierTask.link = this;
 			task = supplierTask;
 		}
 
 		<P> Link( FunctionTask<P, LINK_RESULT> functionTask ) {
+			functionTask.link = this;
 			task = functionTask;
 		}
 
@@ -77,52 +77,60 @@ public class TaskChain<CHAIN_RESULT> {
 			return next;
 		}
 
-		public <R> Link<R> add( Supplier<R> supplier ) {
+		public <R> Link<R> add( ThrowingSupplier<R> supplier ) {
 			Link<R> link = new Link<>( new SupplierTask<>( supplier ) );
 			next = link;
 			return link;
 		}
 
-		public <R> Link<R> add( Function<LINK_RESULT, R> function ) {
+		public <R> Link<R> add( ThrowingFunction<LINK_RESULT, R> function ) {
 			Link<R> link = new Link<>( new FunctionTask<>( function ) );
 			next = link;
 			return link;
 		}
 
-		public CHAIN_RESULT last( Supplier<CHAIN_RESULT> supplier ) throws ExecutionException, InterruptedException {
-			next = new Link<>( new SupplierTask<>( supplier ) );
-			return TaskChain.this.submit();
+		@Asynchronous
+		public void run() {
+			TaskChain.this.submit( null, first.task );
 		}
 
-		public CHAIN_RESULT last( Function<LINK_RESULT, CHAIN_RESULT> function ) throws ExecutionException, InterruptedException {
-			next = new Link<>( new FunctionTask<>( function ) );
-			return TaskChain.this.submit();
+		@Synchronous
+		public CHAIN_RESULT get() throws ExecutionException, InterruptedException {
+			run();
+			return TaskChain.this.get();
 		}
 
 	}
 
-	private static class SupplierTask<R> extends Task<R> {
+	private class SupplierTask<R> extends Task<R> {
 
-		private Supplier<R> supplier;
+		private ThrowingSupplier<R> supplier;
 
-		SupplierTask( Supplier<R> supplier ) {
+		private Link<R> link;
+
+		SupplierTask( ThrowingSupplier<R> supplier ) {
 			this.supplier = supplier;
 		}
 
 		@Override
-		public R call() {
-			return supplier.get();
+		public R call() throws Exception {
+			R result = supplier.get();
+			if( link.next != null ) TaskChain.this.submit( result, link.next.task );
+			if( link.next == null ) TaskChain.this.setLast( link );
+			return result;
 		}
 
 	}
 
-	private static class FunctionTask<P, R> extends Task<R> {
+	private class FunctionTask<P, R> extends Task<R> {
 
 		private P parameter;
 
-		private Function<? super P, ? extends R> function;
+		private ThrowingFunction<? super P, ? extends R> function;
 
-		FunctionTask( Function<? super P, ? extends R> function ) {
+		private Link<?> link;
+
+		FunctionTask( ThrowingFunction<? super P, ? extends R> function ) {
 			this.function = function;
 		}
 
@@ -131,8 +139,11 @@ public class TaskChain<CHAIN_RESULT> {
 		}
 
 		@Override
-		public R call() {
-			return function.apply( parameter );
+		public R call() throws Exception {
+			R result = function.apply( parameter );
+			if( link.next != null ) TaskChain.this.submit( result, link.next.task );
+			if( link.next == null ) TaskChain.this.setLast( link );
+			return result;
 		}
 
 	}

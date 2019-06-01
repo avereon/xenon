@@ -1,6 +1,7 @@
 package com.xeomar.xenon.update;
 
 import com.xeomar.product.ProductCard;
+import com.xeomar.product.RepoCard;
 import com.xeomar.xenon.Program;
 
 import java.net.URI;

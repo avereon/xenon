@@ -1,7 +1,6 @@
 package com.xeomar.xenon.update;
 
-import com.xeomar.product.ProductCard;
-import com.xeomar.product.ProductCardComparator;
+import com.xeomar.product.*;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
@@ -11,8 +10,10 @@ import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.task.TaskChain;
 import com.xeomar.xenon.tool.product.ProductTool;
+import com.xeomar.xenon.util.Asynchronous;
 import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.util.Lambda;
+import com.xeomar.xenon.util.Synchronous;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -48,32 +49,33 @@ public class UpdateCheckPoc {
 		this.repoClient = new V2RepoClient( program );
 	}
 
-	void checkForUpdates( Set<ProductCard> products, boolean interactive ) {
+	@Asynchronous
+	void checkForUpdates( boolean interactive ) {
 		try {
 			// @formatter:off
 			new TaskChain<Void>( program )
-				.add( () -> findPostedUpdates( products, interactive ) )
-				.last( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) );
+				.add( () -> findPostedUpdates( program.getProductManager().getInstalledProductCards(), interactive ) )
+				.add( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
+				.run();
 			// @formatter:on
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
 	}
 
-	Collection<ProductCard> getAvailableProducts( boolean force ) {
+	@Synchronous
+	Set<ProductCard> getAvailableProducts( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
 		try {
 			// @formatter:off
-			return new TaskChain<Map<ProductCard,RepoCard>>(program)
+			return new TaskChain<Set<ProductCard>>(program)
 			.add( this::startEnabledCatalogCardDownloads )
 			.add( this::collectCatalogCardDownloads )
 			.add( this::startAllProductCardDownloadTasks )
 			.add( this::collectProductCardDownloads )
-					// FIXME Still need to implement this last call
-			.last( this::determineAvailableProducts )
-			// TODO Might need to return the whole map
-			.keySet();
+			.add( this::determineAvailableProducts )
+			.get();
 			// @formatter:on
 		} catch( Exception exception ) {
 			exception.printStackTrace();
@@ -87,49 +89,49 @@ public class UpdateCheckPoc {
 	 * @param force Request that the cache be flushed before finding updates
 	 * @return The map of updateable products and in which repo the update is located
 	 */
-	Map<ProductCard, RepoCard> findPostedUpdates( Set<ProductCard> products, boolean force ) {
+	@Synchronous
+	Set<ProductCard> findPostedUpdates( Set<ProductCard> products, boolean force ) throws ExecutionException, InterruptedException {
 		// TODO The force parameter just means to refresh the cache
 
+		// @formatter:off
+		return new TaskChain<Set<ProductCard>>(program)
+			.add(this::startEnabledCatalogCardDownloads )
+			.add( this::collectCatalogCardDownloads)
+			.add(( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
+			.add( this::collectProductCardDownloads)
+			.add( this:: determineUpdateableProducts )
+			.get();
+		// @formatter:on
+	}
+
+	@Asynchronous
+	void stageAndApplyUpdates( Set<ProductCard> products, boolean interactive ) {
 		try {
-			// @formatter:off
-			return new TaskChain<Map<ProductCard, RepoCard>>(program)
-				.add(this::startEnabledCatalogCardDownloads )
-				.add( this::collectCatalogCardDownloads)
-				.add(( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
-				.add( this::collectProductCardDownloads)
-				.last( this:: determineUpdateableProducts );
-			// @formatter:on
+			installUpdates( findPostedUpdates( products, interactive ), interactive );
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
-
-		return Map.of();
 	}
 
-	void stageAndApplyUpdates( Set<ProductCard> products, boolean interactive ) {
-		stageAndApplyUpdates( findPostedUpdates( products, interactive ), interactive );
-	}
-
-	void stageAndApplyUpdates( Map<ProductCard, RepoCard> updates, boolean interactive ) {
+	@Asynchronous
+	void installUpdates( Set<ProductCard> updates, boolean interactive ) {
 		// TODO This method directly correlates to updating products from the ProductTool
 		// It will be interesting how to weave this into the existing logic
 
 		try {
 			// @formatter:off
-			Set<ProductUpdate> productUpdates = new TaskChain<Set<ProductUpdate>>( program )
+			new TaskChain<Set<ProductUpdate>>( program )
 				.add( () -> stageUpdates( updates, interactive ) )
-				.last( ( updateFutures ) -> collectProductUpdates( updateFutures, interactive ) );
+				.add( ( updateFutures ) -> collectProductUpdates( updateFutures, interactive ) )
+				.add( ( productUpdates ) -> handleDownloadedProductUpdates( productUpdates, interactive ))
+				.run();
 			// @formatter:on
-
-			if( productUpdates.size() > 0 && program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
-				program.getTaskManager().submit( Lambda.task( "", () -> updatesReadyToApply( interactive ) ) );
-			}
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
 	}
 
-	void createProductUpdate( ProductCard card, Path updatePack ) {
+	void createProductUpdates( Set<ProductCard> products ) {
 		// Start with StageUpdates and end with ProductUpdateCollector
 
 		//Future<ProductUpdate> productUpdateFutures = stageUpdates( cardsAndRepos, false );
@@ -137,6 +139,11 @@ public class UpdateCheckPoc {
 		//ProductUpdate productUpdate = collectProductResources( productResources );
 		//Set<ProductUpdate> productUpdates = collectProductUpdates( productUpdate );
 
+		//		new TaskChain<Set<ProductUpdate>>( program )
+		//			.add( () -> stageUpdates( products, false ) )
+		//			// TODO This gets passed to install logic that isn't in the class yet
+		//			// It's in the ProductManager.InstallProducts class
+		//			.run();
 	}
 
 	// This is a method for testing the update found dialog.
@@ -340,18 +347,18 @@ public class UpdateCheckPoc {
 	//
 	//	}
 
-	private Map<ProductCard, RepoCard> determineAvailableProducts( Map<RepoCard, Set<ProductCard>> products ) {
+	private Set<ProductCard> determineAvailableProducts( Map<RepoCard, Set<ProductCard>> products ) {
 		return determineProducts( products, false );
 	}
 
-	private Map<ProductCard, RepoCard> determineUpdateableProducts( Map<RepoCard, Set<ProductCard>> products ) {
+	private Set<ProductCard> determineUpdateableProducts( Map<RepoCard, Set<ProductCard>> products ) {
 		return determineProducts( products, true );
 	}
 
-	private Map<ProductCard, RepoCard> determineProducts( Map<RepoCard, Set<ProductCard>> products, boolean useInstalled ) {
+	private Set<ProductCard> determineProducts( Map<RepoCard, Set<ProductCard>> products, boolean useInstalled ) {
 		if( products == null ) {
 			log.error( "Product map is null" );
-			return Map.of();
+			return Set.of();
 		}
 
 		RepoCard programInstalledRepo = new RepoCard( "installed" );
@@ -375,8 +382,7 @@ public class UpdateCheckPoc {
 			productVersions.computeIfAbsent( p.getProductKey(), ( k ) -> new ArrayList<>() ).add( p );
 		} ) );
 
-		// The key for the map is a ProductCard key
-		Map<ProductCard, RepoCard> cards = new HashMap<>();
+		Set<ProductCard> cards = new HashSet<>();
 
 		// Sort all the latest product versions to the top of each list
 		Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
@@ -384,7 +390,7 @@ public class UpdateCheckPoc {
 			productVersions.get( k ).sort( comparator );
 			ProductCard version = productVersions.get( k ).get( 0 );
 			RepoCard repo = productRepos.get( version );
-			if( !useInstalled || repo != programInstalledRepo ) cards.put( version, repo );
+			if( !useInstalled || repo != programInstalledRepo ) cards.add( new ProductCard().copyFrom( version ).setRepo( repo ) );
 
 			ProductCard current = program.getProductManager().getInstalledProductCard( version );
 			if( current != null ) log.debug( "Installed: " + current.getProductKey() + " " + current.getRelease() );
@@ -438,11 +444,12 @@ public class UpdateCheckPoc {
 	//
 	//	}
 
-	private Void handlePostedUpdatesResult( Map<ProductCard, RepoCard> cards, boolean interactive ) {
+	private Void handlePostedUpdatesResult( Set<ProductCard> cards, boolean interactive ) {
 		log.warn( "Cards loaded: " + cards.toString() );
 
-		long connectionErrors = cards.values().stream().filter( ( r ) -> r == REPO_CONNECTION_ERROR ).count();
+		long connectionErrors = cards.stream().filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
 		boolean available = cards.size() > 0;
+
 		if( interactive ) {
 			if( available ) {
 				openProductTool();
@@ -457,11 +464,12 @@ public class UpdateCheckPoc {
 				}
 				case STORE:
 				case APPLY: {
-					stageAndApplyUpdates( cards, interactive );
+					installUpdates( cards, false );
 					break;
 				}
 			}
 		}
+
 		return null;
 	}
 
@@ -530,7 +538,7 @@ public class UpdateCheckPoc {
 	//
 	//	}
 
-	private Set<Future<ProductUpdate>> stageUpdates( Map<ProductCard, RepoCard> cardsAndRepos, boolean interactive ) {
+	private Set<Future<ProductUpdate>> stageUpdates( Set<ProductCard> cardsAndRepos, boolean interactive ) {
 		Path stageFolder = program.getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
 
 		log.debug( "Number of packs to stage: " + cardsAndRepos.size() );
@@ -549,9 +557,9 @@ public class UpdateCheckPoc {
 		// updates from those resources next and finally submits the task that
 		// collects all the product update futures.
 
-		Set<ProductResourcesCollector> updateTasks = cardsAndRepos.keySet().stream().map( ( card ) -> {
+		Set<ProductResourcesCollector> updateTasks = cardsAndRepos.stream().map( ( card ) -> {
 			try {
-				RepoCard repo = cardsAndRepos.get( card );
+				RepoCard repo = card.getRepo();
 				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
 
 				// The returned ProductResource objects contain the product resource download futures
@@ -564,10 +572,10 @@ public class UpdateCheckPoc {
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
 
-		// Submit the task that to produce the ProductUpdates here
-		Set<Future<ProductUpdate>> updateFutures = updateTasks.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
+		// TODO Submit the tasks that to produce the ProductUpdates here
+		//Set<Future<ProductUpdate>> updateFutures = updateTasks.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
 
-		return updateFutures;
+		return Set.of();
 	}
 
 	private class DownloadProductResourceTask extends Task<Set<ProductResource>> {
@@ -717,6 +725,14 @@ public class UpdateCheckPoc {
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
+	}
+
+	private Set<ProductUpdate> handleDownloadedProductUpdates( Set<ProductUpdate> productUpdates, boolean interactive ) {
+		if( productUpdates.size() > 0 && program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
+			updatesReadyToApply( interactive );
+		}
+
+		return productUpdates;
 	}
 
 	// Utility methods -----------------------------------------------------------

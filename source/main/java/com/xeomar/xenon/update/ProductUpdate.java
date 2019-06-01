@@ -2,6 +2,7 @@ package com.xeomar.xenon.update;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.xeomar.product.ProductCard;
+import com.xeomar.product.RepoCard;
 import com.xeomar.settings.Settings;
 import com.xeomar.util.Configurable;
 
