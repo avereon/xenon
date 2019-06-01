@@ -221,7 +221,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @param force The user intentionally wants to load the available products
 	 * @return A set of the available product cards
 	 */
-	public Set<ProductCard> getAvailableProducts( boolean force ) {
+	public Collection<ProductCard> getAvailableProducts( boolean force ) {
 		if( !force && availableCards != null ) return availableCards;
 
 		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();

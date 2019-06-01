@@ -38,17 +38,17 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private final Object stateLock = new Object();
 
-	private final Throwable exceptionSource = new TaskException();
-
 	private State state = State.WAITING;
-
-	private Priority priority;
 
 	private String name;
 
-	private TaskManager manager;
+	private Priority priority;
+
+	private Throwable exceptionSource;
 
 	private Set<TaskListener> listeners;
+
+	private TaskManager manager;
 
 	private long total = 1;
 
@@ -70,8 +70,9 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		super( taskCallable );
 		this.name = name;
 		this.priority = priority;
-		taskCallable.setCallable( this );
+		exceptionSource = new TaskException();
 		listeners = new CopyOnWriteArraySet<>();
+		taskCallable.setCallable( this );
 	}
 
 	@Override
