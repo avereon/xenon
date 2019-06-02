@@ -1,6 +1,9 @@
 package com.xeomar.xenon.update;
 
-import com.xeomar.product.*;
+import com.xeomar.product.CatalogCard;
+import com.xeomar.product.ProductCard;
+import com.xeomar.product.ProductCardComparator;
+import com.xeomar.product.RepoCard;
 import com.xeomar.util.FileUtil;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
@@ -12,7 +15,6 @@ import com.xeomar.xenon.task.TaskChain;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.Asynchronous;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.util.Lambda;
 import com.xeomar.xenon.util.Synchronous;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -28,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,12 @@ public class UpdateCheckPoc {
 	public UpdateCheckPoc( Program program ) {
 		this.program = program;
 		this.repoClient = new V2RepoClient( program );
+	}
+
+	// This is a method for testing the update found dialog.
+	// It should not be used for production functionality.
+	public void showUpdateFoundDialog() {
+		notifyUpdatesReadyToApply( true );
 	}
 
 	@Asynchronous
@@ -105,25 +112,14 @@ public class UpdateCheckPoc {
 	}
 
 	@Asynchronous
-	void stageAndApplyUpdates( Set<ProductCard> products, boolean interactive ) {
-		try {
-			installUpdates( findPostedUpdates( products, interactive ), interactive );
-		} catch( Exception exception ) {
-			exception.printStackTrace();
-		}
-	}
-
-	@Asynchronous
-	void installUpdates( Set<ProductCard> updates, boolean interactive ) {
-		// TODO This method directly correlates to updating products from the ProductTool
-		// It will be interesting how to weave this into the existing logic
-
+	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
 		try {
 			// @formatter:off
 			new TaskChain<Set<ProductUpdate>>( program )
-				.add( () -> stageUpdates( updates, interactive ) )
-				.add( ( updateFutures ) -> collectProductUpdates( updateFutures, interactive ) )
-				.add( ( productUpdates ) -> handleDownloadedProductUpdates( productUpdates, interactive ))
+				.add( () -> startResourceDownloads( updates ) )
+				.add( this::startProductResourceCollectors )
+				.add( this::collectProductUpdates )
+				.add( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ))
 				.run();
 			// @formatter:on
 		} catch( Exception exception ) {
@@ -141,36 +137,10 @@ public class UpdateCheckPoc {
 
 		//		new TaskChain<Set<ProductUpdate>>( program )
 		//			.add( () -> stageUpdates( products, false ) )
-		//			// TODO This gets passed to install logic that isn't in the class yet
+		//			// TODO This gets passed to install logic that isn't implemented in this class yet
 		//			// It's in the ProductManager.InstallProducts class
 		//			.run();
 	}
-
-	// This is a method for testing the update found dialog.
-	// It should not be used for production functionality.
-	public void showUpdateFoundDialog() {
-		updatesReadyToApply( true );
-	}
-
-	// Minimized task
-	//	private class DownloadCatalogCardTask extends Task<Map<RepoCard, Task<Download>>> {
-	//
-	//		private boolean interactive;
-	//
-	//		public DownloadCatalogCardTask( boolean interactive ) {
-	//			this.interactive = interactive;
-	//		}
-	//
-	//		@Override
-	//		public Map<RepoCard, Task<Download>> call() throws Exception {
-	//			Map<RepoCard, Task<Download>> downloads = getRepoCardTaskMap();
-	//
-	//			program.getTaskManager().submit( new DownloadCatalogCardCollector( downloads, interactive ) );
-	//
-	//			return downloads;
-	//		}
-	//
-	//	}
 
 	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
 		// FIXME Temporarily look in all repos
@@ -190,29 +160,6 @@ public class UpdateCheckPoc {
 		return downloads;
 	}
 
-	// Minimized task
-	//	private class DownloadCatalogCardCollector extends Task<Map<RepoCard, CatalogCard>> {
-	//
-	//		private Map<RepoCard, Task<Download>> downloads;
-	//
-	//		private boolean interactive;
-	//
-	//		public DownloadCatalogCardCollector( Map<RepoCard, Task<Download>> downloads, boolean interactive ) {
-	//			this.downloads = downloads;
-	//			this.interactive = interactive;
-	//		}
-	//
-	//		@Override
-	//		public Map<RepoCard, CatalogCard> call() throws Exception {
-	//			Map<RepoCard, CatalogCard> catalogs = getRepoCardCatalogCardMap( downloads );
-	//
-	//			program.getTaskManager().submit( new DownloadProductCardTask( catalogs, interactive ) );
-	//
-	//			return catalogs;
-	//		}
-	//
-	//	}
-
 	private Map<RepoCard, CatalogCard> collectCatalogCardDownloads( Map<RepoCard, Task<Download>> downloads ) {
 		Map<RepoCard, CatalogCard> catalogs = new HashMap<>();
 
@@ -227,29 +174,6 @@ public class UpdateCheckPoc {
 		} );
 		return catalogs;
 	}
-
-	// Minimized task
-	//	private class DownloadProductCardTask extends Task<Void> {
-	//
-	//		private Map<RepoCard, CatalogCard> catalogs;
-	//
-	//		private boolean interactive;
-	//
-	//		public DownloadProductCardTask( Map<RepoCard, CatalogCard> catalogs, boolean interactive ) {
-	//			this.catalogs = catalogs;
-	//			this.interactive = interactive;
-	//		}
-	//
-	//		@Override
-	//		public Void call() throws Exception {
-	//			Map<RepoCard, Set<Task<Download>>> downloads = startProductCardDownloadTasks(catalogs);
-	//
-	//			program.getTaskManager().submit( new DownloadProductCardCollector( downloads, interactive ) );
-	//
-	//			return null;
-	//		}
-	//
-	//	}
 
 	private Map<RepoCard, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs, Set<ProductCard> products ) {
 		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
@@ -276,31 +200,6 @@ public class UpdateCheckPoc {
 		return downloads;
 	}
 
-	// Minimized task
-	//	private class DownloadProductCardCollector extends Task<Void> {
-	//
-	//		private Map<RepoCard, Set<Task<Download>>> downloads;
-	//
-	//		private boolean interactive;
-	//
-	//		public DownloadProductCardCollector( Map<RepoCard, Set<Task<Download>>> downloads, boolean interactive ) {
-	//			this.downloads = downloads;
-	//			this.interactive = interactive;
-	//		}
-	//
-	//		@Override
-	//		public Void call() throws Exception {
-	//			boolean connectionErrors = false;
-	//
-	//			Map<RepoCard, Set<ProductCard>> products = collectProductCardDownloads(downloads);
-	//
-	//			program.getTaskManager().submit( new DetermineUpdateableVersionsTask( products, interactive, connectionErrors ) );
-	//
-	//			return null;
-	//		}
-	//
-	//	}
-
 	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads( Map<RepoCard, Set<Task<Download>>> downloads ) {
 		Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
 
@@ -321,31 +220,6 @@ public class UpdateCheckPoc {
 
 		return products;
 	}
-
-	// Minimized task
-	//	private class DetermineUpdateableVersionsTask extends Task<Map<ProductCard, RepoCard>> {
-	//
-	//		private Map<RepoCard, Set<ProductCard>> products;
-	//
-	//		private boolean interactive;
-	//
-	//		private boolean connectionErrors;
-	//
-	//		public DetermineUpdateableVersionsTask( Map<RepoCard, Set<ProductCard>> products, boolean interactive, boolean connectionErrors ) {
-	//			this.products = products;
-	//			this.interactive = interactive;
-	//		}
-	//
-	//		@Override
-	//		public Map<ProductCard, RepoCard> call() throws Exception {
-	//			Map<ProductCard, RepoCard> cards = determineUpdateableVersions( products );
-	//
-	//			program.getTaskManager().submit( new HandleCheckForUpdatesActionTask( cards, interactive, connectionErrors ) );
-	//
-	//			return cards;
-	//		}
-	//
-	//	}
 
 	private Set<ProductCard> determineAvailableProducts( Map<RepoCard, Set<ProductCard>> products ) {
 		return determineProducts( products, false );
@@ -401,52 +275,7 @@ public class UpdateCheckPoc {
 		return cards;
 	}
 
-	//	private class HandleCheckForUpdatesActionTask extends Task<Void> {
-	//
-	//		private Map<ProductCard, RepoCard> cards;
-	//
-	//		private boolean interactive;
-	//
-	//		private boolean connectionErrors;
-	//
-	//		public HandleCheckForUpdatesActionTask( Map<ProductCard, RepoCard> cards, boolean interactive, boolean connectionErrors ) {
-	//			this.cards = cards;
-	//			this.interactive = interactive;
-	//			this.connectionErrors = connectionErrors;
-	//		}
-	//
-	//		@Override
-	//		public Void call() throws Exception {
-	//			boolean available = cards.size() > 0;
-	//
-	//			if( interactive ) {
-	//				if( available ) {
-	//					openProductTool();
-	//				} else {
-	//					notifyUserOfNoUpdates( connectionErrors );
-	//				}
-	//			} else {
-	//				switch( program.getProductManager().getFoundOption() ) {
-	//					case SELECT: {
-	//						notifyUserOfUpdates();
-	//						break;
-	//					}
-	//					case STORE:
-	//					case APPLY: {
-	//						program.getTaskManager().submit( new StageUpdates( cards, interactive ) );
-	//						break;
-	//					}
-	//				}
-	//			}
-	//
-	//			return null;
-	//		}
-	//
-	//	}
-
 	private Void handlePostedUpdatesResult( Set<ProductCard> cards, boolean interactive ) {
-		log.warn( "Cards loaded: " + cards.toString() );
-
 		long connectionErrors = cards.stream().filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
 		boolean available = cards.size() > 0;
 
@@ -464,7 +293,7 @@ public class UpdateCheckPoc {
 				}
 				case STORE:
 				case APPLY: {
-					installUpdates( cards, false );
+					stageAndApplyUpdates( cards, false );
 					break;
 				}
 			}
@@ -473,75 +302,10 @@ public class UpdateCheckPoc {
 		return null;
 	}
 
-	//	private class StageUpdates extends Task<Set<Future<ProductUpdate>>> {
-	//
-	//		private Map<ProductCard, RepoCard> cardsAndRepos;
-	//
-	//		private boolean interactive;
-	//
-	//		public StageUpdates( Map<ProductCard, RepoCard> cardsAndRepos, boolean interactive ) {
-	//			super( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-	//			this.cardsAndRepos = cardsAndRepos;
-	//			this.interactive = interactive;
-	//		}
-	//
-	//		@Override
-	//		public Set<Future<ProductUpdate>> call() throws Exception {
-	//			Path stageFolder = program.getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
-	//
-	//			log.debug( "Number of packs to stage: " + cardsAndRepos.size() );
-	//			log.trace( "Pack stage folder: " + stageFolder );
-	//
-	//			try {
-	//				Files.createDirectories( stageFolder );
-	//			} catch( IOException exception ) {
-	//				log.warn( "Error creating update stage folder: " + stageFolder, exception );
-	//				return Set.of();
-	//			}
-	//
-	//			// The remaining code in this method is not particularly obvious but is
-	//			// done this way for a better user experience. The idea is to submit the
-	//			// product download resource tasks first then the tasks to build product
-	//			// updates from those resources next and finally submits the task that
-	//			// collects all the product update futures.
-	//
-	//			Set<ProductResourcesCollector> updateTasks = cardsAndRepos.keySet().stream().map( ( card ) -> {
-	//				try {
-	//					RepoCard repo = cardsAndRepos.get( card );
-	//					Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
-	//
-	//					// The returned ProductResource objects contain the product resource download futures
-	//					Set<ProductResource> resources = startProductResourceDownloads( repo, card, updatePack );
-	//
-	//					// Return the task that will produce the ProductUpdate but don't submit it here
-	//					return new ProductResourcesCollector( repo, card, resources, updatePack );
-	//				} catch( Exception exception ) {
-	//					return null;
-	//				}
-	//			} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
-	//
-	//			// Submit the task that to produce the ProductUpdates here
-	//			Set<Future<ProductUpdate>> updateFutures = updateTasks.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
-	//
-	//			program.getTaskManager().submit( new ProductUpdateCollector( updateFutures, interactive ) );
-	//
-	//			return updateFutures;
-	//		}
-	//
-	//		private String getStagedUpdateFileName( ProductCard card ) {
-	//			return card.getGroup() + "." + card.getArtifact() + ".pack";
-	//		}
-	//
-	//		private Set<ProductResource> startProductResourceDownloads( RepoCard repo, ProductCard card, Path updatePack ) throws InterruptedException, ExecutionException {
-	//			return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card, updatePack ) ).get();
-	//		}
-	//
-	//	}
-
-	private Set<Future<ProductUpdate>> stageUpdates( Set<ProductCard> cardsAndRepos, boolean interactive ) {
+	private Set<ProductResourceCollector> startResourceDownloads( Set<ProductCard> cards ) {
 		Path stageFolder = program.getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
 
-		log.debug( "Number of packs to stage: " + cardsAndRepos.size() );
+		log.debug( "Number of packs to stage: " + cards.size() );
 		log.trace( "Pack stage folder: " + stageFolder );
 
 		try {
@@ -553,29 +317,22 @@ public class UpdateCheckPoc {
 
 		// The remaining code in this method is not particularly obvious but is
 		// done this way for a better user experience. The idea is to submit the
-		// product download resource tasks first then the tasks to build product
-		// updates from those resources next and finally submits the task that
-		// collects all the product update futures.
-
-		Set<ProductResourcesCollector> updateTasks = cardsAndRepos.stream().map( ( card ) -> {
+		// product download resource tasks and return the tasks that build product
+		// updates from those resources.
+		return cards.stream().map( ( card ) -> {
 			try {
 				RepoCard repo = card.getRepo();
-				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
 
 				// The returned ProductResource objects contain the product resource download futures
-				Set<ProductResource> resources = startProductResourceDownloads( repo, card, updatePack );
+				Set<ProductResource> resources = startProductResourceDownloads( repo, card );
 
-				// Return the task that will produce the ProductUpdate but don't submit it here
-				return new ProductResourcesCollector( repo, card, resources, updatePack );
+				// Create the task that will produce the ProductUpdate but don't submit it here
+				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
+				return new ProductResourceCollector( repo, card, resources, updatePack );
 			} catch( Exception exception ) {
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
-
-		// TODO Submit the tasks that to produce the ProductUpdates here
-		//Set<Future<ProductUpdate>> updateFutures = updateTasks.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
-
-		return Set.of();
 	}
 
 	private class DownloadProductResourceTask extends Task<Set<ProductResource>> {
@@ -584,14 +341,10 @@ public class UpdateCheckPoc {
 
 		private ProductCard card;
 
-		private Path localPackPath;
-
-		public DownloadProductResourceTask( RepoCard repo, ProductCard card, Path localPackPath ) {
-			// FIXME Localize this task name
-			super( "Stage update: " + card.getName() + " " + card.getVersion() );
+		DownloadProductResourceTask( RepoCard repo, ProductCard card ) {
+			setName( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName() , card.getVersion() ) );
 			this.repo = repo;
 			this.card = card;
-			this.localPackPath = localPackPath;
 		}
 
 		@Override
@@ -613,7 +366,7 @@ public class UpdateCheckPoc {
 
 	}
 
-	private class ProductResourcesCollector extends Task<ProductUpdate> {
+	private class ProductResourceCollector extends Task<ProductUpdate> {
 
 		private RepoCard repo;
 
@@ -623,7 +376,7 @@ public class UpdateCheckPoc {
 
 		private Path localPackPath;
 
-		public ProductResourcesCollector( RepoCard repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
+		ProductResourceCollector( RepoCard repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
 			this.repo = repo;
 			this.product = product;
 			this.resources = resources;
@@ -689,35 +442,38 @@ public class UpdateCheckPoc {
 	}
 
 	// Minimized task
-	private class ProductUpdateCollector extends Task<Set<ProductUpdate>> {
+	//	private class ProductUpdateCollector extends Task<Set<ProductUpdate>> {
+	//
+	//		private Set<Future<ProductUpdate>> updateFutures;
+	//
+	//		private boolean interactive;
+	//
+	//		public ProductUpdateCollector( Set<Future<ProductUpdate>> updateFutures, boolean interactive ) {
+	//			this.updateFutures = updateFutures;
+	//			this.interactive = interactive;
+	//		}
+	//
+	//		@Override
+	//		public Set<ProductUpdate> call() throws Exception {
+	//			Set<ProductUpdate> updates = collectProductUpdates( updateFutures, interactive );
+	//
+	//			if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
+	//				//program.getTaskManager().submit( new UpdatesReadyToApply( interactive ) );
+	//
+	//				// Because this is the last task and it returns void...this one is easy
+	//				program.getTaskManager().submit( Lambda.task( "", () -> updatesReadyToApply( interactive ) ) );
+	//			}
+	//
+	//			return updates;
+	//		}
+	//
+	//	}
 
-		private Set<Future<ProductUpdate>> updateFutures;
-
-		private boolean interactive;
-
-		public ProductUpdateCollector( Set<Future<ProductUpdate>> updateFutures, boolean interactive ) {
-			this.updateFutures = updateFutures;
-			this.interactive = interactive;
-		}
-
-		@Override
-		public Set<ProductUpdate> call() throws Exception {
-			Set<ProductUpdate> updates = collectProductUpdates( updateFutures, interactive );
-
-			if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
-				//program.getTaskManager().submit( new UpdatesReadyToApply( interactive ) );
-
-				// TODO So...the trick is...can I replace the line above and the class below
-				// Because this is the last task and it returns void...this one is easy
-				program.getTaskManager().submit( Lambda.task( "", () -> updatesReadyToApply( interactive ) ) );
-			}
-
-			return updates;
-		}
-
+	private Set<Task<ProductUpdate>> startProductResourceCollectors( Set<ProductResourceCollector> collectors ) {
+		return collectors.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
 	}
 
-	private Set<ProductUpdate> collectProductUpdates( Set<Future<ProductUpdate>> updateFutures, boolean interactive ) {
+	private Set<ProductUpdate> collectProductUpdates( Set<Task<ProductUpdate>> updateFutures ) {
 		return updateFutures.stream().map( ( future ) -> {
 			try {
 				return future.get();
@@ -727,9 +483,11 @@ public class UpdateCheckPoc {
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
 	}
 
-	private Set<ProductUpdate> handleDownloadedProductUpdates( Set<ProductUpdate> productUpdates, boolean interactive ) {
-		if( productUpdates.size() > 0 && program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
-			updatesReadyToApply( interactive );
+	private Set<ProductUpdate> handleStagedProductUpdates( Set<ProductUpdate> productUpdates, boolean interactive ) {
+		if( productUpdates.size() == 0 ) return productUpdates;
+
+		if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
+			notifyUpdatesReadyToApply( interactive );
 		}
 
 		return productUpdates;
@@ -763,11 +521,11 @@ public class UpdateCheckPoc {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	private Set<ProductResource> startProductResourceDownloads( RepoCard repo, ProductCard card, Path updatePack ) throws InterruptedException, ExecutionException {
-		return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card, updatePack ) ).get();
+	private Set<ProductResource> startProductResourceDownloads( RepoCard repo, ProductCard card ) throws InterruptedException, ExecutionException {
+		return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card ) ).get();
 	}
 
-	private void updatesReadyToApply( boolean interactive ) {
+	private void notifyUpdatesReadyToApply( boolean interactive ) {
 		if( interactive ) {
 			Platform.runLater( this::showAlert );
 		} else {

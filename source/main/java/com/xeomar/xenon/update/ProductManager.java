@@ -545,7 +545,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 */
 	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
-		new UpdateCheckPoc( program ).installUpdates( findPostedUpdates( false ), false );
+		new UpdateCheckPoc( program ).stageAndApplyUpdates( findPostedUpdates( false ), false );
 		return updates.size();
 	}
 

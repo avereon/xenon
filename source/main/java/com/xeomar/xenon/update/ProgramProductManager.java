@@ -47,7 +47,7 @@ public class ProgramProductManager extends ProductManager {
 	}
 
 	public void applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
-		new UpdateCheckPoc( program ).installUpdates( updates, interactive );
+		new UpdateCheckPoc( program ).stageAndApplyUpdates( updates, interactive );
 	}
 
 	/**

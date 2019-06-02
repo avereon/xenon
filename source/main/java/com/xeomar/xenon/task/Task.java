@@ -86,6 +86,11 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return name == null ? getClass().getName() : name;
 	}
 
+	protected Task<R> setName( String name ) {
+		this.name = name;
+		return this;
+	}
+
 	public State getState() {
 		return state;
 	}
