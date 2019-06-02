@@ -270,7 +270,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
-		Task<ProgramTool> createToolTask = Task.of( "", () -> {
+		String taskName = program.getResourceBundle().getString( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Have to have a ProductTool to support modules
 			try {
 				// Create the new tool instance
@@ -282,24 +283,6 @@ public class ToolManager implements Controllable<ToolManager> {
 
 			return null;
 		});
-
-//		Task<ProgramTool> createToolTask = new Task<>() {
-//
-//			@Override
-//			protected ProgramTool call() {
-//
-//				// Have to have a ProductTool to support modules
-//				try {
-//					// Create the new tool instance
-//					Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
-//					return constructor.newInstance( product, resource );
-//				} catch( Exception exception ) {
-//					log.error( "Error creating instance: " + toolClass.getName(), exception );
-//				}
-//				return null;
-//			}
-//
-//		};
 
 		if( Platform.isFxApplicationThread() ) {
 			createToolTask.run();
