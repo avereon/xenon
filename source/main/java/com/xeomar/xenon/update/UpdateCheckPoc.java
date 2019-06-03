@@ -115,10 +115,11 @@ public class UpdateCheckPoc {
 	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
 		try {
 			// @formatter:off
-			new TaskChain<Set<ProductUpdate>>( program )
+			new TaskChain<Collection<ProductUpdate>>( program )
 				.add( () -> startResourceDownloads( updates ) )
 				.add( this::startProductResourceCollectors )
 				.add( this::collectProductUpdates )
+				.add( this::stageProductUpdates )
 				.add( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ))
 				.run();
 			// @formatter:on
@@ -133,9 +134,9 @@ public class UpdateCheckPoc {
 		//Future<ProductUpdate> productUpdateFutures = stageUpdates( cardsAndRepos, false );
 		//Set<ProductResource> productResources = downloadProductResources( productUpdateFutures );
 		//ProductUpdate productUpdate = collectProductResources( productResources );
-		//Set<ProductUpdate> productUpdates = collectProductUpdates( productUpdate );
+		//Collection<ProductUpdate> productUpdates = collectProductUpdates( productUpdate );
 
-		//		new TaskChain<Set<ProductUpdate>>( program )
+		//		new TaskChain<Collection<ProductUpdate>>( program )
 		//			.add( () -> stageUpdates( products, false ) )
 		//			// TODO This gets passed to install logic that isn't implemented in this class yet
 		//			// It's in the ProductManager.InstallProducts class
@@ -342,7 +343,7 @@ public class UpdateCheckPoc {
 		private ProductCard card;
 
 		DownloadProductResourceTask( RepoCard repo, ProductCard card ) {
-			setName( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName() , card.getVersion() ) );
+			setName( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
 			this.repo = repo;
 			this.card = card;
 		}
@@ -442,7 +443,7 @@ public class UpdateCheckPoc {
 	}
 
 	// Minimized task
-	//	private class ProductUpdateCollector extends Task<Set<ProductUpdate>> {
+	//	private class ProductUpdateCollector extends Task<Collection<ProductUpdate>> {
 	//
 	//		private Set<Future<ProductUpdate>> updateFutures;
 	//
@@ -454,8 +455,8 @@ public class UpdateCheckPoc {
 	//		}
 	//
 	//		@Override
-	//		public Set<ProductUpdate> call() throws Exception {
-	//			Set<ProductUpdate> updates = collectProductUpdates( updateFutures, interactive );
+	//		public Collection<ProductUpdate> call() throws Exception {
+	//			Collection<ProductUpdate> updates = collectProductUpdates( updateFutures, interactive );
 	//
 	//			if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
 	//				//program.getTaskManager().submit( new UpdatesReadyToApply( interactive ) );
@@ -473,7 +474,7 @@ public class UpdateCheckPoc {
 		return collectors.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
 	}
 
-	private Set<ProductUpdate> collectProductUpdates( Set<Task<ProductUpdate>> updateFutures ) {
+	private Collection<ProductUpdate> collectProductUpdates( Set<Task<ProductUpdate>> updateFutures ) {
 		return updateFutures.stream().map( ( future ) -> {
 			try {
 				return future.get();
@@ -483,7 +484,40 @@ public class UpdateCheckPoc {
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
 	}
 
-	private Set<ProductUpdate> handleStagedProductUpdates( Set<ProductUpdate> productUpdates, boolean interactive ) {
+	private Collection<ProductUpdate> stageProductUpdates( Collection<ProductUpdate> productUpdates ) throws Exception {
+		if( productUpdates.size() == 0 ) return Set.of();
+
+		Map<String, ProductUpdate> updates = new HashMap<>();
+		for( ProductUpdate update : productUpdates ) {
+			ProductCard updateCard = update.getCard();
+
+			// Verify the product is registered
+			if( !program.getProductManager().isInstalled( updateCard ) ) {
+				log.warn( "Product not registered: " + updateCard );
+				continue;
+			}
+
+			// Verify the product is installed
+			Path installFolder = program.getProductManager().getInstalledProductCard( updateCard ).getInstallFolder();
+			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
+			if( !installFolderValid ) {
+				log.warn( "Missing install folder: " + installFolder );
+				log.warn( "Product not installed:  " + updateCard );
+				continue;
+			}
+
+			// Add the update to the set of staged updates
+			updates.put( update.getCard().getProductKey(), update );
+		}
+
+		program.getTaskManager().submit( Task.of( "Store staged update settings", () -> program.getProductManager().saveUpdates( updates ) ) );
+
+		log.debug( "Product update count: " + updates.size() );
+
+		return updates.values();
+	}
+
+	private Collection<ProductUpdate> handleStagedProductUpdates( Collection<ProductUpdate> productUpdates, boolean interactive ) {
 		if( productUpdates.size() == 0 ) return productUpdates;
 
 		if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {

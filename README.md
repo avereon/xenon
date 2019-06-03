@@ -22,7 +22,7 @@ the following basic features:
 |0.5|Program settings, settings tool| Complete |
 |0.6|Update manager, product updates| Complete |
 |0.7|Java 11, Java FX 11, status bar, memory status, task status| Complete |
-|0.8|Module manager, module tool| In Progress |
+|0.8|Mod manager, mod tool, mod updates | In Progress |
 |0.9|
 |1.0|Completed basic product|
 

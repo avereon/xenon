@@ -546,6 +546,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return 0;
 		new UpdateCheckPoc( program ).stageAndApplyUpdates( findPostedUpdates( false ), false );
+		// NEXT There is a disconnect here with the new and old implementation
+		// The updates collection does not get updated with the new implementation
 		return updates.size();
 	}
 
@@ -889,7 +891,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		updates = updateSettings.get( UPDATES_SETTINGS_KEY, new TypeReference<Map<String, ProductUpdate>>() {}, updates );
 	}
 
-	private void saveUpdates( Map<String, ProductUpdate> updates ) {
+	void saveUpdates( Map<String, ProductUpdate> updates ) {
 		updateSettings.set( UPDATES_SETTINGS_KEY, updates );
 	}
 

@@ -1,7 +1,6 @@
 package com.xeomar.xenon.util;
 
 import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.task.Task;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -12,18 +11,6 @@ import java.util.function.Function;
 public class Lambda {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
-
-	public static Task<?> task( String name, Runnable runnable ) {
-		return new Task( name ) {
-
-			@Override
-			public Void call() {
-				runnable.run();
-				return null;
-			}
-
-		};
-	}
 
 	public static TimerTask timerTask( Runnable runnable ) {
 		return new TimerTask() {
