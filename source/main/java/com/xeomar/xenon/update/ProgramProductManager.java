@@ -60,9 +60,10 @@ public class ProgramProductManager extends ProductManager {
 	 *
 	 * @return The number of updates applied or -1 to cancel
 	 */
-	@Override
-	public int userApplyStagedUpdates() {
-		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
+	public int applyStagedUpdatesAtStart() {
+		int stagedUpdateCount = getStagedUpdateCount();
+		log.info( "Staged update count: " + stagedUpdateCount );
+		if( !isEnabled() || stagedUpdateCount == 0 ) return 0;
 
 		/*
 		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
@@ -100,7 +101,7 @@ public class ProgramProductManager extends ProductManager {
 
 		if( result.isPresent() ) {
 			if( result.get() == ButtonType.YES ) {
-				return super.userApplyStagedUpdates();
+				return super.applyStagedUpdates();
 			} else if( result.get() == ButtonType.CANCEL ) {
 				return -1;
 			} else if( result.get() == discard ) {

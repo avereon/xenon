@@ -487,7 +487,7 @@ public class UpdateCheckPoc {
 	private Collection<ProductUpdate> stageProductUpdates( Collection<ProductUpdate> productUpdates ) throws Exception {
 		if( productUpdates.size() == 0 ) return Set.of();
 
-		Map<String, ProductUpdate> updates = new HashMap<>();
+		Collection<ProductUpdate> stagedUpdates = new HashSet<>();
 		for( ProductUpdate update : productUpdates ) {
 			ProductCard updateCard = update.getCard();
 
@@ -507,14 +507,14 @@ public class UpdateCheckPoc {
 			}
 
 			// Add the update to the set of staged updates
-			updates.put( update.getCard().getProductKey(), update );
+			stagedUpdates.add( update );
 		}
 
-		program.getTaskManager().submit( Task.of( "Store staged update settings", () -> program.getProductManager().saveUpdates( updates ) ) );
+		program.getTaskManager().submit( Task.of( "Store staged update settings", () -> program.getProductManager().setStagedUpdates( stagedUpdates ) ) );
 
-		log.debug( "Product update count: " + updates.size() );
+		log.debug( "Product update count: " + stagedUpdates.size() );
 
-		return updates.values();
+		return stagedUpdates;
 	}
 
 	private Collection<ProductUpdate> handleStagedProductUpdates( Collection<ProductUpdate> productUpdates, boolean interactive ) {
@@ -567,6 +567,14 @@ public class UpdateCheckPoc {
 		}
 	}
 
+	private void showNotice() {
+		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+
+		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
+		program.getNoticeManager().addNotice( notice );
+	}
+
 	private void showAlert() {
 		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
@@ -582,16 +590,8 @@ public class UpdateCheckPoc {
 
 		if( result.isPresent() && result.get() == ButtonType.YES ) {
 			program.getWorkspaceManager().requestCloseTools( ProductTool.class );
-			program.getProductManager().userApplyStagedUpdates();
+			program.getProductManager().applyStagedUpdates();
 		}
-	}
-
-	private void showNotice() {
-		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
-
-		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
-		program.getNoticeManager().addNotice( notice );
 	}
 
 }

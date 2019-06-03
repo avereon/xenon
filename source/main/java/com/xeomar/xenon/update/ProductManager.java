@@ -502,11 +502,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		try {
 			log.trace( "Checking for staged updates..." );
-			int stagedUpdateCount = stagePostedUpdates();
-			if( stagedUpdateCount > 0 ) {
-				log.debug( "Staged updates found, restarting..." );
-				program.requestUpdate( ProgramFlag.UPDATE_IN_PROGRESS );
-			}
+			stagePostedUpdates();
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
@@ -543,12 +539,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @throws InterruptedException If the method is interrupted
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
-	public int stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
-		if( !isEnabled() ) return 0;
+	public void stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
+		if( !isEnabled() ) return;
 		new UpdateCheckPoc( program ).stageAndApplyUpdates( findPostedUpdates( false ), false );
-		// NEXT There is a disconnect here with the new and old implementation
-		// The updates collection does not get updated with the new implementation
-		return updates.size();
 	}
 
 	public Path getProductInstallFolder( ProductCard card ) {
@@ -582,6 +575,19 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 
 		return staged;
+	}
+
+	void setStagedUpdates( Collection<ProductUpdate> updates ) {
+		Map<String, ProductUpdate> updateMap = new ConcurrentHashMap<>();
+
+		for( ProductUpdate update : updates ) {
+			updateMap.put( update.getCard().getProductKey(), update );
+		}
+
+		this.updates.clear();
+		this.updates.putAll( updateMap );
+
+		saveUpdates( this.updates );
 	}
 
 	int getStagedUpdateCount() {
@@ -626,7 +632,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( updateCount > 0 ) {
 			log.info( "Staged updates detected: {}", updateCount );
 			try {
-				result = userApplyStagedUpdates();
+				// TODO How to determine are "normal" start and an "update" start?
+				result = applyStagedUpdatesAtStart();
 			} catch( Exception exception ) {
 				log.warn( "Failed to apply staged updates", exception );
 			}
@@ -636,20 +643,28 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return result;
 	}
 
+	public int applyStagedUpdatesAtStart() {
+		return applyStagedUpdates();
+	}
+
 	/**
 	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
 	 * applied.
 	 *
 	 * @return The number of updates applied.
 	 */
-	public int userApplyStagedUpdates() {
-		// The updates should already be staged at this point
+	public int applyStagedUpdates() {
 		log.info( "Update manager enabled: " + isEnabled() );
-		if( !isEnabled() || getStagedUpdateCount() == 0 ) return 0;
+		if( !isEnabled() ) return 0;
 
-		log.info( "Starting update process..." );
-		Platform.runLater( () -> program.requestUpdate() );
-		return updates.size();
+		int count =  getStagedUpdates().size();
+
+		if( count > 0 ) {
+			log.info( "Restarting program for updates..." );
+			Platform.runLater( () -> program.requestUpdate() );
+		}
+
+		return count;
 	}
 
 	public void applySelectedUpdates( ProductCard update ) {

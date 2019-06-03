@@ -560,7 +560,11 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Process staged updates unless the NOUPDATE flag is set. If there are no staged updates then the method returns false. If no updates were processed due to user input then the method returns false.
+	 * Process staged updates at startup unless the NOUPDATE flag is set. This
+	 * situation happens if updates are staged and the updater was not run or did
+	 * not run successfully. If there are no staged updates then the method
+	 * returns false. If no updates were processed due to user input then the
+	 * method also returns false.
 	 *
 	 * @return True if the program should be restarted, false otherwise.
 	 */
