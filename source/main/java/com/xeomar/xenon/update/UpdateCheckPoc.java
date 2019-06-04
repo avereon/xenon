@@ -112,6 +112,22 @@ public class UpdateCheckPoc {
 	}
 
 	@Asynchronous
+	void stageUpdates( Set<ProductCard> updates ) {
+		try {
+			// @formatter:off
+			new TaskChain<Collection<ProductUpdate>>( program )
+				.add( () -> startResourceDownloads( updates ) )
+				.add( this::startProductResourceCollectors )
+				.add( this::collectProductUpdates )
+				.add( this::stageProductUpdates )
+				.run();
+			// @formatter:on
+		} catch( Exception exception ) {
+			exception.printStackTrace();
+		}
+	}
+
+	@Asynchronous
 	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
 		try {
 			// @formatter:off
@@ -292,7 +308,10 @@ public class UpdateCheckPoc {
 					notifyUserOfUpdates();
 					break;
 				}
-				case STORE:
+				case STORE: {
+					stageUpdates( cards );
+					break;
+				}
 				case APPLY: {
 					stageAndApplyUpdates( cards, false );
 					break;
