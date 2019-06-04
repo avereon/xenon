@@ -33,7 +33,7 @@ public class ProgramProductManager extends ProductManager {
 	}
 
 	public void checkForUpdates( boolean interactive ) {
-		new UpdateCheckPoc( program ).checkForUpdates( interactive );
+		new ProductManagerLogic( program ).checkForUpdates( interactive );
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class ProgramProductManager extends ProductManager {
 	}
 
 	public void applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
-		new UpdateCheckPoc( program ).stageAndApplyUpdates( updates, interactive );
+		new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
 	}
 
 	/**

@@ -34,7 +34,7 @@ import com.xeomar.xenon.tool.welcome.WelcomeTool;
 import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.update.ProgramProductManager;
 import com.xeomar.product.RepoCard;
-import com.xeomar.xenon.update.UpdateCheckPoc;
+import com.xeomar.xenon.update.ProductManagerLogic;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -891,7 +891,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
-			new UpdateCheckPoc( getProgram() ).showUpdateFoundDialog();
+			new ProductManagerLogic( getProgram() ).showUpdateFoundDialog();
 		} ) );
 		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
 			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice A" ) );

@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 
-public class UpdateCheckPoc {
+public class ProductManagerLogic {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -45,7 +45,7 @@ public class UpdateCheckPoc {
 
 	private V2RepoClient repoClient;
 
-	public UpdateCheckPoc( Program program ) {
+	public ProductManagerLogic( Program program ) {
 		this.program = program;
 		this.repoClient = new V2RepoClient( program );
 	}
@@ -244,17 +244,16 @@ public class UpdateCheckPoc {
 		return determineProducts( products, true );
 	}
 
-	private Set<ProductCard> determineProducts( Map<RepoCard, Set<ProductCard>> products, boolean useInstalled ) {
+	Set<ProductCard> determineProducts( Map<RepoCard, Set<ProductCard>> products, boolean useInstalled ) {
 		if( products == null ) {
 			log.error( "Product map is null" );
 			return Set.of();
 		}
 
-		RepoCard programInstalledRepo = new RepoCard( "installed" );
-
 		// If the installed versions were added to the incoming map then the
 		// sorting logic would find them properly and any version that is already
 		// installed can simply be ignored/removed.
+		RepoCard programInstalledRepo = new RepoCard( "installed" );
 		if( useInstalled ) products.put( programInstalledRepo, program.getProductManager().getInstalledProductCards() );
 
 		// Need to determine the latest version from the installed products and
@@ -274,11 +273,10 @@ public class UpdateCheckPoc {
 		Set<ProductCard> cards = new HashSet<>();
 
 		// Sort all the latest product versions to the top of each list
-		// FIXME The product card comparator will randomly sort equal versions
 		Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
-		productVersions.keySet().forEach( ( k ) -> {
-			productVersions.get( k ).sort( comparator );
-			ProductCard version = productVersions.get( k ).get( 0 );
+		productVersions.values().forEach( ( v ) -> {
+			v.sort( comparator );
+			ProductCard version = v.get( 0 );
 			RepoCard repo = productRepos.get( version );
 			if( !useInstalled || repo != programInstalledRepo ) cards.add( new ProductCard().copyFrom( version ).setRepo( repo ) );
 

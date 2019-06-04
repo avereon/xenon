@@ -232,7 +232,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();
 		lastAvailableCheck = System.currentTimeMillis();
 
-		return new UpdateCheckPoc( program ).getAvailableProducts( force );
+		return new ProductManagerLogic( program ).getAvailableProducts( force );
 	}
 
 	public Set<Mod> getModules() {
@@ -521,7 +521,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
-		return new UpdateCheckPoc( program ).findPostedUpdates( getInstalledProductCards(), force );
+		return new ProductManagerLogic( program ).findPostedUpdates( getInstalledProductCards(), force );
 	}
 
 	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {
@@ -545,7 +545,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 */
 	public void stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
 		if( !isEnabled() ) return;
-		new UpdateCheckPoc( program ).stageAndApplyUpdates( findPostedUpdates( false ), false );
+		new ProductManagerLogic( program ).stageAndApplyUpdates( findPostedUpdates( false ), false );
 	}
 
 	public Path getProductInstallFolder( ProductCard card ) {
@@ -1150,7 +1150,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 			// TODO Finish implementing this with TaskChains
 			Set<ProductCard> cardsAndRepos = Set.of();
-			new UpdateCheckPoc( program ).createProductUpdates( cardsAndRepos );
+			new ProductManagerLogic( program ).createProductUpdates( cardsAndRepos );
 		}
 
 		@Override
