@@ -1,8 +1,10 @@
 package com.xeomar.xenon.tool.product;
 
+import com.xeomar.product.RepoCard;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
-import com.xeomar.product.RepoCard;
+import com.xeomar.xenon.task.Task;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -63,8 +65,27 @@ class RepoPane extends MigPane {
 		nameLabel.setDisable( !source.isEnabled() );
 		repoLabel.setDisable( !source.isEnabled() );
 		enableButton.setGraphic( productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
-		enableButton.setDisable( !source.isRemovable() );
+		//enableButton.setDisable( !source.isRemovable() );
 		removeButton.setDisable( !source.isRemovable() );
+
+		enableButton.setOnAction( ( event ) -> toggleEnabled() );
+		removeButton.setOnAction( ( event ) -> removeRepo() );
+	}
+
+	private void toggleEnabled() {
+		productTool.getProgram().getProductManager().setRepoEnabled( source, !productTool.getProgram().getProductManager().isRepoEnabled( source ) );
+		updateRepoState();
+	}
+
+	private void removeRepo() {
+		productTool.getProgram().getTaskManager().submit( Task.of( "Remove repo", () -> {
+			try {
+				productTool.getProgram().getProductManager().removeRepo( source );
+				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
+			} catch( Exception exception ) {
+				ProductTool.log.warn( "Error uninstalling product", exception );
+			}
+		} ));
 	}
 
 }

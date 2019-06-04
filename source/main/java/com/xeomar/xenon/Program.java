@@ -987,12 +987,12 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
+		// Register the provider repos
+		productManager.registerProviderRepos( RepoCard.forProduct( getClass() ) );
+
 		// FIXME Do I want the update settings in the program settings?
 		// There is also a set of comments regarding this issue in the ProductManager class
 		productManager.setSettings( programSettings );
-
-		// Register the product repos
-		productManager.registerProductRepos( RepoCard.forProduct( getClass() ) );
 
 		// Register the product
 		productManager.registerProduct( this );

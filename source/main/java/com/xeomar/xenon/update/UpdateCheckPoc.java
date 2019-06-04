@@ -160,9 +160,7 @@ public class UpdateCheckPoc {
 	}
 
 	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
-		// FIXME Temporarily look in all repos
-		//Set<RepoCard> repos = program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).collect( Collectors.toSet() );
-		Set<RepoCard> repos = program.getProductManager().getRepos();
+		Set<RepoCard> repos = program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).collect( Collectors.toSet() );
 		return startCatalogCardDownloads( repos );
 	}
 

@@ -12,7 +12,7 @@
 		"repo" : "https://xeomar.com/download/latest",
 		"icon" : "provider",
 		"enabled" : "false",
-		"removable" : "true",
+		"removable" : "false",
 		"rank": -1
 	}
 ]
