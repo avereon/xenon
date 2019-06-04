@@ -274,6 +274,7 @@ public class UpdateCheckPoc {
 		Set<ProductCard> cards = new HashSet<>();
 
 		// Sort all the latest product versions to the top of each list
+		// FIXME The product card comparator will randomly sort equal versions
 		Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
 		productVersions.keySet().forEach( ( k ) -> {
 			productVersions.get( k ).sort( comparator );
