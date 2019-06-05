@@ -60,10 +60,7 @@ public class ProductManagerLogic {
 	void checkForUpdates( boolean interactive ) {
 		try {
 			// @formatter:off
-			new TaskChain<Void>( program )
-				.add( () -> findPostedUpdates( program.getProductManager().getInstalledProductCards(), interactive ) )
-				.add( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
-				.run();
+			new TaskChain<Void>( program ).add( () -> findPostedUpdates( program.getProductManager().getInstalledProductCards(), interactive ) ).add( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) ).run();
 			// @formatter:on
 		} catch( Exception exception ) {
 			exception.printStackTrace();
@@ -76,13 +73,7 @@ public class ProductManagerLogic {
 
 		try {
 			// @formatter:off
-			return new TaskChain<Set<ProductCard>>(program)
-			.add( this::startEnabledCatalogCardDownloads )
-			.add( this::collectCatalogCardDownloads )
-			.add( this::startAllProductCardDownloadTasks )
-			.add( this::collectProductCardDownloads )
-			.add( this::determineAvailableProducts )
-			.get();
+			return new TaskChain<Set<ProductCard>>( program ).add( this::startEnabledCatalogCardDownloads ).add( this::collectCatalogCardDownloads ).add( this::startAllProductCardDownloadTasks ).add( this::collectProductCardDownloads ).add( this::determineAvailableProducts ).get();
 			// @formatter:on
 		} catch( Exception exception ) {
 			exception.printStackTrace();
@@ -101,13 +92,7 @@ public class ProductManagerLogic {
 		// TODO The force parameter just means to refresh the cache
 
 		// @formatter:off
-		return new TaskChain<Set<ProductCard>>(program)
-			.add(this::startEnabledCatalogCardDownloads )
-			.add( this::collectCatalogCardDownloads)
-			.add(( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
-			.add( this::collectProductCardDownloads)
-			.add( this:: determineUpdateableProducts )
-			.get();
+		return new TaskChain<Set<ProductCard>>( program ).add( this::startEnabledCatalogCardDownloads ).add( this::collectCatalogCardDownloads ).add( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) ).add( this::collectProductCardDownloads ).add( this::determineUpdateableProducts ).get();
 		// @formatter:on
 	}
 
@@ -115,12 +100,7 @@ public class ProductManagerLogic {
 	void stageUpdates( Set<ProductCard> updates ) {
 		try {
 			// @formatter:off
-			new TaskChain<Collection<ProductUpdate>>( program )
-				.add( () -> startResourceDownloads( updates ) )
-				.add( this::startProductResourceCollectors )
-				.add( this::collectProductUpdates )
-				.add( this::stageProductUpdates )
-				.run();
+			new TaskChain<Collection<ProductUpdate>>( program ).add( () -> startResourceDownloads( updates ) ).add( this::startProductResourceCollectors ).add( this::collectProductUpdates ).add( this::stageProductUpdates ).run();
 			// @formatter:on
 		} catch( Exception exception ) {
 			exception.printStackTrace();
@@ -131,13 +111,7 @@ public class ProductManagerLogic {
 	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
 		try {
 			// @formatter:off
-			new TaskChain<Collection<ProductUpdate>>( program )
-				.add( () -> startResourceDownloads( updates ) )
-				.add( this::startProductResourceCollectors )
-				.add( this::collectProductUpdates )
-				.add( this::stageProductUpdates )
-				.add( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ))
-				.run();
+			new TaskChain<Collection<ProductUpdate>>( program ).add( () -> startResourceDownloads( updates ) ).add( this::startProductResourceCollectors ).add( this::collectProductUpdates ).add( this::stageProductUpdates ).add( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) ).run();
 			// @formatter:on
 		} catch( Exception exception ) {
 			exception.printStackTrace();
@@ -278,9 +252,7 @@ public class ProductManagerLogic {
 		// Sort all the latest product versions to the top of each list
 		Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
 		productVersions.values().forEach( ( v ) -> {
-			v.forEach( (c)-> {
-				System.out.println( c + " " + c.getRelease() );
-			} );
+			v.forEach( ( c ) -> System.out.println( c + " " + c.getRelease() ) );
 			v.sort( comparator );
 			ProductCard version = v.get( 0 );
 			RepoCard repo = productRepos.get( version );
