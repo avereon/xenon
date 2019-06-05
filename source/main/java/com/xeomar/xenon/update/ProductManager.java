@@ -257,6 +257,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return new HashSet<>( productCards.values() );
 	}
 
+	Map<String, ProductCard> getInstalledProductCardsMap() {
+		return productCards;
+	}
+
 	public void registerProduct( Product product ) {
 		ProductCard card = product.getCard();
 
