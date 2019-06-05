@@ -36,7 +36,6 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 	@Test
 	public void testDetermineAvailableProductsWithAllDisabledRepos() {
-		// FIXME The repos are all disabled, no products should be available
 		Set<ProductCard> updates = logic.determineAvailableProducts( repos );
 		assertThat( updates.size(), is( 0 ) );
 	}
@@ -58,7 +57,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 		assertThat( cards.get( b.getProductKey() ), matches( b.setVersion( "0.3b19" ) ) );
 		assertThat( cards.size(), is( 2 ) );
 
-		preview.setEnabled( true );
+		nightly.setEnabled( true );
 		cards = getProductMap( logic.determineAvailableProducts( repos ) );
 		assertThat( cards.get( a.getProductKey() ), matches( a.setVersion( "0.7-SNAPSHOT" ) ) );
 		assertThat( cards.get( b.getProductKey() ), matches( b.setVersion( "0.4-SNAPSHOT" ) ) );
@@ -71,6 +70,10 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 		// still be included in the resulting update collection.
 		ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.2" ).setTimestamp( timestamp );
 
+		stable.setEnabled( true );
+		preview.setEnabled( true );
+		nightly.setEnabled( true );
+
 		Set<ProductCard> updates = logic.determineProducts( repos, Map.of( installedB.getProductKey(), installedB ) );
 		Map<String, ProductCard> cards = getProductMap( updates );
 
@@ -82,16 +85,20 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 		assertThat( updates.size(), is( 2 ) );
 	}
 
-	//	@Test
-	//	public void testDetermineUpdateableProductsWithLatestVersionInstalled() {
-	//		ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4" ).setTimestamp( timestamp );
-	//		Set<ProductCard> updates = logic.determineProducts( repos, Map.of( installedB.getProductKey(), installedB ) );
-	//
-	//		ProductCard a = new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.5-SNAPSHOT" ).setTimestamp( timestamp );
-	//		//ProductCard b = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4" ).setTimestamp( timestamp );
-	//		assertThat( updates, contains( a ) );
-	//		assertThat( updates.size(), is( 2 ) );
-	//	}
+		@Test
+		public void testDetermineUpdateableProductsWithLatestVersionInstalled() {
+			ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4" ).setTimestamp( timestamp );
+
+			Set<ProductCard> updates = logic.determineProducts( repos, Map.of( installedB.getProductKey(), installedB ) );
+			Map<String, ProductCard> cards = getProductMap( updates );
+
+			ProductCard a = new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.7-SNAPSHOT" ).setTimestamp( timestamp );
+			ProductCard b = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4-SNAPSHOT" ).setTimestamp( timestamp );
+
+			assertThat( cards.get( a.getProductKey() ), matches( a ) );
+			assertThat( cards.get( b.getProductKey() ), matches( b ) );
+			assertThat( updates.size(), is( 2 ) );
+l		}
 
 	private void generateRepoProductMap() {
 		Set<ProductCard> stableProducts = new HashSet<>();

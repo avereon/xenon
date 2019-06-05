@@ -84,7 +84,7 @@ public class ProductManagerLogic {
 
 	/**
 	 * @param products The set of products to find updates for
-	 * @param force Request that the cache be flushed before finding updates
+	 * @param force    Request that the cache be flushed before finding updates
 	 * @return The map of updateable products and in which repo the update is located
 	 */
 	@Synchronous
@@ -225,43 +225,46 @@ public class ProductManagerLogic {
 		}
 		System.out.println( "Determining products..." + products.size() );
 
-		boolean useInstalled = installedProducts.size() > 0;
+		boolean determineAvailable = installedProducts.size() == 0;
+		boolean determineUpdates = !determineAvailable;
 
-		// If the installed versions were added to the incoming map then the
-		// sorting logic would find them properly and any version that is already
-		// installed can simply be ignored/removed.
+		// If the installed versions are added to the incoming map then the
+		// sorting logic would sort them with the availablel versions and any
+		// version that is already installed can simply be ignored/removed.
 		RepoCard programInstalledRepo = new RepoCard( "installed" );
-		if( useInstalled ) products.put( programInstalledRepo, new HashSet<>( installedProducts.values() ) );
+		if( determineUpdates ) products.put( programInstalledRepo, new HashSet<>( installedProducts.values() ) );
+		programInstalledRepo.setEnabled( true );
 
-		// Need to determine the latest version from the installed products and
-		// those versions available from the repositories. Luckily the versions
-		// from the repositories are in sets that can easily be sorted to find
-		// latest one. A map from product back to repo will need to be maintained
-		// to know what repo it came from.
-
-		// Create the product repo map and the product versions map
-		Map<ProductCard, RepoCard> productRepos = new HashMap<>();
+		// Create a product/repo map and a product/version map
+		//Map<ProductCard, RepoCard> productRepos = new HashMap<>();
 		Map<String, List<ProductCard>> productVersions = new HashMap<>();
-		products.keySet().forEach( ( r ) -> products.get( r ).forEach( ( p ) -> {
-			productRepos.put( p, r );
-			productVersions.computeIfAbsent( p.getProductKey(), ( k ) -> new ArrayList<>() ).add( p );
+		products.keySet().forEach( ( repo ) -> products.get( repo ).forEach( ( product ) -> {
+			//productRepos.put( product, repo );
+			product.setRepo( repo );
+			if( repo.isEnabled() ) {
+				productVersions.computeIfAbsent( product.getProductKey(), ( k ) -> new ArrayList<>() ).add( product );
+			}
 		} ) );
 
 		Set<ProductCard> cards = new HashSet<>();
 
 		// Sort all the latest product versions to the top of each list
 		Comparator<ProductCard> comparator = new ProductCardComparator( ProductCardComparator.Field.RELEASE ).reversed();
-		productVersions.values().forEach( ( v ) -> {
-			v.forEach( ( c ) -> System.out.println( c + " " + c.getRelease() ) );
-			v.sort( comparator );
-			ProductCard version = v.get( 0 );
-			RepoCard repo = productRepos.get( version );
-			if( !useInstalled || repo != programInstalledRepo ) cards.add( new ProductCard().copyFrom( version ).setRepo( repo ) );
+		productVersions.values().forEach( ( productVersionList ) -> {
+			productVersionList.sort( comparator );
+			productVersionList.forEach( ( c ) -> System.out.println( c + " " + c.getRelease() ) );
 
-			ProductCard current = installedProducts.get( version.getProductKey() );
-			if( current != null ) log.debug( "Installed: " + current.getProductKey() + " " + current.getRelease() );
-			log.debug( "Available: " + version.getProductKey() + " " + version.getRelease() );
-			log.info( "Latest version: " + version + " found in: " + repo );
+			ProductCard latest = productVersionList.get( 0 );
+			RepoCard repo = latest.getRepo();
+			if( determineAvailable || repo != programInstalledRepo ) {
+				cards.add( new ProductCard().copyFrom( latest ).setRepo( repo ) );
+			}
+
+			ProductCard installed = installedProducts.get( latest.getProductKey() );
+			if( installed != null ) log.debug( "Installed: " + installed.getProductKey() + " " + installed.getRelease() );
+
+			log.debug( "Available: " + latest.getProductKey() + " " + latest.getRelease() );
+			log.info( "Latest version: " + latest + " " + latest.getRelease() + " found in: " + repo );
 		} );
 
 		return cards;
@@ -401,7 +404,8 @@ public class ProductManagerLogic {
 
 			ProductManager manager = program.getProductManager();
 			Path installFolder = manager.getProductInstallFolder( product );
-			if( manager.isInstalled( product ) ) installFolder = manager.getInstalledProductCard( product ).getInstallFolder();
+			if( manager.isInstalled( product ) )
+				installFolder = manager.getInstalledProductCard( product ).getInstallFolder();
 
 			log.debug( "Update staged: " + product.getProductKey() + " " + product.getRelease() );
 			log.debug( "           to: " + localPackPath );
