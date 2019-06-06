@@ -7,7 +7,9 @@ import com.xeomar.settings.Settings;
 import com.xeomar.settings.SettingsEvent;
 import com.xeomar.settings.SettingsListener;
 import com.xeomar.util.*;
-import com.xeomar.xenon.*;
+import com.xeomar.xenon.Mod;
+import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -16,13 +18,15 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -406,7 +410,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Should be called after setting the enabled flag
 		if( mod != null && enabled ) callModCreate( mod );
 
-		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
+		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card )
+			.fire( listeners );
 	}
 
 	public CheckOption getCheckOption() {
@@ -479,13 +484,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				if( startup ) delay = 0;
 				break;
 			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
+				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings
+					.get( INTERVAL_UNIT, CheckInterval.DAY.name() )
+					.toUpperCase() );
 				delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
 				if( nextUpdateCheck < (now - 1000) ) delay = 0;
 				break;
 			}
 			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings
+					.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() )
+					.toUpperCase() );
 				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
 				if( nextUpdateCheck < (now - 1000) ) delay = 0;
@@ -691,6 +700,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Remove the updates settings
 		updates.clear();
 		saveUpdates( updates );
+	}
+
+	Void saveRemovedProducts( Collection<InstalledProduct> removedProducts ) {
+		Set<InstalledProduct> products = new HashSet<>( program.getProductManager().getStoredRemovedProducts() );
+		products.addAll( removedProducts );
+		getSettings().set( REMOVES_SETTINGS_KEY, products );
+		return null;
 	}
 
 	public static boolean areResourcesValid( Set<ProductResource> resources ) {
@@ -950,13 +966,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 
 		// Look for standard mods (most common)
-		Arrays.stream( folders ).filter( ( f ) -> Files.exists( f ) ).filter( ( f ) -> Files.isDirectory( f ) ).forEach( ( folder ) -> {
-			try {
-				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
-			} catch( IOException exception ) {
-				log.error( "Error loading modules from: " + folder, exception );
-			}
-		} );
+		Arrays
+			.stream( folders )
+			.filter( ( f ) -> Files.exists( f ) )
+			.filter( ( f ) -> Files.isDirectory( f ) )
+			.forEach( ( folder ) -> {
+				try {
+					Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
+				} catch( IOException exception ) {
+					log.error( "Error loading modules from: " + folder, exception );
+				}
+			} );
 	}
 
 	void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
@@ -1072,13 +1092,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 	}
 
-	private URI getSchemeResolvedUri( URI uri ) {
-		if( uri == null ) return null;
-		return uri.getScheme() == null ? Paths.get( uri.getPath() ).toUri() : uri;
-	}
-
 	@SuppressWarnings( "Convert2Diamond" )
-	private Set<InstalledProduct> getStoredRemovedProducts() {
+	Set<InstalledProduct> getStoredRemovedProducts() {
 		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {}, Set.of() );
 	}
 
@@ -1099,7 +1114,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ModuleFinder moduleFinder = ModuleFinder.of( source );
 		Configuration bootConfiguration = ModuleLayer.boot().configuration();
 		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
-		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
+		ModuleLayer moduleLayer = ModuleLayer
+			.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null )
+			.layer();
 		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 	}
 
@@ -1128,110 +1145,110 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Not sure what to do to unload a mod
 	}
 
-//	/**
-//	 * This task is only applicable when a product is not already installed. If
-//	 * the product is already installed it should go through the update process.
-//	 */
-//	private final class InstallProducts extends ProgramTask<Integer> {
-//
-//		/**
-//		 * Attempt to stage the product packs described by the specified product cards.
-//		 *
-//		 * @param updateCards The set of update cards to stage
-//		 */
-//		Set<ProductCard> updateCards;
-//
-//		private Set<Future<ProductUpdate>> updateFutures;
-//
-//		InstallProducts( Program program, Set<ProductCard> updateCards ) {
-//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-//			this.updateCards = updateCards;
-//
-//			log.debug( "Number of packs to stage: " + updateCards.size() );
-//
-//			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
-//			log.trace( "Pack stage folder: " + stageFolder );
-//
-//			try {
-//				Files.createDirectories( stageFolder );
-//			} catch( IOException exception ) {
-//				log.warn( "Error creating install stage folder: " + stageFolder, exception );
-//				return;
-//			}
-//
-//			// TODO Finish implementing this with TaskChains
-//			Set<ProductCard> cardsAndRepos = Set.of();
-//			new ProductManagerLogic( program ).createProductUpdates( cardsAndRepos );
-//		}
-//
-//		@Override
-//		public Integer call() throws Exception {
-//			if( updateCards.size() == 0 ) return 0;
-//
-//			Set<InstalledProduct> installedProducts = new HashSet<>();
-//
-//			for( Future<ProductUpdate> updateFuture : updateFutures ) {
-//				try {
-//					ProductUpdate update = updateFuture.get();
-//
-//					// If the update is null then there was a problem creating the update locally
-//					if( update == null ) continue;
-//					ProductCard card = update.getCard();
-//
-//					log.debug( "Product downloaded: " + update.getCard().getProductKey() );
-//
-//					// Install the products.
-//					try {
-//						ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
-//						doInstallMod( card, Set.of( resource ) );
-//						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-//					} catch( Exception exception ) {
-//						log.error( "Error installing: " + card, exception );
-//					}
-//				} catch( InterruptedException exception ) {
-//					break;
-//				} catch( Exception exception ) {
-//					log.error( "Error creating product install pack", exception );
-//				}
-//			}
-//
-//			log.debug( "Product install count: " + installedProducts.size() );
-//
-//			return installedProducts.size();
-//		}
-//
-//	}
-
-	private final class UninstallProducts extends ProgramTask<Integer> {
-
-		private Set<ProductCard> cards;
-
-		UninstallProducts( Program program, Set<ProductCard> cards ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-remove-selected" ) );
-			this.cards = cards;
-		}
-
-		@Override
-		public Integer call() throws Exception {
-			// Remove the products.
-			Set<InstalledProduct> removedProducts = new HashSet<>();
-			for( ProductCard card : cards ) {
-				try {
-					doRemoveMod( getMod( card.getProductKey() ) );
-					removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-				} catch( Exception exception ) {
-					log.error( "Error uninstalling: " + card, exception );
-				}
-			}
-
-			Set<InstalledProduct> products = new HashSet<>( getStoredRemovedProducts() );
-			products.addAll( removedProducts );
-			getSettings().set( REMOVES_SETTINGS_KEY, products );
-
-			return removedProducts.size();
-		}
-
-	}
+	//	/**
+	//	 * This task is only applicable when a product is not already installed. If
+	//	 * the product is already installed it should go through the update process.
+	//	 */
+	//	private final class InstallProducts extends ProgramTask<Integer> {
+	//
+	//		/**
+	//		 * Attempt to stage the product packs described by the specified product cards.
+	//		 *
+	//		 * @param updateCards The set of update cards to stage
+	//		 */
+	//		Set<ProductCard> updateCards;
+	//
+	//		private Set<Future<ProductUpdate>> updateFutures;
+	//
+	//		InstallProducts( Program program, Set<ProductCard> updateCards ) {
+	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+	//			this.updateCards = updateCards;
+	//
+	//			log.debug( "Number of packs to stage: " + updateCards.size() );
+	//
+	//			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
+	//			log.trace( "Pack stage folder: " + stageFolder );
+	//
+	//			try {
+	//				Files.createDirectories( stageFolder );
+	//			} catch( IOException exception ) {
+	//				log.warn( "Error creating install stage folder: " + stageFolder, exception );
+	//				return;
+	//			}
+	//
+	//			// TODO Finish implementing this with TaskChains
+	//			Set<ProductCard> cardsAndRepos = Set.of();
+	//			new ProductManagerLogic( program ).createProductUpdates( cardsAndRepos );
+	//		}
+	//
+	//		@Override
+	//		public Integer call() throws Exception {
+	//			if( updateCards.size() == 0 ) return 0;
+	//
+	//			Set<InstalledProduct> installedProducts = new HashSet<>();
+	//
+	//			for( Future<ProductUpdate> updateFuture : updateFutures ) {
+	//				try {
+	//					ProductUpdate update = updateFuture.get();
+	//
+	//					// If the update is null then there was a problem creating the update locally
+	//					if( update == null ) continue;
+	//					ProductCard card = update.getCard();
+	//
+	//					log.debug( "Product downloaded: " + update.getCard().getProductKey() );
+	//
+	//					// Install the products.
+	//					try {
+	//						ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
+	//						doInstallMod( card, Set.of( resource ) );
+	//						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+	//					} catch( Exception exception ) {
+	//						log.error( "Error installing: " + card, exception );
+	//					}
+	//				} catch( InterruptedException exception ) {
+	//					break;
+	//				} catch( Exception exception ) {
+	//					log.error( "Error creating product install pack", exception );
+	//				}
+	//			}
+	//
+	//			log.debug( "Product install count: " + installedProducts.size() );
+	//
+	//			return installedProducts.size();
+	//		}
+	//
+	//	}
+	//
+	//	private final class UninstallProducts extends ProgramTask<Integer> {
+	//
+	//		private Set<ProductCard> cards;
+	//
+	//		UninstallProducts( Program program, Set<ProductCard> cards ) {
+	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-remove-selected" ) );
+	//			this.cards = cards;
+	//		}
+	//
+	//		@Override
+	//		public Integer call() throws Exception {
+	//			// Remove the products.
+	//			Set<InstalledProduct> removedProducts = new HashSet<>();
+	//			for( ProductCard card : cards ) {
+	//				try {
+	//					doRemoveMod( getMod( card.getProductKey() ) );
+	//					removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+	//				} catch( Exception exception ) {
+	//					log.error( "Error uninstalling: " + card, exception );
+	//				}
+	//			}
+	//
+	//			Set<InstalledProduct> products = new HashSet<>( getStoredRemovedProducts() );
+	//			products.addAll( removedProducts );
+	//			getSettings().set( REMOVES_SETTINGS_KEY, products );
+	//
+	//			return removedProducts.size();
+	//		}
+	//
+	//	}
 
 	private final class SettingsChangeHandler implements SettingsListener {
 

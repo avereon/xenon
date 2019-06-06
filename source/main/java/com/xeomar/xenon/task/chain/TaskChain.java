@@ -6,6 +6,8 @@ import com.xeomar.xenon.task.ThrowingFunction;
 import com.xeomar.xenon.task.ThrowingSupplier;
 import com.xeomar.xenon.util.Asynchronous;
 
+// FIXME Can't add task objects
+// FIXME Can't chain chains
 public class TaskChain<RESULT> {
 
 	private TaskChainContext context;
@@ -26,6 +28,7 @@ public class TaskChain<RESULT> {
 		task = functionTask;
 	}
 
+	// FIXME Can't name tasks
 	public static <R> TaskChain<R> init( ThrowingSupplier<R> supplier ) {
 		TaskChainContext context = new TaskChainContext();
 		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( supplier ) );
@@ -33,6 +36,7 @@ public class TaskChain<RESULT> {
 		return link;
 	}
 
+	// FIXME Can't name tasks
 	public static <P, R> TaskChain<R> init( ThrowingFunction<P, R> function ) {
 		TaskChainContext context = new TaskChainContext();
 		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( function ) );
@@ -40,12 +44,14 @@ public class TaskChain<RESULT> {
 		return link;
 	}
 
+	// FIXME Can't name tasks
 	public <R> TaskChain<R> link( ThrowingSupplier<R> supplier ) {
 		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( supplier ) );
 		next = link;
 		return link;
 	}
 
+	// FIXME Can't name tasks
 	public <R> TaskChain<R> link( ThrowingFunction<RESULT, R> function ) {
 		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( function ) );
 		next = link;

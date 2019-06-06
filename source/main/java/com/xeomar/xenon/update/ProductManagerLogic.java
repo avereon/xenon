@@ -114,7 +114,7 @@ public class ProductManagerLogic {
 	}
 
 	void installProducts( Set<ProductCard> products ) {
-		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" );
+		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-install-selected" );
 		// FIXME Can't name tasks
 
 		// Start with StageUpdates and end with ProductUpdateCollector
@@ -127,10 +127,13 @@ public class ProductManagerLogic {
 	}
 
 	void uninstallProducts( Set<ProductCard> products ) {
-		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-remove-selected" );
+		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-uninstall-selected" );
 		// FIXME Can't name tasks
 
-		// NEXT Implements uninstallProducts from UninstallProducts class
+		TaskChain
+			.init( () -> doUninstallProducts( products ) )
+			.link( ( removedProducts ) -> program.getProductManager().saveRemovedProducts( removedProducts ) )
+			.run( program );
 	}
 
 	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( Set<ProductCard> products, boolean force ) {
@@ -573,6 +576,22 @@ public class ProductManagerLogic {
 		log.debug( "Product install count: " + installedProducts.size() );
 
 		return installedProducts;
+	}
+
+	private Collection<InstalledProduct> doUninstallProducts( Collection<ProductCard> cards ) {
+		// Remove the products.
+		Set<InstalledProduct> removedProducts = new HashSet<>();
+
+		for( ProductCard card : cards ) {
+			try {
+				program.getProductManager().doRemoveMod( program.getProductManager().getMod( card.getProductKey() ) );
+				removedProducts.add( new InstalledProduct( program.getProductManager().getProductInstallFolder( card ) ) );
+			} catch( Exception exception ) {
+				log.error( "Error uninstalling: " + card, exception );
+			}
+		}
+
+		return removedProducts;
 	}
 
 	// Utility methods -----------------------------------------------------------
