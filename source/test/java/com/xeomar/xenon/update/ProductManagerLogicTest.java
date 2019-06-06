@@ -66,52 +66,92 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 	@Test
 	public void testDetermineUpdateableProductsWithLatestVersionNotInstalled() {
-		// Because the installed Product B is not the latest version is should
-		// still be included in the resulting update collection.
-		ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.2" ).setTimestamp( timestamp );
+		// In this test product A is not installed and therefore will not have an
+		// update. Because the installed version of Product B is not the latest
+		// version it should be included in the resulting update collection.
+		ProductCard installedB = new ProductCard()
+			.setGroup( group )
+			.setArtifact( "productb" )
+			.setVersion( "0.2" )
+			.setTimestamp( timestamp );
 
 		stable.setEnabled( true );
 		preview.setEnabled( true );
 		nightly.setEnabled( true );
 
-		Set<ProductCard> updates = logic.determineProducts( repos, Map.of( installedB.getProductKey(), installedB ) );
+		Set<ProductCard> updates = logic.determineUpdateableProducts( repos, Map.of( installedB.getProductKey(), installedB ) );
 		Map<String, ProductCard> cards = getProductMap( updates );
 
-		ProductCard a = new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.7-SNAPSHOT" ).setTimestamp( timestamp );
-		ProductCard b = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4-SNAPSHOT" ).setTimestamp( timestamp );
+		ProductCard b = new ProductCard()
+			.setGroup( group )
+			.setArtifact( "productb" )
+			.setVersion( "0.4-SNAPSHOT" )
+			.setTimestamp( timestamp );
 
-		assertThat( cards.get( a.getProductKey() ), matches( a ) );
 		assertThat( cards.get( b.getProductKey() ), matches( b ) );
-		assertThat( updates.size(), is( 2 ) );
+		assertThat( updates.size(), is( 1 ) );
 	}
 
-		@Test
-		public void testDetermineUpdateableProductsWithLatestVersionInstalled() {
-			ProductCard installedB = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4" ).setTimestamp( timestamp );
+	@Test
+	public void testDetermineUpdateableProductsWithLatestVersionInstalled() {
+		// In this test both product A and product B are installed and are the
+		// the latest version. Because they are both at the latest version there
+		// should not be any updates available.
+		ProductCard installedA = new ProductCard()
+			.setGroup( group )
+			.setArtifact( "producta" )
+			.setVersion( "0.5" )
+			.setTimestamp( timestamp );
+		ProductCard installedB = new ProductCard()
+			.setGroup( group )
+			.setArtifact( "productb" )
+			.setVersion( "0.2" )
+			.setTimestamp( timestamp );
 
-			Set<ProductCard> updates = logic.determineProducts( repos, Map.of( installedB.getProductKey(), installedB ) );
-			Map<String, ProductCard> cards = getProductMap( updates );
+		stable.setEnabled( true );
 
-			ProductCard a = new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.7-SNAPSHOT" ).setTimestamp( timestamp );
-			ProductCard b = new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4-SNAPSHOT" ).setTimestamp( timestamp );
+		Map<String, ProductCard> installedProducts = Map.of( installedA.getProductKey(), installedA, installedB.getProductKey(), installedB );
+		Set<ProductCard> updates = logic.determineUpdateableProducts( repos, installedProducts );
 
-			assertThat( cards.get( a.getProductKey() ), matches( a ) );
-			assertThat( cards.get( b.getProductKey() ), matches( b ) );
-			assertThat( updates.size(), is( 2 ) );
-l		}
+		assertThat( updates.size(), is( 0 ) );
+	}
 
 	private void generateRepoProductMap() {
 		Set<ProductCard> stableProducts = new HashSet<>();
-		stableProducts.add( new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.5" ).setTimestamp( timestamp ) );
-		stableProducts.add( new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.2" ).setTimestamp( timestamp ) );
+		stableProducts.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "producta" )
+			.setVersion( "0.5" )
+			.setTimestamp( timestamp ) );
+		stableProducts.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "productb" )
+			.setVersion( "0.2" )
+			.setTimestamp( timestamp ) );
 
 		Set<ProductCard> previewProducts = new HashSet<>();
-		previewProducts.add( new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.6b7" ).setTimestamp( timestamp ) );
-		previewProducts.add( new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.3b19" ).setTimestamp( timestamp ) );
+		previewProducts.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "producta" )
+			.setVersion( "0.6b7" )
+			.setTimestamp( timestamp ) );
+		previewProducts.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "productb" )
+			.setVersion( "0.3b19" )
+			.setTimestamp( timestamp ) );
 
 		Set<ProductCard> nightlyProducts = new HashSet<>();
-		nightlyProducts.add( new ProductCard().setGroup( group ).setArtifact( "producta" ).setVersion( "0.7-SNAPSHOT" ).setTimestamp( timestamp ) );
-		nightlyProducts.add( new ProductCard().setGroup( group ).setArtifact( "productb" ).setVersion( "0.4-SNAPSHOT" ).setTimestamp( timestamp ) );
+		nightlyProducts.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "producta" )
+			.setVersion( "0.7-SNAPSHOT" )
+			.setTimestamp( timestamp ) );
+		nightlyProducts.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "productb" )
+			.setVersion( "0.4-SNAPSHOT" )
+			.setTimestamp( timestamp ) );
 
 		this.repos = new HashMap<>();
 		repos.put( stable, stableProducts );
