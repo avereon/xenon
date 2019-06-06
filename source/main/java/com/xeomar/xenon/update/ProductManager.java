@@ -317,7 +317,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public void installProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to install: " + cards.size() );
-		program.getTaskManager().submit( new InstallProducts( program, cards ) );
+		new ProductManagerLogic( program ).installProducts( cards );
 	}
 
 	public void uninstallProducts( ProductCard... cards ) throws Exception {
@@ -326,7 +326,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to remove: " + cards.size() );
-		program.getTaskManager().submit( new UninstallProducts( program, cards ) );
+		//program.getTaskManager().submit( new UninstallProducts( program, cards ) );
+		new ProductManagerLogic( program ).uninstallProducts( cards );
 	}
 
 	public int getInstalledProductCount() {
@@ -958,7 +959,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		} );
 	}
 
-	private void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
+	void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
 		Path installFolder = getProductInstallFolder( card );
 
 		log.debug( "Install product to: " + installFolder );
@@ -979,7 +980,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
 	}
 
-	private void doRemoveMod( Mod mod ) {
+	void doRemoveMod( Mod mod ) {
 		ProductCard card = mod.getCard();
 
 		Path installFolder = card.getInstallFolder();
@@ -1127,79 +1128,79 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Not sure what to do to unload a mod
 	}
 
-	/**
-	 * This task is only applicable when a product is not already installed. If
-	 * the product is already installed it should go through the update process.
-	 */
-	private final class InstallProducts extends ProgramTask<Integer> {
-
-		/**
-		 * Attempt to stage the product packs described by the specified product cards.
-		 *
-		 * @param updateCards The set of update cards to stage
-		 */
-		Set<ProductCard> updateCards;
-
-		private Set<Future<ProductUpdate>> updateFutures;
-
-		InstallProducts( Program program, Set<ProductCard> updateCards ) {
-			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-			this.updateCards = updateCards;
-
-			log.debug( "Number of packs to stage: " + updateCards.size() );
-
-			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
-			log.trace( "Pack stage folder: " + stageFolder );
-
-			try {
-				Files.createDirectories( stageFolder );
-			} catch( IOException exception ) {
-				log.warn( "Error creating install stage folder: " + stageFolder, exception );
-				return;
-			}
-
-			// TODO Finish implementing this with TaskChains
-			Set<ProductCard> cardsAndRepos = Set.of();
-			new ProductManagerLogic( program ).createProductUpdates( cardsAndRepos );
-		}
-
-		@Override
-		public Integer call() throws Exception {
-			if( updateCards.size() == 0 ) return 0;
-
-			Set<InstalledProduct> installedProducts = new HashSet<>();
-
-			for( Future<ProductUpdate> updateFuture : updateFutures ) {
-				try {
-					ProductUpdate update = updateFuture.get();
-
-					// If the update is null then there was a problem creating the update locally
-					if( update == null ) continue;
-					ProductCard card = update.getCard();
-
-					log.debug( "Product downloaded: " + update.getCard().getProductKey() );
-
-					// Install the products.
-					try {
-						ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
-						doInstallMod( card, Set.of( resource ) );
-						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-					} catch( Exception exception ) {
-						log.error( "Error installing: " + card, exception );
-					}
-				} catch( InterruptedException exception ) {
-					break;
-				} catch( Exception exception ) {
-					log.error( "Error creating product install pack", exception );
-				}
-			}
-
-			log.debug( "Product install count: " + installedProducts.size() );
-
-			return installedProducts.size();
-		}
-
-	}
+//	/**
+//	 * This task is only applicable when a product is not already installed. If
+//	 * the product is already installed it should go through the update process.
+//	 */
+//	private final class InstallProducts extends ProgramTask<Integer> {
+//
+//		/**
+//		 * Attempt to stage the product packs described by the specified product cards.
+//		 *
+//		 * @param updateCards The set of update cards to stage
+//		 */
+//		Set<ProductCard> updateCards;
+//
+//		private Set<Future<ProductUpdate>> updateFutures;
+//
+//		InstallProducts( Program program, Set<ProductCard> updateCards ) {
+//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
+//			this.updateCards = updateCards;
+//
+//			log.debug( "Number of packs to stage: " + updateCards.size() );
+//
+//			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
+//			log.trace( "Pack stage folder: " + stageFolder );
+//
+//			try {
+//				Files.createDirectories( stageFolder );
+//			} catch( IOException exception ) {
+//				log.warn( "Error creating install stage folder: " + stageFolder, exception );
+//				return;
+//			}
+//
+//			// TODO Finish implementing this with TaskChains
+//			Set<ProductCard> cardsAndRepos = Set.of();
+//			new ProductManagerLogic( program ).createProductUpdates( cardsAndRepos );
+//		}
+//
+//		@Override
+//		public Integer call() throws Exception {
+//			if( updateCards.size() == 0 ) return 0;
+//
+//			Set<InstalledProduct> installedProducts = new HashSet<>();
+//
+//			for( Future<ProductUpdate> updateFuture : updateFutures ) {
+//				try {
+//					ProductUpdate update = updateFuture.get();
+//
+//					// If the update is null then there was a problem creating the update locally
+//					if( update == null ) continue;
+//					ProductCard card = update.getCard();
+//
+//					log.debug( "Product downloaded: " + update.getCard().getProductKey() );
+//
+//					// Install the products.
+//					try {
+//						ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
+//						doInstallMod( card, Set.of( resource ) );
+//						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
+//					} catch( Exception exception ) {
+//						log.error( "Error installing: " + card, exception );
+//					}
+//				} catch( InterruptedException exception ) {
+//					break;
+//				} catch( Exception exception ) {
+//					log.error( "Error creating product install pack", exception );
+//				}
+//			}
+//
+//			log.debug( "Product install count: " + installedProducts.size() );
+//
+//			return installedProducts.size();
+//		}
+//
+//	}
 
 	private final class UninstallProducts extends ProgramTask<Integer> {
 

@@ -104,32 +104,33 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
-		try {
-			TaskChain
-				.init( () -> startResourceDownloads( updates ) )
-				.link( this::startProductResourceCollectors )
-				.link( this::collectProductUpdates )
-				.link( this::stageProductUpdates )
-				.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
-				.run( program );
-		} catch( Exception exception ) {
-			exception.printStackTrace();
-		}
+		TaskChain
+			.init( () -> startResourceDownloads( updates ) )
+			.link( this::startProductResourceCollectors )
+			.link( this::collectProductUpdates )
+			.link( this::stageProductUpdates )
+			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
+			.run( program );
 	}
 
-	void createProductUpdates( Set<ProductCard> products ) {
+	void installProducts( Set<ProductCard> products ) {
+		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" );
+		// FIXME Can't name tasks
+
 		// Start with StageUpdates and end with ProductUpdateCollector
+		TaskChain
+			.init( () -> startResourceDownloads( products ) )
+			.link( this::startProductResourceCollectors )
+			.link( this::collectProductUpdates )
+			.link( this::installProductUpdates )
+			.run( program );
+	}
 
-		//Future<ProductUpdate> productUpdateFutures = stageUpdates( cardsAndRepos, false );
-		//Set<ProductResource> productResources = downloadProductResources( productUpdateFutures );
-		//ProductUpdate productUpdate = collectProductResources( productResources );
-		//Collection<ProductUpdate> productUpdates = collectProductUpdates( productUpdate );
+	void uninstallProducts( Set<ProductCard> products ) {
+		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-remove-selected" );
+		// FIXME Can't name tasks
 
-		//		new TaskChain<Collection<ProductUpdate>>( program )
-		//			.add( () -> stageUpdates( products, false ) )
-		//			// TODO This gets passed to install logic that isn't implemented in this class yet
-		//			// It's in the ProductManager.InstallProducts class
-		//			.run();
+		// NEXT Implements uninstallProducts from UninstallProducts class
 	}
 
 	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( Set<ProductCard> products, boolean force ) {
@@ -541,6 +542,37 @@ public class ProductManagerLogic {
 		}
 
 		return productUpdates;
+	}
+
+	private Collection<InstalledProduct> installProductUpdates( Collection<ProductUpdate> products ) {
+		if( products.size() == 0 ) return Set.of();
+
+		Set<InstalledProduct> installedProducts = new HashSet<>();
+
+		for( ProductUpdate update : products ) {
+			try {
+				// If the update is null then there was a problem creating the update locally
+				if( update == null ) continue;
+				ProductCard card = update.getCard();
+
+				log.debug( "Product downloaded: " + update.getCard().getProductKey() );
+
+				// Install the products.
+				try {
+					ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
+					program.getProductManager().doInstallMod( card, Set.of( resource ) );
+					installedProducts.add( new InstalledProduct( program.getProductManager().getProductInstallFolder( card ) ) );
+				} catch( Exception exception ) {
+					log.error( "Error installing: " + card, exception );
+				}
+			} catch( Exception exception ) {
+				log.error( "Error creating product install pack", exception );
+			}
+		}
+
+		log.debug( "Product install count: " + installedProducts.size() );
+
+		return installedProducts;
 	}
 
 	// Utility methods -----------------------------------------------------------
