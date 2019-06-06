@@ -2,7 +2,7 @@ package com.xeomar.xenon.task.chain;
 
 import com.xeomar.xenon.task.ThrowingFunction;
 
-class FunctionTask<P, R> extends AbstractFunctionalTask<R> {
+class FunctionTask<P, R> extends TaskChainTask<R> {
 
 	private TaskChainContext chain;
 
@@ -28,7 +28,7 @@ class FunctionTask<P, R> extends AbstractFunctionalTask<R> {
 	@Override
 	public R call() throws Exception {
 		R result = function.apply( parameter );
-		if( link.getNext() != null ) chain.submit( getProgram(), result, link.getNext().getTask() );
+		if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
 		return result;
 	}
 

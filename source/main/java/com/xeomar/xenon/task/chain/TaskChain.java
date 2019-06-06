@@ -10,7 +10,7 @@ public class TaskChain<RESULT> {
 
 	private TaskChainContext context;
 
-	private AbstractFunctionalTask<RESULT> task;
+	private TaskChainTask<RESULT> task;
 
 	private TaskChain<?> next;
 
@@ -29,15 +29,14 @@ public class TaskChain<RESULT> {
 	public static <R> TaskChain<R> init( ThrowingSupplier<R> supplier ) {
 		TaskChainContext context = new TaskChainContext();
 		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( context, supplier ) );
-		context.init( link );
-
+		context.setFirst( link );
 		return link;
 	}
 
 	public static <P, R> TaskChain<R> init( ThrowingFunction<P, R> function ) {
 		TaskChainContext context = new TaskChainContext();
 		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( context, function ) );
-		context.init( link );
+		context.setFirst( link );
 		return link;
 	}
 
@@ -56,13 +55,19 @@ public class TaskChain<RESULT> {
 	@Asynchronous
 	public Task<RESULT> run( Program program ) {
 		// Start the first task
-		context.submit( program, null, context.getFirstLink().getTask() );
+		submit( program, null, context.getFirst().getTask() );
 
 		// and return this task
 		return task;
 	}
 
-	AbstractFunctionalTask<RESULT> getTask() {
+	<P, R> void submit( Program program, P parameter, TaskChainTask<R> task ) {
+		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
+		task.setProgram( program );
+		program.getTaskManager().submit( task );
+	}
+
+	TaskChainTask<RESULT> getTask() {
 		return task;
 	}
 

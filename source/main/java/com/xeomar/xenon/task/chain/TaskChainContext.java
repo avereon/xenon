@@ -1,33 +1,17 @@
 package com.xeomar.xenon.task.chain;
 
-import com.xeomar.util.LogUtil;
-import com.xeomar.xenon.Program;
-import com.xeomar.xenon.task.Task;
-import org.slf4j.Logger;
-
-import java.lang.invoke.MethodHandles;
-
-public class TaskChainContext {
-
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+class TaskChainContext {
 
 	private TaskChain<?> first;
 
 	TaskChainContext() {}
 
-	<R> TaskChain<R> init( TaskChain<R> link ) {
-		this.first = link;
-		return link;
-	}
-
-	TaskChain<?> getFirstLink() {
+	TaskChain<?> getFirst() {
 		return first;
 	}
 
-	<P, R> Task<R> submit( Program program, P parameter, AbstractFunctionalTask<R> task ) {
-		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
-		task.setProgram( program );
-		return program.getTaskManager().submit( task );
+	void setFirst( TaskChain<?> first ) {
+		this.first = first;
 	}
 
 }
