@@ -16,6 +16,7 @@ module com.xeomar.xenon {
 	exports com.xeomar.xenon;
 	exports com.xeomar.xenon.resource;
 	exports com.xeomar.xenon.task;
+	exports com.xeomar.xenon.task.chain;
 	exports com.xeomar.xenon.tool;
 	exports com.xeomar.xenon.update;
 	exports com.xeomar.xenon.workarea;

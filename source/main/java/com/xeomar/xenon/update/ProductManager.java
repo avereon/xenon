@@ -232,7 +232,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();
 		lastAvailableCheck = System.currentTimeMillis();
 
-		return new ProductManagerLogic( program ).getAvailableProducts( force );
+		try {
+			return new ProductManagerLogic( program ).getAvailableProducts( force ).get();
+		} catch( Exception exception ) {
+			exception.printStackTrace();
+		}
+
+		return Set.of();
 	}
 
 	public Set<Mod> getModules() {
@@ -525,7 +531,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @throws URISyntaxException If a URI cannot be resolved correctly
 	 */
 	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
-		return new ProductManagerLogic( program ).findPostedUpdates( getInstalledProductCards(), force );
+		return new ProductManagerLogic( program ).findPostedUpdates( getInstalledProductCards(), force ).get();
 	}
 
 	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {

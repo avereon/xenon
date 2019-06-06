@@ -11,7 +11,7 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.notice.Notice;
 import com.xeomar.xenon.resource.type.ProgramProductType;
 import com.xeomar.xenon.task.Task;
-import com.xeomar.xenon.task.TaskChain;
+import com.xeomar.xenon.task.chain.TaskChain;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.Asynchronous;
 import com.xeomar.xenon.util.DialogUtil;
@@ -58,33 +58,22 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	void checkForUpdates( boolean interactive ) {
-		try {
-			new TaskChain<Void>( program )
-				.add( () -> findPostedUpdates( program.getProductManager().getInstalledProductCards(), interactive ) )
-				.add( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
-				.run();
-		} catch( Exception exception ) {
-			exception.printStackTrace();
-		}
+		createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), interactive )
+			.link( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
+			.run( program );
 	}
 
-	@Synchronous
-	Set<ProductCard> getAvailableProducts( boolean force ) {
+	@Asynchronous
+	Task<Set<ProductCard>> getAvailableProducts( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		try {
-			return new TaskChain<Set<ProductCard>>( program )
-				.add( this::startEnabledCatalogCardDownloads )
-				.add( this::collectCatalogCardDownloads )
-				.add( this::startAllProductCardDownloadTasks )
-				.add( this::collectProductCardDownloads )
-				.add( this::determineAvailableProducts )
-				.get();
-		} catch( Exception exception ) {
-			exception.printStackTrace();
-		}
-
-		return Set.of();
+		return TaskChain
+			.init( this::startEnabledCatalogCardDownloads )
+			.link( this::collectCatalogCardDownloads )
+			.link( this::startAllProductCardDownloadTasks )
+			.link( this::collectProductCardDownloads )
+			.link( this::determineAvailableProducts )
+			.run( program );
 	}
 
 	/**
@@ -93,29 +82,21 @@ public class ProductManagerLogic {
 	 * @return The map of updateable products and in which repo the update is located
 	 */
 	@Synchronous
-	Set<ProductCard> findPostedUpdates( Set<ProductCard> products, boolean force ) throws ExecutionException, InterruptedException {
+	Task<Set<ProductCard>> findPostedUpdates( Set<ProductCard> products, boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		Map<String, ProductCard> installedProducts = program.getProductManager().getInstalledProductCardsMap();
-
-		return new TaskChain<Set<ProductCard>>( program )
-			.add( this::startEnabledCatalogCardDownloads )
-			.add( this::collectCatalogCardDownloads )
-			.add( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
-			.add( this::collectProductCardDownloads )
-			.add( ( availableProducts ) -> determineUpdateableProducts( availableProducts, installedProducts ) )
-			.get();
+		return createFindPostedUpdatesChain( products, force ).run( program );
 	}
 
 	@Asynchronous
 	void stageUpdates( Set<ProductCard> updates ) {
 		try {
-			new TaskChain<Collection<ProductUpdate>>( program )
-				.add( () -> startResourceDownloads( updates ) )
-				.add( this::startProductResourceCollectors )
-				.add( this::collectProductUpdates )
-				.add( this::stageProductUpdates )
-				.run();
+			TaskChain
+				.init( () -> startResourceDownloads( updates ) )
+				.link( this::startProductResourceCollectors )
+				.link( this::collectProductUpdates )
+				.link( this::stageProductUpdates )
+				.run( program );
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
@@ -124,13 +105,13 @@ public class ProductManagerLogic {
 	@Asynchronous
 	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
 		try {
-			new TaskChain<Collection<ProductUpdate>>( program )
-				.add( () -> startResourceDownloads( updates ) )
-				.add( this::startProductResourceCollectors )
-				.add( this::collectProductUpdates )
-				.add( this::stageProductUpdates )
-				.add( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
-				.run();
+			TaskChain
+				.init( () -> startResourceDownloads( updates ) )
+				.link( this::startProductResourceCollectors )
+				.link( this::collectProductUpdates )
+				.link( this::stageProductUpdates )
+				.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
+				.run( program );
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
@@ -149,6 +130,17 @@ public class ProductManagerLogic {
 		//			// TODO This gets passed to install logic that isn't implemented in this class yet
 		//			// It's in the ProductManager.InstallProducts class
 		//			.run();
+	}
+
+	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( Set<ProductCard> products, boolean force ) {
+		Map<String, ProductCard> installedProducts = program.getProductManager().getInstalledProductCardsMap();
+
+		return TaskChain
+			.init( this::startEnabledCatalogCardDownloads )
+			.link( this::collectCatalogCardDownloads )
+			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
+			.link( this::collectProductCardDownloads )
+			.link( ( availableProducts ) -> determineUpdateableProducts( availableProducts, installedProducts ) );
 	}
 
 	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
@@ -249,9 +241,7 @@ public class ProductManagerLogic {
 		return determineUpdateableProducts( products, Map.of() );
 	}
 
-	Set<ProductCard> determineUpdateableProducts(
-		Map<RepoCard, Set<ProductCard>> products, Map<String, ProductCard> installedProducts
-	) {
+	Set<ProductCard> determineUpdateableProducts( Map<RepoCard, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
 		if( products == null ) throw new NullPointerException( "Product map cannot be null" );
 
 		boolean determineAvailable = installedProducts.size() == 0;
