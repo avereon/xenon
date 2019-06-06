@@ -4,14 +4,11 @@ import com.xeomar.xenon.task.ThrowingSupplier;
 
 class SupplierTask<R> extends TaskChainTask<R> {
 
-	private TaskChainContext chain;
-
 	private ThrowingSupplier<R> supplier;
 
 	private TaskChain<R> link;
 
-	SupplierTask( TaskChainContext chain, ThrowingSupplier<R> supplier ) {
-		this.chain = chain;
+	SupplierTask( ThrowingSupplier<R> supplier ) {
 		this.supplier = supplier;
 	}
 

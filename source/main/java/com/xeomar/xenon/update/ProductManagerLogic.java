@@ -179,9 +179,7 @@ public class ProductManagerLogic {
 		return catalogs;
 	}
 
-	private Map<RepoCard, Set<Task<Download>>> startSelectedProductCardDownloadTasks(
-		Map<RepoCard, CatalogCard> catalogs, Set<ProductCard> products
-	) {
+	private Map<RepoCard, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs, Set<ProductCard> products ) {
 		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
 		Set<String> artifacts = products.stream().map( ProductCard::getArtifact ).collect( Collectors.toSet() );
 
@@ -535,9 +533,7 @@ public class ProductManagerLogic {
 		return stagedUpdates;
 	}
 
-	private Collection<ProductUpdate> handleStagedProductUpdates(
-		Collection<ProductUpdate> productUpdates, boolean interactive
-	) {
+	private Collection<ProductUpdate> handleStagedProductUpdates( Collection<ProductUpdate> productUpdates, boolean interactive ) {
 		if( productUpdates.size() == 0 ) return productUpdates;
 
 		if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
@@ -577,9 +573,7 @@ public class ProductManagerLogic {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	private Set<ProductResource> startProductResourceDownloads(
-		RepoCard repo, ProductCard card
-	) throws InterruptedException, ExecutionException {
+	private Set<ProductResource> startProductResourceDownloads( RepoCard repo, ProductCard card ) throws InterruptedException, ExecutionException {
 		return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card ) ).get();
 	}
 

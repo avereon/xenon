@@ -11,28 +11,31 @@ public class TaskChainTest extends ProgramTestCase {
 
 	@Test
 	public void testInit() {
-		TaskChain.init( this::zero );
+		TaskChain.init( () -> 0 );
 	}
 
 	@Test
 	public void testLink() {
-		TaskChain.init( this::zero ).link( this::inc ).link( this::inc );
+		TaskChain.init( () -> 0 ).link( this::inc ).link( this::inc );
 	}
 
 	@Test
 	public void testRunAfterInit() throws Exception {
-		Task<Integer> task = TaskChain.init( () -> 7 ).run( program );
+		int value = 7;
+
+		Task<Integer> task = TaskChain.init( () -> value ).run( program );
 
 		// This is technically a race condition here
 		assertThat( task.getState(), is( Task.State.WAITING ) );
-		assertThat( task.get(), is( 7 ) );
+		assertThat( task.get(), is( value ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 		@Test
 	public void testRun() throws Exception {
 		Task<Integer> task = TaskChain
-			.init( this::zero )
+			.init( () -> 0 )
+			.link( this::inc )
 			.link( this::inc )
 			.link( this::inc )
 			.link( this::inc )
@@ -41,16 +44,12 @@ public class TaskChainTest extends ProgramTestCase {
 
 		// This is technically a race condition here
 		assertThat( task.getState(), is( Task.State.WAITING ) );
-		assertThat( task.get(), is( 4 ) );
+		assertThat( task.get(), is( 5 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
-	private int zero() {
-		return 0;
-	}
-
 	private Integer inc( Integer value ) {
-		return ++value;
+		return value + 1;
 	}
 
 }

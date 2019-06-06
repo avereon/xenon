@@ -28,26 +28,26 @@ public class TaskChain<RESULT> {
 
 	public static <R> TaskChain<R> init( ThrowingSupplier<R> supplier ) {
 		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( context, supplier ) );
+		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( supplier ) );
 		context.setFirst( link );
 		return link;
 	}
 
 	public static <P, R> TaskChain<R> init( ThrowingFunction<P, R> function ) {
 		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( context, function ) );
+		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( function ) );
 		context.setFirst( link );
 		return link;
 	}
 
 	public <R> TaskChain<R> link( ThrowingSupplier<R> supplier ) {
-		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( context, supplier ) );
+		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( supplier ) );
 		next = link;
 		return link;
 	}
 
 	public <R> TaskChain<R> link( ThrowingFunction<RESULT, R> function ) {
-		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( context, function ) );
+		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( function ) );
 		next = link;
 		return link;
 	}

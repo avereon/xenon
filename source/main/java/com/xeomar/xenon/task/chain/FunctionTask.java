@@ -4,16 +4,13 @@ import com.xeomar.xenon.task.ThrowingFunction;
 
 class FunctionTask<P, R> extends TaskChainTask<R> {
 
-	private TaskChainContext chain;
-
 	private P parameter;
 
 	private ThrowingFunction<? super P, ? extends R> function;
 
 	private TaskChain<R> link;
 
-	FunctionTask( TaskChainContext chain, ThrowingFunction<? super P, ? extends R> function ) {
-		this.chain = chain;
+	FunctionTask( ThrowingFunction<? super P, ? extends R> function ) {
 		this.function = function;
 	}
 
