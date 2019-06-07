@@ -3,8 +3,6 @@ package com.xeomar.xenon.task.chain;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.task.Task;
 
-import java.util.function.Function;
-
 class TaskWrapper<P, R> extends Task<R> {
 
 	private Program program;
@@ -14,6 +12,8 @@ class TaskWrapper<P, R> extends Task<R> {
 	private Task<R> task;
 
 	private TaskChain<R> link;
+
+	private Exception priorException;
 
 	public TaskWrapper( Task<R> task ) {
 		this.task = task;
@@ -31,25 +31,35 @@ class TaskWrapper<P, R> extends Task<R> {
 		this.parameter = parameter;
 	}
 
+	public void setPriorException( Exception priorException ) {
+		this.priorException = priorException;
+	}
+
 	void setLink( TaskChain<R> link ) {
 		this.link = link;
 	}
 
 	@Override
 	public R call() throws Exception {
-		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
-
-		System.out.println( "TaskWrapper before call()..." );
-		System.out.println( "Task is: " + task.getClass().getSimpleName());
-		R result = task.call();
-		System.out.println( "TaskWrapper after call()...with result: " + result );
-		try {
-			if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
-		} catch( Throwable throwable ) {
-			throwable.printStackTrace();
+		// If there was a prior exception cascade the exception down the chain
+		if( priorException != null ) {
+			if( link.getNext() == null ) {
+				throw priorException;
+			} else {
+				link.failure( getProgram(), link.getNext().getTask(), priorException );
+				return null;
+			}
 		}
-		System.out.println( "TaskWrapper after submit()..." );
-		return result;
+
+		try {
+			if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
+			R result = task.call();
+			if( link.getNext() != null ) link.submit( getProgram(), link.getNext().getTask(), result );
+			return result;
+		} catch( Exception throwable ) {
+			if( link.getNext() != null ) link.failure( getProgram(), link.getNext().getTask(), throwable );
+			return null;
+		}
 	}
 
 }

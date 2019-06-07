@@ -22,24 +22,10 @@ public class TaskChain<RESULT> {
 		this.task = task;
 	}
 
-	private TaskChain( TaskChainContext context, SupplierTask<RESULT> supplierTask ) {
-		this.context = context;
-		//supplierTask.setLink( this );
-		//task = supplierTask;
-		task = new TaskWrapper<Void, RESULT>( supplierTask );
-	}
-
-	private <P> TaskChain( TaskChainContext context, FunctionTask<P, RESULT> functionTask ) {
-		this.context = context;
-		//functionTask.setLink( this );
-		//task = functionTask;
-		task = new TaskWrapper<P, RESULT>( functionTask );
-	}
-
 	// FIXME Can't name tasks
 	public static <R> TaskChain<R> init( ThrowingSupplier<R> supplier ) {
 		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( supplier ) );
+		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<Void,R>( new SupplierTask<>( supplier ) ) );
 		context.setFirst( link );
 		return link;
 	}
@@ -47,21 +33,21 @@ public class TaskChain<RESULT> {
 	// FIXME Can't name tasks
 	public static <P, R> TaskChain<R> init( ThrowingFunction<P, R> function ) {
 		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( function ) );
+		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<P, R>( new FunctionTask<>( function ) ) );
 		context.setFirst( link );
 		return link;
 	}
 
 	// FIXME Can't name tasks
 	public <R> TaskChain<R> link( ThrowingSupplier<R> supplier ) {
-		TaskChain<R> link = new TaskChain<>( context, new SupplierTask<>( supplier ) );
+		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<Void,R>( new SupplierTask<>( supplier ) ) );
 		next = link;
 		return link;
 	}
 
 	// FIXME Can't name tasks
 	public <R> TaskChain<R> link( ThrowingFunction<RESULT, R> function ) {
-		TaskChain<R> link = new TaskChain<>( context, new FunctionTask<>( function ) );
+		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<RESULT,R>( new FunctionTask<>( function ) ) );
 		next = link;
 		return link;
 	}
@@ -69,22 +55,29 @@ public class TaskChain<RESULT> {
 	@Asynchronous
 	public Task<RESULT> run( Program program ) {
 		// Start the first task
-		submit( program, null, context.getFirst().getTask() );
+		submit( program, context.getFirst().getTask(), null );
 
 		// and return this task
 		return task;
 	}
 
-	<P, R> void submit( Program program, P parameter, TaskWrapper<P, R> task ) {
-		//if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
-		System.out.println( "TaskChain.submit() before submit()..." );
+	<P, R> void submit( Program program, TaskWrapper<P, R> task, P parameter ) {
+		if( task == null ) return;
 		task.setProgram( program );
 		task.setParameter( parameter );
 		program.getTaskManager().submit( task );
 	}
 
+	<P, R> void failure( Program program, TaskWrapper<P, R> task, Exception exception ) {
+		if( task == null ) return;
+		task.setProgram( program );
+		task.setPriorException( exception );
+		program.getTaskManager().submit( task );
+	}
+
+	@SuppressWarnings( "unchecked" )
 	<P> TaskWrapper<P, RESULT> getTask() {
-		return (TaskWrapper<P,RESULT>)task;
+		return (TaskWrapper<P,RESULT>)this.task;
 	}
 
 	TaskChain<?> getNext() {
