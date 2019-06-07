@@ -8,8 +8,6 @@ class FunctionTask<P, R> extends TaskChainTask<R> {
 
 	private ThrowingFunction<? super P, ? extends R> function;
 
-	private TaskChain<R> link;
-
 	FunctionTask( ThrowingFunction<? super P, ? extends R> function ) {
 		this.function = function;
 	}
@@ -18,14 +16,11 @@ class FunctionTask<P, R> extends TaskChainTask<R> {
 		this.parameter = parameter;
 	}
 
-	void setLink( TaskChain<R> link ) {
-		this.link = link;
-	}
-
 	@Override
 	public R call() throws Exception {
+		//TaskChain<R> link = getLink();
 		R result = function.apply( parameter );
-		if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
+		//if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
 		return result;
 	}
 

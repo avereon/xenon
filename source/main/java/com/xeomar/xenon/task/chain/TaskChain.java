@@ -12,20 +12,28 @@ public class TaskChain<RESULT> {
 
 	private TaskChainContext context;
 
-	private TaskChainTask<RESULT> task;
+	private TaskWrapper<?, RESULT> task;
 
 	private TaskChain<?> next;
 
+	private TaskChain( TaskChainContext context, TaskWrapper<?, RESULT> task ) {
+		this.context = context;
+		task.setLink( this );
+		this.task = task;
+	}
+
 	private TaskChain( TaskChainContext context, SupplierTask<RESULT> supplierTask ) {
 		this.context = context;
-		supplierTask.setLink( this );
-		task = supplierTask;
+		//supplierTask.setLink( this );
+		//task = supplierTask;
+		task = new TaskWrapper<Void, RESULT>( supplierTask );
 	}
 
 	private <P> TaskChain( TaskChainContext context, FunctionTask<P, RESULT> functionTask ) {
 		this.context = context;
-		functionTask.setLink( this );
-		task = functionTask;
+		//functionTask.setLink( this );
+		//task = functionTask;
+		task = new TaskWrapper<P, RESULT>( functionTask );
 	}
 
 	// FIXME Can't name tasks
@@ -67,14 +75,16 @@ public class TaskChain<RESULT> {
 		return task;
 	}
 
-	<P, R> void submit( Program program, P parameter, TaskChainTask<R> task ) {
-		if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
+	<P, R> void submit( Program program, P parameter, TaskWrapper<P, R> task ) {
+		//if( task instanceof FunctionTask ) ((FunctionTask<P, R>)task).setParameter( parameter );
+		System.out.println( "TaskChain.submit() before submit()..." );
 		task.setProgram( program );
+		task.setParameter( parameter );
 		program.getTaskManager().submit( task );
 	}
 
-	TaskChainTask<RESULT> getTask() {
-		return task;
+	<P> TaskWrapper<P, RESULT> getTask() {
+		return (TaskWrapper<P,RESULT>)task;
 	}
 
 	TaskChain<?> getNext() {

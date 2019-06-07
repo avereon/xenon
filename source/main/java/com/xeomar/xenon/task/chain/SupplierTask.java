@@ -6,20 +6,15 @@ class SupplierTask<R> extends TaskChainTask<R> {
 
 	private ThrowingSupplier<R> supplier;
 
-	private TaskChain<R> link;
-
 	SupplierTask( ThrowingSupplier<R> supplier ) {
 		this.supplier = supplier;
 	}
 
-	void setLink( TaskChain<R> link ) {
-		this.link = link;
-	}
-
 	@Override
 	public R call() throws Exception {
+		//TaskChain<R> link = getLink();
 		R result = supplier.get();
-		if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
+		//if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
 		return result;
 	}
 
