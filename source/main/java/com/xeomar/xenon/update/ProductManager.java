@@ -449,8 +449,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
 	}
 
+	void updateLastCheckTime() {
+		// Update when the last update check occurred.
+		getSettings().set( LAST_CHECK_TIME, System.currentTimeMillis() );
+
+		// Schedule the next update check.
+		scheduleUpdateCheck( false );
+	}
+
 	/**
-	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
+	 * Schedule the update check task according to the settings. This method may safely be called as many times as
+	 * necessary from any thread.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
@@ -671,7 +680,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and,
+	 * if the update program is successfully started, the program should be terminated to allow for the updates to be
 	 * applied.
 	 *
 	 * @return The number of updates applied.
@@ -1144,111 +1154,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void unloadMod( Mod mod ) {
 		// Not sure what to do to unload a mod
 	}
-
-	//	/**
-	//	 * This task is only applicable when a product is not already installed. If
-	//	 * the product is already installed it should go through the update process.
-	//	 */
-	//	private final class InstallProducts extends ProgramTask<Integer> {
-	//
-	//		/**
-	//		 * Attempt to stage the product packs described by the specified product cards.
-	//		 *
-	//		 * @param updateCards The set of update cards to stage
-	//		 */
-	//		Set<ProductCard> updateCards;
-	//
-	//		private Set<Future<ProductUpdate>> updateFutures;
-	//
-	//		InstallProducts( Program program, Set<ProductCard> updateCards ) {
-	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-stage-selected" ) );
-	//			this.updateCards = updateCards;
-	//
-	//			log.debug( "Number of packs to stage: " + updateCards.size() );
-	//
-	//			Path stageFolder = program.getDataFolder().resolve( UPDATE_FOLDER_NAME );
-	//			log.trace( "Pack stage folder: " + stageFolder );
-	//
-	//			try {
-	//				Files.createDirectories( stageFolder );
-	//			} catch( IOException exception ) {
-	//				log.warn( "Error creating install stage folder: " + stageFolder, exception );
-	//				return;
-	//			}
-	//
-	//			// TODO Finish implementing this with TaskChains
-	//			Set<ProductCard> cardsAndRepos = Set.of();
-	//			new ProductManagerLogic( program ).createProductUpdates( cardsAndRepos );
-	//		}
-	//
-	//		@Override
-	//		public Integer call() throws Exception {
-	//			if( updateCards.size() == 0 ) return 0;
-	//
-	//			Set<InstalledProduct> installedProducts = new HashSet<>();
-	//
-	//			for( Future<ProductUpdate> updateFuture : updateFutures ) {
-	//				try {
-	//					ProductUpdate update = updateFuture.get();
-	//
-	//					// If the update is null then there was a problem creating the update locally
-	//					if( update == null ) continue;
-	//					ProductCard card = update.getCard();
-	//
-	//					log.debug( "Product downloaded: " + update.getCard().getProductKey() );
-	//
-	//					// Install the products.
-	//					try {
-	//						ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
-	//						doInstallMod( card, Set.of( resource ) );
-	//						installedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-	//					} catch( Exception exception ) {
-	//						log.error( "Error installing: " + card, exception );
-	//					}
-	//				} catch( InterruptedException exception ) {
-	//					break;
-	//				} catch( Exception exception ) {
-	//					log.error( "Error creating product install pack", exception );
-	//				}
-	//			}
-	//
-	//			log.debug( "Product install count: " + installedProducts.size() );
-	//
-	//			return installedProducts.size();
-	//		}
-	//
-	//	}
-	//
-	//	private final class UninstallProducts extends ProgramTask<Integer> {
-	//
-	//		private Set<ProductCard> cards;
-	//
-	//		UninstallProducts( Program program, Set<ProductCard> cards ) {
-	//			super( program, program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-remove-selected" ) );
-	//			this.cards = cards;
-	//		}
-	//
-	//		@Override
-	//		public Integer call() throws Exception {
-	//			// Remove the products.
-	//			Set<InstalledProduct> removedProducts = new HashSet<>();
-	//			for( ProductCard card : cards ) {
-	//				try {
-	//					doRemoveMod( getMod( card.getProductKey() ) );
-	//					removedProducts.add( new InstalledProduct( getProductInstallFolder( card ) ) );
-	//				} catch( Exception exception ) {
-	//					log.error( "Error uninstalling: " + card, exception );
-	//				}
-	//			}
-	//
-	//			Set<InstalledProduct> products = new HashSet<>( getStoredRemovedProducts() );
-	//			products.addAll( removedProducts );
-	//			getSettings().set( REMOVES_SETTINGS_KEY, products );
-	//
-	//			return removedProducts.size();
-	//		}
-	//
-	//	}
 
 	private final class SettingsChangeHandler implements SettingsListener {
 

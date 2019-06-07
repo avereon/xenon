@@ -57,13 +57,6 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void checkForUpdates( boolean interactive ) {
-		createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), interactive )
-			.link( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
-			.run( program );
-	}
-
-	@Asynchronous
 	Task<Set<ProductCard>> getAvailableProducts( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
@@ -73,6 +66,13 @@ public class ProductManagerLogic {
 			.link( this::startAllProductCardDownloadTasks )
 			.link( this::collectProductCardDownloads )
 			.link( this::determineAvailableProducts )
+			.run( program );
+	}
+
+	@Asynchronous
+	void checkForUpdates( boolean interactive ) {
+		createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), interactive )
+			.link( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
 			.run( program );
 	}
 
@@ -140,11 +140,22 @@ public class ProductManagerLogic {
 		Map<String, ProductCard> installedProducts = program.getProductManager().getInstalledProductCardsMap();
 
 		return TaskChain
-			.init( this::startEnabledCatalogCardDownloads )
+			.init( () -> initFindPostedUpdates( force ) )
+			.link( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
 			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
 			.link( this::collectProductCardDownloads )
 			.link( ( availableProducts ) -> determineUpdateableProducts( availableProducts, installedProducts ) );
+	}
+
+	private Void initFindPostedUpdates( boolean force ) {
+		// TODO If the posted update cache is still valid no further check needed
+		//this.postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
+		//if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return;
+
+		program.getProductManager().updateLastCheckTime();
+
+		return null;
 	}
 
 	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
