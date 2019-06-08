@@ -6,7 +6,6 @@ import com.xeomar.xenon.task.ThrowingFunction;
 import com.xeomar.xenon.task.ThrowingSupplier;
 import com.xeomar.xenon.util.Asynchronous;
 
-// FIXME Can't add task objects
 // FIXME Can't chain chains
 public class TaskChain<RESULT> {
 
@@ -60,6 +59,15 @@ public class TaskChain<RESULT> {
 
 	public <R> TaskChain<R> link( String name, ThrowingFunction<RESULT, R> function ) {
 		return link( new TaskWrapper<RESULT, R>( name, new FunctionTask<>( function ) ) );
+	}
+
+	public <R> TaskChain<R> link( TaskChain<R> chain ) {
+		// Link this chain to the first link of the specified chain
+		this.next = chain.context.getFirst();
+		// Get the first link set in the specified chain context
+		chain.context.setFirst( context.getFirst() );
+
+		return chain;
 	}
 
 	@Asynchronous
