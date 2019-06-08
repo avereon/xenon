@@ -530,12 +530,15 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
+	/**
+	 * Check for updates for all installed products
+	 */
 	public void checkForUpdates() {
 		if( !isEnabled() ) return;
 
 		try {
 			log.trace( "Checking for staged updates..." );
-			stagePostedUpdates();
+			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards(), false );
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
@@ -561,20 +564,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	void applyStoredUpdates( Set<ProductCard> packs ) throws Exception {
 		// TODO Finish implementing ProductManager.applyStoredUpdates()
 		throw new RuntimeException( "Method not implemented yet." );
-	}
-
-	/**
-	 * Attempt to stage the product packs from posted updates.
-	 *
-	 * @return true if one or more product packs were staged.
-	 * @throws IOException If an IO error occurs
-	 * @throws ExecutionException If an execution error occurs
-	 * @throws InterruptedException If the method is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
-	 */
-	public void stagePostedUpdates() throws Exception, ExecutionException, InterruptedException, URISyntaxException {
-		if( !isEnabled() ) return;
-		new ProductManagerLogic( program ).stageAndApplyUpdates( findPostedUpdates( false ), false );
 	}
 
 	public Path getProductInstallFolder( ProductCard card ) {

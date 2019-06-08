@@ -74,7 +74,6 @@ public class TaskChainTest extends ProgramTestCase {
 		} catch( ExecutionException exception ) {
 			Throwable cause1 = exception.getCause();
 			assertThat( cause1, instanceOf( TaskException.class ) );
-
 			Throwable cause2 = cause1.getCause();
 			assertThat( cause2, instanceOf( RuntimeException.class ) );
 			assertThat( cause2, is( expected ) );

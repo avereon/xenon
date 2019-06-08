@@ -19,6 +19,11 @@ class TaskWrapper<P, R> extends Task<R> {
 		this.task = task;
 	}
 
+	public TaskWrapper( String name, Task<R> task ) {
+		super( name );
+		this.task = task;
+	}
+
 	public Program getProgram() {
 		return program;
 	}

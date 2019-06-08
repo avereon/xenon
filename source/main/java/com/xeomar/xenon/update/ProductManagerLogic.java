@@ -15,7 +15,6 @@ import com.xeomar.xenon.task.chain.TaskChain;
 import com.xeomar.xenon.tool.product.ProductTool;
 import com.xeomar.xenon.util.Asynchronous;
 import com.xeomar.xenon.util.DialogUtil;
-import com.xeomar.xenon.util.Synchronous;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -70,9 +69,11 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void checkForUpdates( boolean interactive ) {
-		createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), interactive )
-			.link( ( cards ) -> handlePostedUpdatesResult( cards, interactive ) )
+	void checkForUpdates( boolean force ) {
+		// TODO The force parameter just means to refresh the cache
+
+		createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), force )
+			.link( ( cards ) -> handlePostedUpdatesResult( cards, force ) )
 			.run( program );
 	}
 
@@ -81,7 +82,7 @@ public class ProductManagerLogic {
 	 * @param force Request that the cache be flushed before finding updates
 	 * @return The map of updateable products and in which repo the update is located
 	 */
-	@Synchronous
+	@Asynchronous
 	Task<Set<ProductCard>> findPostedUpdates( Set<ProductCard> products, boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
@@ -89,50 +90,38 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void stageUpdates( Set<ProductCard> updates ) {
-		try {
-			TaskChain
-				.init( () -> startResourceDownloads( updates ) )
-				.link( this::startProductResourceCollectors )
-				.link( this::collectProductUpdates )
-				.link( this::stageProductUpdates )
-				.run( program );
-		} catch( Exception exception ) {
-			exception.printStackTrace();
-		}
-	}
+	void stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
+		// TODO The force parameter just means to refresh the cache
 
-	@Asynchronous
-	void stageAndApplyUpdates( Set<ProductCard> updates, boolean interactive ) {
-		TaskChain
-			.init( () -> startResourceDownloads( updates ) )
+		createFindPostedUpdatesChain( products, force )
+			.link( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( this::stageProductUpdates )
-			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
+			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, force ) )
 			.run( program );
 	}
 
+	@Asynchronous
 	void installProducts( Set<ProductCard> products ) {
 		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-install-selected" );
-		// FIXME Can't name tasks
 
 		// Start with StageUpdates and end with ProductUpdateCollector
 		TaskChain
 			.init( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
-			.link( this::installProductUpdates )
+			.link( name, this::installProductUpdates )
 			.run( program );
 	}
 
+	@Asynchronous
 	void uninstallProducts( Set<ProductCard> products ) {
 		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-uninstall-selected" );
-		// FIXME Can't name tasks
 
 		TaskChain
 			.init( () -> doUninstallProducts( products ) )
-			.link( ( removedProducts ) -> program.getProductManager().saveRemovedProducts( removedProducts ) )
+			.link( name, ( removedProducts ) -> program.getProductManager().saveRemovedProducts( removedProducts ) )
 			.run( program );
 	}
 
@@ -322,6 +311,19 @@ public class ProductManagerLogic {
 		}
 
 		return null;
+	}
+
+	private void stageUpdates( Set<ProductCard> updates ) {
+		try {
+			TaskChain
+				.init( () -> startResourceDownloads( updates ) )
+				.link( this::startProductResourceCollectors )
+				.link( this::collectProductUpdates )
+				.link( this::stageProductUpdates )
+				.run( program );
+		} catch( Exception exception ) {
+			exception.printStackTrace();
+		}
 	}
 
 	private Set<ProductResourceCollector> startResourceDownloads( Set<ProductCard> cards ) {

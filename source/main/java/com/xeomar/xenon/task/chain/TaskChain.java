@@ -22,34 +22,44 @@ public class TaskChain<RESULT> {
 		this.task = task;
 	}
 
-	// FIXME Can't name tasks
+	public static <R> TaskChain<R> init( Task<R> task ) {
+		return init( new TaskWrapper<Void, R>( task ) );
+	}
+
 	public static <R> TaskChain<R> init( ThrowingSupplier<R> supplier ) {
-		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<Void,R>( new SupplierTask<>( supplier ) ) );
-		context.setFirst( link );
-		return link;
+		return init( new TaskWrapper<Void, R>( new SupplierTask<>( supplier ) ) );
 	}
 
-	// FIXME Can't name tasks
 	public static <P, R> TaskChain<R> init( ThrowingFunction<P, R> function ) {
-		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<P, R>( new FunctionTask<>( function ) ) );
-		context.setFirst( link );
-		return link;
+		return init( new TaskWrapper<P, R>( new FunctionTask<>( function ) ) );
 	}
 
-	// FIXME Can't name tasks
+	public static <R> TaskChain<R> init( String name, ThrowingSupplier<R> supplier ) {
+		return init( new TaskWrapper<Void, R>( name, new SupplierTask<>( supplier ) ) );
+	}
+
+	public static <P, R> TaskChain<R> init( String name, ThrowingFunction<P, R> function ) {
+		return init( new TaskWrapper<P, R>( name, new FunctionTask<>( function ) ) );
+	}
+
+	public <R> TaskChain<R> link( Task<R> task ) {
+		return link( new TaskWrapper<Void, R>( task ) );
+	}
+
 	public <R> TaskChain<R> link( ThrowingSupplier<R> supplier ) {
-		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<Void,R>( new SupplierTask<>( supplier ) ) );
-		next = link;
-		return link;
+		return link( new TaskWrapper<Void, R>( new SupplierTask<>( supplier ) ) );
 	}
 
-	// FIXME Can't name tasks
 	public <R> TaskChain<R> link( ThrowingFunction<RESULT, R> function ) {
-		TaskChain<R> link = new TaskChain<>( context, new TaskWrapper<RESULT,R>( new FunctionTask<>( function ) ) );
-		next = link;
-		return link;
+		return link( new TaskWrapper<RESULT, R>( new FunctionTask<>( function ) ) );
+	}
+
+	public <R> TaskChain<R> link( String name, ThrowingSupplier<R> supplier ) {
+		return link( new TaskWrapper<Void, R>( name, new SupplierTask<>( supplier ) ) );
+	}
+
+	public <R> TaskChain<R> link( String name, ThrowingFunction<RESULT, R> function ) {
+		return link( new TaskWrapper<RESULT, R>( name, new FunctionTask<>( function ) ) );
 	}
 
 	@Asynchronous
@@ -75,13 +85,26 @@ public class TaskChain<RESULT> {
 		program.getTaskManager().submit( task );
 	}
 
-	@SuppressWarnings( "unchecked" )
-	<P> TaskWrapper<P, RESULT> getTask() {
-		return (TaskWrapper<P,RESULT>)this.task;
-	}
-
 	TaskChain<?> getNext() {
 		return next;
+	}
+
+	@SuppressWarnings( "unchecked" )
+	<P> TaskWrapper<P, RESULT> getTask() {
+		return (TaskWrapper<P, RESULT>)this.task;
+	}
+
+	private static <P, R> TaskChain<R> init( TaskWrapper<P, R> task ) {
+		TaskChainContext context = new TaskChainContext();
+		TaskChain<R> link = new TaskChain<>( context, task );
+		context.setFirst( link );
+		return link;
+	}
+
+	private <P, R> TaskChain<R> link( TaskWrapper<P, R> task ) {
+		TaskChain<R> link = new TaskChain<>( context, task );
+		next = link;
+		return link;
 	}
 
 }
