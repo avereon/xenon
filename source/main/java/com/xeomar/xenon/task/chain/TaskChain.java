@@ -61,15 +61,6 @@ public class TaskChain<RESULT> {
 		return link( new TaskWrapper<RESULT, R>( name, new FunctionTask<>( function ) ) );
 	}
 
-	public <R> TaskChain<R> link( TaskChain<R> chain ) {
-		// Link this chain to the first link of the specified chain
-		this.next = chain.context.getFirst();
-		// Get the first link set in the specified chain context
-		chain.context.setFirst( context.getFirst() );
-
-		return chain;
-	}
-
 	@Asynchronous
 	public Task<RESULT> run( Program program ) {
 		// Start the first task
