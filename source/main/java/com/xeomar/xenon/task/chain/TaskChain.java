@@ -6,17 +6,16 @@ import com.xeomar.xenon.task.ThrowingFunction;
 import com.xeomar.xenon.task.ThrowingSupplier;
 import com.xeomar.xenon.util.Asynchronous;
 
-// FIXME Can't chain chains
 public class TaskChain<RESULT> {
 
-	private TaskChainContext context;
+	private TaskChain<?> first;
 
 	private TaskWrapper<?, RESULT> task;
 
 	private TaskChain<?> next;
 
-	private TaskChain( TaskChainContext context, TaskWrapper<?, RESULT> task ) {
-		this.context = context;
+	private TaskChain( TaskChain<?> first, TaskWrapper<?, RESULT> task ) {
+		this.first = first == null ? this : first;
 		task.setLink( this );
 		this.task = task;
 	}
@@ -64,7 +63,7 @@ public class TaskChain<RESULT> {
 	@Asynchronous
 	public Task<RESULT> run( Program program ) {
 		// Start the first task
-		submit( program, context.getFirst().getTask(), null );
+		submit( program, first.getTask(), null );
 
 		// and return this task
 		return task;
@@ -94,14 +93,11 @@ public class TaskChain<RESULT> {
 	}
 
 	private static <P, R> TaskChain<R> init( TaskWrapper<P, R> task ) {
-		TaskChainContext context = new TaskChainContext();
-		TaskChain<R> link = new TaskChain<>( context, task );
-		context.setFirst( link );
-		return link;
+		return new TaskChain<>( null, task );
 	}
 
 	private <P, R> TaskChain<R> link( TaskWrapper<P, R> task ) {
-		TaskChain<R> link = new TaskChain<>( context, task );
+		TaskChain<R> link = new TaskChain<>( first, task );
 		next = link;
 		return link;
 	}
