@@ -26,13 +26,6 @@
 		</group>
 
 		<page id="updates">
-			<group id="updates-channel">
-				<setting key="product-update-channel" editor="combobox">
-					<option key="stable"/>
-					<option key="latest"/>
-				</setting>
-			</group>
-
 			<group id="updates-schedule">
 				<setting key="product-update-check" editor="combobox">
 					<option key="interval"/>
