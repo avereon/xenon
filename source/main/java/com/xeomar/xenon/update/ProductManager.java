@@ -101,8 +101,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
 
-	private static final String CHANNEL = "product-update-channel";
-
 	private static final String NOTICE = "product-update-notice";
 
 	private static final String FOUND = "product-update-found";
