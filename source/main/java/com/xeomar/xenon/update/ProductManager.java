@@ -10,6 +10,7 @@ import com.xeomar.util.*;
 import com.xeomar.xenon.Mod;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
+import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -315,23 +316,22 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		unregisterProduct( (Product)mod );
 	}
 
-	public void installProducts( ProductCard... cards ) throws Exception {
-		installProducts( Set.of( cards ) );
+	public Task<Collection<InstalledProduct>> installProducts( ProductCard... cards ) throws Exception {
+		return installProducts( Set.of( cards ) );
 	}
 
-	public void installProducts( Set<ProductCard> cards ) throws Exception {
+	public Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to install: " + cards.size() );
-		new ProductManagerLogic( program ).installProducts( cards );
+		return new ProductManagerLogic( program ).installProducts( cards );
 	}
 
-	public void uninstallProducts( ProductCard... cards ) throws Exception {
-		uninstallProducts( Set.of( cards ) );
+	public Task<Void>  uninstallProducts( ProductCard... cards ) throws Exception {
+		return uninstallProducts( Set.of( cards ) );
 	}
 
-	public void uninstallProducts( Set<ProductCard> cards ) throws Exception {
+	public Task<Void> uninstallProducts( Set<ProductCard> cards ) throws Exception {
 		log.trace( "Number of products to remove: " + cards.size() );
-		//program.getTaskManager().submit( new UninstallProducts( program, cards ) );
-		new ProductManagerLogic( program ).uninstallProducts( cards );
+		return new ProductManagerLogic( program ).uninstallProducts( cards );
 	}
 
 	public int getInstalledProductCount() {
@@ -689,11 +689,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return count;
 	}
 
-	public void applySelectedUpdates( ProductCard update ) {
-		applySelectedUpdates( Set.of( update ) );
+	public Task<Collection<ProductUpdate>> applySelectedUpdates( ProductCard update ) {
+		return applySelectedUpdates( Set.of( update ) );
 	}
 
-	public abstract void applySelectedUpdates( Set<ProductCard> updates );
+	public abstract Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates );
 
 	void clearStagedUpdates() {
 		// Remove the updates settings
@@ -1092,7 +1092,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
-	Set<InstalledProduct> getStoredRemovedProducts() {
+	private Set<InstalledProduct> getStoredRemovedProducts() {
 		return getSettings().get( REMOVES_SETTINGS_KEY, new TypeReference<Set<InstalledProduct>>() {}, Set.of() );
 	}
 

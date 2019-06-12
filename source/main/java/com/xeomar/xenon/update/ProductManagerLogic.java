@@ -69,10 +69,10 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void checkForUpdates( boolean force ) {
+	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), force )
+		return createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), force )
 			.link( ( cards ) -> handlePostedUpdatesResult( cards, force ) )
 			.run( program );
 	}
@@ -90,10 +90,10 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
+	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		createFindPostedUpdatesChain( products, force )
+		return createFindPostedUpdatesChain( products, force )
 			.link( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
@@ -103,11 +103,10 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void installProducts( Set<ProductCard> products ) {
+	Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> products ) {
 		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-install-selected" );
 
-		// Start with StageUpdates and end with ProductUpdateCollector
-		TaskChain
+		return TaskChain
 			.init( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
@@ -116,10 +115,10 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	void uninstallProducts( Set<ProductCard> products ) {
+	Task<Void> uninstallProducts( Set<ProductCard> products ) {
 		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-uninstall-selected" );
 
-		TaskChain
+		return TaskChain
 			.init( () -> doUninstallProducts( products ) )
 			.link( name, ( removedProducts ) -> program.getProductManager().saveRemovedProducts( removedProducts ) )
 			.run( program );

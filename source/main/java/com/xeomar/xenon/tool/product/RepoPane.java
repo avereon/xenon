@@ -4,7 +4,6 @@ import com.xeomar.product.RepoCard;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.task.Task;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -81,7 +80,7 @@ class RepoPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove repo", () -> {
 			try {
 				productTool.getProgram().getProductManager().removeRepo( source );
-				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
+				productTool.getSelectedPage().updateState();
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}

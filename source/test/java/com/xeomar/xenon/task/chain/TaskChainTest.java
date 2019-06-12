@@ -100,6 +100,23 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
+	public void testEncapsulatedChain() throws Exception {
+		Task<Integer> task = TaskChain
+			.init( this::count )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.run( program );
+
+		// This is technically a race condition here
+		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.get(), is( 10 ) );
+		assertThat( task.getState(), is( Task.State.SUCCESS ) );
+	}
+
+	@Test
 	public void testExceptionCascade() throws Exception {
 		RuntimeException expected = new RuntimeException();
 		Task<Integer> task = TaskChain.init( () -> 0 ).link( this::inc ).link( this::inc ).link( ( i ) -> {
@@ -121,6 +138,18 @@ public class TaskChainTest extends ProgramTestCase {
 
 	private Integer inc( Integer value ) {
 		return value + 1;
+	}
+
+	private Integer count() throws ExecutionException, InterruptedException {
+		return TaskChain
+			.init( () -> 0 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.link( ( i ) -> i + 1 )
+			.run( program )
+			.get();
 	}
 
 }

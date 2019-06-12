@@ -5,6 +5,7 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.BundleKey;
 import com.xeomar.xenon.Program;
 import com.xeomar.xenon.ProgramFlag;
+import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -13,6 +14,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,12 +44,12 @@ public class ProgramProductManager extends ProductManager {
 	 * @param updates The updates to apply.
 	 */
 	@Override
-	public void applySelectedUpdates( Set<ProductCard> updates ) {
-		applySelectedUpdates( updates, false );
+	public Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates ) {
+		return applySelectedUpdates( updates, false );
 	}
 
-	public void applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
-		new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
+	public Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
+		return new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
 	}
 
 	/**

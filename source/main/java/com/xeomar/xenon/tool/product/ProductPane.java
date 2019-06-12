@@ -7,7 +7,6 @@ import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.update.ProductManager;
 import com.xeomar.xenon.util.FxUtil;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -86,8 +85,6 @@ class ProductPane extends MigPane {
 		add( summaryLabel, "newline, spanx 3" );
 		add( versionLabel, "tag right" );
 		add( actionButton1 );
-
-		// Trying to update the product state before being added to a page causes incorrect state
 	}
 
 	public ProductCard getSource() {
@@ -163,8 +160,8 @@ class ProductPane extends MigPane {
 	private void installProduct() {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Install product", () -> {
 			try {
-				productTool.getProgram().getProductManager().installProducts( source );
-				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
+				productTool.getProgram().getProductManager().installProducts( source ).get();
+				productTool.getSelectedPage().updateState();
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error installing product", exception );
 			}
@@ -174,8 +171,8 @@ class ProductPane extends MigPane {
 	private void updateProduct() {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
-				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() );
-				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
+				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() ).get();
+				productTool.getSelectedPage().updateState();
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}
@@ -185,8 +182,8 @@ class ProductPane extends MigPane {
 	private void removeProduct() {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
-				productTool.getProgram().getProductManager().uninstallProducts( source );
-				Platform.runLater( () -> productTool.getSelectedPage().updateState() );
+				productTool.getProgram().getProductManager().uninstallProducts( source ).get();
+				productTool.getSelectedPage().updateState();
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}
