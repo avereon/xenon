@@ -6,12 +6,17 @@ import com.xeomar.xenon.Program;
 import com.xeomar.xenon.UiFactory;
 import com.xeomar.xenon.task.Task;
 import com.xeomar.xenon.update.ProductManager;
+import com.xeomar.xenon.util.DialogUtil;
 import com.xeomar.xenon.util.FxUtil;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 import org.tbee.javafx.scene.layout.MigPane;
 
+import java.util.Optional;
 import java.util.TimeZone;
 
 class ProductPane extends MigPane {
@@ -60,7 +65,9 @@ class ProductPane extends MigPane {
 		iconLabel.setId( "tool-product-artifact-icon" );
 		nameLabel = new Label( source.getName() );
 		nameLabel.setId( "tool-product-artifact-name" );
-		versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update.getRelease().toHumanString( TimeZone.getDefault() ) );
+		versionLabel = new Label( update == null ? source.getRelease().toHumanString( TimeZone.getDefault() ) : update
+			.getRelease()
+			.toHumanString( TimeZone.getDefault() ) );
 		versionLabel.setId( "tool-product-artifact-version" );
 		summaryLabel = new Label( source.getSummary() );
 		summaryLabel.setId( "tool-product-artifact-summary" );
@@ -127,7 +134,7 @@ class ProductPane extends MigPane {
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isProgram );
 			actionButton1.setGraphic( program.getIconLibrary().getIcon( "remove" ) );
-			actionButton1.setOnAction( ( event ) -> removeProduct() );
+			actionButton1.setOnAction( ( event ) -> requestRemoveProduct() );
 
 			actionButton2.setVisible( true );
 			actionButton2.setDisable( isProgram );
@@ -153,7 +160,10 @@ class ProductPane extends MigPane {
 	}
 
 	private void toggleEnabled() {
-		productTool.getProgram().getProductManager().setEnabled( source, !productTool.getProgram().getProductManager().isEnabled( source ) );
+		productTool
+			.getProgram()
+			.getProductManager()
+			.setEnabled( source, !productTool.getProgram().getProductManager().isEnabled( source ) );
 		updateProductState();
 	}
 
@@ -179,6 +189,25 @@ class ProductPane extends MigPane {
 		} ) );
 	}
 
+	private void requestRemoveProduct() {
+		String modName = source.getName();
+		Program program = productTool.getProgram();
+
+		String title = program.getResourceBundle().getString( BundleKey.PRODUCT, "products" );
+		String header = program.getResourceBundle().getString( BundleKey.PRODUCT, "product-remove-header", modName );
+		String message = program.getResourceBundle().getString( BundleKey.PRODUCT, "product-remove-message" );
+
+		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
+		alert.setGraphic( program.getIconLibrary().getIcon( source.getIconUri(), 64 ) );
+		alert.setTitle( title );
+		alert.setHeaderText( header );
+
+		Stage stage = program.getWorkspaceManager().getActiveStage();
+		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+
+		if( result.isPresent() && result.get() == ButtonType.YES ) removeProduct();
+	}
+
 	private void removeProduct() {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
@@ -187,7 +216,7 @@ class ProductPane extends MigPane {
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}
-		} ));
+		} ) );
 	}
 
 }
