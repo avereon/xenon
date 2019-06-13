@@ -17,7 +17,7 @@
 		startMenu="no"
 		startup="no"
 		target="$INSTALL_PATH/bin/java"
-		commandLine="-m com.xeomar.xenon/com.xeomar.xenon.Program"
+		commandLine="-m com.xeomar.xenon"
 		workingDirectory="${INSTALL_PATH}"
 		description="${project.name} modular application framework."
 		iconFile="${INSTALL_PATH}/bin/xenon.png"

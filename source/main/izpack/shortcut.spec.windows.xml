@@ -16,7 +16,7 @@
 		startMenu="no"
 		startup="no"
 		target="$INSTALL_PATH\bin\javaw.exe"
-		commandLine="-m com.xeomar.xenon/com.xeomar.xenon.Program"
+		commandLine="-m com.xeomar.xenon"
 		workingDirectory="${INSTALL_PATH}"
 		description="${project.name} application framework."
 		iconFile="${INSTALL_PATH}\bin\xenon.ico"
