@@ -18,6 +18,9 @@ public class ActionLibrary {
 		this.actions = new ConcurrentHashMap<>();
 
 		// Create default actions
+		register( bundle, "settings" );
+		register( bundle, "exit" );
+
 		register( bundle, "program" );
 		register( bundle, "file" );
 		register( bundle, "new" );
@@ -28,7 +31,6 @@ public class ActionLibrary {
 		register( bundle, "save-all" );
 		register( bundle, "close" );
 		register( bundle, "close-all" );
-		register( bundle, "exit" );
 
 		register( bundle, "edit" );
 		register( bundle, "undo" );
@@ -39,10 +41,10 @@ public class ActionLibrary {
 		register( bundle, "delete" );
 		register( bundle, "indent" );
 		register( bundle, "unindent" );
-		register( bundle, "settings" );
 
 		register( bundle, "view" );
 		register( bundle, "workspace-new" );
+		register( bundle, "workspace-close" );
 		//		register( bundle, "tool-new" );
 		//		register( bundle, "view-default" );
 		//		register( bundle, "view-split-horizontal" );

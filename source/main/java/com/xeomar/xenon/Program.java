@@ -121,6 +121,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private Set<ProductEventListener> listeners;
 
+	private CloseWorkspaceAction closeAction;
+
 	private ExitAction exitAction;
 
 	private AboutAction aboutAction;
@@ -147,6 +149,7 @@ public class Program extends Application implements ProgramProduct {
 
 	public Program() {
 		// Create program action handlers
+		closeAction = new CloseWorkspaceAction( this );
 		exitAction = new ExitAction( this );
 		aboutAction = new AboutAction( this );
 		settingsAction = new SettingsAction( this );
@@ -366,11 +369,15 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public boolean requestExit( boolean force ) {
+		return requestExit( force, force );
+	}
+
+	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
 		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
 
 		// If the user desires, prompt to exit the program
-		if( !force && shutdownVerify ) {
+		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
 			alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
 			alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
@@ -385,7 +392,7 @@ public class Program extends Application implements ProgramProduct {
 		// The workspaceManager can be null if the application is already running as a peer
 		if( workspaceManager != null ) workspaceManager.hideWindows();
 
-		if( !TestUtil.isTest() && (force || !shutdownKeepAlive) ) Platform.exit();
+		if( !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive) ) Platform.exit();
 
 		return true;
 	}
@@ -441,9 +448,9 @@ public class Program extends Application implements ProgramProduct {
 		return taskManager;
 	}
 
-//	public final ExecutorService getExecutor() {
-//		return taskManager;
-//	}
+	//	public final ExecutorService getExecutor() {
+	//		return taskManager;
+	//	}
 
 	public final IconLibrary getIconLibrary() {
 		return iconLibrary;
@@ -880,6 +887,7 @@ public class Program extends Application implements ProgramProduct {
 	private void unregisterIcons() {}
 
 	private void registerActionHandlers() {
+		getActionLibrary().getAction( "workspace-close").pushAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
@@ -905,6 +913,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterActionHandlers() {
+		getActionLibrary().getAction( "workspace-close").pullAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );

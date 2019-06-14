@@ -125,6 +125,9 @@ public class Workspace implements Configurable {
 		menubar.setUseSystemMenuBar( true );
 
 		Menu prog = ActionUtil.createMenu( program, "program" );
+		prog.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
+		prog.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
+		prog.getItems().add( new SeparatorMenuItem() );
 		prog.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 		prog.getItems().add( new SeparatorMenuItem() );
 		prog.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
@@ -150,8 +153,6 @@ public class Workspace implements Configurable {
 		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
 
 		Menu view = ActionUtil.createMenu( program, "view" );
-		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
-		view.getItems().add( new SeparatorMenuItem() );
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );

@@ -4,9 +4,9 @@ import com.xeomar.xenon.Action;
 import com.xeomar.xenon.Program;
 import javafx.event.ActionEvent;
 
-public class ExitAction extends Action {
+public class CloseWorkspaceAction extends Action {
 
-	public ExitAction( Program program ) {
+	public CloseWorkspaceAction( Program program ) {
 		super( program );
 	}
 
@@ -17,7 +17,7 @@ public class ExitAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().requestExit( false, true );
+		getProgram().getWorkspaceManager().requestCloseWorkspace( getProgram().getWorkspaceManager().getActiveWorkspace() );
 	}
 
 }

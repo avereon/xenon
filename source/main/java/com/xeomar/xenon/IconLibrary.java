@@ -51,6 +51,8 @@ public class IconLibrary {
 		register( "update", DownloadIcon.class );
 		register( "about", ExclamationIcon.class );
 
+		register( "workspace", WorkareaIcon.class );
+
 		register( "workarea-new", WorkareaIcon.class );
 		register( "workarea-rename", WorkareaRenameIcon.class );
 		register( "workarea-close", WorkareaCloseIcon.class );
