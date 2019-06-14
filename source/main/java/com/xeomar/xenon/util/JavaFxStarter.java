@@ -47,11 +47,11 @@ public final class JavaFxStarter extends Application {
 			while( !started && throwable == null ) {
 				try {
 					startLock.wait( timeout );
-				} catch( InterruptedException exception ) {
-					exception.printStackTrace();
-				}
-				if( !started && System.currentTimeMillis() >= limit ) {
-					throw new RuntimeException( new TimeoutException( "FX platform start timeout after " + timeout + " ms" ) );
+					if( System.currentTimeMillis() >= limit && throwable == null && !started ) {
+						throw new RuntimeException( new TimeoutException( "FX platform start timeout after " + timeout + " ms" ) );
+					}
+				} catch( Throwable throwable ) {
+					JavaFxStarter.throwable = throwable;
 				}
 			}
 
