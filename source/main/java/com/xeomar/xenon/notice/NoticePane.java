@@ -47,6 +47,10 @@ public class NoticePane extends GridPane {
 		getChildren().addAll( noticeIcon, title, closeIcon, message );
 	}
 
+	public Notice getNotice() {
+		return notice;
+	}
+
 	public void executeNoticeAction() {
 		Runnable action = notice.getAction();
 		if( action == null ) return;

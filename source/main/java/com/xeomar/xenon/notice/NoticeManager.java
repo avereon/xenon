@@ -33,13 +33,13 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public List<Notice> getNotices() {
-		return ((NoticeList)resource.getModel()).getNotices();
+		return getNoticeList().getNotices();
 	}
 
 	public void addNotice( Notice notice ) {
 		FxUtil.checkFxUserThread();
 
-		((NoticeList)resource.getModel()).addNotice( notice );
+		getNoticeList().addNotice( notice );
 
 		resource.refresh( program.getResourceManager() );
 
@@ -53,12 +53,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void removeNotice( Notice notice ) {
-		((NoticeList)resource.getModel()).removeNotice( notice );
+		getNoticeList().removeNotice( notice );
 		resource.refresh( program.getResourceManager() );
 	}
 
 	public void removeAll() {
-		((NoticeList)resource.getModel()).clearAll();
+		getNoticeList().clearAll();
 		resource.refresh( program.getResourceManager() );
 	}
 
@@ -67,7 +67,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void readAll() {
-		((NoticeList)resource.getModel()).getNotices().forEach( ( n ) -> n.setRead( true ) );
+		getNoticeList().getNotices().forEach( ( n ) -> n.setRead( true ) );
 		updateUnreadCount();
 	}
 
@@ -132,7 +132,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void updateUnreadCount() {
-		unreadCount.setValue( (int)((NoticeList)resource.getModel()).getNotices().stream().filter( ( n ) -> !n.isRead() ).count() );
+		unreadCount.setValue( (int)getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).count() );
 	}
 
 }

@@ -31,9 +31,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
+import java.util.*;
 
 //import java.beans.PropertyChangeEvent;
 //import java.beans.PropertyChangeListener;
@@ -364,7 +362,10 @@ public class Workspace implements Configurable {
 	}
 
 	public void showNotice( Notice notice ) {
+		if( Objects.equals( notice.getBalloonStickiness(), Notice.BALLOON_NEVER ) ) return;
+
 		NoticePane pane = new NoticePane( program, notice, true );
+		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
 		noticeContainer.getChildren().add( 0, pane );
 
 		pane.onMouseClickedProperty().set( ( event ) -> {
@@ -377,11 +378,16 @@ public class Workspace implements Configurable {
 		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
-				getProgram().getNoticeManager().removeNotice( notice );
+			getProgram().getNoticeManager().removeNotice( notice );
 			event.consume();
 		} );
 
-		TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), 5000 );
+		// TODO Get balloon timeout from settings
+		int balloonTimeout = 5000;
+
+		if( Objects.equals( notice.getBalloonStickiness(), Notice.BALLOON_NORMAL ) ) {
+			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
+		}
 	}
 
 	public void hideNotices() {

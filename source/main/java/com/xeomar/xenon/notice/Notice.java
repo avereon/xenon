@@ -9,6 +9,12 @@ import java.lang.invoke.MethodHandles;
 
 public class Notice extends Node {
 
+	public static final String BALLOON_ALWAYS = "balloon-always";
+
+	public static final String BALLOON_NORMAL = "balloon-normal";
+
+	public static final String BALLOON_NEVER = "balloon-never";
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String ID = "id";
@@ -23,6 +29,8 @@ public class Notice extends Node {
 	// Similar to the Alert.AlertType: NONE, INFORMATION, WARNING, CONFIRMATION, ERROR
 	private static final String TYPE = "type";
 
+	private static final String BALLOON_STICKINESS = "balloon";
+
 	private static final String TITLE = "title";
 
 	private static final String MESSAGE = "message";
@@ -35,7 +43,15 @@ public class Notice extends Node {
 		this( title, message, null );
 	}
 
+	public Notice( String title, String message, boolean read ) {
+		this( title, message, read, null );
+	}
+
 	public Notice( String title, String message, Runnable action ) {
+		this( title, message, false, action );
+	}
+
+	public Notice( String title, String message, boolean read, Runnable action ) {
 		definePrimaryKey( ID );
 		defineNaturalKey( TITLE );
 
@@ -44,7 +60,8 @@ public class Notice extends Node {
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
 		setValue( ACTION, action );
-		setFlag( READ, false );
+		setValue( BALLOON_STICKINESS, BALLOON_NORMAL );
+		setFlag( READ, read );
 		setModified( false );
 	}
 
@@ -74,6 +91,16 @@ public class Notice extends Node {
 
 	public void setRead( boolean read ) {
 		setFlag( READ, read );
+	}
+
+	public String getBalloonStickiness() {
+		return getValue( BALLOON_STICKINESS );
+	}
+
+	public void setBalloonStickiness( String value ) {
+		boolean modified = isModified();
+		setValue( BALLOON_STICKINESS, value );
+		if( !modified ) setModified( false );
 	}
 
 }

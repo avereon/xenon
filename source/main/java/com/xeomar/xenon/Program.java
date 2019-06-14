@@ -899,6 +899,9 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
 			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
 		} ) );
+		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {
+			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice C", true ) );
+		} ) );
 	}
 
 	private void unregisterActionHandlers() {

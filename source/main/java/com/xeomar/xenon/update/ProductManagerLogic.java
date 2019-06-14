@@ -615,7 +615,7 @@ public class ProductManagerLogic {
 			.getResourceBundle()
 			.getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
-		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ) ) );
+		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message, true ) ) );
 	}
 
 	private void openProductTool() {
@@ -629,6 +629,7 @@ public class ProductManagerLogic {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
+		notice.setBalloonStickiness( Notice.BALLOON_ALWAYS );
 		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
 	}
 
@@ -653,6 +654,7 @@ public class ProductManagerLogic {
 		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
 		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
+		notice.setBalloonStickiness( Notice.BALLOON_ALWAYS );
 		program.getNoticeManager().addNotice( notice );
 	}
 
