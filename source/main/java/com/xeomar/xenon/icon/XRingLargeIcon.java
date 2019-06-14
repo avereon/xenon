@@ -54,7 +54,7 @@ public class XRingLargeIcon extends XLargeIcon {
 		getGraphicsContext2D().restore();
 
 		// Ring
-		beginPath();
+		startPath();
 		addArc( g( 16 ), g( 16 ), g( outerRingMax ), g( outerRingMin ), 0, 360 );
 		moveTo( g( 16 + innerRingMax ), g( 16 ) );
 		addArc( g( 16 ), g( 16 ), g( innerRingMax ), g( innerRingMin ), 0, 360 );
@@ -73,7 +73,7 @@ public class XRingLargeIcon extends XLargeIcon {
 	}
 
 	private void clip( double x, double y, double w, double h ) {
-		beginPath();
+		startPath();
 		addRect( x, y, w, h );
 		closePath();
 		clip();

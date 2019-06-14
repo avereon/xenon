@@ -19,7 +19,7 @@ public class SaveIcon extends ProgramIcon {
 		drawCenteredOval( ox, oy, g( 10 ), g( 6 ) );
 
 		// Arrow
-		beginPath();
+		startPath();
 		moveTo( ox, oy );
 		lineTo( ox - width, oy - width - g( 1 ) );
 		lineTo( ox - shaft, oy - width - g( 1 ) );

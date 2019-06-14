@@ -118,7 +118,7 @@ public class WingDiscIcon extends ProgramIcon {
 	}
 
 	private void arrow() {
-		beginPath();
+		startPath();
 		addArc( zx, zy, POINT_RADIUS, POINT_RADIUS, frontStartAngleDeg, frontSpanAngleDeg );
 		lineTo( bx, by );
 		addArc( yx, yy, POINT_RADIUS, POINT_RADIUS, leftArcStartAngleDeg, leftArcSpanAngleDeg );

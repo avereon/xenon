@@ -24,7 +24,7 @@ public class DocumentIcon extends ProgramIcon {
 	}
 
 	private void page() {
-		beginPath();
+		startPath();
 		moveTo( g( 5 ), g( 3 ) );
 		lineTo( g( 5 ), g( 29 ) );
 		lineTo( g( 27 ), g( 29 ) );
@@ -34,7 +34,7 @@ public class DocumentIcon extends ProgramIcon {
 	}
 
 	private void fold( boolean close ) {
-		beginPath();
+		startPath();
 		moveTo( g( 19 ), g( 3 ) );
 		lineTo( g( 19 ), g( 11 ) );
 		lineTo( g( 27 ), g( 11 ) );

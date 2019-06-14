@@ -7,7 +7,7 @@ public class ExclamationIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		// Bar
-		beginPath();
+		startPath();
 		moveTo( g( 16 ), g( 3 ) );
 		curveTo( g( 13 ), g( 3 ), g( 13 ), g( 6 ), g( 13 ), g( 9 ) );
 		curveTo( g( 13 ), g( 13 ), g( 13 ), g( 19 ), g( 16 ), g( 19 ) );

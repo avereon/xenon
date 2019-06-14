@@ -10,11 +10,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
+import javafx.scene.shape.ArcType;
 import javafx.scene.shape.FillRule;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.text.*;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
@@ -298,7 +298,7 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().clip();
 	}
 
-	protected void beginPath() {
+	protected void startPath() {
 		getGraphicsContext2D().beginPath();
 	}
 
@@ -377,6 +377,10 @@ public abstract class ProgramImage extends Canvas {
 
 	protected void setTextBaseLine( VPos baseline ) {
 		getGraphicsContext2D().setTextBaseline( baseline );
+	}
+
+	protected void setFont( String family, FontWeight weight, FontPosture posture, double size ) {
+		getGraphicsContext2D().setFont( Font.font( family, weight, posture, size ) );
 	}
 
 	protected void fillAndDraw() {
@@ -501,6 +505,24 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().strokeOval( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
 
+	/**
+	 *
+	 * @param cx
+	 * @param cy
+	 * @param rx
+	 * @param ry
+	 * @param start The start of the angle in degrees
+	 * @param extent The extend of the angle in degrees
+	 * @param type
+	 */
+	protected void drawCenteredArc( double cx, double cy, double rx, double ry, double start, double extent, ArcType type ) {
+		double x = cx - rx;
+		double y = cy - ry;
+		double w = rx * 2;
+		double h = ry * 2;
+		getGraphicsContext2D().strokeArc( xformX( x ), xformY( y ), xformX( w ), xformY( h ), start, extent, type );
+	}
+
 	protected void drawText( String text, double x, double y, double textSize ) {
 		drawText( text, x, y, textSize, 0 );
 	}
@@ -522,7 +544,9 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().scale( scale, scale );
 
 		// Draw the text
-		getGraphicsContext2D().setFont( Font.font( fontSize ) );
+		Font font = getGraphicsContext2D().getFont();
+		getGraphicsContext2D().setFont( Font.font( font.getFamily(), fontSize ) );
+		getGraphicsContext2D().setFontSmoothingType( FontSmoothingType.GRAY );
 		if( maxWidth == 0 ) {
 			getGraphicsContext2D().strokeText( text, x / scale, y / scale );
 		} else {

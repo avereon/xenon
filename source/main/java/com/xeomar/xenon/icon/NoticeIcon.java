@@ -18,7 +18,7 @@ public class NoticeIcon extends ProgramIcon {
 		int hr = w / 2;
 		int vr = h / 2;
 
-		beginPath();
+		startPath();
 		moveTo( g( r ), g( c + vr ) );
 		lineTo( g( r ), g( c ) );
 		addArc( g( c ), g( c ), g( hr ), g( vr ), 0, 270 );

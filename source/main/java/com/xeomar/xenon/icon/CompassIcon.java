@@ -100,7 +100,7 @@ public class CompassIcon extends ProgramIcon {
 	}
 
 	private void arrowPath() {
-		beginPath();
+		startPath();
 		addArc( g( zx ), g( zy ), g( POINT_RADIUS ), g( POINT_RADIUS ), frontNormalAngleDeg, frontPointAngleDeg );
 		lineTo( g( bx ), g( by ) );
 		addArc( g( yx ), g( yy ), g( POINT_RADIUS ), g( POINT_RADIUS ), leftArcStartAngleDeg, leftArcSpanAngleDeg );
@@ -112,7 +112,7 @@ public class CompassIcon extends ProgramIcon {
 	}
 
 	private void discPath() {
-		beginPath();
+		startPath();
 		addArc( g( xx ), g( xy ), g( POINT_RADIUS ), g( POINT_RADIUS ), backArcStartAngleDeg, backArcSpanDeg );
 		lineTo( g( nx ), g( ny ) );
 		addArc( g( xx ), g( xy ), g( DISC_RADIUS ), g( DISC_RADIUS ), discArcStartAngleDeg, discArcSpanAngleDeg );

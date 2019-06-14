@@ -7,7 +7,7 @@ public class CutIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		// Bottom Scissor
-		beginPath();
+		startPath();
 		moveTo( g( 17 ), g( 16 ) );
 		lineTo( g( 3 ), g( 9 ) );
 		curveTo( g( 5 ), g( 13 ), g( 7 ), g( 15 ), g( 11 ), g( 17 ) );
@@ -27,7 +27,7 @@ public class CutIcon extends ProgramIcon {
 		fillAndDraw();
 
 		// Left Wave
-		beginPath();
+		startPath();
 		moveTo( g( 3 ), g( 17 ) );
 		curveTo( g( 9 ), g( 17 ), g( 11 ), g( 5 ), g( 19 ), g( 5 ) );
 		curveTo( g( 13 ), g( 5 ), g( 11 ), g( 17 ), g( 3 ), g( 17 ) );
@@ -35,7 +35,7 @@ public class CutIcon extends ProgramIcon {
 		fillAndDraw();
 
 		// Right Wave
-		beginPath();
+		startPath();
 		moveTo( g( 5 ), g( 19 ) );
 		curveTo( g( 11 ), g( 19 ), g( 13 ), g( 7 ), g( 21 ), g( 7 ) );
 		curveTo( g( 15 ), g( 7 ), g( 13 ), g( 19 ), g( 5 ), g( 19 ) );
@@ -43,7 +43,7 @@ public class CutIcon extends ProgramIcon {
 		fillAndDraw();
 
 		// Top Scissor
-		beginPath();
+		startPath();
 		moveTo( g( 16 ), g( 17 ) );
 		lineTo( g( 9 ), g( 3 ) );
 		curveTo( g( 13 ), g( 5 ), g( 15 ), g( 7 ), g( 17 ), g( 11 ) );

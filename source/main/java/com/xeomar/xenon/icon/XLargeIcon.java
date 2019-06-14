@@ -7,7 +7,7 @@ public abstract class XLargeIcon extends ProgramIcon {
 	protected void xPath() {
 		double offset = 5.0;
 		double radius = Math.sqrt( 2 * (g( 3 ) * g( 3 )) );
-		beginPath();
+		startPath();
 		moveTo( g( 16 ), g( 10 ) );
 		lineTo( g( 23 ), g( 3 ) );
 		addArc( g( 32-offset ), g( offset ), radius, radius, 135, -180 );

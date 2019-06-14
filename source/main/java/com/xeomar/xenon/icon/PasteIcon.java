@@ -7,7 +7,7 @@ public class PasteIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		// Board
-		beginPath();
+		startPath();
 		addArc( g( 7 ), g( 25 ), g( 2 ), g( 2 ), 180, 90 );
 		lineTo( g( 25 ), g( 27 ) );
 		addArc( g( 25 ), g( 25 ), g( 2 ), g( 2 ), 270, 90 );
@@ -19,7 +19,7 @@ public class PasteIcon extends ProgramIcon {
 		fillAndDraw();
 
 		// Page
-		beginPath();
+		startPath();
 		moveTo( g( 13 ), g( 9 ) );
 		lineTo( g( 13 ), g( 27 ) );
 		lineTo( g( 27 ), g( 27 ) );
@@ -28,7 +28,7 @@ public class PasteIcon extends ProgramIcon {
 		fillAndDraw( GradientTone.LIGHT );
 
 		// Clip
-		beginPath();
+		startPath();
 		moveTo( g( 9 ), g( 9 ) );
 		lineTo( g( 9 ), g( 11 ) );
 		lineTo( g( 23 ), g( 11 ) );

@@ -19,7 +19,7 @@ public class DownloadIcon extends ProgramIcon {
 		fillCenteredOval( ox, oy, g( 12 ), g( 6 ) );
 		drawCenteredOval( ox, oy, g( 12 ), g( 6 ) );
 
-		beginPath();
+		startPath();
 		moveTo( ox - za, oy );
 		lineTo( ox - width, oy - width - za );
 		lineTo( ox - shaft, oy - width - za );

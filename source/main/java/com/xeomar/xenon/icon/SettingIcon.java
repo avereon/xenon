@@ -13,7 +13,7 @@ public class SettingIcon extends ProgramIcon {
 		//		closePath();
 		//		fillAndDraw();
 
-		beginPath();
+		startPath();
 		addArc( g( 24 ), g( 16 ), g( 5 ), g( 5 ), 270, 180 );
 		lineTo( g( 8 ), g( 11 ) );
 		addArc( g( 8 ), g( 16 ), g( 5 ), g( 5 ), 90, 180 );

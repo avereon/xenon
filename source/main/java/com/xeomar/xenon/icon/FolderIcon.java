@@ -7,7 +7,7 @@ public class FolderIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		// Back
-		beginPath();
+		startPath();
 		moveTo( g(7), g(7) );
 		lineTo( g(5), g(9) );
 		lineTo( g(5), g(25) );
@@ -20,7 +20,7 @@ public class FolderIcon extends ProgramIcon {
 		fillAndDraw();
 
 		// Front
-		beginPath();
+		startPath();
 		moveTo( g(3), g(15) );
 		lineTo( g(5), g(25) );
 		lineTo( g(27), g(25) );

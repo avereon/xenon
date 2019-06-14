@@ -6,7 +6,7 @@ public abstract class XIcon extends ProgramIcon {
 
 	protected void xPath() {
 		double radius = Math.sqrt( 2 * (g( 2 ) * g( 2 )) );
-		beginPath();
+		startPath();
 		moveTo( g( 16 ), g( 12 ) );
 		lineTo( g( 22 ), g( 6 ) );
 		addArc( g( 24 ), g( 8 ), radius, radius, 135, -180 );

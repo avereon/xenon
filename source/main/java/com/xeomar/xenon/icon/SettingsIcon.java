@@ -41,7 +41,7 @@ public class SettingsIcon extends ProgramIcon {
 	private void renderTray( int x, int y, int w, int h ) {
 
 		// Pill box
-		beginPath();
+		startPath();
 		int r = h / 2;
 		moveTo( g( x + r ), g( y ) );
 		addArc( g( x + r ), g( y + r ), g( r ), g( r ), 90, 180 );

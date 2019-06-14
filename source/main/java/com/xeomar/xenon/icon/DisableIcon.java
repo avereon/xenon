@@ -13,7 +13,7 @@ public class DisableIcon extends ProgramIcon {
 		double x = r1 * Math.sin( theta );
 		double y = r1 * Math.cos( theta );
 
-		beginPath();
+		startPath();
 		addOval( g( 16 ), g( 16 ), r2, r2 );
 
 		moveTo( g( 16 ) + x, g( 16 ) - y );

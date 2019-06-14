@@ -6,7 +6,7 @@ public class GuideIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-		beginPath();
+		startPath();
 		moveTo( g( 11 ), g( 9 ) );
 		lineTo( g( 11 ), g( 27 ) );
 		lineTo( g( 17 ), g( 27 ) );

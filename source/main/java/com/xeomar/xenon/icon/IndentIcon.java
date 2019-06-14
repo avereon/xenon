@@ -6,7 +6,7 @@ public class IndentIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-		beginPath();
+		startPath();
 		moveTo( g( 7 ), g( 11 ) );
 		lineTo( g( 12 ), g( 16 ) );
 		lineTo( g( 7 ), g( 21 ) );

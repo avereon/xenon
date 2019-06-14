@@ -6,7 +6,7 @@ public class UnindentIcon extends ProgramIcon {
 
 	@Override
 	protected void render() {
-		beginPath();
+		startPath();
 		moveTo( g( 11 ), g( 11 ) );
 		lineTo( g( 6 ), g( 16 ) );
 		lineTo( g( 11 ), g( 21 ) );

@@ -44,7 +44,7 @@ public class XRingIcon extends XIcon {
 		getGraphicsContext2D().restore();
 
 		// Ring
-		beginPath();
+		startPath();
 		addArc( g( 16 ), g( 16 ), g( 11 ), g( ringScale * 11 ), 0, 360 );
 		moveTo( g( 21 ), g( 16 ) );
 		addArc( g( 16 ), g( 16 ), g( 5 ), g( 2.5 ), 0, 360 );
@@ -64,7 +64,7 @@ public class XRingIcon extends XIcon {
 	}
 
 	private void clip( double x, double y, double w, double h ) {
-		beginPath();
+		startPath();
 		addRect( x, y, w, h );
 		closePath();
 		clip();

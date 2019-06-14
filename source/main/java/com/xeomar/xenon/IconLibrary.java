@@ -24,9 +24,9 @@ public class IconLibrary {
 		//register( "resource-save", SaveIcon.class );
 		register( "resource-save", LightningIcon.class );
 		register( "resource-close", DocumentCloseIcon.class );
-		register( "exit", ExitIcon.class );
+		register( "exit", PowerIcon.class );
 
-		register( "close", ExitIcon.class );
+		register( "close", CloseIcon.class );
 
 		register( "undo", UndoIcon.class );
 		register( "redo", RedoIcon.class );
@@ -51,8 +51,11 @@ public class IconLibrary {
 		register( "update", DownloadIcon.class );
 		register( "about", ExclamationIcon.class );
 
-		register( "workspace", WorkareaIcon.class );
+		register( "workspace", FrameIcon.class );
+		register( "workspace-new", FrameIcon.class );
+		register( "workspace-close", FrameIcon.class );
 
+		register( "workarea", WorkareaIcon.class );
 		register( "workarea-new", WorkareaIcon.class );
 		register( "workarea-rename", WorkareaRenameIcon.class );
 		register( "workarea-close", WorkareaCloseIcon.class );

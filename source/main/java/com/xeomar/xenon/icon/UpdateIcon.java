@@ -8,7 +8,7 @@ public class UpdateIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		// Tray
-		beginPath();
+		startPath();
 		moveTo( g( 3 ), g( 21 ) );
 		lineTo( g( 7 ), g( 21 ) );
 		lineTo( g( 7 ), g( 23 ) );
@@ -25,7 +25,7 @@ public class UpdateIcon extends ProgramIcon {
 		fillAndDraw();
 
 		// Arrow
-		beginPath();
+		startPath();
 		moveTo( g( 13 ), g( 11 ) );
 		lineTo( g( 19 ), g( 11 ) );
 		lineTo( g( 19 ), g( 15 ) );

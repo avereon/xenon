@@ -47,7 +47,7 @@ public class RefreshIcon extends ProgramIcon {
 		Point tailCenter = new Point( midpointX + centerVector.getX() * 0.5 * tailRadius, midpointY + centerVector.getY() * 0.5 * tailRadius );
 		double tailStart = Math.atan2( tailCenter.getY() - shaftY, shaftX - tailCenter.getX() ) * DEGREES_PER_RADIAN;
 
-		beginPath();
+		startPath();
 		addArc( 0.5, 0.5, radius, radius, tailAngle, extent );
 		lineTo( arrowX, arrowY );
 		lineTo( shaftX, shaftY );
@@ -55,7 +55,7 @@ public class RefreshIcon extends ProgramIcon {
 		closePath();
 		fillAndDraw();
 
-		beginPath();
+		startPath();
 		addArc( 0.5, 0.5, radius, radius, tailAngle + 180, extent );
 		lineTo( rotate( arrowX ), rotate( arrowY ) );
 		lineTo( rotate( shaftX ), rotate( shaftY ) );

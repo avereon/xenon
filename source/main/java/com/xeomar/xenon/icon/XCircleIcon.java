@@ -35,7 +35,7 @@ public class XCircleIcon extends XLargeIcon {
 		double inner = outer - 8;
 		double shrink = 3;
 
-		beginPath();
+		startPath();
 		addArc( g( 16 ), g( 16 ), g( outer ), g( outer - shrink ), 0, 360 );
 		moveTo( g( 16 + inner ), g( 16 ) );
 		addArc( g( 16 ), g( 16 ), g( inner ), g( inner - shrink ), 0, 360 );

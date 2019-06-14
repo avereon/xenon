@@ -20,7 +20,7 @@ public class CopyIcon extends ProgramIcon {
 	}
 
 	private void renderPage() {
-		beginPath();
+		startPath();
 		moveTo( g( 5 ), g( 5 ) );
 		lineTo( g( 5 ), g( 23 ) );
 		lineTo( g( 19 ), g( 23 ) );

@@ -12,7 +12,7 @@ public class LightningIcon extends ProgramIcon {
 		drawCenteredOval( g( 16 ), g( 16 ), g( 12 ), g( 6 ) );
 
 		// Bolt
-		beginPath();
+		startPath();
 		moveTo( g( 16 ), g( 5 ) );
 		lineTo( g( 11 ), g( 17 ) );
 		lineTo( g( 15 ), g( 17 ) );
