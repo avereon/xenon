@@ -1019,7 +1019,7 @@ public class Program extends Application implements ProgramProduct {
 		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String message = getResourceBundle().getString( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
+		getNoticeManager().addNotice( new Notice( title, message, true, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
 	}
 
 	private boolean calcProgramUpdated() {
