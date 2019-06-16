@@ -205,6 +205,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 				try {
 					task.get();
+				} catch( CancellationException exception ) {
+					// Intentionally ignore exception
 				} catch( Throwable getThrowable ) {
 					if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
 				}

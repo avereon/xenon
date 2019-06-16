@@ -54,10 +54,13 @@ public class TaskTool extends ProgramTool {
 		Button startTask = new Button( "Random Test Task" );
 		startTask.setOnAction( ( event ) -> startRandomTasks() );
 
+		ScrollPane scroller = new ScrollPane( taskPanes = new VBox() );
+		scroller.setFitToWidth( true );
+
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
 		if( getProgram().getExecMode() == ExecMode.DEV ) layoutPane.setTop( new HBox( startTask ) );
-		layoutPane.setCenter( new ScrollPane( taskPanes = new VBox() ) );
+		layoutPane.setCenter( scroller );
 		getChildren().add( layoutPane );
 	}
 
@@ -90,11 +93,7 @@ public class TaskTool extends ProgramTool {
 		// The delay between progress checks ~ 1000ms / 120hz;
 		private static final long DELAY = 1000 / 120;
 
-		public RandomTask() {
-			this( 5000 );
-		}
-
-		public RandomTask( long duration ) {
+		RandomTask( long duration ) {
 			super( "Random Task (" + duration + "ms)" );
 			//setMinimum( 0 );
 			setTotal( duration );
@@ -122,25 +121,22 @@ public class TaskTool extends ProgramTool {
 
 	private class TaskPane extends MigPane {
 
-		private Task task;
-
 		private ProgressBar progress;
 
-		private Label name;
-
-		public TaskPane( Task task ) {
+		TaskPane( Task task ) {
 			progress = new ProgressBar();
-			name = new Label( task.getName() );
+			Label name = new Label( task.getName() );
+
+			Button cancel = new Button();
+			cancel.setGraphic( getProgram().getIconLibrary().getIcon( "close" ) );
+			cancel.setOnAction( ( e ) -> task.cancel( true ) );
 
 			add( progress );
-			add( name, "spany, pushy" );
+			add( name, "spany, pushx" );
+			add( cancel, "pushy" );
 		}
 
-		public Task getTask() {
-			return task;
-		}
-
-		public void setProgress( double progress ) {
+		void setProgress( double progress ) {
 			this.progress.setProgress( progress );
 		}
 
