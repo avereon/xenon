@@ -25,6 +25,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private Workpane.Placement placement;
 
+	// NEXT Replace the FX TabPane with a custom TabPane
 	private TabPane tools;
 
 	private Workpane parent;

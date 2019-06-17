@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.xeomar</groupId>
 	<artifactId>xenon</artifactId>
-	<version>0.8</version>
+	<version>0.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -52,19 +52,18 @@
 
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
-		<javafx.version>11.0.2</javafx.version>
-		<controlsfx.version>9.0.0</controlsfx.version>
+		<javafx.version>12.0.1</javafx.version>
+		<controlsfx.version>11.0.0</controlsfx.version>
 		<undofx.version>2.1.0</undofx.version>
-		<jackson-version>2.9.6</jackson-version>
-		<slf4j.version>1.8.0-beta2</slf4j.version>
-		<miglayout.version>5.1</miglayout.version>
+		<slf4j.version>1.8.0-beta4</slf4j.version>
+		<miglayout.version>5.2</miglayout.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>4.0.15-alpha</testfx.version>
-		<monocle.version>jdk-11+26</monocle.version>
+		<monocle.version>jdk-12.0.1+2</monocle.version>
 
 		<!-- Build dependencies -->
-		<izpack.version>5.1.3-SNAPSHOT</izpack.version>
+		<izpack.version>5.1.3</izpack.version>
 	</properties>
 
 	<dependencies>
