@@ -23,8 +23,8 @@ the following basic features:
 |0.6|Update manager, product updates| Complete |
 |0.7|Java 11, Java FX 11, status bar, memory status, task status| Complete |
 |0.8|Mod manager, mod tool, mod updates | Complete |
-|0.9|Custom tool pane and tabs
-|1.0|Completed basic product|
+|0.9|Custom tool pane and tabs | In Progress |
+|1.0|Completed basic product| |
 
 
 ### Contact Information ###
