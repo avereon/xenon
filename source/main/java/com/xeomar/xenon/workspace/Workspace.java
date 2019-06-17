@@ -379,7 +379,6 @@ public class Workspace implements Configurable {
 		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
-			getProgram().getNoticeManager().removeNotice( notice );
 			event.consume();
 		} );
 
