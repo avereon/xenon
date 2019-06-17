@@ -25,8 +25,9 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private Workpane.Placement placement;
 
-	// NEXT Replace the FX TabPane with a custom TabPane
+	// NEXT Replace the FX TabPane with a custom ToolPane
 	private TabPane tools;
+	//private ToolPane tools;
 
 	private Workpane parent;
 
@@ -68,10 +69,6 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public String getViewId() {
 		return settings == null ? null : settings.getName();
-	}
-
-	private TabPane getToolTabPane() {
-		return tools;
 	}
 
 	/**
