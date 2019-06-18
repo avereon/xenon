@@ -1,8 +1,6 @@
 package com.xeomar.xenon.workarea;
 
 import javafx.geometry.Side;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -465,10 +463,10 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	private Tool getActiveTool( WorkpaneView view ) throws Exception {
-		TabPane pane = (TabPane)view.getChildren().get( 0 );
+		ToolPane pane = (ToolPane)view.getChildren().get( 0 );
 
 		int selectedIndex = pane.getSelectionModel().getSelectedIndex();
-		Tab tab = pane.getTabs().get( selectedIndex );
+		ToolTab tab = pane.getTabs().get( selectedIndex );
 
 		return (Tool)tab.getContent();
 	}
