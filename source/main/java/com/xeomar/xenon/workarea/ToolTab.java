@@ -7,11 +7,17 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Node;
-import javafx.scene.control.Labeled;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 
 import java.lang.ref.WeakReference;
 
-public class ToolTab extends Labeled {
+public class ToolTab extends BorderPane {
+
+	private Label label;
+
+	private Button close;
 
 	private BooleanProperty selected;
 
@@ -20,11 +26,24 @@ public class ToolTab extends Labeled {
 	private SimpleObjectProperty<Tool> tool;
 
 	public ToolTab( Tool tool ) {
-		this.selected = new SimpleBooleanProperty( this, "selected" );
-		this.tool = new SimpleObjectProperty<>( this, "tool", tool );
+		this.getStyleClass().add( "tool-tab" );
 
-		graphicProperty().bind( tool.graphicProperty() );
-		textProperty().bind( tool.titleProperty() );
+		this.tool = new SimpleObjectProperty<>( this, "tool", tool );
+		this.selected = new SimpleBooleanProperty( this, "selected" );
+
+		this.label = new Label();
+		this.close = new Button( "X" );
+		this.close.getStyleClass().clear();
+		this.close.getStyleClass().add( "tool-tab-pane-close" );
+
+		label.graphicProperty().bind( tool.graphicProperty() );
+		label.textProperty().bind( tool.titleProperty() );
+
+		setCenter( label );
+		setRight( close );
+
+		label.setOnMousePressed( (event) -> pane.get().getSelectionModel().select( this ) );
+		close.setOnMouseReleased( ( event ) -> getOnCloseRequest().handle( event ) );
 
 		setOnCloseRequest( event -> {
 			event.consume();

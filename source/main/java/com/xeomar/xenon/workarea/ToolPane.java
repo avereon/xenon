@@ -25,11 +25,12 @@ public class ToolPane extends BorderPane {
 	private ObservableList<ToolTab> tabs = FXCollections.observableList( new CopyOnWriteArrayList<>(  ) );
 
 	public ToolPane() {
-		getStyleClass().setAll( "tool-pane" );
+		getStyleClass().setAll( "tool-tab-pane" );
 		setSelectionModel( new ToolPaneSelectionModel( this ) );
 
 		// Create components
 		header = new HBox();
+		header.getStyleClass().setAll( "tool-tab-pane-header" );
 
 		// Organize components
 		setTop( header );
