@@ -42,7 +42,7 @@ public class AboutTool extends GuidedTool {
 
 	private String titleSuffix;
 
-	private Map<String, Node> nodes;
+	private Map<String, Node> pages;
 
 	private SummaryPane summaryPane;
 
@@ -65,11 +65,6 @@ public class AboutTool extends GuidedTool {
 
 		summaryPane = new SummaryPane();
 
-		//		summaryText = new TextArea();
-		//		summaryText.setEditable( false );
-		//		summaryPane = new BorderPane();
-		//		summaryPane.setCenter( summaryText );
-
 		productsText = new TextArea();
 		productsText.setEditable( false );
 		productsPane = new BorderPane();
@@ -81,10 +76,10 @@ public class AboutTool extends GuidedTool {
 		detailsPane = new BorderPane();
 		detailsPane.setCenter( detailsText );
 
-		nodes = new ConcurrentHashMap<>();
-		nodes.put( SUMMARY, summaryPane );
-		nodes.put( PRODUCTS, productsPane );
-		nodes.put( DETAILS, detailsPane );
+		pages = new ConcurrentHashMap<>();
+		pages.put( SUMMARY, summaryPane );
+		pages.put( PRODUCTS, productsPane );
+		pages.put( DETAILS, detailsPane );
 	}
 
 	public String getTitleSuffix() {
@@ -478,7 +473,9 @@ public class AboutTool extends GuidedTool {
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
-		builder.append( "JVM Memory:     " + FileUtil.getHumanSizeBase2( used ) + " / " + FileUtil.getHumanSizeBase2( total ) + " / " + FileUtil.getHumanSizeBase2( max ) ).append( "\n" );
+		builder
+			.append( "JVM Memory:     " + FileUtil.getHumanSizeBase2( used ) + " / " + FileUtil.getHumanSizeBase2( total ) + " / " + FileUtil.getHumanSizeBase2( max ) )
+			.append( "\n" );
 
 		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
 		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() ).append( "\n" );
@@ -518,8 +515,12 @@ public class AboutTool extends GuidedTool {
 		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
 		String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
 		builder.append( "\n" );
-		builder.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) ).append( "\n" );
-		builder.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) ).append( "\n" );
+		builder
+			.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) )
+			.append( "\n" );
+		builder
+			.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) )
+			.append( "\n" );
 
 		return builder.toString();
 	}
@@ -568,7 +569,7 @@ public class AboutTool extends GuidedTool {
 
 	private void selectPage( String item ) {
 		getChildren().clear();
-		if( item != null ) getChildren().add( nodes.get( item ) );
+		getChildren().add( pages.getOrDefault( item, pages.get( SUMMARY ) ) );
 	}
 
 	private String getProperties( Properties properties ) {

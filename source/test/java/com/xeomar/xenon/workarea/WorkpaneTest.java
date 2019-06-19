@@ -468,7 +468,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		int selectedIndex = pane.getSelectionModel().getSelectedIndex();
 		ToolTab tab = pane.getTabs().get( selectedIndex );
 
-		return (Tool)tab.getContent();
+		return tab.getTool();
 	}
 
 	private static Matcher<MockTool> hasEvent( int index ) {
