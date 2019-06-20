@@ -2,6 +2,8 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.util.LogUtil;
 import javafx.css.PseudoClass;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
@@ -39,17 +41,16 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		tabContainer.setCenter( label );
 		tabContainer.setRight( close );
 
-		// FIXME This way of doing it does not work;
-		tab.getChildrenUnmodifiable().setAll( tabContainer );
+		getChildren().setAll( tabContainer );
 
-		label.setOnMousePressed( ( event ) -> tab.toolPaneProperty().get().getSelectionModel().select( tab ) );
+		label.setOnMousePressed( ( event ) -> tab.getToolPane().getSelectionModel().select( tab ) );
 		close.setOnMouseReleased( ( event ) -> tab.getOnCloseRequest().handle( event ) );
 	}
 
 	@Override
 	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
 		//super.layoutChildren( contentX, contentY, contentWidth, contentHeight );
-		log.info( "Layout ToolTab children" );
+		layoutInArea( tabContainer, contentX, contentY, contentWidth, contentHeight, -1, HPos.LEFT, VPos.TOP );
 	}
 
 }

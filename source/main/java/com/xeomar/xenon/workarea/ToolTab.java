@@ -1,7 +1,10 @@
 package com.xeomar.xenon.workarea;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -9,13 +12,11 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 
-import java.lang.ref.WeakReference;
-
 public class ToolTab extends Control {
 
-	private ReadOnlyObjectWrapper<ToolPane> pane;
+	private ToolPane pane;
 
-	private ReadOnlyObjectWrapper<Tool> tool;
+	private Tool tool;
 
 	private ReadOnlyBooleanWrapper selected;
 
@@ -28,9 +29,10 @@ public class ToolTab extends Control {
 	private ReadOnlyObjectWrapper<EventHandler<Event>> onSelectionChanged;
 
 	public ToolTab( Tool tool ) {
+		if( tool == null ) throw new NullPointerException( "Tool cannot be null" );
 		this.getStyleClass().add( "tool-tab" );
 
-		this.tool = new ReadOnlyObjectWrapper<>( this, "tool", tool );
+		this.tool = tool;
 
 		setOnCloseRequest( event -> {
 			event.consume();
@@ -39,7 +41,7 @@ public class ToolTab extends Control {
 	}
 
 	public Tool getTool() {
-		return tool.get();
+		return tool;
 	}
 
 	public Node getContent() {
@@ -47,39 +49,11 @@ public class ToolTab extends Control {
 	}
 
 	public final ToolPane getToolPane() {
-		return pane == null ? null : pane.get();
+		return pane;
 	}
 
 	public final void setToolPane( ToolPane pane ) {
-		toolPanePropertyImpl().set( pane );
-	}
-
-	public final ReadOnlyObjectProperty<ToolPane> toolPaneProperty() {
-		return toolPanePropertyImpl().getReadOnlyProperty();
-	}
-
-	private ReadOnlyObjectWrapper<ToolPane> toolPanePropertyImpl() {
-		if( pane == null ) {
-			pane = new ReadOnlyObjectWrapper<>( this, "pane" ) {
-
-				private WeakReference<ToolPane> oldPane;
-
-				@Override
-				protected void invalidated() {
-					if( oldPane != null && oldPane.get() != null ) oldPane.get().disabledProperty().removeListener( parentDisabledChangedListener );
-
-					updateDisabled();
-					ToolPane newPane = get();
-					if( newPane != null ) newPane.disabledProperty().addListener( parentDisabledChangedListener );
-
-					oldPane = new WeakReference<>( newPane );
-					super.invalidated();
-				}
-
-			};
-		}
-
-		return pane;
+		this.pane = pane;
 	}
 
 	public Boolean isSelected() {

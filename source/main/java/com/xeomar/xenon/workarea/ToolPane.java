@@ -7,6 +7,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.SingleSelectionModel;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
@@ -22,24 +23,30 @@ public class ToolPane extends BorderPane {
 
 	private HBox header;
 
-	private ObservableList<ToolTab> tabs = FXCollections.observableList( new CopyOnWriteArrayList<>(  ) );
+	private AnchorPane toolContainer;
+
+	private ObservableList<ToolTab> tabs = FXCollections.observableList( new CopyOnWriteArrayList<>() );
 
 	public ToolPane() {
-		getStyleClass().setAll( "tool-tab-pane" );
+		getStyleClass().addAll( "tool-tab-pane" );
 		setSelectionModel( new ToolPaneSelectionModel( this ) );
 
 		// Create components
 		header = new HBox();
-		header.getStyleClass().setAll( "tool-tab-pane-header" );
+		header.getStyleClass().addAll( "tool-tab-pane-header" );
+
+		toolContainer = new AnchorPane();
 
 		// Organize components
 		setTop( header );
+		setCenter( toolContainer );
 
 		this.tabs.addListener( (ListChangeListener<ToolTab>)change -> {
 			while( change.next() ) {
 				for( ToolTab tab : change.getRemoved() ) {
 					if( tab != null && !getTabs().contains( tab ) ) tab.setToolPane( null );
 					header.getChildren().remove( tab );
+					toolContainer.getChildren().remove( tab.getTool() );
 				}
 
 				for( ToolTab tab : change.getAddedSubList() ) {
@@ -49,6 +56,8 @@ public class ToolPane extends BorderPane {
 				if( change.wasRemoved() ) header.getChildren().removeAll( change.getRemoved() );
 				if( change.wasAdded() ) header.getChildren().addAll( change.getFrom(), change.getAddedSubList() );
 			}
+
+			requestLayout();
 		} );
 	}
 
@@ -65,7 +74,7 @@ public class ToolPane extends BorderPane {
 	}
 
 	private void setTool( Tool tool ) {
-		if( tool != null ) setCenter( tool );
+		if( tool != null ) toolContainer.getChildren().setAll( tool );
 	}
 
 	private static class ToolPaneSelectionModel extends SingleSelectionModel<ToolTab> {
