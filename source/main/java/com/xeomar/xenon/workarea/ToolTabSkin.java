@@ -46,6 +46,11 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		label.setOnMousePressed( ( event ) -> select( tab ) );
 		close.setOnMouseReleased( ( event ) -> tab.getOnCloseRequest().handle( event ) );
+
+		boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
+		pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, selected );
+
+		tab.selectedProperty().addListener( (event) -> pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, tab.isSelected() ) );
 	}
 
 	@Override

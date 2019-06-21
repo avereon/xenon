@@ -472,6 +472,7 @@ public class Workpane extends Pane implements Configurable {
 
 			// Change the active tool
 			activeToolProperty.set( tool );
+			if( view != null ) view.setActiveTool( tool );
 
 			activeTool = getActiveTool();
 			if( activeTool != null ) {

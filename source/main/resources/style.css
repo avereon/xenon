@@ -299,7 +299,7 @@
 }
 
 .tool-tab:selected {
-	-fx-background-color: red;
+	-fx-background-color: -ex-background-note;
 }
 
 .tool-tab-close-button {
