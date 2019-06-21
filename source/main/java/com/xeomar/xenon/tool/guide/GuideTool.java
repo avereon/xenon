@@ -1,6 +1,7 @@
 package com.xeomar.xenon.tool.guide;
 
 import com.xeomar.settings.Settings;
+import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ProgramProduct;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.resource.Resource;
@@ -12,10 +13,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 public class GuideTool extends ProgramTool {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private TreeView<GuideNode> guideTree;
 
@@ -73,6 +78,8 @@ public class GuideTool extends ProgramTool {
 
 	private void switchGuide( WorkpaneEvent event ) {
 		if( !(event instanceof WorkpaneToolEvent) ) return;
+
+		log.warn( "switch guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
 
 		WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
 		switch( event.getType() ) {

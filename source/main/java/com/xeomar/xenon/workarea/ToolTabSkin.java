@@ -44,7 +44,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		getChildren().setAll( tabLayout );
 
-		label.setOnMousePressed( ( event ) -> tab.getToolPane().getSelectionModel().select( tab ) );
+		label.setOnMousePressed( ( event ) -> select( tab ) );
 		close.setOnMouseReleased( ( event ) -> tab.getOnCloseRequest().handle( event ) );
 	}
 
@@ -52,6 +52,12 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
 		// This is a slight optimization over the default implementation
 		layoutInArea( tabLayout, contentX, contentY, contentWidth, contentHeight, -1, HPos.CENTER, VPos.CENTER );
+	}
+
+	private void select( ToolTab tab ) {
+		log.warn( "select: " + tab.getTool().getTitle() );
+		tab.getToolPane().getSelectionModel().select( tab );
+		tab.getToolPane().requestFocus();
 	}
 
 }

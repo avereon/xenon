@@ -70,6 +70,9 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			if( selectedTab != null ) selectedTab.getTool().setVisible( true );
 			getSkinnable().requestLayout();
 		} );
+
+		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
+		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
 	}
 
 	@Override
