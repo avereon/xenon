@@ -15,6 +15,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
+import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -68,6 +69,11 @@ public abstract class Tool extends Control implements Configurable {
 		this.closeOperation = new SimpleObjectProperty<>();
 		this.listeners = new CopyOnWriteArraySet<>();
 		this.resource = resource;
+
+		Rectangle clip = new Rectangle(  );
+		clip.widthProperty().bind( widthProperty() );
+		clip.heightProperty().bind( heightProperty() );
+		setClip( clip );
 
 		getStyleClass().add( "tool" );
 		setTitle( title );

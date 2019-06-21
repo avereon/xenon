@@ -307,11 +307,14 @@
 	-fx-padding: 4 4 4 9;
 }
 
-.tool-tab-pane {
+.tool-pane {
 	-fx-background-color: transparent;
 }
 
-.tool-tab-pane-header {
+.tool-pane-header-area {
 	-fx-background-color: -ex-background-tabs;
 }
 
+.tool-pane-content-area {
+	-fx-background-color: transparent;
+}

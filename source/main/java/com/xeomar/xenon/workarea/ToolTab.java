@@ -20,10 +20,6 @@ public class ToolTab extends Control {
 
 	private ReadOnlyBooleanWrapper selected;
 
-	/**
-	 * Called when there is a request to close this {@code ToolTab}. The installed
-	 * event handler can prevent tab closing by consuming the received event.
-	 */
 	private ReadOnlyObjectWrapper<EventHandler<Event>> onCloseRequest;
 
 	private ReadOnlyObjectWrapper<EventHandler<Event>> onSelectionChanged;

@@ -18,7 +18,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	private static final PseudoClass SELECTED_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "selected" );
 
-	private BorderPane tabContainer;
+	private BorderPane tabLayout;
 
 	private Label label;
 
@@ -29,19 +29,20 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		Tool tool = tab.getTool();
 
-		this.label = new Label();
-		this.label.getStyleClass().setAll( "tool-tab-label" );
-		this.label.graphicProperty().bind( tool.graphicProperty() );
-		this.label.textProperty().bind( tool.titleProperty() );
+		label = new Label();
+		label.getStyleClass().setAll( "tool-tab-label" );
+		label.graphicProperty().bind( tool.graphicProperty() );
+		label.textProperty().bind( tool.titleProperty() );
 
-		this.close = new Button( "X" );
-		this.close.getStyleClass().setAll( "tool-tab-close-button" );
+		close = new Button( "X" );
+		close.getStyleClass().setAll( "tool-tab-close-button" );
 
-		tabContainer = new BorderPane();
-		tabContainer.setCenter( label );
-		tabContainer.setRight( close );
+		tabLayout = new BorderPane();
+		tabLayout.setCenter( label );
+		tabLayout.setRight( close );
+		tabLayout.getStyleClass().setAll( "tool-tab-container" );
 
-		getChildren().setAll( tabContainer );
+		getChildren().setAll( tabLayout );
 
 		label.setOnMousePressed( ( event ) -> tab.getToolPane().getSelectionModel().select( tab ) );
 		close.setOnMouseReleased( ( event ) -> tab.getOnCloseRequest().handle( event ) );
@@ -49,8 +50,8 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	@Override
 	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
-		//super.layoutChildren( contentX, contentY, contentWidth, contentHeight );
-		layoutInArea( tabContainer, contentX, contentY, contentWidth, contentHeight, -1, HPos.LEFT, VPos.TOP );
+		// This is a slight optimization over the default implementation
+		layoutInArea( tabLayout, contentX, contentY, contentWidth, contentHeight, -1, HPos.CENTER, VPos.CENTER );
 	}
 
 }
