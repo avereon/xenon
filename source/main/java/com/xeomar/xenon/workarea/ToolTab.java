@@ -26,13 +26,7 @@ public class ToolTab extends Control {
 
 	public ToolTab( Tool tool ) {
 		if( tool == null ) throw new NullPointerException( "Tool cannot be null" );
-
 		this.tool = tool;
-
-		setOnCloseRequest( event -> {
-			event.consume();
-			tool.close();
-		} );
 	}
 
 	public Tool getTool() {

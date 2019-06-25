@@ -47,8 +47,18 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		getChildren().setAll( tabLayout );
 
-		label.setOnMousePressed( ( event ) -> select( tab ) );
-		close.setOnMouseReleased( ( event ) -> tab.getOnCloseRequest().handle( event ) );
+		label.setOnMousePressed( ( event ) -> {
+			select( tab );
+			if( event.getClickCount() == 2 ) {
+				WorkpaneView view = tool.getToolView();
+				view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
+			}
+		} );
+		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
+		tab.setOnCloseRequest( event -> {
+			event.consume();
+			tool.close();
+		} );
 
 		boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
 		pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, selected );
