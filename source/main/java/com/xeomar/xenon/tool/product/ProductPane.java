@@ -123,7 +123,7 @@ class ProductPane extends MigPane {
 			} else if( isUpdatableProductsPanel ) {
 				stateLabelKey = "available";
 			} else {
-				stateLabelKey = "enabled";
+				stateLabelKey = "installed";
 			}
 		}
 		if( isStaged ) stateLabelKey = "downloaded";
