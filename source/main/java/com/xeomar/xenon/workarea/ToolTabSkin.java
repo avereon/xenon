@@ -34,13 +34,16 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		label.graphicProperty().bind( tool.graphicProperty() );
 		label.textProperty().bind( tool.titleProperty() );
 
-		close = new Button( "X" );
+		close = new Button();
+		close.graphicProperty().bind( tool.closeGraphicProperty() );
 		close.getStyleClass().setAll( "tool-tab-close-button" );
 
 		tabLayout = new BorderPane();
 		tabLayout.setCenter( label );
 		tabLayout.setRight( close );
 		tabLayout.getStyleClass().setAll( "tool-tab-container" );
+
+		tab.getStyleClass().add( "tool-tab" );
 
 		getChildren().setAll( tabLayout );
 
@@ -50,7 +53,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
 		pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, selected );
 
-		tab.selectedProperty().addListener( (event) -> pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, tab.isSelected() ) );
+		tab.selectedProperty().addListener( ( event ) -> pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, tab.isSelected() ) );
 	}
 
 	@Override

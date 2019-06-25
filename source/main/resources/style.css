@@ -294,8 +294,12 @@
 }
 
 .tool-tab {
-	-fx-background-insets: 2 1 2 1;
+	-fx-background-insets: 1mm 0 0 0;
 	-fx-background-color: -ex-background-tabs;
+}
+
+.tool-tab-container {
+	-fx-padding: 1mm 1mm 0 1mm;
 }
 
 .tool-tab:selected {
@@ -304,7 +308,7 @@
 
 .tool-tab-close-button {
 	-fx-background-color: transparent;
-	-fx-padding: 4 4 4 9;
+	-fx-padding: 1mm 1mm 1mm 2mm;
 }
 
 .tool-pane {

@@ -43,6 +43,8 @@ public abstract class Tool extends Control implements Configurable {
 
 	private StringProperty titleProperty;
 
+	private ObjectProperty<Node> closeGraphicProperty;
+
 	private ObjectProperty<CloseOperation> closeOperation;
 
 	private Resource resource;
@@ -66,6 +68,7 @@ public abstract class Tool extends Control implements Configurable {
 	public Tool( Resource resource, String title ) {
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
+		this.closeGraphicProperty = new SimpleObjectProperty<>(  );
 		this.closeOperation = new SimpleObjectProperty<>();
 		this.listeners = new CopyOnWriteArraySet<>();
 		this.resource = resource;
@@ -148,6 +151,18 @@ public abstract class Tool extends Control implements Configurable {
 
 	public StringProperty titleProperty() {
 		return titleProperty;
+	}
+
+	public Node getCloseGraphic() {
+		return closeGraphicProperty.getValue();
+	}
+
+	public void setCloseGraphic( Node graphic ) {
+		closeGraphicProperty.setValue( graphic );
+	}
+
+	public ObjectProperty<Node> closeGraphicProperty() {
+		return closeGraphicProperty;
 	}
 
 	/**

@@ -26,7 +26,6 @@ public class ToolTab extends Control {
 
 	public ToolTab( Tool tool ) {
 		if( tool == null ) throw new NullPointerException( "Tool cannot be null" );
-		this.getStyleClass().add( "tool-tab" );
 
 		this.tool = tool;
 
