@@ -7,6 +7,7 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
+import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -60,16 +61,21 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			}
 		} );
 
-		label.setOnDragDetected( (event) -> {
+		tab.setOnDragDetected( ( event ) -> {
 			Dragboard board = tab.startDragAndDrop( TransferMode.COPY_OR_MOVE );
 
 			ClipboardContent content = new ClipboardContent();
 			content.putUrl( tool.getResource().getUri().toString() );
 			board.setContent( content );
 
-			//board.setDragView( image );
+			Image image = tab.snapshot( null, null );
+			board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 
 			log.warn( "Drag start: " + tool.getResource().getUri() );
+		} );
+
+		tab.setOnDragDone( ( event ) -> {
+			log.warn( "Drag done: " + tool.getResource().getUri() );
 		} );
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
@@ -88,7 +94,6 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 	}
 
 	private void select( ToolTab tab ) {
-		log.warn( "select: " + tab.getTool().getTitle() );
 		tab.getToolPane().getSelectionModel().select( tab );
 		tab.getToolPane().requestFocus();
 	}

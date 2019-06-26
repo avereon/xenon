@@ -52,7 +52,7 @@
 
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
-		<javafx.version>12.0.1</javafx.version>
+		<javafx.version>13-ea+9</javafx.version>
 		<controlsfx.version>11.0.0</controlsfx.version>
 		<undofx.version>2.1.0</undofx.version>
 		<slf4j.version>1.8.0-beta4</slf4j.version>
@@ -86,11 +86,11 @@
 			<version>${javafx.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.controlsfx</groupId>
-			<artifactId>controlsfx</artifactId>
-			<version>${controlsfx.version}</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.controlsfx</groupId>-->
+<!--			<artifactId>controlsfx</artifactId>-->
+<!--			<version>${controlsfx.version}</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>com.miglayout</groupId>

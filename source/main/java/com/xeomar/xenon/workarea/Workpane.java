@@ -144,6 +144,16 @@ public class Workpane extends Pane implements Configurable {
 
 		// TODO Set a better default background
 		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
+
+//		setOnDragOver( (event) -> {
+//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+//			log.warn( "Drag over: " + event.getDragboard().getUrl() );
+//			event.consume();
+//		} );
+
+		setOnMouseDragOver( (event) -> {
+			log.warn( "drag over: " + event.getGestureSource() );
+		} );
 	}
 
 	/**

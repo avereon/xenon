@@ -71,6 +71,18 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			getSkinnable().requestLayout();
 		} );
 
+//		control.setOnDragOver( (event) -> {
+//			log.warn( "Drag over: " + event.getDragboard().getUrl() );
+//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+//			event.consume();
+//		} );
+//
+//		control.setOnDragDropped( (event) -> {
+//			log.warn( "Drag dropped: " + event.getDragboard().getUrl() );
+//			event.setDropCompleted(true );
+//			event.consume();
+//		} );
+
 		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
 	}
