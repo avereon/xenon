@@ -7,6 +7,9 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 
@@ -26,6 +29,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	protected ToolTabSkin( ToolTab tab ) {
 		super( tab );
+		tab.getStyleClass().add( "tool-tab" );
 
 		Tool tool = tab.getTool();
 
@@ -43,9 +47,10 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		tabLayout.setRight( close );
 		tabLayout.getStyleClass().setAll( "tool-tab-container" );
 
-		tab.getStyleClass().add( "tool-tab" );
-
 		getChildren().setAll( tabLayout );
+
+		boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
+		pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, selected );
 
 		label.setOnMousePressed( ( event ) -> {
 			select( tab );
@@ -54,14 +59,24 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 				view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
 			}
 		} );
+
+		label.setOnDragDetected( (event) -> {
+			Dragboard board = tab.startDragAndDrop( TransferMode.COPY_OR_MOVE );
+
+			ClipboardContent content = new ClipboardContent();
+			content.putUrl( tool.getResource().getUri().toString() );
+			board.setContent( content );
+
+			//board.setDragView( image );
+
+			log.warn( "Drag start: " + tool.getResource().getUri() );
+		} );
+
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
 		tab.setOnCloseRequest( event -> {
 			event.consume();
 			tool.close();
 		} );
-
-		boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
-		pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, selected );
 
 		tab.selectedProperty().addListener( ( event ) -> pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, tab.isSelected() ) );
 	}
