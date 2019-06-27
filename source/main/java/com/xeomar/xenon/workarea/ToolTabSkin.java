@@ -7,7 +7,6 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
-import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -68,8 +67,9 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			content.putUrl( tool.getResource().getUri().toString() );
 			board.setContent( content );
 
-			Image image = tab.snapshot( null, null );
-			board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
+			// WORKAROUND Setting a drag view causes DnD to break
+			//Image image = tab.snapshot( null, null );
+			//board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 
 			log.warn( "Drag start: " + tool.getResource().getUri() );
 		} );

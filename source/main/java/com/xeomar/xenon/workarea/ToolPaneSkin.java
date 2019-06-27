@@ -3,6 +3,7 @@ package com.xeomar.xenon.workarea;
 import com.xeomar.util.LogUtil;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.SkinBase;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -71,12 +72,30 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			getSkinnable().requestLayout();
 		} );
 
-//		control.setOnDragOver( (event) -> {
-//			log.warn( "Drag over: " + event.getDragboard().getUrl() );
-//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-//			event.consume();
-//		} );
-//
+		header.setOnDragOver( (event) -> {
+			log.warn( "Drag over header: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
+		} );
+
+		header.setOnDragEntered( (event) -> {
+			log.warn( "Drag entered header: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
+		} );
+
+		header.setOnDragExited( (event) -> {
+			log.warn( "Drag exited header: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
+		} );
+
+		control.setOnDragOver( (event) -> {
+			log.warn( "Drag over tool area: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
+		} );
+
 //		control.setOnDragDropped( (event) -> {
 //			log.warn( "Drag dropped: " + event.getDragboard().getUrl() );
 //			event.setDropCompleted(true );
