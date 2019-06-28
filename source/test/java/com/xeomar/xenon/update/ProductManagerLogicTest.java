@@ -116,6 +116,31 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 		assertThat( updates.size(), is( 0 ) );
 	}
 
+	@Test
+	public void testDetermineUpdateableProductsWithJustTwoVersions() {
+		Map<RepoCard, Set<ProductCard>> repos = new HashMap<>();
+
+		Set<ProductCard> products = new HashSet<>();
+		products.add( new ProductCard()
+			.setGroup( group )
+			.setArtifact( "producta" )
+			.setVersion( "0.6" )
+			.setTimestamp( timestamp ) );
+		RepoCard repo = new RepoCard().setRepo( "a" ).setEnabled( true );
+		repos.put( repo, products );
+
+		ProductCard installed = new ProductCard()
+			.setGroup( group )
+			.setArtifact( "producta" )
+			.setVersion( "0.7-SNAPSHOT" )
+			.setTimestamp( timestamp );
+
+		Map<String, ProductCard> installedProducts = Map.of( installed.getProductKey(), installed );
+
+		Set<ProductCard> updates = logic.determineUpdateableProducts( repos, installedProducts );
+		assertThat( updates.size(), is( 0 ) );
+	}
+
 	private void generateRepoProductMap() {
 		Set<ProductCard> stableProducts = new HashSet<>();
 		stableProducts.add( new ProductCard()

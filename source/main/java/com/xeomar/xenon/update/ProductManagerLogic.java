@@ -269,7 +269,7 @@ public class ProductManagerLogic {
 			ProductCard latest = productVersionList.get( 0 );
 			RepoCard repo = latest.getRepo();
 			ProductCard installed = installedProducts.get( latest.getProductKey() );
-			boolean latestIsInstalled = installed != null && latest.getRelease().equals( installed.getRelease() );
+			boolean latestIsInstalled = installed != null && latest.getRelease().compareTo( installed.getRelease() ) <= 0;
 			boolean updateAvailable = determineUpdates && installed != null && !latestIsInstalled;
 
 			if( determineAvailable || updateAvailable ) cards.add( new ProductCard().copyFrom( latest ).setRepo( repo ) );
