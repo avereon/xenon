@@ -20,11 +20,8 @@ public class DndDemo extends Application {
 
 	@Override
 	public void start( Stage stage ) {
-		stage.setTitle( "Hello Drag And Drop" );
-
 		Group root = new Group();
 		Scene scene = new Scene( root, 400, 200 );
-		//scene.setFill( Color.LIGHTGREEN );
 
 		final Label source = new Label( "DRAG ME" );
 		source.setCursor( Cursor.HAND );
@@ -44,9 +41,10 @@ public class DndDemo extends Application {
 
 			Dragboard db = source.startDragAndDrop( TransferMode.MOVE );
 			ClipboardContent content = new ClipboardContent();
-			content.putString( "MARK" );
+			content.putString( "DRAGGED CONTENT" );
 			db.setContent( content );
 
+			// FIXME Using setDragView() breaks DnD on OpenJFK 13
 			Image image = source.snapshot( null, null );
 			db.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 
