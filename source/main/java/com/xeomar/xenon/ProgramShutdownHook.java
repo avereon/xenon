@@ -103,16 +103,16 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
 		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
-			String name = update.getCard().getProductKey();
-			String version = update.getCard().getVersion();
-			Path archive = program.getDataFolder().resolve( "backup" ).resolve( name + "-" + version );
+			String name = program.getCard().getProductKey();
+			String version = program.getCard().getVersion();
+			Path backup = program.getDataFolder().resolve( "backup" ).resolve( name + "-" + version );
 
 			String updatePath = update.getSource().toString().replace( File.separator, "/" );
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
-			String archivePath = archive.toString().replace( File.separator, "/" );
+			String backupPath = backup.toString().replace( File.separator, "/" );
 
-			ucb.add( UpdateTask.DELETE, archivePath ).line();
-			ucb.add( UpdateTask.MOVE, targetPath, archivePath ).line();
+			ucb.add( UpdateTask.DELETE, backupPath ).line();
+			ucb.add( UpdateTask.MOVE, targetPath, backupPath ).line();
 			ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
 
 			String exe = OperatingSystem.isWindows() ? ".exe" : "";

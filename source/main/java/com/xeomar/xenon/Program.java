@@ -358,7 +358,7 @@ public class Program extends Application implements ProgramProduct {
 			return;
 		}
 
-		// Request the program stop.
+		// Request the program stop
 		if( !requestExit( true ) ) {
 			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
 			return;
