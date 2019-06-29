@@ -27,7 +27,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	private Button close;
 
-	protected ToolTabSkin( ToolTab tab ) {
+	ToolTabSkin( ToolTab tab ) {
 		super( tab );
 		tab.getStyleClass().add( "tool-tab" );
 
@@ -74,8 +74,25 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			log.warn( "Drag start: " + tool.getResource().getUri() );
 		} );
 
-		tab.setOnDragDone( ( event ) -> {
-			log.warn( "Drag done: " + tool.getResource().getUri() );
+		tab.setOnDragDone( ( event ) -> log.warn( "Drag done: " + tool.getResource().getUri() ) );
+
+		// NOTE Tabs overlap headers which overlap the tool area
+//		tab.setOnDragOver( ( event ) -> {
+//			log.warn( "Drag over tab: " + event.getDragboard().getUrl() );
+//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+//			event.consume();
+//		} );
+
+		tab.setOnDragEntered( ( event ) -> {
+			log.warn( "Drag enter tab: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
+		} );
+
+		tab.setOnDragExited( ( event ) -> {
+			log.warn( "Drag exit tab: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
 		} );
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );

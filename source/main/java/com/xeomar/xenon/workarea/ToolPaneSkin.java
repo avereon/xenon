@@ -72,11 +72,12 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			getSkinnable().requestLayout();
 		} );
 
-		header.setOnDragOver( (event) -> {
-			log.warn( "Drag over header: " + event.getDragboard().getUrl() );
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-			event.consume();
-		} );
+		// NOTE Tabs overlap headers which overlap the tool area
+//		header.setOnDragOver( (event) -> {
+//			log.warn( "Drag over header: " + event.getDragboard().getUrl() );
+//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+//			event.consume();
+//		} );
 
 		header.setOnDragEntered( (event) -> {
 			log.warn( "Drag entered header: " + event.getDragboard().getUrl() );
@@ -90,13 +91,26 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			event.consume();
 		} );
 
-		control.setOnDragOver( (event) -> {
-			log.warn( "Drag over tool area: " + event.getDragboard().getUrl() );
+		// NOTE Tabs overlap headers which overlap the tool area
+//		control.setOnDragOver( (event) -> {
+//			log.warn( "Drag over tool area: " + event.getDragboard().getUrl() );
+//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+//			event.consume();
+//		} );
+
+		control.setOnDragEntered( (event) -> {
+			log.warn( "Drag enter tool area: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
-//		control.setOnDragDropped( (event) -> {
+		control.setOnDragExited( (event) -> {
+			log.warn( "Drag exit tool area: " + event.getDragboard().getUrl() );
+			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.consume();
+		} );
+
+		//		control.setOnDragDropped( (event) -> {
 //			log.warn( "Drag dropped: " + event.getDragboard().getUrl() );
 //			event.setDropCompleted(true );
 //			event.consume();
