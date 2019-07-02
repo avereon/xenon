@@ -4,8 +4,10 @@ import com.xeomar.util.LogUtil;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
@@ -18,9 +20,9 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private HBox header;
+	private Pane header;
 
-	private ToolContentArea toolArea;
+	private Pane toolArea;
 
 	protected ToolPaneSkin( ToolPane control ) {
 		super( control );
@@ -33,9 +35,14 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		control.getTabs().forEach( tab -> tab.setToolPane( control ) );
 		Set<Tool> tools = control.getTabs().stream().map( ToolTab::getTool ).peek( tool -> tool.setVisible( false ) ).collect( Collectors.toSet() );
 
+		HBox tabContainer = new HBox();
+		tabContainer.getChildren().addAll( control.getTabs() );
+
+		// Create a separate pane to capture drop target events in the header space
+		Pane headerDrop = new Pane();
+
 		// Create components
-		header = new HBox();
-		header.getChildren().addAll( control.getTabs() );
+		header = new BorderPane( headerDrop, null, null, null, tabContainer );
 		header.getStyleClass().addAll( "tool-pane-header-area" );
 
 		toolArea = new ToolContentArea();
@@ -58,8 +65,8 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 					toolArea.getChildren().add( tab.getTool() );
 				} );
 
-				if( change.wasRemoved() ) header.getChildren().removeAll( change.getRemoved() );
-				if( change.wasAdded() ) header.getChildren().addAll( change.getFrom(), change.getAddedSubList() );
+				if( change.wasRemoved() ) tabContainer.getChildren().removeAll( change.getRemoved() );
+				if( change.wasAdded() ) tabContainer.getChildren().addAll( change.getFrom(), change.getAddedSubList() );
 			}
 
 			getSkinnable().requestLayout();
@@ -73,48 +80,48 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		} );
 
 		// NOTE Tabs overlap headers which overlap the tool area
-//		header.setOnDragOver( (event) -> {
-//			log.warn( "Drag over header: " + event.getDragboard().getUrl() );
-//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-//			event.consume();
-//		} );
+		//		header.setOnDragOver( (event) -> {
+		//			log.warn( "Drag over header: " + event.getDragboard().getUrl() );
+		//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+		//			event.consume();
+		//		} );
 
-		header.setOnDragEntered( (event) -> {
-			log.warn( "Drag entered header: " + event.getDragboard().getUrl() );
+		headerDrop.setOnDragEntered( ( event ) -> {
+			log.warn( "Drag enter header: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
-		header.setOnDragExited( (event) -> {
-			log.warn( "Drag exited header: " + event.getDragboard().getUrl() );
+		headerDrop.setOnDragExited( ( event ) -> {
+			log.warn( "Drag exit header: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
 		// NOTE Tabs overlap headers which overlap the tool area
-//		control.setOnDragOver( (event) -> {
-//			log.warn( "Drag over tool area: " + event.getDragboard().getUrl() );
-//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-//			event.consume();
-//		} );
+		//		control.setOnDragOver( (event) -> {
+		//			log.warn( "Drag over tool area: " + event.getDragboard().getUrl() );
+		//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+		//			event.consume();
+		//		} );
 
-		control.setOnDragEntered( (event) -> {
-			log.warn( "Drag enter tool area: " + event.getDragboard().getUrl() );
+		toolArea.setOnDragEntered( ( event ) -> {
+			log.warn( "Drag enter area: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
-		control.setOnDragExited( (event) -> {
-			log.warn( "Drag exit tool area: " + event.getDragboard().getUrl() );
+		toolArea.setOnDragExited( ( event ) -> {
+			log.warn( "Drag exit area: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
 		//		control.setOnDragDropped( (event) -> {
-//			log.warn( "Drag dropped: " + event.getDragboard().getUrl() );
-//			event.setDropCompleted(true );
-//			event.consume();
-//		} );
+		//			log.warn( "Drag dropped: " + event.getDragboard().getUrl() );
+		//			event.setDropCompleted(true );
+		//			event.consume();
+		//		} );
 
 		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
