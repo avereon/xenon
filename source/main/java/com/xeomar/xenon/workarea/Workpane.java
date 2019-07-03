@@ -14,6 +14,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -144,16 +145,6 @@ public class Workpane extends Pane implements Configurable {
 
 		// TODO Set a better default background
 		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
-
-//		setOnDragOver( (event) -> {
-//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-//			log.warn( "Drag over: " + event.getDragboard().getUrl() );
-//			event.consume();
-//		} );
-
-		setOnMouseDragOver( (event) -> {
-			log.warn( "drag over: " + event.getGestureSource() );
-		} );
 	}
 
 	/**
@@ -376,30 +367,25 @@ public class Workpane extends Pane implements Configurable {
 		listeners.remove( listener );
 	}
 
-	protected void updateComponentTree( boolean changed ) {
-		if( isOperationActive() ) return;
-
-		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.Type.CHANGED, this ) );
-
-		layoutChildren();
-		dispatchEvents();
+	void setDragHint( Rectangle hint ) {
+		// NEXT Set drag hint
 	}
 
-	boolean isOperationActive() {
+	private boolean isOperationActive() {
 		return operation.get() > 0;
 	}
 
-	void startOperation() {
+	private void startOperation() {
 		operation.incrementAndGet();
 	}
 
-	void finishOperation( boolean changed ) {
+	private void finishOperation( boolean changed ) {
 		int value = operation.decrementAndGet();
-		if( value < 0 ) log.error( "Operation flag is less than zero." );
+		if( value < 0 ) log.error( "Workpane operation flag is less than zero." );
 		updateComponentTree( changed );
 	}
 
-	void fireWorkpaneEvent( WorkpaneEvent event ) throws WorkpaneVetoException {
+	private void fireWorkpaneEvent( WorkpaneEvent event ) throws WorkpaneVetoException {
 		WorkpaneVetoException exception = null;
 
 		for( WorkpaneListener listener : listeners ) {
@@ -413,9 +399,18 @@ public class Workpane extends Pane implements Configurable {
 		if( exception != null ) throw exception;
 	}
 
-	public void queueEvent( WorkpaneEvent data ) {
+	void queueEvent( WorkpaneEvent data ) {
 		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + data.getType() );
 		events.offer( data );
+	}
+
+	private void updateComponentTree( boolean changed ) {
+		if( isOperationActive() ) return;
+
+		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.Type.CHANGED, this ) );
+
+		layoutChildren();
+		dispatchEvents();
 	}
 
 	private void dispatchEvents() {

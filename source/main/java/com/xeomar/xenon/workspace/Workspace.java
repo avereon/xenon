@@ -77,6 +77,8 @@ public class Workspace implements Configurable {
 
 	private WorkspaceBackground background;
 
+	private Pane dropHintLayer;
+
 	private Pane workpaneContainer;
 
 	private VBox noticeContainer;
@@ -264,7 +266,9 @@ public class Workspace implements Configurable {
 		noticeLayout.setPickOnBounds( false );
 
 		// Workarea Container
-		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
+		// NEXT Put this container in the Workpane
+		Pane dragPane = new Pane();
+		workpaneContainer = new StackPane( dragPane, background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
 		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
