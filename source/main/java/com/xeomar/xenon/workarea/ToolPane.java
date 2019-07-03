@@ -9,6 +9,8 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.Control;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Skin;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
 
 /**
  * The ToolPane class provides a custom tab pane component for the program
@@ -48,6 +50,38 @@ public class ToolPane extends Control {
 
 	protected Workpane getWorkpane() {
 		return getWorkpaneView().getWorkpane();
+	}
+
+	void handleDrop( DragEvent event, int index ) {
+		// NOTE If the event gesture source is null the drag came from outside the program
+
+		try {
+			boolean droppedOnArea = index == -2;
+			Tool sourceTool = ((ToolTab)event.getGestureSource()).getTool();
+			Workpane sourcePane = sourceTool.getWorkpane();
+			WorkpaneView targetView = getWorkpaneView();
+			Workpane targetPane = getWorkpane();
+
+
+			if( event.getTransferMode() == TransferMode.MOVE ) {
+				if( droppedOnArea && sourceTool == targetView.getActiveTool() ) return;
+				sourcePane.removeTool( sourceTool );
+			} else if( event.getTransferMode() == TransferMode.COPY ) {
+				sourceTool = cloneTool( sourceTool );
+			}
+
+			if( index < 0 || index > getTabs().size() ) index = getTabs().size();
+			targetPane.addTool( sourceTool, targetView, index, true );
+			sourcePane.setDropHint( null );
+		} finally {
+			event.setDropCompleted( true );
+			event.consume();
+		}
+	}
+
+	private Tool cloneTool( Tool tool ) {
+		// TODO Implement tool cloning
+		return tool;
 	}
 
 	private static class ToolPaneSelectionModel extends SingleSelectionModel<ToolTab> {
