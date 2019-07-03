@@ -265,10 +265,8 @@ public class Workspace implements Configurable {
 		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
 		noticeLayout.setPickOnBounds( false );
 
-		// Workarea Container
-		// NEXT Put this container in the Workpane
-		Pane dragPane = new Pane();
-		workpaneContainer = new StackPane( dragPane, background = new WorkspaceBackground() );
+		// Workpane Container
+		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
 		workspaceStack = new StackPane( workpaneContainer, noticeLayout );

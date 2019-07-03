@@ -7,12 +7,13 @@ import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.ProgramSettings;
 import com.xeomar.xenon.UiFactory;
 import javafx.beans.property.*;
+import javafx.collections.ObservableList;
 import javafx.geometry.*;
 import javafx.scene.Node;
+import javafx.scene.control.Control;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Workpane extends Pane implements Configurable {
+public class Workpane extends Control implements Configurable {
 
 	public enum Placement {
 		DEFAULT,
@@ -297,7 +298,8 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	/**
-	 * Find a view with the following rules: <ol> <li>Use a single large view (has double the area of any other view)</li> <li>Use the active view</li> <li>Use the default view</li> </ol>
+	 * Find a view with the following rules: <ol> <li>Use a single large view (has double the area of any other view)</li> <li>Use the active view</li> <li>Use
+	 * the default view</li> </ol>
 	 *
 	 * @return
 	 */
@@ -612,7 +614,9 @@ public class Workpane extends Pane implements Configurable {
 		edge.setWorkpane( this );
 		getChildren().add( edge );
 		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_ADDED, this, edge, edge.getPosition() ) );
-		edge.positionProperty().addListener( ( observable, oldValue, newValue ) -> queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_MOVED, this, edge, newValue.doubleValue() ) ) );
+		edge
+			.positionProperty()
+			.addListener( ( observable, oldValue, newValue ) -> queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_MOVED, this, edge, newValue.doubleValue() ) ) );
 
 		return edge;
 	}
@@ -676,7 +680,8 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	/**
-	 * Split the workpane using the space in the specified direction to make a new tool view along the entire edge of the workpane. The new tool view is created using the specified percentage of the original space.
+	 * Split the workpane using the space in the specified direction to make a new tool view along the entire edge of the workpane. The new tool view is created
+	 * using the specified percentage of the original space.
 	 *
 	 * @param direction
 	 * @param percent
@@ -728,7 +733,8 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	/**
-	 * Split an existing tool view using the space in the specified direction to create a new tool view. The new tool view is created using the specified percentage of the original space.
+	 * Split an existing tool view using the space in the specified direction to create a new tool view. The new tool view is created using the specified
+	 * percentage of the original space.
 	 *
 	 * @param view
 	 * @param direction
@@ -906,8 +912,10 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	/**
-	 * Returns whether views on the source (opposite of direction) side of the edge can be merged into the space occupied by the views on the target (towards direction) side of the edge. The method returns false if any of the following
-	 * conditions exist: <ul> <li>If the edge is an end edge.</li> <li>If any of the target views is the default view.</li> <li>If the target views do not share a common back edge.</li> <li>If the auto flag is set to true and any of the
+	 * Returns whether views on the source (opposite of direction) side of the edge can be merged into the space occupied by the views on the target (towards
+	 * direction) side of the edge. The method returns false if any of the following
+	 * conditions exist: <ul> <li>If the edge is an end edge.</li> <li>If any of the target views is the default view.</li> <li>If the target views do not share a
+	 * common back edge.</li> <li>If the auto flag is set to true and any of the
 	 * target views have tools. </li> </ul>
 	 *
 	 * @param edge The edge across which views are to be merged.
@@ -1068,17 +1076,23 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	@Override
-	protected void layoutChildren() {
+	protected final ObservableList<Node> getChildren() {
+		return super.getChildren();
+	}
+
+	@Override
+	protected final void layoutChildren() {
 		layout.layout();
 	}
 
 	@Override
-	protected void layoutInArea( Node node, double v, double v1, double v2, double v3, double v4, HPos hPos, VPos vPos ) {
+	protected final void layoutInArea( Node node, double v, double v1, double v2, double v3, double v4, HPos hPos, VPos vPos ) {
 		super.layoutInArea( node, v, v1, v2, v3, v4, hPos, vPos );
 	}
 
 	/**
-	 * Move the edge vertically because its orientation is horizontal. This method may be called from other edges that need to move as part of the bump and slide effect.
+	 * Move the edge vertically because its orientation is horizontal. This method may be called from other edges that need to move as part of the bump and slide
+	 * effect.
 	 */
 	private double moveVertical( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 || edge.isWall() ) return 0;
@@ -1125,7 +1139,8 @@ public class Workpane extends Pane implements Configurable {
 	}
 
 	/**
-	 * Move the edge horizontally because its orientation is vertical. This method may be called from other edges that need to move as part of the bump and slide effect.
+	 * Move the edge horizontally because its orientation is vertical. This method may be called from other edges that need to move as part of the bump and slide
+	 * effect.
 	 */
 	private double moveHorizontal( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 || edge.isWall() ) return 0;
@@ -1674,7 +1689,9 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			newEdge.setPosition( percent );
 		} else {
-			newEdge.setPosition( newView.getEdge( Side.TOP ).getPosition() + ((source.getEdge( Side.BOTTOM ).getPosition() - newView.getEdge( Side.TOP ).getPosition()) * percent) );
+			newEdge.setPosition( newView.getEdge( Side.TOP ).getPosition() + ((source.getEdge( Side.BOTTOM ).getPosition() - newView
+				.getEdge( Side.TOP )
+				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1739,7 +1756,9 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			newEdge.setPosition( percent );
 		} else {
-			newEdge.setPosition( newView.getEdge( Side.LEFT ).getPosition() + ((source.getEdge( Side.RIGHT ).getPosition() - newView.getEdge( Side.LEFT ).getPosition()) * percent) );
+			newEdge.setPosition( newView.getEdge( Side.LEFT ).getPosition() + ((source.getEdge( Side.RIGHT ).getPosition() - newView
+				.getEdge( Side.LEFT )
+				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1811,7 +1830,9 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			newEdge.setPosition( percent );
 		} else {
-			newEdge.setPosition( newView.getEdge( Side.RIGHT ).getPosition() - ((newView.getEdge( Side.RIGHT ).getPosition() - source.getEdge( Side.LEFT ).getPosition()) * percent) );
+			newEdge.setPosition( newView.getEdge( Side.RIGHT ).getPosition() - ((newView.getEdge( Side.RIGHT ).getPosition() - source
+				.getEdge( Side.LEFT )
+				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1882,7 +1903,9 @@ public class Workpane extends Pane implements Configurable {
 		if( source == null ) {
 			newEdge.setPosition( percent );
 		} else {
-			newEdge.setPosition( newView.getEdge( Side.BOTTOM ).getPosition() - ((newView.getEdge( Side.BOTTOM ).getPosition() - source.getEdge( Side.TOP ).getPosition()) * percent) );
+			newEdge.setPosition( newView.getEdge( Side.BOTTOM ).getPosition() - ((newView.getEdge( Side.BOTTOM ).getPosition() - source
+				.getEdge( Side.TOP )
+				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1974,22 +1997,7 @@ public class Workpane extends Pane implements Configurable {
 		}
 
 		private int getDirectionValue( Side side ) {
-			switch( side ) {
-				case TOP: {
-					return 1;
-				}
-				case BOTTOM: {
-					return 2;
-				}
-				case LEFT: {
-					return 3;
-				}
-				case RIGHT: {
-					return 4;
-				}
-			}
-
-			return 0;
+			return side == null ? 0 : side.ordinal() + 1;
 		}
 
 		private int getMergeWeight( WorkpaneView target, Side side ) {
