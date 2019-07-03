@@ -78,7 +78,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		tab.setOnDragDone( ( event ) -> {
 			log.warn( "Drag done: " + tool.getResource().getUri() );
-			getSkinnable().getToolPane().getWorkpane().setDropHint( null );
+			//getSkinnable().getToolPane().getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragEntered( ( event ) -> {
@@ -90,7 +90,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		tab.setOnDragOver( ( event ) -> {
 			//log.warn( "Drag over tab: " + event.getDragboard().getUrl() );
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
 			event.consume();
 		} );
 
@@ -101,7 +101,14 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
-			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			log.warn( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+
+			Tool sourceTool = ((ToolTab)event.getGestureSource()).getTool();
+			//Workpane sourcePane = tool.getWorkpane();
+
+			tool.getWorkpane().removeTool( sourceTool );
+			tab.getTool().getWorkpane().addTool( sourceTool, tab.getTool().getToolView(), true );
+
 			event.setDropCompleted( true );
 			event.consume();
 		} );

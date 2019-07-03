@@ -91,7 +91,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		} );
 
 		headerDrop.setOnDragOver( ( event ) -> {
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
 			event.consume();
 		} );
 
@@ -106,7 +106,6 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			event.setDropCompleted( true );
 			event.consume();
 		} );
-
 
 		toolArea.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter area: " + event.getDragboard().getUrl() );
@@ -128,6 +127,8 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 		toolArea.setOnDragDropped( ( event ) -> {
 			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			// NOTE If the event gesture source is null the drag came from outside the program
+
 			event.setDropCompleted( true );
 			event.consume();
 		} );
