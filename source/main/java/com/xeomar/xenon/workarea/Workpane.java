@@ -11,11 +11,11 @@ import javafx.collections.ObservableList;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -59,6 +59,8 @@ public class Workpane extends Control implements Configurable {
 	private WorkpaneEdge rightWall;
 
 	private WorkpaneEdge bottomWall;
+
+	private WorkpaneDropHint dragHint;
 
 	private DoubleProperty edgeSize;
 
@@ -369,8 +371,14 @@ public class Workpane extends Control implements Configurable {
 		listeners.remove( listener );
 	}
 
-	void setDragHint( Rectangle hint ) {
-		// NEXT Set drag hint
+	void setDropHint( WorkpaneDropHint hint ) {
+		if( dragHint != null ) getChildren().remove( dragHint );
+		if( hint != null ) getChildren().add( dragHint = hint );
+	}
+
+	@Override
+	protected Skin<?> createDefaultSkin() {
+		return new WorkpaneSkin( this );
 	}
 
 	private boolean isOperationActive() {
@@ -1085,9 +1093,8 @@ public class Workpane extends Control implements Configurable {
 		layout.layout();
 	}
 
-	@Override
-	protected final void layoutInArea( Node node, double v, double v1, double v2, double v3, double v4, HPos hPos, VPos vPos ) {
-		super.layoutInArea( node, v, v1, v2, v3, v4, hPos, vPos );
+	final void layoutInArea( Node node, double areaX, double areaY, double areaWidth, double areaHeight ) {
+		super.layoutInArea( node, areaX, areaY, areaWidth, areaHeight, 0, HPos.CENTER, VPos.CENTER );
 	}
 
 	/**

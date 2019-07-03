@@ -42,6 +42,14 @@ public class ToolPane extends Control {
 		return new ToolPaneSkin( this );
 	}
 
+	protected WorkpaneView getWorkpaneView() {
+		return (WorkpaneView)getParent();
+	}
+
+	protected Workpane getWorkpane() {
+		return getWorkpaneView().getWorkpane();
+	}
+
 	private static class ToolPaneSelectionModel extends SingleSelectionModel<ToolTab> {
 
 		private ToolPane pane;

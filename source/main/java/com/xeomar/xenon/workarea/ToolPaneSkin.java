@@ -1,13 +1,14 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.util.FxUtil;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Bounds;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
@@ -40,6 +41,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 		// Create a separate pane to capture drop target events in the header space
 		Pane headerDrop = new Pane();
+		headerDrop.getStyleClass().addAll( "tool-tab-drop" );
 
 		// Create components
 		header = new BorderPane( headerDrop, null, null, null, tabContainer );
@@ -79,49 +81,56 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			getSkinnable().requestLayout();
 		} );
 
-		// NOTE Tabs overlap headers which overlap the tool area
-		//		header.setOnDragOver( (event) -> {
-		//			log.warn( "Drag over header: " + event.getDragboard().getUrl() );
-		//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-		//			event.consume();
-		//		} );
-
 		headerDrop.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter header: " + event.getDragboard().getUrl() );
+
+			Bounds bounds = FxUtil.localToParent( headerDrop, getSkinnable().getWorkpane(), headerDrop.getInsets() );
+			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+
+			event.consume();
+		} );
+
+		headerDrop.setOnDragOver( ( event ) -> {
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
 		headerDrop.setOnDragExited( ( event ) -> {
 			log.warn( "Drag exit header: " + event.getDragboard().getUrl() );
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			getSkinnable().getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
-		// NOTE Tabs overlap headers which overlap the tool area
-		//		control.setOnDragOver( (event) -> {
-		//			log.warn( "Drag over tool area: " + event.getDragboard().getUrl() );
-		//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-		//			event.consume();
-		//		} );
+		headerDrop.setOnDragDropped( ( event ) -> {
+			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			event.setDropCompleted( true );
+			event.consume();
+		} );
+
 
 		toolArea.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter area: " + event.getDragboard().getUrl() );
+			Bounds bounds = FxUtil.localToParent( toolArea, getSkinnable().getWorkpane() );
+			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+			event.consume();
+		} );
+
+		toolArea.setOnDragOver( ( event ) -> {
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
 		toolArea.setOnDragExited( ( event ) -> {
 			log.warn( "Drag exit area: " + event.getDragboard().getUrl() );
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			getSkinnable().getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
-		//		control.setOnDragDropped( (event) -> {
-		//			log.warn( "Drag dropped: " + event.getDragboard().getUrl() );
-		//			event.setDropCompleted(true );
-		//			event.consume();
-		//		} );
+		toolArea.setOnDragDropped( ( event ) -> {
+			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			event.setDropCompleted( true );
+			event.consume();
+		} );
 
 		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );

@@ -9,10 +9,12 @@
 	/* -fx-background: rgba( 241, 241, 241, 0.2 ); */
 
 	/* Program colors */
-	-ex-background-text: rgba( 241, 241, 241, 0.2 );
-	-ex-background-tabs: rgba( 241, 241, 241, 0.4 );
-	-ex-background-tags: rgba( 241, 241, 241, 0.6 );
-	-ex-background-note: rgba( 241, 241, 241, 0.8 );
+	-ex-background-text: rgba(241, 241, 241, 0.2);
+	-ex-background-tabs: rgba(241, 241, 241, 0.4);
+	-ex-background-tags: rgba(241, 241, 241, 0.6);
+	-ex-background-note: rgba(241, 241, 241, 0.8);
+
+	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
 .splashscreen-progress {
@@ -29,20 +31,23 @@
 }
 
 .splashscreen-progress-complete {
-	-fx-fill: derive( -fx-accent, 50% );
+	-fx-fill: derive(-fx-accent, 50%);
 }
 
 #menu-development > .label {
 	-fx-text-fill: red;
 	-fx-font-weight: 700;
 }
+
 #menu-development:hover > .label {
 	-fx-text-fill: -fx-text-background-color;
 }
+
 #menu-development {
 	-fx-background-color: transparent;
 }
-#menu-development:hover  {
+
+#menu-development:hover {
 	-fx-background-color: red;
 }
 
@@ -59,11 +64,11 @@
 	-fx-background-color: transparent;
 }
 
-.workpane .scroll-pane .viewport{
+.workpane .scroll-pane .viewport {
 	-fx-background-color: transparent;
 }
 
-.workpane .scroll-pane .content{
+.workpane .scroll-pane .content {
 	-fx-background-color: transparent;
 }
 
@@ -152,7 +157,8 @@
 	-fx-spacing: 1mm;
 }
 
-.memory-monitor {}
+.memory-monitor {
+}
 
 .memory-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
@@ -192,7 +198,8 @@
 	-fx-font-weight: normal;
 }
 
-.task-monitor {}
+.task-monitor {
+}
 
 .task-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
@@ -207,7 +214,7 @@
 }
 
 .task-monitor-tasks {
-	-fx-fill: derive( -fx-accent, 80% );
+	-fx-fill: derive(-fx-accent, 80%);
 }
 
 .task-monitor-progress {
@@ -294,8 +301,11 @@
 }
 
 .tool-tab {
-	-fx-background-insets: 1mm 0 0 0;
 	-fx-background-color: -ex-background-tabs;
+}
+
+.tool-tab-drop {
+	-fx-background-insets: 1mm 0 0 0;
 }
 
 .tool-tab-container {
@@ -321,4 +331,8 @@
 
 .tool-pane-content-area {
 	-fx-background-color: transparent;
+}
+
+.work-pane-drop-hint {
+	-fx-fill: -ex-work-pane-drop-hint;
 }

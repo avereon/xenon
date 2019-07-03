@@ -85,7 +85,7 @@ public class WorkpaneLayout {
 
 		//System.out.println( "Layout edge: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		workpane.layoutInArea( edge, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		workpane.layoutInArea( edge, x, y, w, h );
 		edge.setVisible( true );
 	}
 
@@ -108,7 +108,7 @@ public class WorkpaneLayout {
 
 		//System.out.println( "Layout view: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		workpane.layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		workpane.layoutInArea( view, x, y, w, h );
 		view.setVisible( true );
 	}
 
@@ -122,7 +122,7 @@ public class WorkpaneLayout {
 
 		//System.out.println( "Layout view max: x=" + x + " y=" + y + " w=" + w + " h=" + h );
 
-		workpane.layoutInArea( view, x, y, w, h, 0, HPos.CENTER, VPos.CENTER );
+		workpane.layoutInArea( view, x, y, w, h );
 		view.setVisible( true );
 	}
 

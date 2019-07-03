@@ -1,7 +1,9 @@
 package com.xeomar.xenon.workarea;
 
 import com.xeomar.util.LogUtil;
+import com.xeomar.xenon.util.FxUtil;
 import javafx.css.PseudoClass;
+import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Button;
@@ -29,7 +31,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	ToolTabSkin( ToolTab tab ) {
 		super( tab );
-		tab.getStyleClass().add( "tool-tab" );
+		tab.getStyleClass().addAll( "tool-tab", "tool-tab-drop" );
 
 		Tool tool = tab.getTool();
 
@@ -61,7 +63,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragDetected( ( event ) -> {
-			Dragboard board = tab.startDragAndDrop( TransferMode.COPY_OR_MOVE );
+			Dragboard board = tab.startDragAndDrop( TransferMode.MOVE, TransferMode.COPY );
 
 			ClipboardContent content = new ClipboardContent();
 			content.putUrl( tool.getResource().getUri().toString() );
@@ -74,24 +76,33 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			log.warn( "Drag start: " + tool.getResource().getUri() );
 		} );
 
-		tab.setOnDragDone( ( event ) -> log.warn( "Drag done: " + tool.getResource().getUri() ) );
-
-		// NOTE Tabs overlap headers which overlap the tool area
-//		tab.setOnDragOver( ( event ) -> {
-//			log.warn( "Drag over tab: " + event.getDragboard().getUrl() );
-//			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-//			event.consume();
-//		} );
+		tab.setOnDragDone( ( event ) -> {
+			log.warn( "Drag done: " + tool.getResource().getUri() );
+			getSkinnable().getToolPane().getWorkpane().setDropHint( null );
+		} );
 
 		tab.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter tab: " + event.getDragboard().getUrl() );
+			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolPane().getWorkpane(), tab.getInsets() );
+			getSkinnable().getToolPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+			event.consume();
+		} );
+
+		tab.setOnDragOver( ( event ) -> {
+			//log.warn( "Drag over tab: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 			event.consume();
 		} );
 
 		tab.setOnDragExited( ( event ) -> {
 			log.warn( "Drag exit tab: " + event.getDragboard().getUrl() );
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+			getSkinnable().getToolPane().getWorkpane().setDropHint( null );
+			event.consume();
+		} );
+
+		tab.setOnDragDropped( ( event ) -> {
+			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			event.setDropCompleted( true );
 			event.consume();
 		} );
 
