@@ -5,6 +5,7 @@ import com.xeomar.xenon.util.FxUtil;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.scene.control.SkinBase;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -97,14 +98,14 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 		headerDrop.setOnDragExited( ( event ) -> {
 			log.warn( "Drag exit header: " + event.getDragboard().getUrl() );
+
 			getSkinnable().getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
 		headerDrop.setOnDragDropped( ( event ) -> {
-			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
-			event.setDropCompleted( true );
-			event.consume();
+			log.warn( "Drag dropped on tool header: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			handleDrop( control, event );
 		} );
 
 		toolArea.setOnDragEntered( ( event ) -> {
@@ -126,15 +127,31 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		} );
 
 		toolArea.setOnDragDropped( ( event ) -> {
-			log.warn( "Drag drapped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
-			// NOTE If the event gesture source is null the drag came from outside the program
-
-			event.setDropCompleted( true );
-			event.consume();
+			log.warn( "Drag dropped on tool area: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			handleDrop( control, event );
 		} );
 
 		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
+	}
+
+	private void handleDrop( ToolPane control, DragEvent event ) {
+		// NOTE If the event gesture source is null the drag came from outside the program
+
+		if( event.getTransferMode() == TransferMode.MOVE ) {
+			Tool sourceTool = ((ToolTab)event.getGestureSource()).getTool();
+			Workpane sourcePane = sourceTool.getWorkpane();
+			sourcePane.removeTool( sourceTool );
+			sourcePane.setDropHint( null );
+
+			Workpane targetPane = getSkinnable().getWorkpane();
+			WorkpaneView targetView = getSkinnable().getWorkpaneView();
+
+			targetPane.addTool( sourceTool, targetView, control.getTabs().size(), true );
+		}
+
+		event.setDropCompleted( true );
+		event.consume();
 	}
 
 	@Override

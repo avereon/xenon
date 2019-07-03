@@ -102,18 +102,20 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		tab.setOnDragDropped( ( event ) -> {
 			log.warn( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			// NOTE If the event gesture source is null the drag came from outside the program
 
-			// Get the index of the target tab before anything changes
-			int index = tab.getToolPane().getTabs().indexOf( tab );
+			if( event.getTransferMode() == TransferMode.MOVE ) {
+				// Get the index of the target tab before anything changes
+				int index = tab.getToolPane().getTabs().indexOf( tab );
 
-			Tool sourceTool = ((ToolTab)event.getGestureSource()).getTool();
+				Tool sourceTool = ((ToolTab)event.getGestureSource()).getTool();
+				Workpane sourcePane = sourceTool.getWorkpane();
+				sourcePane.removeTool( sourceTool );
+				sourcePane.setDropHint( null );
 
-			Workpane sourcePane = tool.getWorkpane();
-			sourcePane.setDropHint( null );
-			sourcePane.removeTool( sourceTool );
-
-			Workpane targetPane = tab.getTool().getWorkpane();
-			targetPane.addTool( sourceTool, tab.getTool().getToolView(), index, true );
+				Workpane targetPane = tab.getTool().getWorkpane();
+				targetPane.addTool( sourceTool, tab.getTool().getToolView(), index, true );
+			}
 
 			event.setDropCompleted( true );
 			event.consume();
