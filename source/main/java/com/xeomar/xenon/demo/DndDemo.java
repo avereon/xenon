@@ -1,4 +1,4 @@
-package com.xeomar.xenon;
+package com.xeomar.xenon.demo;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;

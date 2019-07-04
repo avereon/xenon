@@ -371,6 +371,26 @@ public class Workpane extends Control implements Configurable {
 		listeners.remove( listener );
 	}
 
+	@Override
+	protected double computeMinWidth( double height ) {
+		return getInsets().getLeft() + getInsets().getRight();
+	}
+
+	@Override
+	protected double computeMinHeight( double width ) {
+		return getInsets().getTop() + getInsets().getBottom();
+	}
+
+	@Override
+	protected double computeMaxWidth( double height ) {
+		return Double.MAX_VALUE;
+	}
+
+	@Override
+	protected double computeMaxHeight( double width ) {
+		return Double.MAX_VALUE;
+	}
+
 	void setDropHint( WorkpaneDropHint hint ) {
 		if( dragHint != null ) getChildren().remove( dragHint );
 		if( hint != null ) getChildren().add( dragHint = hint );
