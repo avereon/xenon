@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Side;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.Control;
 import javafx.scene.control.SingleSelectionModel;
@@ -52,7 +53,7 @@ public class ToolPane extends Control {
 		return getWorkpaneView().getWorkpane();
 	}
 
-	void handleDrop( DragEvent event, int index ) {
+	void handleDrop( DragEvent event, int index, Side side ) {
 		// NOTE If the event gesture source is null the drag came from outside the program
 
 		try {
@@ -62,7 +63,6 @@ public class ToolPane extends Control {
 			WorkpaneView targetView = getWorkpaneView();
 			Workpane targetPane = getWorkpane();
 
-
 			if( event.getTransferMode() == TransferMode.MOVE ) {
 				if( droppedOnArea && sourceTool == targetView.getActiveTool() ) return;
 				sourcePane.removeTool( sourceTool );
@@ -70,7 +70,11 @@ public class ToolPane extends Control {
 				sourceTool = cloneTool( sourceTool );
 			}
 
-			if( index < 0 || index > getTabs().size() ) index = getTabs().size();
+			if( side != null ) targetView = targetPane.split( targetView, side );
+
+			int targetViewTabCount = targetView.getTools().size();
+			if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
+
 			targetPane.addTool( sourceTool, targetView, index, true );
 			sourcePane.setDropHint( null );
 		} finally {

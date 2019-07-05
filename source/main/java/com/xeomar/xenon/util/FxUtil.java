@@ -78,15 +78,11 @@ public class FxUtil {
 	}
 
 	public static Bounds localToParent( Node source, Node target ) {
-		Bounds result = source.getLayoutBounds();
-//		result = source.getBoundsInLocal();
-		Insets insets = Insets.EMPTY;
+		return localToParent( source, target, source.getLayoutBounds() );
+	}
 
-//		if( source instanceof Region ) {
-//			Border border = ((Region)source).getBorder();
-//			if( border != null ) insets = border.getInsets();
-//			//insets = add( ((Region)source).getBorder().getInsets(), ((Region)source).getBorder().getOutsets() );
-//		}
+	public static Bounds localToParent( Node source, Node target, Bounds bounds ) {
+		Bounds result = bounds;
 
 		Node parent = source;
 		while( parent != null ) {
@@ -94,13 +90,6 @@ public class FxUtil {
 			result = parent.localToParent( result );
 			parent = parent.getParent();
 		}
-
-//		result = new BoundingBox(
-//			result.getMinX() + insets.getLeft(),
-//			result.getMinY() + insets.getTop(),
-//			result.getWidth() - (insets.getLeft() + insets.getRight()),
-//			result.getHeight() - (insets.getTop() + insets.getBottom())
-//		);
 
 		return result;
 	}

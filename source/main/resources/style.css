@@ -302,19 +302,14 @@
 
 .tool-tab {
 	-fx-background-color: -ex-background-tabs;
-
-	/*-fx-border-color: transparent;*/
-	/*-fx-border-width: 0 0.5mm 0 0;*/
-	/*-fx-border-insets: 0 0.5mm 0 0;*/
-	/*-fx-background-insets: 0 0.5mm 0 0;*/
-	/*-fx-border-insets: 0 0.5mm 0 0;*/
-
+	/* The padding sizes should match the tool-tab:selected border and padding size */
 	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
 }
 
 .tool-tab:selected {
 	-fx-background-color: -ex-background-note;
 	-fx-border-color: -fx-selection-bar;
+	/* The border and padding sizes should match the tool-tab padding size */
 	-fx-border-width: 0 0 0.5mm 0;
 	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
 }

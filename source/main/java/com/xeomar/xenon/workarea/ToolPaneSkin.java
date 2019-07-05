@@ -3,8 +3,12 @@ package com.xeomar.xenon.workarea;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.FxUtil;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -25,6 +29,10 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 	private Pane toolArea;
 
+	public static final double SIDE_PERCENT = 0.3;
+
+	public static final double MINIMUM_PIXELS = 50;
+
 	protected ToolPaneSkin( ToolPane control ) {
 		super( control );
 
@@ -37,7 +45,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		Set<Tool> tools = control.getTabs().stream().map( ToolTab::getTool ).peek( tool -> tool.setVisible( false ) ).collect( Collectors.toSet() );
 
 		HBox tabContainer = new HBox();
-		tabContainer.getStyleClass().add("box");
+		tabContainer.getStyleClass().add( "box" );
 		tabContainer.getChildren().addAll( control.getTabs() );
 
 		// Create a separate pane to capture drop target events in the header space
@@ -82,6 +90,13 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			getSkinnable().requestLayout();
 		} );
 
+		headerDrop.setOnMouseClicked( ( event ) -> {
+			if( event.getClickCount() == 2 ) {
+				WorkpaneView view = getSkinnable().getWorkpaneView();
+				view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
+			}
+		} );
+
 		headerDrop.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter header: " + event.getDragboard().getUrl() );
 
@@ -105,35 +120,96 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 		headerDrop.setOnDragDropped( ( event ) -> {
 			log.warn( "Drag dropped on tool header: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
-			control.handleDrop( event, -1 );
+			control.handleDrop( event, -1, null );
 		} );
 
 		toolArea.setOnDragEntered( ( event ) -> {
-			log.warn( "Drag enter area: " + event.getDragboard().getUrl() );
-			Bounds bounds = FxUtil.localToParent( toolArea, getSkinnable().getWorkpane() );
-			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 			event.consume();
 		} );
 
 		toolArea.setOnDragOver( ( event ) -> {
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
+
+			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
+			Bounds dropHintBounds = FxUtil.localToParent( toolArea, getSkinnable().getWorkpane(), dropBounds );
+			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( dropHintBounds ) );
+
 			event.consume();
 		} );
 
 		toolArea.setOnDragExited( ( event ) -> {
-			log.warn( "Drag exit area: " + event.getDragboard().getUrl() );
 			getSkinnable().getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
 		toolArea.setOnDragDropped( ( event ) -> {
-			log.warn( "Drag dropped on tool area: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
-
-			control.handleDrop( event, -2 );
+			control.handleDrop( event, -2, getDropSide( event ) );
 		} );
 
 		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
+	}
+
+	private double getDropHintWidth( Bounds bounds ) {
+		return Math.min( MINIMUM_PIXELS, SIDE_PERCENT * bounds.getWidth() );
+	}
+
+	private double getDropHintHeight( Bounds bounds ) {
+		return Math.min( MINIMUM_PIXELS, SIDE_PERCENT * bounds.getHeight() );
+	}
+
+	private Side getDropSide( DragEvent event ) {
+		Side position = null;
+
+		Bounds bounds = ((Node)event.getSource()).getLayoutBounds();
+
+		double dropWidth = getDropHintWidth( bounds );
+		double dropHeight = getDropHintHeight( bounds );
+
+		double northDistance = event.getY() - bounds.getMinY();
+		double southDistance = bounds.getMinY() + bounds.getHeight() - event.getY();
+		double eastDistance = bounds.getMinX() + bounds.getWidth() - event.getX();
+		double westDistance = event.getX() - bounds.getMinX();
+
+		// The following checks should be in this order: south, north, east, west
+		if( southDistance > 0 && southDistance < dropHeight ) {
+			position = Side.BOTTOM;
+		}
+		if( northDistance > 0 && northDistance < dropHeight ) {
+			position = Side.TOP;
+		}
+		if( eastDistance > 0 && eastDistance < dropWidth ) {
+			position = Side.RIGHT;
+		}
+		if( westDistance > 0 && westDistance < dropWidth ) {
+			position = Side.LEFT;
+		}
+
+		return position;
+	}
+
+	private Bounds getDropBounds( Bounds bounds, Side side ) {
+		if( side == null ) return bounds;
+
+		double dropWidth = getDropHintWidth( bounds );
+		double dropHeight = getDropHintHeight( bounds );
+
+		switch( side ) {
+			case LEFT: {
+				return new BoundingBox( 0, 0, dropWidth, bounds.getHeight() );
+			}
+			case RIGHT: {
+				return new BoundingBox( bounds.getWidth() - dropWidth, 0, dropWidth, bounds.getHeight() );
+			}
+			case TOP: {
+				return new BoundingBox( 0, 0, bounds.getWidth(), dropHeight );
+			}
+			case BOTTOM: {
+				return new BoundingBox( 0, bounds.getHeight() - dropHeight, bounds.getWidth(), dropHeight );
+			}
+		}
+
+		return bounds;
 	}
 
 	@Override

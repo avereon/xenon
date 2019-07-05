@@ -73,6 +73,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 			ClipboardContent content = new ClipboardContent();
 			content.putUrl( tool.getResource().getUri().toString() );
+			content.putString( tool.getResource().getUri().toString() );
 			board.setContent( content );
 
 			// WORKAROUND Setting a drag view causes DnD to break
@@ -109,7 +110,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		tab.setOnDragDropped( ( event ) -> {
 			log.warn( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
 			int index = tab.getToolPane().getTabs().indexOf( tab );
-			tab.getToolPane().handleDrop( event, index );
+			tab.getToolPane().handleDrop( event, index, null );
 		} );
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
