@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.css.PseudoClass;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -13,6 +14,8 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 
 public class ToolTab extends Control {
+
+	static final PseudoClass SELECTED_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "selected" );
 
 	private ToolPane pane;
 
@@ -27,6 +30,7 @@ public class ToolTab extends Control {
 	public ToolTab( Tool tool ) {
 		if( tool == null ) throw new NullPointerException( "Tool cannot be null" );
 		this.tool = tool;
+		getStyleClass().setAll( "tool-tab" );
 	}
 
 	public Tool getTool() {
@@ -63,9 +67,8 @@ public class ToolTab extends Control {
 
 				@Override
 				protected void invalidated() {
-					if( getOnSelectionChanged() != null ) {
-						Event.fireEvent( ToolTab.this, new Event( SELECTION_CHANGED_EVENT ) );
-					}
+					pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, isSelected() );
+					if( getOnSelectionChanged() != null ) Event.fireEvent( ToolTab.this, new Event( SELECTION_CHANGED_EVENT ) );
 				}
 
 				@Override

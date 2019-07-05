@@ -302,23 +302,26 @@
 
 .tool-tab {
 	-fx-background-color: -ex-background-tabs;
-}
 
-.tool-tab-drop {
-	-fx-background-insets: 1mm 0 0 0;
-}
+	/*-fx-border-color: transparent;*/
+	/*-fx-border-width: 0 0.5mm 0 0;*/
+	/*-fx-border-insets: 0 0.5mm 0 0;*/
+	/*-fx-background-insets: 0 0.5mm 0 0;*/
+	/*-fx-border-insets: 0 0.5mm 0 0;*/
 
-.tool-tab-container {
-	-fx-padding: 1mm 1mm 0 1mm;
+	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
 }
 
 .tool-tab:selected {
 	-fx-background-color: -ex-background-note;
+	-fx-border-color: -fx-selection-bar;
+	-fx-border-width: 0 0 0.5mm 0;
+	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
 }
 
-.tool-tab-close-button {
+.tool-tab-close {
 	-fx-background-color: transparent;
-	-fx-padding: 1mm 1mm 1mm 2mm;
+	-fx-padding: 0 0 0 1mm;
 }
 
 .tool-pane {
@@ -327,6 +330,11 @@
 
 .tool-pane-header-area {
 	-fx-background-color: -ex-background-tabs;
+	-fx-spacing: 0.5mm;
+}
+
+.tool-pane-header-area .box {
+	-fx-spacing: 0.5mm;
 }
 
 .tool-pane-content-area {

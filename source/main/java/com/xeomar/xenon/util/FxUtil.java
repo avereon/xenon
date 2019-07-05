@@ -78,12 +78,15 @@ public class FxUtil {
 	}
 
 	public static Bounds localToParent( Node source, Node target ) {
-		return localToParent( source, target, Insets.EMPTY );
-	}
-
-	public static Bounds localToParent( Node source, Node target, Insets insets ) {
-
 		Bounds result = source.getLayoutBounds();
+//		result = source.getBoundsInLocal();
+		Insets insets = Insets.EMPTY;
+
+//		if( source instanceof Region ) {
+//			Border border = ((Region)source).getBorder();
+//			if( border != null ) insets = border.getInsets();
+//			//insets = add( ((Region)source).getBorder().getInsets(), ((Region)source).getBorder().getOutsets() );
+//		}
 
 		Node parent = source;
 		while( parent != null ) {
@@ -92,10 +95,22 @@ public class FxUtil {
 			parent = parent.getParent();
 		}
 
-		result = new BoundingBox( result.getMinX() + insets.getLeft(), result.getMinY() + insets.getTop(), result.getWidth() - (insets.getLeft() + insets.getRight()), result
-			.getHeight() - (insets.getTop() + insets.getBottom()) );
+//		result = new BoundingBox(
+//			result.getMinX() + insets.getLeft(),
+//			result.getMinY() + insets.getTop(),
+//			result.getWidth() - (insets.getLeft() + insets.getRight()),
+//			result.getHeight() - (insets.getTop() + insets.getBottom())
+//		);
 
 		return result;
+	}
+
+	public static Insets add( Insets a, Insets b ) {
+		return new Insets( a.getTop() + b.getTop(), a.getRight() + b.getRight(), a.getBottom() + b.getBottom(), a.getLeft() + b.getLeft() );
+	}
+
+	public static Bounds add( Bounds a, Insets b ) {
+		return new BoundingBox( a.getMinX(), a.getMinY(), a.getWidth() + b.getLeft() + b.getRight(), a.getHeight() + b.getTop() + b.getBottom() );
 	}
 
 	public static <T> List<TreeItem<T>> flatTree( TreeItem<T> item ) {

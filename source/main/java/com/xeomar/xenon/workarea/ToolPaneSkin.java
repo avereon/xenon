@@ -37,6 +37,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		Set<Tool> tools = control.getTabs().stream().map( ToolTab::getTool ).peek( tool -> tool.setVisible( false ) ).collect( Collectors.toSet() );
 
 		HBox tabContainer = new HBox();
+		tabContainer.getStyleClass().add("box");
 		tabContainer.getChildren().addAll( control.getTabs() );
 
 		// Create a separate pane to capture drop target events in the header space
@@ -84,7 +85,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		headerDrop.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter header: " + event.getDragboard().getUrl() );
 
-			Bounds bounds = FxUtil.localToParent( headerDrop, getSkinnable().getWorkpane(), headerDrop.getInsets() );
+			Bounds bounds = FxUtil.localToParent( headerDrop, getSkinnable().getWorkpane() );
 			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 
 			event.consume();

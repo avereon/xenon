@@ -2,7 +2,6 @@ package com.xeomar.xenon.workarea;
 
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.util.FxUtil;
-import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -21,8 +20,6 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private static final PseudoClass SELECTED_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "selected" );
-
 	private BorderPane tabLayout;
 
 	private Label label;
@@ -31,28 +28,37 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	ToolTabSkin( ToolTab tab ) {
 		super( tab );
-		tab.getStyleClass().addAll( "tool-tab", "tool-tab-drop" );
 
 		Tool tool = tab.getTool();
 
-		label = new Label();
+		label = new Label() {
+
+			@Override
+			protected double computeMinWidth( double height ) {
+				return computePrefWidth( height );
+			}
+
+			@Override
+			protected double computeMinHeight( double width ) {
+				return computePrefHeight( width );
+			}
+		};
 		label.getStyleClass().setAll( "tool-tab-label" );
 		label.graphicProperty().bind( tool.graphicProperty() );
 		label.textProperty().bind( tool.titleProperty() );
 
 		close = new Button();
 		close.graphicProperty().bind( tool.closeGraphicProperty() );
-		close.getStyleClass().setAll( "tool-tab-close-button" );
+		close.getStyleClass().setAll( "tool-tab-close" );
 
 		tabLayout = new BorderPane();
 		tabLayout.setCenter( label );
 		tabLayout.setRight( close );
-		tabLayout.getStyleClass().setAll( "tool-tab-container" );
 
 		getChildren().setAll( tabLayout );
 
-		boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
-		pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, selected );
+		//boolean selected = tab.getToolPane().getSelectionModel().getSelectedItem() == tab;
+		pseudoClassStateChanged( ToolTab.SELECTED_PSEUDOCLASS_STATE, tab.isSelected() );
 
 		label.setOnMousePressed( ( event ) -> {
 			select( tab );
@@ -83,7 +89,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		tab.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter tab: " + event.getDragboard().getUrl() );
-			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolPane().getWorkpane(), tab.getInsets() );
+			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolPane().getWorkpane() );
 			getSkinnable().getToolPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 			event.consume();
 		} );
@@ -111,8 +117,6 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			event.consume();
 			tool.close();
 		} );
-
-		tab.selectedProperty().addListener( ( event ) -> pseudoClassStateChanged( SELECTED_PSEUDOCLASS_STATE, tab.isSelected() ) );
 	}
 
 	@Override
