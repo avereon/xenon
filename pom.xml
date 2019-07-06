@@ -289,7 +289,7 @@
 								<argument>--module-path</argument>
 								<argument>${jlink.module.path}</argument>
 								<argument>--add-modules</argument>
-								<argument>com.xeomar.xenon,org.slf4j.jul</argument>
+								<argument>com.xeomar.xenon</argument>
 								<argument>--output</argument>
 								<argument>${basedir}/target/jlink</argument>
 								<argument>--launcher</argument>
