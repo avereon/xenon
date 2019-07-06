@@ -103,9 +103,9 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
 		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
-			String name = program.getCard().getProductKey();
-			String version = program.getCard().getVersion();
-			Path backup = program.getDataFolder().resolve( "backup" ).resolve( name + "-" + version );
+			String key = update.getCard().getProductKey();
+			String version = program.getProductManager().getProduct( key ).getCard().getVersion();
+			Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
 
 			String updatePath = update.getSource().toString().replace( File.separator, "/" );
 			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
@@ -115,13 +115,15 @@ public class ProgramShutdownHook extends Thread {
 			ucb.add( UpdateTask.MOVE, targetPath, backupPath ).line();
 			ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
 
-			String exe = OperatingSystem.isWindows() ? ".exe" : "";
-			String cmd = OperatingSystem.isWindows() ? ".bat" : "";
-			String javaFile = targetPath + "/bin/java" + exe;
-			String javawFile = targetPath + "/bin/javaw" + exe;
-			String keytoolFile = targetPath + "/bin/keytool" + exe;
-			String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
-			ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile ).line();
+			if( update.getCard().equals( program.getCard() ) ) {
+				String exe = OperatingSystem.isWindows() ? ".exe" : "";
+				String cmd = OperatingSystem.isWindows() ? ".bat" : "";
+				String javaFile = targetPath + "/bin/java" + exe;
+				String javawFile = targetPath + "/bin/javaw" + exe;
+				String keytoolFile = targetPath + "/bin/keytool" + exe;
+				String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
+				ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile ).line();
+			}
 		}
 
 		// Add parameters to restart program
