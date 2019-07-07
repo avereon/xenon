@@ -544,6 +544,10 @@ public class Program extends Application implements ProgramProduct {
 		return true;
 	}
 
+	private boolean isPeer() {
+		return programServer == null;
+	}
+
 	/**
 	 * Process program commands that affect the startup behavior of the product.
 	 *
@@ -552,14 +556,14 @@ public class Program extends Application implements ProgramProduct {
 	 */
 	boolean processCommands( com.xeomar.util.Parameters parameters ) {
 		if( parameters.isSet( ProgramFlag.WATCH ) ) {
+			// TODO Don't exit, just watch the host output
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
-			// TODO Status may not need to go to the host
 			printStatus();
-			requestExit( true );
+			if( isPeer() ) Platform.runLater( () -> requestExit( true ) );
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
-			requestExit( true );
+			if( isPeer() ) Platform.runLater( () -> requestExit( true ) );
 			return true;
 		}
 
