@@ -131,7 +131,7 @@ public class TaskTool extends ProgramTool {
 			cancel.setGraphic( getProgram().getIconLibrary().getIcon( "close" ) );
 			cancel.setOnAction( ( e ) -> task.cancel( true ) );
 
-			add( progress );
+			add( progress, "w 100!" );
 			add( name, "spany, pushx" );
 			add( cancel, "pushy" );
 		}
