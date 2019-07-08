@@ -53,7 +53,7 @@ public class PowerIcon extends ProgramIcon {
 	}
 
 	private void renderWithStroke() {
-		setLineWidth( width );
+		setDrawWidth( width );
 		drawCenteredArc( center.x, center.y, radius, radius, 90 + angle, 360 - (2 * angle), ArcType.OPEN );
 		drawLine( g( 16 ), g( 4 ), g( 16 ), g( 14 ) );
 	}

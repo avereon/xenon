@@ -11,7 +11,7 @@ public class DocumentCloseIcon extends DocumentIcon {
 		moveTo( g( 21 ), g( 15 ) );
 		lineTo( g( 11 ), g( 25 ) );
 
-		setLineWidth( g( 2 ) );
+		setDrawWidth( g( 2 ) );
 		draw();
 	}
 

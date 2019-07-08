@@ -16,7 +16,7 @@ public abstract class ProgramTool extends Tool {
 	public ProgramTool( ProgramProduct product, Resource resource ) {
 		super( resource );
 		this.product = product;
-		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "close" ) );
+		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
 	public ProgramProduct getProduct() {

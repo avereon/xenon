@@ -58,7 +58,7 @@ public class IconLibrary {
 		register( "workarea", WorkareaIcon.class );
 		register( "workarea-new", WorkareaIcon.class );
 		register( "workarea-rename", WorkareaRenameIcon.class );
-		register( "workarea-close", WorkareaCloseIcon.class );
+		register( "workarea-close", CloseToolIcon.class );
 
 		register( "add", AddIcon.class );
 		register( "refresh", RefreshIcon.class );

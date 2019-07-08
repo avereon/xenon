@@ -12,7 +12,7 @@ public class BrokenIcon extends ProgramIcon {
 
 		setDrawPaint( Color.MAGENTA );
 		setLineCap( StrokeLineCap.ROUND );
-		setLineWidth( g( 6 ) );
+		setDrawWidth( g( 6 ) );
 
 		drawLine( min, min, max, max );
 		drawLine( max, min, min, max );

@@ -133,9 +133,9 @@ public abstract class ProgramImage extends Canvas {
 		DEFAULT_DRAW_WIDTH = size;
 	}
 
-	public void setDrawWidth( double width ) {
-		drawWidth = width;
-	}
+//	public void setDrawWidth( double width ) {
+//		drawWidth = width;
+//	}
 
 	public void setDrawColor( Color color ) {
 		drawColor = color;
@@ -343,7 +343,7 @@ public abstract class ProgramImage extends Canvas {
 		this.overrideContext = context;
 	}
 
-	protected void setLineWidth( double width ) {
+	protected void setDrawWidth( double width ) {
 		getGraphicsContext2D().setLineWidth( xformX( width ) );
 	}
 
@@ -727,7 +727,7 @@ public abstract class ProgramImage extends Canvas {
 		// Set the defaults
 		setLineCap( StrokeLineCap.ROUND );
 		setLineJoin( StrokeLineJoin.ROUND );
-		setLineWidth( getIconDrawWidth() );
+		setDrawWidth( getIconDrawWidth() );
 		setDrawPaint( getIconDrawColor() );
 		setFillPaint( getIconFillPaint() );
 		setFillRule( FillRule.EVEN_ODD );
