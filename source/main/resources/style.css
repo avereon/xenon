@@ -304,6 +304,9 @@
 	-fx-background-color: -ex-background-tabs;
 	/* The padding sizes should match the tool-tab:selected border and padding size */
 	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
+
+	-fx-border-color: gray;
+	-fx-border-width: 0 0 0.5mm 0;
 }
 
 .tool-tab:selected {
@@ -311,7 +314,7 @@
 	-fx-border-color: -fx-selection-bar;
 	/* The border and padding sizes should match the tool-tab padding size */
 	-fx-border-width: 0 0 0.5mm 0;
-	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
+
 }
 
 .tool-tab-close {
