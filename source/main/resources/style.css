@@ -303,7 +303,7 @@
 .tool-tab {
 	-fx-background-color: -ex-background-tabs;
 	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
-	-fx-border-color: -ex-background-note;
+	-fx-border-color: -ex-background-tags;
 	-fx-border-width: 0 0 0.5mm 0;
 }
 
@@ -314,6 +314,12 @@
 
 .tool-tab:hover {
 	-fx-background-color: -ex-background-tags;
+	-fx-border-color: -ex-background-note;
+}
+
+.tool-tab:selected:hover {
+	-fx-background-color: -ex-background-note;
+	-fx-border-color: derive(-fx-selection-bar, 40%);
 }
 
 .tool-tab-close {
