@@ -14,7 +14,6 @@
 	-ex-background-tags: rgba(241, 241, 241, 0.6);
 	-ex-background-note: rgba(241, 241, 241, 0.8);
 
-	-ex-work-pane-tab-border: rgba(241, 241, 241, 1.0);
 	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
@@ -304,13 +303,17 @@
 .tool-tab {
 	-fx-background-color: -ex-background-tabs;
 	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
-	-fx-border-color: -ex-work-pane-tab-border, -ex-work-pane-tab-border;
-	-fx-border-width: 0 0 0.5mm 0, 0 1px 0 0;
+	-fx-border-color: -ex-background-note;
+	-fx-border-width: 0 0 0.5mm 0;
 }
 
 .tool-tab:selected {
 	-fx-background-color: -ex-background-note;
-	-fx-border-color: -fx-selection-bar, -ex-work-pane-tab-border;
+	-fx-border-color: -fx-selection-bar;
+}
+
+.tool-tab:hover {
+	-fx-background-color: -ex-background-tags;
 }
 
 .tool-tab-close {
