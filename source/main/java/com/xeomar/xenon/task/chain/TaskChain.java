@@ -60,6 +60,10 @@ public class TaskChain<RESULT> {
 		return link( new TaskWrapper<RESULT, R>( name, new FunctionTask<>( function ) ) );
 	}
 
+	public Task<RESULT> build() {
+		return task;
+	}
+
 	@Asynchronous
 	public Task<RESULT> run( Program program ) {
 		// Start the first task

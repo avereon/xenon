@@ -18,10 +18,10 @@ public class TaskChainTest extends ProgramTestCase {
 	public void testInitWithSupplier() throws Exception {
 		int value = 7;
 
-		Task<Integer> task = TaskChain.init( () -> value ).run( program );
+		TaskChain<Integer> chain =TaskChain.init( () -> value );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( value ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
@@ -30,88 +30,86 @@ public class TaskChainTest extends ProgramTestCase {
 	public void testInitWithFunction() throws Exception {
 		int value = 8;
 
-		Task<Integer> task = TaskChain.init( ( v ) -> inc( value ) ).run( program );
+		TaskChain<Integer> chain = TaskChain.init( ( v ) -> inc( value ) );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( value + 1 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 	@Test
 	public void testInitWithTask() throws Exception {
-		Task<Integer> task = TaskChain.init( new Task<Integer>() {
+		TaskChain<Integer> chain = TaskChain.init( new Task<Integer>() {
 
 			@Override
 			public Integer call() {
 				return 1;
 			}
 
-		} ).run( program );
+		} );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program);
 		assertThat( task.get(), is( 1 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 	@Test
 	public void testLinkWithSupplier() throws Exception {
-		Task<Integer> task = TaskChain.init( () -> 0 ).link( () -> 1 ).link( () -> 2 ).run( program );
+		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( () -> 1 ).link( () -> 2 );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 2 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 	@Test
 	public void testLinkWithFunction() throws Exception {
-		Task<Integer> task = TaskChain
+		TaskChain<Integer> chain = TaskChain
 			.init( () -> 0 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
-			.link( ( i ) -> i + 1 )
-			.run( program );
+			.link( ( i ) -> i + 1 );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 5 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 	@Test
 	public void testLinkWithTask() throws Exception {
-		Task<Integer> task = TaskChain.init( () -> 0 ).link( new Task<Integer>() {
+		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( new Task<Integer>() {
 
 			@Override
 			public Integer call() {
 				return 3;
 			}
 
-		} ).run( program );
+		} );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 3 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 	@Test
 	public void testEncapsulatedChain() throws Exception {
-		Task<Integer> task = TaskChain
+		TaskChain<Integer> chain = TaskChain
 			.init( this::count )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
-			.link( ( i ) -> i + 1 )
-			.run( program );
+			.link( ( i ) -> i + 1 );
+		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
 
-		// This is technically a race condition here
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 10 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
