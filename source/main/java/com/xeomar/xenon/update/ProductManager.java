@@ -542,6 +542,32 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 	}
 
+	public void checkForStagedUpdatesAtStart() {
+		if( program.getHomeFolder() == null ) {
+			log.warn( "Program not running from updatable location." );
+			return;
+		}
+
+		log.trace( "Checking for staged updates..." );
+
+		// If updates are staged, apply them.
+		int updateCount = getStagedUpdateCount();
+		if( updateCount > 0 ) {
+			log.info( "Staged updates detected: {}", updateCount );
+			try {
+				applyStagedUpdatesAtStart();
+			} catch( Exception exception ) {
+				log.warn( "Failed to apply staged updates", exception );
+			}
+		} else {
+			log.debug( "No staged updates detected." );
+		}
+	}
+
+	public void applyStagedUpdatesAtStart() {
+		applyStagedUpdates();
+	}
+
 	/**
 	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
 	 *
@@ -614,10 +640,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getStagedUpdates().size();
 	}
 
-	public boolean areUpdatesStaged() {
-		return getStagedUpdateCount() > 0;
-	}
-
 	public boolean isStaged( ProductCard card ) {
 		for( ProductUpdate update : getStagedUpdates() ) {
 			if( card.equals( update.getCard() ) ) return true;
@@ -631,39 +653,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		ProductCard internal = update.getCard();
 		return internal != null && internal.getRelease().equals( card.getRelease() );
-	}
-
-	/**
-	 * Apply updates. If updates are found then the method returns the number of updates applied.
-	 *
-	 * @return The number of updates applied.
-	 */
-	public final int updateProduct( String... extras ) {
-		if( program.getHomeFolder() == null ) {
-			log.warn( "Program not running from updatable location." );
-			return 0;
-		}
-
-		log.trace( "Checking for staged updates..." );
-
-		// If updates are staged, apply them.
-		int result = 0;
-		int updateCount = getStagedUpdateCount();
-		if( updateCount > 0 ) {
-			log.info( "Staged updates detected: {}", updateCount );
-			try {
-				result = applyStagedUpdatesAtStart();
-			} catch( Exception exception ) {
-				log.warn( "Failed to apply staged updates", exception );
-			}
-		} else {
-			log.debug( "No staged updates detected." );
-		}
-		return result;
-	}
-
-	public int applyStagedUpdatesAtStart() {
-		return applyStagedUpdates();
 	}
 
 	/**
@@ -899,11 +888,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return this;
 	}
 
-	public void uiIsAvailable() {
+	public void startMods() {
 		modules.values().forEach( this::callModCreate );
 	}
 
-	public void uiWillStop() {
+	public void stopMods() {
 		modules.values().forEach( this::callModDestroy );
 	}
 

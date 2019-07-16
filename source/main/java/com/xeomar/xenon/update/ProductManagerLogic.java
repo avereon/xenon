@@ -17,6 +17,7 @@ import com.xeomar.xenon.util.Asynchronous;
 import com.xeomar.xenon.util.DialogUtil;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -147,12 +148,7 @@ public class ProductManagerLogic {
 	}
 
 	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
-		Set<RepoCard> repos = program
-			.getProductManager()
-			.getRepos()
-			.stream()
-			.filter( RepoCard::isEnabled )
-			.collect( Collectors.toSet() );
+		Set<RepoCard> repos = program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).collect( Collectors.toSet() );
 		return startCatalogCardDownloads( repos );
 	}
 
@@ -250,14 +246,10 @@ public class ProductManagerLogic {
 
 		// Create a product/version map
 		Map<String, List<ProductCard>> productVersions = new HashMap<>();
-		products
-			.keySet()
-			.stream()
-			.filter( RepoCard::isEnabled )
-			.forEach( ( repo ) -> products.get( repo ).forEach( ( product ) -> {
-				productVersions.computeIfAbsent( product.getProductKey(), ( k ) -> new ArrayList<>() ).add( product );
-				product.setRepo( repo );
-			} ) );
+		products.keySet().stream().filter( RepoCard::isEnabled ).forEach( ( repo ) -> products.get( repo ).forEach( ( product ) -> {
+			productVersions.computeIfAbsent( product.getProductKey(), ( k ) -> new ArrayList<>() ).add( product );
+			product.setRepo( repo );
+		} ) );
 
 		Set<ProductCard> cards = new HashSet<>();
 
@@ -365,9 +357,7 @@ public class ProductManagerLogic {
 		private ProductCard card;
 
 		DownloadProductResourceTask( RepoCard repo, ProductCard card ) {
-			setName( program
-				.getResourceBundle()
-				.getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
+			setName( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
 			this.repo = repo;
 			this.card = card;
 		}
@@ -538,11 +528,7 @@ public class ProductManagerLogic {
 			stagedUpdates.add( update );
 		}
 
-		program
-			.getTaskManager()
-			.submit( Task.of( "Store staged update settings", () -> program
-				.getProductManager()
-				.setStagedUpdates( stagedUpdates ) ) );
+		program.getTaskManager().submit( Task.of( "Store staged update settings", () -> program.getProductManager().setStagedUpdates( stagedUpdates ) ) );
 
 		log.debug( "Product update count: " + stagedUpdates.size() );
 
@@ -611,9 +597,7 @@ public class ProductManagerLogic {
 	private void notifyUserOfNoUpdates( boolean connectionErrors ) {
 		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String updatesNotAvailable = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
-		String updatesCannotConnect = program
-			.getResourceBundle()
-			.getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
+		String updatesCannotConnect = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
 		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message, true ) ) );
 	}
@@ -641,7 +625,7 @@ public class ProductManagerLogic {
 		return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card ) ).get();
 	}
 
-	private void notifyUpdatesReadyToApply( boolean interactive ) {
+	void notifyUpdatesReadyToApply( boolean interactive ) {
 		if( interactive ) {
 			Platform.runLater( this::showAlert );
 		} else {
@@ -663,7 +647,9 @@ public class ProductManagerLogic {
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
 		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
 
-		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+		ButtonType discard = new ButtonType( program.getResourceBundle().getString( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
+		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );
+		alert.setGraphic( program.getIconLibrary().getIcon( "update", 64 ) );
 		alert.setTitle( title );
 		alert.setHeaderText( header );
 		alert.setContentText( message );
@@ -671,9 +657,13 @@ public class ProductManagerLogic {
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-		if( result.isPresent() && result.get() == ButtonType.YES ) {
-			program.getWorkspaceManager().requestCloseTools( ProductTool.class );
-			program.getProductManager().applyStagedUpdates();
+		if( result.isPresent() ) {
+			if( result.get() == ButtonType.YES ) {
+				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
+				program.getProductManager().applyStagedUpdates();
+			} else if( result.get() == discard ) {
+				program.getProductManager().clearStagedUpdates();
+			}
 		}
 	}
 

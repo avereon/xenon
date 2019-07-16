@@ -117,6 +117,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
+	@Deprecated
 	private ProgramNotifier notifier;
 
 	private Set<ProductEventListener> listeners;
@@ -285,8 +286,8 @@ public class Program extends Application implements ProgramProduct {
 		productManager = configureProductManager( new ProgramProductManager( this ) );
 
 		// Process staged updates, depends on product manager
-		if( processStagedUpdates() ) return;
-		time( "staged-updates" );
+		//if( processStagedUpdates() ) return;
+		//time( "staged-updates" );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
@@ -570,21 +571,21 @@ public class Program extends Application implements ProgramProduct {
 		return false;
 	}
 
-	/**
-	 * Process staged updates at startup unless the NOUPDATE flag is set. This
-	 * situation happens if updates are staged and the updater was not run or did
-	 * not run successfully. If there are no staged updates then the method
-	 * returns false. If no updates were processed due to user input then the
-	 * method also returns false.
-	 *
-	 * @return True if the program should be restarted, false otherwise.
-	 */
-	private boolean processStagedUpdates() {
-		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
-		int result = productManager.updateProduct();
-		if( result != 0 ) requestExit( true );
-		return result != 0;
-	}
+//	/**
+//	 * Process staged updates at startup unless the NOUPDATE flag is set. This
+//	 * situation happens if updates are staged and the updater was not run or did
+//	 * not run successfully. If there are no staged updates then the method
+//	 * returns false. If no updates were processed due to user input then the
+//	 * method also returns false.
+//	 *
+//	 * @return True if the program should be restarted, false otherwise.
+//	 */
+//	private boolean processStagedUpdates() {
+//		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
+//		int result = productManager.updateProduct();
+//		if( result != 0 ) requestExit( true );
+//		return result != 0;
+//	}
 
 	/**
 	 * Process the resources specified on the command line.
@@ -754,7 +755,10 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "User interface restored." );
 
 		// Notify the product manager the UI is ready
-		productManager.uiIsAvailable();
+		productManager.startMods();
+
+		// Check for staged updates
+		productManager.checkForStagedUpdatesAtStart();
 
 		// Finish the splash screen
 		int totalSteps = splashScreen.getSteps();
@@ -776,7 +780,7 @@ public class Program extends Application implements ProgramProduct {
 			// Stop the product manager
 			if( productManager != null ) {
 				// Notify the product manager the UI is ready
-				productManager.uiWillStop();
+				productManager.stopMods();
 
 				log.trace( "Stopping update manager..." );
 				productManager.stop();
