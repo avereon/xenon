@@ -54,10 +54,10 @@ public class ProgramProductManager extends ProductManager {
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
 		/*
--		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
--		 * was started as a result of a program update and the staged updates can
--		 * be cleared.
--		 */
+		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
+		 * was started as a result of a program update and the staged updates can
+		 * be cleared.
+		 */
 		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) {
 			clearStagedUpdates();
 			return;
