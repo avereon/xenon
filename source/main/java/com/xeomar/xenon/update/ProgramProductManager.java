@@ -3,6 +3,7 @@ package com.xeomar.xenon.update;
 import com.xeomar.product.ProductCard;
 import com.xeomar.util.LogUtil;
 import com.xeomar.xenon.Program;
+import com.xeomar.xenon.ProgramFlag;
 import com.xeomar.xenon.task.Task;
 import org.slf4j.Logger;
 
@@ -51,6 +52,16 @@ public class ProgramProductManager extends ProductManager {
 		int stagedUpdateCount = getStagedUpdateCount();
 		log.info( "Staged update count: " + stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
+
+		/*
+-		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
+-		 * was started as a result of a program update and the staged updates can
+-		 * be cleared.
+-		 */
+		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) {
+			clearStagedUpdates();
+			return;
+		}
 
 		new ProductManagerLogic( program ).notifyUpdatesReadyToApply( false );
 	}
