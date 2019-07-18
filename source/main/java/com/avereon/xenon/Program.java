@@ -964,17 +964,21 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerTools( ToolManager manager ) {
-		registerTool( manager, ProgramGuideType.class, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
-		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
-		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramGuideType.class, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
 		registerTool( manager, ProgramNoticeType.class, NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
 		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
+		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 
-		toolManager.addToolAlias( "com.avereon.xenon.tool.AboutTool", AboutTool.class );
-		toolManager.addToolAlias( "com.avereon.xenon.tool.NoticeTool", NoticeTool.class );
-		toolManager.addToolAlias( "com.avereon.xenon.tool.WelcomeTool", WelcomeTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.about.AboutTool", AboutTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.guide.GuideTool", GuideTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.notice.NoticeTool", NoticeTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.product.ProductTool", ProductTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.settings.SettingsTool", SettingsTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.task.TaskTool", TaskTool.class );
+		toolManager.addToolAlias( "com.xeomar.xenon.tool.welcome.WelcomeTool", WelcomeTool.class );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
