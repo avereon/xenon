@@ -29,5 +29,5 @@ the following basic features:
 
 ### Contact Information ###
 
-* This project is owned by Xeomar
-* Contact mark@xeomar.com for information
+* This project is owned by Avereon
+* Contact mark@avereon.com for information

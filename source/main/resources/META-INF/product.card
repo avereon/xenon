@@ -12,16 +12,16 @@
   "description": "${project.description}",
   "copyrightSummary": "All rights reserved.",
   "licenseSummary": "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",
-  "productUri": "https://xeomar.com/download",
-  "mainClass": "com.xeomar.xenon.Program",
+  "productUri": "https://avereon.com/download",
+  "mainClass": "com.avereon.xenon.Program",
   "javaVersion": "11",
   "maintainers": [
   {
     "name": "Mark Soderquist",
-    "email": "mark.soderquist@xeomar.com",
+    "email": "mark.soderquist@avereon.com",
     "timezone": null,
-    "organization": "Xeomar",
-    "organizationUrl": "http://www.xeomar.com",
+    "organization": "Avereon",
+    "organizationUrl": "http://www.avereon.com",
     "roles": [ "Architect", "Developer" ]
   }
   ],

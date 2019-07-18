@@ -90,9 +90,9 @@ the size of the repository could be considerable over time.
 |  |  | Artifact pool |  |
 |  |  |  |  |
 
-# Xeomar Artifact Repository
+# Avereon Artifact Repository
 
-After the above examination, the question remains how to implement the Xeomar
+After the above examination, the question remains how to implement the Avereon
 artifact repository. It has been proposed that some portions of the repository
 be stored in Git to allow others to propose additions to the "official"
 repository. However, Git is not likely to be the complete solution due to 
@@ -163,9 +163,9 @@ Pattern:
 
 Examples:
 
-    /pool/com/xeomar/xenon/0.8-20190414034312/any/any/install.pack
-    /pool/com/xeomar/xenon/0.8-20190414034312/any/any/product.card
-    /pool/com/xeomar/xenon/0.8-20190414034312/any/any/product.pack
+    /pool/com/avereon/xenon/0.8-20190414034312/any/any/install.pack
+    /pool/com/avereon/xenon/0.8-20190414034312/any/any/product.card
+    /pool/com/avereon/xenon/0.8-20190414034312/any/any/product.pack
 
 Terminology
 

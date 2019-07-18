@@ -1,7 +1,7 @@
 [
 	{
 		"name" : "${project.organization.name} Official",
-		"repo" : "https://xeomar.com/download/stable",
+		"repo" : "https://avereon.com/download/stable",
 		"icon" : "provider",
 		"enabled" : "true",
 		"removable" : "false",
@@ -9,7 +9,7 @@
 	},
 	{
 		"name" : "${project.organization.name} Nightly",
-		"repo" : "https://xeomar.com/download/latest",
+		"repo" : "https://avereon.com/download/latest",
 		"icon" : "provider",
 		"enabled" : "false",
 		"removable" : "false",

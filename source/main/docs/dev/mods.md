@@ -8,12 +8,12 @@ of ${project.name}.
 ## Setup
 
 The easiest way to start a Mod project is to use the 
-com.xeomar.xenon.mod parent pom. The parent pom will ensure that the module is 
+com.avereon.xenon.mod parent pom. The parent pom will ensure that the module is 
 packaged properly for ${project.name}:
 
 ~~~~
 <parent>
-	<groupId>com.xeomar.pom</groupId>
+	<groupId>com.avereon.pom</groupId>
 	<artifactId>mod</artifactId>
 	<version>3.0.0-SNAPSHOT</version>
 </parent>
@@ -40,7 +40,7 @@ provides Mod with com.example.sample.SampleMod
 
 ## Implementation
 
-The implementing class must extend com.xeomar.xenon.Mod. It must also have
+The implementing class must extend com.avereon.xenon.Mod. It must also have
 a no-args constructor and implement the register(), startup(), shutdown() and 
 unregister() methods.
 

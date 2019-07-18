@@ -5,13 +5,13 @@
     <servers>
 
 		<server>
-			<id>xeo-release</id>
+			<id>avn-release</id>
 			<username>${ARTIFACTORY_USERNAME}</username>
 			<password>${ARTIFACTORY_PASSWORD}</password>
 		</server>
 
 		<server>
-			<id>xeo-snapshot</id>
+			<id>avn-snapshot</id>
 			<username>${ARTIFACTORY_USERNAME}</username>
 			<password>${ARTIFACTORY_PASSWORD}</password>
 		</server>

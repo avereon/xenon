@@ -1,6 +1,6 @@
-import com.xeomar.xenon.Mod;
+import com.avereon.xenon.Mod;
 
-module com.xeomar.xenon {
+module com.avereon.xenon {
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
@@ -9,29 +9,29 @@ module com.xeomar.xenon {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	requires com.xeomar.zenna;
-	requires com.xeomar.zevra;
+	requires com.avereon.zenna;
+	requires com.avereon.zevra;
 	requires org.slf4j;
 	requires org.slf4j.jul;
 	requires miglayout.javafx;
 
-	exports com.xeomar.xenon;
-	exports com.xeomar.xenon.demo;
-	exports com.xeomar.xenon.notice;
-	exports com.xeomar.xenon.resource;
-	exports com.xeomar.xenon.task;
-	exports com.xeomar.xenon.task.chain;
-	exports com.xeomar.xenon.tool;
-	exports com.xeomar.xenon.update;
-	exports com.xeomar.xenon.util;
-	exports com.xeomar.xenon.workarea;
-	exports com.xeomar.xenon.workspace;
+	exports com.avereon.xenon;
+	exports com.avereon.xenon.demo;
+	exports com.avereon.xenon.notice;
+	exports com.avereon.xenon.resource;
+	exports com.avereon.xenon.task;
+	exports com.avereon.xenon.task.chain;
+	exports com.avereon.xenon.tool;
+	exports com.avereon.xenon.update;
+	exports com.avereon.xenon.util;
+	exports com.avereon.xenon.workarea;
+	exports com.avereon.xenon.workspace;
 
-	opens com.xeomar.xenon.bundles;
+	opens com.avereon.xenon.bundles;
 	opens settings;
 
 	// WORKAROUND Dev time problem
-	opens com.xeomar.xenon.update to com.fasterxml.jackson.databind;
+	opens com.avereon.xenon.update to com.fasterxml.jackson.databind;
 
 	uses Mod;
 }

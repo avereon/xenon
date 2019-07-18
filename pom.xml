@@ -6,14 +6,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.xeomar.pom</groupId>
+		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 
 	<!-- Update the product roadmap when the version changes -->
-	<groupId>com.xeomar</groupId>
+	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
 	<version>0.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -34,15 +34,15 @@
 
 	<repositories>
 		<repository>
-			<id>xeo</id>
-			<url>https://repo.xeomar.com/xeo</url>
+			<id>avn</id>
+			<url>https://repo.avereon.com/avn</url>
 		</repository>
 	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>xeo</id>
-			<url>https://repo.xeomar.com/xeo</url>
+			<id>avn</id>
+			<url>https://repo.avereon.com/avn</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -69,13 +69,13 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.xeomar</groupId>
+			<groupId>com.avereon</groupId>
 			<artifactId>zevra</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.xeomar</groupId>
+			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
@@ -202,7 +202,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.xeomar.xenon.Program</mainClass>
+							<mainClass>com.avereon.xenon.Program</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -228,7 +228,7 @@
 			</plugin>
 
 			<plugin>
-				<groupId>com.xeomar</groupId>
+				<groupId>com.avereon</groupId>
 				<artifactId>curex</artifactId>
 				<version>1.0-SNAPSHOT</version>
 				<executions>
@@ -289,11 +289,11 @@
 								<argument>--module-path</argument>
 								<argument>${jlink.module.path}</argument>
 								<argument>--add-modules</argument>
-								<argument>com.xeomar.xenon</argument>
+								<argument>com.avereon.xenon</argument>
 								<argument>--output</argument>
 								<argument>${basedir}/target/jlink</argument>
 								<argument>--launcher</argument>
-								<argument>xenon=com.xeomar.xenon/com.xeomar.xenon.Program</argument>
+								<argument>xenon=com.avereon.xenon/com.avereon.xenon.Program</argument>
 								<!--<argument>&#45;&#45;strip-debug</argument>-->
 								<argument>--no-header-files</argument>
 								<argument>--no-man-pages</argument>

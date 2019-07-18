@@ -8,7 +8,7 @@
 		<!-- The project.version is specified in the maven pom file -->
 		<appversion>${project.version}</appversion>
 		<authors>
-			<author name="Xeomar" email="contact@xeomar.com"/>
+			<author name="Avereon" email="contact@avereon.com"/>
 		</authors>
 		<javaversion>1.8</javaversion>
 		<run-privileged condition="izpack.windowsinstall"/>

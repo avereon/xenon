@@ -2,8 +2,8 @@
 
 java -p <module path> -m <module>
 
-java -p $APP_HOME/lib -m com.xeomar.xenon/com.xeomar.xenon.Program
+java -p $APP_HOME/lib -m com.avereon.xenon/com.avereon.xenon.Program
 
 or should the modules be in a mod folder
 
-java -p $APP_HOME/mod -m com.xeomar.xenon/com.xeomar.xenon.Program
+java -p $APP_HOME/mod -m com.avereon.xenon/com.avereon.xenon.Program

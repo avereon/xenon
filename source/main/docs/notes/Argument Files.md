@@ -12,4 +12,4 @@ Sample argument file:
 
     -Xmn128m
     -Xmx256m
-    -m com.xeomar.xenon/com.xeomar.xenon.Program
+    -m com.avereon.xenon/com.avereon.xenon.Program

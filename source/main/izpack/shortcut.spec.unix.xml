@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
-<!-- The generated shortcut file should be renamed to com.xeomar.xenon.Program.desktop -->
+<!-- The generated shortcut file should be renamed to com.avereonn.xenon.Program.desktop -->
 
 <izpack:shortcuts version="5.0" xmlns:izpack="http://izpack.org/schema/shortcuts" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://izpack.org/schema/shortcuts http://izpack.org/schema/5.0/izpack-shortcuts-5.0.xsd">
 
@@ -17,7 +17,7 @@
 		startMenu="no"
 		startup="no"
 		target="$INSTALL_PATH/bin/java"
-		commandLine="-m com.xeomar.xenon"
+		commandLine="-m com.avereon.xenon"
 		workingDirectory="${INSTALL_PATH}"
 		description="${project.name} modular application framework."
 		iconFile="${INSTALL_PATH}/bin/xenon.png"
