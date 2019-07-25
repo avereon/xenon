@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.settings.SettingsEvent;
+import com.avereon.util.FileUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.tool.settings.Setting;
@@ -123,12 +124,15 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle( product.getResourceBundle().getString( "settings", "select-file" ) );
 		//String label = product.getResourceBundle().getString( "settings", "image-files" );
+
+		// TODO Get extension filter from configuration
 		//fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter( label, "*.png", "*.jpg", "*.gif" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );
-			fileChooser.setInitialDirectory( file.getParentFile() );
-			fileChooser.setInitialFileName( file.getName() );
+			boolean exists = file.exists();
+			fileChooser.setInitialDirectory( FileUtil.findValidParent( file ) );
+			fileChooser.setInitialFileName( exists ? file.getName() : "" );
 		}
 
 		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
