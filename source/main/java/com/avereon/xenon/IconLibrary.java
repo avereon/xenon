@@ -93,6 +93,7 @@ public class IconLibrary {
 	public Node getIcon( String id, String backupId, double size ) {
 		Node node = null;
 
+		if( id == null ) id = "";
 		if( id.contains( URL_CHECK ) ) node = getIconFromUrl( id, size );
 		if( node == null ) node = getIconRenderer( id );
 		if( node == null ) node = getIconRenderer( backupId );

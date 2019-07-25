@@ -17,14 +17,18 @@ class RepoPage extends ProductToolPage {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
+	private Program program;
+
 	private ProductTool productTool;
 
 	RepoPage( Program program, ProductTool productTool ) {
+		this.program = program;
 		this.productTool = productTool;
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.SOURCES ) );
 
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
-		// TODO Add action for add button to add a new repository
+		addButton.setOnMousePressed( (e) -> addRepo() );
+		addButton.setOnTouchPressed( (e) -> addRepo() );
 
 		getButtonBox().addAll( addButton );
 	}
@@ -33,6 +37,17 @@ class RepoPage extends ProductToolPage {
 	protected void updateState() {
 		ProductTool.log.debug( "Update product repos" );
 		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool ) );
+	}
+
+	private void addRepo() {
+		RepoCard card = new RepoCard();
+		card.setName( "New Product Market" );
+		card.setRepo( "" );
+		card.setEnabled( true );
+		card.setRemovable( true );
+		program.getProductManager().addRepo( card );
+
+		updateState();
 	}
 
 	void setRepos( List<RepoCard> repos ) {

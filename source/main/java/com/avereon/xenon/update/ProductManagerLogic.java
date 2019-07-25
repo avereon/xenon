@@ -160,6 +160,7 @@ public class ProductManagerLogic {
 			URI uri = repoClient.getCatalogUri( r );
 			downloads.put( r, program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
 		} );
+
 		return downloads;
 	}
 
@@ -171,10 +172,11 @@ public class ProductManagerLogic {
 				catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
 				log.info( "Catalog card loaded for " + r );
 			} catch( IOException | ExecutionException | InterruptedException exception ) {
-				// FIXME Need to indicate there was an IO exception
+				// FIXME Need to indicate there was an IO exception, maybe as a notice
 				exception.printStackTrace();
 			}
 		} );
+
 		return catalogs;
 	}
 
