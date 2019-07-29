@@ -69,9 +69,9 @@ public class WingDiscIcon extends ProgramIcon {
 //
 //	private Color secondary = Color.web( "#FF9800" );
 
-	private Color primaryHighlight = Color.web( "#FFFFFF" );
+	private Color primaryHighlight = Color.web( "#90b0c0" );
 
-	private Color primary = Color.web( "#42A5F5" );
+	private Color primary = Color.web( "#bcd0d9" );
 
 	private Color secondaryHighlight = Color.web( "#FFF59D" );
 
@@ -111,8 +111,9 @@ public class WingDiscIcon extends ProgramIcon {
 
 		Color wingColor1 = primaryHighlight;
 		Color wingColor2 = primary;
-		//setFillPaint( linearPaint( 0,0,1,1, new Stop( 0, wingColor1 ), new Stop( 1, wingColor2 ) ) );
-		setFillTone( GradientTone.MEDIUM );
+		//setFillPaint( linearPaint( 0,0,1,1, new Stop( 0, wingColor2 ), new Stop( 1, wingColor2 ) ) );
+		setFillPaint( radialPaint( xx, xy, xy, new Stop( 0, wingColor1), new Stop( 1, wingColor2 ) ) );
+		//setFillTone( GradientTone.LIGHT );
 		arrow();
 		fillAndDraw();
 	}
