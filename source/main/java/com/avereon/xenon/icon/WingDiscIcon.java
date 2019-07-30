@@ -69,9 +69,9 @@ public class WingDiscIcon extends ProgramIcon {
 //
 //	private Color secondary = Color.web( "#FF9800" );
 
-	private Color primaryHighlight = Color.web( "#90b0c0" );
+	private Color primaryHighlight = Color.web( "#ffffff" );
 
-	private Color primary = Color.web( "#bcd0d9" );
+	private Color primary = Color.web( "#4d8099" );
 
 	private Color secondaryHighlight = Color.web( "#FFF59D" );
 
@@ -107,15 +107,17 @@ public class WingDiscIcon extends ProgramIcon {
 		setFillPaint( radialPaint( vx, vy - DISC_RADIUS, 2 * DISC_RADIUS, new Stop( 0.5, discColor1 ), new Stop( 1, discColor2 ) ) );
 		//setFillTone( GradientTone.LIGHT );
 		fillCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
-		drawCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
+		//drawCenteredOval( vx, vy, DISC_RADIUS, DISC_RADIUS );
 
-		Color wingColor1 = primaryHighlight;
-		Color wingColor2 = primary;
-		//setFillPaint( linearPaint( 0,0,1,1, new Stop( 0, wingColor2 ), new Stop( 1, wingColor2 ) ) );
-		setFillPaint( radialPaint( xx, xy, xy, new Stop( 0, wingColor1), new Stop( 1, wingColor2 ) ) );
-		//setFillTone( GradientTone.LIGHT );
+		Color wingColor1 = primary;
+		Color wingColor2 = primaryHighlight;
+
 		arrow();
-		fillAndDraw();
+		setFillPaint( wingColor1 );
+		//setFillPaint( linearPaint( 0,0,1,1, new Stop( 0, wingColor2 ), new Stop( 1, wingColor2 ) ) );
+		//setFillPaint( radialPaint( xx, g(20), g(20), new Stop( 0, wingColor1), new Stop( xy, wingColor2 ) ) );
+		//setFillTone( GradientTone.LIGHT );
+		fill();
 	}
 
 	private void arrow() {

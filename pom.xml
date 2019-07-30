@@ -86,12 +86,6 @@
 			<version>${javafx.version}</version>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.controlsfx</groupId>-->
-<!--			<artifactId>controlsfx</artifactId>-->
-<!--			<version>${controlsfx.version}</version>-->
-<!--		</dependency>-->
-
 		<dependency>
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
@@ -206,6 +200,29 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.avereon</groupId>
+				<artifactId>cameo</artifactId>
+				<version>0.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>render-images</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>render</goal>
+						</goals>
+						<configuration>
+							<images>
+								<image>
+									<class>com.avereon.xenon.icon.WingDiscLargeIcon</class>
+									<target>target/avereon.png</target>
+								</image>
+							</images>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
