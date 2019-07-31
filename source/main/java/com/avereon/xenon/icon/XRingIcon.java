@@ -12,28 +12,32 @@ import java.util.List;
  */
 public class XRingIcon extends XIcon {
 
+	// White
+	static final Color RING_HIGHLIGHT = Color.web( "#FFFFFF" );
+
+	// Indigo 300
+	static final Color RING_BASE = Color.web( "#7986CB" );
+
+	// Yellow 200
+	static final Color JET_CENTER = Color.web( "#FFF59D" );
+
+	// Orange 500
+	static final Color JET_TIP = Color.web( "#FF9800" );
+
 	protected void render() {
 		double ringScale = 7.0 / 11.0;
-
-		// Ring colors
-		Color ringBase = Color.web( "#4FC3F7" );
-		Color ringHighlight = Color.web( "#81D4FA" );
-
-		// Jet colors
-		Color jetCenter = Color.web( "#FFF59D" );
-		Color jetTip = Color.web( "#FFA726" );
 
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 10 ) * g( 10 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
-		jetPaintStops.add( new Stop( 0.1, jetCenter ) );
-		jetPaintStops.add( new Stop( 1.0, jetTip ) );
+		jetPaintStops.add( new Stop( 0.1, JET_CENTER ) );
+		jetPaintStops.add( new Stop( 1.0, JET_TIP ) );
 		Paint jetPaint = radialPaint( g( 16 ), g( 16 ), jetRadius, jetPaintStops );
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-		ringPaintStops.add( new Stop( 0.6, ringHighlight ) );
-		ringPaintStops.add( new Stop( 0.9, ringBase ) );
+		ringPaintStops.add( new Stop( 0.6, RING_HIGHLIGHT ) );
+		ringPaintStops.add( new Stop( 0.9, RING_BASE ) );
 		Paint ringPaint = radialPaint( g( 16 ), (1 / ringScale) * g( 16 ), g( 11 ), ringPaintStops );
 
 		// Bottom of jet

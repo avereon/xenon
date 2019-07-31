@@ -1,6 +1,5 @@
 package com.avereon.xenon.icon;
 
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 
@@ -18,32 +17,17 @@ public class XRingLargeIcon extends XLargeIcon {
 		double innerRingMax = 7;
 		double innerRingMin = 5;
 
-		// Ring colors
-		// Blue 200
-		Color ringHighlight = Color.web( "#90CAF9" );
-		// Blue 400
-		Color ringBase = Color.web( "#42A5F5" );
-
-		ringHighlight = Color.web( "#D0D0D0");
-		ringBase = Color.web( "#A0A0A0");
-
-		// Jet colors
-		// Yellow A200
-		Color jetCenter = Color.web( "#FFF59D" );
-		// Orange 500
-		Color jetTip = Color.web( "#FF9800" );
-
 		// Jet paint
 		double jetRadius = Math.sqrt( 2 * (g( 15 ) * g( 15 )) );
 		List<Stop> jetPaintStops = new ArrayList<>();
-		jetPaintStops.add( new Stop( 0.2, jetCenter ) );
-		jetPaintStops.add( new Stop( 0.9, jetTip ) );
+		jetPaintStops.add( new Stop( 0.2, XRingIcon.JET_CENTER ) );
+		jetPaintStops.add( new Stop( 0.9, XRingIcon.JET_TIP ) );
 		Paint jetPaint = radialPaint( g( 16 ), g( 16 ), jetRadius, jetPaintStops );
 
 		// Ring paint
 		List<Stop> ringPaintStops = new ArrayList<>();
-		ringPaintStops.add( new Stop( 0.5, ringHighlight ) );
-		ringPaintStops.add( new Stop( 1.0, ringBase ) );
+		ringPaintStops.add( new Stop( 0.2, XRingIcon.RING_HIGHLIGHT ) );
+		ringPaintStops.add( new Stop( 1.0, XRingIcon.RING_BASE ) );
 		Paint ringPaint = radialPaint( g( 16 ), g( 16 ) * outerRingMax / outerRingMin, g( outerRingMax ), ringPaintStops );
 
 		// Bottom of jet

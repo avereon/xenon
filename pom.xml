@@ -217,7 +217,11 @@
 							<images>
 								<image>
 									<class>com.avereon.xenon.icon.WingDiscLargeIcon</class>
-									<target>target/avereon.png</target>
+									<target>${product-pack-folder}/bin/avereon.png</target>
+								</image>
+								<image>
+									<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+									<target>${product-pack-folder}/bin/xenon.png</target>
 								</image>
 							</images>
 						</configuration>
