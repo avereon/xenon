@@ -205,7 +205,7 @@
 			<plugin>
 				<groupId>com.avereon</groupId>
 				<artifactId>cameo</artifactId>
-				<version>0.1-SNAPSHOT</version>
+				<version>1.0</version>
 				<executions>
 					<execution>
 						<id>render-images</id>
