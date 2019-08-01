@@ -92,8 +92,8 @@ public class IconLibrary {
 		Node node = null;
 
 		if( id == null ) id = "";
-		if( id.contains( URL_CHECK ) ) node = getIconFromUrl( id, size );
 		if( node == null ) node = getIconRenderer( id );
+		if( node == null && id.contains( URL_CHECK ) ) node = getIconFromUrl( id, size );
 		if( node == null ) node = getIconRenderer( backupId );
 		if( node == null ) node = new BrokenIcon().setSize( size );
 		if( node instanceof ProgramImage ) ((ProgramImage)node).setSize( size );
