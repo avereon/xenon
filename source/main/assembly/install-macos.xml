@@ -10,17 +10,15 @@
 	<fileSets>
 		<fileSet>
 			<directory>target/jlink</directory>
-			<outputDirectory></outputDirectory>
+			<outputDirectory/>
+		</fileSet>
+		<fileSet>
+			<directory>target/main/images</directory>
+			<outputDirectory>bin</outputDirectory>
 		</fileSet>
 		<fileSet>
 			<directory>source/main/assembly/resources</directory>
 			<outputDirectory>bin</outputDirectory>
-			<includes>
-				<include>${artifact.artifactId}.ico</include>
-				<include>${artifact.artifactId}.png</include>
-				<include>${artifact.artifactId}.svg</include>
-				<include>default.args</include>
-			</includes>
 		</fileSet>
 	</fileSets>
 	<files>
