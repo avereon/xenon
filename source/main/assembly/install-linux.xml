@@ -15,6 +15,9 @@
 		<fileSet>
 			<directory>target/main/images</directory>
 			<outputDirectory>bin</outputDirectory>
+			<includes>
+				<include>${artifact.artifactId}.*</include>
+			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>source/main/assembly/resources</directory>
