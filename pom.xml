@@ -433,7 +433,7 @@
 							<!-- Assemble the installer files -->
 							<execution>
 								<id>assembly-install</id>
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>single</goal>
 								</goals>
@@ -455,7 +455,7 @@
 						<executions>
 							<execution>
 								<id>copy-izpack-resources</id>
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -471,7 +471,7 @@
 							</execution>
 							<execution>
 								<id>copy-izpack-resources-filter</id>
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -491,7 +491,7 @@
 							</execution>
 							<execution>
 								<id>copy-platform-resources</id>
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -519,7 +519,7 @@
 						<executions>
 							<execution>
 								<id>izpack-deploy</id>
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>izpack</goal>
 								</goals>
