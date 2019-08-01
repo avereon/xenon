@@ -68,8 +68,6 @@ public class IconLibrary {
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
 		register( "remove", CloseIcon.class );
-
-		register( "provider", WingDiscLargeIcon.class );
 	}
 
 	public void register( String id, Class<? extends ProgramImage> icon ) {

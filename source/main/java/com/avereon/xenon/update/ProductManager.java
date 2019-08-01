@@ -902,8 +902,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		repos.addAll( updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Collection<RepoCard>>() {}, repos ) );
 
 		// Remove old repos
-		repos.remove( new RepoCard( "https://xeomar.com/download/stable"));
-		repos.remove( new RepoCard( "https://xeomar.com/download/latest"));
+		repos.remove( new RepoCard( "https://avereon.com/download/stable"));
+		repos.remove( new RepoCard( "https://avereon.com/download/latest"));
 
 		repos.forEach( ( r ) -> {
 			if( providerRepos.values().contains( r ) ) {
