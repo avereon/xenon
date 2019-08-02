@@ -216,10 +216,6 @@
 						<configuration>
 							<images>
 								<image>
-									<class>com.avereon.xenon.icon.WingDiscLargeIcon</class>
-									<target>${images-folder}/avereon.png</target>
-								</image>
-								<image>
 									<class>com.avereon.xenon.icon.XRingLargeIcon</class>
 									<target>${images-folder}/xenon.png</target>
 								</image>
