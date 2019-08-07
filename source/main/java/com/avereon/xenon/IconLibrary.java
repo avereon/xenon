@@ -60,7 +60,7 @@ public class IconLibrary {
 		register( "workarea-rename", WorkareaRenameIcon.class );
 		register( "workarea-close", CloseToolIcon.class );
 
-		register( "add", AddIcon.class );
+		register( "add", PlusIcon.class );
 		register( "refresh", RefreshIcon.class );
 		register( "download", DownloadIcon.class );
 		register( "market", MarketIcon.class );
