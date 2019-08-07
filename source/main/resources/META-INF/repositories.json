@@ -2,7 +2,7 @@
 	{
 		"name" : "${project.organization.name} Official",
 		"repo" : "https://www.avereon.com/download/stable",
-		"icon" : "https://www.avereon.com/download/stable/v2/avereon/product/icon",
+		"icon" : "https://www.avereon.com/download/stable/avereon/product/icon",
 		"enabled" : "true",
 		"removable" : "false",
 		"rank": -2
@@ -10,7 +10,7 @@
 	{
 		"name" : "${project.organization.name} Nightly",
 		"repo" : "https://www.avereon.com/download/latest",
-		"icon" : "https://www.avereon.com/download/stable/v2/avereon/product/icon",
+		"icon" : "https://www.avereon.com/download/stable/avereon/product/icon",
 		"enabled" : "false",
 		"removable" : "false",
 		"rank": -1
