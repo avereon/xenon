@@ -19,7 +19,7 @@ public class AddIcon extends ProgramIcon {
 		addArc( g( 24 ), g( 16 ), g( 3 ), g( 3 ), 270, 180 );
 		lineTo( g( 19 ), g( 13 ) );
 		lineTo( g( 19 ), g( 8 ) );
-		addArc( g( 16 ), g(8 ) , g( 3 ), g( 3 ), 0, 180 );
+		addArc( g( 16 ), g( 8 ), g( 3 ), g( 3 ), 0, 180 );
 		closePath();
 
 		fillAndDraw();
