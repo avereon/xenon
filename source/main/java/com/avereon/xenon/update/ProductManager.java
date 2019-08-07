@@ -906,7 +906,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		repos.remove( new RepoCard( "https://avereon.com/download/latest"));
 
 		repos.forEach( ( r ) -> {
-			if( providerRepos.values().contains( r ) ) {
+			if( providerRepos.containsValue( r ) ) {
 				// Keep some values for provider repos
 				boolean enabled = r.isEnabled();
 				r.copyFrom( providerRepos.get( r ) );
