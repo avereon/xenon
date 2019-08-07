@@ -124,11 +124,8 @@ public class IconLibrary {
 	}
 
 	private Node getIconFromUrl( String url, double size ) {
-		ImageView view = new ImageView( url );
+		ImageView view = new ImageView( new Image( url, size, size, true, true ) );
 		if( view.getImage().isError() ) return null;
-		view.setFitWidth( size );
-		view.setFitHeight( size );
-		view.setSmooth( true );
 		return view;
 	}
 
