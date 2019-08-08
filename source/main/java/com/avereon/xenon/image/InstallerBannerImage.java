@@ -51,7 +51,9 @@ public class InstallerBannerImage extends ProgramImage {
 	}
 
 	public static void main( String[] commands ) {
-		proof( new InstallerBannerImage() );
+		ProgramImage image = new InstallerBannerImage();
+		image.relocate( 50,50 );
+		proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.LIGHTGRAY );
 		//save( new InstallerBannerImage(), "../../software/xenon/source/main/izpack/banner.png" );
 	}
 

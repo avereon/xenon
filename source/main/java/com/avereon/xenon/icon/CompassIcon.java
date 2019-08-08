@@ -1,7 +1,6 @@
 package com.avereon.xenon.icon;
 
 import com.avereon.xenon.ProgramIcon;
-import com.avereon.xenon.util.JavaFxStarter;
 
 public class CompassIcon extends ProgramIcon {
 
@@ -120,9 +119,9 @@ public class CompassIcon extends ProgramIcon {
 	}
 
 	public static void main( String[] commands ) {
-		JavaFxStarter.startAndWait( 1000 );
-		//proof( new CompassIcon() );
-		save( new CompassIcon(), System.getProperty( "user.home" ) + "/Downloads/avereon.png" );
+		ProgramIcon icon = new CompassIcon();
+		icon.relocate( 0.25 * icon.getSize(), 0.25 * icon.getSize() );
+		proof( icon, 1.5 * icon.getSize(), 1.5 * icon.getSize() );
 	}
 
 }

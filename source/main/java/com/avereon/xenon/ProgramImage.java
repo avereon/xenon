@@ -133,9 +133,9 @@ public abstract class ProgramImage extends Canvas {
 		DEFAULT_DRAW_WIDTH = size;
 	}
 
-//	public void setDrawWidth( double width ) {
-//		drawWidth = width;
-//	}
+	//	public void setDrawWidth( double width ) {
+	//		drawWidth = width;
+	//	}
 
 	public void setDrawColor( Color color ) {
 		drawColor = color;
@@ -152,43 +152,49 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public Image getImage() {
-		int width = (int)getWidth();
-		int height = (int)getHeight();
-		Scene scene = getImageScene();
-
-		//		// Just for research, set different color backgrounds per size
-		//		int size = Math.min( width, height );
-		//		if( size == 16 ) scene.setFill( Color.RED );
-		//		if( size == 24 ) scene.setFill( Color.ORANGE );
-		//		if( size == 32 ) scene.setFill( Color.YELLOW );
-		//		if( size == 48 ) scene.setFill( Color.YELLOWGREEN );
-		//		if( size == 64 ) scene.setFill( Color.GREEN );
-		//		if( size == 96 ) scene.setFill( Color.CYAN );
-		//		if( size == 128 ) scene.setFill( Color.BLUE );
-		//		if( size == 256 ) scene.setFill( Color.PURPLE );
-
-		WritableImage snapshot = scene.snapshot( new WritableImage( width, height ) );
-
-		// Just using the snapshot image does not work to create Stage icons
-		// Creating a new WritableImage from the snapshot image seems to solve the problem
-		return new WritableImage( snapshot.getPixelReader(), width, height );
+		return getImage( getWidth(), getHeight() );
 	}
 
-	public static void proof( ProgramImage icon ) {
+	/**
+	 * Get an image of the rendered ProgramImage. A new image of size width x
+	 * height is created and the ProgramImage is rendered on the new image at the
+	 * ProgramImage's location.
+	 *
+	 * @param width The width of the new image, not the ProgramImage width
+	 * @param height The height of the new image, not the ProgramImage height
+	 * @return An image with the rendered image on it
+	 */
+	public Image getImage( double width, double height ) {
+		WritableImage snapshot = getImageScene( width, height ).snapshot( new WritableImage( (int)width, (int)height ) );
+
+		// WORKAROUND Just using the snapshot image does not work to create Stage icons
+		// Creating a new WritableImage from the snapshot image seems to solve the problem
+		return new WritableImage( snapshot.getPixelReader(), (int)snapshot.getWidth(), (int)snapshot.getHeight() );
+	}
+
+	public static void proof( ProgramImage image ) {
+		proof( image, null );
+	}
+
+	public static void proof( ProgramImage image, Paint fill ) {
+		proof( image, image.getWidth(), image.getHeight(), fill );
+	}
+
+	public static void proof( ProgramImage image, double width, double height ) {
+		proof( image, width, height, null );
+	}
+
+	public static void proof( ProgramImage image, double width, double height, Paint fill ) {
 		JavaFxStarter.startAndWait( 1000 );
 
 		Platform.runLater( () -> {
-			String title = icon.getClass().getSimpleName();
-
-			icon.fireRender();
-
-			VBox pane = new VBox();
-			pane.getChildren().add( icon );
+			//Scene scene = new Scene( new VBox( image ) );
+			Scene scene = image.getImageScene( width, height );
+			if( fill != null ) scene.setFill( fill );
 
 			Stage stage = new Stage();
-			stage.setTitle( title );
-			stage.setScene( new Scene( pane ) );
-
+			stage.setTitle( image.getClass().getSimpleName() );
+			stage.setScene( scene );
 			stage.setResizable( true );
 			stage.centerOnScreen();
 			stage.sizeToScene();
@@ -197,6 +203,10 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public static void proof( ProgramIcon icon ) {
+		proof( icon, null );
+	}
+
+	public static void proof( ProgramIcon icon, Paint fill ) {
 		JavaFxStarter.startAndWait( 1000 );
 
 		// Now show the icon window
@@ -243,10 +253,13 @@ public abstract class ProgramImage extends Canvas {
 			stageIcons.add( icon.copy().setSize( 32 ).getImage() );
 			stageIcons.add( icon.copy().setSize( 16 ).getImage() );
 
+			Scene scene = new Scene( pane );
+			if( fill != null ) scene.setFill( fill );
+
 			Stage stage = new Stage();
 			stage.setTitle( title );
 			stage.getIcons().addAll( stageIcons );
-			stage.setScene( new Scene( pane ) );
+			stage.setScene( scene );
 
 			// The following line causes the stage not to show on Linux
 			//stage.setResizable( false );
@@ -506,7 +519,6 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	/**
-	 *
 	 * @param cx
 	 * @param cy
 	 * @param rx
@@ -635,7 +647,16 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	private Paint getGradientPaint( Color a, Color b, Color c ) {
-		return new LinearGradient( xformX( 0 ), xformX( 0 ), xformX( 1 ), xformX( 1 ), false, CycleMethod.NO_CYCLE, new Stop( 0.2, a ), new Stop( 0.5, b ), new Stop( 0.8, c ) );
+		return new LinearGradient( xformX( 0 ),
+			xformX( 0 ),
+			xformX( 1 ),
+			xformX( 1 ),
+			false,
+			CycleMethod.NO_CYCLE,
+			new Stop( 0.2, a ),
+			new Stop( 0.5, b ),
+			new Stop( 0.8, c )
+		);
 	}
 
 	protected Paint linearPaint( double x1, double y1, double x2, double y2, Stop... stops ) {
@@ -691,8 +712,13 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	private Scene getImageScene() {
+		return getImageScene( getWidth(), getHeight() );
+	}
+
+	private Scene getImageScene( double imageWidth, double imageHeight ) {
 		Pane pane = new Pane( this );
 		pane.setBackground( Background.EMPTY );
+		pane.setPrefSize( imageWidth, imageHeight );
 		Scene scene = new Scene( pane );
 		scene.setFill( Color.TRANSPARENT );
 		return scene;
