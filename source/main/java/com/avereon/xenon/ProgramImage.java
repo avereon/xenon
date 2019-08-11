@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.xenon.util.Colors;
+import com.avereon.xenon.util.FontUtil;
 import com.avereon.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.geometry.VPos;
@@ -8,7 +9,10 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.FillRule;
@@ -94,6 +98,8 @@ public abstract class ProgramImage extends Canvas {
 	private double xOffset;
 
 	private double yOffset;
+
+	private Font font;
 
 	private GraphicsContext overrideContext;
 
@@ -392,8 +398,12 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setTextBaseline( baseline );
 	}
 
-	protected void setFont( String family, FontWeight weight, FontPosture posture, double size ) {
-		getGraphicsContext2D().setFont( Font.font( family, weight, posture, size ) );
+	protected Font getFont() {
+		return font;
+	}
+
+	protected void setFont( Font font ) {
+		this.font = font;
 	}
 
 	protected void fillAndDraw() {
@@ -487,7 +497,8 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().scale( scale, scale );
 
 		// Draw the text
-		getGraphicsContext2D().setFont( Font.font( fontSize ) );
+		getGraphicsContext2D().setFont( deriveFont( font, fontSize ) );
+		getGraphicsContext2D().setFontSmoothingType( FontSmoothingType.GRAY );
 		if( maxWidth == 0 ) {
 			getGraphicsContext2D().fillText( text, x / scale, y / scale );
 		} else {
@@ -556,8 +567,7 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().scale( scale, scale );
 
 		// Draw the text
-		Font font = getGraphicsContext2D().getFont();
-		getGraphicsContext2D().setFont( Font.font( font.getFamily(), fontSize ) );
+		getGraphicsContext2D().setFont( deriveFont( font, fontSize ) );
 		getGraphicsContext2D().setFontSmoothingType( FontSmoothingType.GRAY );
 		if( maxWidth == 0 ) {
 			getGraphicsContext2D().strokeText( text, x / scale, y / scale );
@@ -673,6 +683,26 @@ public abstract class ProgramImage extends Canvas {
 
 	protected Paint radialPaint( double x, double y, double r, List<Stop> stops ) {
 		return new RadialGradient( 0, 0, xformX( x ), xformY( y ), xformX( r ), false, CycleMethod.NO_CYCLE, stops );
+	}
+
+	protected Font deriveFont( Font font, double size ) {
+		FontWeight fontWeight = FontUtil.getFontWeight( font.getStyle() );
+		FontPosture fontPosture = FontUtil.getFontPosture( font.getStyle() );
+		return Font.font( font.getFamily(), fontWeight, fontPosture, size );
+	}
+
+	protected Font deriveFont( Font font, String family ) {
+		FontWeight fontWeight = FontUtil.getFontWeight( font.getStyle() );
+		FontPosture fontPosture = FontUtil.getFontPosture( font.getStyle() );
+		return Font.font( family, fontWeight, fontPosture, font.getSize() );
+	}
+
+	protected Font deriveFont( Font font, FontWeight weight, FontPosture posture, double size ) {
+		return Font.font( font.getFamily(), weight, posture, size );
+	}
+
+	protected Font deriveFont( String family, FontWeight weight, FontPosture posture, double size ) {
+		return Font.font( family, weight, posture, size );
 	}
 
 	protected static double distance( double x1, double y1, double x2, double y2 ) {
