@@ -20,15 +20,14 @@ addons:
       - xvfb
 
 before_install:
-  - source install-jdk.sh --url "https://api.adoptopenjdk.net/v2/binary/releases/openjdk11\?openjdk_impl=hotspot\&os=$OPENJDK_OS\&arch=x64\&release=latest\&heap_size=normal\&type=jdk"
+  - source install-jdk.sh --url "https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=$OPENJDK_OS&arch=x64&release=latest&heap_size=normal&type=jdk"
   - cp .travis/settings.xml $HOME/.m2/settings.xml
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export DISPLAY=:0
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then $DISPLAY &
 
 before_script:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then rm -rf target/jlink
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then rm -rf target/jlink
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then rmdir /Q /S target\jlink
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then rm -rf target/jlink; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then rm -rf target/jlink; fi
 
 deploy:
   - provider: script
