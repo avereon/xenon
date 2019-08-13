@@ -25,9 +25,9 @@ deploy:
 
   - provider: script
     skip_cleanup: true
-    script: bash .travis/deploy-macos.sh
+    script: bash .travis/deploy-macosx.sh
     on:
-      os: macos
+      os: macosx
 
   - provider: script
     skip_cleanup: true
