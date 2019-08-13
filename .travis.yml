@@ -26,15 +26,15 @@ deploy:
     on:
       os: linux
 
-  - provider: script
-    skip_cleanup: true
-    script: bash .travis/deploy-macosx.sh
-    on:
-      os: osx
-
-  - provider: script
-    skip_cleanup: true
-    script: cmd .travis/deploy-windows.cmd
-    on:
-      os: windows
+#  - provider: script
+#    skip_cleanup: true
+#    script: bash .travis/deploy-macosx.sh
+#    on:
+#      os: osx
+#
+#  - provider: script
+#    skip_cleanup: true
+#    script: cmd .travis/deploy-windows.cmd
+#    on:
+#      os: windows
 
