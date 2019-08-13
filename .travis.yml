@@ -35,11 +35,11 @@ deploy:
     on:
       os: linux
 
-  - provider: script
-    script: bash .travis/deploy-macosx.sh
-    skip_cleanup: true
-    on:
-      os: osx
+#  - provider: script
+#    script: bash .travis/deploy-macosx.sh
+#    skip_cleanup: true
+#    on:
+#      os: osx
 
 #  - provider: script
 #    script: cmd .travis/deploy-windows.cmd
