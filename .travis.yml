@@ -23,7 +23,7 @@ before_install:
   - source install-jdk.sh --url "https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=$OPENJDK_OS&arch=x64&release=latest&heap_size=normal&type=jdk"
   - cp .travis/settings.xml $HOME/.m2/settings.xml
   - export DISPLAY=:99
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then Xvfb $DISPLAY &; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then Xvfb $DISPLAY & fi
 
 before_script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ] || [ "$TRAVIS_OS_NAME" = "osx" ]; then rm -rf target/jlink; fi
