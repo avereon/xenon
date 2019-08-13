@@ -5,7 +5,7 @@ PRODUCT=xenon
 PLATFORM=linux
 
 # Maven deploy
-mvn --settings .travis/settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -U -V -P platform-agnostic-assemblies deploy
+mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -U -V -P platform-agnostic-assemblies deploy
 
 # Avereon deploy
 echo 'avereon.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw=' >> $HOME/.ssh/known_hosts

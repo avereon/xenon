@@ -11,9 +11,10 @@ addons:
       - xvfb
 
 before_install:
-  - Xvfb :0 &
-  - export DISPLAY=:0
   - source install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&heap_size=normal&type=jdk'
+  - cp .travis/settings.xml $HOME/.m2/settings.xml
+  - export DISPLAY=:0
+  - Xvfb $DISPLAY &
 
 deploy:
   - provider: script
