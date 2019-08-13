@@ -1,0 +1,23 @@
+dist: bionic
+language: java
+jdk: openjdk11
+cache:
+  directories:
+  - "$HOME/.m2"
+
+addons:
+  apt:
+    packages:
+      - xvfb
+
+before_install:
+  - source install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&heap_size=normal&type=jdk'
+
+before_script:
+  - Xvfb :0 &
+  - export DISPLAY=:0
+
+#deploy:
+#  provider: script
+#  skip_cleanup: true
+#  script: bash .travis/deploy.sh
