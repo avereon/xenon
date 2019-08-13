@@ -1,4 +1,9 @@
-dist: bionic
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+    - os: osx
+
 language: java
 jdk: openjdk11
 cache:
