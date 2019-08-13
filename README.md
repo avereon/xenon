@@ -1,15 +1,18 @@
-# Xenon #
+[build-status]: https://travis-ci.org/avereon/xenon.svg?branch=master "Build status"
 
-Xenon is a program framework on which to build various kinds of 
-applications as plugins to the framework. The framework provides
-the following basic features:
+# Xenon ![alt text][build-status]
 
-* Workspace management - Dividing the UI workspace into work areas, 
-  providing management of user settings.
-* Resource management - Loading and saving files. Monitoring for internal 
-  and external changes.
-* Module management - Find and install program modules from online sources.
-* Update management - Finding and applying framework and plugin updates.
+Xenon is a simple program framework on which more functionality may be 
+implemented. The latest releases can be found at https://www.avereon.com.
+
+## Features
+The framework provides the following basic features:
+
+* Resource management - Managing connections, files, protocols, codecs, etc.
+* Settings management - Managing storage and maintenance of user settings
+* Workspace management - Dividing the UI workspace into work areas 
+* Mod management - Find and install program mods from online sources
+* Update management - Find and apply framework and mod updates
 
 ### Product Roadmap ###
 
