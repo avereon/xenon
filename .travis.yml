@@ -7,6 +7,9 @@ matrix:
       env: OPENJDK_OS=mac
 #    - os: windows
 #      env: OPENJDK_OS=windows
+  allow_failures:
+    - os: linux
+    - os: osx
 
 language: java
 jdk: openjdk11
