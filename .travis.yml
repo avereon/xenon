@@ -11,13 +11,26 @@ addons:
       - xvfb
 
 before_install:
-  - source install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&heap_size=normal&type=jdk'
-
-before_script:
   - Xvfb :0 &
   - export DISPLAY=:0
+  - source install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&heap_size=normal&type=jdk'
 
-#deploy:
-#  provider: script
-#  skip_cleanup: true
-#  script: bash .travis/deploy.sh
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: bash .travis/deploy-linux.sh
+    on:
+      os: linux
+
+  - provider: script
+    skip_cleanup: true
+    script: bash .travis/deploy-macos.sh
+    on:
+      os: macos
+
+  - provider: script
+    skip_cleanup: true
+    script: cmd .travis/deploy-windows.cmd
+    on:
+      os: windows
+
