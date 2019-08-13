@@ -6,7 +6,6 @@ PLATFORM=linux
 
 # Maven deploy
 rm -rf target/jlink
-#export DISPLAY=:98 && Xvfb $DISPLAY &
 mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -U -V -P testui,platform-specific-assemblies verify
 
 # Avereon deploy

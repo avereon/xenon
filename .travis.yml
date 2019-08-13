@@ -28,25 +28,22 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export DISPLAY=:99; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then Xvfb $DISPLAY & fi
 
-#before_script:
-#  - if [ "$TRAVIS_OS_NAME" = "linux" ] || [ "$TRAVIS_OS_NAME" = "osx" ]; then rm -rf target/jlink; fi
-
 deploy:
   - provider: script
-    skip_cleanup: true
     script: bash .travis/deploy-linux.sh
+    skip_cleanup: true
     on:
       os: linux
 
   - provider: script
-    skip_cleanup: true
     script: bash .travis/deploy-macosx.sh
+    skip_cleanup: true
     on:
       os: osx
 
 #  - provider: script
-#    skip_cleanup: true
 #    script: cmd .travis/deploy-windows.cmd
+#    skip_cleanup: true
 #    on:
 #      os: windows
 
