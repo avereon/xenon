@@ -2,7 +2,11 @@ matrix:
   include:
     - os: linux
       dist: bionic
+      env: OPENJDK_OS=linux
     - os: osx
+      env: OPENJDK_OS=mac
+    - os: windows
+      env: OPENJDK_OS=mac
 
 language: java
 jdk: openjdk11
@@ -16,13 +20,15 @@ addons:
       - xvfb
 
 before_install:
-  - source install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&heap_size=normal&type=jdk'
+  - source install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=$OPENJDK_OS&arch=x64&release=latest&heap_size=normal&type=jdk'
   - cp .travis/settings.xml $HOME/.m2/settings.xml
-  - export DISPLAY=:0
-  - Xvfb $DISPLAY &
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export DISPLAY=:0
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then $DISPLAY &
 
 before_script:
-  - rm -rf target/jlink
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then rm -rf target/jlink
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then rm -rf target/jlink
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then rmdir /Q /S target\jlink
 
 deploy:
   - provider: script
@@ -31,12 +37,12 @@ deploy:
     on:
       os: linux
 
-#  - provider: script
-#    skip_cleanup: true
-#    script: bash .travis/deploy-macosx.sh
-#    on:
-#      os: osx
-#
+  - provider: script
+    skip_cleanup: true
+    script: bash .travis/deploy-macosx.sh
+    on:
+      os: osx
+
 #  - provider: script
 #    skip_cleanup: true
 #    script: cmd .travis/deploy-windows.cmd
