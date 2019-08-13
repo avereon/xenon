@@ -16,6 +16,9 @@ before_install:
   - export DISPLAY=:0
   - Xvfb $DISPLAY &
 
+before_script:
+  - rm -rf target/jlink
+
 deploy:
   - provider: script
     skip_cleanup: true
