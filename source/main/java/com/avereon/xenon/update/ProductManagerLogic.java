@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
@@ -409,6 +410,8 @@ public class ProductManagerLogic {
 				try {
 					resource.waitFor();
 					log.debug( "Product resource target: " + resource.getLocalFile() );
+				} catch( CancellationException exception ) {
+					log.info( "Download cancelled: " + resource );
 				} catch( Exception exception ) {
 					resource.setThrowable( exception );
 					log.error( "Error downloading resource: " + resource, exception );

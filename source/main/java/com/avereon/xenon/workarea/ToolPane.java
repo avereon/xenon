@@ -1,5 +1,6 @@
 package com.avereon.xenon.workarea;
 
+import com.avereon.util.LogUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -12,12 +13,17 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Skin;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
+import org.slf4j.Logger;
+
+import java.lang.invoke.MethodHandles;
 
 /**
  * The ToolPane class provides a custom tab pane component for the program
  * allowing for extended and custom capabilities.
  */
 public class ToolPane extends Control {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 
@@ -67,6 +73,7 @@ public class ToolPane extends Control {
 				if( droppedOnArea && sourceTool == targetView.getActiveTool() ) return;
 				sourcePane.removeTool( sourceTool );
 			} else if( event.getTransferMode() == TransferMode.COPY ) {
+				log.warn( "Tool copy not implemented yet!");
 				sourceTool = cloneTool( sourceTool );
 			}
 

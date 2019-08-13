@@ -80,35 +80,35 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			//Image image = tab.snapshot( null, null );
 			//board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 
-			log.warn( "Drag start: " + tool.getResource().getUri() );
+			log.debug( "Drag start: " + tool.getResource().getUri() );
 		} );
 
 		tab.setOnDragDone( ( event ) -> {
-			log.warn( "Drag done: " + tool.getResource().getUri() );
+			log.debug( "Drag done: " + tool.getResource().getUri() );
 			//if( !event.isDropCompleted() ) getSkinnable().getToolPane().getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragEntered( ( event ) -> {
-			log.warn( "Drag enter tab: " + event.getDragboard().getUrl() );
+			log.debug( "Drag enter tab: " + event.getDragboard().getUrl() );
 			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolPane().getWorkpane() );
 			getSkinnable().getToolPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 			event.consume();
 		} );
 
 		tab.setOnDragOver( ( event ) -> {
-			//log.warn( "Drag over tab: " + event.getDragboard().getUrl() );
+			//log.debug( "Drag over tab: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
 			event.consume();
 		} );
 
 		tab.setOnDragExited( ( event ) -> {
-			log.warn( "Drag exit tab: " + event.getDragboard().getUrl() );
+			log.debug( "Drag exit tab: " + event.getDragboard().getUrl() );
 			getSkinnable().getToolPane().getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
-			log.warn( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			log.debug( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
 			int index = tab.getToolPane().getTabs().indexOf( tab );
 			tab.getToolPane().handleDrop( event, index, null );
 		} );
