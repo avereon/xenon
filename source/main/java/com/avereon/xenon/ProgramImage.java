@@ -686,12 +686,14 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	protected Font deriveFont( Font font, double size ) {
+		if( font == null ) font = getGraphicsContext2D().getFont();
 		FontWeight fontWeight = FontUtil.getFontWeight( font.getStyle() );
 		FontPosture fontPosture = FontUtil.getFontPosture( font.getStyle() );
 		return Font.font( font.getFamily(), fontWeight, fontPosture, size );
 	}
 
 	protected Font deriveFont( Font font, String family ) {
+		if( font == null ) font = getGraphicsContext2D().getFont();
 		FontWeight fontWeight = FontUtil.getFontWeight( font.getStyle() );
 		FontPosture fontPosture = FontUtil.getFontPosture( font.getStyle() );
 		return Font.font( family, fontWeight, fontPosture, font.getSize() );
