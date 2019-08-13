@@ -5,8 +5,9 @@ PRODUCT=xenon
 PLATFORM=linux
 
 # Maven deploy
-export DISPLAY=:1
-Xvfb $DISPLAY &
+#export DISPLAY=:1
+#Xvfb $DISPLAY &
+rm -rf target/jlink
 mvn -DskipTests=true -Dmaven.javadoc.skip=true -B -U -V -P testui,platform-specific-assemblies verify
 
 # Avereon deploy
