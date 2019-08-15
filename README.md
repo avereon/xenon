@@ -3,7 +3,7 @@
 # Xenon ![alt text][build-status]
 
 Xenon is a simple program framework on which more functionality may be 
-implemented. The latest releases can be found at https://www.avereon.com.
+implemented. Releases are available at https://www.avereon.com.
 
 ## Features
 The framework provides the following basic features:
