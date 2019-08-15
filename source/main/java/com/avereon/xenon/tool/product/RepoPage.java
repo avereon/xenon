@@ -1,11 +1,10 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.product.RepoCard;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
-import com.avereon.product.RepoCard;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import org.slf4j.Logger;
 
@@ -27,8 +26,8 @@ class RepoPage extends ProductToolPage {
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.SOURCES ) );
 
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
-		addButton.setOnMousePressed( (e) -> addRepo() );
-		addButton.setOnTouchPressed( (e) -> addRepo() );
+		addButton.setOnMousePressed( ( e ) -> addRepo() );
+		addButton.setOnTouchPressed( ( e ) -> addRepo() );
 
 		getButtonBox().addAll( addButton );
 	}
@@ -47,12 +46,17 @@ class RepoPage extends ProductToolPage {
 		card.setRemovable( true );
 		program.getProductManager().addRepo( card );
 
-		updateState();
+		// NEXT Maybe need to do more than a simple state update here
+		//updateState();
+
+		RepoPane pane = new RepoPane( productTool, this, card );
+		getChildren().add( pane );
+		pane.setEditUrl( true );
 	}
 
 	void setRepos( List<RepoCard> repos ) {
 		// Create a repo pane for each card
-		List<RepoPane> panes = repos.stream().map( ( r ) -> new RepoPane( productTool, r ) ).collect( Collectors.toList() );
+		List<RepoPane> panes = repos.stream().map( ( r ) -> new RepoPane( productTool, this, r ) ).collect( Collectors.toList() );
 
 		getChildren().clear();
 		getChildren().addAll( panes );
@@ -61,14 +65,11 @@ class RepoPage extends ProductToolPage {
 	}
 
 	void updateRepoStates() {
-		getChildren().forEach( (n) -> ((RepoPane)n).updateRepoState() );
+		getChildren().forEach( n -> ((RepoPane)n).updateRepoState() );
 	}
 
 	public void updateRepoState( RepoCard card ) {
-		for( Node node : getChildren() ) {
-			RepoPane panel = (RepoPane)node;
-			if( panel.getSource().equals( card ) ) panel.updateRepoState();
-		}
+		getChildren().stream().map( n -> (RepoPane)n ).filter( ( p ) -> p.getSource().equals( card ) ).forEach( RepoPane::updateRepoState );
 	}
 
 }
