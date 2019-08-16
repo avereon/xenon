@@ -31,6 +31,11 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 	public void setup() {
 		logic = new ProductManagerLogic( program );
 		generateRepoProductMap();
+
+		// Start with the repos disabled
+		stable.setEnabled( false );
+		preview.setEnabled( false );
+		nightly.setEnabled( false );
 	}
 
 	@Test
