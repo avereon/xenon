@@ -3,7 +3,6 @@ package com.avereon.xenon.update;
 import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
-import com.avereon.product.RepoCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
@@ -40,7 +39,7 @@ public class ProductManagerLogic {
 
 	private static final ProductCard PRODUCT_CONNECTION_ERROR = new ProductCard();
 
-	private static final RepoCard REPO_CONNECTION_ERROR = new RepoCard();
+	private static final RepoState REPO_CONNECTION_ERROR = new RepoState();
 
 	private Program program;
 
@@ -148,13 +147,13 @@ public class ProductManagerLogic {
 		return null;
 	}
 
-	private Map<RepoCard, Task<Download>> startEnabledCatalogCardDownloads() {
-		Set<RepoCard> repos = program.getProductManager().getRepos().stream().filter( RepoCard::isEnabled ).collect( Collectors.toSet() );
+	private Map<RepoState, Task<Download>> startEnabledCatalogCardDownloads() {
+		Set<RepoState> repos = program.getProductManager().getRepos().stream().filter( RepoState::isEnabled ).collect( Collectors.toSet() );
 		return startCatalogCardDownloads( repos );
 	}
 
-	private Map<RepoCard, Task<Download>> startCatalogCardDownloads( Set<RepoCard> repos ) {
-		Map<RepoCard, Task<Download>> downloads = new HashMap<>();
+	private Map<RepoState, Task<Download>> startCatalogCardDownloads( Set<RepoState> repos ) {
+		Map<RepoState, Task<Download>> downloads = new HashMap<>();
 
 		repos.forEach( ( r ) -> {
 			log.info( "Creating catalog downloads for repo: " + r.getName() );
@@ -165,8 +164,8 @@ public class ProductManagerLogic {
 		return downloads;
 	}
 
-	private Map<RepoCard, CatalogCard> collectCatalogCardDownloads( Map<RepoCard, Task<Download>> downloads ) {
-		Map<RepoCard, CatalogCard> catalogs = new HashMap<>();
+	private Map<RepoState, CatalogCard> collectCatalogCardDownloads( Map<RepoState, Task<Download>> downloads ) {
+		Map<RepoState, CatalogCard> catalogs = new HashMap<>();
 
 		downloads.keySet().forEach( ( r ) -> {
 			try {
@@ -181,8 +180,8 @@ public class ProductManagerLogic {
 		return catalogs;
 	}
 
-	private Map<RepoCard, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs, Set<ProductCard> products ) {
-		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
+	private Map<RepoState, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoState, CatalogCard> catalogs, Set<ProductCard> products ) {
+		Map<RepoState, Set<Task<Download>>> downloads = new HashMap<>();
 		Set<String> artifacts = products.stream().map( ProductCard::getArtifact ).collect( Collectors.toSet() );
 
 		catalogs.keySet().forEach( ( repo ) -> {
@@ -200,8 +199,8 @@ public class ProductManagerLogic {
 		return downloads;
 	}
 
-	private Map<RepoCard, Set<Task<Download>>> startAllProductCardDownloadTasks( Map<RepoCard, CatalogCard> catalogs ) {
-		Map<RepoCard, Set<Task<Download>>> downloads = new HashMap<>();
+	private Map<RepoState, Set<Task<Download>>> startAllProductCardDownloadTasks( Map<RepoState, CatalogCard> catalogs ) {
+		Map<RepoState, Set<Task<Download>>> downloads = new HashMap<>();
 
 		catalogs.keySet().forEach( ( repo ) -> {
 			CatalogCard catalog = catalogs.get( repo );
@@ -216,8 +215,8 @@ public class ProductManagerLogic {
 		return downloads;
 	}
 
-	private Map<RepoCard, Set<ProductCard>> collectProductCardDownloads( Map<RepoCard, Set<Task<Download>>> downloads ) {
-		Map<RepoCard, Set<ProductCard>> products = new HashMap<>();
+	private Map<RepoState, Set<ProductCard>> collectProductCardDownloads( Map<RepoState, Set<Task<Download>>> downloads ) {
+		Map<RepoState, Set<ProductCard>> products = new HashMap<>();
 
 		downloads.keySet().forEach( ( repo ) -> {
 			Set<Task<Download>> repoDownloads = downloads.get( repo );
@@ -237,11 +236,11 @@ public class ProductManagerLogic {
 		return products;
 	}
 
-	Set<ProductCard> determineAvailableProducts( Map<RepoCard, Set<ProductCard>> products ) {
+	Set<ProductCard> determineAvailableProducts( Map<RepoState, Set<ProductCard>> products ) {
 		return determineUpdateableProducts( products, Map.of() );
 	}
 
-	Set<ProductCard> determineUpdateableProducts( Map<RepoCard, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
+	Set<ProductCard> determineUpdateableProducts( Map<RepoState, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
 		if( products == null ) throw new NullPointerException( "Product map cannot be null" );
 
 		boolean determineAvailable = installedProducts.size() == 0;
@@ -249,7 +248,7 @@ public class ProductManagerLogic {
 
 		// Create a product/version map
 		Map<String, List<ProductCard>> productVersions = new HashMap<>();
-		products.keySet().stream().filter( RepoCard::isEnabled ).forEach( ( repo ) -> products.get( repo ).forEach( ( product ) -> {
+		products.keySet().stream().filter( RepoState::isEnabled ).forEach( ( repo ) -> products.get( repo ).forEach( ( product ) -> {
 			productVersions.computeIfAbsent( product.getProductKey(), ( k ) -> new ArrayList<>() ).add( product );
 			product.setRepo( repo );
 		} ) );
@@ -262,7 +261,7 @@ public class ProductManagerLogic {
 			productVersionList.sort( comparator );
 
 			ProductCard latest = productVersionList.get( 0 );
-			RepoCard repo = latest.getRepo();
+			RepoState repo = new RepoState( latest.getRepo() );
 			ProductCard installed = installedProducts.get( latest.getProductKey() );
 			boolean latestIsInstalled = installed != null && latest.getRelease().compareTo( installed.getRelease() ) <= 0;
 			boolean updateAvailable = determineUpdates && installed != null && !latestIsInstalled;
@@ -339,7 +338,7 @@ public class ProductManagerLogic {
 		// updates from those resources.
 		return cards.stream().map( ( card ) -> {
 			try {
-				RepoCard repo = card.getRepo();
+				RepoState repo = new RepoState( card.getRepo() );
 
 				// The returned ProductResource objects contain the product resource download futures
 				Set<ProductResource> resources = startProductResourceDownloads( repo, card );
@@ -355,11 +354,11 @@ public class ProductManagerLogic {
 
 	private class DownloadProductResourceTask extends Task<Set<ProductResource>> {
 
-		private RepoCard repo;
+		private RepoState repo;
 
 		private ProductCard card;
 
-		DownloadProductResourceTask( RepoCard repo, ProductCard card ) {
+		DownloadProductResourceTask( RepoState repo, ProductCard card ) {
 			setName( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
 			this.repo = repo;
 			this.card = card;
@@ -388,7 +387,7 @@ public class ProductManagerLogic {
 
 	private class ProductResourceCollector extends Task<ProductUpdate> {
 
-		private RepoCard repo;
+		private RepoState repo;
 
 		private ProductCard product;
 
@@ -396,7 +395,7 @@ public class ProductManagerLogic {
 
 		private Path localPackPath;
 
-		ProductResourceCollector( RepoCard repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
+		ProductResourceCollector( RepoState repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
 			this.repo = repo;
 			this.product = product;
 			this.resources = resources;
@@ -626,7 +625,7 @@ public class ProductManagerLogic {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	private Set<ProductResource> startProductResourceDownloads( RepoCard repo, ProductCard card ) throws InterruptedException, ExecutionException {
+	private Set<ProductResource> startProductResourceDownloads( RepoState repo, ProductCard card ) throws InterruptedException, ExecutionException {
 		return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card ) ).get();
 	}
 

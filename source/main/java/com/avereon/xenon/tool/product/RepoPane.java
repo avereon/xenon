@@ -4,6 +4,7 @@ import com.avereon.product.RepoCard;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.update.RepoState;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -17,7 +18,7 @@ class RepoPane extends MigPane {
 
 	private ProductTool productTool;
 
-	private RepoCard source;
+	private RepoState source;
 
 	private RepoPage page;
 
@@ -43,7 +44,7 @@ class RepoPane extends MigPane {
 
 	private HBox repoBox;
 
-	public RepoPane( ProductTool productTool, RepoPage page, RepoCard source ) {
+	public RepoPane( ProductTool productTool, RepoPage page, RepoState source ) {
 		super( "insets 0, gap " + UiFactory.PAD );
 
 		this.productTool = productTool;
@@ -75,10 +76,10 @@ class RepoPane extends MigPane {
 		HBox.setHgrow( nameLabel, Priority.ALWAYS );
 		HBox.setHgrow( nameField, Priority.ALWAYS );
 
-		repoLabel = new Label( source.getRepo() );
+		repoLabel = new Label( source.getUrl() );
 		repoLabel.setId( "tool-product-market-uri" );
 		repoLabel.setOnMousePressed( ( event ) -> setEditUrl( source.isRemovable() ) );
-		repoField = new TextField( source.getRepo() );
+		repoField = new TextField( source.getUrl() );
 		repoField.setId( "tool-product-market-uri-editor" );
 		repoField.focusedProperty().addListener( ( event ) -> { if( !repoField.focusedProperty().get() ) cancelEditUrl(); } );
 		repoField.setOnKeyPressed( ( event ) -> {
@@ -121,9 +122,9 @@ class RepoPane extends MigPane {
 
 		nameBox.getChildren().replaceAll( ( n ) -> (editName ? nameField : nameLabel) );
 
-		repoLabel.setText( source.getRepo() );
+		repoLabel.setText( source.getUrl() );
 		repoLabel.setDisable( !source.isEnabled() );
-		repoField.setText( source.getRepo() );
+		repoField.setText( source.getUrl() );
 
 		repoBox.getChildren().replaceAll( ( n ) -> (editUrl ? repoField : repoLabel) );
 
@@ -146,7 +147,7 @@ class RepoPane extends MigPane {
 		setEditUrl( false );
 
 		source.setName( repoName );
-		source.setRepo( repoUrl );
+		source.setUrl( repoUrl );
 
 		productTool.getProgram().getProductManager().addRepo( source );
 

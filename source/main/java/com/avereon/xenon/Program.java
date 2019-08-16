@@ -32,9 +32,9 @@ import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.task.TaskTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
 import com.avereon.xenon.update.ProductManager;
-import com.avereon.xenon.update.ProgramProductManager;
-import com.avereon.product.RepoCard;
 import com.avereon.xenon.update.ProductManagerLogic;
+import com.avereon.xenon.update.ProgramProductManager;
+import com.avereon.xenon.update.RepoState;
 import com.avereon.xenon.util.DialogUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -1012,7 +1012,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
 		// Register the provider repos
-		productManager.registerProviderRepos( RepoCard.forProduct( getClass() ) );
+		productManager.registerProviderRepos( RepoState.forProduct( getClass() ) );
 
 		// FIXME Do I want the update settings in the program settings?
 		// There is also a set of comments regarding this issue in the ProductManager class

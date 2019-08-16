@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.task.Task;
-import com.avereon.product.RepoCard;
-import com.avereon.product.RepoCardComparator;
+import com.avereon.xenon.update.RepoState;
+import com.avereon.xenon.update.RepoStateComparator;
 import javafx.application.Platform;
 
 import java.util.ArrayList;
@@ -16,9 +16,9 @@ class RefreshProductRepos extends Task<Void> {
 
 	@Override
 	public Void call() {
-		List<RepoCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getRepos() );
-		cards.sort( new RepoCardComparator( RepoCardComparator.Field.NAME ) );
-		cards.sort( new RepoCardComparator( RepoCardComparator.Field.RANK ) );
+		List<RepoState> cards = new ArrayList<>( productTool.getProgram().getProductManager().getRepos() );
+		cards.sort( new RepoStateComparator( RepoStateComparator.Field.NAME ) );
+		cards.sort( new RepoStateComparator( RepoStateComparator.Field.RANK ) );
 		Platform.runLater( () -> productTool.getRepoPage().setRepos( cards ) );
 		return null;
 	}

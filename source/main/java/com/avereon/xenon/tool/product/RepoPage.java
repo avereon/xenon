@@ -1,10 +1,10 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.product.RepoCard;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
+import com.avereon.xenon.update.RepoState;
 import javafx.scene.control.Button;
 import org.slf4j.Logger;
 
@@ -39,9 +39,9 @@ class RepoPage extends ProductToolPage {
 	}
 
 	private void addRepo() {
-		RepoCard card = new RepoCard();
+		RepoState card = new RepoState();
 		card.setName( "New Product Market" );
-		card.setRepo( "" );
+		card.setUrl( "" );
 		card.setEnabled( true );
 		card.setRemovable( true );
 		program.getProductManager().addRepo( card );
@@ -54,7 +54,7 @@ class RepoPage extends ProductToolPage {
 		pane.setEditUrl( true );
 	}
 
-	void setRepos( List<RepoCard> repos ) {
+	void setRepos( List<? extends RepoState> repos ) {
 		// Create a repo pane for each card
 		List<RepoPane> panes = repos.stream().map( ( r ) -> new RepoPane( productTool, this, r ) ).collect( Collectors.toList() );
 
@@ -68,7 +68,7 @@ class RepoPage extends ProductToolPage {
 		getChildren().forEach( n -> ((RepoPane)n).updateRepoState() );
 	}
 
-	public void updateRepoState( RepoCard card ) {
+	public void updateRepoState( RepoState card ) {
 		getChildren().stream().map( n -> (RepoPane)n ).filter( ( p ) -> p.getSource().equals( card ) ).forEach( RepoPane::updateRepoState );
 	}
 

@@ -1,7 +1,6 @@
 package com.avereon.xenon.update;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.RepoCard;
 import com.avereon.xenon.ProgramTestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +19,13 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 	private ProductManagerLogic logic;
 
-	private Map<RepoCard, Set<ProductCard>> repos;
+	private Map<RepoState, Set<ProductCard>> repos;
 
-	private RepoCard stable = new RepoCard().setRepo( "a" );
+	private RepoState stable = new RepoState().setUrl( "a" );
 
-	private RepoCard preview = new RepoCard().setRepo( "b" );
+	private RepoState preview = new RepoState().setUrl( "b" );
 
-	private RepoCard nightly = new RepoCard().setRepo( "c" );
+	private RepoState nightly = new RepoState().setUrl( "c" );
 
 	@Before
 	public void setup() {
@@ -118,7 +117,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 	@Test
 	public void testDetermineUpdateableProductsWithJustTwoVersions() {
-		Map<RepoCard, Set<ProductCard>> repos = new HashMap<>();
+		Map<RepoState, Set<ProductCard>> repos = new HashMap<>();
 
 		Set<ProductCard> products = new HashSet<>();
 		products.add( new ProductCard()
@@ -126,7 +125,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 			.setArtifact( "producta" )
 			.setVersion( "0.6" )
 			.setTimestamp( timestamp ) );
-		RepoCard repo = new RepoCard().setRepo( "a" ).setEnabled( true );
+		RepoState repo = new RepoState().setUrl( "a" ).setEnabled( true );
 		repos.put( repo, products );
 
 		ProductCard installed = new ProductCard()

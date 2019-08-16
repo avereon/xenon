@@ -107,7 +107,7 @@ public class V2RepoClient implements RepoClient {
 	}
 
 	private URI getRepoApi( RepoCard repo ) {
-		return URI.create( repo.getRepo() );
+		return URI.create( repo.getUrl() );
 	}
 
 }

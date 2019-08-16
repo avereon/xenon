@@ -127,9 +127,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Settings updateSettings;
 
-	private Map<RepoCard, RepoCard> providerRepos;
+	private Map<RepoCard, RepoState> providerRepos;
 
-	private Collection<RepoCard> repos;
+	private Map<RepoCard, RepoState> repos;
 
 	private Map<String, Mod> modules;
 
@@ -174,7 +174,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public ProductManager( Program program ) {
 		this.program = program;
 
-		repos = new CopyOnWriteArraySet<>();
+		repos = new ConcurrentHashMap<>();
 		modules = new ConcurrentHashMap<>();
 		updates = new ConcurrentHashMap<>();
 		products = new ConcurrentHashMap<>();
@@ -191,18 +191,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		includedProducts.add( new com.avereon.zenna.Program().getCard() );
 	}
 
-	public Set<RepoCard> getRepos() {
-		return new HashSet<>( repos );
+	public Set<RepoState> getRepos() {
+		return new HashSet<>( repos.values() );
 	}
 
-	public void registerProviderRepos( Collection<RepoCard> repos ) {
+	public void registerProviderRepos( Collection<RepoState> repos ) {
 		if( providerRepos != null ) return;
 		providerRepos = new ConcurrentHashMap<>();
 		repos.forEach( ( r ) -> providerRepos.put( r, r ) );
 	}
 
 	public RepoCard addRepo( RepoCard repo ) {
-		this.repos.add( repo );
+		this.repos.put( repo, new RepoState( repo ) );
 		saveRepos();
 		return repo;
 	}
@@ -214,12 +214,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public boolean isRepoEnabled( RepoCard repo ) {
-		return repos.contains( repo ) && repo.isEnabled();
+		return repos.containsKey( repo ) && repos.get( repo ).isEnabled();
 	}
 
-	public void setRepoEnabled( RepoCard catalog, boolean enabled ) {
-		if( !repos.contains( catalog ) ) return;
-		catalog.setEnabled( enabled );
+	public void setRepoEnabled( RepoCard repo, boolean enabled ) {
+		if( !repos.containsKey( repo ) ) return;
+		repos.get( repo ).setEnabled( enabled );
 		saveRepos();
 	}
 
@@ -323,7 +323,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return new ProductManagerLogic( program ).installProducts( cards );
 	}
 
-	public Task<Void>  uninstallProducts( ProductCard... cards ) throws Exception {
+	public Task<Void> uninstallProducts( ProductCard... cards ) throws Exception {
 		return uninstallProducts( Set.of( cards ) );
 	}
 
@@ -408,8 +408,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Should be called after setting the enabled flag
 		if( mod != null && enabled ) callModCreate( mod );
 
-		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card )
-			.fire( listeners );
+		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
 	}
 
 	public CheckOption getCheckOption() {
@@ -491,17 +490,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				if( startup ) delay = 0;
 				break;
 			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings
-					.get( INTERVAL_UNIT, CheckInterval.DAY.name() )
-					.toUpperCase() );
+				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
 				delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
 				if( nextUpdateCheck < (now - 1000) ) delay = 0;
 				break;
 			}
 			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings
-					.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() )
-					.toUpperCase() );
+				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
 				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
 				delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
 				if( nextUpdateCheck < (now - 1000) ) delay = 0;
@@ -899,28 +894,27 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	@SuppressWarnings( "Convert2Diamond" )
 	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
-		repos.addAll( updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Collection<RepoCard>>() {}, repos ) );
+		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
+		repoStates.stream().filter( ( state ) -> !TextUtil.isEmpty( state.getUrl() ) ).forEach( ( state ) -> repos.put( state, state ) );
 
 		// Remove old repos
-		repos.remove( new RepoCard( "https://avereon.com/download/stable"));
-		repos.remove( new RepoCard( "https://avereon.com/download/latest"));
+		repos.remove( new RepoCard( "https://avereon.com/download/stable" ) );
+		repos.remove( new RepoCard( "https://avereon.com/download/latest" ) );
 
-		repos.forEach( ( r ) -> {
-			if( providerRepos.containsValue( r ) ) {
+		repos.values().forEach( ( repo ) -> {
+			if( providerRepos.containsValue( repo ) ) {
 				// Keep some values for provider repos
-				boolean enabled = r.isEnabled();
-				r.copyFrom( providerRepos.get( r ) );
-				r.setEnabled( enabled );
+				boolean enabled = repo.isEnabled();
+				repo.copyFrom( providerRepos.get( repo ) );
+				repo.setEnabled( enabled );
 			} else {
 				// Force some values for normal repos
-				r.setRemovable( true );
-				r.setRank( 0 );
+				repo.setRemovable( true );
+				repo.setRank( 0 );
 			}
 		} );
 
-		providerRepos.values().forEach( ( r ) -> {
-			if( !repos.contains( r ) ) repos.add( r );
-		} );
+		providerRepos.keySet().forEach( ( repo ) -> repos.putIfAbsent( repo, providerRepos.get( repo ) ) );
 
 		saveRepos();
 	}
@@ -952,17 +946,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 
 		// Look for standard mods (most common)
-		Arrays
-			.stream( folders )
-			.filter( ( f ) -> Files.exists( f ) )
-			.filter( ( f ) -> Files.isDirectory( f ) )
-			.forEach( ( folder ) -> {
-				try {
-					Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
-				} catch( IOException exception ) {
-					log.error( "Error loading modules from: " + folder, exception );
-				}
-			} );
+		Arrays.stream( folders ).filter( ( f ) -> Files.exists( f ) ).filter( ( f ) -> Files.isDirectory( f ) ).forEach( ( folder ) -> {
+			try {
+				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
+			} catch( IOException exception ) {
+				log.error( "Error loading modules from: " + folder, exception );
+			}
+		} );
 	}
 
 	void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
@@ -1100,9 +1090,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ModuleFinder moduleFinder = ModuleFinder.of( source );
 		Configuration bootConfiguration = ModuleLayer.boot().configuration();
 		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
-		ModuleLayer moduleLayer = ModuleLayer
-			.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null )
-			.layer();
+		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
 		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 	}
 
