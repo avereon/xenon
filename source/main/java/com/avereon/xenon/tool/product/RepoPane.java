@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.RepoCard;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
@@ -28,9 +29,9 @@ class RepoPane extends MigPane {
 
 	private TextField nameField;
 
-	private Label repoLabel;
+	private Label urlLabel;
 
-	private TextField repoField;
+	private TextField urlField;
 
 	private Button enableButton;
 
@@ -42,7 +43,7 @@ class RepoPane extends MigPane {
 
 	private HBox nameBox;
 
-	private HBox repoBox;
+	private HBox urlBox;
 
 	public RepoPane( ProductTool productTool, RepoPage page, RepoState source ) {
 		super( "insets 0, gap " + UiFactory.PAD );
@@ -63,12 +64,13 @@ class RepoPane extends MigPane {
 
 		nameLabel = new Label( source.getName() );
 		nameLabel.setId( "tool-product-market-name" );
+		nameLabel.minWidthProperty().bind( nameLabel.prefWidthProperty() );
 		nameLabel.setOnMousePressed( ( event ) -> setEditName( source.isRemovable() ) );
 		nameField = new TextField( source.getName() );
 		nameField.setId( "tool-product-market-name-editor" );
-		nameField.focusedProperty().addListener( ( event ) -> { if( !nameField.focusedProperty().get() ) cancelEditName(); } );
+		nameField.focusedProperty().addListener( ( value, oldValue, newValue ) -> {if( oldValue ) commitEditName();} );
 		nameField.setOnKeyPressed( ( event ) -> {
-			if( event.getCode() == KeyCode.ENTER ) submitRepo();
+			if( event.getCode() == KeyCode.ENTER ) commitEditName();
 			if( event.getCode() == KeyCode.ESCAPE ) cancelEditName();
 		} );
 
@@ -76,20 +78,21 @@ class RepoPane extends MigPane {
 		HBox.setHgrow( nameLabel, Priority.ALWAYS );
 		HBox.setHgrow( nameField, Priority.ALWAYS );
 
-		repoLabel = new Label( source.getUrl() );
-		repoLabel.setId( "tool-product-market-uri" );
-		repoLabel.setOnMousePressed( ( event ) -> setEditUrl( source.isRemovable() ) );
-		repoField = new TextField( source.getUrl() );
-		repoField.setId( "tool-product-market-uri-editor" );
-		repoField.focusedProperty().addListener( ( event ) -> { if( !repoField.focusedProperty().get() ) cancelEditUrl(); } );
-		repoField.setOnKeyPressed( ( event ) -> {
-			if( event.getCode() == KeyCode.ENTER ) submitRepo();
+		urlLabel = new Label( source.getUrl() );
+		urlLabel.setId( "tool-product-market-uri" );
+		urlLabel.minWidthProperty().bind(  urlLabel.prefWidthProperty() );
+		urlLabel.setOnMousePressed( ( event ) -> setEditUrl( source.isRemovable() ) );
+		urlField = new TextField( source.getUrl() );
+		urlField.setId( "tool-product-market-uri-editor" );
+		urlField.focusedProperty().addListener( ( value, oldValue, newValue ) -> {if( oldValue ) commitEditUrl();} );
+		urlField.setOnKeyPressed( ( event ) -> {
+			if( event.getCode() == KeyCode.ENTER ) commitEditUrl();
 			if( event.getCode() == KeyCode.ESCAPE ) cancelEditUrl();
 		} );
 
-		repoBox = new HBox( repoLabel );
-		HBox.setHgrow( repoLabel, Priority.ALWAYS );
-		HBox.setHgrow( repoField, Priority.ALWAYS );
+		urlBox = new HBox( urlLabel );
+		HBox.setHgrow( urlLabel, Priority.ALWAYS );
+		HBox.setHgrow( urlField, Priority.ALWAYS );
 
 		enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
 		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
@@ -97,7 +100,7 @@ class RepoPane extends MigPane {
 		add( iconLabel, "spany, aligny center" );
 		add( nameBox, "growx, pushx" );
 		add( enableButton );
-		add( repoBox, "newline, growx" );
+		add( urlBox, "newline, growx" );
 		add( removeButton );
 	}
 
@@ -105,28 +108,16 @@ class RepoPane extends MigPane {
 		return source;
 	}
 
-	void setEditName( boolean editName ) {
-		this.editName = editName;
-		updateRepoState();
-	}
-
-	void setEditUrl( boolean editUrl ) {
-		this.editUrl = editUrl;
-		updateRepoState();
-	}
-
 	void updateRepoState() {
 		nameLabel.setText( source.getName() );
 		nameLabel.setDisable( !source.isEnabled() );
 		nameField.setText( source.getName() );
-
 		nameBox.getChildren().replaceAll( ( n ) -> (editName ? nameField : nameLabel) );
 
-		repoLabel.setText( source.getUrl() );
-		repoLabel.setDisable( !source.isEnabled() );
-		repoField.setText( source.getUrl() );
-
-		repoBox.getChildren().replaceAll( ( n ) -> (editUrl ? repoField : repoLabel) );
+		urlLabel.setText( source.getUrl() );
+		urlLabel.setDisable( !source.isEnabled() );
+		urlField.setText( source.getUrl() );
+		urlBox.getChildren().replaceAll( ( n ) -> (editUrl ? urlField : urlLabel) );
 
 		enableButton.setGraphic( productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
 		removeButton.setDisable( !source.isRemovable() );
@@ -135,34 +126,43 @@ class RepoPane extends MigPane {
 		removeButton.setOnAction( ( event ) -> removeRepo() );
 
 		if( editName ) this.nameField.requestFocus();
-		if( editUrl ) this.repoField.requestFocus();
+		if( editUrl ) this.urlField.requestFocus();
 	}
 
-	private void submitRepo() {
-		// Get the values before the fields are hidden
-		String repoName = nameField.getText();
-		String repoUrl = repoField.getText();
-
-		setEditName( false );
-		setEditUrl( false );
-
-		source.setName( repoName );
-		source.setUrl( repoUrl );
-
-		productTool.getProgram().getProductManager().addRepo( source );
-
-		// TODO Load the repo metadata...
-
+	void setEditName( boolean editName ) {
+		if( editName && editUrl ) commitEditUrl();
+		this.editName = editName;
 		updateRepoState();
 	}
 
+	void setEditUrl( boolean editUrl ) {
+		if( editUrl && editName ) commitEditName();
+		this.editUrl = editUrl;
+		updateRepoState();
+	}
+
+	private void commitEditName() {
+		source.setName( nameField.getText() );
+		// TODO Check for a valid definition
+		productTool.getProgram().getProductManager().addRepo( source );
+		setEditName( false );
+	}
+
+	private void commitEditUrl() {
+		source.setUrl( urlField.getText() );
+		System.out.println( "url=" + source.getUrl() );
+		// TODO Check for a valid definition
+		productTool.getProgram().getProductManager().addRepo( source );
+		// TODO Load the repo metadata...
+		setEditUrl( false );
+	}
+
 	private void cancelEditName() {
-		//if( !verified ) page.getChildren().remove( this );
 		setEditName( false );
 	}
 
 	private void cancelEditUrl() {
-		//if( !verified ) page.getChildren().remove( this );
+		if( TextUtil.isEmpty( urlField.getText() ) ) removeRepo();
 		setEditUrl( false );
 	}
 
