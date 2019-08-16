@@ -12,9 +12,9 @@ import java.util.List;
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class RepoState extends RepoCard {
 
-	private boolean enabled;
+	private boolean enabled = true;
 
-	private boolean removable;
+	private boolean removable = true;
 
 	private int rank;
 
@@ -25,7 +25,7 @@ public class RepoState extends RepoCard {
 	}
 
 	RepoState( RepoCard card ) {
-		copyFrom( card );
+		this.copyFrom( card );
 	}
 
 	@Override

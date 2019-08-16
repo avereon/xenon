@@ -920,7 +920,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	private void saveRepos() {
-		updateSettings.set( REPOS_SETTINGS_KEY, repos );
+		updateSettings.set( REPOS_SETTINGS_KEY, repos.values() );
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
