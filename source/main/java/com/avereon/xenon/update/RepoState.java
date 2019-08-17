@@ -62,6 +62,7 @@ public class RepoState extends RepoCard {
 	}
 
 	public RepoState copyFrom( RepoState state ) {
+		if( state == null ) return null;
 		super.copyFrom( state );
 		this.enabled = state.enabled;
 		this.removable = state.removable;

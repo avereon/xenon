@@ -127,9 +127,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Settings updateSettings;
 
-	private Map<RepoCard, RepoState> providerRepos;
+	private Map<String, RepoState> providerRepos;
 
-	private Map<RepoCard, RepoState> repos;
+	private Map<String, RepoState> repos;
 
 	private Map<String, Mod> modules;
 
@@ -198,17 +198,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void registerProviderRepos( Collection<RepoState> repos ) {
 		if( providerRepos != null ) return;
 		providerRepos = new ConcurrentHashMap<>();
-		repos.forEach( ( r ) -> providerRepos.put( r, r ) );
+		repos.forEach( ( r ) -> providerRepos.put( r.getUrl(), r ) );
 	}
 
 	public RepoCard addRepo( RepoCard repo ) {
-		this.repos.put( repo, new RepoState( repo ) );
+		this.repos.put( repo.getUrl(), new RepoState( repo ) );
 		saveRepos();
 		return repo;
 	}
 
 	public RepoCard removeRepo( RepoCard repo ) {
-		this.repos.remove( repo );
+		this.repos.remove( repo.getUrl() );
 		saveRepos();
 		return repo;
 	}
@@ -895,14 +895,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
-		repoStates.stream().filter( ( state ) -> !TextUtil.isEmpty( state.getUrl() ) ).forEach( ( state ) -> repos.put( state, state ) );
+		repoStates.stream().filter( ( state ) -> !TextUtil.isEmpty( state.getUrl() ) ).forEach( ( state ) -> repos.put( state.getUrl(), state ) );
 
 		// Remove old repos
-		repos.remove( new RepoCard( "https://avereon.com/download/stable" ) );
-		repos.remove( new RepoCard( "https://avereon.com/download/latest" ) );
+		repos.remove( "https://avereon.com/download/stable" );
+		repos.remove( "https://avereon.com/download/latest" );
 
 		repos.values().forEach( ( repo ) -> {
-			if( providerRepos.containsValue( repo ) ) {
+			if( providerRepos.containsKey( repo.getUrl() ) ) {
 				// Keep some values for provider repos
 				boolean enabled = repo.isEnabled();
 				repo.copyFrom( providerRepos.get( repo ) );

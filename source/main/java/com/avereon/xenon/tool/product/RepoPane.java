@@ -75,6 +75,7 @@ class RepoPane extends MigPane {
 		} );
 
 		nameBox = new HBox( nameLabel );
+		nameBox.setOnMousePressed( ( event ) -> setEditName( source.isRemovable() ) );
 		HBox.setHgrow( nameLabel, Priority.ALWAYS );
 		HBox.setHgrow( nameField, Priority.ALWAYS );
 
@@ -91,6 +92,7 @@ class RepoPane extends MigPane {
 		} );
 
 		urlBox = new HBox( urlLabel );
+		urlBox.setOnMousePressed( ( event ) -> setEditUrl( source.isRemovable() ) );
 		HBox.setHgrow( urlLabel, Priority.ALWAYS );
 		HBox.setHgrow( urlField, Priority.ALWAYS );
 
@@ -142,6 +144,7 @@ class RepoPane extends MigPane {
 	}
 
 	private void commitEditName() {
+		if( !editName ) return;
 		source.setName( nameField.getText() );
 		// TODO Check for a valid definition
 		productTool.getProgram().getProductManager().addRepo( source );
@@ -149,6 +152,7 @@ class RepoPane extends MigPane {
 	}
 
 	private void commitEditUrl() {
+		if( !editUrl ) return;
 		source.setUrl( urlField.getText() );
 		System.out.println( "url=" + source.getUrl() );
 		// TODO Check for a valid definition
@@ -175,9 +179,9 @@ class RepoPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove repo", () -> {
 			try {
 				productTool.getProgram().getProductManager().removeRepo( source );
-				productTool.getSelectedPage().updateState();
+				page.updateState();
 			} catch( Exception exception ) {
-				ProductTool.log.warn( "Error uninstalling product", exception );
+				ProductTool.log.warn( "Error removing repository", exception );
 			}
 		} ) );
 	}
