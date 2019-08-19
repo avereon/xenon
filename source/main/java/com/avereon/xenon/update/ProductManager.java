@@ -199,8 +199,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( providerRepos != null ) return;
 		providerRepos = new ConcurrentHashMap<>();
 		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
-		System.out.println( IdGenerator.getId() );
-		System.out.println( IdGenerator.getId() );
 	}
 
 	public RepoCard addRepo( RepoCard repo ) {
