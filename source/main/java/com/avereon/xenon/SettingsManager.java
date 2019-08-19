@@ -240,7 +240,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 					break;
 				}
 				case CHANGED: {
-					log.debug( "Setting changed: " + event.getPath() + ":" + event.getKey() + "=" + event.getNewValue() );
+					log.trace( "Setting changed: " + event.getPath() + ":" + event.getKey() + "=" + event.getNewValue() );
 				}
 			}
 		}

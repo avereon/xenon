@@ -1,5 +1,6 @@
 [
 	{
+		"internalId": "lhhvrhtzznbwmltt",
 		"name" : "${project.organization.name} Official",
 		"url" : "https://www.avereon.com/download/stable",
 		"icon" : "https://www.avereon.com/download/stable/avereon/provider/icon",
@@ -8,6 +9,7 @@
 		"rank": -2
 	},
 	{
+		"internalId": "vhwvtzdbtlzlsblv",
 		"name" : "${project.organization.name} Nightly",
 		"url" : "https://www.avereon.com/download/latest",
 		"icon" : "https://www.avereon.com/download/stable/avereon/provider/icon",

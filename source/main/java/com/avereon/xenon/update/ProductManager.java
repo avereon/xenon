@@ -198,28 +198,32 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public void registerProviderRepos( Collection<RepoState> repos ) {
 		if( providerRepos != null ) return;
 		providerRepos = new ConcurrentHashMap<>();
-		repos.forEach( ( r ) -> providerRepos.put( r.getUrl(), r ) );
+		repos.forEach( ( repo ) -> providerRepos.put( repo.getInternalId(), repo ) );
+		System.out.println( IdGenerator.getId() );
+		System.out.println( IdGenerator.getId() );
 	}
 
 	public RepoCard addRepo( RepoCard repo ) {
-		this.repos.put( repo.getUrl(), new RepoState( repo ) );
+		log.warn( "upsert repo=" + repo );
+		this.repos.put( repo.getInternalId(), new RepoState( repo ) );
 		saveRepos();
 		return repo;
 	}
 
 	public RepoCard removeRepo( RepoCard repo ) {
-		this.repos.remove( repo.getUrl() );
+		log.warn( "remove repo=" + repo );
+		this.repos.remove( repo.getInternalId() );
 		saveRepos();
 		return repo;
 	}
 
 	public boolean isRepoEnabled( RepoCard repo ) {
-		return repos.containsKey( repo ) && repos.get( repo ).isEnabled();
+		return repos.containsKey( repo.getInternalId() ) && repos.get( repo.getInternalId() ).isEnabled();
 	}
 
 	public void setRepoEnabled( RepoCard repo, boolean enabled ) {
-		if( !repos.containsKey( repo ) ) return;
-		repos.get( repo ).setEnabled( enabled );
+		if( !repos.containsKey( repo.getInternalId() ) ) return;
+		repos.get( repo.getInternalId() ).setEnabled( enabled );
 		saveRepos();
 	}
 
@@ -895,17 +899,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
-		repoStates.stream().filter( ( state ) -> !TextUtil.isEmpty( state.getUrl() ) ).forEach( ( state ) -> repos.put( state.getUrl(), state ) );
+		repoStates.forEach( ( state ) -> repos.put( state.getInternalId(), state ) );
 
 		// Remove old repos
-		repos.remove( "https://avereon.com/download/stable" );
-		repos.remove( "https://avereon.com/download/latest" );
+		//repos.remove( "https://avereon.com/download/stable" );
+		//repos.remove( "https://avereon.com/download/latest" );
 
 		repos.values().forEach( ( repo ) -> {
-			if( providerRepos.containsKey( repo.getUrl() ) ) {
+			if( providerRepos.containsKey( repo.getInternalId() ) ) {
 				// Keep some values for provider repos
 				boolean enabled = repo.isEnabled();
-				repo.copyFrom( providerRepos.get( repo ) );
+				repo.copyFrom( providerRepos.get( repo.getInternalId() ) );
 				repo.setEnabled( enabled );
 			} else {
 				// Force some values for normal repos
@@ -914,7 +918,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			}
 		} );
 
-		providerRepos.keySet().forEach( ( repo ) -> repos.putIfAbsent( repo, providerRepos.get( repo ) ) );
+		providerRepos.keySet().forEach( ( id ) -> repos.putIfAbsent( id, providerRepos.get( id ) ) );
 
 		saveRepos();
 	}

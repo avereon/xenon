@@ -26,8 +26,8 @@ class RepoPage extends ProductToolPage {
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.SOURCES ) );
 
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
-		addButton.setOnMousePressed( ( e ) -> addRepo() );
-		addButton.setOnTouchPressed( ( e ) -> addRepo() );
+		addButton.setOnMousePressed( ( e ) -> newRepo() );
+		addButton.setOnTouchPressed( ( e ) -> newRepo() );
 
 		getButtonBox().addAll( addButton );
 	}
@@ -38,25 +38,21 @@ class RepoPage extends ProductToolPage {
 		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool ) );
 	}
 
-	private void addRepo() {
+	private void newRepo() {
 		RepoState card = new RepoState();
 		card.setName( "New Product Market" );
 		card.setUrl( "" );
 		card.setEnabled( true );
 		card.setRemovable( true );
-		program.getProductManager().addRepo( card );
-
-		// NEXT Maybe need to do more than a simple state update here
-		//updateState();
 
 		RepoPane pane = new RepoPane( productTool, this, card );
 		getChildren().add( pane );
 		pane.setEditUrl( true );
 	}
 
-	void setRepos( List<? extends RepoState> repos ) {
+	void setRepos( List<? extends RepoState> states ) {
 		// Create a repo pane for each card
-		List<RepoPane> panes = repos.stream().map( ( r ) -> new RepoPane( productTool, this, r ) ).collect( Collectors.toList() );
+		List<RepoPane> panes = states.stream().map( ( state ) -> new RepoPane( productTool, this, state ) ).collect( Collectors.toList() );
 
 		getChildren().clear();
 		getChildren().addAll( panes );
@@ -64,12 +60,8 @@ class RepoPage extends ProductToolPage {
 		updateRepoStates();
 	}
 
-	void updateRepoStates() {
-		getChildren().forEach( n -> ((RepoPane)n).updateRepoState() );
-	}
-
-	public void updateRepoState( RepoState card ) {
-		getChildren().stream().map( n -> (RepoPane)n ).filter( ( p ) -> p.getSource().equals( card ) ).forEach( RepoPane::updateRepoState );
+	private void updateRepoStates() {
+		getChildren().forEach( node -> ((RepoPane)node).updateRepoState() );
 	}
 
 }

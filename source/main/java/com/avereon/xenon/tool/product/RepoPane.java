@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import org.tbee.javafx.scene.layout.MigPane;
 
+import java.util.Objects;
+
 class RepoPane extends MigPane {
 
 	private ProductTool productTool;
@@ -81,7 +83,7 @@ class RepoPane extends MigPane {
 
 		urlLabel = new Label( source.getUrl() );
 		urlLabel.setId( "tool-product-market-uri" );
-		urlLabel.minWidthProperty().bind(  urlLabel.prefWidthProperty() );
+		urlLabel.minWidthProperty().bind( urlLabel.prefWidthProperty() );
 		urlLabel.setOnMousePressed( ( event ) -> setEditUrl( source.isRemovable() ) );
 		urlField = new TextField( source.getUrl() );
 		urlField.setId( "tool-product-market-uri-editor" );
@@ -106,7 +108,7 @@ class RepoPane extends MigPane {
 		add( removeButton );
 	}
 
-	RepoCard getSource() {
+	private RepoCard getSource() {
 		return source;
 	}
 
@@ -146,19 +148,22 @@ class RepoPane extends MigPane {
 	private void commitEditName() {
 		if( !editName ) return;
 		source.setName( nameField.getText() );
-		// TODO Check for a valid definition
-		productTool.getProgram().getProductManager().addRepo( source );
+		if( isValidRepoState( source ) ) productTool.getProgram().getProductManager().addRepo( source );
 		setEditName( false );
 	}
 
 	private void commitEditUrl() {
 		if( !editUrl ) return;
 		source.setUrl( urlField.getText() );
-		System.out.println( "url=" + source.getUrl() );
-		// TODO Check for a valid definition
-		productTool.getProgram().getProductManager().addRepo( source );
+		if( isValidRepoState( source ) ) productTool.getProgram().getProductManager().addRepo( source );
 		// TODO Load the repo metadata...
 		setEditUrl( false );
+	}
+
+	private boolean isValidRepoState( RepoState state ) {
+		boolean nameValid = !(Objects.isNull( state.getName() ) || state.getName().isBlank());
+		boolean urlValid = !(Objects.isNull( state.getName() ) || state.getName().isBlank());
+		return nameValid && urlValid;
 	}
 
 	private void cancelEditName() {

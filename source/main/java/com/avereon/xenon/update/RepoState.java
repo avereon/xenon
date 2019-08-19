@@ -25,7 +25,7 @@ public class RepoState extends RepoCard {
 	}
 
 	RepoState( RepoCard card ) {
-		this.copyFrom( card );
+		copyFrom( card );
 	}
 
 	@Override
