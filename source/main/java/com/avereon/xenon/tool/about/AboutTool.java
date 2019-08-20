@@ -14,11 +14,13 @@ import com.avereon.xenon.workarea.ToolParameters;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
+import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
@@ -258,8 +260,14 @@ public class AboutTool extends GuidedTool {
 
 			String unknown = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
 			String notScheduled = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
-			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
-			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
+			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ),
+				DateUtil.DEFAULT_DATE_FORMAT,
+				TimeZone.getDefault()
+			);
+			String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ),
+				DateUtil.DEFAULT_DATE_FORMAT,
+				TimeZone.getDefault()
+			);
 
 			Platform.runLater( () -> {
 				lastUpdateCheckField.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );
@@ -483,8 +491,28 @@ public class AboutTool extends GuidedTool {
 		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
 		builder.append( "3D Accelerated: " + scene3d ).append( "\n" );
 
+		builder.append( "\n" );
+		Screen primary = Screen.getPrimary();
+		Screen.getScreens().forEach( ( screen ) -> {
+			builder.append( getScreenDetail( primary, screen ) );
+		} );
+
 		return builder.toString();
 
+	}
+
+	private String getScreenDetail( Screen primary, Screen screen ) {
+		boolean isPrimary = primary.hashCode() == screen.hashCode();
+		Rectangle2D size = screen.getBounds();
+		Rectangle2D vsize = screen.getVisualBounds();
+		Rectangle2D scale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
+		int dpi = (int)screen.getDpi();
+
+		String sizeText = TextUtil.justify( TextUtil.RIGHT, (int)size.getWidth() + "x" + (int)size.getHeight(), 10 );
+		String vsizeText = TextUtil.justify( TextUtil.RIGHT, (int)vsize.getWidth() + "x" + (int)vsize.getHeight(), 10 );
+		String scaleText = scale.getWidth() + "x" + scale.getWidth();
+
+		return (isPrimary ? "p" : "s") + "-screen: " + scaleText + " [" + dpi + "dpi] " + sizeText + "\n";
 	}
 
 	private String getOperatingSystemDetail() {

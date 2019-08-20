@@ -5,6 +5,8 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -124,9 +126,16 @@ public class IconLibrary {
 	}
 
 	private Node getIconFromUrl( String url, double size ) {
-		ImageView view = new ImageView( new Image( url, size, size, true, true ) );
-		if( view.getImage().isError() ) return null;
-		return view;
+		Image image = null;
+
+		try {
+			image = new Image( new URL( url ).toExternalForm(), size, size, true, true );
+		} catch( MalformedURLException exception ) {
+			exception.printStackTrace();
+		}
+		if( image == null || image.isError() ) return null;
+
+		return new ImageView( image );
 	}
 
 }
