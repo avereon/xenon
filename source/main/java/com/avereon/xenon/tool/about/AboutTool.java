@@ -19,7 +19,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
@@ -36,9 +35,9 @@ public class AboutTool extends GuidedTool {
 
 	public static final String SUMMARY = "summary";
 
-	public static final String PRODUCTS = "products";
-
 	public static final String DETAILS = "details";
+
+	public static final String MODS = "mods";
 
 	private static final double ICON_SIZE = 96;
 
@@ -50,9 +49,9 @@ public class AboutTool extends GuidedTool {
 
 	private TextArea summaryText;
 
-	private BorderPane productsPane;
+	private BorderPane modsPane;
 
-	private TextArea productsText;
+	private TextArea modsText;
 
 	private BorderPane detailsPane;
 
@@ -67,21 +66,22 @@ public class AboutTool extends GuidedTool {
 
 		summaryPane = new SummaryPane();
 
-		productsText = new TextArea();
-		productsText.setEditable( false );
-		productsPane = new BorderPane();
-		productsPane.setCenter( productsText );
-
 		detailsText = new TextArea();
+		detailsText.setId( "tool-about-details" );
 		detailsText.setEditable( false );
-		detailsText.setFont( Font.font( "Monospaced", 12.0 ) );
 		detailsPane = new BorderPane();
 		detailsPane.setCenter( detailsText );
 
+		modsText = new TextArea();
+		modsText.setId( "tool-about-mods" );
+		modsText.setEditable( false );
+		modsPane = new BorderPane();
+		modsPane.setCenter( modsText );
+
 		pages = new ConcurrentHashMap<>();
 		pages.put( SUMMARY, summaryPane );
-		pages.put( PRODUCTS, productsPane );
 		pages.put( DETAILS, detailsPane );
+		pages.put( MODS, modsPane );
 	}
 
 	public String getTitleSuffix() {
@@ -146,7 +146,7 @@ public class AboutTool extends GuidedTool {
 		}
 		//summaryText.setText( getSummaryText( metadata ) );
 		summaryPane.update( metadata );
-		productsText.setText( getProductsText( (Program)getProduct() ) );
+		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
 	}
 
@@ -194,6 +194,8 @@ public class AboutTool extends GuidedTool {
 		private Label nextUpdateTimestamp;
 
 		public SummaryPane() {
+			setId( "tool-about-summary" );
+
 			lastUpdateCheckPrompt = getProduct().getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" );
 			nextUpdateCheckPrompt = getProduct().getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" );
 
@@ -283,57 +285,15 @@ public class AboutTool extends GuidedTool {
 		return label;
 	}
 
-	private String getSummaryText( ProductCard metadata ) {
-		StringBuilder builder = new StringBuilder();
-		builder.append( metadata.getName() );
-		builder.append( " " );
-		builder.append( metadata.getRelease().toHumanString( TimeZone.getDefault() ) );
-		builder.append( "\n  by " );
-		builder.append( metadata.getProvider() );
-		builder.append( "\n" );
-
-		builder.append( "\n" );
-
-		builder.append( System.getProperty( "java.runtime.name" ) );
-		builder.append( " " );
-		builder.append( System.getProperty( "java.runtime.version" ) );
-		builder.append( "\n  by " );
-		builder.append( System.getProperty( "java.vm.vendor" ) );
-		builder.append( "\n" );
-
-		builder.append( "\n" );
-
-		builder.append( System.getProperty( "os.name" ) );
-		builder.append( " " );
-		builder.append( System.getProperty( "os.version" ) );
-		builder.append( "\n" );
-
-		builder.append( "\n" );
-		builder.append( "\n" );
-
-		int year = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) ).get( Calendar.YEAR );
-
-		builder.append( "\u00A9" ); // Copyright symbol
-		if( year == metadata.getInception() ) {
-			builder.append( metadata.getInception() );
-		} else {
-			builder.append( metadata.getInception() );
-			builder.append( "-" );
-			builder.append( year );
-		}
-		builder.append( " " );
-		builder.append( metadata.getProvider() );
-		builder.append( " " );
-		builder.append( metadata.getCopyrightSummary() );
-		builder.append( "\n" );
-
-		return builder.toString();
-	}
-
-	private String getProductsText( Program program ) {
+	private String getModsText( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "Product Information" );
+		program
+			.getProductManager()
+			.getInstalledProductCards()
+			.stream()
+			.filter( ( card ) -> !card.getProductKey().equals( program.getCard().getProductKey() ) )
+			.forEach( ( card ) -> builder.append( getProductDetails( card ) ).append( "\n" ) );
 
 		return builder.toString();
 	}
@@ -345,37 +305,25 @@ public class AboutTool extends GuidedTool {
 		// Framework summary
 		builder.append( getHeader( "Program: " + metadata.getName() + " " + metadata.getVersion() ) );
 
-		// The current date
-		builder.append( "\n" );
-		builder.append( getHeader( "Timestamp: " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) ) );
-
-		// JVM commands
-		builder.append( "\n" );
-		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-		builder.append( getHeader( "JVM commands: " + TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ) );
-
-		// Program commands
-		Application.Parameters parameters = program.getParameters();
-		builder.append( "\n" );
-		builder.append( getHeader( "Program commands: " + (parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " )) ) );
-
 		// Program details
 		builder.append( "\n" );
 		builder.append( getHeader( "Program details" ) );
 		builder.append( "\n" );
+		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
+		builder.append( "\n" );
 		builder.append( Indenter.indent( getProgramDetails( program ), 4, " " ) );
 
-		// Product details
+		// JavaFX
 		builder.append( "\n" );
-		builder.append( getHeader( "Product details" ) );
+		builder.append( getHeader( "JavaFX information" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
+		builder.append( Indenter.indent( getJavaFxDetail(), 4, " " ) );
 
 		// Runtime
 		builder.append( "\n" );
-		builder.append( getHeader( "Runtime details" ) );
+		builder.append( getHeader( "Runtime information" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getRuntimeDetail(), 4, " " ) );
+		builder.append( Indenter.indent( getRuntimeDetail( program ), 4, " " ) );
 
 		// Operating system
 		builder.append( "\n" );
@@ -430,25 +378,24 @@ public class AboutTool extends GuidedTool {
 		//		builder.append( "\n" );
 		//		builder.append( Indenter.indent( getSettingsDetail(), 4, " " ) );
 
+		// The current date
+		builder.append( "\n" );
+		builder.append( getHeader( "About details timestamp: " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) ) );
+
 		return builder.toString();
 	}
 
 	private String getHeader( String text ) {
-		StringBuilder builder = new StringBuilder();
-
-		builder.append( "--- " );
-		builder.append( text );
-		builder.append( "\n" );
-
-		return builder.toString();
+		return "--- " + text + "\n";
 	}
 
 	private String getProgramDetails( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "Home folder: " + program.getHomeFolder() ).append( "\n" );
-		builder.append( "Data folder: " + program.getDataFolder() ).append( "\n" );
-		builder.append( "Log file:    " + LogUtil.getLogFile() ).append( "\n" );
+		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
+		builder.append( "Data folder: " ).append( program.getDataFolder() ).append( "\n" );
+		builder.append( "User folder: " ).append( System.getProperty( "user.home") ).append( "\n" );
+		builder.append( "Log file:    " ).append( LogUtil.getLogFile() ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -456,16 +403,15 @@ public class AboutTool extends GuidedTool {
 	private String getProductDetails( ProductCard card ) {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "Product:     " + card.getName() ).append( "\n" );
-		builder.append( "Provider:    " + card.getProvider() ).append( "\n" );
-		builder.append( "Inception:   " + card.getInception() ).append( "\n" );
-		builder.append( "Summary:     " + card.getSummary() ).append( "\n" );
+		builder.append( "Product:     " ).append( card.getName() ).append( "\n" );
+		builder.append( "Provider:    " ).append( card.getProvider() ).append( "\n" );
+		builder.append( "Inception:   " ).append( card.getInception() ).append( "\n" );
+		builder.append( "Summary:     " ).append( card.getSummary() ).append( "\n" );
 
-		builder.append( "Group:       " + card.getGroup() ).append( "\n" );
-		builder.append( "Artifact:    " + card.getArtifact() ).append( "\n" );
-		builder.append( "Version:     " + card.getVersion() ).append( "\n" );
-		builder.append( "Timestamp:   " + card.getTimestamp() ).append( "\n" );
-		builder.append( "Source URI:  " + card.getProductUri() ).append( "\n" );
+		builder.append( "Group:       " ).append( card.getGroup() ).append( "\n" );
+		builder.append( "Artifact:    " ).append( card.getArtifact() ).append( "\n" );
+		builder.append( "Version:     " ).append( card.getVersion() ).append( "\n" );
+		builder.append( "Timestamp:   " ).append( card.getTimestamp() ).append( "\n" );
 
 		//		ProductManager productManager = getProgram().getProductManager();
 		//		builder.append( "Enabled:     " + productManager.isEnabled( card )).append( "\n" );
@@ -475,30 +421,49 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
-	private String getRuntimeDetail() {
+	private String getRuntimeDetail( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
+		// CPU Information
+		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
+		builder.append( "CPU Cores:        " ).append( bean.getAvailableProcessors() ).append( "\n" );
+
+		// JVM Memory
 		long max = Runtime.getRuntime().maxMemory();
 		long total = Runtime.getRuntime().totalMemory();
 		long used = total - Runtime.getRuntime().freeMemory();
 		builder
-			.append( "JVM Memory:     " + FileUtil.getHumanSizeBase2( used ) + " / " + FileUtil.getHumanSizeBase2( total ) + " / " + FileUtil.getHumanSizeBase2( max ) )
+			.append( "JVM Memory:       " )
+			.append( FileUtil.getHumanSizeBase2( used ) )
+			.append( " / " )
+			.append( FileUtil.getHumanSizeBase2( total ) )
+			.append( " / " )
+			.append( FileUtil.getHumanSizeBase2( max ) )
 			.append( "\n" );
 
-		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
-		builder.append( "CPU Cores:      " + bean.getAvailableProcessors() ).append( "\n" );
-
-		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
-		builder.append( "3D Accelerated: " + scene3d ).append( "\n" );
-
+		// JVM commands
 		builder.append( "\n" );
-		Screen primary = Screen.getPrimary();
-		Screen.getScreens().forEach( ( screen ) -> {
-			builder.append( getScreenDetail( primary, screen ) );
-		} );
+		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n");
+
+		// Program commands
+		Application.Parameters parameters = program.getParameters();
+		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n");
 
 		return builder.toString();
+	}
 
+	private String getJavaFxDetail() {
+		StringBuilder builder = new StringBuilder();
+
+		Screen primary = Screen.getPrimary();
+		Screen.getScreens().forEach( ( screen ) -> builder.append( getScreenDetail( primary, screen ) ) );
+
+		builder.append( "\n" );
+		boolean scene3d = Platform.isSupported( ConditionalFeature.SCENE3D );
+		builder.append( "3D Accelerated: " ).append( scene3d ).append( "\n" );
+
+		return builder.toString();
 	}
 
 	private String getScreenDetail( Screen primary, Screen screen ) {

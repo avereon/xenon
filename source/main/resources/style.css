@@ -249,6 +249,14 @@
 	-fx-font-size: 1em;
 }
 
+#tool-about-details {
+	-fx-font: 1em monospaced;
+}
+
+#tool-about-mods {
+	-fx-font: 1em monospaced;
+}
+
 #tool-product-page-header {
 	-fx-background-insets: 0 0 1mm 0;
 	-fx-background-color: -ex-background-text;

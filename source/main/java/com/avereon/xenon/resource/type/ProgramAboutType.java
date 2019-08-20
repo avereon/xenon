@@ -8,6 +8,7 @@ import com.avereon.xenon.resource.Codec;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.ResourceException;
 import com.avereon.xenon.resource.ResourceType;
+import com.avereon.xenon.tool.about.AboutTool;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import javafx.scene.control.TreeItem;
@@ -52,19 +53,19 @@ public class ProgramAboutType extends ResourceType {
 		ProductBundle rb = getProduct().getResourceBundle();
 
 		GuideNode summaryNode = new GuideNode();
-		summaryNode.setId( "summary" );
+		summaryNode.setId( AboutTool.SUMMARY );
 		summaryNode.setName( rb.getString( "tool", "about-summary" ) );
 		guide.getRoot().getChildren().add( new TreeItem<>( summaryNode, library.getIcon( "about" ) ) );
 
-		GuideNode productsNode = new GuideNode();
-		productsNode.setId( "products");
-		productsNode.setName( rb.getString( "tool", "about-products" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( productsNode, library.getIcon( "about" ) ) );
-
 		GuideNode detailsNode = new GuideNode();
-		detailsNode.setId( "details" );
+		detailsNode.setId( AboutTool.DETAILS );
 		detailsNode.setName( rb.getString( "tool", "about-details" ) );
 		guide.getRoot().getChildren().add( new TreeItem<>( detailsNode, library.getIcon( "about" ) ) );
+
+		GuideNode productsNode = new GuideNode();
+		productsNode.setId( AboutTool.MODS );
+		productsNode.setName( rb.getString( "tool", "about-mods" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( productsNode, library.getIcon( "about" ) ) );
 	}
 
 }
