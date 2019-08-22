@@ -1,3 +1,14 @@
+language: java
+jdk: openjdk11
+cache:
+  directories:
+  - "$HOME/.m2"
+
+branches:
+  only:
+    - master
+    - snapshot
+
 matrix:
   include:
     - os: linux
@@ -5,17 +16,11 @@ matrix:
       env: OPENJDK_OS=linux
     - os: osx
       env: OPENJDK_OS=mac
-#    - os: windows
-#      env: OPENJDK_OS=windows
+  #    - os: windows
+  #      env: OPENJDK_OS=windows
   allow_failures:
     - os: linux
     - os: osx
-
-language: java
-jdk: openjdk11
-cache:
-  directories:
-  - "$HOME/.m2"
 
 #addons:
 #  apt:
