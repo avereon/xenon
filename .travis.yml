@@ -31,6 +31,7 @@ before_install:
   - cp .travis/settings.xml $HOME/.m2/settings.xml
   - wget https://raw.githubusercontent.com/mvsoder/bach/multiple-jdk-support/install-jdk.sh -O install-jdk.sh
   - source install-jdk.sh -e -t $HOME/jdk -u "https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=$OPENJDK_OS&arch=x64&release=latest&heap_size=normal&type=jdk"
+  - ls -al $JAVA_HOME
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export DISPLAY=:99; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then Xvfb $DISPLAY & fi
 
