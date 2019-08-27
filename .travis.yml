@@ -6,8 +6,8 @@ cache:
 
 branches:
   only:
-    - master
     - develop
+    - master
 
 matrix:
   include:
