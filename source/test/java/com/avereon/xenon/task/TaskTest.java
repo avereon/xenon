@@ -39,9 +39,7 @@ public class TaskTest extends BaseTaskTest {
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
 		ThreadUtil.pause( delay );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( (int)(1.5 * delay) );
-		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( 2 * delay );
+		ThreadUtil.pause( 4 * delay );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
@@ -56,9 +54,7 @@ public class TaskTest extends BaseTaskTest {
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
 		ThreadUtil.pause( delay );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( (int)(1.5 * delay) );
-		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( 2 * delay );
+		ThreadUtil.pause( 4 * delay );
 		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 
