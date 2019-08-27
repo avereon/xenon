@@ -37,12 +37,12 @@ before_install:
 
 deploy:
   - provider: script
-    script: bash .travis/deploy.sh latest
-    skip_cleanup: true
-    on:
-      branch: master
-  - provider: script
     script: bash .travis/deploy.sh stable
     skip_cleanup: true
     on:
       branch: stable
+  - provider: script
+    script: bash .travis/deploy.sh latest
+    skip_cleanup: true
+    on:
+      branch: master
