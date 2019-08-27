@@ -3,7 +3,7 @@
 OS="${TRAVIS_OS_NAME}"
 PLATFORM='linux'
 PRODUCT='xenon'
-RELEASE='latest'
+RELEASE="$1"
 
 case "${OS}" in
   "linux") PLATFORM="linux" ;;
