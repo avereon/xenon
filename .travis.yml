@@ -6,8 +6,8 @@ cache:
 
 branches:
   only:
-    - develop
     - master
+    - stable
 
 matrix:
   include:
@@ -40,9 +40,9 @@ deploy:
     script: bash .travis/deploy.sh latest
     skip_cleanup: true
     on:
-      branch: develop
+      branch: master
   - provider: script
     script: bash .travis/deploy.sh stable
     skip_cleanup: true
     on:
-      branch: master
+      branch: stable
