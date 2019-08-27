@@ -18,9 +18,9 @@ matrix:
       env: OPENJDK_OS=mac
   #    - os: windows
   #      env: OPENJDK_OS=windows
-  allow_failures:
-    - os: linux
-    - os: osx
+  #allow_failures:
+  #  - os: linux
+  #  - os: osx
 
 #addons:
 #  apt:
@@ -37,5 +37,12 @@ before_install:
 
 deploy:
   - provider: script
-    script: bash .travis/deploy.sh
+    script: bash .travis/deploy.sh latest
     skip_cleanup: true
+    on:
+      branch: develop
+  - provider: script
+    script: bash .travis/deploy.sh stable
+    skip_cleanup: true
+    on:
+      branch: master
