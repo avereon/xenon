@@ -37,20 +37,5 @@ before_install:
 
 deploy:
   - provider: script
-    script: bash .travis/deploy-linux.sh
+    script: bash .travis/deploy.sh
     skip_cleanup: true
-    on:
-      os: linux
-
-#  - provider: script
-#    script: bash .travis/deploy-macosx.sh
-#    skip_cleanup: true
-#    on:
-#      os: osx
-
-#  - provider: script
-#    script: cmd .travis/deploy-windows.cmd
-#    skip_cleanup: true
-#    on:
-#      os: windows
-

@@ -1,8 +1,20 @@
 #!/bin/bash
 
-RELEASE=latest
-PRODUCT=xenon
-PLATFORM=macosx
+OS="${TRAVIS_OS_NAME}"
+PLATFORM='linux'
+PRODUCT='xenon'
+RELEASE='latest'
+
+case "${OS}" in
+  "linux") PLATFORM="linux" ;;
+  "osx") PLATFORM="macosx" ;;
+  "windows") PLATFORM="windows"
+esac
+
+echo "os=${OS}"
+echo "platform=${PLATFORM}"
+echo "product=${PRODUCT}"
+echo "release=${RELEASE}"
 
 # Maven deploy
 rm -rf target/jlink
