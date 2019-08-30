@@ -35,8 +35,6 @@ public class TaskTool extends ProgramTool {
 
 	private TaskWatcher taskWatcher;
 
-	private HBox buttons;
-
 	private VBox taskPanes;
 
 	private Map<Task, TaskPane> tasks;
@@ -72,15 +70,24 @@ public class TaskTool extends ProgramTool {
 	}
 
 	private void init() {
-		for( Task task : getProgram().getTaskManager().getTasks() ) {
-			if( !task.isDone() ) addTaskPane( task );
-		}
+		getProgram().getTaskManager().getTasks().forEach( this::addTaskPane );
 	}
 
 	private void addTaskPane( Task task ) {
+		if( task.isDone() || tasks.containsKey( task ) ) return;
 		TaskPane pane = new TaskPane( task );
-		tasks.put( task, pane );
 		taskPanes.getChildren().add( pane );
+		tasks.put( task, pane );
+	}
+
+	private void clearTasks() {
+		tasks.forEach( TaskTool.this::clearTaskIfDone );
+	}
+
+	private void clearTaskIfDone( Task task, TaskPane pane ) {
+		if( !task.isDone() ) return;
+		if( pane != null ) Platform.runLater( () -> taskPanes.getChildren().remove( pane ) );
+		tasks.remove( task );
 	}
 
 	private void startRandomTasks() {
@@ -88,7 +95,7 @@ public class TaskTool extends ProgramTool {
 		getProgram().getTaskManager().submit( new RandomTask( duration ) );
 	}
 
-	private class RandomTask extends Task<Void> {
+	private static class RandomTask extends Task<Void> {
 
 		// The delay between progress checks ~ 1000ms / 120hz;
 		private static final long DELAY = 1000 / 120;
@@ -164,14 +171,10 @@ public class TaskTool extends ProgramTool {
 						}
 						break;
 					}
-					case TASK_FINISH: {
-						TaskPane pane = tasks.get( task );
-						if( pane != null ) taskPanes.getChildren().remove( pane );
-						break;
-					}
 				}
 			} );
 
+			TaskTool.this.clearTasks();
 		}
 
 	}
