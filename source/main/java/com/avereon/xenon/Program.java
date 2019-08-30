@@ -735,6 +735,9 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
+		// Create the program notifier, depends on workspace manager
+		notifier = new ProgramNotifier( this );
+
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
@@ -765,9 +768,6 @@ public class Program extends Application implements ProgramProduct {
 		int completedSteps = splashScreen.getCompletedSteps();
 		if( completedSteps != totalSteps ) log.warn( "Startup step mismatch: " + completedSteps + " of " + totalSteps );
 		Platform.runLater( () -> splashScreen.done() );
-
-		// Create the program notifier, depends on workspace manager
-		notifier = new ProgramNotifier( this );
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
