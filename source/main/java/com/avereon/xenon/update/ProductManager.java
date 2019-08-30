@@ -11,6 +11,7 @@ import com.avereon.xenon.Mod;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -240,6 +241,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return A set of the available product cards
 	 */
 	public Collection<ProductCard> getAvailableProducts( boolean force ) {
+		TaskManager.taskThreadCheck();
 		synchronized( availableProductsLock ) {
 			if( !force && availableProducts != null ) return new HashSet<>( availableProducts );
 
@@ -586,6 +588,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return The set of available updates.
 	 */
 	public Collection<ProductCard> findAvailableUpdates( boolean force ) {
+		TaskManager.taskThreadCheck();
 		synchronized( availableUpdatesLock ) {
 			if( !force && availableUpdates != null ) return new HashSet<>( availableUpdates );
 

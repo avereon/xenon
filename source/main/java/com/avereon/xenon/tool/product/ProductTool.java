@@ -118,9 +118,9 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 
-		getProgram().getTaskManager().submit( new RefreshInstalledProducts( this ) );
-		getProgram().getTaskManager().submit( new RefreshAvailableProducts( this, false ) );
-		getProgram().getTaskManager().submit( new RefreshUpdatableProducts( this, false ) );
+		//getProgram().getTaskManager().submit( new RefreshInstalledProducts( this ) );
+		//getProgram().getTaskManager().submit( new RefreshAvailableProducts( this, false ) );
+		//getProgram().getTaskManager().submit( new RefreshUpdatableProducts( this, false ) );
 
 		String selected = parameters.getFragment();
 		// TODO Be sure the guide also changes selection
@@ -167,7 +167,6 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		if( !getResource().isReady() ) return;
 		log.trace( "Product page selected: " + pageId );
 
 		if( pageId == null || pageId.isBlank() ) return;
