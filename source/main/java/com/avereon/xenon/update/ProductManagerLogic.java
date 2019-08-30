@@ -73,28 +73,27 @@ public class ProductManagerLogic {
 	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), force )
+		return createFindPostedUpdatesChain( force )
 			.link( ( cards ) -> handlePostedUpdatesResult( cards, force ) )
 			.run( program );
 	}
 
 	/**
-	 * @param products The set of products to find updates for
 	 * @param force Request that the cache be flushed before finding updates
 	 * @return The map of updateable products and in which repo the update is located
 	 */
 	@Asynchronous
-	Task<Set<ProductCard>> findPostedUpdates( Set<ProductCard> products, boolean force ) {
+	Task<Set<ProductCard>> findPostedUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( products, force ).run( program );
+		return createFindPostedUpdatesChain( force ).run( program );
 	}
 
 	@Asynchronous
 	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( products, force )
+		return createFindPostedUpdatesChain( force )
 			.link( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
@@ -125,14 +124,14 @@ public class ProductManagerLogic {
 			.run( program );
 	}
 
-	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( Set<ProductCard> products, boolean force ) {
+	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( boolean force ) {
 		Map<String, ProductCard> installedProducts = program.getProductManager().getInstalledProductCardsMap();
 
 		return TaskChain
 			.init( () -> initFindPostedUpdates( force ) )
 			.link( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
-			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
+			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, installedProducts.values() ) )
 			.link( this::collectProductCardDownloads )
 			.link( ( availableProducts ) -> determineUpdateableProducts( availableProducts, installedProducts ) );
 	}
@@ -149,10 +148,6 @@ public class ProductManagerLogic {
 
 	private Map<RepoState, Task<Download>> startEnabledCatalogCardDownloads() {
 		Set<RepoState> repos = program.getProductManager().getRepos().stream().filter( RepoState::isEnabled ).collect( Collectors.toSet() );
-		return startCatalogCardDownloads( repos );
-	}
-
-	private Map<RepoState, Task<Download>> startCatalogCardDownloads( Set<RepoState> repos ) {
 		Map<RepoState, Task<Download>> downloads = new HashMap<>();
 
 		repos.forEach( ( r ) -> {
@@ -180,7 +175,7 @@ public class ProductManagerLogic {
 		return catalogs;
 	}
 
-	private Map<RepoState, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoState, CatalogCard> catalogs, Set<ProductCard> products ) {
+	private Map<RepoState, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoState, CatalogCard> catalogs, Collection<ProductCard> products ) {
 		Map<RepoState, Set<Task<Download>>> downloads = new HashMap<>();
 		Set<String> artifacts = products.stream().map( ProductCard::getArtifact ).collect( Collectors.toSet() );
 

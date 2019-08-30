@@ -12,7 +12,6 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
 import com.avereon.xenon.workarea.ToolParameters;
-import javafx.application.Platform;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 
@@ -120,8 +119,8 @@ public class ProductTool extends GuidedTool {
 		super.resourceReady( parameters );
 
 		getProgram().getTaskManager().submit( new RefreshInstalledProducts( this ) );
-		getProgram().getTaskManager().submit( new RefreshAvailableProducts( this ) );
-		getProgram().getTaskManager().submit( new RefreshUpdatableProducts( this ) );
+		getProgram().getTaskManager().submit( new RefreshAvailableProducts( this, false ) );
+		getProgram().getTaskManager().submit( new RefreshUpdatableProducts( this, false ) );
 
 		String selected = parameters.getFragment();
 		// TODO Be sure the guide also changes selection
@@ -139,7 +138,7 @@ public class ProductTool extends GuidedTool {
 	public void setSettings( Settings settings ) {
 		super.setSettings( settings );
 
-		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
+		//Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -168,6 +167,7 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
+		if( !getResource().isReady() ) return;
 		log.trace( "Product page selected: " + pageId );
 
 		if( pageId == null || pageId.isBlank() ) return;

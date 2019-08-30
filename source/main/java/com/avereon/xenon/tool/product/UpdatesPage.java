@@ -31,7 +31,7 @@ class UpdatesPage extends ProductPage {
 	@Override
 	protected void updateState() {
 		ProductTool.log.trace( "Update available updates" );
-		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool ) );
+		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, false ) );
 	}
 
 	private Set<ProductCard> getSelectedUpdates() {

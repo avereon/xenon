@@ -19,14 +19,12 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -155,9 +153,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Set<ProductCard> includedProducts;
 
-	private Set<ProductCard> availableCards;
+	private final Object availableProductsLock = new Object();
+
+	private Set<ProductCard> availableProducts;
+
+	private final Object availableUpdatesLock = new Object();
+
+	private Set<ProductCard> availableUpdates;
 
 	private long postedUpdateCacheTime;
+
+	private final Object scheduleLock = new Object();
 
 	private Timer timer;
 
@@ -165,7 +171,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Set<ProductManagerListener> listeners;
 
-	private long lastAvailableCheck;
+	private long lastAvailableProductCheck;
+
+	private long lastAvailableUpdateCheck;
 
 	private RepoClient repoClient;
 
@@ -232,18 +240,22 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return A set of the available product cards
 	 */
 	public Collection<ProductCard> getAvailableProducts( boolean force ) {
-		if( !force && availableCards != null ) return availableCards;
+		synchronized( availableProductsLock ) {
+			if( !force && availableProducts != null ) return new HashSet<>( availableProducts );
 
-		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();
-		lastAvailableCheck = System.currentTimeMillis();
+			if( !force && System.currentTimeMillis() - lastAvailableProductCheck < 1000 ) return Set.of();
+			lastAvailableProductCheck = System.currentTimeMillis();
 
-		try {
-			return new ProductManagerLogic( program ).getAvailableProducts( force ).get();
-		} catch( Exception exception ) {
-			exception.printStackTrace();
+			try {
+				availableProducts = new ProductManagerLogic( program ).getAvailableProducts( force ).get();
+				return new HashSet<>( availableProducts );
+			} catch( Exception exception ) {
+				// TODO Notify the user there was a problem refreshing available updates
+				exception.printStackTrace();
+			}
+
+			return Set.of();
 		}
-
-		return Set.of();
 	}
 
 	public Set<Mod> getModules() {
@@ -462,67 +474,69 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 *
 	 * @param startup True if the method is called at program start
 	 */
-	public synchronized void scheduleUpdateCheck( boolean startup ) {
-		// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
-		// set, don't schedule update checks. This probably means there is a
-		// problem applying an update. Otherwise, it should be safe to schedule
-		// update checks.
-		if( !program.isProgramUpdated() && program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) return;
+	public void scheduleUpdateCheck( boolean startup ) {
+		synchronized( scheduleLock ) {
+			// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
+			// set, don't schedule update checks. This probably means there is a
+			// problem applying an update. Otherwise, it should be safe to schedule
+			// update checks.
+			if( !program.isProgramUpdated() && program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) return;
 
-		long now = System.currentTimeMillis();
+			long now = System.currentTimeMillis();
 
-		if( task != null ) {
-			boolean alreadyRun = task.scheduledExecutionTime() < now;
-			task.cancel();
-			task = null;
-			if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
-		}
-
-		Settings checkSettings = getSettings();
-
-		long lastUpdateCheck = getLastUpdateCheck();
-		long nextUpdateCheck = getNextUpdateCheck();
-		long delay = NO_CHECK;
-
-		// This is ensures updates are not checked during tests
-		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
-
-		switch( checkOption ) {
-			case STARTUP:
-				if( startup ) delay = 0;
-				break;
-			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-				delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
-				if( nextUpdateCheck < (now - 1000) ) delay = 0;
-				break;
+			if( task != null ) {
+				boolean alreadyRun = task.scheduledExecutionTime() < now;
+				task.cancel();
+				task = null;
+				if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
 			}
-			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
-				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
-				delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
-				if( nextUpdateCheck < (now - 1000) ) delay = 0;
-				break;
+
+			Settings checkSettings = getSettings();
+
+			long lastUpdateCheck = getLastUpdateCheck();
+			long nextUpdateCheck = getNextUpdateCheck();
+			long delay = NO_CHECK;
+
+			// This is ensures updates are not checked during tests
+			if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
+
+			switch( checkOption ) {
+				case STARTUP:
+					if( startup ) delay = 0;
+					break;
+				case INTERVAL: {
+					CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
+					delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
+					if( nextUpdateCheck < (now - 1000) ) delay = 0;
+					break;
+				}
+				case SCHEDULE: {
+					CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+					int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
+					delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
+					if( nextUpdateCheck < (now - 1000) ) delay = 0;
+					break;
+				}
 			}
+
+			if( delay == NO_CHECK ) {
+				checkSettings.set( NEXT_CHECK_TIME, 0 );
+				log.debug( "Future update check not scheduled." );
+				return;
+			}
+
+			// Set the next update check time before scheduling the
+			// task to prevent this method from looping rapidly
+			long nextCheckTime = now + delay;
+			checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
+
+			// Schedule the update check task
+			timer.schedule( task = new UpdateCheckTask( this ), delay );
+
+			// Log the next update check time
+			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
+			log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 		}
-
-		if( delay == NO_CHECK ) {
-			checkSettings.set( NEXT_CHECK_TIME, 0 );
-			log.debug( "Future update check not scheduled." );
-			return;
-		}
-
-		// Set the next update check time before scheduling the
-		// task to prevent this method from looping rapidly
-		long nextCheckTime = now + delay;
-		checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
-
-		// Schedule the update check task
-		timer.schedule( task = new UpdateCheckTask( this ), delay );
-
-		// Log the next update check time
-		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
 	/**
@@ -566,15 +580,28 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	/**
-	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
+	 * Gets the set of available product updates. If there are no posted updates
+	 * found an empty set is returned.
 	 *
-	 * @return The set of posted updates.
-	 * @throws ExecutionException If a task execution exception occurs
-	 * @throws InterruptedException If the calling thread is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
+	 * @return The set of available updates.
 	 */
-	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
-		return new ProductManagerLogic( program ).findPostedUpdates( getInstalledProductCards(), force ).get();
+	public Collection<ProductCard> findAvailableUpdates( boolean force ) {
+		synchronized( availableUpdatesLock ) {
+			if( !force && availableUpdates != null ) return new HashSet<>( availableUpdates );
+
+			if( !force && System.currentTimeMillis() - lastAvailableUpdateCheck < 1000 ) return Set.of();
+			lastAvailableUpdateCheck = System.currentTimeMillis();
+
+			try {
+				availableUpdates = new ProductManagerLogic( program ).findPostedUpdates( force ).get();
+				return new HashSet<>( availableUpdates );
+			} catch( Exception exception ) {
+				// TODO Notify the user there was a problem refreshing available updates
+				exception.printStackTrace();
+			}
+
+			return Set.of();
+		}
 	}
 
 	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {
