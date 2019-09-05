@@ -398,7 +398,7 @@ public class Program extends Application implements ProgramProduct {
 		return getSettingsManager().getSettings( ProgramSettings.PROGRAM ).get( "update-in-progress", Boolean.class, false );
 	}
 
-	public void setUpdateInProgress( boolean updateInProgress) {
+	public void setUpdateInProgress( boolean updateInProgress ) {
 		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).set( "update-in-progress", updateInProgress );
 		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).flush();
 	}
@@ -413,7 +413,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like Java Web Start.
+	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like
+	 * Java Web Start.
 	 *
 	 * @return The home folder
 	 */
@@ -530,7 +531,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Check for another instance of the program is running after getting the settings but before the splash screen is shown. The fastest way to check is to try and bind to the port defined in the settings. The OS will quickly deny the bind
+	 * Check for another instance of the program is running after getting the settings but before the splash screen is shown. The fastest way to check is to try
+	 * and bind to the port defined in the settings. The OS will quickly deny the bind
 	 * if the port is already bound.
 	 * <p>
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
@@ -576,21 +578,21 @@ public class Program extends Application implements ProgramProduct {
 		return false;
 	}
 
-//	/**
-//	 * Process staged updates at startup unless the NOUPDATE flag is set. This
-//	 * situation happens if updates are staged and the updater was not run or did
-//	 * not run successfully. If there are no staged updates then the method
-//	 * returns false. If no updates were processed due to user input then the
-//	 * method also returns false.
-//	 *
-//	 * @return True if the program should be restarted, false otherwise.
-//	 */
-//	private boolean processStagedUpdates() {
-//		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
-//		int result = productManager.updateProduct();
-//		if( result != 0 ) requestExit( true );
-//		return result != 0;
-//	}
+	//	/**
+	//	 * Process staged updates at startup unless the NOUPDATE flag is set. This
+	//	 * situation happens if updates are staged and the updater was not run or did
+	//	 * not run successfully. If there are no staged updates then the method
+	//	 * returns false. If no updates were processed due to user input then the
+	//	 * method also returns false.
+	//	 *
+	//	 * @return True if the program should be restarted, false otherwise.
+	//	 */
+	//	private boolean processStagedUpdates() {
+	//		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
+	//		int result = productManager.updateProduct();
+	//		if( result != 0 ) requestExit( true );
+	//		return result != 0;
+	//	}
 
 	/**
 	 * Process the resources specified on the command line.
@@ -656,7 +658,8 @@ public class Program extends Application implements ProgramProduct {
 		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
 		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
 		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
-		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
+		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty(
+			"os.arch" ) );
 	}
 
 	private void printStatus() {
@@ -854,7 +857,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example: <code>$HOME/lib/program.jar</code>
+	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
+	 * <code>$HOME/lib/program.jar</code>
 	 *
 	 * @param parameters The command line parameters
 	 */
@@ -897,7 +901,7 @@ public class Program extends Application implements ProgramProduct {
 	private void unregisterIcons() {}
 
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "workspace-close").pushAction( closeAction );
+		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
@@ -923,7 +927,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterActionHandlers() {
-		getActionLibrary().getAction( "workspace-close").pullAction( closeAction );
+		getActionLibrary().getAction( "workspace-close" ).pullAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
@@ -993,7 +997,14 @@ public class Program extends Application implements ProgramProduct {
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
 	}
 
-	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
+	private void registerTool(
+		ToolManager manager,
+		Class<? extends ResourceType> resourceTypeClass,
+		Class<? extends ProgramTool> toolClass,
+		ToolInstanceMode mode,
+		String toolRbKey,
+		String iconKey
+	) {
 		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
 		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
@@ -1049,64 +1060,64 @@ public class Program extends Application implements ProgramProduct {
 		return programUpdated;
 	}
 
-	private class Startup extends javafx.concurrent.Task<Void> {
+	private class Startup extends Task<Void> {
 
 		@Override
-		protected Void call() throws Exception {
+		public Void call() throws Exception {
 			// NOTE This is run on a task thread
 			doStartupTasks();
 			return null;
 		}
 
 		@Override
-		protected void succeeded() {
-			// NOTE This is run on the FX thread
-			getWorkspaceManager().getActiveStage().show();
-			getWorkspaceManager().getActiveStage().toFront();
+		protected void success() {
+			// WORKAROUND The success() method is run on a task thread...
+			Platform.runLater( () -> {
+				// NOTE This is run on the FX thread
+				getWorkspaceManager().getActiveStage().show();
+				getWorkspaceManager().getActiveStage().toFront();
 
-			splashScreen.hide();
-			time( "splash hidden" );
+				splashScreen.hide();
+				time( "splash hidden" );
 
-			// Program started event should be fired after the window is shown
-			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
-			time( "program started" );
+				// Program started event should be fired after the window is shown
+				Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+				time( "program started" );
 
-			// Set the workarea actions
-			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
-			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
-			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
+				// Set the workarea actions
+				getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
+				getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
+				getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
-			// Open resources specified on the command line
-			processResources( getProgramParameters() );
+				// Open resources specified on the command line
+				processResources( getProgramParameters() );
 
-			// Check to see if the application was updated
-			if( isProgramUpdated() ) notifyProgramUpdated();
+				// Check to see if the application was updated
+				if( isProgramUpdated() ) notifyProgramUpdated();
 
-			// TODO Show user notifications
-			//getTaskManager().submit( new ShowApplicationNotices() );
+				// TODO Show user notifications
+				//getTaskManager().submit( new ShowApplicationNotices() );
+				// Run these tasks on a task thread
+				getTaskManager().submit( Task.of( "Check for staged updates and schedule next update check", () -> {
+					// Check for staged updates
+					getProductManager().checkForStagedUpdatesAtStart();
 
-			// Run these tasks on a task thread
-			getTaskManager().submit( Task.of( "Check for staged updates and schedule next update check", ()-> {
-				// Check for staged updates
-				getProductManager().checkForStagedUpdatesAtStart();
-
-				// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
-				getProductManager().scheduleUpdateCheck( true );
-			} ) );
+					// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
+					getProductManager().scheduleUpdateCheck( true );
+				} ) );
+			} );
 		}
 
 		@Override
 		protected void cancelled() {
-			// NOTE This is run on the FX thread
-			splashScreen.hide();
+			Platform.runLater( () -> splashScreen.hide() );
 			time( "splash hidden" );
 			log.warn( "Startup task cancelled" );
 		}
 
 		@Override
 		protected void failed() {
-			// NOTE This is run on the FX thread
-			splashScreen.hide();
+			Platform.runLater( () -> splashScreen.hide() );
 			log.error( "Error during startup task", getException() );
 		}
 

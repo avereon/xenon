@@ -191,6 +191,10 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		super.setException( exceptionSource );
 	}
 
+	protected Throwable getException() {
+		return exceptionSource;
+	}
+
 	protected void setTotal( long max ) {
 		this.total = max;
 	}
