@@ -1053,12 +1053,14 @@ public class Program extends Application implements ProgramProduct {
 
 		@Override
 		protected Void call() throws Exception {
+			// NOTE This is run on a task thread
 			doStartupTasks();
 			return null;
 		}
 
 		@Override
 		protected void succeeded() {
+			// NOTE This is run on the FX thread
 			getWorkspaceManager().getActiveStage().show();
 			getWorkspaceManager().getActiveStage().toFront();
 
@@ -1077,21 +1079,25 @@ public class Program extends Application implements ProgramProduct {
 			// Open resources specified on the command line
 			processResources( getProgramParameters() );
 
-			// Check for staged updates
-			getProductManager().checkForStagedUpdatesAtStart();
-
-			// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
-			getProductManager().scheduleUpdateCheck( true );
-
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
 
 			// Check to see if the application was updated
 			if( isProgramUpdated() ) notifyProgramUpdated();
+
+			// Run these tasks on a task thread
+			getTaskManager().submit( Task.of( "Check for staged updates and schedule next update check", ()-> {
+				// Check for staged updates
+				getProductManager().checkForStagedUpdatesAtStart();
+
+				// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
+				getProductManager().scheduleUpdateCheck( true );
+			} ) );
 		}
 
 		@Override
 		protected void cancelled() {
+			// NOTE This is run on the FX thread
 			splashScreen.hide();
 			time( "splash hidden" );
 			log.warn( "Startup task cancelled" );
@@ -1099,6 +1105,7 @@ public class Program extends Application implements ProgramProduct {
 
 		@Override
 		protected void failed() {
+			// NOTE This is run on the FX thread
 			splashScreen.hide();
 			log.error( "Error during startup task", getException() );
 		}
