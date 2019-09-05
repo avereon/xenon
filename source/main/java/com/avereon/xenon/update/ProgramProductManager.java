@@ -3,7 +3,6 @@ package com.avereon.xenon.update;
 import com.avereon.product.ProductCard;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
 import org.slf4j.Logger;
 
@@ -53,12 +52,8 @@ public class ProgramProductManager extends ProductManager {
 		log.info( "Staged update count: " + stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
-		/*
-		 * If the ProgramFlag.UPDATE_IN_PROGRESS is set that means that the program
-		 * was started as a result of a program update and the staged updates can
-		 * be cleared.
-		 */
-		if( program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) {
+		if( program.isUpdateInProgress() ) {
+			program.setUpdateInProgress( false );
 			clearStagedUpdates();
 			return;
 		}
