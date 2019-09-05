@@ -1079,11 +1079,11 @@ public class Program extends Application implements ProgramProduct {
 			// Open resources specified on the command line
 			processResources( getProgramParameters() );
 
-			// TODO Show user notifications
-			//getTaskManager().submit( new ShowApplicationNotices() );
-
 			// Check to see if the application was updated
 			if( isProgramUpdated() ) notifyProgramUpdated();
+
+			// TODO Show user notifications
+			//getTaskManager().submit( new ShowApplicationNotices() );
 
 			// Run these tasks on a task thread
 			getTaskManager().submit( Task.of( "Check for staged updates and schedule next update check", ()-> {
