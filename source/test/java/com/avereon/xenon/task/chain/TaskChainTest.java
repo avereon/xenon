@@ -19,7 +19,7 @@ public class TaskChainTest extends ProgramTestCase {
 		int value = 7;
 
 		TaskChain<Integer> chain =TaskChain.init( () -> value );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( value ) );
@@ -31,7 +31,7 @@ public class TaskChainTest extends ProgramTestCase {
 		int value = 8;
 
 		TaskChain<Integer> chain = TaskChain.init( ( v ) -> inc( value ) );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( value + 1 ) );
@@ -48,7 +48,7 @@ public class TaskChainTest extends ProgramTestCase {
 			}
 
 		} );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program);
 		assertThat( task.get(), is( 1 ) );
@@ -58,7 +58,7 @@ public class TaskChainTest extends ProgramTestCase {
 	@Test
 	public void testLinkWithSupplier() throws Exception {
 		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( () -> 1 ).link( () -> 2 );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 2 ) );
@@ -74,7 +74,7 @@ public class TaskChainTest extends ProgramTestCase {
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 5 ) );
@@ -91,7 +91,7 @@ public class TaskChainTest extends ProgramTestCase {
 			}
 
 		} );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 3 ) );
@@ -107,7 +107,7 @@ public class TaskChainTest extends ProgramTestCase {
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 );
-		assertThat( chain.build().getState(), is( Task.State.WAITING ) );
+		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 10 ) );

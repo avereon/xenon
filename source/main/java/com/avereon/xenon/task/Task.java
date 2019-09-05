@@ -23,7 +23,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	public enum State {
-		WAITING,
+		READY,
+		SCHEDULED,
 		RUNNING,
 		CANCELLED,
 		SUCCESS,
@@ -38,7 +39,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private final Object stateLock = new Object();
 
-	private State state = State.WAITING;
+	private State state = State.READY;
 
 	private String name;
 
@@ -199,6 +200,16 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		fireTaskEvent( TaskEvent.Type.TASK_PROGRESS );
 	}
 
+	protected void scheduled() {}
+
+	protected void running() {}
+
+	protected void success() {}
+
+	protected void cancelled() {}
+
+	protected void failed() {}
+
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
 		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
@@ -208,6 +219,29 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		synchronized( stateLock ) {
 			this.state = state;
 			stateLock.notifyAll();
+		}
+
+		switch( state ) {
+			case SCHEDULED: {
+				scheduled();
+				break;
+			}
+			case RUNNING: {
+				running();
+				break;
+			}
+			case SUCCESS: {
+				success();
+				break;
+			}
+			case CANCELLED: {
+				cancelled();
+				break;
+			}
+			case FAILED: {
+				failed();
+				break;
+			}
 		}
 	}
 

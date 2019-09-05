@@ -114,7 +114,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( true ) );
 
 		MockTask task = new MockTask( manager );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		Future<Object> future = manager.submit( task );
 		assertThat( future.get(), is( nullValue() ) );
@@ -132,7 +132,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		Future<Object> future = manager.submit( task );
 		assertThat( future.get(), is( result ) );
@@ -149,7 +149,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( true ) );
 
 		MockTask task = new MockTask( manager, null, true );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
 		try {
@@ -171,7 +171,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( false ) );
 
 		MockTask task = new MockTask( manager );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		try {
 			manager.submit( task );
@@ -183,7 +183,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( false ) );
 		assertThat( task.isDone(), is( false ) );
 		assertThat( task.isCancelled(), is( false ) );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
 	}
 
 	@Test
@@ -195,7 +195,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
 		assertThat( task.get(), is( result ) );
@@ -214,7 +214,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		MockTask nestedTask = new MockTask( manager, nestedResult );
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result, nestedTask );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
 		assertThat( task.get( 100, TimeUnit.MILLISECONDS ), is( result ) );
@@ -231,11 +231,11 @@ public class TaskManagerTest extends BaseTaskTest {
 
 		Object nestedResult = new Object();
 		MockTask nestedTask = new MockTask( manager, nestedResult, true );
-		assertThat( nestedTask.getState(), is( Task.State.WAITING ) );
+		assertThat( nestedTask.getState(), is( Task.State.READY ) );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result, nestedTask );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
 
@@ -271,7 +271,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 		assertThat( listener.getEvents().size(), is( 0 ) );
 
 		Future<Object> future = manager.submit( task );

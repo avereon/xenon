@@ -31,9 +31,10 @@ public class TaskTest extends BaseTaskTest {
 	public void testSuccess() throws Exception {
 		Task<?> task = new MockTask( manager, 4 * delay );
 		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
+		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
 
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
@@ -47,9 +48,11 @@ public class TaskTest extends BaseTaskTest {
 	public void testFailure() throws Exception {
 		Task<?> task = new MockTask( manager, 4 * delay, true );
 		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
+		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
+
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
 		ThreadUtil.pause( delay );
