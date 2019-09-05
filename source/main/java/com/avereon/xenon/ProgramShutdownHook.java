@@ -133,7 +133,7 @@ public class ProgramShutdownHook extends Thread {
 
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS ) );
+		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters() ) );
 		launchCommands.addAll( List.of( restartCommands ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
 
@@ -156,6 +156,7 @@ public class ProgramShutdownHook extends Thread {
 	 *
 	 * @return The stage updater module path
 	 */
+	// TODO This could be converted to a task and the run method can wait for the task to complete
 	private String stageUpdater() throws IOException {
 		// Determine where to put the updater
 		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
@@ -189,6 +190,8 @@ public class ProgramShutdownHook extends Thread {
 		if( builder == null ) return;
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+
+		if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 
 		try {
 			// Only redirect stdout and stderr

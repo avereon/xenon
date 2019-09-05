@@ -15,10 +15,6 @@ class RefreshAvailableProducts extends Task<Void> {
 
 	private boolean force;
 
-	RefreshAvailableProducts( ProductTool productTool ) {
-		this( productTool, false );
-	}
-
 	RefreshAvailableProducts( ProductTool productTool, boolean force ) {
 		this.productTool = productTool;
 		this.force = force;

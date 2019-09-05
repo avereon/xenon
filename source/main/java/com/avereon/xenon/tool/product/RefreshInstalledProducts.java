@@ -21,9 +21,14 @@ class RefreshInstalledProducts extends Task<Void> {
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
-		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getInstalledProductCards() );
-		cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
-		Platform.runLater( () -> productTool.getInstalledPage().setProducts( cards ) );
+		try {
+			List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getInstalledProductCards() );
+			cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
+			Platform.runLater( () -> productTool.getInstalledPage().setProducts( cards ) );
+		} catch( Exception exception ) {
+			ProductTool.log.warn( "Error refreshing installed products", exception );
+			// TODO Notify the user there was a problem refreshing the installed products
+		}
 		return null;
 	}
 

@@ -98,7 +98,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	@Override
 	public TaskManager start() {
 		if( isRunning() ) return this;
-		executor = new TaskManagerExecutor( maxThreadCount, THREAD_IDLE_SECONDS, TimeUnit.SECONDS, queue, new TaskThreadFactory( this, group ) );
+		executor = new TaskManagerExecutor( maxThreadCount, THREAD_IDLE_SECONDS, TimeUnit.SECONDS, queue, new TaskThreadFactory( this, group, Thread.MIN_PRIORITY ) );
 		return this;
 	}
 

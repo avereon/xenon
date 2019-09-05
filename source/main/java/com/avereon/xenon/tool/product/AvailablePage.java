@@ -23,7 +23,7 @@ class AvailablePage extends ProductPage {
 	@Override
 	protected void updateState() {
 		ProductTool.log.trace( "Update available products" );
-		productTool.getProgram().getTaskManager().submit( new RefreshAvailableProducts( productTool ) );
+		productTool.getProgram().getTaskManager().submit( new RefreshAvailableProducts( productTool, false ) );
 	}
 
 }

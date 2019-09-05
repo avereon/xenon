@@ -285,10 +285,6 @@ public class Program extends Application implements ProgramProduct {
 		// Create the update manager, depends on icon library
 		productManager = configureProductManager( new ProgramProductManager( this ) );
 
-		// Process staged updates, depends on product manager
-		//if( processStagedUpdates() ) return;
-		//time( "staged-updates" );
-
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( !TestUtil.isTest() ) stage.initStyle( StageStyle.UTILITY );
@@ -303,7 +299,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "program-start-event" );
 
 		// Submit the startup task
-		taskManager.submit( Task.of( new Startup() ) );
+		getTaskManager().submit( Task.of( new Startup() ) );
 	}
 
 	public boolean isRunning() {
@@ -396,6 +392,15 @@ public class Program extends Application implements ProgramProduct {
 		if( !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive) ) Platform.exit();
 
 		return true;
+	}
+
+	public boolean isUpdateInProgress() {
+		return getSettingsManager().getSettings( ProgramSettings.PROGRAM ).get( "update-in-progress", Boolean.class, false );
+	}
+
+	public void setUpdateInProgress( boolean updateInProgress) {
+		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).set( "update-in-progress", updateInProgress );
+		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).flush();
 	}
 
 	public com.avereon.util.Parameters getProgramParameters() {
@@ -735,6 +740,9 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
+		// Create the program notifier, depends on workspace manager
+		notifier = new ProgramNotifier( this );
+
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
@@ -757,17 +765,11 @@ public class Program extends Application implements ProgramProduct {
 		// Notify the product manager the UI is ready
 		productManager.startMods();
 
-		// Check for staged updates
-		productManager.checkForStagedUpdatesAtStart();
-
 		// Finish the splash screen
 		int totalSteps = splashScreen.getSteps();
 		int completedSteps = splashScreen.getCompletedSteps();
 		if( completedSteps != totalSteps ) log.warn( "Startup step mismatch: " + completedSteps + " of " + totalSteps );
 		Platform.runLater( () -> splashScreen.done() );
-
-		// Create the program notifier, depends on workspace manager
-		notifier = new ProgramNotifier( this );
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
@@ -1057,11 +1059,11 @@ public class Program extends Application implements ProgramProduct {
 
 		@Override
 		protected void succeeded() {
-			splashScreen.hide();
-			time( "splash hidden" );
-
 			getWorkspaceManager().getActiveStage().show();
 			getWorkspaceManager().getActiveStage().toFront();
+
+			splashScreen.hide();
+			time( "splash hidden" );
 
 			// Program started event should be fired after the window is shown
 			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
@@ -1075,7 +1077,10 @@ public class Program extends Application implements ProgramProduct {
 			// Open resources specified on the command line
 			processResources( getProgramParameters() );
 
-			// Schedule the first update check
+			// Check for staged updates
+			getProductManager().checkForStagedUpdatesAtStart();
+
+			// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
 			getProductManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
