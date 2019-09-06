@@ -65,6 +65,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	}
 
 	public <T> Task<T> submit( Task<T> task ) {
+		task.setState( Task.State.SCHEDULED );
 		return (Task<T>)checkRunning().submit( (Callable<T>)task );
 	}
 

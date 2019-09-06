@@ -1,19 +1,20 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
+import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import com.avereon.util.Parameters;
-import com.avereon.util.TestUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-public class ProgramServer {
+public class ProgramServer implements Controllable<ProgramServer> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -34,10 +35,12 @@ public class ProgramServer {
 		return server == null ? 0 : server.getLocalPort();
 	}
 
-	public boolean start() {
-		// When running as a test don't start the program server
-		if( TestUtil.isTest() ) return true;
+	@Override
+	public boolean isRunning() {
+		return ( server != null && server.isBound() );
+	}
 
+	public ProgramServer start() {
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 
 		// Start the program server
@@ -54,21 +57,43 @@ public class ProgramServer {
 			serverThread.setDaemon( true );
 			serverThread.start();
 		} catch( BindException exception ) {
-			return false;
+			return this;
 		} catch( IOException exception ) {
 			log.error( "Error starting program server", exception );
 		}
 
-		return true;
+		return this;
 	}
 
-	public void stop() {
-		if( server == null ) return;
+	@Override
+	public ProgramServer awaitStart( long l, TimeUnit timeUnit ) throws InterruptedException {
+		return this;
+	}
+
+	@Override
+	public ProgramServer restart() {
+		return this;
+	}
+
+	@Override
+	public ProgramServer awaitRestart( long l, TimeUnit timeUnit ) throws InterruptedException {
+		return this;
+	}
+
+	public ProgramServer stop() {
+		if( server == null ) return this;
 		if( handler != null ) handler.stop();
 
 		Settings programSettings = program.getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		programSettings.set( "program-port", 0 );
 		programSettings.flush();
+
+		return this;
+	}
+
+	@Override
+	public ProgramServer awaitStop( long l, TimeUnit timeUnit ) throws InterruptedException {
+		return this;
 	}
 
 	private class SocketHandler implements Runnable {
@@ -89,7 +114,7 @@ public class ProgramServer {
 
 					// TODO Register a log event listener to send events to the peer
 
-					program.processCommands( parameters );
+					program.processControlCommands( parameters );
 					program.processResources( parameters );
 
 					// TODO Unregister the log event listener

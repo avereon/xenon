@@ -144,11 +144,24 @@ public class Program extends Application implements ProgramProduct {
 
 	private Boolean isProgramUpdated;
 
+	// THREAD main
+	// EXCEPTIONS Handled by the FX framework
 	public static void main( String[] commands ) {
+		time( "main" );
 		launch( commands );
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	public Program() {
+		time( "instantiate" );
+
+		// Do not implicitly close the program
+		Platform.setImplicitExit( false );
+		time( "implicit-exit-false" );
+
+		listeners = new CopyOnWriteArraySet<>();
+
 		// Create program action handlers
 		closeAction = new CloseWorkspaceAction( this );
 		exitAction = new ExitAction( this );
@@ -160,32 +173,15 @@ public class Program extends Application implements ProgramProduct {
 		updateAction = new UpdateAction( this );
 		restartAction = new RestartAction( this );
 		taskAction = new TaskAction( this );
-
-		// Create the listeners set
-		listeners = new CopyOnWriteArraySet<>();
+		time( "program-actions" );
 	}
 
-	// This constructor is specifically available for testing
-	// when the application does not need to be started.
-	Program( com.avereon.util.Parameters parameters ) {
-		this();
-		this.parameters = parameters;
-	}
-
+	// THREAD JavaFX-Launcher
+	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void init() throws Exception {
-		try {
-			protectedInit();
-		} catch( Throwable throwable ) {
-			log.error( "Error initializing program", throwable );
-			throw throwable;
-		}
-	}
-
-	private void protectedInit() throws Exception {
+		// NOTE Only do in init() what should be done before the splash screen is shown
 		time( "init" );
-
-		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product card
 		card = new ProductCard().init( getClass() );
@@ -227,7 +223,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the program settings, depends on settings manager and default settings values
 		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( defaultSettingsValues );
-		time( "settings" );
+		time( "program-settings" );
 
 		// Check for the VERSION CL parameter, depends on program settings
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
@@ -235,6 +231,7 @@ public class Program extends Application implements ProgramProduct {
 			requestExit( true );
 			return;
 		}
+		time( "version-check" );
 
 		// Check for the HELP CL parameter, depends on program settings
 		if( getProgramParameters().isSet( ProgramFlag.HELP ) ) {
@@ -242,14 +239,18 @@ public class Program extends Application implements ProgramProduct {
 			requestExit( true );
 			return;
 		}
+		time( "help-check" );
 
 		// Run the peer check before processing commands in case there is a peer already
-		if( peerCheck() ) return;
+		if( !TestUtil.isTest() && peerCheck() ) {
+			requestExit( true );
+			return;
+		}
 		time( "peer-check" );
 
-		// If there is not a peer, process the commands before processing the updates
-		if( processCommands( getProgramParameters() ) ) return;
-		time( "process-commands" );
+		// If there is not a peer, process the control commands before showing the splash screen
+		if( processControlCommands( getProgramParameters() ) ) return;
+		time( "control-commands" );
 
 		// Create the task manager, depends on program settings
 		// The task manager is created in the init() method so it is available during unit tests
@@ -259,71 +260,241 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "Task manager started." );
 		time( "task-manager" );
 
-		// NOTE The start( Stage ) method is called next on the FX thread
+		// NOTE The start( Stage ) method is called next
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void start( Stage stage ) throws Exception {
-		try {
-			protectedStart( stage );
-		} catch( Throwable throwable ) {
-			log.error( "Error initializing program", throwable );
-			throw throwable;
-		}
-	}
-
-	private void protectedStart( Stage stage ) throws Exception {
-		Thread.currentThread().setUncaughtExceptionHandler( new ProgramUncaughtExceptionHandler() );
-
-		// Do not implicitly close the program
-		Platform.setImplicitExit( false );
-
-		// Create the icon library
-		iconLibrary = new IconLibrary();
-		registerIcons();
-
-		// Create the update manager, depends on icon library
-		productManager = configureProductManager( new ProgramProductManager( this ) );
+		time( "fx-start" );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
-		if( !TestUtil.isTest() ) stage.initStyle( StageStyle.UTILITY );
+		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
-		time( "splash displayed" );
+		time( "splash-displayed" );
+
+		// Submit the startup task
+		getTaskManager().submit( new Startup() );
+	}
+
+	// THREAD TaskPool-worker
+	// EXCEPTIONS Handled by the Task framework
+	private void doStartupTasks() throws Exception {
+		time( "do-startup-tasks" );
+
+		// Fire the program starting event, depends on the event watcher
+		fireEvent( new ProgramStartingEvent( this ) );
+		time( "program-starting-event" );
 
 		// Create the program event watcher, depends on logging
 		addEventListener( watcher = new ProgramEventWatcher() );
 
-		// Fire the program starting event, depends on the event watcher
-		fireEvent( new ProgramStartingEvent( this ) );
-		time( "program-start-event" );
+		// Create the product manager, depends on icon library
+		productManager = configureProductManager( new ProgramProductManager( this ) );
+		time( "product-manager" );
 
-		// Submit the startup task
-		getTaskManager().submit( Task.of( new Startup() ) );
+		// Create the icon library
+		iconLibrary = new IconLibrary();
+		registerIcons();
+		time( "icon-library" );
+
+		// Create the action library
+		actionLibrary = new ActionLibrary( programResourceBundle );
+		registerActionHandlers();
+
+		// Create the UI factory
+		UiFactory uiFactory = new UiFactory( Program.this );
+
+		// Set the number of startup steps
+		int managerCount = 5;
+		int steps = managerCount + uiFactory.getToolCount();
+		Platform.runLater( () -> splashScreen.setSteps( steps ) );
+
+		// Update the product card
+		this.card.load( getClass() );
+
+		Platform.runLater( () -> splashScreen.update() );
+
+		// Start the resource manager
+		log.trace( "Starting resource manager..." );
+		resourceManager = new ResourceManager( Program.this );
+		registerSchemes( resourceManager );
+		registerResourceTypes( resourceManager );
+		resourceManager.start();
+		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Resource manager started." );
+
+		// Load the settings pages
+		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES_XML );
+
+		// Start the tool manager
+		log.trace( "Starting tool manager..." );
+		toolManager = new ToolManager( this );
+		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		registerTools( toolManager );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Tool manager started." );
+
+		// Create the workspace manager
+		log.trace( "Starting workspace manager..." );
+		workspaceManager = new WorkspaceManager( Program.this ).start();
+		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Workspace manager started." );
+
+		// Create the program notifier, depends on workspace manager
+		notifier = new ProgramNotifier( this );
+
+		// Create the notice manager
+		log.trace( "Starting notice manager..." );
+		noticeManager = new NoticeManager( Program.this ).start();
+		noticeManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> splashScreen.update() );
+		log.debug( "Notice manager started." );
+
+		// Start the product manager
+		log.trace( "Starting product manager..." );
+		productManager.start();
+		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "Product manager started." );
+
+		// Restore the user interface
+		log.trace( "Restore the user interface..." );
+		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
+		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		log.debug( "User interface restored." );
+
+		// Notify the product manager the UI is ready
+		productManager.startMods();
+
+		// Finish the splash screen
+		int totalSteps = splashScreen.getSteps();
+		int completedSteps = splashScreen.getCompletedSteps();
+		if( completedSteps != totalSteps ) log.warn( "Startup step mismatch: " + completedSteps + " of " + totalSteps );
+		Platform.runLater( () -> splashScreen.done() );
+
+		// Give the slash screen time to render and the user to see it
+		Thread.sleep( 500 );
+
+		Platform.runLater( () -> {
+
+			getWorkspaceManager().getActiveStage().show();
+			getWorkspaceManager().getActiveStage().toFront();
+
+			splashScreen.hide();
+			time( "splash hidden" );
+		} );
+
+		// Set the workarea actions
+		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
+		getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
+		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
+
+		// Check to see if the application was updated
+		if( isProgramUpdated() ) Platform.runLater( this::notifyProgramUpdated );
+
+		// Open resources specified on the command line
+		processResources( getProgramParameters() );
 	}
 
-	public boolean isRunning() {
-		return taskManager.isRunning();
-	}
-
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void stop() throws Exception {
-		try {
-			protectedStop();
-		} catch( Throwable throwable ) {
-			log.error( "Error initializing program", throwable );
-			throw throwable;
-		}
+		time( "stop" );
+
+		taskManager.submit( new Shutdown() ).get();
 	}
 
-	private void protectedStop() throws Exception {
-		taskManager.submit( Task.of( new Shutdown() ) ).get();
+	// THREAD TaskPool-worker
+	// EXCEPTIONS Handled by the Task framework
+	private void doShutdownTasks() throws Exception {
+		time( "do-shutdown-tasks" );
+
+		fireEvent( new ProgramStoppingEvent( this ) );
+
+		// Stop the product manager
+		if( productManager != null ) {
+			// Notify the product manager the UI is ready
+			productManager.stopMods();
+
+			log.trace( "Stopping update manager..." );
+			productManager.stop();
+			productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Update manager stopped." );
+		}
+
+		// Stop the NoticeManager
+		if( noticeManager != null ) {
+			log.trace( "Stopping notice manager..." );
+			noticeManager.stop();
+			noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Notice manager stopped." );
+		}
+
+		// Stop the workspace manager
+		if( workspaceManager != null ) {
+			log.trace( "Stopping workspace manager..." );
+			workspaceManager.stop();
+			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Workspace manager stopped." );
+		}
+
+		// Stop the tool manager
+		if( toolManager != null ) {
+			log.trace( "Stopping tool manager..." );
+			toolManager.stop();
+			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			unregisterTools( toolManager );
+			log.debug( "Tool manager stopped." );
+		}
+
+		// NOTE Do not try to remove the settings pages during shutdown
+
+		// Stop the resource manager
+		if( resourceManager != null ) {
+			log.trace( "Stopping resource manager..." );
+			resourceManager.stop();
+			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			unregisterResourceTypes( resourceManager );
+			unregisterSchemes( resourceManager );
+			log.debug( "Resource manager stopped." );
+		}
+
+		// Disconnect the settings listener
+		if( settingsManager != null ) {
+			log.trace( "Stopping settings manager..." );
+			settingsManager.stop();
+			settingsManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Settings manager stopped." );
+		}
+
+		// Unregister action handlers
+		if( actionLibrary != null ) unregisterActionHandlers();
+
+		// Unregister icons
+		if( iconLibrary != null ) unregisterIcons();
+
+		// Stop the program server
+		if( programServer != null ) {
+			log.trace( "Stopping program server..." );
+			programServer.stop();
+			programServer.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Program server stopped." );
+		}
 
 		// Stop the task manager
-		log.trace( "Stopping task manager..." );
-		taskManager.stop();
-		taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		log.debug( "Task manager stopped." );
+		if( taskManager != null ) {
+			log.trace( "Stopping task manager..." );
+			taskManager.stop();
+			taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			log.debug( "Task manager stopped." );
+		}
+
+		// NOTE Do not call Platform.exit() here, it was called already
 	}
 
 	public void requestRestart( String... commands ) {
@@ -365,8 +536,8 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Updating..." );
 	}
 
-	public boolean requestExit( boolean force ) {
-		return requestExit( force, force );
+	public boolean requestExit( boolean skipChecks ) {
+		return requestExit( skipChecks, skipChecks );
 	}
 
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
@@ -394,11 +565,15 @@ public class Program extends Application implements ProgramProduct {
 		return true;
 	}
 
+	public boolean isRunning() {
+		return taskManager.isRunning();
+	}
+
 	public boolean isUpdateInProgress() {
 		return getSettingsManager().getSettings( ProgramSettings.PROGRAM ).get( "update-in-progress", Boolean.class, false );
 	}
 
-	public void setUpdateInProgress( boolean updateInProgress) {
+	public void setUpdateInProgress( boolean updateInProgress ) {
 		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).set( "update-in-progress", updateInProgress );
 		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).flush();
 	}
@@ -407,13 +582,18 @@ public class Program extends Application implements ProgramProduct {
 		return parameters;
 	}
 
+	void setProgramParameters( com.avereon.util.Parameters parameters ) {
+		this.parameters = parameters;
+	}
+
 	@Override
 	public Program getProgram() {
 		return this;
 	}
 
 	/**
-	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like Java Web Start.
+	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like
+	 * Java Web Start.
 	 *
 	 * @return The home folder
 	 */
@@ -505,7 +685,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " " + markerName + " " + Thread.currentThread().getName() );
 	}
 
 	/**
@@ -530,24 +710,28 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Check for another instance of the program is running after getting the settings but before the splash screen is shown. The fastest way to check is to try and bind to the port defined in the settings. The OS will quickly deny the bind
-	 * if the port is already bound.
+	 * Check for another instance of the program is running after getting the
+	 * settings but before the splash screen is shown. The fastest way to check is
+	 * to try and bind to the port defined in the settings. The OS will quickly
+	 * deny the bind if the port is already bound.
 	 * <p>
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private boolean peerCheck() {
+	private boolean peerCheck() throws InterruptedException {
 		int port = programSettings.get( "program-port", Integer.class, 0 );
-		ProgramServer server = new ProgramServer( this, port );
+		programServer = new ProgramServer( this, port );
 
-		if( server.start() ) {
-			programServer = server;
-			return false;
-		}
+		// If the program server starts this process is a host, not a peer
+		programServer.start().awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		if( programServer.isRunning() ) return false;
 
 		new ProgramPeer( this, port ).run();
-		requestExit( true );
 		return true;
+	}
+
+	private boolean isHost() {
+		return programServer != null;
 	}
 
 	private boolean isPeer() {
@@ -560,37 +744,33 @@ public class Program extends Application implements ProgramProduct {
 	 * @param parameters The command line parameters
 	 * @return True if the program should exit, false otherwise.
 	 */
-	boolean processCommands( com.avereon.util.Parameters parameters ) {
-		if( parameters.isSet( ProgramFlag.WATCH ) ) {
-			// TODO Don't exit, just watch the host output
-			return true;
-		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
-			printStatus();
-			if( isPeer() ) Platform.runLater( () -> requestExit( true ) );
-			return true;
+	boolean processControlCommands( com.avereon.util.Parameters parameters ) {
+		if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			if( isHost() ) printStatus();
+			return isPeer();
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
-			if( isPeer() ) Platform.runLater( () -> requestExit( true ) );
+			if( isHost() ) Platform.runLater( () -> requestExit( true ) );
 			return true;
 		}
 
 		return false;
 	}
 
-//	/**
-//	 * Process staged updates at startup unless the NOUPDATE flag is set. This
-//	 * situation happens if updates are staged and the updater was not run or did
-//	 * not run successfully. If there are no staged updates then the method
-//	 * returns false. If no updates were processed due to user input then the
-//	 * method also returns false.
-//	 *
-//	 * @return True if the program should be restarted, false otherwise.
-//	 */
-//	private boolean processStagedUpdates() {
-//		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
-//		int result = productManager.updateProduct();
-//		if( result != 0 ) requestExit( true );
-//		return result != 0;
-//	}
+	//	/**
+	//	 * Process staged updates at startup unless the NOUPDATE flag is set. This
+	//	 * situation happens if updates are staged and the updater was not run or did
+	//	 * not run successfully. If there are no staged updates then the method
+	//	 * returns false. If no updates were processed due to user input then the
+	//	 * method also returns false.
+	//	 *
+	//	 * @return True if the program should be restarted, false otherwise.
+	//	 */
+	//	private boolean processStagedUpdates() {
+	//		if( parameters.isSet( ProgramFlag.NOUPDATE ) ) return false;
+	//		int result = productManager.updateProduct();
+	//		if( result != 0 ) requestExit( true );
+	//		return result != 0;
+	//	}
 
 	/**
 	 * Process the resources specified on the command line.
@@ -656,7 +836,8 @@ public class Program extends Application implements ProgramProduct {
 		System.out.println( "Java version=" + System.getProperty( "java.version" ) + " vendor=" + System.getProperty( "java.vendor" ) );
 		System.out.println( "Java home=" + System.getProperty( "java.home" ) );
 		System.out.println( "Java locale=" + Locale.getDefault() + " encoding=" + System.getProperty( "file.encoding" ) );
-		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty( "os.arch" ) );
+		System.out.println( "OS name=" + System.getProperty( "os.name" ) + " version=" + System.getProperty( "os.version" ) + " arch=" + System.getProperty(
+			"os.arch" ) );
 	}
 
 	private void printStatus() {
@@ -694,167 +875,9 @@ public class Program extends Application implements ProgramProduct {
 		return getExecMode().getPrefix();
 	}
 
-	private void doStartupTasks() throws Exception {
-		// Create the action library
-		actionLibrary = new ActionLibrary( programResourceBundle );
-		registerActionHandlers();
-
-		// Create the UI factory
-		UiFactory uiFactory = new UiFactory( Program.this );
-
-		// Set the number of startup steps
-		int managerCount = 5;
-		int steps = managerCount + uiFactory.getToolCount();
-		Platform.runLater( () -> splashScreen.setSteps( steps ) );
-
-		// Update the product card
-		this.card.load( getClass() );
-
-		Platform.runLater( () -> splashScreen.update() );
-
-		// Start the resource manager
-		log.trace( "Starting resource manager..." );
-		resourceManager = new ResourceManager( Program.this );
-		registerSchemes( resourceManager );
-		registerResourceTypes( resourceManager );
-		resourceManager.start();
-		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Resource manager started." );
-
-		// Load the settings pages
-		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES_XML );
-
-		// Start the tool manager
-		log.trace( "Starting tool manager..." );
-		toolManager = new ToolManager( this );
-		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		registerTools( toolManager );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Tool manager started." );
-
-		// Create the workspace manager
-		log.trace( "Starting workspace manager..." );
-		workspaceManager = new WorkspaceManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Workspace manager started." );
-
-		// Create the program notifier, depends on workspace manager
-		notifier = new ProgramNotifier( this );
-
-		// Create the notice manager
-		log.trace( "Starting notice manager..." );
-		noticeManager = new NoticeManager( Program.this ).start();
-		noticeManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Notice manager started." );
-
-		// Start the product manager
-		log.trace( "Starting product manager..." );
-		productManager.start();
-		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		log.debug( "Product manager started." );
-
-		// Restore the user interface
-		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
-		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		log.debug( "User interface restored." );
-
-		// Notify the product manager the UI is ready
-		productManager.startMods();
-
-		// Finish the splash screen
-		int totalSteps = splashScreen.getSteps();
-		int completedSteps = splashScreen.getCompletedSteps();
-		if( completedSteps != totalSteps ) log.warn( "Startup step mismatch: " + completedSteps + " of " + totalSteps );
-		Platform.runLater( () -> splashScreen.done() );
-
-		// Give the slash screen time to render and the user to see it
-		Thread.sleep( 500 );
-	}
-
-	private void doShutdownTasks() {
-		try {
-			fireEvent( new ProgramStoppingEvent( this ) );
-
-			// Stop the product manager
-			if( productManager != null ) {
-				// Notify the product manager the UI is ready
-				productManager.stopMods();
-
-				log.trace( "Stopping update manager..." );
-				productManager.stop();
-				productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				log.debug( "Update manager stopped." );
-			}
-
-			// Stop the NoticeManager
-			if( noticeManager != null ) {
-				log.trace( "Stopping notice manager..." );
-				noticeManager.stop();
-				noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				log.debug( "Notice manager stopped." );
-			}
-
-			// Stop the workspace manager
-			if( workspaceManager != null ) {
-				log.trace( "Stopping workspace manager..." );
-				workspaceManager.stop();
-				workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				log.debug( "Workspace manager stopped." );
-			}
-
-			// Stop the tool manager
-			if( toolManager != null ) {
-				log.trace( "Stopping tool manager..." );
-				toolManager.stop();
-				toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				unregisterTools( toolManager );
-				log.debug( "Tool manager stopped." );
-			}
-
-			// NOTE Do not try to remove the settings pages during shutdown
-
-			// Stop the resource manager
-			if( resourceManager != null ) {
-				log.trace( "Stopping resource manager..." );
-				resourceManager.stop();
-				resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-				unregisterResourceTypes( resourceManager );
-				unregisterSchemes( resourceManager );
-				log.debug( "Resource manager stopped." );
-			}
-
-			// Disconnect the settings listener
-			if( settingsManager != null ) {
-				log.trace( "Stopping settings manager..." );
-				settingsManager.stop();
-				log.debug( "Settings manager stopped." );
-			}
-
-			// Unregister action handlers
-			if( actionLibrary != null ) unregisterActionHandlers();
-
-			// Unregister icons
-			if( iconLibrary != null ) unregisterIcons();
-
-			// Stop the program server
-			if( programServer != null ) {
-				log.trace( "Stopping program server..." );
-				programServer.stop();
-				log.debug( "Program server stopped." );
-			}
-
-			// NOTE Do not call Platform.exit() here, it was called already
-		} catch( InterruptedException exception ) {
-			log.error( "Program shutdown interrupted", exception );
-		}
-	}
-
 	/**
-	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example: <code>$HOME/lib/program.jar</code>
+	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
+	 * <code>$HOME/lib/program.jar</code>
 	 *
 	 * @param parameters The command line parameters
 	 */
@@ -897,7 +920,7 @@ public class Program extends Application implements ProgramProduct {
 	private void unregisterIcons() {}
 
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "workspace-close").pushAction( closeAction );
+		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
@@ -923,7 +946,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterActionHandlers() {
-		getActionLibrary().getAction( "workspace-close").pullAction( closeAction );
+		getActionLibrary().getAction( "workspace-close" ).pullAction( closeAction );
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
@@ -993,7 +1016,14 @@ public class Program extends Application implements ProgramProduct {
 		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
 	}
 
-	private void registerTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey ) {
+	private void registerTool(
+		ToolManager manager,
+		Class<? extends ResourceType> resourceTypeClass,
+		Class<? extends ProgramTool> toolClass,
+		ToolInstanceMode mode,
+		String toolRbKey,
+		String iconKey
+	) {
 		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
 		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
@@ -1049,79 +1079,54 @@ public class Program extends Application implements ProgramProduct {
 		return programUpdated;
 	}
 
-	private class Startup extends javafx.concurrent.Task<Void> {
+	private class Startup extends Task<Void> {
 
 		@Override
-		protected Void call() throws Exception {
-			// NOTE This is run on a task thread
+		public Void call() throws Exception {
 			doStartupTasks();
 			return null;
 		}
 
 		@Override
-		protected void succeeded() {
-			// NOTE This is run on the FX thread
-			getWorkspaceManager().getActiveStage().show();
-			getWorkspaceManager().getActiveStage().toFront();
+		protected void success() {
+			// Check for staged updates
+			getProductManager().checkForStagedUpdatesAtStart();
 
-			splashScreen.hide();
-			time( "splash hidden" );
-
-			// Program started event should be fired after the window is shown
-			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
-			time( "program started" );
-
-			// Set the workarea actions
-			getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
-			getActionLibrary().getAction( "workarea-rename" ).pushAction( new RenameWorkareaAction( Program.this ) );
-			getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
-
-			// Open resources specified on the command line
-			processResources( getProgramParameters() );
+			// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
+			getProductManager().scheduleUpdateCheck( true );
 
 			// TODO Show user notifications
 			//getTaskManager().submit( new ShowApplicationNotices() );
 
-			// Check to see if the application was updated
-			if( isProgramUpdated() ) notifyProgramUpdated();
-
-			// Run these tasks on a task thread
-			getTaskManager().submit( Task.of( "Check for staged updates and schedule next update check", ()-> {
-				// Check for staged updates
-				getProductManager().checkForStagedUpdatesAtStart();
-
-				// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
-				getProductManager().scheduleUpdateCheck( true );
-			} ) );
+			// Program started event should be fired after the window is shown
+			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+			time( "program started" );
 		}
 
 		@Override
 		protected void cancelled() {
-			// NOTE This is run on the FX thread
-			splashScreen.hide();
-			time( "splash hidden" );
+			Platform.runLater( () -> splashScreen.hide() );
 			log.warn( "Startup task cancelled" );
 		}
 
 		@Override
 		protected void failed() {
-			// NOTE This is run on the FX thread
-			splashScreen.hide();
+			Platform.runLater( () -> splashScreen.hide() );
 			log.error( "Error during startup task", getException() );
 		}
 
 	}
 
-	private class Shutdown extends javafx.concurrent.Task<Void> {
+	private class Shutdown extends Task<Void> {
 
 		@Override
-		protected Void call() {
+		public Void call() throws Exception {
 			doShutdownTasks();
 			return null;
 		}
 
 		@Override
-		protected void succeeded() {
+		protected void success() {
 			Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
 		}
 

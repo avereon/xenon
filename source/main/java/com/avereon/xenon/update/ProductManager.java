@@ -299,7 +299,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		setEnabled( card, true );
 	}
 
-	private void registerProduct( Mod mod ) {
+	private void registerMod( Mod mod ) {
 		// Treat mods like other products
 		registerProduct( (Product)mod );
 
@@ -1142,7 +1142,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		card.setInstallFolder( source );
 
 		// Register the product
-		registerProduct( mod );
+		registerMod( mod );
 
 		log.debug( "Mod loaded: " + card.getProductKey() );
 	}
