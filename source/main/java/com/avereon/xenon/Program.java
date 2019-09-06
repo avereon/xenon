@@ -267,24 +267,13 @@ public class Program extends Application implements ProgramProduct {
 
 			@Override
 			public Void call() throws Exception {
-				doStartupTasks();
+				doStartTasks();
 				return null;
 			}
 
 			@Override
 			protected void success() {
-				// Check for staged updates
-				getProductManager().checkForStagedUpdatesAtStart();
-
-				// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
-				getProductManager().scheduleUpdateCheck( true );
-
-				// TODO Show user notifications
-				//getTaskManager().submit( new ShowApplicationNotices() );
-
-				// Program started event should be fired after the window is shown
-				Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
-				time( "program started" );
+				doStartSuccess();
 			}
 
 			@Override
@@ -306,7 +295,7 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
-	private void doStartupTasks() throws Exception {
+	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
 
 		// Fire the program starting event, depends on the event watcher
@@ -438,6 +427,23 @@ public class Program extends Application implements ProgramProduct {
 		processResources( getProgramParameters() );
 	}
 
+	// THREAD TaskPool-worker
+	// EXCEPTIONS Handled by the Task framework
+	private void doStartSuccess() {
+		// Check for staged updates
+		getProductManager().checkForStagedUpdatesAtStart();
+
+		// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
+		getProductManager().scheduleUpdateCheck( true );
+
+		// TODO Show user notifications
+		//getTaskManager().submit( new ShowApplicationNotices() );
+
+		// Program started event should be fired after the window is shown
+		Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+		time( "program started" );
+	}
+
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	@Override
@@ -454,7 +460,7 @@ public class Program extends Application implements ProgramProduct {
 
 			@Override
 			protected void success() {
-				Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
+				doStopSuccess();
 			}
 
 			@Override
@@ -559,6 +565,12 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// NOTE Do not call Platform.exit() here, it was called already
+	}
+
+	// THREAD TaskPool-worker
+	// EXCEPTIONS Handled by the Task framework
+	private void doStopSuccess() {
+		Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
 	}
 
 	public void requestRestart( String... commands ) {
