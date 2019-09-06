@@ -144,48 +144,28 @@ public class Program extends Application implements ProgramProduct {
 
 	private Boolean isProgramUpdated;
 
+	// THREAD main
+	// EXCEPTIONS Handled by the FX framework
 	public static void main( String[] commands ) {
+		time( "main" );
 		launch( commands );
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	public Program() {
-		// Create program action handlers
-		closeAction = new CloseWorkspaceAction( this );
-		exitAction = new ExitAction( this );
-		aboutAction = new AboutAction( this );
-		settingsAction = new SettingsAction( this );
-		welcomeAction = new WelcomeAction( this );
-		noticeAction = new NoticeAction( this );
-		productAction = new ProductAction( this );
-		updateAction = new UpdateAction( this );
-		restartAction = new RestartAction( this );
-		taskAction = new TaskAction( this );
+		time( "instantiate" );
 
 		// Create the listeners set
 		listeners = new CopyOnWriteArraySet<>();
 	}
 
-	// This constructor is specifically available for testing
-	// when the application does not need to be started.
-	Program( com.avereon.util.Parameters parameters ) {
-		this();
-		this.parameters = parameters;
-	}
-
+	// THREAD JavaFX-Launcher
+	// EXCEPTIONS Handled by the FX framework
+	// NOTE Only do in init() what has to be done before the splash screen can be shown
 	@Override
 	public void init() throws Exception {
-		try {
-			protectedInit();
-		} catch( Throwable throwable ) {
-			log.error( "Error initializing program", throwable );
-			throw throwable;
-		}
-	}
-
-	private void protectedInit() throws Exception {
 		time( "init" );
-
-		// NOTE Only do in init() what has to be done before the splash screen can be shown
 
 		// Load the product card
 		card = new ProductCard().init( getClass() );
@@ -227,7 +207,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the program settings, depends on settings manager and default settings values
 		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( defaultSettingsValues );
-		time( "settings" );
+		time( "program-settings" );
 
 		// Check for the VERSION CL parameter, depends on program settings
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
@@ -235,6 +215,7 @@ public class Program extends Application implements ProgramProduct {
 			requestExit( true );
 			return;
 		}
+		time( "version-check" );
 
 		// Check for the HELP CL parameter, depends on program settings
 		if( getProgramParameters().isSet( ProgramFlag.HELP ) ) {
@@ -242,14 +223,18 @@ public class Program extends Application implements ProgramProduct {
 			requestExit( true );
 			return;
 		}
+		time( "help-check" );
 
 		// Run the peer check before processing commands in case there is a peer already
-		if( peerCheck() ) return;
+		if( peerCheck() ) {
+			requestExit( true );
+			return;
+		}
 		time( "peer-check" );
 
 		// If there is not a peer, process the commands before processing the updates
-		if( processCommands( getProgramParameters() ) ) return;
-		time( "process-commands" );
+		if( processControlCommands( getProgramParameters() ) ) return;
+		time( "control-commands" );
 
 		// Create the task manager, depends on program settings
 		// The task manager is created in the init() method so it is available during unit tests
@@ -259,44 +244,55 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "Task manager started." );
 		time( "task-manager" );
 
-		// NOTE The start( Stage ) method is called next on the FX thread
+		splashScreen = new SplashScreenPane( card.getName() );
+		time( "splash-created" );
+
+		// NOTE The start( Stage ) method is called next
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void start( Stage stage ) throws Exception {
-		try {
-			protectedStart( stage );
-		} catch( Throwable throwable ) {
-			log.error( "Error initializing program", throwable );
-			throw throwable;
-		}
-	}
-
-	private void protectedStart( Stage stage ) throws Exception {
-		Thread.currentThread().setUncaughtExceptionHandler( new ProgramUncaughtExceptionHandler() );
-
-		// Do not implicitly close the program
-		Platform.setImplicitExit( false );
-
-		// Create the icon library
-		iconLibrary = new IconLibrary();
-		registerIcons();
-
-		// Create the update manager, depends on icon library
-		productManager = configureProductManager( new ProgramProductManager( this ) );
+		time( "fx-start" );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( !TestUtil.isTest() ) stage.initStyle( StageStyle.UTILITY );
-		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
-		time( "splash displayed" );
+		splashScreen.show( stage );
+		time( "splash-displayed" );
+
+		// Do not implicitly close the program
+		Platform.setImplicitExit( false );
+
+		// Create program action handlers
+		closeAction = new CloseWorkspaceAction( this );
+		exitAction = new ExitAction( this );
+		aboutAction = new AboutAction( this );
+		settingsAction = new SettingsAction( this );
+		welcomeAction = new WelcomeAction( this );
+		noticeAction = new NoticeAction( this );
+		productAction = new ProductAction( this );
+		updateAction = new UpdateAction( this );
+		restartAction = new RestartAction( this );
+		taskAction = new TaskAction( this );
+		time( "program-actions" );
+
+		// Create the icon library
+		iconLibrary = new IconLibrary();
+		registerIcons();
+		time( "icon-library" );
+
+		// Create the update manager, depends on icon library
+		productManager = configureProductManager( new ProgramProductManager( this ) );
+		time( "product-manager" );
 
 		// Create the program event watcher, depends on logging
 		addEventListener( watcher = new ProgramEventWatcher() );
 
 		// Fire the program starting event, depends on the event watcher
 		fireEvent( new ProgramStartingEvent( this ) );
-		time( "program-start-event" );
+		time( "program-starting-event" );
 
 		// Submit the startup task
 		getTaskManager().submit( Task.of( new Startup() ) );
@@ -407,6 +403,10 @@ public class Program extends Application implements ProgramProduct {
 		return parameters;
 	}
 
+	void setProgramParameters( com.avereon.util.Parameters parameters ) {
+		this.parameters = parameters;
+	}
+
 	@Override
 	public Program getProgram() {
 		return this;
@@ -506,7 +506,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		//System.out.println( "Time " + markerName + "=" + (System.currentTimeMillis() - programStartTime) );
+		System.err.println( "TIME" + "=" + (System.currentTimeMillis() - programStartTime) + " " + markerName + " " + Thread.currentThread().getName() );
 	}
 
 	/**
@@ -531,25 +531,26 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
-	 * Check for another instance of the program is running after getting the settings but before the splash screen is shown. The fastest way to check is to try
-	 * and bind to the port defined in the settings. The OS will quickly deny the bind
-	 * if the port is already bound.
+	 * Check for another instance of the program is running after getting the
+	 * settings but before the splash screen is shown. The fastest way to check is
+	 * to try and bind to the port defined in the settings. The OS will quickly
+	 * deny the bind if the port is already bound.
 	 * <p>
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
 	private boolean peerCheck() {
 		int port = programSettings.get( "program-port", Integer.class, 0 );
-		ProgramServer server = new ProgramServer( this, port );
+		programServer = new ProgramServer( this, port );
 
-		if( server.start() ) {
-			programServer = server;
-			return false;
-		}
+		if( programServer.start() ) return false;
 
 		new ProgramPeer( this, port ).run();
-		requestExit( true );
 		return true;
+	}
+
+	private boolean isHost() {
+		return programServer != null;
 	}
 
 	private boolean isPeer() {
@@ -562,16 +563,12 @@ public class Program extends Application implements ProgramProduct {
 	 * @param parameters The command line parameters
 	 * @return True if the program should exit, false otherwise.
 	 */
-	boolean processCommands( com.avereon.util.Parameters parameters ) {
-		if( parameters.isSet( ProgramFlag.WATCH ) ) {
-			// TODO Don't exit, just watch the host output
-			return true;
-		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
-			printStatus();
-			if( isPeer() ) Platform.runLater( () -> requestExit( true ) );
-			return true;
+	boolean processControlCommands( com.avereon.util.Parameters parameters ) {
+		if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			if( isHost() ) printStatus();
+			return isPeer();
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
-			if( isPeer() ) Platform.runLater( () -> requestExit( true ) );
+			if( isHost() ) Platform.runLater( () -> requestExit( true ) );
 			return true;
 		}
 

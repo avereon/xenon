@@ -89,7 +89,7 @@ public class ProgramServer {
 
 					// TODO Register a log event listener to send events to the peer
 
-					program.processCommands( parameters );
+					program.processControlCommands( parameters );
 					program.processResources( parameters );
 
 					// TODO Unregister the log event listener

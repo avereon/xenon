@@ -10,7 +10,8 @@ public class ProgramTestCase extends BaseTestCase {
 	@Before
 	public void setup() throws Exception {
 		super.setup();
-		program = new Program( Parameters.parse( ProgramTest.getParameterValues() ) );
+		program = new Program();
+		program.setProgramParameters( Parameters.parse( ProgramTest.getParameterValues() ) );
 		program.init();
 	}
 
