@@ -482,7 +482,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// set, don't schedule update checks. This probably means there is a
 			// problem applying an update. Otherwise, it should be safe to schedule
 			// update checks.
-			if( program.isUpdateInProgress() && !program.isProgramUpdated() ) return;
+			if( !program.isProgramUpdated() && program.isUpdateInProgress() ) return;
 
 			long now = System.currentTimeMillis();
 
