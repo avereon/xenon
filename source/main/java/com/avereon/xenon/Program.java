@@ -161,19 +161,6 @@ public class Program extends Application implements ProgramProduct {
 		time( "implicit-exit-false" );
 
 		listeners = new CopyOnWriteArraySet<>();
-
-		// Create program action handlers
-		closeAction = new CloseWorkspaceAction( this );
-		exitAction = new ExitAction( this );
-		aboutAction = new AboutAction( this );
-		settingsAction = new SettingsAction( this );
-		welcomeAction = new WelcomeAction( this );
-		noticeAction = new NoticeAction( this );
-		productAction = new ProductAction( this );
-		updateAction = new UpdateAction( this );
-		restartAction = new RestartAction( this );
-		taskAction = new TaskAction( this );
-		time( "program-actions" );
 	}
 
 	// THREAD JavaFX-Launcher
@@ -337,6 +324,19 @@ public class Program extends Application implements ProgramProduct {
 		iconLibrary = new IconLibrary();
 		registerIcons();
 		time( "icon-library" );
+
+		// Create program action handlers
+		closeAction = new CloseWorkspaceAction( this );
+		exitAction = new ExitAction( this );
+		aboutAction = new AboutAction( this );
+		settingsAction = new SettingsAction( this );
+		welcomeAction = new WelcomeAction( this );
+		noticeAction = new NoticeAction( this );
+		productAction = new ProductAction( this );
+		updateAction = new UpdateAction( this );
+		restartAction = new RestartAction( this );
+		taskAction = new TaskAction( this );
+		time( "program-actions" );
 
 		// Create the action library
 		actionLibrary = new ActionLibrary( programResourceBundle );
