@@ -2,7 +2,7 @@ package com.avereon.xenon.task.chain;
 
 import com.avereon.xenon.ProgramTestCase;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskException;
+import com.avereon.xenon.task.TaskSourceWrapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -127,7 +127,7 @@ public class TaskChainTest extends ProgramTestCase {
 			Assert.fail( "The get() method should throw an ExecutionException" );
 		} catch( ExecutionException exception ) {
 			Throwable cause1 = exception.getCause();
-			assertThat( cause1, instanceOf( TaskException.class ) );
+			assertThat( cause1, instanceOf( TaskSourceWrapper.class ) );
 			Throwable cause2 = cause1.getCause();
 			assertThat( cause2, instanceOf( RuntimeException.class ) );
 			assertThat( cause2, is( expected ) );

@@ -47,6 +47,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private Throwable exceptionSource;
 
+	private Throwable throwable;
+
 	private Set<TaskListener> listeners;
 
 	private TaskManager manager;
@@ -71,7 +73,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		super( taskCallable );
 		this.name = name;
 		this.priority = priority;
-		exceptionSource = new TaskException();
+		exceptionSource = new TaskSourceWrapper();
 		listeners = new CopyOnWriteArraySet<>();
 		taskCallable.setCallable( this );
 	}
@@ -187,12 +189,12 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void setException( Throwable throwable ) {
 		setState( Task.State.FAILED );
-		exceptionSource.initCause( throwable );
-		super.setException( exceptionSource );
+		this.throwable = throwable.initCause( exceptionSource );
+		super.setException( throwable );
 	}
 
 	protected Throwable getException() {
-		return exceptionSource;
+		return throwable;
 	}
 
 	protected void setTotal( long max ) {

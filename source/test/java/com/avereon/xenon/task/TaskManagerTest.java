@@ -157,7 +157,7 @@ public class TaskManagerTest extends BaseTaskTest {
 			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( TaskException.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
 			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
 			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 		}
@@ -251,7 +251,7 @@ public class TaskManagerTest extends BaseTaskTest {
 			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( TaskException.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
 			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
 			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 		}
