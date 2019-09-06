@@ -34,8 +34,7 @@ before_install:
   - ls -al $JAVA_HOME
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export DISPLAY=:99; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then Xvfb $DISPLAY & fi
-
-script: mvn test -B -U
+  - mvn test -B -U
 
 deploy:
   - provider: script
