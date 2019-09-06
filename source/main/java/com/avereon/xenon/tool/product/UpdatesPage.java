@@ -22,16 +22,16 @@ class UpdatesPage extends ProductPage {
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
 		Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
 
-		refreshButton.setOnAction( event -> productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, true ) ) );
+		refreshButton.setOnAction( event -> updateState( true ) );
 		downloadAllButton.setOnAction( event -> downloadAllSelected() );
 
 		getButtonBox().addAll( refreshButton, downloadAllButton );
 	}
 
 	@Override
-	protected void updateState() {
+	protected void updateState( boolean force ) {
 		ProductTool.log.trace( "Update available updates" );
-		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, false ) );
+		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, force ) );
 	}
 
 	private Set<ProductCard> getSelectedUpdates() {

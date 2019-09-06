@@ -6,6 +6,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
 import com.avereon.xenon.update.RepoState;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -30,12 +31,21 @@ class RepoPage extends ProductToolPage {
 		addButton.setOnTouchPressed( ( e ) -> newRepo() );
 
 		getButtonBox().addAll( addButton );
+
+		showUpdating();
+	}
+
+
+	@Override
+	protected void showUpdating() {
+		getChildren().clear();
+		getChildren().addAll( new Label( "Updating..." ) );
 	}
 
 	@Override
-	protected void updateState() {
+	protected void updateState( boolean force ) {
 		ProductTool.log.debug( "Update product repos" );
-		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool ) );
+		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool, false ) );
 	}
 
 	private void newRepo() {

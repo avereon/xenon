@@ -13,7 +13,9 @@ abstract class ProductToolPage extends VBox {
 		header = new ProductPageHeader();
 	}
 
-	protected abstract void updateState();
+	protected abstract void showUpdating();
+
+	protected abstract void updateState( boolean force );
 
 	protected String getTitle() {
 		return header.getTitle().getText();

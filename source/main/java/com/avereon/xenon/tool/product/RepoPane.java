@@ -184,7 +184,7 @@ class RepoPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove repo", () -> {
 			try {
 				productTool.getProgram().getProductManager().removeRepo( source );
-				page.updateState();
+				page.updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error removing repository", exception );
 			}

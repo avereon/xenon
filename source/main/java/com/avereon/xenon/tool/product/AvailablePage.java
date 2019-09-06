@@ -15,15 +15,15 @@ class AvailablePage extends ProductPage {
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.AVAILABLE ) );
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
-		refreshButton.setOnAction( event -> productTool.getProgram().getTaskManager().submit( new RefreshAvailableProducts( productTool, true ) ) );
+		refreshButton.setOnAction( event -> updateState( true ) );
 
 		getButtonBox().addAll( refreshButton );
 	}
 
 	@Override
-	protected void updateState() {
+	protected void updateState( boolean force ) {
 		ProductTool.log.trace( "Update available products" );
-		productTool.getProgram().getTaskManager().submit( new RefreshAvailableProducts( productTool, false ) );
+		productTool.getProgram().getTaskManager().submit( new RefreshAvailableProducts( productTool, force ) );
 	}
 
 }

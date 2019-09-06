@@ -7,7 +7,9 @@ import com.avereon.xenon.task.TaskManager;
 import javafx.application.Platform;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class RefreshUpdatableProducts extends Task<Void> {
 
@@ -23,9 +25,32 @@ class RefreshUpdatableProducts extends Task<Void> {
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
+		Platform.runLater( () -> productTool.getUpdatesPage().showUpdating() );
 		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().findAvailableUpdates( force ) );
 		cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
-		Platform.runLater( () -> productTool.getUpdatesPage().setProducts( cards, true ) );
+
+		//productTool.getUpdatesPage().reloadProducts( cards );
+		Map<String, ProductCard> installedProducts = new HashMap<>();
+		Map<String, ProductCard> productUpdates = new HashMap<>();
+
+		// Installed product map
+		for( ProductCard card : productTool.getProgram().getProductManager().getInstalledProductCards( false ) ) {
+			installedProducts.put( card.getProductKey(), card );
+		}
+
+		// Product update map
+		for( ProductCard card : cards ) {
+			productUpdates.put( card.getProductKey(), card );
+		}
+
+		// Installed product list
+		List<ProductCard> newCards = new ArrayList<>();
+		for( ProductCard card : cards ) {
+			newCards.add( installedProducts.get( card.getProductKey() ) );
+		}
+
+		Platform.runLater( () -> productTool.getUpdatesPage().setProducts( newCards, productUpdates ) );
+
 		return null;
 	}
 
