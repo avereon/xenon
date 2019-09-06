@@ -35,6 +35,8 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then export DISPLAY=:99; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then Xvfb $DISPLAY & fi
 
+script: mvn test -B -U
+
 deploy:
   - provider: script
     script: bash .travis/deploy.sh latest
