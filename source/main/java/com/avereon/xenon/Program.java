@@ -646,12 +646,11 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public boolean isUpdateInProgress() {
-		return getSettingsManager().getSettings( ProgramSettings.PROGRAM ).get( "update-in-progress", Boolean.class, false );
+		return programSettings.get( "update-in-progress", Boolean.class, false );
 	}
 
 	public void setUpdateInProgress( boolean updateInProgress ) {
-		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).set( "update-in-progress", updateInProgress );
-		getSettingsManager().getSettings( ProgramSettings.PROGRAM ).flush();
+		programSettings.set( "update-in-progress", updateInProgress ).flush();
 	}
 
 	public com.avereon.util.Parameters getProgramParameters() {
@@ -761,7 +760,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " " + markerName + " " + Thread.currentThread().getName() );
+		//System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " " + markerName + " " + Thread.currentThread().getName() );
 	}
 
 	/**

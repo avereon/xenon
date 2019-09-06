@@ -55,10 +55,9 @@ public class ProgramProductManager extends ProductManager {
 		if( program.isUpdateInProgress() ) {
 			program.setUpdateInProgress( false );
 			clearStagedUpdates();
-			return;
+		} else {
+			new ProductManagerLogic( program ).notifyUpdatesReadyToApply( false );
 		}
-
-		new ProductManagerLogic( program ).notifyUpdatesReadyToApply( false );
 	}
 
 }
