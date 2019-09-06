@@ -161,19 +161,6 @@ public class Program extends Application implements ProgramProduct {
 		time( "implicit-exit-false" );
 
 		listeners = new CopyOnWriteArraySet<>();
-
-		// Create program action handlers
-		closeAction = new CloseWorkspaceAction( this );
-		exitAction = new ExitAction( this );
-		aboutAction = new AboutAction( this );
-		settingsAction = new SettingsAction( this );
-		welcomeAction = new WelcomeAction( this );
-		noticeAction = new NoticeAction( this );
-		productAction = new ProductAction( this );
-		updateAction = new UpdateAction( this );
-		restartAction = new RestartAction( this );
-		taskAction = new TaskAction( this );
-		time( "program-actions" );
 	}
 
 	// THREAD JavaFX-Launcher
@@ -276,12 +263,39 @@ public class Program extends Application implements ProgramProduct {
 		time( "splash-displayed" );
 
 		// Submit the startup task
-		getTaskManager().submit( new Startup() );
+		getTaskManager().submit( new Task<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				doStartTasks();
+				return null;
+			}
+
+			@Override
+			protected void success() {
+				doStartSuccess();
+			}
+
+			@Override
+			protected void cancelled() {
+				Platform.runLater( () -> splashScreen.hide() );
+				log.error( "Startup task cancelled", getException() );
+			}
+
+			@Override
+			protected void failed() {
+				Platform.runLater( () -> splashScreen.hide() );
+				log.error( "Startup task failed", getException() );
+			}
+
+		} );
+
+		// Do not wait for the startup task...allow the FX thread to be free
 	}
 
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
-	private void doStartupTasks() throws Exception {
+	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
 
 		// Fire the program starting event, depends on the event watcher
@@ -299,6 +313,19 @@ public class Program extends Application implements ProgramProduct {
 		iconLibrary = new IconLibrary();
 		registerIcons();
 		time( "icon-library" );
+
+		// Create program action handlers
+		closeAction = new CloseWorkspaceAction( this );
+		exitAction = new ExitAction( this );
+		aboutAction = new AboutAction( this );
+		settingsAction = new SettingsAction( this );
+		welcomeAction = new WelcomeAction( this );
+		noticeAction = new NoticeAction( this );
+		productAction = new ProductAction( this );
+		updateAction = new UpdateAction( this );
+		restartAction = new RestartAction( this );
+		taskAction = new TaskAction( this );
+		time( "program-actions" );
 
 		// Create the action library
 		actionLibrary = new ActionLibrary( programResourceBundle );
@@ -400,13 +427,56 @@ public class Program extends Application implements ProgramProduct {
 		processResources( getProgramParameters() );
 	}
 
+	// THREAD TaskPool-worker
+	// EXCEPTIONS Handled by the Task framework
+	private void doStartSuccess() {
+		// Check for staged updates
+		getProductManager().checkForStagedUpdatesAtStart();
+
+		// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
+		getProductManager().scheduleUpdateCheck( true );
+
+		// TODO Show user notifications
+		//getTaskManager().submit( new ShowApplicationNotices() );
+
+		// Program started event should be fired after the window is shown
+		Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+		time( "program started" );
+	}
+
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	@Override
 	public void stop() throws Exception {
 		time( "stop" );
 
-		taskManager.submit( new Shutdown() ).get();
+		Task<Void> shutdown = taskManager.submit( new Task<>() {
+
+			@Override
+			public Void call() throws Exception {
+				doShutdownTasks();
+				return null;
+			}
+
+			@Override
+			protected void success() {
+				doStopSuccess();
+			}
+
+			@Override
+			protected void cancelled() {
+				log.error( "Shutdown task cancelled", getException() );
+			}
+
+			@Override
+			protected void failed() {
+				log.error( "Shutdown task failed", getException() );
+			}
+
+		} );
+
+		// Call get() to wait for the shutdown task to complete
+		shutdown.get();
 	}
 
 	// THREAD TaskPool-worker
@@ -495,6 +565,12 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// NOTE Do not call Platform.exit() here, it was called already
+	}
+
+	// THREAD TaskPool-worker
+	// EXCEPTIONS Handled by the Task framework
+	private void doStopSuccess() {
+		Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
 	}
 
 	public void requestRestart( String... commands ) {
@@ -1077,69 +1153,6 @@ public class Program extends Application implements ProgramProduct {
 		programSettings.set( PROGRAM_RELEASE, Release.encode( runtime ) );
 
 		return programUpdated;
-	}
-
-	private class Startup extends Task<Void> {
-
-		@Override
-		public Void call() throws Exception {
-			doStartupTasks();
-			return null;
-		}
-
-		@Override
-		protected void success() {
-			// Check for staged updates
-			getProductManager().checkForStagedUpdatesAtStart();
-
-			// Schedule the first update check, depends on productManager.checkForStagedUpdatesAtStart()
-			getProductManager().scheduleUpdateCheck( true );
-
-			// TODO Show user notifications
-			//getTaskManager().submit( new ShowApplicationNotices() );
-
-			// Program started event should be fired after the window is shown
-			Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
-			time( "program started" );
-		}
-
-		@Override
-		protected void cancelled() {
-			Platform.runLater( () -> splashScreen.hide() );
-			log.warn( "Startup task cancelled" );
-		}
-
-		@Override
-		protected void failed() {
-			Platform.runLater( () -> splashScreen.hide() );
-			log.error( "Error during startup task", getException() );
-		}
-
-	}
-
-	private class Shutdown extends Task<Void> {
-
-		@Override
-		public Void call() throws Exception {
-			doShutdownTasks();
-			return null;
-		}
-
-		@Override
-		protected void success() {
-			Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
-		}
-
-		@Override
-		protected void cancelled() {
-			log.error( "Shutdown task cancelled", getException() );
-		}
-
-		@Override
-		protected void failed() {
-			log.error( "Error during shutdown task", getException() );
-		}
-
 	}
 
 }
