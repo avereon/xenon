@@ -15,15 +15,15 @@ class InstalledPage extends ProductPage {
 		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.INSTALLED ) );
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
-		refreshButton.setOnAction( event -> updateState() );
+		refreshButton.setOnAction( event -> updateState( true ) );
 
 		getButtonBox().addAll( refreshButton );
 	}
 
 	@Override
-	protected void updateState() {
+	protected void updateState( boolean force ) {
 		ProductTool.log.trace( "Update installed products" );
-		productTool.getProgram().getTaskManager().submit( new RefreshInstalledProducts(productTool) );
+		productTool.getProgram().getTaskManager().submit( new RefreshInstalledProducts( productTool, force ) );
 	}
 
 }

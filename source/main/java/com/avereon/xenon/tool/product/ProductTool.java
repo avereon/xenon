@@ -176,9 +176,10 @@ public class ProductTool extends GuidedTool {
 		currentPage = pages.get( pageId );
 		if( currentPage == null ) throw new NullPointerException( "Page ID returned a null page: " + pageId );
 
-		currentPage.updateState();
 		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );
+
+		currentPage.updateState( false );
 	}
 
 	List<ProductCard> createSourceList( List<ProductCard> cards ) {

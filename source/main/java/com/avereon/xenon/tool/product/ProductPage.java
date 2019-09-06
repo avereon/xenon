@@ -3,9 +3,13 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductCard;
 import com.avereon.xenon.Program;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 abstract class ProductPage extends ProductToolPage {
 
@@ -16,6 +20,12 @@ abstract class ProductPage extends ProductToolPage {
 	ProductPage( Program program, ProductTool productTool ) {
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
+		showUpdating();
+	}
+
+	protected void showUpdating() {
+		getChildren().clear();
+		getChildren().addAll( new Label( "Updating..." ) );
 	}
 
 	List<ProductPane> getSourcePanels() {
@@ -23,42 +33,26 @@ abstract class ProductPage extends ProductToolPage {
 	}
 
 	void setProducts( List<ProductCard> cards ) {
-		setProducts( cards, false );
+		setProducts( cards, Map.of() );
 	}
 
-	void setProducts( List<ProductCard> cards, boolean isUpdate ) {
-		// Create a map of the updates
-		Map<String, ProductCard> installedProducts = new HashMap<>();
-		Map<String, ProductCard> productUpdates = new HashMap<>();
-		if( isUpdate ) {
-			// Installed product map
-			for( ProductCard card : productTool.getProgram().getProductManager().getInstalledProductCards() ) {
-				installedProducts.put( card.getProductKey(), card );
-			}
-
-			// Product update map
-			for( ProductCard card : cards ) {
-				productUpdates.put( card.getProductKey(), card );
-			}
-
-			// Installed product list
-			List<ProductCard> newCards = new ArrayList<>();
-			for( ProductCard card : cards ) {
-				newCards.add( installedProducts.get( card.getProductKey() ) );
-			}
-			cards = newCards;
-		}
-
+	void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {
 		// Add a product pane for each card
 		sources.clear();
-		for( ProductCard source : productTool.createSourceList( cards ) ) {
-			sources.add( new ProductPane( productTool, source, productUpdates.get( source.getProductKey() ) ) );
-		}
+		sources.addAll( getTool()
+			.createSourceList( cards )
+			.stream()
+			.map( ( source ) -> new ProductPane( getTool(), source, productUpdates.get( source.getProductKey() ) ) )
+			.collect( Collectors.toList() ) );
 
 		getChildren().clear();
 		getChildren().addAll( sources );
 
 		updateProductStates();
+	}
+
+	private ProductTool getTool() {
+		return productTool;
 	}
 
 	private void updateProductStates() {

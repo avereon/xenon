@@ -278,7 +278,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 *
 	 * @return A new set of currently installed product cards
 	 */
-	public Set<ProductCard> getInstalledProductCards() {
+	public Set<ProductCard> getInstalledProductCards( boolean force ) {
+		// TODO The force flag could be used to refresh the installed product information
 		return new HashSet<>( productCards.values() );
 	}
 
@@ -549,7 +550,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		try {
 			log.trace( "Checking for staged updates..." );
-			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards(), false );
+			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards(false), false );
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}

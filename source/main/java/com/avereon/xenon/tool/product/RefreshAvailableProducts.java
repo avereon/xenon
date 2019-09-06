@@ -23,6 +23,7 @@ class RefreshAvailableProducts extends Task<Void> {
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
+		Platform.runLater( () -> productTool.getAvailablePage().showUpdating());
 		List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getAvailableProducts( force ) );
 		cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 		Platform.runLater( () -> productTool.getAvailablePage().setProducts( cards ) );

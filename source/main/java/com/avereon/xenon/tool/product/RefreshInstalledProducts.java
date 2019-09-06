@@ -16,13 +16,19 @@ class RefreshInstalledProducts extends Task<Void> {
 
 	private ProductTool productTool;
 
-	public RefreshInstalledProducts( ProductTool productTool ) {this.productTool = productTool;}
+	private boolean force;
+
+	public RefreshInstalledProducts( ProductTool productTool, boolean force ) {
+		this.productTool = productTool;
+		this.force = force;
+	}
 
 	@Override
 	public Void call() {
 		TaskManager.taskThreadCheck();
 		try {
-			List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getInstalledProductCards() );
+			Platform.runLater( () -> productTool.getInstalledPage().showUpdating());
+			List<ProductCard> cards = new ArrayList<>( productTool.getProgram().getProductManager().getInstalledProductCards( force ) );
 			cards.sort( new ProgramProductCardComparator( productTool.getProgram(), ProductCardComparator.Field.NAME ) );
 			Platform.runLater( () -> productTool.getInstalledPage().setProducts( cards ) );
 		} catch( Exception exception ) {

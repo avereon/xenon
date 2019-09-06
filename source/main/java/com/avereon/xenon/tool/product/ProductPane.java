@@ -171,7 +171,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Install product", () -> {
 			try {
 				productTool.getProgram().getProductManager().installProducts( source ).get();
-				productTool.getSelectedPage().updateState();
+				productTool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error installing product", exception );
 			}
@@ -182,7 +182,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
 				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() ).get();
-				productTool.getSelectedPage().updateState();
+				productTool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
 			}
@@ -212,7 +212,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
 				productTool.getProgram().getProductManager().uninstallProducts( source ).get();
-				productTool.getSelectedPage().updateState();
+				productTool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}
