@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
-import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
 import com.avereon.xenon.update.ProgramProductManager;
@@ -15,9 +14,8 @@ class UpdatesPage extends ProductPage {
 	private ProductTool productTool;
 
 	UpdatesPage( Program program, ProductTool productTool ) {
-		super( program, productTool );
+		super( program, productTool, ProgramProductType.UPDATES );
 		this.productTool = productTool;
-		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProgramProductType.UPDATES ) );
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
 		Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
