@@ -9,10 +9,7 @@ import com.avereon.xenon.update.ProductManager;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.util.FxUtil;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.tbee.javafx.scene.layout.MigPane;
 
@@ -40,6 +37,8 @@ class ProductPane extends MigPane {
 	private Label providerLabel;
 
 	private Label releaseLabel;
+
+	private ProgressBar progress;
 
 	private Label stateLabel;
 
@@ -79,6 +78,8 @@ class ProductPane extends MigPane {
 		stateLabel = new Label( "State" );
 		stateLabel.setId( "tool-product-artifact-state" );
 
+		progress = new ProgressBar();
+
 		actionButton1 = new Button( "" );
 		actionButton2 = new Button( "" );
 
@@ -111,6 +112,7 @@ class ProductPane extends MigPane {
 		boolean isProgram = program.getCard().equals( card );
 		boolean isEnabled = manager.isEnabled( card );
 		boolean isInstalled = manager.isInstalled( card );
+		boolean isDownloading = false;
 		boolean isInstalledProductsPanel = FxUtil.isChildOf( this, productTool.getInstalledPage() );
 		boolean isAvailableProductsPanel = FxUtil.isChildOf( this, productTool.getAvailablePage() );
 		boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, productTool.getUpdatesPage() );
