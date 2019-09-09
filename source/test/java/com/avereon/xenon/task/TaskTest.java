@@ -34,7 +34,9 @@ public class TaskTest extends BaseTaskTest {
 		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
-		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
+
+		// Force enough of a wait that the test will be consistent
+		ThreadUtil.pause( 10 );
 
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
@@ -51,7 +53,9 @@ public class TaskTest extends BaseTaskTest {
 		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
-		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
+
+		// Force enough of a wait that the test will be consistent
+		ThreadUtil.pause( 10 );
 
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
