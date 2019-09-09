@@ -413,6 +413,15 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
+	public ProductCard getProductUpdate( ProductCard card ) {
+		ProductState state = productStates.get( card.getProductKey() );
+		return state == null ? null : state.getUpdate();
+	}
+
+	public void setProductUpdate( ProductCard card, ProductCard update ) {
+		productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).setUpdate( update );
+	}
+
 	public boolean isEnabled( ProductCard card ) {
 		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
@@ -676,14 +685,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getStagedUpdates().size();
 	}
 
-	public boolean isStaged( ProductCard card ) {
+	public boolean isUpdateStaged( ProductCard card ) {
 		for( ProductUpdate update : getStagedUpdates() ) {
 			if( card.equals( update.getCard() ) ) return true;
 		}
 		return false;
 	}
 
-	public boolean isReleaseStaged( ProductCard card ) {
+	public boolean isSpecificUpdateReleaseStaged( ProductCard card ) {
 		ProductUpdate update = updates.get( card.getProductKey() );
 		if( update == null ) return false;
 
