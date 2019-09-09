@@ -6,10 +6,13 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.update.ProductManager;
+import com.avereon.xenon.update.ProductStatus;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.util.FxUtil;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.tbee.javafx.scene.layout.MigPane;
 
@@ -37,6 +40,8 @@ class ProductPane extends MigPane {
 	private Label providerLabel;
 
 	private Label releaseLabel;
+
+	private HBox stateContainer;
 
 	private ProgressBar progress;
 
@@ -79,15 +84,18 @@ class ProductPane extends MigPane {
 		stateLabel.setId( "tool-product-artifact-state" );
 
 		progress = new ProgressBar();
+		progress.setId( "tool-product-progress" );
 
 		actionButton1 = new Button( "" );
 		actionButton2 = new Button( "" );
+
+		stateContainer = new HBox( stateLabel );
 
 		add( iconLabel, "spany, aligny center" );
 		add( nameLabel );
 		add( hyphenLabel );
 		add( providerLabel, "pushx" );
-		add( stateLabel, "tag right" );
+		add( stateContainer, "tag right" );
 		add( actionButton2 );
 
 		add( summaryLabel, "newline, spanx 3" );
@@ -108,16 +116,16 @@ class ProductPane extends MigPane {
 		Program program = productTool.getProgram();
 		ProductManager manager = program.getProductManager();
 
-		boolean isStaged = update == null ? manager.isStaged( card ) : manager.isReleaseStaged( update );
 		boolean isProgram = program.getCard().equals( card );
 		boolean isEnabled = manager.isEnabled( card );
 		boolean isInstalled = manager.isInstalled( card );
-		boolean isDownloading = false;
+		boolean inProgress = manager.getStatus( card ) == ProductStatus.DOWNLOADING;
+		boolean isStaged = update == null ? manager.isStaged( card ) : manager.isReleaseStaged( update );
 		boolean isInstalledProductsPanel = FxUtil.isChildOf( this, productTool.getInstalledPage() );
 		boolean isAvailableProductsPanel = FxUtil.isChildOf( this, productTool.getAvailablePage() );
 		boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, productTool.getUpdatesPage() );
 
-		// Determine state string key.
+		// Determine state string key
 		String stateLabelKey = "not-installed";
 		if( isInstalled ) {
 			if( !isProgram && !isEnabled ) {
@@ -129,9 +137,16 @@ class ProductPane extends MigPane {
 			}
 		}
 		if( isStaged ) stateLabelKey = "downloaded";
-		stateLabel.setText( program.getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
 
-		// Configure the action button
+		stateContainer.getChildren().clear();
+		if( inProgress ) {
+			stateContainer.getChildren().add( progress );
+		} else {
+			stateLabel.setText( program.getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
+			stateContainer.getChildren().add( stateLabel );
+		}
+
+		// Configure the action buttons
 		if( isInstalledProductsPanel ) {
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isProgram );
@@ -161,6 +176,11 @@ class ProductPane extends MigPane {
 		}
 	}
 
+	private void setStatus( ProductStatus status ) {
+		productTool.getProgram().getProductManager().setStatus( getSource(), status );
+		updateProductState();
+	}
+
 	private void toggleEnabled() {
 		productTool
 			.getProgram()
@@ -170,9 +190,12 @@ class ProductPane extends MigPane {
 	}
 
 	private void installProduct() {
+		setStatus( ProductStatus.DOWNLOADING );
+		// TODO Get the download task and use it for product progress
 		productTool.getProgram().getTaskManager().submit( Task.of( "Install product", () -> {
 			try {
 				productTool.getProgram().getProductManager().installProducts( source ).get();
+				Platform.runLater( () -> setStatus( ProductStatus.INSTALLED ) );
 				productTool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error installing product", exception );
@@ -181,9 +204,12 @@ class ProductPane extends MigPane {
 	}
 
 	private void updateProduct() {
+		setStatus( ProductStatus.DOWNLOADING );
+		// TODO Get the download task and use it for product progress
 		productTool.getProgram().getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
 				productTool.getProgram().getProductManager().applySelectedUpdates( getUpdate() ).get();
+				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
 				productTool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error updating product", exception );
@@ -214,6 +240,7 @@ class ProductPane extends MigPane {
 		productTool.getProgram().getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
 				productTool.getProgram().getProductManager().uninstallProducts( source ).get();
+				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 				productTool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
