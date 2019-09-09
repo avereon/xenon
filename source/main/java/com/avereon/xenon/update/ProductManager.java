@@ -377,9 +377,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return isInstalled( card ) && getInstalledProductCard( card ).getRelease().equals( card.getRelease() );
 	}
 
+	public ProductStatus getStatus( ProductCard card ) {
+		return productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).getStatus();
+	}
+
+	public void setStatus( ProductCard card, ProductStatus status ) {
+		productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).setStatus( status );
+	}
+
 	public boolean isUpdatable( ProductCard card ) {
 		ProductState state = productStates.get( card.getProductKey() );
-		return state != null && state.updatable;
+		return state != null && state.isUpdatable();
 	}
 
 	public void setUpdatable( ProductCard card, boolean updatable ) {
@@ -387,13 +395,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ProductState state = productStates.get( card.getProductKey() );
 		if( state == null ) return;
 
-		state.updatable = updatable;
+		state.setUpdatable( updatable );
 		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
 	public boolean isRemovable( ProductCard card ) {
 		ProductState state = productStates.get( card.getProductKey() );
-		return state != null && state.removable;
+		return state != null && state.isRemovable();
 	}
 
 	public void setRemovable( ProductCard card, boolean removable ) {
@@ -401,8 +409,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ProductState state = productStates.get( card.getProductKey() );
 		if( state == null ) return;
 
-		state.removable = removable;
+		state.setRemovable( removable );
 		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
+	}
+
+	public ProductCard getProductUpdate( ProductCard card ) {
+		ProductState state = productStates.get( card.getProductKey() );
+		return state == null ? null : state.getUpdate();
+	}
+
+	public void setProductUpdate( ProductCard card, ProductCard update ) {
+		productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).setUpdate( update );
 	}
 
 	public boolean isEnabled( ProductCard card ) {
@@ -550,7 +567,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		try {
 			log.trace( "Checking for staged updates..." );
-			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards(false), false );
+			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards( false ), false );
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
@@ -668,14 +685,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getStagedUpdates().size();
 	}
 
-	public boolean isStaged( ProductCard card ) {
+	public boolean isUpdateStaged( ProductCard card ) {
 		for( ProductUpdate update : getStagedUpdates() ) {
 			if( card.equals( update.getCard() ) ) return true;
 		}
 		return false;
 	}
 
-	public boolean isReleaseStaged( ProductCard card ) {
+	public boolean isSpecificUpdateReleaseStaged( ProductCard card ) {
 		ProductUpdate update = updates.get( card.getProductKey() );
 		if( update == null ) return false;
 
@@ -1085,7 +1102,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( resources == null ) return;
 
 		for( ProductResource resource : resources ) {
-			if( resource.getLocalFile() == null ) continue;
+			if( resource.getLocalFile() == null ) throw new ProductResourceMissingException( "Local file not found", resource );
 			switch( resource.getType() ) {
 				case FILE: {
 					// Just copy the file
@@ -1177,19 +1194,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		@Override
 		public void run() {
 			productManager.checkForUpdates();
-		}
-
-	}
-
-	private static final class ProductState {
-
-		boolean updatable;
-
-		boolean removable;
-
-		ProductState() {
-			this.updatable = false;
-			this.removable = false;
 		}
 
 	}

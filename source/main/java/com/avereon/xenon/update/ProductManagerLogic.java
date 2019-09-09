@@ -444,9 +444,10 @@ public class ProductManagerLogic {
 			// just copy it. Otherwise, collect all packs and files into one zip
 			// file as the update pack.
 			if( resources.size() == 1 && resources.iterator().next().getType() == ProductResource.Type.PACK ) {
-				Path file = resources.iterator().next().getLocalFile();
-				setTotal( Files.size( file ) );
-				FileUtil.copy( resources.iterator().next().getLocalFile(), updatePack, progressCallback );
+				ProductResource resource = resources.iterator().next();
+				if( resource.getLocalFile() == null ) throw new ProductResourceMissingException( "Local file not found", resource );
+				setTotal( Files.size( resource.getLocalFile() ) );
+				FileUtil.copy( resource.getLocalFile(), updatePack, progressCallback );
 			} else {
 				// Collect everything into one zip file
 				Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
