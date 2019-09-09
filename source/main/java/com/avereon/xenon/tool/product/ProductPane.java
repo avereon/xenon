@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
+import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -14,12 +15,16 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.TimeZone;
 
 class ProductPane extends MigPane {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ProductTool tool;
 
@@ -60,6 +65,7 @@ class ProductPane extends MigPane {
 		this.program = tool.getProgram();
 		this.manager = program.getProductManager();
 		this.source = source;
+		manager.setProductUpdate( source, update );
 
 		setId( "tool-product-artifact" );
 
@@ -130,15 +136,15 @@ class ProductPane extends MigPane {
 		if( isInstalled ) {
 			if( !isProgram && !isEnabled ) {
 				stateLabelKey = "disabled";
-			} else if( isAvailableProductsPanel ) {
+			} else if( isUpdatableProductsPanel ) {
 				stateLabelKey = "available";
 			} else {
-				stateLabelKey = "installed";
+				stateLabelKey = "enabled";
 			}
 		}
 		if( isAnyUpdateStaged ) {
 			stateLabelKey = "restart-required";
-			//if( !isSpecificUpdateReleaseStaged ) stateLabelKey = "update-available";
+			if( update != null && !isSpecificUpdateReleaseStaged ) stateLabelKey = "update-available";
 		}
 
 		stateContainer.getChildren().clear();
