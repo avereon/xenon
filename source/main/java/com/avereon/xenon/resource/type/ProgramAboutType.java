@@ -49,6 +49,7 @@ public class ProgramAboutType extends ResourceType {
 		resource.putResource( Guide.GUIDE_KEY, guide = new Guide() );
 
 		ProductBundle rb = getProduct().getResourceBundle();
+		guide.getRoot().getChildren().clear();
 
 		GuideNode summaryNode = new GuideNode();
 		summaryNode.setId( AboutTool.SUMMARY );
@@ -60,18 +61,17 @@ public class ProgramAboutType extends ResourceType {
 		detailsNode.setId( AboutTool.DETAILS );
 		detailsNode.setName( rb.getString( "tool", "about-details" ) );
 		detailsNode.setIcon( "about" );
-		guide.getRoot().getChildren().add( createGuideNode( program,detailsNode ) );
+		guide.getRoot().getChildren().add( createGuideNode( program, detailsNode ) );
 
 		GuideNode productsNode = new GuideNode();
 		productsNode.setId( AboutTool.MODS );
 		productsNode.setName( rb.getString( "tool", "about-mods" ) );
 		productsNode.setIcon( "about" );
-		guide.getRoot().getChildren().add( createGuideNode( program,productsNode ) );
+		guide.getRoot().getChildren().add( createGuideNode( program, productsNode ) );
 	}
 
-	private TreeItem<GuideNode> createGuideNode(Program program, GuideNode node) {
-		TreeItem<GuideNode> item = new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
-		return item;
+	private TreeItem<GuideNode> createGuideNode( Program program, GuideNode node ) {
+		return new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
 	}
 
 }
