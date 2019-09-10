@@ -6,6 +6,8 @@ import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.ResourceEvent;
+import com.avereon.xenon.resource.ResourceListener;
 import com.avereon.xenon.resource.ResourceType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -53,7 +55,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		List<Class<? extends ProgramTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent( resourceType, k -> new CopyOnWriteArrayList<Class<? extends ProgramTool>>() );
+		List<Class<? extends ProgramTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent(
+			resourceType,
+			k -> new CopyOnWriteArrayList<Class<? extends ProgramTool>>()
+		);
 		resourceTypeToolClasses.add( type );
 
 		log.debug( "Tool registered: resourceType={} -> tool={}", resourceType.getKey(), type.getName() );
@@ -282,7 +287,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			}
 
 			return null;
-		});
+		} );
 
 		if( Platform.isFxApplicationThread() ) {
 			createToolTask.run();
@@ -312,15 +317,16 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param tool The tool that should be notified when the resource is ready
 	 */
 	private void scheduleResourceReady( OpenToolRequest request, ProgramTool tool ) {
-		program.getTaskManager().submit( Task.of( "", () -> {
-			Resource resource = request.getResource();
-			try {
-				resource.waitForReady( Resource.RESOURCE_READY_TIMEOUT, TimeUnit.SECONDS );
+		Resource resource = request.getResource();
+		resource.callWhenReady( new ResourceListener() {
+
+			@Override
+			public void eventOccurred( ResourceEvent event ) {
+				resource.removeResourceListener( this );
 				Platform.runLater( () -> tool.callResourceReady( new ToolParameters( request ) ) );
-			} catch( InterruptedException exception ) {
-				log.warn( "Wait for resource interrupted: " + resource, exception );
 			}
-		}) );
+
+		} );
 	}
 
 	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {

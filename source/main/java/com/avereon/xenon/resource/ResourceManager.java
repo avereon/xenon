@@ -1083,7 +1083,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		resource.load( this );
 		resource.setModified( false );
 		if( !previouslyLoaded ) resource.addNodeListener( modifiedResourceWatcher );
-		if( resource.isReady() ) resource.refresh( this );
+		resource.refresh( this );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
 		log.trace( "Resource loaded: " + resource );
