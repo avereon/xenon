@@ -70,6 +70,9 @@ public class IconLibrary {
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
 		register( "remove", CloseIcon.class );
+
+		register( "toggle-enabled", ToggleEnabledIcon.class );
+		register( "toggle-disabled", ToggleDisabledIcon.class );
 	}
 
 	public void register( String id, Class<? extends ProgramImage> icon ) {

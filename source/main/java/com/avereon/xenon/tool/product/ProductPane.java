@@ -159,7 +159,7 @@ class ProductPane extends MigPane {
 		if( isInstalledProductsPanel ) {
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isProgram );
-			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disable" : "enable" ) );
+			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "toggle-enabled" : "toggle-disabled" ) );
 			actionButton1.setOnAction( ( event ) -> toggleEnabled() );
 
 			actionButton2.setVisible( true );

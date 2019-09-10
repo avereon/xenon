@@ -98,7 +98,7 @@ class RepoPane extends MigPane {
 		HBox.setHgrow( urlLabel, Priority.ALWAYS );
 		HBox.setHgrow( urlField, Priority.ALWAYS );
 
-		enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
+		enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
 		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
 
 		add( iconLabel, "spany, aligny center" );
@@ -123,7 +123,7 @@ class RepoPane extends MigPane {
 		urlField.setText( source.getUrl() );
 		urlBox.getChildren().replaceAll( ( n ) -> (editUrl ? urlField : urlLabel) );
 
-		enableButton.setGraphic( productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "disable" : "enable" ) );
+		enableButton.setGraphic( productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
 		removeButton.setDisable( !source.isRemovable() );
 
 		enableButton.setOnAction( ( event ) -> toggleEnabled() );
