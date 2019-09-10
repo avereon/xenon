@@ -39,12 +39,15 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private Settings settings;
 
-	private Queue<Task> tasks;
+	private Map<Task,Task> taskMap;
+
+	private Queue<Task> taskQueue;
 
 	private Set<TaskListener> listeners;
 
 	public TaskManager() {
-		tasks = new ConcurrentLinkedQueue<>();
+		taskMap = new ConcurrentHashMap<>(  );
+		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
 		listeners = new CopyOnWriteArraySet<>();
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
@@ -66,6 +69,9 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	}
 
 	public <T> Task<T> submit( Task<T> task ) {
+		Task<T> existing = getExisting( task );
+		if( existing != null ) return existing;
+
 		task.setState( Task.State.SCHEDULED );
 
 		Task<T> result;
@@ -87,12 +93,17 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return result;
 	}
 
+	@SuppressWarnings( "unchecked" )
+	private <T> Task<T> getExisting( Task<T> task ) {
+		return (Task<T>)taskMap.get( task );
+	}
+
 	public long getTaskCount() {
 		return getTasks().size();
 	}
 
 	public List<Task> getTasks() {
-		return new ArrayList<>( tasks );
+		return new ArrayList<>( taskQueue );
 	}
 
 	public int getCurrentThreadCount() {
@@ -259,7 +270,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 			Task<T> task = (Task<T>)callable;
 			task.setTaskManager( TaskManager.this );
-			tasks.add( task );
+			taskMap.put( task, task );
+			taskQueue.add( task );
 			return task;
 		}
 
@@ -268,7 +280,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 			if( runnable instanceof Task ) {
 				Task task = (Task)runnable;
 
-				tasks.remove( task );
+				taskQueue.remove( task );
+				taskMap.remove( task );
 
 				try {
 					task.get();
