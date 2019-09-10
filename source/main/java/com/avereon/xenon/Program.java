@@ -11,6 +11,7 @@ import com.avereon.xenon.event.ProgramStartedEvent;
 import com.avereon.xenon.event.ProgramStartingEvent;
 import com.avereon.xenon.event.ProgramStoppedEvent;
 import com.avereon.xenon.event.ProgramStoppingEvent;
+import com.avereon.xenon.icon.*;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.resource.ResourceException;
@@ -310,7 +311,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "product-manager" );
 
 		// Create the icon library
-		iconLibrary = new IconLibrary();
+		iconLibrary = new IconLibrary( this );
 		registerIcons();
 		time( "icon-library" );
 
@@ -990,7 +991,61 @@ public class Program extends Application implements ProgramProduct {
 		log.debug( "Program data: " + programDataFolder );
 	}
 
-	private void registerIcons() {}
+	private void registerIcons() {
+		getIconLibrary().register( "program", XRingLargeIcon.class );
+		getIconLibrary().register( "resource-new", DocumentIcon.class );
+		getIconLibrary().register( "resource-open", FolderIcon.class );
+		//getIconLibrary().register( "resource-save", SaveIcon.class );
+		getIconLibrary().register( "resource-save", LightningIcon.class );
+		getIconLibrary().register( "resource-close", DocumentCloseIcon.class );
+		getIconLibrary().register( "exit", PowerIcon.class );
+
+		getIconLibrary().register( "close", CloseIcon.class );
+
+		getIconLibrary().register( "undo", UndoIcon.class );
+		getIconLibrary().register( "redo", RedoIcon.class );
+		getIconLibrary().register( "cut", CutIcon.class );
+		getIconLibrary().register( "copy", CopyIcon.class );
+		getIconLibrary().register( "paste", PasteIcon.class );
+		getIconLibrary().register( "delete", DeleteIcon.class );
+		getIconLibrary().register( "indent", IndentIcon.class );
+		getIconLibrary().register( "unindent", UnindentIcon.class );
+
+		getIconLibrary().register( "setting", SettingIcon.class );
+		getIconLibrary().register( "settings", SettingsIcon.class );
+
+		getIconLibrary().register( "guide", GuideIcon.class );
+
+		getIconLibrary().register( "welcome", WelcomeIcon.class );
+		getIconLibrary().register( "help-content", QuestionIcon.class );
+		getIconLibrary().register( "notice", NoticeIcon.class );
+		getIconLibrary().register( "notice-unread", UnreadNoticeIcon.class );
+		getIconLibrary().register( "task", TaskQueueIcon.class );
+		getIconLibrary().register( "product", ProductIcon.class );
+		getIconLibrary().register( "update", DownloadIcon.class );
+		getIconLibrary().register( "about", ExclamationIcon.class );
+
+		getIconLibrary().register( "workspace", FrameIcon.class );
+		getIconLibrary().register( "workspace-new", FrameIcon.class );
+		getIconLibrary().register( "workspace-close", FrameIcon.class );
+
+		getIconLibrary().register( "workarea", WorkareaIcon.class );
+		getIconLibrary().register( "workarea-new", WorkareaIcon.class );
+		getIconLibrary().register( "workarea-rename", WorkareaRenameIcon.class );
+		getIconLibrary().register( "workarea-close", CloseToolIcon.class );
+
+		getIconLibrary().register( "add", PlusIcon.class );
+		getIconLibrary().register( "refresh", RefreshIcon.class );
+		getIconLibrary().register( "download", DownloadIcon.class );
+		getIconLibrary().register( "market", MarketIcon.class );
+		getIconLibrary().register( "module", ModuleIcon.class );
+		getIconLibrary().register( "enable", LightningIcon.class );
+		getIconLibrary().register( "disable", DisableIcon.class );
+		getIconLibrary().register( "remove", CloseIcon.class );
+
+		getIconLibrary().register( "toggle-enabled", ToggleEnabledIcon.class );
+		getIconLibrary().register( "toggle-disabled", ToggleDisabledIcon.class );
+	}
 
 	private void unregisterIcons() {}
 

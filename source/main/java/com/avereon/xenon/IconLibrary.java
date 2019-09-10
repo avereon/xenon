@@ -1,10 +1,14 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.icon.*;
+import com.avereon.util.LogUtil;
+import com.avereon.util.TextUtil;
+import com.avereon.xenon.icon.BrokenIcon;
+import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -12,71 +16,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
 	private static final int DEFAULT_SIZE = 16;
 
-	private static final String URL_CHECK = ":";
+	private Program program;
 
 	private Map<String, Class<? extends ProgramImage>> icons;
 
-	public IconLibrary() {
+	public IconLibrary( Program program ) {
+		this.program = program;
 		icons = new ConcurrentHashMap<>();
-		register( "program", XRingLargeIcon.class );
-		register( "resource-new", DocumentIcon.class );
-		register( "resource-open", FolderIcon.class );
-		//register( "resource-save", SaveIcon.class );
-		register( "resource-save", LightningIcon.class );
-		register( "resource-close", DocumentCloseIcon.class );
-		register( "exit", PowerIcon.class );
-
-		register( "close", CloseIcon.class );
-
-		register( "undo", UndoIcon.class );
-		register( "redo", RedoIcon.class );
-		register( "cut", CutIcon.class );
-		register( "copy", CopyIcon.class );
-		register( "paste", PasteIcon.class );
-		register( "delete", DeleteIcon.class );
-		register( "indent", IndentIcon.class );
-		register( "unindent", UnindentIcon.class );
-
-		register( "setting", SettingIcon.class );
-		register( "settings", SettingsIcon.class );
-
-		register( "guide", GuideIcon.class );
-
-		register( "welcome", WelcomeIcon.class );
-		register( "help-content", QuestionIcon.class );
-		register( "notice", NoticeIcon.class );
-		register( "notice-unread", UnreadNoticeIcon.class );
-		register( "task", TaskQueueIcon.class );
-		register( "product", ProductIcon.class );
-		register( "update", DownloadIcon.class );
-		register( "about", ExclamationIcon.class );
-
-		register( "workspace", FrameIcon.class );
-		register( "workspace-new", FrameIcon.class );
-		register( "workspace-close", FrameIcon.class );
-
-		register( "workarea", WorkareaIcon.class );
-		register( "workarea-new", WorkareaIcon.class );
-		register( "workarea-rename", WorkareaRenameIcon.class );
-		register( "workarea-close", CloseToolIcon.class );
-
-		register( "add", PlusIcon.class );
-		register( "refresh", RefreshIcon.class );
-		register( "download", DownloadIcon.class );
-		register( "market", MarketIcon.class );
-		register( "module", ModuleIcon.class );
-		register( "enable", LightningIcon.class );
-		register( "disable", DisableIcon.class );
-		register( "remove", CloseIcon.class );
-
-		register( "toggle-enabled", ToggleEnabledIcon.class );
-		register( "toggle-disabled", ToggleDisabledIcon.class );
 	}
 
 	public void register( String id, Class<? extends ProgramImage> icon ) {
-		if( id.contains( URL_CHECK ) ) throw new RuntimeException( "Icon id should not contain URL_CHECK string" );
 		icons.put( id, icon );
 	}
 
@@ -85,7 +38,6 @@ public class IconLibrary {
 	}
 
 	public Node getIcon( String id, double size ) {
-		//return id.contains( URL_CHECK ) ? getIconFromUrl( id, size ) : getIconRenderer( id ).setSize( size );
 		return getIcon( id, null, size );
 	}
 
@@ -98,7 +50,7 @@ public class IconLibrary {
 
 		if( id == null ) id = "";
 		if( node == null ) node = getIconRenderer( id );
-		if( node == null && id.contains( URL_CHECK ) ) node = getIconFromUrl( id, size );
+		if( node == null ) node = getIconFromUrl( id, size );
 		if( node == null ) node = getIconRenderer( backupId );
 		if( node == null ) node = new BrokenIcon().setSize( size );
 		if( node instanceof ProgramImage ) ((ProgramImage)node).setSize( size );
@@ -129,16 +81,22 @@ public class IconLibrary {
 	}
 
 	private Node getIconFromUrl( String url, double size ) {
-		Image image = null;
+		if( TextUtil.isEmpty( url ) ) return null;
 
-		try {
-			image = new Image( new URL( url ).toExternalForm(), size, size, true, true );
-		} catch( MalformedURLException exception ) {
-			exception.printStackTrace();
-		}
-		if( image == null || image.isError() ) return null;
+		ProgramImageIcon icon = new ProgramImageIcon();
 
-		return new ImageView( image );
+		program.getTaskManager().submit( Task.of( "Load icon: " + url, () -> {
+			try {
+				Image image = new Image( new URL( url ).toExternalForm(), size, size, true, true );
+				if( !image.isError() ) icon.setImage( image );
+			} catch( MalformedURLException exception ) {
+				if( url.contains( "://" ) ) log.info( "Unable to load icon", exception );
+			} catch( Exception exception ) {
+				log.warn( "Unable to load icon", exception );
+			}
+		} ) );
+
+		return icon;
 	}
 
 }
