@@ -159,7 +159,7 @@ class ProductPane extends MigPane {
 		if( isInstalledProductsPanel ) {
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isProgram );
-			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "disable" : "enable" ) );
+			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "toggle-enabled" : "toggle-disabled" ) );
 			actionButton1.setOnAction( ( event ) -> toggleEnabled() );
 
 			actionButton2.setVisible( true );
@@ -168,7 +168,7 @@ class ProductPane extends MigPane {
 			actionButton2.setOnAction( ( event ) -> requestRemoveProduct() );
 		} else if( isAvailableProductsPanel ) {
 			actionButton1.setVisible( true );
-			actionButton1.setDisable( false );
+			actionButton1.setDisable( inProgress );
 			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> installProduct() );
 
@@ -176,7 +176,7 @@ class ProductPane extends MigPane {
 			actionButton2.setDisable( true );
 		} else if( isUpdatableProductsPanel ) {
 			actionButton1.setVisible( true );
-			actionButton1.setDisable( false );
+			actionButton1.setDisable( inProgress );
 			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> updateProduct() );
 
