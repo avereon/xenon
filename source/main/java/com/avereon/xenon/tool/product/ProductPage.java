@@ -1,9 +1,11 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,15 +19,40 @@ abstract class ProductPage extends ProductToolPage {
 
 	private List<ProductPane> sources;
 
-	ProductPage( Program program, ProductTool productTool ) {
+	private Labeled message;
+
+	private String refreshMessage;
+
+	private String missingMessage;
+
+	ProductPage( Program program, ProductTool productTool, String productType ) {
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
+		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + productType ) );
+
+		this.refreshMessage = program.getResourceBundle().getString( BundleKey.TOOL, "product-" + productType +"-refresh" );
+		this.missingMessage = program.getResourceBundle().getString( BundleKey.TOOL, "product-" + productType +"-missing" );
+
+		message = new Label();
+		message.setPrefWidth( Double.MAX_VALUE );
+		message.getStyleClass().addAll( "tool-product-message" );
+
 		showUpdating();
 	}
 
+	@Override
 	protected void showUpdating() {
+		showMessage( refreshMessage );
+	}
+
+	private void showMissing() {
+		showMessage( missingMessage );
+	}
+
+	private void showMessage( String messageText ) {
+		message.setText( messageText );
 		getChildren().clear();
-		getChildren().addAll( new Label( "Updating..." ) );
+		getChildren().addAll( message );
 	}
 
 	List<ProductPane> getSourcePanels() {
@@ -37,18 +64,21 @@ abstract class ProductPage extends ProductToolPage {
 	}
 
 	void setProducts( List<ProductCard> cards, Map<String, ProductCard> productUpdates ) {
-		// Add a product pane for each card
-		sources.clear();
-		sources.addAll( getTool()
-			.createSourceList( cards )
-			.stream()
-			.map( ( source ) -> new ProductPane( getTool(), source, productUpdates.get( source.getProductKey() ) ) )
-			.collect( Collectors.toList() ) );
+		if( cards.size() == 0 ) {
+			showMissing();
+		} else {
+			// Add a product pane for each card
+			sources.clear();
+			sources.addAll( getTool()
+				.createSourceList( cards )
+				.stream()
+				.map( ( source ) -> new ProductPane( getTool(), source, productUpdates.get( source.getProductKey() ) ) )
+				.collect( Collectors.toList() ) );
 
-		getChildren().clear();
-		getChildren().addAll( sources );
-
-		updateProductStates();
+			getChildren().clear();
+			getChildren().addAll( sources );
+			updateProductStates();
+		}
 	}
 
 	private ProductTool getTool() {
