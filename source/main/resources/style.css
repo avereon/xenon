@@ -295,6 +295,13 @@
 	-fx-padding: 2mm 1mm 1mm 1mm;
 }
 
+.tool-product-message {
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 5mm;
+	-fx-alignment: center;
+	-fx-font-size: 2em;
+}
+
 #tool-welcome {
 	-fx-background-color: transparent;
 }
