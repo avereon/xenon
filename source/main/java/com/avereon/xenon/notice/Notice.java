@@ -9,6 +9,13 @@ import java.lang.invoke.MethodHandles;
 
 public class Notice extends Node {
 
+	public enum NoticeType {
+		NONE,
+		INFO,
+		WARN,
+		ERROR
+	}
+
 	public static final String BALLOON_ALWAYS = "balloon-always";
 
 	public static final String BALLOON_NORMAL = "balloon-normal";
@@ -51,6 +58,14 @@ public class Notice extends Node {
 		this( title, message, false, action );
 	}
 
+	/**
+	 * Create a notice.
+	 *
+	 * @param title The title for the notice show in bold
+	 * @param message The message for the notice
+	 * @param read Should the notice be marked as already read
+	 * @param action A runnable action that will be executed when the user clicks on the notice
+	 */
 	public Notice( String title, String message, boolean read, Runnable action ) {
 		definePrimaryKey( ID );
 		defineNaturalKey( TITLE );
@@ -85,22 +100,33 @@ public class Notice extends Node {
 		return getValue( ACTION );
 	}
 
+	public NoticeType getType() {
+		return getValue( TYPE );
+	}
+
+	public Notice setType( NoticeType type ) {
+		setValue( TYPE, type );
+		return this;
+	}
+
 	public boolean isRead() {
 		return getFlag( READ );
 	}
 
-	public void setRead( boolean read ) {
+	public Notice setRead( boolean read ) {
 		setFlag( READ, read );
+		return this;
 	}
 
 	public String getBalloonStickiness() {
 		return getValue( BALLOON_STICKINESS );
 	}
 
-	public void setBalloonStickiness( String value ) {
+	public Notice setBalloonStickiness( String value ) {
 		boolean modified = isModified();
 		setValue( BALLOON_STICKINESS, value );
 		if( !modified ) setModified( false );
+		return this;
 	}
 
 }

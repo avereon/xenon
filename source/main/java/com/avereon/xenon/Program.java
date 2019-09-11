@@ -118,9 +118,6 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
-	@Deprecated
-	private ProgramNotifier notifier;
-
 	private Set<ProductEventListener> listeners;
 
 	private CloseWorkspaceAction closeAction;
@@ -372,9 +369,6 @@ public class Program extends Application implements ProgramProduct {
 		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
-
-		// Create the program notifier, depends on workspace manager
-		notifier = new ProgramNotifier( this );
 
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
@@ -699,11 +693,6 @@ public class Program extends Application implements ProgramProduct {
 
 	public final Path getDataFolder() {
 		return programDataFolder;
-	}
-
-	@Deprecated
-	public final ProgramNotifier getNotifier() {
-		return notifier;
 	}
 
 	public final TaskManager getTaskManager() {
@@ -1068,10 +1057,11 @@ public class Program extends Application implements ProgramProduct {
 			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice A" ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
+			//this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
+			this.getNoticeManager().error( new Throwable( "This is a test throwable" ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice C", true ) );
+			this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" );
 		} ) );
 	}
 

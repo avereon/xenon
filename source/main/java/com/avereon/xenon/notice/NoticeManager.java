@@ -36,6 +36,16 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return getNoticeList().getNotices();
 	}
 
+	public void error( Throwable throwable ) {
+		// TODO Improve this convenience method
+		addNotice( new Notice( throwable.getClass().getSimpleName(), formatMessage( null, throwable ) ).setType( Notice.NoticeType.ERROR ).setBalloonStickiness( Notice.BALLOON_ALWAYS ) );
+	}
+
+	public void warning( String title, Object message, String... parameters ) {
+		// TODO Improve this convenience method
+		addNotice( new Notice( title, String.format( String.valueOf( message ), parameters ) ).setType( Notice.NoticeType.WARN ) );
+	}
+
 	public void addNotice( Notice notice ) {
 		FxUtil.checkFxUserThread();
 
@@ -133,6 +143,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private void updateUnreadCount() {
 		unreadCount.setValue( (int)getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).count() );
+	}
+
+	private String formatMessage( Object message, Throwable throwable ) {
+		String string = message == null ? null : message.toString();
+		log.error( string, throwable );
+
+		if( message == null && throwable != null ) return throwable.getLocalizedMessage();
+		return message == null ? null : message.toString();
 	}
 
 }
