@@ -167,7 +167,7 @@ class ProductPane extends MigPane {
 			actionButton2.setGraphic( program.getIconLibrary().getIcon( "remove" ) );
 			actionButton2.setOnAction( ( event ) -> requestRemoveProduct() );
 		} else if( isAvailableProductsPanel ) {
-			actionButton1.setVisible( true );
+			actionButton1.setVisible( !isInstalled );
 			actionButton1.setDisable( inProgress );
 			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> installProduct() );
