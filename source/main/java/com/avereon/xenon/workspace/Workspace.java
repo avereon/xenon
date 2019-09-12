@@ -368,7 +368,7 @@ public class Workspace implements Configurable {
 	}
 
 	public void showNotice( Notice notice ) {
-		if( Objects.equals( notice.getBalloonStickiness(), Notice.BALLOON_NEVER ) ) return;
+		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
 
 		NoticePane pane = new NoticePane( program, notice, true );
 		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
@@ -390,7 +390,7 @@ public class Workspace implements Configurable {
 		// TODO Get balloon timeout from settings
 		int balloonTimeout = 5000;
 
-		if( Objects.equals( notice.getBalloonStickiness(), Notice.BALLOON_NORMAL ) ) {
+		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
 			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
 		}
 	}

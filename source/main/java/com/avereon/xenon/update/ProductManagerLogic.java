@@ -611,7 +611,7 @@ public class ProductManagerLogic {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
-			.setBalloonStickiness( Notice.BALLOON_ALWAYS )
+			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
 	}
@@ -637,7 +637,7 @@ public class ProductManagerLogic {
 		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-notice" );
 
 		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
-			.setBalloonStickiness( Notice.BALLOON_ALWAYS )
+			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		program.getNoticeManager().addNotice( notice );
 	}

@@ -38,15 +38,27 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void error( Throwable throwable ) {
-		// TODO Improve this convenience method
-		addNotice( new Notice( throwable.getClass().getSimpleName(), null, throwable )
-			.setType( Notice.Type.ERROR )
-			.setBalloonStickiness( Notice.BALLOON_ALWAYS ) );
+		error( throwable.getClass().getSimpleName(), null, throwable );
+	}
+
+	public void error( Object message, Throwable throwable, String... parameters ) {
+		error( throwable.getClass().getSimpleName(), message, throwable, parameters );
+	}
+
+	public void error( String title, Object message, String... parameters ) {
+		error( title, message, null, parameters );
+	}
+
+	public void error( String title, Object message, Throwable throwable, String... parameters ) {
+		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.ERROR ).setBalloonStickiness( Notice.Balloon.ALWAYS ) );
 	}
 
 	public void warning( String title, Object message, String... parameters ) {
-		// TODO Improve this convenience method
-		addNotice( new Notice( title, String.format( String.valueOf( message ), parameters ) ).setType( Notice.Type.WARN ) );
+		warning( title, message, null, parameters );
+	}
+
+	public void warning( String title, Object message, Throwable throwable, String... parameters ) {
+		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, parameters ) ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
@@ -80,11 +92,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public Notice.Type getUnreadNoticeType() {
-		return Notice.Type.values()[ getUnreadNotices()
-			.stream()
-			.mapToInt( ( n ) -> n.getType().ordinal() )
-			.max()
-			.orElse( Notice.Type.NONE.ordinal() ) ];
+		return Notice.Type.values()[ getUnreadNotices().stream().mapToInt( ( n ) -> n.getType().ordinal() ).max().orElse( Notice.Type.NONE.ordinal() ) ];
 	}
 
 	public void readAll() {
@@ -157,7 +165,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private List<Notice> getUnreadNotices() {
-		return getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).collect( Collectors.toList());
+		return getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).collect( Collectors.toList() );
 	}
 
 }

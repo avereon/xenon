@@ -12,6 +12,14 @@ import java.lang.invoke.MethodHandles;
 
 public class Notice extends Node {
 
+	public enum Balloon {
+
+		NEVER,
+		NORMAL,
+		ALWAYS
+
+	}
+
 	public enum Type {
 
 		NONE,
@@ -26,12 +34,6 @@ public class Notice extends Node {
 
 	}
 
-	public static final String BALLOON_ALWAYS = "balloon-always";
-
-	public static final String BALLOON_NORMAL = "balloon-normal";
-
-	public static final String BALLOON_NEVER = "balloon-never";
-
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String ID = "id";
@@ -42,8 +44,6 @@ public class Notice extends Node {
 	// Is this just a range 1-N? Or are these named?
 	private static final String SEVERITY = "severity";
 
-	// TODO What type of message is this message ???
-	// Similar to the Alert.AlertType: NONE, INFORMATION, WARNING, CONFIRMATION, ERROR
 	private static final String TYPE = "type";
 
 	private static final String BALLOON_STICKINESS = "balloon";
@@ -90,17 +90,13 @@ public class Notice extends Node {
 		setValue( MESSAGE, message );
 		setValue( ACTION, action );
 		setValue( TYPE, Type.NORM );
-		setValue( BALLOON_STICKINESS, BALLOON_NORMAL );
+		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
 		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
 		setModified( false );
 	}
 
 	public String getId() {
 		return getValue( ID );
-	}
-
-	public String getIcon() {
-		return getType() == null ? "notice-info" : "notice-" + getType().name().toLowerCase();
 	}
 
 	public Long getTimestamp() {
@@ -137,11 +133,11 @@ public class Notice extends Node {
 		return this;
 	}
 
-	public String getBalloonStickiness() {
+	public Balloon getBalloonStickiness() {
 		return getValue( BALLOON_STICKINESS );
 	}
 
-	public Notice setBalloonStickiness( String value ) {
+	public Notice setBalloonStickiness( Balloon value ) {
 		boolean modified = isModified();
 		setValue( BALLOON_STICKINESS, value );
 		if( !modified ) setModified( false );
