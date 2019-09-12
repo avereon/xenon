@@ -41,6 +41,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -1054,7 +1055,7 @@ public class Program extends Application implements ProgramProduct {
 			new ProductManagerLogic( getProgram() ).showUpdateFoundDialog();
 		} ) );
 		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice A" ) );
+			this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
 			//this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
@@ -1183,7 +1184,7 @@ public class Program extends Application implements ProgramProduct {
 		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String message = getResourceBundle().getString( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		getNoticeManager().addNotice( new Notice( title, message, true, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
+		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 
 	private boolean calcProgramUpdated() {

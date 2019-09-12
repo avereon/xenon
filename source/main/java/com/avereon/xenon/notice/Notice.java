@@ -3,6 +3,9 @@ package com.avereon.xenon.notice;
 import com.avereon.util.HashUtil;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.node.Node;
+import javafx.scene.control.TextInputControl;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -46,16 +49,18 @@ public class Notice extends Node {
 
 	private static final String READ = "read";
 
-	public Notice( String title, String message ) {
-		this( title, message, null );
+	private Object[] parameters;
+
+	public Notice( String title, Object message, Object... parameters ) {
+		this( title, message, null, null, parameters );
 	}
 
-	public Notice( String title, String message, boolean read ) {
-		this( title, message, read, null );
+	public Notice( String title, Object message, Throwable throwable, Object... parameters ) {
+		this( title, message, throwable, null, parameters );
 	}
 
-	public Notice( String title, String message, Runnable action ) {
-		this( title, message, false, action );
+	public Notice( String title, Object message, Runnable action, Object... parameters ) {
+		this( title, message, null, action, parameters );
 	}
 
 	/**
@@ -63,20 +68,22 @@ public class Notice extends Node {
 	 *
 	 * @param title The title for the notice show in bold
 	 * @param message The message for the notice
-	 * @param read Should the notice be marked as already read
+	 * @param throwable The throwable to use with the notice
 	 * @param action A runnable action that will be executed when the user clicks on the notice
+	 * @param parameters Parameters to be used in the message
 	 */
-	public Notice( String title, String message, boolean read, Runnable action ) {
+	public Notice( String title, Object message, Throwable throwable, Runnable action, Object... parameters ) {
 		definePrimaryKey( ID );
 		defineNaturalKey( TITLE );
 
-		setValue( ID, HashUtil.hash( title + message ) );
+		this.parameters = parameters;
+
 		setValue( TIMESTAMP, System.currentTimeMillis() );
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
 		setValue( ACTION, action );
 		setValue( BALLOON_STICKINESS, BALLOON_NORMAL );
-		setFlag( READ, read );
+		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
 		setModified( false );
 	}
 
@@ -92,7 +99,7 @@ public class Notice extends Node {
 		return getValue( TITLE );
 	}
 
-	public String getMessage() {
+	public Object getMessage() {
 		return getValue( MESSAGE );
 	}
 
@@ -127,6 +134,39 @@ public class Notice extends Node {
 		setValue( BALLOON_STICKINESS, value );
 		if( !modified ) setModified( false );
 		return this;
+	}
+
+	private String formatMessage( Object message, Throwable throwable ) {
+		String string = message == null ? null : getMessageStringContent();
+		log.error( string, throwable );
+
+		if( string == null && throwable != null ) return throwable.getLocalizedMessage();
+		return string;
+	}
+
+	private String getMessageStringContent() {
+		StringBuilder builder = new StringBuilder();
+
+		Object message = getMessage();
+		if( message instanceof javafx.scene.Node ) {
+			if( message instanceof TextInputControl ) {
+				// Handle text input controls
+				builder = new StringBuilder( ((TextInputControl)message).getText() );
+			} else if( message instanceof TextFlow ) {
+				// Handle text flow nodes
+				TextFlow flow = (TextFlow)message;
+				for( javafx.scene.Node node : flow.getChildren() ) {
+					Text text = (Text)node;
+					builder.append( text.getText() );
+				}
+			} else {
+				builder = new StringBuilder( message.toString() );
+			}
+		} else {
+			builder = new StringBuilder( message == null ? "null" : message.toString().trim() );
+		}
+
+		return String.format( builder.toString(), parameters );
 	}
 
 }
