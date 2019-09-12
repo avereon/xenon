@@ -26,7 +26,7 @@ public class NoticePane extends GridPane {
 		this.notice = notice;
 		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice", "padded" );
 
-		Node noticeIcon = program.getIconLibrary().getIcon( "notice" );
+		Node noticeIcon = program.getIconLibrary().getIcon( notice.getIcon() );
 		Label title = new Label( notice.getTitle() );
 		closeIcon = program.getIconLibrary().getIcon( "close" );
 		Node message;

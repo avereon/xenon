@@ -12,11 +12,18 @@ import java.lang.invoke.MethodHandles;
 
 public class Notice extends Node {
 
-	public enum NoticeType {
+	public enum Type {
+
 		NONE,
+		NORM,
 		INFO,
 		WARN,
-		ERROR
+		ERROR;
+
+		public String getIcon() {
+			return "notice-" + name().toLowerCase();
+		}
+
 	}
 
 	public static final String BALLOON_ALWAYS = "balloon-always";
@@ -82,6 +89,7 @@ public class Notice extends Node {
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
 		setValue( ACTION, action );
+		setValue( TYPE, Type.NORM );
 		setValue( BALLOON_STICKINESS, BALLOON_NORMAL );
 		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
 		setModified( false );
@@ -89,6 +97,10 @@ public class Notice extends Node {
 
 	public String getId() {
 		return getValue( ID );
+	}
+
+	public String getIcon() {
+		return getType() == null ? "notice-info" : "notice-" + getType().name().toLowerCase();
 	}
 
 	public Long getTimestamp() {
@@ -107,11 +119,11 @@ public class Notice extends Node {
 		return getValue( ACTION );
 	}
 
-	public NoticeType getType() {
+	public Type getType() {
 		return getValue( TYPE );
 	}
 
-	public Notice setType( NoticeType type ) {
+	public Notice setType( Type type ) {
 		setValue( TYPE, type );
 		return this;
 	}

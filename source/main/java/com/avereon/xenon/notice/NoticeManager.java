@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
 
@@ -38,12 +39,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void error( Throwable throwable ) {
 		// TODO Improve this convenience method
-		addNotice( new Notice( throwable.getClass().getSimpleName(), null, throwable ).setType( Notice.NoticeType.ERROR ).setBalloonStickiness( Notice.BALLOON_ALWAYS ) );
+		addNotice( new Notice( throwable.getClass().getSimpleName(), null, throwable )
+			.setType( Notice.Type.ERROR )
+			.setBalloonStickiness( Notice.BALLOON_ALWAYS ) );
 	}
 
 	public void warning( String title, Object message, String... parameters ) {
 		// TODO Improve this convenience method
-		addNotice( new Notice( title, String.format( String.valueOf( message ), parameters ) ).setType( Notice.NoticeType.WARN ) );
+		addNotice( new Notice( title, String.format( String.valueOf( message ), parameters ) ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
@@ -74,6 +77,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public IntegerProperty unreadCountProperty() {
 		return unreadCount;
+	}
+
+	public Notice.Type getUnreadNoticeType() {
+		return Notice.Type.values()[ getUnreadNotices()
+			.stream()
+			.mapToInt( ( n ) -> n.getType().ordinal() )
+			.max()
+			.orElse( Notice.Type.NONE.ordinal() ) ];
 	}
 
 	public void readAll() {
@@ -142,7 +153,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void updateUnreadCount() {
-		unreadCount.setValue( (int)getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).count() );
+		unreadCount.setValue( getUnreadNotices().size() );
+	}
+
+	private List<Notice> getUnreadNotices() {
+		return getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).collect( Collectors.toList());
 	}
 
 }

@@ -43,6 +43,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -1009,7 +1010,11 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "welcome", WelcomeIcon.class );
 		getIconLibrary().register( "help-content", QuestionIcon.class );
 		getIconLibrary().register( "notice", NoticeIcon.class );
-		getIconLibrary().register( "notice-unread", UnreadNoticeIcon.class );
+		getIconLibrary().register( "notice-error", NoticeIcon.class, Color.RED );
+		getIconLibrary().register( "notice-warn", NoticeIcon.class, Color.YELLOW );
+		getIconLibrary().register( "notice-info", NoticeIcon.class, Color.GREEN.brighter() );
+		getIconLibrary().register( "notice-norm", NoticeIcon.class, Color.web( "#40a0c0" ) );
+		getIconLibrary().register( "notice-none", NoticeIcon.class );
 		getIconLibrary().register( "task", TaskQueueIcon.class );
 		getIconLibrary().register( "product", ProductIcon.class );
 		getIconLibrary().register( "update", DownloadIcon.class );
@@ -1033,8 +1038,8 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "disable", DisableIcon.class );
 		getIconLibrary().register( "remove", CloseIcon.class );
 
-		getIconLibrary().register( "toggle-enabled", ToggleEnabledIcon.class );
-		getIconLibrary().register( "toggle-disabled", ToggleDisabledIcon.class );
+		getIconLibrary().register( "toggle-enabled", ToggleIcon.class, true );
+		getIconLibrary().register( "toggle-disabled", ToggleIcon.class, false );
 	}
 
 	private void unregisterIcons() {}

@@ -8,10 +8,14 @@ public class ProgramImageIcon extends ProgramIcon {
 
 	public ProgramImageIcon() {}
 
-	public ProgramImageIcon setImage( Image image ) {
+	public ProgramImageIcon setRenderImage( Image image ) {
 		this.image = image;
 		fireRender();
 		return this;
+	}
+
+	public Image getRenderImage() {
+		return this.image;
 	}
 
 	@Override
@@ -22,7 +26,7 @@ public class ProgramImageIcon extends ProgramIcon {
 	public static void main( String[] commands ) {
 		ProgramImageIcon icon = new ProgramImageIcon();
 		proof( icon );
-		icon.setImage( new Image( "https://www.avereon.com/download/latest/xenon/product/icon" ) );
+		icon.setRenderImage( new Image( "https://www.avereon.com/download/latest/xenon/product/icon" ) );
 	}
 
 }

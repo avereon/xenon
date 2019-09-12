@@ -1,11 +1,17 @@
 package com.avereon.xenon.icon;
 
+import com.avereon.xenon.ColorTheme;
 import com.avereon.xenon.ProgramIcon;
+import javafx.scene.paint.Color;
 
 public class NoticeIcon extends ProgramIcon {
 
 	public NoticeIcon() {
 		super();
+	}
+
+	public NoticeIcon( Color color ) {
+		setColorTheme( new ColorTheme( color ) );
 	}
 
 	@Override

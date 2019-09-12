@@ -2,11 +2,11 @@ package com.avereon.xenon.icon;
 
 import com.avereon.xenon.ProgramIcon;
 
-abstract class ToggleIcon extends ProgramIcon {
+public class ToggleIcon extends ProgramIcon {
 
 	private boolean enabled;
 
-	ToggleIcon( boolean enabled ) {
+	public ToggleIcon( Boolean enabled ) {
 		this.enabled = enabled;
 	}
 

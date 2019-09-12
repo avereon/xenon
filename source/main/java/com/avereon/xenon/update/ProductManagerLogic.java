@@ -73,9 +73,7 @@ public class ProductManagerLogic {
 	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( force )
-			.link( ( cards ) -> handlePostedUpdatesResult( cards, force ) )
-			.run( program );
+		return createFindPostedUpdatesChain( force ).link( ( cards ) -> handlePostedUpdatesResult( cards, force ) ).run( program );
 	}
 
 	/**
@@ -612,8 +610,9 @@ public class ProductManagerLogic {
 		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
 
-		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
-		notice.setBalloonStickiness( Notice.BALLOON_ALWAYS );
+		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
+			.setBalloonStickiness( Notice.BALLOON_ALWAYS )
+			.setType( Notice.Type.INFO );
 		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
 	}
 
@@ -635,17 +634,18 @@ public class ProductManagerLogic {
 
 	private void showNotice() {
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-notice" );
 
-		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
-		notice.setBalloonStickiness( Notice.BALLOON_ALWAYS );
+		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
+			.setBalloonStickiness( Notice.BALLOON_ALWAYS )
+			.setType( Notice.Type.INFO );
 		program.getNoticeManager().addNotice( notice );
 	}
 
 	private void showAlert() {
 		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-alert" );
 
 		ButtonType discard = new ButtonType( program.getResourceBundle().getString( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );
