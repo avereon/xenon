@@ -41,7 +41,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
@@ -117,9 +119,6 @@ public class Program extends Application implements ProgramProduct {
 	private NoticeManager noticeManager;
 
 	private ProgramEventWatcher watcher;
-
-	@Deprecated
-	private ProgramNotifier notifier;
 
 	private Set<ProductEventListener> listeners;
 
@@ -372,9 +371,6 @@ public class Program extends Application implements ProgramProduct {
 		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
-
-		// Create the program notifier, depends on workspace manager
-		notifier = new ProgramNotifier( this );
 
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
@@ -701,11 +697,6 @@ public class Program extends Application implements ProgramProduct {
 		return programDataFolder;
 	}
 
-	@Deprecated
-	public final ProgramNotifier getNotifier() {
-		return notifier;
-	}
-
 	public final TaskManager getTaskManager() {
 		return taskManager;
 	}
@@ -1019,7 +1010,11 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "welcome", WelcomeIcon.class );
 		getIconLibrary().register( "help-content", QuestionIcon.class );
 		getIconLibrary().register( "notice", NoticeIcon.class );
-		getIconLibrary().register( "notice-unread", UnreadNoticeIcon.class );
+		getIconLibrary().register( "notice-error", NoticeIcon.class, Color.RED );
+		getIconLibrary().register( "notice-warn", NoticeIcon.class, Color.YELLOW );
+		getIconLibrary().register( "notice-info", NoticeIcon.class, Color.GREEN.brighter() );
+		getIconLibrary().register( "notice-norm", NoticeIcon.class, Color.web( "#40a0c0" ) );
+		getIconLibrary().register( "notice-none", NoticeIcon.class );
 		getIconLibrary().register( "task", TaskQueueIcon.class );
 		getIconLibrary().register( "product", ProductIcon.class );
 		getIconLibrary().register( "update", DownloadIcon.class );
@@ -1043,8 +1038,8 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "disable", DisableIcon.class );
 		getIconLibrary().register( "remove", CloseIcon.class );
 
-		getIconLibrary().register( "toggle-enabled", ToggleEnabledIcon.class );
-		getIconLibrary().register( "toggle-disabled", ToggleDisabledIcon.class );
+		getIconLibrary().register( "toggle-enabled", ToggleIcon.class, true );
+		getIconLibrary().register( "toggle-disabled", ToggleIcon.class, false );
 	}
 
 	private void unregisterIcons() {}
@@ -1065,13 +1060,14 @@ public class Program extends Application implements ProgramProduct {
 			new ProductManagerLogic( getProgram() ).showUpdateFoundDialog();
 		} ) );
 		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice A" ) );
+			this.getNoticeManager().addNotice( new Notice( "Testing", new Button( "Test Notice A" ) ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-3" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
+			//this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice B" ) );
+			this.getNoticeManager().error( new Throwable( "This is a test throwable" ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-4" ).pushAction( new RunnableTestAction( this, () -> {
-			this.getNoticeManager().addNotice( new Notice( "Testing", "Test Notice C", true ) );
+			this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" );
 		} ) );
 	}
 
@@ -1193,7 +1189,7 @@ public class Program extends Application implements ProgramProduct {
 		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String message = getResourceBundle().getString( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		getNoticeManager().addNotice( new Notice( title, message, true, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ) );
+		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 
 	private boolean calcProgramUpdated() {

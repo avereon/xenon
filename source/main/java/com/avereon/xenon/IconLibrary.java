@@ -9,8 +9,10 @@ import javafx.scene.image.Image;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,15 +24,15 @@ public class IconLibrary {
 
 	private Program program;
 
-	private Map<String, Class<? extends ProgramImage>> icons;
+	private Map<String, IconConfig> icons;
 
 	public IconLibrary( Program program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
 	}
 
-	public void register( String id, Class<? extends ProgramImage> icon ) {
-		icons.put( id, icon );
+	public void register( String id, Class<? extends ProgramImage> icon, Object... parameters ) {
+		icons.put( id, new IconConfig( icon, parameters ) );
 	}
 
 	public Node getIcon( String id ) {
@@ -46,16 +48,12 @@ public class IconLibrary {
 	}
 
 	public Node getIcon( String id, String backupId, double size ) {
-		Node node = null;
-
-		if( id == null ) id = "";
-		if( node == null ) node = getIconRenderer( id );
-		if( node == null ) node = getIconFromUrl( id, size );
-		if( node == null ) node = getIconRenderer( backupId );
-		if( node == null ) node = new BrokenIcon().setSize( size );
-		if( node instanceof ProgramImage ) ((ProgramImage)node).setSize( size );
-
-		return node;
+		Node icon = getIconRenderer( id );
+		if( icon == null ) icon = getIconFromUrl( id, size );
+		if( icon == null ) icon = getIconRenderer( backupId );
+		if( icon == null ) icon = new BrokenIcon();
+		if( icon instanceof ProgramImage ) ((ProgramImage)icon).setSize( size );
+		return icon;
 	}
 
 	public Image[] getStageIcons( String id ) {
@@ -73,9 +71,12 @@ public class IconLibrary {
 	}
 
 	private ProgramImage getIconRenderer( String id ) {
+		if( id == null || !icons.containsKey( id ) ) return null;
+
 		try {
-			return icons.get( id ).getConstructor().newInstance();
+			return icons.get( id ).newInstance();
 		} catch( Exception exception ) {
+			log.error( "Unable to create icon: " + id, exception );
 			return null;
 		}
 	}
@@ -88,7 +89,7 @@ public class IconLibrary {
 		program.getTaskManager().submit( Task.of( "Load icon: " + url, () -> {
 			try {
 				Image image = new Image( new URL( url ).toExternalForm(), size, size, true, true );
-				if( !image.isError() ) icon.setImage( image );
+				if( !image.isError() ) icon.setRenderImage( image );
 			} catch( MalformedURLException exception ) {
 				if( url.contains( "://" ) ) log.info( "Unable to load icon", exception );
 			} catch( Exception exception ) {
@@ -96,7 +97,27 @@ public class IconLibrary {
 			}
 		} ) );
 
-		return icon;
+		return icon.getRenderImage() == null || icon.getRenderImage().isError() ? null : icon;
+	}
+
+	private static class IconConfig {
+
+		private Class<? extends ProgramImage> icon;
+
+		private Class<?>[] parameterTypes;
+
+		private Object[] parameters;
+
+		IconConfig( Class<? extends ProgramImage> icon, Object... parameters ) {
+			this.icon = icon;
+			this.parameters = parameters;
+			this.parameterTypes = Arrays.stream( parameters ).map( Object::getClass ).toArray( Class[]::new );
+		}
+
+		ProgramImage newInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+			return icon.getConstructor( parameterTypes ).newInstance( parameters );
+		}
+
 	}
 
 }
