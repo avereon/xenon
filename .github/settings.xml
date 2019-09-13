@@ -1,0 +1,35 @@
+<settings
+		xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"
+>
+
+	<servers>
+		<server>
+			<id>avn-release</id>
+			<username>${env.AVN_REPO_USERNAME}</username>
+			<password>${env.AVN_REPO_PASSWORD}</password>
+		</server>
+		<server>
+			<id>avn-snapshot</id>
+			<username>${env.AVN_REPO_USERNAME}</username>
+			<password>${env.AVN_REPO_PASSWORD}</password>
+		</server>
+	</servers>
+
+	<mirrors>
+		<mirror>
+			<id>avn-mirror</id>
+			<name>Mirror to Avereon Maven Repository</name>
+			<url>https://repo.avereon.com/avn</url>
+			<mirrorOf>*,!central</mirrorOf>
+		</mirror>
+		<mirror>
+			<id>central-mirror</id>
+			<name>Mirror to Avereon Maven Repository</name>
+			<url>https://repo.avereon.com/central</url>
+			<mirrorOf>central</mirrorOf>
+		</mirror>
+	</mirrors>
+
+</settings>
