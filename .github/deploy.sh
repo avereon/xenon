@@ -16,10 +16,18 @@ case "${MATRIX_OS}" in
   "macOS-latest") PLATFORM="macosx" ;;
 esac
 
+if [ "${PLATFORM}" == "linux" ]; then
+  export DISPLAY=:99
+  Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+fi
+
 rm -rf target/jlink
 mvn deploy -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
-echo "Deploy path: /opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
+echo "Build date=$(date)"
+echo "[github.ref]=${GITHUB_REF}"
+echo "[matrix.os]=${MATRIX_OS}"
+echo "Deploy path=/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
 
 mkdir ${HOME}/.ssh
 echo "${TRAVIS_SSH_KEY}" > ${HOME}/.ssh/id_rsa
