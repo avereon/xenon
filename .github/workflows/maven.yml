@@ -23,7 +23,7 @@ jobs:
         MATRIX_OS: ${{ matrix.os }}
       run: .github/build.sh # Works correctly on linux and macos
     - name: Deploy Latest
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' || github.base_ref == 'refs/heads/master'
       env:
         GITHUB_REF: ${{ github.ref }}
         MATRIX_OS: ${{ matrix.os }}
