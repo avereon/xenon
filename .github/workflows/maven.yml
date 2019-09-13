@@ -20,20 +20,18 @@ jobs:
       env:
         AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
         AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
-#      run: .github/build.sh
+#      run: .github/build.sh # Works correctly on linux and macos
       run: echo ${{ github.ref }}
     - name: Deploy Latest
 #      if: github.ref == 'refs/heads/master'
       if: github.ref == 'refs/heads/github-actions'
-#      env:
-#        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
-#        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
-#      run: .github/deploy.sh latest
-      run: echo ${{ matrix.os }}
+      env:
+        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
+        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
+      run: .github/deploy.sh latest
     - name: Deploy Stable
       if: github.ref == 'refs/heads/stable'
-#      env:
-#        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
-#        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
-#      run: .github/deploy.sh stable
-      run: echo 'DEPLOY STABLE'
+      env:
+        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
+        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
+      run: .github/deploy.sh stable
