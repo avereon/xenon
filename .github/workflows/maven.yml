@@ -23,14 +23,14 @@ jobs:
 #      run: .github/build.sh
       run: echo ${{ github.ref }}
     - name: Deploy Latest
-      if: github.ref == 'master'
+      if: github.ref == 'refs/heads/master'
 #      env:
 #        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
 #        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
 #      run: .github/deploy.sh latest
       run: echo 'DEPLOY LATEST'
     - name: Deploy Stable
-      if: github.ref == 'stable'
+      if: github.ref == 'refs/heads/stable'
 #      env:
 #        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
 #        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
