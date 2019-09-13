@@ -1,10 +1,26 @@
 #!/bin/bash
 
-#RELEASE github.ref [refs/heads/master, refs/heads/github-actions]
+#RELEASE github.ref [refs/heads/master, refs/heads/stable]
 #OS matrix.os [ubuntu-latest, macOS-latest, windows-latest ]
 
 echo "${GITHUB_REF}"
 echo "${MATRIX_OS}"
+
+RELEASE="latest"
+PRODUCT='xenon'
+PLATFORM='linux'
+
+case "${GITHUB_REF}" in
+  "refs/heads/master") PLATFORM="latest" ;;
+  "refs/heads/stable") PLATFORM="stable" ;;
+esac
+
+case "${MATRIX_OS}" in
+  "ubuntu-latest") PLATFORM="linux" ;;
+  "macOS-latest") PLATFORM="macosx" ;;
+esac
+
+echo "/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
 
 #mkdir ${HOME}/.ssh
 #echo "${TRAVIS_SSH_KEY}" > ${HOME}/.ssh/id_rsa
