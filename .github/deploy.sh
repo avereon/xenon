@@ -16,6 +16,9 @@ case "${MATRIX_OS}" in
   "macOS-latest") PLATFORM="macosx" ;;
 esac
 
+rm -rf target/jlink
+mvn deploy -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+
 echo "Deploy path: /opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
 
 mkdir ${HOME}/.ssh
@@ -28,5 +31,4 @@ chmod 600 ${HOME}/.ssh/known_hosts
 
 scp -B target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
 scp -B target/*product.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
-scp -B target/*product.zip travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
 scp -B target/main/java/META-INF/*.card travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
