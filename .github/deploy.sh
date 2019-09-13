@@ -17,7 +17,7 @@ case "${MATRIX_OS}" in
 esac
 
 rm -rf target/jlink
-mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+mvn deploy -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
 echo "Deploy path: /opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
 
