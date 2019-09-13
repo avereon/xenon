@@ -1,9 +1,9 @@
 name: Avereon Xenon CI
 
 on:
-  push:
-  pull_request:
-  schedule:
+  - push:
+  - pull_request:
+  - schedule:
     - cron: '0 0,3,6,9,12,15,18,21 * * *'
 
 jobs:
