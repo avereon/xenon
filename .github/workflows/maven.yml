@@ -22,6 +22,9 @@ jobs:
       with:
         java-version: 11
     - name: Build
+      env:
+        AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
+        AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
       run: mvn test -B -U -V --settings .github/settings.xml --file pom.xml
 #    - name: Deploy
 #      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
