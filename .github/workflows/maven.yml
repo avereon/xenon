@@ -20,6 +20,7 @@ jobs:
       env:
         AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
         AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
+        MATRIX_OS: ${{ matrix.os }}
       run: .github/build.sh # Works correctly on linux and macos
     - name: Deploy Latest
       if: github.ref == 'refs/heads/master'
