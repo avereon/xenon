@@ -23,12 +23,13 @@ jobs:
 #      run: .github/build.sh
       run: echo ${{ github.ref }}
     - name: Deploy Latest
+#      if: github.ref == 'refs/heads/master'
       if: github.ref == 'refs/heads/github-actions'
 #      env:
 #        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
 #        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
 #      run: .github/deploy.sh latest
-      run: echo 'DEPLOY LATEST'
+      run: echo ${{ matrix.os }}
     - name: Deploy Stable
       if: github.ref == 'refs/heads/stable'
 #      env:
