@@ -28,5 +28,4 @@ chmod 600 ${HOME}/.ssh/known_hosts
 
 scp -B target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
 scp -B target/*product.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
-scp -B target/*product.zip travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
 scp -B target/main/java/META-INF/*.card travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
