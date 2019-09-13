@@ -26,6 +26,8 @@ jobs:
 #      if: github.ref == 'refs/heads/master'
       if: github.ref == 'refs/heads/github-actions'
       env:
+        GITHUB_REF: ${{ github.ref }}
+        MATRIX_OS: ${{ matrix.os }}
         TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
         TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
       run: .github/deploy.sh latest

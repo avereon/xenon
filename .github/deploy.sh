@@ -3,8 +3,8 @@
 #RELEASE github.ref [refs/heads/master, refs/heads/github-actions]
 #OS matrix.os [ubuntu-latest, macOS-latest, windows-latest ]
 
-echo ${{ github.ref }}
-echo ${{ matrix.os }}
+echo "${GITHUB_REF}"
+echo "${MATRIX_OS}"
 
 #mkdir ${HOME}/.ssh
 #echo "${TRAVIS_SSH_KEY}" > ${HOME}/.ssh/id_rsa
