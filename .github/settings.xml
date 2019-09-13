@@ -15,6 +15,11 @@
 			<username>${env.AVN_REPO_USERNAME}</username>
 			<password>${env.AVN_REPO_PASSWORD}</password>
 		</server>
+		<server>
+			<id>central-mirror</id>
+			<username>${env.AVN_REPO_USERNAME}</username>
+			<password>${env.AVN_REPO_PASSWORD}</password>
+		</server>
 	</servers>
 
 	<mirrors>
