@@ -97,7 +97,7 @@ public class IconLibrary {
 			}
 		} ) );
 
-		return icon.getRenderImage() == null || icon.getRenderImage().isError() ? null : icon;
+		return icon;
 	}
 
 	private static class IconConfig {
