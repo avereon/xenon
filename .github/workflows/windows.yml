@@ -26,4 +26,4 @@ jobs:
           MATRIX_OS: ${{ matrix.os }}
           TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
           TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
-        run: .github/deploy.sh
+        run: .github/deploy/windows-deploy.sh
