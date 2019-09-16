@@ -1,3 +1,17 @@
+@echo off
+
+REM Install OpenSSH
+choco install openssh
+
+set HOME="%HOMEDRIVE%%HOMEPATH%"
+
+mkdir "%HOME%\.ssh"
+@echo "%TRAVIS_SSH_KEY%" > %HOME%\.ssh\id_rsa
+@echo "%TRAVIS_SSH_PUB%" > %HOME%\.ssh\id_rsa.pub
+@echo 'avereon.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw=' >> %HOME%\.ssh\known_hosts
+
+dir "%HOME%\.ssh"
+
 REM Use Maven to verify the build, but do not deploy it to the repository
-mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+REM mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
