@@ -82,7 +82,7 @@ public class IconLibrary {
 	}
 
 	private Node getIconFromUrl( String url, double size ) {
-		if( TextUtil.isEmpty( url ) ) return null;
+		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 
 		ProgramImageIcon icon = new ProgramImageIcon();
 
@@ -97,7 +97,7 @@ public class IconLibrary {
 			}
 		} ) );
 
-		return icon.getRenderImage() == null || icon.getRenderImage().isError() ? null : icon;
+		return icon;
 	}
 
 	private static class IconConfig {

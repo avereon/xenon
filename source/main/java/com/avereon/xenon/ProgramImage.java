@@ -803,8 +803,8 @@ public abstract class ProgramImage extends Canvas {
 
 		// Start rendering by clearing the icon area
 		if( overrideContext == null ) {
-			getGraphicsContext2D().setTransform( new Affine() );
 			clearRect( 0, 0, 1, 1 );
+			getGraphicsContext2D().setTransform( new Affine() );
 			baseTransform = Transform.scale( size, size );
 			reset();
 		}

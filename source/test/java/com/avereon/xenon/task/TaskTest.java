@@ -29,20 +29,15 @@ public class TaskTest extends BaseTaskTest {
 
 	@Test
 	public void testSuccess() throws Exception {
-		Task<?> task = new MockTask( manager, 5 * delay );
+		Task<?> task = new MockTask( manager, delay );
 		ThreadUtil.pause( delay );
 		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
 
-		// Force enough of a wait that the test will be consistent
-		ThreadUtil.pause( 10 );
-
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( 5 * delay );
+		taskWatcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
@@ -54,14 +49,9 @@ public class TaskTest extends BaseTaskTest {
 
 		manager.submit( task );
 
-		// Force enough of a wait that the test will be consistent
-		ThreadUtil.pause( 10 );
-
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( 5 * delay );
+		taskWatcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
 		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 
