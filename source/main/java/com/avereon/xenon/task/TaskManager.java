@@ -27,7 +27,11 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private ThreadPoolExecutor executor;
+	private ThreadPoolExecutor executorP1;
+
+	private ThreadPoolExecutor executorP2;
+
+	private ThreadPoolExecutor executorP3;
 
 	private ThreadGroup group;
 
@@ -35,15 +39,15 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private Settings settings;
 
-	private BlockingQueue<Runnable> queue;
+	private Map<Task,Task> taskMap;
 
-	private Queue<Task> tasks;
+	private Queue<Task> taskQueue;
 
 	private Set<TaskListener> listeners;
 
 	public TaskManager() {
-		tasks = new ConcurrentLinkedQueue<>();
-		queue = new LinkedBlockingQueue<>();
+		taskMap = new ConcurrentHashMap<>(  );
+		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
 		listeners = new CopyOnWriteArraySet<>();
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
@@ -65,7 +69,33 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	}
 
 	public <T> Task<T> submit( Task<T> task ) {
-		return (Task<T>)checkRunning().submit( (Callable<T>)task );
+		Task<T> existing = getExisting( task );
+		if( existing != null ) return existing;
+
+		task.setState( Task.State.SCHEDULED );
+
+		Task<T> result;
+		switch( task.getPriority() ) {
+			case HIGH: {
+				result = (Task<T>)checkRunning( executorP1 ).submit( (Callable<T>)task );
+				break;
+			}
+			case LOW: {
+				result = (Task<T>)checkRunning( executorP3 ).submit( (Callable<T>)task );
+				break;
+			}
+			default: {
+				result = (Task<T>)checkRunning( executorP2 ).submit( (Callable<T>)task );
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	@SuppressWarnings( "unchecked" )
+	private <T> Task<T> getExisting( Task<T> task ) {
+		return (Task<T>)taskMap.get( task );
 	}
 
 	public long getTaskCount() {
@@ -73,32 +103,62 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	}
 
 	public List<Task> getTasks() {
-		return new ArrayList<>( tasks );
+		return new ArrayList<>( taskQueue );
 	}
 
 	public int getCurrentThreadCount() {
-		return executor == null ? 0 : executor.getPoolSize();
+		int count = 0;
+		count += executorP1 == null ? 0 : executorP1.getPoolSize();
+		count += executorP2 == null ? 0 : executorP2.getPoolSize();
+		count += executorP3 == null ? 0 : executorP3.getPoolSize();
+		return count;
 	}
 
 	public int getMaxThreadCount() {
-		return executor == null ? 0 : executor.getCorePoolSize();
+		int count = 0;
+		count += executorP1 == null ? 0 : executorP1.getCorePoolSize();
+		count += executorP2== null ? 0 : executorP2.getCorePoolSize();
+		count += executorP3 == null ? 0 : executorP3.getCorePoolSize();
+		return count;
 	}
 
 	public void setMaxThreadCount( int count ) {
 		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
 		if( settings != null ) settings.set( "thread-count", maxThreadCount );
-		if( executor != null ) executor.setCorePoolSize( maxThreadCount );
+		if( executorP1 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 1 ) );
+		if( executorP2 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 2 ) );
+		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 3 ) );
 	}
 
 	@Override
 	public boolean isRunning() {
-		return executor != null && !executor.isTerminated();
+		return executorP1 != null && !executorP1.isTerminated() && executorP2 != null && !executorP2.isTerminated() && executorP3 != null && !executorP3.isTerminated();
 	}
 
 	@Override
 	public TaskManager start() {
 		if( isRunning() ) return this;
-		executor = new TaskManagerExecutor( maxThreadCount, THREAD_IDLE_SECONDS, TimeUnit.SECONDS, queue, new TaskThreadFactory( this, group ) );
+		executorP1 = new TaskManagerExecutor(
+			getPriorityThreadCount( 1 ),
+			THREAD_IDLE_SECONDS,
+			TimeUnit.SECONDS,
+			new LinkedBlockingQueue<>(),
+			new TaskThreadFactory( this, group, Thread.NORM_PRIORITY )
+		);
+		executorP2 = new TaskManagerExecutor(
+			getPriorityThreadCount( 2 ),
+			THREAD_IDLE_SECONDS,
+			TimeUnit.SECONDS,
+			new LinkedBlockingQueue<>(),
+			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 )
+		);
+		executorP3 = new TaskManagerExecutor(
+			getPriorityThreadCount( 3 ),
+			THREAD_IDLE_SECONDS,
+			TimeUnit.SECONDS,
+			new LinkedBlockingQueue<>(),
+			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
+		);
 		return this;
 	}
 
@@ -130,16 +190,23 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	@Override
 	public TaskManager stop() {
-		if( executor == null || executor.isShutdown() ) return this;
-		executor.shutdown();
-		executor = null;
+		executorP3 = shutdown( executorP3 );
+		executorP2 = shutdown( executorP2 );
+		executorP1 = shutdown( executorP1 );
 		return this;
+	}
+
+	private ThreadPoolExecutor shutdown( ThreadPoolExecutor executor ) {
+		if( executor == null ) return null;
+		executor.shutdown();
+		return null;
 	}
 
 	@Override
 	public TaskManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		if( executor == null || executor.isShutdown() ) return this;
-		executor.awaitTermination( timeout, unit );
+		if( executorP3 != null ) executorP3.awaitTermination( timeout, unit );
+		if( executorP2 != null ) executorP2.awaitTermination( timeout, unit );
+		if( executorP1 != null ) executorP1.awaitTermination( timeout, unit );
 		return this;
 	}
 
@@ -174,7 +241,18 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return Thread.currentThread() instanceof TaskThread;
 	}
 
-	private ExecutorService checkRunning() {
+	private int getPriorityThreadCount( int priority ) {
+		switch( priority ) {
+			case 1:
+			case 3: {
+				return maxThreadCount / 4;
+			}
+			default:
+				return maxThreadCount / 2;
+		}
+	}
+
+	private ExecutorService checkRunning( ExecutorService executor ) {
 		if( executor == null ) throw new RuntimeException( "TaskManager is not running." );
 		return executor;
 	}
@@ -192,7 +270,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 			Task<T> task = (Task<T>)callable;
 			task.setTaskManager( TaskManager.this );
-			tasks.add( task );
+			taskMap.put( task, task );
+			taskQueue.add( task );
 			return task;
 		}
 
@@ -201,7 +280,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 			if( runnable instanceof Task ) {
 				Task task = (Task)runnable;
 
-				tasks.remove( task );
+				taskQueue.remove( task );
+				taskMap.remove( task );
 
 				try {
 					task.get();

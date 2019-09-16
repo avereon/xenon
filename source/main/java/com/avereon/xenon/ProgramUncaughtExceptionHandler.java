@@ -9,7 +9,12 @@ class ProgramUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler
 
 	@Override
 	public void uncaughtException( Thread thread, Throwable exception ) {
-		log.error( "Uncaught exception", exception );
+		String message = "Uncaught program exception";
+
+		log.error( message, exception );
+
+		System.err.println( message );
+		exception.printStackTrace( System.err );
 	}
 
 }

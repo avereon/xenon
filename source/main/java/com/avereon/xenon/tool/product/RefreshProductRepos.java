@@ -12,10 +12,16 @@ class RefreshProductRepos extends Task<Void> {
 
 	private ProductTool productTool;
 
-	RefreshProductRepos( ProductTool productTool ) {this.productTool = productTool;}
+	private boolean force;
+
+	RefreshProductRepos( ProductTool productTool, boolean force ) {
+		this.productTool = productTool;
+		this.force = force;
+	}
 
 	@Override
 	public Void call() {
+		Platform.runLater( () -> productTool.getRepoPage().showUpdating() );
 		List<RepoState> cards = new ArrayList<>( productTool.getProgram().getProductManager().getRepos() );
 		cards.sort( new RepoStateComparator( RepoStateComparator.Field.NAME ) );
 		cards.sort( new RepoStateComparator( RepoStateComparator.Field.RANK ) );

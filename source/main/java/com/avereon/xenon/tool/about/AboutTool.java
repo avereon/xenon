@@ -290,7 +290,7 @@ public class AboutTool extends GuidedTool {
 
 		program
 			.getProductManager()
-			.getInstalledProductCards()
+			.getInstalledProductCards( false )
 			.stream()
 			.filter( ( card ) -> !card.getProductKey().equals( program.getCard().getProductKey() ) )
 			.forEach( ( card ) -> builder.append( getProductDetails( card ) ).append( "\n" ) );

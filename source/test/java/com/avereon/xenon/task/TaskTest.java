@@ -29,32 +29,29 @@ public class TaskTest extends BaseTaskTest {
 
 	@Test
 	public void testSuccess() throws Exception {
-		Task<?> task = new MockTask( manager, 4 * delay );
+		Task<?> task = new MockTask( manager, delay );
 		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
 
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( 4 * delay );
+		taskWatcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
 	@Test
 	public void testFailure() throws Exception {
-		Task<?> task = new MockTask( manager, 4 * delay, true );
+		Task<?> task = new MockTask( manager, 5 * delay, true );
 		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.WAITING ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 
 		manager.submit( task );
+
 		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( delay );
-		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		ThreadUtil.pause( 4 * delay );
+		taskWatcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
 		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 

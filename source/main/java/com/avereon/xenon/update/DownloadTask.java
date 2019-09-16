@@ -133,4 +133,17 @@ public class DownloadTask extends Task<Download> {
 		}
 	}
 
+	@Override
+	public boolean equals( Object object ) {
+		if( this == object ) return true;
+		if( object == null || getClass() != object.getClass() ) return false;
+		DownloadTask that = (DownloadTask)object;
+		return uri.equals( that.uri );
+	}
+
+	@Override
+	public int hashCode() {
+		return uri.hashCode();
+	}
+
 }

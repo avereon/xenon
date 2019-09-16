@@ -73,28 +73,25 @@ public class ProductManagerLogic {
 	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( program.getProductManager().getInstalledProductCards(), force )
-			.link( ( cards ) -> handlePostedUpdatesResult( cards, force ) )
-			.run( program );
+		return createFindPostedUpdatesChain( force ).link( ( cards ) -> handlePostedUpdatesResult( cards, force ) ).run( program );
 	}
 
 	/**
-	 * @param products The set of products to find updates for
 	 * @param force Request that the cache be flushed before finding updates
 	 * @return The map of updateable products and in which repo the update is located
 	 */
 	@Asynchronous
-	Task<Set<ProductCard>> findPostedUpdates( Set<ProductCard> products, boolean force ) {
+	Task<Set<ProductCard>> findPostedUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( products, force ).run( program );
+		return createFindPostedUpdatesChain( force ).run( program );
 	}
 
 	@Asynchronous
 	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( products, force )
+		return createFindPostedUpdatesChain( force )
 			.link( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
@@ -125,14 +122,14 @@ public class ProductManagerLogic {
 			.run( program );
 	}
 
-	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( Set<ProductCard> products, boolean force ) {
+	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( boolean force ) {
 		Map<String, ProductCard> installedProducts = program.getProductManager().getInstalledProductCardsMap();
 
 		return TaskChain
 			.init( () -> initFindPostedUpdates( force ) )
 			.link( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
-			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, products ) )
+			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, installedProducts.values() ) )
 			.link( this::collectProductCardDownloads )
 			.link( ( availableProducts ) -> determineUpdateableProducts( availableProducts, installedProducts ) );
 	}
@@ -149,10 +146,6 @@ public class ProductManagerLogic {
 
 	private Map<RepoState, Task<Download>> startEnabledCatalogCardDownloads() {
 		Set<RepoState> repos = program.getProductManager().getRepos().stream().filter( RepoState::isEnabled ).collect( Collectors.toSet() );
-		return startCatalogCardDownloads( repos );
-	}
-
-	private Map<RepoState, Task<Download>> startCatalogCardDownloads( Set<RepoState> repos ) {
 		Map<RepoState, Task<Download>> downloads = new HashMap<>();
 
 		repos.forEach( ( r ) -> {
@@ -180,7 +173,7 @@ public class ProductManagerLogic {
 		return catalogs;
 	}
 
-	private Map<RepoState, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoState, CatalogCard> catalogs, Set<ProductCard> products ) {
+	private Map<RepoState, Set<Task<Download>>> startSelectedProductCardDownloadTasks( Map<RepoState, CatalogCard> catalogs, Collection<ProductCard> products ) {
 		Map<RepoState, Set<Task<Download>>> downloads = new HashMap<>();
 		Set<String> artifacts = products.stream().map( ProductCard::getArtifact ).collect( Collectors.toSet() );
 
@@ -449,9 +442,10 @@ public class ProductManagerLogic {
 			// just copy it. Otherwise, collect all packs and files into one zip
 			// file as the update pack.
 			if( resources.size() == 1 && resources.iterator().next().getType() == ProductResource.Type.PACK ) {
-				Path file = resources.iterator().next().getLocalFile();
-				setTotal( Files.size( file ) );
-				FileUtil.copy( resources.iterator().next().getLocalFile(), updatePack, progressCallback );
+				ProductResource resource = resources.iterator().next();
+				if( resource.getLocalFile() == null ) throw new ProductResourceMissingException( "Local file not found", resource );
+				setTotal( Files.size( resource.getLocalFile() ) );
+				FileUtil.copy( resource.getLocalFile(), updatePack, progressCallback );
 			} else {
 				// Collect everything into one zip file
 				Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
@@ -603,7 +597,7 @@ public class ProductManagerLogic {
 		String updatesNotAvailable = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
 		String updatesCannotConnect = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
-		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message, true ) ) );
+		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
 
 	private void openProductTool() {
@@ -616,8 +610,9 @@ public class ProductManagerLogic {
 		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
 
-		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) );
-		notice.setBalloonStickiness( Notice.BALLOON_ALWAYS );
+		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
+			.setBalloonStickiness( Notice.Balloon.ALWAYS )
+			.setType( Notice.Type.INFO );
 		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
 	}
 
@@ -639,17 +634,18 @@ public class ProductManagerLogic {
 
 	private void showNotice() {
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-notice" );
 
-		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) );
-		notice.setBalloonStickiness( Notice.BALLOON_ALWAYS );
+		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
+			.setBalloonStickiness( Notice.Balloon.ALWAYS )
+			.setType( Notice.Type.INFO );
 		program.getNoticeManager().addNotice( notice );
 	}
 
 	private void showAlert() {
 		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended" );
+		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-alert" );
 
 		ButtonType discard = new ButtonType( program.getResourceBundle().getString( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );

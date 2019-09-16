@@ -2,7 +2,6 @@ package com.avereon.xenon.resource.type;
 
 import com.avereon.product.Product;
 import com.avereon.product.ProductBundle;
-import com.avereon.xenon.IconLibrary;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.Codec;
 import com.avereon.xenon.resource.Resource;
@@ -49,23 +48,30 @@ public class ProgramAboutType extends ResourceType {
 
 		resource.putResource( Guide.GUIDE_KEY, guide = new Guide() );
 
-		IconLibrary library = program.getIconLibrary();
 		ProductBundle rb = getProduct().getResourceBundle();
+		guide.getRoot().getChildren().clear();
 
 		GuideNode summaryNode = new GuideNode();
 		summaryNode.setId( AboutTool.SUMMARY );
 		summaryNode.setName( rb.getString( "tool", "about-summary" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( summaryNode, library.getIcon( "about" ) ) );
+		summaryNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( program, summaryNode ) );
 
 		GuideNode detailsNode = new GuideNode();
 		detailsNode.setId( AboutTool.DETAILS );
 		detailsNode.setName( rb.getString( "tool", "about-details" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( detailsNode, library.getIcon( "about" ) ) );
+		detailsNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( program, detailsNode ) );
 
 		GuideNode productsNode = new GuideNode();
 		productsNode.setId( AboutTool.MODS );
 		productsNode.setName( rb.getString( "tool", "about-mods" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( productsNode, library.getIcon( "about" ) ) );
+		productsNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( program, productsNode ) );
+	}
+
+	private TreeItem<GuideNode> createGuideNode( Program program, GuideNode node ) {
+		return new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
 	}
 
 }

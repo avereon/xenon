@@ -4,22 +4,28 @@ import com.avereon.util.LogFlag;
 
 public interface ProgramFlag extends LogFlag {
 
+	/**
+	 * Specify the exec mode. The values are 'dev' and 'test'. This flag is not
+	 * intended to be used for normal operation. Developers can use the 'dev'
+	 * value to run the program as a different instance than their production
+	 * instance. The 'test' value is used during unit and integration tests.
+	 */
 	String EXECMODE = "--execmode";
-
-	String EXECMODE_DEVL = ExecMode.DEV.name().toLowerCase();
-
-	String EXECMODE_TEST = ExecMode.TEST.name().toLowerCase();
-
-	String HOME = "--home";
-
-	String NOUPDATE = "--noupdate";
-
-	String UPDATE_IN_PROGRESS = "--updateinprogress";
 
 	/**
 	 * Print the help information and exit.
 	 */
 	String HELP = "--help";
+
+	/**
+	 * Specify a different program home than the default.
+	 */
+	String HOME = "--home";
+
+	/**
+	 * Explicitly turn off automated updates.
+	 */
+	String NOUPDATE = "--noupdate";
 
 	/**
 	 * Print the status information and exit.

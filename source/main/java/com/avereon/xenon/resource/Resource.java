@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
 
 public class Resource extends Node implements Configurable {
 
@@ -91,9 +90,6 @@ public class Resource extends Node implements Configurable {
 
 		setType( type );
 		setUri( uri );
-
-		// If the URI is null then the resource is ready
-		ready = uri == null;
 
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
@@ -226,8 +222,13 @@ public class Resource extends Node implements Configurable {
 		if( scheme != null ) scheme.open( this );
 
 		open = true;
-
 		fireResourceEvent( new ResourceOpenedEvent( Resource.class, this ) );
+
+		if( getUri() == null ) {
+			ready = true;
+			fireResourceEvent( new ResourceReadyEvent( Resource.class, this ) );
+		}
+
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -240,14 +241,20 @@ public class Resource extends Node implements Configurable {
 		loaded = false;
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.load( this, getCodec() );
-		loaded = true;
-		ready = true;
 
+		loaded = true;
 		fireResourceEvent( new ResourceLoadedEvent( Resource.class, this ) );
+
+		if( !ready ) {
+			ready = true;
+			fireResourceEvent( new ResourceReadyEvent( Resource.class, this ) );
+		}
+
 		notifyAll();
 	}
 
 	public synchronized final void refresh( ResourceManager manager ) {
+		if( !ready ) return;
 		fireResourceEvent( new ResourceRefreshedEvent( Resource.class, this ) );
 	}
 
@@ -282,24 +289,11 @@ public class Resource extends Node implements Configurable {
 		fireResourceEvent( new ResourceClosedEvent( Resource.class, this ) );
 	}
 
-	/**
-	 * If the resource is new or has been loaded then the resource is "ready".
-	 *
-	 * @return Is the resource ready
-	 */
-	public boolean isReady() {
-		return ready;
-	}
-
-	/**
-	 * Until the resource is "ready" the data of the resource cannot be used.
-	 *
-	 * @param time How long to wait
-	 * @param unit The time unit
-	 */
-	public synchronized void waitForReady( int time, TimeUnit unit ) throws InterruptedException {
-		while( !isReady() ) {
-			wait( unit.toMillis( time ) );
+	public synchronized void callWhenReady( ResourceListener listener ) {
+		if( ready ) {
+			listener.eventOccurred( new ResourceReadyEvent( Resource.class, this ) );
+		} else {
+			addResourceListener( listener );
 		}
 	}
 

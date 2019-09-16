@@ -11,6 +11,7 @@ import com.avereon.xenon.Mod;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -19,15 +20,14 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * The update manager handles discovery, staging and applying product updates.
@@ -155,9 +155,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Set<ProductCard> includedProducts;
 
-	private Set<ProductCard> availableCards;
+	private final Object availableProductsLock = new Object();
+
+	private Set<ProductCard> availableProducts;
+
+	private final Object availableUpdatesLock = new Object();
+
+	private Set<ProductCard> availableUpdates;
 
 	private long postedUpdateCacheTime;
+
+	private final Object scheduleLock = new Object();
 
 	private Timer timer;
 
@@ -165,7 +173,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private Set<ProductManagerListener> listeners;
 
-	private long lastAvailableCheck;
+	private long lastAvailableProductCheck;
+
+	private long lastAvailableUpdateCheck;
 
 	private RepoClient repoClient;
 
@@ -232,18 +242,28 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return A set of the available product cards
 	 */
 	public Collection<ProductCard> getAvailableProducts( boolean force ) {
-		if( !force && availableCards != null ) return availableCards;
+		TaskManager.taskThreadCheck();
+		synchronized( availableProductsLock ) {
+			if( !force && availableProducts != null ) return new HashSet<>( availableProducts );
 
-		if( !force && System.currentTimeMillis() - lastAvailableCheck < 1000 ) return Set.of();
-		lastAvailableCheck = System.currentTimeMillis();
+			if( !force && System.currentTimeMillis() - lastAvailableProductCheck < 1000 ) return Set.of();
+			lastAvailableProductCheck = System.currentTimeMillis();
 
-		try {
-			return new ProductManagerLogic( program ).getAvailableProducts( force ).get();
-		} catch( Exception exception ) {
-			exception.printStackTrace();
+			try {
+				availableProducts = new ProductManagerLogic( program )
+					.getAvailableProducts( force )
+					.get()
+					.stream()
+					.filter( ( card ) -> "mod".equals( card.getPackaging() ) )
+					.collect( Collectors.toSet() );
+				return new HashSet<>( availableProducts );
+			} catch( Exception exception ) {
+				// TODO Notify the user there was a problem refreshing available updates
+				exception.printStackTrace();
+			}
+
+			return Set.of();
 		}
-
-		return Set.of();
 	}
 
 	public Set<Mod> getModules() {
@@ -264,7 +284,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 *
 	 * @return A new set of currently installed product cards
 	 */
-	public Set<ProductCard> getInstalledProductCards() {
+	public Set<ProductCard> getInstalledProductCards( boolean force ) {
+		// TODO The force flag could be used to refresh the installed product information
 		return new HashSet<>( productCards.values() );
 	}
 
@@ -285,7 +306,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		setEnabled( card, true );
 	}
 
-	private void registerProduct( Mod mod ) {
+	private void registerMod( Mod mod ) {
 		// Treat mods like other products
 		registerProduct( (Product)mod );
 
@@ -362,9 +383,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return isInstalled( card ) && getInstalledProductCard( card ).getRelease().equals( card.getRelease() );
 	}
 
+	public ProductStatus getStatus( ProductCard card ) {
+		return productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).getStatus();
+	}
+
+	public void setStatus( ProductCard card, ProductStatus status ) {
+		productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).setStatus( status );
+	}
+
 	public boolean isUpdatable( ProductCard card ) {
 		ProductState state = productStates.get( card.getProductKey() );
-		return state != null && state.updatable;
+		return state != null && state.isUpdatable();
 	}
 
 	public void setUpdatable( ProductCard card, boolean updatable ) {
@@ -372,13 +401,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ProductState state = productStates.get( card.getProductKey() );
 		if( state == null ) return;
 
-		state.updatable = updatable;
+		state.setUpdatable( updatable );
 		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
 	public boolean isRemovable( ProductCard card ) {
 		ProductState state = productStates.get( card.getProductKey() );
-		return state != null && state.removable;
+		return state != null && state.isRemovable();
 	}
 
 	public void setRemovable( ProductCard card, boolean removable ) {
@@ -386,8 +415,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ProductState state = productStates.get( card.getProductKey() );
 		if( state == null ) return;
 
-		state.removable = removable;
+		state.setRemovable( removable );
 		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
+	}
+
+	public ProductCard getProductUpdate( ProductCard card ) {
+		ProductState state = productStates.get( card.getProductKey() );
+		return state == null ? null : state.getUpdate();
+	}
+
+	public void setProductUpdate( ProductCard card, ProductCard update ) {
+		productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).setUpdate( update );
 	}
 
 	public boolean isEnabled( ProductCard card ) {
@@ -462,67 +500,69 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 *
 	 * @param startup True if the method is called at program start
 	 */
-	public synchronized void scheduleUpdateCheck( boolean startup ) {
-		// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
-		// set, don't schedule update checks. This probably means there is a
-		// problem applying an update. Otherwise, it should be safe to schedule
-		// update checks.
-		if( !program.isProgramUpdated() && program.getProgramParameters().isSet( ProgramFlag.UPDATE_IN_PROGRESS ) ) return;
+	public void scheduleUpdateCheck( boolean startup ) {
+		synchronized( scheduleLock ) {
+			// If the program has not been updated and the UPDATE_IN_PROGRESS flag is
+			// set, don't schedule update checks. This probably means there is a
+			// problem applying an update. Otherwise, it should be safe to schedule
+			// update checks.
+			if( !program.isProgramUpdated() && program.isUpdateInProgress() ) return;
 
-		long now = System.currentTimeMillis();
+			long now = System.currentTimeMillis();
 
-		if( task != null ) {
-			boolean alreadyRun = task.scheduledExecutionTime() < now;
-			task.cancel();
-			task = null;
-			if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
-		}
-
-		Settings checkSettings = getSettings();
-
-		long lastUpdateCheck = getLastUpdateCheck();
-		long nextUpdateCheck = getNextUpdateCheck();
-		long delay = NO_CHECK;
-
-		// This is ensures updates are not checked during tests
-		if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
-
-		switch( checkOption ) {
-			case STARTUP:
-				if( startup ) delay = 0;
-				break;
-			case INTERVAL: {
-				CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
-				delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
-				if( nextUpdateCheck < (now - 1000) ) delay = 0;
-				break;
+			if( task != null ) {
+				boolean alreadyRun = task.scheduledExecutionTime() < now;
+				task.cancel();
+				task = null;
+				if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
 			}
-			case SCHEDULE: {
-				CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
-				int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
-				delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
-				if( nextUpdateCheck < (now - 1000) ) delay = 0;
-				break;
+
+			Settings checkSettings = getSettings();
+
+			long lastUpdateCheck = getLastUpdateCheck();
+			long nextUpdateCheck = getNextUpdateCheck();
+			long delay = NO_CHECK;
+
+			// This is ensures updates are not checked during tests
+			if( TestUtil.isTest() ) checkOption = CheckOption.MANUAL;
+
+			switch( checkOption ) {
+				case STARTUP:
+					if( startup ) delay = 0;
+					break;
+				case INTERVAL: {
+					CheckInterval intervalUnit = CheckInterval.valueOf( checkSettings.get( INTERVAL_UNIT, CheckInterval.DAY.name() ).toUpperCase() );
+					delay = getNextIntervalDelay( now, intervalUnit, lastUpdateCheck );
+					if( nextUpdateCheck < (now - 1000) ) delay = 0;
+					break;
+				}
+				case SCHEDULE: {
+					CheckWhen scheduleWhen = CheckWhen.valueOf( checkSettings.get( SCHEDULE_WHEN, CheckWhen.DAILY.name() ).toUpperCase() );
+					int scheduleHour = checkSettings.get( SCHEDULE_HOUR, Integer.class, 0 );
+					delay = getNextScheduleDelay( now, scheduleWhen, scheduleHour );
+					if( nextUpdateCheck < (now - 1000) ) delay = 0;
+					break;
+				}
 			}
+
+			if( delay == NO_CHECK ) {
+				checkSettings.set( NEXT_CHECK_TIME, 0 );
+				log.debug( "Future update check not scheduled." );
+				return;
+			}
+
+			// Set the next update check time before scheduling the
+			// task to prevent this method from looping rapidly
+			long nextCheckTime = now + delay;
+			checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
+
+			// Schedule the update check task
+			timer.schedule( task = new UpdateCheckTask( this ), delay );
+
+			// Log the next update check time
+			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
+			log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 		}
-
-		if( delay == NO_CHECK ) {
-			checkSettings.set( NEXT_CHECK_TIME, 0 );
-			log.debug( "Future update check not scheduled." );
-			return;
-		}
-
-		// Set the next update check time before scheduling the
-		// task to prevent this method from looping rapidly
-		long nextCheckTime = now + delay;
-		checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
-
-		// Schedule the update check task
-		timer.schedule( task = new UpdateCheckTask( this ), delay );
-
-		// Log the next update check time
-		String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-		log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 	}
 
 	/**
@@ -533,7 +573,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		try {
 			log.trace( "Checking for staged updates..." );
-			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards(), false );
+			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards( false ), false );
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
@@ -566,15 +606,29 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	/**
-	 * Gets the set of posted product updates. If there are no posted updates found an empty set is returned.
+	 * Gets the set of available product updates. If there are no posted updates
+	 * found an empty set is returned.
 	 *
-	 * @return The set of posted updates.
-	 * @throws ExecutionException If a task execution exception occurs
-	 * @throws InterruptedException If the calling thread is interrupted
-	 * @throws URISyntaxException If a URI cannot be resolved correctly
+	 * @return The set of available updates.
 	 */
-	public Set<ProductCard> findPostedUpdates( boolean force ) throws Exception {
-		return new ProductManagerLogic( program ).findPostedUpdates( getInstalledProductCards(), force ).get();
+	public Collection<ProductCard> findAvailableUpdates( boolean force ) {
+		TaskManager.taskThreadCheck();
+		synchronized( availableUpdatesLock ) {
+			if( !force && availableUpdates != null ) return new HashSet<>( availableUpdates );
+
+			if( !force && System.currentTimeMillis() - lastAvailableUpdateCheck < 1000 ) return Set.of();
+			lastAvailableUpdateCheck = System.currentTimeMillis();
+
+			try {
+				availableUpdates = new ProductManagerLogic( program ).findPostedUpdates( force ).get();
+				return new HashSet<>( availableUpdates );
+			} catch( Exception exception ) {
+				// TODO Notify the user there was a problem refreshing available updates
+				exception.printStackTrace();
+			}
+
+			return Set.of();
+		}
 	}
 
 	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {
@@ -637,14 +691,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getStagedUpdates().size();
 	}
 
-	public boolean isStaged( ProductCard card ) {
+	public boolean isUpdateStaged( ProductCard card ) {
 		for( ProductUpdate update : getStagedUpdates() ) {
 			if( card.equals( update.getCard() ) ) return true;
 		}
 		return false;
 	}
 
-	public boolean isReleaseStaged( ProductCard card ) {
+	public boolean isSpecificUpdateReleaseStaged( ProductCard card ) {
 		ProductUpdate update = updates.get( card.getProductKey() );
 		if( update == null ) return false;
 
@@ -1054,7 +1108,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( resources == null ) return;
 
 		for( ProductResource resource : resources ) {
-			if( resource.getLocalFile() == null ) continue;
+			if( resource.getLocalFile() == null ) throw new ProductResourceMissingException( "Local file not found", resource );
 			switch( resource.getType() ) {
 				case FILE: {
 					// Just copy the file
@@ -1112,7 +1166,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		card.setInstallFolder( source );
 
 		// Register the product
-		registerProduct( mod );
+		registerMod( mod );
 
 		log.debug( "Mod loaded: " + card.getProductKey() );
 	}
@@ -1146,19 +1200,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		@Override
 		public void run() {
 			productManager.checkForUpdates();
-		}
-
-	}
-
-	private static final class ProductState {
-
-		boolean updatable;
-
-		boolean removable;
-
-		ProductState() {
-			this.updatable = false;
-			this.removable = false;
 		}
 
 	}

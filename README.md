@@ -1,4 +1,4 @@
-[build-status]: https://travis-ci.org/avereon/xenon.svg?branch=master "Build status"
+[build-status]: https://github.com/avereon/xenon/workflows/Avereon%20Xenon%20CI/badge.svg "Build status"
 
 # Xenon ![alt text][build-status]
 

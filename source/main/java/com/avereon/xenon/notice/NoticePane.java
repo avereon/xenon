@@ -26,11 +26,17 @@ public class NoticePane extends GridPane {
 		this.notice = notice;
 		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice", "padded" );
 
-		Node noticeIcon = program.getIconLibrary().getIcon( "notice" );
+		Node noticeIcon = program.getIconLibrary().getIcon( notice.getType().getIcon() );
 		Label title = new Label( notice.getTitle() );
 		closeIcon = program.getIconLibrary().getIcon( "close" );
-		Label message = new Label( notice.getMessage() );
-		message.setWrapText( true );
+		Node message;
+		if( notice.getMessage() instanceof Node ) {
+			message = (Node)notice.getMessage();
+		} else {
+			Label label = new Label( String.valueOf( notice.getMessage() ) );
+			label.setWrapText( true );
+			message = label;
+		}
 
 		noticeIcon.getStyleClass().addAll( "padded" );
 		closeIcon.getStyleClass().addAll( "padded" );

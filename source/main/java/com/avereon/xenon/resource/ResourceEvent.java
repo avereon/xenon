@@ -7,6 +7,7 @@ public abstract class ResourceEvent extends ProductEvent {
 	public enum Type {
 		OPENED,
 		LOADED,
+		READY,
 		REFRESHED,
 		MODIFIED,
 		UNMODIFIED,
