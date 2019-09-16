@@ -29,9 +29,9 @@ jobs:
         MATRIX_OS: ${{ matrix.os }}
         TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
         TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
+      run: env
     - name: Build
       run: mvn test -B -U -V --settings .github/settings.xml --file pom.xml
     - name: Deploy
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
-      env:
       run: .github/deploy.sh
