@@ -1,9 +1,5 @@
 @echo off
 
-REM Install OpenSSH
-choco install openssh
-refreshenv
-
 set HOME="%HOMEDRIVE%%HOMEPATH%"
 
 mkdir "%HOME%\.ssh"
