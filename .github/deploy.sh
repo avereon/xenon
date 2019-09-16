@@ -22,7 +22,7 @@ if [ "${PLATFORM}" == "linux" ]; then
 fi
 
 rm -rf target/jlink
-mvn deploy -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
 echo "Build date=$(date)"
 echo "[github.ref]=${GITHUB_REF}"

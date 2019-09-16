@@ -9,11 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-#        os: [ubuntu-latest, macOS-latest, windows-latest ]
-        os: [ubuntu-latest, macOS-latest ]
+    runs-on: ubuntu-latest
     steps:
     - name: Fetch sources
       uses: actions/checkout@v1
@@ -21,17 +17,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Environment
+    - name: Build & Test
       env:
         AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
         AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
-        GITHUB_REF: ${{ github.ref }}
-        MATRIX_OS: ${{ matrix.os }}
-        TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
-        TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
-      run: echo 'Environment prepared'
-    - name: Build
-      run: env && mvn test -B -U -V --settings .github/settings.xml --file pom.xml
-    - name: Deploy
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
-      run: .github/deploy.sh
+      run: mvn deploy -B -U -V --settings .github/settings.xml --file pom.xml
