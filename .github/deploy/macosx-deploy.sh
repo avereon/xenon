@@ -2,7 +2,7 @@
 
 RELEASE="latest"
 PRODUCT='xenon'
-PLATFORM='linux'
+PLATFORM='macosx'
 
 #RELEASE github.ref [refs/heads/master, refs/heads/stable]
 case "${GITHUB_REF}" in
@@ -10,23 +10,11 @@ case "${GITHUB_REF}" in
   "refs/heads/stable") RELEASE="stable" ;;
 esac
 
-#OS matrix.os [ubuntu-latest, macOS-latest, windows-latest ]
-case "${MATRIX_OS}" in
-  "ubuntu-latest") PLATFORM="linux" ;;
-  "macOS-latest") PLATFORM="macosx" ;;
-esac
-
-if [ "${PLATFORM}" == "linux" ]; then
-  export DISPLAY=:99
-  Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
-fi
-
 rm -rf target/jlink
 mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
 echo "Build date=$(date)"
 echo "[github.ref]=${GITHUB_REF}"
-echo "[matrix.os]=${MATRIX_OS}"
 echo "Deploy path=/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
 
 mkdir ${HOME}/.ssh
