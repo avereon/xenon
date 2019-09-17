@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 11
       - name: Set up Tools
-        run: choco install openssh dos2unix
+        run: choco install openssh
       - name: Deploy
 #        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
         env:
