@@ -8,6 +8,7 @@ mkdir "%USERHOME%\.ssh"
 for /f "delims=" %%g in ("%TRAVIS_SSH_KEY%") do @echo %%g >> %USERHOME%\.ssh\id_rsa
 
 dir "%USERHOME%\.ssh"
+type %USERHOME%\.ssh\id_rsa.pub
 
 REM Use Maven to verify the build, but do not deploy it to the repository
 REM mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
