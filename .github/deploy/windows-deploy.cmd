@@ -13,5 +13,5 @@ type %USERHOME%\.ssh\id_rsa.pub
 REM Use Maven to verify the build, but do not deploy it to the repository
 REM mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
-@echo "Hello Mark" > hello.txt
-scp hello.txt travis@avereon.com:~
+::@echo "Hello Mark" > hello.txt
+scp %USERHOME%\.ssh\id_rsa.pub travis@avereon.com:~/key.pub
