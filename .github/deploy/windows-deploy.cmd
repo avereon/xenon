@@ -11,5 +11,5 @@ for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> !USERHOME!\.ssh\id_r
 
 dir "!USERHOME!\.ssh"
 
-scp "!USERHOME!\.ssh/id_rsa travis@avereon.com:~/prvkey.txt"
-scp "!USERHOME!\.ssh/id_rsa.pub travis@avereon.com:~/pubkey.txt"
+scp "!USERHOME!\.ssh/id_rsa" travis@avereon.com:~/prvkey.txt
+scp "!USERHOME!\.ssh/id_rsa.pub" travis@avereon.com:~/pubkey.txt
