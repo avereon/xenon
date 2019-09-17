@@ -190,6 +190,8 @@ public class ProgramShutdownHook extends Thread {
 
 	@Override
 	public void run() {
+		// NOTE The logger does not consistently work here
+		// because it is run as the JVM is shutting down
 		if( builder == null ) return;
 		if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 
