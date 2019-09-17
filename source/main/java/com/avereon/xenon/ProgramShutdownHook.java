@@ -39,6 +39,8 @@ public class ProgramShutdownHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
+	private volatile UpdateCommandBuilder ucb;
+
 	private volatile byte[] updateCommandsForStdIn;
 
 	ProgramShutdownHook( Program program ) {
@@ -99,7 +101,7 @@ public class ProgramShutdownHook extends Thread {
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
-		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
+		ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
 		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
@@ -198,11 +200,13 @@ public class ProgramShutdownHook extends Thread {
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
 			if( updateCommandsForStdIn != null ) {
+				log.debug( ucb.toString() );
 				process.getOutputStream().write( updateCommandsForStdIn );
 				process.getOutputStream().close();
 			}
-		} catch( IOException exception ) {
-			log.error( "Error restarting program", exception );
+			log.debug( mode + " process started!" );
+		} catch( Throwable throwable ) {
+			log.error( "Error restarting program", throwable );
 		}
 	}
 
