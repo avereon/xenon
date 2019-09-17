@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 11
       - name: Set up OpenSSL
-        run: choco install openssh
+        run: choco install openssh unxutils
       - name: Deploy
 #        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
         env:
