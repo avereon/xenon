@@ -3,10 +3,11 @@
 set USERHOME="%HOMEDRIVE%%HOMEPATH%"
 
 mkdir "%USERHOME%\.ssh"
+@echo 'avereon.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw=' >> %USERHOME%\.ssh\known_hosts
+@echo "%TRAVIS_SSH_PUB%" > %USERHOME%\.ssh\id_rsa.pub
 @echo "" > %USERHOME%\.ssh\id_rsa
 for %%f in (%TRAVIS_SSH_KEY%) do @echo %%f >> %USERHOME%\.ssh\id_rsa
-@echo "%TRAVIS_SSH_PUB%" > %USERHOME%\.ssh\id_rsa.pub
-@echo 'avereon.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw=' >> %USERHOME%\.ssh\known_hosts
+dos2unix %USERHOME%\.ssh\id_rsa
 
 dir "%USERHOME%\.ssh"
 
