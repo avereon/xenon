@@ -15,8 +15,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Build & Test
+    - name: Build & Test & Deploy
       env:
         AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
         AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
-      run: mvn test -B -U -V --settings .github/settings.xml --file pom.xml
+      run: mvn deploy -B -U -V --settings .github/settings.xml --file pom.xml
