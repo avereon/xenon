@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 ver
 
-set "USERHOME=!HOMEPATH!"
+set "USERHOME=!HOMEDRIVE!!HOMEPATH!"
 set "SSHHOME=!USERHOME!\.ssh"
 
 rmdir /S /Q "!SSHHOME!"
@@ -13,10 +13,10 @@ echo.>> !SSHHOME!\known_hosts
 echo !TRAVIS_SSH_PUB! > !SSHHOME!\id_rsa.pub
 for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!SSHHOME!\id_rsa"
 
-REM dir "!SSHHOME!"
+dir "!SSHHOME!"
 sha1sum "!SSHHOME!\id_rsa"
 sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
 REM scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
-scp -v "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
+scp -vv "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
