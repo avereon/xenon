@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 ver
 
 set "USERHOME=."
-set "SSHHOME=!HOMEPATH!\AppData\Roaming\_ssh"
+set "SSHHOME=!HOMEPATH!\.ssh"
 
 rmdir /S /Q "!SSHHOME!"
 mkdir "!SSHHOME!"
