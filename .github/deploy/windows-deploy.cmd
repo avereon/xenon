@@ -7,6 +7,17 @@ set "PLATFORM=windows"
 set "USERHOME=!HOMEDRIVE!!HOMEPATH!"
 set "SSHHOME=!USERHOME!\.ssh"
 
+IF "!GITHUB_REF!"=="refs/heads/stable" set "RELEASE=stable"
+for /f "tokens=* USEBACKQ" %%g IN (`date /T`) DO SET DATEVAL=%%g
+for /f "tokens=* USEBACKQ" %%g IN (`time /T`) DO SET TIMEVAL=%%g
+
+echo "Build timestamp=!DATEVAL! !TIMEVAL!"
+echo "[github.ref]=!GITHUB_REF!"
+echo "Deploy path=/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!"
+
+rmdir /S /Q target\jlink
+mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+
 rmdir /S /Q "!SSHHOME!"
 mkdir "!SSHHOME!"
 echo avereon.com,159.65.110.114 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw= >> !SSHHOME!\known_hosts
