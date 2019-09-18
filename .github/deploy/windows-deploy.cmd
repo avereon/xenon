@@ -4,6 +4,7 @@ setlocal enabledelayedexpansion
 ver
 
 set "TERM=xterm"
+set "SSH_TERM_CONHOST_PARSER=0"
 set "USERHOME=."
 set "SSHHOME=!HOMEPATH!\AppData\Roaming\_ssh"
 
