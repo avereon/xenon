@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+set "RELEASE=latest"
+set "PRODUCT=xenon"
+set "PLATFORM=windows"
 set "USERHOME=!HOMEDRIVE!!HOMEPATH!"
 set "SSHHOME=!USERHOME!\.ssh"
 
@@ -16,5 +19,6 @@ sha1sum "!SSHHOME!\id_rsa"
 sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
-scp "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
-scp "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
+scp -B target/install.jar travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+scp -B target/product.jar travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+scp -B target/main/java/META-INF/product.card travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
