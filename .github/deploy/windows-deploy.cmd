@@ -15,7 +15,7 @@ for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!SSHHOME!\id_rsa"
 dir "!SSHHOME!"
 sha1sum "!SSHHOME!\id_rsa"
 sha1sum "!SSHHOME!\id_rsa.pub"
-type "!SSHHOME!\known_hosts"
+sha1sum "!SSHHOME!\known_hosts"
 
-scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
-scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
+REM scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
+scp -v -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
