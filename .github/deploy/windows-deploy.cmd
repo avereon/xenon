@@ -4,17 +4,18 @@ setlocal enabledelayedexpansion
 ver
 
 set "USERHOME=."
+set "SSHHOME=!HOMEPATH!\AppData\Roaming\_ssh"
 
-rmdir /S /Q "!USERHOME!\.ssh"
-mkdir "!USERHOME!\.ssh"
-echo avereon.com,159.65.110.114 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw= >> !USERHOME!\.ssh\known_hosts
-echo !TRAVIS_SSH_PUB! > !USERHOME!\.ssh\id_rsa.pub
-for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!USERHOME!\.ssh\id_rsa"
+rmdir /S /Q "!SSHHOME!"
+mkdir "!SSHHOME!"
+echo avereon.com,159.65.110.114 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw= >> !SSHHOME!\known_hosts
+echo !TRAVIS_SSH_PUB! > !SSHHOME!\id_rsa.pub
+for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!SSHHOME!\id_rsa"
 
-dir "!USERHOME!\.ssh"
-sha1sum "!USERHOME!\.ssh\id_rsa"
-sha1sum "!USERHOME!\.ssh\id_rsa.pub"
-type "!USERHOME!\.ssh\known_hosts"
+dir "!SSHHOME!"
+sha1sum "!SSHHOME!\id_rsa"
+sha1sum "!SSHHOME!\id_rsa.pub"
+type "!SSHHOME!\known_hosts"
 
-scp -i "!USERHOME!\.ssh\id_rsa" "!USERHOME!\.ssh\id_rsa" travis@avereon.com:~/prvkey.txt
-scp -i "!USERHOME!\.ssh\id_rsa" "!USERHOME!\.ssh\id_rsa.pub" travis@avereon.com:~/pubkey.txt
+scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
+scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
