@@ -16,7 +16,7 @@ echo "[github.ref]=!GITHUB_REF!"
 echo "Deploy path=/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!"
 
 rmdir /S /Q target\jlink
-mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+cmd /c mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
 rmdir /S /Q "!SSHHOME!"
 mkdir "!SSHHOME!"
