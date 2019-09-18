@@ -1083,7 +1083,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		resource.load( this );
 		resource.setModified( false );
 		if( !previouslyLoaded ) resource.addNodeListener( modifiedResourceWatcher );
-		if( resource.isReady() ) resource.refresh( this );
+		resource.refresh( this );
 
 		program.fireEvent( new ResourceLoadedEvent( getClass(), resource ) );
 		log.trace( "Resource loaded: " + resource );
@@ -1303,7 +1303,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				// Start loading the resource, but don't wait
 				if( !resource.isLoaded() ) loadResources( resource );
 			} catch( Exception exception ) {
-				program.getNotifier().error( exception );
+				program.getNoticeManager().error( exception );
 				return null;
 			}
 
@@ -1485,7 +1485,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			try {
 				saveResources( getModifiedResources() );
 			} catch( Exception exception ) {
-				program.getNotifier().error( exception );
+				program.getNoticeManager().error( exception );
 			}
 		}
 
@@ -1502,7 +1502,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			try {
 				closeResources( getCurrentResource() );
 			} catch( Exception exception ) {
-				program.getNotifier().error( exception );
+				program.getNoticeManager().error( exception );
 			}
 		}
 
@@ -1519,7 +1519,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			try {
 				closeResources( openResources );
 			} catch( Exception exception ) {
-				program.getNotifier().error( exception );
+				program.getNoticeManager().error( exception );
 			}
 		}
 
@@ -1570,7 +1570,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 				String title = program.getResourceBundle().getString( "resource", "resources" );
 				String message = program.getResourceBundle().getString( "resource", "resource.exception", messages.toString() );
-				program.getNotifier().warning( title, (Object)message );
+				program.getNoticeManager().warning( title, message );
 				log.warn( "Error executing resource task", message );
 			}
 

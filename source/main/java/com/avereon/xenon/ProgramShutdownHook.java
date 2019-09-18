@@ -39,6 +39,8 @@ public class ProgramShutdownHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
+	private volatile UpdateCommandBuilder ucb;
+
 	private volatile byte[] updateCommandsForStdIn;
 
 	ProgramShutdownHook( Program program ) {
@@ -99,7 +101,7 @@ public class ProgramShutdownHook extends Thread {
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
-		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
+		ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
 		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
@@ -133,9 +135,10 @@ public class ProgramShutdownHook extends Thread {
 
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), ProgramFlag.UPDATE_IN_PROGRESS ) );
+		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters() ) );
 		launchCommands.addAll( List.of( restartCommands ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
+		log.debug( ucb.toString() );
 
 		updateCommandsForStdIn = ucb.toString().getBytes( TextUtil.CHARSET );
 
@@ -156,6 +159,7 @@ public class ProgramShutdownHook extends Thread {
 	 *
 	 * @return The stage updater module path
 	 */
+	// TODO This could be converted to a task and the run method can wait for the task to complete
 	private String stageUpdater() throws IOException {
 		// Determine where to put the updater
 		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
@@ -186,20 +190,24 @@ public class ProgramShutdownHook extends Thread {
 
 	@Override
 	public void run() {
+		// NOTE The logger does not consistently work here
+		// because it is run as the JVM is shutting down
 		if( builder == null ) return;
-
-		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+		if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 
 		try {
-			// Only redirect stdout and stderr
+			System.out.println( "Starting " + mode + " process..." );
+			// Only discard stdout and stderr
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
 			if( updateCommandsForStdIn != null ) {
 				process.getOutputStream().write( updateCommandsForStdIn );
 				process.getOutputStream().close();
 			}
-		} catch( IOException exception ) {
-			log.error( "Error restarting program", exception );
+			System.out.println( mode + " process started!" );
+		} catch( Throwable throwable ) {
+			log.error( "Error restarting program", throwable );
+			throwable.printStackTrace( System.err );
 		}
 	}
 

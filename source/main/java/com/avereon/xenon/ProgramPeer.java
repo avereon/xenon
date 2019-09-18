@@ -38,7 +38,7 @@ public class ProgramPeer {
 			String[] commands = commandList.toArray( new String[ commandList.size() ] );
 			new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
 
-			// TODO Read log events from the host and submit them to the logging framework
+			// TODO If watch command specified, read log events from the host and submit them to the logging framework
 
 			socket.close();
 		} catch( IOException socketException ) {

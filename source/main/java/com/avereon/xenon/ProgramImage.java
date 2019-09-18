@@ -89,15 +89,15 @@ public abstract class ProgramImage extends Canvas {
 
 	private ColorTheme colorTheme;
 
-	private double drawWidth;
+//	private double drawWidth;
 
-	private Color drawColor;
+//	private Color drawColor;
 
-	private Color fillColor;
+//	private Color fillColor;
 
-	private double xOffset;
-
-	private double yOffset;
+//	private double xOffset;
+//
+//	private double yOffset;
 
 	private Font font;
 
@@ -143,13 +143,13 @@ public abstract class ProgramImage extends Canvas {
 	//		drawWidth = width;
 	//	}
 
-	public void setDrawColor( Color color ) {
-		drawColor = color;
-	}
-
-	public void setFillColor( Color color ) {
-		fillColor = color;
-	}
+	//	public void setDrawColor( Color color ) {
+	//		drawColor = color;
+	//	}
+	//
+	//	public void setFillColor( Color color ) {
+	//		fillColor = color;
+	//	}
 
 	public ProgramImage setSize( double size ) {
 		setHeight( size );
@@ -246,7 +246,7 @@ public abstract class ProgramImage extends Canvas {
 			iconPane.getChildren().addAll( icon128, icon64, icon32, icon16, icon8 );
 
 			GridPane pane = new GridPane();
-			pane.add( icon.copy().setSize( DEFAULT_SIZE ).fireRender(), 1, 1 );
+			pane.add( icon.setSize( DEFAULT_SIZE ), 1, 1 );
 			pane.add( imageView16, 2, 1 );
 			pane.add( imageView32, 2, 2 );
 			pane.add( iconPane, 1, 2 );
@@ -582,6 +582,17 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setLineWidth( lineWidth );
 	}
 
+	protected void drawImage( Image image, double x, double y ) {
+		// Scale the transform
+		Affine transform = getGraphicsContext2D().getTransform().clone();
+		getGraphicsContext2D().scale( 1.0/getWidth(), 1.0/getHeight() );
+
+		getGraphicsContext2D().drawImage( image, x, y );
+
+		// Reset transform
+		getGraphicsContext2D().setTransform( transform );
+	}
+
 	protected void clearRect( double x, double y, double w, double h ) {
 		getGraphicsContext2D().clearRect( xformX( x ), xformY( y ), xformX( w ), xformY( h ) );
 	}
@@ -603,15 +614,15 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	protected double getIconDrawWidth() {
-		return drawWidth == 0.0 ? DEFAULT_DRAW_WIDTH : drawWidth;
+		return DEFAULT_DRAW_WIDTH;
 	}
 
 	protected Color getIconDrawColor() {
-		return drawColor == null ? getThemeDrawColor() : drawColor;
+		return getThemeDrawColor();
 	}
 
 	protected Color getIconFillColor() {
-		return fillColor == null ? getThemeFillColor() : fillColor;
+		return getThemeFillColor();
 	}
 
 	protected Paint getIconFillPaint() {
@@ -779,7 +790,7 @@ public abstract class ProgramImage extends Canvas {
 		return output;
 	}
 
-	private ProgramImage fireRender() {
+	ProgramImage fireRender() {
 		double size = Math.min( getWidth(), getHeight() );
 
 		// Set the defaults
@@ -792,8 +803,8 @@ public abstract class ProgramImage extends Canvas {
 
 		// Start rendering by clearing the icon area
 		if( overrideContext == null ) {
-			getGraphicsContext2D().setTransform( new Affine() );
 			clearRect( 0, 0, 1, 1 );
+			getGraphicsContext2D().setTransform( new Affine() );
 			baseTransform = Transform.scale( size, size );
 			reset();
 		}
@@ -813,8 +824,6 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	protected static class Point {
-
-		private static final long serialVersionUID = -1520877460686311009L;
 
 		public double x;
 

@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
 
@@ -34,6 +35,30 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public List<Notice> getNotices() {
 		return getNoticeList().getNotices();
+	}
+
+	public void error( Throwable throwable ) {
+		error( throwable.getClass().getSimpleName(), null, throwable );
+	}
+
+	public void error( Object message, Throwable throwable, String... parameters ) {
+		error( throwable.getClass().getSimpleName(), message, throwable, parameters );
+	}
+
+	public void error( String title, Object message, String... parameters ) {
+		error( title, message, null, parameters );
+	}
+
+	public void error( String title, Object message, Throwable throwable, String... parameters ) {
+		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.ERROR ).setBalloonStickiness( Notice.Balloon.ALWAYS ) );
+	}
+
+	public void warning( String title, Object message, String... parameters ) {
+		warning( title, message, null, parameters );
+	}
+
+	public void warning( String title, Object message, Throwable throwable, String... parameters ) {
+		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, parameters ) ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
@@ -64,6 +89,10 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public IntegerProperty unreadCountProperty() {
 		return unreadCount;
+	}
+
+	public Notice.Type getUnreadNoticeType() {
+		return Notice.Type.values()[ getUnreadNotices().stream().mapToInt( ( n ) -> n.getType().ordinal() ).max().orElse( Notice.Type.NONE.ordinal() ) ];
 	}
 
 	public void readAll() {
@@ -132,7 +161,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void updateUnreadCount() {
-		unreadCount.setValue( (int)getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).count() );
+		unreadCount.setValue( getUnreadNotices().size() );
+	}
+
+	private List<Notice> getUnreadNotices() {
+		return getNoticeList().getNotices().stream().filter( ( n ) -> !n.isRead() ).collect( Collectors.toList() );
 	}
 
 }

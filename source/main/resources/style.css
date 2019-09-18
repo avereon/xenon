@@ -119,7 +119,7 @@
 	-fx-background-color: transparent;
 }
 
-.tool .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected {
+.tool .tree-view:focused .tree-cell:filled:selected {
 	-fx-background: -fx-selection-bar;
 	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
 }
@@ -128,7 +128,7 @@
 	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
-.tool .tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:focused {
+.tool .tree-view:focused .tree-cell:focused {
 	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
 
@@ -293,6 +293,13 @@
 	-fx-background-insets: 1mm 0 0 0;
 	-fx-background-color: -ex-background-text;
 	-fx-padding: 2mm 1mm 1mm 1mm;
+}
+
+.tool-product-message {
+	-fx-background-color: -ex-background-text;
+	-fx-padding: 5mm;
+	-fx-alignment: center;
+	-fx-font-size: 2em;
 }
 
 #tool-welcome {

@@ -31,7 +31,10 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Timer;
 
 //import java.beans.PropertyChangeEvent;
 //import java.beans.PropertyChangeListener;
@@ -227,7 +230,7 @@ public class Workspace implements Configurable {
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
 			Platform.runLater( () -> {
-				program.getActionLibrary().getAction( "notice" ).setIcon( count == 0 ? "notice" : "notice-unread" );
+				program.getActionLibrary().getAction( "notice" ).setIcon( program.getNoticeManager().getUnreadNoticeType().getIcon() );
 				noticeButton.setText( String.valueOf( count ) );
 			} );
 		} );
@@ -365,7 +368,7 @@ public class Workspace implements Configurable {
 	}
 
 	public void showNotice( Notice notice ) {
-		if( Objects.equals( notice.getBalloonStickiness(), Notice.BALLOON_NEVER ) ) return;
+		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NEVER ) ) return;
 
 		NoticePane pane = new NoticePane( program, notice, true );
 		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
@@ -387,7 +390,7 @@ public class Workspace implements Configurable {
 		// TODO Get balloon timeout from settings
 		int balloonTimeout = 5000;
 
-		if( Objects.equals( notice.getBalloonStickiness(), Notice.BALLOON_NORMAL ) ) {
+		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
 			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
 		}
 	}
@@ -421,6 +424,8 @@ public class Workspace implements Configurable {
 		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.sizeToScene();
+
+
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
