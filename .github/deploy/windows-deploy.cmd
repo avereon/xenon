@@ -3,12 +3,13 @@ setlocal enabledelayedexpansion
 
 ver
 
-set "USERHOME=."
-set "SSHHOME=!HOMEPATH!\.ssh"
+set "USERHOME=!HOMEPATH!"
+set "SSHHOME=!USERHOME!\.ssh"
 
 rmdir /S /Q "!SSHHOME!"
 mkdir "!SSHHOME!"
 echo avereon.com,159.65.110.114 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw= >> !SSHHOME!\known_hosts
+echo.>> !SSHHOME!\known_hosts
 echo !TRAVIS_SSH_PUB! > !SSHHOME!\id_rsa.pub
 for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!SSHHOME!\id_rsa"
 
