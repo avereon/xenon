@@ -3,8 +3,6 @@ setlocal enabledelayedexpansion
 
 ver
 
-set "TERM=xterm"
-set "SSH_TERM_CONHOST_PARSER=0"
 set "USERHOME=."
 set "SSHHOME=!HOMEPATH!\AppData\Roaming\_ssh"
 
@@ -14,10 +12,10 @@ echo avereon.com,159.65.110.114 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAy
 echo !TRAVIS_SSH_PUB! > !SSHHOME!\id_rsa.pub
 for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!SSHHOME!\id_rsa"
 
-dir "!SSHHOME!"
+REM dir "!SSHHOME!"
 sha1sum "!SSHHOME!\id_rsa"
 sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
 REM scp -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa" travis@avereon.com:~/prvkey.txt
-scp -v -i "!SSHHOME!\id_rsa" "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
+scp -v "!SSHHOME!\id_rsa.pub" travis@avereon.com:~/pubkey.txt
