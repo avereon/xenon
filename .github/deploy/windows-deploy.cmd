@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 ver
 
-set USERHOME="!HOMEPATH!"
+set "USERHOME=."
 
 rmdir /S /Q "!USERHOME!\.ssh"
 mkdir "!USERHOME!\.ssh"
