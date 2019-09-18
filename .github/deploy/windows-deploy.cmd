@@ -12,8 +12,8 @@ echo !TRAVIS_SSH_PUB! > !USERHOME!\.ssh\id_rsa.pub
 for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!USERHOME!\.ssh\id_rsa"
 
 dir "!USERHOME!\.ssh"
-md5sum "!USERHOME!\.ssh\id_rsa"
-md5sum "!USERHOME!\.ssh\id_rsa.pub"
+sha1sum "!USERHOME!\.ssh\id_rsa"
+sha1sum "!USERHOME!\.ssh\id_rsa.pub"
 type "!USERHOME!\.ssh\known_hosts"
 
 scp -i "!USERHOME!\.ssh\id_rsa" "!USERHOME!\.ssh\id_rsa" travis@avereon.com:~/prvkey.txt
