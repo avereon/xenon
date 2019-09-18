@@ -1,6 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 
+ver
+
 set USERHOME="!HOMEPATH!"
 
 rmdir /S /Q "!USERHOME!\.ssh"
