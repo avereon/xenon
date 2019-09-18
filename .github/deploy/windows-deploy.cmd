@@ -9,7 +9,7 @@ echo avereon.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHA
 echo !TRAVIS_SSH_PUB! > !USERHOME!\.ssh\id_rsa.pub
 for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> !USERHOME!\.ssh\id_rsa
 
-dir ".ssh"
+dir "!USERHOME!\.ssh"
 
-scp ".ssh/id_rsa" travis@avereon.com:~/prvkey.txt
-scp ".ssh/id_rsa.pub" travis@avereon.com:~/pubkey.txt
+scp "!USERHOME!\.ssh\id_rsa" travis@avereon.com:~/prvkey.txt
+scp "!USERHOME!\.ssh\id_rsa.pub" travis@avereon.com:~/pubkey.txt
