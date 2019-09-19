@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
-	<version>0.8.2</version>
+	<version>0.9</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
