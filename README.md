@@ -28,8 +28,8 @@ The framework provides the following basic features:
 |0.6|Update manager, product updates| 4 Jun 2018 |
 |0.7|Java 11, Java FX 11, status bar, memory status, task status| 24 Jan 2019 |
 |0.8|Mod manager, mod tool, mod updates | 16 Jun 2019 |
-|0.9|Custom tool pane and tabs, CI configuration | In Progress |
-|1.0|Documentation, licensing, housekeeping| |
+|0.9|Custom tool pane and tabs, CI configuration | 19 Sep 2019 |
+|1.0|Documentation, licensing, housekeeping| In Progress |
 
 ### Contact Information ###
 
