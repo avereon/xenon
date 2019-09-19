@@ -4,13 +4,13 @@ import com.avereon.xenon.ProgramIcon;
 
 public class CloseToolIcon extends ProgramIcon {
 
-	private final int a = 11;
-
-	private final int b = 21;
+	private final int s = 6;
 
 	@Override
 	protected void render() {
-		setDrawWidth( 2 * getDefaultDrawWidth() );
+		int a = 16 - s;
+		int b = 16 + s;
+		setDrawWidth( 3 * getDefaultDrawWidth() );
 		drawLine( g( a ), g( a ), g( b ), g( b ) );
 		drawLine( g( a ), g( b ), g( b ), g( a ) );
 	}

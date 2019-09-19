@@ -118,6 +118,11 @@ class ProductPane extends MigPane {
 		return manager.getProductUpdate( source );
 	}
 
+	boolean isSelected() {
+		// TODO Connect this method to an attribute
+		return true;
+	}
+
 	void updateProductState() {
 		ProductCard update = getUpdate();
 
@@ -209,7 +214,7 @@ class ProductPane extends MigPane {
 		} ) );
 	}
 
-	private void updateProduct() {
+	void updateProduct() {
 		setStatus( ProductStatus.DOWNLOADING );
 		// TODO Get the download task and use it for product progress
 		program.getTaskManager().submit( Task.of( "Update product", () -> {
