@@ -1,13 +1,8 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.product.ProductCard;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
-import com.avereon.xenon.update.ProgramProductManager;
 import javafx.scene.control.Button;
-
-import java.util.HashSet;
-import java.util.Set;
 
 class UpdatesPage extends ProductPage {
 
@@ -32,19 +27,8 @@ class UpdatesPage extends ProductPage {
 		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, force ) );
 	}
 
-	private Set<ProductCard> getSelectedUpdates() {
-		Set<ProductCard> updates = new HashSet<>();
-		for( ProductPane pane : getSourcePanels() ) {
-			// TODO Only add if selected
-			updates.add( pane.getUpdate() );
-		}
-		return updates;
-	}
-
 	private void downloadAllSelected() {
-		ProductTool.log.trace( "Download all available updates" );
-		ProgramProductManager updateManager = (ProgramProductManager)productTool.getProgram().getProductManager();
-		updateManager.applySelectedUpdates( getSelectedUpdates(), true );
+		getSourcePanels().stream().filter( ProductPane::isSelected ).forEach( ProductPane::updateProduct );
 	}
 
 }
