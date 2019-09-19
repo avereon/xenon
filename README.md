@@ -5,7 +5,7 @@
 Xenon is a basic program framework that provides services common to modern
 desktop applications on which specific functionality may be implemented. 
 
-Releases are available at https://www.avereon.com.
+Releases are available at https://avereon.com.
 
 ## Features
 The framework provides the following basic features:
