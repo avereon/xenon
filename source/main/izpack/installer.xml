@@ -24,8 +24,9 @@
 
 	<variables>
 		<variable name="IDENTIFIER" value="${project.artifactId}"/>
-		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}\${APP_NAME}"/>
+		<variable name="TargetPanel.dir.mac" value="${APPLICATIONS_DEFAULT_ROOT}${APP_NAME}.app/Contents"/>
 		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}.local/share/${IDENTIFIER}"/>
+		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}\${APP_NAME}"/>
 		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
 	</variables>
 
