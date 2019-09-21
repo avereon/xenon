@@ -36,9 +36,14 @@
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/xenon</source>
+			<source>target/jlink/bin/${artifact.artifactId}</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
+		</file>
+		<file>
+			<source>source/main/assembly/resources/macos/${artifact.artifactId}</source>
+			<outputDirectory>MacOS</outputDirectory>
+			<fileMode>0777</fileMode>
 		</file>
 	</files>
 </assembly>
