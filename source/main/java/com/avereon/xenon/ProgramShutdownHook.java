@@ -159,7 +159,7 @@ public class ProgramShutdownHook extends Thread {
 	 *
 	 * @return The stage updater module path
 	 */
-	// TODO This could be converted to a task and the run method can wait for the task to complete
+	// TODO This could be converted to a task and the run method can be called at the end
 	private String stageUpdater() throws IOException {
 		// Determine where to put the updater
 		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
@@ -180,8 +180,7 @@ public class ProgramShutdownHook extends Thread {
 		// Fix the permissions on the executable
 		String ext = OperatingSystem.isWindows() ? ".exe" : "";
 		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
-		//noinspection ResultOfMethodCallIgnored
-		bin.toFile().setExecutable( true, true );
+		if( !bin.toFile().setExecutable( true, true ) ) log.warn( "Unable to make updater executable: " + bin);
 
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 

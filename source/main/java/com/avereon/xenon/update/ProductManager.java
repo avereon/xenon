@@ -1183,8 +1183,22 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 			String key = event.getKey();
 
-			if( CHECK.equals( key ) ) setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-			if( key.startsWith( CHECK ) ) scheduleUpdateCheck( false );
+			switch( key ) {
+				case CHECK : {
+					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+					scheduleUpdateCheck( false );
+					break;
+				}
+				case FOUND : {
+					setFoundOption( FoundOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+					break;
+				}
+				case APPLY : {
+					setApplyOption( ApplyOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
+					break;
+				}
+			}
+
 		}
 
 	}
