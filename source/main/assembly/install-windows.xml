@@ -16,7 +16,7 @@
 			<directory>target/main/images</directory>
 			<outputDirectory>bin</outputDirectory>
 			<includes>
-				<include>${artifact.artifactId}.*</include>
+				<include>${project.artifactId}.*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -36,7 +36,7 @@
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/xenon.bat</source>
+			<source>target/jlink/bin/${project.artifactId}.bat</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
