@@ -11,6 +11,9 @@
 		<string>${project.groupId}.${project.artifactId}</string>
 		<key>CFBundleVersion</key>
 		<string>${project.version}</string>
+		<!-- This one is displayed -->
+		<key>CFBundleShortVersionString</key>
+		<string>${project.version}</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleSignature</key>
@@ -21,9 +24,11 @@
 		</array>
 		<key>CFBundleExecutable</key>
 		<string>${project.artifactId}</string>
+		<key>CFBundleIconFiles</key>
+		<array>
+			<string>${project.artifactId}.png</string>
+		</array>
 		<key>CFBundleIconFile</key>
-		<string>${project.artifactId}.png</string>
-		<key>CFBundleIconName</key>
 		<string>${project.artifactId}.png</string>
 	</dict>
 
