@@ -36,7 +36,7 @@
 			<fileMode>0755</fileMode>
 		</file>
 		<file>
-			<source>target/jlink/bin/${artifact.artifactId}</source>
+			<source>target/jlink/bin/${project.artifactId}</source>
 			<outputDirectory>bin</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
@@ -47,7 +47,7 @@
 			<fileMode>0644</fileMode>
 		</file>
 		<file>
-			<source>source/main/assembly/macos/${artifact.artifactId}</source>
+			<source>source/main/assembly/macos/${project.artifactId}</source>
 			<outputDirectory>MacOS</outputDirectory>
 			<fileMode>0755</fileMode>
 		</file>
