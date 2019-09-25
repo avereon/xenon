@@ -57,7 +57,14 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters(), extraCommands );
+		List<String> commands = ProcessCommands.forModule(
+			OperatingSystem.getJavaExecutablePath(),
+			modulePath,
+			moduleMain,
+			moduleMainClass,
+			program.getProgramParameters(),
+			extraCommands
+		);
 
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
@@ -135,7 +142,13 @@ public class ProgramShutdownHook extends Thread {
 
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(), modulePath, moduleMain, moduleMainClass, program.getProgramParameters() ) );
+		launchCommands.addAll( ProcessCommands.forModule(
+			OperatingSystem.getJavaExecutablePath(),
+			modulePath,
+			moduleMain,
+			moduleMainClass,
+			program.getProgramParameters()
+		) );
 		launchCommands.addAll( List.of( restartCommands ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
 		log.debug( ucb.toString() );
@@ -163,7 +176,7 @@ public class ProgramShutdownHook extends Thread {
 	private String stageUpdater() throws IOException {
 		// Determine where to put the updater
 		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
-		Path updaterHomeRoot = FileUtil.getTempFolder().resolve(  updaterHomeFolderName );
+		Path updaterHomeRoot = FileUtil.getTempFolder().resolve( updaterHomeFolderName );
 		if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
 
 		// Cleanup from prior updates
@@ -180,7 +193,7 @@ public class ProgramShutdownHook extends Thread {
 		// Fix the permissions on the executable
 		String ext = OperatingSystem.isWindows() ? ".exe" : "";
 		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
-		if( !bin.toFile().setExecutable( true, true ) ) log.warn( "Unable to make updater executable: " + bin);
+		if( !bin.toFile().setExecutable( true, true ) ) log.warn( "Unable to make updater executable: " + bin );
 
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
@@ -199,10 +212,8 @@ public class ProgramShutdownHook extends Thread {
 			// Only discard stdout and stderr
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD ).redirectError( ProcessBuilder.Redirect.DISCARD );
 			Process process = builder.start();
-			if( updateCommandsForStdIn != null ) {
-				process.getOutputStream().write( updateCommandsForStdIn );
-				process.getOutputStream().close();
-			}
+			if( updateCommandsForStdIn != null ) process.getOutputStream().write( updateCommandsForStdIn );
+			process.getOutputStream().close();
 			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
 			log.error( "Error restarting program", throwable );
