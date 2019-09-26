@@ -173,14 +173,14 @@ public class ProgramShutdownHook extends Thread {
 	 */
 	// TODO This could be converted to a task and the run method can be called at the end
 	private String stageUpdater() throws IOException {
-		// Determine where to put the updater
-		String updaterHomeFolderName = program.getCard().getArtifact() + "-updater";
-		Path updaterHomeRoot = FileUtil.getTempFolder().resolve( updaterHomeFolderName );
-		if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + updaterHomeFolderName );
+		String prefix = program.getCard().getArtifact() + "-updater-";
 
 		// Cleanup from prior updates
-		FileUtil.delete( updaterHomeRoot );
-		//FileUtils.deleteDirectory( updaterHomeRoot.toFile() );
+		removePriorFolders( prefix );
+
+		// Determine where to put the updater
+		Path updaterHomeRoot = FileUtil.createTempFolder( prefix );
+		if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + program.getCard().getArtifact() + "-updater" );
 
 		// Create the updater home folders
 		Files.createDirectories( updaterHomeRoot );
@@ -197,6 +197,20 @@ public class ProgramShutdownHook extends Thread {
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
 		return updaterHomeRoot.toString();
+	}
+
+	private void removePriorFolders( String prefix ) throws IOException {
+		Files
+			.list( FileUtil.getTempFolder() )
+			.filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) )
+			.forEach( ( p ) -> {
+				log.info( "Delete prior updater: " + p.getFileName() );
+				try {
+					FileUtil.delete( p );
+				} catch( IOException exception ) {
+					log.error( "Unable to cleanup prior updater files", exception );
+				}
+			} );
 	}
 
 	@Override
