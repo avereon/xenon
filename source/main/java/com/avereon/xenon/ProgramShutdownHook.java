@@ -129,7 +129,8 @@ public class ProgramShutdownHook extends Thread {
 				String javawFile = targetPath + "/bin/javaw" + exe;
 				String keytoolFile = targetPath + "/bin/keytool" + exe;
 				String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
-				ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile ).line();
+				String macScriptFile = targetPath + "MacOS" + program.getCard().getArtifact();
+				ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile, macScriptFile ).line();
 			}
 		}
 
