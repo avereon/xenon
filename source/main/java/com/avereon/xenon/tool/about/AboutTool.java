@@ -245,7 +245,8 @@ public class AboutTool extends GuidedTool {
 			}
 			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
-			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
+			//String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
+			String osNameString = System.getProperty( "os.name" );
 			osLabel.setText( getProduct().getResourceBundle().getString( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( OperatingSystem.getVersion() );
@@ -394,7 +395,7 @@ public class AboutTool extends GuidedTool {
 
 		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
 		builder.append( "Data folder: " ).append( program.getDataFolder() ).append( "\n" );
-		builder.append( "User folder: " ).append( System.getProperty( "user.home") ).append( "\n" );
+		builder.append( "User folder: " ).append( System.getProperty( "user.home" ) ).append( "\n" );
 		builder.append( "Log file:    " ).append( LogUtil.getLogFile() ).append( "\n" );
 
 		return builder.toString();
@@ -444,11 +445,11 @@ public class AboutTool extends GuidedTool {
 		// JVM commands
 		builder.append( "\n" );
 		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n");
+		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n" );
 
 		// Program commands
 		Application.Parameters parameters = program.getParameters();
-		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n");
+		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n" );
 
 		return builder.toString();
 	}
