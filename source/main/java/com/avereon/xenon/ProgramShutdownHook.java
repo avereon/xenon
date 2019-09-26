@@ -45,7 +45,6 @@ public class ProgramShutdownHook extends Thread {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
 		this.mode = Mode.RESTART;
-		if( OperatingSystem.isMac() ) System.setProperty( "jdk.lang.Process.launchMechanism", "FORK" );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
