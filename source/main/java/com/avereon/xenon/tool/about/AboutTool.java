@@ -245,7 +245,6 @@ public class AboutTool extends GuidedTool {
 			}
 			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
-			//String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
 			String osNameString = System.getProperty( "os.name" );
 			osLabel.setText( getProduct().getResourceBundle().getString( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
