@@ -586,10 +586,13 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Restarting..." );
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	public void requestUpdate( String... restartCommands ) {
 		// Register a shutdown hook to update the program
 		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
 		try {
+			// FIXME This can take a long time and has a lot of IO...locking the UI
 			programShutdownHook.configureForUpdate( restartCommands );
 			Runtime.getRuntime().addShutdownHook( programShutdownHook );
 		} catch( IOException exception ) {
@@ -633,9 +636,10 @@ public class Program extends Application implements ProgramProduct {
 		// The workspaceManager can be null if the application is already running as a peer
 		if( workspaceManager != null ) workspaceManager.hideWindows();
 
-		if( !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive) ) Platform.exit();
+		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
+		if( exiting ) Platform.exit();
 
-		return true;
+		return exiting;
 	}
 
 	public boolean isRunning() {
