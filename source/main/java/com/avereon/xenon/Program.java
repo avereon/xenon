@@ -603,13 +603,14 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// Request the program stop
-		if( !requestExit( true ) ) {
-			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
-			return;
-		}
+		boolean exiting = requestExit( true );
 
-		// The shutdown hook should update the program
-		log.info( "Updating..." );
+		if( exiting ) {
+			log.info( "Updating..." );
+			// The shutdown hook should update the program
+		} else {
+			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
+		}
 	}
 
 	public boolean requestExit( boolean skipChecks ) {
