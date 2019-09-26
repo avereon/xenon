@@ -39,14 +39,13 @@ public class ProgramShutdownHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
-	private volatile UpdateCommandBuilder ucb;
-
 	private volatile byte[] updateCommandsForStdIn;
 
 	ProgramShutdownHook( Program program ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
 		this.mode = Mode.RESTART;
+		if( OperatingSystem.isMac() ) System.setProperty( "jdk.lang.Process.launchMechanism", "FORK" );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
@@ -108,7 +107,7 @@ public class ProgramShutdownHook extends Thread {
 
 		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
-		ucb = new UpdateCommandBuilder();
+		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
 		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
