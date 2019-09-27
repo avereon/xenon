@@ -436,10 +436,10 @@
 								</goals>
 								<configuration>
 									<attach>false</attach>
-									<descriptors>
-										<descriptor>${basedir}/source/main/assembly/install-${product.platform}.xml</descriptor>
-									</descriptors>
 									<finalName>${product-pack-folder}</finalName>
+									<descriptorRefs>
+										<descriptorRef>install-${product.platform}</descriptorRef>
+									</descriptorRefs>
 									<appendAssemblyId>false</appendAssemblyId>
 								</configuration>
 							</execution>
