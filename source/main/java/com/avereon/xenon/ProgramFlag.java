@@ -62,11 +62,11 @@ public interface ProgramFlag extends LogFlag {
 	/**
 	 * Flags that a host will respond to without showing a hidden workspace.
 	 */
-	Set<String> QUIET_RESPONSIVE = Set.of( HELLO, STOP, WATCH );
+	Set<String> QUIET_RESPONSIVE = Set.of( HELLO, STATUS, STOP, WATCH );
 
 	/**
 	 * All flags that a host will respond to.
 	 */
-	Set<String> RESPONSIVE = Set.of( HELLO, STOP, WATCH );
+	Set<String> RESPONSIVE = QUIET_RESPONSIVE;
 
 }

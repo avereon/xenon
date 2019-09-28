@@ -853,7 +853,6 @@ public class Program extends Application implements ProgramProduct {
 			}
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
-			// FIXME This exits before the host can respond
 			printStatus( startup );
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
