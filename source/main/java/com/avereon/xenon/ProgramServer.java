@@ -117,7 +117,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 					LogManager.getLogManager().getLogger( "" ).addHandler( peerLogHandler );
 					program.processCliActions( parameters, false );
 					program.processResources( parameters );
-					LogManager.getLogManager().getLogger( "" ).removeHandler( peerLogHandler );
+					//LogManager.getLogManager().getLogger( "" ).removeHandler( peerLogHandler );
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {
@@ -157,8 +157,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		public void publish( LogRecord record ) {
 			try {
 				if( client.isConnected() ) objectOutput.writeObject( record );
-			} catch( IOException exception ) {
-				exception.printStackTrace( System.err );
+			} catch( Exception exception ) {
 				close();
 			}
 		}
@@ -167,8 +166,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		public void flush() {
 			try {
 				if( client.isConnected() ) objectOutput.flush();
-			} catch( IOException exception ) {
-				exception.printStackTrace( System.err );
+			} catch( Exception exception ) {
 				close();
 			}
 		}
@@ -179,7 +177,8 @@ public class ProgramServer implements Controllable<ProgramServer> {
 				client.close();
 			} catch( IOException exception ) {
 				exception.printStackTrace( System.err );
-				handler.stop();
+			} finally {
+				LogManager.getLogManager().getLogger( "" ).removeHandler( this );
 			}
 		}
 

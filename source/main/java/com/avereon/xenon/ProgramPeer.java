@@ -3,7 +3,10 @@ package com.avereon.xenon;
 import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -61,10 +64,10 @@ public class ProgramPeer {
 				watchOne( socket.getInputStream() );
 			}
 			socket.close();
-		} catch( EOFException exception ) {
+		} catch( IOException exception ) {
 			log.debug( "Host is done sending messages" );
-		} catch( ClassNotFoundException | IOException exception ) {
-			log.error( "Error reading commands to program", exception );
+		} catch( Exception exception ) {
+			log.error( "Error reading commands from host", exception );
 		}
 	}
 

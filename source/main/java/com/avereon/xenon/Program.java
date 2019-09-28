@@ -243,27 +243,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// NOTE At this point we know we are a host not a peer
 
-		//		// Check for the STOP CL parameter, depends on program settings
-		//		if( getProgramParameters().isSet( ProgramFlag.STOP ) ) {
-		//			log.warn( "Program is already stopped!" );
-		//			requestExit( true );
-		//			return;
-		//		}
-		//
-		//		// Check for the STATUS CL parameter, depends on program settings
-		//		if( getProgramParameters().isSet( ProgramFlag.STATUS ) ) {
-		//			printStatus();
-		//			requestExit( true );
-		//			return;
-		//		}
-		//
-		//		// Check for the HELLO CL parameter, depends on program settings
-		//		if( getProgramParameters().isSet( ProgramFlag.HELLO ) ) {
-		//			log.warn( "No existing host to say hello to, just talking to myself!" );
-		//			requestExit( true );
-		//			return;
-		//		}
-
 		// If this instance is a host, process the control commands before showing the splash screen
 		if( processCliActions( getProgramParameters(), true ) ) {
 			requestExit( true );
@@ -849,7 +828,7 @@ public class Program extends Application implements ProgramProduct {
 			if( startup ) {
 				log.warn( "No existing host to say hello to, just talking to myself!" );
 			} else {
-				log.warn( "HELLO peer. Good to hear from you!" );
+				log.warn( "Hello peer. Good to hear from you!" );
 			}
 			return true;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
@@ -864,7 +843,7 @@ public class Program extends Application implements ProgramProduct {
 			return true;
 		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			if( startup ) {
-				log.warn( "No existing host to watch, I'm all alone!" );
+				log.warn( "No existing host to watch, I'm out!" );
 			} else {
 				log.warn( "A watcher has connected!" );
 			}
