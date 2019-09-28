@@ -1,0 +1,12 @@
+Logging options:
+
+	--log-level <level> - The program logging level
+
+		Levels:
+		none - Turn off all logging
+		error - Events that may leave the program in an unstable state
+		warn - Events that usually leave the program in a stable state
+		info - Information messages like normal program events (default)
+		debug - Extra messages that show high level events
+		trace - Extra messages that show low level events
+		all - Turn on all logging

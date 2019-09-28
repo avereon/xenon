@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -228,8 +229,7 @@ public class Program extends Application implements ProgramProduct {
 		}
 		time( "help-check" );
 
-		// Run the peer check before processing commands in case there is a peer already
-
+		// Run the peer check before processing actions in case there is a peer already
 		// If this instance is a peer, start the peer and wait to exit
 		int port = programSettings.get( "program-port", Integer.class, 0 );
 		if( !TestUtil.isTest() && peerCheck( port ) ) {
@@ -265,7 +265,7 @@ public class Program extends Application implements ProgramProduct {
 		//		}
 
 		// If this instance is a host, process the control commands before showing the splash screen
-		if( processControlCommands( getProgramParameters(), true ) ) {
+		if( processCliActions( getProgramParameters(), true ) ) {
 			requestExit( true );
 			return;
 		}
@@ -844,7 +844,7 @@ public class Program extends Application implements ProgramProduct {
 	 * @param parameters The command line parameters
 	 * @return True if the program should exit when it is a host
 	 */
-	boolean processControlCommands( com.avereon.util.Parameters parameters, boolean startup ) {
+	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
 		if( parameters.isSet( ProgramFlag.HELLO ) ) {
 			if( startup ) {
 				log.warn( "No existing host to say hello to, just talking to myself!" );
@@ -860,6 +860,13 @@ public class Program extends Application implements ProgramProduct {
 				if( isHost() ) log.warn( "Program is already stopped!" );
 			} else {
 				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+			}
+			return true;
+		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
+			if( startup ) {
+				log.warn( "No existing host to watch, I'm all alone!" );
+			} else {
+				log.warn( "A watcher has connected!" );
 			}
 			return true;
 		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
@@ -960,13 +967,22 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void printHelp( String category ) {
-		if( category == null ) category = "general";
+		if( "true".equals( category ) ) category = "general";
+		InputStream input = getClass().getResourceAsStream( "help/" + category + ".txt" );
 
-		switch( category ) {
-			case "general": {
-				System.out.println( "Usage: " + card.getArtifact() + "[command...] [file...]" );
-				break;
+		if( input == null ) {
+			System.out.println( "No help for category: " + category );
+			return;
+		}
+
+		try {
+			String line;
+			BufferedReader reader = new BufferedReader( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
+			while( (line = reader.readLine()) != null ) {
+				System.out.println( line );
 			}
+		} catch( Exception exception ) {
+			System.out.println( "Unable to get help for category: " + category );
 		}
 	}
 
