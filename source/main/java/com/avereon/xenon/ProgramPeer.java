@@ -57,7 +57,7 @@ public class ProgramPeer {
 		try {
 			if( program.getProgramParameters().isSet( ProgramFlag.WATCH ) ) {
 				watchAll( socket.getInputStream() );
-			} else if( program.getProgramParameters().anySet( ProgramFlag.RESPONSIVE ) ) {
+			} else if( program.getProgramParameters().anySet( ProgramFlag.ACTIONS ) ) {
 				watchOne( socket.getInputStream() );
 			}
 			socket.close();

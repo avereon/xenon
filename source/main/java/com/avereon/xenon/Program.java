@@ -862,7 +862,7 @@ public class Program extends Application implements ProgramProduct {
 				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
 			}
 			return true;
-		} else if( !parameters.anySet( ProgramFlag.QUIET_RESPONSIVE ) ) {
+		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
 			if( !startup ) getWorkspaceManager().showActiveWorkspace();
 			return false;
 		}
