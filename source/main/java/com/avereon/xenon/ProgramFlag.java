@@ -2,6 +2,8 @@ package com.avereon.xenon;
 
 import com.avereon.util.LogFlag;
 
+import java.util.Set;
+
 public interface ProgramFlag extends LogFlag {
 
 	/**
@@ -11,6 +13,11 @@ public interface ProgramFlag extends LogFlag {
 	 * instance. The 'test' value is used during unit and integration tests.
 	 */
 	String EXECMODE = "--execmode";
+
+	/**
+	 * Send greeting to already running instance.
+	 */
+	String HELLO = "--hello";
 
 	/**
 	 * Print the help information and exit.
@@ -51,5 +58,15 @@ public interface ProgramFlag extends LogFlag {
 	 * Reset the program settings to defaults.
 	 */
 	String RESET = "--reset";
+
+	/**
+	 * Flags that a host will respond to without showing a hidden workspace.
+	 */
+	Set<String> QUIET_RESPONSIVE = Set.of( HELLO, STOP, WATCH );
+
+	/**
+	 * All flags that a host will respond to.
+	 */
+	Set<String> RESPONSIVE = Set.of( HELLO, STOP, WATCH );
 
 }

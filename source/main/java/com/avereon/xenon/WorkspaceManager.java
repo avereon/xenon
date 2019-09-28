@@ -113,6 +113,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		}
 	}
 
+	public void showActiveWorkspace() {
+		Platform.runLater( () -> {
+			Workspace workspace = getActiveWorkspace();
+			if( workspace == null ) return;
+			Stage stage = workspace.getStage();
+			if( stage == null ) return;
+			stage.show();
+			stage.requestFocus();
+		} );
+	}
+
 	public Workspace getActiveWorkspace() {
 		if( activeWorkspace != null ) return activeWorkspace;
 		if( workspaces.size() > 0 ) return workspaces.iterator().next();
