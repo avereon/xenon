@@ -1,6 +1,7 @@
 Usage: ${project.artifactId} [<option>...] [<url>...]" );
 
 Options:
+  --hello - Say hello to the currently running instance
   --help [<category>] - Print the command line help information
   --status - Show the program status (stopped, running, hidden)
   --stop - Stop the currently running instance (without prompting)
