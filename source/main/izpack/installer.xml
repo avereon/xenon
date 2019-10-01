@@ -95,7 +95,7 @@
 				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
 			</executable>
 			<executable stage="never">
-				<os family="mac"/>
+				<os family="mac_osx"/>
 				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
 				<fileset targetdir="$INSTALL_PATH/MacOS" includes="${project.artifactId}"/>
 			</executable>
