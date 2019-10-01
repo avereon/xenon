@@ -96,8 +96,8 @@
 			</executable>
 			<executable stage="never">
 				<os family="mac_osx"/>
-				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
-				<fileset targetdir="$INSTALL_PATH/MacOS" includes="${project.artifactId}"/>
+				<fileset targetdir="$INSTALL_PATH/${project.name}.app/Contents/bin" includes="${project.artifactId},java,keytool"/>
+				<fileset targetdir="$INSTALL_PATH/${project.name}.app/Contents/MacOS" includes="${project.artifactId}"/>
 			</executable>
 			<executable stage="never">
 				<os family="windows"/>
