@@ -90,11 +90,16 @@
 			<fileset dir="${product-pack-folder}" targetdir="$INSTALL_PATH"/>
 			<executable stage="never" keep="true">
 				<os family="unix"/>
-				<fileset targetdir="$INSTALL_PATH/bin" includes="java,keytool,${project.artifactId}"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
+			</executable>
+			<executable stage="never" keep="true">
+				<os family="mac"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
+				<fileset targetdir="$INSTALL_PATH/MacOS" includes="${project.artifactId}"/>
 			</executable>
 			<executable stage="never" keep="true">
 				<os family="windows"/>
-				<fileset targetdir="$INSTALL_PATH/bin" includes="java.exe,javaw.exe,keytool.exe,${project.artifactId}.bat"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId}.bat,java.exe,javaw.exe,keytool.exe"/>
 			</executable>
 		</pack>
 	</packs>
