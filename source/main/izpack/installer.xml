@@ -24,7 +24,7 @@
 
 	<variables>
 		<variable name="IDENTIFIER" value="${project.artifactId}"/>
-		<variable name="TargetPanel.dir.mac" value="${APPLICATIONS_DEFAULT_ROOT}${APP_NAME}.app/Contents"/>
+		<variable name="TargetPanel.dir.mac" value="${APPLICATIONS_DEFAULT_ROOT}"/>
 		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}.local/share/${IDENTIFIER}"/>
 		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}\${APP_NAME}"/>
 		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
@@ -38,6 +38,13 @@
 		<condition type="variable" id="archX64">
 			<name>os.arch</name>
 			<value>amd64</value>
+		</condition>
+		<condition type="java" id="installonmacosx">
+			<java>
+				<class>com.izforge.izpack.util.OsVersion</class>
+				<field>IS_OSX</field>
+			</java>
+			<returnvalue type="boolean">true</returnvalue>
 		</condition>
 	</conditions>
 
@@ -73,7 +80,7 @@
 		<panel classname="PacksPanel"/>
 		<panel classname="SummaryPanel"/>
 		<panel classname="InstallPanel"/>
-		<panel classname="ShortcutPanel"/>
+		<panel classname="ShortcutPanel" condition="!installonmacosx"/>
 		<panel classname="SimpleFinishPanel"/>
 	</panels>
 
