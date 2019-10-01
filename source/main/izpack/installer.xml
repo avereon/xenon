@@ -15,10 +15,7 @@
 		</authors>
 		<javaversion>1.8</javaversion>
 		<run-privileged condition="izpack.windowsinstall"/>
-		<!-- Putting the uninstaller in the mod folder causes the program not to
-		start because it is not a Java Module. The uninstaller jar must go in a
-		different folder. -->
-		<uninstaller name="uninstall.jar" path="${INSTALL_PATH}/jar"/>
+		<uninstaller write="false"/>
 		<writeinstallationinformation>no</writeinstallationinformation>
 	</info>
 
@@ -76,7 +73,12 @@
 		<panel classname="HTMLHelloPanel"/>
 		<!-- <panel classname="HTMLInfoPanel"/>-->
 		<!-- <panel classname="HTMLLicencePanel"/> -->
-		<panel classname="TargetPanel"/>
+		<panel classname="TargetPanel">
+			<configuration>
+				<ShowCreateDirectoryMessage>false</ShowCreateDirectoryMessage>
+				<ShowExistingDirectoryWarning>false</ShowExistingDirectoryWarning>
+			</configuration>
+		</panel>
 		<panel classname="PacksPanel"/>
 		<panel classname="SummaryPanel"/>
 		<panel classname="InstallPanel"/>
@@ -88,16 +90,16 @@
 		<pack name="${project.name}" required="yes">
 			<description>Required program files.</description>
 			<fileset dir="${product-pack-folder}" targetdir="$INSTALL_PATH"/>
-			<executable stage="never" keep="true">
-				<os family="unix"/>
+			<executable stage="never">
+				<os family="linux"/>
 				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
 			</executable>
-			<executable stage="never" keep="true">
+			<executable stage="never">
 				<os family="mac"/>
 				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
 				<fileset targetdir="$INSTALL_PATH/MacOS" includes="${project.artifactId}"/>
 			</executable>
-			<executable stage="never" keep="true">
+			<executable stage="never">
 				<os family="windows"/>
 				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId}.bat,java.exe,javaw.exe,keytool.exe"/>
 			</executable>
