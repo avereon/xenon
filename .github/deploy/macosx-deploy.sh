@@ -10,9 +10,10 @@ case "${GITHUB_REF}" in
   "refs/heads/stable") RELEASE="stable" ;;
 esac
 
+gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output .github/avereon.keystore .github/avereon.keystore.gpg
+
 rm -rf target/jlink
-#mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
-mvn verify -B -U -V -P platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
 echo "Build date=$(date)"
 echo "[github.ref]=${GITHUB_REF}"
