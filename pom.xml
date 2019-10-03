@@ -412,7 +412,7 @@
 										<argument>${basedir}/target/jlink</argument>
 										<argument>--launcher</argument>
 										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Program</argument>
-										<!--<argument>&#45;&#45;strip-debug</argument>-->
+										<argument>--ignore-signing-information</argument>
 										<argument>--no-header-files</argument>
 										<argument>--no-man-pages</argument>
 										<!-- Valid value: 0, 1, 2 -->
