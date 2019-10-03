@@ -17,6 +17,8 @@ jobs:
         java-version: 13
     - name: Build & Test & Deploy
       env:
+        AVN_GPG_PASSWORD: ${{ secrets.AVN_GPG_PASSWORD }}
+        AVN_KEYSTORE_PASSWORD: ${{ secrets.AVN_KEYSTORE_PASSWORD }}
         AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
         AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
       run: |
