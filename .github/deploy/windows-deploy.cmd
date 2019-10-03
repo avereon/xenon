@@ -15,7 +15,7 @@ echo "Build timestamp=!DATEVAL! !TIMEVAL!"
 echo "[github.ref]=!GITHUB_REF!"
 echo "Deploy path=/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!"
 
-cmd /c gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output .github\avereon.keystore .github\avereon.keystore.gpg
+cmd /c gpg --quiet --batch --yes --decrypt --passphrase=!AVN_GPG_PASSWORD! --output .github\avereon.keystore .github\avereon.keystore.gpg
 
 rmdir /S /Q target\jlink
 cmd /c mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
