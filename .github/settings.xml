@@ -37,4 +37,18 @@
 <!--		</mirror>-->
 	</mirrors>
 
+	<activeProfiles>
+		<activeProfile>avn</activeProfile>
+	</activeProfiles>
+
+	<profiles>
+		<profile>
+			<id>avn</id>
+			<properties>
+				<avereon.keystore>.github/avereon.keystore</avereon.keystore>
+				<avereon.keystore.password>{env.AVN_KEYSTORE_PASSWORD}</avereon.keystore.password>
+			</properties>
+		</profile>
+	</profiles>
+
 </settings>

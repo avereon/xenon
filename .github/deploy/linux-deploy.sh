@@ -27,9 +27,9 @@ mkdir ${HOME}/.ssh
 #echo "${TRAVIS_SSH_PUB}" > ${HOME}/.ssh/id_rsa.pub
 #echo 'avereon.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw=' >> ${HOME}/.ssh/known_hosts
 
-gpg --quiet --batch --yes --decrypt --passphrase="$AVN_KEYSTORE_PASSWORD" --output $HOME/.ssh/id_rsa .github/deploy/id_rsa.gpg
-gpg --quiet --batch --yes --decrypt --passphrase="$AVN_KEYSTORE_PASSWORD" --output $HOME/.ssh/id_rsa.pub .github/deploy/id_rsa.pub.gpg
-gpg --quiet --batch --yes --decrypt --passphrase="$AVN_KEYSTORE_PASSWORD" --output $HOME/.ssh/known_hosts .github/deploy/known_hosts.gpg
+gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/id_rsa .github/deploy/id_rsa.gpg
+gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/id_rsa.pub .github/deploy/id_rsa.pub.gpg
+gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/known_hosts .github/deploy/known_hosts.gpg
 
 chmod 600 ${HOME}/.ssh/id_rsa
 chmod 600 ${HOME}/.ssh/id_rsa.pub
