@@ -15,11 +15,11 @@
 			<username>${env.AVN_REPO_USERNAME}</username>
 			<password>${env.AVN_REPO_PASSWORD}</password>
 		</server>
-<!--		<server>-->
-<!--			<id>central-mirror</id>-->
-<!--			<username>${env.AVN_REPO_USERNAME}</username>-->
-<!--			<password>${env.AVN_REPO_PASSWORD}</password>-->
-<!--		</server>-->
+		<server>
+			<id>central-mirror</id>
+			<username>${env.AVN_REPO_USERNAME}</username>
+			<password>${env.AVN_REPO_PASSWORD}</password>
+		</server>
 	</servers>
 
 	<mirrors>
@@ -29,12 +29,12 @@
 			<url>https://repo.avereon.com/avn</url>
 			<mirrorOf>*,!central</mirrorOf>
 		</mirror>
-<!--		<mirror>-->
-<!--			<id>central-mirror</id>-->
-<!--			<name>Mirror to Avereon Maven Repository</name>-->
-<!--			<url>https://repo.avereon.com/central</url>-->
-<!--			<mirrorOf>central</mirrorOf>-->
-<!--		</mirror>-->
+		<mirror>
+			<id>central-mirror</id>
+			<name>Mirror to Avereon Maven Repository</name>
+			<url>https://repo.avereon.com/central</url>
+			<mirrorOf>central</mirrorOf>
+		</mirror>
 	</mirrors>
 
 	<activeProfiles>
