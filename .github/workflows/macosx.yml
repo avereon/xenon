@@ -11,10 +11,12 @@ jobs:
     steps:
       - name: Fetch sources
         uses: actions/checkout@v1
-      - name: Set up JDK
+      - name: Install JDK
         uses: actions/setup-java@v1
         with:
           java-version: 13
+      - name: Install Tools
+        run: brew install gpg
       - name: Deploy
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
         env:
