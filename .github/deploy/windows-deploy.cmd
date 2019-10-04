@@ -17,6 +17,7 @@ echo "Deploy path=/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!"
 
 cmd /c gpg --quiet --batch --yes --decrypt --passphrase=!AVN_GPG_PASSWORD! --output .github\avereon.keystore .github\avereon.keystore.gpg
 rmdir /S /Q target\jlink && cmd /c mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+if %ERRORLEVEL% GEQ 1 exit 1
 
 rmdir /S /Q "!SSHHOME!"
 mkdir "!SSHHOME!"
@@ -30,5 +31,8 @@ sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
 scp -B target/install.jar travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+if %ERRORLEVEL% GEQ 1 exit 1
 scp -B target/product.jar travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+if %ERRORLEVEL% GEQ 1 exit 1
 scp -B target/main/java/META-INF/product.card travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+if %ERRORLEVEL% GEQ 1 exit 1
