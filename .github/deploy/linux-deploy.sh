@@ -38,11 +38,11 @@ sha1sum $HOME/.ssh/id_rsa.pub
 sha1sum $HOME/.ssh/known_hosts
 
 # Test sending before building
-scp -B source/main/resources/ascii-art-title.txt travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
+scp -B source/main/resources/ascii-art-title.txt travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
 
 rm -rf target/jlink
 mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 
-scp -B target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
-scp -B target/*product.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
-scp -B target/main/java/META-INF/*.card travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM
+scp -B target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+scp -B target/*product.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+scp -B target/main/java/META-INF/*.card travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1

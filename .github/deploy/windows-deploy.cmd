@@ -29,7 +29,7 @@ sha1sum "!SSHHOME!\id_rsa"
 sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
-# Test sending before building
+rem Test sending before building
 scp -B source/main/resources/ascii-art-title.txt travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
 
 rmdir /S /Q target\jlink
