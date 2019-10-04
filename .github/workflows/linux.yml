@@ -23,9 +23,6 @@ jobs:
           AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
           AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
           GITHUB_REF: ${{ github.ref }}
-          MATRIX_OS: ${{ matrix.os }}
-          TRAVIS_SSH_KEY: ${{ secrets.TRAVIS_SSH_KEY }}
-          TRAVIS_SSH_PUB: ${{ secrets.TRAVIS_SSH_PUB }}
         run: |
           export DISPLAY=:99
           Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
