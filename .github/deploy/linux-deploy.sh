@@ -10,11 +10,6 @@ case "${GITHUB_REF}" in
   "refs/heads/stable") RELEASE="stable" ;;
 esac
 
-if [ "${PLATFORM}" == "linux" ]; then
-  export DISPLAY=:99
-  Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
-fi
-
 echo "Build date=$(date)"
 echo "[github.ref]=${GITHUB_REF}"
 echo "Deploy path=/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
@@ -37,7 +32,7 @@ sha1sum "$HOME/.ssh/id_rsa"
 sha1sum "$HOME/.ssh/id_rsa.pub"
 sha1sum "$HOME/.ssh/known_hosts"
 
-scp -Bv target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+scp -B target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
 if [ $? -ne 0 ]; then exit 1; fi
 scp -B target/*product.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
 if [ $? -ne 0 ]; then exit 1; fi
