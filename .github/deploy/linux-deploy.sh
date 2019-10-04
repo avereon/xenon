@@ -39,10 +39,15 @@ sha1sum $HOME/.ssh/known_hosts
 
 # Test sending before building
 scp -B source/main/resources/ascii-art-title.txt travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+if [ $? -ne 0 ]; then exit 1; fi
 
 rm -rf target/jlink
 mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+if [ $? -ne 0 ]; then exit 1; fi
 
 scp -B target/*install.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+if [ $? -ne 0 ]; then exit 1; fi
 scp -B target/*product.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+if [ $? -ne 0 ]; then exit 1; fi
 scp -Bv target/main/java/META-INF/*.card travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM 2>&1
+if [ $? -ne 0 ]; then exit 1; fi
