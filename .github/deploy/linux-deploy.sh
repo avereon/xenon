@@ -15,9 +15,6 @@ echo "[github.ref]=${GITHUB_REF}"
 echo "Deploy path=/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM"
 
 gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output .github/avereon.keystore .github/avereon.keystore.gpg
-ls -al .github/avereon.keystore
-sha1sum .github/avereon.keystore
-
 rm -rf target/jlink && mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
 if [ $? -ne 0 ]; then exit 1; fi
 

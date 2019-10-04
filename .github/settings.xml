@@ -38,15 +38,15 @@
 	</mirrors>
 
 	<activeProfiles>
-		<activeProfile>avn</activeProfile>
+		<activeProfile>signjar</activeProfile>
 	</activeProfiles>
 
 	<profiles>
 		<profile>
-			<id>avn</id>
+			<id>signjar</id>
 			<properties>
-				<avereon.keystore>.github/avereon.keystore</avereon.keystore>
-				<avereon.keystore.password>${env.AVN_KEYSTORE_PASSWORD}</avereon.keystore.password>
+				<jarsigner.keystore>.github/avereon.keystore</jarsigner.keystore>
+				<jarsigner.keystore.password>${env.AVN_KEYSTORE_PASSWORD}</jarsigner.keystore.password>
 			</properties>
 		</profile>
 	</profiles>
