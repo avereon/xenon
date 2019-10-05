@@ -35,3 +35,12 @@ The framework provides the following basic features:
 
 * This project is owned by Avereon
 * Contact mark@avereon.com for information
+
+### Dependency Licenses
+
+* Avereon Zevra - [MIT](https://avereon.com/licenses/mit/)
+* Avereon Zenna - [MIT](https://avereon.com/licenses/mit/)
+* OpenJDK - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
+* OpenJFX - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
+* MigLayout - [BSD](http://www.debian.org/misc/bsd.license)
+* SLF4J - [MIT](https://www.slf4j.org/license.html)

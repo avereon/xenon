@@ -22,6 +22,20 @@
 	<description>A Java application platform for developing modular cross-platform applications.</description>
 	<inceptionYear>2017</inceptionYear>
 
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>https://avereon.com/licenses/mit/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/avereon/xenon.git</connection>
+		<developerConnection>scm:git:https://github.com/avereon/xenon.git</developerConnection>
+		<url>https://github.com/avereon/xenon</url>
+	</scm>
+
 	<developers>
 		<developer>
 			<name>Mark Soderquist</name>
