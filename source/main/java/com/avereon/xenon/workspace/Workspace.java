@@ -387,8 +387,7 @@ public class Workspace implements Configurable {
 			event.consume();
 		} );
 
-		// TODO Get balloon timeout from settings
-		int balloonTimeout = 5000;
+		int balloonTimeout = getProgram().getProgramSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
 
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
 			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );

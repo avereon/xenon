@@ -717,6 +717,10 @@ public class Program extends Application implements ProgramProduct {
 		return settingsManager;
 	}
 
+	public final Settings getProgramSettings() {
+		return programSettings;
+	}
+
 	public final ToolManager getToolManager() {
 		return toolManager;
 	}
