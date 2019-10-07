@@ -72,15 +72,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public enum FoundOption {
-		SELECT,
+		NOTIFY,
 		STORE,
 		APPLY
-	}
-
-	public enum ApplyOption {
-		VERIFY,
-		IGNORE,
-		RESTART
 	}
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
@@ -101,11 +95,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private static final String SCHEDULE_HOUR = CHECK + "-schedule-hour";
 
-	private static final String NOTICE = "product-update-notice";
-
 	private static final String FOUND = "product-update-found";
-
-	private static final String APPLY = "product-update-apply";
 
 	private static final String REPOS_SETTINGS_KEY = "repos";
 
@@ -140,8 +130,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private CheckOption checkOption;
 
 	private FoundOption foundOption;
-
-	private ApplyOption applyOption;
 
 	private Map<String, Product> products;
 
@@ -469,15 +457,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		settings.set( FOUND, foundOption.name().toLowerCase() );
 	}
 
-	public ApplyOption getApplyOption() {
-		return applyOption;
-	}
-
-	public void setApplyOption( ApplyOption applyOption ) {
-		this.applyOption = applyOption;
-		settings.set( APPLY, applyOption.name().toLowerCase() );
-	}
-
 	public long getLastUpdateCheck() {
 		return getSettings().get( LAST_CHECK_TIME, Long.class, 0L );
 	}
@@ -557,7 +536,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			checkSettings.set( NEXT_CHECK_TIME, nextCheckTime );
 
 			// Schedule the update check task
-			timer.schedule( task = new UpdateCheckTask( this ), delay );
+			timer.schedule( task = new UpdateCheckTask( this ), delay < 0 ? 0 : delay );
 
 			// Log the next update check time
 			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
@@ -825,13 +804,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// What are these settings if the update node is retrieved below?
 		this.settings = settings;
 
-		if( "STAGE".equals( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() ) ) {
+		if( "STAGE".equals( settings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() ) ) {
 			settings.set( FOUND, FoundOption.APPLY.name().toLowerCase() );
 		}
 
 		this.checkOption = CheckOption.valueOf( settings.get( CHECK, CheckOption.MANUAL.name() ).toUpperCase() );
-		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.SELECT.name() ).toUpperCase() );
-		this.applyOption = ApplyOption.valueOf( settings.get( APPLY, ApplyOption.VERIFY.name() ).toUpperCase() );
+		this.foundOption = FoundOption.valueOf( settings.get( FOUND, FoundOption.NOTIFY.name() ).toUpperCase() );
 
 		// FIXME These settings are apparently used to store the catalogs and updates
 		// Maybe the catalogs and updates should be stored in a different location

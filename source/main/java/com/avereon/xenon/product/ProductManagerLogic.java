@@ -281,7 +281,7 @@ public class ProductManagerLogic {
 			}
 		} else {
 			switch( program.getProductManager().getFoundOption() ) {
-				case SELECT: {
+				case NOTIFY: {
 					notifyUserOfUpdates();
 					break;
 				}
