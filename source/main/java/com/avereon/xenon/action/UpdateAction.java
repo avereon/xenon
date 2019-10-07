@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.update.ProgramProductManager;
+import com.avereon.xenon.product.ProgramProductManager;
 import javafx.event.ActionEvent;
 
 public class UpdateAction extends Action {
