@@ -82,23 +82,10 @@
 			</group>
 
 			<group id="updates-actions">
-				<setting key="product-update-notice" editor="combobox">
-					<option key="once"/>
-					<option key="minute-30"/>
-					<option key="hour-1"/>
-					<option key="hour-3"/>
-					<option key="none"/>
-				</setting>
 				<setting key="product-update-found" editor="combobox">
-					<option key="select"/>
-					<option key="store"/>
 					<option key="apply"/>
-				</setting>
-				<setting key="product-update-apply" editor="combobox">
-					<dependency key="product-update-found" operator="not" value="store"/>
-					<option key="verify"/>
-					<option key="ignore"/>
-					<option key="restart"/>
+					<option key="notify"/>
+					<option key="store"/>
 				</setting>
 			</group>
 
@@ -194,6 +181,18 @@
 				</setting>
 				<setting key="workspace-scenery-tint-color2" editor="color">
 					<dependency key="workspace-scenery-tint-enabled" value="true"/>
+				</setting>
+			</group>
+		</page>
+
+		<page id="notice">
+			<group id="notice">
+				<setting key="notice-balloon-timeout" editor="combobox">
+					<option value="5000"/>
+					<option value="4000"/>
+					<option value="3000"/>
+					<option value="2000"/>
+					<option value="1000"/>
 				</setting>
 			</group>
 		</page>

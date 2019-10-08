@@ -1,4 +1,4 @@
-package com.avereon.xenon.update;
+package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
 import com.avereon.util.LogUtil;

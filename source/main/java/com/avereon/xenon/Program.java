@@ -32,10 +32,10 @@ import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.task.TaskTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
-import com.avereon.xenon.update.ProductManager;
-import com.avereon.xenon.update.ProductManagerLogic;
-import com.avereon.xenon.update.ProgramProductManager;
-import com.avereon.xenon.update.RepoState;
+import com.avereon.xenon.product.ProductManager;
+import com.avereon.xenon.product.ProductManagerLogic;
+import com.avereon.xenon.product.ProgramProductManager;
+import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.util.DialogUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -715,6 +715,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public final SettingsManager getSettingsManager() {
 		return settingsManager;
+	}
+
+	public final Settings getProgramSettings() {
+		return programSettings;
 	}
 
 	public final ToolManager getToolManager() {

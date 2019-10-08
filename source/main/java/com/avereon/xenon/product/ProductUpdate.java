@@ -1,4 +1,4 @@
-package com.avereon.xenon.update;
+package com.avereon.xenon.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.avereon.product.ProductCard;

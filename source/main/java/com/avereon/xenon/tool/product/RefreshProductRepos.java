@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.update.RepoState;
-import com.avereon.xenon.update.RepoStateComparator;
+import com.avereon.xenon.product.RepoState;
+import com.avereon.xenon.product.RepoStateComparator;
 import javafx.application.Platform;
 
 import java.util.ArrayList;

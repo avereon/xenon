@@ -5,7 +5,7 @@ import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.update.RepoState;
+import com.avereon.xenon.product.RepoState;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

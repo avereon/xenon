@@ -1,4 +1,4 @@
-package com.avereon.xenon.update;
+package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.xenon.ProgramTestCase;
@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.avereon.xenon.update.ProductMatcher.matches;
+import static com.avereon.xenon.product.ProductMatcher.matches;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
