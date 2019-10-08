@@ -1167,12 +1167,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					setFoundOption( FoundOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 					break;
 				}
-				case APPLY: {
-					setApplyOption( ApplyOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
-					break;
-				}
 			}
-
 		}
 
 	}
