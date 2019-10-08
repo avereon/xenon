@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -208,7 +209,7 @@ public class Program extends Application implements ProgramProduct {
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
 		// Create the program settings, depends on settings manager and default settings values
-		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
+		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( defaultSettingsValues );
 		time( "program-settings" );
 
@@ -228,15 +229,25 @@ public class Program extends Application implements ProgramProduct {
 		}
 		time( "help-check" );
 
-		// Run the peer check before processing commands in case there is a peer already
-		if( !TestUtil.isTest() && peerCheck() ) {
+		// Run the peer check before processing actions in case there is a peer already
+		// If this instance is a peer, start the peer and wait to exit
+		int port = programSettings.get( "program-port", Integer.class, 0 );
+		if( !TestUtil.isTest() && peerCheck( port ) ) {
+			ProgramPeer peer = new ProgramPeer( this, port );
+			peer.run();
+			//peer.await();
 			requestExit( true );
 			return;
 		}
 		time( "peer-check" );
 
-		// If there is not a peer, process the control commands before showing the splash screen
-		if( processControlCommands( getProgramParameters() ) ) return;
+		// NOTE At this point we know we are a host not a peer
+
+		// If this instance is a host, process the control commands before showing the splash screen
+		if( processCliActions( getProgramParameters(), true ) ) {
+			requestExit( true );
+			return;
+		}
 		time( "control-commands" );
 
 		// Create the task manager, depends on program settings
@@ -586,10 +597,13 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Restarting..." );
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	public void requestUpdate( String... restartCommands ) {
 		// Register a shutdown hook to update the program
 		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
 		try {
+			// FIXME This can take a long time and has a lot of IO...locking the UI
 			programShutdownHook.configureForUpdate( restartCommands );
 			Runtime.getRuntime().addShutdownHook( programShutdownHook );
 		} catch( IOException exception ) {
@@ -600,13 +614,14 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// Request the program stop
-		if( !requestExit( true ) ) {
-			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
-			return;
-		}
+		boolean exiting = requestExit( true );
 
-		// The shutdown hook should update the program
-		log.info( "Updating..." );
+		if( exiting ) {
+			log.info( "Updating..." );
+			// The shutdown hook should update the program
+		} else {
+			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
+		}
 	}
 
 	public boolean requestExit( boolean skipChecks ) {
@@ -633,9 +648,10 @@ public class Program extends Application implements ProgramProduct {
 		// The workspaceManager can be null if the application is already running as a peer
 		if( workspaceManager != null ) workspaceManager.hideWindows();
 
-		if( !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive) ) Platform.exit();
+		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
+		if( exiting ) Platform.exit();
 
-		return true;
+		return exiting;
 	}
 
 	public boolean isRunning() {
@@ -789,39 +805,56 @@ public class Program extends Application implements ProgramProduct {
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private boolean peerCheck() throws InterruptedException {
-		int port = programSettings.get( "program-port", Integer.class, 0 );
+	private boolean peerCheck( int port ) throws InterruptedException {
 		programServer = new ProgramServer( this, port );
 
 		// If the program server starts this process is a host, not a peer
 		programServer.start().awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		if( programServer.isRunning() ) return false;
-
-		new ProgramPeer( this, port ).run();
-		return true;
+		return !programServer.isRunning();
 	}
 
 	private boolean isHost() {
-		return programServer != null;
+		return programServer.isRunning();
 	}
 
 	private boolean isPeer() {
-		return programServer == null;
+		return !isHost();
 	}
 
 	/**
 	 * Process program commands that affect the startup behavior of the product.
 	 *
 	 * @param parameters The command line parameters
-	 * @return True if the program should exit, false otherwise.
+	 * @return True if the program should exit when it is a host
 	 */
-	boolean processControlCommands( com.avereon.util.Parameters parameters ) {
-		if( parameters.isSet( ProgramFlag.STATUS ) ) {
-			if( isHost() ) printStatus();
-			return isPeer();
-		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
-			if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
+		if( parameters.isSet( ProgramFlag.HELLO ) ) {
+			if( startup ) {
+				log.warn( "No existing host to say hello to, just talking to myself!" );
+			} else {
+				log.warn( "Hello peer. Good to hear from you!" );
+			}
 			return true;
+		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			printStatus( startup );
+			return true;
+		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
+			if( startup ) {
+				if( isHost() ) log.warn( "Program is already stopped!" );
+			} else {
+				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+			}
+			return true;
+		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
+			if( startup ) {
+				log.warn( "No existing host to watch, I'm out!" );
+			} else {
+				log.warn( "A watcher has connected!" );
+			}
+			return true;
+		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
+			if( !startup ) getWorkspaceManager().showActiveWorkspace();
+			return false;
 		}
 
 		return false;
@@ -849,14 +882,13 @@ public class Program extends Application implements ProgramProduct {
 	 * @param parameters The command line parameters
 	 */
 	void processResources( com.avereon.util.Parameters parameters ) {
-		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
-		Platform.runLater( () -> {
-			current.show();
-			current.requestFocus();
-		} );
+		List<String> uris = parameters.getUris();
+		if( uris.size() == 0 ) return;
+
+		getWorkspaceManager().showActiveWorkspace();
 
 		// Open the resources provided on the command line
-		for( String uri : parameters.getUris() ) {
+		for( String uri : uris ) {
 			try {
 				getResourceManager().openResourcesAndWait( getResourceManager().createResource( uri ) );
 			} catch( ExecutionException | ResourceException exception ) {
@@ -911,18 +943,29 @@ public class Program extends Application implements ProgramProduct {
 			"os.arch" ) );
 	}
 
-	private void printStatus() {
-		log.info( "Status: " + (isRunning() ? "RUNNING" : "STOPPED") );
+	private void printStatus( boolean startup ) {
+		String status = startup ? "STOPPED" : "RUNNING";
+		if( getWorkspaceManager() != null && !getWorkspaceManager().getActiveWorkspace().getStage().isShowing() ) status = "HIDDEN";
+		log.info( "Status: " + status );
 	}
 
 	private void printHelp( String category ) {
-		if( category == null ) category = "general";
+		if( "true".equals( category ) ) category = "general";
+		InputStream input = getClass().getResourceAsStream( "help/" + category + ".txt" );
 
-		switch( category ) {
-			case "general": {
-				System.out.println( "Usage: " + card.getArtifact() + "[command...] [file...]" );
-				break;
+		if( input == null ) {
+			System.out.println( "No help for category: " + category );
+			return;
+		}
+
+		try {
+			String line;
+			BufferedReader reader = new BufferedReader( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
+			while( (line = reader.readLine()) != null ) {
+				System.out.println( line );
 			}
+		} catch( Exception exception ) {
+			System.out.println( "Unable to get help for category: " + category );
 		}
 	}
 

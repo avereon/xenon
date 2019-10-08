@@ -4,11 +4,15 @@ import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
 
 public class ProgramPeer {
 
@@ -31,18 +35,62 @@ public class ProgramPeer {
 			log.info( "Program already running" );
 		}
 
-		// SEND the command line parameters to a host
 		try {
 			Socket socket = new Socket( InetAddress.getLoopbackAddress(), port );
+			sendCommands( socket );
+			readMessages( socket );
+		} catch( IOException exception ) {
+			log.error( "Error reading commands to program", exception );
+		}
+	}
+
+	private void sendCommands( Socket socket ) {
+		try {
 			List<String> commandList = program.getProgramParameters().getOriginalCommands();
-			String[] commands = commandList.toArray( new String[ commandList.size() ] );
-			new ObjectOutputStream( socket.getOutputStream() ).writeObject( commands );
+			String[] commands = commandList.toArray( new String[ 0 ] );
+			ObjectOutputStream commandStream = new ObjectOutputStream( socket.getOutputStream() );
+			commandStream.writeObject( commands );
+			commandStream.flush();
+		} catch( IOException exception ) {
+			log.error( "Error sending commands to host", exception );
+		}
+	}
 
-			// TODO If watch command specified, read log events from the host and submit them to the logging framework
-
+	private void readMessages( Socket socket ) {
+		try {
+			if( program.getProgramParameters().isSet( ProgramFlag.WATCH ) ) {
+				watchAll( socket.getInputStream() );
+			} else if( program.getProgramParameters().anySet( ProgramFlag.ACTIONS ) ) {
+				watchOne( socket.getInputStream() );
+			}
 			socket.close();
-		} catch( IOException socketException ) {
-			log.error( "Error sending commands to program", socketException );
+		} catch( IOException exception ) {
+			log.debug( "Host is done sending messages" );
+		} catch( Exception exception ) {
+			log.error( "Error reading commands from host", exception );
+		}
+	}
+
+	private void watchOne( InputStream input ) throws IOException, ClassNotFoundException {
+		ObjectInputStream objectInput = new ObjectInputStream( input );
+		Object object = objectInput.readObject();
+		if( object == null ) return;
+		if( object instanceof LogRecord ) {
+			LogManager.getLogManager().getLogger( "" ).log( (LogRecord)object );
+		} else {
+			log.info( String.valueOf( object ) );
+		}
+	}
+
+	private void watchAll( InputStream input ) throws IOException, ClassNotFoundException {
+		ObjectInputStream objectInput = new ObjectInputStream( input );
+		Object object;
+		while( (object = objectInput.readObject()) != null ) {
+			if( object instanceof LogRecord ) {
+				LogManager.getLogManager().getLogger( "" ).log( (LogRecord)object );
+			} else {
+				log.info( String.valueOf( object ) );
+			}
 		}
 	}
 

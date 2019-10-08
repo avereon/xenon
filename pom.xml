@@ -65,11 +65,11 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
+		<!-- Version numbers updated 02 Oct 2019 -->
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
 		<!--JavaFX must be version 13 or higher for DnD to function correctly -->
 		<javafx.version>13</javafx.version>
-		<undofx.version>2.1.0</undofx.version>
 		<slf4j.version>1.8.0-beta4</slf4j.version>
 		<miglayout.version>5.2</miglayout.version>
 
@@ -426,7 +426,7 @@
 										<argument>${basedir}/target/jlink</argument>
 										<argument>--launcher</argument>
 										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Program</argument>
-										<!--<argument>&#45;&#45;strip-debug</argument>-->
+										<argument>--ignore-signing-information</argument>
 										<argument>--no-header-files</argument>
 										<argument>--no-man-pages</argument>
 										<!-- Valid value: 0, 1, 2 -->
@@ -450,10 +450,10 @@
 								</goals>
 								<configuration>
 									<attach>false</attach>
-									<descriptors>
-										<descriptor>${basedir}/source/main/assembly/install-${product.platform}.xml</descriptor>
-									</descriptors>
 									<finalName>${product-pack-folder}</finalName>
+									<descriptorRefs>
+										<descriptorRef>install-${product.platform}</descriptorRef>
+									</descriptorRefs>
 									<appendAssemblyId>false</appendAssemblyId>
 								</configuration>
 							</execution>

@@ -15,17 +15,15 @@
 		</authors>
 		<javaversion>1.8</javaversion>
 		<run-privileged condition="izpack.windowsinstall"/>
-		<!-- Putting the uninstaller in the mod folder causes the program not to
-		start because it is not a Java Module. The uninstaller jar must go in a
-		different folder. -->
-		<uninstaller name="uninstall.jar" path="${INSTALL_PATH}/jar"/>
+		<uninstaller write="false"/>
 		<writeinstallationinformation>no</writeinstallationinformation>
 	</info>
 
 	<variables>
 		<variable name="IDENTIFIER" value="${project.artifactId}"/>
-		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}\${APP_NAME}"/>
+		<variable name="TargetPanel.dir.mac" value="${APPLICATIONS_DEFAULT_ROOT}"/>
 		<variable name="TargetPanel.dir.unix" value="${APPLICATIONS_DEFAULT_ROOT}.local/share/${IDENTIFIER}"/>
+		<variable name="TargetPanel.dir.windows" value="@{ENV[PROGRAMFILES]}\${APP_NAME}"/>
 		<variable name="os.arch" value="${SYSTEM[os.arch]}"/>
 	</variables>
 
@@ -38,10 +36,17 @@
 			<name>os.arch</name>
 			<value>amd64</value>
 		</condition>
+		<condition type="java" id="installonmacosx">
+			<java>
+				<class>com.izforge.izpack.util.OsVersion</class>
+				<field>IS_OSX</field>
+			</java>
+			<returnvalue type="boolean">true</returnvalue>
+		</condition>
 	</conditions>
 
 	<!-- Use the golden ration for the frame size -->
-	<guiprefs width="600" height="370" resizable="no">
+	<guiprefs width="600" height="380" resizable="no">
 		<modifier key="useFlags" value="yes"/>
 		<modifier key="langDisplayType" value="native"/>
 	</guiprefs>
@@ -68,11 +73,16 @@
 		<panel classname="HTMLHelloPanel"/>
 		<!-- <panel classname="HTMLInfoPanel"/>-->
 		<!-- <panel classname="HTMLLicencePanel"/> -->
-		<panel classname="TargetPanel"/>
+		<panel classname="TargetPanel">
+			<configuration>
+				<ShowCreateDirectoryMessage>false</ShowCreateDirectoryMessage>
+				<ShowExistingDirectoryWarning>false</ShowExistingDirectoryWarning>
+			</configuration>
+		</panel>
 		<panel classname="PacksPanel"/>
 		<panel classname="SummaryPanel"/>
 		<panel classname="InstallPanel"/>
-		<panel classname="ShortcutPanel"/>
+		<panel classname="ShortcutPanel" condition="!installonmacosx"/>
 		<panel classname="SimpleFinishPanel"/>
 	</panels>
 
@@ -80,13 +90,18 @@
 		<pack name="${project.name}" required="yes">
 			<description>Required program files.</description>
 			<fileset dir="${product-pack-folder}" targetdir="$INSTALL_PATH"/>
-			<executable stage="never" keep="true">
-				<os family="unix"/>
-				<fileset targetdir="$INSTALL_PATH/bin" includes="java,keytool,${project.artifactId}"/>
+			<executable stage="never">
+				<os family="linux"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId},java,keytool"/>
 			</executable>
-			<executable stage="never" keep="true">
+			<executable stage="never">
+				<os family="mac_osx"/>
+				<fileset targetdir="$INSTALL_PATH/${project.name}.app/Contents/bin" includes="${project.artifactId},java,keytool"/>
+				<fileset targetdir="$INSTALL_PATH/${project.name}.app/Contents/MacOS" includes="${project.artifactId}"/>
+			</executable>
+			<executable stage="never">
 				<os family="windows"/>
-				<fileset targetdir="$INSTALL_PATH/bin" includes="java.exe,javaw.exe,keytool.exe,${project.artifactId}.bat"/>
+				<fileset targetdir="$INSTALL_PATH/bin" includes="${project.artifactId}.bat,java.exe,javaw.exe,keytool.exe"/>
 			</executable>
 		</pack>
 	</packs>

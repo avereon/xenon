@@ -2,10 +2,10 @@
 ###  Starting Xenon
 Xenon is a Java module and as such should be started using the Java 
 module command line parameters. Xenon has also been distributed as a 
-jlinked application and should be executed using the provided Java runtime. To 
-start Xenon use the following commands:
+jlink-ed application and should be executed using the provided Java runtime. 
+To start Xenon use the following commands:
 
-    $(xenon.home)/bin/java -m com.avereon.xenon
+    ${xenon.home}/bin/java -m com.avereon.xenon
 
 It is expected, however, that users use the provided program shortcuts and shell 
 scripts such that Xenon may simply be started by using the command 
@@ -46,20 +46,22 @@ an '=' following the name and before the value (e.g --log-level=info).
 ####
 Program Options
 
-    --status - Show the program status (stopped, running)
-    --version - Show the program version and exit
+    --help - Print the command line help information
+    --status - Show the program status (stopped, running, hidden)
     --stop - Stop the currently running instance (without prompting)
+    --version - Show the program version and exit
+    --watch - Watch the currently running instance
 
 ####
 Logging Options
 
-    --log-level=<level> The logging level for the program. Valid values are
-      none, error, warn, info, debug, trace and all. The default is info.
+    --log-level <level> - The program logging level
       
+      Levels:
       none - Turn off all logging
       error - Events that may leave the program in an unstable state
       warn - Events that usually leave the program in a stable state
-      info - Information messages like normal program events
+      info - Information messages like normal program events (default)
       debug - Extra messages that show high level events
       trace - Extra messages that show low level events
       all - Turn on all logging

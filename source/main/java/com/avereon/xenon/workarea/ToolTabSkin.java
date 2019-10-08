@@ -69,7 +69,8 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragDetected( ( event ) -> {
-			Dragboard board = tab.startDragAndDrop( TransferMode.MOVE, TransferMode.COPY );
+			// WORKAROUND Copy transfer mode not working correctly on Linux and MacOS
+			Dragboard board = tab.startDragAndDrop( TransferMode.MOVE );
 
 			ClipboardContent content = new ClipboardContent();
 			content.putUrl( tool.getResource().getUri().toString() );

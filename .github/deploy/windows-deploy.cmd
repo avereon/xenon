@@ -15,15 +15,16 @@ echo "Build timestamp=!DATEVAL! !TIMEVAL!"
 echo "[github.ref]=!GITHUB_REF!"
 echo "Deploy path=/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!"
 
+cmd /c gpg --quiet --batch --yes --decrypt --passphrase=!AVN_GPG_PASSWORD! --output .github\avereon.keystore .github\avereon.keystore.gpg
 rmdir /S /Q target\jlink
 cmd /c mvn verify -B -U -V -P testui,platform-specific-assemblies --settings .github/settings.xml --file pom.xml
+if %ERRORLEVEL% GEQ 1 exit 1
 
 rmdir /S /Q "!SSHHOME!"
 mkdir "!SSHHOME!"
-echo avereon.com,159.65.110.114 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAX0k5tSvrXVpKl7HNPIPglp6Kyj0Ypty6M3hgR783ViTzhRnojEZvdCXuYiGSVKEzZWr9oYQnLr03qjU/t0SNw= >> !SSHHOME!\known_hosts
-echo.>> !SSHHOME!\known_hosts
-echo !TRAVIS_SSH_PUB! > !SSHHOME!\id_rsa.pub
-for /f "delims=" %%g in ("!TRAVIS_SSH_KEY!") do echo %%g >> "!SSHHOME!\id_rsa"
+cmd /c gpg --quiet --batch --yes --decrypt --passphrase=!AVN_GPG_PASSWORD! --output "!SSHHOME!\id_rsa" .github\id_rsa.gpg
+cmd /c gpg --quiet --batch --yes --decrypt --passphrase=!AVN_GPG_PASSWORD! --output "!SSHHOME!\id_rsa.pub" .github\id_rsa.pub.gpg
+cmd /c gpg --quiet --batch --yes --decrypt --passphrase=!AVN_GPG_PASSWORD! --output "!SSHHOME!\known_hosts" .github\known_hosts.gpg
 
 dir "!SSHHOME!"
 sha1sum "!SSHHOME!\id_rsa"
@@ -31,5 +32,8 @@ sha1sum "!SSHHOME!\id_rsa.pub"
 sha1sum "!SSHHOME!\known_hosts"
 
 scp -B target/install.jar travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+if %ERRORLEVEL% GEQ 1 exit 1
 scp -B target/product.jar travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+if %ERRORLEVEL% GEQ 1 exit 1
 scp -B target/main/java/META-INF/product.card travis@avereon.com:/opt/avn/store/!RELEASE!/!PRODUCT!/!PLATFORM!
+if %ERRORLEVEL% GEQ 1 exit 1

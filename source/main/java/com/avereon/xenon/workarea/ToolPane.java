@@ -69,6 +69,8 @@ public class ToolPane extends Control {
 			WorkpaneView targetView = getWorkpaneView();
 			Workpane targetPane = getWorkpane();
 
+			log.debug( "DnD transfer mode: " + event.getTransferMode() );
+
 			if( event.getTransferMode() == TransferMode.MOVE ) {
 				if( droppedOnArea && sourceTool == targetView.getActiveTool() ) return;
 				sourcePane.removeTool( sourceTool );

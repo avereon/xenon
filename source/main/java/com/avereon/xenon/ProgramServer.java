@@ -8,10 +8,12 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
 public class ProgramServer implements Controllable<ProgramServer> {
@@ -37,7 +39,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 	@Override
 	public boolean isRunning() {
-		return ( server != null && server.isBound() );
+		return (server != null && server.isBound());
 	}
 
 	public ProgramServer start() {
@@ -51,7 +53,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			int localPort = server.getLocalPort();
 			programSettings.set( "program-port", localPort );
 			programSettings.flush();
-			log.info( "Program server listening on port " + localPort );
+			log.debug( "Program server listening on port " + localPort );
 
 			Thread serverThread = new Thread( handler = new SocketHandler(), "ProgramServerThread" );
 			serverThread.setDaemon( true );
@@ -98,26 +100,24 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 	private class SocketHandler implements Runnable {
 
-		private Handler peerLogHandler;
-
 		private boolean run;
 
 		public void run() {
 			run = true;
 			while( run ) {
 				try {
-					// READ the command line parameters from a peer
+					// Read the command line parameters from the peer
 					Socket client = server.accept();
 					String[] commands = (String[])new ObjectInputStream( client.getInputStream() ).readObject();
 					com.avereon.util.Parameters parameters = Parameters.parse( commands );
 					log.warn( "Parameters from peer: " + parameters );
 
-					// TODO Register a log event listener to send events to the peer
-
-					program.processControlCommands( parameters );
+					// Process the parameters and send messages to the peer
+					Handler peerLogHandler = new LogHandler( client );
+					LogManager.getLogManager().getLogger( "" ).addHandler( peerLogHandler );
+					program.processCliActions( parameters, false );
 					program.processResources( parameters );
-
-					// TODO Unregister the log event listener
+					//LogManager.getLogManager().getLogger( "" ).removeHandler( peerLogHandler );
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );
 				} catch( IOException exception ) {
@@ -137,25 +137,49 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			} finally {
 				server = null;
 			}
+			log.debug( "Program server stopped listening" );
 		}
 
 	}
 
 	public class LogHandler extends Handler {
 
+		private Socket client;
+
+		private ObjectOutputStream objectOutput;
+
+		LogHandler( Socket client ) throws IOException {
+			this.client = client;
+			this.objectOutput = new ObjectOutputStream( client.getOutputStream() );
+		}
+
 		@Override
 		public void publish( LogRecord record ) {
-			System.err.println( "SEND TO PEER> " + record.getMessage() );
+			try {
+				if( client.isConnected() ) objectOutput.writeObject( record );
+			} catch( Exception exception ) {
+				close();
+			}
 		}
 
 		@Override
 		public void flush() {
-
+			try {
+				if( client.isConnected() ) objectOutput.flush();
+			} catch( Exception exception ) {
+				close();
+			}
 		}
 
 		@Override
 		public void close() throws SecurityException {
-
+			try {
+				client.close();
+			} catch( IOException exception ) {
+				exception.printStackTrace( System.err );
+			} finally {
+				LogManager.getLogManager().getLogger( "" ).removeHandler( this );
+			}
 		}
 
 	}
