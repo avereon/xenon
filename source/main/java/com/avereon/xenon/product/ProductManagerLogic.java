@@ -1,4 +1,4 @@
-package com.avereon.xenon.update;
+package com.avereon.xenon.product;
 
 import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
@@ -281,7 +281,7 @@ public class ProductManagerLogic {
 			}
 		} else {
 			switch( program.getProductManager().getFoundOption() ) {
-				case SELECT: {
+				case NOTIFY: {
 					notifyUserOfUpdates();
 					break;
 				}

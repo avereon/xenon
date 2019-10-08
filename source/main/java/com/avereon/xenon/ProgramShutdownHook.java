@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.*;
-import com.avereon.xenon.update.ProductUpdate;
+import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.zenna.UpdateCommandBuilder;
 import com.avereon.zenna.UpdateFlag;
 import com.avereon.zenna.UpdateTask;

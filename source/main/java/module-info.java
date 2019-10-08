@@ -22,7 +22,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.task;
 	exports com.avereon.xenon.task.chain;
 	exports com.avereon.xenon.tool;
-	exports com.avereon.xenon.update;
+	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.util;
 	exports com.avereon.xenon.workarea;
 	exports com.avereon.xenon.workspace;
@@ -31,7 +31,7 @@ module com.avereon.xenon {
 	opens settings;
 
 	// WORKAROUND Dev time problem
-	opens com.avereon.xenon.update to com.fasterxml.jackson.databind;
+	opens com.avereon.xenon.product to com.fasterxml.jackson.databind;
 
 	uses Mod;
 }

@@ -1,4 +1,4 @@
-package com.avereon.xenon.update;
+package com.avereon.xenon.product;
 
 import com.avereon.util.TextUtil;
 import org.hamcrest.CoreMatchers;
