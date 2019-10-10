@@ -296,7 +296,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private void registerMod( Mod mod ) {
 		// Treat mods like other products
-		registerProduct( (Product)mod );
+		registerProduct( mod );
 
 		ProductCard card = mod.getCard();
 
@@ -1117,10 +1117,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private void loadStandardMods( Path source ) {
 		// In this context module refers to Java modules and mod refers to program mods
+		ModuleLayer bootModuleLayer = ModuleLayer.boot();
+		Configuration bootConfiguration = bootModuleLayer.configuration();
 		ModuleFinder moduleFinder = ModuleFinder.of( source );
-		Configuration bootConfiguration = ModuleLayer.boot().configuration();
 		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
-		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( ModuleLayer.boot() ), null ).layer();
+		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( bootModuleLayer ), null ).layer();
 		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 	}
 
@@ -1139,7 +1140,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Set the mod install folder
 		card.setInstallFolder( source );
 
-		// Register the product
+		// Register the mod
 		registerMod( mod );
 
 		log.debug( "Mod loaded: " + card.getProductKey() );
