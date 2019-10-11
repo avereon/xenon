@@ -4,7 +4,6 @@ import com.avereon.util.LogUtil;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.icon.BrokenIcon;
 import com.avereon.xenon.task.Task;
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 
@@ -31,28 +30,28 @@ public class IconLibrary {
 		icons = new ConcurrentHashMap<>();
 	}
 
-	public void register( String id, Class<? extends ProgramImage> icon, Object... parameters ) {
+	public void register( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
 		icons.put( id, new IconConfig( icon, parameters ) );
 	}
 
-	public Node getIcon( String id ) {
+	public ProgramIcon getIcon( String id ) {
 		return getIcon( id, DEFAULT_SIZE );
 	}
 
-	public Node getIcon( String id, double size ) {
+	public ProgramIcon getIcon( String id, double size ) {
 		return getIcon( id, null, size );
 	}
 
-	public Node getIcon( String id, String backupId ) {
+	public ProgramIcon getIcon( String id, String backupId ) {
 		return getIcon( id, backupId, DEFAULT_SIZE );
 	}
 
-	public Node getIcon( String id, String backupId, double size ) {
-		Node icon = getIconRenderer( id );
+	public ProgramIcon getIcon( String id, String backupId, double size ) {
+		ProgramIcon icon = getIconRenderer( id );
 		if( icon == null ) icon = getIconFromUrl( id, size );
 		if( icon == null ) icon = getIconRenderer( backupId );
 		if( icon == null ) icon = new BrokenIcon();
-		if( icon instanceof ProgramImage ) ((ProgramImage)icon).setSize( size );
+		icon.setSize( size );
 		return icon;
 	}
 
@@ -70,7 +69,7 @@ public class IconLibrary {
 		return images;
 	}
 
-	private ProgramImage getIconRenderer( String id ) {
+	private ProgramIcon getIconRenderer( String id ) {
 		if( id == null || !icons.containsKey( id ) ) return null;
 
 		try {
@@ -81,7 +80,7 @@ public class IconLibrary {
 		}
 	}
 
-	private Node getIconFromUrl( String url, double size ) {
+	private ProgramIcon getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 
 		ProgramImageIcon icon = new ProgramImageIcon();
@@ -108,14 +107,14 @@ public class IconLibrary {
 
 		private Object[] parameters;
 
-		IconConfig( Class<? extends ProgramImage> icon, Object... parameters ) {
+		IconConfig( Class<? extends ProgramIcon> icon, Object... parameters ) {
 			this.icon = icon;
 			this.parameters = parameters;
 			this.parameterTypes = Arrays.stream( parameters ).map( Object::getClass ).toArray( Class[]::new );
 		}
 
-		ProgramImage newInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-			return icon.getConstructor( parameterTypes ).newInstance( parameters );
+		ProgramIcon newInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+			return (ProgramIcon)icon.getConstructor( parameterTypes ).newInstance( parameters );
 		}
 
 	}
