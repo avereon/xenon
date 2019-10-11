@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.controlsfx.control.ToggleSwitch;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ class RepoPane extends MigPane {
 
 	private TextField urlField;
 
-	private Button enableButton;
+	private ToggleSwitch enableSwitch;
 
 	private Button removeButton;
 
@@ -98,12 +99,14 @@ class RepoPane extends MigPane {
 		HBox.setHgrow( urlLabel, Priority.ALWAYS );
 		HBox.setHgrow( urlField, Priority.ALWAYS );
 
-		enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
+		enableSwitch = new ToggleSwitch();
+		enableSwitch.setSelected( source.isEnabled() );
+		//enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
 		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
 
 		add( iconLabel, "spany, aligny center" );
 		add( nameBox, "growx, pushx" );
-		add( enableButton );
+		add( enableSwitch, "w min" );
 		add( urlBox, "newline, growx" );
 		add( removeButton );
 	}
@@ -123,10 +126,9 @@ class RepoPane extends MigPane {
 		urlField.setText( source.getUrl() );
 		urlBox.getChildren().replaceAll( ( n ) -> (editUrl ? urlField : urlLabel) );
 
-		enableButton.setGraphic( productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
 		removeButton.setDisable( !source.isRemovable() );
 
-		enableButton.setOnAction( ( event ) -> toggleEnabled() );
+		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled(newValue) );
 		removeButton.setOnAction( ( event ) -> removeRepo() );
 
 		if( editName ) this.nameField.requestFocus();
@@ -175,8 +177,8 @@ class RepoPane extends MigPane {
 		setEditUrl( false );
 	}
 
-	private void toggleEnabled() {
-		productTool.getProgram().getProductManager().setRepoEnabled( source, !productTool.getProgram().getProductManager().isRepoEnabled( source ) );
+	private void toggleEnabled( boolean enabled ) {
+		productTool.getProgram().getProductManager().setRepoEnabled( source, enabled );
 		updateRepoState();
 	}
 

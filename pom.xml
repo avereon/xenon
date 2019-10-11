@@ -70,8 +70,9 @@
 		<!--java.version defined in parent pom -->
 		<!--JavaFX must be version 13 or higher for DnD to function correctly -->
 		<javafx.version>13</javafx.version>
-		<slf4j.version>1.8.0-beta4</slf4j.version>
+		<controlsfx.version>11.0.0</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
+		<slf4j.version>1.8.0-beta4</slf4j.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>4.0.15-alpha</testfx.version>
@@ -105,6 +106,12 @@
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
 			<version>${miglayout.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>${controlsfx.version}</version>
 		</dependency>
 
 		<dependency>

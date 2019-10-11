@@ -1,19 +1,20 @@
 import com.avereon.xenon.Mod;
 
 module com.avereon.xenon {
-	requires java.logging;
-	requires java.management;
-	requires java.sql;
-	requires javafx.controls;
-	requires jdk.crypto.ec;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
 	requires com.avereon.zenna;
 	requires com.avereon.zevra;
+	requires java.logging;
+	requires java.management;
+	requires java.sql;
+	requires javafx.controls;
+	requires jdk.crypto.ec;
+	requires miglayout.javafx;
+	requires org.controlsfx.controls;
 	requires org.slf4j;
 	requires org.slf4j.jul;
-	requires miglayout.javafx;
 
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.demo;

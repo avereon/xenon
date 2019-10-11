@@ -5,9 +5,9 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.task.Task;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
+import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.util.FxUtil;
 import javafx.application.Platform;
@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.controlsfx.control.ToggleSwitch;
 import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
@@ -54,12 +55,14 @@ class ProductPane extends MigPane {
 
 	private Label stateLabel;
 
+	private ToggleSwitch toggle;
+
 	private Button actionButton1;
 
 	private Button actionButton2;
 
 	ProductPane( ProductTool tool, ProductCard source, ProductCard update ) {
-		super( "insets 0, gap " + UiFactory.PAD );
+		super( "insets 0, gap " + UiFactory.PAD + ", hidemode 3" );
 
 		this.tool = tool;
 		this.program = tool.getProgram();
@@ -93,6 +96,8 @@ class ProductPane extends MigPane {
 		progress = new ProgressBar();
 		progress.setId( "tool-product-progress" );
 
+		toggle = new ToggleSwitch();
+
 		actionButton1 = new Button( "" );
 		actionButton2 = new Button( "" );
 
@@ -103,6 +108,7 @@ class ProductPane extends MigPane {
 		add( hyphenLabel );
 		add( providerLabel, "pushx" );
 		add( stateContainer, "tag right" );
+		add( toggle, "w min" );
 		add( actionButton1 );
 
 		add( summaryLabel, "newline, spanx 3" );
@@ -143,6 +149,8 @@ class ProductPane extends MigPane {
 				stateLabelKey = "disabled";
 			} else if( isUpdatableProductsPanel ) {
 				stateLabelKey = "available";
+			} else if( isAvailableProductsPanel ) {
+				stateLabelKey = "installed";
 			} else {
 				stateLabelKey = "enabled";
 			}
@@ -162,24 +170,33 @@ class ProductPane extends MigPane {
 
 		// Configure the action buttons
 		if( isInstalledProductsPanel ) {
-			actionButton1.setVisible( true );
-			actionButton1.setDisable( isProgram );
-			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "toggle-enabled" : "toggle-disabled" ) );
-			actionButton1.setOnAction( ( event ) -> toggleEnabled() );
+			toggle.setVisible( true  );
+			toggle.setDisable( isProgram );
+			toggle.setSelected( tool.getProgram().getProductManager().isEnabled( source ) );
+			toggle.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled( newValue ) );
+
+			actionButton1.setVisible( false );
+//			actionButton1.setDisable( isProgram );
+//			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "toggle-enabled" : "toggle-disabled" ) );
+//			actionButton1.setOnAction( ( event ) -> toggleEnabled() );
 
 			actionButton2.setVisible( true );
 			actionButton2.setDisable( isProgram );
 			actionButton2.setGraphic( program.getIconLibrary().getIcon( "remove" ) );
 			actionButton2.setOnAction( ( event ) -> requestRemoveProduct() );
 		} else if( isAvailableProductsPanel ) {
-			actionButton1.setVisible( !isInstalled );
-			actionButton1.setDisable( inProgress );
+			toggle.setVisible( false );
+
+			actionButton1.setVisible( true );
+			actionButton1.setDisable( isInstalled || inProgress );
 			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
 			actionButton1.setOnAction( ( event ) -> installProduct() );
 
 			actionButton2.setVisible( false );
 			actionButton2.setDisable( true );
 		} else if( isUpdatableProductsPanel ) {
+			toggle.setVisible( false );
+
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( inProgress );
 			actionButton1.setGraphic( program.getIconLibrary().getIcon( "download" ) );
@@ -195,8 +212,8 @@ class ProductPane extends MigPane {
 		updateProductState();
 	}
 
-	private void toggleEnabled() {
-		manager.setEnabled( source, !tool.getProgram().getProductManager().isEnabled( source ) );
+	private void toggleEnabled(boolean enabled) {
+		manager.setEnabled( source, enabled );
 		updateProductState();
 	}
 
