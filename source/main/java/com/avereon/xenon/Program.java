@@ -645,7 +645,7 @@ public class Program extends Application implements ProgramProduct {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 
-		// The workspaceManager can be null if the application is already running as a peer
+		// The workspaceManager can be null if the program is already running as a peer
 		if( workspaceManager != null ) workspaceManager.hideWindows();
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
