@@ -992,15 +992,19 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Install all the resource files to the install folder
 		copyProductResources( resources, installFolder );
+		log.debug( "Mod copied to: " + installFolder );
 
 		// Load the mods
 		loadModules( getUserModuleFolder() );
+		log.debug( "Mod loaded from: " + getUserModuleFolder() );
 
 		// Allow the mod to register resources
 		callModRegister( getMod( card.getProductKey() ) );
+		log.debug( "Mod registered as: " + card.getProductKey() );
 
 		// Set the enabled state
 		setEnabled( card, true );
+		log.debug( "Mod enabled: " + card.getProductKey() );
 
 		// Notify listeners of install
 		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
