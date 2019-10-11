@@ -4,8 +4,8 @@ import com.avereon.product.RepoCard;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.task.Task;
 import com.avereon.xenon.product.RepoState;
+import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -101,8 +101,10 @@ class RepoPane extends MigPane {
 
 		enableSwitch = new ToggleSwitch();
 		enableSwitch.setSelected( source.isEnabled() );
-		//enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
+		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled(newValue) );
+
 		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
+		removeButton.setOnAction( ( event ) -> removeRepo() );
 
 		add( iconLabel, "spany, aligny center" );
 		add( nameBox, "growx, pushx" );
@@ -128,14 +130,11 @@ class RepoPane extends MigPane {
 
 		removeButton.setDisable( !source.isRemovable() );
 
-		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled(newValue) );
-		removeButton.setOnAction( ( event ) -> removeRepo() );
-
 		if( editName ) this.nameField.requestFocus();
 		if( editUrl ) this.urlField.requestFocus();
 	}
 
-	void setEditName( boolean editName ) {
+	private void setEditName( boolean editName ) {
 		if( editName && editUrl ) commitEditUrl();
 		this.editName = editName;
 		updateRepoState();

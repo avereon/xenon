@@ -55,7 +55,7 @@ class ProductPane extends MigPane {
 
 	private Label stateLabel;
 
-	private ToggleSwitch toggle;
+	private ToggleSwitch enableSwitch;
 
 	private Button actionButton1;
 
@@ -96,7 +96,8 @@ class ProductPane extends MigPane {
 		progress = new ProgressBar();
 		progress.setId( "tool-product-progress" );
 
-		toggle = new ToggleSwitch();
+		enableSwitch = new ToggleSwitch();
+		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled( newValue ) );
 
 		actionButton1 = new Button( "" );
 		actionButton2 = new Button( "" );
@@ -108,7 +109,7 @@ class ProductPane extends MigPane {
 		add( hyphenLabel );
 		add( providerLabel, "pushx" );
 		add( stateContainer, "tag right" );
-		add( toggle, "w min" );
+		add( enableSwitch, "w min" );
 		add( actionButton1 );
 
 		add( summaryLabel, "newline, spanx 3" );
@@ -170,22 +171,18 @@ class ProductPane extends MigPane {
 
 		// Configure the action buttons
 		if( isInstalledProductsPanel ) {
-			toggle.setVisible( true  );
-			toggle.setDisable( isProgram );
-			toggle.setSelected( tool.getProgram().getProductManager().isEnabled( source ) );
-			toggle.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled( newValue ) );
+			enableSwitch.setVisible( true  );
+			enableSwitch.setDisable( isProgram );
+			enableSwitch.setSelected( tool.getProgram().getProductManager().isEnabled( source ) );
 
 			actionButton1.setVisible( false );
-//			actionButton1.setDisable( isProgram );
-//			actionButton1.setGraphic( program.getIconLibrary().getIcon( isEnabled ? "toggle-enabled" : "toggle-disabled" ) );
-//			actionButton1.setOnAction( ( event ) -> toggleEnabled() );
 
 			actionButton2.setVisible( true );
 			actionButton2.setDisable( isProgram );
 			actionButton2.setGraphic( program.getIconLibrary().getIcon( "remove" ) );
 			actionButton2.setOnAction( ( event ) -> requestRemoveProduct() );
 		} else if( isAvailableProductsPanel ) {
-			toggle.setVisible( false );
+			enableSwitch.setVisible( false );
 
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( isInstalled || inProgress );
@@ -195,7 +192,7 @@ class ProductPane extends MigPane {
 			actionButton2.setVisible( false );
 			actionButton2.setDisable( true );
 		} else if( isUpdatableProductsPanel ) {
-			toggle.setVisible( false );
+			enableSwitch.setVisible( false );
 
 			actionButton1.setVisible( true );
 			actionButton1.setDisable( inProgress );
