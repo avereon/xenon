@@ -1120,19 +1120,23 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ModuleLayer bootModuleLayer = ModuleLayer.boot();
 		Configuration bootConfiguration = bootModuleLayer.configuration();
 		ModuleFinder moduleFinder = ModuleFinder.of( source );
-		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( moduleFinder, ModuleFinder.of(), Set.of() );
+		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), moduleFinder, Set.of() );
 		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( bootModuleLayer ), null ).layer();
 		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 	}
 
 	private void loadMod( Mod mod, Path source ) {
 		ProductCard card = mod.getCard();
+		log.debug( "Loading mod: " + card.getProductKey() + " from " + (source == null ? "classpath" : source) );
 
 		// Ignore included products
 		if( isIncludedProduct( card ) ) return;
 
 		// Check if mod is already loaded
-		if( getMod( card.getProductKey() ) != null ) return;
+		if( getMod( card.getProductKey() ) != null ) {
+			log.warn( "Mod already loaded: " + card.getProductKey() );
+			return;
+		}
 
 		// Initialize the mod
 		mod.init( program, card );
@@ -1143,7 +1147,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Register the mod
 		registerMod( mod );
 
-		log.debug( "Mod loaded: " + card.getProductKey() );
+		log.debug( "Mod loaded: " + card.getProductKey() + " from " + (source == null ? "classpath" : source) );
 	}
 
 	private void unloadMod( Mod mod ) {
