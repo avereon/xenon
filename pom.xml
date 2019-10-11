@@ -103,15 +103,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.miglayout</groupId>
-			<artifactId>miglayout-javafx</artifactId>
-			<version>${miglayout.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-javafx</artifactId>
+			<version>${miglayout.version}</version>
 		</dependency>
 
 		<dependency>
