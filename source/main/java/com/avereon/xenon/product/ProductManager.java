@@ -1116,42 +1116,63 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	private void loadModulePathMods() {
-		ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
+		log.trace( "Loading standard mod from: module-path" );
+		try {
+			ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
+		} catch( Throwable throwable ) {
+			log.error( "Error loading module-path mods", throwable );
+		}
 	}
 
 	private void loadStandardMods( Path source ) {
 		// In this context module refers to Java modules and mod refers to program mods
-		ModuleLayer bootModuleLayer = ModuleLayer.boot();
-		Configuration bootConfiguration = bootModuleLayer.configuration();
-		ModuleFinder moduleFinder = ModuleFinder.of( source );
-		Configuration moduleConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), moduleFinder, Set.of() );
-		ModuleLayer moduleLayer = ModuleLayer.defineModulesWithOneLoader( moduleConfiguration, List.of( bootModuleLayer ), null ).layer();
-		ServiceLoader.load( moduleLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
+
+		log.trace( "Loading standard mod from: " + source );
+
+		// Obtain the boot module layer
+		ModuleLayer bootLayer = ModuleLayer.boot();
+		Configuration bootConfiguration = bootLayer.configuration();
+
+		// Create the mod module layer
+		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of( source ), ModuleFinder.of(  ), Set.of() );
+		ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, null );
+
+		// Load the mods
+		try {
+			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
+		} catch( Throwable throwable ) {
+			log.error( "Error loading standard mods: " + source, throwable );
+		}
 	}
 
 	private void loadMod( Mod mod, Path source ) {
 		ProductCard card = mod.getCard();
-		log.debug( "Loading mod: " + card.getProductKey() + " from " + (source == null ? "classpath" : source) );
+		String message = card.getProductKey() + " from: " + (source == null ? "classpath" : source);
+		try {
+			log.trace( "Loading mod: " + message );
 
-		// Ignore included products
-		if( isIncludedProduct( card ) ) return;
+			// Ignore included products
+			if( isIncludedProduct( card ) ) return;
 
-		// Check if mod is already loaded
-		if( getMod( card.getProductKey() ) != null ) {
-			log.warn( "Mod already loaded: " + card.getProductKey() );
-			return;
+			// Check if mod is already loaded
+			if( getMod( card.getProductKey() ) != null ) {
+				log.warn( "Mod already loaded: " + card.getProductKey() );
+				return;
+			}
+
+			// Initialize the mod
+			mod.init( program, card );
+
+			// Set the mod install folder
+			card.setInstallFolder( source );
+
+			// Register the mod
+			registerMod( mod );
+
+			log.debug( "Mod loaded: " + message );
+		} catch( Throwable throwable ) {
+			log.error( "Error loading mod " + message, throwable );
 		}
-
-		// Initialize the mod
-		mod.init( program, card );
-
-		// Set the mod install folder
-		card.setInstallFolder( source );
-
-		// Register the mod
-		registerMod( mod );
-
-		log.debug( "Mod loaded: " + card.getProductKey() + " from " + (source == null ? "classpath" : source) );
 	}
 
 	private void unloadMod( Mod mod ) {
