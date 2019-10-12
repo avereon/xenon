@@ -291,12 +291,14 @@ public class Program extends Application implements ProgramProduct {
 			protected void cancelled() {
 				Platform.runLater( () -> splashScreen.hide() );
 				log.error( "Startup task cancelled", getException() );
+				requestExit( true );
 			}
 
 			@Override
 			protected void failed() {
 				Platform.runLater( () -> splashScreen.hide() );
 				log.error( "Startup task failed", getException() );
+				requestExit( true );
 			}
 
 		} );
