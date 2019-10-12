@@ -223,6 +223,7 @@ class ProductPane extends MigPane {
 				Platform.runLater( () -> setStatus( ProductStatus.INSTALLED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
+				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 				ProductTool.log.warn( "Error installing product", exception );
 			}
 		} ) );
@@ -237,6 +238,7 @@ class ProductPane extends MigPane {
 				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
+				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 				ProductTool.log.warn( "Error updating product", exception );
 			}
 		} ) );
@@ -264,11 +266,11 @@ class ProductPane extends MigPane {
 		program.getTaskManager().submit( Task.of( "Remove product", () -> {
 			try {
 				manager.uninstallProducts( source ).get();
-				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
 				ProductTool.log.warn( "Error uninstalling product", exception );
 			}
+			Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );
 	}
 
