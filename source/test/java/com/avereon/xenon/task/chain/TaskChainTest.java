@@ -8,8 +8,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class TaskChainTest extends ProgramTestCase {
@@ -18,7 +17,7 @@ public class TaskChainTest extends ProgramTestCase {
 	public void testInitWithSupplier() throws Exception {
 		int value = 7;
 
-		TaskChain<Integer> chain =TaskChain.init( () -> value );
+		TaskChain<Integer> chain = TaskChain.init( () -> value );
 		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
@@ -50,7 +49,7 @@ public class TaskChainTest extends ProgramTestCase {
 		} );
 		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
-		Task<Integer> task = chain.run( program);
+		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 1 ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
@@ -126,11 +125,9 @@ public class TaskChainTest extends ProgramTestCase {
 			assertThat( task.get(), is( 5 ) );
 			Assert.fail( "The get() method should throw an ExecutionException" );
 		} catch( ExecutionException exception ) {
-			Throwable cause1 = exception.getCause();
-			assertThat( cause1, instanceOf( RuntimeException.class ) );
-			assertThat( cause1, is( expected ) );
-			Throwable cause2 = cause1.getCause();
-			assertThat( cause2, instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause().getCause(), is( expected ) );
+			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
 		}
 	}
 

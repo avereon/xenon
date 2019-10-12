@@ -157,9 +157,10 @@ public class TaskManagerTest extends BaseTaskTest {
 			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( Exception.class ) );
-			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
-			assertThat( exception.getCause().getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
+			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
 		}
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
@@ -251,9 +252,10 @@ public class TaskManagerTest extends BaseTaskTest {
 			Assert.fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( Exception.class ) );
-			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
-			assertThat( exception.getCause().getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
+			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
 		}
 		assertThat( nestedTask.isDone(), is( true ) );
 		assertThat( nestedTask.isCancelled(), is( false ) );

@@ -4,7 +4,6 @@ import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
-import com.avereon.util.TestUtil;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -279,17 +278,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		protected void afterExecute( Runnable runnable, Throwable throwable ) {
 			if( runnable instanceof Task ) {
 				Task task = (Task)runnable;
-
 				taskQueue.remove( task );
 				taskMap.remove( task );
-
-				try {
-					task.get();
-				} catch( CancellationException exception ) {
-					// Intentionally ignore exception
-				} catch( Throwable getThrowable ) {
-					if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
-				}
 			}
 		}
 

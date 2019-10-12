@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.FutureTask;
 
 /**
  * An executable task.
@@ -158,14 +160,9 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return new Task<>( "" ) {
 
 			@Override
-			public N call() {
+			public N call() throws Exception {
 				futureTask.run();
-				try {
-					return futureTask.get();
-				} catch( InterruptedException | ExecutionException exception ) {
-					exception.printStackTrace();
-				}
-				return null;
+				return futureTask.get();
 			}
 
 		};
@@ -188,9 +185,15 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	@Override
 	protected void setException( Throwable throwable ) {
+		exceptionSource.initCause( throwable );
+		this.throwable = exceptionSource;
+
+		// Internal state must be set before calling setState()
 		setState( Task.State.FAILED );
-		this.throwable = throwable.initCause( exceptionSource );
-		super.setException( throwable );
+
+		// Internal setState() must be called before super.setException()
+		// because super.setException() notifies threads waiting on get()
+		super.setException( exceptionSource );
 	}
 
 	protected Throwable getException() {
@@ -214,7 +217,9 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	protected void cancelled() {}
 
-	protected void failed() {}
+	protected void failed() {
+		log.error( "Task failed", getException() );
+	}
 
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
