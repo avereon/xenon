@@ -1,6 +1,6 @@
 package com.avereon.xenon.node;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class EdgeTest {
 
@@ -10,7 +10,7 @@ public class EdgeTest {
 
 	private Edge edge;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		source = new Node();
 		target = new Node();

@@ -2,10 +2,10 @@ package com.avereon.xenon.tool.task;
 
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramTaskType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TaskToolGetRequiredResourcesUIT extends TaskToolUIT {
 

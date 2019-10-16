@@ -2,11 +2,12 @@ package com.avereon.xenon.workarea;
 
 import javafx.geometry.Side;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WorkpaneMergeSouthTest extends WorkpaneTestCase {
 

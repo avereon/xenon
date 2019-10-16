@@ -5,22 +5,22 @@ import com.avereon.xenon.resource.event.ResourceClosedEvent;
 import com.avereon.xenon.resource.event.ResourceLoadedEvent;
 import com.avereon.xenon.resource.event.ResourceOpenedEvent;
 import com.avereon.xenon.resource.event.ResourceSavedEvent;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class ResourceManagerTest extends ProgramTestCase {
 
 	private ResourceManager manager;
 
-	@Before
+	@BeforeEach
 	@Override
 	public void setup() throws Exception {
 		super.setup();

@@ -1,10 +1,10 @@
 package com.avereon.xenon.task;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskEventTest extends BaseTaskTest {
 
@@ -46,7 +46,7 @@ public class TaskEventTest extends BaseTaskTest {
 		manager.submit( task );
 		try {
 			task.get();
-			Assert.fail( "Exception should be thrown." );
+			fail( "Exception should be thrown." );
 		} catch( Exception exception ) {
 			assertThat( exception, not( is( nullValue() ) ) );
 		}

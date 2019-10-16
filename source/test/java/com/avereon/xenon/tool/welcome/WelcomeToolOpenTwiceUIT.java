@@ -2,11 +2,11 @@ package com.avereon.xenon.tool.welcome;
 
 import com.avereon.xenon.workarea.Workpane;
 import com.avereon.xenon.workarea.WorkpaneEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 

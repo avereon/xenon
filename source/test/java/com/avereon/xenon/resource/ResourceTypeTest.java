@@ -1,18 +1,20 @@
 package com.avereon.xenon.resource;
 
-import com.avereon.xenon.BaseTestCase;
 import com.avereon.product.Product;
+import com.avereon.xenon.BaseTestCase;
 import com.avereon.xenon.mod.MockMod;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 
 public class ResourceTypeTest extends BaseTestCase {
 
 	private Product product;
 
+	@BeforeEach
 	@Override
 	public void setup() throws Exception {
 		product = new MockMod();

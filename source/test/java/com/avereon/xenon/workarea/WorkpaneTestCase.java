@@ -3,12 +3,12 @@ package com.avereon.xenon.workarea;
 import com.avereon.xenon.FxPlatformTestCase;
 import com.avereon.xenon.resource.Resource;
 import javafx.geometry.Side;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.net.URI;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class WorkpaneTestCase extends FxPlatformTestCase {
 
@@ -20,7 +20,7 @@ public class WorkpaneTestCase extends FxPlatformTestCase {
 	protected Resource resource = new Resource( URI.create( "" ) );
 
 	@Override
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		super.setup();
 

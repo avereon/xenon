@@ -1,15 +1,15 @@
 package com.avereon.xenon.transaction;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TxnTest {
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		Txn.reset();
 	}
@@ -128,7 +128,7 @@ public class TxnTest {
 	public void testCommitWithoutTransaction() throws Exception {
 		try {
 			Txn.commit();
-			Assert.fail( "Commit should throw an exception if there is not an active transaction" );
+			fail( "Commit should throw an exception if there is not an active transaction" );
 		} catch( TxnException exception ) {
 			// Pass
 		}
@@ -139,7 +139,7 @@ public class TxnTest {
 		MockTransactionOperation step = new MockTransactionOperation();
 		try {
 			Txn.submit( step );
-			Assert.fail( "Submit should throw an exception if there is not an active transaction" );
+			fail( "Submit should throw an exception if there is not an active transaction" );
 		} catch( TxnException exception ) {
 			// Pass
 		}

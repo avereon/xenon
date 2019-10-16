@@ -5,12 +5,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 
 public class FxUtilTest extends FxPlatformTestCase {
 
@@ -26,7 +26,7 @@ public class FxUtilTest extends FxPlatformTestCase {
 	private TreeItem<String> c = new TreeItem<>( "c" );
 	private TreeItem<String> c7 = new TreeItem<>( "c7" );
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings( "unchecked" )
 	public void setup() {
 		a.getChildren().addAll( a1, a2 );

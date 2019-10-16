@@ -7,21 +7,22 @@ import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramSettingsType;
 import com.avereon.xenon.util.FxUtil;
 import javafx.application.Platform;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class GuidedToolUIT extends BaseToolUIT {
 
 	private MockGuidedTool mockGuidedTool;
 
-	@Before
+	@BeforeEach
+	@Override
 	public void setup() throws Exception {
 		super.setup();
 

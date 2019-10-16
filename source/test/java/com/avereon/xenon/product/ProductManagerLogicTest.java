@@ -2,14 +2,14 @@ package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.xenon.ProgramTestCase;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.avereon.xenon.product.ProductMatcher.matches;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class ProductManagerLogicTest extends ProgramTestCase {
 
@@ -27,7 +27,7 @@ public class ProductManagerLogicTest extends ProgramTestCase {
 
 	private RepoState nightly = new RepoState().setUrl( "c" );
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		logic = new ProductManagerLogic( program );
 		generateRepoProductMap();

@@ -129,9 +129,16 @@
 
 		<dependency>
 			<groupId>org.testfx</groupId>
-			<artifactId>testfx-junit</artifactId>
+			<artifactId>testfx-junit5</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+			<exclusion>
+				<!-- Don't use the junit-jupiter-api that testfx depends on-->
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
+			</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Apparently this causes duplicate modules to be loaded -->

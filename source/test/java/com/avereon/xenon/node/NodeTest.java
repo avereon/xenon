@@ -3,23 +3,23 @@ package com.avereon.xenon.node;
 import com.avereon.xenon.transaction.Txn;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NodeTest {
 
 	private Node data;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		data = new MockNode();
 	}
@@ -832,7 +832,7 @@ public class NodeTest {
 
 		Collection<NodeListener> listeners = data.getNodeListeners();
 
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 1 ) );
 		assertThat( listeners, contains( watcher ) );
 	}
@@ -844,25 +844,25 @@ public class NodeTest {
 
 		data.addNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 1 ) );
 		assertThat( listeners, contains( watcher ) );
 
 		data.removeNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 0 ) );
 		assertThat( listeners, not( contains( watcher ) ) );
 
 		data.addNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 1 ) );
 		assertThat( listeners, contains( watcher ) );
 
 		data.removeNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 0 ) );
 		assertThat( listeners, not( contains( watcher ) ) );
 	}

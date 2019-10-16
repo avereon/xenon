@@ -5,16 +5,16 @@ import com.avereon.xenon.util.FxUtil;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GuideUIT extends FxProgramUIT {
 
 	private Guide guide;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		super.setup();
 		this.guide = createGuide();

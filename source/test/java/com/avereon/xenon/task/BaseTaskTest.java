@@ -1,7 +1,7 @@
 package com.avereon.xenon.task;
 
 import com.avereon.xenon.BaseTestCase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,9 +15,9 @@ public abstract class BaseTaskTest extends BaseTestCase {
 
 	protected TaskWatcher taskWatcher;
 
-	@Before
+	@BeforeEach
 	@Override
-	public void setup() throws Exception {
+	public void setup() {
 		manager = new TaskManager().start();
 		manager.addTaskListener( taskWatcher = new TaskWatcher() );
 	}

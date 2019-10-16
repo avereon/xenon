@@ -2,20 +2,21 @@ package com.avereon.xenon.workarea;
 
 import javafx.geometry.Side;
 import javafx.scene.Scene;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class WorkpaneEventTest extends WorkpaneTestCase {
 
 	private Workpane workpane;
 
-	@Before
+	@BeforeEach
+	@Override
 	public void setup() throws Exception {
 		super.setup();
 		workpane = new Workpane();

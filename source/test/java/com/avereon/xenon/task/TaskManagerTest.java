@@ -1,23 +1,22 @@
 package com.avereon.xenon.task;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskManagerTest extends BaseTaskTest {
 
 	private TaskManager manager;
 
-	@Before
+	@BeforeEach
 	@Override
 	public void setup() {
 		// Use a different manager instance
@@ -154,7 +153,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		manager.submit( task );
 		try {
 			assertThat( task.get(), is( nullValue() ) );
-			Assert.fail( "Task should throw an Exception" );
+			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
 			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
@@ -176,7 +175,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 		try {
 			manager.submit( task );
-			Assert.fail( "TaskManager.submit() should throw and exception if the manager is not running" );
+			fail( "TaskManager.submit() should throw and exception if the manager is not running" );
 		} catch( Exception exception ) {
 			assertThat( exception, instanceOf( Exception.class ) );
 		}
@@ -249,7 +248,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		// Check the nested task.
 		try {
 			assertThat( nestedTask.get( 100, TimeUnit.MILLISECONDS ), is( nullValue() ) );
-			Assert.fail( "Task should throw an Exception" );
+			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
 			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );

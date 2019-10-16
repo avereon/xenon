@@ -3,13 +3,13 @@ package com.avereon.xenon.task.chain;
 import com.avereon.xenon.ProgramTestCase;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskSourceWrapper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskChainTest extends ProgramTestCase {
 
@@ -123,7 +123,7 @@ public class TaskChainTest extends ProgramTestCase {
 
 		try {
 			assertThat( task.get(), is( 5 ) );
-			Assert.fail( "The get() method should throw an ExecutionException" );
+			fail( "The get() method should throw an ExecutionException" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
 			assertThat( exception.getCause().getCause(), is( expected ) );

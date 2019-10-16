@@ -1,9 +1,9 @@
 package com.avereon.xenon;
 
-import com.avereon.util.OperatingSystem;
 import com.avereon.product.ProductCard;
-import org.junit.Before;
-import org.junit.Test;
+import com.avereon.util.OperatingSystem;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -14,15 +14,15 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.nio.file.Path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProgramCardTest extends ProgramTestCase {
 
 	private ProductCard metadata;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		super.setup();
 		metadata = program.getCard();
@@ -48,7 +48,7 @@ public class ProgramCardTest extends ProgramTestCase {
 		assertThat( metadata.getGroup(), is( groupId ) );
 		assertThat( metadata.getArtifact(), is( artifactId ) );
 		assertThat( metadata.getVersion(), is( version ) );
-		assertTrue( "Incorrect timestamp format: " + metadata.getTimestamp(), metadata.getTimestamp().matches( timestampRegex ) );
+		assertTrue( metadata.getTimestamp().matches( timestampRegex ), "Incorrect timestamp format: " + metadata.getTimestamp() );
 
 		assertThat( metadata.getName(), is( name ) );
 		assertThat( metadata.getIconUri(), is( "program" ) );
