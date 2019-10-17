@@ -281,16 +281,16 @@ public class ProductManagerLogic {
 			}
 		} else {
 			switch( program.getProductManager().getFoundOption() ) {
+				case APPLY: {
+					stageAndApplyUpdates( cards, false );
+					break;
+				}
 				case NOTIFY: {
 					notifyUserOfUpdates();
 					break;
 				}
 				case STORE: {
 					stageUpdates( cards );
-					break;
-				}
-				case APPLY: {
-					stageAndApplyUpdates( cards, false );
 					break;
 				}
 			}

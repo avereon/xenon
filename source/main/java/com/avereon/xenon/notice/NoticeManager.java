@@ -38,7 +38,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void error( Throwable throwable ) {
-		error( throwable.getClass().getSimpleName(), null, throwable );
+		error( throwable.getClass().getSimpleName(), throwable.getMessage(), throwable );
 	}
 
 	public void error( Object message, Throwable throwable, String... parameters ) {

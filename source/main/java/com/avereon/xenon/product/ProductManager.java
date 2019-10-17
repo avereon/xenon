@@ -72,9 +72,9 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public enum FoundOption {
+		APPLY,
 		NOTIFY,
-		STORE,
-		APPLY
+		STORE
 	}
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
@@ -325,20 +325,20 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		unregisterProduct( (Product)mod );
 	}
 
-	public Task<Collection<InstalledProduct>> installProducts( ProductCard... cards ) throws Exception {
+	public Task<Collection<InstalledProduct>> installProducts( ProductCard... cards ) {
 		return installProducts( Set.of( cards ) );
 	}
 
-	public Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> cards ) throws Exception {
+	public Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> cards ) {
 		log.trace( "Number of products to install: " + cards.size() );
 		return new ProductManagerLogic( program ).installProducts( cards );
 	}
 
-	public Task<Void> uninstallProducts( ProductCard... cards ) throws Exception {
+	public Task<Void> uninstallProducts( ProductCard... cards ) {
 		return uninstallProducts( Set.of( cards ) );
 	}
 
-	public Task<Void> uninstallProducts( Set<ProductCard> cards ) throws Exception {
+	public Task<Void> uninstallProducts( Set<ProductCard> cards ) {
 		log.trace( "Number of products to remove: " + cards.size() );
 		return new ProductManagerLogic( program ).uninstallProducts( cards );
 	}
@@ -357,7 +357,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return getInstalledProductCard( card ) != null;
 	}
 
-	public ProductCard getInstalledProductCard( ProductCard card ) {
+	ProductCard getInstalledProductCard( ProductCard card ) {
 		return productCards.get( card.getProductKey() );
 	}
 
@@ -379,12 +379,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productStates.computeIfAbsent( card.getProductKey(), ( key ) -> new ProductState() ).setStatus( status );
 	}
 
-	public boolean isUpdatable( ProductCard card ) {
+	private boolean isUpdatable( ProductCard card ) {
 		ProductState state = productStates.get( card.getProductKey() );
 		return state != null && state.isUpdatable();
 	}
 
-	public void setUpdatable( ProductCard card, boolean updatable ) {
+	private void setUpdatable( ProductCard card, boolean updatable ) {
 		if( isUpdatable( card ) == updatable ) return;
 		ProductState state = productStates.get( card.getProductKey() );
 		if( state == null ) return;
@@ -393,12 +393,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
-	public boolean isRemovable( ProductCard card ) {
+	private boolean isRemovable( ProductCard card ) {
 		ProductState state = productStates.get( card.getProductKey() );
 		return state != null && state.isRemovable();
 	}
 
-	public void setRemovable( ProductCard card, boolean removable ) {
+	private void setRemovable( ProductCard card, boolean removable ) {
 		if( isRemovable( card ) == removable ) return;
 		ProductState state = productStates.get( card.getProductKey() );
 		if( state == null ) return;
@@ -431,7 +431,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		Settings settings = program.getSettingsManager().getProductSettings( card );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.trace( "Set enabled: " + settings.getPath() + ": " + enabled );
+		log.trace( "Set product enabled: " + settings.getPath() + ": " + enabled );
 
 		// Should be called after setting the enabled flag
 		if( mod != null && enabled ) callModCreate( mod );
@@ -602,30 +602,16 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				availableUpdates = new ProductManagerLogic( program ).findPostedUpdates( force ).get();
 				return new HashSet<>( availableUpdates );
 			} catch( Exception exception ) {
-				// TODO Notify the user there was a problem refreshing available updates
-				exception.printStackTrace();
+				log.error( "Error refreshing available updates", exception );
+				program.getNoticeManager().error( exception );
 			}
 
 			return Set.of();
 		}
 	}
 
-	void storeSelectedUpdates( Set<ProductCard> packs ) throws Exception {
-		// TODO Finish implementing ProductManager.storeSelectedUpdates()
-		throw new RuntimeException( "Method not implemented yet." );
-	}
-
-	void applyStoredUpdates( Set<ProductCard> packs ) throws Exception {
-		// TODO Finish implementing ProductManager.applyStoredUpdates()
-		throw new RuntimeException( "Method not implemented yet." );
-	}
-
-	public Path getProductInstallFolder( ProductCard card ) {
+	Path getProductInstallFolder( ProductCard card ) {
 		return getUserModuleFolder().resolve( card.getGroup() + "." + card.getArtifact() );
-	}
-
-	private String getStagedUpdateFileName( ProductCard card ) {
-		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
 	public Set<ProductUpdate> getStagedUpdates() {
