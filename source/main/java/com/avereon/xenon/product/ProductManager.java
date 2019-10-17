@@ -1120,7 +1120,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		Configuration bootConfiguration = bootLayer.configuration();
 
 		// Create the mod module layer
-		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of( source ), ModuleFinder.of(  ), Set.of() );
+		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(  ), ModuleFinder.of( source ), Set.of() );
 		ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, null );
 
 		// Load the mods
@@ -1136,7 +1136,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ProductCard card = mod.getCard();
 		String message = card.getProductKey() + " from: " + (source == null ? "classpath" : source);
 		try {
-			log.trace( "Loading mod: " + message );
+			log.debug( "Loading mod: " + message );
 
 			// Ignore included products
 			if( isIncludedProduct( card ) ) return;

@@ -106,6 +106,33 @@
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>${controlsfx.version}</version>
+			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-controls</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-graphics</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-swing</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-fxml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-web</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -133,21 +160,21 @@
 			<version>${testfx.version}</version>
 			<scope>test</scope>
 			<exclusions>
-			<exclusion>
-				<!-- Don't use the junit-jupiter-api that testfx depends on-->
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-api</artifactId>
-			</exclusion>
+				<!-- Exclude the junit-jupiter-api, it is already available-->
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-api</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
-		<!-- Apparently this causes duplicate modules to be loaded -->
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>openjfx-monocle</artifactId>
 			<version>${monocle.version}</version>
 			<scope>test</scope>
 			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
 					<artifactId>javafx-base</artifactId>
