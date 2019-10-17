@@ -7,8 +7,8 @@ import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.ResourceException;
 import com.avereon.xenon.resource.type.ProgramNoticeType;
 import com.avereon.xenon.tool.notice.NoticeTool;
-import com.avereon.xenon.util.FxUtil;
 import com.avereon.xenon.workarea.Tool;
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.slf4j.Logger;
@@ -62,19 +62,18 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void addNotice( Notice notice ) {
-		FxUtil.checkFxUserThread();
-
 		getNoticeList().addNotice( notice );
-
 		resource.refresh( program.getResourceManager() );
 
-		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
-		if( tools.size() > 0 ) {
-			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
-		} else {
-			getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
-			updateUnreadCount();
-		}
+		Platform.runLater( () -> {
+			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
+			if( tools.size() > 0 ) {
+				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
+			} else {
+				getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
+				updateUnreadCount();
+			}
+		} );
 	}
 
 	public void removeNotice( Notice notice ) {
@@ -129,6 +128,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		try {
 			resource = program.getResourceManager().createResource( ProgramNoticeType.URI );
 			program.getResourceManager().loadResources( resource );
+			// TODO Register an event listener to show unread messages after the program is finished starting
 		} catch( ResourceException exception ) {
 			exception.printStackTrace();
 		}
@@ -143,6 +143,9 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	@Override
 	public NoticeManager stop() {
+		// TODO Unregister an event listener to show unread messages when there is an active workspace
+		// At startup there may be notices that need to be shown but the workspace has not been restored yet
+
 		program.getResourceManager().saveResources( resource );
 		return this;
 	}

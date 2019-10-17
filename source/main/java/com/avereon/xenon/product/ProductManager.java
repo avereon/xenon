@@ -1128,6 +1128,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error loading standard mods: " + source, throwable );
+			program.getNoticeManager().error( throwable );
 		}
 	}
 

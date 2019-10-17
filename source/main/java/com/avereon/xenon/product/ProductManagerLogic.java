@@ -404,9 +404,11 @@ public class ProductManagerLogic {
 					log.debug( "Product resource target: " + resource.getLocalFile() );
 				} catch( CancellationException exception ) {
 					log.info( "Download cancelled: " + resource );
+					program.getNoticeManager().warning( "Download", "Download cancelled: " + resource );
 				} catch( Exception exception ) {
 					resource.setThrowable( exception );
 					log.error( "Error downloading resource: " + resource, exception );
+					program.getNoticeManager().error( "Download", "Error downloading resource: " + resource, exception );
 				}
 			} );
 
