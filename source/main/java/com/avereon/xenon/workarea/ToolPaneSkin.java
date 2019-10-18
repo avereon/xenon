@@ -84,9 +84,13 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		} );
 
 		control.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
+			// Hide all the tools
 			getSkinnable().getTabs().stream().map( ToolTab::getTool ).forEach( tool -> tool.setVisible( false ) );
+
+			// Show the selected tool
 			ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
 			if( selectedTab != null ) selectedTab.getTool().setVisible( true );
+
 			getSkinnable().requestLayout();
 		} );
 
@@ -172,18 +176,10 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		double westDistance = event.getX() - bounds.getMinX();
 
 		// The following checks should be in this order: south, north, east, west
-		if( southDistance > 0 && southDistance < dropHeight ) {
-			position = Side.BOTTOM;
-		}
-		if( northDistance > 0 && northDistance < dropHeight ) {
-			position = Side.TOP;
-		}
-		if( eastDistance > 0 && eastDistance < dropWidth ) {
-			position = Side.RIGHT;
-		}
-		if( westDistance > 0 && westDistance < dropWidth ) {
-			position = Side.LEFT;
-		}
+		if( southDistance > 0 && southDistance < dropHeight ) position = Side.BOTTOM;
+		if( northDistance > 0 && northDistance < dropHeight ) position = Side.TOP;
+		if( eastDistance > 0 && eastDistance < dropWidth ) position = Side.RIGHT;
+		if( westDistance > 0 && westDistance < dropWidth ) position = Side.LEFT;
 
 		return position;
 	}

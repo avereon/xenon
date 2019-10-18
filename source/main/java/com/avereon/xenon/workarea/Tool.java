@@ -3,6 +3,7 @@ package com.avereon.xenon.workarea;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.ResourceEvent;
@@ -298,7 +299,7 @@ public abstract class Tool extends Control implements Configurable {
 	 *
 	 * @param parameters
 	 */
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {}
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {}
 
 	/**
 	 * Called when the resource data is refreshed.
@@ -394,7 +395,7 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceReady( ToolParameters parameters ) {
+	public void callResourceReady( OpenToolRequestParameters parameters ) {
 		try {
 			resourceReady( parameters );
 		} catch( ToolException exception ) {

@@ -2,16 +2,21 @@ package com.avereon.xenon.workarea;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
+import com.avereon.util.LogUtil;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private WorkpaneEdge topEdge;
 
@@ -164,6 +169,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public boolean isActive() {
 		return parent != null && parent.getActiveView() == this;
+	}
+
+	void setActive( boolean active ) {
+		tools.setActive( active );
 	}
 
 	public boolean isDefault() {

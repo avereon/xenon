@@ -11,7 +11,7 @@ import com.avereon.xenon.resource.type.ProgramProductType;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
+import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 
@@ -114,7 +114,7 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 

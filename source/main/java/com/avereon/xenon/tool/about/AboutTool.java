@@ -10,7 +10,7 @@ import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
+import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -129,7 +129,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		resourceRefreshed();
 		selectPage( SUMMARY );

@@ -1,8 +1,6 @@
-package com.avereon.xenon.workarea;
+package com.avereon.xenon;
 
-import com.avereon.xenon.OpenToolRequest;
-
-public class ToolParameters {
+public class OpenToolRequestParameters {
 
 	private String query;
 
@@ -12,12 +10,12 @@ public class ToolParameters {
 		return query;
 	}
 
-	public ToolParameters( OpenToolRequest request ) {
+	public OpenToolRequestParameters( OpenToolRequest request ) {
 		setQuery( request.getQuery() );
 		setFragment( request.getFragment() );
 	}
 
-	public ToolParameters setQuery( String query ) {
+	public OpenToolRequestParameters setQuery( String query ) {
 		this.query = query;
 		return this;
 	}
@@ -26,7 +24,7 @@ public class ToolParameters {
 		return fragment;
 	}
 
-	public ToolParameters setFragment( String fragment ) {
+	public OpenToolRequestParameters setFragment( String fragment ) {
 		this.fragment = fragment;
 		return this;
 	}

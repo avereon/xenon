@@ -6,7 +6,7 @@ import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramGuideType;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
+import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -71,7 +71,7 @@ public abstract class GuidedTool extends ProgramTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
 		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );

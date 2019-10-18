@@ -11,7 +11,7 @@ import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
+import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -63,7 +63,7 @@ public class TaskTool extends ProgramTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		getProgram().getTaskManager().addTaskListener( taskWatcher );
 		Platform.runLater( this::init );

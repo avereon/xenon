@@ -15,7 +15,6 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolInstanceMode;
 import com.avereon.xenon.tool.ToolMetadata;
 import com.avereon.xenon.workarea.Tool;
-import com.avereon.xenon.workarea.ToolParameters;
 import com.avereon.xenon.workarea.Workpane;
 import com.avereon.xenon.workarea.WorkpaneView;
 import javafx.application.Platform;
@@ -323,7 +322,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			@Override
 			public void eventOccurred( ResourceEvent event ) {
 				resource.removeResourceListener( this );
-				Platform.runLater( () -> tool.callResourceReady( new ToolParameters( request ) ) );
+				Platform.runLater( () -> tool.callResourceReady( new OpenToolRequestParameters( request ) ) );
 			}
 
 		} );

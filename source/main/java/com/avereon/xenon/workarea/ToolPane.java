@@ -2,10 +2,12 @@ package com.avereon.xenon.workarea;
 
 import com.avereon.util.LogUtil;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.geometry.Side;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.control.Control;
@@ -23,11 +25,15 @@ import java.lang.invoke.MethodHandles;
  */
 public class ToolPane extends Control {
 
+	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 
 	private ObservableList<ToolTab> tabs = FXCollections.observableArrayList();
+
+	private ReadOnlyBooleanWrapper active;
 
 	public ToolPane() {
 		getStyleClass().addAll( "tool-pane" );
@@ -44,6 +50,46 @@ public class ToolPane extends Control {
 
 	public final void setSelectionModel( SingleSelectionModel<ToolTab> value ) {
 		selectionModel.set( value );
+	}
+
+	public boolean isActive() {
+		return active != null && active.get();
+	}
+
+	public void setActive( boolean active ) {
+		log.info( "Toolpane active: " + active );
+		activePropertyImpl().set( active );
+		for( ToolTab tab : tabs ) {
+			tab.setActive( active );
+		}
+	}
+
+	public ReadOnlyBooleanWrapper activeProperty() {
+		return activePropertyImpl();
+	}
+
+	private ReadOnlyBooleanWrapper activePropertyImpl() {
+		if( active == null ) {
+			active = new ReadOnlyBooleanWrapper() {
+
+				@Override
+				protected void invalidated() {
+					pseudoClassStateChanged( ACTIVE_PSEUDOCLASS_STATE, isActive() );
+					//if( getOnActivatedChanged() != null ) Event.fireEvent( ToolTab.this, new Event( ACTIVATED_CHANGED_EVENT ) );
+				}
+
+				@Override
+				public Object getBean() {
+					return ToolPane.this;
+				}
+
+				@Override
+				public String getName() {
+					return "active";
+				}
+			};
+		}
+		return active;
 	}
 
 	@Override
@@ -111,6 +157,7 @@ public class ToolPane extends Control {
 					for( ToolTab tab : change.getRemoved() ) {
 						if( tab != null && !pane.getTabs().contains( tab ) && tab.isSelected() ) {
 							tab.setSelected( false );
+							tab.setActive( false );
 							int fromIndex = change.getFrom();
 							ToolTab next = findNearestAvailableTab( fromIndex );
 							if( next != null ) select( next );
@@ -152,14 +199,18 @@ public class ToolPane extends Control {
 			}
 
 			// Unselect the old tab
-			if( getSelectedIndex() >= 0 && getSelectedIndex() < pane.getTabs().size() ) pane.getTabs().get( getSelectedIndex() ).setSelected( false );
+			if( getSelectedIndex() >= 0 && getSelectedIndex() < pane.getTabs().size() ) {
+				pane.getTabs().get( getSelectedIndex() ).setSelected( false );
+			}
 
 			setSelectedIndex( index );
 			ToolTab tab = getModelItem( index );
 			if( tab != null ) setSelectedItem( tab );
 
 			// Select the new tab
-			if( getSelectedIndex() >= 0 && getSelectedIndex() < pane.getTabs().size() ) pane.getTabs().get( getSelectedIndex() ).setSelected( true );
+			if( getSelectedIndex() >= 0 && getSelectedIndex() < pane.getTabs().size() ) {
+				pane.getTabs().get( getSelectedIndex() ).setSelected( true );
+			}
 
 			pane.notifyAccessibleAttributeChanged( AccessibleAttribute.FOCUS_ITEM );
 		}

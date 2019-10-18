@@ -4,6 +4,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.FxUtil;
@@ -47,7 +48,7 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		// Connect to the resource guide
 		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		if( guide == null ) return;

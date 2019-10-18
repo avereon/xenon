@@ -526,8 +526,8 @@ public class Workpane extends Control implements Configurable {
 		startOperation();
 		try {
 			WorkpaneView activeToolView = getActiveView();
-
 			if( activeToolView != null ) {
+				activeToolView.setActive( false );
 				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", null );
 				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView ) );
 			}
@@ -535,13 +535,12 @@ public class Workpane extends Control implements Configurable {
 			// Change the active view
 			activeViewProperty.set( view );
 
-			// Change the active tool
-			if( setTool && view != null ) doSetActiveTool( view.getActiveTool(), false );
-
 			// Handle the new active view
 			activeToolView = getActiveView();
 			if( activeToolView != null ) {
+				activeToolView.setActive( true );
 				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", true );
+				if( setTool ) doSetActiveTool( activeToolView.getActiveTool(), false );
 				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView ) );
 			}
 		} finally {

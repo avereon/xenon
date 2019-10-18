@@ -9,7 +9,7 @@ import com.avereon.xenon.resource.type.ProgramSettingsType;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
+import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		log.debug( "Settings tool resource ready" );
 		super.resourceReady( parameters );
 		resourceRefreshed();
