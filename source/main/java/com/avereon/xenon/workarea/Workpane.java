@@ -90,6 +90,7 @@ public class Workpane extends Control implements Configurable {
 
 	private Collection<WorkpaneListener> listeners;
 
+	@Deprecated
 	private Settings settings;
 
 	public Workpane() {
