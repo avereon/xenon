@@ -46,9 +46,9 @@ public class Workpane extends Control implements Configurable {
 
 	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
 
-	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.25;
+	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
 
-	public static final double DEFAULT_EDGE_SIDE = 5;
+	public static final double DEFAULT_EDGE_SIZE = 5;
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -76,6 +76,14 @@ public class Workpane extends Control implements Configurable {
 
 	private ObjectProperty<DockMode> dockModeProperty;
 
+	private DoubleProperty topDockSize;
+
+	private DoubleProperty leftDockSize;
+
+	private DoubleProperty rightDockSize;
+
+	private DoubleProperty bottomDockSize;
+
 	private AtomicInteger operation;
 
 	private Queue<WorkpaneEvent> events;
@@ -89,12 +97,17 @@ public class Workpane extends Control implements Configurable {
 
 		getStyleClass().add( "workpane" );
 
-		edgeSize = new SimpleDoubleProperty( DEFAULT_EDGE_SIDE );
+		edgeSize = new SimpleDoubleProperty( DEFAULT_EDGE_SIZE );
 		activeViewProperty = new SimpleObjectProperty<>();
 		defaultViewProperty = new SimpleObjectProperty<>();
 		maximizedViewProperty = new SimpleObjectProperty<>();
 		activeToolProperty = new SimpleObjectProperty<>();
 		dockModeProperty = new SimpleObjectProperty<>();
+
+		topDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
+		leftDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
+		rightDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
+		bottomDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
 
 		operation = new AtomicInteger();
 		events = new LinkedList<>();
@@ -349,6 +362,54 @@ public class Workpane extends Control implements Configurable {
 
 	public ReadOnlyObjectProperty<DockMode> dockModeProperty() {
 		return dockModeProperty;
+	}
+
+	public double getTopDockSize() {
+		return topDockSize.get();
+	}
+
+	public DoubleProperty topDockSizeProperty() {
+		return topDockSize;
+	}
+
+	public void setTopDockSize( double topDockSize ) {
+		this.topDockSize.set( topDockSize );
+	}
+
+	public double getLeftDockSize() {
+		return leftDockSize.get();
+	}
+
+	public DoubleProperty leftDockSizeProperty() {
+		return leftDockSize;
+	}
+
+	public void setLeftDockSize( double leftDockSize ) {
+		this.leftDockSize.set( leftDockSize );
+	}
+
+	public double getRightDockSize() {
+		return rightDockSize.get();
+	}
+
+	public DoubleProperty rightDockSizeProperty() {
+		return rightDockSize;
+	}
+
+	public void setRightDockSize( double rightDockSize ) {
+		this.rightDockSize.set( rightDockSize );
+	}
+
+	public double getBottomDockSize() {
+		return bottomDockSize.get();
+	}
+
+	public DoubleProperty bottomDockSizeProperty() {
+		return bottomDockSize;
+	}
+
+	public void setBottomDockSize( double bottomDockSize ) {
+		this.bottomDockSize.set( bottomDockSize );
 	}
 
 	@Override
@@ -644,7 +705,12 @@ public class Workpane extends Control implements Configurable {
 		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_ADDED, this, edge, edge.getPosition() ) );
 		edge
 			.positionProperty()
-			.addListener( ( observable, oldValue, newValue ) -> queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_MOVED, this, edge, newValue.doubleValue() ) ) );
+			.addListener( ( observable, oldValue, newValue ) -> queueEvent( new WorkpaneEdgeEvent( this,
+				WorkpaneEvent.Type.EDGE_MOVED,
+				this,
+				edge,
+				newValue.doubleValue()
+			) ) );
 
 		return edge;
 	}
@@ -1136,31 +1202,11 @@ public class Workpane extends Control implements Configurable {
 		// Move the edge.
 		Insets insets = getInsets();
 		Bounds bounds = getBoundsInLocal();
-		edge.setPosition( edge.getPosition() + (delta / (bounds.getHeight() - insets.getTop() - insets.getBottom())) );
+		double percent = (delta / (bounds.getHeight() - insets.getTop() - insets.getBottom()));
+		edge.setPosition( edge.getPosition() + percent );
 
-		//		// Resize the north views.
-		//		for( WorkpaneView view : edge.northViews ) {
-		//			if( view.westEdge != null && view.westEdge.southEdge == edge ) {
-		//				view.westEdge.invalidate();
-		//			}
-		//			if( view.eastEdge != null && view.eastEdge.southEdge == edge ) {
-		//				view.eastEdge.invalidate();
-		//			}
-		//			view.invalidate();
-		//		}
-		//
-		//		// Resize the south views.
-		//		for( WorkpaneView view : edge.southViews ) {
-		//			if( view.westEdge != null && view.westEdge.northEdge == edge ) {
-		//				view.westEdge.invalidate();
-		//			}
-		//			if( view.eastEdge != null && view.eastEdge.northEdge == edge ) {
-		//				view.eastEdge.invalidate();
-		//			}
-		//			view.invalidate();
-		//		}
-		//
-		//		edge.invalidate();
+		if( isPlacementEdge( edge, Placement.DOCK_TOP ) ) topDockSize.setValue( edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_BOTTOM ) ) bottomDockSize.setValue( 1-edge.getPosition() );
 
 		return delta;
 	}
@@ -1184,33 +1230,34 @@ public class Workpane extends Control implements Configurable {
 		// Move the edge.
 		Insets insets = getInsets();
 		Bounds bounds = getBoundsInLocal();
-		edge.setPosition( edge.getPosition() + (delta / (bounds.getWidth() - insets.getLeft() - insets.getRight())) );
+		double percent = (delta / (bounds.getWidth() - insets.getLeft() - insets.getRight()));
+		edge.setPosition( edge.getPosition() + percent );
 
-		//		// Resize the west views and edges.
-		//		for( WorkpaneView view : edge.westViews ) {
-		//			if( view.northEdge != null && view.northEdge.eastEdge == edge ) {
-		//				view.northEdge.invalidate();
-		//			}
-		//			if( view.southEdge != null && view.southEdge.eastEdge == edge ) {
-		//				view.southEdge.invalidate();
-		//			}
-		//			view.invalidate();
-		//		}
-		//
-		//		// Resize the east views and edges.
-		//		for( WorkpaneView view : edge.eastViews ) {
-		//			if( view.northEdge != null && view.northEdge.westEdge == edge ) {
-		//				view.northEdge.invalidate();
-		//			}
-		//			if( view.southEdge != null && view.southEdge.westEdge == edge ) {
-		//				view.southEdge.invalidate();
-		//			}
-		//			view.invalidate();
-		//		}
-		//
-		//		edge.invalidate();
+		if( isPlacementEdge( edge, Placement.DOCK_LEFT ) ) leftDockSize.setValue( edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_RIGHT ) ) rightDockSize.setValue( 1-edge.getPosition() );
 
 		return delta;
+	}
+
+	private boolean isPlacementEdge( WorkpaneEdge edge, Placement placement ) {
+		if( edge.getOrientation() == Orientation.HORIZONTAL ) {
+			// Check top and bottom views
+			for( WorkpaneView view : edge.getViews( Side.TOP )){
+				if( view.getPlacement() == placement ) return true;
+			}
+			for( WorkpaneView view : edge.getViews( Side.BOTTOM )){
+				if( view.getPlacement() == placement ) return true;
+			}
+		} else {
+			// Check left and right views
+			for( WorkpaneView view : edge.getViews( Side.LEFT )){
+				if( view.getPlacement() == placement ) return true;
+			}
+			for( WorkpaneView view : edge.getViews( Side.RIGHT )){
+				if( view.getPlacement() == placement ) return true;
+			}
+		}
+		return false;
 	}
 
 	private double checkMoveNorth( WorkpaneEdge edge, double offset ) {
@@ -1426,22 +1473,22 @@ public class Workpane extends Control implements Configurable {
 			}
 			case DOCK_TOP: {
 				view = getTopDockView();
-				if( view != null ) view.setPlacement( Placement.DOCK_TOP );
+				//if( view != null ) view.setPlacement( Placement.DOCK_TOP );
 				break;
 			}
 			case DOCK_LEFT: {
 				view = getLeftDockView();
-				if( view != null ) view.setPlacement( Placement.DOCK_LEFT );
+				//if( view != null ) view.setPlacement( Placement.DOCK_LEFT );
 				break;
 			}
 			case DOCK_RIGHT: {
 				view = getRightDockView();
-				if( view != null ) view.setPlacement( Placement.DOCK_RIGHT );
+				//if( view != null ) view.setPlacement( Placement.DOCK_RIGHT );
 				break;
 			}
 			case DOCK_BOTTOM: {
 				view = getBottomDockView();
-				if( view != null ) view.setPlacement( Placement.DOCK_BOTTOM );
+				//if( view != null ) view.setPlacement( Placement.DOCK_BOTTOM );
 				break;
 			}
 		}
@@ -1474,7 +1521,7 @@ public class Workpane extends Control implements Configurable {
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		return newBottomView( null, leftWall, rightWall, 1.0 - percent );
+		return newBottomView( null, leftWall, rightWall, percent );
 	}
 
 	/**
@@ -1502,7 +1549,7 @@ public class Workpane extends Control implements Configurable {
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
 		// Create the new view.
-		return newRightView( null, topWall, bottomWall, 1.0 - percent );
+		return newRightView( null, topWall, bottomWall, percent );
 	}
 
 	/**
@@ -1581,8 +1628,7 @@ public class Workpane extends Control implements Configurable {
 		if( view != null ) return view;
 
 		if( getDockMode() == DockMode.PORTRAIT ) {
-			view = split( Side.TOP );
-			view.setPlacement( Placement.DOCK_TOP );
+			view = split( Side.TOP, getTopDockSize() );
 		} else {
 			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
 			WorkpaneView rightView = getDockedView( Placement.DOCK_RIGHT );
@@ -1590,18 +1636,19 @@ public class Workpane extends Control implements Configurable {
 			WorkpaneEdge leftEdge = leftView == null ? this.leftWall : leftView.getEdge( Side.RIGHT );
 			WorkpaneEdge rightEdge = rightView == null ? this.rightWall : rightView.getEdge( Side.LEFT );
 
-			view = newTopView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
+			view = newTopView( null, leftEdge, rightEdge, getTopDockSize() );
 		}
+		view.setPlacement( Placement.DOCK_TOP );
 
 		return view;
 	}
 
 	private WorkpaneView getLeftDockView() {
-		WorkpaneView dockView = getDockedView( Placement.DOCK_LEFT );
-		if( dockView != null ) return dockView;
+		WorkpaneView view = getDockedView( Placement.DOCK_LEFT );
+		if( view != null ) return view;
 
 		if( getDockMode() == DockMode.LANDSCAPE ) {
-			dockView = split( Side.LEFT );
+			view = split( Side.LEFT, getLeftDockSize() );
 		} else {
 			WorkpaneView topView = getDockedView( Placement.DOCK_TOP );
 			WorkpaneView bottomView = getDockedView( Placement.DOCK_BOTTOM );
@@ -1609,18 +1656,19 @@ public class Workpane extends Control implements Configurable {
 			WorkpaneEdge topEdge = topView == null ? this.topWall : topView.getEdge( Side.BOTTOM );
 			WorkpaneEdge bottomEdge = bottomView == null ? this.bottomWall : bottomView.getEdge( Side.TOP );
 
-			dockView = newLeftView( null, topEdge, bottomEdge, DEFAULT_WALL_SPLIT_RATIO );
+			view = newLeftView( null, topEdge, bottomEdge, getLeftDockSize() );
 		}
+		view.setPlacement( Placement.DOCK_LEFT );
 
-		return dockView;
+		return view;
 	}
 
 	private WorkpaneView getRightDockView() {
-		WorkpaneView newView = getDockedView( Placement.DOCK_RIGHT );
-		if( newView != null ) return newView;
+		WorkpaneView view = getDockedView( Placement.DOCK_RIGHT );
+		if( view != null ) return view;
 
 		if( getDockMode() == DockMode.LANDSCAPE ) {
-			newView = split( Side.RIGHT );
+			view = split( Side.RIGHT, getRightDockSize() );
 		} else {
 			WorkpaneView topView = getDockedView( Placement.DOCK_TOP );
 			WorkpaneView bottomView = getDockedView( Placement.DOCK_BOTTOM );
@@ -1628,10 +1676,11 @@ public class Workpane extends Control implements Configurable {
 			WorkpaneEdge topEdge = topView == null ? this.topWall : topView.getEdge( Side.BOTTOM );
 			WorkpaneEdge bottomEdge = bottomView == null ? this.bottomWall : bottomView.getEdge( Side.TOP );
 
-			newView = newRightView( null, topEdge, bottomEdge, DEFAULT_WALL_SPLIT_RATIO );
+			view = newRightView( null, topEdge, bottomEdge, getRightDockSize() );
 		}
+		view.setPlacement( Placement.DOCK_RIGHT );
 
-		return newView;
+		return view;
 	}
 
 	private WorkpaneView getBottomDockView() {
@@ -1639,8 +1688,7 @@ public class Workpane extends Control implements Configurable {
 		if( view != null ) return view;
 
 		if( getDockMode() == DockMode.PORTRAIT ) {
-			view = split( Side.BOTTOM );
-			view.setPlacement( Placement.DOCK_BOTTOM );
+			view = split( Side.BOTTOM, getBottomDockSize() );
 		} else {
 			WorkpaneView leftView = getDockedView( Placement.DOCK_LEFT );
 			WorkpaneView rightView = getDockedView( Placement.DOCK_RIGHT );
@@ -1648,8 +1696,9 @@ public class Workpane extends Control implements Configurable {
 			WorkpaneEdge leftEdge = leftView == null ? this.leftWall : leftView.getEdge( Side.RIGHT );
 			WorkpaneEdge rightEdge = rightView == null ? this.rightWall : rightView.getEdge( Side.LEFT );
 
-			view = newBottomView( null, leftEdge, rightEdge, DEFAULT_WALL_SPLIT_RATIO );
+			view = newBottomView( null, leftEdge, rightEdge, getBottomDockSize() );
 		}
+		view.setPlacement( Placement.DOCK_BOTTOM );
 
 		return view;
 	}
@@ -1702,23 +1751,19 @@ public class Workpane extends Control implements Configurable {
 		}
 
 		if( source == null ) {
+			newEdge.setPosition( percent );
+
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
 				if( edge.getEdge( Side.TOP ) != topWall ) continue;
 				edge.setEdge( Side.TOP, newEdge );
 			}
 		} else {
+			double height = source.getEdge( Side.BOTTOM ).getPosition() - source.getEdge( Side.TOP ).getPosition();
+			newEdge.setPosition( source.getEdge( Side.TOP ).getPosition() + (height * percent) );
+
 			// Connect the old view to the new edge.
 			source.setEdge( Side.TOP, newEdge );
-		}
-
-		// Move the new edge to new position.
-		if( source == null ) {
-			newEdge.setPosition( percent );
-		} else {
-			newEdge.setPosition( newView.getEdge( Side.TOP ).getPosition() + ((source.getEdge( Side.BOTTOM ).getPosition() - newView
-				.getEdge( Side.TOP )
-				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1769,23 +1814,19 @@ public class Workpane extends Control implements Configurable {
 		}
 
 		if( source == null ) {
+			newEdge.setPosition( percent );
+
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
 				if( edge.getEdge( Side.LEFT ) != leftWall ) continue;
 				edge.setEdge( Side.LEFT, newEdge );
 			}
 		} else {
+			double width = source.getEdge( Side.RIGHT ).getPosition() - source.getEdge( Side.LEFT ).getPosition();
+			newEdge.setPosition( source.getEdge( Side.LEFT ).getPosition() + (width * percent) );
+
 			// Connect the old view to the new edge.
 			source.setEdge( Side.LEFT, newEdge );
-		}
-
-		// Move the new edge to new position.
-		if( source == null ) {
-			newEdge.setPosition( percent );
-		} else {
-			newEdge.setPosition( newView.getEdge( Side.LEFT ).getPosition() + ((source.getEdge( Side.RIGHT ).getPosition() - newView
-				.getEdge( Side.LEFT )
-				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1843,23 +1884,19 @@ public class Workpane extends Control implements Configurable {
 		}
 
 		if( source == null ) {
+			newEdge.setPosition( 1 - percent );
+
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
 				if( edge.getEdge( Side.RIGHT ) != rightWall ) continue;
 				edge.setEdge( Side.RIGHT, newEdge );
 			}
 		} else {
+			double width = source.getEdge( Side.RIGHT ).getPosition() - source.getEdge( Side.LEFT ).getPosition();
+			newEdge.setPosition( source.getEdge( Side.RIGHT ).getPosition() - (width * percent) );
+
 			// Connect the old view to the new edge.
 			source.setEdge( Side.RIGHT, newEdge );
-		}
-
-		// Move the new edge to new position.
-		if( source == null ) {
-			newEdge.setPosition( percent );
-		} else {
-			newEdge.setPosition( newView.getEdge( Side.RIGHT ).getPosition() - ((newView.getEdge( Side.RIGHT ).getPosition() - source
-				.getEdge( Side.LEFT )
-				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
@@ -1916,29 +1953,37 @@ public class Workpane extends Control implements Configurable {
 		}
 
 		if( source == null ) {
+			newEdge.setPosition( 1 - percent );
+
 			// Connect the old edges to the new edge.
 			for( WorkpaneEdge edge : getEdges() ) {
 				if( edge.getEdge( Side.BOTTOM ) != bottomWall ) continue;
 				edge.setEdge( Side.BOTTOM, newEdge );
 			}
 		} else {
+			double height = source.getEdge( Side.BOTTOM ).getPosition() - source.getEdge( Side.TOP ).getPosition();
+			newEdge.setPosition( source.getEdge( Side.BOTTOM ).getPosition() - (height * percent) );
+
 			// Connect the old view to the new edge.
 			source.setEdge( Side.BOTTOM, newEdge );
-		}
-
-		// Move the new edge to new position.
-		if( source == null ) {
-			newEdge.setPosition( percent );
-		} else {
-			newEdge.setPosition( newView.getEdge( Side.BOTTOM ).getPosition() - ((newView.getEdge( Side.BOTTOM ).getPosition() - source
-				.getEdge( Side.TOP )
-				.getPosition()) * percent) );
 		}
 
 		addEdge( newEdge );
 		addView( newView );
 
 		return newView;
+	}
+
+	private boolean isDockedView( WorkpaneView view ) {
+		return isDockedPlacement( view.getPlacement() );
+	}
+
+	private boolean isDockedView( WorkpaneView view, Placement placement ) {
+		return view.getPlacement() == placement && isDockedPlacement( placement );
+	}
+
+	private boolean isDockedPlacement( Placement placement ) {
+		return placement == Placement.DOCK_TOP || placement == Placement.DOCK_LEFT || placement == Placement.DOCK_RIGHT || placement == Placement.DOCK_BOTTOM;
 	}
 
 	private WorkpaneView getDockedView( Placement placement ) {

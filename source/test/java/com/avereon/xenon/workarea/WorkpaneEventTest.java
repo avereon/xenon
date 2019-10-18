@@ -1,8 +1,6 @@
 package com.avereon.xenon.workarea;
 
 import javafx.geometry.Side;
-import javafx.scene.Scene;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,23 +10,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class WorkpaneEventTest extends WorkpaneTestCase {
-
-	private Workpane workpane;
-
-	@BeforeEach
-	@Override
-	public void setup() throws Exception {
-		super.setup();
-		workpane = new Workpane();
-
-		// Workpane size must be set for move methods to work correctly.
-		Scene scene = new Scene( workpane, 1000000, 1000000 );
-		assertThat( workpane.getWidth(), is( 1000000d ) );
-		assertThat( workpane.getHeight(), is( 1000000d ) );
-
-		// Layout the workpane
-		workpane.layout();
-	}
 
 	@Test
 	public void testMoveEdge() {

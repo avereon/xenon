@@ -3,6 +3,7 @@ package com.avereon.xenon.workarea;
 import com.avereon.xenon.FxPlatformTestCase;
 import com.avereon.xenon.resource.Resource;
 import javafx.geometry.Side;
+import javafx.scene.Scene;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.net.URI;
@@ -12,12 +13,16 @@ import static org.hamcrest.Matchers.is;
 
 public class WorkpaneTestCase extends FxPlatformTestCase {
 
+	static double WORKPANE_WIDTH = 1000000;
+
+	static double WORKPANE_HEIGHT = 1000000;
+
 	protected Workpane workpane;
 
-	// TODO Rename to toolview when tests are complete
-	protected WorkpaneView toolview;
-
 	protected Resource resource = new Resource( URI.create( "" ) );
+
+	// TODO Rename to toolview when tests are complete
+	WorkpaneView toolview;
 
 	@Override
 	@BeforeEach
@@ -36,6 +41,14 @@ public class WorkpaneTestCase extends FxPlatformTestCase {
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
 		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		// Workpane size must be set for move methods to work correctly.
+		new Scene( workpane, WORKPANE_WIDTH, WORKPANE_HEIGHT );
+		assertThat( workpane.getWidth(), is( WORKPANE_WIDTH ) );
+		assertThat( workpane.getHeight(), is( WORKPANE_HEIGHT ) );
+
+		// Layout the workpane
+		workpane.layout();
 	}
 
 }

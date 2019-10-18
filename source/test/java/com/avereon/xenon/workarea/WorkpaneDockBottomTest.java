@@ -10,6 +10,29 @@ import static org.hamcrest.Matchers.*;
 public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 
 	@Test
+	void testBottomDockSizeMovesWithTool() {
+		Resource resource = new Resource( "mock:resource" );
+		MockTool tool = new MockTool( resource );
+		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
+
+		// Add the tool
+		workpane.addTool( tool );
+
+		// Check the view placement
+		WorkpaneView view = tool.getToolView();
+		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_BOTTOM ) );
+
+		// Move the dock edge
+		WorkpaneEdge edge = view.getEdge( Side.TOP );
+		assertThat( edge.getPosition(), is( 1 - workpane.getBottomDockSize() ) );
+		workpane.moveEdge( edge, -WORKPANE_HEIGHT * 0.05 );
+		assertThat( edge.getPosition(), is( 0.75 ) );
+
+		// Verify the top dock size followed the dock edge
+		assertThat( workpane.getBottomDockSize(), is( 1 - edge.getPosition() ) );
+	}
+
+	@Test
 	public void testDockBottomInLandscapeMode() throws Exception {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );

@@ -8,10 +8,40 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class WorkpaneDockTopTest extends WorkpaneTestCase {
+class WorkpaneDockTopTest extends WorkpaneTestCase {
 
 	@Test
-	public void testDockTopInLandscapeMode() throws Exception {
+	void testTopDockSize() {
+		assertThat( workpane.getTopDockSize(), is( 0.2 ) );
+		workpane.setTopDockSize( 0.25 );
+		assertThat( workpane.getTopDockSize(), is( 0.25 ) );
+	}
+
+	@Test
+	void testTopDockSizeMovesWithTool() {
+		Resource resource = new Resource( "mock:resource" );
+		MockTool tool = new MockTool( resource );
+		tool.setPlacement( Workpane.Placement.DOCK_TOP );
+
+		// Add the tool
+		workpane.addTool( tool );
+
+		// Check the view placement
+		WorkpaneView view = tool.getToolView();
+		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_TOP ) );
+
+		// Move the dock edge
+		WorkpaneEdge edge = view.getEdge( Side.BOTTOM );
+		assertThat( edge.getPosition(), is( workpane.getTopDockSize() ) );
+		workpane.moveEdge( edge, WORKPANE_HEIGHT * 0.05 );
+		assertThat( edge.getPosition(), is( 0.25  ) );
+
+		// Verify the top dock size followed the dock edge
+		assertThat( workpane.getTopDockSize(), is( 0.25 ) );
+	}
+
+	@Test
+	void testDockTopInLandscapeMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_TOP );
@@ -30,7 +60,7 @@ public class WorkpaneDockTopTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockTopInLandscapeModeWithTopAndBottomDocks() throws Exception {
+	void testDockTopInLandscapeModeWithTopAndBottomDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool leftTool = new MockTool( resource );
@@ -62,7 +92,7 @@ public class WorkpaneDockTopTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockTopInPortraitMode() throws Exception {
+	void testDockTopInPortraitMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_TOP );
@@ -81,7 +111,7 @@ public class WorkpaneDockTopTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockTopInPortraitModeWithTopAndBottomDocks() throws Exception {
+	void testDockTopInPortraitModeWithTopAndBottomDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool leftTool = new MockTool( resource );
