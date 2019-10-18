@@ -138,7 +138,7 @@ public class UiFactory {
 
 		Settings workpaneSettings = program.getSettingsManager().getSettings( ProgramSettings.PANE, id );
 		workpaneSettings.set( PARENT_WORKAREA_ID, id );
-		addWorkpanePropertiesListeners( workarea.getWorkpane(), workpaneSettings );
+		setupWorkpaneSettings( workarea.getWorkpane(), workpaneSettings );
 
 		Settings viewSettings = program.getSettingsManager().getSettings( ProgramSettings.VIEW, id );
 		viewSettings.set( PARENT_WORKPANE_ID, id );
@@ -400,7 +400,7 @@ public class UiFactory {
 			workarea.setSettings( settings );
 
 			workpaneSettings.set( PARENT_WORKAREA_ID, id );
-			addWorkpanePropertiesListeners( workarea.getWorkpane(), workpaneSettings );
+			setupWorkpaneSettings( workarea.getWorkpane(), workpaneSettings );
 
 			panes.put( id, workarea.getWorkpane() );
 			areas.put( id, workarea );
@@ -494,7 +494,7 @@ public class UiFactory {
 		}
 	}
 
-	private void addWorkpanePropertiesListeners( Workpane workpane, Settings settings ) {
+	private void setupWorkpaneSettings( Workpane workpane, Settings settings ) {
 		workpane.setTopDockSize( settings.get( DOCK_TOP_SIZE, Double.class, 0.2 ) );
 		workpane.setLeftDockSize( settings.get( DOCK_LEFT_SIZE, Double.class, 0.2 ) );
 		workpane.setRightDockSize( settings.get( DOCK_RIGHT_SIZE, Double.class, 0.2 ) );
