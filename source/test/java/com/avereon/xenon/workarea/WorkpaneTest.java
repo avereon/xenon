@@ -9,11 +9,10 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class WorkpaneTest extends WorkpaneTestCase {
+class WorkpaneTest extends WorkpaneTestCase {
 
 	@Test
-	public void testAddRemoveToolEvents() {
-		int index = 0;
+	void testAddRemoveToolEvents() {
 		MockTool tool = new MockTool( resource );
 
 		// Add the tool but do not set it active.
@@ -40,8 +39,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testAddSelectRemoveToolEvents() {
-		int index = 0;
+	void testAddSelectRemoveToolEvents() {
 		MockTool tool = new MockTool( resource );
 		assertThat( workpane.getActiveTool(), is( nullValue() ) );
 
@@ -69,17 +67,13 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSelectToolEvents() {
-		int index = 0;
+	void testSelectToolEvents() {
 		MockTool tool1 = new MockTool( resource );
 		MockTool tool2 = new MockTool( resource );
 		MockTool tool3 = new MockTool( resource );
 		assertThat( tool1.getEvents().size(), is( 0 ) );
 		assertThat( tool2.getEvents().size(), is( 0 ) );
 		assertThat( tool3.getEvents().size(), is( 0 ) );
-		int index1 = 0;
-		int index2 = 0;
-		int index3 = 0;
 
 		// Add tool one but do not activate it.
 		workpane.addTool( tool1, false );
@@ -136,7 +130,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveTool() throws Exception {
+	void testSetActiveTool() {
 		Tool tool1 = new MockTool( resource );
 		Tool tool2 = new MockTool( resource );
 		Tool tool3 = new MockTool( resource );
@@ -155,7 +149,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockMode() throws Exception {
+	void testDockMode() {
 		assertThat( workpane.getDockMode(), is( Workpane.DEFAULT_DOCK_MODE ) );
 
 		workpane.setDockMode( Workpane.DockMode.PORTRAIT );
@@ -169,7 +163,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitNorth() throws Exception {
+	void testSplitNorth() {
 		WorkpaneView view1 = workpane.split( Side.TOP );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -182,10 +176,8 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 	}
 
-	// TODO Continue implementing test methods
-
 	@Test
-	public void testSplitSouth() throws Exception {
+	void testSplitSouth() {
 		WorkpaneView view1 = workpane.split( Side.BOTTOM );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1 - Workpane.DEFAULT_WALL_SPLIT_RATIO ) );
@@ -199,7 +191,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitWest() throws Exception {
+	void testSplitWest() {
 		WorkpaneView view1 = workpane.split( Side.LEFT );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -213,7 +205,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitEast() throws Exception {
+	void testSplitEast() {
 		WorkpaneView view1 = workpane.split( Side.RIGHT );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -227,7 +219,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitNorthCompound() throws Exception {
+	void testSplitNorthCompound() {
 		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -257,7 +249,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitSouthCompound() throws Exception {
+	void testSplitSouthCompound() {
 		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -287,7 +279,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitEastCompound() throws Exception {
+	void testSplitEastCompound() {
 		WorkpaneView view1 = workpane.split( toolview, Side.TOP );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -317,7 +309,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitWestCompound() throws Exception {
+	void testSplitWestCompound() {
 		WorkpaneView view1 = workpane.split( toolview, Side.TOP );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -347,7 +339,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewNorth() throws Exception {
+	void testSplitViewNorth() {
 		WorkpaneView view1 = workpane.split( toolview, Side.TOP );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -361,7 +353,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewNorthWithSize() throws Exception {
+	void testSplitViewNorthWithSize() {
 		double size = 0.31;
 		WorkpaneView view1 = workpane.split( toolview, Side.TOP, size );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( size ) );
@@ -376,7 +368,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewSouth() throws Exception {
+	void testSplitViewSouth() {
 		WorkpaneView view1 = workpane.split( toolview, Side.BOTTOM );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1 - Workpane.DEFAULT_VIEW_SPLIT_RATIO ) );
@@ -390,7 +382,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewSouthWithSize() throws Exception {
+	void testSplitViewSouthWithSize() {
 		double size = 0.33;
 		WorkpaneView view1 = workpane.split( toolview, Side.BOTTOM, size );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
@@ -405,7 +397,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewWest() throws Exception {
+	void testSplitViewWest() {
 		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -419,7 +411,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewWestWithSize() throws Exception {
+	void testSplitViewWestWithSize() {
 		double size = 0.35;
 		WorkpaneView view1 = workpane.split( toolview, Side.LEFT, size );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
@@ -434,7 +426,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewEast() throws Exception {
+	void testSplitViewEast() {
 		WorkpaneView view1 = workpane.split( toolview, Side.RIGHT );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
@@ -448,7 +440,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitViewEastWithSize() throws Exception {
+	void testSplitViewEastWithSize() {
 		double size = 0.37;
 		WorkpaneView view1 = workpane.split( toolview, Side.RIGHT, size );
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
@@ -462,7 +454,7 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 	}
 
-	private Tool getActiveTool( WorkpaneView view ) throws Exception {
+	private Tool getActiveTool( WorkpaneView view ) {
 		ToolPane pane = (ToolPane)view.getChildren().get( 0 );
 
 		int selectedIndex = pane.getSelectionModel().getSelectedIndex();
@@ -471,12 +463,8 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		return tab.getTool();
 	}
 
-	private static Matcher<MockTool> hasEvent( int index ) {
-		return hasEvent( index, not( nullValue() ) );
-	}
-
 	private static <T> Matcher<MockTool> nextEvent( Matcher<T> valueMatcher ) {
-		return new FeatureMatcher<MockTool, T>( valueMatcher, "Tool method call", "method call" ) {
+		return new FeatureMatcher<>( valueMatcher, "Tool method call", "method call" ) {
 
 			@Override
 			@SuppressWarnings( "unchecked" )
@@ -491,24 +479,28 @@ public class WorkpaneTest extends WorkpaneTestCase {
 		};
 	}
 
-	private static <T> Matcher<MockTool> hasEvent( int index, Matcher<T> valueMatcher ) {
-		return new FeatureMatcher<MockTool, T>( valueMatcher, "Tool method call", "method call" ) {
-
-			@Override
-			@SuppressWarnings( "unchecked" )
-			protected T featureValueOf( MockTool tool ) {
-				try {
-					return (T)tool.getEvents().get( index );
-				} catch( ArrayIndexOutOfBoundsException exception ) {
-					return null;
-				}
-			}
-
-		};
-	}
+	//	private static Matcher<MockTool> hasEvent( int index ) {
+	//		return hasEvent( index, not( nullValue() ) );
+	//	}
+	//
+	//	private static <T> Matcher<MockTool> hasEvent( int index, Matcher<T> valueMatcher ) {
+	//		return new FeatureMatcher<>( valueMatcher, "Tool method call", "method call" ) {
+	//
+	//			@Override
+	//			@SuppressWarnings( "unchecked" )
+	//			protected T featureValueOf( MockTool tool ) {
+	//				try {
+	//					return (T)tool.getEvents().get( index );
+	//				} catch( ArrayIndexOutOfBoundsException exception ) {
+	//					return null;
+	//				}
+	//			}
+	//
+	//		};
+	//	}
 
 	private static Matcher<MockTool.MethodCall> isMethod( String name ) {
-		return new CustomTypeSafeMatcher<MockTool.MethodCall>( "matching " + name ) {
+		return new CustomTypeSafeMatcher<>( "matching " + name ) {
 
 			@Override
 			protected boolean matchesSafely( MockTool.MethodCall event ) {
