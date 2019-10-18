@@ -109,6 +109,8 @@ public class Workpane extends Control implements Configurable {
 		rightDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
 		bottomDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
 
+		//leftDockSize.addListener( (observable, oldValue, newValue) -> System.out.println( "New left dock size: " + newValue ) );
+
 		operation = new AtomicInteger();
 		events = new LinkedList<>();
 		listeners = new CopyOnWriteArraySet<>();
@@ -884,7 +886,7 @@ public class Workpane extends Control implements Configurable {
 			}
 		}
 
-		return null;
+		return Side.TOP;
 	}
 
 	private static Side getLeftDirection( Side direction ) {
@@ -903,7 +905,7 @@ public class Workpane extends Control implements Configurable {
 			}
 		}
 
-		return null;
+		return Side.TOP;
 	}
 
 	private static Side getRightDirection( Side direction ) {
@@ -922,7 +924,7 @@ public class Workpane extends Control implements Configurable {
 			}
 		}
 
-		return null;
+		return Side.TOP;
 	}
 
 	private static Orientation getPerpendicularDirectionOrientation( Side direction ) {
@@ -1205,8 +1207,8 @@ public class Workpane extends Control implements Configurable {
 		double percent = (delta / (bounds.getHeight() - insets.getTop() - insets.getBottom()));
 		edge.setPosition( edge.getPosition() + percent );
 
-		if( isPlacementEdge( edge, Placement.DOCK_TOP ) ) topDockSize.setValue( edge.getPosition() );
-		if( isPlacementEdge( edge, Placement.DOCK_BOTTOM ) ) bottomDockSize.setValue( 1-edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_TOP ) ) topDockSize.set( edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_BOTTOM ) ) bottomDockSize.set( 1-edge.getPosition() );
 
 		return delta;
 	}
@@ -1233,8 +1235,8 @@ public class Workpane extends Control implements Configurable {
 		double percent = (delta / (bounds.getWidth() - insets.getLeft() - insets.getRight()));
 		edge.setPosition( edge.getPosition() + percent );
 
-		if( isPlacementEdge( edge, Placement.DOCK_LEFT ) ) leftDockSize.setValue( edge.getPosition() );
-		if( isPlacementEdge( edge, Placement.DOCK_RIGHT ) ) rightDockSize.setValue( 1-edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_LEFT ) ) leftDockSize.set( edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_RIGHT ) ) rightDockSize.set( 1-edge.getPosition() );
 
 		return delta;
 	}
@@ -1451,7 +1453,7 @@ public class Workpane extends Control implements Configurable {
 		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
-	public WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
+	private WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
 		WorkpaneView view = null;
 
 		switch( placement ) {
@@ -1473,22 +1475,18 @@ public class Workpane extends Control implements Configurable {
 			}
 			case DOCK_TOP: {
 				view = getTopDockView();
-				//if( view != null ) view.setPlacement( Placement.DOCK_TOP );
 				break;
 			}
 			case DOCK_LEFT: {
 				view = getLeftDockView();
-				//if( view != null ) view.setPlacement( Placement.DOCK_LEFT );
 				break;
 			}
 			case DOCK_RIGHT: {
 				view = getRightDockView();
-				//if( view != null ) view.setPlacement( Placement.DOCK_RIGHT );
 				break;
 			}
 			case DOCK_BOTTOM: {
 				view = getBottomDockView();
-				//if( view != null ) view.setPlacement( Placement.DOCK_BOTTOM );
 				break;
 			}
 		}
