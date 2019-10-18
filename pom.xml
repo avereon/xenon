@@ -221,10 +221,11 @@
 				<configuration>
 					<!-- The argLine and systemPropertyVariables should match the failsafe configuration below -->
 					<argLine>
+						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=java.base/java.util=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.workarea=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->

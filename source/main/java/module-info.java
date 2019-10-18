@@ -29,10 +29,8 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.workspace;
 
 	opens com.avereon.xenon.bundles;
+	opens com.avereon.xenon.product;
 	opens settings;
-
-	// WORKAROUND Dev time problem
-	opens com.avereon.xenon.product to com.fasterxml.jackson.databind;
 
 	uses Mod;
 }
