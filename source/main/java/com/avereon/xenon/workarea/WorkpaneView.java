@@ -298,7 +298,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private void activateTool( Tool tool ) {
 		Workpane workpane = getWorkpane();
-		if( workpane.getActiveTool() == tool ) return;
+		//if( workpane.getActiveTool() == tool ) return;
 		workpane.setActiveTool( tool );
 	}
 

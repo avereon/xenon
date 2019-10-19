@@ -1080,25 +1080,25 @@ public class Workpane extends Control implements Configurable {
 		return weight == 0 ? null : directions.get( 0 ).getDirection();
 	}
 
-	public Tool addTool( Tool tool ) {
+	Tool addTool( Tool tool ) {
 		return addTool( tool, true );
 	}
 
-	public Tool addTool( Tool tool, boolean activate ) {
+	Tool addTool( Tool tool, boolean activate ) {
 		return addTool( tool, (WorkpaneView)null, activate );
 	}
 
-	public Tool addTool( Tool tool, Placement placement ) {
-		if( placement == null ) placement = tool.getPlacement();
-		return addTool( tool, determineViewFromPlacement( placement ) );
-	}
+//	public Tool addTool( Tool tool, Placement placement ) {
+//		if( placement == null ) placement = tool.getPlacement();
+//		return addTool( tool, determineViewFromPlacement( placement ) );
+//	}
 
 	public Tool addTool( Tool tool, Placement placement, boolean activate ) {
 		if( placement == null ) placement = tool.getPlacement();
 		return addTool( tool, determineViewFromPlacement( placement ), activate );
 	}
 
-	public Tool addTool( Tool tool, WorkpaneView view ) {
+	Tool addTool( Tool tool, WorkpaneView view ) {
 		return addTool( tool, view, true );
 	}
 
