@@ -66,11 +66,11 @@ public class UiFactory {
 
 	private Map<WorkpaneView, Set<ProgramTool>> viewTools = new HashMap<>();
 
-	private boolean started;
+	private boolean restored;
 
 	private Lock restoreLock = new ReentrantLock();
 
-	private Condition startedCondition = restoreLock.newCondition();
+	private Condition restoredCondition = restoreLock.newCondition();
 
 	public UiFactory( Program program ) {
 		this.program = program;
@@ -85,21 +85,21 @@ public class UiFactory {
 	//	}
 
 	public int getToolCount() {
-		return getChildNodeNames( ProgramSettings.TOOL ).size();
+		return getUiSettingsIds( ProgramSettings.TOOL ).size();
 	}
 
 	public void restore( SplashScreenPane splashScreen ) {
 		restoreLock.lock();
 		try {
-			List<String> workspaceIds = getChildNodeNames( ProgramSettings.WORKSPACE );
-			if( workspaceIds.size() == 0 ) {
-				createDefaultWorkspace();
-			} else {
+			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
+			if( workspaceIds.size() > 0 ) {
 				restoreWorkspaces( splashScreen, workspaceIds );
+			} else {
+				createDefaultWorkspace();
 			}
 		} finally {
-			started = true;
-			startedCondition.signalAll();
+			restored = true;
+			restoredCondition.signalAll();
 			restoreLock.unlock();
 		}
 	}
@@ -107,8 +107,8 @@ public class UiFactory {
 	public void awaitRestore( long timeout, TimeUnit unit ) throws InterruptedException {
 		restoreLock.lock();
 		try {
-			while( !started ) {
-				startedCondition.await( timeout, unit );
+			while( !restored ) {
+				restoredCondition.await( timeout, unit );
 			}
 		} finally {
 			restoreLock.unlock();
@@ -174,10 +174,10 @@ public class UiFactory {
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
-		List<String> areaIds = getChildNodeNames( ProgramSettings.AREA );
-		List<String> edgeIds = getChildNodeNames( ProgramSettings.EDGE );
-		List<String> viewIds = getChildNodeNames( ProgramSettings.VIEW );
-		List<String> toolIds = getChildNodeNames( ProgramSettings.TOOL );
+		List<String> areaIds = getUiSettingsIds( ProgramSettings.AREA );
+		List<String> edgeIds = getUiSettingsIds( ProgramSettings.EDGE );
+		List<String> viewIds = getUiSettingsIds( ProgramSettings.VIEW );
+		List<String> toolIds = getUiSettingsIds( ProgramSettings.TOOL );
 
 		// Create the workspaces (includes the window)
 		for( String id : workspaceIds ) {
@@ -357,7 +357,7 @@ public class UiFactory {
 		if( activeTool != null ) activeTool.getWorkpane().setActiveTool( activeTool );
 	}
 
-	private List<String> getChildNodeNames( String path ) {
+	private List<String> getUiSettingsIds( String path ) {
 		return program.getSettingsManager().getSettings( path ).getNodes();
 	}
 
@@ -470,6 +470,8 @@ public class UiFactory {
 
 			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
+
+			// NEXT Should loading the resources happen after all the tools are created?
 			program.getResourceManager().loadResources( resource );
 
 			// Create an open tool request
