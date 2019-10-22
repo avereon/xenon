@@ -58,7 +58,6 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		getChildren().setAll( tabLayout );
 
 		pseudoClassStateChanged( ToolTab.SELECTED_PSEUDOCLASS_STATE, tab.isSelected() );
-		pseudoClassStateChanged( ToolTab.ACTIVE_PSEUDOCLASS_STATE, tab.isActive() );
 
 		label.setOnMousePressed( ( event ) -> {
 			select( tab );

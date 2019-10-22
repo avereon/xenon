@@ -17,15 +17,11 @@ public class ToolTab extends Control {
 
 	static final PseudoClass SELECTED_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "selected" );
 
-	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
-
 	private ToolPane pane;
 
 	private Tool tool;
 
 	private ReadOnlyBooleanWrapper selected;
-
-	private ReadOnlyBooleanWrapper active;
 
 	private ReadOnlyObjectWrapper<EventHandler<Event>> onCloseRequest;
 
@@ -87,42 +83,6 @@ public class ToolTab extends Control {
 			};
 		}
 		return selected;
-	}
-
-	public boolean isActive() {
-		return active != null && active.get();
-	}
-
-	public void setActive( boolean active ) {
-		activePropertyImpl().set( active );
-	}
-
-	public ReadOnlyBooleanWrapper activeProperty() {
-		return activePropertyImpl();
-	}
-
-	private ReadOnlyBooleanWrapper activePropertyImpl() {
-		if( active == null ) {
-			active = new ReadOnlyBooleanWrapper() {
-
-				@Override
-				protected void invalidated() {
-					pseudoClassStateChanged( ACTIVE_PSEUDOCLASS_STATE, isActive() );
-					//if( getOnActivatedChanged() != null ) Event.fireEvent( ToolTab.this, new Event( ACTIVATED_CHANGED_EVENT ) );
-				}
-
-				@Override
-				public Object getBean() {
-					return ToolTab.this;
-				}
-
-				@Override
-				public String getName() {
-					return "active";
-				}
-			};
-		}
-		return active;
 	}
 
 	private static final EventType<Event> SELECTION_CHANGED_EVENT = new EventType<>( Event.ANY, "SELECTION_CHANGED_EVENT" );

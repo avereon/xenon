@@ -57,11 +57,7 @@ public class ToolPane extends Control {
 	}
 
 	public void setActive( boolean active ) {
-		log.info( "Toolpane active: " + active );
 		activePropertyImpl().set( active );
-		for( ToolTab tab : tabs ) {
-			tab.setActive( active );
-		}
 	}
 
 	public ReadOnlyBooleanWrapper activeProperty() {
@@ -74,6 +70,7 @@ public class ToolPane extends Control {
 
 				@Override
 				protected void invalidated() {
+					log.info( "Toolpane active: " + isActive() );
 					pseudoClassStateChanged( ACTIVE_PSEUDOCLASS_STATE, isActive() );
 					//if( getOnActivatedChanged() != null ) Event.fireEvent( ToolTab.this, new Event( ACTIVATED_CHANGED_EVENT ) );
 				}
@@ -157,7 +154,6 @@ public class ToolPane extends Control {
 					for( ToolTab tab : change.getRemoved() ) {
 						if( tab != null && !pane.getTabs().contains( tab ) && tab.isSelected() ) {
 							tab.setSelected( false );
-							tab.setActive( false );
 							int fromIndex = change.getFrom();
 							ToolTab next = findNearestAvailableTab( fromIndex );
 							if( next != null ) select( next );

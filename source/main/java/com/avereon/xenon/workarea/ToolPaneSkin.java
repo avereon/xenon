@@ -37,9 +37,9 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		super( control );
 
 		Rectangle clipRect = new Rectangle( control.getWidth(), control.getHeight() );
-		registerChangeListener( control.widthProperty(), event -> clipRect.setWidth( getSkinnable().getWidth() ) );
-		registerChangeListener( control.heightProperty(), event -> clipRect.setHeight( getSkinnable().getHeight() ) );
-		getSkinnable().setClip( clipRect );
+		registerChangeListener( control.widthProperty(), event -> clipRect.setWidth( control.getWidth() ) );
+		registerChangeListener( control.heightProperty(), event -> clipRect.setHeight( control.getHeight() ) );
+		control.setClip( clipRect );
 
 		control.getTabs().forEach( tab -> tab.setToolPane( control ) );
 		Set<Tool> tools = control.getTabs().stream().map( ToolTab::getTool ).peek( tool -> tool.setVisible( false ) ).collect( Collectors.toSet() );
@@ -62,16 +62,18 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 		getChildren().setAll( header, toolArea );
 
+		pseudoClassStateChanged( ToolPane.ACTIVE_PSEUDOCLASS_STATE, control.isActive() );
+
 		control.getTabs().addListener( (ListChangeListener<ToolTab>)change -> {
 			while( change.next() ) {
 				change.getRemoved().stream().filter( Objects::nonNull ).forEach( tab -> {
-					if( !getSkinnable().getTabs().contains( tab ) ) tab.setToolPane( null );
+					if( !control.getTabs().contains( tab ) ) tab.setToolPane( null );
 					toolArea.getChildren().remove( tab.getTool() );
 					// Tab is removed below
 				} );
 
 				change.getAddedSubList().stream().filter( Objects::nonNull ).forEach( tab -> {
-					tab.setToolPane( getSkinnable() );
+					tab.setToolPane( control );
 					// Tab is added below
 					toolArea.getChildren().add( tab.getTool() );
 				} );
@@ -80,23 +82,23 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 				if( change.wasAdded() ) tabContainer.getChildren().addAll( change.getFrom(), change.getAddedSubList() );
 			}
 
-			getSkinnable().requestLayout();
+			control.requestLayout();
 		} );
 
 		control.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
 			// Hide all the tools
-			getSkinnable().getTabs().stream().map( ToolTab::getTool ).forEach( tool -> tool.setVisible( false ) );
+			control.getTabs().stream().map( ToolTab::getTool ).forEach( tool -> tool.setVisible( false ) );
 
 			// Show the selected tool
-			ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
+			ToolTab selectedTab = control.getSelectionModel().getSelectedItem();
 			if( selectedTab != null ) selectedTab.getTool().setVisible( true );
 
-			getSkinnable().requestLayout();
+			control.requestLayout();
 		} );
 
 		headerDrop.setOnMouseClicked( ( event ) -> {
 			if( event.getClickCount() == 2 ) {
-				WorkpaneView view = getSkinnable().getWorkpaneView();
+				WorkpaneView view = control.getWorkpaneView();
 				view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
 			}
 		} );
@@ -104,8 +106,8 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		headerDrop.setOnDragEntered( ( event ) -> {
 			log.warn( "Drag enter header: " + event.getDragboard().getUrl() );
 
-			Bounds bounds = FxUtil.localToParent( headerDrop, getSkinnable().getWorkpane() );
-			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+			Bounds bounds = FxUtil.localToParent( headerDrop, control.getWorkpane() );
+			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 
 			event.consume();
 		} );
@@ -118,7 +120,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		headerDrop.setOnDragExited( ( event ) -> {
 			log.warn( "Drag exit header: " + event.getDragboard().getUrl() );
 
-			getSkinnable().getWorkpane().setDropHint( null );
+			control.getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
@@ -135,14 +137,14 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
 
 			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
-			Bounds dropHintBounds = FxUtil.localToParent( toolArea, getSkinnable().getWorkpane(), dropBounds );
-			getSkinnable().getWorkpane().setDropHint( new WorkpaneDropHint( dropHintBounds ) );
+			Bounds dropHintBounds = FxUtil.localToParent( toolArea, control.getWorkpane(), dropBounds );
+			control.getWorkpane().setDropHint( new WorkpaneDropHint( dropHintBounds ) );
 
 			event.consume();
 		} );
 
 		toolArea.setOnDragExited( ( event ) -> {
-			getSkinnable().getWorkpane().setDropHint( null );
+			control.getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
@@ -150,7 +152,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 			control.handleDrop( event, -2, getDropSide( event ) );
 		} );
 
-		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
+		ToolTab selectedTab = control.getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
 	}
 

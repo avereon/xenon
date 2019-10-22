@@ -335,14 +335,14 @@
 	-fx-background-color: -ex-background-tags;
 }
 
-.tool-tab:active:selected {
+.tool-pane:active .tool-tab:selected {
 	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
 	-fx-border-width: 0 0 0.5mm 0;
 	-fx-border-color: derive(-fx-selection-bar, 20%);
 	-fx-background-color: -ex-background-note;
 }
 
-.tool-tab:active:selected:hover {
+.tool-pane:active .tool-tab:selected:hover {
 	-fx-border-color: derive(-fx-selection-bar, 40%);
 	-fx-background-color: -ex-background-note;
 }
