@@ -70,7 +70,6 @@ public class ToolPane extends Control {
 
 				@Override
 				protected void invalidated() {
-					log.info( "Toolpane active: " + isActive() );
 					pseudoClassStateChanged( ACTIVE_PSEUDOCLASS_STATE, isActive() );
 					//if( getOnActivatedChanged() != null ) Event.fireEvent( ToolTab.this, new Event( ACTIVATED_CHANGED_EVENT ) );
 				}
