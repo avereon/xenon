@@ -11,10 +11,10 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-public class ProductToolGetRequiredResourcesUIT extends ProductToolUIT {
+class ProductToolGetRequiredResourcesUIT extends ProductToolUIT {
 
 	@Test
-	public void execute() {
+	void execute() {
 		Resource resource = new Resource( ProgramProductType.URI );
 		ProductTool tool = new ProductTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();

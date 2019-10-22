@@ -11,12 +11,12 @@ class TaskWatcher implements TaskListener {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	private List<TaskEvent> events = new CopyOnWriteArrayList<TaskEvent>();
+	private List<TaskEvent> events = new CopyOnWriteArrayList<>();
 
 	private Map<TaskEvent.Type, TaskEvent> eventMap = new ConcurrentHashMap<>();
 
 	public List<TaskEvent> getEvents() {
-		return new ArrayList<TaskEvent>( events );
+		return new ArrayList<>( events );
 	}
 
 	@Override
@@ -26,7 +26,7 @@ class TaskWatcher implements TaskListener {
 		notifyAll();
 	}
 
-	public void clearEvent( TaskEvent.Type type ) {
+	private void clearEvent( TaskEvent.Type type ) {
 		eventMap.remove( type );
 	}
 
@@ -34,6 +34,7 @@ class TaskWatcher implements TaskListener {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
+	@SuppressWarnings( "unused" )
 	public void waitForNextEvent( TaskEvent.Type type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
@@ -53,11 +54,13 @@ class TaskWatcher implements TaskListener {
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type );
 	}
 
-	public synchronized void waitForNextEvent( TaskEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	@SuppressWarnings( "SameParameterValue" )
+	private synchronized void waitForNextEvent( TaskEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
 		clearEvent( type );
 		waitForEvent( type, timeout );
 	}
 
+	@SuppressWarnings( "unused" )
 	public synchronized void waitForEventCount( int count, int timout ) throws InterruptedException {
 		while( events.size() < count ) {
 			wait( timout );

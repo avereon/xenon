@@ -131,7 +131,7 @@ public class ProductManagerLogic {
 			.link( this::collectCatalogCardDownloads )
 			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, installedProducts.values() ) )
 			.link( this::collectProductCardDownloads )
-			.link( ( availableProducts ) -> determineUpdateableProducts( availableProducts, installedProducts ) );
+			.link( ( availableProducts ) -> determineUpdatableProducts( availableProducts, installedProducts ) );
 	}
 
 	private Void initFindPostedUpdates( boolean force ) {
@@ -230,10 +230,10 @@ public class ProductManagerLogic {
 	}
 
 	Set<ProductCard> determineAvailableProducts( Map<RepoState, Set<ProductCard>> products ) {
-		return determineUpdateableProducts( products, Map.of() );
+		return determineUpdatableProducts( products, Map.of() );
 	}
 
-	Set<ProductCard> determineUpdateableProducts( Map<RepoState, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
+	Set<ProductCard> determineUpdatableProducts( Map<RepoState, Set<ProductCard>> products, Map<String, ProductCard> installedProducts ) {
 		if( products == null ) throw new NullPointerException( "Product map cannot be null" );
 
 		boolean determineAvailable = installedProducts.size() == 0;

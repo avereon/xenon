@@ -7,10 +7,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WorkpaneMergeEastTest extends WorkpaneTestCase {
+class WorkpaneMergeEastTest extends WorkpaneTestCase {
 
 	@Test
-	public void testCanPushMergeEastSingleTargetSingleSource() throws Exception {
+	void testCanPushMergeEastSingleTargetSingleSource() {
 		WorkpaneView view = workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
@@ -18,14 +18,14 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCanPushMergeEastSingleTargetSingleSourceOnEdge() throws Exception {
+	void testCanPushMergeEastSingleTargetSingleSourceOnEdge() {
 		workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
 	}
 
 	@Test
-	public void testCanPushMergeEastSingleTargetMultipleSource() throws Exception {
+	void testCanPushMergeEastSingleTargetMultipleSource() {
 		WorkpaneView east = workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
@@ -37,7 +37,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCanPushMergeEastMultipleTargetSingleSource() throws Exception {
+	void testCanPushMergeEastMultipleTargetSingleSource() {
 		workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
@@ -49,7 +49,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCanPushMergeEastMultipleTargetMultipleSource() throws Exception {
+	void testCanPushMergeEastMultipleTargetMultipleSource() {
 		WorkpaneView east = workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
@@ -66,7 +66,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCanPushMergeEastComplex() throws Exception {
+	void testCanPushMergeEastComplex() {
 		WorkpaneView east = workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertTrue( workpane.canPushMerge( toolview, Side.RIGHT, false ) );
@@ -88,12 +88,12 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testPushMergeEastSingleTargetSingleSource() throws Exception {
+	void testPushMergeEastSingleTargetSingleSource() {
 		WorkpaneView west = workpane.split( toolview, Side.LEFT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertThat( workpane.getDefaultView(), is( toolview ) );
 		assertThat( workpane.getActiveView(), is( toolview ) );
-		assertFalse( west.equals( workpane.getActiveView() ) );
+		assertNotEquals( west, workpane.getActiveView() );
 
 		workpane.setActiveView( west );
 		workpane.setDefaultView( west );
@@ -122,7 +122,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testPushMergeEastSingleTargetMultipleSource() throws Exception {
+	void testPushMergeEastSingleTargetMultipleSource() {
 		WorkpaneView west = workpane.split( toolview, Side.LEFT );
 		workpane.split( toolview, Side.BOTTOM );
 		assertThat( workpane.getViews().size(), is( 3 ) );
@@ -138,7 +138,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testPushMergeEastMultipleTargetSingleSourceFromNorthwest() throws Exception {
+	void testPushMergeEastMultipleTargetSingleSourceFromNorthwest() {
 		WorkpaneView northwest = workpane.split( toolview, Side.LEFT );
 		WorkpaneView southwest = workpane.split( northwest, Side.BOTTOM );
 		assertThat( workpane.getViews().size(), is( 3 ) );
@@ -168,7 +168,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testPushMergeEastMultipleTargetSingleSourceFromSouthwest() throws Exception {
+	void testPushMergeEastMultipleTargetSingleSourceFromSouthwest() {
 		WorkpaneView northwest = workpane.split( toolview, Side.LEFT );
 		WorkpaneView southwest = workpane.split( northwest, Side.BOTTOM );
 		assertThat( workpane.getViews().size(), is( 3 ) );
@@ -198,7 +198,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCanPullMergeEastSingleTargetSingleSource() throws Exception {
+	void testCanPullMergeEastSingleTargetSingleSource() {
 		WorkpaneView view = workpane.split( toolview, Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertFalse( workpane.canPullMerge( toolview, Side.RIGHT, false ) );
@@ -206,7 +206,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCanPullMergeEastAcrossEditView() throws Exception {
+	void testCanPullMergeEastAcrossEditView() {
 		WorkpaneView view = workpane.split( Side.RIGHT );
 		assertThat( workpane.getViews().size(), is( 2 ) );
 		assertFalse( workpane.canPullMerge( toolview, Side.RIGHT, false ) );
@@ -214,7 +214,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testPullMergeEastMultipleSourceEdgeTarget() throws Exception {
+	void testPullMergeEastMultipleSourceEdgeTarget() {
 		WorkpaneView northView = workpane.split( Side.TOP );
 		WorkpaneView southView = workpane.split( Side.BOTTOM );
 		WorkpaneView eastView = workpane.split( Side.RIGHT );
@@ -234,7 +234,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testPullMergeEastMultipleSourceMultipleTarget() throws Exception {
+	void testPullMergeEastMultipleSourceMultipleTarget() {
 		workpane.split( toolview, Side.TOP );
 		workpane.split( toolview, Side.BOTTOM );
 		WorkpaneView eastView = workpane.split( toolview, Side.RIGHT );
@@ -291,7 +291,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testAutoMergeEast() throws Exception {
+	void testAutoMergeEast() {
 		WorkpaneView view1 = workpane.split( toolview, Side.LEFT );
 		Tool tool = new MockTool( resource );
 		Tool tool1 = new MockTool( resource );
@@ -305,7 +305,7 @@ public class WorkpaneMergeEastTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testAutoMergeMergeEastWithMultipleViews() {
+	void testAutoMergeMergeEastWithMultipleViews() {
 		WorkpaneView southwest = workpane.split( toolview, Side.BOTTOM );
 		WorkpaneView southeast = workpane.split( southwest, Side.RIGHT );
 		Tool view = new MockTool( resource );

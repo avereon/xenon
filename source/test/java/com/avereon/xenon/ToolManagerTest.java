@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.resource.ResourceManager;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +15,6 @@ public class ToolManagerTest extends BaseTestCase {
 
 	private TaskManager taskManager;
 
-	private ResourceManager resourceManager;
-
 	private ToolManager toolManager;
 
 	@BeforeEach
@@ -25,23 +22,23 @@ public class ToolManagerTest extends BaseTestCase {
 	public void setup() throws Exception {
 		super.setup();
 		taskManager = new TaskManager().start();
-		resourceManager = new ResourceManager( program );
 		toolManager = new ToolManager( program );
 	}
 
 	@Test
-	public void testGetToolClassName() {
+	void testGetToolClassName() {
 		toolManager.addToolAlias( "oldName", "newName" );
 		assertThat( toolManager.getToolClassName( "oldName" ), is( "newName" ) );
 	}
 
 	@Test
-	public void testGetToolClassNameWithNull() {
+	void testGetToolClassNameWithNull() {
 		assertThat( toolManager.getToolClassName( null ), is( nullValue() ) );
 	}
 
 	@Test
-	public void testOpenToolNotOnTaskThread() {
+	@SuppressWarnings( "ConstantConditions" )
+	void testOpenToolNotOnTaskThread() {
 		try {
 			toolManager.openTool( null );
 			fail( "Should throw a RuntimeException" );
@@ -51,7 +48,8 @@ public class ToolManagerTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testOpenToolWithNullResource() {
+	@SuppressWarnings( "ConstantConditions" )
+	void testOpenToolWithNullResource() {
 		taskManager.submit( Task.of( "", () -> {
 			try {
 				toolManager.openTool( null );

@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class ColorsTest {
+class ColorsTest {
 
 	@Test
-	public void testWebWithColor() {
+	void testWebWithColor() {
 		assertThat( Colors.web( Color.TRANSPARENT ), is( "#00000000"));
 		assertThat( Colors.web( Color.BLACK ), is( "#000000ff"));
 		assertThat( Colors.web( Color.WHITE ), is( "#ffffffff"));
@@ -17,7 +17,7 @@ public class ColorsTest {
 	}
 
 	@Test
-	public void testWebWithString() {
+	void testWebWithString() {
 		assertThat( Colors.web( "#00000000"), is( Color.TRANSPARENT ));
 		assertThat( Colors.web( "#000000ff"), is( Color.BLACK ));
 		assertThat( Colors.web( "#ffffffff"), is( Color.WHITE ));

@@ -9,10 +9,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class WorkpaneEventTest extends WorkpaneTestCase {
+class WorkpaneEventTest extends WorkpaneTestCase {
 
 	@Test
-	public void testMoveEdge() {
+	void testMoveEdge() {
 		WorkpaneView west = workpane.split( Side.LEFT );
 		WorkpaneEdge edge = west.getEdge( Side.RIGHT );
 
@@ -25,7 +25,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testMoveEdgeNowhere() {
+	void testMoveEdgeNowhere() {
 		Workpane area = new Workpane();
 		WorkpaneView west = area.split( Side.LEFT );
 		WorkpaneEdge edge = west.getEdge( Side.RIGHT );
@@ -37,7 +37,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveView() {
+	void testSetActiveView() {
 		Workpane area = new Workpane();
 		WorkpaneView south = area.getDefaultView();
 		WorkpaneView north = area.split( south, Side.TOP );
@@ -53,7 +53,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveViewSame() {
+	void testSetActiveViewSame() {
 		Workpane area = new Workpane();
 		WorkpaneView south = area.getDefaultView();
 		area.setActiveView( south );
@@ -65,7 +65,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveViewWithViewFromOtherArea() {
+	void testSetActiveViewWithViewFromOtherArea() {
 		Workpane area0 = new Workpane();
 		Workpane area1 = new Workpane();
 		WorkpaneView view0 = area0.getDefaultView();
@@ -79,7 +79,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetDefaultView() {
+	void testSetDefaultView() {
 		Workpane area = new Workpane();
 		WorkpaneView south = area.getDefaultView();
 		WorkpaneView north = area.split( south, Side.TOP );
@@ -93,7 +93,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetDefaultViewSame() {
+	void testSetDefaultViewSame() {
 		Workpane area = new Workpane();
 		WorkpaneView south = area.getDefaultView();
 		area.setDefaultView( south );
@@ -105,7 +105,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetMaximizedView() {
+	void testSetMaximizedView() {
 		Workpane area = new Workpane();
 		area.setMaximizedView( null );
 
@@ -117,7 +117,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplit() {
+	void testSplit() {
 		Workpane area = new Workpane();
 
 		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
@@ -132,7 +132,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSplitWithView() {
+	void testSplitWithView() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 
@@ -149,7 +149,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testMerge() {
+	void testMerge() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 		WorkpaneView north = area.split( view, Side.TOP );
@@ -168,7 +168,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testAddTool() {
+	void testAddTool() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 		Tool tool = new MockTool( resource );
@@ -190,7 +190,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testRemoveTool() {
+	void testRemoveTool() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 		Tool tool = new MockTool( resource );
@@ -212,7 +212,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testCloseTool() {
+	void testCloseTool() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
 		Tool tool = new MockTool( resource );
@@ -236,7 +236,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveTool() {
+	void testSetActiveTool() {
 		Workpane area = new Workpane();
 		WorkpaneView southView = area.getDefaultView();
 		WorkpaneView northView = area.split( southView, Side.TOP );
@@ -259,7 +259,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveToolWithToolNotAdded() {
+	void testSetActiveToolWithToolNotAdded() {
 		Workpane area = new Workpane();
 		WorkpaneView southView = area.getDefaultView();
 		Tool northTool = new MockTool( resource );
@@ -275,7 +275,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testSetActiveToolWithToolFromOtherArea() {
+	void testSetActiveToolWithToolFromOtherArea() {
 		Workpane area0 = new Workpane();
 		Workpane area1 = new Workpane();
 		WorkpaneView view0 = area0.getDefaultView();
@@ -293,6 +293,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( workpaneWatcher.getEvents().size(), is( 0 ) );
 	}
 
+	@SuppressWarnings( "SameParameterValue" )
 	private void assertWorkpaneEvent( WorkpaneEvent event, WorkpaneEvent.Type type, Workpane area ) {
 		assertThat( "Event type", event.getType(), is( type ) );
 		assertThat( "Work area", event.getWorkPane(), is( area ) );
@@ -323,7 +324,7 @@ public class WorkpaneEventTest extends WorkpaneTestCase {
 
 	private static class ToolEventCounter implements ToolListener {
 
-		public List<ToolEvent> events = new CopyOnWriteArrayList<>();
+		List<ToolEvent> events = new CopyOnWriteArrayList<>();
 
 		@Override
 		public void toolClosing( ToolEvent event ) {

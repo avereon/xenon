@@ -8,13 +8,13 @@ class ProductMatcher extends TypeSafeMatcher<ProductCard> {
 
 	private ProductCard expected;
 
-	ProductMatcher( ProductCard expected ) {
+	private ProductMatcher( ProductCard expected ) {
 		this.expected = expected;
 	}
 
 	@Override
 	protected boolean matchesSafely( ProductCard actual ) {
-		return actual.getProductKey().equals( expected.getProductKey()) && actual.getRelease().compareTo( expected.getRelease() ) == 0;
+		return actual.getProductKey().equals( expected.getProductKey() ) && actual.getRelease().compareTo( expected.getRelease() ) == 0;
 	}
 
 	@Override
@@ -27,7 +27,7 @@ class ProductMatcher extends TypeSafeMatcher<ProductCard> {
 		mismatchDescription.appendText( "found " ).appendValue( actual + ":" + actual.getRelease() );
 	}
 
-	public static ProductMatcher matches( ProductCard card ) {
+	static ProductMatcher matches( ProductCard card ) {
 		return new ProductMatcher( card );
 	}
 

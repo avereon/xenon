@@ -5,7 +5,7 @@ import com.avereon.xenon.scheme.BaseScheme;
 
 public class MockScheme extends BaseScheme {
 
-	public MockScheme( Program program ) {
+	MockScheme( Program program ) {
 		super( program );
 	}
 

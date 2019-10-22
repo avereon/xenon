@@ -10,11 +10,11 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class RepoStateTest {
+class RepoStateTest {
 
 	// Test that the catalog card can be unmarshalled
 	@Test
-	public void testLoadCards() throws Exception {
+	void testLoadCards() throws Exception {
 		List<RepoState> cards = RepoState.forProduct( getClass() );
 		assertThat( cards.size(), is( 2 ) );
 
@@ -34,10 +34,10 @@ public class RepoStateTest {
 	}
 
 	@Test
-	public void testIgnoreMissingAndUnknownProperties() throws Exception {
+	void testIgnoreMissingAndUnknownProperties() throws Exception {
 		String state = "[{\"name\" : \"Avereon\", \"extra\" : \"unknown\"}]";
-		List<RepoState> card = RepoState.loadCards( new ByteArrayInputStream( state.getBytes( TextUtil.CHARSET) ) );
-		assertThat( card.get(0).getName(), CoreMatchers.is( "Avereon" ) );
+		List<RepoState> card = RepoState.loadCards( new ByteArrayInputStream( state.getBytes( TextUtil.CHARSET ) ) );
+		assertThat( card.get( 0 ).getName(), CoreMatchers.is( "Avereon" ) );
 	}
 
 }

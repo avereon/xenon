@@ -12,10 +12,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
-public class ProductToolCloseResourceCloseToolUIT extends ProductToolUIT {
+class ProductToolCloseResourceCloseToolUIT extends ProductToolUIT {
 
 	@Test
-	public void execute() throws Exception {
+	void execute() throws Exception {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 

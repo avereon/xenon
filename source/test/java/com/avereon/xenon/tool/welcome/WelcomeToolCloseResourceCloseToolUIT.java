@@ -11,10 +11,10 @@ import java.util.concurrent.Future;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class WelcomeToolCloseResourceCloseToolUIT extends WelcomeToolUIT {
+class WelcomeToolCloseResourceCloseToolUIT extends WelcomeToolUIT {
 
 	@Test
-	public void execute() throws Exception {
+	void execute() throws Exception {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 

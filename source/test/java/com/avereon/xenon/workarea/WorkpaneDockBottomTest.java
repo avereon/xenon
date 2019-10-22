@@ -7,7 +7,14 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class WorkpaneDockBottomTest extends WorkpaneTestCase {
+class WorkpaneDockBottomTest extends WorkpaneTestCase {
+
+	@Test
+	void testBottomDockSize() {
+		assertThat( workpane.getBottomDockSize(), is( 0.2 ) );
+		workpane.setBottomDockSize( 0.25 );
+		assertThat( workpane.getBottomDockSize(), is( 0.25 ) );
+	}
 
 	@Test
 	void testBottomDockSizeMovesWithTool() {
@@ -33,7 +40,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInLandscapeMode() throws Exception {
+	void testDockBottomInLandscapeMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
@@ -52,7 +59,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInLandscapeModeWithLeftAndRightDocks() throws Exception {
+	void testDockBottomInLandscapeModeWithLeftAndRightDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool leftTool = new MockTool( resource );
@@ -84,7 +91,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInPortraitMode() throws Exception {
+	void testDockBottomInPortraitMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
@@ -103,7 +110,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInPortraitModeWithLeftAndRightDocks() throws Exception {
+	void testDockBottomInPortraitModeWithLeftAndRightDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool leftTool = new MockTool( resource );

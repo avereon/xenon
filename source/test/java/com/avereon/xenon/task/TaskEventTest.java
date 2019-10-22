@@ -6,10 +6,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TaskEventTest extends BaseTaskTest {
+class TaskEventTest extends BaseTaskTest {
 
 	@Test
-	public void testSuccess() throws Exception {
+	void testSuccess() throws Exception {
 		Task<Object> task = new MockTask( manager );
 
 		TaskWatcher watcher = new TaskWatcher();
@@ -22,7 +22,7 @@ public class TaskEventTest extends BaseTaskTest {
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 
-		/**
+		/*
 		 * Because there are two threads involved in this test, the test thread
 		 * needs to wait for the eventList to arrive. Task is required to ensure the
 		 * done state is set correctly before eventList are sent but this allows the
@@ -37,7 +37,7 @@ public class TaskEventTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testFailure() throws Exception {
+	void testFailure() throws Exception {
 		Task<Object> task = new MockTask( manager, null, true );
 
 		TaskWatcher watcher = new TaskWatcher();
@@ -55,7 +55,7 @@ public class TaskEventTest extends BaseTaskTest {
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.FAILED ) );
 
-		/**
+		/*
 		 * Because there are two threads involved in this test, the test thread
 		 * needs to wait for the eventList to arrive. Task is required to ensure the
 		 * done state is set correctly before eventList are sent but this allows the

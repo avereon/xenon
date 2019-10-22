@@ -24,7 +24,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testStartAndAwait() throws Exception {
+	void testStartAndAwait() throws Exception {
 		manager.start();
 		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
@@ -32,7 +32,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testStopAndWait() throws Exception {
+	void testStopAndWait() throws Exception {
 		manager.start();
 		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
@@ -42,7 +42,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testStartAndStop() throws Exception {
+	void testStartAndStop() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -53,7 +53,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testRestart() throws Exception {
+	void testRestart() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -70,7 +70,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testStopBeforeStart() throws Exception {
+	void testStopBeforeStart() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.stop();
@@ -78,7 +78,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitNullRunnable() throws Exception {
+	void testSubmitNullRunnable() {
 		assertThat( manager.isRunning(), is( false ) );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -92,7 +92,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitNullCallable() throws Exception {
+	void testSubmitNullCallable() {
 		assertThat( manager.isRunning(), is( false ) );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -106,7 +106,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitNullResult() throws Exception {
+	void testSubmitNullResult() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -123,7 +123,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitWithResult() throws Exception {
+	void testSubmitWithResult() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -141,7 +141,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testFailedTask() throws Exception {
+	void testFailedTask() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -167,7 +167,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitBeforeStart() throws Exception {
+	void testSubmitBeforeStart() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		MockTask task = new MockTask( manager );
@@ -187,7 +187,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testUsingTaskAsFuture() throws Exception {
+	void testUsingTaskAsFuture() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -205,7 +205,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testNestedTask() throws Exception {
+	void testNestedTask() throws Exception {
 		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -224,7 +224,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testNestedTaskWithException() throws Exception {
+	void testNestedTaskWithException() throws Exception {
 		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -262,7 +262,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testTaskListener() throws Exception {
+	void testTaskListener() throws Exception {
 		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );

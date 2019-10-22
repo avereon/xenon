@@ -10,10 +10,10 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class GuideToolGetRequiredResourcesUIT extends GuideToolUIT {
+class GuideToolGetRequiredResourcesUIT extends GuideToolUIT {
 
 	@Test
-	public void execute() {
+	void execute() {
 		Resource resource = new Resource( ProgramGuideType.URI );
 		GuideTool tool = new GuideTool( program, resource );
 

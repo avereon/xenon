@@ -17,18 +17,18 @@ public class EdgeTest {
 		//edge = source.add( target );
 	}
 
-//	@Test
-//	public void testFields() {
-//		assertThat( edge.getSource(), is( source ) );
-//		assertThat( edge.getTarget(), is( target ) );
-//		assertThat( edge.isDirected(), is( false ) );
-//	}
-//
-//	@Test
-//	public void testValues() {
-//		edge.setValue( "name", "Test" );
-//
-//		assertThat( edge.getValue( "name" ), is( "Test" ));
-//	}
+	//	@Test
+	//	public void testFields() {
+	//		assertThat( edge.getSource(), is( source ) );
+	//		assertThat( edge.getTarget(), is( target ) );
+	//		assertThat( edge.isDirected(), is( false ) );
+	//	}
+	//
+	//	@Test
+	//	public void testValues() {
+	//		edge.setValue( "name", "Test" );
+	//
+	//		assertThat( edge.getValue( "name" ), is( "Test" ));
+	//	}
 
 }

@@ -11,10 +11,10 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-public class SettingsToolGetRequiredResourcesUIT extends SettingsToolUIT {
+class SettingsToolGetRequiredResourcesUIT extends SettingsToolUIT {
 
 	@Test
-	public void execute() {
+	void execute() {
 		Resource resource = new Resource( ProgramSettingsType.URI );
 		SettingsTool tool = new SettingsTool( program, resource );
 		Set<URI> resources = tool.getResourceDependencies();

@@ -11,10 +11,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TaskChainTest extends ProgramTestCase {
+class TaskChainTest extends ProgramTestCase {
 
 	@Test
-	public void testInitWithSupplier() throws Exception {
+	void testInitWithSupplier() throws Exception {
 		int value = 7;
 
 		TaskChain<Integer> chain = TaskChain.init( () -> value );
@@ -26,7 +26,7 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testInitWithFunction() throws Exception {
+	void testInitWithFunction() throws Exception {
 		int value = 8;
 
 		TaskChain<Integer> chain = TaskChain.init( ( v ) -> inc( value ) );
@@ -38,8 +38,8 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testInitWithTask() throws Exception {
-		TaskChain<Integer> chain = TaskChain.init( new Task<Integer>() {
+	void testInitWithTask() throws Exception {
+		TaskChain<Integer> chain = TaskChain.init( new Task<>() {
 
 			@Override
 			public Integer call() {
@@ -55,7 +55,7 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testLinkWithSupplier() throws Exception {
+	void testLinkWithSupplier() throws Exception {
 		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( () -> 1 ).link( () -> 2 );
 		assertThat( chain.build().getState(), is( Task.State.READY ) );
 
@@ -65,7 +65,7 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testLinkWithFunction() throws Exception {
+	void testLinkWithFunction() throws Exception {
 		TaskChain<Integer> chain = TaskChain
 			.init( () -> 0 )
 			.link( ( i ) -> i + 1 )
@@ -81,8 +81,8 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testLinkWithTask() throws Exception {
-		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( new Task<Integer>() {
+	void testLinkWithTask() throws Exception {
+		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( new Task<>() {
 
 			@Override
 			public Integer call() {
@@ -98,7 +98,7 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testEncapsulatedChain() throws Exception {
+	void testEncapsulatedChain() throws Exception {
 		TaskChain<Integer> chain = TaskChain
 			.init( this::count )
 			.link( ( i ) -> i + 1 )
@@ -114,7 +114,7 @@ public class TaskChainTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testExceptionCascade() throws Exception {
+	void testExceptionCascade() throws Exception {
 		RuntimeException expected = new RuntimeException();
 		Task<Integer> task = TaskChain.init( () -> 0 ).link( this::inc ).link( this::inc ).link( ( i ) -> {
 			if( i != 0 ) throw expected;

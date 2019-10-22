@@ -13,13 +13,11 @@ public class MockResourceType extends ResourceType {
 
 	private static final String INIT_RESOURCE_KEY = "init.resource.key";
 
-	private Codec defaultCodec;
-
-	public MockResourceType( Product product ) {
+	MockResourceType( Product product ) {
 		this( product, "mock", new MockCodec() );
 	}
 
-	public MockResourceType( Product product, String key, Codec defaultCodec ) {
+	private MockResourceType( Product product, String key, Codec defaultCodec ) {
 		super( product, key );
 		this.key = key;
 		setDefaultCodec( defaultCodec );

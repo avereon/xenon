@@ -21,7 +21,7 @@ public class GuideUIT extends FxProgramUIT {
 	}
 
 	@Test
-	public void testSetSelectedItems() throws Exception {
+	void testSetSelectedItems() throws Exception {
 		Platform.runLater( () -> guide.setSelectedIds( "general" ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
@@ -32,7 +32,7 @@ public class GuideUIT extends FxProgramUIT {
 	}
 
 	@Test
-	public void testSetExpandedItems() throws Exception {
+	void testSetExpandedItems() throws Exception {
 		Platform.runLater( () -> guide.setExpandedIds( "general" ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );

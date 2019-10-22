@@ -30,7 +30,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testNewResource() throws Exception {
+	void testNewResource() throws Exception {
 		// New resources have a resource type when created.
 		// The URI is assigned when the resource is saved.
 		Resource newResource = manager.createResource( manager.getResourceType( "mock" ) );
@@ -38,7 +38,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testOldResource() throws Exception {
+	void testOldResource() throws Exception {
 		// Old resources have a URI when created.
 		// The resource type is assigned when the resource is opened.
 		String uri = "mock:///home/user/temp/test.txt";
@@ -47,7 +47,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testCreateResourceWithUri() throws Exception {
+	void testCreateResourceWithUri() throws Exception {
 		URI uri = URI.create( "mock:///home/user/temp/test.txt" );
 		Resource resource = manager.createResource( uri );
 		assertThat( resource.getScheme(), is( manager.getScheme( "mock" ) ) );
@@ -56,7 +56,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testCreateResourceWithString() throws Exception {
+	void testCreateResourceWithString() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		assertThat( resource.getScheme(), is( manager.getScheme( "mock" ) ) );
@@ -65,7 +65,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testOpenResources() throws Exception {
+	void testOpenResources() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -78,7 +78,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testOpenResourcesAndWait() throws Exception {
+	void testOpenResourcesAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -90,7 +90,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testLoadResources() throws Exception {
+	void testLoadResources() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -104,7 +104,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testLoadResourcesAndWait() throws Exception {
+	void testLoadResourcesAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -117,7 +117,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testSaveResources() throws Exception {
+	void testSaveResources() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -135,7 +135,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testSaveResourcesAndWait() throws Exception {
+	void testSaveResourcesAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -151,7 +151,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testCloseResources() throws Exception {
+	void testCloseResources() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -168,7 +168,7 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testCloseResourcesAndWait() throws Exception {
+	void testCloseResourcesAndWait() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Resource resource = manager.createResource( uri );
 		ResourceWatcher watcher = new ResourceWatcher();
@@ -183,14 +183,14 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testAutoDetectResourceTypeWithOpaqueUri() throws Exception {
+	void testAutoDetectResourceTypeWithOpaqueUri() throws Exception {
 		Resource resource = manager.createResource( URI.create( "mock:test" ) );
 		manager.autoDetectResourceType( resource );
 		assertThat( resource.getType(), instanceOf( MockResourceType.class ) );
 	}
 
 	@Test
-	public void testAutoDetectCodecs() throws Exception {
+	void testAutoDetectCodecs() throws Exception {
 		ResourceType type = manager.getResourceType( "mock" );
 		Resource resource = manager.createResource( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( resource );
@@ -198,11 +198,11 @@ public class ResourceManagerTest extends ProgramTestCase {
 	}
 
 	@Test
-	public void testToResourceUri() {
-			assertThat( ResourceManager.toResourceUri( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
-			assertThat( ResourceManager.toResourceUri( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
-			assertThat( ResourceManager.toResourceUri( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );
-			assertThat( ResourceManager.toResourceUri( URI.create( "relative/path?query#fragment" ) ), is( URI.create( "relative/path" ) ) );
+	void testToResourceUri() {
+		assertThat( ResourceManager.toResourceUri( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
+		assertThat( ResourceManager.toResourceUri( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
+		assertThat( ResourceManager.toResourceUri( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );
+		assertThat( ResourceManager.toResourceUri( URI.create( "relative/path?query#fragment" ) ), is( URI.create( "relative/path" ) ) );
 	}
 
 }

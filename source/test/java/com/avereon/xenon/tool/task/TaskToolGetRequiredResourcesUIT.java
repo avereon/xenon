@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class TaskToolGetRequiredResourcesUIT extends TaskToolUIT {
+class TaskToolGetRequiredResourcesUIT extends TaskToolUIT {
 
 	@Test
-	public void execute() {
+	void execute() {
 		Resource resource = new Resource( ProgramTaskType.URI );
 		TaskTool tool = new TaskTool( program, resource );
 		assertThat( tool.getResourceDependencies().size(), is( 0 ) );

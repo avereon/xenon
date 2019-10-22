@@ -7,7 +7,14 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class WorkpaneDockLeftTest extends WorkpaneTestCase {
+class WorkpaneDockLeftTest extends WorkpaneTestCase {
+
+	@Test
+	void testLeftDockSize() {
+		assertThat( workpane.getLeftDockSize(), is( 0.2 ) );
+		workpane.setLeftDockSize( 0.25 );
+		assertThat( workpane.getLeftDockSize(), is( 0.25 ) );
+	}
 
 	@Test
 	void testLeftDockSizeMovesWithTool() {
@@ -26,14 +33,14 @@ public class WorkpaneDockLeftTest extends WorkpaneTestCase {
 		WorkpaneEdge edge = view.getEdge( Side.RIGHT );
 		assertThat( edge.getPosition(), is( workpane.getLeftDockSize() ) );
 		workpane.moveEdge( edge, WORKPANE_WIDTH * 0.05 );
-		assertThat( edge.getPosition(), is( 0.25  ) );
+		assertThat( edge.getPosition(), is( 0.25 ) );
 
 		// Verify the top dock size followed the dock edge
 		assertThat( workpane.getLeftDockSize(), is( 0.25 ) );
 	}
 
 	@Test
-	public void testDockLeftInLandscapeMode() throws Exception {
+	void testDockLeftInLandscapeMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
@@ -52,7 +59,7 @@ public class WorkpaneDockLeftTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockLeftInLandscapeModeWithTopAndBottomDocks() throws Exception {
+	void testDockLeftInLandscapeModeWithTopAndBottomDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool topTool = new MockTool( resource );
@@ -80,7 +87,7 @@ public class WorkpaneDockLeftTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockLeftInPortraitMode() throws Exception {
+	void testDockLeftInPortraitMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_LEFT );
@@ -99,7 +106,7 @@ public class WorkpaneDockLeftTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockLeftInPortraitModeWithTopAndBottomDocks() throws Exception {
+	void testDockLeftInPortraitModeWithTopAndBottomDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool topTool = new MockTool( resource );

@@ -11,9 +11,9 @@ public abstract class BaseTaskTest extends BaseTestCase {
 
 	static final TimeUnit DEFAULT_WAIT_UNIT = TimeUnit.SECONDS;
 
-	protected TaskManager manager;
+	TaskManager manager;
 
-	protected TaskWatcher taskWatcher;
+	TaskWatcher taskWatcher;
 
 	@BeforeEach
 	@Override

@@ -6,6 +6,7 @@ import com.avereon.product.ProductEventListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings( "unused" )
 public class ProgramEventCollector implements ProductEventListener {
 
 	private List<ProductEvent> events = new CopyOnWriteArrayList<>();
@@ -15,6 +16,7 @@ public class ProgramEventCollector implements ProductEventListener {
 		events.add( event );
 	}
 
+	@SuppressWarnings( "unused" )
 	public List<ProductEvent> getEvents() {
 		return events;
 	}

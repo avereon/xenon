@@ -8,10 +8,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
-public class ProductToolOpenUIT extends ProductToolUIT {
+class ProductToolOpenUIT extends ProductToolUIT {
 
 	@Test
-	public void execute() throws Exception {
+	void execute() throws Exception {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 

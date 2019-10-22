@@ -7,17 +7,17 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CodecTest extends BaseTestCase {
+class CodecTest extends BaseTestCase {
 
 	private Codec codec;
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() {
 		codec = new MockCodec();
 	}
 
 	@Test
-	public void testGetSupportedFileNames() {
+	void testGetSupportedFileNames() {
 		// This should already have one for the extension
 		assertThat( codec.getSupportedFileNames().size(), is( 1 ) );
 		codec.addSupportedFileName( "test.mock" );
@@ -25,21 +25,21 @@ public class CodecTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testGetSupportedFirstLines() {
+	void testGetSupportedFirstLines() {
 		assertThat( codec.getSupportedFirstLines().size(), is( 1 ) );
 		codec.addSupportedFirstLine( "#!/bin/mock" );
 		assertThat( codec.getSupportedFirstLines().size(), is( 2 ) );
 	}
 
 	@Test
-	public void testGetSupportedContentTypes() {
+	void testGetSupportedContentTypes() {
 		assertThat( codec.getSupportedMediaTypes().size(), is( 1 ) );
 		codec.addSupportedMediaType( "text/mock" );
 		assertThat( codec.getSupportedMediaTypes().size(), is( 2 ) );
 	}
 
 	@Test
-	public void testIsSupportedFileName() {
+	void testIsSupportedFileName() {
 		// Edge tests.
 		assertThat( codec.isSupportedFileName( null ), is( false ) );
 		assertThat( codec.isSupportedFileName( "" ), is( false ) );
@@ -57,7 +57,7 @@ public class CodecTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testIsSupportedFirstLine() {
+	void testIsSupportedFirstLine() {
 		// Edge tests.
 		assertThat( codec.isSupportedFirstLine( null ), is( false ) );
 		assertThat( codec.isSupportedFirstLine( "" ), is( false ) );
@@ -73,7 +73,7 @@ public class CodecTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testIsSupportedContentType() {
+	void testIsSupportedContentType() {
 		// Edge tests.
 		assertThat( codec.isSupportedMediaType( null ), is( false ) );
 		assertThat( codec.isSupportedMediaType( "" ), is( false ) );

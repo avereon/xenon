@@ -21,42 +21,42 @@ public class ResourceTypeTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testGetDefaultCodec() {
+	void testGetDefaultCodec() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getDefaultCodec(), not( is( nullValue() ) ) );
 	}
 
 	@Test
-	public void testGetCodecs() {
+	void testGetCodecs() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getCodecs(), containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
 	@Test
-	public void testGetName() {
+	void testGetName() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getName(), is( "Mock Resource (mock)" ) );
 	}
 
 	@Test
-	public void testAddCodec() {
+	void testAddCodec() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getCodecs().size(), is( 1 ) );
 		Codec codec1 = type.getDefaultCodec();
 
-		MockCodec codec2 = new MockCodec( "2");
+		MockCodec codec2 = new MockCodec( "2" );
 		type.addCodec( codec2 );
 
 		assertThat( type.getCodecs(), containsInAnyOrder( codec1, codec2 ) );
 	}
 
 	@Test
-	public void testRemoveCodec() {
+	void testRemoveCodec() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getCodecs().size(), is( 1 ) );
 		Codec codec1 = type.getDefaultCodec();
 
-		MockCodec codec2 = new MockCodec( "2");
+		MockCodec codec2 = new MockCodec( "2" );
 		type.addCodec( codec2 );
 		assertThat( type.getCodecs(), containsInAnyOrder( codec1, codec2 ) );
 
@@ -66,19 +66,19 @@ public class ResourceTypeTest extends BaseTestCase {
 	}
 
 	@Test
-	public void testGetCodecByMediaType() {
+	void testGetCodecByMediaType() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getCodecByMediaType( "application/mock" ), is( type.getDefaultCodec() ) );
 	}
 
 	@Test
-	public void testGetCodecByFileName() {
+	void testGetCodecByFileName() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getCodecByFileName( "test.mock" ), is( type.getDefaultCodec() ) );
 	}
 
 	@Test
-	public void testGetCodecByFirstLine() {
+	void testGetCodecByFirstLine() {
 		ResourceType type = new MockResourceType( product );
 		assertThat( type.getCodecByFirstLine( "?mock" ), is( type.getDefaultCodec() ) );
 	}

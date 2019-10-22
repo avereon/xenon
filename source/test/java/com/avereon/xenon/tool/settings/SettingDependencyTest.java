@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class SettingDependencyTest {
+class SettingDependencyTest {
 
 	@Test
-	public void testConstructorWithKeyAndValue() {
+	void testConstructorWithKeyAndValue() {
 		SettingDependency dependency = new SettingDependency();
 		dependency.setKey( "enabled" );
 		dependency.setDependencyValue( "true" );
@@ -21,7 +21,7 @@ public class SettingDependencyTest {
 	}
 
 	@Test
-	public void testConstructorWithOperatorKeyAndValue() {
+	void testConstructorWithOperatorKeyAndValue() {
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.OR );
 		dependency.setKey( "enabled" );
@@ -33,9 +33,9 @@ public class SettingDependencyTest {
 	}
 
 	@Test
-	public void testEvaluateWithNotOperator() {
-		Settings settings = new MapSettings(  );
-		SettingDependency dependency = new SettingDependency( );
+	void testEvaluateWithNotOperator() {
+		Settings settings = new MapSettings();
+		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.NOT );
 		dependency.setKey( "enabled" );
 		dependency.setDependencyValue( "true" );
@@ -50,7 +50,7 @@ public class SettingDependencyTest {
 	}
 
 	@Test
-	public void testEvaluateWithAndOperator() {
+	void testEvaluateWithAndOperator() {
 		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.AND );
@@ -67,7 +67,7 @@ public class SettingDependencyTest {
 	}
 
 	@Test
-	public void testEvaluateWithOrOperator() {
+	void testEvaluateWithOrOperator() {
 		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.OR );
@@ -84,7 +84,7 @@ public class SettingDependencyTest {
 	}
 
 	@Test
-	public void testEvaluateWithXorOperator() {
+	void testEvaluateWithXorOperator() {
 		Settings settings = new MapSettings();
 		SettingDependency dependency = new SettingDependency();
 		dependency.setOperator( SettingDependency.Operator.XOR );

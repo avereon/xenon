@@ -7,15 +7,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TxnTest {
+class TxnTest {
 
 	@BeforeEach
-	public void setup() throws Exception {
+	void setup() throws Exception {
 		Txn.reset();
 	}
 
 	@Test
-	public void testCommit() throws Exception {
+	void testCommit() throws Exception {
 		MockTransactionOperation step = new MockTransactionOperation();
 
 		Txn.create();
@@ -27,7 +27,7 @@ public class TxnTest {
 	}
 
 	@Test
-	public void testRollback() throws Exception {
+	void testRollback() throws Exception {
 		MockTransactionOperation step1 = new MockTransactionOperation();
 		MockTransactionOperation step2 = new MockTransactionOperation();
 		MockTransactionOperation step3 = new MockTransactionOperation();
@@ -57,7 +57,7 @@ public class TxnTest {
 	}
 
 	@Test
-	public void testReset() throws Exception {
+	void testReset() throws Exception {
 		MockTransactionOperation step = new MockTransactionOperation();
 
 		Txn.create();
@@ -69,7 +69,7 @@ public class TxnTest {
 	}
 
 	@Test
-	public void testContinuedException() throws Exception {
+	void testContinuedException() throws Exception {
 		MockTransactionOperation step1 = new MockTransactionOperation();
 		MockTransactionOperation step2 = new MockTransactionOperation();
 		MockTransactionOperation step3 = new MockTransactionOperation();
@@ -97,7 +97,7 @@ public class TxnTest {
 	}
 
 	@Test
-	public void testNestedException() throws Exception {
+	void testNestedException() throws Exception {
 		MockTransactionOperation step1 = new MockTransactionOperation();
 		MockTransactionOperation step2 = new MockTransactionOperation();
 		MockTransactionOperation step3 = new MockTransactionOperation();
@@ -125,7 +125,7 @@ public class TxnTest {
 	}
 
 	@Test
-	public void testCommitWithoutTransaction() throws Exception {
+	void testCommitWithoutTransaction() {
 		try {
 			Txn.commit();
 			fail( "Commit should throw an exception if there is not an active transaction" );
@@ -135,7 +135,7 @@ public class TxnTest {
 	}
 
 	@Test
-	public void testSubmitWithoutTransaction() throws Exception {
+	void testSubmitWithoutTransaction() {
 		MockTransactionOperation step = new MockTransactionOperation();
 		try {
 			Txn.submit( step );
@@ -155,7 +155,7 @@ public class TxnTest {
 	//		}
 	//	}
 
-	private class MockTransactionOperation extends TxnOperation {
+	private static class MockTransactionOperation extends TxnOperation {
 
 		private int commitCallCount;
 
@@ -170,7 +170,7 @@ public class TxnTest {
 		}
 
 		@Override
-		protected void revert() throws TxnException {
+		protected void revert() {
 			rollbackCallCount++;
 		}
 

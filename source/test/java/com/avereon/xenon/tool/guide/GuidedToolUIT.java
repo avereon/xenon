@@ -35,7 +35,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 	}
 
 	@Test
-	public void testGuidedToolReceivesGuideNodeExpandedChanges() throws Exception {
+	void testGuidedToolReceivesGuideNodeExpandedChanges() throws Exception {
 		// Assert initial state
 		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
 
@@ -46,7 +46,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 	}
 
 	@Test
-	public void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() throws Exception {
+	void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() throws Exception {
 		// Assert initial state
 		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( "general" ) );
 		FxUtil.fxWait( 1000 );
@@ -58,7 +58,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 	}
 
 	@Test
-	public void testGuidedToolReceivesGuideNodeSelectedChanges() throws Exception {
+	void testGuidedToolReceivesGuideNodeSelectedChanges() throws Exception {
 		// Assert initial state
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
@@ -68,7 +68,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 	}
 
 	@Test
-	public void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
+	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
 		// Assert initial state
 		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( "general" ) );
 		FxUtil.fxWait( 1000 );
@@ -79,7 +79,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}
 
-	private class MockGuidedTool extends GuidedTool {
+	private static class MockGuidedTool extends GuidedTool {
 
 		private Set<GuideNode> expandedNodes = new HashSet<>();
 
@@ -89,27 +89,27 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		private int guideNodesSelectedEventCount;
 
-		public MockGuidedTool( ProgramProduct product, Resource resource ) {
+		MockGuidedTool( ProgramProduct product, Resource resource ) {
 			super( product, resource );
 		}
 
-		public Set<GuideNode> getExpandedNodes() {
+		Set<GuideNode> getExpandedNodes() {
 			return expandedNodes;
 		}
 
-		public Set<GuideNode> getSelectedNodes() {
+		Set<GuideNode> getSelectedNodes() {
 			return selectedNodes;
 		}
 
-		public int getGuideNodesExpandedEventCount() {
+		int getGuideNodesExpandedEventCount() {
 			return guideNodesExpandedEventCount;
 		}
 
-		public int getGuideNodesSelectedEventCount() {
+		int getGuideNodesSelectedEventCount() {
 			return guideNodesSelectedEventCount;
 		}
 
-		public void reset() {
+		void reset() {
 			expandedNodes = new HashSet<>();
 			selectedNodes = new HashSet<>();
 			guideNodesExpandedEventCount = 0;

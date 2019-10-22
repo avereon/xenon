@@ -26,11 +26,11 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	protected Program program;
 
-	protected ProgramWatcher programWatcher;
-
 	protected WorkpaneWatcher workpaneWatcher;
 
 	protected ProductCard metadata;
+
+	private ProgramWatcher programWatcher;
 
 	private long initialMemoryUse;
 
