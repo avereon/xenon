@@ -4,6 +4,8 @@ import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.resource.OpenResourceRequest;
 import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.type.ProgramGuideType;
+import com.avereon.xenon.resource.type.ProgramWelcomeType;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.*;
 import com.avereon.xenon.workspace.Workspace;
@@ -52,12 +54,12 @@ class UiRegenerator {
 
 	private Condition restoredCondition = restoreLock.newCondition();
 
-	public UiRegenerator( Program program ) {
+	UiRegenerator( Program program ) {
 		this.program = program;
 		this.factory = new UiFactory( program );
 	}
 
-	//	public int getUiObjectCount() {
+	//	int getUiObjectCount() {
 	//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
 	//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
 	//		int p = getSettingsFiles( Prefix.WORKPANE ).length;
@@ -65,11 +67,11 @@ class UiRegenerator {
 	//		return Math.max( 2, s + a + p + t );
 	//	}
 
-	public int getToolCount() {
+	int getToolCount() {
 		return getUiSettingsIds( ProgramSettings.TOOL ).size();
 	}
 
-	public void restore( SplashScreenPane splashScreen ) {
+	void restore( SplashScreenPane splashScreen ) {
 		restoreLock.lock();
 		try {
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
@@ -85,7 +87,8 @@ class UiRegenerator {
 		}
 	}
 
-	public void awaitRestore( long timeout, TimeUnit unit ) throws InterruptedException {
+	@SuppressWarnings( "SameParameterValue" )
+	void awaitRestore( long timeout, TimeUnit unit ) throws InterruptedException {
 		restoreLock.lock();
 		try {
 			while( !restored ) {
@@ -96,21 +99,22 @@ class UiRegenerator {
 		}
 	}
 
+	void startResourceLoading() {
+		program.getResourceManager().loadResources( tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() ) );
+	}
+
 	private void createDefaultWorkspace() {
-			// Create the default workspace
-			Workspace workspace = factory.newWorkspace();
-			program.getWorkspaceManager().setActiveWorkspace( workspace );
-			//splashScreen.update();
+		// Create the default workspace
+		Workspace workspace = factory.newWorkspace();
+		program.getWorkspaceManager().setActiveWorkspace( workspace );
 
-			// Create the default workarea
-			Workarea workarea = factory.newWorkarea();
-			workarea.setName( "Default" );
-			workspace.setActiveWorkarea( workarea );
-			//splashScreen.update();
+		// Create the default workarea
+		Workarea workarea = factory.newWorkarea();
+		workarea.setName( "Default" );
+		workspace.setActiveWorkarea( workarea );
 
-			// TODO Create default workarea panes
-
-			// TODO Create default tools
+		program.getResourceManager().open( ProgramGuideType.URI );
+		program.getResourceManager().open( ProgramWelcomeType.URI );
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
@@ -294,10 +298,6 @@ class UiRegenerator {
 		}
 
 		if( activeTool != null ) activeTool.getWorkpane().setActiveTool( activeTool );
-	}
-
-	void startResourceLoading() {
-		program.getResourceManager().loadResources( tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() ) );
 	}
 
 	private List<String> getUiSettingsIds( String path ) {
