@@ -1554,8 +1554,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					try {
 						if( doOperation( resource ) ) result.add( resource );
 					} catch( Throwable throwable ) {
-						log.warn( "Error executing resource task: " + resource );
-						log.warn( "Error executing resource task", throwable );
 						errors.put( throwable, resource );
 					}
 				}
@@ -1576,7 +1574,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				String message = program.getResourceBundle().getString( "resource", "resource.exceptions", messages.toString().trim() );
 				program.getNoticeManager().warning( title, message );
 
-				throw new RuntimeException( messages.toString() );
+				throw new RuntimeException( messages.toString().trim() );
 			}
 
 			return result;
