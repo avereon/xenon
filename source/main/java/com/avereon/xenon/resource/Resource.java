@@ -366,7 +366,7 @@ public class Resource extends Node implements Configurable {
 	public boolean equals( Object object ) {
 		if( !(object instanceof Resource) ) return false;
 		Resource that = (Resource)object;
-		return Objects.equals( this.getUri(), that.getUri() );
+		return this == that || Objects.equals( this.getUri(), that.getUri() );
 	}
 
 	@Override

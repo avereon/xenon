@@ -406,12 +406,9 @@ class UiRegenerator {
 				return;
 			}
 
-			// Create the resource
-			Resource resource = program.getResourceManager().createResource( uri );
-
 			// Create an open tool request
 			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
-			openToolRequest.setResource( resource );
+			openToolRequest.setResource( program.getResourceManager().createResource( uri ) );
 
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
