@@ -100,7 +100,13 @@ class UiRegenerator {
 	}
 
 	void startResourceLoading() {
-		program.getResourceManager().loadResources( tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() ) );
+		Collection<Resource> resources = tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() );
+		try {
+			program.getResourceManager().openResourcesAndWait( resources );
+			program.getResourceManager().loadResources( resources );
+		} catch( Exception exception ) {
+			program.getNoticeManager().error( exception );
+		}
 	}
 
 	private void createDefaultWorkspace() {

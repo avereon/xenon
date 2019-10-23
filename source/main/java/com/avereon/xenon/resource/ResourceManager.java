@@ -1562,11 +1562,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			if( errors.size() != 0 ) {
 				StringBuilder messages = new StringBuilder();
 				for( Throwable error : errors.keySet() ) {
+					messages.append( errors.get( error ) );
+					messages.append( ": " );
 					messages.append( error.getClass().getSimpleName() );
 					messages.append( ": " );
 					messages.append( error.getMessage() );
-					messages.append( ": " );
-					messages.append( errors.get( error ) );
 					messages.append( "\n" );
 				}
 
