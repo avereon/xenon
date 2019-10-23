@@ -1575,6 +1575,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				String title = program.getResourceBundle().getString( "resource", "resources" );
 				String message = program.getResourceBundle().getString( "resource", "resource.exceptions", messages.toString().trim() );
 				program.getNoticeManager().warning( title, message );
+
+				throw new RuntimeException( messages.toString() );
 			}
 
 			return result;
