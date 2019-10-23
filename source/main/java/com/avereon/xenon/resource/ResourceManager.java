@@ -665,7 +665,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to open
 	 * @throws ExecutionException If there was an exception opening the resource
@@ -677,7 +678,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to open
 	 * @throws ExecutionException If there was an exception opening a resource
@@ -707,7 +709,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to load
 	 * @throws ExecutionException If there was an exception loading the resource
@@ -719,7 +722,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to load
 	 * @throws ExecutionException If there was an exception loading the resources
@@ -749,7 +753,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to
+	 * be completed.
 	 *
 	 * @param resource The resource to save
 	 * @throws ExecutionException If there was an exception saving the resource
@@ -761,7 +766,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to
+	 * be completed.
 	 *
 	 * @param resources The resources to save
 	 * @throws ExecutionException If there was an exception saving the resources
@@ -791,7 +797,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resource The resources to close.
 	 * @throws ExecutionException If there was an exception closing the resource
@@ -803,7 +810,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to close.
 	 * @throws ExecutionException If there was an exception closing the resources
@@ -830,8 +838,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine the resource type for the given resource. The resource URI is used to find the resource type in the following order: <ol> <li>Lookup the resource type by the full URI</li> <li>Lookup the resource type by the URI scheme</li>
-	 * <li>Find all the codecs that match the URI</li> <li>Sort the codecs by priority, select the highest</li> <li>Use the resource type associated to the codec</li> </ol>
+	 * Determine the resource type for the given resource. The resource URI is used to find the resource type in the following order: <ol> <li>Lookup the resource
+	 * type by the full URI</li> <li>Lookup the resource type by the URI scheme</li>
+	 * <li>Find all the codecs that match the URI</li> <li>Sort the codecs by priority, select the highest</li> <li>Use the resource type associated to the
+	 * codec</li> </ol>
 	 *
 	 * @param resource The resource for which to resolve the resource type
 	 * @return
@@ -979,7 +989,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a resource type and/or a URI. The resource is considered to be a new resource if the URI is null. Otherwise, the resource is considered an old resource. See {@link Resource#isNew()}
+	 * Create a resource from a resource type and/or a URI. The resource is considered to be a new resource if the URI is null. Otherwise, the resource is
+	 * considered an old resource. See {@link Resource#isNew()}
 	 *
 	 * @param type The resource type of the resource
 	 * @param uri The URI of the resource
@@ -1529,49 +1540,41 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private Collection<Resource> resources;
 
-		private ResourceTask( Resource resource ) {
-			super( program );
-			this.resources = Collections.singletonList( resource );
-		}
-
-		private ResourceTask( Resource... resources ) {
-			super( program );
-			this.resources = List.of( resources );
-		}
-
 		private ResourceTask( Collection<Resource> resources ) {
 			super( program );
 			this.resources = resources;
 		}
 
 		@Override
-		public Collection<Resource> call() throws Exception {
-			List<Resource> result = new ArrayList<Resource>();
-			List<Throwable> errors = new ArrayList<Throwable>();
+		public Collection<Resource> call() {
+			List<Resource> result = new ArrayList<>();
+			Map<Throwable, Resource> errors = new HashMap<>();
 			if( resources != null ) {
 				for( Resource resource : resources ) {
 					try {
 						if( doOperation( resource ) ) result.add( resource );
 					} catch( Throwable throwable ) {
+						log.warn( "Error executing resource task: " + resource );
 						log.warn( "Error executing resource task", throwable );
-						errors.add( throwable );
+						errors.put( throwable, resource );
 					}
 				}
 			}
 
 			if( errors.size() != 0 ) {
 				StringBuilder messages = new StringBuilder();
-				for( Throwable error : errors ) {
+				for( Throwable error : errors.keySet() ) {
 					messages.append( error.getClass().getSimpleName() );
 					messages.append( ": " );
 					messages.append( error.getMessage() );
+					messages.append( ": " );
+					messages.append( errors.get( error ) );
 					messages.append( "\n" );
 				}
 
 				String title = program.getResourceBundle().getString( "resource", "resources" );
-				String message = program.getResourceBundle().getString( "resource", "resource.exception", messages.toString() );
+				String message = program.getResourceBundle().getString( "resource", "resource.exceptions", messages.toString().trim() );
 				program.getNoticeManager().warning( title, message );
-				log.warn( "Error executing resource task", message );
 			}
 
 			return result;
@@ -1602,10 +1605,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class LoadResourceTask extends ResourceTask {
 
-		private LoadResourceTask( Resource... resources ) {
-			super( resources );
-		}
-
 		private LoadResourceTask( Collection<Resource> resources ) {
 			super( resources );
 		}
@@ -1618,14 +1617,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private class SaveResourceTask extends ResourceTask {
-
-		private SaveResourceTask( Resource resource ) {
-			super( resource );
-		}
-
-		private SaveResourceTask( Resource... resources ) {
-			super( resources );
-		}
 
 		private SaveResourceTask( Collection<Resource> resources ) {
 			super( resources );
@@ -1654,11 +1645,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private class SetCurrentResourceTask extends ResourceTask {
 
 		private SetCurrentResourceTask( Resource resource ) {
-			super( resource );
+			super( Set.of( resource ) );
 		}
 
 		@Override
-		public boolean doOperation( Resource resource ) throws ResourceException {
+		public boolean doOperation( Resource resource ) {
 			return doSetCurrentResource( resource );
 		}
 
