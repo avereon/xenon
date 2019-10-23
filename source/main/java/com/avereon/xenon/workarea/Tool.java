@@ -69,12 +69,12 @@ public abstract class Tool extends Control implements Configurable {
 	public Tool( Resource resource, String title ) {
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
-		this.closeGraphicProperty = new SimpleObjectProperty<>(  );
+		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>();
 		this.listeners = new CopyOnWriteArraySet<>();
 		this.resource = resource;
 
-		Rectangle clip = new Rectangle(  );
+		Rectangle clip = new Rectangle();
 		clip.widthProperty().bind( widthProperty() );
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
@@ -250,9 +250,11 @@ public abstract class Tool extends Control implements Configurable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "title=\"" );
-		builder.append( getTitle() );
-		builder.append( "\"" );
+		builder.append( getClass().getSimpleName() );
+		builder.append( "{" );
+		builder.append( " id=\"" ).append( settings.getName() ).append( "\"" );
+		builder.append( " title=\"" ).append( getTitle() ).append( "\"" );
+		builder.append( " }" );
 
 		return builder.toString();
 	}

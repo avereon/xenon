@@ -111,7 +111,15 @@ public class ToolManager implements Controllable<ToolManager> {
 		// If the instance mode is SINGLETON, check for an existing tool in the workpane
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolInPane( pane, toolClass );
 		final boolean alreadyExists = tool != null;
-		if( !alreadyExists ) tool = getToolInstance( request );
+
+		if( alreadyExists ) {
+			final Workpane finalPane = pane;
+			final ProgramTool finalTool = tool;
+			Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			return tool;
+		}else {
+			tool = getToolInstance( request );
+		}
 
 		// Verify there is a tool to use
 		if( tool == null ) {
@@ -135,14 +143,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-
-		Platform.runLater( () -> {
-			if( alreadyExists ) {
-				finalPane.setActiveTool( finalTool );
-			} else {
-				finalPane.addTool( finalTool, placementOverride, request.isSetActive() );
-			}
-		} );
+		Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, request.isSetActive() ) );
 
 		scheduleResourceReady( request, finalTool );
 
@@ -302,10 +303,12 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private void createToolSettings( ProgramTool tool ) {
+		if( tool.getSettings() != null ) return;
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, IdGenerator.getId() );
 		settings.set( "type", tool.getClass().getName() );
 		settings.set( "uri", tool.getResource().getUri() );
 		tool.setSettings( settings );
+		log.warn( "Tool settings created: " + tool );
 	}
 
 	/**
