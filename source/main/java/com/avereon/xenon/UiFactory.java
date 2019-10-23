@@ -212,6 +212,7 @@ public class UiFactory {
 		linkWorkareas();
 		linkEdgesAndViews();
 		linkTools();
+		loadResources();
 		cleanup();
 	}
 
@@ -357,6 +358,12 @@ public class UiFactory {
 		if( activeTool != null ) activeTool.getWorkpane().setActiveTool( activeTool );
 	}
 
+	private void loadResources() {
+		for( Tool tool : tools.values() ) {
+			program.getResourceManager().loadResources( tool.getResource() );
+		}
+	}
+
 	private List<String> getUiSettingsIds( String path ) {
 		return program.getSettingsManager().getSettings( path ).getNodes();
 	}
@@ -470,9 +477,6 @@ public class UiFactory {
 
 			// Create the resource
 			Resource resource = program.getResourceManager().createResource( uri );
-
-			// NEXT Should loading the resources happen after all the tools are created?
-			program.getResourceManager().loadResources( resource );
 
 			// Create an open tool request
 			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
