@@ -345,11 +345,11 @@ public class Program extends Application implements ProgramProduct {
 		registerActionHandlers();
 
 		// Create the UI factory
-		UiFactory uiFactory = new UiFactory( Program.this );
+		UiRegenerator uiRegenerator = new UiRegenerator( Program.this );
 
 		// Set the number of startup steps
 		int managerCount = 5;
-		int steps = managerCount + uiFactory.getToolCount();
+		int steps = managerCount + uiRegenerator.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
@@ -400,8 +400,8 @@ public class Program extends Application implements ProgramProduct {
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
-		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> uiRegenerator.restore( splashScreen ) );
+		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
 		// Notify the product manager the UI is ready
@@ -424,6 +424,9 @@ public class Program extends Application implements ProgramProduct {
 			splashScreen.hide();
 			time( "splash hidden" );
 		} );
+
+		// Initiate resource loading
+		uiRegenerator.startResourceLoading();
 
 		// Set the workarea actions
 		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );

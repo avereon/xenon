@@ -54,9 +54,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		List<Class<? extends ProgramTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent(
-			resourceType,
-			k -> new CopyOnWriteArrayList<Class<? extends ProgramTool>>()
+		List<Class<? extends ProgramTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent( resourceType,
+			k -> new CopyOnWriteArrayList<>()
 		);
 		resourceTypeToolClasses.add( type );
 
@@ -125,7 +124,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Create the tools settings
 		createToolSettings( tool );
 
-		// Now that we have a tool...open dependent tools
+		// Now that we have a tool...open dependent resources and associated tools
 		for( URI dependency : tool.getResourceDependencies() ) {
 			program.getResourceManager().open( dependency, true, false );
 		}
@@ -156,7 +155,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @return The restored tool
 	 * @apiNote Could be called from a @code{task thread} or an @code{FX application thread}
 	 */
-	public ProgramTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
+	ProgramTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
 		// Run this class through the alias map
 		toolClassName = getToolClassName( toolClassName );
 

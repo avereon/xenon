@@ -1,17 +1,13 @@
 package com.avereon.xenon.tool.task;
 
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.ExecMode;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;

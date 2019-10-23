@@ -42,13 +42,13 @@ public class Workpane extends Control implements Configurable {
 		PORTRAIT
 	}
 
-	public static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
+	static final DockMode DEFAULT_DOCK_MODE = DockMode.LANDSCAPE;
 
-	public static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
+	static final double DEFAULT_VIEW_SPLIT_RATIO = 0.20;
 
-	public static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
+	static final double DEFAULT_WALL_SPLIT_RATIO = 0.20;
 
-	public static final double DEFAULT_EDGE_SIZE = 5;
+	private static final double DEFAULT_EDGE_SIZE = 5;
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 

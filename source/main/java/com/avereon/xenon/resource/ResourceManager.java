@@ -1288,7 +1288,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		@Override
 		public ProgramTool call() throws Exception {
 			Resource resource = createResource( request.getUri() );
-			log.debug( "Open resource: ", resource.getUri() );
+			log.debug( "Open resource: {}", resource.getUri() );
 
 			boolean openTool = request.isOpenTool() || !isResourceOpen( resource );
 			Codec codec = request.getCodec();
@@ -1299,15 +1299,15 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				// Open the resource
 				openResourcesAndWait( resource );
 				if( !resource.isOpen() ) return null;
-
-				// Start loading the resource, but don't wait
-				if( !resource.isLoaded() ) loadResources( resource );
 			} catch( Exception exception ) {
 				program.getNoticeManager().error( exception );
 				return null;
 			}
 
 			ProgramTool tool = openTool ? program.getToolManager().openTool( new OpenToolRequest( request ).setResource( resource ) ) : null;
+
+			// Start loading the resource after the tool has been created
+			if( !resource.isLoaded() ) loadResources( resource );
 
 			setCurrentResource( resource );
 
