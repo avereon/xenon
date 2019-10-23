@@ -80,21 +80,20 @@ public class GuideTool extends ProgramTool {
 	private void switchGuide( WorkpaneEvent event ) {
 		if( !(event instanceof WorkpaneToolEvent) ) return;
 
-		log.warn( "switch guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
-
 		WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
 		switch( event.getType() ) {
 			case TOOL_ACTIVATED: {
+				log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
 				setResourceGuide( toolEvent.getTool().getResource() );
 				break;
 			}
 			case TOOL_CONCEALED: {
+				log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
 				setResourceGuide( null );
 			}
 		}
 	}
 
-	@SuppressWarnings( "unchecked" )
 	private void setResourceGuide( Resource resource ) {
 		if( resource == null ) {
 			guideTree.setRoot( null );
@@ -207,7 +206,6 @@ public class GuideTool extends ProgramTool {
 		}
 
 		@Override
-		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue observable, Boolean oldSelection, Boolean newSelection ) {
 			if( newSelection ) {
 				guideTree.setRoot( guide.getRoot() );
@@ -222,7 +220,7 @@ public class GuideTool extends ProgramTool {
 
 		private Guide guide;
 
-		public GuideTreeSelectedItemsListener( Guide guide ) {
+		GuideTreeSelectedItemsListener( Guide guide ) {
 			this.guide = guide;
 		}
 
