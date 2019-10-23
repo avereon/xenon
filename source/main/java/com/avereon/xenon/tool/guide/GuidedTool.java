@@ -23,6 +23,8 @@ public abstract class GuidedTool extends ProgramTool {
 
 	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
 
+	private static final Guide EMPTY_GUIDE = new Guide();
+
 	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
 
 	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
@@ -78,7 +80,8 @@ public abstract class GuidedTool extends ProgramTool {
 	}
 
 	protected Guide getGuide() {
-		return (Guide)getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
+		return guide == null ? EMPTY_GUIDE : guide;
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
@@ -88,7 +91,11 @@ public abstract class GuidedTool extends ProgramTool {
 	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+		public void changed(
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable,
+			Set<TreeItem<GuideNode>> oldValue,
+			Set<TreeItem<GuideNode>> newValue
+		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 
@@ -104,7 +111,11 @@ public abstract class GuidedTool extends ProgramTool {
 	private class GuideSelectedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+		public void changed(
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable,
+			Set<TreeItem<GuideNode>> oldValue,
+			Set<TreeItem<GuideNode>> newValue
+		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 

@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class UiFactory {
 
@@ -359,9 +360,7 @@ public class UiFactory {
 	}
 
 	private void loadResources() {
-		for( Tool tool : tools.values() ) {
-			program.getResourceManager().loadResources( tool.getResource() );
-		}
+		program.getResourceManager().loadResources( tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() ) );
 	}
 
 	private List<String> getUiSettingsIds( String path ) {
