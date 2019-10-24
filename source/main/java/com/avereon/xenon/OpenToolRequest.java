@@ -7,8 +7,6 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.Workpane;
 import com.avereon.xenon.workarea.WorkpaneView;
 
-import java.net.URI;
-
 public class OpenToolRequest {
 
 	private OpenResourceRequest openResourceRequest;
@@ -23,7 +21,7 @@ public class OpenToolRequest {
 		this.openResourceRequest = openResourceRequest;
 	}
 
-	public URI getUri() {return openResourceRequest.getUri();}
+	//public URI getUri() {return openResourceRequest.getUri();}
 
 	public String getQuery() {return openResourceRequest.getQuery();}
 

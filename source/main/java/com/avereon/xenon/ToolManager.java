@@ -308,7 +308,6 @@ public class ToolManager implements Controllable<ToolManager> {
 		settings.set( "type", tool.getClass().getName() );
 		settings.set( "uri", tool.getResource().getUri() );
 		tool.setSettings( settings );
-		log.warn( "Tool settings created: " + tool );
 	}
 
 	/**

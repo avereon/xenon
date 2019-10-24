@@ -42,6 +42,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private final Set<Resource> openResources;
 
+	private final Map<URI, Resource> identifiedResources;
+
 	private final Map<String, Scheme> schemes;
 
 	private final Map<String, ResourceType> resourceTypesByTypeKey;
@@ -83,6 +85,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	public ResourceManager( Program program ) {
 		this.program = program;
 		openResources = new CopyOnWriteArraySet<>();
+		identifiedResources = new ConcurrentHashMap<>();
 		schemes = new ConcurrentHashMap<>();
 		resourceTypesByTypeKey = new ConcurrentHashMap<>();
 		uriResourceTypes = new ConcurrentHashMap<>();
@@ -931,6 +934,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return filteredResources;
 	}
 
+	// FIXME Need to check if callers really need to know if it is open or identified
 	private boolean isResourceOpen( Resource resource ) {
 		return openResources.contains( resource );
 	}
@@ -996,26 +1000,24 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	 * @param uri The URI of the resource
 	 * @return The resource created from the resource type and URI
 	 */
-	private Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
-		// The query and fragment should not be part of the resource
-		uri = toResourceUri( uri );
-
+	private synchronized Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
 		Resource resource;
 		if( uri == null ) {
 			resource = new Resource( type );
+			log.trace( "Resource created: " + resource + "[" + System.identityHashCode( resource ) + "] type=" + type );
 		} else {
-			resource = new Resource( type, uri );
-			// FIXME Store open resources in a map for faster access
-			// If the resource is already open, use it instead
-			// Can't do that because openResources can have unsaved resources
-			// which don't have a URI.
-			for( Resource open : openResources ) {
-				if( open.getUri().equals( uri ) ) return open;
+			uri = toResourceUri( uri );
+			resource = identifiedResources.get( uri );
+			if( resource == null ) {
+				resource = new Resource( type, uri );
+				identifiedResources.put( uri, resource );
+				Scheme scheme = getScheme( uri.getScheme() );
+				resource.setScheme( scheme );
+				scheme.init( resource );
+				log.trace( "Resource created: " + resource + "[" + System.identityHashCode( resource ) + "] uri=" + uri );
+			} else {
+				log.trace( "Resource preexisted: " + resource + "[" + System.identityHashCode( resource ) + "] uri=" + uri );
 			}
-
-			Scheme scheme = getScheme( uri.getScheme() );
-			resource.setScheme( scheme );
-			scheme.init( resource );
 		}
 
 		return resource;
@@ -1033,7 +1035,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			}
 		} catch( URISyntaxException exception ) {
 			// Intentionally ignore exception - should never happen
-			exception.printStackTrace( System.err );
+			log.error( "Error resolving resource URI: " + uri, exception );
 		}
 		return null;
 	}
@@ -1107,6 +1109,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( !isResourceOpen( resource ) ) return false;
 
 		resource.save( this );
+		identifiedResources.put( resource.getUri(), resource );
 
 		// Create the resource settings
 		createResourceSettings( resource );
@@ -1129,6 +1132,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		resource.close( this );
 		openResources.remove( resource );
+		identifiedResources.remove( resource.getUri() );
 		resource.removeNodeListener( modifiedResourceWatcher );
 
 		if( openResources.size() == 0 ) doSetCurrentResource( null );
