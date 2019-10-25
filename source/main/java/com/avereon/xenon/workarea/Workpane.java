@@ -1088,10 +1088,10 @@ public class Workpane extends Control implements Configurable {
 		return addTool( tool, (WorkpaneView)null, activate );
 	}
 
-//	public Tool addTool( Tool tool, Placement placement ) {
-//		if( placement == null ) placement = tool.getPlacement();
-//		return addTool( tool, determineViewFromPlacement( placement ) );
-//	}
+	//	public Tool addTool( Tool tool, Placement placement ) {
+	//		if( placement == null ) placement = tool.getPlacement();
+	//		return addTool( tool, determineViewFromPlacement( placement ) );
+	//	}
 
 	public Tool addTool( Tool tool, Placement placement, boolean activate ) {
 		if( placement == null ) placement = tool.getPlacement();
@@ -1208,7 +1208,7 @@ public class Workpane extends Control implements Configurable {
 		edge.setPosition( edge.getPosition() + percent );
 
 		if( isPlacementEdge( edge, Placement.DOCK_TOP ) ) topDockSize.set( edge.getPosition() );
-		if( isPlacementEdge( edge, Placement.DOCK_BOTTOM ) ) bottomDockSize.set( 1-edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_BOTTOM ) ) bottomDockSize.set( 1 - edge.getPosition() );
 
 		return delta;
 	}
@@ -1236,7 +1236,7 @@ public class Workpane extends Control implements Configurable {
 		edge.setPosition( edge.getPosition() + percent );
 
 		if( isPlacementEdge( edge, Placement.DOCK_LEFT ) ) leftDockSize.set( edge.getPosition() );
-		if( isPlacementEdge( edge, Placement.DOCK_RIGHT ) ) rightDockSize.set( 1-edge.getPosition() );
+		if( isPlacementEdge( edge, Placement.DOCK_RIGHT ) ) rightDockSize.set( 1 - edge.getPosition() );
 
 		return delta;
 	}
@@ -1244,18 +1244,18 @@ public class Workpane extends Control implements Configurable {
 	private boolean isPlacementEdge( WorkpaneEdge edge, Placement placement ) {
 		if( edge.getOrientation() == Orientation.HORIZONTAL ) {
 			// Check top and bottom views
-			for( WorkpaneView view : edge.getViews( Side.TOP )){
+			for( WorkpaneView view : edge.getViews( Side.TOP ) ) {
 				if( view.getPlacement() == placement ) return true;
 			}
-			for( WorkpaneView view : edge.getViews( Side.BOTTOM )){
+			for( WorkpaneView view : edge.getViews( Side.BOTTOM ) ) {
 				if( view.getPlacement() == placement ) return true;
 			}
 		} else {
 			// Check left and right views
-			for( WorkpaneView view : edge.getViews( Side.LEFT )){
+			for( WorkpaneView view : edge.getViews( Side.LEFT ) ) {
 				if( view.getPlacement() == placement ) return true;
 			}
-			for( WorkpaneView view : edge.getViews( Side.RIGHT )){
+			for( WorkpaneView view : edge.getViews( Side.RIGHT ) ) {
 				if( view.getPlacement() == placement ) return true;
 			}
 		}
@@ -1506,6 +1506,7 @@ public class Workpane extends Control implements Configurable {
 
 		// Create the new view.
 		return newTopView( null, leftWall, rightWall, percent );
+		//return getTopDockView();
 	}
 
 	/**
@@ -1520,6 +1521,7 @@ public class Workpane extends Control implements Configurable {
 
 		// Create the new view.
 		return newBottomView( null, leftWall, rightWall, percent );
+		//return getBottomDockView();
 	}
 
 	/**
@@ -1534,6 +1536,7 @@ public class Workpane extends Control implements Configurable {
 
 		// Create the new view.
 		return newLeftView( null, topWall, bottomWall, percent );
+		//return getLeftDockView();
 	}
 
 	/**
@@ -1548,6 +1551,7 @@ public class Workpane extends Control implements Configurable {
 
 		// Create the new view.
 		return newRightView( null, topWall, bottomWall, percent );
+		//return getRightDockView();
 	}
 
 	/**
@@ -1569,6 +1573,8 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
+		if( source.getPlacement() != Placement.DOCK_TOP && isDockSpace( Side.TOP, source ) ) return getTopDockView();
+
 		// Create the new view.
 		return newTopView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
 	}
@@ -1584,6 +1590,8 @@ public class Workpane extends Control implements Configurable {
 		} catch( WorkpaneVetoException exception ) {
 			return null;
 		}
+
+		if( source.getPlacement() != Placement.DOCK_BOTTOM && isDockSpace( Side.BOTTOM, source ) ) return getBottomDockView();
 
 		// Create the new view.
 		return newBottomView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
@@ -1601,6 +1609,8 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
+		if( source.getPlacement() != Placement.DOCK_LEFT && isDockSpace( Side.LEFT, source ) ) return getLeftDockView();
+
 		// Create the new view.
 		return newLeftView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
@@ -1617,8 +1627,57 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
+		if( source.getPlacement() != Placement.DOCK_RIGHT && isDockSpace( Side.RIGHT, source ) ) return getRightDockView();
+
 		// Create the new view.
 		return newRightView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
+	}
+
+	boolean isDockSpace( Side side, WorkpaneView source ) {
+		if( source == null ) return false;
+
+		WorkpaneEdge leftTurn = source.getEdge( getLeftDirection( side ) );
+		WorkpaneEdge direct = source.getEdge( side );
+		WorkpaneEdge rightTurn = source.getEdge( getRightDirection( side ) );
+
+		switch( side ) {
+			case TOP: {
+				return leftTurn == leftWall && direct == topWall && rightTurn == rightWall;
+			}
+			case BOTTOM: {
+				return leftTurn == rightWall && direct == bottomWall && rightTurn == leftWall;
+			}
+			case LEFT: {
+				return leftTurn == bottomWall && direct == leftWall && rightTurn == topWall;
+			}
+			case RIGHT: {
+				return leftTurn == topWall && direct == rightWall && rightTurn == bottomWall;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean isDockSpace( Side side, WorkpaneEdge leftDirection, WorkpaneEdge rightDirection ) {
+		switch( side ) {
+			case TOP: {
+				return leftDirection == leftWall && rightDirection == rightWall;
+			}
+			case BOTTOM: {
+				return leftDirection == rightWall && rightDirection == leftWall;
+			}
+			case LEFT: {
+				return leftDirection == bottomWall && rightDirection == topWall;
+			}
+			case RIGHT: {
+				return leftDirection == topWall && rightDirection == bottomWall;
+			}
+		}
+		return false;
+	}
+
+	boolean isDockSpace( Side side, WorkpaneView source, WorkpaneEdge leftDirection, WorkpaneEdge rightDirection ) {
+		return isDockSpace( side, source ) || isDockSpace( side, leftDirection, rightDirection );
 	}
 
 	private WorkpaneView getTopDockView() {

@@ -117,7 +117,6 @@ public class ToolPane extends Control {
 				if( droppedOnArea && sourceTool == targetView.getActiveTool() ) return;
 				sourcePane.removeTool( sourceTool );
 			} else if( event.getTransferMode() == TransferMode.COPY ) {
-				log.warn( "Tool copy not implemented yet!");
 				sourceTool = cloneTool( sourceTool );
 			}
 
@@ -136,6 +135,7 @@ public class ToolPane extends Control {
 
 	private Tool cloneTool( Tool tool ) {
 		// TODO Implement tool cloning
+		log.warn( "Tool copy not implemented yet!");
 		return tool;
 	}
 

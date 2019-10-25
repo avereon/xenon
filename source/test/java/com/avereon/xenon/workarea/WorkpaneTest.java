@@ -355,16 +355,32 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testSplitViewNorthWithSize() {
 		double size = 0.31;
+
+		// The first split will return the dock view regardless of the size
 		WorkpaneView view1 = workpane.split( toolview, Side.TOP, size );
-		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( size ) );
+		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( view1.getEdge( Side.BOTTOM ).getPosition(), is( workpane.getTopDockSize() ) );
+		assertThat( view1.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( workpane.getTopDockSize() ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
 		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 
-		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 0d ) );
-		assertThat( view1.getEdge( Side.BOTTOM ).getPosition(), is( size ) );
-		assertThat( view1.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
-		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+		double position = workpane.getTopDockSize() + (1 - toolview.getEdge( Side.TOP ).getPosition()) * size;
+
+		// The second split will return a new view
+		WorkpaneView view2 = workpane.split( toolview, Side.TOP, size );
+		assertThat( view2.getEdge( Side.TOP ).getPosition(), is( view1.getEdge( Side.BOTTOM ).getPosition() ) );
+		assertThat( view2.getEdge( Side.BOTTOM ).getPosition(), is( position ) );
+		assertThat( view2.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( view2.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( position ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 	}
 
 	@Test
@@ -384,16 +400,32 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testSplitViewSouthWithSize() {
 		double size = 0.33;
-		WorkpaneView view1 = workpane.split( toolview, Side.BOTTOM, size );
-		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
-		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1 - size ) );
-		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
-		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 
-		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 1 - size ) );
+		// The first split will return the dock view regardless of the size
+		WorkpaneView view1 = workpane.split( toolview, Side.BOTTOM, size );
+		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 1 - workpane.getBottomDockSize() ) );
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
 		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1 - workpane.getBottomDockSize() ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		double position = 1 - workpane.getBottomDockSize() - toolview.getEdge( Side.BOTTOM ).getPosition() * size;
+
+		// The second split will return a new view
+		WorkpaneView view2 = workpane.split( toolview, Side.BOTTOM, size );
+		assertThat( view2.getEdge( Side.TOP ).getPosition(), is( position ) );
+		assertThat( view2.getEdge( Side.BOTTOM ).getPosition(), is( view1.getEdge( Side.TOP ).getPosition() ) );
+		assertThat( view2.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( view2.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( position ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 	}
 
 	@Test
@@ -413,16 +445,32 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testSplitViewWestWithSize() {
 		double size = 0.35;
-		WorkpaneView view1 = workpane.split( toolview, Side.LEFT, size );
-		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
-		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
-		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( size ) );
-		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 
+		// The first split will return the dock view regardless of the size
+		WorkpaneView view1 = workpane.split( toolview, Side.LEFT, size );
 		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( view1.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
 		assertThat( view1.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
-		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( size ) );
+		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( workpane.getLeftDockSize() ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( workpane.getLeftDockSize() ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
+		double position = workpane.getLeftDockSize() + (1 - toolview.getEdge( Side.LEFT ).getPosition()) * size;
+
+		// The second split will return a new view
+		WorkpaneView view2 = workpane.split( toolview, Side.LEFT, size );
+		assertThat( view2.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( view2.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( view2.getEdge( Side.LEFT ).getPosition(), is( view1.getEdge( Side.RIGHT ).getPosition() ) );
+		assertThat( view2.getEdge( Side.RIGHT ).getPosition(), is( position ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( position ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
 	}
 
 	@Test
@@ -442,16 +490,31 @@ class WorkpaneTest extends WorkpaneTestCase {
 	@Test
 	void testSplitViewEastWithSize() {
 		double size = 0.37;
+
+		// The first split will return the dock view regardless of the size
 		WorkpaneView view1 = workpane.split( toolview, Side.RIGHT, size );
+		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( view1.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( view1.getEdge( Side.LEFT ).getPosition(), is( 1 - workpane.getRightDockSize() ) );
+		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+
 		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
 		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
 		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
-		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1 - size ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( 1 - workpane.getRightDockSize() ) );
 
-		assertThat( view1.getEdge( Side.TOP ).getPosition(), is( 0d ) );
-		assertThat( view1.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
-		assertThat( view1.getEdge( Side.LEFT ).getPosition(), is( 1 - size ) );
-		assertThat( view1.getEdge( Side.RIGHT ).getPosition(), is( 1d ) );
+		double position = 1 - workpane.getRightDockSize() - toolview.getEdge( Side.RIGHT ).getPosition() * size;
+
+		WorkpaneView view2 = workpane.split( toolview, Side.RIGHT, size );
+		assertThat( view2.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( view2.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( view2.getEdge( Side.LEFT ).getPosition(), is( position ) );
+		assertThat( view2.getEdge( Side.RIGHT ).getPosition(), is( view1.getEdge( Side.LEFT ).getPosition() ) );
+
+		assertThat( toolview.getEdge( Side.TOP ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.BOTTOM ).getPosition(), is( 1d ) );
+		assertThat( toolview.getEdge( Side.LEFT ).getPosition(), is( 0d ) );
+		assertThat( toolview.getEdge( Side.RIGHT ).getPosition(), is( position ) );
 	}
 
 	private Tool getActiveTool( WorkpaneView view ) {

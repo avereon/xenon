@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WorkpaneDockTopTest extends WorkpaneTestCase {
 
@@ -15,6 +17,33 @@ class WorkpaneDockTopTest extends WorkpaneTestCase {
 		assertThat( workpane.getTopDockSize(), is( 0.2 ) );
 		workpane.setTopDockSize( 0.25 );
 		assertThat( workpane.getTopDockSize(), is( 0.25 ) );
+	}
+
+	@Test
+	void testIsDockSpace() {
+		WorkpaneView view = workpane.getDefaultView();
+		assertTrue( workpane.isDockSpace( Side.TOP, view ) );
+		assertTrue( workpane.isDockSpace( Side.BOTTOM, view ) );
+		assertTrue( workpane.isDockSpace( Side.LEFT, view ) );
+		assertTrue( workpane.isDockSpace( Side.RIGHT, view ) );
+
+		Resource resource = new Resource( "mock:resource" );
+		MockTool tool = new MockTool( resource );
+		tool.setPlacement( Workpane.Placement.DOCK_TOP );
+
+		// Add the tool
+		workpane.setDockMode( Workpane.DockMode.LANDSCAPE );
+		workpane.addTool( tool );
+
+		assertTrue( workpane.isDockSpace( Side.TOP, tool.getToolView() ) );
+		assertFalse( workpane.isDockSpace( Side.BOTTOM, tool.getToolView() ) );
+		assertFalse( workpane.isDockSpace( Side.LEFT, tool.getToolView() ) );
+		assertFalse( workpane.isDockSpace( Side.RIGHT, tool.getToolView() ) );
+
+		assertFalse( workpane.isDockSpace( Side.TOP, view ) );
+		assertTrue( workpane.isDockSpace( Side.BOTTOM, view ) );
+		assertFalse( workpane.isDockSpace( Side.LEFT, view ) );
+		assertFalse( workpane.isDockSpace( Side.RIGHT, view ) );
 	}
 
 	@Test
