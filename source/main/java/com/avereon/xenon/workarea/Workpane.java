@@ -1573,10 +1573,7 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
-		if( source.getPlacement() != Placement.DOCK_TOP && isDockSpace( Side.TOP, source ) ) return getTopDockView();
-
-		// Create the new view.
-		return newTopView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
+		return isDockSpace( Side.TOP, source ) ? getTopDockView() : newTopView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
 	}
 
 	private WorkpaneView splitSouth( WorkpaneView source, double percent ) {
@@ -1591,10 +1588,11 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
-		if( source.getPlacement() != Placement.DOCK_BOTTOM && isDockSpace( Side.BOTTOM, source ) ) return getBottomDockView();
-
-		// Create the new view.
-		return newBottomView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
+		return isDockSpace( Side.BOTTOM, source ) ? getBottomDockView() : newBottomView( source,
+			source.getEdge( Side.LEFT ),
+			source.getEdge( Side.RIGHT ),
+			percent
+		);
 	}
 
 	private WorkpaneView splitWest( WorkpaneView source, double percent ) {
@@ -1609,10 +1607,7 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
-		if( source.getPlacement() != Placement.DOCK_LEFT && isDockSpace( Side.LEFT, source ) ) return getLeftDockView();
-
-		// Create the new view.
-		return newLeftView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
+		return isDockSpace( Side.LEFT, source ) ? getLeftDockView() : newLeftView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
 
 	private WorkpaneView splitEast( WorkpaneView source, double percent ) {
@@ -1627,10 +1622,7 @@ public class Workpane extends Control implements Configurable {
 			return null;
 		}
 
-		if( source.getPlacement() != Placement.DOCK_RIGHT && isDockSpace( Side.RIGHT, source ) ) return getRightDockView();
-
-		// Create the new view.
-		return newRightView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
+		return isDockSpace( Side.RIGHT, source ) ? getRightDockView() : newRightView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
 
 	boolean isDockSpace( Side side, WorkpaneView source ) {
