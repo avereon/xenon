@@ -186,9 +186,10 @@ public class Program extends Application implements ProgramProduct {
 		// Determine the program exec mode, depends on program parameters
 		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
+		Path programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
-		LogUtil.configureLogging( this, parameters, programDataFolder, "program.log" );
+		LogUtil.configureLogging( this, parameters, programLogFolder, "program.log" );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
