@@ -95,6 +95,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private Path programDataFolder;
 
+	private Path programLogFolder;
+
 	private Settings programSettings;
 
 	private ExecMode execMode;
@@ -186,7 +188,7 @@ public class Program extends Application implements ProgramProduct {
 		// Determine the program exec mode, depends on program parameters
 		String prefix = getExecModePrefix();
 		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
-		Path programLogFolder = programDataFolder.resolve( "logs" );
+		programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
 		LogUtil.configureLogging( this, parameters, programLogFolder, "program.log" );
@@ -717,6 +719,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public final Path getDataFolder() {
 		return programDataFolder;
+	}
+
+	public final Path getLogFolder() {
+		return programLogFolder;
 	}
 
 	public final TaskManager getTaskManager() {
