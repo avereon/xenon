@@ -3,7 +3,7 @@ name: Avereon Xenon for Linux
 on:
   push:
   schedule:
-    - cron: '0 0/6 * * *'
+    - cron: '0 6 * * *'
 
 jobs:
   build:
