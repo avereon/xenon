@@ -79,9 +79,9 @@ public class Program extends Application implements ProgramProduct {
 	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
-	public static final String SETTINGS_DEFAULT_PROPERTIES = "/settings/default.properties";
+	public static final String SETTINGS_DEFAULT_PROPERTIES = Program.class.getPackageName().replace(".","/" ) + "/settings/default.properties";
 
-	public static final String SETTINGS_PAGES_XML = "/settings/pages.xml";
+	public static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace(".","/" ) + "/settings/pages.xml";
 
 	private com.avereon.util.Parameters parameters;
 
@@ -208,7 +208,7 @@ public class Program extends Application implements ProgramProduct {
 		// Load the default settings values
 		Properties properties = new Properties();
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		properties.load( new InputStreamReader( getClass().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES ), TextUtil.CHARSET ) );
+		properties.load( new InputStreamReader( getClassLoader().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES ), TextUtil.CHARSET ) );
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
 		// Create the program settings, depends on settings manager and default settings values

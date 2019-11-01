@@ -30,7 +30,7 @@ module com.avereon.xenon {
 
 	opens com.avereon.xenon.bundles;
 	opens com.avereon.xenon.product;
-	opens settings;
+	opens com.avereon.xenon.settings;
 
 	uses Mod;
 }
