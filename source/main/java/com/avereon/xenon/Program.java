@@ -73,15 +73,15 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
+	private static final String SETTINGS_DEFAULT_PROPERTIES = Program.class.getPackageName().replace( ".", "/" ) + "/settings/default.properties";
+
+	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	/* This field is used for timing checks */
 	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-
-	public static final String SETTINGS_DEFAULT_PROPERTIES = Program.class.getPackageName().replace(".","/" ) + "/settings/default.properties";
-
-	public static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace(".","/" ) + "/settings/pages.xml";
 
 	private com.avereon.util.Parameters parameters;
 
@@ -784,7 +784,9 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		//System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " " + markerName + " " + Thread.currentThread().getName() );
+		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread
+			.currentThread()
+			.getName() );
 	}
 
 	/**
