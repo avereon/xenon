@@ -520,7 +520,7 @@ public class Workpane extends Control implements Configurable {
 		}
 	}
 
-	private void doSetActiveView( WorkpaneView view, boolean setTool ) {
+	private void doSetActiveView( WorkpaneView view, boolean setActiveToolAlso ) {
 		if( view != null && (view == getActiveView() || !getViews().contains( view )) ) return;
 
 		startOperation();
@@ -540,7 +540,7 @@ public class Workpane extends Control implements Configurable {
 			if( activeToolView != null ) {
 				activeToolView.setActive( true );
 				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", true );
-				if( setTool ) doSetActiveTool( activeToolView.getActiveTool(), false );
+				if( setActiveToolAlso ) doSetActiveTool( activeToolView.getActiveTool(), false );
 				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView ) );
 			}
 		} finally {
@@ -548,7 +548,7 @@ public class Workpane extends Control implements Configurable {
 		}
 	}
 
-	private void doSetActiveTool( Tool tool, boolean setView ) {
+	private void doSetActiveTool( Tool tool, boolean activateViewAlso ) {
 		// Make sure the tool is contained by this workpane
 		if( tool != null && tool.getWorkpane() != this ) return;
 
@@ -565,12 +565,11 @@ public class Workpane extends Control implements Configurable {
 			WorkpaneView view = tool == null ? null : tool.getToolView();
 			if( view != null && getViews().contains( view ) ) {
 				view.setActiveTool( tool );
-				if( setView && view != getActiveView() ) doSetActiveView( view, false );
+				if( activateViewAlso && view != getActiveView() ) doSetActiveView( view, false );
 			}
 
 			// Change the active tool
 			activeToolProperty.set( tool );
-			if( view != null ) view.setActiveTool( tool );
 
 			activeTool = getActiveTool();
 			if( activeTool != null ) {

@@ -83,12 +83,12 @@ public class GuideTool extends ProgramTool {
 		WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
 		switch( event.getType() ) {
 			case TOOL_ACTIVATED: {
-				log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
+				log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
 				setResourceGuide( toolEvent.getTool().getResource() );
 				break;
 			}
 			case TOOL_CONCEALED: {
-				log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
+				log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
 				setResourceGuide( null );
 			}
 		}

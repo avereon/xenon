@@ -115,7 +115,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( alreadyExists ) {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
 		}else {
 			tool = getToolInstance( request );

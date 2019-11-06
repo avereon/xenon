@@ -49,8 +49,10 @@ public abstract class GuidedTool extends ProgramTool {
 		if( this.settings != null ) this.settings = settings;
 
 		// Set the expanded ids before setting the selected ids
-		Platform.runLater( () -> getGuide().setExpandedIds( settings.get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ) );
-		Platform.runLater( () -> getGuide().setSelectedIds( settings.get( GUIDE_SELECTED_IDS, "" ).split( "," ) ) );
+		Platform.runLater( () -> {
+			getGuide().setExpandedIds( settings.get( GUIDE_EXPANDED_IDS, "" ).split( "," ) );
+			getGuide().setSelectedIds( settings.get( GUIDE_SELECTED_IDS, "" ).split( "," ) );
+		} );
 	}
 
 	@Override
