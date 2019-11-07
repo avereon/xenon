@@ -59,15 +59,14 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		// Add a listener to the tab list to store the order when the tabs change
 		tools.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> {
-			int index = 0;
 			for( ToolTab tab : tools.getTabs() ){
-				Settings settings = tab.getTool().getSettings();
-				if( settings != null ) settings.set( "order", index );
-				index++;
+				Tool tool = tab.getTool();
+				tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ORDERED, tool ) );
 			}
 		} );
 	}
 
+	// FIXME Replace with Node.getId() when settings are removed
 	public String getViewId() {
 		return settings == null ? null : settings.getName();
 	}

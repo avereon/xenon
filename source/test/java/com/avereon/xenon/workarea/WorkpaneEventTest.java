@@ -3,6 +3,7 @@ package com.avereon.xenon.workarea;
 import javafx.geometry.Side;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -168,6 +169,35 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 	}
 
 	@Test
+	void testOpenTool() {
+		Workpane area = new Workpane();
+		WorkpaneView view = area.getDefaultView();
+		Tool tool = new MockTool( resource );
+
+		WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
+		area.addWorkpaneListener( workpaneWatcher );
+
+		ToolEventCounter toolEventCounter = new ToolEventCounter();
+		tool.addToolListener( toolEventCounter );
+
+		area.openTool( tool, view );
+		int count = 0;
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_ADDED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_DISPLAYED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_ACTIVATED, area, tool );
+		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+
+		count = 0;
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.OPENING, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ORDERED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ADDED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ACTIVATED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.OPENED, tool );
+		assertThat( toolEventCounter.events.size(), is( count ) );
+	}
+
+	@Test
 	void testAddTool() {
 		Workpane area = new Workpane();
 		WorkpaneView view = area.getDefaultView();
@@ -186,7 +216,12 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_ACTIVATED, area, tool );
 		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.CHANGED, area );
 		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
-		assertThat( toolEventCounter.events.size(), is( 0 ) );
+
+		count = 0;
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ORDERED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ADDED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ACTIVATED, tool );
+		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
 	@Test
@@ -203,12 +238,18 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		tool.addToolListener( toolEventCounter );
 
 		area.removeTool( tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_CONCEALED, area, tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.TOOL_REMOVED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area );
-		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
-		assertThat( toolEventCounter.events.size(), is( 0 ) );
+
+		int count = 0;
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_CONCEALED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_REMOVED, area, tool );
+		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+
+		count = 0;
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.DEACTIVATED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.REMOVED, tool );
+		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
 	@Test
@@ -225,14 +266,20 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		tool.addToolListener( toolEventCounter );
 
 		area.closeTool( tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 0 ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.Type.TOOL_CONCEALED, area, tool );
-		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( 2 ), WorkpaneEvent.Type.TOOL_REMOVED, area, tool );
-		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 3 ), WorkpaneEvent.Type.CHANGED, area );
-		assertToolEvent( toolEventCounter.events.get( 0 ), ToolEvent.Type.TOOL_CLOSING, tool );
-		assertToolEvent( toolEventCounter.events.get( 1 ), ToolEvent.Type.TOOL_CLOSED, tool );
-		assertThat( workpaneWatcher.getEvents().size(), is( 4 ) );
-		assertThat( toolEventCounter.events.size(), is( 2 ) );
+
+		int count = 0;
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_DEACTIVATED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_CONCEALED, area, tool );
+		assertWorkpaneToolEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.TOOL_REMOVED, area, tool );
+		assertWorkpaneEvent( workpaneWatcher.getEvents().get( count++ ), WorkpaneEvent.Type.CHANGED, area );
+		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
+
+		count = 0;
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.CLOSING, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.DEACTIVATED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.REMOVED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.CLOSED, tool );
+		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
 	@Test
@@ -327,15 +374,13 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		List<ToolEvent> events = new CopyOnWriteArrayList<>();
 
 		@Override
-		public void toolClosing( ToolEvent event ) {
+		public void handle( ToolEvent event ) {
 			events.add( event );
 		}
 
-		@Override
-		public void toolClosed( ToolEvent event ) {
-			events.add( event );
+		public List<ToolEvent> getEvents() {
+			return new ArrayList<>( events );
 		}
-
 	}
 
 }

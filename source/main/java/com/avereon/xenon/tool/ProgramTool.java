@@ -1,7 +1,9 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.settings.Settings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.workarea.Tool;
 
@@ -29,6 +31,10 @@ public abstract class ProgramTool extends Tool {
 
 	public Set<URI> getResourceDependencies() {
 		return Collections.unmodifiableSet( Collections.emptySet() );
+	}
+
+	public Settings getSettings() {
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getId() );
 	}
 
 }

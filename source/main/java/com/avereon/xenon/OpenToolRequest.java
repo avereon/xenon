@@ -15,6 +15,8 @@ public class OpenToolRequest {
 
 	private Workpane pane;
 
+	private String id;
+
 	private Class<? extends ProgramTool> toolClass;
 
 	public OpenToolRequest( OpenResourceRequest openResourceRequest ) {
@@ -34,6 +36,14 @@ public class OpenToolRequest {
 	public boolean isOpenTool() {return openResourceRequest.isOpenTool();}
 
 	public boolean isSetActive() {return openResourceRequest.isSetActive();}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId( String id ) {
+		this.id = id;
+	}
 
 	public Class<? extends ProgramTool> getToolClass() {
 		return toolClass;

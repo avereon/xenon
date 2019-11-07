@@ -1,12 +1,11 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.settings.Settings;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramGuideType;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -29,8 +28,6 @@ public abstract class GuidedTool extends ProgramTool {
 
 	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
 
-	private Settings settings;
-
 	public GuidedTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 	}
@@ -43,15 +40,12 @@ public abstract class GuidedTool extends ProgramTool {
 	}
 
 	@Override
-	public void setSettings( Settings settings ) {
-		super.setSettings( settings );
-
-		if( this.settings != null ) this.settings = settings;
-
+	protected void allocate() throws ToolException {
+		super.allocate();
 		// Set the expanded ids before setting the selected ids
 		Platform.runLater( () -> {
-			getGuide().setExpandedIds( settings.get( GUIDE_EXPANDED_IDS, "" ).split( "," ) );
-			getGuide().setSelectedIds( settings.get( GUIDE_SELECTED_IDS, "" ).split( "," ) );
+			getGuide().setExpandedIds( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) );
+			getGuide().setSelectedIds( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) );
 		} );
 	}
 

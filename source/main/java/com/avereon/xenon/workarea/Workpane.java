@@ -558,7 +558,7 @@ public class Workpane extends Control implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
-				if( activeTool.getSettings() != null ) activeTool.getSettings().set( "active", null );
+				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.DEACTIVATED, activeTool ) );
 			}
 
 			// Change the active view
@@ -574,7 +574,7 @@ public class Workpane extends Control implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callActivate();
-				if( activeTool.getSettings() != null ) activeTool.getSettings().set( "active", true );
+				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ACTIVATED, activeTool ) );
 			}
 		} finally {
 			finishOperation( true );
@@ -1061,7 +1061,7 @@ public class Workpane extends Control implements Configurable {
 	}
 
 	private Side getPullMergeDirection( WorkpaneView target, boolean auto ) {
-		List<MergeDirection> directions = new ArrayList<MergeDirection>( 4 );
+		List<MergeDirection> directions = new ArrayList<>( 4 );
 
 		directions.add( new MergeDirection( target, Side.TOP ) );
 		directions.add( new MergeDirection( target, Side.BOTTOM ) );
@@ -1105,13 +1105,25 @@ public class Workpane extends Control implements Configurable {
 		return addTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
 	}
 
-	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
+	/**
+	 * Add a tool to the workpane. The difference between this method and
+	 * {@link #openTool(Tool, WorkpaneView, int, boolean)} is that this method
+	 * does not fire  the tool open events.
+	 *
+	 * @param tool The tool to open
+	 * @param view The tool view to which to add the tool
+	 * @param index The tab index in the tool view where to add the tool
+	 * @param activate If the tool should be activated when added
+	 * @return The tool that was opened
+	 */
+	Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
 		try {
 			startOperation();
 			if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
 			view.addTool( tool, index );
+			tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ADDED, tool ) );
 			if( activate ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
@@ -1120,19 +1132,69 @@ public class Workpane extends Control implements Configurable {
 		return tool;
 	}
 
+	Tool openTool( Tool tool, WorkpaneView view ) {
+		return openTool( tool, view, true );
+	}
+
+	private Tool openTool( Tool tool, WorkpaneView view, boolean activate ) {
+		return openTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
+	}
+
+	public Tool openTool( Tool tool, Placement placement, boolean activate ) {
+		if( placement == null ) placement = tool.getPlacement();
+		return openTool( tool, determineViewFromPlacement( placement ), activate );
+	}
+
+	/**
+	 * Open a tool in the workpane. The difference between this method and
+	 * {@link #addTool(Tool, WorkpaneView, int, boolean)} is that this method fires
+	 * the tool open events.
+	 *
+	 * @param tool The tool to open
+	 * @param view The tool view to which to add the tool
+	 * @param index The tab index in the tool view where to add the tool
+	 * @return The tool that was opened
+	 */
+	private Tool openTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
+		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
+
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.OPENING, tool ) );
+		addTool( tool, view, index, activate );
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.OPENED, tool ) );
+
+		return tool;
+	}
+
+	/**
+	 * Remove the tool from the workpane. The difference between this method and
+	 * {@link #closeTool(Tool)} is that this method does not fire close events.
+	 * This method is intended to be used for moving tools between views.
+	 *
+	 * @param tool The tool to remove
+	 * @return The tool that was removed
+	 */
 	public Tool removeTool( Tool tool ) {
 		return removeTool( tool, true );
 	}
 
-	public Tool removeTool( Tool tool, boolean automerge ) {
+	/**
+	 * Remove the tool from the workpane. The difference between this method and
+	 * {@link #closeTool(Tool, boolean)} is that this method does not fire close
+	 * events. This method is intended to be used for moving tools between views.
+	 *
+	 * @param tool The tool to remove
+	 * @param autoMerge If the pane should automatically merge the view
+	 * @return The tool that was removed
+	 */
+	private Tool removeTool( Tool tool, boolean autoMerge ) {
 		WorkpaneView view = tool.getToolView();
 		if( view == null ) return tool;
 
 		try {
 			startOperation();
 			view.removeTool( tool );
-			if( tool.getSettings() != null ) tool.getSettings().delete();
-			if( automerge ) pullMerge( view );
+			tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.REMOVED, tool ) );
+			if( autoMerge ) pullMerge( view );
 		} finally {
 			finishOperation( true );
 		}
@@ -1140,32 +1202,38 @@ public class Workpane extends Control implements Configurable {
 		return tool;
 	}
 
+	/**
+	 * Close the tool and remove it from the workpane. The difference between this
+	 * method and {@link #removeTool(Tool)} is that this method fires the close
+	 * events.
+	 *
+	 * @param tool The tool to close
+	 * @return The tool that was closed
+	 */
 	public Tool closeTool( Tool tool ) {
 		return closeTool( tool, true );
 	}
 
+	/**
+	 * Close the tool and remove it from the workpane. The difference between this
+	 * method and {@link #removeTool(Tool, boolean)} is that this method fires the
+	 * close events.
+	 *
+	 * @param tool The tool to close
+	 * @param autoMerge If the workpane should automatically merge the tool view
+	 * @return The tool that was closed
+	 */
 	public Tool closeTool( Tool tool, boolean autoMerge ) {
 		if( tool == null ) return null;
 
-		startOperation();
-		try {
-			// Notify view listeners of attempt to close.
-			try {
-				tool.fireToolClosingEvent( new ToolEvent( this, ToolEvent.Type.TOOL_CLOSING, tool ) );
-			} catch( ToolVetoException exception ) {
-				return tool;
-			}
+		// Notify tool listeners of intent to close
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.CLOSING, tool ) );
 
-			// Check the tool close operation.
-			if( tool.getCloseOperation() == CloseOperation.NOTHING ) return tool;
+		// Remove the tool
+		if( tool.getCloseOperation() == CloseOperation.REMOVE ) removeTool( tool, autoMerge );
 
-			removeTool( tool, autoMerge );
-
-			// Notify view listeners of view closure.
-			tool.fireToolClosedEvent( new ToolEvent( this, ToolEvent.Type.TOOL_CLOSED, tool ) );
-		} finally {
-			finishOperation( true );
-		}
+		// Notify tool listeners of view closure
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.CLOSED, tool ) );
 
 		return tool;
 	}
@@ -1401,7 +1469,7 @@ public class Workpane extends Control implements Configurable {
 
 			// Check for tools.
 			for( Tool tool : target.getTools() ) {
-				removeTool( tool, false );
+				closeTool( tool, false );
 				addTool( tool, closestSource );
 			}
 

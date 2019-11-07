@@ -5,7 +5,15 @@ import java.util.EventObject;
 public class ToolEvent extends EventObject {
 
 	public enum Type {
-		TOOL_CLOSING, TOOL_CLOSED
+		OPENING,
+		OPENED,
+		ADDED,
+		ACTIVATED,
+		DEACTIVATED,
+		ORDERED,
+		REMOVED,
+		CLOSING,
+		CLOSED
 	}
 
 	private static final long serialVersionUID = -4975302925133248236L;

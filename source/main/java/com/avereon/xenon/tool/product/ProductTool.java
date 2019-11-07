@@ -2,8 +2,8 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
-import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
@@ -11,7 +11,6 @@ import com.avereon.xenon.resource.type.ProgramProductType;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 
@@ -75,6 +74,7 @@ public class ProductTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		super.allocate();
 		log.debug( "Product tool allocate" );
+		//Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -132,13 +132,6 @@ public class ProductTool extends GuidedTool {
 	protected void resourceRefreshed() throws ToolException {
 		log.trace( "Product tool resource refreshed" );
 		super.resourceRefreshed();
-	}
-
-	@Override
-	public void setSettings( Settings settings ) {
-		super.setSettings( settings );
-
-		//Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
 	}
 
 	@Override

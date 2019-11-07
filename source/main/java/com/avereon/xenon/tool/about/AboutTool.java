@@ -1,16 +1,15 @@
 package com.avereon.xenon.tool.about;
 
 import com.avereon.product.ProductCard;
-import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.OpenToolRequestParameters;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -96,6 +95,7 @@ public class AboutTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
 		super.allocate();
+		Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -148,13 +148,6 @@ public class AboutTool extends GuidedTool {
 		summaryPane.update( metadata );
 		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
-	}
-
-	@Override
-	public void setSettings( Settings settings ) {
-		super.setSettings( settings );
-
-		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	private class SummaryPane extends MigPane {

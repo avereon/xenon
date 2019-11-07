@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.settings.MapSettings;
 import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
@@ -28,7 +27,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		Resource resource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		this.mockGuidedTool = new MockGuidedTool( program, resource );
-		this.mockGuidedTool.setSettings( new MapSettings() );
+		//this.mockGuidedTool.setSettings( new MapSettings() );
 		// Need to call resourceReady to register the listeners
 		this.mockGuidedTool.resourceReady( null );
 		mockGuidedTool.reset();

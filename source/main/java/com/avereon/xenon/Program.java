@@ -79,6 +79,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
+	private static final boolean showTiming = false;
+
 	/* This field is used for timing checks */
 	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
@@ -784,6 +786,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
+		if( !showTiming ) return;
 		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread
 			.currentThread()
 			.getName() );

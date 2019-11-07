@@ -297,7 +297,9 @@ class UiRegenerator {
 			// Add the tools to the view
 			for( ProgramTool tool : tools ) {
 				pane.addTool( tool, view, tool.isActive() );
-				if( tool.getSettings().get( "active", Boolean.class, false ) ) activeTool = tool;
+
+				Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getId() );
+				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
 
 				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
 			}
@@ -406,9 +408,13 @@ class UiRegenerator {
 				return;
 			}
 
+			// Create the open resource request
+			OpenResourceRequest openResourceRequest = new OpenResourceRequest().setUri( uri );
+
 			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( new OpenResourceRequest().setUri( uri ) );
+			OpenToolRequest openToolRequest = new OpenToolRequest( openResourceRequest );
 			openToolRequest.setResource( program.getResourceManager().createResource( uri ) );
+			openToolRequest.setId( id );
 
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
@@ -417,12 +423,11 @@ class UiRegenerator {
 				settings.delete();
 				return;
 			}
-			tool.setSettings( settings );
 
 			Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
 			viewToolSet.add( tool );
 
-			tools.put( id, tool );
+			tools.put( tool.getId(), tool );
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool: type=" + toolType, exception );
 		}

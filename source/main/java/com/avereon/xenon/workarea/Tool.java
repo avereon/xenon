@@ -1,10 +1,7 @@
 package com.avereon.xenon.workarea;
 
-import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.OpenToolRequestParameters;
-import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.ResourceEvent;
 import com.avereon.xenon.resource.ResourceListener;
@@ -26,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * The Tool class is a control that "works on" a resource.
  */
-public abstract class Tool extends Control implements Configurable {
+public abstract class Tool extends Control {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -60,8 +57,6 @@ public abstract class Tool extends Control implements Configurable {
 
 	private Set<ToolListener> listeners;
 
-	private Settings settings;
-
 	public Tool( Resource resource ) {
 		this( resource, null );
 	}
@@ -70,7 +65,7 @@ public abstract class Tool extends Control implements Configurable {
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
-		this.closeOperation = new SimpleObjectProperty<>();
+		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
 		this.listeners = new CopyOnWriteArraySet<>();
 		this.resource = resource;
 
@@ -189,9 +184,8 @@ public abstract class Tool extends Control implements Configurable {
 		return parent;
 	}
 
-	public void setToolView( WorkpaneView parent ) {
+	void setToolView( WorkpaneView parent ) {
 		this.parent = parent;
-		if( settings != null ) settings.set( UiFactory.PARENT_WORKPANEVIEW_ID, parent == null ? null : parent.getViewId() );
 	}
 
 	public Workpane getWorkpane() {
@@ -203,6 +197,10 @@ public abstract class Tool extends Control implements Configurable {
 		return allocated;
 	}
 
+	public int getTabOrder() {
+		return getToolView() == null ? -1 : getToolView().getTools().indexOf( this );
+	}
+
 	public boolean isDisplayed() {
 		return displayed;
 	}
@@ -212,7 +210,7 @@ public abstract class Tool extends Control implements Configurable {
 	}
 
 	public void close() {
-		Platform.runLater( () -> getWorkpane().removeTool( this, true ) );
+		Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
 	}
 
 	@Override
@@ -226,16 +224,6 @@ public abstract class Tool extends Control implements Configurable {
 		}
 
 		return tool;
-	}
-
-	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
-
-		this.settings = settings;
-	}
-
-	public Settings getSettings() {
-		return settings;
 	}
 
 	public void addToolListener( ToolListener listener ) {
@@ -252,7 +240,7 @@ public abstract class Tool extends Control implements Configurable {
 
 		builder.append( getClass().getSimpleName() );
 		builder.append( "{" );
-		builder.append( " id=\"" ).append( settings.getName() ).append( "\"" );
+		builder.append( " id=\"" ).append( getId() ).append( "\"" );
 		builder.append( " title=\"" ).append( getTitle() ).append( "\"" );
 		builder.append( " }" );
 
@@ -408,7 +396,7 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceRefreshed() {
+	private void callResourceRefreshed() {
 		try {
 			resourceRefreshed();
 		} catch( ToolException exception ) {
@@ -416,21 +404,9 @@ public abstract class Tool extends Control implements Configurable {
 		}
 	}
 
-	public final void fireToolClosingEvent( ToolEvent event ) throws ToolVetoException {
-		ToolVetoException exception = null;
+	final void fireToolEvent( ToolEvent event ) {
 		for( ToolListener listener : listeners ) {
-			try {
-				listener.toolClosing( event );
-			} catch( ToolVetoException vetoException ) {
-				if( exception == null ) exception = vetoException;
-			}
-		}
-		if( exception != null ) throw exception;
-	}
-
-	public final void fireToolClosedEvent( ToolEvent event ) {
-		for( ToolListener listener : listeners ) {
-			listener.toolClosed( event );
+			listener.handle( event );
 		}
 	}
 

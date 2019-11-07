@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Product;
-import com.avereon.settings.Settings;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.LogUtil;
@@ -117,7 +116,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			final ProgramTool finalTool = tool;
 			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
-		}else {
+		} else {
 			tool = getToolInstance( request );
 		}
 
@@ -128,9 +127,6 @@ public class ToolManager implements Controllable<ToolManager> {
 			program.getNoticeManager().warning( title, message, resource.getName() );
 			return null;
 		}
-
-		// Create the tools settings
-		createToolSettings( tool );
 
 		// Now that we have a tool...open dependent resources and associated tools
 		for( URI dependency : tool.getResourceDependencies() ) {
@@ -143,7 +139,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-		Platform.runLater( () -> finalPane.addTool( finalTool, placementOverride, request.isSetActive() ) );
+		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, request.isSetActive() ) );
 
 		scheduleResourceReady( request, finalTool );
 
@@ -280,7 +276,15 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				// Create the new tool instance
 				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
-				return constructor.newInstance( product, resource );
+				ProgramTool tool = constructor.newInstance( product, resource );
+
+				// Set the id before using settings
+				tool.setId( request.getId() == null ? IdGenerator.getId() : request.getId() );
+				tool.getSettings().set( "type", tool.getClass().getName() );
+				tool.getSettings().set( "uri", tool.getResource().getUri() );
+				addToolListenerForSettings( tool );
+				log.debug( "Tool instance created: " + tool.getClass().getName() );
+				return tool;
 			} catch( Exception exception ) {
 				log.error( "Error creating instance: " + toolClass.getName(), exception );
 			}
@@ -302,12 +306,31 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private void createToolSettings( ProgramTool tool ) {
-		if( tool.getSettings() != null ) return;
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, IdGenerator.getId() );
-		settings.set( "type", tool.getClass().getName() );
-		settings.set( "uri", tool.getResource().getUri() );
-		tool.setSettings( settings );
+	private void addToolListenerForSettings( ProgramTool tool ) {
+		tool.addToolListener( ( event ) -> {
+			ProgramTool eventTool = (ProgramTool)event.getTool();
+			switch( event.getType() ) {
+				case ADDED: {
+					eventTool.getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, eventTool.getToolView().getViewId() );
+					break;
+				}
+				case ORDERED: {
+					eventTool.getSettings().set( "order", eventTool.getTabOrder() );
+					break;
+				}
+				case ACTIVATED: {
+					eventTool.getSettings().set( "active", true );
+					break;
+				}
+				case DEACTIVATED: {
+					eventTool.getSettings().set( "active", null );
+					break;
+				}
+				case CLOSED: {
+					eventTool.getSettings().delete();
+				}
+			}
+		} );
 	}
 
 	/**
