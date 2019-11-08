@@ -26,7 +26,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	@Test
 	void testStartAndAwait() throws Exception {
 		manager.start();
-		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		//manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
 	}
@@ -34,10 +34,10 @@ public class TaskManagerTest extends BaseTaskTest {
 	@Test
 	void testStopAndWait() throws Exception {
 		manager.start();
-		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		//manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
-		manager.awaitStop( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
+		//manager.awaitStop( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( false ) );
 	}
 

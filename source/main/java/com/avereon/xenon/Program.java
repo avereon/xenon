@@ -67,7 +67,7 @@ public class Program extends Application implements ProgramProduct {
 
 	public static final String STYLESHEET = "style.css";
 
-	private static final long MANAGER_ACTION_SECONDS = 10;
+	public static final long MANAGER_ACTION_SECONDS = 10;
 
 	private static final String PROGRAM_RELEASE = "product-release";
 
@@ -259,7 +259,7 @@ public class Program extends Application implements ProgramProduct {
 		// The task manager is created in the init() method so it is available during unit tests
 		log.trace( "Starting task manager..." );
 		taskManager = configureTaskManager( new TaskManager() ).start();
-		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );
 		time( "task-manager" );
 
@@ -368,7 +368,7 @@ public class Program extends Application implements ProgramProduct {
 		registerSchemes( resourceManager );
 		registerResourceTypes( resourceManager );
 		resourceManager.start();
-		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
@@ -378,7 +378,7 @@ public class Program extends Application implements ProgramProduct {
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
-		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		registerTools( toolManager );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
@@ -386,21 +386,21 @@ public class Program extends Application implements ProgramProduct {
 		// Create the workspace manager
 		log.trace( "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
-		noticeManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//noticeManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Notice manager started." );
 
 		// Start the product manager
 		log.trace( "Starting product manager..." );
 		productManager.start();
-		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Product manager started." );
 
 		// Restore the user interface
@@ -511,7 +511,7 @@ public class Program extends Application implements ProgramProduct {
 
 			log.trace( "Stopping update manager..." );
 			productManager.stop();
-			productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Update manager stopped." );
 		}
 
@@ -519,7 +519,7 @@ public class Program extends Application implements ProgramProduct {
 		if( noticeManager != null ) {
 			log.trace( "Stopping notice manager..." );
 			noticeManager.stop();
-			noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Notice manager stopped." );
 		}
 
@@ -527,7 +527,7 @@ public class Program extends Application implements ProgramProduct {
 		if( workspaceManager != null ) {
 			log.trace( "Stopping workspace manager..." );
 			workspaceManager.stop();
-			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
 		}
 
@@ -535,7 +535,7 @@ public class Program extends Application implements ProgramProduct {
 		if( toolManager != null ) {
 			log.trace( "Stopping tool manager..." );
 			toolManager.stop();
-			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			unregisterTools( toolManager );
 			log.debug( "Tool manager stopped." );
 		}
@@ -546,7 +546,7 @@ public class Program extends Application implements ProgramProduct {
 		if( resourceManager != null ) {
 			log.trace( "Stopping resource manager..." );
 			resourceManager.stop();
-			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			unregisterResourceTypes( resourceManager );
 			unregisterSchemes( resourceManager );
 			log.debug( "Resource manager stopped." );
@@ -556,7 +556,7 @@ public class Program extends Application implements ProgramProduct {
 		if( settingsManager != null ) {
 			log.trace( "Stopping settings manager..." );
 			settingsManager.stop();
-			settingsManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//settingsManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Settings manager stopped." );
 		}
 
@@ -570,7 +570,7 @@ public class Program extends Application implements ProgramProduct {
 		if( programServer != null ) {
 			log.trace( "Stopping program server..." );
 			programServer.stop();
-			programServer.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//programServer.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Program server stopped." );
 		}
 
@@ -578,7 +578,7 @@ public class Program extends Application implements ProgramProduct {
 		if( taskManager != null ) {
 			log.trace( "Stopping task manager..." );
 			taskManager.stop();
-			taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			//taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Task manager stopped." );
 		}
 
@@ -826,7 +826,7 @@ public class Program extends Application implements ProgramProduct {
 		programServer = new ProgramServer( this, port );
 
 		// If the program server starts this process is a host, not a peer
-		programServer.start().awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		//programServer.start().awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		return !programServer.isRunning();
 	}
 

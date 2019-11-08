@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
@@ -191,22 +190,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-	@Override
-	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
-
-	@Override
-	public SettingsManager restart() {
-		stop();
-		start();
-		return this;
-	}
-
-	@Override
-	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
+//
+//	@Override
+//	public SettingsManager restart() {
+//		stop();
+//		start();
+//		return this;
+//	}
+//
+//	@Override
+//	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
 
 	@Override
 	public SettingsManager stop() {
@@ -214,10 +213,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-	@Override
-	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
 
 	private static class SettingsWatcher implements SettingsListener {
 

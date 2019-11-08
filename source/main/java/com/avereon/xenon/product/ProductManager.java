@@ -26,7 +26,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -863,27 +862,27 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return this;
 	}
 
-	@Override
-	public ProductManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
-
-	@Override
-	public ProductManager restart() {
-		try {
-			stop();
-			awaitStop( 1, TimeUnit.SECONDS );
-			start();
-		} catch( InterruptedException exception ) {
-			// Intentionally ignore exception
-		}
-		return this;
-	}
-
-	@Override
-	public ProductManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public ProductManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
+//
+//	@Override
+//	public ProductManager restart() {
+//		try {
+//			stop();
+//			awaitStop( 1, TimeUnit.SECONDS );
+//			start();
+//		} catch( InterruptedException exception ) {
+//			// Intentionally ignore exception
+//		}
+//		return this;
+//	}
+//
+//	@Override
+//	public ProductManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
 
 	@Override
 	public ProductManager stop() {
@@ -894,10 +893,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return this;
 	}
 
-	@Override
-	public ProductManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public ProductManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
 
 	public void startMods() {
 		modules.values().forEach( this::callModCreate );

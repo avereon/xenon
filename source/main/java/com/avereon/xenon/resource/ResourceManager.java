@@ -121,10 +121,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return this;
 	}
 
-	@Override
-	public ResourceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public ResourceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
 
 	@Override
 	public boolean isRunning() {
@@ -132,17 +132,17 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return false;
 	}
 
-	@Override
-	public ResourceManager restart() {
-		stop();
-		start();
-		return this;
-	}
-
-	@Override
-	public ResourceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return awaitStart( timeout, unit );
-	}
+//	@Override
+//	public ResourceManager restart() {
+//		stop();
+//		start();
+//		return this;
+//	}
+//
+//	@Override
+//	public ResourceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return awaitStart( timeout, unit );
+//	}
 
 	@Override
 	public ResourceManager stop() {
@@ -150,10 +150,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return this;
 	}
 
-	@Override
-	public ResourceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public ResourceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+//		return this;
+//	}
 
 	public Resource getCurrentResource() {
 		return currentResource;

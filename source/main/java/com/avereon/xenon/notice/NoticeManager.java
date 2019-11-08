@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
@@ -115,16 +114,6 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	@Override
 	public NoticeManager start() {
-		return restart();
-	}
-
-	@Override
-	public NoticeManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return awaitRestart( timeout, unit );
-	}
-
-	@Override
-	public NoticeManager restart() {
 		try {
 			resource = program.getResourceManager().createResource( ProgramNoticeType.URI );
 			program.getResourceManager().loadResources( resource );
@@ -136,10 +125,20 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return this;
 	}
 
-	@Override
-	public NoticeManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+	//	@Override
+	//	public NoticeManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return awaitRestart( timeout, unit );
+	//	}
+	//
+	//	@Override
+	//	public NoticeManager restart() {
+	//		return start();
+	//	}
+	//
+	//	@Override
+	//	public NoticeManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
 
 	@Override
 	public NoticeManager stop() {
@@ -150,10 +149,10 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return this;
 	}
 
-	@Override
-	public NoticeManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
+	//	@Override
+	//	public NoticeManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
 
 	private NoticeList getNoticeList() {
 		return (NoticeList)resource.getModel();

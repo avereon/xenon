@@ -11,7 +11,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
@@ -67,20 +66,20 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		return this;
 	}
 
-	@Override
-	public ProgramServer awaitStart( long l, TimeUnit timeUnit ) throws InterruptedException {
-		return this;
-	}
-
-	@Override
-	public ProgramServer restart() {
-		return this;
-	}
-
-	@Override
-	public ProgramServer awaitRestart( long l, TimeUnit timeUnit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public ProgramServer awaitStart( long l, TimeUnit timeUnit ) throws InterruptedException {
+//		return this;
+//	}
+//
+//	@Override
+//	public ProgramServer restart() {
+//		return this;
+//	}
+//
+//	@Override
+//	public ProgramServer awaitRestart( long l, TimeUnit timeUnit ) throws InterruptedException {
+//		return this;
+//	}
 
 	public ProgramServer stop() {
 		if( server == null ) return this;
@@ -93,10 +92,10 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		return this;
 	}
 
-	@Override
-	public ProgramServer awaitStop( long l, TimeUnit timeUnit ) throws InterruptedException {
-		return this;
-	}
+//	@Override
+//	public ProgramServer awaitStop( long l, TimeUnit timeUnit ) throws InterruptedException {
+//		return this;
+//	}
 
 	private class SocketHandler implements Runnable {
 
