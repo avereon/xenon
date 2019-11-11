@@ -78,9 +78,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private ModifiedResourceWatcher modifiedResourceWatcher = new ModifiedResourceWatcher();
 
-	private final Object restoreLock = new Object();
-
 	private final Object currentResourceLock = new Object();
+
+	private boolean running;
 
 	public ResourceManager( Program program ) {
 		this.program = program;
@@ -105,6 +105,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	@Override
+	public boolean isRunning() {
+		return running;
+	}
+
+	@Override
 	public ResourceManager start() {
 		//		((FileScheme)Schemes.getScheme( "file" )).startResourceWatching();
 
@@ -116,44 +121,21 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getActionLibrary().getAction( "save-all" ).pushAction( saveAllActionHandler );
 		program.getActionLibrary().getAction( "close" ).pushAction( closeActionHandler );
 		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
-
 		updateActionState();
+
+		running = true;
+
 		return this;
 	}
-
-//	@Override
-//	public ResourceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
-
-	@Override
-	public boolean isRunning() {
-		// TODO Return a real value for ResourceManager.isRunning()
-		return false;
-	}
-
-//	@Override
-//	public ResourceManager restart() {
-//		stop();
-//		start();
-//		return this;
-//	}
-//
-//	@Override
-//	public ResourceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return awaitStart( timeout, unit );
-//	}
 
 	@Override
 	public ResourceManager stop() {
+		running = false;
+
 		//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
+
 		return this;
 	}
-
-//	@Override
-//	public ResourceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
 
 	public Resource getCurrentResource() {
 		return currentResource;

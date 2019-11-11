@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void warning( String title, Object message, Throwable throwable, String... parameters ) {
-		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, parameters ) ).setType( Notice.Type.WARN ) );
+		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, Arrays.toString( parameters ) ) ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
@@ -118,6 +119,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 			resource = program.getResourceManager().createResource( ProgramNoticeType.URI );
 			program.getResourceManager().loadResources( resource );
 			// TODO Register an event listener to show unread messages after the program is finished starting
+			// At startup there may be notices that need to be shown but the workspace has not been restored yet
 		} catch( ResourceException exception ) {
 			exception.printStackTrace();
 		}
@@ -125,41 +127,15 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return this;
 	}
 
-	//	@Override
-	//	public NoticeManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-	//		return awaitRestart( timeout, unit );
-	//	}
-	//
-	//	@Override
-	//	public NoticeManager restart() {
-	//		return start();
-	//	}
-	//
-	//	@Override
-	//	public NoticeManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-	//		return this;
-	//	}
-
 	@Override
 	public NoticeManager stop() {
 		// TODO Unregister an event listener to show unread messages when there is an active workspace
-		// At startup there may be notices that need to be shown but the workspace has not been restored yet
-
 		program.getResourceManager().saveResources( resource );
 		return this;
 	}
 
-	//	@Override
-	//	public NoticeManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-	//		return this;
-	//	}
-
 	private NoticeList getNoticeList() {
 		return (NoticeList)resource.getModel();
-	}
-
-	private Integer getUnreadCount() {
-		return unreadCount.getValue();
 	}
 
 	private void updateUnreadCount() {

@@ -862,28 +862,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return this;
 	}
 
-//	@Override
-//	public ProductManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
-//
-//	@Override
-//	public ProductManager restart() {
-//		try {
-//			stop();
-//			awaitStop( 1, TimeUnit.SECONDS );
-//			start();
-//		} catch( InterruptedException exception ) {
-//			// Intentionally ignore exception
-//		}
-//		return this;
-//	}
-//
-//	@Override
-//	public ProductManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
-
 	@Override
 	public ProductManager stop() {
 		modules.values().forEach( this::callModUnregister );
@@ -892,11 +870,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		timer = null;
 		return this;
 	}
-
-//	@Override
-//	public ProductManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
 
 	public void startMods() {
 		modules.values().forEach( this::callModCreate );

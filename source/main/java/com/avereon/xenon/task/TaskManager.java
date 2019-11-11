@@ -162,32 +162,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return this;
 	}
 
-//	@Override
-//	public TaskManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
-//
-//	@Override
-//	public TaskManager restart() {
-//		new Thread( () -> {
-//			stop();
-//			try {
-//				// TODO Make task manager requestRestart timeout a setting?
-//				awaitStop( 10, TimeUnit.SECONDS );
-//				start();
-//			} catch( InterruptedException exception ) {
-//				exception.printStackTrace();
-//			}
-//		} ).start();
-//
-//		return this;
-//	}
-//
-//	@Override
-//	public TaskManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return awaitStart( timeout, unit );
-//	}
-
 	@Override
 	public TaskManager stop() {
 		executorP3 = shutdown( executorP3 );
@@ -208,14 +182,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		executor.shutdown();
 		return null;
 	}
-
-//	@Override
-//	public TaskManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		if( executorP3 != null ) executorP3.awaitTermination( timeout, unit );
-//		if( executorP2 != null ) executorP2.awaitTermination( timeout, unit );
-//		if( executorP1 != null ) executorP1.awaitTermination( timeout, unit );
-//		return this;
-//	}
 
 	@Override
 	public void setSettings( Settings settings ) {

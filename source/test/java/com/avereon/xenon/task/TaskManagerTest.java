@@ -24,20 +24,17 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	void testStartAndAwait() throws Exception {
+	void testStartAndAwait() {
 		manager.start();
-		//manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
 	}
 
 	@Test
-	void testStopAndWait() throws Exception {
+	void testStopAndWait() {
 		manager.start();
-		//manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
-		//manager.awaitStop( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( false ) );
 	}
 
@@ -280,12 +277,15 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
+		listener.waitForEvent( TaskEvent.Type.TASK_FINISH );
 
-		//		assertThat( listener.getEvents().get( 0 ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
-		//		assertThat( listener.getEvents().get( 1 ).getType(), is( TaskEvent.Type.TASK_START ) );
-		//		assertThat( listener.getEvents().get( 2 ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
-		//		assertThat( listener.getEvents().get( 3 ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
-		//		assertThat( listener.getEvents().size(), is( 4 ) );
+		int count = 0;
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.THREAD_CREATE ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_START ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
+		assertThat( listener.getEvents().size(), is( count ) );
 	}
 
 }

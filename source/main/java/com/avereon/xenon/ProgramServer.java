@@ -27,7 +27,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 	private int requestedPort;
 
-	public ProgramServer( Program program, int requestedPort ) {
+	ProgramServer( Program program, int requestedPort ) {
 		this.program = program;
 		this.requestedPort = requestedPort;
 	}
@@ -66,21 +66,6 @@ public class ProgramServer implements Controllable<ProgramServer> {
 		return this;
 	}
 
-//	@Override
-//	public ProgramServer awaitStart( long l, TimeUnit timeUnit ) throws InterruptedException {
-//		return this;
-//	}
-//
-//	@Override
-//	public ProgramServer restart() {
-//		return this;
-//	}
-//
-//	@Override
-//	public ProgramServer awaitRestart( long l, TimeUnit timeUnit ) throws InterruptedException {
-//		return this;
-//	}
-
 	public ProgramServer stop() {
 		if( server == null ) return this;
 		if( handler != null ) handler.stop();
@@ -91,11 +76,6 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 		return this;
 	}
-
-//	@Override
-//	public ProgramServer awaitStop( long l, TimeUnit timeUnit ) throws InterruptedException {
-//		return this;
-//	}
 
 	private class SocketHandler implements Runnable {
 
@@ -141,7 +121,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 
 	}
 
-	public class LogHandler extends Handler {
+	private static class LogHandler extends Handler {
 
 		private Socket client;
 

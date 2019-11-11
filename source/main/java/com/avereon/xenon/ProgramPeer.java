@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
-public class ProgramPeer {
+public class ProgramPeer implements Controllable<ProgramPeer> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -22,12 +23,15 @@ public class ProgramPeer {
 
 	private int port;
 
+	private Socket socket;
+
 	ProgramPeer( Program program, int port ) {
 		this.program = program;
 		this.port = port;
 	}
 
-	public void run() {
+	@Override
+	public ProgramPeer start() {
 		// Running as a peer
 		if( log.isDebugEnabled() ) {
 			log.debug( "Program already running on port {}", port );
@@ -36,12 +40,29 @@ public class ProgramPeer {
 		}
 
 		try {
-			Socket socket = new Socket( InetAddress.getLoopbackAddress(), port );
+			socket = new Socket( InetAddress.getLoopbackAddress(), port );
 			sendCommands( socket );
 			readMessages( socket );
 		} catch( IOException exception ) {
 			log.error( "Error reading commands to program", exception );
 		}
+		return this;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return socket != null && !socket.isClosed();
+	}
+
+	@Override
+	public ProgramPeer stop() {
+		try {
+			socket.close();
+		} catch( IOException exception ) {
+			log.warn( "Error closing peer socket", exception );
+		}
+
+		return this;
 	}
 
 	private void sendCommands( Socket socket ) {
