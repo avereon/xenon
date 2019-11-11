@@ -826,6 +826,7 @@ public class Program extends Application implements ProgramProduct {
 		programServer = new ProgramServer( this, port );
 
 		// If the program server starts this process is a host, not a peer
+		programServer.start();
 		//programServer.start().awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		return !programServer.isRunning();
 	}
