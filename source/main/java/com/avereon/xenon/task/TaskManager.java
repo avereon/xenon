@@ -194,9 +194,9 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		executorP2 = shutdown( executorP2 );
 		executorP1 = shutdown( executorP1 );
 		try {
-			executorP3.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-			executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP3 != null ) executorP3.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP2 != null ) executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP1 != null ) executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} catch( InterruptedException exception ) {
 			// Intentionally ignore exception
 		}
