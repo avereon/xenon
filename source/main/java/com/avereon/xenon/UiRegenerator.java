@@ -75,10 +75,10 @@ class UiRegenerator {
 		restoreLock.lock();
 		try {
 			List<String> workspaceIds = getUiSettingsIds( ProgramSettings.WORKSPACE );
-			if( workspaceIds.size() > 0 ) {
-				restoreWorkspaces( splashScreen, workspaceIds );
-			} else {
+			if( workspaceIds.size() == 0 ) {
 				createDefaultWorkspace();
+			} else {
+				restoreWorkspaces( splashScreen, workspaceIds );
 			}
 		} finally {
 			restored = true;

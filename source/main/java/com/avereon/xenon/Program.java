@@ -921,7 +921,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private void printHeader( ProductCard card, com.avereon.util.Parameters parameters ) {
 		String profile = getProfile();
-		if( Profile.TEST.equals( getProfile() ) ) return;
+		if( Profile.TEST.equals( profile ) ) return;
 
 		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
 		String versionString = card.getVersion() + (profile == null ? "" : " [" + profile + "]");
