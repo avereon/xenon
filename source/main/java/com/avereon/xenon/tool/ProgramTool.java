@@ -15,6 +15,8 @@ public abstract class ProgramTool extends Tool {
 
 	private ProgramProduct product;
 
+	private String uid;
+
 	public ProgramTool( ProgramProduct product, Resource resource ) {
 		super( resource );
 		this.product = product;
@@ -34,7 +36,15 @@ public abstract class ProgramTool extends Tool {
 	}
 
 	public Settings getSettings() {
-		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getId() );
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
+	}
+
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid( String uid ) {
+		this.uid = uid;
 	}
 
 }

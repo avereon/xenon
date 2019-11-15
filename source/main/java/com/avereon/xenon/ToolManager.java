@@ -279,7 +279,7 @@ public class ToolManager implements Controllable<ToolManager> {
 				ProgramTool tool = constructor.newInstance( product, resource );
 
 				// Set the id before using settings
-				tool.setId( request.getId() == null ? IdGenerator.getId() : request.getId() );
+				tool.setUid( request.getId() == null ? IdGenerator.getId() : request.getId() );
 				tool.getSettings().set( "type", tool.getClass().getName() );
 				tool.getSettings().set( "uri", tool.getResource().getUri() );
 				addToolListenerForSettings( tool );
