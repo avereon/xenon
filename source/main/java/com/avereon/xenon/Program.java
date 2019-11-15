@@ -101,7 +101,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private Settings programSettings;
 
-	private ExecMode execMode;
+	private String profile;
 
 	private IconLibrary iconLibrary;
 
@@ -187,9 +187,9 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card, parameters );
 		time( "print-header" );
 
-		// Determine the program exec mode, depends on program parameters
-		String prefix = getExecModePrefix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
+		// Determine the program data folder, depends on program parameters
+		String suffix = getProfileSuffix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
 		programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
@@ -920,11 +920,11 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void printHeader( ProductCard card, com.avereon.util.Parameters parameters ) {
-		ExecMode execMode = getExecMode();
-		if( execMode == ExecMode.TEST ) return;
+		String profile = getProfile();
+		if( Profile.TEST.equals( getProfile() ) ) return;
 
 		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
-		String versionString = card.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]");
+		String versionString = card.getVersion() + (profile == null ? "" : " [" + profile + "]");
 		//String releaseString = versionString + " " + card.getRelease().getTimestampString();
 		String releaseString = "";
 
@@ -969,24 +969,13 @@ public class Program extends Application implements ProgramProduct {
 		}
 	}
 
-	public ExecMode getExecMode() {
-		if( execMode != null ) return execMode;
-
-		String execModeParameter = parameters.get( ProgramFlag.EXECMODE );
-		if( execModeParameter != null ) {
-			try {
-				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );
-			} catch( IllegalArgumentException exception ) {
-				execMode = ExecMode.DEV;
-			}
-		}
-		if( execMode == null ) execMode = ExecMode.PROD;
-
-		return execMode;
+	public String getProfile() {
+		if( profile == null ) profile = parameters.get( ProgramFlag.PROFILE );
+		return profile;
 	}
 
-	private String getExecModePrefix() {
-		return getExecMode().getPrefix();
+	private String getProfileSuffix() {
+		return profile == null ? "" : "-" + profile;
 	}
 
 	/**
@@ -1006,7 +995,7 @@ public class Program extends Application implements ProgramProduct {
 			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked ) programHomeFolder = Paths.get( "target/program" );
+			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) && !isLinked ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
@@ -1015,7 +1004,7 @@ public class Program extends Application implements ProgramProduct {
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
 			// Create the program home folder when in DEV mode
-			if( getExecMode() == ExecMode.DEV ) Files.createDirectories( programHomeFolder );
+			if( Profile.DEV.equals( getProfile() ) ) Files.createDirectories( programHomeFolder );
 
 			if( !Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {

@@ -66,8 +66,8 @@ public class ProgramCardTest extends ProgramTestCase {
 
 	@Test
 	void testProgramDataFolder() {
-		String prefix = ExecMode.TEST.getPrefix();
-		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+		String suffix = "-" + Profile.TEST;
+		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 		assertThat( program.getDataFolder(), is( programDataFolder ) );
 	}
 

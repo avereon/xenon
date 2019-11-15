@@ -53,7 +53,7 @@ public class TaskTool extends ProgramTool {
 
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
-		if( getProgram().getExecMode() == ExecMode.DEV ) layoutPane.setTop( new HBox( startTask ) );
+		if( getProgram().getProfile() == Profile.DEV ) layoutPane.setTop( new HBox( startTask ) );
 		layoutPane.setCenter( scroller );
 		getChildren().add( layoutPane );
 	}

@@ -2,7 +2,7 @@
   <configuration default="false" name="Xenon Stop" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
     <module name="xenon" />
-    <option name="PROGRAM_PARAMETERS" value="--execmode dev --log-level debug --stop" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --stop" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.avereon.xenon.*" />

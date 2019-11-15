@@ -2,7 +2,7 @@
   <configuration default="false" name="Xenon Status" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
     <module name="xenon" />
-    <option name="PROGRAM_PARAMETERS" value="--execmode dev --log-level debug --status" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --status" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.avereon.xenon.*" />

@@ -180,7 +180,7 @@ public class ProgramShutdownHook extends Thread {
 
 		// Determine where to put the updater
 		Path updaterHomeRoot = FileUtil.createTempFolder( prefix );
-		if( program.getExecMode() == ExecMode.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + program.getCard().getArtifact() + "-updater" );
+		if( program.getProfile() == Profile.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + program.getCard().getArtifact() + "-updater" );
 
 		// Create the updater home folders
 		Files.createDirectories( updaterHomeRoot );

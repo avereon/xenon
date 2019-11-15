@@ -178,7 +178,7 @@ public class Workspace implements Configurable {
 		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
-		if( program.getExecMode() == ExecMode.DEV ) menubar.getMenus().add( dev );
+		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
 
 		// Workarea menu
 
