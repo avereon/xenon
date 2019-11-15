@@ -298,7 +298,7 @@ class UiRegenerator {
 			for( ProgramTool tool : tools ) {
 				pane.addTool( tool, view, tool.isActive() );
 
-				Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getId() );
+				Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
 
 				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
@@ -427,7 +427,7 @@ class UiRegenerator {
 			Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
 			viewToolSet.add( tool );
 
-			tools.put( tool.getId(), tool );
+			tools.put( tool.getUid(), tool );
 		} catch( Exception exception ) {
 			log.error( "Error restoring tool: type=" + toolType, exception );
 		}
