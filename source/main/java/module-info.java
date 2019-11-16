@@ -10,6 +10,7 @@ module com.avereon.xenon {
 	requires java.management;
 	requires java.sql;
 	requires javafx.controls;
+	requires javafx.swing;
 	requires jdk.crypto.ec;
 	requires miglayout.javafx;
 	requires org.controlsfx.controls;
