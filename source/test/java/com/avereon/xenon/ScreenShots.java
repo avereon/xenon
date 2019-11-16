@@ -4,6 +4,9 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.event.ProgramStartedEvent;
 import com.avereon.xenon.resource.type.ProgramAboutType;
+import com.avereon.xenon.resource.type.ProgramSettingsType;
+import com.avereon.xenon.tool.about.AboutTool;
+import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
 import com.avereon.xenon.workarea.Workpane;
 import com.avereon.xenon.workarea.WorkpaneEvent;
@@ -45,16 +48,25 @@ public class ScreenShots implements Runnable {
 
 			// Snapshot the welcome tool
 			workspace.snapshot( screenshots.resolve( "welcome-tool.png" ) );
-
-			// Snapshot the default workarea
 			Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
 			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+
+			// Snapshot the default workarea
 			workspace.snapshot( screenshots.resolve( "default-workarea.png" ) );
 
 			// Snapshot the about tool
 			program.getResourceManager().open( ProgramAboutType.URI );
 			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 			workspace.snapshot( screenshots.resolve( "about-tool.png" ) );
+			Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );
+			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+
+			// Snapshot the settings tool
+			program.getResourceManager().open( ProgramSettingsType.URI );
+			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+			workspace.snapshot( screenshots.resolve( "settings-tool.png" ) );
+			Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
+			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
@@ -65,7 +77,7 @@ public class ScreenShots implements Runnable {
 
 	private void startup() {
 		try {
-			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PROFILE, "Xenon-" + PROFILE);
+			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PROFILE, "Xenon-" + PROFILE );
 			FileUtil.delete( config );
 
 			program = new Program();
