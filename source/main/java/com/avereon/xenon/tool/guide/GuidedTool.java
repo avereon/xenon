@@ -57,15 +57,15 @@ public abstract class GuidedTool extends ProgramTool {
 
 	@Override
 	protected void conceal() throws ToolException {
-		super.conceal();
 		getGuide().setActive( false );
+		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		super.deallocate();
 		getGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
 		getGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
+		super.deallocate();
 	}
 
 	@Override
