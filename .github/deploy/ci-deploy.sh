@@ -28,5 +28,5 @@ sha1sum "$HOME/.ssh/id_rsa"
 sha1sum "$HOME/.ssh/id_rsa.pub"
 sha1sum "$HOME/.ssh/known_hosts"
 
-scp -B target/xenon-*-javadoc.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/$PLATFORM/xenon-javadoc.jar 2>&1
+scp -B target/xenon-*-javadoc.jar travis@avereon.com:/opt/avn/store/$RELEASE/$PRODUCT/javadoc.jar 2>&1
 if [ $? -ne 0 ]; then exit 1; fi
