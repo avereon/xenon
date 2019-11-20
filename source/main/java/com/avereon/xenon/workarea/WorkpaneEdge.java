@@ -89,7 +89,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 		return new EdgeSkin( this );
 	}
 
-	public final boolean isWall() {
+	final boolean isWall() {
 		return side != null;
 	}
 
@@ -106,7 +106,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 *
 	 * @param value the orientation value
 	 */
-	public final void setOrientation( Orientation value ) {
+	private void setOrientation( Orientation value ) {
 		orientationProperty().set( value );
 	}
 
@@ -124,7 +124,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 *
 	 * @return the orientation property for the WorkpaneEdge
 	 */
-	public final StyleableObjectProperty<Orientation> orientationProperty() {
+	private StyleableObjectProperty<Orientation> orientationProperty() {
 		if( orientation == null ) {
 			orientation = new StyleableObjectProperty<>( null ) {
 
@@ -159,12 +159,12 @@ public class WorkpaneEdge extends Control implements Configurable {
 		return position == null ? 0.5F : position.get();
 	}
 
-	public final void setPosition( double value ) {
+	final void setPosition( double value ) {
 		positionProperty().set( value );
 		if( settings != null ) settings.set( "position", value );
 	}
 
-	public final DoubleProperty positionProperty() {
+	final DoubleProperty positionProperty() {
 		if( position == null ) position = new SimpleDoubleProperty( this, "position", 0 );
 		return position;
 	}

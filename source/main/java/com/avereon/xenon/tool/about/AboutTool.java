@@ -1,16 +1,15 @@
 package com.avereon.xenon.tool.about;
 
 import com.avereon.product.ProductCard;
-import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -96,6 +95,7 @@ public class AboutTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
 		super.allocate();
+		Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		resourceRefreshed();
 		selectPage( SUMMARY );
@@ -148,13 +148,6 @@ public class AboutTool extends GuidedTool {
 		summaryPane.update( metadata );
 		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
-	}
-
-	@Override
-	public void setSettings( Settings settings ) {
-		super.setSettings( settings );
-
-		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	private class SummaryPane extends MigPane {
@@ -245,7 +238,7 @@ public class AboutTool extends GuidedTool {
 			}
 			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
-			String osNameString = OperatingSystem.getFamily().toString().toLowerCase();
+			String osNameString = System.getProperty( "os.name" );
 			osLabel.setText( getProduct().getResourceBundle().getString( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( OperatingSystem.getVersion() );
@@ -394,7 +387,7 @@ public class AboutTool extends GuidedTool {
 
 		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
 		builder.append( "Data folder: " ).append( program.getDataFolder() ).append( "\n" );
-		builder.append( "User folder: " ).append( System.getProperty( "user.home") ).append( "\n" );
+		builder.append( "User folder: " ).append( System.getProperty( "user.home" ) ).append( "\n" );
 		builder.append( "Log file:    " ).append( LogUtil.getLogFile() ).append( "\n" );
 
 		return builder.toString();
@@ -444,11 +437,11 @@ public class AboutTool extends GuidedTool {
 		// JVM commands
 		builder.append( "\n" );
 		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n");
+		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n" );
 
 		// Program commands
 		Application.Parameters parameters = program.getParameters();
-		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n");
+		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n" );
 
 		return builder.toString();
 	}

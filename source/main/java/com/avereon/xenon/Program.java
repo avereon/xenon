@@ -14,6 +14,10 @@ import com.avereon.xenon.event.ProgramStoppingEvent;
 import com.avereon.xenon.icon.*;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeManager;
+import com.avereon.xenon.product.ProductManager;
+import com.avereon.xenon.product.ProductManagerLogic;
+import com.avereon.xenon.product.ProgramProductManager;
+import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.resource.ResourceException;
 import com.avereon.xenon.resource.ResourceManager;
 import com.avereon.xenon.resource.ResourceType;
@@ -32,10 +36,6 @@ import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.task.TaskTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
-import com.avereon.xenon.update.ProductManager;
-import com.avereon.xenon.update.ProductManagerLogic;
-import com.avereon.xenon.update.ProgramProductManager;
-import com.avereon.xenon.update.RepoState;
 import com.avereon.xenon.util.DialogUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -43,17 +43,16 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,21 +65,23 @@ public class Program extends Application implements ProgramProduct {
 
 	public static final String STYLESHEET = "style.css";
 
-	private static final long MANAGER_ACTION_SECONDS = 10;
+	public static final long MANAGER_ACTION_SECONDS = 10;
 
 	private static final String PROGRAM_RELEASE = "product-release";
 
 	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
+	private static final String SETTINGS_DEFAULT_PROPERTIES = Program.class.getPackageName().replace( ".", "/" ) + "/settings/default.properties";
+
+	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
+	private static final boolean showTiming = false;
 
 	/* This field is used for timing checks */
 	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-
-	public static final String SETTINGS_DEFAULT_PROPERTIES = "/settings/default.properties";
-
-	public static final String SETTINGS_PAGES_XML = "/settings/pages.xml";
 
 	private com.avereon.util.Parameters parameters;
 
@@ -94,9 +95,11 @@ public class Program extends Application implements ProgramProduct {
 
 	private Path programDataFolder;
 
+	private Path programLogFolder;
+
 	private Settings programSettings;
 
-	private ExecMode execMode;
+	private String profile;
 
 	private IconLibrary iconLibrary;
 
@@ -182,12 +185,13 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card, parameters );
 		time( "print-header" );
 
-		// Determine the program exec mode, depends on program parameters
-		String prefix = getExecModePrefix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + card.getArtifact(), prefix + card.getName() );
+		// Determine the program data folder, depends on program parameters
+		String suffix = getProfileSuffix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+		programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
-		LogUtil.configureLogging( this, parameters, programDataFolder, "program.log" );
+		LogUtil.configureLogging( this, parameters, programLogFolder, "program.log" );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
@@ -204,11 +208,11 @@ public class Program extends Application implements ProgramProduct {
 		// Load the default settings values
 		Properties properties = new Properties();
 		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		properties.load( new InputStreamReader( getClass().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES ), TextUtil.CHARSET ) );
+		properties.load( new InputStreamReader( getClassLoader().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES ), TextUtil.CHARSET ) );
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 
 		// Create the program settings, depends on settings manager and default settings values
-		programSettings = settingsManager.getSettings( ProgramSettings.PROGRAM );
+		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
 		programSettings.setDefaultValues( defaultSettingsValues );
 		time( "program-settings" );
 
@@ -228,22 +232,30 @@ public class Program extends Application implements ProgramProduct {
 		}
 		time( "help-check" );
 
-		// Run the peer check before processing commands in case there is a peer already
-		if( !TestUtil.isTest() && peerCheck() ) {
+		// Run the peer check before processing actions in case there is a peer already
+		// If this instance is a peer, start the peer and wait to exit
+		int port = programSettings.get( "program-port", Integer.class, 0 );
+		if( !TestUtil.isTest() && peerCheck( port ) ) {
+			ProgramPeer peer = new ProgramPeer( this, port );
+			peer.start();
 			requestExit( true );
 			return;
 		}
 		time( "peer-check" );
 
-		// If there is not a peer, process the control commands before showing the splash screen
-		if( processControlCommands( getProgramParameters() ) ) return;
+		// NOTE At this point we know we are a host not a peer
+
+		// If this instance is a host, process the control commands before showing the splash screen
+		if( processCliActions( getProgramParameters(), true ) ) {
+			requestExit( true );
+			return;
+		}
 		time( "control-commands" );
 
 		// Create the task manager, depends on program settings
 		// The task manager is created in the init() method so it is available during unit tests
 		log.trace( "Starting task manager..." );
 		taskManager = configureTaskManager( new TaskManager() ).start();
-		taskManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Task manager started." );
 		time( "task-manager" );
 
@@ -280,12 +292,14 @@ public class Program extends Application implements ProgramProduct {
 			protected void cancelled() {
 				Platform.runLater( () -> splashScreen.hide() );
 				log.error( "Startup task cancelled", getException() );
+				requestExit( true );
 			}
 
 			@Override
 			protected void failed() {
 				Platform.runLater( () -> splashScreen.hide() );
 				log.error( "Startup task failed", getException() );
+				requestExit( true );
 			}
 
 		} );
@@ -332,11 +346,11 @@ public class Program extends Application implements ProgramProduct {
 		registerActionHandlers();
 
 		// Create the UI factory
-		UiFactory uiFactory = new UiFactory( Program.this );
+		UiRegenerator uiRegenerator = new UiRegenerator( Program.this );
 
 		// Set the number of startup steps
 		int managerCount = 5;
-		int steps = managerCount + uiFactory.getToolCount();
+		int steps = managerCount + uiRegenerator.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
@@ -350,7 +364,6 @@ public class Program extends Application implements ProgramProduct {
 		registerSchemes( resourceManager );
 		registerResourceTypes( resourceManager );
 		resourceManager.start();
-		resourceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Resource manager started." );
 
@@ -360,7 +373,6 @@ public class Program extends Application implements ProgramProduct {
 		// Start the tool manager
 		log.trace( "Starting tool manager..." );
 		toolManager = new ToolManager( this );
-		toolManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		registerTools( toolManager );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Tool manager started." );
@@ -368,27 +380,24 @@ public class Program extends Application implements ProgramProduct {
 		// Create the workspace manager
 		log.trace( "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
-		workspaceManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Workspace manager started." );
 
 		// Create the notice manager
 		log.trace( "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
-		noticeManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		Platform.runLater( () -> splashScreen.update() );
 		log.debug( "Notice manager started." );
 
 		// Start the product manager
 		log.trace( "Starting product manager..." );
 		productManager.start();
-		productManager.awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "Product manager started." );
 
 		// Restore the user interface
 		log.trace( "Restore the user interface..." );
-		Platform.runLater( () -> uiFactory.restore( splashScreen ) );
-		uiFactory.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		Platform.runLater( () -> uiRegenerator.restore( splashScreen ) );
+		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.debug( "User interface restored." );
 
 		// Notify the product manager the UI is ready
@@ -411,6 +420,9 @@ public class Program extends Application implements ProgramProduct {
 			splashScreen.hide();
 			time( "splash hidden" );
 		} );
+
+		// Initiate resource loading
+		uiRegenerator.startResourceLoading();
 
 		// Set the workarea actions
 		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
@@ -490,7 +502,6 @@ public class Program extends Application implements ProgramProduct {
 
 			log.trace( "Stopping update manager..." );
 			productManager.stop();
-			productManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Update manager stopped." );
 		}
 
@@ -498,7 +509,6 @@ public class Program extends Application implements ProgramProduct {
 		if( noticeManager != null ) {
 			log.trace( "Stopping notice manager..." );
 			noticeManager.stop();
-			noticeManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Notice manager stopped." );
 		}
 
@@ -506,7 +516,6 @@ public class Program extends Application implements ProgramProduct {
 		if( workspaceManager != null ) {
 			log.trace( "Stopping workspace manager..." );
 			workspaceManager.stop();
-			workspaceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Workspace manager stopped." );
 		}
 
@@ -514,7 +523,6 @@ public class Program extends Application implements ProgramProduct {
 		if( toolManager != null ) {
 			log.trace( "Stopping tool manager..." );
 			toolManager.stop();
-			toolManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			unregisterTools( toolManager );
 			log.debug( "Tool manager stopped." );
 		}
@@ -525,7 +533,6 @@ public class Program extends Application implements ProgramProduct {
 		if( resourceManager != null ) {
 			log.trace( "Stopping resource manager..." );
 			resourceManager.stop();
-			resourceManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			unregisterResourceTypes( resourceManager );
 			unregisterSchemes( resourceManager );
 			log.debug( "Resource manager stopped." );
@@ -535,7 +542,6 @@ public class Program extends Application implements ProgramProduct {
 		if( settingsManager != null ) {
 			log.trace( "Stopping settings manager..." );
 			settingsManager.stop();
-			settingsManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Settings manager stopped." );
 		}
 
@@ -549,7 +555,6 @@ public class Program extends Application implements ProgramProduct {
 		if( programServer != null ) {
 			log.trace( "Stopping program server..." );
 			programServer.stop();
-			programServer.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Program server stopped." );
 		}
 
@@ -557,7 +562,6 @@ public class Program extends Application implements ProgramProduct {
 		if( taskManager != null ) {
 			log.trace( "Stopping task manager..." );
 			taskManager.stop();
-			taskManager.awaitStop( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			log.debug( "Task manager stopped." );
 		}
 
@@ -586,10 +590,13 @@ public class Program extends Application implements ProgramProduct {
 		log.info( "Restarting..." );
 	}
 
+	// THREAD JavaFX Application Thread
+	// EXCEPTIONS Handled by the FX framework
 	public void requestUpdate( String... restartCommands ) {
 		// Register a shutdown hook to update the program
 		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
 		try {
+			// FIXME This can take a long time and has a lot of IO...locking the UI
 			programShutdownHook.configureForUpdate( restartCommands );
 			Runtime.getRuntime().addShutdownHook( programShutdownHook );
 		} catch( IOException exception ) {
@@ -600,13 +607,14 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// Request the program stop
-		if( !requestExit( true ) ) {
-			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
-			return;
-		}
+		boolean exiting = requestExit( true );
 
-		// The shutdown hook should update the program
-		log.info( "Updating..." );
+		if( exiting ) {
+			log.info( "Updating..." );
+			// The shutdown hook should update the program
+		} else {
+			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
+		}
 	}
 
 	public boolean requestExit( boolean skipChecks ) {
@@ -630,12 +638,13 @@ public class Program extends Application implements ProgramProduct {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return false;
 		}
 
-		// The workspaceManager can be null if the application is already running as a peer
+		// The workspaceManager can be null if the program is already running as a peer
 		if( workspaceManager != null ) workspaceManager.hideWindows();
 
-		if( !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive) ) Platform.exit();
+		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
+		if( exiting ) Platform.exit();
 
-		return true;
+		return exiting;
 	}
 
 	public boolean isRunning() {
@@ -697,6 +706,10 @@ public class Program extends Application implements ProgramProduct {
 		return programDataFolder;
 	}
 
+	public final Path getLogFolder() {
+		return programLogFolder;
+	}
+
 	public final TaskManager getTaskManager() {
 		return taskManager;
 	}
@@ -715,6 +728,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public final SettingsManager getSettingsManager() {
 		return settingsManager;
+	}
+
+	public final Settings getProgramSettings() {
+		return programSettings;
 	}
 
 	public final ToolManager getToolManager() {
@@ -752,7 +769,10 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		//System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " " + markerName + " " + Thread.currentThread().getName() );
+		if( !showTiming ) return;
+		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread
+			.currentThread()
+			.getName() );
 	}
 
 	/**
@@ -785,39 +805,54 @@ public class Program extends Application implements ProgramProduct {
 	 * See: https://stackoverflow.com/questions/41051127/javafx-single-instance-application
 	 * </p>
 	 */
-	private boolean peerCheck() throws InterruptedException {
-		int port = programSettings.get( "program-port", Integer.class, 0 );
-		programServer = new ProgramServer( this, port );
-
+	private boolean peerCheck( int port ) {
 		// If the program server starts this process is a host, not a peer
-		programServer.start().awaitStart( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
-		if( programServer.isRunning() ) return false;
-
-		new ProgramPeer( this, port ).run();
-		return true;
+		programServer = new ProgramServer( this, port ).start();
+		return !programServer.isRunning();
 	}
 
 	private boolean isHost() {
-		return programServer != null;
+		return programServer.isRunning();
 	}
 
 	private boolean isPeer() {
-		return programServer == null;
+		return !isHost();
 	}
 
 	/**
 	 * Process program commands that affect the startup behavior of the product.
 	 *
 	 * @param parameters The command line parameters
-	 * @return True if the program should exit, false otherwise.
+	 * @return True if the program should exit when it is a host
 	 */
-	boolean processControlCommands( com.avereon.util.Parameters parameters ) {
-		if( parameters.isSet( ProgramFlag.STATUS ) ) {
-			if( isHost() ) printStatus();
-			return isPeer();
-		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
-			if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
+		if( parameters.isSet( ProgramFlag.HELLO ) ) {
+			if( startup ) {
+				log.warn( "No existing host to say hello to, just talking to myself!" );
+			} else {
+				log.warn( "Hello peer. Good to hear from you!" );
+			}
 			return true;
+		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
+			printStatus( startup );
+			return true;
+		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
+			if( startup ) {
+				if( isHost() ) log.warn( "Program is already stopped!" );
+			} else {
+				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+			}
+			return true;
+		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
+			if( startup ) {
+				log.warn( "No existing host to watch, I'm out!" );
+			} else {
+				log.warn( "A watcher has connected!" );
+			}
+			return true;
+		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
+			if( !startup ) getWorkspaceManager().showActiveWorkspace();
+			return false;
 		}
 
 		return false;
@@ -845,14 +880,13 @@ public class Program extends Application implements ProgramProduct {
 	 * @param parameters The command line parameters
 	 */
 	void processResources( com.avereon.util.Parameters parameters ) {
-		Stage current = getWorkspaceManager().getActiveWorkspace().getStage();
-		Platform.runLater( () -> {
-			current.show();
-			current.requestFocus();
-		} );
+		List<String> uris = parameters.getUris();
+		if( uris.size() == 0 ) return;
+
+		getWorkspaceManager().showActiveWorkspace();
 
 		// Open the resources provided on the command line
-		for( String uri : parameters.getUris() ) {
+		for( String uri : uris ) {
 			try {
 				getResourceManager().openResourcesAndWait( getResourceManager().createResource( uri ) );
 			} catch( ExecutionException | ResourceException exception ) {
@@ -884,11 +918,11 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void printHeader( ProductCard card, com.avereon.util.Parameters parameters ) {
-		ExecMode execMode = getExecMode();
-		if( execMode == ExecMode.TEST ) return;
+		String profile = getProfile();
+		if( Profile.TEST.equals( profile ) ) return;
 
 		boolean versionParameterSet = parameters.isSet( ProgramFlag.VERSION );
-		String versionString = card.getVersion() + (execMode == ExecMode.PROD ? "" : " [" + execMode + "]");
+		String versionString = card.getVersion() + (profile == null ? "" : " [" + profile + "]");
 		//String releaseString = versionString + " " + card.getRelease().getTimestampString();
 		String releaseString = "";
 
@@ -907,39 +941,39 @@ public class Program extends Application implements ProgramProduct {
 			"os.arch" ) );
 	}
 
-	private void printStatus() {
-		log.info( "Status: " + (isRunning() ? "RUNNING" : "STOPPED") );
+	private void printStatus( boolean startup ) {
+		String status = startup ? "STOPPED" : "RUNNING";
+		if( getWorkspaceManager() != null && !getWorkspaceManager().getActiveWorkspace().getStage().isShowing() ) status = "HIDDEN";
+		log.info( "Status: " + status );
 	}
 
 	private void printHelp( String category ) {
-		if( category == null ) category = "general";
+		if( "true".equals( category ) ) category = "general";
+		InputStream input = getClass().getResourceAsStream( "help/" + category + ".txt" );
 
-		switch( category ) {
-			case "general": {
-				System.out.println( "Usage: " + card.getArtifact() + "[command...] [file...]" );
-				break;
+		if( input == null ) {
+			System.out.println( "No help for category: " + category );
+			return;
+		}
+
+		try {
+			String line;
+			BufferedReader reader = new BufferedReader( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
+			while( (line = reader.readLine()) != null ) {
+				System.out.println( line );
 			}
+		} catch( Exception exception ) {
+			System.out.println( "Unable to get help for category: " + category );
 		}
 	}
 
-	public ExecMode getExecMode() {
-		if( execMode != null ) return execMode;
-
-		String execModeParameter = parameters.get( ProgramFlag.EXECMODE );
-		if( execModeParameter != null ) {
-			try {
-				execMode = ExecMode.valueOf( execModeParameter.toUpperCase() );
-			} catch( IllegalArgumentException exception ) {
-				execMode = ExecMode.DEV;
-			}
-		}
-		if( execMode == null ) execMode = ExecMode.PROD;
-
-		return execMode;
+	public String getProfile() {
+		if( profile == null ) profile = parameters.get( ProgramFlag.PROFILE );
+		return profile;
 	}
 
-	private String getExecModePrefix() {
-		return getExecMode().getPrefix();
+	private String getProfileSuffix() {
+		return profile == null ? "" : "-" + profile;
 	}
 
 	/**
@@ -959,7 +993,7 @@ public class Program extends Application implements ProgramProduct {
 			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && getExecMode() == ExecMode.DEV && !isLinked ) programHomeFolder = Paths.get( "target/program" );
+			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) && !isLinked ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
@@ -968,7 +1002,7 @@ public class Program extends Application implements ProgramProduct {
 			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
 			// Create the program home folder when in DEV mode
-			if( getExecMode() == ExecMode.DEV ) Files.createDirectories( programHomeFolder );
+			if( Profile.DEV.equals( getProfile() ) ) Files.createDirectories( programHomeFolder );
 
 			if( !Files.exists( programHomeFolder ) ) log.warn( "Program home folder does not exist: " + programHomeFolder );
 		} catch( IOException exception ) {

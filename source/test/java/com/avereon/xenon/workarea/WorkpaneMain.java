@@ -15,7 +15,7 @@ public class WorkpaneMain extends Application {
 	private static Resource resource = new Resource( URI.create( "" ) );
 
 	@Override
-	public void start( Stage stage ) throws Exception {
+	public void start( Stage stage ) {
 		Workpane pane = getConfig0();
 
 		StackPane container = new StackPane();
@@ -48,35 +48,6 @@ public class WorkpaneMain extends Application {
 
 		pane.addTool( new MockTool( resource ), view0 );
 		pane.addTool( new MockTool( resource ), view1 );
-
-		return pane;
-	}
-
-	private static Workpane getConfig1() {
-		Workpane pane = new Workpane();
-		WorkpaneView view0 = pane.getActiveView();
-
-		WorkpaneView west = pane.split( Side.LEFT, 0.2 );
-		pane.split( west, Side.TOP, 0.2 );
-		pane.addTool( new MockTool( resource ), view0 );
-		pane.addTool( new MockTool( resource ), view0 );
-
-		return pane;
-	}
-
-	private static Workpane getConfig2() {
-		Workpane pane = new Workpane();
-		WorkpaneView view0 = pane.getDefaultView();
-
-		WorkpaneView view1 = pane.split( view0, Side.LEFT );
-		view1.getProperties().put( "name", "view1" );
-
-		Tool tool0 = new MockTool( resource );
-		Tool tool1 = new MockTool( resource );
-		pane.addTool( tool0, view0 );
-		pane.addTool( tool1, view1 );
-		pane.setActiveView( view1 );
-		pane.setActiveTool( tool0 );
 
 		return pane;
 	}

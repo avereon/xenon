@@ -3,16 +3,16 @@ package com.avereon.xenon.util;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
-public class FontUtilTest {
+class FontUtilTest {
 
 	@Test
-	public void testEncode() {
+	void testEncode() {
 		// Negative checks
 		assertThat( Font.font( "SansSerif", 18.0 ), not( is( Font.font( "System", 18.0 ) ) ) );
 
@@ -23,7 +23,7 @@ public class FontUtilTest {
 	}
 
 	@Test
-	public void testDecode() {
+	void testDecode() {
 		// Negative checks
 		assertThat( FontUtil.decode( "SansSerif|18.0" ), not( is( Font.font( "System", 18.0 ) ) ) );
 

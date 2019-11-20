@@ -3,34 +3,34 @@ package com.avereon.xenon.node;
 import com.avereon.xenon.transaction.Txn;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class NodeTest {
+class NodeTest {
 
 	private Node data;
 
-	@Before
-	public void setup() throws Exception {
+	@BeforeEach
+	void setup() {
 		data = new MockNode();
 	}
 
 	@Test
-	public void testNewNodeModifiedState() {
+	void testNewNodeModifiedState() {
 		assertThat( data.isModified(), is( false ) );
 	}
 
 	@Test
-	public void testModifyByFlagAndUnmodifyByFlag() {
+	void testModifyByFlagAndUnmodifyByFlag() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 		assertThat( data.getModifiedValueCount(), is( 0 ) );
@@ -49,7 +49,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testModifyByValueAndUnmodifyByFlag() {
+	void testModifyByValueAndUnmodifyByFlag() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 		assertThat( data, hasStates( false, 0, 0 ) );
@@ -65,7 +65,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testModifyByValueAndUnmodifyByValue() {
+	void testModifyByValueAndUnmodifyByValue() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 		assertThat( data, hasStates( false, 0, 0 ) );
@@ -81,13 +81,13 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetValueKeys() {
+	void testGetValueKeys() {
 		data.setValue( "key", "value" );
 		assertThat( data.getValueKeys(), containsInAnyOrder( "key" ) );
 	}
 
 	@Test
-	public void testValues() {
+	void testValues() {
 		String key = "key";
 		Object value = "value";
 
@@ -101,7 +101,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testObjectValue() {
+	void testObjectValue() {
 		String key = "key";
 		Object value = new Object();
 
@@ -111,27 +111,22 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testStringValue() {
+	void testStringValue() {
 		String key = "key";
 		String value = "value";
-
 		data.setValue( key, value );
-
 		assertThat( data.getValue( key ), is( value ) );
 	}
 
 	@Test
-	public void testBooleanValue() {
+	void testBooleanValue() {
 		String key = "key";
-		boolean value = true;
-
-		data.setValue( key, value );
-
-		assertThat( data.getValue( key ), is( value ) );
+		data.setValue( key, true );
+		assertThat( data.getValue( key ), is( true ) );
 	}
 
 	@Test
-	public void testIntegerValue() {
+	void testIntegerValue() {
 		String key = "key";
 		int value = 0;
 
@@ -141,7 +136,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testSetNullValueToNull() {
+	void testSetNullValueToNull() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -150,7 +145,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testSetValueWithNullName() {
+	void testSetValueWithNullName() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -164,7 +159,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetValueWithNullKey() {
+	void testGetValueWithNullKey() {
 		try {
 			data.getValue( null );
 			fail( "Null value keys are not allowed." );
@@ -174,7 +169,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testNullValueValues() {
+	void testNullValueValues() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -215,7 +210,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetAndSetValue() {
+	void testGetAndSetValue() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -241,13 +236,13 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetValueWithDefault() {
+	void testGetValueWithDefault() {
 		assertThat( data.getValue( "key" ), is( nullValue() ) );
 		assertThat( data.getValue( "key", "default" ), is( "default" ) );
 	}
 
 	@Test
-	public void testModifiedBySetAttribute() {
+	void testModifiedBySetAttribute() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -262,7 +257,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testUnmodifiedByUnsetValue() {
+	void testUnmodifiedByUnsetValue() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -290,7 +285,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testModifiedAttributeCountResetByCommit() {
+	void testModifiedAttributeCountResetByCommit() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -309,7 +304,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testTestMetaValueModified() {
+	void testTestMetaValueModified() {
 		String key = "hidden";
 
 		assertThat( data.getFlag( key ), is( false ) );
@@ -320,7 +315,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testSetNullMetaValueToFalse() {
+	void testSetNullMetaValueToFalse() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -329,7 +324,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testSetMetaValueWithNullName() {
+	void testSetMetaValueWithNullName() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -343,7 +338,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetMetaValueWithNullName() {
+	void testGetMetaValueWithNullName() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -357,13 +352,13 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testResourceKeys() {
+	void testResourceKeys() {
 		data.putResource( "key", "value" );
 		assertThat( data.getResourceKeys(), containsInAnyOrder( "key" ) );
 	}
 
 	@Test
-	public void testResources() {
+	void testResources() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -382,7 +377,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testDataEventNotification() {
+	void testDataEventNotification() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -422,7 +417,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testEventsWithModifiedFlagFalse() {
+	void testEventsWithModifiedFlagFalse() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -454,7 +449,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testCollapsingEventsWithTransaction() throws Exception {
+	void testCollapsingEventsWithTransaction() throws Exception {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
@@ -475,7 +470,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetParent() {
+	void testGetParent() {
 		MockNode parent = new MockNode();
 		MockNode child = new MockNode();
 		assertThat( child.getParent(), is( nullValue() ) );
@@ -490,7 +485,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGetNodePath() {
+	void testGetNodePath() {
 		MockNode parent = new MockNode();
 		MockNode child = new MockNode();
 
@@ -507,7 +502,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testParentDataEventNotification() {
+	void testParentDataEventNotification() {
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
 
@@ -556,7 +551,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testParentModifiedByChildNodeAttributeChange() {
+	void testParentModifiedByChildNodeAttributeChange() {
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
 		NodeWatcher parentWatcher = new NodeWatcher();
@@ -596,7 +591,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testGrandparentModifiedByChildNodeAttributeChange() {
+	void testGrandparentModifiedByChildNodeAttributeChange() {
 		MockNode grand = new MockNode( "grand" );
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
@@ -657,7 +652,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testParentModifiedByChildNodeClearedByFlag() {
+	void testParentModifiedByChildNodeClearedByFlag() {
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
 		NodeWatcher parentWatcher = new NodeWatcher();
@@ -713,7 +708,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testParentModifiedByChildNodeClearedByValue() {
+	void testParentModifiedByChildNodeClearedByValue() {
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
 		NodeWatcher parentWatcher = new NodeWatcher();
@@ -776,7 +771,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testAddNodeAttributeToDifferentParent() {
+	void testAddNodeAttributeToDifferentParent() {
 		MockNode parent0 = new MockNode( "parent0" );
 		MockNode parent1 = new MockNode( "parent1" );
 		MockNode child = new MockNode( "child" );
@@ -826,49 +821,49 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testAddDataListener() throws Exception {
+	void testAddDataListener() {
 		NodeWatcher watcher = new NodeWatcher();
 		data.addNodeListener( watcher );
 
 		Collection<NodeListener> listeners = data.getNodeListeners();
 
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 1 ) );
 		assertThat( listeners, contains( watcher ) );
 	}
 
 	@Test
-	public void testRemoveDataListener() throws Exception {
+	void testRemoveDataListener() {
 		Collection<NodeListener> listeners;
 		NodeWatcher watcher = new NodeWatcher();
 
 		data.addNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 1 ) );
 		assertThat( listeners, contains( watcher ) );
 
 		data.removeNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 0 ) );
 		assertThat( listeners, not( contains( watcher ) ) );
 
 		data.addNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 1 ) );
 		assertThat( listeners, contains( watcher ) );
 
 		data.removeNodeListener( watcher );
 		listeners = data.getNodeListeners();
-		Assert.assertNotNull( listeners );
+		assertNotNull( listeners );
 		assertThat( listeners.size(), is( 0 ) );
 		assertThat( listeners, not( contains( watcher ) ) );
 	}
 
 	@Test
-	public void testCircularReferenceCheck() {
+	void testCircularReferenceCheck() {
 		MockNode node = new MockNode();
 		try {
 			node.setValue( "node", node );
@@ -880,7 +875,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testCopyFrom() {
+	void testCopyFrom() {
 		Node node1 = new Node();
 		node1.setValue( "key1", "value1" );
 		node1.setValue( "key2", "value2" );
@@ -896,7 +891,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testCopyFromWithOverwrite() {
+	void testCopyFromWithOverwrite() {
 		Node node1 = new Node();
 		node1.setValue( "key1", "value1" );
 		node1.setValue( "key2", "value2" );
@@ -912,7 +907,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testCopyFromUsingResources() {
+	void testCopyFromUsingResources() {
 		Node node1 = new Node();
 		node1.putResource( "key1", "value1" );
 		node1.putResource( "key2", "value2" );
@@ -928,7 +923,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testCopyFromWithOverwriteUsingResources() {
+	void testCopyFromWithOverwriteUsingResources() {
 		Node node1 = new Node();
 		node1.putResource( "key1", "value1" );
 		node1.putResource( "key2", "value2" );
@@ -944,7 +939,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testToString() {
+	void testToString() {
 		data.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.toString(), is( "MockNode[]" ) );
 
@@ -958,7 +953,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testToStringWithAllValues() {
+	void testToStringWithAllValues() {
 		assertThat( data.toString( true ), is( "MockNode[]" ) );
 
 		data.setValue( "firstName", "Jane" );
@@ -967,7 +962,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testReadOnly() {
+	void testReadOnly() {
 		data.setValue( "id", "123456789" );
 		data.defineReadOnly( "id" );
 		assertThat( data.isReadOnly( "id" ), is( true ) );
@@ -983,7 +978,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testHashCode() {
+	void testHashCode() {
 		data.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		assertThat( data.hashCode(), is( 0 ) );
 
@@ -997,7 +992,7 @@ public class NodeTest {
 	}
 
 	@Test
-	public void testEquals() {
+	void testEquals() {
 		MockNode data1 = new MockNode();
 		data1.defineNaturalKey( "firstName", "lastName", "birthDate" );
 		MockNode data2 = new MockNode();
@@ -1020,7 +1015,7 @@ public class NodeTest {
 	}
 
 	//	@Test
-	//	public void testLink() {
+	//	void testLink() {
 	//		Node target = new Node();
 	//		Edge edge = data.add( target );
 	//
@@ -1029,7 +1024,7 @@ public class NodeTest {
 	//	}
 	//
 	//	@Test
-	//	public void testUnlink() {
+	//	void testUnlink() {
 	//		Node target = new Node();
 	//		Edge edge = data.add( target );
 	//
@@ -1041,6 +1036,7 @@ public class NodeTest {
 	//		assertThat( data.getLinks(), not( contains( edge ) ) );
 	//	}
 
+	@SuppressWarnings( "unused" )
 	private void listEvents( NodeWatcher watcher ) {
 		for( NodeEvent event : watcher.getEvents() ) {
 			System.out.println( "Event: " + event );
@@ -1054,6 +1050,7 @@ public class NodeTest {
 		return allOf( modifiedMatcher, modifiedValueCountMatcher, modifiedChildCountMatcher );
 	}
 
+	@SuppressWarnings( "unused" )
 	private static Matcher<Node> flag( String key, Matcher<? super Boolean> matcher ) {
 		return new FeatureMatcher<Node, Boolean>( matcher, key, key ) {
 
@@ -1121,6 +1118,7 @@ public class NodeTest {
 		};
 	}
 
+	@SuppressWarnings( "SameParameterValue" )
 	private static void assertEventState( NodeWatcher watcher, int index, NodeEvent.Type type, Node node ) {
 		assertThat( watcher.getEvents().get( index ), hasEventState( node, type ) );
 	}
@@ -1129,7 +1127,17 @@ public class NodeTest {
 		assertThat( watcher.getEvents().get( index ), hasEventState( node, type, key, oldValue, newValue ) );
 	}
 
-	private static void assertEventState( NodeWatcher watcher, int index, NodeEvent.Type type, Node parent, Node child, String key, Object oldValue, Object newValue ) {
+	@SuppressWarnings( "SameParameterValue" )
+	private static void assertEventState(
+		NodeWatcher watcher,
+		int index,
+		NodeEvent.Type type,
+		Node parent,
+		Node child,
+		String key,
+		Object oldValue,
+		Object newValue
+	) {
 		assertThat( watcher.getEvents().get( index ), hasEventState( parent, child, type, key, oldValue, newValue ) );
 	}
 
@@ -1155,7 +1163,7 @@ public class NodeTest {
 		Matcher<NodeEvent> eventKey = eventKey( is( key ) );
 		Matcher<NodeEvent> eventOldValue = eventOldValue( is( oldValue ) );
 		Matcher<NodeEvent> eventNewValue = eventNewValue( is( newValue ) );
-		return allOf( eventNode, eventType, eventKey, eventOldValue, eventNewValue );
+		return allOf( eventNode, eventChild, eventType, eventKey, eventOldValue, eventNewValue );
 	}
 
 	private static Matcher<NodeEvent> eventNode( Matcher<? super Node> matcher ) {
@@ -1203,7 +1211,7 @@ public class NodeTest {
 	}
 
 	private static Matcher<NodeEvent> eventOldValue( Matcher<? super Object> matcher ) {
-		return new FeatureMatcher<NodeEvent, Object>( matcher, "oldValue", "oldValue" ) {
+		return new FeatureMatcher<>( matcher, "oldValue", "oldValue" ) {
 
 			@Override
 			protected Object featureValueOf( NodeEvent event ) {
@@ -1214,7 +1222,7 @@ public class NodeTest {
 	}
 
 	private static Matcher<NodeEvent> eventNewValue( Matcher<? super Object> matcher ) {
-		return new FeatureMatcher<NodeEvent, Object>( matcher, "newValue", "newValue" ) {
+		return new FeatureMatcher<>( matcher, "newValue", "newValue" ) {
 
 			@Override
 			protected Object featureValueOf( NodeEvent event ) {

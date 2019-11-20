@@ -4,6 +4,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.FxUtil;
@@ -47,7 +48,7 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		// Connect to the resource guide
 		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
 		if( guide == null ) return;
@@ -79,21 +80,20 @@ public class GuideTool extends ProgramTool {
 	private void switchGuide( WorkpaneEvent event ) {
 		if( !(event instanceof WorkpaneToolEvent) ) return;
 
-		log.warn( "switch guide: " + ((WorkpaneToolEvent)event).getTool().getTitle() );
-
 		WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
 		switch( event.getType() ) {
 			case TOOL_ACTIVATED: {
+				log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
 				setResourceGuide( toolEvent.getTool().getResource() );
 				break;
 			}
 			case TOOL_CONCEALED: {
+				log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
 				setResourceGuide( null );
 			}
 		}
 	}
 
-	@SuppressWarnings( "unchecked" )
 	private void setResourceGuide( Resource resource ) {
 		if( resource == null ) {
 			guideTree.setRoot( null );
@@ -206,7 +206,6 @@ public class GuideTool extends ProgramTool {
 		}
 
 		@Override
-		@SuppressWarnings( "unchecked" )
 		public void changed( ObservableValue observable, Boolean oldSelection, Boolean newSelection ) {
 			if( newSelection ) {
 				guideTree.setRoot( guide.getRoot() );
@@ -221,7 +220,7 @@ public class GuideTool extends ProgramTool {
 
 		private Guide guide;
 
-		public GuideTreeSelectedItemsListener( Guide guide ) {
+		GuideTreeSelectedItemsListener( Guide guide ) {
 			this.guide = guide;
 		}
 

@@ -1,12 +1,11 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.settings.Settings;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramGuideType;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -23,11 +22,11 @@ public abstract class GuidedTool extends ProgramTool {
 
 	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
 
+	private static final Guide EMPTY_GUIDE = new Guide();
+
 	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
 
 	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
-
-	private Settings settings;
 
 	public GuidedTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -41,14 +40,13 @@ public abstract class GuidedTool extends ProgramTool {
 	}
 
 	@Override
-	public void setSettings( Settings settings ) {
-		super.setSettings( settings );
-
-		if( this.settings != null ) this.settings = settings;
-
+	protected void allocate() throws ToolException {
+		super.allocate();
 		// Set the expanded ids before setting the selected ids
-		Platform.runLater( () -> getGuide().setExpandedIds( settings.get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ) );
-		Platform.runLater( () -> getGuide().setSelectedIds( settings.get( GUIDE_SELECTED_IDS, "" ).split( "," ) ) );
+		Platform.runLater( () -> {
+			getGuide().setExpandedIds( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) );
+			getGuide().setSelectedIds( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) );
+		} );
 	}
 
 	@Override
@@ -59,26 +57,27 @@ public abstract class GuidedTool extends ProgramTool {
 
 	@Override
 	protected void conceal() throws ToolException {
-		super.conceal();
 		getGuide().setActive( false );
+		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		super.deallocate();
 		getGuide().expandedItemsProperty().removeListener( guideExpandedNodesListener );
 		getGuide().selectedItemsProperty().removeListener( guideSelectedNodesListener );
+		super.deallocate();
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
 		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
 	}
 
 	protected Guide getGuide() {
-		return (Guide)getResource().getResource( Guide.GUIDE_KEY );
+		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
+		return guide == null ? EMPTY_GUIDE : guide;
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
@@ -88,7 +87,11 @@ public abstract class GuidedTool extends ProgramTool {
 	private class GuideExpandedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+		public void changed(
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable,
+			Set<TreeItem<GuideNode>> oldValue,
+			Set<TreeItem<GuideNode>> newValue
+		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 
@@ -104,7 +107,11 @@ public abstract class GuidedTool extends ProgramTool {
 	private class GuideSelectedNodesListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+		public void changed(
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable,
+			Set<TreeItem<GuideNode>> oldValue,
+			Set<TreeItem<GuideNode>> newValue
+		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 

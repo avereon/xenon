@@ -27,4 +27,9 @@ public class ResourceException extends Exception {
 		return resource;
 	}
 
+	@Override
+	public String getMessage() {
+		return super.getMessage() + ": " + resource;
+	}
+
 }

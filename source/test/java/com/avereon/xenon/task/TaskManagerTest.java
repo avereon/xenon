@@ -1,23 +1,22 @@
 package com.avereon.xenon.task;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskManagerTest extends BaseTaskTest {
 
 	private TaskManager manager;
 
-	@Before
+	@BeforeEach
 	@Override
 	public void setup() {
 		// Use a different manager instance
@@ -25,25 +24,22 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testStartAndAwait() throws Exception {
+	void testStartAndAwait() {
 		manager.start();
-		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
 	}
 
 	@Test
-	public void testStopAndWait() throws Exception {
+	void testStopAndWait() {
 		manager.start();
-		manager.awaitStart( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( true ) );
 		manager.stop();
-		manager.awaitStop( DEFAULT_WAIT_TIME, DEFAULT_WAIT_UNIT );
 		assertThat( manager.isRunning(), is( false ) );
 	}
 
 	@Test
-	public void testStartAndStop() throws Exception {
+	void testStartAndStop() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -54,7 +50,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testRestart() throws Exception {
+	void testRestart() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -71,7 +67,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testStopBeforeStart() throws Exception {
+	void testStopBeforeStart() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.stop();
@@ -79,7 +75,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitNullRunnable() throws Exception {
+	void testSubmitNullRunnable() {
 		assertThat( manager.isRunning(), is( false ) );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -93,7 +89,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitNullCallable() throws Exception {
+	void testSubmitNullCallable() {
 		assertThat( manager.isRunning(), is( false ) );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -107,7 +103,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitNullResult() throws Exception {
+	void testSubmitNullResult() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -124,7 +120,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitWithResult() throws Exception {
+	void testSubmitWithResult() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -142,7 +138,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testFailedTask() throws Exception {
+	void testFailedTask() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -154,12 +150,13 @@ public class TaskManagerTest extends BaseTaskTest {
 		manager.submit( task );
 		try {
 			assertThat( task.get(), is( nullValue() ) );
-			Assert.fail( "Task should throw an Exception" );
+			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( Exception.class ) );
-			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
-			assertThat( exception.getCause().getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
+			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
 		}
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
@@ -167,7 +164,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSubmitBeforeStart() throws Exception {
+	void testSubmitBeforeStart() {
 		assertThat( manager.isRunning(), is( false ) );
 
 		MockTask task = new MockTask( manager );
@@ -175,7 +172,7 @@ public class TaskManagerTest extends BaseTaskTest {
 
 		try {
 			manager.submit( task );
-			Assert.fail( "TaskManager.submit() should throw and exception if the manager is not running" );
+			fail( "TaskManager.submit() should throw and exception if the manager is not running" );
 		} catch( Exception exception ) {
 			assertThat( exception, instanceOf( Exception.class ) );
 		}
@@ -187,7 +184,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testUsingTaskAsFuture() throws Exception {
+	void testUsingTaskAsFuture() throws Exception {
 		assertThat( manager.isRunning(), is( false ) );
 
 		manager.start();
@@ -205,7 +202,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testNestedTask() throws Exception {
+	void testNestedTask() throws Exception {
 		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -224,7 +221,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testNestedTaskWithException() throws Exception {
+	void testNestedTaskWithException() throws Exception {
 		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -248,12 +245,13 @@ public class TaskManagerTest extends BaseTaskTest {
 		// Check the nested task.
 		try {
 			assertThat( nestedTask.get( 100, TimeUnit.MILLISECONDS ), is( nullValue() ) );
-			Assert.fail( "Task should throw an Exception" );
+			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( Exception.class ) );
-			assertThat( exception.getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
-			assertThat( exception.getCause().getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
+			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
+			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
 		}
 		assertThat( nestedTask.isDone(), is( true ) );
 		assertThat( nestedTask.isCancelled(), is( false ) );
@@ -261,7 +259,7 @@ public class TaskManagerTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testTaskListener() throws Exception {
+	void testTaskListener() throws Exception {
 		manager.setMaxThreadCount( 1 );
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
@@ -279,12 +277,15 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
+		listener.waitForEvent( TaskEvent.Type.TASK_FINISH );
 
-		//		assertThat( listener.getEvents().get( 0 ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
-		//		assertThat( listener.getEvents().get( 1 ).getType(), is( TaskEvent.Type.TASK_START ) );
-		//		assertThat( listener.getEvents().get( 2 ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
-		//		assertThat( listener.getEvents().get( 3 ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
-		//		assertThat( listener.getEvents().size(), is( 4 ) );
+		int count = 0;
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.THREAD_CREATE ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_START ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
+		assertThat( listener.getEvents().size(), is( count ) );
 	}
 
 }

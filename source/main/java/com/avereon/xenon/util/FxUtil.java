@@ -115,6 +115,14 @@ public class FxUtil {
 		return list;
 	}
 
+	public static void runLater( Runnable runnable ) {
+		if( Platform.isFxApplicationThread() ) {
+			runnable.run();
+		} else {
+			Platform.runLater( runnable );
+		}
+	}
+
 	public static void checkFxUserThread() {
 		if( !Platform.isFxApplicationThread() ) {
 			throw new IllegalStateException( "Not on FX application thread; currentThread = " + Thread.currentThread().getName() );

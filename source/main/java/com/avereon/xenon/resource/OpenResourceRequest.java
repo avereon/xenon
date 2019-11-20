@@ -20,7 +20,7 @@ public class OpenResourceRequest {
 
 	private boolean setActive;
 
-	public URI getUri() {
+	URI getUri() {
 		return uri;
 	}
 

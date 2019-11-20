@@ -1,7 +1,9 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.settings.Settings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.workarea.Tool;
 
@@ -12,6 +14,8 @@ import java.util.Set;
 public abstract class ProgramTool extends Tool {
 
 	private ProgramProduct product;
+
+	private String uid;
 
 	public ProgramTool( ProgramProduct product, Resource resource ) {
 		super( resource );
@@ -29,6 +33,18 @@ public abstract class ProgramTool extends Tool {
 
 	public Set<URI> getResourceDependencies() {
 		return Collections.unmodifiableSet( Collections.emptySet() );
+	}
+
+	public Settings getSettings() {
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
+	}
+
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid( String uid ) {
+		this.uid = uid;
 	}
 
 }

@@ -69,7 +69,7 @@ public class ProgramWatcher implements ProductEventListener {
 	private ProductEvent findNext( Class<? extends ProductEvent> type ) {
 		ProductEvent event;
 		while( (event = events.poll()) != null ) {
-			if( event.getClass().isAssignableFrom(  type ) ) return event;
+			if( event.getClass().isAssignableFrom( type ) ) return event;
 		}
 		return null;
 	}

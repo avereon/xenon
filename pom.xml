@@ -15,12 +15,26 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
-	<version>0.9</version>
+	<version>0.9.1</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
 	<description>A Java application platform for developing modular cross-platform applications.</description>
 	<inceptionYear>2017</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>https://avereon.com/licenses/mit/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/avereon/xenon.git</connection>
+		<developerConnection>scm:git:https://github.com/avereon/xenon.git</developerConnection>
+		<url>https://github.com/avereon/xenon</url>
+	</scm>
 
 	<developers>
 		<developer>
@@ -51,13 +65,14 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
+		<!-- Version numbers updated 02 Oct 2019 -->
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
 		<!--JavaFX must be version 13 or higher for DnD to function correctly -->
-		<javafx.version>13-ea+13</javafx.version>
-		<undofx.version>2.1.0</undofx.version>
-		<slf4j.version>1.8.0-beta4</slf4j.version>
+		<javafx.version>13</javafx.version>
+		<controlsfx.version>11.0.0</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
+		<slf4j.version>1.8.0-beta4</slf4j.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>4.0.15-alpha</testfx.version>
@@ -88,6 +103,45 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>controlsfx</artifactId>
+			<version>${controlsfx.version}</version>
+			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-base</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-controls</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-graphics</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-swing</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-fxml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>javafx-web</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
 			<version>${miglayout.version}</version>
@@ -108,18 +162,25 @@
 
 		<dependency>
 			<groupId>org.testfx</groupId>
-			<artifactId>testfx-junit</artifactId>
+			<artifactId>testfx-junit5</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<!-- Exclude the junit-jupiter-api, it is already available-->
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
-		<!-- Apparently this causes duplicate modules to be loaded -->
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>openjfx-monocle</artifactId>
 			<version>${monocle.version}</version>
 			<scope>test</scope>
 			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
 					<artifactId>javafx-base</artifactId>
@@ -166,10 +227,24 @@
 				<configuration>
 					<!-- The argLine and systemPropertyVariables should match the failsafe configuration below -->
 					<argLine>
-						--add-opens=java.base/java.util=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-						--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.node=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.resource=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.about=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.task=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.welcom=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.transaction=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.workarea=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
 						<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -203,6 +278,22 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<failOnError>false</failOnError>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 
 	</build>
@@ -229,10 +320,8 @@
 									<runOrder>alphabetical</runOrder>
 									<argLine>
 										-Xmx128m
-										--add-opens=java.base/java.util=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-										--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 									</argLine>
 									<systemPropertyVariables>
 										<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -412,7 +501,7 @@
 										<argument>${basedir}/target/jlink</argument>
 										<argument>--launcher</argument>
 										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Program</argument>
-										<!--<argument>&#45;&#45;strip-debug</argument>-->
+										<argument>--ignore-signing-information</argument>
 										<argument>--no-header-files</argument>
 										<argument>--no-man-pages</argument>
 										<!-- Valid value: 0, 1, 2 -->
@@ -436,10 +525,10 @@
 								</goals>
 								<configuration>
 									<attach>false</attach>
-									<descriptors>
-										<descriptor>${basedir}/source/main/assembly/install-${product.platform}.xml</descriptor>
-									</descriptors>
 									<finalName>${product-pack-folder}</finalName>
+									<descriptorRefs>
+										<descriptorRef>install-${product.platform}</descriptorRef>
+									</descriptorRefs>
 									<appendAssemblyId>false</appendAssemblyId>
 								</configuration>
 							</execution>

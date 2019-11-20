@@ -1,0 +1,14 @@
+${project.name} is a Java module and as such should be started using the Java
+module command line parameters. ${project.name} is also distributed as a jlink-ed
+application and should be executed using the provided Java runtime.
+To start ${project.name} use the following commands:
+
+  ${PROGRAM_HOME}/bin/java -m ${project.groupId}.${project.artifactId}
+
+It is expected, however, that users use the provided program launchers,
+shortcuts and shell scripts such that ${project.name} may simply be started by using
+the command '${project.artifactId}' on the command line from any folder. The remainder of
+this document will assume that ${project.name} is available to execute in this
+manner:
+
+  ${project.artifactId} [<option>...] [<url>...]

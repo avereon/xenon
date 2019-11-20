@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
@@ -9,7 +9,6 @@ import com.avereon.xenon.resource.type.ProgramSettingsType;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
@@ -23,8 +22,6 @@ public class SettingsTool extends GuidedTool {
 
 	private static final String PAGE_ID = "page-id";
 
-	private Settings settings;
-
 	public SettingsTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-settings" );
@@ -36,6 +33,7 @@ public class SettingsTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Settings tool allocate" );
 		super.allocate();
+		Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, ProgramSettingsType.GENERAL ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -69,7 +67,7 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		log.debug( "Settings tool resource ready" );
 		super.resourceReady( parameters );
 		resourceRefreshed();
@@ -78,13 +76,6 @@ public class SettingsTool extends GuidedTool {
 	@Override
 	public void resourceRefreshed() throws ToolException {
 		super.resourceRefreshed();
-	}
-
-	@Override
-	public void setSettings( Settings settings ) {
-		super.setSettings( settings );
-
-		Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramSettingsType.GENERAL ).split( "," )[ 0 ] ) );
 	}
 
 	@Override

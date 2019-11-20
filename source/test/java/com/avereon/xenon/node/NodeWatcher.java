@@ -17,7 +17,8 @@ public class NodeWatcher implements NodeListener {
 		return new ArrayList<>( events );
 	}
 
-	public void reset() {
+	void reset() {
 		events.clear();
 	}
+
 }

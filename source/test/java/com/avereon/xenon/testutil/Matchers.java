@@ -5,8 +5,9 @@ import org.hamcrest.Matcher;
 
 public class Matchers {
 
+	@SuppressWarnings( "unused" )
 	public static Matcher<String> regex( String pattern ) {
-		return new CustomTypeSafeMatcher<String>( "matching regex pattern " + pattern ) {
+		return new CustomTypeSafeMatcher<>( "matching regex pattern " + pattern ) {
 
 			@Override
 			protected boolean matchesSafely( String item ) {

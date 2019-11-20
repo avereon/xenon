@@ -4,8 +4,8 @@ import com.avereon.product.RepoCard;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.update.RepoState;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.controlsfx.control.ToggleSwitch;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ class RepoPane extends MigPane {
 
 	private TextField urlField;
 
-	private Button enableButton;
+	private ToggleSwitch enableSwitch;
 
 	private Button removeButton;
 
@@ -98,12 +99,16 @@ class RepoPane extends MigPane {
 		HBox.setHgrow( urlLabel, Priority.ALWAYS );
 		HBox.setHgrow( urlField, Priority.ALWAYS );
 
-		enableButton = new Button( "", productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
+		enableSwitch = new ToggleSwitch();
+		enableSwitch.setSelected( source.isEnabled() );
+		enableSwitch.selectedProperty().addListener( ( observable, oldValue, newValue ) -> toggleEnabled(newValue) );
+
 		removeButton = new Button( "", program.getIconLibrary().getIcon( "remove" ) );
+		removeButton.setOnAction( ( event ) -> removeRepo() );
 
 		add( iconLabel, "spany, aligny center" );
 		add( nameBox, "growx, pushx" );
-		add( enableButton );
+		add( enableSwitch, "w min" );
 		add( urlBox, "newline, growx" );
 		add( removeButton );
 	}
@@ -123,17 +128,13 @@ class RepoPane extends MigPane {
 		urlField.setText( source.getUrl() );
 		urlBox.getChildren().replaceAll( ( n ) -> (editUrl ? urlField : urlLabel) );
 
-		enableButton.setGraphic( productTool.getProgram().getIconLibrary().getIcon( source.isEnabled() ? "toggle-enabled" : "toggle-disabled" ) );
 		removeButton.setDisable( !source.isRemovable() );
-
-		enableButton.setOnAction( ( event ) -> toggleEnabled() );
-		removeButton.setOnAction( ( event ) -> removeRepo() );
 
 		if( editName ) this.nameField.requestFocus();
 		if( editUrl ) this.urlField.requestFocus();
 	}
 
-	void setEditName( boolean editName ) {
+	private void setEditName( boolean editName ) {
 		if( editName && editUrl ) commitEditUrl();
 		this.editName = editName;
 		updateRepoState();
@@ -175,8 +176,8 @@ class RepoPane extends MigPane {
 		setEditUrl( false );
 	}
 
-	private void toggleEnabled() {
-		productTool.getProgram().getProductManager().setRepoEnabled( source, !productTool.getProgram().getProductManager().isRepoEnabled( source ) );
+	private void toggleEnabled( boolean enabled ) {
+		productTool.getProgram().getProductManager().setRepoEnabled( source, enabled );
 		updateRepoState();
 	}
 

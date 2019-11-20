@@ -2,9 +2,7 @@ package com.avereon.xenon.testutil;
 
 import java.io.*;
 
-/**
- * Created by SoderquistMV on 4/7/2017.
- */
+@SuppressWarnings( "unused" )
 public class UnixPrintWriter extends PrintWriter {
 
 	public UnixPrintWriter( Writer writer ) {

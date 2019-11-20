@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
+import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.SettingsListener;
@@ -8,7 +9,6 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
-import com.avereon.product.Product;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;

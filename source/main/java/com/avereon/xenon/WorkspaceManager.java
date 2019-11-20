@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
 
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
@@ -45,20 +44,20 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return this;
 	}
 
-	@Override
-	public WorkspaceManager awaitStart( long timeout, TimeUnit unit ) {
-		return this;
-	}
-
-	@Override
-	public WorkspaceManager restart() {
-		return this;
-	}
-
-	@Override
-	public WorkspaceManager awaitRestart( long timeout, TimeUnit unit ) {
-		return this;
-	}
+//	@Override
+//	public WorkspaceManager awaitStart( long timeout, TimeUnit unit ) {
+//		return this;
+//	}
+//
+//	@Override
+//	public WorkspaceManager restart() {
+//		return this;
+//	}
+//
+//	@Override
+//	public WorkspaceManager awaitRestart( long timeout, TimeUnit unit ) {
+//		return this;
+//	}
 
 	public WorkspaceManager stop() {
 		// If this is called after Platform.exit(), which is usually the case
@@ -80,11 +79,11 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return this;
 	}
 
-	@Override
-	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) {
-		// This method intentionally does nothing. See explanation in stop() method.
-		return this;
-	}
+//	@Override
+//	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) {
+//		// This method intentionally does nothing. See explanation in stop() method.
+//		return this;
+//	}
 
 	public Set<Workspace> getWorkspaces() {
 		return new HashSet<>( workspaces );
@@ -111,6 +110,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		if( activeWorkspace != null ) {
 			activeWorkspace.setActive( true );
 		}
+	}
+
+	public void showActiveWorkspace() {
+		Platform.runLater( () -> {
+			Workspace workspace = getActiveWorkspace();
+			if( workspace == null ) return;
+			Stage stage = workspace.getStage();
+			if( stage == null ) return;
+			stage.show();
+			stage.requestFocus();
+		} );
 	}
 
 	public Workspace getActiveWorkspace() {

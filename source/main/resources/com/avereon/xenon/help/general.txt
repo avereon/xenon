@@ -1,0 +1,13 @@
+Usage: ${project.artifactId} [<option>...] [<url>...]" );
+
+Options:
+  --hello - Say hello to the currently running instance
+  --help [<category>] - Print the command line help information
+  --status - Show the program status (stopped, running, hidden)
+  --stop - Stop the currently running instance (without prompting)
+  --version - Show the program version and exit
+  --watch - Watch the currently running instance
+
+Help Categories:
+  cli - Command line interface
+  logging - Logging configuration

@@ -4,7 +4,7 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
-import com.avereon.xenon.update.RepoState;
+import com.avereon.xenon.product.RepoState;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import org.slf4j.Logger;
