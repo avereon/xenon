@@ -2,15 +2,74 @@ package com.avereon.xenon.workarea;
 
 import com.avereon.xenon.resource.Resource;
 import javafx.geometry.Side;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WorkpaneDockBottomTest extends WorkpaneTestCase {
+class WorkpaneDockBottomTest extends WorkpaneTestCase {
 
 	@Test
-	public void testDockBottomInLandscapeMode() throws Exception {
+	void testBottomDockSize() {
+		assertThat( workpane.getBottomDockSize(), is( 0.2 ) );
+		workpane.setBottomDockSize( 0.25 );
+		assertThat( workpane.getBottomDockSize(), is( 0.25 ) );
+	}
+
+	@Test
+	void testIsDockSpace() {
+		WorkpaneView view = workpane.getDefaultView();
+		assertTrue( workpane.isDockSpace( Side.TOP, view ) );
+		assertTrue( workpane.isDockSpace( Side.BOTTOM, view ) );
+		assertTrue( workpane.isDockSpace( Side.LEFT, view ) );
+		assertTrue( workpane.isDockSpace( Side.RIGHT, view ) );
+
+		Resource resource = new Resource( "mock:resource" );
+		MockTool tool = new MockTool( resource );
+		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
+
+		// Add the tool
+		workpane.setDockMode( Workpane.DockMode.LANDSCAPE );
+		workpane.addTool( tool );
+
+		assertFalse( workpane.isDockSpace( Side.TOP, tool.getToolView() ) );
+		assertTrue( workpane.isDockSpace( Side.BOTTOM, tool.getToolView() ) );
+		assertFalse( workpane.isDockSpace( Side.LEFT, tool.getToolView() ) );
+		assertFalse( workpane.isDockSpace( Side.RIGHT, tool.getToolView() ) );
+
+		assertTrue( workpane.isDockSpace( Side.TOP, view ) );
+		assertFalse( workpane.isDockSpace( Side.BOTTOM, view ) );
+		assertFalse( workpane.isDockSpace( Side.LEFT, view ) );
+		assertFalse( workpane.isDockSpace( Side.RIGHT, view ) );
+	}
+
+	@Test
+	void testBottomDockSizeMovesWithTool() {
+		Resource resource = new Resource( "mock:resource" );
+		MockTool tool = new MockTool( resource );
+		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
+
+		// Add the tool
+		workpane.addTool( tool );
+
+		// Check the view placement
+		WorkpaneView view = tool.getToolView();
+		assertThat( view.getPlacement(), is( Workpane.Placement.DOCK_BOTTOM ) );
+
+		// Move the dock edge
+		WorkpaneEdge edge = view.getEdge( Side.TOP );
+		assertThat( edge.getPosition(), is( 1 - workpane.getBottomDockSize() ) );
+		workpane.moveEdge( edge, -WORKPANE_HEIGHT * 0.05 );
+		assertThat( edge.getPosition(), is( 0.75 ) );
+
+		// Verify the top dock size followed the dock edge
+		assertThat( workpane.getBottomDockSize(), is( 1 - edge.getPosition() ) );
+	}
+
+	@Test
+	void testDockBottomInLandscapeMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
@@ -29,7 +88,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInLandscapeModeWithLeftAndRightDocks() throws Exception {
+	void testDockBottomInLandscapeModeWithLeftAndRightDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool leftTool = new MockTool( resource );
@@ -61,7 +120,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInPortraitMode() throws Exception {
+	void testDockBottomInPortraitMode() {
 		Resource resource = new Resource( "mock:resource" );
 		MockTool tool = new MockTool( resource );
 		tool.setPlacement( Workpane.Placement.DOCK_BOTTOM );
@@ -80,7 +139,7 @@ public class WorkpaneDockBottomTest extends WorkpaneTestCase {
 	}
 
 	@Test
-	public void testDockBottomInPortraitModeWithLeftAndRightDocks() throws Exception {
+	void testDockBottomInPortraitModeWithLeftAndRightDocks() {
 		Resource resource = new Resource( "mock:resource" );
 
 		MockTool leftTool = new MockTool( resource );

@@ -9,11 +9,11 @@ import com.avereon.xenon.event.ProgramStoppedEvent;
 import com.avereon.xenon.workarea.WorkpaneWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import junit.framework.AssertionFailedError;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.opentest4j.AssertionFailedError;
 import org.testfx.api.FxToolkit;
-import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.IOException;
@@ -26,11 +26,11 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	protected Program program;
 
-	protected ProgramWatcher programWatcher;
-
 	protected WorkpaneWatcher workpaneWatcher;
 
 	protected ProductCard metadata;
+
+	private ProgramWatcher programWatcher;
 
 	private long initialMemoryUse;
 
@@ -45,15 +45,15 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	/**
 	 * Overrides setup() in ApplicationTest and does not call super.setup().
 	 */
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		// Intentionally do not call super.setup()
 
 		// Remove the existing program data folder
 		try {
-			String prefix = ExecMode.TEST.getPrefix();
+			String suffix = "-" + Profile.TEST;
 			ProductCard metadata = new ProductCard().init( Program.class );
-			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( prefix + metadata.getArtifact(), prefix + metadata.getName() );
+			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 			if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
@@ -78,7 +78,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	/**
 	 * Override cleanup in FxPlatformTestCase and does not call super.cleanup().
 	 */
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		FxToolkit.cleanupApplication( program );
 		FxToolkit.cleanupStages();
@@ -113,14 +113,29 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
-		System.out.println( String.format( "Memory use: %s - %s = %s", FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ) ) );
+		System.out.println( String.format(
+			"Memory use: %s - %s = %s",
+			FileUtil.getHumanSizeBase2( finalMemoryUse ),
+			FileUtil.getHumanSizeBase2( initialMemoryUse ),
+			FileUtil.getHumanSizeBase2( increaseSize )
+		) );
 
 		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
-			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %s", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), FileUtil.getHumanSizeBase2( increaseSize ) ) );
+			throw new AssertionFailedError( String.format(
+				"Memory growth too large %s -> %s : %s",
+				FileUtil.getHumanSizeBase2( initialMemoryUse ),
+				FileUtil.getHumanSizeBase2( finalMemoryUse ),
+				FileUtil.getHumanSizeBase2( increaseSize )
+			) );
 		}
 		double increasePercent = ((double)finalMemoryUse / (double)initialMemoryUse) - 1.0;
 		if( increasePercent > getAllowedMemoryGrowthPercent() ) {
-			throw new AssertionFailedError( String.format( "Memory growth too large %s -> %s : %.2f%%", FileUtil.getHumanSizeBase2( initialMemoryUse ), FileUtil.getHumanSizeBase2( finalMemoryUse ), increasePercent * 100 ) );
+			throw new AssertionFailedError( String.format(
+				"Memory growth too large %s -> %s : %.2f%%",
+				FileUtil.getHumanSizeBase2( initialMemoryUse ),
+				FileUtil.getHumanSizeBase2( finalMemoryUse ),
+				increasePercent * 100
+			) );
 		}
 	}
 

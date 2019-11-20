@@ -5,7 +5,7 @@ import com.avereon.settings.SettingsListener;
 import com.avereon.util.DateUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.update.ProductManager;
+import com.avereon.xenon.product.ProductManager;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;

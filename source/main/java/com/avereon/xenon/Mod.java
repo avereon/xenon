@@ -9,11 +9,16 @@ import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 
 /**
- * Mods are the way to provide functionality in the program. Otherwise the
- * program is nothing more than a framework. The Mod class provided the basic
- * interface and implementation of a Mod. Subclasses should use the register(),
- * create(), destroy() and unregister() lifecycle methods to interact with the
- * program.
+ * The Mod class provides the basic interface and implementation of a Mod. Mods
+ * are the way to provide functionality in the program. Otherwise the program is
+ * nothing more than a framework.
+ * <p/>
+ * Subclasses should use the {@link #register()}, {@link #startup()},
+ * {@link #shutdown()} and {@link #unregister()} lifecycle methods to interact
+ * with the program.
+ * <p/>
+ * The Mod also implements ProgramProduct which provides access to the program,
+ * the Mod class loader and the Mod resource bundles.
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
@@ -45,10 +50,11 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * Called by the product manager to initialize the mod. This method should not
 	 * be called by other classes.
 	 *
-	 * @param program
-	 * @param card
+	 * @param program The program reference
+	 * @param card The Mod product card
 	 */
 	public final void init( Program program, ProductCard card ) {
+		if( this.program != null ) return;
 		this.program = program;
 		this.card = card;
 	}

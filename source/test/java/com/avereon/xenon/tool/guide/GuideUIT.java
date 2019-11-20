@@ -5,23 +5,23 @@ import com.avereon.xenon.util.FxUtil;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GuideUIT extends FxProgramUIT {
 
 	private Guide guide;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		super.setup();
 		this.guide = createGuide();
 	}
 
 	@Test
-	public void testSetSelectedItems() throws Exception {
+	void testSetSelectedItems() throws Exception {
 		Platform.runLater( () -> guide.setSelectedIds( "general" ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
@@ -32,7 +32,7 @@ public class GuideUIT extends FxProgramUIT {
 	}
 
 	@Test
-	public void testSetExpandedItems() throws Exception {
+	void testSetExpandedItems() throws Exception {
 		Platform.runLater( () -> guide.setExpandedIds( "general" ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );

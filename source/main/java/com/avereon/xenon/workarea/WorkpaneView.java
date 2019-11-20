@@ -2,16 +2,21 @@ package com.avereon.xenon.workarea;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
+import com.avereon.util.LogUtil;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private WorkpaneEdge topEdge;
 
@@ -54,15 +59,14 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		// Add a listener to the tab list to store the order when the tabs change
 		tools.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> {
-			int index = 0;
 			for( ToolTab tab : tools.getTabs() ){
-				Settings settings = tab.getTool().getSettings();
-				if( settings != null ) settings.set( "order", index );
-				index++;
+				Tool tool = tab.getTool();
+				tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ORDERED, tool ) );
 			}
 		} );
 	}
 
+	// FIXME Replace with Node.getId() when settings are removed
 	public String getViewId() {
 		return settings == null ? null : settings.getName();
 	}
@@ -164,6 +168,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public boolean isActive() {
 		return parent != null && parent.getActiveView() == this;
+	}
+
+	void setActive( boolean active ) {
+		tools.setActive( active );
 	}
 
 	public boolean isDefault() {
@@ -289,7 +297,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private void activateTool( Tool tool ) {
 		Workpane workpane = getWorkpane();
-		if( workpane.getActiveTool() == tool ) return;
+		//if( workpane.getActiveTool() == tool ) return;
 		workpane.setActiveTool( tool );
 	}
 

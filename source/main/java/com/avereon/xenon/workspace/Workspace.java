@@ -5,7 +5,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.SettingsListener;
 import com.avereon.util.Configurable;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.ExecMode;
+import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
@@ -21,16 +21,21 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -181,7 +186,7 @@ public class Workspace implements Configurable {
 		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
-		if( program.getExecMode() == ExecMode.DEV ) menubar.getMenus().add( dev );
+		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
 
 		// Workarea menu
 
@@ -387,8 +392,7 @@ public class Workspace implements Configurable {
 			event.consume();
 		} );
 
-		// TODO Get balloon timeout from settings
-		int balloonTimeout = 5000;
+		int balloonTimeout = getProgram().getProgramSettings().get( "notice-balloon-timeout", Integer.class, 5000 );
 
 		if( Objects.equals( notice.getBalloonStickiness(), Notice.Balloon.NORMAL ) ) {
 			TimerUtil.fxTask( () -> noticeContainer.getChildren().remove( pane ), balloonTimeout );
@@ -424,8 +428,6 @@ public class Workspace implements Configurable {
 		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
 		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.sizeToScene();
-
-
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
@@ -478,6 +480,17 @@ public class Workspace implements Configurable {
 	@Override
 	public Settings getSettings() {
 		return settings;
+	}
+
+	public void snapshot( Path file ) {
+		Platform.runLater( () -> {
+			WritableImage image = getStage().getScene().snapshot( null );
+			try {
+				ImageIO.write( SwingFXUtils.fromFXImage( image, null ), "png", file.toFile() );
+			} catch( IOException exception ) {
+				exception.printStackTrace();
+			}
+		} );
 	}
 
 	public void close() {

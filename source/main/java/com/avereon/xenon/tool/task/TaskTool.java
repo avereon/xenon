@@ -1,17 +1,13 @@
 package com.avereon.xenon.tool.task;
 
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.ExecMode;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -57,13 +53,13 @@ public class TaskTool extends ProgramTool {
 
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
-		if( getProgram().getExecMode() == ExecMode.DEV ) layoutPane.setTop( new HBox( startTask ) );
+		if( getProgram().getProfile() == Profile.DEV ) layoutPane.setTop( new HBox( startTask ) );
 		layoutPane.setCenter( scroller );
 		getChildren().add( layoutPane );
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		getProgram().getTaskManager().addTaskListener( taskWatcher );
 		Platform.runLater( this::init );

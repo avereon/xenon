@@ -7,8 +7,6 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.Workpane;
 import com.avereon.xenon.workarea.WorkpaneView;
 
-import java.net.URI;
-
 public class OpenToolRequest {
 
 	private OpenResourceRequest openResourceRequest;
@@ -17,13 +15,15 @@ public class OpenToolRequest {
 
 	private Workpane pane;
 
+	private String id;
+
 	private Class<? extends ProgramTool> toolClass;
 
 	public OpenToolRequest( OpenResourceRequest openResourceRequest ) {
 		this.openResourceRequest = openResourceRequest;
 	}
 
-	public URI getUri() {return openResourceRequest.getUri();}
+	//public URI getUri() {return openResourceRequest.getUri();}
 
 	public String getQuery() {return openResourceRequest.getQuery();}
 
@@ -36,6 +36,14 @@ public class OpenToolRequest {
 	public boolean isOpenTool() {return openResourceRequest.isOpenTool();}
 
 	public boolean isSetActive() {return openResourceRequest.isSetActive();}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId( String id ) {
+		this.id = id;
+	}
 
 	public Class<? extends ProgramTool> getToolClass() {
 		return toolClass;

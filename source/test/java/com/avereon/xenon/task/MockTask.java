@@ -16,41 +16,41 @@ final class MockTask extends Task<Object> {
 
 	private Object object;
 
-	public MockTask( TaskManager manager ) {
+	MockTask( TaskManager manager ) {
 		this( manager, null );
 	}
 
-	public MockTask( TaskManager manager, int delay ) {
+	MockTask( TaskManager manager, int delay ) {
 		this( manager, null, delay );
 	}
 
-	public MockTask( TaskManager manager, int delay, boolean fail ) {
+	MockTask( TaskManager manager, int delay, boolean fail ) {
 		this( manager, null, delay, fail );
 	}
 
-	public MockTask( TaskManager manager, Object object ) {
+	MockTask( TaskManager manager, Object object ) {
 		this( manager, object, 0 );
 	}
 
-	public MockTask( TaskManager manager, Object object, int delay ) {
-		this( manager, object, delay, false );
-	}
-
-	public MockTask( TaskManager manager, Object object, boolean fail ) {
+	MockTask( TaskManager manager, Object object, boolean fail ) {
 		this( manager, object, 0, fail );
 	}
 
-	public MockTask( TaskManager manager, Object object, int delay, boolean fail ) {
+	MockTask( TaskManager manager, Object object, Task<?> nest ) {
+		this.manager = manager;
+		this.object = object;
+		this.nest = nest;
+	}
+
+	private MockTask( TaskManager manager, Object object, int delay ) {
+		this( manager, object, delay, false );
+	}
+
+	private MockTask( TaskManager manager, Object object, int delay, boolean fail ) {
 		this.manager = manager;
 		this.object = object;
 		this.delay = delay;
 		this.fail = fail;
-	}
-
-	public MockTask( TaskManager manager, Object object, Task<?> nest ) {
-		this.manager = manager;
-		this.object = object;
-		this.nest = nest;
 	}
 
 	@Override

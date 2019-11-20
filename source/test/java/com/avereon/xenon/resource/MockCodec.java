@@ -1,20 +1,19 @@
 package com.avereon.xenon.resource;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MockCodec extends Codec {
 
-	public static final String EXTENSION = "mock";
+	static final String EXTENSION = "mock";
 
 	private String key;
 
-	public MockCodec() {
+	MockCodec() {
 		this( null );
 	}
 
-	public MockCodec(String key) {
+	MockCodec( String key ) {
 		this.key = key;
 		addSupportedMediaType( "application/mock" );
 		addSupportedExtension( EXTENSION );
@@ -42,9 +41,9 @@ public class MockCodec extends Codec {
 	}
 
 	@Override
-	public void load( Resource resource, InputStream input ) throws IOException {}
+	public void load( Resource resource, InputStream input ) {}
 
 	@Override
-	public void save( Resource resource, OutputStream output ) throws IOException {}
+	public void save( Resource resource, OutputStream output ) {}
 
 }

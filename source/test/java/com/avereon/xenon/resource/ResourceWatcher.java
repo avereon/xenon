@@ -20,6 +20,7 @@ public class ResourceWatcher implements ResourceListener {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
 
+	@SuppressWarnings( "unused" )
 	public void waitForNextEvent( Class<? extends ResourceEvent> clazz ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
@@ -58,7 +59,8 @@ public class ResourceWatcher implements ResourceListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForNextEvent( Class<? extends ResourceEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+	@SuppressWarnings( "SameParameterValue" )
+	private synchronized void waitForNextEvent( Class<? extends ResourceEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
 		events.remove( clazz );
 		waitForEvent( clazz, timeout );
 	}

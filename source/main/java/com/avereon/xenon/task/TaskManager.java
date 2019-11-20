@@ -4,7 +4,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
-import com.avereon.util.TestUtil;
+import com.avereon.xenon.Program;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -163,36 +163,17 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	}
 
 	@Override
-	public TaskManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
-
-	@Override
-	public TaskManager restart() {
-		new Thread( () -> {
-			stop();
-			try {
-				// TODO Make task manager requestRestart timeout a setting?
-				awaitStop( 10, TimeUnit.SECONDS );
-				start();
-			} catch( InterruptedException exception ) {
-				exception.printStackTrace();
-			}
-		} ).start();
-
-		return this;
-	}
-
-	@Override
-	public TaskManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return awaitStart( timeout, unit );
-	}
-
-	@Override
 	public TaskManager stop() {
 		executorP3 = shutdown( executorP3 );
 		executorP2 = shutdown( executorP2 );
 		executorP1 = shutdown( executorP1 );
+		try {
+			if( executorP3 != null ) executorP3.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP2 != null ) executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+			if( executorP1 != null ) executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
+		} catch( InterruptedException exception ) {
+			// Intentionally ignore exception
+		}
 		return this;
 	}
 
@@ -200,14 +181,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		if( executor == null ) return null;
 		executor.shutdown();
 		return null;
-	}
-
-	@Override
-	public TaskManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		if( executorP3 != null ) executorP3.awaitTermination( timeout, unit );
-		if( executorP2 != null ) executorP2.awaitTermination( timeout, unit );
-		if( executorP1 != null ) executorP1.awaitTermination( timeout, unit );
-		return this;
 	}
 
 	@Override
@@ -279,17 +252,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		protected void afterExecute( Runnable runnable, Throwable throwable ) {
 			if( runnable instanceof Task ) {
 				Task task = (Task)runnable;
-
 				taskQueue.remove( task );
 				taskMap.remove( task );
-
-				try {
-					task.get();
-				} catch( CancellationException exception ) {
-					// Intentionally ignore exception
-				} catch( Throwable getThrowable ) {
-					if( !TestUtil.isTest() ) log.error( "Exception executing task", getThrowable );
-				}
 			}
 		}
 

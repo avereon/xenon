@@ -1,15 +1,15 @@
 package com.avereon.xenon.workspace;
 
 import javafx.stage.Stage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-public class ProgramForceCloseUIT extends ProgramWorkspaceUIT {
+class ProgramForceCloseUIT extends ProgramWorkspaceUIT {
 
 	@Test
-	public void execute() {
+	void execute() {
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
 

@@ -14,17 +14,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MockTool extends Tool {
 
-	public static final String ALLOCATE = "allocate";
+	static final String ALLOCATE = "allocate";
 
-	public static final String DISPLAY = "display";
+	static final String DISPLAY = "display";
 
-	public static final String ACTIVATE = "activate";
+	static final String ACTIVATE = "activate";
 
-	public static final String DEACTIVATE = "deactivate";
+	static final String DEACTIVATE = "deactivate";
 
-	public static final String CONCEAL = "conceal";
+	static final String CONCEAL = "conceal";
 
-	public static final String DEALLOCATE = "deallocate";
+	static final String DEALLOCATE = "deallocate";
 
 	private static final AtomicInteger counter = new AtomicInteger();
 
@@ -37,7 +37,7 @@ public class MockTool extends Tool {
 	public MockTool( Resource resource ) {
 		super( resource, "MockTool-" + counter.getAndIncrement() );
 		setPlacement( super.getPlacement() );
-		setBackground( new Background( new BackgroundFill( new Color( 0,0.5,1,0.25), CornerRadii.EMPTY, Insets.EMPTY ) ) );
+		setBackground( new Background( new BackgroundFill( new Color( 0, 0.5, 1, 0.25 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class MockTool extends Tool {
 		return placement;
 	}
 
-	public void setPlacement( Workpane.Placement placement) {
+	void setPlacement( Workpane.Placement placement ) {
 		this.placement = placement;
 	}
 
@@ -88,10 +88,11 @@ public class MockTool extends Tool {
 		return Collections.unmodifiableList( events );
 	}
 
-	public MethodCall getNextEvent() {
+	MethodCall getNextEvent() {
 		return events.get( eventIndex++ );
 	}
 
+	@SuppressWarnings( "unused" )
 	public void listEvents() {
 		for( MethodCall event : events ) {
 			System.out.println( getTitle() + " " + event.method + "() called" );
@@ -100,9 +101,9 @@ public class MockTool extends Tool {
 
 	public static final class MethodCall {
 
-		public final String method;
+		final String method;
 
-		public MethodCall( String method ) {
+		MethodCall( String method ) {
 			this.method = method;
 		}
 

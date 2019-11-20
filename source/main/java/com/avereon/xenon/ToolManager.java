@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.product.Product;
-import com.avereon.settings.Settings;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.LogUtil;
@@ -15,7 +14,6 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolInstanceMode;
 import com.avereon.xenon.tool.ToolMetadata;
 import com.avereon.xenon.workarea.Tool;
-import com.avereon.xenon.workarea.ToolParameters;
 import com.avereon.xenon.workarea.Workpane;
 import com.avereon.xenon.workarea.WorkpaneView;
 import javafx.application.Platform;
@@ -55,9 +53,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		List<Class<? extends ProgramTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent(
-			resourceType,
-			k -> new CopyOnWriteArrayList<Class<? extends ProgramTool>>()
+		List<Class<? extends ProgramTool>> resourceTypeToolClasses = this.resourceTypeToolClasses.computeIfAbsent( resourceType,
+			k -> new CopyOnWriteArrayList<>()
 		);
 		resourceTypeToolClasses.add( type );
 
@@ -113,7 +110,15 @@ public class ToolManager implements Controllable<ToolManager> {
 		// If the instance mode is SINGLETON, check for an existing tool in the workpane
 		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolInPane( pane, toolClass );
 		final boolean alreadyExists = tool != null;
-		if( !alreadyExists ) tool = getToolInstance( request );
+
+		if( alreadyExists ) {
+			final Workpane finalPane = pane;
+			final ProgramTool finalTool = tool;
+			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			return tool;
+		} else {
+			tool = getToolInstance( request );
+		}
 
 		// Verify there is a tool to use
 		if( tool == null ) {
@@ -123,10 +128,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			return null;
 		}
 
-		// Create the tools settings
-		createToolSettings( tool );
-
-		// Now that we have a tool...open dependent tools
+		// Now that we have a tool...open dependent resources and associated tools
 		for( URI dependency : tool.getResourceDependencies() ) {
 			program.getResourceManager().open( dependency, true, false );
 		}
@@ -137,14 +139,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-
-		Platform.runLater( () -> {
-			if( alreadyExists ) {
-				finalPane.setActiveTool( finalTool );
-			} else {
-				finalPane.addTool( finalTool, placementOverride, request.isSetActive() );
-			}
-		} );
+		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, request.isSetActive() ) );
 
 		scheduleResourceReady( request, finalTool );
 
@@ -157,7 +152,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @return The restored tool
 	 * @apiNote Could be called from a @code{task thread} or an @code{FX application thread}
 	 */
-	public ProgramTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
+	ProgramTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
 		// Run this class through the alias map
 		toolClassName = getToolClassName( toolClassName );
 
@@ -239,23 +234,23 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
-	@Override
-	public ToolManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		// TODO Implement ToolManager.awaitStart()
-		return this;
-	}
-
-	@Override
-	public ToolManager restart() {
-		// TODO Implement ToolManager.requestRestart()
-		return this;
-	}
-
-	@Override
-	public ToolManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		// TODO Implement ToolManager.awaitRestart()
-		return this;
-	}
+//	@Override
+//	public ToolManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		// TODO Implement ToolManager.awaitStart()
+//		return this;
+//	}
+//
+//	@Override
+//	public ToolManager restart() {
+//		// TODO Implement ToolManager.requestRestart()
+//		return this;
+//	}
+//
+//	@Override
+//	public ToolManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+//		// TODO Implement ToolManager.awaitRestart()
+//		return this;
+//	}
 
 	@Override
 	public ToolManager stop() {
@@ -263,11 +258,11 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
-	@Override
-	public ToolManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-		// TODO Implement ToolManager.awaitStop()
-		return this;
-	}
+//	@Override
+//	public ToolManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+//		// TODO Implement ToolManager.awaitStop()
+//		return this;
+//	}
 
 	// Safe to call on any thread
 	private ProgramTool getToolInstance( OpenToolRequest request ) {
@@ -281,7 +276,15 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				// Create the new tool instance
 				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Resource.class );
-				return constructor.newInstance( product, resource );
+				ProgramTool tool = constructor.newInstance( product, resource );
+
+				// Set the id before using settings
+				tool.setUid( request.getId() == null ? IdGenerator.getId() : request.getId() );
+				tool.getSettings().set( "type", tool.getClass().getName() );
+				tool.getSettings().set( "uri", tool.getResource().getUri() );
+				addToolListenerForSettings( tool );
+				log.debug( "Tool instance created: " + tool.getClass().getName() );
+				return tool;
 			} catch( Exception exception ) {
 				log.error( "Error creating instance: " + toolClass.getName(), exception );
 			}
@@ -303,11 +306,31 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private void createToolSettings( ProgramTool tool ) {
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, IdGenerator.getId() );
-		settings.set( "type", tool.getClass().getName() );
-		settings.set( "uri", tool.getResource().getUri() );
-		tool.setSettings( settings );
+	private void addToolListenerForSettings( ProgramTool tool ) {
+		tool.addToolListener( ( event ) -> {
+			ProgramTool eventTool = (ProgramTool)event.getTool();
+			switch( event.getType() ) {
+				case ADDED: {
+					eventTool.getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, eventTool.getToolView().getViewId() );
+					break;
+				}
+				case ORDERED: {
+					eventTool.getSettings().set( "order", eventTool.getTabOrder() );
+					break;
+				}
+				case ACTIVATED: {
+					eventTool.getSettings().set( "active", true );
+					break;
+				}
+				case DEACTIVATED: {
+					eventTool.getSettings().set( "active", null );
+					break;
+				}
+				case CLOSED: {
+					eventTool.getSettings().delete();
+				}
+			}
+		} );
 	}
 
 	/**
@@ -323,7 +346,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			@Override
 			public void eventOccurred( ResourceEvent event ) {
 				resource.removeResourceListener( this );
-				Platform.runLater( () -> tool.callResourceReady( new ToolParameters( request ) ) );
+				Platform.runLater( () -> tool.callResourceReady( new OpenToolRequestParameters( request ) ) );
 			}
 
 		} );

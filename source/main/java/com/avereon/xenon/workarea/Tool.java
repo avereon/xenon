@@ -1,9 +1,7 @@
 package com.avereon.xenon.workarea;
 
-import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.ResourceEvent;
 import com.avereon.xenon.resource.ResourceListener;
@@ -25,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * The Tool class is a control that "works on" a resource.
  */
-public abstract class Tool extends Control implements Configurable {
+public abstract class Tool extends Control {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -59,8 +57,6 @@ public abstract class Tool extends Control implements Configurable {
 
 	private Set<ToolListener> listeners;
 
-	private Settings settings;
-
 	public Tool( Resource resource ) {
 		this( resource, null );
 	}
@@ -68,12 +64,12 @@ public abstract class Tool extends Control implements Configurable {
 	public Tool( Resource resource, String title ) {
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
-		this.closeGraphicProperty = new SimpleObjectProperty<>(  );
-		this.closeOperation = new SimpleObjectProperty<>();
+		this.closeGraphicProperty = new SimpleObjectProperty<>();
+		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
 		this.listeners = new CopyOnWriteArraySet<>();
 		this.resource = resource;
 
-		Rectangle clip = new Rectangle(  );
+		Rectangle clip = new Rectangle();
 		clip.widthProperty().bind( widthProperty() );
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
@@ -188,9 +184,8 @@ public abstract class Tool extends Control implements Configurable {
 		return parent;
 	}
 
-	public void setToolView( WorkpaneView parent ) {
+	void setToolView( WorkpaneView parent ) {
 		this.parent = parent;
-		if( settings != null ) settings.set( UiFactory.PARENT_WORKPANEVIEW_ID, parent == null ? null : parent.getViewId() );
 	}
 
 	public Workpane getWorkpane() {
@@ -202,6 +197,10 @@ public abstract class Tool extends Control implements Configurable {
 		return allocated;
 	}
 
+	public int getTabOrder() {
+		return getToolView() == null ? -1 : getToolView().getTools().indexOf( this );
+	}
+
 	public boolean isDisplayed() {
 		return displayed;
 	}
@@ -211,7 +210,7 @@ public abstract class Tool extends Control implements Configurable {
 	}
 
 	public void close() {
-		Platform.runLater( () -> getWorkpane().removeTool( this, true ) );
+		Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
 	}
 
 	@Override
@@ -227,16 +226,6 @@ public abstract class Tool extends Control implements Configurable {
 		return tool;
 	}
 
-	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
-
-		this.settings = settings;
-	}
-
-	public Settings getSettings() {
-		return settings;
-	}
-
 	public void addToolListener( ToolListener listener ) {
 		listeners.add( listener );
 	}
@@ -249,9 +238,11 @@ public abstract class Tool extends Control implements Configurable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "title=\"" );
-		builder.append( getTitle() );
-		builder.append( "\"" );
+		builder.append( getClass().getSimpleName() );
+		builder.append( "{" );
+		builder.append( " id=\"" ).append( getId() ).append( "\"" );
+		builder.append( " title=\"" ).append( getTitle() ).append( "\"" );
+		builder.append( " }" );
 
 		return builder.toString();
 	}
@@ -298,7 +289,7 @@ public abstract class Tool extends Control implements Configurable {
 	 *
 	 * @param parameters
 	 */
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {}
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {}
 
 	/**
 	 * Called when the resource data is refreshed.
@@ -394,7 +385,7 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceReady( ToolParameters parameters ) {
+	public void callResourceReady( OpenToolRequestParameters parameters ) {
 		try {
 			resourceReady( parameters );
 		} catch( ToolException exception ) {
@@ -405,7 +396,7 @@ public abstract class Tool extends Control implements Configurable {
 	/**
 	 * Called when the resource is ready to be used by the tool.
 	 */
-	public void callResourceRefreshed() {
+	private void callResourceRefreshed() {
 		try {
 			resourceRefreshed();
 		} catch( ToolException exception ) {
@@ -413,21 +404,9 @@ public abstract class Tool extends Control implements Configurable {
 		}
 	}
 
-	public final void fireToolClosingEvent( ToolEvent event ) throws ToolVetoException {
-		ToolVetoException exception = null;
+	final void fireToolEvent( ToolEvent event ) {
 		for( ToolListener listener : listeners ) {
-			try {
-				listener.toolClosing( event );
-			} catch( ToolVetoException vetoException ) {
-				if( exception == null ) exception = vetoException;
-			}
-		}
-		if( exception != null ) throw exception;
-	}
-
-	public final void fireToolClosedEvent( ToolEvent event ) {
-		for( ToolListener listener : listeners ) {
-			listener.toolClosed( event );
+			listener.handle( event );
 		}
 	}
 

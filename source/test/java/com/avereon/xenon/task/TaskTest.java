@@ -1,12 +1,12 @@
 package com.avereon.xenon.task;
 
 import com.avereon.util.ThreadUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-public class TaskTest extends BaseTaskTest {
+class TaskTest extends BaseTaskTest {
 
 	/*
 	 * Don't make this number too small. The smaller the number, the more likely
@@ -16,7 +16,7 @@ public class TaskTest extends BaseTaskTest {
 	private int delay = 50;
 
 	@Test
-	public void testPriority() throws Exception {
+	void testPriority() {
 		Task<?> task = new MockTask( manager );
 
 		// Check default priority.
@@ -28,7 +28,7 @@ public class TaskTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testSuccess() throws Exception {
+	void testSuccess() throws Exception {
 		Task<?> task = new MockTask( manager, delay );
 		ThreadUtil.pause( delay );
 		assertThat( task.getState(), is( Task.State.READY ) );
@@ -42,7 +42,7 @@ public class TaskTest extends BaseTaskTest {
 	}
 
 	@Test
-	public void testFailure() throws Exception {
+	void testFailure() throws Exception {
 		Task<?> task = new MockTask( manager, 5 * delay, true );
 		ThreadUtil.pause( delay );
 		assertThat( task.getState(), is( Task.State.READY ) );

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+
+	<dict>
+		<key>CFBundleName</key>
+		<string>${project.name}</string>
+		<key>CFBundleDisplayName</key>
+		<string>${project.name}</string>
+		<key>CFBundleIdentifier</key>
+		<string>${project.groupId}.${project.artifactId}</string>
+		<key>CFBundleVersion</key>
+		<string>${project.version}</string>
+		<!-- This one is displayed -->
+		<key>CFBundleShortVersionString</key>
+		<string>${project.version}</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleSupportedPlatforms</key>
+		<array>
+			<string>MacOSX</string>
+		</array>
+		<key>CFBundleExecutable</key>
+		<string>${project.artifactId}</string>
+		<key>CFBundleIconFiles</key>
+		<array>
+			<string>${project.artifactId}.png</string>
+		</array>
+		<key>CFBundleIconFile</key>
+		<string>${project.artifactId}.png</string>
+	</dict>
+
+</plist>

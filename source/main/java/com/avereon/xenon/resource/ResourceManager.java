@@ -42,6 +42,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private final Set<Resource> openResources;
 
+	private final Map<URI, Resource> identifiedResources;
+
 	private final Map<String, Scheme> schemes;
 
 	private final Map<String, ResourceType> resourceTypesByTypeKey;
@@ -76,13 +78,14 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private ModifiedResourceWatcher modifiedResourceWatcher = new ModifiedResourceWatcher();
 
-	private final Object restoreLock = new Object();
-
 	private final Object currentResourceLock = new Object();
+
+	private boolean running;
 
 	public ResourceManager( Program program ) {
 		this.program = program;
 		openResources = new CopyOnWriteArraySet<>();
+		identifiedResources = new ConcurrentHashMap<>();
 		schemes = new ConcurrentHashMap<>();
 		resourceTypesByTypeKey = new ConcurrentHashMap<>();
 		uriResourceTypes = new ConcurrentHashMap<>();
@@ -102,6 +105,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	@Override
+	public boolean isRunning() {
+		return running;
+	}
+
+	@Override
 	public ResourceManager start() {
 		//		((FileScheme)Schemes.getScheme( "file" )).startResourceWatching();
 
@@ -113,42 +121,19 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		program.getActionLibrary().getAction( "save-all" ).pushAction( saveAllActionHandler );
 		program.getActionLibrary().getAction( "close" ).pushAction( closeActionHandler );
 		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
-
 		updateActionState();
+
+		running = true;
+
 		return this;
-	}
-
-	@Override
-	public ResourceManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
-
-	@Override
-	public boolean isRunning() {
-		// TODO Return a real value for ResourceManager.isRunning()
-		return false;
-	}
-
-	@Override
-	public ResourceManager restart() {
-		stop();
-		start();
-		return this;
-	}
-
-	@Override
-	public ResourceManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return awaitStart( timeout, unit );
 	}
 
 	@Override
 	public ResourceManager stop() {
-		//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
-		return this;
-	}
+		running = false;
 
-	@Override
-	public ResourceManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+		//		((FileScheme)Schemes.getScheme( "file" )).stopResourceWatching();
+
 		return this;
 	}
 
@@ -665,7 +650,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to open
 	 * @throws ExecutionException If there was an exception opening the resource
@@ -677,7 +663,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be opened and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to open
 	 * @throws ExecutionException If there was an exception opening a resource
@@ -707,7 +694,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to load
 	 * @throws ExecutionException If there was an exception loading the resource
@@ -719,7 +707,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be loaded and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to load
 	 * @throws ExecutionException If there was an exception loading the resources
@@ -749,7 +738,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to
+	 * be completed.
 	 *
 	 * @param resource The resource to save
 	 * @throws ExecutionException If there was an exception saving the resource
@@ -761,7 +751,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be saved and wait until the task is complete. This method submits a task to the task manager and waits for the task to
+	 * be completed.
 	 *
 	 * @param resources The resources to save
 	 * @throws ExecutionException If there was an exception saving the resources
@@ -791,7 +782,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resource The resources to close.
 	 * @throws ExecutionException If there was an exception closing the resource
@@ -803,7 +795,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task to be completed.
+	 * Request that the specified resources be closed and wait until the task is complete. This method submits a task to the task manager and waits for the task
+	 * to be completed.
 	 *
 	 * @param resources The resources to close.
 	 * @throws ExecutionException If there was an exception closing the resources
@@ -830,8 +823,10 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Determine the resource type for the given resource. The resource URI is used to find the resource type in the following order: <ol> <li>Lookup the resource type by the full URI</li> <li>Lookup the resource type by the URI scheme</li>
-	 * <li>Find all the codecs that match the URI</li> <li>Sort the codecs by priority, select the highest</li> <li>Use the resource type associated to the codec</li> </ol>
+	 * Determine the resource type for the given resource. The resource URI is used to find the resource type in the following order: <ol> <li>Lookup the resource
+	 * type by the full URI</li> <li>Lookup the resource type by the URI scheme</li>
+	 * <li>Find all the codecs that match the URI</li> <li>Sort the codecs by priority, select the highest</li> <li>Use the resource type associated to the
+	 * codec</li> </ol>
 	 *
 	 * @param resource The resource for which to resolve the resource type
 	 * @return
@@ -921,6 +916,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		return filteredResources;
 	}
 
+	// FIXME Need to check if callers really need to know if it is open or identified
 	private boolean isResourceOpen( Resource resource ) {
 		return openResources.contains( resource );
 	}
@@ -979,32 +975,31 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	/**
-	 * Create a resource from a resource type and/or a URI. The resource is considered to be a new resource if the URI is null. Otherwise, the resource is considered an old resource. See {@link Resource#isNew()}
+	 * Create a resource from a resource type and/or a URI. The resource is considered to be a new resource if the URI is null. Otherwise, the resource is
+	 * considered an old resource. See {@link Resource#isNew()}
 	 *
 	 * @param type The resource type of the resource
 	 * @param uri The URI of the resource
 	 * @return The resource created from the resource type and URI
 	 */
-	private Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
-		// The query and fragment should not be part of the resource
-		uri = toResourceUri( uri );
-
+	private synchronized Resource doCreateResource( ResourceType type, URI uri ) throws ResourceException {
 		Resource resource;
 		if( uri == null ) {
 			resource = new Resource( type );
+			log.trace( "Resource created: " + resource + "[" + System.identityHashCode( resource ) + "] type=" + type );
 		} else {
-			resource = new Resource( type, uri );
-			// FIXME Store open resources in a map for faster access
-			// If the resource is already open, use it instead
-			// Can't do that because openResources can have unsaved resources
-			// which don't have a URI.
-			for( Resource open : openResources ) {
-				if( open.getUri().equals( uri ) ) return open;
+			uri = toResourceUri( uri );
+			resource = identifiedResources.get( uri );
+			if( resource == null ) {
+				resource = new Resource( type, uri );
+				identifiedResources.put( uri, resource );
+				Scheme scheme = getScheme( uri.getScheme() );
+				resource.setScheme( scheme );
+				scheme.init( resource );
+				log.trace( "Resource created: " + resource + "[" + System.identityHashCode( resource ) + "] uri=" + uri );
+			} else {
+				log.trace( "Resource preexisted: " + resource + "[" + System.identityHashCode( resource ) + "] uri=" + uri );
 			}
-
-			Scheme scheme = getScheme( uri.getScheme() );
-			resource.setScheme( scheme );
-			scheme.init( resource );
 		}
 
 		return resource;
@@ -1022,7 +1017,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 			}
 		} catch( URISyntaxException exception ) {
 			// Intentionally ignore exception - should never happen
-			exception.printStackTrace( System.err );
+			log.error( "Error resolving resource URI: " + uri, exception );
 		}
 		return null;
 	}
@@ -1096,6 +1091,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		if( !isResourceOpen( resource ) ) return false;
 
 		resource.save( this );
+		identifiedResources.put( resource.getUri(), resource );
 
 		// Create the resource settings
 		createResourceSettings( resource );
@@ -1118,6 +1114,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		resource.close( this );
 		openResources.remove( resource );
+		identifiedResources.remove( resource.getUri() );
 		resource.removeNodeListener( modifiedResourceWatcher );
 
 		if( openResources.size() == 0 ) doSetCurrentResource( null );
@@ -1288,7 +1285,7 @@ public class ResourceManager implements Controllable<ResourceManager> {
 		@Override
 		public ProgramTool call() throws Exception {
 			Resource resource = createResource( request.getUri() );
-			log.debug( "Open resource: ", resource.getUri() );
+			log.debug( "Open resource: {}", resource.getUri() );
 
 			boolean openTool = request.isOpenTool() || !isResourceOpen( resource );
 			Codec codec = request.getCodec();
@@ -1299,15 +1296,15 @@ public class ResourceManager implements Controllable<ResourceManager> {
 				// Open the resource
 				openResourcesAndWait( resource );
 				if( !resource.isOpen() ) return null;
-
-				// Start loading the resource, but don't wait
-				if( !resource.isLoaded() ) loadResources( resource );
 			} catch( Exception exception ) {
 				program.getNoticeManager().error( exception );
 				return null;
 			}
 
 			ProgramTool tool = openTool ? program.getToolManager().openTool( new OpenToolRequest( request ).setResource( resource ) ) : null;
+
+			// Start loading the resource after the tool has been created
+			if( !resource.isLoaded() ) loadResources( resource );
 
 			setCurrentResource( resource );
 
@@ -1529,49 +1526,36 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 		private Collection<Resource> resources;
 
-		private ResourceTask( Resource resource ) {
-			super( program );
-			this.resources = Collections.singletonList( resource );
-		}
-
-		private ResourceTask( Resource... resources ) {
-			super( program );
-			this.resources = List.of( resources );
-		}
-
 		private ResourceTask( Collection<Resource> resources ) {
 			super( program );
 			this.resources = resources;
 		}
 
 		@Override
-		public Collection<Resource> call() throws Exception {
-			List<Resource> result = new ArrayList<Resource>();
-			List<Throwable> errors = new ArrayList<Throwable>();
+		public Collection<Resource> call() {
+			List<Resource> result = new ArrayList<>();
+			Map<Throwable, Resource> errors = new HashMap<>();
 			if( resources != null ) {
 				for( Resource resource : resources ) {
 					try {
 						if( doOperation( resource ) ) result.add( resource );
 					} catch( Throwable throwable ) {
-						log.warn( "Error executing resource task", throwable );
-						errors.add( throwable );
+						errors.put( throwable, resource );
 					}
 				}
 			}
 
 			if( errors.size() != 0 ) {
 				StringBuilder messages = new StringBuilder();
-				for( Throwable error : errors ) {
-					messages.append( error.getClass().getSimpleName() );
-					messages.append( ": " );
-					messages.append( error.getMessage() );
-					messages.append( "\n" );
+				for( Throwable error : errors.keySet() ) {
+					messages.append( error.toString() ).append( "\n" );
 				}
 
 				String title = program.getResourceBundle().getString( "resource", "resources" );
-				String message = program.getResourceBundle().getString( "resource", "resource.exception", messages.toString() );
+				String message = program.getResourceBundle().getString( "resource", "resource.exceptions", messages.toString().trim() );
 				program.getNoticeManager().warning( title, message );
-				log.warn( "Error executing resource task", message );
+
+				throw new RuntimeException( messages.toString().trim() );
 			}
 
 			return result;
@@ -1602,10 +1586,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 
 	private class LoadResourceTask extends ResourceTask {
 
-		private LoadResourceTask( Resource... resources ) {
-			super( resources );
-		}
-
 		private LoadResourceTask( Collection<Resource> resources ) {
 			super( resources );
 		}
@@ -1618,14 +1598,6 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	}
 
 	private class SaveResourceTask extends ResourceTask {
-
-		private SaveResourceTask( Resource resource ) {
-			super( resource );
-		}
-
-		private SaveResourceTask( Resource... resources ) {
-			super( resources );
-		}
 
 		private SaveResourceTask( Collection<Resource> resources ) {
 			super( resources );
@@ -1654,11 +1626,11 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	private class SetCurrentResourceTask extends ResourceTask {
 
 		private SetCurrentResourceTask( Resource resource ) {
-			super( resource );
+			super( Set.of( resource ) );
 		}
 
 		@Override
-		public boolean doOperation( Resource resource ) throws ResourceException {
+		public boolean doOperation( Resource resource ) {
 			return doSetCurrentResource( resource );
 		}
 

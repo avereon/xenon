@@ -236,7 +236,7 @@ public class Resource extends Node implements Configurable {
 	}
 
 	public synchronized final void load( ResourceManager manager ) throws ResourceException {
-		if( !isOpen() ) throw new ResourceException( this, "Resource must be opened to be loaded." );
+		if( !isOpen() ) throw new ResourceException( this, "Resource must be opened to be loaded" );
 
 		loaded = false;
 		Scheme scheme = getScheme();
@@ -263,8 +263,8 @@ public class Resource extends Node implements Configurable {
 	}
 
 	public synchronized final void save( ResourceManager manager ) throws ResourceException {
-		if( !isOpen() ) throw new ResourceException( this, "Resource must be opened to be saved." );
-		if( getUri() == null ) throw new ResourceException( this, "URI must be set in order to save resource." );
+		if( !isOpen() ) throw new ResourceException( this, "Resource must be opened to be saved" );
+		if( getUri() == null ) throw new ResourceException( this, "URI must be set in order to save resource" );
 
 		saved = false;
 		Scheme scheme = getScheme();
@@ -366,7 +366,7 @@ public class Resource extends Node implements Configurable {
 	public boolean equals( Object object ) {
 		if( !(object instanceof Resource) ) return false;
 		Resource that = (Resource)object;
-		return Objects.equals( this.getUri(), that.getUri() );
+		return this == that || Objects.equals( this.getUri(), that.getUri() );
 	}
 
 	@Override

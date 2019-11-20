@@ -7,16 +7,16 @@ import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.ResourceException;
 import com.avereon.xenon.resource.type.ProgramNoticeType;
 import com.avereon.xenon.tool.notice.NoticeTool;
-import com.avereon.xenon.util.FxUtil;
 import com.avereon.xenon.workarea.Tool;
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
@@ -38,7 +38,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void error( Throwable throwable ) {
-		error( throwable.getClass().getSimpleName(), null, throwable );
+		error( throwable.getClass().getSimpleName(), throwable.getMessage(), throwable );
 	}
 
 	public void error( Object message, Throwable throwable, String... parameters ) {
@@ -58,23 +58,22 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void warning( String title, Object message, Throwable throwable, String... parameters ) {
-		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, parameters ) ).setType( Notice.Type.WARN ) );
+		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, Arrays.toString( parameters ) ) ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
-		FxUtil.checkFxUserThread();
-
 		getNoticeList().addNotice( notice );
-
 		resource.refresh( program.getResourceManager() );
 
-		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
-		if( tools.size() > 0 ) {
-			getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
-		} else {
-			getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
-			updateUnreadCount();
-		}
+		Platform.runLater( () -> {
+			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
+			if( tools.size() > 0 ) {
+				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
+			} else {
+				getProgram().getWorkspaceManager().getActiveWorkspace().showNotice( notice );
+				updateUnreadCount();
+			}
+		} );
 	}
 
 	public void removeNotice( Notice notice ) {
@@ -116,19 +115,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	@Override
 	public NoticeManager start() {
-		return restart();
-	}
-
-	@Override
-	public NoticeManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return awaitRestart( timeout, unit );
-	}
-
-	@Override
-	public NoticeManager restart() {
 		try {
 			resource = program.getResourceManager().createResource( ProgramNoticeType.URI );
 			program.getResourceManager().loadResources( resource );
+			// TODO Register an event listener to show unread messages after the program is finished starting
+			// At startup there may be notices that need to be shown but the workspace has not been restored yet
 		} catch( ResourceException exception ) {
 			exception.printStackTrace();
 		}
@@ -137,27 +128,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	@Override
-	public NoticeManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-		return this;
-	}
-
-	@Override
 	public NoticeManager stop() {
+		// TODO Unregister an event listener to show unread messages when there is an active workspace
 		program.getResourceManager().saveResources( resource );
-		return this;
-	}
-
-	@Override
-	public NoticeManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 		return this;
 	}
 
 	private NoticeList getNoticeList() {
 		return (NoticeList)resource.getModel();
-	}
-
-	private Integer getUnreadCount() {
-		return unreadCount.getValue();
 	}
 
 	private void updateUnreadCount() {

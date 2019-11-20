@@ -11,7 +11,7 @@ import com.avereon.xenon.resource.ResourceEvent;
 import com.avereon.xenon.resource.ResourceListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.ToolParameters;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.workarea.Workpane;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -67,7 +67,7 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void resourceReady( ToolParameters parameters ) throws ToolException {
+	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 
 		getResource().addResourceListener( resourceWatcher );

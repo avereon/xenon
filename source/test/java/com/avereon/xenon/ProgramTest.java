@@ -7,8 +7,8 @@ public interface ProgramTest {
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
-		values.add( ProgramFlag.EXECMODE );
-		values.add( ExecMode.TEST.name().toLowerCase() );
+		values.add( ProgramFlag.PROFILE );
+		values.add( Profile.TEST );
 		values.add( ProgramFlag.LOG_LEVEL );
 		values.add( "none" );
 		return values.toArray( new String[ 0 ] );

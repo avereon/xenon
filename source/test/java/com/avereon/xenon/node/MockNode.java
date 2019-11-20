@@ -1,6 +1,6 @@
 package com.avereon.xenon.node;
 
-public class MockNode extends Node {
+class MockNode extends Node {
 
 	MockNode() {
 		this( null );

@@ -1,14 +1,14 @@
 package com.avereon.xenon.node;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-public class NodeEventTest {
+class NodeEventTest {
 
 	@Test
-	public void testEquals() {
+	void testEquals() {
 		Node node = new MockNode();
 		NodeEvent event1 = new NodeEvent( node, NodeEvent.Type.NODE_CHANGED );
 		NodeEvent event2 = new NodeEvent( node, NodeEvent.Type.NODE_CHANGED );
@@ -18,8 +18,8 @@ public class NodeEventTest {
 
 		NodeEvent event3 = new NodeEvent( node, NodeEvent.Type.VALUE_CHANGED, "a", null, "1" );
 		NodeEvent event4 = new NodeEvent( node, NodeEvent.Type.VALUE_CHANGED, "a", "1", "5" );
-		assertThat( event3.equals( event4 ), is( true ));
-		assertThat( event4.equals( event3 ), is( true ));
+		assertThat( event3.equals( event4 ), is( true ) );
+		assertThat( event4.equals( event3 ), is( true ) );
 	}
 
 }
