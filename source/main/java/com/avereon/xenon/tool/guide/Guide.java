@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 public class Guide {
 
+	// Use this to find all the places it is used
+	@Deprecated
 	public static final String GUIDE_KEY = GuideTool.class.getName() + ":guide";
 
 	private TreeItem<GuideNode> root;

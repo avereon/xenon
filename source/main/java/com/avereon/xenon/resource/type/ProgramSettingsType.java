@@ -43,6 +43,7 @@ public class ProgramSettingsType extends ResourceType {
 	@Override
 	public boolean resourceDefault( Program program, Resource resource ) throws ResourceException {
 		resource.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		// NEXT Move guide to the SettingsTool
 		resource.putResource( Guide.GUIDE_KEY, new Guide());
 		return true;
 	}

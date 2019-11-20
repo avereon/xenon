@@ -42,6 +42,12 @@ public class ProgramAboutType extends ResourceType {
 		return true;
 	}
 
+	/**
+	 * @deprecated This will move to the AboutTool
+	 * @param program
+	 * @param resource
+	 */
+	@Deprecated
 	private void updateGuide( Program program, Resource resource ) {
 		Guide guide = resource.getResource( Guide.GUIDE_KEY );
 		if( guide != null ) return;

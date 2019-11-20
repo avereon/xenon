@@ -50,6 +50,12 @@ public class ProgramProductType extends ResourceType {
 		return null;
 	}
 
+	/**
+	 * @deprecated This will move to the ProductTool
+	 * @param program
+	 * @param resource
+	 */
+	@Deprecated
 	private void createGuide( Program program, Resource resource ) {
 		Guide guide = resource.getResource( Guide.GUIDE_KEY );
 		if( guide != null ) return;
