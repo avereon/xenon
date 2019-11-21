@@ -416,10 +416,10 @@ public class Program extends Application implements ProgramProduct {
 		Thread.sleep( 500 );
 
 		Platform.runLater( () -> {
-
-			getWorkspaceManager().getActiveStage().show();
-			getWorkspaceManager().getActiveStage().toFront();
-
+			if( !parameters.isSet( ProgramFlag.DAEMON )) {
+				getWorkspaceManager().getActiveStage().show();
+				getWorkspaceManager().getActiveStage().toFront();
+			}
 			splashScreen.hide();
 			time( "splash hidden" );
 		} );
