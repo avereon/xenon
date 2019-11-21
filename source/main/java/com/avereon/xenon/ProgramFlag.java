@@ -7,12 +7,10 @@ import java.util.Set;
 public interface ProgramFlag extends LogFlag {
 
 	/**
-	 * Specify the execution profile. Special values are 'dev' and 'test'.
-	 * Developers can use the 'dev' value to run the program as a different
-	 * instance than their production instance. The 'test' value is used during
-	 * unit and integration tests.
+	 * Start the program without showing the workspaces. Combine this with the
+	 * NOSPLASH flag to start the program "in the background".
 	 */
-	String PROFILE = "--profile";
+	String DAEMON = "--daemon";
 
 	/**
 	 * Send greeting to already running instance.
@@ -30,9 +28,23 @@ public interface ProgramFlag extends LogFlag {
 	String HOME = "--home";
 
 	/**
+	 * Don't show the splash screen at startup. Useful in combination with the
+	 * DAEMON flag.
+	 */
+	String NOSPLASH = "--nosplash";
+
+	/**
 	 * Explicitly turn off automated updates.
 	 */
 	String NOUPDATE = "--noupdate";
+
+	/**
+	 * Specify the execution profile. Special values are 'dev' and 'test'.
+	 * Developers can use the 'dev' value to run the program as a different
+	 * instance than their production instance. The 'test' value is used during
+	 * unit and integration tests.
+	 */
+	String PROFILE = "--profile";
 
 	/**
 	 * Print the status information and exit.
