@@ -43,13 +43,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
@@ -271,7 +273,8 @@ public class Program extends Application implements ProgramProduct {
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
-		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
+		splashScreen = new SplashScreenPane( card.getName() );
+		if( !parameters.isSet( ProgramFlag.NOSPLASH ) ) splashScreen.show( stage );
 		time( "splash-displayed" );
 
 		// Submit the startup task
