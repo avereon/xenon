@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.about;
 
+import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
@@ -7,6 +8,7 @@ import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
@@ -17,6 +19,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import org.slf4j.Logger;
@@ -55,6 +58,8 @@ public class AboutTool extends GuidedTool {
 	private BorderPane detailsPane;
 
 	private TextArea detailsText;
+
+	private Guide guide;
 
 	public AboutTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
@@ -148,6 +153,39 @@ public class AboutTool extends GuidedTool {
 		summaryPane.update( metadata );
 		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+	}
+
+	@Override
+	protected Guide getGuide() {
+		if( guide != null ) return guide;
+
+		ProductBundle rb = getProduct().getResourceBundle();
+		Guide guide = new Guide();
+		guide.getRoot().getChildren().clear();
+
+		GuideNode summaryNode = new GuideNode();
+		summaryNode.setId( AboutTool.SUMMARY );
+		summaryNode.setName( rb.getString( "tool", "about-summary" ) );
+		summaryNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( getProgram(), summaryNode ) );
+
+		GuideNode detailsNode = new GuideNode();
+		detailsNode.setId( AboutTool.DETAILS );
+		detailsNode.setName( rb.getString( "tool", "about-details" ) );
+		detailsNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( getProgram(), detailsNode ) );
+
+		GuideNode productsNode = new GuideNode();
+		productsNode.setId( AboutTool.MODS );
+		productsNode.setName( rb.getString( "tool", "about-mods" ) );
+		productsNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( getProgram(), productsNode ) );
+
+		return this.guide = guide;
+	}
+
+	private TreeItem<GuideNode> createGuideNode( Program program, GuideNode node ) {
+		return new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
 	}
 
 	private class SummaryPane extends MigPane {

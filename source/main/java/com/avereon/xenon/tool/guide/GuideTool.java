@@ -77,6 +77,7 @@ public class GuideTool extends ProgramTool {
 		// Disconnect from the resource guide
 	}
 
+	// FIXME This may not be the best way to change the guide
 	private void switchGuide( WorkpaneEvent event ) {
 		if( !(event instanceof WorkpaneToolEvent) ) return;
 
