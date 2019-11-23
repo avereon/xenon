@@ -28,7 +28,7 @@ sha1sum "$HOME/.ssh/id_rsa"
 sha1sum "$HOME/.ssh/id_rsa.pub"
 sha1sum "$HOME/.ssh/known_hosts"
 
-JAVADOC="/opt/avn/web/client/static/product/xenon/javadoc"
+JAVADOC="/opt/avn/web/product/xenon/javadoc"
 scp -B target/xenon-*-javadoc.jar travis@avereon.com:$DEPLOY_PATH/javadoc.jar 2>&1
 if [ $? -ne 0 ]; then exit 1; fi
 ssh -t travis@avereon.com "mkdir -p $JAVADOC;rm -rf $JAVADOC/*;unzip -o $DEPLOY_PATH/javadoc.jar -d $JAVADOC"
