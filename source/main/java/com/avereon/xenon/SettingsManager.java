@@ -17,6 +17,7 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
+import com.avereon.xenon.tool.settings.SettingsTool;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
@@ -113,7 +114,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public SettingsPage getSettingsPage( String id ) {
-		return allSettingsPages.get( id );
+		return allSettingsPages.getOrDefault( id, allSettingsPages.get( SettingsTool.GENERAL ) );
 	}
 
 	public Guide getSettingsGuide() {

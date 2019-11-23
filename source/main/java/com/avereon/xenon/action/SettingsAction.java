@@ -2,13 +2,13 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramSettingsType;
+import com.avereon.xenon.tool.settings.SettingsTool;
 import javafx.event.ActionEvent;
 
-public class SettingsAction extends Action {
+import java.net.URI;
 
-	private Resource resource;
+public class SettingsAction extends Action {
 
 	public SettingsAction( Program program ) {
 		super( program );
@@ -21,7 +21,8 @@ public class SettingsAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getResourceManager().open( ProgramSettingsType.URI );
+		URI uri = URI.create( ProgramSettingsType.URI + "#" + SettingsTool.GENERAL );
+		getProgram().getResourceManager().open( uri );
 	}
 
 }

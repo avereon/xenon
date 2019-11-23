@@ -34,10 +34,6 @@ public class SettingsTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Settings tool allocate" );
 		super.allocate();
-
-		// FIXME Deprecated
-		//Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, GENERAL ).split( "," )[ 0 ] ) );
-		// TODO Eventually use getGuide().setSelectedIds( selected );
 	}
 
 	@Override
@@ -74,12 +70,9 @@ public class SettingsTool extends GuidedTool {
 	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		log.debug( "Settings tool resource ready" );
 		super.resourceReady( parameters );
-		resourceRefreshed();
-	}
 
-	@Override
-	public void resourceRefreshed() throws ToolException {
-		super.resourceRefreshed();
+		String selected = parameters.getFragment();
+		if( selected != null ) selectPage( selected );
 	}
 
 	@Override
@@ -93,13 +86,10 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void selectPage( String id ) {
-		if( id == null ) return;
 		selectPage( getProgram().getSettingsManager().getSettingsPage( id ) );
 	}
 
 	private void selectPage( SettingsPage page ) {
-		if( page == null ) return;
-
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );

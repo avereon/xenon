@@ -30,6 +30,8 @@ public class ProductTool extends GuidedTool {
 
 	public static final String SOURCES = "sources";
 
+	private static final String DEFAULT_PAGE_ID = INSTALLED;
+
 	static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	static final int ICON_SIZE = 48;
@@ -87,7 +89,6 @@ public class ProductTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		super.allocate();
 		log.debug( "Product tool allocate" );
-		//Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -101,11 +102,6 @@ public class ProductTool extends GuidedTool {
 	protected void activate() throws ToolException {
 		log.debug( "Product tool activate" );
 		super.activate();
-
-		String selected = getSettings().get( "selected", INSTALLED );
-		// TODO Be sure the guide also changes selection
-		//getGuide().setSelected( selected );
-		selectPage( selected );
 	}
 
 	@Override
@@ -132,12 +128,7 @@ public class ProductTool extends GuidedTool {
 		super.resourceReady( parameters );
 
 		String selected = parameters.getFragment();
-		if( selected == null ) selected = INSTALLED;
-
-		// Select the guide ids
-		// FIXME Deprecated
-		selectPage( selected );
-		// TODO Eventually use getGuide().setSelectedIds( selected );
+		if( selected != null ) selectPage( selected );
 	}
 
 	@Override
@@ -203,14 +194,7 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		log.warn( "Product page selected: " + pageId );
-
-		if( pageId == null || pageId.isBlank() ) return;
-
-		getSettings().set( "selected", pageId );
-
-		currentPage = pages.get( pageId );
-		if( currentPage == null ) throw new NullPointerException( "Page ID returned a null page: " + pageId );
+		currentPage = pages.getOrDefault( pageId, pages.get( DEFAULT_PAGE_ID ) );
 
 		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );

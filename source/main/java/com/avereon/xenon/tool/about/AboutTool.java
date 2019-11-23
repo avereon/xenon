@@ -137,7 +137,9 @@ public class AboutTool extends GuidedTool {
 	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		resourceRefreshed();
-		selectPage( SUMMARY );
+
+		String selected = parameters.getFragment();
+		if( selected != null ) selectPage( selected );
 	}
 
 	@Override
