@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.type.ProgramProductType;
 import javafx.scene.control.Button;
 
 class InstalledPage extends ProductPage {
@@ -9,7 +8,7 @@ class InstalledPage extends ProductPage {
 	private ProductTool productTool;
 
 	InstalledPage( Program program, ProductTool productTool ) {
-		super( program, productTool, ProgramProductType.INSTALLED );
+		super( program, productTool, ProductTool.INSTALLED );
 		this.productTool = productTool;
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );

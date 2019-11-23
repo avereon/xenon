@@ -35,6 +35,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Program program;
 
+	private Guide guide;
+
 	private StoredSettings settings;
 
 	private SettingsListener settingsWatcher;
@@ -45,6 +47,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public SettingsManager( Program program ) {
 		this.program = program;
+		this.guide = new Guide();
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
@@ -113,6 +116,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return allSettingsPages.get( id );
 	}
 
+	public Guide getSettingsGuide() {
+		return guide;
+	}
+
 	private void updateSettingsGuide() {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( rootSettingsPages );
 
@@ -120,11 +127,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		try {
 			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 			program.getResourceManager().openResourcesAndWait( settingsResource );
-
-			// Get the resource guide
-			Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
-			if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
-
 			guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 			// Create the guide tree

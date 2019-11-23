@@ -603,14 +603,14 @@ public class ProductManagerLogic {
 	}
 
 	private void openProductTool() {
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 		Platform.runLater( () -> program.getResourceManager().open( uri ) );
 	}
 
 	private void notifyUserOfUpdates() {
 		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
 		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )

@@ -100,7 +100,7 @@ public class AboutTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
 		super.allocate();
-		Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
+		//Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	@Override

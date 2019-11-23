@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.xenon.OpenToolRequestParameters;
+import com.avereon.util.LogUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.resource.type.ProgramGuideType;
@@ -10,7 +10,9 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,11 +20,11 @@ import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 
 	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
-
-	private static final Guide EMPTY_GUIDE = new Guide();
 
 	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
 
@@ -42,6 +44,10 @@ public abstract class GuidedTool extends ProgramTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
+
+		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
+		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
+
 		// Set the expanded ids before setting the selected ids
 		Platform.runLater( () -> {
 			getGuide().setExpandedIds( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) );
@@ -68,16 +74,14 @@ public abstract class GuidedTool extends ProgramTool {
 		super.deallocate();
 	}
 
-	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.resourceReady( parameters );
-		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
-		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
-	}
-
+	/**
+	 * This method should be overridden by tool implementations to provide the
+	 * guide that is appropriate for the tool.
+	 *
+	 * @return The tool guide
+	 */
 	protected Guide getGuide() {
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		return guide == null ? EMPTY_GUIDE : guide;
+		return null;
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
@@ -115,10 +119,12 @@ public abstract class GuidedTool extends ProgramTool {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 
+			log.warn( "Setting selected items from GuidedTool..." );
+
 			// If old and new are different, notify
 			if( !oldNodes.equals( newNodes ) ) {
-				guideNodesSelected( oldNodes, newNodes );
 				getSettings().set( GUIDE_SELECTED_IDS, Guide.nodesToString( newNodes ) );
+				guideNodesSelected( oldNodes, newNodes );
 			}
 		}
 
