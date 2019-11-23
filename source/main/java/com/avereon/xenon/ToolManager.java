@@ -230,39 +230,13 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	@Override
 	public ToolManager start() {
-		// TODO Implement ToolManager.start()
 		return this;
 	}
-
-//	@Override
-//	public ToolManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		// TODO Implement ToolManager.awaitStart()
-//		return this;
-//	}
-//
-//	@Override
-//	public ToolManager restart() {
-//		// TODO Implement ToolManager.requestRestart()
-//		return this;
-//	}
-//
-//	@Override
-//	public ToolManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		// TODO Implement ToolManager.awaitRestart()
-//		return this;
-//	}
 
 	@Override
 	public ToolManager stop() {
-		// TODO Implement ToolManager.stop()
 		return this;
 	}
-
-//	@Override
-//	public ToolManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		// TODO Implement ToolManager.awaitStop()
-//		return this;
-//	}
 
 	// Safe to call on any thread
 	private ProgramTool getToolInstance( OpenToolRequest request ) {

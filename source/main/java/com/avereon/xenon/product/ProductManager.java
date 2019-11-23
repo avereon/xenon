@@ -245,8 +245,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					.collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
-				// TODO Notify the user there was a problem refreshing available updates
-				exception.printStackTrace();
+				program.getNoticeManager().error( "Error getting available products", exception );
 			}
 
 			return Set.of();
@@ -1092,7 +1091,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		Configuration bootConfiguration = bootLayer.configuration();
 
 		// Create the mod module layer
-		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(  ), ModuleFinder.of( source ), Set.of() );
+		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), ModuleFinder.of( source ), Set.of() );
 		ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, null );
 
 		// Load the mods

@@ -11,8 +11,6 @@ import com.avereon.util.LogUtil;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.event.SettingsLoadedEvent;
 import com.avereon.xenon.event.SettingsSavedEvent;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramSettingsType;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
@@ -126,8 +124,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		// Get the settings program resource
 		try {
-			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
-			program.getResourceManager().openResourcesAndWait( settingsResource );
 			guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 			// Create the guide tree
@@ -142,12 +138,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
 			if( "general".equals( page.getId() ) ) continue;
-
-			String title = page.getTitle();
-			String id = page.getId();
-
-			if( title == null ) log.error( "Settings page title is null: " + id );
-
 			titledKeys.put( page.getTitle(), page.getId() );
 		}
 

@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,20 +44,20 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		error( throwable.getClass().getSimpleName(), message, throwable, parameters );
 	}
 
-	public void error( String title, Object message, String... parameters ) {
+	public void error( Object title, Object message, String... parameters ) {
 		error( title, message, null, parameters );
 	}
 
-	public void error( String title, Object message, Throwable throwable, String... parameters ) {
+	public void error( Object title, Object message, Throwable throwable, String... parameters ) {
 		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.ERROR ).setBalloonStickiness( Notice.Balloon.ALWAYS ) );
 	}
 
-	public void warning( String title, Object message, String... parameters ) {
+	public void warning( Object title, Object message, String... parameters ) {
 		warning( title, message, null, parameters );
 	}
 
-	public void warning( String title, Object message, Throwable throwable, String... parameters ) {
-		addNotice( new Notice( title, String.format( String.valueOf( message ), throwable, Arrays.toString( parameters ) ) ).setType( Notice.Type.WARN ) );
+	public void warning( Object title, Object message, Throwable throwable, String... parameters ) {
+		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
