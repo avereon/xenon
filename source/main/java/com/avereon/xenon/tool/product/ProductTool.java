@@ -30,8 +30,6 @@ public class ProductTool extends GuidedTool {
 
 	public static final String SOURCES = "sources";
 
-	private static final String DEFAULT_PAGE_ID = INSTALLED;
-
 	static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	static final int ICON_SIZE = 48;
@@ -127,8 +125,7 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 
-		String selected = parameters.getFragment();
-		if( selected != null ) selectPage( selected );
+		selectPage( parameters.getFragment() );
 	}
 
 	@Override
@@ -194,7 +191,7 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		currentPage = pages.getOrDefault( pageId, pages.get( DEFAULT_PAGE_ID ) );
+		currentPage = pages.getOrDefault( pageId, pages.get( INSTALLED ) );
 
 		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );
