@@ -592,6 +592,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	private void selectPage( String item ) {
+		if( item == null ) return;
 		getChildren().clear();
 		getChildren().add( pages.getOrDefault( item, pages.get( SUMMARY ) ) );
 	}

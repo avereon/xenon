@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,8 +51,8 @@ public abstract class GuidedTool extends ProgramTool {
 
 		// Set the expanded ids before setting the selected ids
 		Platform.runLater( () -> {
-			getGuide().setExpandedIds( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) );
-			getGuide().setSelectedIds( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) );
+			getGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
+			getGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
 	}
 
@@ -92,9 +93,7 @@ public abstract class GuidedTool extends ProgramTool {
 
 		@Override
 		public void changed(
-			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable,
-			Set<TreeItem<GuideNode>> oldValue,
-			Set<TreeItem<GuideNode>> newValue
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue
 		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
@@ -112,9 +111,7 @@ public abstract class GuidedTool extends ProgramTool {
 
 		@Override
 		public void changed(
-			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable,
-			Set<TreeItem<GuideNode>> oldValue,
-			Set<TreeItem<GuideNode>> newValue
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue
 		) {
 			Set<GuideNode> oldNodes = oldValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );
 			Set<GuideNode> newNodes = newValue.stream().map( TreeItem::getValue ).collect( Collectors.toSet() );

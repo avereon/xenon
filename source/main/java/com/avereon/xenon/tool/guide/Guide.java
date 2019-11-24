@@ -73,12 +73,11 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setExpandedIds( String... ids ) {
+	final void setExpandedIds( Set<String> ids ) {
 		FxUtil.checkFxUserThread();
-		Set<String> idSet = Set.of( ids );
 		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
 			if( item == root ) continue;
-			item.setExpanded( idSet.contains( item.getValue().getId() ) );
+			item.setExpanded( ids.contains( item.getValue().getId() ) );
 		}
 	}
 
@@ -106,11 +105,11 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setSelectedIds( String... ids ) {
+	final void setSelectedIds( Set<String> ids ) {
 		FxUtil.checkFxUserThread();
 		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
 
-		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.length );
+		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.size() );
 		for( String id : ids ) {
 			TreeItem<GuideNode> item = itemMap.get( id );
 			if( item != null ) newItems.add( item );
