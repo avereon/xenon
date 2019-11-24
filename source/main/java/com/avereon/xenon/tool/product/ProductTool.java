@@ -52,6 +52,8 @@ public class ProductTool extends GuidedTool {
 
 	private Guide guide;
 
+	private String currentPageId;
+
 	public ProductTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 
@@ -125,7 +127,11 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 
-		selectPage( parameters.getFragment() );
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = parameters.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = INSTALLED;
+		selectPage( pageId );
 	}
 
 	@Override
@@ -191,11 +197,15 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		currentPage = pages.getOrDefault( pageId, pages.get( INSTALLED ) );
+		currentPageId = pageId;
+		if( pageId == null ) return;
+
+		ProductToolPage page = pages.get( pageId );
+		if( page == null ) page = pages.get( INSTALLED );
+		currentPage = page;
 
 		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );
-
 		currentPage.updateState( false );
 	}
 

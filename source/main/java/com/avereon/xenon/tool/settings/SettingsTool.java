@@ -23,6 +23,10 @@ public class SettingsTool extends GuidedTool {
 
 	private static final String PAGE_ID = "page-id";
 
+	private SettingsPage currentPage;
+
+	private String currentPageId;
+
 	public SettingsTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-settings" );
@@ -71,8 +75,11 @@ public class SettingsTool extends GuidedTool {
 		log.debug( "Settings tool resource ready" );
 		super.resourceReady( parameters );
 
-		String selected = parameters.getFragment();
-		if( selected != null ) selectPage( selected );
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = parameters.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = GENERAL;
+		selectPage( pageId );
 	}
 
 	@Override
@@ -85,11 +92,18 @@ public class SettingsTool extends GuidedTool {
 		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
-	private void selectPage( String id ) {
-		selectPage( getProgram().getSettingsManager().getSettingsPage( id ) );
+	private void selectPage( String pageId ) {
+		currentPageId = pageId;
+		if( pageId == null ) return;
+
+		SettingsPage page = getProgram().getSettingsManager().getSettingsPage( pageId );
+		if( page == null ) page = getProgram().getSettingsManager().getSettingsPage( GENERAL );
+		currentPage = page;
+
+		setPage( getProgram().getSettingsManager().getSettingsPage( pageId ) );
 	}
 
-	private void selectPage( SettingsPage page ) {
+	private void setPage( SettingsPage page ) {
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );

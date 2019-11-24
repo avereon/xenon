@@ -61,6 +61,8 @@ public class AboutTool extends GuidedTool {
 
 	private Guide guide;
 
+	private String currentPageId;
+
 	public AboutTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-about" );
@@ -137,7 +139,11 @@ public class AboutTool extends GuidedTool {
 		super.resourceReady( parameters );
 		resourceRefreshed();
 
-		selectPage( parameters.getFragment() );
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = parameters.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = SUMMARY;
+		selectPage( pageId );
 	}
 
 	@Override
@@ -591,10 +597,15 @@ public class AboutTool extends GuidedTool {
 		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
-	private void selectPage( String item ) {
-		if( item == null ) return;
+	private void selectPage( String pageId ) {
+		currentPageId = pageId;
+		if( pageId == null ) return;
+
+		Node page = pages.get( pageId );
+		if( page == null ) page = pages.get( SUMMARY );
+
 		getChildren().clear();
-		getChildren().add( pages.getOrDefault( item, pages.get( SUMMARY ) ) );
+		getChildren().add( page );
 	}
 
 	private String getProperties( Properties properties ) {
