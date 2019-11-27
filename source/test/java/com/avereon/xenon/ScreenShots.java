@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeoutException;
 
 public class ScreenShots implements Runnable {
 
@@ -26,6 +27,12 @@ public class ScreenShots implements Runnable {
 	private Program program;
 
 	private ProgramWatcher programWatcher;
+
+	private Workspace workspace;
+
+	private Workpane workpane;
+
+	private WorkpaneWatcher workpaneWatcher;
 
 	public static void main( String[] commands ) {
 		new ScreenShots().run();
@@ -36,43 +43,32 @@ public class ScreenShots implements Runnable {
 			Path screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
 
-			// Wait for startup
-			startup();
-			program.addEventListener( programWatcher = new ProgramWatcher() );
-			programWatcher.waitForEvent( ProgramStartedEvent.class );
-
-			Workspace workspace = program.getWorkspaceManager().getActiveWorkspace();
-			Workpane workpane = workspace.getActiveWorkarea().getWorkpane();
-			WorkpaneWatcher workpaneWatcher = new WorkpaneWatcher();
-			workpane.addWorkpaneListener( workpaneWatcher );
-
-			// Snapshot the welcome tool
-			workspace.snapshot( screenshots.resolve( "welcome-tool.png" ) );
-			Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
-			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-
-			// Snapshot the default workarea
-			workspace.snapshot( screenshots.resolve( "default-workarea.png" ) );
-
-			// Snapshot the about tool
-			program.getResourceManager().open( ProgramAboutType.URI );
-			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-			workspace.snapshot( screenshots.resolve( "about-tool.png" ) );
-			Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );
-			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-
-			// Snapshot the settings tool
-			program.getResourceManager().open( ProgramSettingsType.URI );
-			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-			workspace.snapshot( screenshots.resolve( "settings-tool.png" ) );
-			Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
-			workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
-
+			setup();
+			snapshotWelcomeTool( screenshots );
+			snapshotDefaultWorkarea( screenshots );
+			snapshotAboutTool( screenshots );
+			snapshotSettingsTool( screenshots );
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
 		} finally {
 			Platform.runLater( this::shutdown );
 		}
+	}
+
+	private void snapshotSettingsTool( Path screenshots ) throws InterruptedException, TimeoutException {
+		program.getResourceManager().open( ProgramSettingsType.URI );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workspace.snapshot( screenshots.resolve( "settings-tool.png" ) );
+		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+	}
+
+	private void snapshotAboutTool( Path screenshots ) throws InterruptedException, TimeoutException {
+		program.getResourceManager().open( ProgramAboutType.URI );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workspace.snapshot( screenshots.resolve( "about-tool.png" ) );
+		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
 	}
 
 	private void startup() {
@@ -90,9 +86,29 @@ public class ScreenShots implements Runnable {
 					exception.printStackTrace( System.err );
 				}
 			} );
+			program.addEventListener( programWatcher = new ProgramWatcher() );
+			programWatcher.waitForEvent( ProgramStartedEvent.class );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
+	}
+
+	private void setup() {
+		startup();
+		workspace = program.getWorkspaceManager().getActiveWorkspace();
+		workpane = workspace.getActiveWorkarea().getWorkpane();
+		workpaneWatcher = new WorkpaneWatcher();
+		workpane.addWorkpaneListener( workpaneWatcher );
+	}
+
+	private void snapshotWelcomeTool( Path screenshots ) throws InterruptedException, TimeoutException {
+		workspace.snapshot( screenshots.resolve( "welcome-tool.png" ) );
+		Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
+		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+	}
+
+	private void snapshotDefaultWorkarea( Path screenshots ) {
+		workspace.snapshot( screenshots.resolve( "default-workarea.png" ) );
 	}
 
 	private void shutdown() {
