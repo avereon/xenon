@@ -1,22 +1,52 @@
 <div>
 
-	<h1>Mod Development</h1>
+	<h1 id="mod-development">Mod Development</h1>
+	<p>2019-11-28</p>
 
-	<h2>Project Setup</h2>
 	<p>
-		To start a new mod project it is recommended that you use Maven, or Maven
-		compatible tools like Gradle, to configure the new mod project using an
-		existing parent pom to jump start the process. It is possible to set up a
-		mod project without using the parent pom but you would have to handle the
-		configuration on your own.
+		This document is step-by-step instruction to create a Xenon mod. These
+		instructions attempt to be both a tutorial and a reference. If you are
+		starting a new mod project we recommend following the instructions in
+		order. If you are returning for reference please use the index for the
+		topic you need.
 	</p>
-	<pre className="code">
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+	<p>
+		A reference project, <a href="https://github.com/avereon/mazer">Mazer</a>,
+		is also available to provide a working reference of a Xenon mod. As you work
+		through these instructions, feel free to review this project for
+		information.
+	</p>
+
+	<h2 id="requirements">Requirements</h2>
+	<p>
+		Xenon requires Java 11 or higher and usually adopts LTS Java versions as
+		they are released. Xenon also takes advantage of the Java module system and
+		therefore you mod will also need to be a Java module.
+	</p>
+
+	<h2 id="project-setup">Project Setup</h2>
+	<p>
+		To start a new mod project we recommend that you use Maven, or a Maven
+		compatible tool like Gradle, to configure the new mod project using an
+		existing parent pom to jump start the process. It is possible to set up a
+		mod project without using the parent pom but you would have to handle
+		quite a bit of configuration on your own.
+	</p>
+
+	<h3 id="maven-configuration">Maven Configuration</h3>
+
+	<p>
+		Start with an empty folder for your project and create a new pom.xml file.
+		Use the template below as the initial content for the pom.xml file and set
+		your own groupId, artifactId and version:
+	</p>
+
+	<pre className="code">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 
 &lt;project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
 &gt;
 
   &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
@@ -27,8 +57,12 @@
     &lt;version&gt;3.0.0-SNAPSHOT&lt;/version&gt;
   &lt;/parent&gt;
 
-  &lt;!-- Describe your mod here --&gt;
+  &lt;groupId&gt;[your.group.id]&lt;/groupId&gt;
+  &lt;artifactId&gt;[your.artifact.id]&lt;/artifactId&gt;
+  &lt;version&gt;[your.version]&lt;/version&gt;
+  &lt;packaging&gt;jar&lt;/packaging&gt;
 
+  &lt;-- The Avereon Maven repository --&gt;
   &lt;repositories&gt;
     &lt;repository&gt;
       &lt;id&gt;avn&lt;/id&gt;
@@ -36,7 +70,22 @@
     &lt;/repository&gt;
   &lt;/repositories&gt;
 
-&lt;/project&gt;
-	</pre>
+&lt;/project&gt;</pre>
+
+	<p>
+		At the same time you should create the source/main/java folders so that the
+		project layout looks like this. Note that the source folder is different
+		than the standard Maven src folder. This is the only departure from the
+		<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.:
+	</p>
+
+	<pre className="code">pom.xml
+source/main/java</pre>
+
+	<p>
+		At this point you should be able to use Maven to run an initial build even
+		though there isn't much to do. It will at least give you the chance to test
+		that your configuration is correct.
+	</p>
 
 </div>
