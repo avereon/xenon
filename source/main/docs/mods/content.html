@@ -10,30 +10,33 @@
 		mod project without using the parent pom but you would have to handle the
 		configuration on your own.
 	</p>
-	<pre>
-		<?xml version="1.0" encoding="UTF-8"?>
+	<pre className="code">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 
-		<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+&lt;project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+&gt;
 
-			<modelVersion>4.0.0</modelVersion>
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
 
-			<parent>
-				<groupId>com.avereon.pom</groupId>
-				<artifactId>mod</artifactId>
-				<version>3.0.0-SNAPSHOT</version>
-			</parent>
+  &lt;parent&gt;
+    &lt;groupId&gt;com.avereon.pom&lt;/groupId&gt;
+    &lt;artifactId&gt;mod&lt;/artifactId&gt;
+    &lt;version&gt;3.0.0-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
 
-			<!-- Describe your mod here -->
+  &lt;!-- Describe your mod here --&gt;
 
-			<repositories>
-				<repository>
-					<id>avn</id>
-					<url>https://repo.avereon.com/avn</url>
-				</repository>
-			</repositories>
+  &lt;repositories&gt;
+    &lt;repository&gt;
+      &lt;id&gt;avn&lt;/id&gt;
+      &lt;url&gt;https://repo.avereon.com/avn&lt;/url&gt;
+    &lt;/repository&gt;
+  &lt;/repositories&gt;
 
-		</project>
-
+&lt;/project&gt;
 	</pre>
 
 </div>
