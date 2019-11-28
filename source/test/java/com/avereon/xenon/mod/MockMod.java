@@ -27,7 +27,7 @@ public class MockMod extends Mod {
 	}
 
 	@Override
-	public ProductBundle getResourceBundle() {
+	public ProductBundle rb() {
 		return null;
 	}
 

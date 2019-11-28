@@ -141,9 +141,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 			program.requestExit( false );
 		} else {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( program.getResourceBundle().getString( "workspace", "workspace.close.title" ) );
-			alert.setHeaderText( program.getResourceBundle().getString( "workspace", "workspace.close.message" ) );
-			alert.setContentText( program.getResourceBundle().getString( "workspace", "workspace.close.prompt" ) );
+			alert.setTitle( program.rb().text( "workspace", "workspace.close.title" ) );
+			alert.setHeaderText( program.rb().text( "workspace", "workspace.close.message" ) );
+			alert.setContentText( program.rb().text( "workspace", "workspace.close.prompt" ) );
 			alert.initOwner( workspace.getStage() );
 
 			Stage stage = program.getWorkspaceManager().getActiveStage();

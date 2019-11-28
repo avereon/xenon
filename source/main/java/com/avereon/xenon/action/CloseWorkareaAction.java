@@ -28,9 +28,9 @@ public class CloseWorkareaAction extends Action {
 		Workarea workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
-		alert.setTitle( program.getResourceBundle().getString( "workarea", "workarea.close.title" ) );
-		alert.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.close.message" ) );
-		alert.setContentText( program.getResourceBundle().getString( "workarea", "workarea.close.prompt", workarea.getName() ) );
+		alert.setTitle( program.rb().text( "workarea", "workarea.close.title" ) );
+		alert.setHeaderText( program.rb().text( "workarea", "workarea.close.message" ) );
+		alert.setContentText( program.rb().text( "workarea", "workarea.close.prompt", workarea.getName() ) );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );

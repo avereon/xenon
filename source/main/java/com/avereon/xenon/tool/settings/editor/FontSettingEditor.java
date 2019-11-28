@@ -31,7 +31,7 @@ public class FontSettingEditor extends SettingEditor {
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key, "SansSerif|12" );
 
-		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
+		label = new Label( product.rb().text( "settings", rbKey ) );
 
 		button = new Button();
 		button.setMaxWidth( Double.MAX_VALUE );

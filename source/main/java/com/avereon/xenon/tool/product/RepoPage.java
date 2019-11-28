@@ -23,7 +23,7 @@ class RepoPage extends ProductToolPage {
 	RepoPage( Program program, ProductTool productTool ) {
 		this.program = program;
 		this.productTool = productTool;
-		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + ProductTool.SOURCES ) );
+		setTitle( program.rb().text( BundleKey.TOOL, "product-" + ProductTool.SOURCES ) );
 
 		Button addButton = new Button( "", program.getIconLibrary().getIcon( "add" ) );
 		addButton.setOnMousePressed( ( e ) -> newRepo() );

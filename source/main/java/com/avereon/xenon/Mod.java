@@ -55,7 +55,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	@Override
-	public ProductBundle getResourceBundle() {
+	public ProductBundle rb() {
 		if( resourceBundle == null ) resourceBundle = new ProductBundle( getClass() );
 		return resourceBundle;
 	}

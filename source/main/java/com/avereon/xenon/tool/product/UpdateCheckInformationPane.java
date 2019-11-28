@@ -25,8 +25,8 @@ class UpdateCheckInformationPane extends HBox implements SettingsListener {
 
 	UpdateCheckInformationPane( Program program ) {
 		this.program = program;
-		Label lastUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" ) );
-		Label nextUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" ) );
+		Label lastUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-last" ) );
+		Label nextUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-next" ) );
 		lastUpdateCheckLabel.setId( "product-update-check-last-prompt" );
 		nextUpdateCheckLabel.setId( "product-update-check-next-prompt" );
 		lastUpdateCheckLabel.getStyleClass().add( "prompt" );
@@ -52,8 +52,8 @@ class UpdateCheckInformationPane extends HBox implements SettingsListener {
 		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
-		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
-		String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+		String unknown = program.rb().text( BundleKey.UPDATE, "unknown" );
+		String notScheduled = program.rb().text( BundleKey.UPDATE, "not-scheduled" );
 		String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 		String nextUpdateCheckText = nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT, TimeZone.getDefault() );
 

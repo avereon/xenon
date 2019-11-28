@@ -40,7 +40,7 @@ public class TaskTool extends ProgramTool {
 
 		setId( "tool-task" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "task" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "task-name" ) );
+		setTitle( product.rb().text( "tool", "task-name" ) );
 
 		tasks = new ConcurrentHashMap<>();
 		taskWatcher = new TaskWatcher();

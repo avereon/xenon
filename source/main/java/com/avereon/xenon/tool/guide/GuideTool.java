@@ -40,7 +40,7 @@ public class GuideTool extends ProgramTool {
 		super( product, resource );
 		setId( "tool-guide" );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
+		setTitle( product.rb().text( "tool", "guide-name" ) );
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
 		getChildren().add( guideTree );

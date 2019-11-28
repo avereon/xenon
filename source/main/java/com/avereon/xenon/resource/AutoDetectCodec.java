@@ -22,7 +22,7 @@ public class AutoDetectCodec extends Codec {
 
 	@Override
 	public String getName() {
-		return product.getResourceBundle().getString( "labels", "auto.detect" );
+		return product.rb().text( "labels", "auto.detect" );
 	}
 
 	@Override

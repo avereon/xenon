@@ -61,7 +61,7 @@ public class ProductTool extends GuidedTool {
 
 		setId( "tool-product" );
 		setGraphic( program.getIconLibrary().getIcon( "product" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "product-name" ) );
+		setTitle( product.rb().text( "tool", "product-name" ) );
 
 		installedPage = new InstalledPage( program, this );
 		availablePage = new AvailablePage( program, this );
@@ -146,26 +146,26 @@ public class ProductTool extends GuidedTool {
 
 		Guide guide = new Guide();
 		IconLibrary library = getProgram().getIconLibrary();
-		ProductBundle rb = getProduct().getResourceBundle();
+		ProductBundle rb = getProduct().rb();
 
 		GuideNode installed = new GuideNode();
 		installed.setId( INSTALLED );
-		installed.setName( rb.getString( "tool", "product-installed" ) );
+		installed.setName( rb.text( "tool", "product-installed" ) );
 		guide.getRoot().getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
 
 		GuideNode available = new GuideNode();
 		available.setId( AVAILABLE );
-		available.setName( rb.getString( "tool", "product-available" ) );
+		available.setName( rb.text( "tool", "product-available" ) );
 		guide.getRoot().getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
 
 		GuideNode updates = new GuideNode();
 		updates.setId( UPDATES );
-		updates.setName( rb.getString( "tool", "product-updates" ) );
+		updates.setName( rb.text( "tool", "product-updates" ) );
 		guide.getRoot().getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
 
 		GuideNode sources = new GuideNode();
 		sources.setId( SOURCES );
-		sources.setName( rb.getString( "tool", "product-sources" ) );
+		sources.setName( rb.text( "tool", "product-sources" ) );
 		guide.getRoot().getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
 
 		return this.guide = guide;

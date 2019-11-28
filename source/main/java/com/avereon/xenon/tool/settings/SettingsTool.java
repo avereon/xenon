@@ -31,7 +31,7 @@ public class SettingsTool extends GuidedTool {
 		super( product, resource );
 		setId( "tool-settings" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "settings-name" ) );
+		setTitle( product.rb().text( "tool", "settings-name" ) );
 	}
 
 	@Override
