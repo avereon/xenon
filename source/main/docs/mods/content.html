@@ -1,0 +1,39 @@
+<div>
+
+	<h1>Mod Development</h1>
+
+	<h2>Project Setup</h2>
+	<p>
+		To start a new mod project it is recommended that you use Maven, or Maven
+		compatible tools like Gradle, to configure the new mod project using an
+		existing parent pom to jump start the process. It is possible to set up a
+		mod project without using the parent pom but you would have to handle the
+		configuration on your own.
+	</p>
+	<pre>
+		<?xml version="1.0" encoding="UTF-8"?>
+
+		<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+			<modelVersion>4.0.0</modelVersion>
+
+			<parent>
+				<groupId>com.avereon.pom</groupId>
+				<artifactId>mod</artifactId>
+				<version>3.0.0-SNAPSHOT</version>
+			</parent>
+
+			<!-- Describe your mod here -->
+
+			<repositories>
+				<repository>
+					<id>avn</id>
+					<url>https://repo.avereon.com/avn</url>
+				</repository>
+			</repositories>
+
+		</project>
+
+	</pre>
+
+</div>
