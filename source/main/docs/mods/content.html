@@ -17,14 +17,16 @@
 		information.
 	</p>
 
-	<h2 id="requirements">Requirements</h2>
+	<h2 id="getting-started">Getting Started</h2>
+
+	<h3 id="requirements">Requirements</h3>
 	<p>
 		Xenon requires Java 11 or higher and usually adopts LTS Java versions as
 		they are released. Xenon also takes advantage of the Java module system and
 		therefore you mod will also need to be a Java module.
 	</p>
 
-	<h2 id="project-setup">Project Setup</h2>
+	<h3 id="project-setup">Project Setup</h3>
 	<p>
 		To start a new mod project we recommend that you use Maven, or a Maven
 		compatible tool like Gradle, to configure the new mod project using an
@@ -73,9 +75,9 @@
 &lt;/project&gt;</pre>
 
 	<p>
-		At the same time you should create the source/main/java folders so that the
-		project layout looks like this. Note that the source folder is different
-		than the standard Maven src folder. This is the only departure from the
+		At the same time you can create the source/main/java folders so that the
+		project layout looks like this. Note that the 'source' folder is different
+		than the standard Maven 'src' folder. This is the only departure from the
 		<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.:
 	</p>
 
@@ -88,4 +90,46 @@ source/main/java</pre>
 		that your configuration is correct.
 	</p>
 
+	<h2>Building the Mod</h2>
+
+	<h3>Java Module</h3>
+	<p>
+		Create the Java module info file source/main/java/module-info.java. This
+		file defines the Java module requirements and will be updated from time to
+		time as needs arise. For now we just need the initial configuration:
+	</p>
+	<pre>module [your java module name] {
+  requires com.avereon.xenon;
+  exports [your mod class package] to com.avereon.xenon;
+  provides com.avereon.xenon.Mod with [your fully qualified mod class name];
+}</pre>
+	<p>
+		Here is an example using the Mazer project:
+	</p>
+	<pre>module com.avereon.mazer {
+  requires com.avereon.xenon;
+  exports com.avereon.mazer to com.avereon.xenon;
+  provides com.avereon.xenon.Mod with com.avereon.mazer.Mazer;
+}</pre>
+
+	<h3>Mod Implementation</h3>
+	<p>
+		Create your module class and extend the com.averon.xenon.Mod class:
+	</p>
+	<pre>module com.avereon.mazer {
+  requires com.avereon.xenon;
+  exports com.avereon.mazer to com.avereon.xenon;
+  provides com.avereon.xenon.Mod with com.avereon.mazer.Mazer;
+}</pre>
+
+	<p>
+		Here is an example using the Mazer project:
+	</p>
+	<pre>package com.avereon.mazer;
+
+import com.avereon.xenon.Mod;
+
+public class Mazer extends Mod {
+
+}</pre>
 </div>
