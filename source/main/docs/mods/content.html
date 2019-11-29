@@ -90,9 +90,9 @@ source/main/java</pre>
 		that your configuration is correct.
 	</p>
 
-	<h2>Building the Mod</h2>
+	<h2 id="implementing-the-mod">Implementing the Mod</h2>
 
-	<h3>Java Module</h3>
+	<h3 id="java-module">Java Module</h3>
 	<p>
 		Create the Java module info file source/main/java/module-info.java. This
 		file defines the Java module requirements and will be updated from time to
@@ -112,7 +112,7 @@ source/main/java</pre>
   provides com.avereon.xenon.Mod with com.avereon.mazer.Mazer;
 }</pre>
 
-	<h3>Mod Implementation</h3>
+	<h3 id="mod-class">Mod Class</h3>
 	<p>
 		Create your module class and extend the com.averon.xenon.Mod class:
 	</p>
@@ -132,4 +132,55 @@ import com.avereon.xenon.Mod;
 public class Mazer extends Mod {
 
 }</pre>
+
+	<h3>Module Card</h3>
+	<p>
+		Mods use a small file, called a product card, as a descriptor. Create a new
+		JSON text file, source/main/resources/META-INF/product.card, with the
+		following content. All the values surrounded by ${...} are replaced by
+		Maven at build time. You can update the other values as desired:
+	</p>
+	<pre>{
+  "group": "${project.groupId}",
+  "artifact": "${project.artifactId}",
+  "version": "${project.version}",
+  "timestamp": "${project.timestamp}",
+  "packaging": "mod",
+  "iconUri": "https://www.avereon.com/download/stable/avereon/provider/icon",
+  "name": "${project.name}",
+  "provider": "${project.organization.name}",
+  "providerUrl": "${project.organization.url}",
+  "inception": "${project.inceptionYear}",
+  "summary": "[project summary]",
+  "description": "${project.description}",
+  "copyrightSummary": "All rights reserved.",
+  "licenseSummary": "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",
+  "productUri": "https://www.example.com/download/product/pack",
+  "mainClass": "com.example.project.ExampleMod",
+  "javaVersion": "11",
+  "maintainers": [
+  {
+    "name": "[maintainer name]",
+    "email": "[maintainer email]",
+    "timezone": "[maintain time zone]",
+    "organization": "[provider organization]",
+    "organizationUrl": "[provider organization url]",
+    "roles": [ "Architect", "Developer" ]
+  }
+  ],
+  "contributors": []
+}</pre>
+
+	<h3 id="mod-library">Mod Library</h3>
+	<p>
+		With the product card in place there is enough implementation to build the
+		mod and try it with Xenon. Of course, this mod doesn't do much but it's a
+		start. To build the mod, use Maven with the platform-agnostic-assemblies
+		profile enabled:
+	</p>
+	<code>mvn clean package -U -P platform-agnostic-assemblies</code>
+	<p>
+		If all has gone well there is now a product.jar file in the target folder.
+		This file is your mod library.
+	</p>
 </div>
