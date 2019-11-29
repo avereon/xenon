@@ -24,6 +24,8 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.task;
 	exports com.avereon.xenon.task.chain;
 	exports com.avereon.xenon.tool;
+	exports com.avereon.xenon.tool.guide;
+	exports com.avereon.xenon.tool.settings;
 	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.util;
 	exports com.avereon.xenon.workarea;

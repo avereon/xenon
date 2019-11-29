@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
+import com.avereon.util.LogUtil;
 import com.avereon.xenon.util.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -7,13 +8,15 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+import org.slf4j.Logger;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Guide {
 
-	public static final String GUIDE_KEY = GuideTool.class.getName() + ":guide";
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private TreeItem<GuideNode> root;
 
@@ -70,12 +73,11 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setExpandedIds( String... ids ) {
+	final void setExpandedIds( Set<String> ids ) {
 		FxUtil.checkFxUserThread();
-		Set<String> idSet = Set.of( ids );
 		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
 			if( item == root ) continue;
-			item.setExpanded( idSet.contains( item.getValue().getId() ) );
+			item.setExpanded( ids.contains( item.getValue().getId() ) );
 		}
 	}
 
@@ -103,11 +105,11 @@ public class Guide {
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
-	final void setSelectedIds( String... ids ) {
+	final void setSelectedIds( Set<String> ids ) {
 		FxUtil.checkFxUserThread();
 		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
 
-		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.length );
+		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.size() );
 		for( String id : ids ) {
 			TreeItem<GuideNode> item = itemMap.get( id );
 			if( item != null ) newItems.add( item );

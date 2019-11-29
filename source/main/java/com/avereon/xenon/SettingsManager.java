@@ -11,12 +11,11 @@ import com.avereon.util.LogUtil;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.event.SettingsLoadedEvent;
 import com.avereon.xenon.event.SettingsSavedEvent;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramSettingsType;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
+import com.avereon.xenon.tool.settings.SettingsTool;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
@@ -35,6 +34,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private Program program;
 
+	private Guide guide;
+
 	private StoredSettings settings;
 
 	private SettingsListener settingsWatcher;
@@ -45,6 +46,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public SettingsManager( Program program ) {
 		this.program = program;
+		this.guide = new Guide();
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
@@ -110,7 +112,11 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	public SettingsPage getSettingsPage( String id ) {
-		return allSettingsPages.get( id );
+		return allSettingsPages.getOrDefault( id, allSettingsPages.get( SettingsTool.GENERAL ) );
+	}
+
+	public Guide getSettingsGuide() {
+		return guide;
 	}
 
 	private void updateSettingsGuide() {
@@ -118,13 +124,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		// Get the settings program resource
 		try {
-			Resource settingsResource = program.getResourceManager().createResource( ProgramSettingsType.URI );
-			program.getResourceManager().openResourcesAndWait( settingsResource );
-
-			// Get the resource guide
-			Guide guide = settingsResource.getResource( Guide.GUIDE_KEY );
-			if( guide == null ) throw new NullPointerException( "Guide is null but should not be" );
-
 			guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 			// Create the guide tree
@@ -139,12 +138,6 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
 			if( "general".equals( page.getId() ) ) continue;
-
-			String title = page.getTitle();
-			String id = page.getId();
-
-			if( title == null ) log.error( "Settings page title is null: " + id );
-
 			titledKeys.put( page.getTitle(), page.getId() );
 		}
 

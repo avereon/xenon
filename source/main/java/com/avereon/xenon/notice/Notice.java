@@ -40,10 +40,6 @@ public class Notice extends Node {
 
 	private static final String TIMESTAMP = "timestamp";
 
-	// TODO How severe/important is this message ???
-	// Is this just a range 1-N? Or are these named?
-	private static final String SEVERITY = "severity";
-
 	private static final String TYPE = "type";
 
 	private static final String BALLOON_STICKINESS = "balloon";
@@ -52,21 +48,23 @@ public class Notice extends Node {
 
 	private static final String MESSAGE = "message";
 
+	private static final String THROWABLE = "throwable";
+
 	private static final String ACTION = "action";
 
 	private static final String READ = "read";
 
 	private Object[] parameters;
 
-	public Notice( String title, Object message, Object... parameters ) {
+	public Notice( Object title, Object message, Object... parameters ) {
 		this( title, message, null, null, parameters );
 	}
 
-	public Notice( String title, Object message, Throwable throwable, Object... parameters ) {
+	public Notice( Object title, Object message, Throwable throwable, Object... parameters ) {
 		this( title, message, throwable, null, parameters );
 	}
 
-	public Notice( String title, Object message, Runnable action, Object... parameters ) {
+	public Notice( Object title, Object message, Runnable action, Object... parameters ) {
 		this( title, message, null, action, parameters );
 	}
 
@@ -79,7 +77,7 @@ public class Notice extends Node {
 	 * @param action A runnable action that will be executed when the user clicks on the notice
 	 * @param parameters Parameters to be used in the message
 	 */
-	public Notice( String title, Object message, Throwable throwable, Runnable action, Object... parameters ) {
+	public Notice( Object title, Object message, Throwable throwable, Runnable action, Object... parameters ) {
 		definePrimaryKey( ID );
 		defineNaturalKey( TITLE );
 
@@ -88,6 +86,7 @@ public class Notice extends Node {
 		setValue( TIMESTAMP, System.currentTimeMillis() );
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
+		setValue( THROWABLE, throwable );
 		setValue( ACTION, action );
 		setValue( TYPE, Type.NORM );
 		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
@@ -109,6 +108,10 @@ public class Notice extends Node {
 
 	public Object getMessage() {
 		return getValue( MESSAGE );
+	}
+
+	public Throwable getThrowable() {
+		return getValue( THROWABLE );
 	}
 
 	public Runnable getAction() {
@@ -144,9 +147,23 @@ public class Notice extends Node {
 		return this;
 	}
 
+	String getFormattedMessage() {
+		return formatMessage( getMessage(), getThrowable() );
+	}
+
 	private String formatMessage( Object message, Throwable throwable ) {
 		String string = message == null ? null : getMessageStringContent();
-		log.error( string, throwable );
+
+		switch( getType() ) {
+			case ERROR: {
+				log.error( string, throwable );
+				break;
+			}
+			case WARN: {
+				log.warn( string, throwable );
+				break;
+			}
+		}
 
 		if( string == null && throwable != null ) return throwable.getLocalizedMessage();
 		return string;

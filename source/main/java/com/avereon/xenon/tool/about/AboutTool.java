@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.about;
 
+import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
@@ -7,6 +8,7 @@ import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
@@ -17,6 +19,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import org.slf4j.Logger;
@@ -56,12 +59,16 @@ public class AboutTool extends GuidedTool {
 
 	private TextArea detailsText;
 
+	private Guide guide;
+
+	private String currentPageId;
+
 	public AboutTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-about" );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
-		setTitleSuffix( product.getResourceBundle().getString( "tool", "about-suffix" ) );
+		setTitleSuffix( product.rb().text( "tool", "about-suffix" ) );
 
 		summaryPane = new SummaryPane();
 
@@ -95,7 +102,6 @@ public class AboutTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
 		super.allocate();
-		Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, SUMMARY ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -132,7 +138,12 @@ public class AboutTool extends GuidedTool {
 	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.resourceReady( parameters );
 		resourceRefreshed();
-		selectPage( SUMMARY );
+
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = parameters.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = SUMMARY;
+		selectPage( pageId );
 	}
 
 	@Override
@@ -148,6 +159,39 @@ public class AboutTool extends GuidedTool {
 		summaryPane.update( metadata );
 		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
+	}
+
+	@Override
+	protected Guide getGuide() {
+		if( guide != null ) return guide;
+
+		ProductBundle rb = getProduct().rb();
+		Guide guide = new Guide();
+		guide.getRoot().getChildren().clear();
+
+		GuideNode summaryNode = new GuideNode();
+		summaryNode.setId( AboutTool.SUMMARY );
+		summaryNode.setName( rb.text( "tool", "about-summary" ) );
+		summaryNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( getProgram(), summaryNode ) );
+
+		GuideNode detailsNode = new GuideNode();
+		detailsNode.setId( AboutTool.DETAILS );
+		detailsNode.setName( rb.text( "tool", "about-details" ) );
+		detailsNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( getProgram(), detailsNode ) );
+
+		GuideNode productsNode = new GuideNode();
+		productsNode.setId( AboutTool.MODS );
+		productsNode.setName( rb.text( "tool", "about-mods" ) );
+		productsNode.setIcon( "about" );
+		guide.getRoot().getChildren().add( createGuideNode( getProgram(), productsNode ) );
+
+		return this.guide = guide;
+	}
+
+	private TreeItem<GuideNode> createGuideNode( Program program, GuideNode node ) {
+		return new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
 	}
 
 	private class SummaryPane extends MigPane {
@@ -189,8 +233,8 @@ public class AboutTool extends GuidedTool {
 		public SummaryPane() {
 			setId( "tool-about-summary" );
 
-			lastUpdateCheckPrompt = getProduct().getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" );
-			nextUpdateCheckPrompt = getProduct().getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" );
+			lastUpdateCheckPrompt = getProduct().rb().text( BundleKey.UPDATE, "product-update-check-last" );
+			nextUpdateCheckPrompt = getProduct().rb().text( BundleKey.UPDATE, "product-update-check-next" );
 
 			add( getProgram().getIconLibrary().getIcon( "program", ICON_SIZE ), "spany, aligny top" );
 			add( productName = makeLabel( "tool-about-title" ) );
@@ -219,7 +263,7 @@ public class AboutTool extends GuidedTool {
 		}
 
 		public void update( ProductCard card ) {
-			String from = getProgram().getResourceBundle().getString( "tool", "about-from" );
+			String from = getProgram().rb().text( "tool", "about-from" );
 			productName.setText( card.getName() );
 			if( card.getRelease().getVersion().isSnapshot() ) {
 				productVersion.setText( card.getRelease().toHumanString( TimeZone.getDefault() ) );
@@ -239,12 +283,12 @@ public class AboutTool extends GuidedTool {
 			javaProvider.setText( from + " " + System.getProperty( "java.vm.vendor" ) );
 
 			String osNameString = System.getProperty( "os.name" );
-			osLabel.setText( getProduct().getResourceBundle().getString( "tool", "about-system" ) );
+			osLabel.setText( getProduct().rb().text( "tool", "about-system" ) );
 			osName.setText( osNameString.substring( 0, 1 ).toUpperCase() + osNameString.substring( 1 ) );
 			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
-			informationLabel.setText( getProgram().getResourceBundle().getString( BundleKey.LABEL, "information" ) );
+			informationLabel.setText( getProgram().rb().text( BundleKey.LABEL, "information" ) );
 			updateUpdateCheckInfo( lastUpdateTimestamp, nextUpdateTimestamp );
 		}
 
@@ -253,8 +297,8 @@ public class AboutTool extends GuidedTool {
 			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
 			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
-			String unknown = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
-			String notScheduled = getProgram().getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+			String unknown = getProgram().rb().text( BundleKey.UPDATE, "unknown" );
+			String notScheduled = getProgram().rb().text( BundleKey.UPDATE, "not-scheduled" );
 			String lastUpdateCheckText = lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ),
 				DateUtil.DEFAULT_DATE_FORMAT,
 				TimeZone.getDefault()
@@ -498,8 +542,8 @@ public class AboutTool extends GuidedTool {
 		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
 		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
 
-		String unknown = program.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
-		String notScheduled = program.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+		String unknown = program.rb().text( BundleKey.UPDATE, "unknown" );
+		String notScheduled = program.rb().text( BundleKey.UPDATE, "not-scheduled" );
 		builder.append( "\n" );
 		builder
 			.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) )
@@ -553,9 +597,15 @@ public class AboutTool extends GuidedTool {
 		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
-	private void selectPage( String item ) {
+	private void selectPage( String pageId ) {
+		currentPageId = pageId;
+		if( pageId == null ) return;
+
+		Node page = pages.get( pageId );
+		if( page == null ) page = pages.get( SUMMARY );
+
 		getChildren().clear();
-		getChildren().add( pages.getOrDefault( item, pages.get( SUMMARY ) ) );
+		getChildren().add( page );
 	}
 
 	private String getProperties( Properties properties ) {

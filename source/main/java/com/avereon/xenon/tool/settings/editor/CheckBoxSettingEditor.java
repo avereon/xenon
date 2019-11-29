@@ -22,7 +22,7 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 		String rbKey = setting.getBundleKey();
 		boolean selected = setting.getSettings().get( key, Boolean.class, false );
 
-		String label = product.getResourceBundle().getString( "settings", rbKey );
+		String label = product.rb().text( "settings", rbKey );
 
 		checkbox = new CheckBox();
 		checkbox.setSelected( selected );

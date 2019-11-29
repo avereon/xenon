@@ -532,9 +532,9 @@ public class ResourceManager implements Controllable<ResourceManager> {
 	public void close( Resource resource ) {
 		if( resource.isModified() && canSaveResource( resource ) ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
-			alert.setTitle( program.getResourceBundle().getString( "resource", "close-save-title" ) );
-			alert.setHeaderText( program.getResourceBundle().getString( "workarea", "close-save-message" ) );
-			alert.setContentText( program.getResourceBundle().getString( "resource", "close-save-prompt" ) );
+			alert.setTitle( program.rb().text( "resource", "close-save-title" ) );
+			alert.setHeaderText( program.rb().text( "workarea", "close-save-message" ) );
+			alert.setContentText( program.rb().text( "resource", "close-save-prompt" ) );
 			alert.getButtonTypes().addAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
 
 			Stage stage = program.getWorkspaceManager().getActiveStage();
@@ -1551,8 +1551,8 @@ public class ResourceManager implements Controllable<ResourceManager> {
 					messages.append( error.toString() ).append( "\n" );
 				}
 
-				String title = program.getResourceBundle().getString( "resource", "resources" );
-				String message = program.getResourceBundle().getString( "resource", "resource.exceptions", messages.toString().trim() );
+				String title = program.rb().text( "resource", "resources" );
+				String message = program.rb().text( "resource", "resource.exceptions", messages.toString().trim() );
 				program.getNoticeManager().warning( title, message );
 
 				throw new RuntimeException( messages.toString().trim() );

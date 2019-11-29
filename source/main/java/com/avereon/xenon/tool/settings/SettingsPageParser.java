@@ -117,7 +117,7 @@ public class SettingsPageParser {
 		String icon = attributes.get( ICON );
 		if( icon == null ) icon = SETTING;
 		String title = attributes.get( TITLE );
-		if( title == null ) title = product.getResourceBundle().getString( "settings", id );
+		if( title == null ) title = product.rb().text( "settings", id );
 		if( title == null ) title = id;
 
 		SettingsPage page = new SettingsPage();
@@ -246,7 +246,7 @@ public class SettingsPageParser {
 		// Determine the option name
 		String optionName = text;
 		String nameRbKey = getBundleKey( setting.getKey() ) + "-" + key;
-		if( optionName == null ) optionName = product.getResourceBundle().getString( "settings", nameRbKey );
+		if( optionName == null ) optionName = product.rb().text( "settings", nameRbKey );
 
 		// Determine the option value
 		String optionValue = attributes.get( VALUE );

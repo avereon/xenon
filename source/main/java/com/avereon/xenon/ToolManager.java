@@ -122,8 +122,8 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Verify there is a tool to use
 		if( tool == null ) {
-			String title = program.getResourceBundle().getString( "program", "no-tool-for-resource-title" );
-			String message = program.getResourceBundle().getString( "program", "no-tool-for-resource-message", resource.getUri().toString() );
+			String title = program.rb().text( "program", "no-tool-for-resource-title" );
+			String message = program.rb().text( "program", "no-tool-for-resource-message", resource.getUri().toString() );
 			program.getNoticeManager().warning( title, message, resource.getName() );
 			return null;
 		}
@@ -230,39 +230,13 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	@Override
 	public ToolManager start() {
-		// TODO Implement ToolManager.start()
 		return this;
 	}
-
-//	@Override
-//	public ToolManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		// TODO Implement ToolManager.awaitStart()
-//		return this;
-//	}
-//
-//	@Override
-//	public ToolManager restart() {
-//		// TODO Implement ToolManager.requestRestart()
-//		return this;
-//	}
-//
-//	@Override
-//	public ToolManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		// TODO Implement ToolManager.awaitRestart()
-//		return this;
-//	}
 
 	@Override
 	public ToolManager stop() {
-		// TODO Implement ToolManager.stop()
 		return this;
 	}
-
-//	@Override
-//	public ToolManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		// TODO Implement ToolManager.awaitStop()
-//		return this;
-//	}
 
 	// Safe to call on any thread
 	private ProgramTool getToolInstance( OpenToolRequest request ) {
@@ -270,7 +244,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
-		String taskName = program.getResourceBundle().getString( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		String taskName = program.rb().text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
 			// Have to have a ProductTool to support modules
 			try {

@@ -42,7 +42,7 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key );
 
-		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
+		label = new Label( product.rb().text( "settings", rbKey ) );
 
 		switch( type ) {
 			case AREA: {

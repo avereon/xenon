@@ -51,7 +51,7 @@ public class SettingsPanel extends VBox {
 
 		// Get the title
 		String title = page.getTitle();
-		if( title == null ) title = product.getResourceBundle().getString( "settings", page.getId() );
+		if( title == null ) title = product.rb().text( "settings", page.getId() );
 
 		// Add the title label
 		Label titleLabel = new Label( title );
@@ -66,7 +66,7 @@ public class SettingsPanel extends VBox {
 
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {
-			String name = product.getResourceBundle().getString( "settings", group.getId() );
+			String name = product.rb().text( "settings", group.getId() );
 			Control pane = createGroupPane( product, page, name, group );
 			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
 			getChildren().add( pane );

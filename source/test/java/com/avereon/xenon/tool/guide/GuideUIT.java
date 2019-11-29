@@ -8,6 +8,8 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GuideUIT extends FxProgramUIT {
@@ -22,22 +24,22 @@ public class GuideUIT extends FxProgramUIT {
 
 	@Test
 	void testSetSelectedItems() throws Exception {
-		Platform.runLater( () -> guide.setSelectedIds( "general" ) );
+		Platform.runLater( () -> guide.setSelectedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
 
-		Platform.runLater( () -> guide.setSelectedIds( "workspace", "tools" ) );
+		Platform.runLater( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
 	@Test
 	void testSetExpandedItems() throws Exception {
-		Platform.runLater( () -> guide.setExpandedIds( "general" ) );
+		Platform.runLater( () -> guide.setExpandedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
 
-		Platform.runLater( () -> guide.setExpandedIds( "workspace", "tools" ) );
+		Platform.runLater( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}

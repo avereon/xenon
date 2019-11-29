@@ -5,8 +5,6 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.resource.type.ProgramProductType;
 import javafx.event.ActionEvent;
 
-import java.net.URI;
-
 public class ProductAction extends Action {
 
 	public ProductAction( Program program ) {
@@ -20,8 +18,7 @@ public class ProductAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.INSTALLED );
-		getProgram().getResourceManager().open( uri );
+		getProgram().getResourceManager().open( ProgramProductType.URI );
 	}
 
 }

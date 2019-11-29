@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
@@ -28,6 +29,8 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private ProductCard card;
 
+	private ProductBundle resourceBundle;
+
 	public Mod() {
 		try {
 			card = new ProductCard().load( this );
@@ -44,6 +47,17 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	@Override
 	public ProductCard getCard() {
 		return card;
+	}
+
+	@Override
+	public ClassLoader getClassLoader() {
+		return getClass().getClassLoader();
+	}
+
+	@Override
+	public ProductBundle rb() {
+		if( resourceBundle == null ) resourceBundle = new ProductBundle( getClass() );
+		return resourceBundle;
 	}
 
 	/**

@@ -27,7 +27,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key, "#000000ff" );
 
-		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
+		label = new Label( product.rb().text( "settings", rbKey ) );
 
 		colorPicker = new ColorPicker();
 		colorPicker.setValue( Colors.web( value ) );
