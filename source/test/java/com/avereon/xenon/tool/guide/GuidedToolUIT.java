@@ -27,9 +27,6 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		Resource resource = program.getResourceManager().createResource( ProgramSettingsType.URI );
 		this.mockGuidedTool = new MockGuidedTool( program, resource );
-		//this.mockGuidedTool.setSettings( new MapSettings() );
-		// Need to call resourceReady to register the listeners
-		this.mockGuidedTool.resourceReady( null );
 		mockGuidedTool.reset();
 	}
 
@@ -38,7 +35,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( "general" ) );
+		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 
 		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
@@ -47,11 +44,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 	@Test
 	void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() throws Exception {
 		// Assert initial state
-		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( "general" ) );
+		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( "general" ) );
+		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 	}
@@ -61,7 +58,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( "general" ) );
+		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( mockGuidedTool.getSelectedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
 	}
@@ -69,11 +66,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 	@Test
 	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
 		// Assert initial state
-		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( "general" ) );
+		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( "general" ) );
+		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
 		FxUtil.fxWait( 1000 );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}

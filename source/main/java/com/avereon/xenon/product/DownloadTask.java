@@ -47,7 +47,7 @@ public class DownloadTask extends Task<Download> {
 	}
 
 	public DownloadTask( Product product, URI uri, Path target ) {
-		super( product.getResourceBundle().getString( "prompt", "download" ) + " " + uri.toString(), Priority.LOW );
+		super( product.rb().text( "prompt", "download" ) + " " + uri.toString(), Priority.LOW );
 		this.uri = uri;
 		this.target = target;
 	}

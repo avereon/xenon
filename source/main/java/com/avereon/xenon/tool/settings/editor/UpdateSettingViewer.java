@@ -31,8 +31,8 @@ public class UpdateSettingViewer extends SettingEditor {
 	public void addComponents( GridPane pane, int row ) {
 		Program program = product.getProgram();
 
-		Label lastUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-last" ) );
-		Label nextUpdateCheckLabel = new Label( program.getResourceBundle().getString( BundleKey.UPDATE, "product-update-check-next" ) );
+		Label lastUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-last" ) );
+		Label nextUpdateCheckLabel = new Label( program.rb().text( BundleKey.UPDATE, "product-update-check-next" ) );
 		lastUpdateCheckLabel.setId( "product-update-check-last-prompt" );
 		nextUpdateCheckLabel.setId( "product-update-check-next-prompt" );
 		lastUpdateCheckLabel.getStyleClass().add( "prompt" );
@@ -77,8 +77,8 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private void updateLabels() {
 		Program program = product.getProgram();
-		String unknown = product.getResourceBundle().getString( BundleKey.UPDATE, "unknown" );
-		String notScheduled = product.getResourceBundle().getString( BundleKey.UPDATE, "not-scheduled" );
+		String unknown = product.rb().text( BundleKey.UPDATE, "unknown" );
+		String notScheduled = product.rb().text( BundleKey.UPDATE, "not-scheduled" );
 
 		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
 		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();

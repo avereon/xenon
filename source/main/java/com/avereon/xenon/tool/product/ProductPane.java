@@ -165,7 +165,7 @@ class ProductPane extends MigPane {
 		if( inProgress ) {
 			stateContainer.getChildren().add( progress );
 		} else {
-			stateLabel.setText( program.getResourceBundle().getString( BundleKey.LABEL, stateLabelKey ) );
+			stateLabel.setText( program.rb().text( BundleKey.LABEL, stateLabelKey ) );
 			stateContainer.getChildren().add( stateLabel );
 		}
 
@@ -247,9 +247,9 @@ class ProductPane extends MigPane {
 	private void requestRemoveProduct() {
 		String modName = source.getName();
 
-		String title = program.getResourceBundle().getString( BundleKey.PRODUCT, "products" );
-		String header = program.getResourceBundle().getString( BundleKey.PRODUCT, "product-remove-header", modName );
-		String message = program.getResourceBundle().getString( BundleKey.PRODUCT, "product-remove-message" );
+		String title = program.rb().text( BundleKey.PRODUCT, "products" );
+		String header = program.rb().text( BundleKey.PRODUCT, "product-remove-header", modName );
+		String message = program.rb().text( BundleKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( program.getIconLibrary().getIcon( source.getIconUri(), 64 ) );

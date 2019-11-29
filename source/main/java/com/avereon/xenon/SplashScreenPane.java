@@ -114,7 +114,7 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public void hide() {
-		getScene().getWindow().hide();
+		if( getScene() != null ) getScene().getWindow().hide();
 	}
 
 	public static void main( String[] commands ) {

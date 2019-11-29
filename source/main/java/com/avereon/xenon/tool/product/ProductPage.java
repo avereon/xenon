@@ -28,10 +28,10 @@ abstract class ProductPage extends ProductToolPage {
 	ProductPage( Program program, ProductTool productTool, String productType ) {
 		this.productTool = productTool;
 		sources = new CopyOnWriteArrayList<>();
-		setTitle( program.getResourceBundle().getString( BundleKey.TOOL, "product-" + productType ) );
+		setTitle( program.rb().text( BundleKey.TOOL, "product-" + productType ) );
 
-		this.refreshMessage = program.getResourceBundle().getString( BundleKey.TOOL, "product-" + productType +"-refresh" );
-		this.missingMessage = program.getResourceBundle().getString( BundleKey.TOOL, "product-" + productType +"-missing" );
+		this.refreshMessage = program.rb().text( BundleKey.TOOL, "product-" + productType +"-refresh" );
+		this.missingMessage = program.rb().text( BundleKey.TOOL, "product-" + productType +"-missing" );
 
 		message = new Label();
 		message.setPrefWidth( Double.MAX_VALUE );

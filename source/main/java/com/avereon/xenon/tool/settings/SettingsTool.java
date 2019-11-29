@@ -5,11 +5,10 @@ import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramSettingsType;
+import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
-import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 
@@ -18,22 +17,27 @@ import java.util.Set;
 
 public class SettingsTool extends GuidedTool {
 
+	public static final String GENERAL = "general";
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String PAGE_ID = "page-id";
+
+	private SettingsPage currentPage;
+
+	private String currentPageId;
 
 	public SettingsTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-settings" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "settings-name" ) );
+		setTitle( product.rb().text( "tool", "settings-name" ) );
 	}
 
 	@Override
 	protected void allocate() throws ToolException {
 		log.debug( "Settings tool allocate" );
 		super.allocate();
-		Platform.runLater( () -> selectPage( getSettings().get( GUIDE_SELECTED_IDS, ProgramSettingsType.GENERAL ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -70,12 +74,17 @@ public class SettingsTool extends GuidedTool {
 	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
 		log.debug( "Settings tool resource ready" );
 		super.resourceReady( parameters );
-		resourceRefreshed();
+
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = parameters.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = GENERAL;
+		selectPage( pageId );
 	}
 
 	@Override
-	public void resourceRefreshed() throws ToolException {
-		super.resourceRefreshed();
+	protected Guide getGuide() {
+		return getProgram().getSettingsManager().getSettingsGuide();
 	}
 
 	@Override
@@ -83,14 +92,18 @@ public class SettingsTool extends GuidedTool {
 		if( newNodes.size() > 0 ) selectPage( newNodes.iterator().next().getId() );
 	}
 
-	private void selectPage( String id ) {
-		if( id == null ) return;
-		selectPage( getProgram().getSettingsManager().getSettingsPage( id ) );
+	private void selectPage( String pageId ) {
+		currentPageId = pageId;
+		if( pageId == null ) return;
+
+		SettingsPage page = getProgram().getSettingsManager().getSettingsPage( pageId );
+		if( page == null ) page = getProgram().getSettingsManager().getSettingsPage( GENERAL );
+		currentPage = page;
+
+		setPage( getProgram().getSettingsManager().getSettingsPage( pageId ) );
 	}
 
-	private void selectPage( SettingsPage page ) {
-		if( page == null ) return;
-
+	private void setPage( SettingsPage page ) {
 		SettingsPanel panel = new SettingsPanel( getProduct(), page );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );

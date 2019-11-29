@@ -114,12 +114,13 @@ public class ToolPane extends Control {
 			log.debug( "DnD transfer mode: " + event.getTransferMode() );
 
 			if( event.getTransferMode() == TransferMode.MOVE ) {
-				if( droppedOnArea && sourceTool == targetView.getActiveTool() ) return;
+				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
 				sourcePane.removeTool( sourceTool );
 			} else if( event.getTransferMode() == TransferMode.COPY ) {
 				sourceTool = cloneTool( sourceTool );
 			}
 
+			log.warn( "Dropped on side :" + side );
 			if( side != null ) targetView = targetPane.split( targetView, side );
 
 			int targetViewTabCount = targetView.getTools().size();

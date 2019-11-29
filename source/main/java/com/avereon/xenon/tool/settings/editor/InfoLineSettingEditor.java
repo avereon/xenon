@@ -50,7 +50,7 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 				break;
 			}
 		}
-		text.setText( product.getResourceBundle().getString( "settings", rbKey ) );
+		text.setText( product.rb().text( "settings", rbKey ) );
 		text.setEditable( false );
 		text.setId( rbKey );
 

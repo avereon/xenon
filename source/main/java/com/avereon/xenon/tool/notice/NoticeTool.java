@@ -38,9 +38,9 @@ public class NoticeTool extends ProgramTool {
 		super( product, resource );
 		setId( "tool-notice" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "notice" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "notice-name" ) );
+		setTitle( product.rb().text( "tool", "notice-name" ) );
 
-		String clearAllText = product.getResourceBundle().getString( BundleKey.TOOL, "notice-clear-all" );
+		String clearAllText = product.rb().text( BundleKey.TOOL, "notice-clear-all" );
 		Button clearAllButton = new Button( clearAllText );
 		clearAllButton.getStyleClass().addAll( "padded" );
 		clearAllButton.setOnMouseClicked( ( event ) -> this.clearAll() );

@@ -4,7 +4,6 @@ import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.resource.Resource;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.FxUtil;
@@ -12,6 +11,7 @@ import com.avereon.xenon.workarea.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.slf4j.Logger;
@@ -23,22 +23,32 @@ public class GuideTool extends ProgramTool {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
+	private Guide guide;
+
 	private TreeView<GuideNode> guideTree;
 
-	private ActiveGuideListener activeGuideListener;
+	private ActiveToolWatcher activeToolWatcher;
 
 	private GuideTreeSelectedItemsListener selectedItemsListener;
 
 	private GuideSelectedItemsListener guideSelectedItemsListener;
 
+	//private GuideActiveListener guideActiveListener;
+
+	@SuppressWarnings( "WeakerAccess" )
 	public GuideTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 		setId( "tool-guide" );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "guide-name" ) );
+		setTitle( product.rb().text( "tool", "guide-name" ) );
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
 		getChildren().add( guideTree );
+
+		activeToolWatcher = new ActiveToolWatcher();
+		selectedItemsListener = new GuideTreeSelectedItemsListener();
+		guideSelectedItemsListener = new GuideSelectedItemsListener();
+		//guideActiveListener = new GuideActiveListener();
 	}
 
 	@Override
@@ -47,88 +57,65 @@ public class GuideTool extends ProgramTool {
 	}
 
 	@Override
-	@SuppressWarnings( "unchecked" )
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		// Connect to the resource guide
-		Guide guide = getResource().getResource( Guide.GUIDE_KEY );
-		if( guide == null ) return;
-
-		// Set guide tree root
-		TreeItem root = guide.getRoot();
-		if( root != null ) guideTree.setRoot( root );
-	}
-
-	@Override
-	protected void resourceRefreshed() {
-		// Update the guide? Or will the guide be updated by the resource?
-	}
-
-	@Override
-	protected void allocate() throws ToolException {
+	protected void allocate() {
 		// Attach to the workpane and listen for current tool changes
-		getWorkpane().addWorkpaneListener( this::switchGuide );
-
-		Tool activeTool = getWorkpane().getActiveTool();
-		if( activeTool != null ) setResourceGuide( activeTool.getResource() );
+		getWorkpane().addWorkpaneListener( activeToolWatcher );
 	}
 
 	@Override
-	protected void deallocate() throws ToolException {
+	protected void deallocate() {
 		// Disconnect from the resource guide
+		getWorkpane().removeWorkpaneListener( activeToolWatcher );
 	}
 
-	private void switchGuide( WorkpaneEvent event ) {
-		if( !(event instanceof WorkpaneToolEvent) ) return;
+	private void setGuide( Guide guide ) {
+		// Disconnect the old guide
+		if( this.guide != null ) {
+			// Remove the guide selected item property listener
+			this.guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
 
-		WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
-		switch( event.getType() ) {
-			case TOOL_ACTIVATED: {
-				log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
-				setResourceGuide( toolEvent.getTool().getResource() );
-				break;
-			}
-			case TOOL_CONCEALED: {
-				log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
-				setResourceGuide( null );
-			}
-		}
-	}
+			//			// Remove the guide active property listener
+			//			this.guide.activeProperty().removeListener( guideActiveListener );
 
-	private void setResourceGuide( Resource resource ) {
-		if( resource == null ) {
+			// Remove the tree selected items listener
+			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
+
+			// Unset the guide view selection mode
+			guideTree.getSelectionModel().setSelectionMode( SelectionMode.SINGLE );
+
+			// Unset the guide view root
 			guideTree.setRoot( null );
-			return;
 		}
 
-		Guide guide = resource.getResource( Guide.GUIDE_KEY );
-		if( guide == null ) return;
+		this.guide = guide;
 
-		// Set the guide view root
-		guideTree.setRoot( guide.getRoot() );
+		// Connect the new guide
+		if( this.guide != null ) {
+			// Set the guide view root
+			guideTree.setRoot( this.guide.getRoot() );
 
-		// Set the guide view selection mode
-		guideTree.getSelectionModel().setSelectionMode( guide.getSelectionMode() );
+			// Set the guide view selection mode
+			guideTree.getSelectionModel().setSelectionMode( this.guide.getSelectionMode() );
 
-		// Add the tree selected items listener
-		if( selectedItemsListener != null ) guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
-		guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener = new GuideTreeSelectedItemsListener( guide ) );
+			// Add the tree selected items listener
+			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
 
-		// Add the guide active property listener
-		if( activeGuideListener != null ) guide.activeProperty().removeListener( activeGuideListener );
-		guide.activeProperty().addListener( activeGuideListener = new ActiveGuideListener( guide ) );
+			//			// Add the guide active property listener
+			//			this.guide.activeProperty().addListener( guideActiveListener );
 
-		// Add the guide selected item property listener
-		// This listens to the guide for changes to the selected items
-		if( guideSelectedItemsListener != null ) guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
-		guide.selectedItemsProperty().addListener( guideSelectedItemsListener = new GuideSelectedItemsListener() );
+			// Add the guide selected item property listener
+			// This listens to the guide for changes to the selected items
+			this.guide.selectedItemsProperty().addListener( guideSelectedItemsListener );
 
-		// Set the selected items
-		Set<TreeItem<GuideNode>> items = guide.selectedItemsProperty().get();
-		if( items == null ) {
-			guideTree.getSelectionModel().selectFirst();
-		} else {
-			setSelectedItems( items );
+			// Set the selected items
+			Set<TreeItem<GuideNode>> items = this.guide.selectedItemsProperty().get();
+			if( items == null ) {
+				guideTree.getSelectionModel().selectFirst();
+			} else {
+				setSelectedItems( items );
+			}
 		}
+
 	}
 
 	/**
@@ -139,21 +126,21 @@ public class GuideTool extends ProgramTool {
 	 * @param selectedItems The selected items list.
 	 */
 	private void setSelectedItems( Set<? extends TreeItem<GuideNode>> selectedItems ) {
-//		// The tree should already be expanded before calling this method
-//		for( TreeItem<GuideNode> item : selectedItems ) {
-//			item = item.getParent();
-//			while( item != null ) {
-//				item.setExpanded( true );
-//				item = item.getParent();
-//			}
-//		}
+		//		// The tree should already be expanded before calling this method
+		//		for( TreeItem<GuideNode> item : selectedItems ) {
+		//			item = item.getParent();
+		//			while( item != null ) {
+		//				item.setExpanded( true );
+		//				item = item.getParent();
+		//			}
+		//		}
 
 		// FIXME The following logic leaves selected item artifacts when auto-expand is on
 
 		// Map the guide view tree item ids to indexes
 		int index = 0;
 		TreeItem<GuideNode> item;
-		Map<String, Integer> indexMap = new HashMap<>( );
+		Map<String, Integer> indexMap = new HashMap<>();
 		while( (item = guideTree.getTreeItem( index )) != null ) {
 			indexMap.put( item.getValue().getId(), index++ );
 		}
@@ -197,32 +184,32 @@ public class GuideTool extends ProgramTool {
 		}
 	}
 
-	private class ActiveGuideListener implements javafx.beans.value.ChangeListener<Boolean> {
-
-		private Guide guide;
-
-		ActiveGuideListener( Guide guide ) {
-			this.guide = guide;
-		}
+	private class ActiveToolWatcher implements WorkpaneListener {
 
 		@Override
-		public void changed( ObservableValue observable, Boolean oldSelection, Boolean newSelection ) {
-			if( newSelection ) {
-				guideTree.setRoot( guide.getRoot() );
-			} else {
-				guideTree.setRoot( null );
+		public void handle( WorkpaneEvent event ) {
+			if( !(event instanceof WorkpaneToolEvent) ) return;
+
+			WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
+			Tool tool = toolEvent.getTool();
+			if( !(tool instanceof GuidedTool) ) return;
+
+			GuidedTool guidedTool = (GuidedTool)tool;
+			switch( event.getType() ) {
+				case TOOL_ACTIVATED: {
+					log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
+					setGuide( guidedTool.getGuide() );
+					break;
+				}
+				case TOOL_CONCEALED: {
+					log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
+					setGuide( null );
+				}
 			}
 		}
-
 	}
 
 	private class GuideTreeSelectedItemsListener implements ListChangeListener<Integer> {
-
-		private Guide guide;
-
-		GuideTreeSelectedItemsListener( Guide guide ) {
-			this.guide = guide;
-		}
 
 		@Override
 		public void onChanged( Change<? extends Integer> change ) {
@@ -242,7 +229,9 @@ public class GuideTool extends ProgramTool {
 	private class GuideSelectedItemsListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
+		public void changed(
+			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue
+		) {
 			// Disable the guide view selection change listener
 			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
 
@@ -253,5 +242,14 @@ public class GuideTool extends ProgramTool {
 		}
 
 	}
+
+	//	private class GuideActiveListener implements ChangeListener<Boolean> {
+	//
+	//		@Override
+	//		public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+	//			log.warn( "Guide active: " + newValue );
+	//		}
+	//
+	//	}
 
 }

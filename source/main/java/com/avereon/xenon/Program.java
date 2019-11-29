@@ -43,13 +43,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.StandardCharsets;
@@ -199,7 +201,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "configure-home" );
 
 		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( getClass(), "/bundles" );
+		programResourceBundle = new ProductBundle( getClass() );
 		time( "resource-bundle" );
 
 		// Create the settings manager, depends on program data folder
@@ -271,7 +273,8 @@ public class Program extends Application implements ProgramProduct {
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
-		splashScreen = new SplashScreenPane( card.getName() ).show( stage );
+		splashScreen = new SplashScreenPane( card.getName() );
+		if( !parameters.isSet( ProgramFlag.NOSPLASH ) ) splashScreen.show( stage );
 		time( "splash-displayed" );
 
 		// Submit the startup task
@@ -413,10 +416,10 @@ public class Program extends Application implements ProgramProduct {
 		Thread.sleep( 500 );
 
 		Platform.runLater( () -> {
-
-			getWorkspaceManager().getActiveStage().show();
-			getWorkspaceManager().getActiveStage().toFront();
-
+			if( !parameters.isSet( ProgramFlag.DAEMON )) {
+				getWorkspaceManager().getActiveStage().show();
+				getWorkspaceManager().getActiveStage().toFront();
+			}
 			splashScreen.hide();
 			time( "splash hidden" );
 		} );
@@ -600,8 +603,8 @@ public class Program extends Application implements ProgramProduct {
 			programShutdownHook.configureForUpdate( restartCommands );
 			Runtime.getRuntime().addShutdownHook( programShutdownHook );
 		} catch( IOException exception ) {
-			String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-			String message = getResourceBundle().getString( BundleKey.UPDATE, "update-stage-failure" );
+			String title = rb().text( BundleKey.UPDATE, "updates" );
+			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
 			getNoticeManager().addNotice( new Notice( title, message ) );
 			return;
 		}
@@ -628,9 +631,9 @@ public class Program extends Application implements ProgramProduct {
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( getResourceBundle().getString( "program", "program.close.title" ) );
-			alert.setHeaderText( getResourceBundle().getString( "program", "program.close.message" ) );
-			alert.setContentText( getResourceBundle().getString( "program", "program.close.prompt" ) );
+			alert.setTitle( rb().text( "program", "program.close.title" ) );
+			alert.setHeaderText( rb().text( "program", "program.close.message" ) );
+			alert.setContentText( rb().text( "program", "program.close.prompt" ) );
 
 			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
@@ -698,7 +701,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	@Override
-	public ProductBundle getResourceBundle() {
+	public ProductBundle rb() {
 		return programResourceBundle;
 	}
 
@@ -1185,7 +1188,7 @@ public class Program extends Application implements ProgramProduct {
 		String iconKey
 	) {
 		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
-		String name = getResourceBundle().getString( "tool", toolRbKey + "-name" );
+		String name = rb().text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
 		ToolMetadata metadata = new ToolMetadata( this, toolClass );
@@ -1221,8 +1224,8 @@ public class Program extends Application implements ProgramProduct {
 		Release runtime = this.getCard().getRelease();
 		String priorVersion = prior.getVersion().toHumanString();
 		String runtimeVersion = runtime.getVersion().toHumanString();
-		String title = getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-		String message = getResourceBundle().getString( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
+		String title = rb().text( BundleKey.UPDATE, "updates" );
+		String message = rb().text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
 		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 

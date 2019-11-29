@@ -36,14 +36,14 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key );
 
-		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
+		label = new Label( product.rb().text( "settings", rbKey ) );
 
 		field = new TextField();
 		field.setText( value );
 		field.setId( rbKey );
 
 		button = new Button();
-		button.setText( product.getResourceBundle().getString( "settings", "browse" ) );
+		button.setText( product.rb().text( "settings", "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
 		// Add the change handlers
@@ -122,7 +122,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		String fileName = field.getText();
 
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle( product.getResourceBundle().getString( "settings", "select-file" ) );
+		fileChooser.setTitle( product.rb().text( "settings", "select-file" ) );
 		//String label = product.getResourceBundle().getString( "settings", "image-files" );
 
 		// TODO Get extension filter from configuration

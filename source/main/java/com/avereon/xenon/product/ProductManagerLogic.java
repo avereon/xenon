@@ -102,7 +102,7 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> products ) {
-		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-install-selected" );
+		String name = program.rb().text( BundleKey.UPDATE, "task-products-install-selected" );
 
 		return TaskChain
 			.init( () -> startResourceDownloads( products ) )
@@ -114,7 +114,7 @@ public class ProductManagerLogic {
 
 	@Asynchronous
 	Task<Void> uninstallProducts( Set<ProductCard> products ) {
-		String name = program.getResourceBundle().getString( BundleKey.UPDATE, "task-products-uninstall-selected" );
+		String name = program.rb().text( BundleKey.UPDATE, "task-products-uninstall-selected" );
 
 		return TaskChain
 			.init( () -> doUninstallProducts( products ) )
@@ -352,7 +352,7 @@ public class ProductManagerLogic {
 		private ProductCard card;
 
 		DownloadProductResourceTask( RepoState repo, ProductCard card ) {
-			setName( program.getResourceBundle().getString( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
+			setName( program.rb().text( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
 			this.repo = repo;
 			this.card = card;
 		}
@@ -595,22 +595,22 @@ public class ProductManagerLogic {
 	// Utility methods -----------------------------------------------------------
 
 	private void notifyUserOfNoUpdates( boolean connectionErrors ) {
-		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-		String updatesNotAvailable = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-not-available" );
-		String updatesCannotConnect = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-source-cannot-connect" );
+		String title = program.rb().text( BundleKey.UPDATE, "updates" );
+		String updatesNotAvailable = program.rb().text( BundleKey.UPDATE, "updates-not-available" );
+		String updatesCannotConnect = program.rb().text( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
 		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
 
 	private void openProductTool() {
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 		Platform.runLater( () -> program.getResourceManager().open( uri ) );
 	}
 
 	private void notifyUserOfUpdates() {
-		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "updates-found-review" );
-		URI uri = URI.create( ProgramProductType.URI + "#" + ProgramProductType.UPDATES );
+		String title = program.rb().text( BundleKey.UPDATE, "updates" );
+		String message = program.rb().text( BundleKey.UPDATE, "updates-found-review" );
+		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
 		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
@@ -635,8 +635,8 @@ public class ProductManagerLogic {
 	}
 
 	private void showNotice() {
-		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-notice" );
+		String header = program.rb().text( BundleKey.UPDATE, "restart-required" );
+		String message = program.rb().text( BundleKey.UPDATE, "restart-recommended-notice" );
 
 		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
@@ -645,11 +645,11 @@ public class ProductManagerLogic {
 	}
 
 	private void showAlert() {
-		String title = program.getResourceBundle().getString( BundleKey.UPDATE, "updates" );
-		String header = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-required" );
-		String message = program.getResourceBundle().getString( BundleKey.UPDATE, "restart-recommended-alert" );
+		String title = program.rb().text( BundleKey.UPDATE, "updates" );
+		String header = program.rb().text( BundleKey.UPDATE, "restart-required" );
+		String message = program.rb().text( BundleKey.UPDATE, "restart-recommended-alert" );
 
-		ButtonType discard = new ButtonType( program.getResourceBundle().getString( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
+		ButtonType discard = new ButtonType( program.rb().text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );
 		alert.setGraphic( program.getIconLibrary().getIcon( "update", 64 ) );
 		alert.setTitle( title );

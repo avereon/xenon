@@ -29,7 +29,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key );
 
-		label = new Label( product.getResourceBundle().getString( "settings", rbKey ) );
+		label = new Label( product.rb().text( "settings", rbKey ) );
 
 		List<SettingOption> options = setting.getOptions();
 		combobox = new ComboBox<>();

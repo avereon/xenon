@@ -98,30 +98,17 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = bundle.getStringOrNull( BundleKey.ACTION, id + ".icon" );
-		String name = bundle.getStringOrNull( BundleKey.ACTION, id + ".name" );
-		String type = bundle.getStringOrNull( BundleKey.ACTION, id + ".type" );
-		String mnemonic = bundle.getStringOrNull( BundleKey.ACTION, id + ".mnemonic" );
-		String shortcut = bundle.getStringOrNull( BundleKey.ACTION, id + ".shortcut" );
-
-		if( icon == null ) icon = "";
-		if( name == null ) name = id;
-		// It's ok for type to be null
-		int mnemonicValue = ActionProxy.NO_MNEMONIC;
-		if( mnemonic != null ) {
-			try {
-				mnemonicValue = Integer.parseInt( mnemonic );
-			} catch( NumberFormatException exception ) {
-				// Intentionally ignore exception
-			}
-		}
-		// It's ok for shortcut to be null
+		String icon = bundle.textOr( BundleKey.ACTION, id + ".icon", "" );
+		String name = bundle.textOr( BundleKey.ACTION, id + ".name", id );
+		String type = bundle.textOr( BundleKey.ACTION, id + ".type", null );
+		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", String.valueOf( ActionProxy.NO_MNEMONIC ) );
+		String shortcut = bundle.textOr( BundleKey.ACTION, id + ".shortcut", null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
 		proxy.setName( name );
 		proxy.setType( type );
-		proxy.setMnemonic( mnemonicValue );
+		proxy.setMnemonic( Integer.parseInt( mnemonic ) );
 		proxy.setShortcut( shortcut );
 
 		actions.put( id, proxy );

@@ -104,11 +104,8 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		} );
 
 		headerDrop.setOnDragEntered( ( event ) -> {
-			log.warn( "Drag enter header: " + event.getDragboard().getUrl() );
-
 			Bounds bounds = FxUtil.localToParent( headerDrop, control.getWorkpane() );
 			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-
 			event.consume();
 		} );
 
@@ -118,15 +115,13 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 		} );
 
 		headerDrop.setOnDragExited( ( event ) -> {
-			log.warn( "Drag exit header: " + event.getDragboard().getUrl() );
-
 			control.getWorkpane().setDropHint( null );
 			event.consume();
 		} );
 
 		headerDrop.setOnDragDropped( ( event ) -> {
-			log.warn( "Drag dropped on tool header: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
 			control.handleDrop( event, -1, null );
+			event.consume();
 		} );
 
 		toolArea.setOnDragEntered( ( event ) -> {

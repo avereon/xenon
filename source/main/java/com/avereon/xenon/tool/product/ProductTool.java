@@ -1,16 +1,19 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.IconLibrary;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramProductType;
+import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workarea.ToolException;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
 
@@ -18,6 +21,14 @@ import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 public class ProductTool extends GuidedTool {
+
+	public static final String INSTALLED = "installed";
+
+	public static final String AVAILABLE = "available";
+
+	public static final String UPDATES = "updates";
+
+	public static final String SOURCES = "sources";
 
 	static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -39,6 +50,10 @@ public class ProductTool extends GuidedTool {
 
 	private RepoPage repoPage;
 
+	private Guide guide;
+
+	private String currentPageId;
+
 	public ProductTool( ProgramProduct product, Resource resource ) {
 		super( product, resource );
 
@@ -46,7 +61,7 @@ public class ProductTool extends GuidedTool {
 
 		setId( "tool-product" );
 		setGraphic( program.getIconLibrary().getIcon( "product" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "product-name" ) );
+		setTitle( product.rb().text( "tool", "product-name" ) );
 
 		installedPage = new InstalledPage( program, this );
 		availablePage = new AvailablePage( program, this );
@@ -54,10 +69,10 @@ public class ProductTool extends GuidedTool {
 		repoPage = new RepoPage( program, this );
 
 		pages = new HashMap<>();
-		pages.put( ProgramProductType.INSTALLED, installedPage );
-		pages.put( ProgramProductType.AVAILABLE, availablePage );
-		pages.put( ProgramProductType.UPDATES, updatesPage );
-		pages.put( ProgramProductType.SOURCES, repoPage );
+		pages.put( INSTALLED, installedPage );
+		pages.put( AVAILABLE, availablePage );
+		pages.put( UPDATES, updatesPage );
+		pages.put( SOURCES, repoPage );
 
 		checkInfo = new UpdateCheckInformationPane( program );
 		checkInfo.setId( "tool-product-page-footer" );
@@ -74,7 +89,6 @@ public class ProductTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		super.allocate();
 		log.debug( "Product tool allocate" );
-		//Platform.runLater( () -> selectPage( settings.get( GUIDE_SELECTED_IDS, ProgramProductType.INSTALLED ).split( "," )[ 0 ] ) );
 	}
 
 	@Override
@@ -88,11 +102,6 @@ public class ProductTool extends GuidedTool {
 	protected void activate() throws ToolException {
 		log.debug( "Product tool activate" );
 		super.activate();
-
-		String selected = getSettings().get( "selected", ProgramProductType.INSTALLED );
-		// TODO Be sure the guide also changes selection
-		//getGuide().setSelected( selected );
-		selectPage( selected );
 	}
 
 	@Override
@@ -118,20 +127,48 @@ public class ProductTool extends GuidedTool {
 		log.debug( "Product tool resource ready" );
 		super.resourceReady( parameters );
 
-		//getProgram().getTaskManager().submit( new RefreshInstalledProducts( this ) );
-		//getProgram().getTaskManager().submit( new RefreshAvailableProducts( this, false ) );
-		//getProgram().getTaskManager().submit( new RefreshUpdatableProducts( this, false ) );
-
-		String selected = parameters.getFragment();
-		// TODO Be sure the guide also changes selection
-		//if( selected != null ) getGuide().setSelected( selected );
-		if( selected != null ) selectPage( selected );
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = parameters.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = INSTALLED;
+		selectPage( pageId );
 	}
 
 	@Override
 	protected void resourceRefreshed() throws ToolException {
 		log.trace( "Product tool resource refreshed" );
 		super.resourceRefreshed();
+	}
+
+	@Override
+	protected Guide getGuide() {
+		if( this.guide != null ) return this.guide;
+
+		Guide guide = new Guide();
+		IconLibrary library = getProgram().getIconLibrary();
+		ProductBundle rb = getProduct().rb();
+
+		GuideNode installed = new GuideNode();
+		installed.setId( INSTALLED );
+		installed.setName( rb.text( "tool", "product-installed" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
+
+		GuideNode available = new GuideNode();
+		available.setId( AVAILABLE );
+		available.setName( rb.text( "tool", "product-available" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
+
+		GuideNode updates = new GuideNode();
+		updates.setId( UPDATES );
+		updates.setName( rb.text( "tool", "product-updates" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
+
+		GuideNode sources = new GuideNode();
+		sources.setId( SOURCES );
+		sources.setName( rb.text( "tool", "product-sources" ) );
+		guide.getRoot().getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
+
+		return this.guide = guide;
 	}
 
 	@Override
@@ -160,18 +197,15 @@ public class ProductTool extends GuidedTool {
 	}
 
 	private void selectPage( String pageId ) {
-		log.trace( "Product page selected: " + pageId );
+		currentPageId = pageId;
+		if( pageId == null ) return;
 
-		if( pageId == null || pageId.isBlank() ) return;
-
-		getSettings().set( "selected", pageId );
-
-		currentPage = pages.get( pageId );
-		if( currentPage == null ) throw new NullPointerException( "Page ID returned a null page: " + pageId );
+		ProductToolPage page = pages.get( pageId );
+		if( page == null ) page = pages.get( INSTALLED );
+		currentPage = page;
 
 		layoutPane.setTop( currentPage.getHeader() );
 		layoutPane.setCenter( currentPage );
-
 		currentPage.updateState( false );
 	}
 

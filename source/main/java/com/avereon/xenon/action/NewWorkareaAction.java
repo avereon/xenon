@@ -32,9 +32,9 @@ public class NewWorkareaAction extends Action {
 		Program program = getProgram();
 
 		TextInputDialog dialog = new TextInputDialog();
-		dialog.setTitle( program.getResourceBundle().getString( "workarea", "workarea.new.title" ) );
-		dialog.setHeaderText( program.getResourceBundle().getString( "workarea", "workarea.new.message" ) );
-		dialog.setContentText( program.getResourceBundle().getString( "workarea", "workarea.new.prompt" ) );
+		dialog.setTitle( program.rb().text( "workarea", "workarea.new.title" ) );
+		dialog.setHeaderText( program.rb().text( "workarea", "workarea.new.message" ) );
+		dialog.setContentText( program.rb().text( "workarea", "workarea.new.prompt" ) );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );

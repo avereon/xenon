@@ -46,7 +46,10 @@ an '=' following the name and before the value (e.g --log-level=info).
 ####
 Program Options
 
+    --daemon - Start the program without showing workspaces
     --help - Print the command line help information
+    --nosplash - Start the program without showing the splash screen
+    --profile <name> - Start the program with the specified profile
     --status - Show the program status (stopped, running, hidden)
     --stop - Stop the currently running instance (without prompting)
     --version - Show the program version and exit

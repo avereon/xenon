@@ -27,13 +27,13 @@ public class NoticePane extends GridPane {
 		this.getStyleClass().addAll( flyout ? "notice-flyout" : "notice", "padded" );
 
 		Node noticeIcon = program.getIconLibrary().getIcon( notice.getType().getIcon() );
-		Label title = new Label( notice.getTitle() );
+		Label title = new Label( String.valueOf( notice.getTitle() ) );
 		closeIcon = program.getIconLibrary().getIcon( "close" );
 		Node message;
 		if( notice.getMessage() instanceof Node ) {
 			message = (Node)notice.getMessage();
 		} else {
-			Label label = new Label( String.valueOf( notice.getMessage() ) );
+			Label label = new Label( notice.getFormattedMessage() );
 			label.setWrapText( true );
 			message = label;
 		}

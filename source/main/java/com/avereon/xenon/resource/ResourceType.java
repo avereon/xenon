@@ -76,11 +76,11 @@ public abstract class ResourceType implements Comparable<ResourceType> {
 	}
 
 	public String getName() {
-		return product.getResourceBundle().getString( "resource", rbKey + "-name" );
+		return product.rb().text( "resource", rbKey + "-name" );
 	}
 
 	public String getDescription() {
-		return product.getResourceBundle().getString( "resource", rbKey + "-description" );
+		return product.rb().text( "resource", rbKey + "-description" );
 	}
 
 	/**

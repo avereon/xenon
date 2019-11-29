@@ -32,7 +32,7 @@ public class WelcomeTool extends ProgramTool {
 		super( product, resource );
 		setId( "tool-welcome" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "welcome" ) );
-		setTitle( product.getResourceBundle().getString( "tool", "welcome-name" ) );
+		setTitle( product.rb().text( "tool", "welcome-name" ) );
 
 		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );
 

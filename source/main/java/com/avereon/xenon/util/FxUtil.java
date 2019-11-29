@@ -129,6 +129,17 @@ public class FxUtil {
 		}
 	}
 
+	public static boolean isFxRunning() {
+		try {
+			Platform.runLater( () -> {
+				System.out.print( "" );
+			} );
+			return true;
+		} catch( Throwable throwable ) {
+			return false;
+		}
+	}
+
 	public static void fxWait( long timeout ) throws InterruptedException {
 		WaitToken token = new WaitToken();
 		Platform.runLater( token );
