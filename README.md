@@ -41,7 +41,7 @@ The framework provides the following basic features:
 ### Contact Information
 
 * This project is owned by Avereon
-* Contact mark@avereon.com for information
+* Contact support@avereon.com for information
 
 ### Dependency Licenses
 
