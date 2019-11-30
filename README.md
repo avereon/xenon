@@ -18,10 +18,16 @@ The framework provides the following basic features:
 
 ### Product Roadmap
 
+#### Version 2.0
+| Release | Feature Goals | Status |
+|---|---|---|
+|1.2|Theme modification, dark theme | Planning |
+|1.1|Mazer Mod | In Progress |
+
 #### Version 1.0
 | Release | Feature Goals | Status |
 |---|---|---|
-|1.0|Documentation, licensing, housekeeping| In Progress |
+|1.0|Documentation, licensing, housekeeping| 28 Nov 2019 |
 |0.9|Custom tool pane and tabs, CI configuration | 19 Sep 2019 |
 |0.8|Mod manager, mod tool, mod updates | 16 Jun 2019 |
 |0.7|Java 11, Java FX 11, status bar, memory status, task status| 24 Jan 2019 |
@@ -31,11 +37,6 @@ The framework provides the following basic features:
 |0.3|Resource manager, product resources| 5 Aug 2017 |
 |0.2|Workarea, menu bar, tool bar| 30 May 2017 |
 |0.1|Initial UI, settings manager| 7 Apr 2017 |
-
-#### Version 2.0
-| Release | Feature Goals | Status |
-|---|---|---|
-|1.1|Mod development - Mouse | Planning |
 
 ### Contact Information
 
