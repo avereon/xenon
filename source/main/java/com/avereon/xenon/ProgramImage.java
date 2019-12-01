@@ -4,6 +4,7 @@ import com.avereon.xenon.util.Colors;
 import com.avereon.xenon.util.FontUtil;
 import com.avereon.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -23,6 +24,7 @@ import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -285,18 +287,16 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public static void save( ProgramImage icon, File path ) {
-		//		JavaFxStarter.startAndWait( 1000 );
-		//
-		//		// Render and save the icon
-		//		Platform.runLater( () -> {
-		//			try {
-		//				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
-		//			} catch( Exception exception ) {
-		//				exception.printStackTrace();
-		//			}
-		//		} );
-		//
-		//		Platform.exit();
+				JavaFxStarter.startAndWait( 1000 );
+
+				// Render and save the icon
+				Platform.runLater( () -> {
+					try {
+						ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
+					} catch( Exception exception ) {
+						exception.printStackTrace();
+					}
+				} );
 	}
 
 	protected abstract void render();
