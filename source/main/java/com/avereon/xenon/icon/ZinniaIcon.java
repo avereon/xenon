@@ -10,18 +10,23 @@ public class ZinniaIcon extends ProgramIcon {
 
 	private double centerRadius = 3;
 
+	private int likeness = 5;
+
+	private int layers= 2;
+
 	@Override
 	protected void render() {
-		// Lower layer
-		for( int index = 0; index < 6; index++ ) {
-			drawPetal();
-			spin( g( 16 ), g( 16 ), 60 );
-		}
-		// Upper layer
-		spin( g( 16 ), g( 16 ), 30 );
-		for( int index = 0; index < 6; index++ ) {
-			drawPetal();
-			spin( g( 16 ), g( 16 ), 60 );
+		double spacing = 360.0 / likeness;
+		double offset = spacing/layers;
+
+		for( int layer = 0; layer < layers; layer++ ) {
+			// Lower layer
+			for( int index = 0; index < likeness; index++ ) {
+				drawPetal();
+				spin( g( 16 ), g( 16 ), spacing );
+			}
+			// Upper layer
+			spin( g( 16 ), g( 16 ), offset );
 		}
 		reset();
 
