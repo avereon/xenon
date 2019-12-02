@@ -7,50 +7,66 @@ import javafx.stage.Window;
 
 public class AcornIcon extends ProgramIcon {
 
+	private double centerLine = 16;
+
+	private double stemRadius = 1.5;
+
+	private double stemTop = 1;
+
+	private double capRadius = 12;
+
+	private double capTop = 5;
+
+	private double capBase = 9;
+
+	private double nutRadius = 11;
+
+	private double nutBottom = 31;
+
 	@Override
 	protected void render() {
 		drawStem();
-		fill( getIconFillPaint( Color.SADDLEBROWN, GradientTone.MEDIUM ));
+		fill( getIconFillPaint( Color.SADDLEBROWN, GradientTone.MEDIUM ) );
 		draw();
 
 		drawNut();
-		fill( getIconFillPaint( Color.SADDLEBROWN, GradientTone.LIGHT));
+		fill( getIconFillPaint( Color.SADDLEBROWN, GradientTone.LIGHT ) );
 		draw();
 
 		drawCap();
-		fill( getIconFillPaint( Color.SANDYBROWN, GradientTone.MEDIUM));
+		fill( getIconFillPaint( Color.SANDYBROWN, GradientTone.MEDIUM ) );
 		draw();
 	}
 
 	private void drawStem() {
 		startPath();
-		moveTo( g( 15 ), g( 7 ) );
-		lineTo( g( 15 ), g( 3 ) );
-		lineTo( g( 17 ), g( 3 ) );
-		lineTo( g( 17 ), g( 7 ) );
+		moveTo( g( centerLine - stemRadius ), g( capTop ) );
+		lineTo( g( centerLine - stemRadius ), g( stemTop ) );
+		lineTo( g( centerLine + stemRadius ), g( stemTop ) );
+		lineTo( g( centerLine + stemRadius ), g( capTop ) );
 		closePath();
 	}
 
 	private void drawNut() {
-		double a = 30;
-		double b = 25;
-		double c = 7;
-		double d = 25;
+		double a = capBase + 21;
+		double b = nutBottom - 4;
+		double c = centerLine - nutRadius;
+		double d = centerLine + nutRadius;
 
 		startPath();
-		moveTo( g( c ), g( 11 ) );
-		curveTo( g( c ), g( a ), g( 15 ), g( b ), g( 15 ), g( 28 ) );
-		addArc( g( 16 ), g( 28 ), g( 1 ), g( 1 ), 180, 180 );
-		curveTo( g( 17 ), g( b ), g( d ), g( a ), g( d ), g( 11 ) );
+		moveTo( g( c ), g( capBase ) );
+		curveTo( g( c ), g( a ), g( centerLine - 1 ), g( b ), g( centerLine - 1 ), g( nutBottom - 1 ) );
+		addArc( g( centerLine ), g( nutBottom - 1 ), g( 1 ), g( 1 ), 180, 180 );
+		curveTo( g( centerLine + 1 ), g( b ), g( d ), g( a ), g( d ), g( capBase ) );
 		closePath();
 	}
 
 	private void drawCap() {
 		startPath();
-		moveTo( g( 25 ), g( 12 ) );
-		addArc( g( 25 ), g( 11 ), g( 1 ), g( 1 ), 270, 90 );
-		addArc( g( 16 ), g( 11 ), g( 10 ), g( 4 ), 0, 180 );
-		addArc( g( 7 ), g( 11 ), g( 1 ), g( 1 ), 180, 90 );
+		moveTo( g( centerLine + capRadius - 1 ), g( capBase + 1 ) );
+		addArc( g( centerLine + capRadius - 1 ), g( capBase ), g( 1 ), g( 1 ), 270, 90 );
+		addArc( g( centerLine ), g( capBase ), g( capRadius ), g( capBase - capTop ), 0, 180 );
+		addArc( g( centerLine - capRadius + 1 ), g( capBase ), g( 1 ), g( 1 ), 180, 90 );
 		closePath();
 	}
 
