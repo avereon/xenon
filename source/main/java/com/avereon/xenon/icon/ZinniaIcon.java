@@ -1,0 +1,71 @@
+package com.avereon.xenon.icon;
+
+import com.avereon.xenon.ProgramIcon;
+import javafx.application.Platform;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.stage.Window;
+
+public class ZinniaIcon extends ProgramIcon {
+
+	private double centerRadius = 3;
+
+	@Override
+	protected void render() {
+		// Lower layer
+		for( int index = 0; index < 6; index++ ) {
+			drawPetal();
+			spin( g( 16 ), g( 16 ), 60 );
+		}
+		// Upper layer
+		spin( g( 16 ), g( 16 ), 30 );
+		for( int index = 0; index < 6; index++ ) {
+			drawPetal();
+			spin( g( 16 ), g( 16 ), 60 );
+		}
+		reset();
+
+		drawCenter();
+	}
+
+	private void drawPetal() {
+		double n = 5;
+
+		startPath();
+		moveTo( g( 15 ), g( 15 ) );
+		curveTo( g( 14 ), g( 8 ), g( 16 - n ), g( 1 ), g( 16 ), g( 1 ) );
+		curveTo( g( 16 + n ), g( 1 ), g( 18 ), g( 8 ), g( 17 ), g( 15 ) );
+		closePath();
+
+		fillAndDraw( Color.HOTPINK, Color.HOTPINK.darker() );
+	}
+
+	private void drawCenter() {
+		Paint centerPaint = Color.SADDLEBROWN.darker();
+		setDrawPaint( centerPaint );
+		setFillPaint( centerPaint );
+		fillCenteredOval( g( 16 ), g( 16 ), g( centerRadius ), g( centerRadius ) );
+		drawCenteredOval( g( 16 ), g( 16 ), g( centerRadius ), g( centerRadius ) );
+
+		drawStamen( 10 );
+		drawStamen( 130 );
+		drawStamen( 250 );
+	}
+
+	private void drawStamen( double angleInDegrees ) {
+		double radius = 1.8;
+
+		double x = radius * Math.cos( angleInDegrees * RADIANS_PER_DEGREE );
+		double y = radius * Math.sin( angleInDegrees * RADIANS_PER_DEGREE );
+
+		setDrawPaint( Color.YELLOW );
+		drawDot( g( 16 + x ), g( 16 + y ) );
+	}
+
+	public static void main( String[] commands ) {
+		save( new ZinniaIcon(), "target/icons/zinnia.png" );
+		proof( new ZinniaIcon() );
+		Platform.runLater( () -> {if( Window.getWindows().size() == 0 ) Platform.exit();} );
+	}
+
+}

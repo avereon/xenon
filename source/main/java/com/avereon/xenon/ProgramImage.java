@@ -91,15 +91,15 @@ public abstract class ProgramImage extends Canvas {
 
 	private ColorTheme colorTheme;
 
-//	private double drawWidth;
+	//	private double drawWidth;
 
-//	private Color drawColor;
+	//	private Color drawColor;
 
-//	private Color fillColor;
+	//	private Color fillColor;
 
-//	private double xOffset;
-//
-//	private double yOffset;
+	//	private double xOffset;
+	//
+	//	private double yOffset;
 
 	private Font font;
 
@@ -287,16 +287,17 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	public static void save( ProgramImage icon, File path ) {
-				JavaFxStarter.startAndWait( 1000 );
+		JavaFxStarter.startAndWait( 1000 );
 
-				// Render and save the icon
-				Platform.runLater( () -> {
-					try {
-						ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
-					} catch( Exception exception ) {
-						exception.printStackTrace();
-					}
-				} );
+		// Render and save the icon
+		Platform.runLater( () -> {
+			try {
+				path.getParentFile().mkdirs();
+				ImageIO.write( SwingFXUtils.fromFXImage( icon.getImage(), null ), "png", path );
+			} catch( Exception exception ) {
+				exception.printStackTrace();
+			}
+		} );
 	}
 
 	protected abstract void render();
@@ -311,6 +312,12 @@ public abstract class ProgramImage extends Canvas {
 
 	protected void zoom( double x, double y ) {
 		getGraphicsContext2D().scale( x, y );
+	}
+
+	protected void spin( double x, double y, double a ) {
+		move( x, y );
+		getGraphicsContext2D().rotate( a );
+		move( -x, -y );
 	}
 
 	protected void clip() {
@@ -585,7 +592,7 @@ public abstract class ProgramImage extends Canvas {
 	protected void drawImage( Image image, double x, double y ) {
 		// Scale the transform
 		Affine transform = getGraphicsContext2D().getTransform().clone();
-		getGraphicsContext2D().scale( 1.0/getWidth(), 1.0/getHeight() );
+		getGraphicsContext2D().scale( 1.0 / getWidth(), 1.0 / getHeight() );
 
 		getGraphicsContext2D().drawImage( image, x, y );
 

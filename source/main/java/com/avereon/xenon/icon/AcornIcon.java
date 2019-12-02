@@ -71,7 +71,7 @@ public class AcornIcon extends ProgramIcon {
 	}
 
 	public static void main( String[] commands ) {
-		save( new AcornIcon(), "target/acorn.png" );
+		save( new AcornIcon(), "target/icons/acorn.png" );
 		proof( new AcornIcon() );
 		Platform.runLater( () -> {if( Window.getWindows().size() == 0 ) Platform.exit();} );
 	}
