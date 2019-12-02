@@ -630,8 +630,10 @@ public abstract class ProgramImage extends Canvas {
 	}
 
 	protected Paint getIconFillPaint( GradientTone tone ) {
-		Color color = getIconFillColor();
+		return getIconFillPaint( getIconFillColor(), tone );
+	}
 
+	protected Paint getIconFillPaint( Color color, GradientTone tone ) {
 		// The gradient range factor 0 to 2
 		// A value of 0 is just the color with no gradient at all
 		// A value of 2 is a gradient of white to black with no color at all

@@ -2,6 +2,7 @@ package com.avereon.xenon.icon;
 
 import com.avereon.xenon.ProgramIcon;
 import javafx.application.Platform;
+import javafx.scene.paint.Color;
 import javafx.stage.Window;
 
 public class AcornIcon extends ProgramIcon {
@@ -9,13 +10,16 @@ public class AcornIcon extends ProgramIcon {
 	@Override
 	protected void render() {
 		drawStem();
-		fillAndDraw( GradientTone.DARK );
+		fill( getIconFillPaint( Color.SADDLEBROWN, GradientTone.MEDIUM ));
+		draw();
 
 		drawNut();
-		fillAndDraw( GradientTone.MEDIUM );
+		fill( getIconFillPaint( Color.SADDLEBROWN, GradientTone.LIGHT));
+		draw();
 
 		drawCap();
-		fillAndDraw( GradientTone.LIGHT );
+		fill( getIconFillPaint( Color.SANDYBROWN, GradientTone.MEDIUM));
+		draw();
 	}
 
 	private void drawStem() {
