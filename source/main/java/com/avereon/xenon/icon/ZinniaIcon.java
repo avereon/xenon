@@ -1,10 +1,8 @@
 package com.avereon.xenon.icon;
 
 import com.avereon.xenon.ProgramIcon;
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.stage.Window;
 
 public class ZinniaIcon extends ProgramIcon {
 
@@ -70,7 +68,7 @@ public class ZinniaIcon extends ProgramIcon {
 	public static void main( String[] commands ) {
 		save( new ZinniaIcon(), "target/icons/zinnia.png" );
 		proof( new ZinniaIcon() );
-		Platform.runLater( () -> {if( Window.getWindows().size() == 0 ) Platform.exit();} );
+		wrapup();
 	}
 
 }

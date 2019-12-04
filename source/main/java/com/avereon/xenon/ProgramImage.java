@@ -23,6 +23,7 @@ import javafx.scene.text.*;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -178,6 +179,10 @@ public abstract class ProgramImage extends Canvas {
 		// WORKAROUND Just using the snapshot image does not work to create Stage icons
 		// Creating a new WritableImage from the snapshot image seems to solve the problem
 		return new WritableImage( snapshot.getPixelReader(), (int)snapshot.getWidth(), (int)snapshot.getHeight() );
+	}
+
+	public static void wrapup() {
+		Platform.runLater( () -> {if( Window.getWindows().size() == 0 ) Platform.exit();} );
 	}
 
 	public static void proof( ProgramImage image ) {
