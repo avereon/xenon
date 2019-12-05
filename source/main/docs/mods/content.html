@@ -178,9 +178,14 @@ public class Mazer extends Mod {
 		start. To build the mod, use Maven with the platform-agnostic-assemblies
 		profile enabled:
 	</p>
-	<code>mvn clean package -U -P platform-agnostic-assemblies</code>
+	<code>mvn -U clean package</code>
 	<p>
-		If all has gone well there is now a product.jar file in the target folder.
-		This file is your mod library.
+		If all has gone well there is now a jar file (not the sources or javadoc
+		jar) in the target folder. This file is your mod library.
+	</p>
+	<h4 id="">Live Test the Mod Library</h4>
+	<p>
+		At this point we can test the new mod library with Xenon. All we need to do
+		is copy the mod library to a module folder and start, or restart, Xenon.
 	</p>
 </div>
