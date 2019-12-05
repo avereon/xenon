@@ -34,6 +34,10 @@ public class IconLibrary {
 		icons.put( id, new IconConfig( icon, parameters ) );
 	}
 
+	public void unregister( String id, Class<? extends ProgramIcon> icon ) {
+		if( icon.isInstance( icons.get( id ) ) ) icons.remove( id );
+	}
+
 	public ProgramIcon getIcon( String id ) {
 		return getIcon( id, DEFAULT_SIZE );
 	}
