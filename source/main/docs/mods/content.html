@@ -1,7 +1,7 @@
 <div>
 
-	<h1>Mod Development</h1>
-	<p>2019-11-28</p>
+	<h1>Mod Guide</h1>
+	<p>2019-12-06</p>
 
 	<p>
 		This document is step-by-step instruction to create a Xenon mod. These
@@ -43,7 +43,7 @@
 		your own groupId, artifactId and version:
 	</p>
 
-	<pre className="code">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+	<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 
 &lt;project
   xmlns="http://maven.apache.org/POM/4.0.0"
@@ -81,7 +81,7 @@
 		<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.:
 	</p>
 
-	<pre className="code">pom.xml
+	<pre>pom.xml
 source/main/java</pre>
 
 	<p>
@@ -90,7 +90,7 @@ source/main/java</pre>
 		that your configuration is correct.
 	</p>
 
-	<h2 id="implementing-the-mod">Implementing the Mod</h2>
+	<h2 id="mod-implementation">Mod Implementation</h2>
 
 	<h3 id="java-module">Java Module</h3>
 	<p>
@@ -173,20 +173,30 @@ public class Mazer extends Mod {
 
 	<h3 id="mod-library">Mod Library</h3>
 	<p>
-		With the product card in place there is enough implementation to build the
-		mod and try it with Xenon. Of course, this mod doesn't do much but it's a
-		start. To build the mod, use Maven with the platform-agnostic-assemblies
-		profile enabled:
+		With the <a href="#module-card">module card</a> in place there is enough
+		implementation to build the mod. Of course, this mod doesn't do much but it's
+		enough to see if the mod will build and eventually
+		<a href="mod-deployment">try it with Xenon</a>. To build the mod, use Maven
+		with the package goal:
 	</p>
-	<code>mvn -U clean package</code>
+	<pre>mvn -U clean package</pre>
 	<p>
 		If all has gone well there is now a jar file (not the sources or javadoc
 		jar) in the target folder. This file is your mod library.
 	</p>
-	<h4 id="manually-load-the-mod-library">Manually Load the Mod Library</h4>
+	<h2 id="mod-deployment">Mod Deployment</h2>
+	<h3 id="online-deployment">Online Deployment</h3>
+	<p>Coming soon</p>
+	<h3 id="manual-deployment">Manual Deployment</h3>
 	<p>
-		At this point we can test the new mod library with Xenon. All we need to do
-		is copy the mod library to a mod folder and start, or restart, Xenon. To do
+		Manual deployment is not the recommended way to deploy a mod. It is useful
+		for early development purposes but it is recommended that an automated
+		process be set up to post mod releases online and use
+		<a href="#online-deployment">online deployment</a>.
+	</p>
+	<p>
+		For manual deployment all that is needed is to copy the mod library to a
+		mod folder and start, or restart, Xenon. To do
 		this, navigate to the <a href="/product/xenon/docs/manual#terminology-program-data-folder">program data folder</a>. In the program
 		data folder create a modules folder, if it does not already exist, and
 		inside the modules folder create folder for your mod. It is convention to
