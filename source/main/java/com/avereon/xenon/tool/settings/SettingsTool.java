@@ -4,11 +4,11 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.ScrollPane;
 import org.slf4j.Logger;
 
@@ -27,8 +27,8 @@ public class SettingsTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public SettingsTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public SettingsTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 		setId( "tool-settings" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );
 		setTitle( product.rb().text( "tool", "settings-name" ) );
@@ -71,9 +71,9 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		log.debug( "Settings tool resource ready" );
-		super.resourceReady( parameters );
+	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+		log.debug( "Settings tool asset ready" );
+		super.assetReady( parameters );
 
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = parameters.getFragment();

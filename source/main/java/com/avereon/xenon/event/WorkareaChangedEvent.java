@@ -1,7 +1,7 @@
 package com.avereon.xenon.event;
 
 import com.avereon.product.ProductEvent;
-import com.avereon.xenon.workarea.Workarea;
+import com.avereon.xenon.workspace.Workarea;
 
 public class WorkareaChangedEvent extends ProductEvent {
 

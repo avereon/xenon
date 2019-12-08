@@ -10,7 +10,7 @@ Releases are available at https://avereon.com.
 ## Features
 The framework provides the following basic features:
 
-* Resource management - Managing connections, files, protocols, codecs, etc.
+* Asset management - Managing connections, files, protocols, codecs, etc.
 * Settings management - Managing storage and maintenance of user settings
 * Workspace management - Dividing the UI workspace into work areas 
 * Mod management - Find and install program mods from online sources
@@ -34,7 +34,7 @@ The framework provides the following basic features:
 |0.6|Update manager, product updates| 4 Jun 2018 |
 |0.5|Program settings, settings tool| 22 Oct 2017 |
 |0.4|Welcome tool, guide tool, about tool| 21 Sep 2017 |
-|0.3|Resource manager, product resources| 5 Aug 2017 |
+|0.3|Asset manager, product assets| 5 Aug 2017 |
 |0.2|Workarea, menu bar, tool bar| 30 May 2017 |
 |0.1|Initial UI, settings manager| 7 Apr 2017 |
 

@@ -2,9 +2,9 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.type.ProgramNoticeType;
+import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.tool.notice.NoticeTool;
-import com.avereon.xenon.workarea.Tool;
+import com.avereon.xenon.workpane.Tool;
 import javafx.event.ActionEvent;
 
 import java.util.Set;
@@ -30,7 +30,7 @@ public class NoticeAction extends Action {
 		} else {
 			// Open the notice tool
 			getProgram().getNoticeManager().readAll();
-			getProgram().getResourceManager().open( ProgramNoticeType.URI );
+			getProgram().getAssetManager().open( ProgramNoticeType.URI );
 		}
 	}
 

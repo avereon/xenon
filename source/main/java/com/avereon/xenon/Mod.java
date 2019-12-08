@@ -76,7 +76,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	/**
 	 * Called by the program to register a mod instance. This method is typically
 	 * called before the program frame and workspaces are created and allows the
-	 * mod to register icons, actions, resource types, tools, etc. This method is
+	 * mod to register icons, actions, asset types, tools, etc. This method is
 	 * also called as part of the mod install process before the {@link #startup}
 	 * method is called.
 	 */
@@ -105,7 +105,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	/**
 	 * Called by the program to unregister a mod instance. This method is
 	 * typically called after the program frame and workspaces are destroyed and
-	 * allows the mod to unregister icons, actions, resource types, tools, etc.
+	 * allows the mod to unregister icons, actions, asset types, tools, etc.
 	 * This method is also called as part of the mod uninstall process after the
 	 * {@link #shutdown} method is called.
 	 */

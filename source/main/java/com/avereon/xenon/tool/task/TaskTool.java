@@ -2,12 +2,12 @@ package com.avereon.xenon.tool.task;
 
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.*;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskListener;
 import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -35,8 +35,8 @@ public class TaskTool extends ProgramTool {
 
 	private Map<Task, TaskPane> tasks;
 
-	public TaskTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public TaskTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 
 		setId( "tool-task" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "task" ) );
@@ -59,8 +59,8 @@ public class TaskTool extends ProgramTool {
 	}
 
 	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.resourceReady( parameters );
+	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+		super.assetReady( parameters );
 		getProgram().getTaskManager().addTaskListener( taskWatcher );
 		Platform.runLater( this::init );
 	}

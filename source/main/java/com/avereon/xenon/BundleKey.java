@@ -8,7 +8,7 @@ public interface BundleKey {
 	String PRODUCT = "product";
 	String PROGRAM = "program";
 	String PROMPT = "prompt";
-	String RESOURCE = "resource";
+	String ASSET = "asset";
 	String SETTINGS = "settings";
 	String TOOL = "tool";
 	String UPDATE = "update";

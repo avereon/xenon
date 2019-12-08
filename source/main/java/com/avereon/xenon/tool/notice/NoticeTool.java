@@ -6,13 +6,13 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.ResourceEvent;
-import com.avereon.xenon.resource.ResourceListener;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.AssetListener;
 import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.OpenToolRequestParameters;
-import com.avereon.xenon.workarea.Workpane;
+import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -30,12 +30,12 @@ public class NoticeTool extends ProgramTool {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private ResourceWatcher resourceWatcher;
+	private AssetWatcher assetWatcher;
 
 	private VBox noticeContainer;
 
-	public NoticeTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public NoticeTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 		setId( "tool-notice" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "notice" ) );
 		setTitle( product.rb().text( "tool", "notice-name" ) );
@@ -58,7 +58,7 @@ public class NoticeTool extends ProgramTool {
 		getChildren().addAll( layout );
 		updateNotices();
 
-		resourceWatcher = new ResourceWatcher();
+		assetWatcher = new AssetWatcher();
 	}
 
 	@Override
@@ -67,10 +67,10 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.resourceReady( parameters );
+	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+		super.assetReady( parameters );
 
-		getResource().addResourceListener( resourceWatcher );
+		getAsset().addAssetListener( assetWatcher );
 	}
 
 	@Override
@@ -104,10 +104,10 @@ public class NoticeTool extends ProgramTool {
 		} );
 	}
 
-	private class ResourceWatcher implements ResourceListener {
+	private class AssetWatcher implements AssetListener {
 
 		@Override
-		public void eventOccurred( ResourceEvent event ) {
+		public void eventOccurred( AssetEvent event ) {
 			switch( event.getType() ) {
 				case REFRESHED: {
 					updateNotices();

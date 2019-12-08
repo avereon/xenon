@@ -6,10 +6,12 @@ import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
 import com.avereon.xenon.event.ProgramStartedEvent;
 import com.avereon.xenon.event.ProgramStoppedEvent;
-import com.avereon.xenon.workarea.WorkpaneWatcher;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.opentest4j.AssertionFailedError;
 import org.testfx.api.FxToolkit;
@@ -25,6 +27,8 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	private final long max = Runtime.getRuntime().maxMemory();
 
 	protected Program program;
+
+	protected Workpane workpane;
 
 	protected WorkpaneWatcher workpaneWatcher;
 
@@ -55,6 +59,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 			ProductCard metadata = new ProductCard().init( Program.class );
 			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
 			if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
+			if( Files.exists( programDataFolder ) ) Assertions.fail( "Program data folder still exists" );
 		} catch( IOException exception ) {
 			throw new RuntimeException( exception );
 		}
@@ -70,7 +75,8 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		programWatcher.waitForEvent( ProgramStartedEvent.class );
 		metadata = program.getCard();
 
-		program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane().addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
+		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		workpane.addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
 
 		initialMemoryUse = getMemoryUse();
 	}

@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.task;
 
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneEvent;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEvent;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 

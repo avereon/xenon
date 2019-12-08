@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneEvent;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

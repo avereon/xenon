@@ -95,7 +95,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 					Handler peerLogHandler = new LogHandler( client );
 					LogManager.getLogManager().getLogger( "" ).addHandler( peerLogHandler );
 					program.processCliActions( parameters, false );
-					program.processResources( parameters );
+					program.processAssets( parameters );
 					//LogManager.getLogManager().getLogger( "" ).removeHandler( peerLogHandler );
 				} catch( ClassNotFoundException exception ) {
 					log.error( "Error reading commands from client", exception );

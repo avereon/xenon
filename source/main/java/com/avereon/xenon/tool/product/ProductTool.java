@@ -8,11 +8,11 @@ import com.avereon.xenon.IconLibrary;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import org.slf4j.Logger;
@@ -54,8 +54,8 @@ public class ProductTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public ProductTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public ProductTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 
 		Program program = getProgram();
 
@@ -123,9 +123,9 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		log.debug( "Product tool resource ready" );
-		super.resourceReady( parameters );
+	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+		log.debug( "Product tool asset ready" );
+		super.assetReady( parameters );
 
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = parameters.getFragment();
@@ -135,9 +135,9 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceRefreshed() throws ToolException {
-		log.trace( "Product tool resource refreshed" );
-		super.resourceRefreshed();
+	protected void assetRefreshed() throws ToolException {
+		log.trace( "Product tool asset refreshed" );
+		super.assetRefreshed();
 	}
 
 	@Override

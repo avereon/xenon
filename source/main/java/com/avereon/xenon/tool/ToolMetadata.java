@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.workarea.Workpane;
+import com.avereon.xenon.workpane.Workpane;
 import javafx.scene.Node;
 
 public class ToolMetadata {

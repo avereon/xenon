@@ -2,12 +2,16 @@ package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.resource.OpenResourceRequest;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramGuideType;
-import com.avereon.xenon.resource.type.ProgramWelcomeType;
+import com.avereon.util.TestUtil;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.*;
+import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEdge;
+import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
@@ -99,11 +103,11 @@ class UiRegenerator {
 		}
 	}
 
-	void startResourceLoading() {
-		Collection<Resource> resources = tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() );
+	void startAssetLoading() {
+		Collection<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toList() );
 		try {
-			program.getResourceManager().openResourcesAndWait( resources );
-			program.getResourceManager().loadResources( resources );
+			program.getAssetManager().openAssetsAndWait( assets );
+			program.getAssetManager().loadAssets( assets );
 		} catch( Exception exception ) {
 			program.getNoticeManager().error( exception );
 		}
@@ -119,8 +123,7 @@ class UiRegenerator {
 		workarea.setName( "Default" );
 		workspace.setActiveWorkarea( workarea );
 
-		program.getResourceManager().open( ProgramGuideType.URI );
-		program.getResourceManager().open( ProgramWelcomeType.URI );
+		if( !TestUtil.isTest() ) program.getAssetManager().open( ProgramWelcomeType.URI );
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
@@ -301,7 +304,7 @@ class UiRegenerator {
 				Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
 
-				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
+				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getAsset().getUri() );
 			}
 		}
 
@@ -408,12 +411,12 @@ class UiRegenerator {
 				return;
 			}
 
-			// Create the open resource request
-			OpenResourceRequest openResourceRequest = new OpenResourceRequest().setUri( uri );
+			// Create the open asset request
+			OpenAssetRequest openAssetRequest = new OpenAssetRequest().setUri( uri );
 
 			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( openResourceRequest );
-			openToolRequest.setResource( program.getResourceManager().createResource( uri ) );
+			OpenToolRequest openToolRequest = new OpenToolRequest( openAssetRequest );
+			openToolRequest.setAsset( program.getAssetManager().createAsset( uri ) );
 			openToolRequest.setId( id );
 
 			// Restore the tool

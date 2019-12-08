@@ -27,7 +27,7 @@ file for the Mod, the Java module-info.java file and the mod
 ~~~~
 src/main/java/<package>/<Mod>.java
 src/main/java/module-info.java
-src/main/resources/META-INF/product.card
+src/main/assets/META-INF/product.card
 ~~~~
 
 The Java module-info.java file must have a 'provides' clause for the Mod class. 

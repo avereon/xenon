@@ -1,10 +1,10 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.Codec;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.ResourceException;
-import com.avereon.xenon.resource.Scheme;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.Scheme;
 
 import java.net.URI;
 import java.net.URLConnection;
@@ -19,95 +19,95 @@ public abstract class BaseScheme implements Scheme {
 	}
 
 	@Override
-	public boolean canLoad( Resource resource ) throws ResourceException {
+	public boolean canLoad( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public boolean canSave( Resource resource ) throws ResourceException {
+	public boolean canSave( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public void init( Resource resource ) throws ResourceException {}
+	public void init( Asset asset ) throws AssetException {}
 
 	@Override
-	public void open( Resource resource ) throws ResourceException {}
+	public void open( Asset asset ) throws AssetException {}
 
 	@Override
-	public void load( Resource resource, Codec codec ) throws ResourceException {}
+	public void load( Asset asset, Codec codec ) throws AssetException {}
 
 	@Override
-	public void save( Resource resource, Codec codec ) throws ResourceException {}
+	public void save( Asset asset, Codec codec ) throws AssetException {}
 
 	@Override
-	public void close( Resource resource ) throws ResourceException {}
+	public void close( Asset asset ) throws AssetException {}
 
 	@Override
-	public boolean create( Resource resource ) throws ResourceException {
+	public boolean create( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	/**
-	 * Does the resource exist according to the scheme. Must return true for a
-	 * resource to be loaded.
+	 * Does the asset exist according to the scheme. Must return true for a
+	 * asset to be loaded.
 	 */
 	@Override
-	public boolean exists( Resource resource ) throws ResourceException {
+	public boolean exists( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public void saveAs( Resource resource, Resource aoDestination ) throws ResourceException {}
+	public void saveAs( Asset asset, Asset aoDestination ) throws AssetException {}
 
 	@Override
-	public boolean rename( Resource resource, Resource aoDestination ) throws ResourceException {
+	public boolean rename( Asset asset, Asset aoDestination ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public boolean delete( Resource resource ) throws ResourceException {
+	public boolean delete( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public boolean isFolder( Resource resource ) throws ResourceException {
+	public boolean isFolder( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public boolean isHidden( Resource resource ) throws ResourceException {
+	public boolean isHidden( Asset asset ) throws AssetException {
 		return false;
 	}
 
 	@Override
-	public List<Resource> getRoots() throws ResourceException {
+	public List<Asset> getRoots() throws AssetException {
 		return null;
 	}
 
 	@Override
-	public List<Resource> listResources( Resource resource ) throws ResourceException {
+	public List<Asset> listAssets( Asset asset ) throws AssetException {
 		return null;
 	}
 
 	@Override
-	public long getSize( Resource resource ) throws ResourceException {
+	public long getSize( Asset asset ) throws AssetException {
 		return -1;
 	}
 
 	@Override
-	public long getModifiedDate( Resource resource ) throws ResourceException {
+	public long getModifiedDate( Asset asset ) throws AssetException {
 		return -1;
 	}
 
-	// FIXME Should this be a URLConnection or a more general ResourceConnection?
+	// FIXME Should this be a URLConnection or a more general AssetConnection?
 	@Override
-	public URLConnection getConnection( Resource resource ) {
+	public URLConnection getConnection( Asset asset ) {
 		return null;
 	}
 
-	protected boolean isSupported( Resource resource ) {
-		URI uri = resource.getUri();
+	protected boolean isSupported( Asset asset ) {
+		URI uri = asset.getUri();
 		return uri == null || uri.getScheme().equals( getName() );
 	}
 

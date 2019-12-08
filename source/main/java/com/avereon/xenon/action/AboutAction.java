@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.type.ProgramAboutType;
+import com.avereon.xenon.asset.type.ProgramAboutType;
 import javafx.event.ActionEvent;
 
 public class AboutAction extends Action {
@@ -18,7 +18,7 @@ public class AboutAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getResourceManager().open( ProgramAboutType.URI );
+		getProgram().getAssetManager().open( ProgramAboutType.URI );
 	}
 
 }

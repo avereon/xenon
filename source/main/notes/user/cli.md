@@ -19,7 +19,7 @@ manner:
 Xenon supports named option and unnamed url command line parameters. 
 
 ### URLs
-URL parameters indicate the resources that should be opened by Xenon.
+URL parameters indicate the assets that should be opened by Xenon.
 Any valid URL should be acceptable but may not be able to be supported by 
 Xenon if a supporting mod has not been installed. Also, special 
 handling of file URLs is supported since most URL parameters are based on the 

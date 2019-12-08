@@ -7,11 +7,11 @@ import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -63,8 +63,8 @@ public class AboutTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public AboutTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public AboutTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 		setId( "tool-about" );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
@@ -135,9 +135,9 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.resourceReady( parameters );
-		resourceRefreshed();
+	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+		super.assetReady( parameters );
+		assetRefreshed();
 
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = parameters.getFragment();
@@ -147,9 +147,9 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void resourceRefreshed() throws ToolException {
-		super.resourceRefreshed();
-		ProductCard metadata = getResource().getModel();
+	protected void assetRefreshed() throws ToolException {
+		super.assetRefreshed();
+		ProductCard metadata = getAsset().getModel();
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );
 		} else {

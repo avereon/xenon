@@ -4,10 +4,10 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.ToolException;
-import com.avereon.xenon.workarea.Workpane;
+import com.avereon.xenon.workpane.ToolException;
+import com.avereon.xenon.workpane.Workpane;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -28,8 +28,8 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double SLOPE_RADIUS = 5000;
 
-	public WelcomeTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public WelcomeTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 		setId( "tool-welcome" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "welcome" ) );
 		setTitle( product.rb().text( "tool", "welcome-name" ) );

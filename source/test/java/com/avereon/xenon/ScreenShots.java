@@ -3,15 +3,15 @@ package com.avereon.xenon;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.event.ProgramStartedEvent;
-import com.avereon.xenon.resource.type.ProgramAboutType;
-import com.avereon.xenon.resource.type.ProgramSettingsType;
+import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.tool.about.AboutTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
 import com.avereon.xenon.util.FxUtil;
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneEvent;
-import com.avereon.xenon.workarea.WorkpaneWatcher;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEvent;
+import com.avereon.xenon.workpane.WorkpaneWatcher;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -82,7 +82,7 @@ public abstract class ScreenShots implements Runnable {
 	}
 
 	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
-		program.getResourceManager().open( ProgramSettingsType.URI );
+		program.getAssetManager().open( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
@@ -90,7 +90,7 @@ public abstract class ScreenShots implements Runnable {
 	}
 
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
-		program.getResourceManager().open( ProgramAboutType.URI );
+		program.getAssetManager().open( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );

@@ -4,10 +4,10 @@ import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.FxUtil;
-import com.avereon.xenon.workarea.*;
+import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -36,8 +36,8 @@ public class GuideTool extends ProgramTool {
 	//private GuideActiveListener guideActiveListener;
 
 	@SuppressWarnings( "WeakerAccess" )
-	public GuideTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public GuideTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 		setId( "tool-guide" );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
 		setTitle( product.rb().text( "tool", "guide-name" ) );
@@ -64,7 +64,7 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	protected void deallocate() {
-		// Disconnect from the resource guide
+		// Disconnect from the asset guide
 		getWorkpane().removeWorkpaneListener( activeToolWatcher );
 	}
 

@@ -4,8 +4,8 @@ import com.avereon.settings.Settings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.workarea.Tool;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.workpane.Tool;
 
 import java.net.URI;
 import java.util.Collections;
@@ -17,8 +17,8 @@ public abstract class ProgramTool extends Tool {
 
 	private String uid;
 
-	public ProgramTool( ProgramProduct product, Resource resource ) {
-		super( resource );
+	public ProgramTool( ProgramProduct product, Asset asset ) {
+		super( asset );
 		this.product = product;
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
@@ -31,7 +31,7 @@ public abstract class ProgramTool extends Tool {
 		return product.getProgram();
 	}
 
-	public Set<URI> getResourceDependencies() {
+	public Set<URI> getAssetDependencies() {
 		return Collections.unmodifiableSet( Collections.emptySet() );
 	}
 

@@ -230,9 +230,9 @@
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.node=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.resource=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.about=ALL-UNNAMED
@@ -240,7 +240,7 @@
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.task=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.welcom=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.welcome=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.transaction=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.workarea=ALL-UNNAMED

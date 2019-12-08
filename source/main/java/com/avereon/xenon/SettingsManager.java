@@ -122,14 +122,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	private void updateSettingsGuide() {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( rootSettingsPages );
 
-		// Get the settings program resource
+		// Get the settings program asset
 		try {
 			guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 			// Create the guide tree
 			createGuide( guide.getRoot(), pages );
 		} catch( Exception exception ) {
-			log.error( "Error getting settings resource", exception );
+			log.error( "Error getting settings asset", exception );
 		}
 	}
 

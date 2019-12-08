@@ -50,24 +50,24 @@ also that links are relative to the Avereon website or must be fully qualified.
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-resource">Resource</dt>
+		<dt id="terminology-asset">Asset</dt>
 		<dd>
-			A resource is something on which Xenon operates. Specifically resources
+			A asset is something on which Xenon operates. Specifically assets
 			are things that are 'opened' and 'closed' and sometimes 'loaded' and
-			'saved'. Resources are defined by Uniform Resource Identifiers (URIs) and
-			a URI is used to identify a specific resource to Xenon. Some examples of
-			resources are: 1. An SSH connection to another computer. 2. A file on the
-			local file system. 3. The built-in about resource.
+			'saved'. Assets are defined by Uniform Resource Identifiers (URIs) and
+			a URI is used to identify a specific asset to Xenon. Some examples of
+			assets are: 1. An SSH connection to another computer. 2. A file on the
+			local file system. 3. The built-in about asset.
 		</dd>
 	</dl>
 	<dl>
-		<dt id="terminology-type">Resource Type</dt>
+		<dt id="terminology-asset-type">Asset Type</dt>
 		<dd>
-			Resources are always assigned a resource type in order to identify what
-			tools are available for that resource. If a resource type cannot be
-			determined then Xenon is unable to operate on that resource. Resource
+			Assets are always assigned an asset type in order to identify what
+			tools are available for that asset. If an asset type cannot be
+			determined then Xenon is unable to operate on that asset. Asset
 			types are also used to determine what tools can be used on a particular
-			resource.
+			asset.
 		</dd>
 	</dl>
 	<dl>
@@ -88,7 +88,7 @@ also that links are relative to the Avereon website or must be fully qualified.
 		<dt id="terminology-tool">Tool</dt>
 		<dd>
 			A tool is a graphical component that provides specific functionality to
-			operate on a resource. Some examples of tools are: a text editor, a image
+			operate on an asset. Some examples of tools are: a text editor, a image
 			viewer, a calculator and an SSH terminal. Tools are provided and
 			implemented by mods.
 		</dd>
@@ -162,8 +162,8 @@ also that links are relative to the Avereon website or must be fully qualified.
 		<dt id="terminology-mod">Mod</dt>
 		<dd>
 			A mod is a binary package that provides specific functionality. In
-			specific it provides tools to operate on resources. Mods may also provide
-			additional resource types and actions that can be used by other mods.
+			specific it provides tools to operate on assets. Mods may also provide
+			additional asset types and actions that can be used by other mods.
 		</dd>
 	</dl>
 	<dl>
@@ -195,10 +195,10 @@ also that links are relative to the Avereon website or must be fully qualified.
 
 	<code>${XENON_HOME}/bin/java -m com.avereon.xenon</code>
 
-	<h3 id="cli-uris">URIs (Resources)</h3>
+	<h3 id="cli-uris">URIs (Assets)</h3>
 	<p>
 		Providing a URI to Xenon on the command line instructs Xenon to treat the
-		URI as a resource and attempt to open that resource after starting. Any
+		URI as an asset and attempt to open that asset after starting. Any
 		valid URI should be acceptable but may not be able to be supported by Xenon
 		if a supporting mod has not been installed. Any URI that does not specify a
 		scheme will be interpreted as a file URI. Relative URIs will be resolved
@@ -329,7 +329,7 @@ also that links are relative to the Avereon website or must be fully qualified.
 		Whenever the program is restarted it should return the user to where they
 		left off unless the user specifically changes the settings not to. This
 		means that the program should open the same workspaces with the same
-		workareas with the same tools and resources loaded.
+		workareas with the same tools and assets loaded.
 	</p>
 
 </div>

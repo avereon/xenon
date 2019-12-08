@@ -3,10 +3,10 @@ package com.avereon.xenon.scheme;
 import com.avereon.util.FileUtil;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.Codec;
-import com.avereon.xenon.resource.NullCodecException;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.ResourceException;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.NullCodecException;
+import com.avereon.xenon.asset.AssetException;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -24,13 +24,13 @@ public class FileScheme extends BaseScheme {
 	 */
 	public static final String FILE_CACHE = "scheme.file.cache";
 
-	private List<Resource> roots;
+	private List<Asset> roots;
 
-	//private FileResourceWatcher resourceWatcher;
+	//private FileAssetWatcher assetWatcher;
 
 	public FileScheme( Program program ) {
 		super( program );
-		//resourceWatcher = new FileResourceWatcher();
+		//assetWatcher = new FileAssetWatcher();
 	}
 
 	@Override
@@ -39,217 +39,217 @@ public class FileScheme extends BaseScheme {
 	}
 
 	@Override
-	public boolean canLoad( Resource resource ) throws ResourceException {
-		return isSupported( resource ) && getFile( resource ).canRead();
+	public boolean canLoad( Asset asset ) throws AssetException {
+		return isSupported( asset ) && getFile( asset ).canRead();
 	}
 
 	@Override
-	public boolean canSave( Resource resource ) throws ResourceException {
-		return isSupported( resource ) && getFile( resource ).canWrite();
+	public boolean canSave( Asset asset ) throws AssetException {
+		return isSupported( asset ) && getFile( asset ).canWrite();
 	}
 
 	@Override
-	public void init( Resource resource ) throws ResourceException {
-		super.init( resource );
+	public void init( Asset asset ) throws AssetException {
+		super.init( asset );
 
-		File file = getFile( resource );
+		File file = getFile( asset );
 		boolean folder = file.isDirectory();
 
-		//		// Set the resource display icon.
+		//		// Set the asset display icon.
 		//		String iconName = "file";
 		//		if( folder ) iconName = "folder";
 		//		if( drive ) iconName = "drive";
-		//		resource.putResource( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
+		//		asset.putAsset( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
 		//
-		//		// Set the resource display name.
-		//		resource.putResource( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
+		//		// Set the asset display name.
+		//		asset.putAsset( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
 		//
-		//		// Set the resource display description.
+		//		// Set the asset display description.
 		//		String description = fsv.getSystemTypeDescription( file );
 		//		if( folder && StringUtils.isEmpty( description ) ) description = ProductUtil.getString( program, BundleKey.LABELS, "folder" );
-		//		resource.putResource( FxUtil.DISPLAY_DESC, description );
+		//		asset.putAsset( FxUtil.DISPLAY_DESC, description );
 	}
 
 	@Override
-	public void open( Resource resource ) throws ResourceException {
-		super.open( resource );
+	public void open( Asset asset ) throws AssetException {
+		super.open( asset );
 	}
 
 	@Override
-	public void load( Resource resource, Codec codec ) throws ResourceException {
-		if( codec == null ) throw new NullCodecException( resource );
+	public void load( Asset asset, Codec codec ) throws AssetException {
+		if( codec == null ) throw new NullCodecException( asset );
 
 		InputStream stream = null;
-		File file = getFile( resource );
+		File file = getFile( asset );
 		try {
 			stream = new FileInputStream( file );
-			codec.load( resource, stream );
+			codec.load( asset, stream );
 		} catch( MalformedURLException exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		} catch( IOException exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		} finally {
 			if( stream != null ) {
 				try {
 					stream.close();
 				} catch( IOException exception ) {
-					throw new ResourceException( resource, exception );
+					throw new AssetException( asset, exception );
 				}
 			}
-			// TODO resource.setExternallyModified( false );
+			// TODO asset.setExternallyModified( false );
 		}
 
-		//resourceWatcher.registerWatch( resource );
+		//assetWatcher.registerWatch( asset );
 	}
 
 	@Override
-	public void save( Resource resource, Codec codec ) throws ResourceException {
-		if( codec == null ) throw new NullCodecException( resource );
+	public void save( Asset asset, Codec codec ) throws AssetException {
+		if( codec == null ) throw new NullCodecException( asset );
 
 		OutputStream stream = null;
-		File file = getFile( resource );
+		File file = getFile( asset );
 		try {
 			stream = new FileOutputStream( file );
-			codec.save( resource, stream );
+			codec.save( asset, stream );
 		} catch( MalformedURLException exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		} catch( IOException exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		} finally {
 			if( stream != null ) {
 				try {
 					stream.close();
 				} catch( IOException exception ) {
-					throw new ResourceException( resource, exception );
+					throw new AssetException( asset, exception );
 				}
 			}
-			resource.putResource( RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
+			asset.putResource( ASSET_LAST_SAVED_KEY, System.currentTimeMillis() );
 		}
 	}
 
 	@Override
-	public void close( Resource resource ) throws ResourceException {
-		//resourceWatcher.removeWatch( resource );
-		super.close( resource );
+	public void close( Asset asset ) throws AssetException {
+		//assetWatcher.removeWatch( asset );
+		super.close( asset );
 	}
 
 	@Override
-	public boolean exists( Resource resource ) throws ResourceException {
-		return getFile( resource ).exists();
+	public boolean exists( Asset asset ) throws AssetException {
+		return getFile( asset ).exists();
 	}
 
 	@Override
-	public boolean create( Resource resource ) throws ResourceException {
+	public boolean create( Asset asset ) throws AssetException {
 		try {
-			return getFile( resource ).createNewFile();
+			return getFile( asset ).createNewFile();
 		} catch( IOException exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		}
 	}
 
 	@Override
-	public void saveAs( Resource resource, Resource target ) throws ResourceException {
+	public void saveAs( Asset asset, Asset target ) throws AssetException {
 		// Change the URI.
-		resource.setUri( target.getUri() );
+		asset.setUri( target.getUri() );
 
-		// Save the resource.
-		resource.getScheme().save( resource, resource.getCodec() );
+		// Save the asset.
+		asset.getScheme().save( asset, asset.getCodec() );
 	}
 
 	@Override
-	public boolean rename( Resource resource, Resource target ) throws ResourceException {
+	public boolean rename( Asset asset, Asset target ) throws AssetException {
 		// Change the URI.
-		resource.setUri( target.getUri() );
+		asset.setUri( target.getUri() );
 
 		// Rename the file.
 		try {
-			return getFile( resource ).renameTo( getFile( target ) );
+			return getFile( asset ).renameTo( getFile( target ) );
 		} catch( Exception exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		}
 	}
 
 	@Override
-	public boolean delete( Resource resource ) throws ResourceException {
+	public boolean delete( Asset asset ) throws AssetException {
 		try {
-			File file = getFile( resource );
+			File file = getFile( asset );
 			FileUtil.delete( file.toPath() );
 			return !file.exists();
 		} catch( Exception exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		}
 	}
 
 	@Override
-	public boolean isFolder( Resource resource ) throws ResourceException {
-		return getFile( resource ).isDirectory();
+	public boolean isFolder( Asset asset ) throws AssetException {
+		return getFile( asset ).isDirectory();
 	}
 
 	@Override
-	public boolean isHidden( Resource resource ) throws ResourceException {
-		return getFile( resource ).isHidden();
+	public boolean isHidden( Asset asset ) throws AssetException {
+		return getFile( asset ).isHidden();
 	}
 
 	@Override
-	public List<Resource> getRoots() throws ResourceException {
+	public List<Asset> getRoots() throws AssetException {
 		if( roots == null ) {
 			roots = new ArrayList<>();
 			//			for( File root : File.listRoots() ) {
-			//				roots.add( program.getResourceManager().createResource( root ) );
+			//				roots.add( program.getAssetManager().createAsset( root ) );
 			//			}
 		}
 
-		return new ArrayList<Resource>( roots );
+		return new ArrayList<Asset>( roots );
 	}
 
 	@Override
-	public List<Resource> listResources( Resource resource ) throws ResourceException {
-		if( !isFolder( resource ) ) return new ArrayList<>();
+	public List<Asset> listAssets( Asset asset ) throws AssetException {
+		if( !isFolder( asset ) ) return new ArrayList<>();
 
-		File file = getFile( resource );
+		File file = getFile( asset );
 		File[] children = file.listFiles();
 
 		if( children == null ) return new ArrayList<>();
 
-		//		return program.getResourceManager().createResources( (Object[])children );
+		//		return program.getAssetManager().createAssets( (Object[])children );
 		return null;
 	}
 
 	@Override
-	public long getSize( Resource resource ) throws ResourceException {
-		return getFile( resource ).length();
+	public long getSize( Asset asset ) throws AssetException {
+		return getFile( asset ).length();
 	}
 
 	@Override
-	public long getModifiedDate( Resource resource ) throws ResourceException {
-		File file = getFile( resource );
-		//if( isFolder( resource ) || FileSystemView.getFileSystemView().isDrive( file ) ) throw new ResourceException( resource, "Folders do not have a modified date." );
+	public long getModifiedDate( Asset asset ) throws AssetException {
+		File file = getFile( asset );
+		//if( isFolder( asset ) || FileSystemView.getFileSystemView().isDrive( file ) ) throw new AssetException( asset, "Folders do not have a modified date." );
 		return file.lastModified();
 	}
 
-	//	public void startResourceWatching() {
-	//		resourceWatcher.start();
+	//	public void startAssetWatching() {
+	//		assetWatcher.start();
 	//	}
 	//
-	//	public void stopResourceWatching() {
-	//		resourceWatcher.stop();
+	//	public void stopAssetWatching() {
+	//		assetWatcher.stop();
 	//	}
 
 	/**
 	 * Get the file.
 	 */
-	private File getFile( Resource resource ) throws ResourceException {
-		File file = resource.getResource( FILE_CACHE );
+	private File getFile( Asset asset ) throws AssetException {
+		File file = asset.getResource( FILE_CACHE );
 		if( file != null ) return file;
 
 		// Get the canonical file.
 		try {
-			file = new File( resource.getUri() ).getCanonicalFile();
+			file = new File( asset.getUri() ).getCanonicalFile();
 		} catch( IOException exception ) {
-			throw new ResourceException( resource, exception );
+			throw new AssetException( asset, exception );
 		}
 
-		resource.putResource( FILE_CACHE, file );
+		asset.putResource( FILE_CACHE, file );
 
 		return file;
 	}
@@ -258,14 +258,14 @@ public class FileScheme extends BaseScheme {
 	//	 * Reference:
 	//	 * http://docs.oracle.com/javase/tutorial/essential/io/notification.html
 	//	 */
-	//	private class FileResourceWatcher extends Worker {
+	//	private class FileAssetWatcher extends Worker {
 	//
 	//		private WatchService watchService;
 	//
 	//		private Map<WatchKey, Path> watchServicePaths;
 	//
-	//		public FileResourceWatcher() {
-	//			super( "File Resource Watcher", true );
+	//		public FileAssetWatcher() {
+	//			super( "File Asset Watcher", true );
 	//			watchServicePaths = new ConcurrentHashMap<>();
 	//		}
 	//
@@ -285,7 +285,7 @@ public class FileScheme extends BaseScheme {
 	//		public void run() {
 	//			Path path = null;
 	//			WatchKey key = null;
-	//			Set<Resource> resources = new HashSet<Resource>();
+	//			Set<Asset> assets = new HashSet<Asset>();
 	//			while( isExecutable() ) {
 	//				try {
 	//					try {
@@ -302,7 +302,7 @@ public class FileScheme extends BaseScheme {
 	//					path = watchServicePaths.get( key );
 	//					if( path == null ) continue;
 	//
-	//					// It is common to have multiple events for a single resource.
+	//					// It is common to have multiple events for a single asset.
 	//					for( WatchEvent<?> event : key.pollEvents() ) {
 	//						WatchEvent.Kind<?> kind = event.kind();
 	//						//Log.write( Log.DEVEL, "Watch event: ", event.kind(), " ", event.context(), " ", event.count() );
@@ -311,44 +311,44 @@ public class FileScheme extends BaseScheme {
 	//						if( event.context() == null ) continue;
 	//
 	//						URI uri = path.resolve( (Path)event.context() ).toUri();
-	//						Resource resource = program.getResourceManager().createResource( uri );
-	//						if( !resource.isOpen() ) continue;
+	//						Asset asset = program.getAssetManager().createAsset( uri );
+	//						if( !asset.isOpen() ) continue;
 	//
 	//						// This logic is intended to catch double events and events from our own save.
-	//						Long lastSavedTime = resource.getResource( Resource.RESOURCE_LAST_SAVED_KEY );
-	//						resource.putResource( Resource.RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
+	//						Long lastSavedTime = asset.getResource( Asset.RESOURCE_LAST_SAVED_KEY );
+	//						asset.putResource( Asset.RESOURCE_LAST_SAVED_KEY, System.currentTimeMillis() );
 	//
 	//						// This timeout needs to be long enough for the OS to react.
-	//						// In the case of network resources it can take a couple of seconds.
+	//						// In the case of network assets it can take a couple of seconds.
 	//						if( lastSavedTime != null && System.currentTimeMillis() - lastSavedTime < 2500 ) continue;
 	//
-	//						resources.add( resource );
+	//						assets.add( asset );
 	//					}
 	//
-	//					for( Resource resource : resources ) {
-	//						resource.setExternallyModified( true );
-	//						//Log.write( Log.DEVEL, "Resource externally modified: ", resource );
+	//					for( Asset asset : assets ) {
+	//						asset.setExternallyModified( true );
+	//						//Log.write( Log.DEVEL, "Asset externally modified: ", asset );
 	//					}
 	//				} finally {
-	//					if( resources != null ) resources.clear();
+	//					if( assets != null ) assets.clear();
 	//					if( key != null ) key.reset();
 	//				}
 	//			}
 	//		}
 	//
-	//		public void registerWatch( Resource resource ) throws ResourceException {
-	//			Path path = getFile( resource ).getParentFile().toPath();
+	//		public void registerWatch( Asset asset ) throws AssetException {
+	//			Path path = getFile( asset ).getParentFile().toPath();
 	//			try {
 	//				WatchKey key = path.register( watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
 	//				watchServicePaths.add( key, path );
-	//				resource.putResource( "java.nio.file.WatchKey", key );
+	//				asset.putResource( "java.nio.file.WatchKey", key );
 	//			} catch( IOException exception ) {
 	//				Log.write( exception );
 	//			}
 	//		}
 	//
-	//		public void removeWatch( Resource resource ) {
-	//			WatchKey key = resource.getResource( "java.nio.file.WatchKey" );
+	//		public void removeWatch( Asset asset ) {
+	//			WatchKey key = asset.getResource( "java.nio.file.WatchKey" );
 	//			if( key == null ) return;
 	//			key.cancel();
 	//			watchServicePaths.remove( key );

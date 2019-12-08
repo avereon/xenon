@@ -318,14 +318,14 @@
 			</group>
 		</page>
 		<!--
-		<page id="resource-manager">
+		<page id="asset-manager">
 			<group id="options">
-				<setting key="resource-showuri" editor="checkbox" />
+				<setting key="asset-showuri" editor="checkbox" />
 			</group>
 			<group id="colors">
-				<setting key="resource-color-hidden" editor="color" />
-				<setting key="resource-color-disabled" editor="color" />
-				<setting key="resource-color-modified" editor="color" />
+				<setting key="asset-color-hidden" editor="color" />
+				<setting key="asset-color-disabled" editor="color" />
+				<setting key="asset-color-modified" editor="color" />
 			</group>
 		</page>
 		-->

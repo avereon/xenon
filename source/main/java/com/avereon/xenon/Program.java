@@ -18,10 +18,10 @@ import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductManagerLogic;
 import com.avereon.xenon.product.ProgramProductManager;
 import com.avereon.xenon.product.RepoState;
-import com.avereon.xenon.resource.ResourceException;
-import com.avereon.xenon.resource.ResourceManager;
-import com.avereon.xenon.resource.ResourceType;
-import com.avereon.xenon.resource.type.*;
+import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.AssetManager;
+import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.ProgramScheme;
 import com.avereon.xenon.task.Task;
@@ -115,7 +115,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ToolManager toolManager;
 
-	private ResourceManager resourceManager;
+	private AssetManager assetManager;
 
 	private WorkspaceManager workspaceManager;
 
@@ -361,14 +361,14 @@ public class Program extends Application implements ProgramProduct {
 
 		Platform.runLater( () -> splashScreen.update() );
 
-		// Start the resource manager
-		log.trace( "Starting resource manager..." );
-		resourceManager = new ResourceManager( Program.this );
-		registerSchemes( resourceManager );
-		registerResourceTypes( resourceManager );
-		resourceManager.start();
+		// Start the asset manager
+		log.trace( "Starting asset manager..." );
+		assetManager = new AssetManager( Program.this );
+		registerSchemes( assetManager );
+		registerAssetTypes( assetManager );
+		assetManager.start();
 		Platform.runLater( () -> splashScreen.update() );
-		log.debug( "Resource manager started." );
+		log.debug( "Asset manager started." );
 
 		// Load the settings pages
 		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES_XML );
@@ -424,8 +424,8 @@ public class Program extends Application implements ProgramProduct {
 			time( "splash hidden" );
 		} );
 
-		// Initiate resource loading
-		uiRegenerator.startResourceLoading();
+		// Initiate asset loading
+		uiRegenerator.startAssetLoading();
 
 		// Set the workarea actions
 		getActionLibrary().getAction( "workarea-new" ).pushAction( new NewWorkareaAction( Program.this ) );
@@ -435,8 +435,8 @@ public class Program extends Application implements ProgramProduct {
 		// Check to see if the application was updated
 		if( isProgramUpdated() ) Platform.runLater( this::notifyProgramUpdated );
 
-		// Open resources specified on the command line
-		processResources( getProgramParameters() );
+		// Open assets specified on the command line
+		processAssets( getProgramParameters() );
 	}
 
 	// THREAD TaskPool-worker
@@ -532,13 +532,13 @@ public class Program extends Application implements ProgramProduct {
 
 		// NOTE Do not try to remove the settings pages during shutdown
 
-		// Stop the resource manager
-		if( resourceManager != null ) {
-			log.trace( "Stopping resource manager..." );
-			resourceManager.stop();
-			unregisterResourceTypes( resourceManager );
-			unregisterSchemes( resourceManager );
-			log.debug( "Resource manager stopped." );
+		// Stop the asset manager
+		if( assetManager != null ) {
+			log.trace( "Stopping asset manager..." );
+			assetManager.stop();
+			unregisterAssetTypes( assetManager );
+			unregisterSchemes( assetManager );
+			log.debug( "Asset manager stopped." );
 		}
 
 		// Disconnect the settings listener
@@ -741,8 +741,8 @@ public class Program extends Application implements ProgramProduct {
 		return toolManager;
 	}
 
-	public final ResourceManager getResourceManager() {
-		return resourceManager;
+	public final AssetManager getAssetManager() {
+		return assetManager;
 	}
 
 	public final WorkspaceManager getWorkspaceManager() {
@@ -878,21 +878,21 @@ public class Program extends Application implements ProgramProduct {
 	//	}
 
 	/**
-	 * Process the resources specified on the command line.
+	 * Process the assets specified on the command line.
 	 *
 	 * @param parameters The command line parameters
 	 */
-	void processResources( com.avereon.util.Parameters parameters ) {
+	void processAssets( com.avereon.util.Parameters parameters ) {
 		List<String> uris = parameters.getUris();
 		if( uris.size() == 0 ) return;
 
 		getWorkspaceManager().showActiveWorkspace();
 
-		// Open the resources provided on the command line
+		// Open the assets provided on the command line
 		for( String uri : uris ) {
 			try {
-				getResourceManager().openResourcesAndWait( getResourceManager().createResource( uri ) );
-			} catch( ExecutionException | ResourceException exception ) {
+				getAssetManager().openAssetsAndWait( getAssetManager().createAsset( uri ) );
+			} catch( ExecutionException | AssetException exception ) {
 				log.warn( "Unable to open: " + uri );
 			} catch( InterruptedException exception ) {
 				// Intentionally ignore exception
@@ -1021,11 +1021,11 @@ public class Program extends Application implements ProgramProduct {
 
 	private void registerIcons() {
 		getIconLibrary().register( "program", XRingLargeIcon.class );
-		getIconLibrary().register( "resource-new", DocumentIcon.class );
-		getIconLibrary().register( "resource-open", FolderIcon.class );
-		//getIconLibrary().register( "resource-save", SaveIcon.class );
-		getIconLibrary().register( "resource-save", LightningIcon.class );
-		getIconLibrary().register( "resource-close", DocumentCloseIcon.class );
+		getIconLibrary().register( "asset-new", DocumentIcon.class );
+		getIconLibrary().register( "asset-open", FolderIcon.class );
+		//getIconLibrary().register( "asset-save", SaveIcon.class );
+		getIconLibrary().register( "asset-save", LightningIcon.class );
+		getIconLibrary().register( "asset-close", DocumentCloseIcon.class );
 		getIconLibrary().register( "exit", PowerIcon.class );
 
 		getIconLibrary().register( "close", CloseIcon.class );
@@ -1121,34 +1121,34 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 	}
 
-	private void registerSchemes( ResourceManager manager ) {
+	private void registerSchemes( AssetManager manager ) {
 		manager.addScheme( new ProgramScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 	}
 
-	private void unregisterSchemes( ResourceManager manager ) {
+	private void unregisterSchemes( AssetManager manager ) {
 		manager.removeScheme( "program" );
 		manager.removeScheme( "file" );
 	}
 
-	private void registerResourceTypes( ResourceManager manager ) {
-		manager.registerUriResourceType( ProgramGuideType.URI, new ProgramGuideType( this ) );
-		manager.registerUriResourceType( ProgramAboutType.URI, new ProgramAboutType( this ) );
-		manager.registerUriResourceType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
-		manager.registerUriResourceType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
-		manager.registerUriResourceType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
-		manager.registerUriResourceType( ProgramProductType.URI, new ProgramProductType( this ) );
-		manager.registerUriResourceType( ProgramTaskType.URI, new ProgramTaskType( this ) );
+	private void registerAssetTypes( AssetManager manager ) {
+		manager.registerUriAssetType( ProgramGuideType.URI, new ProgramGuideType( this ) );
+		manager.registerUriAssetType( ProgramAboutType.URI, new ProgramAboutType( this ) );
+		manager.registerUriAssetType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
+		manager.registerUriAssetType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
+		manager.registerUriAssetType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
+		manager.registerUriAssetType( ProgramProductType.URI, new ProgramProductType( this ) );
+		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
 	}
 
-	private void unregisterResourceTypes( ResourceManager manager ) {
-		manager.unregisterUriResourceType( ProgramTaskType.URI );
-		manager.unregisterUriResourceType( ProgramProductType.URI );
-		manager.unregisterUriResourceType( ProgramNoticeType.URI );
-		manager.unregisterUriResourceType( ProgramWelcomeType.URI );
-		manager.unregisterUriResourceType( ProgramSettingsType.URI );
-		manager.unregisterUriResourceType( ProgramAboutType.URI );
-		manager.unregisterUriResourceType( ProgramGuideType.URI );
+	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.unregisterUriAssetType( ProgramTaskType.URI );
+		manager.unregisterUriAssetType( ProgramProductType.URI );
+		manager.unregisterUriAssetType( ProgramNoticeType.URI );
+		manager.unregisterUriAssetType( ProgramWelcomeType.URI );
+		manager.unregisterUriAssetType( ProgramSettingsType.URI );
+		manager.unregisterUriAssetType( ProgramAboutType.URI );
+		manager.unregisterUriAssetType( ProgramGuideType.URI );
 	}
 
 	private void registerTools( ToolManager manager ) {
@@ -1181,13 +1181,13 @@ public class Program extends Application implements ProgramProduct {
 
 	private void registerTool(
 		ToolManager manager,
-		Class<? extends ResourceType> resourceTypeClass,
+		Class<? extends AssetType> assetTypeClass,
 		Class<? extends ProgramTool> toolClass,
 		ToolInstanceMode mode,
 		String toolRbKey,
 		String iconKey
 	) {
-		ResourceType type = resourceManager.getResourceType( resourceTypeClass.getName() );
+		AssetType type = assetManager.getAssetType( assetTypeClass.getName() );
 		String name = rb().text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
@@ -1196,8 +1196,8 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerTool( type, metadata );
 	}
 
-	private void unregisterTool( ToolManager manager, Class<? extends ResourceType> resourceTypeClass, Class<? extends ProgramTool> toolClass ) {
-		manager.unregisterTool( resourceManager.getResourceType( resourceTypeClass.getName() ), toolClass );
+	private void unregisterTool( ToolManager manager, Class<? extends AssetType> assetTypeClass, Class<? extends ProgramTool> toolClass ) {
+		manager.unregisterTool( assetManager.getAssetType( assetTypeClass.getName() ), toolClass );
 	}
 
 	private TaskManager configureTaskManager( TaskManager taskManager ) {
@@ -1226,7 +1226,7 @@ public class Program extends Application implements ProgramProduct {
 		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = rb().text( BundleKey.UPDATE, "updates" );
 		String message = rb().text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getResourceManager().open( ProgramAboutType.URI ) ).setRead( true ) );
+		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().open( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 
 	private boolean calcProgramUpdated() {

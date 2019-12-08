@@ -12,10 +12,9 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.event.WorkareaChangedEvent;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.resource.type.ProgramTaskType;
+import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.util.TimerUtil;
-import com.avereon.xenon.workarea.Workarea;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -249,7 +248,7 @@ public class Workspace implements Configurable {
 		taskMonitorContainer = new Group();
 
 		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> program.getResourceManager().open( ProgramTaskType.URI ) );
+		taskMonitor.setOnMouseClicked( ( event ) -> program.getAssetManager().open( ProgramTaskType.URI ) );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();

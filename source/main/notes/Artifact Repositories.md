@@ -149,7 +149,7 @@ of the Internet is HTTP then it can be used to provide a smarter repository
 experience. Not only that, but it can provide multiple experiences over time
 and even at the same time for smooth transitions. By making a well defined and
 hopefully simple set of rules how a client will interact with a repository and
-determine what resources it wants then a reasonable repository can be defined.
+determine what assets it wants then a reasonable repository can be defined.
 
     namespace (helps distribute file structure)
     name

@@ -20,7 +20,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.notice;
-	exports com.avereon.xenon.resource;
+	exports com.avereon.xenon.asset;
 	exports com.avereon.xenon.task;
 	exports com.avereon.xenon.task.chain;
 	exports com.avereon.xenon.tool;
@@ -28,7 +28,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.tool.settings;
 	exports com.avereon.xenon.product;
 	exports com.avereon.xenon.util;
-	exports com.avereon.xenon.workarea;
+	exports com.avereon.xenon.workpane;
 	exports com.avereon.xenon.workspace;
 
 	opens com.avereon.xenon.bundles;

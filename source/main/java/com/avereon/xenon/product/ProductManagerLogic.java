@@ -8,7 +8,7 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.notice.Notice;
-import com.avereon.xenon.resource.type.ProgramProductType;
+import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.chain.TaskChain;
 import com.avereon.xenon.tool.product.ProductTool;
@@ -604,7 +604,7 @@ public class ProductManagerLogic {
 
 	private void openProductTool() {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
-		Platform.runLater( () -> program.getResourceManager().open( uri ) );
+		Platform.runLater( () -> program.getAssetManager().open( uri ) );
 	}
 
 	private void notifyUserOfUpdates() {
@@ -612,7 +612,7 @@ public class ProductManagerLogic {
 		String message = program.rb().text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
-		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
+		Notice notice = new Notice( title, message, () -> program.getAssetManager().open( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );

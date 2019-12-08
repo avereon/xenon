@@ -49,7 +49,7 @@ public class ToolManagerTest extends BaseTestCase {
 
 	@Test
 	@SuppressWarnings( "ConstantConditions" )
-	void testOpenToolWithNullResource() {
+	void testOpenToolWithNullAsset() {
 		taskManager.submit( Task.of( "", () -> {
 			try {
 				toolManager.openTool( null );

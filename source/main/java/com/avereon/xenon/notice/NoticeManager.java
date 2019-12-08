@@ -3,11 +3,11 @@ package com.avereon.xenon.notice;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.ResourceException;
-import com.avereon.xenon.resource.type.ProgramNoticeType;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.tool.notice.NoticeTool;
-import com.avereon.xenon.workarea.Tool;
+import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -24,7 +24,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private Program program;
 
-	private Resource resource;
+	private Asset asset;
 
 	private IntegerProperty unreadCount = new SimpleIntegerProperty();
 
@@ -62,7 +62,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void addNotice( Notice notice ) {
 		getNoticeList().addNotice( notice );
-		resource.refresh( program.getResourceManager() );
+		asset.refresh( program.getAssetManager() );
 
 		Platform.runLater( () -> {
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
@@ -77,12 +77,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void removeNotice( Notice notice ) {
 		getNoticeList().removeNotice( notice );
-		resource.refresh( program.getResourceManager() );
+		asset.refresh( program.getAssetManager() );
 	}
 
 	public void removeAll() {
 		getNoticeList().clearAll();
-		resource.refresh( program.getResourceManager() );
+		asset.refresh( program.getAssetManager() );
 	}
 
 	public IntegerProperty unreadCountProperty() {
@@ -115,11 +115,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	@Override
 	public NoticeManager start() {
 		try {
-			resource = program.getResourceManager().createResource( ProgramNoticeType.URI );
-			program.getResourceManager().loadResources( resource );
+			asset = program.getAssetManager().createAsset( ProgramNoticeType.URI );
+			program.getAssetManager().loadAssets( asset );
 			// TODO Register an event listener to show unread messages after the program is finished starting
 			// At startup there may be notices that need to be shown but the workspace has not been restored yet
-		} catch( ResourceException exception ) {
+		} catch( AssetException exception ) {
 			exception.printStackTrace();
 		}
 
@@ -129,12 +129,12 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	@Override
 	public NoticeManager stop() {
 		// TODO Unregister an event listener to show unread messages when there is an active workspace
-		program.getResourceManager().saveResources( resource );
+		program.getAssetManager().saveAssets( asset );
 		return this;
 	}
 
 	private NoticeList getNoticeList() {
-		return (NoticeList)resource.getModel();
+		return (NoticeList)asset.getModel();
 	}
 
 	private void updateUnreadCount() {
