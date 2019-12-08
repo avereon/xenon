@@ -243,7 +243,7 @@
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.welcome=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.transaction=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.workarea=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
