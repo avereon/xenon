@@ -1,6 +1,7 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.product.Product;
+import com.avereon.product.ProductEvent;
 import com.avereon.product.ProductEventListener;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
@@ -47,6 +48,7 @@ public class ProgramAboutType extends AssetType {
 		// FIXME This isn't working
 		ProductEventWatcher watcher = asset.getResource( WATCHER_KEY );
 		if( watcher == null ) {
+			log.warn( "Adding program event listener..." );
 			watcher = new ProductEventWatcher( program, asset );
 			asset.putResource( WATCHER_KEY, watcher );
 			program.addEventListener( watcher );
@@ -55,7 +57,7 @@ public class ProgramAboutType extends AssetType {
 		return true;
 	}
 
-	private static class ProductEventWatcher implements ProductEventListener<ProductManagerEvent> {
+	private static class ProductEventWatcher implements ProductEventListener<ProductEvent> {
 
 		private Program program;
 
@@ -67,9 +69,12 @@ public class ProgramAboutType extends AssetType {
 		}
 
 		@Override
-		public void handleEvent( ProductManagerEvent event ) {
-			log.warn( event.getType().toString() );
-			asset.refresh( program.getAssetManager() );
+		public void handleEvent( ProductEvent event ) {
+			if( event instanceof ProductManagerEvent  ) {
+				ProductManagerEvent pmEvent = (ProductManagerEvent)event;
+				log.warn( pmEvent.getType().toString() );
+				asset.refresh( program.getAssetManager() );
+			}
 		}
 
 	}
