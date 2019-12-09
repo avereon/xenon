@@ -6,7 +6,16 @@ import com.avereon.product.ProductEvent;
 public class ProductManagerEvent extends ProductEvent {
 
 	public enum Type {
-		PRODUCT_CHANGED, PRODUCT_ENABLED, PRODUCT_DISABLED, PRODUCT_INSTALLED, PRODUCT_REMOVED, PRODUCT_STAGED, PRODUCT_UPDATED
+		MOD_REGISTERED,
+		MOD_STARTED,
+		MOD_STOPPED,
+		MOD_UNREGISTERED,
+		PRODUCT_ENABLED,
+		PRODUCT_DISABLED,
+		PRODUCT_INSTALLED,
+		PRODUCT_REMOVED,
+		PRODUCT_STAGED,
+		PRODUCT_UPDATED
 	}
 
 	private Type type;
@@ -25,6 +34,10 @@ public class ProductManagerEvent extends ProductEvent {
 
 	public ProductCard getMetadata() {
 		return card;
+	}
+
+	public String toString() {
+		return super.toString() + ":" + getType() + ":" + getMetadata().toString();
 	}
 
 }

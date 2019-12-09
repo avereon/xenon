@@ -771,6 +771,10 @@ public class Program extends Application implements ProgramProduct {
 		event.fire( listeners );
 	}
 
+	public Set<ProductEventListener> getListeners() {
+		return listeners;
+	}
+
 	private static void time( String markerName ) {
 		if( !showTiming ) return;
 		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread
