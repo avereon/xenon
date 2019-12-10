@@ -8,6 +8,7 @@ import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -450,8 +451,8 @@ public class AboutTool extends GuidedTool {
 		builder.append( "Version:     " ).append( card.getVersion() ).append( "\n" );
 		builder.append( "Timestamp:   " ).append( card.getTimestamp() ).append( "\n" );
 
-		//		ProductManager productManager = getProgram().getProductManager();
-		//		builder.append( "Enabled:     " + productManager.isEnabled( card )).append( "\n" );
+		ProductManager productManager = getProgram().getProductManager();
+		builder.append( "Enabled:     " + productManager.isEnabled( card ) ).append( "\n" );
 		//		builder.append( "Updatable:   " + productManager.isUpdatable( card )).append( "\n" );
 		//		builder.append( "Removable:   " + productManager.isRemovable( card )).append( "\n" );
 

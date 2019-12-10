@@ -45,7 +45,9 @@ public class ProgramAboutType extends AssetType {
 	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
 		asset.setModel( getProduct().getCard() );
 
-		// FIXME This isn't working
+		// FIXME I'm not sure I like this implementation but it works
+		// Not sure if using a listener for this singleton instance is how I
+		// want to handle the asset/model/tool relationship.
 		ProductEventWatcher watcher = asset.getResource( WATCHER_KEY );
 		if( watcher == null ) {
 			log.warn( "Adding program event listener..." );
