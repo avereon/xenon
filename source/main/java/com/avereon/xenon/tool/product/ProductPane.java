@@ -210,7 +210,7 @@ class ProductPane extends MigPane {
 	}
 
 	private void toggleEnabled(boolean enabled) {
-		manager.setEnabled( source, enabled );
+		manager.setModEnabled( source, enabled );
 		updateProductState();
 	}
 

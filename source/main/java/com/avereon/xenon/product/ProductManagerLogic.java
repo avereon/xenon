@@ -558,7 +558,7 @@ public class ProductManagerLogic {
 				if( update == null ) continue;
 				ProductCard card = update.getCard();
 
-				log.debug( "Product downloaded: " + update.getCard().getProductKey() );
+				log.debug( "Product update downloaded: " + update.getCard().getProductKey() );
 
 				// Install the products.
 				try {
@@ -569,11 +569,11 @@ public class ProductManagerLogic {
 					log.error( "Error installing: " + card, exception );
 				}
 			} catch( Exception exception ) {
-				log.error( "Error creating product install pack", exception );
+				log.error( "Error creating product update pack", exception );
 			}
 		}
 
-		log.debug( "Product install count: " + installedProducts.size() );
+		log.debug( "Product update count: " + installedProducts.size() );
 
 		return installedProducts;
 	}

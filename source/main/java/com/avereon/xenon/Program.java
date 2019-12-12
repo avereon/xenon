@@ -554,6 +554,9 @@ public class Program extends Application implements ProgramProduct {
 		// Unregister icons
 		if( iconLibrary != null ) unregisterIcons();
 
+		// Unregister the program
+		if( productManager != null ) productManager.unregisterProgram( this );
+
 		// Stop the program server
 		if( programServer != null ) {
 			log.trace( "Stopping program server..." );
@@ -1218,7 +1221,7 @@ public class Program extends Application implements ProgramProduct {
 		productManager.setSettings( programSettings );
 
 		// Register the product
-		productManager.registerProduct( this );
+		productManager.registerProgram( this );
 
 		return productManager;
 	}

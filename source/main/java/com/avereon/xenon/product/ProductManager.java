@@ -279,23 +279,24 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return productCards;
 	}
 
-	public void registerProduct( Product product ) {
+	private void registerProduct( Product product ) {
 		ProductCard card = product.getCard();
-
 		String productKey = card.getProductKey();
 		products.put( productKey, product );
 		productCards.put( productKey, card );
 		productStates.put( productKey, new ProductState() );
+	}
+
+	public void registerProgram( Program program ) {
+		registerProduct( program );
+		ProductCard card = program.getCard();
 
 		setUpdatable( card, true );
 		setRemovable( card, false );
-		setEnabled( card, true );
 	}
 
 	private void registerMod( Mod mod ) {
-		// Treat mods like other products
 		registerProduct( mod );
-
 		ProductCard card = mod.getCard();
 
 		// Add the mod to the collection
@@ -304,6 +305,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Set the state flags
 		setUpdatable( card, card.getProductUri() != null );
 		setRemovable( card, true );
+		// Don't set enabled here
 	}
 
 	private void unregisterProduct( Product product ) {
@@ -313,14 +315,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productStates.remove( productKey );
 	}
 
-	private void unregisterProduct( Mod mod ) {
+	public void unregisterProgram( Program program ) {
+		unregisterProduct( program );
+	}
+
+	private void unregisterMod( Mod mod ) {
 		ProductCard card = mod.getCard();
 
 		// Remove the module.
 		modules.remove( card.getProductKey() );
 
 		// Treat mods like other products
-		unregisterProduct( (Product)mod );
+		unregisterProduct( mod );
 	}
 
 	public Task<Collection<InstalledProduct>> installProducts( ProductCard... cards ) {
@@ -416,25 +422,31 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
-	public void setEnabled( ProductCard card, boolean enabled ) {
-		if( isEnabled( card ) == enabled ) return;
+	public boolean isModEnabled( Mod mod ) {
+		return isEnabled( mod.getCard() );
+	}
 
+	public void setModEnabled( ProductCard card, boolean enabled ) {
 		Mod mod = getMod( card.getProductKey() );
+		if( mod != null ) setModEnabled( mod, enabled );
+	}
 
-		// Should be before after setting the enabled flag
-		if( mod != null && !enabled ) callModDestroy( mod );
+	private void setModEnabled( Mod mod, boolean enabled ) {
+		if( isModEnabled( mod ) == enabled ) return;
 
-		Settings settings = program.getSettingsManager().getProductSettings( card );
+		// Should be called before setting the enabled flag
+		if( !enabled ) callModShutdown( mod );
+
+		Settings settings = program.getSettingsManager().getProductSettings( mod.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.trace( "Set product enabled: " + settings.getPath() + ": " + enabled );
-
-		// Should be called after setting the enabled flag
-		if( mod != null && enabled ) callModCreate( mod );
-
-		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card )
+		log.trace( "Set mod enabled: " + settings.getPath() + ": " + enabled );
+		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.MOD_ENABLED : ProductManagerEvent.Type.MOD_DISABLED, mod.getCard() )
 			.fire( listeners )
 			.fire( program.getListeners() );
+
+		// Should be called after setting the enabled flag
+		if( enabled ) callModStart( mod );
 	}
 
 	public CheckOption getCheckOption() {
@@ -871,11 +883,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public void startMods() {
-		modules.values().forEach( this::callModCreate );
+		modules.values().forEach( this::callModStart );
 	}
 
 	public void stopMods() {
-		modules.values().forEach( this::callModDestroy );
+		modules.values().forEach( this::callModShutdown );
 	}
 
 	@SuppressWarnings( "Convert2Diamond" )
@@ -951,70 +963,66 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		copyProductResources( resources, installFolder );
 		log.debug( "Mod copied to: " + installFolder );
 
-		// Load the mods
+		// Load the mod
 		loadModules( getUserModuleFolder() );
 		log.debug( "Mod loaded from: " + getUserModuleFolder() );
 
 		// Allow the mod to register resources
 		callModRegister( getMod( card.getProductKey() ) );
-		log.debug( "Mod registered as: " + card.getProductKey() );
+		log.debug( "Mod registered: " + card.getProductKey() );
 
 		// Set the enabled state
-		setEnabled( card, true );
+		setModEnabled( getMod( card.getProductKey() ), true );
 		log.debug( "Mod enabled: " + card.getProductKey() );
-
-		// Notify listeners of install
-		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners ).fire( program.getListeners() );
 	}
 
 	void doRemoveMod( Mod mod ) {
 		ProductCard card = mod.getCard();
-
 		Path installFolder = card.getInstallFolder();
+		String source = installFolder == null ? "classpath" : installFolder.toString();
 
-		log.debug( "Remove product from: " + installFolder );
+		log.debug( "Remove product from: " + source );
 
 		// Disable the product
-		setEnabled( card, false );
+		setModEnabled( mod, false );
+		log.debug( "Mod disabled: " + card.getProductKey() );
 
+		// Allow the mod to unregister resources
 		callModUnregister( mod );
+		log.debug( "Mod unregistered: " + card.getProductKey() );
 
+		// Unload the mod
 		unloadMod( mod );
-
-		// Remove the product from the manager
-		unregisterProduct( mod );
+		log.debug( "Mod unloaded from: " + source );
 
 		// Remove the product settings
 		program.getSettingsManager().getProductSettings( card ).delete();
-
-		// Notify listeners of remove
-		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_REMOVED, card ).fire( listeners ).fire( program.getListeners() );
 	}
 
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
-			//new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_REGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_REGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error registering mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
-	private void callModCreate( Mod mod ) {
+	private void callModStart( Mod mod ) {
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
-			//new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_STARTED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_STARTED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error starting mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
-	private void callModDestroy( Mod mod ) {
+	private void callModShutdown( Mod mod ) {
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
-			//new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_STOPPED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_STOPPED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1023,7 +1031,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
-			//new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_UNREGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_UNREGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1128,8 +1136,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// Set the mod install folder
 			card.setInstallFolder( source );
 
-			// Register the mod
+			// Add the product registration to the manager
 			registerMod( mod );
+
+			// Notify listeners of install
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_INSTALLED, card ).fire( listeners ).fire( program.getListeners() );
 
 			log.debug( "Mod loaded: " + message );
 		} catch( Throwable throwable ) {
@@ -1138,7 +1149,22 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	private void unloadMod( Mod mod ) {
-		// Not sure what to do to unload a mod
+		ProductCard card = mod.getCard();
+
+		String message = card.getProductKey();
+		try {
+			log.debug( "Unloading mod: " + message );
+
+			// Remove the product registration from the manager
+			unregisterMod( mod );
+
+			// Notify listeners of remove
+			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_REMOVED, card ).fire( listeners ).fire( program.getListeners() );
+
+			log.debug( "Mod unloaded: " + message );
+		} catch( Throwable throwable ) {
+			log.error( "Error unloading mod " + message, throwable );
+		}
 	}
 
 	private final class SettingsChangeHandler implements SettingsListener {

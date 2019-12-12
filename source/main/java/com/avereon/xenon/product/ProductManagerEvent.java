@@ -6,16 +6,17 @@ import com.avereon.product.ProductEvent;
 public class ProductManagerEvent extends ProductEvent {
 
 	public enum Type {
+		MOD_INSTALLED,
 		MOD_REGISTERED,
+		MOD_ENABLED,
 		MOD_STARTED,
+
 		MOD_STOPPED,
+		MOD_DISABLED,
 		MOD_UNREGISTERED,
-		PRODUCT_ENABLED,
-		PRODUCT_DISABLED,
-		PRODUCT_INSTALLED,
-		PRODUCT_REMOVED,
-		PRODUCT_STAGED,
-		PRODUCT_UPDATED
+		MOD_REMOVED,
+
+		PRODUCT_STAGED
 	}
 
 	private Type type;
