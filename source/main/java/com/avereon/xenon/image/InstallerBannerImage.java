@@ -6,7 +6,6 @@ import com.avereon.xenon.icon.XRingLargeIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
-import java.io.InputStream;
 import java.net.URL;
 
 public class InstallerBannerImage extends ProgramImage {
@@ -20,9 +19,7 @@ public class InstallerBannerImage extends ProgramImage {
 		setHeight( 180 );
 
 		try {
-			try( InputStream input = getClass().getResourceAsStream( ProductCard.CARD ) ) {
-				card = new ProductCard().load( input, null );
-			}
+			card = new ProductCard().load( getClass() );
 			providerUrl = new URL( card.getProviderUrl() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();

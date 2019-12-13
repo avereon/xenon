@@ -357,7 +357,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
-		this.card.load( getClass() );
+		this.card.load( this );
 
 		Platform.runLater( () -> splashScreen.update() );
 
