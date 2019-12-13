@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Xenon with Mazer" type="Application" factoryName="Application">
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
+    <module name="mazer" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.avereon.xenon.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
