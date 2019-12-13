@@ -13,8 +13,6 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	private Program program;
 
-	private boolean enabled;
-
 	private ActionProxy proxy;
 
 	protected Action( Program program ) {
@@ -33,7 +31,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 	 * @return If the action is enabled
 	 */
 	public boolean isEnabled() {
-		return enabled;
+		return false;
 	}
 
 	public Action updateEnabled() {
