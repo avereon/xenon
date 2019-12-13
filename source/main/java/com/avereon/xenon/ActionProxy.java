@@ -7,7 +7,9 @@ import javafx.event.EventHandler;
 import java.util.Stack;
 
 /**
- * Associated with menu items and tool bar buttons as a proxy for that item so more than one action can be pushed and pulled from the proxy without loosing what was already registered.
+ * Associated with menu items and tool bar buttons as a proxy for that item so
+ * more than one action can be pushed and pulled from the proxy without loosing
+ * what was already registered.
  */
 public class ActionProxy implements EventHandler<ActionEvent> {
 
@@ -137,17 +139,19 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	public void pushAction( Action action ) {
 		pullAction( action );
 		actionStack.push( action );
+		action.setActionProxy( this );
 		updateEnabled();
 	}
 
 	public void pullAction( Action action ) {
+		action.setActionProxy( null );
 		actionStack.remove( action );
 		updateEnabled();
 	}
 
 	private void updateEnabled() {
-		Action action = actionStack.size() == 0 ? null : actionStack.peek();
-		setEnabled( action != null && action.isEnabled() );
+		if( actionStack.size() == 0 ) return;
+		setEnabled( actionStack.peek().isEnabled() );
 	}
 
 	private void updateMnemonicName() {

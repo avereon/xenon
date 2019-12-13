@@ -9,10 +9,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * <p>
- * The AssetType class represents an asset type. A asset must always
+ * The AssetType class represents an asset type. An asset must always
  * have an asset type and may be directly specified, or determined by the the
  * URI. Asset types may have one or more associated codecs. {@link Scheme},
- * AssetType and {@link Codec} work together to store and restore assets.
+ * {@link AssetType} and {@link Codec} work together to save and load assets.
  * <h2>Determining Asset Type</h2>
  * Asset types can usually be determined by using the asset URI. Some
  * asset types can be determined using just the URI scheme. If the asset
@@ -97,10 +97,20 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return defaultCodec;
 	}
 
+	/**
+	 * Add and set the default codec.
+	 *
+	 * @param codec
+	 */
 	public void setDefaultCodec( Codec codec ) {
 		addCodec( this.defaultCodec = codec );
 	}
 
+	/**
+	 * Get the set of codecs for this asset type.
+	 *
+	 * @return The set of codecs for this asset type
+	 */
 	public Set<Codec> getCodecs() {
 		return Collections.unmodifiableSet( codecs );
 	}

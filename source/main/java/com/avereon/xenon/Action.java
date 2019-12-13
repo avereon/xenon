@@ -15,22 +15,39 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	private boolean enabled;
 
+	private ActionProxy proxy;
+
 	protected Action( Program program ) {
 		this.program = program;
 	}
 
+	public Program getProgram() {
+		return program;
+	}
+
 	public abstract void handle( ActionEvent event );
 
+	/**
+	 * Override this method with the logic to determine if the action is enabled.
+	 *
+	 * @return If the action is enabled
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	public Action updateEnabled() {
+		if( proxy != null ) proxy.setEnabled( isEnabled() );
+		return this;
+	}
+
+	@Deprecated
 	public void setEnabled( boolean enabled ) {
 		this.enabled = enabled;
 	}
 
-	public Program getProgram() {
-		return program;
+	void setActionProxy( ActionProxy proxy ) {
+		this.proxy = proxy;
 	}
 
 }

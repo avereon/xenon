@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 // FIXME Add Configurable interface to this class
 public class AssetManager implements Controllable<AssetManager> {
@@ -156,19 +157,13 @@ public class AssetManager implements Controllable<AssetManager> {
 	public List<Asset> getModifiedAssets() {
 		List<Asset> modifiedAssets = new ArrayList<>();
 		for( Asset asset : getOpenAssets() ) {
-			if( asset.isModified() && canSaveAssets( asset ) ) modifiedAssets.add( asset );
+			if( asset.isModified() && canSaveAsset( asset ) ) modifiedAssets.add( asset );
 		}
 		return modifiedAssets;
 	}
 
 	Set<AssetType> getUserAssetTypes() {
-		Set<AssetType> userAssetTypes = new HashSet<>();
-
-		for( AssetType type : assetTypesByTypeKey.values() ) {
-			if( type.isUserType() ) userAssetTypes.add( type );
-		}
-
-		return userAssetTypes;
+		return assetTypesByTypeKey.values().stream().filter( AssetType::isUserType ).collect( Collectors.toSet());
 	}
 
 	/**
@@ -530,7 +525,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void close( Asset asset ) {
-		if( asset.isModified() && canSaveAssets( asset ) ) {
+		if( asset.isModified() && canSaveAsset( asset ) ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
 			alert.setTitle( program.rb().text( "asset", "close-save-title" ) );
 			alert.setHeaderText( program.rb().text( "workarea", "close-save-message" ) );
@@ -922,11 +917,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private void updateActionState() {
-		newActionHandler.setEnabled( getUserAssetTypes().size() > 0 );
-		openActionHandler.setEnabled( getUserAssetTypes().size() > 0 );
-		// TODO Should open assets and modified assets be scoped to the workarea?
-		saveAllActionHandler.setEnabled( getModifiedAssets().size() > 0 );
-		closeAllActionHandler.setEnabled( openAssets.size() > 0 );
+		newActionHandler.updateEnabled();
+		openActionHandler.updateEnabled();
+		saveAllActionHandler.updateEnabled();
+		closeAllActionHandler.updateEnabled();
 	}
 
 	private void registerCodec( Codec codec, Set<String> values, Map<String, Set<Codec>> registrations ) {
@@ -949,12 +943,35 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * Determine if the asset can be saved. The asset can be saved if the URI is null or if the URI scheme and codec can both save assets.
+	 * Determine if all of the assets can be saved.
+	 *
+	 * @param assets The set of assets to check
+	 * @return True if all of the assets can be saved
+	 */
+	private boolean canSaveAllAssets( Collection<Asset> assets ) {
+		return assets.stream().mapToInt( a -> canSaveAsset( a ) ? 0 : 1 ).sum() == 0;
+	}
+
+	/**
+	 * Determine if any of the assets can be saved.
+	 *
+	 * @param assets The set of assets to check
+	 * @return True if any of the assets can be saved
+	 */
+	private boolean canSaveAnyAssets( Collection<Asset> assets ) {
+		return assets.stream().mapToInt( a -> canSaveAsset( a ) ? 1 : 0 ).sum() > 0;
+	}
+
+	/**
+	 * Determine if the asset can be saved. The asset can be saved if the URI is
+	 * null or if the URI scheme and codec can both save assets.
 	 *
 	 * @param asset The asset to check
 	 * @return True if the asset can be saved, false otherwise.
 	 */
-	private boolean canSaveAssets( Asset asset ) {
+	private boolean canSaveAsset( Asset asset ) {
+		if( asset == null || !asset.isModified() ) return false;
+
 		// Check the URI.
 		URI uri = asset.getUri();
 		if( uri == null ) return true;
@@ -1150,7 +1167,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				saveCopyAsActionHandler.setEnabled( false );
 				closeActionHandler.setEnabled( false );
 			} else {
-				boolean canSave = canSaveAssets( asset );
+				boolean canSave = canSaveAsset( asset );
 				saveActionHandler.setEnabled( currentAsset.isModified() && canSave );
 				saveAsActionHandler.setEnabled( canSave );
 				saveCopyAsActionHandler.setEnabled( canSave );
@@ -1321,8 +1338,15 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
+		public boolean isEnabled() {
+			return getUserAssetTypes().size() > 0;
+		}
+
+		@Override
 		public void handle( ActionEvent event ) {
 			Collection<AssetType> types = getAssetTypes();
+
+			log.warn( "TODO Implement NewActionHandler.handle()" );
 
 			AssetType type = null;
 			if( types.size() == 1 ) {
@@ -1378,8 +1402,15 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class OpenActionHandler extends Action {
 
+		private boolean isHandling;
+
 		private OpenActionHandler( Program program ) {
 			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return isHandling && getUserAssetTypes().size() > 0;
 		}
 
 		@Override
@@ -1388,13 +1419,15 @@ public class AssetManager implements Controllable<AssetManager> {
 			// In Escape this opened a separate tool. Do I want to do the same?
 
 			// Disable the action while the dialog is open
-			setEnabled( false );
+			isHandling = true;
+			updateEnabled();
 		}
 
 		// This class is the action listener of the asset tool used to open files
 		//		private class AssetToolOpenHandler implements ActionListener {
 		//
 		//			public void actionPerformed( ActionEvent event ) {
+		//				isHandling = false;
 		//				tool.removeActionListener( this );
 		//				updateActionState();
 		//
@@ -1412,8 +1445,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveActionHandler extends Action {
 
-		private Asset asset;
-
 		private boolean saveAs;
 
 		private boolean copy;
@@ -1425,8 +1456,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
+		public boolean isEnabled() {
+			return canSaveAsset( getCurrentAsset() );
+		}
+
+		@Override
 		public void handle( ActionEvent event ) {
-			asset = getCurrentAsset();
+			Asset asset = getCurrentAsset();
 
 			if( saveAs ) {
 				//				// Ask the user for the new asset location.
@@ -1479,6 +1515,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
+		public boolean isEnabled() {
+			return canSaveAnyAssets( getModifiedAssets() );
+		}
+
+		@Override
 		public void handle( ActionEvent event ) {
 			try {
 				saveAssets( getModifiedAssets() );
@@ -1496,6 +1537,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		@Override
+		public boolean isEnabled() {
+			return openAssets.size() > 0;
+		}
+
+		@Override
 		public void handle( ActionEvent event ) {
 			try {
 				closeAssets( getCurrentAsset() );
@@ -1510,6 +1556,11 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		private CloseAllActionHandler( Program program ) {
 			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			return canSaveAsset( getCurrentAsset() );
 		}
 
 		@Override
@@ -1645,7 +1696,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				case MODIFIED: {
 					Asset asset = event.getAsset();
 					log.trace( "Asset modified: " + asset );
-					saveActionHandler.setEnabled( canSaveAssets( asset ) );
+					saveActionHandler.setEnabled( canSaveAsset( asset ) );
 					break;
 				}
 				case UNMODIFIED: {
