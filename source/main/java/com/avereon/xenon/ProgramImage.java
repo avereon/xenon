@@ -174,10 +174,12 @@ public abstract class ProgramImage extends Canvas {
 	 * @return An image with the rendered image on it
 	 */
 	public Image getImage( double width, double height ) {
+		// Note that just returning the WritableImage that the snapshot() method
+		// creates did not work when used as a Stage icon. However, creating a new
+		// WritableImage from the snapshot image seemed to solve the problem. That
+		// is why a new Writable image is created instead of just returning the
+		// snapshot image.
 		WritableImage snapshot = getImageScene( width, height ).snapshot( new WritableImage( (int)width, (int)height ) );
-
-		// WORKAROUND Just using the snapshot image does not work to create Stage icons
-		// Creating a new WritableImage from the snapshot image seems to solve the problem
 		return new WritableImage( snapshot.getPixelReader(), (int)snapshot.getWidth(), (int)snapshot.getHeight() );
 	}
 

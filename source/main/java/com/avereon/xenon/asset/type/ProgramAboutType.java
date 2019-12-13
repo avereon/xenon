@@ -50,7 +50,6 @@ public class ProgramAboutType extends AssetType {
 		// want to handle the asset/model/tool relationship.
 		ProductEventWatcher watcher = asset.getResource( WATCHER_KEY );
 		if( watcher == null ) {
-			log.warn( "Adding program event listener..." );
 			watcher = new ProductEventWatcher( program, asset );
 			asset.putResource( WATCHER_KEY, watcher );
 			program.addEventListener( watcher );
@@ -65,7 +64,7 @@ public class ProgramAboutType extends AssetType {
 
 		private Asset asset;
 
-		public ProductEventWatcher( Program program, Asset asset ) {
+		private ProductEventWatcher( Program program, Asset asset ) {
 			this.program = program;
 			this.asset = asset;
 		}
@@ -73,8 +72,6 @@ public class ProgramAboutType extends AssetType {
 		@Override
 		public void handleEvent( ProductEvent event ) {
 			if( event instanceof ProductManagerEvent  ) {
-				ProductManagerEvent pmEvent = (ProductManagerEvent)event;
-				log.warn( pmEvent.getType().toString() );
 				asset.refresh( program.getAssetManager() );
 			}
 		}
