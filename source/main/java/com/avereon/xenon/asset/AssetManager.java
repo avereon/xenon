@@ -163,7 +163,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	Set<AssetType> getUserAssetTypes() {
-		return assetTypesByTypeKey.values().stream().filter( AssetType::isUserType ).collect( Collectors.toSet());
+		return assetTypesByTypeKey.values().stream().filter( AssetType::isUserType ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -1161,19 +1161,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			currentAsset = asset;
 
 			// "Connect" the new current asset.
-			if( currentAsset == null ) {
-				saveActionHandler.setEnabled( false );
-				saveAsActionHandler.setEnabled( false );
-				saveCopyAsActionHandler.setEnabled( false );
-				closeActionHandler.setEnabled( false );
-			} else {
-				boolean canSave = canSaveAsset( asset );
-				saveActionHandler.setEnabled( currentAsset.isModified() && canSave );
-				saveAsActionHandler.setEnabled( canSave );
-				saveCopyAsActionHandler.setEnabled( canSave );
-				closeActionHandler.setEnabled( true );
-				currentAsset.addAssetListener( currentAssetWatcher );
-			}
+			if( currentAsset != null ) currentAsset.addAssetListener( currentAssetWatcher );
 
 			updateActionState();
 
@@ -1696,12 +1684,12 @@ public class AssetManager implements Controllable<AssetManager> {
 				case MODIFIED: {
 					Asset asset = event.getAsset();
 					log.trace( "Asset modified: " + asset );
-					saveActionHandler.setEnabled( canSaveAsset( asset ) );
+					saveActionHandler.updateEnabled();
 					break;
 				}
 				case UNMODIFIED: {
 					Asset asset = event.getAsset();
-					saveActionHandler.setEnabled( false );
+					saveActionHandler.updateEnabled();
 					log.trace( "Asset unmodified: " + asset );
 					break;
 				}

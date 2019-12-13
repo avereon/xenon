@@ -41,11 +41,6 @@ public abstract class Action implements EventHandler<ActionEvent> {
 		return this;
 	}
 
-	@Deprecated
-	public void setEnabled( boolean enabled ) {
-		this.enabled = enabled;
-	}
-
 	void setActionProxy( ActionProxy proxy ) {
 		this.proxy = proxy;
 	}
