@@ -72,8 +72,7 @@ class ProductPane extends MigPane {
 
 		setId( "tool-product-artifact" );
 
-		String iconUri = source.getIconUri();
-		Node productIcon = program.getIconLibrary().getIcon( iconUri, "product", ProductTool.ICON_SIZE );
+		Node productIcon = program.getIconLibrary().getIcon( source.getIcons(), "product", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );
@@ -171,7 +170,7 @@ class ProductPane extends MigPane {
 
 		// Configure the action buttons
 		if( isInstalledProductsPanel ) {
-			enableSwitch.setVisible( true  );
+			enableSwitch.setVisible( true );
 			enableSwitch.setDisable( isProgram );
 			enableSwitch.setSelected( tool.getProgram().getProductManager().isEnabled( source ) );
 
@@ -209,7 +208,7 @@ class ProductPane extends MigPane {
 		updateProductState();
 	}
 
-	private void toggleEnabled(boolean enabled) {
+	private void toggleEnabled( boolean enabled ) {
 		manager.setModEnabled( source, enabled );
 		updateProductState();
 	}
@@ -252,7 +251,7 @@ class ProductPane extends MigPane {
 		String message = program.rb().text( BundleKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
-		alert.setGraphic( program.getIconLibrary().getIcon( source.getIconUri(), 64 ) );
+		alert.setGraphic( program.getIconLibrary().getIcon( source.getIcons(), 64 ) );
 		alert.setTitle( title );
 		alert.setHeaderText( header );
 

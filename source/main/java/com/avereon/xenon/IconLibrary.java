@@ -11,7 +11,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,24 +41,44 @@ public class IconLibrary {
 	}
 
 	public ProgramIcon getIcon( String id ) {
-		return getIcon( id, DEFAULT_SIZE );
+		return getIcon( List.of( id ), DEFAULT_SIZE );
 	}
 
 	public ProgramIcon getIcon( String id, double size ) {
-		return getIcon( id, null, size );
+		return getIcon( List.of( id ), size );
 	}
 
 	public ProgramIcon getIcon( String id, String backupId ) {
-		return getIcon( id, backupId, DEFAULT_SIZE );
+		return getIcon( List.of( id, backupId ), DEFAULT_SIZE );
 	}
 
 	public ProgramIcon getIcon( String id, String backupId, double size ) {
-		ProgramIcon icon = getIconRenderer( id );
-		if( icon == null ) icon = getIconFromUrl( id, size );
-		if( icon == null ) icon = getIconRenderer( backupId );
+		return getIcon( List.of( id, backupId ), size );
+	}
+
+	public ProgramIcon getIcon( List<String> ids ) {
+		return getIcon( ids, DEFAULT_SIZE );
+	}
+
+	public ProgramIcon getIcon( List<String> ids, String backupId ) {
+		return getIcon( ids, backupId, DEFAULT_SIZE );
+	}
+
+	public ProgramIcon getIcon( List<String> ids, double size ) {
+		ProgramIcon icon = null;
+		for( String id : ids ) {
+			icon = getIconRenderer( id, size );
+			if( icon != null ) break;
+		}
 		if( icon == null ) icon = new BrokenIcon();
 		icon.setSize( size );
 		return icon;
+	}
+
+	public ProgramIcon getIcon( List<String> ids, String backupId, double size ) {
+		List<String> combined = ids == null ? new ArrayList<>() : new ArrayList<>( ids );
+		combined.add( backupId );
+		return getIcon( combined, size );
 	}
 
 	public Image[] getStageIcons( String id ) {
@@ -71,6 +93,12 @@ public class IconLibrary {
 			images[ index ] = image.setSize( sizes[ index ] ).getImage();
 		}
 		return images;
+	}
+
+	private ProgramIcon getIconRenderer( String id, double size ) {
+		ProgramIcon icon = getIconRenderer( id );
+		if( icon == null ) icon = getIconFromUrl( id, size );
+		return icon;
 	}
 
 	private ProgramIcon getIconRenderer( String id ) {

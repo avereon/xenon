@@ -4,6 +4,7 @@
   "version": "${project.version}",
   "timestamp": "${project.timestamp}",
   "iconUri": "program",
+	"icons": [ "program", "https://avereon.com/download/latest/xenon/product/icon" ],
   "name": "${project.name}",
   "provider": "${project.organization.name}",
   "providerUrl": "${project.organization.url}",
