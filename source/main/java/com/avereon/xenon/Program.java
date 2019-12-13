@@ -678,6 +678,11 @@ public class Program extends Application implements ProgramProduct {
 		return this;
 	}
 
+	public String getProfile() {
+		if( profile == null ) profile = parameters.get( ProgramFlag.PROFILE );
+		return profile;
+	}
+
 	/**
 	 * Get the home folder. If the home folder is null that means that the program is not installed locally and was most likely started with a technology like
 	 * Java Web Start.
@@ -975,11 +980,6 @@ public class Program extends Application implements ProgramProduct {
 		} catch( Exception exception ) {
 			System.out.println( "Unable to get help for category: " + category );
 		}
-	}
-
-	public String getProfile() {
-		if( profile == null ) profile = parameters.get( ProgramFlag.PROFILE );
-		return profile;
 	}
 
 	private String getProfileSuffix() {
