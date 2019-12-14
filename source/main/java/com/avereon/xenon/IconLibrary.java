@@ -41,19 +41,19 @@ public class IconLibrary {
 	}
 
 	public ProgramIcon getIcon( String id ) {
-		return getIcon( List.of( id ), DEFAULT_SIZE );
+		return getIcon( List.of( id == null ? "" : id ), DEFAULT_SIZE );
 	}
 
 	public ProgramIcon getIcon( String id, double size ) {
-		return getIcon( List.of( id ), size );
+		return getIcon( List.of( id == null ? "" : id ), size );
 	}
 
 	public ProgramIcon getIcon( String id, String backupId ) {
-		return getIcon( List.of( id, backupId ), DEFAULT_SIZE );
+		return getIcon( List.of( id == null ? "" : id, backupId == null ? "" : backupId ), DEFAULT_SIZE );
 	}
 
 	public ProgramIcon getIcon( String id, String backupId, double size ) {
-		return getIcon( List.of( id, backupId ), size );
+		return getIcon( List.of( id == null ? "" : id, backupId == null ? "" : backupId ), size );
 	}
 
 	public ProgramIcon getIcon( List<String> ids ) {
