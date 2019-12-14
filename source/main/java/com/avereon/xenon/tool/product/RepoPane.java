@@ -58,9 +58,7 @@ class RepoPane extends MigPane {
 		setId( "tool-product-market" );
 
 		Program program = productTool.getProgram();
-
-		String iconUri = source.getIcon();
-		Node marketIcon = program.getIconLibrary().getIcon( iconUri, "market", ProductTool.ICON_SIZE );
+		Node marketIcon = program.getIconLibrary().getIcon( source.getIcons(), "market", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, marketIcon );
 		iconLabel.setId( "tool-product-market-icon" );
