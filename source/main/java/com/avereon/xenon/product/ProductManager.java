@@ -890,7 +890,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		modules.values().forEach( this::callModShutdown );
 	}
 
-	@SuppressWarnings( "Convert2Diamond" )
 	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );

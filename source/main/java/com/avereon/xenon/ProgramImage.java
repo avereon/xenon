@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.xenon.util.Colors;
 import com.avereon.xenon.util.FontUtil;
+import com.avereon.xenon.util.Images;
 import com.avereon.xenon.util.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -9,7 +10,9 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
@@ -228,8 +231,8 @@ public abstract class ProgramImage extends Canvas {
 		Platform.runLater( () -> {
 			String title = icon.getClass().getSimpleName();
 
-			ImageView imageView16 = new ImageView( resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
-			ImageView imageView32 = new ImageView( resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
+			ImageView imageView16 = new ImageView( Images.resample( icon.copy().setSize( 16 ).getImage(), 16 ) );
+			ImageView imageView32 = new ImageView( Images.resample( icon.copy().setSize( 32 ).getImage(), 8 ) );
 
 			ProgramImage icon128 = icon.copy().setSize( 128 );
 			AnchorPane.setTopAnchor( icon128, 0.0 );
@@ -596,15 +599,12 @@ public abstract class ProgramImage extends Canvas {
 		getGraphicsContext2D().setLineWidth( lineWidth );
 	}
 
+	protected void drawImage( Image image ) {
+		drawImage( image, 0, 0 );
+	}
+
 	protected void drawImage( Image image, double x, double y ) {
-		// Scale the transform
-		Affine transform = getGraphicsContext2D().getTransform().clone();
-		getGraphicsContext2D().scale( 1.0 / getWidth(), 1.0 / getHeight() );
-
-		getGraphicsContext2D().drawImage( image, x, y );
-
-		// Reset transform
-		getGraphicsContext2D().setTransform( transform );
+		getGraphicsContext2D().drawImage( image, x, y, 1, 1 );
 	}
 
 	protected void clearRect( double x, double y, double w, double h ) {
@@ -781,29 +781,6 @@ public abstract class ProgramImage extends Canvas {
 		Scene scene = new Scene( pane );
 		scene.setFill( Color.TRANSPARENT );
 		return scene;
-	}
-
-	private static Image resample( Image input, int scale ) {
-		int w = (int)input.getWidth();
-		int h = (int)input.getHeight();
-
-		WritableImage output = new WritableImage( w * scale, h * scale );
-
-		PixelReader reader = input.getPixelReader();
-		PixelWriter writer = output.getPixelWriter();
-
-		for( int y = 0; y < h; y++ ) {
-			for( int x = 0; x < w; x++ ) {
-				final int argb = reader.getArgb( x, y );
-				for( int dy = 0; dy < scale; dy++ ) {
-					for( int dx = 0; dx < scale; dx++ ) {
-						writer.setArgb( x * scale + dx, y * scale + dy, argb );
-					}
-				}
-			}
-		}
-
-		return output;
 	}
 
 	ProgramImage fireRender() {

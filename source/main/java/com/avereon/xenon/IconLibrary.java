@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,18 +113,9 @@ public class IconLibrary {
 	private ProgramIcon getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 
-		ProgramImageIcon icon = new ProgramImageIcon();
-
-		program.getTaskManager().submit( Task.of( "Load icon: " + url, () -> {
-			try {
-				Image image = new Image( new URL( url ).toExternalForm(), size, size, true, true );
-				if( !image.isError() ) icon.setRenderImage( image );
-			} catch( MalformedURLException exception ) {
-				if( url.contains( "://" ) ) log.info( "Unable to load icon", exception );
-			} catch( Exception exception ) {
-				log.warn( "Unable to load icon", exception );
-			}
-		} ) );
+		ProgramImageIcon icon = new ProgramImageIcon( url );
+		icon.setSize( size );
+		program.getTaskManager().submit( Task.of( "Load icon: " + url, icon.getPreloadRunner() ) );
 
 		return icon;
 	}
