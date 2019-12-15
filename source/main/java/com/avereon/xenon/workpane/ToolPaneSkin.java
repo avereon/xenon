@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.javafx.FxUtil;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;

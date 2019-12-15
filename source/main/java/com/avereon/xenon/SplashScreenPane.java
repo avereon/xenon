@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.util.JavaFxStarter;
+import com.avereon.venza.javafx.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;

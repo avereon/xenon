@@ -2,6 +2,9 @@ package com.avereon.xenon;
 
 import com.avereon.util.LogUtil;
 import com.avereon.util.TextUtil;
+import com.avereon.venza.image.ProgramIcon;
+import com.avereon.venza.image.ProgramImage;
+import com.avereon.venza.image.ProgramImageIcon;
 import com.avereon.xenon.icon.BrokenIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.image.Image;

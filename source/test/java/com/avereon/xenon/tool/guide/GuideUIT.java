@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.xenon.FxProgramUIT;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.javafx.FxUtil;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;

@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;

@@ -1,6 +1,6 @@
 package com.avereon.xenon.icon;
 
-import com.avereon.xenon.ProgramIcon;
+import com.avereon.venza.image.ProgramIcon;
 
 public abstract class XIcon extends ProgramIcon {
 

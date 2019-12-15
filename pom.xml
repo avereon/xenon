@@ -92,6 +92,12 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
+			<artifactId>venza</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
 			<version>0.2-SNAPSHOT</version>
 		</dependency>

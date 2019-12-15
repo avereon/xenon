@@ -9,7 +9,7 @@ import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.javafx.FxUtil;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;

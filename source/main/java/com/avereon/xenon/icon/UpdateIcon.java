@@ -1,7 +1,7 @@
 package com.avereon.xenon.icon;
 
-import com.avereon.xenon.ProgramIcon;
-import com.avereon.xenon.util.JavaFxStarter;
+import com.avereon.venza.image.ProgramIcon;
+import com.avereon.venza.javafx.JavaFxStarter;
 
 public class UpdateIcon extends ProgramIcon {
 

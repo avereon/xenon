@@ -1,7 +1,7 @@
 package com.avereon.xenon.icon;
 
-import com.avereon.xenon.ColorTheme;
-import com.avereon.xenon.ProgramIcon;
+import com.avereon.venza.color.ColorTheme;
+import com.avereon.venza.image.ProgramIcon;
 import javafx.scene.paint.Color;
 
 public class NoticeIcon extends ProgramIcon {

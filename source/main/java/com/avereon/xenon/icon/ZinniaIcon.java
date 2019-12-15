@@ -1,6 +1,6 @@
 package com.avereon.xenon.icon;
 
-import com.avereon.xenon.ProgramIcon;
+import com.avereon.venza.image.ProgramIcon;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 

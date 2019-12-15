@@ -4,7 +4,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.xenon.util.Colors;
+import com.avereon.venza.color.Colors;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ColorPicker;

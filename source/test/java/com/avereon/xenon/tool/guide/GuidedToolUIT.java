@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.tool.ToolInstanceMode;
 import com.avereon.xenon.tool.ToolMetadata;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;

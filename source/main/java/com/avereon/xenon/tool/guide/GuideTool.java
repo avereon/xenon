@@ -6,7 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
