@@ -5,7 +5,7 @@ import com.avereon.util.TextUtil;
 import com.avereon.venza.image.ProgramIcon;
 import com.avereon.venza.image.ProgramImage;
 import com.avereon.venza.image.ProgramImageIcon;
-import com.avereon.xenon.icon.BrokenIcon;
+import com.avereon.rossa.icon.BrokenIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;

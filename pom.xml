@@ -98,6 +98,12 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
+			<artifactId>rossa</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
 			<version>0.2-SNAPSHOT</version>
 		</dependency>
@@ -369,7 +375,7 @@
 								<configuration>
 									<images>
 										<image>
-											<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<target>${images-folder}/xenon.png</target>
 										</image>
 										<image>
@@ -381,31 +387,31 @@
 										<icon>
 											<images>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>16</size>
 												</image>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>24</size>
 												</image>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>32</size>
 												</image>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>48</size>
 												</image>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>64</size>
 												</image>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>96</size>
 												</image>
 												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
+													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 													<size>128</size>
 												</image>
 											</images>
