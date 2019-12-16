@@ -5,9 +5,7 @@ module com.avereon.xenon {
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
 	requires com.avereon.rossa;
-	requires com.avereon.venza;
 	requires com.avereon.zenna;
-	requires com.avereon.zevra;
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
@@ -18,6 +16,8 @@ module com.avereon.xenon {
 	requires org.controlsfx.controls;
 	requires org.slf4j;
 	requires org.slf4j.jul;
+	requires transitive com.avereon.venza;
+	requires transitive com.avereon.zevra;
 
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.demo;
