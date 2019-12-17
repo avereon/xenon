@@ -30,21 +30,11 @@ public class OpenAssetRequest {
 	}
 
 	public String getQuery() {
-		return query;
-	}
-
-	public OpenAssetRequest setQuery( String query ) {
-		this.query = query;
-		return this;
+		return uri == null ? null : uri.getQuery();
 	}
 
 	public String getFragment() {
-		return fragment;
-	}
-
-	public OpenAssetRequest setFragment( String fragment ) {
-		this.fragment = fragment;
-		return this;
+		return uri == null ? null : uri.getFragment();
 	}
 
 	public Codec getCodec() {

@@ -156,11 +156,11 @@ public class Notice extends Node {
 
 		switch( getType() ) {
 			case ERROR: {
-				log.error( string, throwable );
+				error( string, throwable );
 				break;
 			}
 			case WARN: {
-				log.warn( string, throwable );
+				warn( string, throwable );
 				break;
 			}
 		}
@@ -192,6 +192,14 @@ public class Notice extends Node {
 		}
 
 		return String.format( builder.toString(), parameters );
+	}
+
+	private void error(String message, Throwable throwable ) {
+		log.error( message, throwable );
+	}
+
+	private void warn(String message, Throwable throwable ) {
+		log.warn( message, throwable );
 	}
 
 }

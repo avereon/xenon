@@ -346,8 +346,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		for( URI uri : uris ) {
 			OpenAssetRequest request = new OpenAssetRequest();
 			request.setUri( uri );
-			request.setFragment( uri.getFragment() );
-			request.setQuery( uri.getQuery() );
 			request.setView( view );
 			request.setOpenTool( openTool );
 			request.setSetActive( setActive );
@@ -1332,9 +1330,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			Collection<AssetType> types = getAssetTypes();
-
-			log.warn( "TODO Implement NewActionHandler.handle()" );
+			Collection<AssetType> types = getUserAssetTypes();
 
 			AssetType type = null;
 			if( types.size() == 1 ) {
@@ -1364,22 +1360,28 @@ public class AssetManager implements Controllable<AssetManager> {
 			public Asset call() throws Exception {
 				if( type == null ) return null;
 
-				Asset asset = null;
-				// TODO Re-enable AssetManager.LoadAsset.call()
-				//					try {
-				//						asset = createAsset( type );
-				//						openAssetsAndWait( asset );
-				//						asset = findOpenAsset( asset );
-				//						if( !asset.isOpen() ) return null;
-				//					} catch( Exception exception ) {
-				//						program.error( exception );
-				//						return null;
-				//					}
-				//					asset.setModified( true );
-				//
-				//					if( !asset.isLoaded() ) loadAssetsAndWait( asset );
-				//					createAssetEditor( asset, null );
-				//					setCurrentAsset( asset );
+				Asset asset;
+				try {
+					asset = createAsset( type );
+					openAssetsAndWait( asset );
+					if( !asset.isOpen() ) return null;
+				} catch( Exception exception ) {
+					program.getNoticeManager().error( exception );
+					return null;
+				}
+				asset.setModified( true );
+
+				if( !asset.isLoaded() ) loadAssetsAndWait( asset );
+
+				OpenAssetRequest request = new OpenAssetRequest();
+				request.setOpenTool( true );
+				request.setSetActive( true );
+
+				log.warn( "Made it!" );
+
+				//createAssetEditor( asset, null );
+				program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) );
+				//setCurrentAsset( asset );
 
 				return asset;
 			}
