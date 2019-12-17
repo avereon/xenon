@@ -1027,6 +1027,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerIcons() {
+		getIconLibrary().register( "provider", WingDiscLargeIcon.class );
 		getIconLibrary().register( "program", XRingLargeIcon.class );
 		getIconLibrary().register( "asset-new", DocumentIcon.class );
 		getIconLibrary().register( "asset-open", FolderIcon.class );
