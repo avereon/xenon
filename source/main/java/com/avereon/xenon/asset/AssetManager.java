@@ -1044,7 +1044,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		AssetType type = asset.getType();
 		if( type == null ) type = autoDetectAssetType( asset );
 		if( type == null ) throw new AssetException( asset, "Asset type could not be determined: " + asset );
-		log.trace( "Asset type: " + type );
+		log.warn( "Asset type: " + type );
 
 		// Determine the codec.
 		Codec codec = asset.getCodec();
@@ -1582,7 +1582,9 @@ public class AssetManager implements Controllable<AssetManager> {
 					try {
 						if( doOperation( asset ) ) result.add( asset );
 					} catch( Throwable throwable ) {
+						// FIXME This method of handling errors does not give good results
 						errors.put( throwable, asset );
+						log.error( "Error processing task", throwable );
 					}
 				}
 			}

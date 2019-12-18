@@ -11,7 +11,7 @@ public abstract class ProgramTask<V> extends Task<V> {
 	}
 
 	public ProgramTask( Program program, String name ) {
-		super(  name );
+		super( name );
 		this.program = program;
 	}
 
