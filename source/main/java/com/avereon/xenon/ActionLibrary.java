@@ -101,15 +101,19 @@ public class ActionLibrary {
 		String icon = bundle.textOr( BundleKey.ACTION, id + ".icon", "" );
 		String name = bundle.textOr( BundleKey.ACTION, id + ".name", id );
 		String type = bundle.textOr( BundleKey.ACTION, id + ".type", null );
-		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", String.valueOf( ActionProxy.NO_MNEMONIC ) );
+		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", null );
 		String shortcut = bundle.textOr( BundleKey.ACTION, id + ".shortcut", null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
 		proxy.setName( name );
 		proxy.setType( type );
-		proxy.setMnemonic( Integer.parseInt( mnemonic ) );
 		proxy.setShortcut( shortcut );
+		try {
+			proxy.setMnemonic( Integer.parseInt( mnemonic ) );
+		} catch( NumberFormatException exception ) {
+			proxy.setMnemonic( ActionProxy.NO_MNEMONIC );
+		}
 
 		actions.put( id, proxy );
 	}

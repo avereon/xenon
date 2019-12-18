@@ -201,7 +201,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "configure-home" );
 
 		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( getClass() );
+		programResourceBundle = new ProductBundle( this );
 		time( "resource-bundle" );
 
 		// Create the settings manager, depends on program data folder
