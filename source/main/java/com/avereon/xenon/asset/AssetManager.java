@@ -1576,30 +1576,27 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public Collection<Asset> call() {
 			List<Asset> result = new ArrayList<>();
-			Map<Throwable, Asset> errors = new HashMap<>();
+			Map<Throwable, Asset> throwables = new HashMap<>();
 			if( assets != null ) {
 				for( Asset asset : assets ) {
 					try {
 						if( doOperation( asset ) ) result.add( asset );
 					} catch( Throwable throwable ) {
-						// FIXME This method of handling errors does not give good results
-						errors.put( throwable, asset );
-						log.error( "Error processing task", throwable );
+						throwables.put( throwable, asset );
 					}
 				}
 			}
 
-			if( errors.size() != 0 ) {
-				StringBuilder messages = new StringBuilder();
-				for( Throwable error : errors.keySet() ) {
-					messages.append( error.toString() ).append( "\n" );
+			if( throwables.size() != 0 ) {
+				for( Throwable throwable : throwables.keySet() ) {
+					String errorName = throwable.getClass().getSimpleName();
+					String taskName = getClass().getSimpleName();
+					String title = program.rb().text( "asset", "assets" );
+					String message = program.rb().text( "program", "task-error-message", errorName, taskName );
+					program.getNoticeManager().warning( title, message, throwable );
 				}
 
-				String title = program.rb().text( "asset", "assets" );
-				String message = program.rb().text( "asset", "asset.exceptions", messages.toString().trim() );
-				program.getNoticeManager().warning( title, message );
-
-				throw new RuntimeException( messages.toString().trim() );
+				//throw new RuntimeException( messages.toString().trim() );
 			}
 
 			return result;

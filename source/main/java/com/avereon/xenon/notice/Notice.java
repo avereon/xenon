@@ -153,18 +153,6 @@ public class Notice extends Node {
 
 	private String formatMessage( Object message, Throwable throwable ) {
 		String string = message == null ? null : getMessageStringContent();
-
-		switch( getType() ) {
-			case ERROR: {
-				error( string, throwable );
-				break;
-			}
-			case WARN: {
-				warn( string, throwable );
-				break;
-			}
-		}
-
 		if( string == null && throwable != null ) return throwable.getLocalizedMessage();
 		return string;
 	}
@@ -192,14 +180,6 @@ public class Notice extends Node {
 		}
 
 		return String.format( builder.toString(), parameters );
-	}
-
-	private void error(String message, Throwable throwable ) {
-		log.error( message, throwable );
-	}
-
-	private void warn(String message, Throwable throwable ) {
-		log.warn( message, throwable );
 	}
 
 }

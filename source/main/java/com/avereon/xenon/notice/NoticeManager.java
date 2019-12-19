@@ -40,29 +40,48 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		error( throwable.getClass().getSimpleName(), throwable.getMessage(), throwable );
 	}
 
-	public void error( Object message, Throwable throwable, String... parameters ) {
+	public void error( Object message, Throwable throwable, Object... parameters ) {
 		error( throwable.getClass().getSimpleName(), message, throwable, parameters );
 	}
 
-	public void error( Object title, Object message, String... parameters ) {
+	public void error( Object title, Object message, Object... parameters ) {
 		error( title, message, null, parameters );
 	}
 
-	public void error( Object title, Object message, Throwable throwable, String... parameters ) {
+	public void error( Object title, Object message, Throwable throwable, Object... parameters ) {
 		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.ERROR ).setBalloonStickiness( Notice.Balloon.ALWAYS ) );
 	}
 
-	public void warning( Object title, Object message, String... parameters ) {
+	public void warning( Object title, Object message, Object... parameters ) {
 		warning( title, message, null, parameters );
 	}
 
-	public void warning( Object title, Object message, Throwable throwable, String... parameters ) {
+	public void warning( Throwable throwable ) {
+		warning( throwable.getClass().getSimpleName(), throwable.getMessage(), throwable );
+	}
+
+	public void warning( Object message, Throwable throwable, Object... parameters ) {
+		warning( throwable.getClass().getSimpleName(), message, throwable, parameters );
+	}
+
+	public void warning( Object title, Object message, Throwable throwable, Object... parameters ) {
 		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.WARN ) );
 	}
 
 	public void addNotice( Notice notice ) {
 		getNoticeList().addNotice( notice );
 		asset.refresh( program.getAssetManager() );
+
+		switch( notice.getType() ) {
+			case ERROR: {
+				error( notice );
+				break;
+			}
+			case WARN: {
+				warning( notice );
+				break;
+			}
+		}
 
 		Platform.runLater( () -> {
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
@@ -73,6 +92,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 				updateUnreadCount();
 			}
 		} );
+	}
+
+	private void error( Notice notice ) {
+		log.error( notice.getFormattedMessage(), notice.getThrowable() );
+	}
+
+	private void warning( Notice notice ) {
+		log.warn( notice.getFormattedMessage(), notice.getThrowable() );
 	}
 
 	public void removeNotice( Notice notice ) {
