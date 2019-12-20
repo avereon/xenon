@@ -17,6 +17,8 @@ import java.util.List;
 
 public class FileScheme extends BaseScheme {
 
+	public static final String ID = "file";
+
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	/**
@@ -35,7 +37,7 @@ public class FileScheme extends BaseScheme {
 
 	@Override
 	public String getName() {
-		return "file";
+		return ID;
 	}
 
 	@Override

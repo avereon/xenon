@@ -10,6 +10,7 @@ import com.avereon.xenon.node.Node;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.asset.event.*;
+import com.avereon.xenon.scheme.AssetScheme;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -77,19 +78,9 @@ public class Asset extends Node implements Configurable {
 		this( null, URI.create( uri ) );
 	}
 
-	public Asset( AssetType type ) {
-		this( type, (URI)null );
-	}
-
-	public Asset( AssetType type, String uri ) {
-		this( type, URI.create( uri ) );
-	}
-
 	public Asset( AssetType type, URI uri ) {
-		if( type == null && uri == null ) throw new RuntimeException( "The type and uri cannot both be null." );
-
-		setType( type );
 		setUri( uri );
+		setType( type );
 
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
@@ -98,11 +89,16 @@ public class Asset extends Node implements Configurable {
 		addNodeListener( new NodeWatcher() );
 	}
 
+	/**
+	 *
+	 * @return The URI for the asset
+	 */
 	public URI getUri() {
 		return getValue( URI_VALUE_KEY );
 	}
 
 	public void setUri( URI uri ) {
+		if( uri == null ) throw new NullPointerException( "The uri cannot be null." );
 		setValue( URI_VALUE_KEY, uri );
 		updateAssetName( uri );
 	}
@@ -164,7 +160,6 @@ public class Asset extends Node implements Configurable {
 	 */
 	public String getFileName() {
 		URI uri = getUri();
-		if( uri == null ) return null;
 
 		if( uri.isOpaque() ) {
 			return uri.getSchemeSpecificPart();
@@ -208,7 +203,7 @@ public class Asset extends Node implements Configurable {
 	 * @return If the asset is "new"
 	 */
 	public synchronized final boolean isNew() {
-		return getUri() == null;
+		return AssetScheme.ID.equals( getUri().getScheme() );
 	}
 
 	public synchronized final boolean isOpen() {
@@ -224,7 +219,7 @@ public class Asset extends Node implements Configurable {
 		open = true;
 		fireAssetEvent( new AssetOpenedEvent( Asset.class, this ) );
 
-		if( getUri() == null ) {
+		if( isNew() ) {
 			ready = true;
 			fireAssetEvent( new AssetReadyEvent( Asset.class, this ) );
 		}
@@ -264,7 +259,6 @@ public class Asset extends Node implements Configurable {
 
 	public synchronized final void save( AssetManager manager ) throws AssetException {
 		if( !isOpen() ) throw new AssetException( this, "Asset must be opened to be saved" );
-		if( getUri() == null ) throw new AssetException( this, "URI must be set in order to save asset" );
 
 		saved = false;
 		Scheme scheme = getScheme();
@@ -357,9 +351,7 @@ public class Asset extends Node implements Configurable {
 
 	@Override
 	public int hashCode() {
-		URI uri = getUri();
-		if( uri == null ) return System.identityHashCode( this );
-		return uri.hashCode();
+		return getUri().hashCode();
 	}
 
 	@Override
@@ -374,7 +366,7 @@ public class Asset extends Node implements Configurable {
 		URI uri = getUri();
 		AssetType type = getType();
 		String assetTypeName = type == null ? "Unknown asset type" : type.getName();
-		return uri == null ? assetTypeName : uri.toString();
+		return isNew() ? assetTypeName : uri.toString();
 	}
 
 	private void fireAssetEvent( AssetEvent event ) {

@@ -1,10 +1,11 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
+import com.avereon.xenon.asset.event.*;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
-import com.avereon.xenon.asset.event.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
@@ -24,7 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 // FIXME Add Configurable interface to this class
@@ -428,7 +432,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		URI uri = asset.getUri();
 		Codec codec = asset.getCodec();
 
-		if( uri == null || (saveAs && saveAsAsset == null) ) {
+		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
 			//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.ASSET_MANAGER );
 			//			String currentDirectory = settings.get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) );
 			//
@@ -561,7 +565,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		URI uri = UriUtil.resolve( string );
 
 		if( uri == null ) {
-			log.warn( "Cannot resolve asset URI: {}", string );
+			String title = program.rb().text( "asset", "assets" );
+			String message = program.rb().text( "program", "asset-unable-to-resolve" );
+			program.getNoticeManager().warning( title, message, string );
 			return null;
 		}
 
@@ -848,7 +854,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private AssetType findMatchingUriAssetType( URI uri ) {
-		return uriAssetTypes.get( toAssetUri( uri ) );
+		return uriAssetTypes.get( removeQueryAndFragment( uri ) );
 	}
 
 	/**
@@ -969,13 +975,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private boolean canSaveAsset( Asset asset ) {
 		if( asset == null || !asset.isModified() ) return false;
-
-		// Check the URI.
-		URI uri = asset.getUri();
-		if( uri == null ) return true;
+		if( asset.isNew() ) return true;
 
 		// Check supported schemes.
-		Scheme scheme = getScheme( uri.getScheme() );
+		Scheme scheme = getScheme( asset.getUri().getScheme() );
 		if( scheme == null ) return false;
 
 		boolean result = false;
@@ -998,29 +1001,26 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The asset created from the asset type and URI
 	 */
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
-		Asset asset;
-		if( uri == null ) {
-			asset = new Asset( type );
-			log.trace( "Asset created: " + asset + "[" + System.identityHashCode( asset ) + "] type=" + type );
+		if( uri == null ) uri = URI.create( "asset:" + IdGenerator.getId() );
+		uri = removeQueryAndFragment( uri );
+
+		Asset asset = identifiedAssets.get( uri );
+		if( asset == null ) {
+			asset = new Asset( type, uri );
+			identifiedAssets.put( uri, asset );
+			System.out.println( uri.getScheme() );
+			Scheme scheme = getScheme( uri.getScheme() );
+			asset.setScheme( scheme );
+			scheme.init( asset );
+			log.trace( "Asset created: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {
-			uri = toAssetUri( uri );
-			asset = identifiedAssets.get( uri );
-			if( asset == null ) {
-				asset = new Asset( type, uri );
-				identifiedAssets.put( uri, asset );
-				Scheme scheme = getScheme( uri.getScheme() );
-				asset.setScheme( scheme );
-				scheme.init( asset );
-				log.trace( "Asset created: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
-			} else {
-				log.trace( "Asset preexisted: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
-			}
+			log.trace( "Asset preexisted: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		}
 
 		return asset;
 	}
 
-	static URI toAssetUri( URI uri ) {
+	static URI removeQueryAndFragment( URI uri ) {
 		if( uri == null ) return null;
 
 		// Return a URI without query or fragment data
@@ -1044,7 +1044,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		AssetType type = asset.getType();
 		if( type == null ) type = autoDetectAssetType( asset );
 		if( type == null ) throw new AssetException( asset, "Asset type could not be determined: " + asset );
-		log.warn( "Asset type: " + type );
 
 		// Determine the codec.
 		Codec codec = asset.getCodec();
@@ -1055,7 +1054,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		log.trace( "Asset codec: " + codec );
 
 		// Create the asset settings
-		createAssetSettings( asset );
+		asset.setSettings( getAssetSettings( asset ) );
 		log.trace( "Asset settings: " + asset.getSettings().getPath() );
 
 		// Initialize the asset.
@@ -1109,7 +1108,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		identifiedAssets.put( asset.getUri(), asset );
 
 		// Create the asset settings
-		createAssetSettings( asset );
+		// TODO If the asset is changing URI the settings need to be moved
+		asset.setSettings( getAssetSettings( asset ) );
 
 		// Note: The asset watcher will log that the asset was unmodified.
 		asset.setModified( false );
@@ -1172,11 +1172,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	@Deprecated
-	private void createAssetSettings( Asset asset ) {
-		URI uri = asset.getUri();
-		if( uri == null ) return;
-		asset.setSettings( program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) ) );
+	private Settings getAssetSettings( Asset asset ) {
+		return getAssetSettings( asset.getUri() );
+	}
+
+	private Settings getAssetSettings( URI uri ) {
+		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
 	}
 
 	//	/**
@@ -1373,15 +1374,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 				if( !asset.isLoaded() ) loadAssetsAndWait( asset );
 
-				OpenAssetRequest request = new OpenAssetRequest();
-				request.setOpenTool( true );
-				request.setSetActive( true );
-
-				log.warn( "Made it!" );
-
-				//createAssetEditor( asset, null );
+				OpenAssetRequest request = new OpenAssetRequest().setOpenTool( true ).setSetActive( true );
 				program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) );
-				//setCurrentAsset( asset );
 
 				return asset;
 			}

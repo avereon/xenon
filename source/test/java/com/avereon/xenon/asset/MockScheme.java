@@ -5,13 +5,15 @@ import com.avereon.xenon.scheme.BaseScheme;
 
 public class MockScheme extends BaseScheme {
 
+	public static final String ID = "mock";
+
 	MockScheme( Program program ) {
 		super( program );
 	}
 
 	@Override
 	public String getName() {
-		return "mock";
+		return ID;
 	}
 
 	@Override

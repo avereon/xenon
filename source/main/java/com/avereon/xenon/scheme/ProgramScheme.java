@@ -9,13 +9,15 @@ import java.io.IOException;
 
 public class ProgramScheme extends BaseScheme {
 
+	public static final String ID = "program";
+
 	public ProgramScheme( Program program ) {
 		super( program );
 	}
 
 	@Override
 	public String getName() {
-		return "program";
+		return ID;
 	}
 
 	@Override

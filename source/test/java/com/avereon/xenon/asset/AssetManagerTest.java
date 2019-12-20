@@ -5,6 +5,7 @@ import com.avereon.xenon.asset.event.AssetClosedEvent;
 import com.avereon.xenon.asset.event.AssetLoadedEvent;
 import com.avereon.xenon.asset.event.AssetOpenedEvent;
 import com.avereon.xenon.asset.event.AssetSavedEvent;
+import com.avereon.xenon.scheme.AssetScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,14 +27,15 @@ public class AssetManagerTest extends ProgramTestCase {
 		super.setup();
 		manager = new AssetManager( program );
 		manager.addScheme( new MockScheme( program ) );
-		manager.registerSchemeAssetType( "mock", new MockAssetType( program ) );
+		manager.addScheme( new AssetScheme( program ) );
+		manager.registerSchemeAssetType( MockScheme.ID, new MockAssetType( program ) );
 	}
 
 	@Test
 	void testNewAsset() throws Exception {
 		// New assets have a asset type when created.
 		// The URI is assigned when the asset is saved.
-		Asset newAsset = manager.createAsset( manager.getAssetType( "mock" ) );
+		Asset newAsset = manager.createAsset( manager.getAssetType( MockScheme.ID ) );
 		assertThat( newAsset.isNew(), is( true ) );
 	}
 
@@ -50,7 +52,7 @@ public class AssetManagerTest extends ProgramTestCase {
 	void testCreateAssetWithUri() throws Exception {
 		URI uri = URI.create( "mock:///home/user/temp/test.txt" );
 		Asset asset = manager.createAsset( uri );
-		assertThat( asset.getScheme(), is( manager.getScheme( "mock" ) ) );
+		assertThat( asset.getScheme(), is( manager.getScheme( MockScheme.ID ) ) );
 		assertThat( asset.getUri(), is( uri ) );
 		assertThat( asset.isOpen(), is( false ) );
 	}
@@ -59,7 +61,7 @@ public class AssetManagerTest extends ProgramTestCase {
 	void testCreateAssetWithString() throws Exception {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
-		assertThat( asset.getScheme(), is( manager.getScheme( "mock" ) ) );
+		assertThat( asset.getScheme(), is( manager.getScheme( MockScheme.ID ) ) );
 		assertThat( asset.getUri(), is( URI.create( uri ) ) );
 		assertThat( asset.isOpen(), is( false ) );
 	}
@@ -191,7 +193,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
-		AssetType type = manager.getAssetType( "mock" );
+		AssetType type = manager.getAssetType( MockScheme.ID );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs, equalTo( type.getCodecs() ) );
@@ -199,10 +201,10 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testToAssetUri() {
-		assertThat( AssetManager.toAssetUri( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
-		assertThat( AssetManager.toAssetUri( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
-		assertThat( AssetManager.toAssetUri( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );
-		assertThat( AssetManager.toAssetUri( URI.create( "relative/path?query#fragment" ) ), is( URI.create( "relative/path" ) ) );
+		assertThat( AssetManager.removeQueryAndFragment( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
+		assertThat( AssetManager.removeQueryAndFragment( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
+		assertThat( AssetManager.removeQueryAndFragment( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );
+		assertThat( AssetManager.removeQueryAndFragment( URI.create( "relative/path?query#fragment" ) ), is( URI.create( "relative/path" ) ) );
 	}
 
 }

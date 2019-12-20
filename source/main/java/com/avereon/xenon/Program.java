@@ -22,6 +22,7 @@ import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductManagerLogic;
 import com.avereon.xenon.product.ProgramProductManager;
 import com.avereon.xenon.product.RepoState;
+import com.avereon.xenon.scheme.AssetScheme;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.ProgramScheme;
 import com.avereon.xenon.task.Task;
@@ -416,7 +417,7 @@ public class Program extends Application implements ProgramProduct {
 		Thread.sleep( 500 );
 
 		Platform.runLater( () -> {
-			if( !parameters.isSet( ProgramFlag.DAEMON )) {
+			if( !parameters.isSet( ProgramFlag.DAEMON ) ) {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
 			}
@@ -901,14 +902,12 @@ public class Program extends Application implements ProgramProduct {
 		getWorkspaceManager().showActiveWorkspace();
 
 		// Open the assets provided on the command line
-		for( String uri : uris ) {
-			try {
-				getAssetManager().openAssetsAndWait( getAssetManager().createAsset( uri ) );
-			} catch( ExecutionException | AssetException exception ) {
-				log.warn( "Unable to open: " + uri );
-			} catch( InterruptedException exception ) {
-				// Intentionally ignore exception
-			}
+		try {
+			getAssetManager().openAssetsAndWait( getAssetManager().createAssets( uris ) );
+		} catch( ExecutionException | AssetException exception ) {
+			log.warn( "Unable to open assets: " + uris );
+		} catch( InterruptedException exception ) {
+			// Intentionally ignore exception
 		}
 	}
 
@@ -1130,13 +1129,15 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerSchemes( AssetManager manager ) {
-		manager.addScheme( new ProgramScheme( this ) );
+		manager.addScheme( new AssetScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
+		manager.addScheme( new ProgramScheme( this ) );
 	}
 
 	private void unregisterSchemes( AssetManager manager ) {
-		manager.removeScheme( "program" );
-		manager.removeScheme( "file" );
+		manager.removeScheme( ProgramScheme.ID );
+		manager.removeScheme( FileScheme.ID );
+		manager.removeScheme( AssetScheme.ID );
 	}
 
 	private void registerAssetTypes( AssetManager manager ) {
