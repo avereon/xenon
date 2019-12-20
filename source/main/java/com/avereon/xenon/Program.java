@@ -1028,14 +1028,15 @@ public class Program extends Application implements ProgramProduct {
 	private void registerIcons() {
 		getIconLibrary().register( "provider", WingDiscLargeIcon.class );
 		getIconLibrary().register( "program", XRingLargeIcon.class );
+		getIconLibrary().register( "close", CloseIcon.class );
+		getIconLibrary().register( "exit", PowerIcon.class );
+
 		getIconLibrary().register( "asset-new", DocumentIcon.class );
 		getIconLibrary().register( "asset-open", FolderIcon.class );
 		//getIconLibrary().register( "asset-save", SaveIcon.class );
 		getIconLibrary().register( "asset-save", LightningIcon.class );
 		getIconLibrary().register( "asset-close", DocumentCloseIcon.class );
-		getIconLibrary().register( "exit", PowerIcon.class );
-
-		getIconLibrary().register( "close", CloseIcon.class );
+		getIconLibrary().register( "properties", SettingsIcon.class );
 
 		getIconLibrary().register( "undo", UndoIcon.class );
 		getIconLibrary().register( "redo", RedoIcon.class );

@@ -41,6 +41,7 @@ public class ActionLibrary {
 		register( bundle, "delete" );
 		register( bundle, "indent" );
 		register( bundle, "unindent" );
+		register( bundle, "properties" );
 
 		register( bundle, "view" );
 		register( bundle, "workspace-new" );

@@ -126,7 +126,40 @@ public class Workspace implements Configurable {
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 
 		// FIXME Should this default setup be defined in config files or something else?
+		createMenuBar( program );
+		createToolBar( program );
+		createStatusBar( program );
 
+		noticeContainer = new VBox();
+		noticeContainer.setPickOnBounds( false );
+
+		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
+		noticeLayout.setPickOnBounds( false );
+
+		// Workpane Container
+		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
+		workpaneContainer.getStyleClass().add( "workspace" );
+
+		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		workspaceStack.setPickOnBounds( false );
+
+		VBox bars = new VBox( menubar, toolbar );
+
+		workareaLayout = new BorderPane();
+		workareaLayout.setTop( bars );
+		workareaLayout.setCenter( workspaceStack );
+		workareaLayout.setBottom( statusBar );
+
+		// Create the stage
+		stage = new Stage();
+		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
+		stage.setOnCloseRequest( event -> {
+			event.consume();
+			program.getWorkspaceManager().requestCloseWorkspace( this );
+		} );
+	}
+
+	private void createMenuBar( Program program ) {
 		// MENUBAR
 		menubar = new MenuBar();
 		// FIXME This does not work if there are two menu bars (like this program uses)
@@ -148,6 +181,8 @@ public class Workspace implements Configurable {
 		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
+		file.getItems().add( new SeparatorMenuItem() );
+		file.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
 
 		Menu edit = ActionUtil.createMenu( program, "edit" );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
@@ -186,9 +221,27 @@ public class Workspace implements Configurable {
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
+	}
+
+	private void createToolBar( Program program ) {
+		// TOOLBAR
+
+		toolbar = new ToolBar();
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "properties" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
+
+		toolbar.getItems().add( ActionUtil.createSpring() );
 
 		// Workarea menu
-
 		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
 		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
 		workareaMenu.getItems().add( new SeparatorMenuItem() );
@@ -208,22 +261,6 @@ public class Workspace implements Configurable {
 		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
-		// TOOLBAR
-
-		toolbar = new ToolBar();
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
-
-		toolbar.getItems().add( ActionUtil.createSpring() );
-
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
 
@@ -239,7 +276,9 @@ public class Workspace implements Configurable {
 			} );
 		} );
 		toolbar.getItems().add( noticeButton );
+	}
 
+	private void createStatusBar( Program program ) {
 		// STATUS BAR
 		statusBar = new StatusBar();
 
@@ -257,42 +296,8 @@ public class Workspace implements Configurable {
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		HBox leftStatusBarItems = new HBox( statusBar );
-		leftStatusBarItems.getStyleClass().addAll( "box" );
-
-		HBox rightStatusBarItems = new HBox( taskMonitorContainer, memoryMonitorContainer );
-		rightStatusBarItems.getStyleClass().addAll( "box" );
-
-		BorderPane statusBarContainer = new BorderPane( null, null, rightStatusBarItems, null, leftStatusBarItems );
-		statusBarContainer.getStyleClass().add( "status-bar" );
-
-		noticeContainer = new VBox();
-		noticeContainer.setPickOnBounds( false );
-
-		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
-		noticeLayout.setPickOnBounds( false );
-
-		// Workpane Container
-		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
-		workpaneContainer.getStyleClass().add( "workspace" );
-
-		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
-		workspaceStack.setPickOnBounds( false );
-
-		VBox bars = new VBox( menubar, toolbar );
-
-		workareaLayout = new BorderPane();
-		workareaLayout.setTop( bars );
-		workareaLayout.setCenter( workspaceStack );
-		workareaLayout.setBottom( statusBarContainer );
-
-		// Create the stage
-		stage = new Stage();
-		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
-		stage.setOnCloseRequest( event -> {
-			event.consume();
-			program.getWorkspaceManager().requestCloseWorkspace( this );
-		} );
+		statusBar.addRight( memoryMonitorContainer );
+		statusBar.addRight( taskMonitorContainer );
 	}
 
 	public Program getProgram() {

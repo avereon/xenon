@@ -150,8 +150,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	private void updateEnabled() {
-		if( actionStack.size() == 0 ) return;
-		setEnabled( actionStack.peek().isEnabled() );
+		setEnabled( actionStack.size() > 0 && actionStack.peek().isEnabled() );
 	}
 
 	private void updateMnemonicName() {
