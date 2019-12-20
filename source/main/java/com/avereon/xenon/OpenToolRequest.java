@@ -23,8 +23,6 @@ public class OpenToolRequest {
 		this.openAssetRequest = openAssetRequest;
 	}
 
-	//public URI getUri() {return openAssetRequest.getUri();}
-
 	public String getQuery() {return openAssetRequest.getQuery();}
 
 	public String getFragment() {return openAssetRequest.getFragment();}
@@ -41,8 +39,9 @@ public class OpenToolRequest {
 		return id;
 	}
 
-	public void setId( String id ) {
+	public OpenToolRequest setId( String id ) {
 		this.id = id;
+		return this;
 	}
 
 	public Class<? extends ProgramTool> getToolClass() {

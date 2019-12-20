@@ -605,6 +605,17 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
+	 * Create an asset from an asset type and uri.
+	 *
+	 * @param type The asset type
+	 * @param uri The asset uri
+	 * @return The created asset
+	 */
+	public Asset createAsset( AssetType type, URI uri ) throws AssetException {
+		return doCreateAsset( type, uri );
+	}
+
+	/**
 	 * Create assets from an array of descriptors. Descriptors are preferred in the following order: URI, File, String, Object
 	 *
 	 * @param descriptors The descriptors from which to create assets
@@ -1008,13 +1019,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) {
 			asset = new Asset( type, uri );
 			identifiedAssets.put( uri, asset );
-			System.out.println( uri.getScheme() );
 			Scheme scheme = getScheme( uri.getScheme() );
 			asset.setScheme( scheme );
 			scheme.init( asset );
-			log.trace( "Asset created: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
+			log.trace( "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {
-			log.trace( "Asset preexisted: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
+			log.trace( "Asset exists: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		}
 
 		return asset;
@@ -1290,6 +1300,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public ProgramTool call() throws Exception {
 			Asset asset = createAsset( request.getUri() );
+			if( request.getType() != null ) asset.setType( getAssetType( request.getType() ) );
 			log.debug( "Open asset: {}", asset.getUri() );
 
 			boolean openTool = request.isOpenTool() || !isAssetOpen( asset );

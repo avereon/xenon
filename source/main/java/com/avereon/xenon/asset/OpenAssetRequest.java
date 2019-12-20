@@ -8,6 +8,8 @@ public class OpenAssetRequest {
 
 	private URI uri;
 
+	private String type;
+
 	private String query;
 
 	private String fragment;
@@ -26,6 +28,15 @@ public class OpenAssetRequest {
 
 	public OpenAssetRequest setUri( URI uri ) {
 		this.uri = uri;
+		return this;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public OpenAssetRequest setType( String type ) {
+		this.type = type;
 		return this;
 	}
 

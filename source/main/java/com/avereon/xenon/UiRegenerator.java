@@ -4,6 +4,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
 import com.avereon.util.TestUtil;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.tool.ProgramTool;
@@ -401,6 +402,8 @@ class UiRegenerator {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
 		String toolType = settings.get( "type" );
 		URI uri = settings.get( "uri", URI.class );
+		String assetTypeKey = settings.get( "asset-type" );
+		AssetType assetType = assetTypeKey == null ? null : program.getAssetManager().getAssetType( assetTypeKey );
 		WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
 		try {
@@ -412,12 +415,11 @@ class UiRegenerator {
 			}
 
 			// Create the open asset request
-			OpenAssetRequest openAssetRequest = new OpenAssetRequest().setUri( uri );
+			OpenAssetRequest openAssetRequest = new OpenAssetRequest();
 
 			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( openAssetRequest );
-			openToolRequest.setAsset( program.getAssetManager().createAsset( uri ) );
-			openToolRequest.setId( id );
+			OpenToolRequest openToolRequest = new OpenToolRequest( openAssetRequest ).setId( id );
+			openToolRequest.setAsset( program.getAssetManager().createAsset( assetType, uri ) );
 
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );

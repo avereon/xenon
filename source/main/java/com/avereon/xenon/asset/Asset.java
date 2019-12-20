@@ -82,6 +82,8 @@ public class Asset extends Node implements Configurable {
 		setUri( uri );
 		setType( type );
 
+		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
+
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
 
@@ -90,7 +92,6 @@ public class Asset extends Node implements Configurable {
 	}
 
 	/**
-	 *
 	 * @return The URI for the asset
 	 */
 	public URI getUri() {
@@ -100,7 +101,7 @@ public class Asset extends Node implements Configurable {
 	public void setUri( URI uri ) {
 		if( uri == null ) throw new NullPointerException( "The uri cannot be null." );
 		setValue( URI_VALUE_KEY, uri );
-		updateAssetName( uri );
+		updateAssetName();
 	}
 
 	public AssetType getType() {
@@ -109,6 +110,7 @@ public class Asset extends Node implements Configurable {
 
 	public void setType( AssetType type ) {
 		setValue( TYPE_VALUE_KEY, type );
+		updateAssetName();
 	}
 
 	/**
@@ -375,33 +377,27 @@ public class Asset extends Node implements Configurable {
 		}
 	}
 
-	private void updateAssetName( URI uri ) {
+	private void updateAssetName() {
+		AssetType type = getType();
+		URI uri = getUri();
+		String path = uri.getPath();
 		String name = null;
-		String path = null;
 
-		// If the URI is null return the type name.
-		if( uri == null ) name = getType().getName();
+		// If the asset is new return the type name
+		if( isNew() && type != null ) name = type.getName();
 
-		// If the path is null return the entire URI.
-		if( name == null && uri != null ) {
-			path = uri.getPath();
-			if( TextUtil.isEmpty( path ) ) name = uri.toString();
-		}
+		// If the uri path is empty return the entire URI
+		if( name == null && TextUtil.isEmpty( path ) ) name = uri.toString();
 
-		// Get the folder name from the path.
-		if( name == null && path != null ) {
+		// Get the name from the path
+		if( name == null && !TextUtil.isEmpty( path ) ) {
 			try {
-				if( isFolder() ) {
-					if( path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
-					name = path.substring( path.lastIndexOf( '/' ) + 1 );
-				}
+				if( isFolder() && path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
 			} catch( AssetException exception ) {
-				// Intentionally ignore exception.
-			}
+				// Intentionally ignore exception
+ 			}
+			name = path.substring( path.lastIndexOf( '/' ) + 1 );
 		}
-
-		// Return just the name from the path.
-		if( name == null && path != null ) name = path.substring( path.lastIndexOf( '/' ) + 1 );
 
 		this.name = name;
 	}
