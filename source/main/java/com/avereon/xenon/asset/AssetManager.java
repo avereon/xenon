@@ -934,6 +934,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	private void updateActionState() {
 		newActionHandler.updateEnabled();
 		openActionHandler.updateEnabled();
+		saveActionHandler.updateEnabled();
+		saveAsActionHandler.updateEnabled();
 		saveAllActionHandler.updateEnabled();
 		closeAllActionHandler.updateEnabled();
 	}
@@ -1388,6 +1390,9 @@ public class AssetManager implements Controllable<AssetManager> {
 				OpenAssetRequest request = new OpenAssetRequest().setOpenTool( true ).setSetActive( true );
 				program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) );
 
+				// FIXME Should this be done here and/or when the tool is activated?
+				//setCurrentAsset( asset );
+
 				return asset;
 			}
 
@@ -1459,7 +1464,9 @@ public class AssetManager implements Controllable<AssetManager> {
 		public void handle( ActionEvent event ) {
 			Asset asset = getCurrentAsset();
 
-			if( saveAs ) {
+			// NEXT Handle saving new assets
+			if( saveAs || asset.isNew() ) {
+				program.getNoticeManager().warning( "Assets","This asset is new and there is not a way to save a new asset yet" );
 				//				// Ask the user for the new asset location.
 				//				tool = (AssetTool)program.getToolManager().getWorkTool( AssetTool.class );
 				//				if( tool == null ) return;
