@@ -255,9 +255,9 @@ public class ToolManager implements Controllable<ToolManager> {
 
 				// Set the id before using settings
 				tool.setUid( request.getId() == null ? IdGenerator.getId() : request.getId() );
-				tool.getSettings().set( "type", tool.getClass().getName() );
-				tool.getSettings().set( "uri", tool.getAsset().getUri() );
-				tool.getSettings().set( "asset-type", tool.getAsset().getType().getKey() );
+				tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
+				tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
+				if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
 				addToolListenerForSettings( tool );
 				log.debug( "Tool instance created: " + tool.getClass().getName() );
 				return tool;

@@ -27,6 +27,8 @@ public abstract class Tool extends Control {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
+	public static final String SETTINGS_TYPE_KEY = "type";
+
 	public static final String ICON_PROPERTY = "icon";
 
 	public static final String TITLE_PROPERTY = "title";

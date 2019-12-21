@@ -24,6 +24,10 @@ public class Asset extends Node implements Configurable {
 
 	public static final int ASSET_READY_TIMEOUT = 10;
 
+	public static final String SETTINGS_URI_KEY = "uri";
+
+	public static final String SETTINGS_TYPE_KEY = "asset-type";
+
 	public static final String MEDIA_TYPE_ASSET_KEY = "asset.media.type";
 
 	public static final String FILE_NAME_ASSET_KEY = "asset.file.name";

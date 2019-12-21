@@ -400,9 +400,9 @@ class UiRegenerator {
 
 	private void restoreWorktool( String id ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-		String toolType = settings.get( "type" );
-		URI uri = settings.get( "uri", URI.class );
-		String assetTypeKey = settings.get( "asset-type" );
+		String toolType = settings.get( Tool.SETTINGS_TYPE_KEY );
+		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
+		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
 		AssetType assetType = assetTypeKey == null ? null : program.getAssetManager().getAssetType( assetTypeKey );
 		WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
