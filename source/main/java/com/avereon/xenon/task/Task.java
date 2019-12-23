@@ -83,7 +83,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	public void run() {
 		setState( Task.State.RUNNING );
-		fireTaskEvent( TaskEvent.Type.TASK_START );
+		fireTaskEvent( TaskEventOld.Type.TASK_START );
 		super.run();
 	}
 
@@ -171,7 +171,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void done() {
 		setProgress( getTotal() );
-		fireTaskEvent( TaskEvent.Type.TASK_FINISH );
+		fireTaskEvent( TaskEventOld.Type.TASK_FINISH );
 		if( isCancelled() ) setState( Task.State.CANCELLED );
 		setTaskManager( null );
 		super.done();
@@ -206,7 +206,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	protected void setProgress( long progress ) {
 		this.progress = progress;
-		fireTaskEvent( TaskEvent.Type.TASK_PROGRESS );
+		fireTaskEvent( TaskEventOld.Type.TASK_PROGRESS );
 	}
 
 	protected void scheduled() {}
@@ -223,7 +223,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
-		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
+		if( manager != null ) fireTaskEvent( TaskEventOld.Type.TASK_SUBMITTED );
 	}
 
 	void setState( State state ) {
@@ -260,8 +260,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return manager;
 	}
 
-	private void fireTaskEvent( TaskEvent.Type type ) {
-		TaskEvent event = new TaskEvent( this, this, type );
+	private void fireTaskEvent( TaskEventOld.Type type ) {
+		TaskEventOld event = new TaskEventOld( this, this, type );
 		if( getTaskManager() != null ) event.fire( getTaskManager().getTaskListeners() );
 		event.fire( listeners );
 	}

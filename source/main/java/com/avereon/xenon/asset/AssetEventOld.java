@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.product.ProductEvent;
+import com.avereon.xenon.ProductEventOld;
 
-public abstract class AssetEvent extends ProductEvent {
+public abstract class AssetEventOld extends ProductEventOld {
 
 	public enum Type {
 		OPENED,
@@ -19,7 +19,7 @@ public abstract class AssetEvent extends ProductEvent {
 
 	private Asset asset;
 
-	protected AssetEvent( Object source, Type type, Asset asset ) {
+	protected AssetEventOld( Object source, Type type, Asset asset ) {
 		super( source );
 		this.type = type;
 		this.asset = asset;

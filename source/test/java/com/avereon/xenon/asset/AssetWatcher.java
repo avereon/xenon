@@ -8,20 +8,20 @@ public class AssetWatcher implements AssetListener {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	private Map<Class<? extends AssetEvent>, AssetEvent> events = new ConcurrentHashMap<>();
+	private Map<Class<? extends AssetEventOld>, AssetEventOld> events = new ConcurrentHashMap<>();
 
 	@Override
-	public synchronized void eventOccurred( AssetEvent event ) {
+	public synchronized void eventOccurred( AssetEventOld event ) {
 		events.put( event.getClass(), event );
 		notifyAll();
 	}
 
-	public void waitForEvent( Class<? extends AssetEvent> clazz ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( Class<? extends AssetEventOld> clazz ) throws InterruptedException, TimeoutException {
 		waitForEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
 
 	@SuppressWarnings( "unused" )
-	public void waitForNextEvent( Class<? extends AssetEvent> clazz ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( Class<? extends AssetEventOld> clazz ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( clazz, DEFAULT_WAIT_TIMEOUT );
 	}
 
@@ -35,7 +35,7 @@ public class AssetWatcher implements AssetListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForEvent( Class<? extends AssetEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( Class<? extends AssetEventOld> clazz, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
@@ -60,7 +60,7 @@ public class AssetWatcher implements AssetListener {
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
 	@SuppressWarnings( "SameParameterValue" )
-	private synchronized void waitForNextEvent( Class<? extends AssetEvent> clazz, long timeout ) throws InterruptedException, TimeoutException {
+	private synchronized void waitForNextEvent( Class<? extends AssetEventOld> clazz, long timeout ) throws InterruptedException, TimeoutException {
 		events.remove( clazz );
 		waitForEvent( clazz, timeout );
 	}

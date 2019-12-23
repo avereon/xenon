@@ -441,7 +441,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
 		log.trace( "Set mod enabled: " + settings.getPath() + ": " + enabled );
-		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.MOD_ENABLED : ProductManagerEvent.Type.MOD_DISABLED, mod.getCard() )
+		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
 			.fire( listeners )
 			.fire( program.getListeners() );
 
@@ -1001,7 +1001,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_REGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_REGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error registering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1011,7 +1011,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_STARTED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_STARTED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error starting mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1021,7 +1021,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_STOPPED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_STOPPED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1030,7 +1030,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_UNREGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_UNREGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
 		} catch( Throwable throwable ) {
 			log.error( "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1139,7 +1139,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			registerMod( mod );
 
 			// Notify listeners of install
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_INSTALLED, card ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_INSTALLED, card ).fire( listeners ).fire( program.getListeners() );
 
 			log.debug( "Mod loaded: " + message );
 		} catch( Throwable throwable ) {
@@ -1158,7 +1158,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			unregisterMod( mod );
 
 			// Notify listeners of remove
-			new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.MOD_REMOVED, card ).fire( listeners ).fire( program.getListeners() );
+			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_REMOVED, card ).fire( listeners ).fire( program.getListeners() );
 
 			log.debug( "Mod unloaded: " + message );
 		} catch( Throwable throwable ) {

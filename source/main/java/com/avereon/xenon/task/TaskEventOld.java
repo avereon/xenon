@@ -1,8 +1,8 @@
 package com.avereon.xenon.task;
 
-import com.avereon.product.ProductEvent;
+import com.avereon.xenon.ProductEventOld;
 
-public class TaskEvent extends ProductEvent {
+public class TaskEventOld extends ProductEventOld {
 
 	public enum Type {
 		TASK_SUBMITTED, TASK_START, TASK_PROGRESS, TASK_FINISH, THREAD_CREATE, THREAD_FINISH
@@ -14,7 +14,7 @@ public class TaskEvent extends ProductEvent {
 
 	private Type type;
 
-	public TaskEvent( Object source, Task<?> task, Type type ) {
+	public TaskEventOld( Object source, Task<?> task, Type type ) {
 		super( source );
 		this.task = task;
 		this.type = type;

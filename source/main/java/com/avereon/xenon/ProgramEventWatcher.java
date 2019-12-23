@@ -1,24 +1,25 @@
 package com.avereon.xenon;
 
-import com.avereon.product.ProductEvent;
-import com.avereon.product.ProductEventListener;
+import com.avereon.event.Event;
+import com.avereon.event.EventHub;
+import com.avereon.settings.SettingsEvent;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.event.ProgramSettingsEvent;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 
-public class ProgramEventWatcher implements ProductEventListener {
+public class ProgramEventWatcher extends EventHub<Event> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	@Override
-	public void handleEvent( ProductEvent event ) {
-		if( event instanceof ProgramSettingsEvent ) {
-			log.trace( event.toString() );
-		} else {
-			log.info( event.toString() );
-		}
+	public ProgramEventWatcher() {
+		register( Event.ANY, e -> {
+			if( e instanceof SettingsEvent ) {
+				log.error( String.valueOf( e ) );
+			} else {
+				log.warn( String.valueOf( e ) );
+			}
+		} );
 	}
 
 }

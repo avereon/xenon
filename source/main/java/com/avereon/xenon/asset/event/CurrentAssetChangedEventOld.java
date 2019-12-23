@@ -1,15 +1,15 @@
 package com.avereon.xenon.asset.event;
 
-import com.avereon.product.ProductEvent;
+import com.avereon.xenon.ProductEventOld;
 import com.avereon.xenon.asset.Asset;
 
-public class CurrentAssetChangedEvent extends ProductEvent {
+public class CurrentAssetChangedEventOld extends ProductEventOld {
 
 	private Asset newAsset;
 
 	private Asset oldAsset;
 
-	public CurrentAssetChangedEvent( Object source, Asset oldAsset, Asset newAsset ) {
+	public CurrentAssetChangedEventOld( Object source, Asset oldAsset, Asset newAsset ) {
 		super( source );
 		this.newAsset = newAsset;
 		this.oldAsset = oldAsset;

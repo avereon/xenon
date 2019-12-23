@@ -1,13 +1,13 @@
 package com.avereon.xenon.event;
 
-import com.avereon.product.ProductEvent;
+import com.avereon.xenon.ProductEventOld;
 import com.avereon.xenon.workspace.Workarea;
 
-public class WorkareaChangedEvent extends ProductEvent {
+public class WorkareaChangedEventOld extends ProductEventOld {
 
 	private Workarea workarea;
 
-	public WorkareaChangedEvent( Object source, Workarea workarea ) {
+	public WorkareaChangedEventOld( Object source, Workarea workarea ) {
 		super( source );
 		this.workarea = workarea;
 	}

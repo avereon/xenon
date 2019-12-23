@@ -206,8 +206,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return listeners;
 	}
 
-	void taskThreadEvent( TaskThread thread, TaskEvent.Type type ) {
-		new TaskEvent( this, null, type ).fire( listeners );
+	void taskThreadEvent( TaskThread thread, TaskEventOld.Type type ) {
+		new TaskEventOld( this, null, type ).fire( listeners );
 	}
 
 	private static boolean isTaskThread() {

@@ -277,14 +277,14 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
-		listener.waitForEvent( TaskEvent.Type.TASK_FINISH );
+		listener.waitForEvent( TaskEventOld.Type.TASK_FINISH );
 
 		int count = 0;
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.THREAD_CREATE ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_START ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_SUBMITTED ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.THREAD_CREATE ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_START ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_PROGRESS ) );
+		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_FINISH ) );
 		assertThat( listener.getEvents().size(), is( count ) );
 	}
 

@@ -1,27 +1,27 @@
 package com.avereon.xenon.event;
 
-public class SettingsLoadedEvent extends ProgramSettingsEvent {
+public class SettingsSavedEventOld extends ProgramSettingsEventOld {
 
 	private String root;
 
-	private String id;
+	private String scope;
 
-	public SettingsLoadedEvent( Object source, String root ) {
+	public SettingsSavedEventOld( Object source, String root ) {
 		this( source, root, null );
 	}
 
-	public SettingsLoadedEvent( Object source, String root, String id ) {
+	public SettingsSavedEventOld( Object source, String root, String scope ) {
 		super( source );
 		this.root = root;
-		this.id = id;
+		this.scope = scope;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(super.toString());
-		if( id != null ) {
+		if( scope != null ) {
 			builder.append( ":" );
-			builder.append( id );
+			builder.append( scope );
 		}
 		if( root != null ) {
 			builder.append( ":" );

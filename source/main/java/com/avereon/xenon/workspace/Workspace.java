@@ -10,7 +10,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.type.ProgramTaskType;
-import com.avereon.xenon.event.WorkareaChangedEvent;
+import com.avereon.xenon.event.WorkareaChangedEventOld;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
@@ -373,7 +373,7 @@ public class Workspace implements Configurable {
 		}
 
 		// Send a program event when active area changes
-		getProgram().fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+		getProgram().fireEventOld( new WorkareaChangedEventOld( this, activeWorkarea ) );
 	}
 
 	public void showNotice( Notice notice ) {

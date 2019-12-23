@@ -4,7 +4,7 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEvent;
+import com.avereon.xenon.task.TaskEventOld;
 import com.avereon.xenon.task.TaskListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
@@ -148,7 +148,7 @@ public class TaskTool extends ProgramTool {
 	private class TaskWatcher implements TaskListener {
 
 		@Override
-		public void handleEvent( TaskEvent event ) {
+		public void handleEvent( TaskEventOld event ) {
 			Task task = event.getTask();
 
 			Platform.runLater( () -> {

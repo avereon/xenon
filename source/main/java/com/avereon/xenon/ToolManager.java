@@ -5,7 +5,7 @@ import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.AssetEventOld;
 import com.avereon.xenon.asset.AssetListener;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.task.Task;
@@ -320,7 +320,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		asset.callWhenReady( new AssetListener() {
 
 			@Override
-			public void eventOccurred( AssetEvent event ) {
+			public void eventOccurred( AssetEventOld event ) {
 				asset.removeAssetListener( this );
 				Platform.runLater( () -> tool.callAssetReady( new OpenToolRequestParameters( request ) ) );
 			}

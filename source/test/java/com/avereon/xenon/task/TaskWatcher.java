@@ -11,35 +11,35 @@ class TaskWatcher implements TaskListener {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	private List<TaskEvent> events = new CopyOnWriteArrayList<>();
+	private List<TaskEventOld> events = new CopyOnWriteArrayList<>();
 
-	private Map<TaskEvent.Type, TaskEvent> eventMap = new ConcurrentHashMap<>();
+	private Map<TaskEventOld.Type, TaskEventOld> eventMap = new ConcurrentHashMap<>();
 
-	public List<TaskEvent> getEvents() {
+	public List<TaskEventOld> getEvents() {
 		return new ArrayList<>( events );
 	}
 
 	@Override
-	public synchronized void handleEvent( TaskEvent event ) {
+	public synchronized void handleEvent( TaskEventOld event ) {
 		events.add( event );
 		eventMap.put( event.getType(), event );
 		notifyAll();
 	}
 
-	private void clearEvent( TaskEvent.Type type ) {
+	private void clearEvent( TaskEventOld.Type type ) {
 		eventMap.remove( type );
 	}
 
-	public void waitForEvent( TaskEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( TaskEventOld.Type type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
 	@SuppressWarnings( "unused" )
-	public void waitForNextEvent( TaskEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( TaskEventOld.Type type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	public synchronized void waitForEvent( TaskEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( TaskEventOld.Type type, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
@@ -55,7 +55,7 @@ class TaskWatcher implements TaskListener {
 	}
 
 	@SuppressWarnings( "SameParameterValue" )
-	private synchronized void waitForNextEvent( TaskEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	private synchronized void waitForNextEvent( TaskEventOld.Type type, long timeout ) throws InterruptedException, TimeoutException {
 		clearEvent( type );
 		waitForEvent( type, timeout );
 	}

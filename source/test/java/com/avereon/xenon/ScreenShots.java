@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
-import com.avereon.xenon.event.ProgramStartedEvent;
+import com.avereon.xenon.event.ProgramStartedEventOld;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.tool.about.AboutTool;
@@ -117,7 +117,7 @@ public abstract class ScreenShots implements Runnable {
 				}
 			} );
 			program.addEventListener( programWatcher = new ProgramWatcher() );
-			programWatcher.waitForEvent( ProgramStartedEvent.class );
+			programWatcher.waitForEvent( ProgramStartedEventOld.class );
 			Platform.runLater( () -> {
 				program.getWorkspaceManager().getActiveStage().setX( 0 );
 				program.getWorkspaceManager().getActiveStage().setY( 0 );

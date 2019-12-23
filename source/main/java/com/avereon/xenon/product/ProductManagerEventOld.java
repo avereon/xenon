@@ -1,9 +1,9 @@
 package com.avereon.xenon.product;
 
 import com.avereon.product.ProductCard;
-import com.avereon.product.ProductEvent;
+import com.avereon.xenon.ProductEventOld;
 
-public class ProductManagerEvent extends ProductEvent {
+public class ProductManagerEventOld extends ProductEventOld {
 
 	public enum Type {
 		MOD_INSTALLED,
@@ -23,7 +23,7 @@ public class ProductManagerEvent extends ProductEvent {
 
 	private ProductCard card;
 
-	public ProductManagerEvent( ProductManager manager, Type type, ProductCard card ) {
+	public ProductManagerEventOld( ProductManager manager, Type type, ProductCard card ) {
 		super( manager );
 		this.type = type;
 		this.card = card;

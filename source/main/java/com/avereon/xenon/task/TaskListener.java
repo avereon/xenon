@@ -1,5 +1,5 @@
 package com.avereon.xenon.task;
 
-import com.avereon.product.ProductEventListener;
+import com.avereon.xenon.ProductEventListener;
 
-public interface TaskListener extends ProductEventListener<TaskEvent> {}
+public interface TaskListener extends ProductEventListener<TaskEventOld> {}

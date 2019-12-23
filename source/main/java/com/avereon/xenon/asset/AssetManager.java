@@ -1094,7 +1094,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		log.trace( "Asset opened: " + asset );
 
-		program.fireEvent( new AssetOpenedEvent( this, asset ) );
+		program.fireEventOld( new AssetOpenedEventOld( this, asset ) );
 
 		return true;
 	}
@@ -1113,7 +1113,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( !previouslyLoaded ) asset.addNodeListener( modifiedAssetWatcher );
 		asset.refresh( this );
 
-		program.fireEvent( new AssetLoadedEvent( this, asset ) );
+		program.fireEventOld( new AssetLoadedEventOld( this, asset ) );
 		log.trace( "Asset loaded: " + asset );
 
 		return true;
@@ -1137,7 +1137,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		log.trace( "Asset saved: " + asset );
 
-		program.fireEvent( new AssetSavedEvent( this, asset ) );
+		program.fireEventOld( new AssetSavedEventOld( this, asset ) );
 
 		return true;
 	}
@@ -1160,7 +1160,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		log.trace( "Asset closed: " + asset );
 
-		program.fireEvent( new AssetClosedEvent( this, asset ) );
+		program.fireEventOld( new AssetClosedEventOld( this, asset ) );
 
 		return true;
 	}
@@ -1185,7 +1185,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			log.trace( "Asset select: " + (asset == null ? "null" : asset) );
 
 			// Notify program of current asset change.
-			program.fireEvent( new CurrentAssetChangedEvent( this, previous, currentAsset ) );
+			program.fireEventOld( new CurrentAssetChangedEventOld( this, previous, currentAsset ) );
 		}
 
 		return true;
@@ -1719,7 +1719,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	private class CurrentAssetWatcher implements AssetListener {
 
 		@Override
-		public void eventOccurred( AssetEvent event ) {
+		public void eventOccurred( AssetEventOld event ) {
 			switch( event.getType() ) {
 				case MODIFIED: {
 					Asset asset = event.getAsset();

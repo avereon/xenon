@@ -7,7 +7,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.AssetEventOld;
 import com.avereon.xenon.asset.AssetListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
@@ -107,7 +107,7 @@ public class NoticeTool extends ProgramTool {
 	private class AssetWatcher implements AssetListener {
 
 		@Override
-		public void eventOccurred( AssetEvent event ) {
+		public void eventOccurred( AssetEventOld event ) {
 			switch( event.getType() ) {
 				case REFRESHED: {
 					updateNotices();

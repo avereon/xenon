@@ -223,11 +223,11 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.open( this );
 
 		open = true;
-		fireAssetEvent( new AssetOpenedEvent( Asset.class, this ) );
+		fireAssetEvent( new AssetOpenedEventOld( Asset.class, this ) );
 
 		if( isNew() ) {
 			ready = true;
-			fireAssetEvent( new AssetReadyEvent( Asset.class, this ) );
+			fireAssetEvent( new AssetReadyEventOld( Asset.class, this ) );
 		}
 
 	}
@@ -244,11 +244,11 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.load( this, getCodec() );
 
 		loaded = true;
-		fireAssetEvent( new AssetLoadedEvent( Asset.class, this ) );
+		fireAssetEvent( new AssetLoadedEventOld( Asset.class, this ) );
 
 		if( !ready ) {
 			ready = true;
-			fireAssetEvent( new AssetReadyEvent( Asset.class, this ) );
+			fireAssetEvent( new AssetReadyEventOld( Asset.class, this ) );
 		}
 
 		notifyAll();
@@ -256,7 +256,7 @@ public class Asset extends Node implements Configurable {
 
 	public synchronized final void refresh( AssetManager manager ) {
 		if( !ready ) return;
-		fireAssetEvent( new AssetRefreshedEvent( Asset.class, this ) );
+		fireAssetEvent( new AssetRefreshedEventOld( Asset.class, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -271,7 +271,7 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.save( this, getCodec() );
 		saved = true;
 
-		fireAssetEvent( new AssetSavedEvent( Asset.class, this ) );
+		fireAssetEvent( new AssetSavedEventOld( Asset.class, this ) );
 	}
 
 	public synchronized final boolean isClosed() {
@@ -286,12 +286,12 @@ public class Asset extends Node implements Configurable {
 
 		open = false;
 
-		fireAssetEvent( new AssetClosedEvent( Asset.class, this ) );
+		fireAssetEvent( new AssetClosedEventOld( Asset.class, this ) );
 	}
 
 	public synchronized void callWhenReady( AssetListener listener ) {
 		if( ready ) {
-			listener.eventOccurred( new AssetReadyEvent( Asset.class, this ) );
+			listener.eventOccurred( new AssetReadyEventOld( Asset.class, this ) );
 		} else {
 			addAssetListener( listener );
 		}
@@ -375,7 +375,7 @@ public class Asset extends Node implements Configurable {
 		return isNew() ? assetTypeName : uri.toString();
 	}
 
-	private void fireAssetEvent( AssetEvent event ) {
+	private void fireAssetEvent( AssetEventOld event ) {
 		for( AssetListener listener : listeners ) {
 			listener.eventOccurred( event );
 		}
@@ -414,9 +414,9 @@ public class Asset extends Node implements Configurable {
 
 			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
 				if( Boolean.TRUE == event.getNewValue() ) {
-					fireAssetEvent( new AssetModifiedEvent( this, (Asset)event.getSource() ) );
+					fireAssetEvent( new AssetModifiedEventOld( this, (Asset)event.getSource() ) );
 				} else {
-					fireAssetEvent( new AssetUnmodifiedEvent( this, (Asset)event.getSource() ) );
+					fireAssetEvent( new AssetUnmodifiedEventOld( this, (Asset)event.getSource() ) );
 				}
 			}
 		}

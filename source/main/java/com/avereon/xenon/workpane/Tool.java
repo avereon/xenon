@@ -3,7 +3,7 @@ package com.avereon.xenon.workpane;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.AssetEventOld;
 import com.avereon.xenon.asset.AssetListener;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -415,7 +415,7 @@ public abstract class Tool extends Control {
 	private class AssetWatcher implements AssetListener {
 
 		@Override
-		public void eventOccurred( AssetEvent event ) {
+		public void eventOccurred( AssetEventOld event ) {
 			switch( event.getType() ) {
 				case REFRESHED: {
 					Tool.this.callAssetRefreshed();

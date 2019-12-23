@@ -4,8 +4,8 @@ import com.avereon.product.ProductCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
-import com.avereon.xenon.event.ProgramStartedEvent;
-import com.avereon.xenon.event.ProgramStoppedEvent;
+import com.avereon.xenon.event.ProgramStartedEventOld;
+import com.avereon.xenon.event.ProgramStoppedEventOld;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneWatcher;
 import javafx.application.Platform;
@@ -72,7 +72,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
 		program.addEventListener( programWatcher = new ProgramWatcher() );
-		programWatcher.waitForEvent( ProgramStartedEvent.class );
+		programWatcher.waitForEvent( ProgramStartedEventOld.class );
 		metadata = program.getCard();
 
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
@@ -89,7 +89,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		FxToolkit.cleanupApplication( program );
 		FxToolkit.cleanupStages();
 
-		programWatcher.waitForEvent( ProgramStoppedEvent.class );
+		programWatcher.waitForEvent( ProgramStoppedEventOld.class );
 		program.removeEventListener( programWatcher );
 
 		finalMemoryUse = getMemoryUse();

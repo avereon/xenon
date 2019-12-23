@@ -28,11 +28,11 @@ class TaskEventTest extends BaseTaskTest {
 		 * done state is set correctly before eventList are sent but this allows the
 		 * test thread to continue before the eventList arrive.
 		 */
-		watcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
-		assertEvent( watcher.getEvents().get( 0 ), task, TaskEvent.Type.TASK_SUBMITTED );
-		assertEvent( watcher.getEvents().get( 1 ), task, TaskEvent.Type.TASK_START );
-		assertEvent( watcher.getEvents().get( 2 ), task, TaskEvent.Type.TASK_PROGRESS );
-		assertEvent( watcher.getEvents().get( 3 ), task, TaskEvent.Type.TASK_FINISH );
+		watcher.waitForEvent( TaskEventOld.Type.TASK_FINISH );
+		assertEvent( watcher.getEvents().get( 0 ), task, TaskEventOld.Type.TASK_SUBMITTED );
+		assertEvent( watcher.getEvents().get( 1 ), task, TaskEventOld.Type.TASK_START );
+		assertEvent( watcher.getEvents().get( 2 ), task, TaskEventOld.Type.TASK_PROGRESS );
+		assertEvent( watcher.getEvents().get( 3 ), task, TaskEventOld.Type.TASK_FINISH );
 		assertThat( watcher.getEvents().size(), is( 4 ) );
 	}
 
@@ -61,15 +61,15 @@ class TaskEventTest extends BaseTaskTest {
 		 * done state is set correctly before eventList are sent but this allows the
 		 * test thread to continue before the eventList arrive.
 		 */
-		watcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
-		assertEvent( watcher.getEvents().get( 0 ), task, TaskEvent.Type.TASK_SUBMITTED );
-		assertEvent( watcher.getEvents().get( 1 ), task, TaskEvent.Type.TASK_START );
-		assertEvent( watcher.getEvents().get( 2 ), task, TaskEvent.Type.TASK_PROGRESS );
-		assertEvent( watcher.getEvents().get( 3 ), task, TaskEvent.Type.TASK_FINISH );
+		watcher.waitForEvent( TaskEventOld.Type.TASK_FINISH );
+		assertEvent( watcher.getEvents().get( 0 ), task, TaskEventOld.Type.TASK_SUBMITTED );
+		assertEvent( watcher.getEvents().get( 1 ), task, TaskEventOld.Type.TASK_START );
+		assertEvent( watcher.getEvents().get( 2 ), task, TaskEventOld.Type.TASK_PROGRESS );
+		assertEvent( watcher.getEvents().get( 3 ), task, TaskEventOld.Type.TASK_FINISH );
 		assertThat( watcher.getEvents().size(), is( 4 ) );
 	}
 
-	private void assertEvent( TaskEvent event, Task<?> task, TaskEvent.Type type ) {
+	private void assertEvent( TaskEventOld event, Task<?> task, TaskEventOld.Type type ) {
 		assertThat( event.getTask(), is( task ) );
 		assertThat( event.getType(), is( type ) );
 	}

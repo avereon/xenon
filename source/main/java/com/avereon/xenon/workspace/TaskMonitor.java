@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEvent;
+import com.avereon.xenon.task.TaskEventOld;
 import com.avereon.xenon.task.TaskListener;
 import com.avereon.xenon.task.TaskManager;
 import javafx.application.Platform;
@@ -176,7 +176,7 @@ public class TaskMonitor extends AbstractMonitor {
 	private class TaskWatcher implements TaskListener {
 
 		@Override
-		public void handleEvent( TaskEvent event ) {
+		public void handleEvent( TaskEventOld event ) {
 			Platform.runLater( TaskMonitor.this::requestUpdate );
 		}
 

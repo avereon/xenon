@@ -1,9 +1,9 @@
 package com.avereon.xenon;
 
+import com.avereon.event.Event;
+import com.avereon.event.EventHub;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
-import com.avereon.product.ProductEvent;
-import com.avereon.product.ProductEventListener;
 import com.avereon.rossa.icon.*;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
@@ -12,10 +12,10 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.type.*;
-import com.avereon.xenon.event.ProgramStartedEvent;
-import com.avereon.xenon.event.ProgramStartingEvent;
-import com.avereon.xenon.event.ProgramStoppedEvent;
-import com.avereon.xenon.event.ProgramStoppingEvent;
+import com.avereon.xenon.event.ProgramStartedEventOld;
+import com.avereon.xenon.event.ProgramStartingEventOld;
+import com.avereon.xenon.event.ProgramStoppedEventOld;
+import com.avereon.xenon.event.ProgramStoppingEventOld;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
@@ -126,7 +126,12 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
+	@Deprecated
+	private ProgramEventWatcherOld watcherOld;
+
 	private Set<ProductEventListener> listeners;
+
+	private EventHub<Event> hub;
 
 	private CloseWorkspaceAction closeAction;
 
@@ -167,6 +172,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "implicit-exit-false" );
 
 		listeners = new CopyOnWriteArraySet<>();
+		hub = new EventHub<>();
 	}
 
 	// THREAD JavaFX-Launcher
@@ -316,12 +322,14 @@ public class Program extends Application implements ProgramProduct {
 	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
 
-		// Fire the program starting event, depends on the event watcher
-		fireEvent( new ProgramStartingEvent( this ) );
-		time( "program-starting-event" );
-
 		// Create the program event watcher, depends on logging
-		addEventListener( watcher = new ProgramEventWatcher() );
+		getEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
+		addEventListener( watcherOld = new ProgramEventWatcherOld() );
+
+		// Fire the program starting event, depends on the event watcher
+		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STARTING ) );
+		fireEventOld( new ProgramStartingEventOld( this ) );
+		time( "program-starting-event" );
 
 		// Create the product manager, depends on icon library
 		productManager = configureProductManager( new ProgramProductManager( this ) );
@@ -453,7 +461,8 @@ public class Program extends Application implements ProgramProduct {
 		//getTaskManager().submit( new ShowApplicationNotices() );
 
 		// Program started event should be fired after the window is shown
-		Program.this.fireEvent( new ProgramStartedEvent( Program.this ) );
+		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STARTED ) );
+		Program.this.fireEventOld( new ProgramStartedEventOld( Program.this ) );
 		time( "program started" );
 	}
 
@@ -497,7 +506,8 @@ public class Program extends Application implements ProgramProduct {
 	private void doShutdownTasks() throws Exception {
 		time( "do-shutdown-tasks" );
 
-		fireEvent( new ProgramStoppingEvent( this ) );
+		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STOPPING ) );
+		fireEventOld( new ProgramStoppingEventOld( this ) );
 
 		// Stop the product manager
 		if( productManager != null ) {
@@ -578,7 +588,8 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStopSuccess() {
-		Program.this.fireEvent( new ProgramStoppedEvent( Program.this ) );
+		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STOPPED ) );
+		Program.this.fireEventOld( new ProgramStoppedEventOld( Program.this ) );
 	}
 
 	public void requestRestart( String... commands ) {
@@ -766,6 +777,10 @@ public class Program extends Application implements ProgramProduct {
 		return noticeManager;
 	}
 
+	public EventHub<Event> getEventHub() {
+		return hub;
+	}
+
 	@SuppressWarnings( { "unused", "WeakerAccess" } )
 	public void addEventListener( ProductEventListener listener ) {
 		this.listeners.add( listener );
@@ -776,7 +791,7 @@ public class Program extends Application implements ProgramProduct {
 		this.listeners.remove( listener );
 	}
 
-	public void fireEvent( ProductEvent event ) {
+	public void fireEventOld( ProductEventOld event ) {
 		event.fire( listeners );
 	}
 

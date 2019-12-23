@@ -1,10 +1,10 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.ProgramTestCase;
-import com.avereon.xenon.asset.event.AssetClosedEvent;
-import com.avereon.xenon.asset.event.AssetLoadedEvent;
-import com.avereon.xenon.asset.event.AssetOpenedEvent;
-import com.avereon.xenon.asset.event.AssetSavedEvent;
+import com.avereon.xenon.asset.event.AssetClosedEventOld;
+import com.avereon.xenon.asset.event.AssetLoadedEventOld;
+import com.avereon.xenon.asset.event.AssetOpenedEventOld;
+import com.avereon.xenon.asset.event.AssetSavedEventOld;
 import com.avereon.xenon.scheme.AssetScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		assertThat( asset.isOpen(), is( false ) );
 
 		manager.openAssets( asset );
-		watcher.waitForEvent( AssetOpenedEvent.class );
+		watcher.waitForEvent( AssetOpenedEventOld.class );
 		assertThat( asset.isOpen(), is( true ) );
 	}
 
@@ -100,7 +100,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		assertThat( asset.isLoaded(), is( false ) );
 
 		manager.loadAssets( asset );
-		watcher.waitForEvent( AssetLoadedEvent.class );
+		watcher.waitForEvent( AssetLoadedEventOld.class );
 		assertThat( asset.isOpen(), is( true ) );
 		assertThat( asset.isLoaded(), is( true ) );
 	}
@@ -128,11 +128,11 @@ public class AssetManagerTest extends ProgramTestCase {
 
 		// Asset must be open to be saved
 		manager.openAssets( asset );
-		watcher.waitForEvent( AssetOpenedEvent.class );
+		watcher.waitForEvent( AssetOpenedEventOld.class );
 		assertThat( asset.isOpen(), is( true ) );
 
 		manager.saveAssets( asset );
-		watcher.waitForEvent( AssetSavedEvent.class );
+		watcher.waitForEvent( AssetSavedEventOld.class );
 		assertThat( asset.isSaved(), is( true ) );
 	}
 
@@ -161,11 +161,11 @@ public class AssetManagerTest extends ProgramTestCase {
 
 		// Asset must be open to be closed
 		manager.openAssets( asset );
-		watcher.waitForEvent( AssetOpenedEvent.class );
+		watcher.waitForEvent( AssetOpenedEventOld.class );
 		assertThat( asset.isOpen(), is( true ) );
 
 		manager.closeAssets( asset );
-		watcher.waitForEvent( AssetClosedEvent.class );
+		watcher.waitForEvent( AssetClosedEventOld.class );
 		assertThat( asset.isOpen(), is( false ) );
 	}
 

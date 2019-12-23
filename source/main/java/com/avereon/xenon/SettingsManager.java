@@ -10,8 +10,8 @@ import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import com.avereon.util.PathUtil;
-import com.avereon.xenon.event.SettingsLoadedEvent;
-import com.avereon.xenon.event.SettingsSavedEvent;
+import com.avereon.xenon.event.SettingsLoadedEventOld;
+import com.avereon.xenon.event.SettingsSavedEventOld;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
@@ -217,8 +217,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		private SettingsWatcher( Program program ) {
 			// NEXT This should simply forward the event to the program "bus"
 			register( SettingsEvent.CHANGED, e -> log.trace( "Setting changed: " + e.getPath() + ":" + e.getKey() + "=" + e.getNewValue() ) );
-			register( SettingsEvent.LOADED, e -> program.fireEvent( new SettingsLoadedEvent( this, e.getPath() ) ) );
-			register( SettingsEvent.SAVED, e -> program.fireEvent( new SettingsSavedEvent( this, e.getPath() ) ) );
+			register( SettingsEvent.LOADED, e -> program.fireEventOld( new SettingsLoadedEventOld( this, e.getPath() ) ) );
+			register( SettingsEvent.SAVED, e -> program.fireEventOld( new SettingsSavedEventOld( this, e.getPath() ) ) );
 		}
 
 	}

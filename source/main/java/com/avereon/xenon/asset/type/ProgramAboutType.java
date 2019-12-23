@@ -1,15 +1,15 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.product.Product;
-import com.avereon.product.ProductEvent;
-import com.avereon.product.ProductEventListener;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.ProductEventListener;
+import com.avereon.xenon.ProductEventOld;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.product.ProductManagerEvent;
+import com.avereon.xenon.product.ProductManagerEventOld;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -45,6 +45,9 @@ public class ProgramAboutType extends AssetType {
 	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
 		asset.setModel( getProduct().getCard() );
 
+		//program.getEventHub().register( ModEvent.ENABLED, e -> asset.refresh( program.getAssetManager() ) );
+		//program.getEventHub().register( ModEvent.DISABLED, e -> asset.refresh( program.getAssetManager() ) );
+
 		// FIXME I'm not sure I like this implementation but it works
 		// Not sure if using a listener for this singleton instance is how I
 		// want to handle the asset/model/tool relationship.
@@ -58,7 +61,7 @@ public class ProgramAboutType extends AssetType {
 		return true;
 	}
 
-	private static class ProductEventWatcher implements ProductEventListener<ProductEvent> {
+	private static class ProductEventWatcher implements ProductEventListener<ProductEventOld> {
 
 		private Program program;
 
@@ -70,8 +73,8 @@ public class ProgramAboutType extends AssetType {
 		}
 
 		@Override
-		public void handleEvent( ProductEvent event ) {
-			if( event instanceof ProductManagerEvent  ) {
+		public void handleEvent( ProductEventOld event ) {
+			if( event instanceof ProductManagerEventOld ) {
 				asset.refresh( program.getAssetManager() );
 			}
 		}
