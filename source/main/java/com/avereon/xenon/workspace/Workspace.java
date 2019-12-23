@@ -1,18 +1,18 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.util.Configurable;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.event.WorkareaChangedEvent;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.util.TimerUtil;
 import javafx.application.Platform;
@@ -104,7 +104,7 @@ public class Workspace implements Configurable {
 
 	private Settings backgroundSettings;
 
-	private SettingsListener backgroundSettingsHandler;
+	private BackgroundSettingsHandler backgroundSettingsHandler;
 
 	private Settings memoryMonitorSettings;
 
@@ -540,32 +540,36 @@ public class Workspace implements Configurable {
 		}
 	}
 
-	private class BackgroundSettingsHandler implements SettingsListener {
+	//	private class BackgroundSettingsHandler implements SettingsListener {
+	//
+	//		@Override
+	//		public void handle( SettingsEvent event ) {
+	//			if( event.getEventType() != SettingsEvent.CHANGED ) return;
+	//			background.updateBackgroundFromSettings( backgroundSettings );
+	//		}
+	//
+	//	}
+	//
+	private class BackgroundSettingsHandler extends EventHub<SettingsEvent> {
 
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			background.updateBackgroundFromSettings( backgroundSettings );
+		public BackgroundSettingsHandler() {
+			register( SettingsEvent.CHANGED, e -> background.updateBackgroundFromSettings( backgroundSettings ) );
 		}
 
 	}
 
-	private class MemoryMonitorSettingsHandler implements SettingsListener {
+	private class MemoryMonitorSettingsHandler extends EventHub<SettingsEvent> {
 
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			updateMemoryMonitorFromSettings( memoryMonitorSettings );
+		public MemoryMonitorSettingsHandler() {
+			register( SettingsEvent.CHANGED, e -> updateMemoryMonitorFromSettings( memoryMonitorSettings ) );
 		}
 
 	}
 
-	private class TaskMonitorSettingsHandler implements SettingsListener {
+	private class TaskMonitorSettingsHandler extends EventHub<SettingsEvent> {
 
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			Platform.runLater( () -> updateTaskMonitorFromSettings( taskMonitorSettings ) );
+		public TaskMonitorSettingsHandler() {
+			register( SettingsEvent.CHANGED, e -> updateTaskMonitorFromSettings( taskMonitorSettings ) );
 		}
 
 	}

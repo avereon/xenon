@@ -4,12 +4,13 @@ import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.event.*;
+import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.xenon.workpane.*;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -79,6 +80,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private CloseAllActionHandler closeAllActionHandler;
 
+	private ActiveToolWatcher activeToolWatcher = new ActiveToolWatcher();
+
 	private CurrentAssetWatcher currentAssetWatcher = new CurrentAssetWatcher();
 
 	private ModifiedAssetWatcher modifiedAssetWatcher = new ModifiedAssetWatcher();
@@ -116,8 +119,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	@Override
 	public AssetManager start() {
-		//		((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
-
 		program.getActionLibrary().getAction( "new" ).pushAction( newActionHandler );
 		program.getActionLibrary().getAction( "open" ).pushAction( openActionHandler );
 		program.getActionLibrary().getAction( "save" ).pushAction( saveActionHandler );
@@ -128,6 +129,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
 		updateActionState();
 
+		// NEXT program.addEventListener( activeToolWatcher );
+
+		// TODO ((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
+
 		running = true;
 
 		return this;
@@ -137,7 +142,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	public AssetManager stop() {
 		running = false;
 
-		//		((FileScheme)Schemes.getScheme( "file" )).stopAssetWatching();
+		// TODO ((FileScheme)Schemes.getScheme( "file" )).stopAssetWatching();
+
+		// NEXT program.removeEventListener( activeToolWatcher );
 
 		return this;
 	}
@@ -1087,7 +1094,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		log.trace( "Asset opened: " + asset );
 
-		program.fireEvent( new AssetOpenedEvent( getClass(), asset ) );
+		program.fireEvent( new AssetOpenedEvent( this, asset ) );
 
 		return true;
 	}
@@ -1106,7 +1113,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( !previouslyLoaded ) asset.addNodeListener( modifiedAssetWatcher );
 		asset.refresh( this );
 
-		program.fireEvent( new AssetLoadedEvent( getClass(), asset ) );
+		program.fireEvent( new AssetLoadedEvent( this, asset ) );
 		log.trace( "Asset loaded: " + asset );
 
 		return true;
@@ -1130,7 +1137,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		log.trace( "Asset saved: " + asset );
 
-		program.fireEvent( new AssetSavedEvent( getClass(), asset ) );
+		program.fireEvent( new AssetSavedEvent( this, asset ) );
 
 		return true;
 	}
@@ -1153,7 +1160,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		log.trace( "Asset closed: " + asset );
 
-		program.fireEvent( new AssetClosedEvent( getClass(), asset ) );
+		program.fireEvent( new AssetClosedEvent( this, asset ) );
 
 		return true;
 	}
@@ -1178,7 +1185,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			log.trace( "Asset select: " + (asset == null ? "null" : asset) );
 
 			// Notify program of current asset change.
-			program.fireEvent( new CurrentAssetChangedEvent( getClass(), previous, currentAsset ) );
+			program.fireEvent( new CurrentAssetChangedEvent( this, previous, currentAsset ) );
 		}
 
 		return true;
@@ -1324,6 +1331,10 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Start loading the asset after the tool has been created
 			if( !asset.isLoaded() ) loadAssets( asset );
 
+			// FIXME This is the only place this is called,
+			// and probably shouldn't be here anyway. Setting the current asset
+			// should probably be connected to tool activation instead of open and
+			// new asset actions.
 			setCurrentAsset( asset );
 
 			return tool;
@@ -1466,7 +1477,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// NEXT Handle saving new assets
 			if( saveAs || asset.isNew() ) {
-				program.getNoticeManager().warning( "Assets","This asset is new and there is not a way to save a new asset yet" );
+				program.getNoticeManager().warning( "Assets", "This asset is new and there is not a way to save a new asset yet" );
 				//				// Ask the user for the new asset location.
 				//				tool = (AssetTool)program.getToolManager().getWorkTool( AssetTool.class );
 				//				if( tool == null ) return;
@@ -1685,6 +1696,22 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public boolean doOperation( Asset asset ) {
 			return doSetCurrentAsset( asset );
+		}
+
+	}
+
+	private class ActiveToolWatcher implements WorkpaneListener {
+
+		@Override
+		public void handle( WorkpaneEvent event ) {
+			if( !(event instanceof WorkpaneToolEvent) ) return;
+
+			WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
+			Tool tool = toolEvent.getTool();
+			Asset asset = tool.getAsset();
+
+			if( asset.getUri().equals( ProgramGuideType.URI ) ) return;
+			if( event.getType() == WorkpaneEvent.Type.TOOL_ACTIVATED ) setCurrentAsset( asset );
 		}
 
 	}

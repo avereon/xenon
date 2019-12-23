@@ -1,9 +1,9 @@
 package com.avereon.xenon.tool.settings;
 
+import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
@@ -124,7 +124,7 @@ public class SettingsPanel extends VBox {
 			} else {
 				SettingEditor editor = createSettingEditor( product, setting, editorClass );
 				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.debug( "Editor not created: ", editorClass.getName() );
+				if( editor == null ) log.debug( "Editor not created: {}", editorClass.getName() );
 			}
 
 			// Add a watcher to each dependency
@@ -182,7 +182,7 @@ public class SettingsPanel extends VBox {
 		}
 	}
 
-	private static final class GroupDependencyWatcher implements SettingsListener {
+	private static final class GroupDependencyWatcher implements EventHandler<SettingsEvent> {
 
 		private SettingGroup group;
 
@@ -194,14 +194,14 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
+		public void handle( SettingsEvent event ) {
 			if( this.key == null ) return;
 			if( key.equals( event.getKey() ) ) group.updateState();
 		}
 
 	}
 
-	private static final class SettingDependencyWatcher implements SettingsListener {
+	private static final class SettingDependencyWatcher implements EventHandler<SettingsEvent> {
 
 		private Setting setting;
 
@@ -213,8 +213,8 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+		public void handle( SettingsEvent event ) {
+			if( event.getEventType() != SettingsEvent.CHANGED ) return;
 			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
 
@@ -257,7 +257,7 @@ public class SettingsPanel extends VBox {
 
 	}
 
-	private static class EditorChangeHandler implements NodeListener, SettingsListener {
+	private static class EditorChangeHandler implements NodeListener, EventHandler<SettingsEvent> {
 
 		private SettingEditor editor;
 
@@ -285,11 +285,11 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+		public void handle( SettingsEvent event ) {
+			if( event.getEventType() != SettingsEvent.CHANGED ) return;
 
 			// Forward the event to the editor
-			editor.handleEvent( event );
+			editor.handle( event );
 		}
 
 	}

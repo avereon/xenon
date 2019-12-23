@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.event.EventHandler;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.util.DateUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
@@ -15,7 +15,7 @@ import javafx.scene.layout.Priority;
 import java.util.Date;
 import java.util.TimeZone;
 
-class UpdateCheckInformationPane extends HBox implements SettingsListener {
+class UpdateCheckInformationPane extends HBox implements EventHandler<SettingsEvent> {
 
 	private Program program;
 
@@ -64,8 +64,8 @@ class UpdateCheckInformationPane extends HBox implements SettingsListener {
 	}
 
 	@Override
-	public void handleEvent( SettingsEvent event ) {
-		if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+	public void handle( SettingsEvent event ) {
+		if( event.getEventType() != SettingsEvent.CHANGED ) return;
 		switch( event.getKey() ) {
 			case ProductManager.LAST_CHECK_TIME:
 			case ProductManager.NEXT_CHECK_TIME: {

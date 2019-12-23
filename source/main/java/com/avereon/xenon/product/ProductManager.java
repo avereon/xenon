@@ -1,11 +1,11 @@
 package com.avereon.xenon.product;
 
+import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.util.*;
 import com.avereon.xenon.Mod;
 import com.avereon.xenon.Program;
@@ -1166,11 +1166,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 	}
 
-	private final class SettingsChangeHandler implements SettingsListener {
+	private final class SettingsChangeHandler implements EventHandler<SettingsEvent> {
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+		public void handle( SettingsEvent event ) {
+			if( event.getEventType() != SettingsEvent.CHANGED ) return;
 
 			String key = event.getKey();
 

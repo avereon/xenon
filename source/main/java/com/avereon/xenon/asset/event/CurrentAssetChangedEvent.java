@@ -23,4 +23,9 @@ public class CurrentAssetChangedEvent extends ProductEvent {
 		return oldAsset;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ": " + newAsset.getUri();
+	}
+
 }

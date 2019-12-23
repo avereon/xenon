@@ -1,10 +1,11 @@
 package com.avereon.xenon;
 
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
@@ -38,7 +39,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private SettingsListener settingsWatcher;
+	private EventHandler<SettingsEvent> settingsWatcher;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -183,22 +184,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-//	@Override
-//	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
-//
-//	@Override
-//	public SettingsManager restart() {
-//		stop();
-//		start();
-//		return this;
-//	}
-//
-//	@Override
-//	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
+	//	@Override
+	//	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
+	//
+	//	@Override
+	//	public SettingsManager restart() {
+	//		stop();
+	//		start();
+	//		return this;
+	//	}
+	//
+	//	@Override
+	//	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
 
 	@Override
 	public SettingsManager stop() {
@@ -206,35 +207,18 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-//	@Override
-//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
+	//	@Override
+	//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
 
-	private static class SettingsWatcher implements SettingsListener {
-
-		private Program program;
+	private static class SettingsWatcher extends EventHub<SettingsEvent> {
 
 		private SettingsWatcher( Program program ) {
-			this.program = program;
-		}
-
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			String message = event.getPath();
-			switch( event.getType() ) {
-				case LOADED: {
-					program.fireEvent( new SettingsLoadedEvent( this, message ) );
-					break;
-				}
-				case SAVED: {
-					program.fireEvent( new SettingsSavedEvent( this, message ) );
-					break;
-				}
-				case CHANGED: {
-					log.trace( "Setting changed: " + event.getPath() + ":" + event.getKey() + "=" + event.getNewValue() );
-				}
-			}
+			// NEXT This should simply forward the event to the program "bus"
+			register( SettingsEvent.CHANGED, e -> log.trace( "Setting changed: " + e.getPath() + ":" + e.getKey() + "=" + e.getNewValue() ) );
+			register( SettingsEvent.LOADED, e -> program.fireEvent( new SettingsLoadedEvent( this, e.getPath() ) ) );
+			register( SettingsEvent.SAVED, e -> program.fireEvent( new SettingsSavedEvent( this, e.getPath() ) ) );
 		}
 
 	}
