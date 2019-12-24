@@ -27,7 +27,7 @@ public class AssetEvent extends Event {
 
 	private Asset asset;
 
-	public AssetEvent( Object source, EventType<? extends Event> type, Asset asset ) {
+	public AssetEvent( Object source, EventType<? extends AssetEvent> type, Asset asset ) {
 		super( source, type );
 		this.asset = asset;
 	}
@@ -38,7 +38,7 @@ public class AssetEvent extends Event {
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public EventType<AssetEvent> getEventType() {
+	public EventType<? extends AssetEvent> getEventType() {
 		return (EventType<AssetEvent>)super.getEventType();
 	}
 

@@ -11,7 +11,7 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	private Map<EventType<AssetEvent>, AssetEvent> events = new ConcurrentHashMap<>();
+	private Map<EventType<? extends AssetEvent>, AssetEvent> events = new ConcurrentHashMap<>();
 
 	@Override
 	public synchronized void handle( AssetEvent event ) {

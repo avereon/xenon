@@ -10,7 +10,6 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.type.ProgramTaskType;
-import com.avereon.xenon.event.WorkareaChangedEventOld;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
@@ -59,6 +58,8 @@ public class Workspace implements Configurable {
 	private Scene scene;
 
 	private boolean active;
+
+	private EventHub<WorkspaceEvent> eventHub;
 
 	private StackPane workspaceStack;
 
@@ -118,6 +119,8 @@ public class Workspace implements Configurable {
 
 	public Workspace( final Program program ) {
 		this.program = program;
+		this.eventHub = new EventHub<>(  );
+		this.eventHub.parent( program.getEventHub() );
 
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
@@ -157,6 +160,10 @@ public class Workspace implements Configurable {
 			event.consume();
 			program.getWorkspaceManager().requestCloseWorkspace( this );
 		} );
+	}
+
+	public EventHub<WorkspaceEvent> getEventHub() {
+		return eventHub;
 	}
 
 	private void createMenuBar( Program program ) {
@@ -359,6 +366,7 @@ public class Workspace implements Configurable {
 		}
 
 		// Set the new active workarea
+		Workarea priorWorkarea = activeWorkarea;
 		activeWorkarea = workarea;
 
 		// Connect the new active workarea
@@ -373,7 +381,7 @@ public class Workspace implements Configurable {
 		}
 
 		// Send a program event when active area changes
-		getProgram().fireEventOld( new WorkareaChangedEventOld( this, activeWorkarea ) );
+		getEventHub().handle( new WorkareaSwitchedEvent( this, WorkareaSwitchedEvent.SWITCHED, this, priorWorkarea, activeWorkarea ) );
 	}
 
 	public void showNotice( Notice notice ) {

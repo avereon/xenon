@@ -767,25 +767,6 @@ public class Program extends Application implements ProgramProduct {
 		return eventHub;
 	}
 
-	//	@SuppressWarnings( { "unused", "WeakerAccess" } )
-	//	public void addEventListener( ProductEventListener listener ) {
-	//		this.listeners.add( listener );
-	//	}
-	//
-	//	@SuppressWarnings( { "unused", "WeakerAccess" } )
-	//	public void removeEventListener( ProductEventListener listener ) {
-	//		this.listeners.remove( listener );
-	//	}
-	//
-	@Deprecated
-	public void fireEventOld( ProductEventOld event ) {
-		//event.fire( listeners );
-	}
-	//
-	//	public Set<ProductEventListener> getListeners() {
-	//		return listeners;
-	//	}
-
 	private static void time( String markerName ) {
 		if( !showTiming ) return;
 		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread

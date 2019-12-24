@@ -6,7 +6,6 @@ import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.event.*;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
@@ -37,7 +36,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-// FIXME Add Configurable interface to this class
 public class AssetManager implements Controllable<AssetManager> {
 
 	public static final String CURRENT_DIRECTORY_SETTING_KEY = "current-folder";
@@ -69,6 +67,14 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, Set<Codec>> registeredMediaTypes;
 
+	private EventHub<AssetEvent> eventHub;
+
+	private ActiveToolWatcher activeToolWatcher;
+
+	private CurrentAssetWatcher currentAssetWatcher;
+
+	private ModifiedAssetWatcher modifiedAssetWatcher;
+
 	private NewActionHandler newActionHandler;
 
 	private OpenActionHandler openActionHandler;
@@ -85,14 +91,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private CloseAllActionHandler closeAllActionHandler;
 
-	private EventHub<AssetEvent> eventHub;
-
-	private ActiveToolWatcher activeToolWatcher = new ActiveToolWatcher();
-
-	private CurrentAssetWatcher currentAssetWatcher = new CurrentAssetWatcher();
-
-	private ModifiedAssetWatcher modifiedAssetWatcher = new ModifiedAssetWatcher();
-
 	private final Object currentAssetLock = new Object();
 
 	private boolean running;
@@ -108,6 +106,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		registeredFileNames = new ConcurrentHashMap<>();
 		registeredFirstLines = new ConcurrentHashMap<>();
 		registeredMediaTypes = new ConcurrentHashMap<>();
+
+		eventHub = new EventHub<>();
+		eventHub.parent( program.getEventHub() );
+		activeToolWatcher = new ActiveToolWatcher();
+		currentAssetWatcher = new CurrentAssetWatcher();
+		modifiedAssetWatcher = new ModifiedAssetWatcher();
 
 		newActionHandler = new NewActionHandler( program );
 		openActionHandler = new OpenActionHandler( program );
@@ -154,6 +158,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getEventHub().unregister( ToolEvent.ANY, activeToolWatcher );
 
 		return this;
+	}
+
+	public EventHub<AssetEvent> getEventHub() {
+		return eventHub;
 	}
 
 	public Asset getCurrentAsset() {
@@ -1099,9 +1107,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Add the asset to the list of open assets.
 		openAssets.add( asset );
 
+		getEventHub().handle( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.trace( "Asset opened: " + asset );
-
-		program.fireEventOld( new AssetOpenedEventOld( this, asset ) );
 
 		return true;
 	}
@@ -1120,7 +1127,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( !previouslyLoaded ) asset.addNodeListener( modifiedAssetWatcher );
 		asset.refresh( this );
 
-		program.fireEventOld( new AssetLoadedEventOld( this, asset ) );
+		getEventHub().handle( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.trace( "Asset loaded: " + asset );
 
 		return true;
@@ -1142,9 +1149,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// TODO Update the asset type.
 
+		getEventHub().handle( new AssetEvent( this, AssetEvent.SAVED, asset ) );
 		log.trace( "Asset saved: " + asset );
-
-		program.fireEventOld( new AssetSavedEventOld( this, asset ) );
 
 		return true;
 	}
@@ -1165,9 +1171,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		//		Settings settings = asset.getSettings();
 		//		if( settings != null ) settings.delete();
 
+		getEventHub().handle( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.trace( "Asset closed: " + asset );
-
-		program.fireEventOld( new AssetClosedEventOld( this, asset ) );
 
 		return true;
 	}
@@ -1189,10 +1194,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			updateActionState();
 
-			log.trace( "Asset select: " + (asset == null ? "null" : asset) );
-
 			// Notify program of current asset change.
-			program.fireEventOld( new CurrentAssetChangedEventOld( this, previous, currentAsset ) );
+			getEventHub().handle( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
+			log.trace( "Asset select: " + (asset == null ? "null" : asset) );
 		}
 
 		return true;
@@ -1726,11 +1730,11 @@ public class AssetManager implements Controllable<AssetManager> {
 			register( AssetEvent.MODIFIED, e -> {
 				log.trace( "Asset modified: " + e.getAsset() );
 				saveActionHandler.updateEnabled();
-			});
+			} );
 			register( AssetEvent.UNMODIFIED, e -> {
 				log.trace( "Asset unmodified: " + e.getAsset() );
 				saveActionHandler.updateEnabled();
-			});
+			} );
 		}
 
 	}
