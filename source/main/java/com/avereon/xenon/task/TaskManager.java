@@ -229,8 +229,10 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		@Override
 		protected <T> RunnableFuture<T> newTaskFor( Callable<T> callable ) {
 			if( !(callable instanceof Task) ) callable = new TaskWrapper<>( callable );
-
 			Task<T> task = (Task<T>)callable;
+
+			getEventHub().handle( new TaskEvent( this, TaskEvent.SUBMITTED, task ) );
+
 			task.setTaskManager( TaskManager.this );
 			taskMap.put( task, task );
 			taskQueue.add( task );

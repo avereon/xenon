@@ -1,7 +1,6 @@
 package com.avereon.xenon.task;
 
 import com.avereon.event.EventHub;
-import com.avereon.event.EventType;
 import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
 
@@ -83,7 +82,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	public void run() {
 		setState( Task.State.RUNNING );
-		fireTaskEvent( TaskEvent.START );
+		eventHub.handle( new TaskEvent( this, TaskEvent.START, this ) );
 		super.run();
 	}
 
@@ -167,7 +166,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void done() {
 		setProgress( getTotal() );
-		fireTaskEvent( TaskEvent.FINISH );
+		eventHub.handle( new TaskEvent( this, TaskEvent.FINISH, this ) );
 
 		if( isCancelled() ) setState( Task.State.CANCELLED );
 		setTaskManager( null );
@@ -203,7 +202,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	protected void setProgress( long progress ) {
 		this.progress = progress;
-		fireTaskEvent( TaskEvent.PROGRESS );
+		eventHub.handle( new TaskEvent( this, TaskEvent.PROGRESS, this ) );
 	}
 
 	protected void scheduled() {}
@@ -224,7 +223,6 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 			eventHub.parent( null );
 		} else {
 			eventHub.parent( manager.getEventHub() );
-			fireTaskEvent( TaskEvent.SUBMITTED );
 		}
 	}
 
@@ -260,11 +258,6 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private TaskManager getTaskManager() {
 		return manager;
-	}
-
-	private void fireTaskEvent( EventType<TaskEvent> type ) {
-		TaskManager manager = getTaskManager();
-		eventHub.handle( new TaskEvent( manager == null ? this : manager, type, this ) );
 	}
 
 	private static class TaskCallable<T> implements Callable<T> {

@@ -274,37 +274,37 @@ public class Program extends Application implements ProgramProduct {
 		if( !parameters.isSet( ProgramFlag.NOSPLASH ) ) splashScreen.show( stage );
 		time( "splash-displayed" );
 
-		// Submit the startup task
-		getTaskManager().submit( new Task<Void>() {
+		// Submit but do not wait for the startup task...allow the FX thread to be free
+		getTaskManager().submit( new StartupTask() );
+	}
 
-			@Override
-			public Void call() throws Exception {
-				doStartTasks();
-				return null;
-			}
+	private class StartupTask extends Task<Void> {
 
-			@Override
-			protected void success() {
-				doStartSuccess();
-			}
+		@Override
+		public Void call() throws Exception {
+			doStartTasks();
+			return null;
+		}
 
-			@Override
-			protected void cancelled() {
-				Platform.runLater( () -> splashScreen.hide() );
-				log.error( "Startup task cancelled", getException() );
-				requestExit( true );
-			}
+		@Override
+		protected void success() {
+			doStartSuccess();
+		}
 
-			@Override
-			protected void failed() {
-				Platform.runLater( () -> splashScreen.hide() );
-				log.error( "Startup task failed", getException() );
-				requestExit( true );
-			}
+		@Override
+		protected void cancelled() {
+			Platform.runLater( () -> splashScreen.hide() );
+			log.error( "Startup task cancelled", getException() );
+			requestExit( true );
+		}
 
-		} );
+		@Override
+		protected void failed() {
+			Platform.runLater( () -> splashScreen.hide() );
+			log.error( "Startup task failed", getException() );
+			requestExit( true );
+		}
 
-		// Do not wait for the startup task...allow the FX thread to be free
 	}
 
 	// THREAD TaskPool-worker
@@ -460,33 +460,33 @@ public class Program extends Application implements ProgramProduct {
 	public void stop() throws Exception {
 		time( "stop" );
 
-		Task<Void> shutdown = taskManager.submit( new Task<>() {
+		// Submit and wait for the shutdown task to complete
+		taskManager.submit( new ShutdownTask() ).get();
+	}
 
-			@Override
-			public Void call() throws Exception {
-				doShutdownTasks();
-				return null;
-			}
+	private class ShutdownTask extends Task<Void> {
 
-			@Override
-			protected void success() {
-				doStopSuccess();
-			}
+		@Override
+		public Void call() throws Exception {
+			doShutdownTasks();
+			return null;
+		}
 
-			@Override
-			protected void cancelled() {
-				log.error( "Shutdown task cancelled", getException() );
-			}
+		@Override
+		protected void success() {
+			doStopSuccess();
+		}
 
-			@Override
-			protected void failed() {
-				log.error( "Shutdown task failed", getException() );
-			}
+		@Override
+		protected void cancelled() {
+			log.error( "Shutdown task cancelled", getException() );
+		}
 
-		} );
+		@Override
+		protected void failed() {
+			log.error( "Shutdown task failed", getException() );
+		}
 
-		// Call get() to wait for the shutdown task to complete
-		shutdown.get();
 	}
 
 	// THREAD TaskPool-worker
