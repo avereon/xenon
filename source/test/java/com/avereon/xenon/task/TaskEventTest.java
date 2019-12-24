@@ -1,5 +1,6 @@
 package com.avereon.xenon.task;
 
+import com.avereon.event.EventType;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,7 +14,7 @@ class TaskEventTest extends BaseTaskTest {
 		Task<Object> task = new MockTask( manager );
 
 		TaskWatcher watcher = new TaskWatcher();
-		task.addTaskListener( watcher );
+		task.getEventHub().register( TaskEvent.ANY, watcher );
 
 		manager.submit( task );
 		task.get();
@@ -28,11 +29,11 @@ class TaskEventTest extends BaseTaskTest {
 		 * done state is set correctly before eventList are sent but this allows the
 		 * test thread to continue before the eventList arrive.
 		 */
-		watcher.waitForEvent( TaskEventOld.Type.TASK_FINISH );
-		assertEvent( watcher.getEvents().get( 0 ), task, TaskEventOld.Type.TASK_SUBMITTED );
-		assertEvent( watcher.getEvents().get( 1 ), task, TaskEventOld.Type.TASK_START );
-		assertEvent( watcher.getEvents().get( 2 ), task, TaskEventOld.Type.TASK_PROGRESS );
-		assertEvent( watcher.getEvents().get( 3 ), task, TaskEventOld.Type.TASK_FINISH );
+		watcher.waitForEvent( TaskEvent.FINISH );
+		assertEvent( watcher.getEvents().get( 0 ), task, TaskEvent.SUBMITTED );
+		assertEvent( watcher.getEvents().get( 1 ), task, TaskEvent.START );
+		assertEvent( watcher.getEvents().get( 2 ), task, TaskEvent.PROGRESS );
+		assertEvent( watcher.getEvents().get( 3 ), task, TaskEvent.FINISH );
 		assertThat( watcher.getEvents().size(), is( 4 ) );
 	}
 
@@ -41,7 +42,7 @@ class TaskEventTest extends BaseTaskTest {
 		Task<Object> task = new MockTask( manager, null, true );
 
 		TaskWatcher watcher = new TaskWatcher();
-		task.addTaskListener( watcher );
+		task.getEventHub().register( TaskManagerEvent.ANY, watcher );
 
 		manager.submit( task );
 		try {
@@ -61,17 +62,17 @@ class TaskEventTest extends BaseTaskTest {
 		 * done state is set correctly before eventList are sent but this allows the
 		 * test thread to continue before the eventList arrive.
 		 */
-		watcher.waitForEvent( TaskEventOld.Type.TASK_FINISH );
-		assertEvent( watcher.getEvents().get( 0 ), task, TaskEventOld.Type.TASK_SUBMITTED );
-		assertEvent( watcher.getEvents().get( 1 ), task, TaskEventOld.Type.TASK_START );
-		assertEvent( watcher.getEvents().get( 2 ), task, TaskEventOld.Type.TASK_PROGRESS );
-		assertEvent( watcher.getEvents().get( 3 ), task, TaskEventOld.Type.TASK_FINISH );
+		watcher.waitForEvent( TaskEvent.FINISH );
+		assertEvent( watcher.getEvents().get( 0 ), task, TaskEvent.SUBMITTED );
+		assertEvent( watcher.getEvents().get( 1 ), task, TaskEvent.START );
+		assertEvent( watcher.getEvents().get( 2 ), task, TaskEvent.PROGRESS );
+		assertEvent( watcher.getEvents().get( 3 ), task, TaskEvent.FINISH );
 		assertThat( watcher.getEvents().size(), is( 4 ) );
 	}
 
-	private void assertEvent( TaskEventOld event, Task<?> task, TaskEventOld.Type type ) {
-		assertThat( event.getTask(), is( task ) );
-		assertThat( event.getType(), is( type ) );
+	private void assertEvent( TaskManagerEvent event, Task<?> task, EventType<? extends TaskManagerEvent> type ) {
+		assertThat( ((TaskEvent)event).getTask(), is( task ) );
+		assertThat( event.getEventType(), is( type ) );
 	}
 
 }

@@ -35,9 +35,9 @@ class TaskTest extends BaseTaskTest {
 
 		manager.submit( task );
 
-		taskWatcher.waitForEvent( TaskEventOld.Type.TASK_START );
+		taskWatcher.waitForEvent( TaskEvent.START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		taskWatcher.waitForEvent( TaskEventOld.Type.TASK_FINISH );
+		taskWatcher.waitForEvent( TaskEvent.FINISH );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
@@ -49,9 +49,9 @@ class TaskTest extends BaseTaskTest {
 
 		manager.submit( task );
 
-		taskWatcher.waitForEvent( TaskEventOld.Type.TASK_START );
+		taskWatcher.waitForEvent( TaskEvent.START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		taskWatcher.waitForEvent( TaskEventOld.Type.TASK_FINISH );
+		taskWatcher.waitForEvent( TaskEvent.FINISH );
 		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 

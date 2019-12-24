@@ -1,11 +1,12 @@
 package com.avereon.xenon.tool.task;
 
+import com.avereon.event.EventHandler;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEventOld;
-import com.avereon.xenon.task.TaskListener;
+import com.avereon.xenon.task.TaskEvent;
+import com.avereon.xenon.task.TaskManagerEvent;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
@@ -33,7 +34,7 @@ public class TaskTool extends ProgramTool {
 
 	private VBox taskPanes;
 
-	private Map<Task, TaskPane> tasks;
+	private Map<Task<?>, TaskPane> tasks;
 
 	public TaskTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -53,7 +54,7 @@ public class TaskTool extends ProgramTool {
 
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
-		if( getProgram().getProfile() == Profile.DEV ) layoutPane.setTop( new HBox( startTask ) );
+		if( Profile.DEV.equals( getProgram().getProfile() ) ) layoutPane.setTop( new HBox( startTask ) );
 		layoutPane.setCenter( scroller );
 		getChildren().add( layoutPane );
 	}
@@ -61,7 +62,7 @@ public class TaskTool extends ProgramTool {
 	@Override
 	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.assetReady( parameters );
-		getProgram().getTaskManager().addTaskListener( taskWatcher );
+		getProgram().getTaskManager().getEventHub().register( TaskEvent.ANY, taskWatcher );
 		Platform.runLater( this::init );
 	}
 
@@ -69,7 +70,7 @@ public class TaskTool extends ProgramTool {
 		getProgram().getTaskManager().getTasks().forEach( this::addTaskPane );
 	}
 
-	private void addTaskPane( Task task ) {
+	private void addTaskPane( Task<?> task ) {
 		if( task.isDone() || tasks.containsKey( task ) ) return;
 		TaskPane pane = new TaskPane( task );
 		taskPanes.getChildren().add( pane );
@@ -80,7 +81,7 @@ public class TaskTool extends ProgramTool {
 		tasks.forEach( TaskTool.this::clearTaskIfDone );
 	}
 
-	private void clearTaskIfDone( Task task, TaskPane pane ) {
+	private void clearTaskIfDone( Task<?> task, TaskPane pane ) {
 		if( !task.isDone() ) return;
 		if( pane != null ) Platform.runLater( () -> taskPanes.getChildren().remove( pane ) );
 		tasks.remove( task );
@@ -126,7 +127,7 @@ public class TaskTool extends ProgramTool {
 
 		private ProgressBar progress;
 
-		TaskPane( Task task ) {
+		TaskPane( Task<?> task ) {
 			progress = new ProgressBar();
 			Label name = new Label( task.getName() );
 
@@ -145,20 +146,20 @@ public class TaskTool extends ProgramTool {
 
 	}
 
-	private class TaskWatcher implements TaskListener {
+	private class TaskWatcher implements EventHandler<TaskManagerEvent> {
 
 		@Override
-		public void handleEvent( TaskEventOld event ) {
-			Task task = event.getTask();
+		public void handle( TaskManagerEvent event ) {
+			Task<?> task = ((TaskEvent)event).getTask();
 
 			Platform.runLater( () -> {
-				switch( event.getType() ) {
-					case TASK_SUBMITTED: {
+				switch( event.getEventType().getName() ) {
+					case "SUBMITTED": {
 						addTaskPane( task );
 						break;
 					}
-					case TASK_START:
-					case TASK_PROGRESS: {
+					case "START":
+					case "PROGRESS": {
 						TaskPane pane = tasks.get( task );
 						if( pane != null ) {
 							long total = task.getTotal();

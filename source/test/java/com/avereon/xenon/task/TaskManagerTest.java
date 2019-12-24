@@ -264,28 +264,28 @@ public class TaskManagerTest extends BaseTaskTest {
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
 
-		TaskWatcher listener = new TaskWatcher();
-		manager.addTaskListener( listener );
+		TaskWatcher watcher = new TaskWatcher();
+		manager.getEventHub().register( TaskManagerEvent.ANY, watcher );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
 		assertThat( task.getState(), is( Task.State.READY ) );
-		assertThat( listener.getEvents().size(), is( 0 ) );
+		assertThat( watcher.getEvents().size(), is( 0 ) );
 
 		Future<Object> future = manager.submit( task );
 		assertThat( future.get(), is( result ) );
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
-		listener.waitForEvent( TaskEventOld.Type.TASK_FINISH );
+		watcher.waitForEvent( TaskEvent.FINISH );
 
 		int count = 0;
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_SUBMITTED ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.THREAD_CREATE ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_START ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_PROGRESS ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEventOld.Type.TASK_FINISH ) );
-		assertThat( listener.getEvents().size(), is( count ) );
+		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.SUBMITTED ) );
+		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskThreadEvent.CREATE ) );
+		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.START ) );
+		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.PROGRESS ) );
+		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.FINISH ) );
+		assertThat( watcher.getEvents().size(), is( count ) );
 	}
 
 }

@@ -3,6 +3,7 @@ package com.avereon.xenon.event;
 import com.avereon.xenon.ProductEventOld;
 import com.avereon.xenon.workspace.Workarea;
 
+@Deprecated
 public class WorkareaChangedEventOld extends ProductEventOld {
 
 	private Workarea workarea;

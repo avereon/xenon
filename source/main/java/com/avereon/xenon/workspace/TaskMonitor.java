@@ -1,9 +1,10 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.event.EventHandler;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEventOld;
-import com.avereon.xenon.task.TaskListener;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskManager;
+import com.avereon.xenon.task.TaskManagerEvent;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Rectangle;
@@ -57,7 +58,8 @@ public class TaskMonitor extends AbstractMonitor {
 		getChildren().addAll( max, threads, tasks, label );
 
 		taskWatcher = new TaskWatcher();
-		taskManager.addTaskListener( taskWatcher );
+		// Only register for TaskEvents
+		taskManager.getEventHub().register( TaskEvent.ANY, taskWatcher );
 	}
 
 	public boolean isTextVisible() {
@@ -79,7 +81,7 @@ public class TaskMonitor extends AbstractMonitor {
 	}
 
 	public void close() {
-		taskManager.removeTaskListener( taskWatcher );
+		taskManager.getEventHub().unregister( TaskEvent.ANY, taskWatcher );
 	}
 
 	@Override
@@ -90,7 +92,7 @@ public class TaskMonitor extends AbstractMonitor {
 		double height = super.getHeight() - 1;
 		double taskWidth = width / maxThreadCount;
 
-		List<Task> tasks = taskManager.getTasks();
+		List<Task<?>> tasks = taskManager.getTasks();
 		int taskCount = tasks.size();
 
 		determineBars();
@@ -100,7 +102,7 @@ public class TaskMonitor extends AbstractMonitor {
 			bar.setWidth( taskWidth );
 
 			if( index < taskCount ) {
-				Task task = tasks.get( index );
+				Task<?> task = tasks.get( index );
 				double percent = task.getPercent();
 				double taskHeight = height * percent;
 				bar.setY( height - taskHeight );
@@ -173,10 +175,10 @@ public class TaskMonitor extends AbstractMonitor {
 		update();
 	}
 
-	private class TaskWatcher implements TaskListener {
+	private class TaskWatcher implements EventHandler<TaskManagerEvent> {
 
 		@Override
-		public void handleEvent( TaskEventOld event ) {
+		public void handle( TaskManagerEvent event ) {
 			Platform.runLater( TaskMonitor.this::requestUpdate );
 		}
 

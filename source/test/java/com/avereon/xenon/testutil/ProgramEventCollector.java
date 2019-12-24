@@ -1,23 +1,23 @@
 package com.avereon.xenon.testutil;
 
-import com.avereon.xenon.ProductEventOld;
-import com.avereon.xenon.ProductEventListener;
+import com.avereon.event.EventHandler;
+import com.avereon.xenon.product.ProductEvent;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings( "unused" )
-public class ProgramEventCollector implements ProductEventListener {
+public class ProgramEventCollector implements EventHandler<ProductEvent> {
 
-	private List<ProductEventOld> events = new CopyOnWriteArrayList<>();
+	private List<ProductEvent> events = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void handleEvent( ProductEventOld event ) {
+	public void handle( ProductEvent event ) {
 		events.add( event );
 	}
 
 	@SuppressWarnings( "unused" )
-	public List<ProductEventOld> getEvents() {
+	public List<ProductEvent> getEvents() {
 		return events;
 	}
 

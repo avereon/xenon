@@ -1,5 +1,6 @@
 package com.avereon.xenon.task;
 
+import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.util.Controllable;
@@ -39,17 +40,17 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private Settings settings;
 
-	private Map<Task,Task> taskMap;
+	private Map<Task<?>,Task<?>> taskMap;
 
-	private Queue<Task> taskQueue;
+	private Queue<Task<?>> taskQueue;
 
-	private Set<TaskListener> listeners;
+	private EventHub<TaskManagerEvent> eventHub;
 
 	public TaskManager() {
 		taskMap = new ConcurrentHashMap<>(  );
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		listeners = new CopyOnWriteArraySet<>();
+		eventHub = new EventHub<>(  );
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
@@ -102,7 +103,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return getTasks().size();
 	}
 
-	public List<Task> getTasks() {
+	public List<Task<?>> getTasks() {
 		return new ArrayList<>( taskQueue );
 	}
 
@@ -128,6 +129,10 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		if( executorP1 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 1 ) );
 		if( executorP2 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 2 ) );
 		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 3 ) );
+	}
+
+	public EventHub<TaskManagerEvent> getEventHub() {
+		return eventHub;
 	}
 
 	@Override
@@ -194,22 +199,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		return settings;
 	}
 
-	public void addTaskListener( TaskListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeTaskListener( TaskListener listener ) {
-		listeners.remove( listener );
-	}
-
-	Set<TaskListener> getTaskListeners() {
-		return listeners;
-	}
-
-	void taskThreadEvent( TaskThread thread, TaskEventOld.Type type ) {
-		new TaskEventOld( this, null, type ).fire( listeners );
-	}
-
 	private static boolean isTaskThread() {
 		return Thread.currentThread() instanceof TaskThread;
 	}
@@ -251,7 +240,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		@Override
 		protected void afterExecute( Runnable runnable, Throwable throwable ) {
 			if( runnable instanceof Task ) {
-				Task task = (Task)runnable;
+				Task<?> task = (Task<?>)runnable;
 				taskQueue.remove( task );
 				taskMap.remove( task );
 			}

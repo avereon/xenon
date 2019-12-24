@@ -4,8 +4,6 @@ import com.avereon.product.ProductCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
-import com.avereon.xenon.event.ProgramStartedEventOld;
-import com.avereon.xenon.event.ProgramStoppedEventOld;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneWatcher;
 import javafx.application.Platform;

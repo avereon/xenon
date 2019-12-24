@@ -776,6 +776,7 @@ public class Program extends Application implements ProgramProduct {
 //		this.listeners.remove( listener );
 //	}
 //
+	@Deprecated
 	public void fireEventOld( ProductEventOld event ) {
 		//event.fire( listeners );
 	}
