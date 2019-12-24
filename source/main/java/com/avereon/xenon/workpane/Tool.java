@@ -1,10 +1,11 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEventOld;
-import com.avereon.xenon.asset.AssetListener;
+import com.avereon.xenon.asset.AssetEvent;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -55,7 +56,7 @@ public abstract class Tool extends Control {
 
 	private boolean displayed;
 
-	private AssetListener watcher;
+	private AssetWatcher watcher;
 
 	private Set<ToolListener> listeners;
 
@@ -304,7 +305,8 @@ public abstract class Tool extends Control {
 	public final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().addAssetListener( watcher = new AssetWatcher() );
+			getAsset().getEventHub().register( AssetEvent.ANY, watcher = new AssetWatcher() );
+			//getAsset().addAssetListener( watcher = new AssetWatcher() );
 			allocate();
 			allocated = true;
 			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ADDED, pane, this ) );
@@ -377,7 +379,7 @@ public abstract class Tool extends Control {
 		try {
 			deallocate();
 			allocated = false;
-			getAsset().removeAssetListener( watcher );
+			getAsset().getEventHub().unregister( AssetEvent.ANY, watcher );
 			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_REMOVED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
@@ -412,20 +414,11 @@ public abstract class Tool extends Control {
 		}
 	}
 
-	private class AssetWatcher implements AssetListener {
+	private class AssetWatcher extends EventHub<AssetEvent> implements EventHandler<AssetEvent> {
 
-		@Override
-		public void eventOccurred( AssetEventOld event ) {
-			switch( event.getType() ) {
-				case REFRESHED: {
-					Tool.this.callAssetRefreshed();
-					break;
-				}
-				case CLOSED: {
-					Tool.this.close();
-					break;
-				}
-			}
+		public AssetWatcher() {
+			register( AssetEvent.REFRESHED, e -> Tool.this.callAssetRefreshed() );
+			register( AssetEvent.CLOSED, e -> Tool.this.close() );
 		}
 
 	}

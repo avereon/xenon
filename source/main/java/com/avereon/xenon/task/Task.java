@@ -219,11 +219,6 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
-		if( manager == null ) {
-			eventHub.parent( null );
-		} else {
-			eventHub.parent( manager.getEventHub() );
-		}
 	}
 
 	void setState( State state ) {

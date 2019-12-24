@@ -14,11 +14,11 @@ import java.util.concurrent.*;
 
 public class TaskManager implements Configurable, Controllable<TaskManager> {
 
+	static final int THREAD_IDLE_SECONDS = 2;
+
 	private static final int LOW_THREAD_COUNT = 4;
 
 	private static final int HIGH_THREAD_COUNT = 32;
-
-	private static final int THREAD_IDLE_SECONDS = 2;
 
 	private static final int PROCESSOR_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -231,9 +231,10 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 			if( !(callable instanceof Task) ) callable = new TaskWrapper<>( callable );
 			Task<T> task = (Task<T>)callable;
 
-			getEventHub().handle( new TaskEvent( this, TaskEvent.SUBMITTED, task ) );
-
+			task.getEventHub().parent( TaskManager.this.getEventHub() );
+			task.getEventHub().handle( new TaskEvent( TaskManager.this, TaskEvent.SUBMITTED, task ) );
 			task.setTaskManager( TaskManager.this );
+
 			taskMap.put( task, task );
 			taskQueue.add( task );
 			return task;

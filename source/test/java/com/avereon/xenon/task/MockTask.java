@@ -61,4 +61,8 @@ final class MockTask extends Task<Object> {
 		return object;
 	}
 
+	@Override
+	protected void failed() {
+		// This intentionally overrides the super method to reduce the output
+	}
 }

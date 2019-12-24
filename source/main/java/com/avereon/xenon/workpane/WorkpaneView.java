@@ -61,7 +61,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		tools.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> {
 			for( ToolTab tab : tools.getTabs() ){
 				Tool tool = tab.getTool();
-				tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ORDERED, tool ) );
+				tool.fireToolEvent( new ToolEvent( this, ToolEvent.ORDERED, tool ) );
 			}
 		} );
 	}

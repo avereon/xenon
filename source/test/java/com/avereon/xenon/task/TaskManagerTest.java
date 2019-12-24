@@ -277,15 +277,16 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
-		watcher.waitForEvent( TaskEvent.FINISH );
+		watcher.waitForEvent( TaskThreadEvent.FINISH, (TaskManager.THREAD_IDLE_SECONDS + 1) * 1000 );
 
-		int count = 0;
-		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.SUBMITTED ) );
-		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskThreadEvent.CREATE ) );
-		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.START ) );
-		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.PROGRESS ) );
-		assertThat( watcher.getEvents().get( count++ ).getEventType(), is( TaskEvent.FINISH ) );
-		assertThat( watcher.getEvents().size(), is( count ) );
+		int index = 0;
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.SUBMITTED ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskThreadEvent.CREATE ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.START ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.PROGRESS ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.FINISH ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskThreadEvent.FINISH ) );
+		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.undo.BasicUndoManager;
 import com.avereon.undo.UndoManager;
@@ -9,7 +11,6 @@ import com.avereon.util.TextUtil;
 import com.avereon.xenon.node.Node;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
-import com.avereon.xenon.asset.event.*;
 import com.avereon.xenon.scheme.AssetScheme;
 import org.slf4j.Logger;
 
@@ -17,8 +18,6 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Asset extends Node implements Configurable {
 
@@ -59,7 +58,9 @@ public class Asset extends Node implements Configurable {
 
 	private UndoManager undoManager;
 
-	private Set<AssetListener> listeners;
+	private EventHub<AssetEvent> eventHub;
+
+	//private Set<AssetListener> listeners;
 
 	private Settings settings;
 
@@ -88,10 +89,12 @@ public class Asset extends Node implements Configurable {
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
 
+		eventHub = new EventHub<>();
+
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
 
-		listeners = new CopyOnWriteArraySet<>();
+		// TODO Connect the node event hub to the event hub
 		addNodeListener( new NodeWatcher() );
 	}
 
@@ -223,11 +226,11 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.open( this );
 
 		open = true;
-		fireAssetEvent( new AssetOpenedEventOld( Asset.class, this ) );
+		getEventHub().handle( new AssetEvent( this, AssetEvent.OPENED, this ) );
 
 		if( isNew() ) {
 			ready = true;
-			fireAssetEvent( new AssetReadyEventOld( Asset.class, this ) );
+			getEventHub().handle( new AssetEvent( this, AssetEvent.READY, this ) );
 		}
 
 	}
@@ -244,11 +247,11 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.load( this, getCodec() );
 
 		loaded = true;
-		fireAssetEvent( new AssetLoadedEventOld( Asset.class, this ) );
+		getEventHub().handle( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		if( !ready ) {
 			ready = true;
-			fireAssetEvent( new AssetReadyEventOld( Asset.class, this ) );
+			getEventHub().handle( new AssetEvent( this, AssetEvent.READY, this ) );
 		}
 
 		notifyAll();
@@ -256,7 +259,7 @@ public class Asset extends Node implements Configurable {
 
 	public synchronized final void refresh( AssetManager manager ) {
 		if( !ready ) return;
-		fireAssetEvent( new AssetRefreshedEventOld( Asset.class, this ) );
+		getEventHub().handle( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -271,7 +274,7 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.save( this, getCodec() );
 		saved = true;
 
-		fireAssetEvent( new AssetSavedEventOld( Asset.class, this ) );
+		getEventHub().handle( new AssetEvent( this, AssetEvent.SAVED, this ) );
 	}
 
 	public synchronized final boolean isClosed() {
@@ -286,14 +289,14 @@ public class Asset extends Node implements Configurable {
 
 		open = false;
 
-		fireAssetEvent( new AssetClosedEventOld( Asset.class, this ) );
+		getEventHub().handle( new AssetEvent( this, AssetEvent.CLOSED, this ) );
 	}
 
-	public synchronized void callWhenReady( AssetListener listener ) {
+	public synchronized void callWhenReady( EventHandler<AssetEvent> handler ) {
 		if( ready ) {
-			listener.eventOccurred( new AssetReadyEventOld( Asset.class, this ) );
+			handler.handle( new AssetEvent( this, AssetEvent.READY, this ) );
 		} else {
-			addAssetListener( listener );
+			eventHub.register( AssetEvent.READY, handler );
 		}
 	}
 
@@ -347,12 +350,8 @@ public class Asset extends Node implements Configurable {
 		return settings;
 	}
 
-	public void addAssetListener( AssetListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeAssetListener( AssetListener listener ) {
-		listeners.remove( listener );
+	public EventHub<AssetEvent> getEventHub() {
+		return eventHub;
 	}
 
 	@Override
@@ -375,12 +374,6 @@ public class Asset extends Node implements Configurable {
 		return isNew() ? assetTypeName : uri.toString();
 	}
 
-	private void fireAssetEvent( AssetEventOld event ) {
-		for( AssetListener listener : listeners ) {
-			listener.eventOccurred( event );
-		}
-	}
-
 	private void updateAssetName() {
 		AssetType type = getType();
 		URI uri = getUri();
@@ -399,7 +392,7 @@ public class Asset extends Node implements Configurable {
 				if( isFolder() && path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
 			} catch( AssetException exception ) {
 				// Intentionally ignore exception
- 			}
+			}
 			name = path.substring( path.lastIndexOf( '/' ) + 1 );
 		}
 
@@ -414,9 +407,9 @@ public class Asset extends Node implements Configurable {
 
 			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
 				if( Boolean.TRUE == event.getNewValue() ) {
-					fireAssetEvent( new AssetModifiedEventOld( this, (Asset)event.getSource() ) );
+					getEventHub().handle( new AssetEvent( this, AssetEvent.MODIFIED, (Asset)event.getSource() ) );
 				} else {
-					fireAssetEvent( new AssetUnmodifiedEventOld( this, (Asset)event.getSource() ) );
+					getEventHub().handle( new AssetEvent( this, AssetEvent.UNMODIFIED, (Asset)event.getSource() ) );
 				}
 			}
 		}

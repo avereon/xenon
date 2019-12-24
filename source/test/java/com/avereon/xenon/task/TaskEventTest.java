@@ -29,12 +29,13 @@ class TaskEventTest extends BaseTaskTest {
 		 * done state is set correctly before eventList are sent but this allows the
 		 * test thread to continue before the eventList arrive.
 		 */
+		int index = 0;
 		watcher.waitForEvent( TaskEvent.FINISH );
-		assertEvent( watcher.getEvents().get( 0 ), task, TaskEvent.SUBMITTED );
-		assertEvent( watcher.getEvents().get( 1 ), task, TaskEvent.START );
-		assertEvent( watcher.getEvents().get( 2 ), task, TaskEvent.PROGRESS );
-		assertEvent( watcher.getEvents().get( 3 ), task, TaskEvent.FINISH );
-		assertThat( watcher.getEvents().size(), is( 4 ) );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.SUBMITTED );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.START );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.PROGRESS );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FINISH );
+		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
 	@Test
@@ -62,12 +63,13 @@ class TaskEventTest extends BaseTaskTest {
 		 * done state is set correctly before eventList are sent but this allows the
 		 * test thread to continue before the eventList arrive.
 		 */
+		int index = 0;
 		watcher.waitForEvent( TaskEvent.FINISH );
-		assertEvent( watcher.getEvents().get( 0 ), task, TaskEvent.SUBMITTED );
-		assertEvent( watcher.getEvents().get( 1 ), task, TaskEvent.START );
-		assertEvent( watcher.getEvents().get( 2 ), task, TaskEvent.PROGRESS );
-		assertEvent( watcher.getEvents().get( 3 ), task, TaskEvent.FINISH );
-		assertThat( watcher.getEvents().size(), is( 4 ) );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.SUBMITTED );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.START );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.PROGRESS );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FINISH );
+		assertThat( watcher.getEvents().size(), is( index ) );
 	}
 
 	private void assertEvent( TaskManagerEvent event, Task<?> task, EventType<? extends TaskManagerEvent> type ) {

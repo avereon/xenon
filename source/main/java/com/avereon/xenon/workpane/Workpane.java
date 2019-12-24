@@ -558,7 +558,7 @@ public class Workpane extends Control implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
-				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.DEACTIVATED, activeTool ) );
+				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.DEACTIVATED, activeTool ) );
 			}
 
 			// Change the active view
@@ -574,7 +574,7 @@ public class Workpane extends Control implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callActivate();
-				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ACTIVATED, activeTool ) );
+				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.ACTIVATED, activeTool ) );
 			}
 		} finally {
 			finishOperation( true );
@@ -1123,7 +1123,7 @@ public class Workpane extends Control implements Configurable {
 			startOperation();
 			if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
 			view.addTool( tool, index );
-			tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.ADDED, tool ) );
+			tool.fireToolEvent( new ToolEvent( this, ToolEvent.ADDED, tool ) );
 			if( activate ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
@@ -1158,9 +1158,9 @@ public class Workpane extends Control implements Configurable {
 	private Tool openTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.OPENING, tool ) );
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.OPENING, tool ) );
 		addTool( tool, view, index, activate );
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.OPENED, tool ) );
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.OPENED, tool ) );
 
 		return tool;
 	}
@@ -1193,7 +1193,7 @@ public class Workpane extends Control implements Configurable {
 		try {
 			startOperation();
 			view.removeTool( tool );
-			tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.REMOVED, tool ) );
+			tool.fireToolEvent( new ToolEvent( this, ToolEvent.REMOVED, tool ) );
 			if( autoMerge ) pullMerge( view );
 		} finally {
 			finishOperation( true );
@@ -1227,13 +1227,13 @@ public class Workpane extends Control implements Configurable {
 		if( tool == null ) return null;
 
 		// Notify tool listeners of intent to close
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.CLOSING, tool ) );
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.CLOSING, tool ) );
 
 		// Remove the tool
 		if( tool.getCloseOperation() == CloseOperation.REMOVE ) removeTool( tool, autoMerge );
 
 		// Notify tool listeners of view closure
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.Type.CLOSED, tool ) );
+		tool.fireToolEvent( new ToolEvent( this, ToolEvent.CLOSED, tool ) );
 
 		return tool;
 	}

@@ -1,17 +1,17 @@
 package com.avereon.xenon.tool.notice;
 
+import com.avereon.event.EventHandler;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
+import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEventOld;
-import com.avereon.xenon.asset.AssetListener;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -70,7 +70,7 @@ public class NoticeTool extends ProgramTool {
 	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.assetReady( parameters );
 
-		getAsset().addAssetListener( assetWatcher );
+		getAsset().getEventHub().register( AssetEvent.ANY, assetWatcher );
 	}
 
 	@Override
@@ -104,16 +104,11 @@ public class NoticeTool extends ProgramTool {
 		} );
 	}
 
-	private class AssetWatcher implements AssetListener {
+	private class AssetWatcher implements EventHandler<AssetEvent> {
 
 		@Override
-		public void eventOccurred( AssetEventOld event ) {
-			switch( event.getType() ) {
-				case REFRESHED: {
-					updateNotices();
-					break;
-				}
-			}
+		public void handle( AssetEvent event ) {
+			if( event.getEventType() == AssetEvent.REFRESHED) updateNotices();
 		}
 
 	}

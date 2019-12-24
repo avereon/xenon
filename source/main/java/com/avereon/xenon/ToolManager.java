@@ -1,12 +1,12 @@
 package com.avereon.xenon;
 
+import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEventOld;
-import com.avereon.xenon.asset.AssetListener;
+import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
@@ -285,24 +285,24 @@ public class ToolManager implements Controllable<ToolManager> {
 	private void addToolListenerForSettings( ProgramTool tool ) {
 		tool.addToolListener( ( event ) -> {
 			ProgramTool eventTool = (ProgramTool)event.getTool();
-			switch( event.getType() ) {
-				case ADDED: {
+			switch( event.getEventType().getName() ) {
+				case "ADDED": {
 					eventTool.getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, eventTool.getToolView().getViewId() );
 					break;
 				}
-				case ORDERED: {
+				case "ORDERED": {
 					eventTool.getSettings().set( "order", eventTool.getTabOrder() );
 					break;
 				}
-				case ACTIVATED: {
+				case "ACTIVATED": {
 					eventTool.getSettings().set( "active", true );
 					break;
 				}
-				case DEACTIVATED: {
+				case "DEACTIVATED": {
 					eventTool.getSettings().set( "active", null );
 					break;
 				}
-				case CLOSED: {
+				case "CLOSED": {
 					eventTool.getSettings().delete();
 				}
 			}
@@ -317,11 +317,11 @@ public class ToolManager implements Controllable<ToolManager> {
 	 */
 	private void scheduleAssetReady( OpenToolRequest request, ProgramTool tool ) {
 		Asset asset = request.getAsset();
-		asset.callWhenReady( new AssetListener() {
+		asset.callWhenReady( new EventHandler<>() {
 
 			@Override
-			public void eventOccurred( AssetEventOld event ) {
-				asset.removeAssetListener( this );
+			public void handle( AssetEvent event ) {
+				asset.getEventHub().unregister( AssetEvent.READY, this );
 				Platform.runLater( () -> tool.callAssetReady( new OpenToolRequestParameters( request ) ) );
 			}
 

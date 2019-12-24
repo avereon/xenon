@@ -2,6 +2,7 @@ package com.avereon.xenon.asset;
 
 import com.avereon.xenon.ProductEventOld;
 
+@Deprecated
 public abstract class AssetEventOld extends ProductEventOld {
 
 	public enum Type {

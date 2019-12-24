@@ -1,5 +1,6 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.event.EventType;
 import javafx.geometry.Side;
 import org.junit.jupiter.api.Test;
 
@@ -189,11 +190,11 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
 
 		count = 0;
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.OPENING, tool );
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ORDERED, tool );
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ADDED, tool );
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ACTIVATED, tool );
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.OPENED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.OPENING, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.ORDERED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.ADDED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.ACTIVATED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.OPENED, tool );
 		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
@@ -218,9 +219,9 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
 
 		count = 0;
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ORDERED, tool );
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ADDED, tool );
-		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.Type.ACTIVATED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.ORDERED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.ADDED, tool );
+		assertToolEvent( toolEventCounter.getEvents().get( count++ ), ToolEvent.ACTIVATED, tool );
 		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
@@ -247,8 +248,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
 
 		count = 0;
-		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.DEACTIVATED, tool );
-		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.REMOVED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.DEACTIVATED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.REMOVED, tool );
 		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
@@ -275,10 +276,10 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( workpaneWatcher.getEvents().size(), is( count ) );
 
 		count = 0;
-		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.CLOSING, tool );
-		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.DEACTIVATED, tool );
-		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.REMOVED, tool );
-		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.Type.CLOSED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.CLOSING, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.DEACTIVATED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.REMOVED, tool );
+		assertToolEvent( toolEventCounter.events.get( count++ ), ToolEvent.CLOSED, tool );
 		assertThat( toolEventCounter.events.size(), is( count ) );
 	}
 
@@ -364,8 +365,8 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		assertThat( "Tool", ((WorkpaneToolEvent)event).getTool(), is( tool ) );
 	}
 
-	private void assertToolEvent( ToolEvent event, ToolEvent.Type type, Tool tool ) {
-		assertThat( "Event type", event.getType(), is( type ) );
+	private void assertToolEvent( ToolEvent event, EventType<ToolEvent> type, Tool tool ) {
+		assertThat( "Event type", event.getEventType(), is( type ) );
 		assertThat( "Tool", event.getTool(), is( tool ) );
 	}
 
