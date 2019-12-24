@@ -82,6 +82,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	public void run() {
 		setState( Task.State.RUNNING );
+		// FIXME Sometimes the task is run not on the task manager
 		eventHub.handle( new TaskEvent( getTaskManager(), TaskEvent.START, this ) );
 		super.run();
 	}
