@@ -2,13 +2,12 @@ package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
-import com.avereon.xenon.event.ProgramStartedEventOld;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.tool.about.AboutTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
-import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workpane.WorkpaneWatcher;
@@ -30,8 +29,6 @@ public abstract class ScreenShots implements Runnable {
 	private Path screenshots;
 
 	private Program program;
-
-	private ProgramWatcher programWatcher;
 
 	private Workspace workspace;
 
@@ -116,8 +113,9 @@ public abstract class ScreenShots implements Runnable {
 					exception.printStackTrace( System.err );
 				}
 			} );
-			program.addEventListener( programWatcher = new ProgramWatcher() );
-			programWatcher.waitForEvent( ProgramStartedEventOld.class );
+			ProgramWatcher programWatcher;
+			program.getEventHub().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
+			programWatcher.waitForEvent( ProgramEvent.STARTED );
 			Platform.runLater( () -> {
 				program.getWorkspaceManager().getActiveStage().setX( 0 );
 				program.getWorkspaceManager().getActiveStage().setY( 0 );

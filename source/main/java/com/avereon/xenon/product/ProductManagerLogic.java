@@ -430,9 +430,7 @@ public class ProductManagerLogic {
 			log.debug( "           to: " + localPackPath );
 
 			// Notify listeners the update is staged
-			new ProductManagerEventOld( manager, ProductManagerEventOld.Type.PRODUCT_STAGED, product )
-				.fire( manager.getProductManagerListeners() )
-				.fire( program.getListeners() );
+			manager.getEventHub().handle( new ProductEvent( manager, ProductEvent.STAGED, product) );
 
 			return new ProductUpdate( repo, product, localPackPath, installFolder );
 		}

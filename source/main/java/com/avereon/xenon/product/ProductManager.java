@@ -1,6 +1,7 @@
 package com.avereon.xenon.product;
 
 import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
@@ -158,7 +159,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private UpdateCheckTask task;
 
-	private Set<ProductManagerListener> listeners;
+	private EventHub<ProductEvent> eventHub;
 
 	private long lastAvailableProductCheck;
 
@@ -178,7 +179,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
 		postedUpdateCache = new CopyOnWriteArraySet<>();
-		listeners = new CopyOnWriteArraySet<>();
+		eventHub = new EventHub<ProductEvent>().parent( program.getEventHub() );
 
 		repoClient = new V2RepoClient( program );
 
@@ -186,6 +187,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
 		includedProducts.add( new com.avereon.zenna.Program().getCard() );
+	}
+
+	public EventHub<ProductEvent> getEventHub() {
+		return eventHub;
 	}
 
 	public Set<RepoState> getRepos() {
@@ -441,9 +446,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
 		log.trace( "Set mod enabled: " + settings.getPath() + ": " + enabled );
-		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
-			.fire( listeners )
-			.fire( program.getListeners() );
+		getEventHub().handle( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
+//		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
+//			.fire( listeners )
+//			.fire( program.getListeners() );
 
 		// Should be called after setting the enabled flag
 		if( enabled ) callModStart( mod );
@@ -775,17 +781,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return delay;
 	}
 
-	public Set<ProductManagerListener> getProductManagerListeners() {
-		return new HashSet<>( listeners );
-	}
-
-	public void addProductManagerListener( ProductManagerListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeProductManagerListener( ProductManagerListener listener ) {
-		listeners.remove( listener );
-	}
+//	public Set<ProductManagerListener> getProductManagerListeners() {
+//		return new HashSet<>( listeners );
+//	}
+//
+//	public void addProductManagerListener( ProductManagerListener listener ) {
+//		listeners.add( listener );
+//	}
+//
+//	public void removeProductManagerListener( ProductManagerListener listener ) {
+//		listeners.remove( listener );
+//	}
 
 	@Override
 	public void setSettings( Settings settings ) {
@@ -1001,7 +1007,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
-			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_REGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			getEventHub().handle( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error registering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1011,7 +1017,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
-			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_STARTED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			getEventHub().handle( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error starting mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1021,7 +1027,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
-			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_STOPPED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			getEventHub().handle( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1030,7 +1036,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
-			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_UNREGISTERED, mod.getCard() ).fire( listeners ).fire( program.getListeners() );
+			getEventHub().handle( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1138,8 +1144,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// Add the product registration to the manager
 			registerMod( mod );
 
-			// Notify listeners of install
-			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_INSTALLED, card ).fire( listeners ).fire( program.getListeners() );
+			// Notify handlers of install
+			getEventHub().handle( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
 
 			log.debug( "Mod loaded: " + message );
 		} catch( Throwable throwable ) {
@@ -1157,8 +1163,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// Remove the product registration from the manager
 			unregisterMod( mod );
 
-			// Notify listeners of remove
-			new ProductManagerEventOld( ProductManager.this, ProductManagerEventOld.Type.MOD_REMOVED, card ).fire( listeners ).fire( program.getListeners() );
+			// Notify handlers of remove
+			getEventHub().handle( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
 
 			log.debug( "Mod unloaded: " + message );
 		} catch( Throwable throwable ) {
@@ -1172,9 +1178,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		public void handle( SettingsEvent event ) {
 			if( event.getEventType() != SettingsEvent.CHANGED ) return;
 
-			String key = event.getKey();
-
-			switch( key ) {
+			switch( event.getKey() ) {
 				case CHECK: {
 					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 					scheduleUpdateCheck( false );

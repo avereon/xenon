@@ -71,8 +71,8 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
-		program.addEventListener( programWatcher = new ProgramWatcher() );
-		programWatcher.waitForEvent( ProgramStartedEventOld.class );
+		program.getEventHub().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
+		programWatcher.waitForEvent( ProgramEvent.STARTED );
 		metadata = program.getCard();
 
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
@@ -89,8 +89,8 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		FxToolkit.cleanupApplication( program );
 		FxToolkit.cleanupStages();
 
-		programWatcher.waitForEvent( ProgramStoppedEventOld.class );
-		program.removeEventListener( programWatcher );
+		programWatcher.waitForEvent( ProgramEvent.STOPPED );
+		program.getEventHub().unregister( ProgramEvent.ANY, programWatcher );
 
 		finalMemoryUse = getMemoryUse();
 

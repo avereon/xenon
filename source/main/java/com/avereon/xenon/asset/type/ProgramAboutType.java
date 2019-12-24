@@ -2,14 +2,12 @@ package com.avereon.xenon.asset.type;
 
 import com.avereon.product.Product;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.ProductEventListener;
-import com.avereon.xenon.ProductEventOld;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.product.ProductManagerEventOld;
+import com.avereon.xenon.product.ModEvent;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -45,40 +43,10 @@ public class ProgramAboutType extends AssetType {
 	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
 		asset.setModel( getProduct().getCard() );
 
-		//program.getEventHub().register( ModEvent.ENABLED, e -> asset.refresh( program.getAssetManager() ) );
-		//program.getEventHub().register( ModEvent.DISABLED, e -> asset.refresh( program.getAssetManager() ) );
-
-		// FIXME I'm not sure I like this implementation but it works
-		// Not sure if using a listener for this singleton instance is how I
-		// want to handle the asset/model/tool relationship.
-		ProductEventWatcher watcher = asset.getResource( WATCHER_KEY );
-		if( watcher == null ) {
-			watcher = new ProductEventWatcher( program, asset );
-			asset.putResource( WATCHER_KEY, watcher );
-			program.addEventListener( watcher );
-		}
+		program.getEventHub().register( ModEvent.ENABLED, e -> asset.refresh( program.getAssetManager() ) );
+		program.getEventHub().register( ModEvent.DISABLED, e -> asset.refresh( program.getAssetManager() ) );
 
 		return true;
-	}
-
-	private static class ProductEventWatcher implements ProductEventListener<ProductEventOld> {
-
-		private Program program;
-
-		private Asset asset;
-
-		private ProductEventWatcher( Program program, Asset asset ) {
-			this.program = program;
-			this.asset = asset;
-		}
-
-		@Override
-		public void handleEvent( ProductEventOld event ) {
-			if( event instanceof ProductManagerEventOld ) {
-				asset.refresh( program.getAssetManager() );
-			}
-		}
-
 	}
 
 }

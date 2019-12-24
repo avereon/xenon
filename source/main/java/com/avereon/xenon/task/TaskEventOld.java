@@ -2,6 +2,7 @@ package com.avereon.xenon.task;
 
 import com.avereon.xenon.ProductEventOld;
 
+@Deprecated
 public class TaskEventOld extends ProductEventOld {
 
 	public enum Type {

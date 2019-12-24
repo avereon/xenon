@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.event.EventHandler;
 import com.avereon.event.EventHub;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
@@ -10,8 +9,6 @@ import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import com.avereon.util.PathUtil;
-import com.avereon.xenon.event.SettingsLoadedEventOld;
-import com.avereon.xenon.event.SettingsSavedEventOld;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
@@ -39,7 +36,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private EventHandler<SettingsEvent> settingsWatcher;
+	private EventHub<SettingsEvent> settingsWatcher;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -51,7 +48,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
-		this.settingsWatcher = new SettingsWatcher( program );
+		this.settingsWatcher = new EventHub<SettingsEvent>().parent( program.getEventHub() );
 	}
 
 	public Settings getSettings( String path ) {
@@ -211,16 +208,5 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 	//		return this;
 	//	}
-
-	private static class SettingsWatcher extends EventHub<SettingsEvent> {
-
-		private SettingsWatcher( Program program ) {
-			// NEXT This should simply forward the event to the program "bus"
-			register( SettingsEvent.CHANGED, e -> log.trace( "Setting changed: " + e.getPath() + ":" + e.getKey() + "=" + e.getNewValue() ) );
-			register( SettingsEvent.LOADED, e -> program.fireEventOld( new SettingsLoadedEventOld( this, e.getPath() ) ) );
-			register( SettingsEvent.SAVED, e -> program.fireEventOld( new SettingsSavedEventOld( this, e.getPath() ) ) );
-		}
-
-	}
 
 }
