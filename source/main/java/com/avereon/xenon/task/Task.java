@@ -1,6 +1,7 @@
 package com.avereon.xenon.task;
 
 import com.avereon.event.EventHub;
+import com.avereon.event.EventType;
 import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
 
@@ -82,8 +83,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	public void run() {
 		setState( Task.State.RUNNING );
-		// FIXME Sometimes the task is run not on the task manager
-		eventHub.handle( new TaskEvent( getTaskManager(), TaskEvent.START, this ) );
+		fireTaskEvent( TaskEvent.START );
 		super.run();
 	}
 
@@ -167,7 +167,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void done() {
 		setProgress( getTotal() );
-		eventHub.handle( new TaskEvent( getTaskManager(), TaskEvent.FINISH, this ) );
+		fireTaskEvent( TaskEvent.FINISH );
 
 		if( isCancelled() ) setState( Task.State.CANCELLED );
 		setTaskManager( null );
@@ -203,7 +203,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	protected void setProgress( long progress ) {
 		this.progress = progress;
-		eventHub.handle( new TaskEvent( getTaskManager(), TaskEvent.PROGRESS, this ) );
+		fireTaskEvent( TaskEvent.PROGRESS );
 	}
 
 	protected void scheduled() {}
@@ -224,7 +224,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 			eventHub.parent( null );
 		} else {
 			eventHub.parent( manager.getEventHub() );
-			eventHub.handle( new TaskEvent( manager, TaskEvent.SUBMITTED, this ) );
+			fireTaskEvent( TaskEvent.SUBMITTED );
 		}
 	}
 
@@ -262,11 +262,10 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return manager;
 	}
 
-//	private void fireTaskEvent( TaskEventOld.Type type ) {
-//		TaskEventOld event = new TaskEventOld( this, this, type );
-//		if( getTaskManager() != null ) event.fire( getTaskManager().getTaskListeners() );
-//		event.fire( listeners );
-//	}
+	private void fireTaskEvent( EventType<TaskEvent> type ) {
+		TaskManager manager = getTaskManager();
+		eventHub.handle( new TaskEvent( manager == null ? this : manager, type, this ) );
+	}
 
 	private static class TaskCallable<T> implements Callable<T> {
 

@@ -40,17 +40,17 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private Settings settings;
 
-	private Map<Task<?>,Task<?>> taskMap;
+	private Map<Task<?>, Task<?>> taskMap;
 
 	private Queue<Task<?>> taskQueue;
 
 	private EventHub<TaskManagerEvent> eventHub;
 
 	public TaskManager() {
-		taskMap = new ConcurrentHashMap<>(  );
+		taskMap = new ConcurrentHashMap<>();
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		eventHub = new EventHub<>(  );
+		eventHub = new EventHub<>();
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
@@ -118,7 +118,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 	public int getMaxThreadCount() {
 		int count = 0;
 		count += executorP1 == null ? 0 : executorP1.getCorePoolSize();
-		count += executorP2== null ? 0 : executorP2.getCorePoolSize();
+		count += executorP2 == null ? 0 : executorP2.getCorePoolSize();
 		count += executorP3 == null ? 0 : executorP3.getCorePoolSize();
 		return count;
 	}

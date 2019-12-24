@@ -121,7 +121,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
-	private EventHub<Event> hub;
+	private EventHub<Event> eventHub;
 
 	private CloseWorkspaceAction closeAction;
 
@@ -160,8 +160,6 @@ public class Program extends Application implements ProgramProduct {
 		// Do not implicitly close the program
 		Platform.setImplicitExit( false );
 		time( "implicit-exit-false" );
-
-		hub = new EventHub<>();
 	}
 
 	// THREAD JavaFX-Launcher
@@ -170,6 +168,9 @@ public class Program extends Application implements ProgramProduct {
 	public void init() throws Exception {
 		// NOTE Only do in init() what should be done before the splash screen is shown
 		time( "init" );
+
+		// Create the event hub
+		eventHub = new EventHub<>();
 
 		// Load the product card
 		card = new ProductCard().init( getClass() );
@@ -201,7 +202,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "resource-bundle" );
 
 		// Create the settings manager, depends on program data folder
-		settingsManager = new SettingsManager( this ).start();
+		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
 
 		// Load the default settings values
 		Properties properties = new Properties();
@@ -763,27 +764,27 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public EventHub<Event> getEventHub() {
-		return hub;
+		return eventHub;
 	}
 
-//	@SuppressWarnings( { "unused", "WeakerAccess" } )
-//	public void addEventListener( ProductEventListener listener ) {
-//		this.listeners.add( listener );
-//	}
-//
-//	@SuppressWarnings( { "unused", "WeakerAccess" } )
-//	public void removeEventListener( ProductEventListener listener ) {
-//		this.listeners.remove( listener );
-//	}
-//
+	//	@SuppressWarnings( { "unused", "WeakerAccess" } )
+	//	public void addEventListener( ProductEventListener listener ) {
+	//		this.listeners.add( listener );
+	//	}
+	//
+	//	@SuppressWarnings( { "unused", "WeakerAccess" } )
+	//	public void removeEventListener( ProductEventListener listener ) {
+	//		this.listeners.remove( listener );
+	//	}
+	//
 	@Deprecated
 	public void fireEventOld( ProductEventOld event ) {
 		//event.fire( listeners );
 	}
-//
-//	public Set<ProductEventListener> getListeners() {
-//		return listeners;
-//	}
+	//
+	//	public Set<ProductEventListener> getListeners() {
+	//		return listeners;
+	//	}
 
 	private static void time( String markerName ) {
 		if( !showTiming ) return;
@@ -1211,12 +1212,20 @@ public class Program extends Application implements ProgramProduct {
 		manager.unregisterTool( assetManager.getAssetType( assetTypeClass.getName() ), toolClass );
 	}
 
+	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {
+		settingsManager.getEventHub().parent( eventHub );
+		return settingsManager;
+	}
+
 	private TaskManager configureTaskManager( TaskManager taskManager ) {
+		taskManager.getEventHub().parent( eventHub );
 		taskManager.setSettings( programSettings );
 		return taskManager;
 	}
 
 	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
+		productManager.getEventHub().parent( eventHub );
+
 		// Register the provider repos
 		productManager.registerProviderRepos( RepoState.forProduct( getClass() ) );
 

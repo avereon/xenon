@@ -179,7 +179,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
 		postedUpdateCache = new CopyOnWriteArraySet<>();
-		eventHub = new EventHub<ProductEvent>().parent( program.getEventHub() );
+		eventHub = new EventHub<>();
 
 		repoClient = new V2RepoClient( program );
 

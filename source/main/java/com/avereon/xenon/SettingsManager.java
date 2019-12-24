@@ -36,7 +36,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private EventHub<SettingsEvent> settingsWatcher;
+	private EventHub<SettingsEvent> eventHub;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -48,12 +48,12 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
-		this.settingsWatcher = new EventHub<SettingsEvent>().parent( program.getEventHub() );
+		this.eventHub = new EventHub<>();
 	}
 
 	public Settings getSettings( String path ) {
 		Settings settings = this.settings.getNode( path );
-		settings.addSettingsListener( settingsWatcher );
+		settings.addSettingsListener( eventHub );
 		return settings;
 	}
 
@@ -208,5 +208,9 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
 	//		return this;
 	//	}
+
+	public EventHub<SettingsEvent> getEventHub() {
+		return eventHub;
+	}
 
 }
