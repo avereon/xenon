@@ -14,6 +14,7 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolInstanceMode;
 import com.avereon.xenon.tool.ToolMetadata;
 import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.application.Platform;
@@ -53,10 +54,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
-		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent(
-			assetType,
-			k -> new CopyOnWriteArrayList<>()
-		);
+		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
 		log.debug( "Tool registered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
@@ -283,30 +281,13 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
-		tool.addToolListener( ( event ) -> {
-			ProgramTool eventTool = (ProgramTool)event.getTool();
-			switch( event.getEventType().getName() ) {
-				case "ADDED": {
-					eventTool.getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, eventTool.getToolView().getViewId() );
-					break;
-				}
-				case "ORDERED": {
-					eventTool.getSettings().set( "order", eventTool.getTabOrder() );
-					break;
-				}
-				case "ACTIVATED": {
-					eventTool.getSettings().set( "active", true );
-					break;
-				}
-				case "DEACTIVATED": {
-					eventTool.getSettings().set( "active", null );
-					break;
-				}
-				case "CLOSED": {
-					eventTool.getSettings().delete();
-				}
-			}
-		} );
+		tool.addEventHandler( ToolEvent.ADDED,
+			e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getViewId() )
+		);
+		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
+		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
+		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", null ) );
+		tool.addEventHandler( ToolEvent.CLOSED, e -> ((ProgramTool)e.getTool()).getSettings().delete());
 	}
 
 	/**

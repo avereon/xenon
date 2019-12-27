@@ -18,8 +18,6 @@ import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * The Tool class is a control that "works on" a asset.
@@ -58,8 +56,6 @@ public abstract class Tool extends Control {
 
 	private AssetWatcher watcher;
 
-	private Set<ToolListener> listeners;
-
 	public Tool( Asset asset ) {
 		this( asset, null );
 	}
@@ -69,16 +65,16 @@ public abstract class Tool extends Control {
 		this.titleProperty = new SimpleStringProperty();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
-		this.listeners = new CopyOnWriteArraySet<>();
-		this.asset = asset;
+		getStyleClass().add( "tool" );
 
+		this.asset = asset;
+		setTitle( title );
+
+		// Tools are not allowed to paint outside their bounds
 		Rectangle clip = new Rectangle();
 		clip.widthProperty().bind( widthProperty() );
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
-
-		getStyleClass().add( "tool" );
-		setTitle( title );
 	}
 
 	public Asset getAsset() {
@@ -108,26 +104,27 @@ public abstract class Tool extends Control {
 	 * <dt><code>REMOVE</code>
 	 * <dd>Automatically remove the tool from the workpane.
 	 * <dt><code>NOTHING</code>
-	 * <dd>Do nothing. This requires the program to call WorkPane.removeTool()
-	 * usually as part of the <code>toolClosing</code> method of a registered
-	 * <code>ToolListener</code> object.
+	 * <dd>Do nothing. This requires the program to call {@link Workpane#removeTool(Tool)}
+	 * usually as part of an {@link EventHandler} that receives {@link ToolEvent#CLOSING} event.
 	 * </dl>
 	 * <p>
 	 * Before performing the specified close operation, the tool fires a tool
 	 * closing event.
 	 *
 	 * @param operation One of the following constants: <code>REMOVE</code> or <code>NOTHING</code>
-	 * @see #addToolListener
 	 * @see #getCloseOperation
 	 */
+	@SuppressWarnings( "unused" )
 	public void setCloseOperation( CloseOperation operation ) {
 		closeOperation.set( operation );
 	}
 
+	@SuppressWarnings( "unused" )
 	public ObjectProperty<CloseOperation> closeOperation() {
 		return closeOperation;
 	}
 
+	@SuppressWarnings( "unused" )
 	public Node getGraphic() {
 		return graphicProperty.getValue();
 	}
@@ -152,6 +149,7 @@ public abstract class Tool extends Control {
 		return titleProperty;
 	}
 
+	@SuppressWarnings( "unused" )
 	public Node getCloseGraphic() {
 		return closeGraphicProperty.getValue();
 	}
@@ -168,8 +166,9 @@ public abstract class Tool extends Control {
 	 * Check if this tool is the active tool in the tool view. If this tool has
 	 * not been added to a tool view then this method returns false.
 	 *
-	 * @return
+	 * @return If this tool is the active tool in the tool view
 	 */
+	@SuppressWarnings( "unused" )
 	public boolean isActiveInToolView() {
 		WorkpaneView view = getToolView();
 		return view != null && view.getActiveTool() == this;
@@ -178,6 +177,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Set this tool as the active tool in the tool view.
 	 */
+	@SuppressWarnings( "unused" )
 	public void setActiveInToolView() {
 		WorkpaneView view = getToolView();
 		if( view != null ) view.setActiveTool( this );
@@ -196,6 +196,7 @@ public abstract class Tool extends Control {
 		return view == null ? null : view.getWorkpane();
 	}
 
+	@SuppressWarnings( "unused" )
 	public boolean isAllocated() {
 		return allocated;
 	}
@@ -216,6 +217,7 @@ public abstract class Tool extends Control {
 		Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
 	}
 
+	@SuppressWarnings( { "MethodDoesntCallSuperMethod" } )
 	@Override
 	public Tool clone() {
 		Tool tool = null;
@@ -229,14 +231,7 @@ public abstract class Tool extends Control {
 		return tool;
 	}
 
-	public void addToolListener( ToolListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeToolListener( ToolListener listener ) {
-		listeners.remove( listener );
-	}
-
+	@SuppressWarnings( "StringBufferReplaceableByString" )
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -290,7 +285,7 @@ public abstract class Tool extends Control {
 	 * called each time the asset edited by this tool is opened. If it is
 	 * opened another time it may have different parameters.
 	 *
-	 * @param parameters
+	 * @param parameters The parameters used to open the tool
 	 */
 	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {}
 
@@ -306,10 +301,9 @@ public abstract class Tool extends Control {
 		Workpane pane = getWorkpane();
 		try {
 			getAsset().getEventHub().register( AssetEvent.ANY, watcher = new AssetWatcher() );
-			//getAsset().addAssetListener( watcher = new AssetWatcher() );
 			allocate();
 			allocated = true;
-			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ADDED, pane, this ) );
+			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
 		} catch( ToolException exception ) {
 			log.error( "Error allocating tool", exception );
 		}
@@ -323,7 +317,7 @@ public abstract class Tool extends Control {
 		try {
 			display();
 			displayed = true;
-			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_DISPLAYED, pane, this ) );
+			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) ) );
 		} catch( ToolException exception ) {
 			log.error( "Error displaying tool", exception );
 		}
@@ -336,7 +330,7 @@ public abstract class Tool extends Control {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
-			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_ACTIVATED, pane, this ) );
+			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) ) );
 		} catch( ToolException exception ) {
 			log.error( "Error activating tool", exception );
 		}
@@ -350,7 +344,7 @@ public abstract class Tool extends Control {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
-			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_DEACTIVATED, pane, this ) );
+			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deactivating tool", exception );
 		}
@@ -365,7 +359,7 @@ public abstract class Tool extends Control {
 		try {
 			conceal();
 			displayed = false;
-			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_CONCEALED, pane, this ) );
+			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) ) );
 		} catch( ToolException exception ) {
 			log.error( "Error concealing tool", exception );
 		}
@@ -379,8 +373,8 @@ public abstract class Tool extends Control {
 		try {
 			deallocate();
 			allocated = false;
+			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
 			getAsset().getEventHub().unregister( AssetEvent.ANY, watcher );
-			pane.queueEvent( new WorkpaneToolEvent( pane, WorkpaneEvent.Type.TOOL_REMOVED, pane, this ) );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}
@@ -405,12 +399,6 @@ public abstract class Tool extends Control {
 			assetRefreshed();
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
-		}
-	}
-
-	final void fireToolEvent( ToolEvent event ) {
-		for( ToolListener listener : listeners ) {
-			listener.handle( event );
 		}
 	}
 

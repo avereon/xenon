@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.welcome;
 
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,14 +17,14 @@ class WelcomeToolOpenTwiceUIT extends WelcomeToolUIT {
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
+		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );

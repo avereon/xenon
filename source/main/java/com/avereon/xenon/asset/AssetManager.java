@@ -6,14 +6,11 @@ import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.workpane.Tool;
-import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -140,7 +137,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getActionLibrary().getAction( "close-all" ).pushAction( closeAllActionHandler );
 		updateActionState();
 
-		program.getEventHub().register( ToolEvent.ANY, activeToolWatcher );
+		//program.getEventHub().register( ToolEvent.ANY, activeToolWatcher );
 
 		// TODO ((FileScheme)Schemes.getScheme( "file" )).startAssetWatching();
 
@@ -155,7 +152,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// TODO ((FileScheme)Schemes.getScheme( "file" )).stopAssetWatching();
 
-		program.getEventHub().unregister( ToolEvent.ANY, activeToolWatcher );
+		//program.getEventHub().unregister( ToolEvent.ANY, activeToolWatcher );
 
 		return this;
 	}
@@ -1715,11 +1712,11 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( Event event ) {
-			Tool tool = ((ToolEvent)event).getTool();
-			Asset asset = tool.getAsset();
-
-			if( asset.getUri().equals( ProgramGuideType.URI ) ) return;
-			if( event.getEventType() == ToolEvent.ACTIVATED ) setCurrentAsset( asset );
+//			Tool tool = ((ToolEvent)event).getTool();
+//			Asset asset = tool.getAsset();
+//
+//			if( asset.getUri().equals( ProgramGuideType.URI ) ) return;
+//			if( event.getEventType() == ToolSwitchedEvent.SWITCHED ) setCurrentAsset( asset );
 		}
 
 	}

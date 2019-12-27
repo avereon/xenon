@@ -1,11 +1,11 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.event.Event;
-import com.avereon.event.EventType;
+import com.avereon.util.JavaUtil;
+import javafx.event.EventType;
 
-public class ToolEvent extends Event {
+public class ToolEvent extends WorkpaneEvent {
 
-	public static final EventType<ToolEvent> TOOL = new EventType<>(Event.ANY, "TOOL");
+	public static final EventType<ToolEvent> TOOL = new EventType<>( WorkpaneEvent.ANY, "TOOL" );
 
 	public static final EventType<ToolEvent> ANY = TOOL;
 
@@ -15,13 +15,17 @@ public class ToolEvent extends Event {
 
 	public static final EventType<ToolEvent> ADDED = new EventType<>( TOOL, "ADDED" );
 
+	public static final EventType<ToolEvent> REMOVED = new EventType<>( TOOL, "REMOVED" );
+
+	public static final EventType<ToolEvent> DISPLAYED = new EventType<>( TOOL, "DISPLAYED" );
+
+	public static final EventType<ToolEvent> CONCEALED = new EventType<>( TOOL, "CONCEALED" );
+
 	public static final EventType<ToolEvent> ACTIVATED = new EventType<>( TOOL, "ACTIVATED" );
 
 	public static final EventType<ToolEvent> DEACTIVATED = new EventType<>( TOOL, "DEACTIVATED" );
 
 	public static final EventType<ToolEvent> ORDERED = new EventType<>( TOOL, "ORDERED" );
-
-	public static final EventType<ToolEvent> REMOVED = new EventType<>( TOOL, "REMOVED" );
 
 	public static final EventType<ToolEvent> CLOSING = new EventType<>( TOOL, "CLOSING" );
 
@@ -31,8 +35,8 @@ public class ToolEvent extends Event {
 
 	private Tool tool;
 
-	public ToolEvent( Object source, EventType<ToolEvent> type, Tool tool ) {
-		super( source, type );
+	public ToolEvent( Object source, EventType<? extends ToolEvent> type, Workpane workpane, Tool tool ) {
+		super( source, type, workpane );
 		this.tool = tool;
 	}
 
@@ -42,8 +46,13 @@ public class ToolEvent extends Event {
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public EventType<ToolEvent> getEventType() {
-		return (EventType<ToolEvent>)super.getEventType();
+	public EventType<? extends ToolEvent> getEventType() {
+		return (EventType<? extends ToolEvent>)super.getEventType();
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + ": " + JavaUtil.getClassName( getTool() );
 	}
 
 }

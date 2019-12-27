@@ -8,6 +8,7 @@ import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.tool.about.AboutTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workpane.WorkpaneWatcher;
@@ -64,14 +65,14 @@ public abstract class ScreenShots implements Runnable {
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpaneWatcher = new WorkpaneWatcher();
-		workpane.addWorkpaneListener( workpaneWatcher );
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		FxUtil.fxWait( 2000 );
 	}
 
 	private void snapshotWelcomeTool() throws InterruptedException, TimeoutException {
 		workspace.snapshot( getPath( "welcome-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotDefaultWorkarea() {
@@ -80,18 +81,18 @@ public abstract class ScreenShots implements Runnable {
 
 	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().open( ProgramSettingsType.URI );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().open( ProgramAboutType.URI );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private Path getPath( String name ) {

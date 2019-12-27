@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.about;
 
-import com.avereon.xenon.workpane.WorkpaneEvent;
+import com.avereon.xenon.workpane.ToolEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,8 +15,8 @@ class AboutToolOpenUIT extends AboutToolUIT {
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-about" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
 		assertThat( workpane.getTools().size(), is( 2 ) );
 		assertThat( workpane.getActiveTool(), instanceOf( AboutTool.class ) );

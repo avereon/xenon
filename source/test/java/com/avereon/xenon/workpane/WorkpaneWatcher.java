@@ -1,14 +1,22 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.util.LogUtil;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import org.slf4j.Logger;
+
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
-public class WorkpaneWatcher implements WorkpaneListener {
+public class WorkpaneWatcher implements EventHandler<WorkpaneEvent> {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 5000;
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
+	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
 	private Queue<WorkpaneEvent> events = new ConcurrentLinkedQueue<>();
 
@@ -22,12 +30,12 @@ public class WorkpaneWatcher implements WorkpaneListener {
 		return new ArrayList<>( events );
 	}
 
-	public void waitForEvent( WorkpaneEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( EventType<? extends WorkpaneEvent> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
 	@SuppressWarnings( "unused" )
-	public void waitForNextEvent( WorkpaneEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( EventType<? extends WorkpaneEvent> type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
@@ -39,7 +47,7 @@ public class WorkpaneWatcher implements WorkpaneListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForEvent( WorkpaneEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( EventType<? extends WorkpaneEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		if( timeout <=0 ) return;
 
 		long duration = 0;
@@ -56,10 +64,10 @@ public class WorkpaneWatcher implements WorkpaneListener {
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type );
 	}
 
-	private WorkpaneEvent findNext( WorkpaneEvent.Type type ) {
+	private WorkpaneEvent findNext( EventType<? extends WorkpaneEvent> type ) {
 		WorkpaneEvent event;
 		while( (event = events.poll()) != null ) {
-			if( event.getType() == type ) return event;
+			if( event.getEventType() == type ) return event;
 		}
 		return null;
 	}
@@ -72,7 +80,7 @@ public class WorkpaneWatcher implements WorkpaneListener {
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
 	@SuppressWarnings( "SameParameterValue" )
-	private synchronized void waitForNextEvent( WorkpaneEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	private synchronized void waitForNextEvent( EventType<? extends WorkpaneEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		events.clear();
 		waitForEvent( type, timeout );
 	}

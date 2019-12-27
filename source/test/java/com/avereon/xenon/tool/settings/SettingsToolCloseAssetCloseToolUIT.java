@@ -2,8 +2,8 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
@@ -20,13 +20,13 @@ class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 		assertThat( pane.getTools().size(), is( 0 ) );
 
 		Future<ProgramTool> future = program.getAssetManager().open( ProgramSettingsType.URI );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
 		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 		assertThat( pane.getTools().size(), is( 1 ) );
 	}
 

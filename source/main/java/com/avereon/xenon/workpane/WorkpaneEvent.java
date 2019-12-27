@@ -1,53 +1,25 @@
 package com.avereon.xenon.workpane;
 
-import java.util.EventObject;
+import javafx.event.Event;
+import javafx.event.EventType;
 
-public class WorkpaneEvent  extends EventObject {
+public class WorkpaneEvent extends Event {
 
-	public enum Type {
-		CHANGED,
-		EDGE_ADDED,
-		EDGE_REMOVED,
-		EDGE_MOVED,
-		VIEW_ADDED,
-		VIEW_REMOVED,
-		VIEW_SPLIT,
-		VIEW_WILL_SPLIT,
-		VIEW_WILL_MERGE,
-		VIEW_MERGED,
-		VIEW_ACTIVATED,
-		VIEW_DEACTIVATED,
-		TOOL_ADDED,
-		TOOL_REMOVED,
-		TOOL_DISPLAYED,
-		TOOL_CONCEALED,
-		TOOL_ACTIVATED,
-		TOOL_DEACTIVATED
+	public static final EventType<WorkpaneEvent> WORKPANE = new EventType<>( Event.ANY, "WORKPANE" );
+
+	public static final EventType<WorkpaneEvent> ANY = WORKPANE;
+
+	public static final EventType<WorkpaneEvent> CHANGED = new EventType<>( WORKPANE, "CHANGED" );
+
+	private Workpane workpane;
+
+	public WorkpaneEvent( Object source, EventType<? extends WorkpaneEvent> eventType, Workpane workpane ) {
+		super( source, null, eventType );
+		this.workpane = workpane;
 	}
 
-	private static final long serialVersionUID = 1884480622313348903L;
-
-	private Type type;
-
-	private Workpane pane;
-
-	public WorkpaneEvent( Object source, Type type, Workpane workpane ) {
-		super(source);
-		this.type = type;
-		this.pane = workpane;
-	}
-
-	public Type getType() {
-		return type;
-	}
-
-	public Workpane getWorkPane() {
-		return pane;
-	}
-
-	@Override
-	public String toString() {
-		return type.name();
+	public Workpane getWorkpane() {
+		return workpane;
 	}
 
 }

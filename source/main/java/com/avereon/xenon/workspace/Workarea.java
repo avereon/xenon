@@ -28,6 +28,10 @@ public class Workarea implements Configurable {
 	public Workarea() {
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
+		workpane.activeToolProperty().addListener( (c,o,n) -> {
+			// NEXT Add a handler to set the current asset
+			//workspace.getEventHub().handle( new ToolSwitchedEvent( this, ToolSwitchedEvent.SWITCHED, o, n ) );
+		} );
 	}
 
 	public final StringProperty nameProperty() {

@@ -1,5 +1,6 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.event.Event;
 import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
@@ -59,7 +60,7 @@ public class Workspace implements Configurable {
 
 	private boolean active;
 
-	private EventHub<WorkspaceEvent> eventHub;
+	private EventHub<Event> eventHub;
 
 	private StackPane workspaceStack;
 
@@ -162,7 +163,7 @@ public class Workspace implements Configurable {
 		} );
 	}
 
-	public EventHub<WorkspaceEvent> getEventHub() {
+	public EventHub<Event> getEventHub() {
 		return eventHub;
 	}
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.task;
 
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneEvent;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ class TaskToolOpenUIT extends TaskToolUIT {
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-task" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getTools().size(), Matchers.is( 1 ) );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );

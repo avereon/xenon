@@ -2,8 +2,8 @@ package com.avereon.xenon.tool.welcome;
 
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Future;
@@ -19,13 +19,13 @@ class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 		assertThat( pane.getTools().size(), is( 0 ) );
 
 		Future<ProgramTool> future = program.getAssetManager().open( ProgramWelcomeType.URI );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
 		assertThat( pane.getTools().size(), is( 1 ) );
 
 		program.getAssetManager().closeAssets( future.get().getAsset() );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 		assertThat( pane.getMaximizedView(), is( nullValue() ) );
 		assertThat( pane.getTools().size(), is( 0 ) );
 	}

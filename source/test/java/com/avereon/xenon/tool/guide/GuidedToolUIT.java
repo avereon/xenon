@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -7,8 +8,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.tool.ToolInstanceMode;
 import com.avereon.xenon.tool.ToolMetadata;
-import com.avereon.venza.javafx.FxUtil;
-import com.avereon.xenon.workpane.WorkpaneEvent;
+import com.avereon.xenon.workpane.ToolEvent;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,8 +38,8 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		program.getAssetManager().open( MockAssetType.URI );
 
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
 		assertThat( workpane.getTools().size(), is( 2 ) );
 		assertThat( workpane.getActiveTool(), instanceOf( MockGuidedTool.class ) );

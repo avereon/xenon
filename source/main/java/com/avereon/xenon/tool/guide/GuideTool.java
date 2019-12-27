@@ -2,11 +2,11 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.LogUtil;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,13 +27,13 @@ public class GuideTool extends ProgramTool {
 
 	private TreeView<GuideNode> guideTree;
 
-	private ActiveToolWatcher activeToolWatcher;
+	private ToolActivatedWatcher toolActivatedWatcher;
+
+	private ToolConcealedWatcher toolConcealedWatcher;
 
 	private GuideTreeSelectedItemsListener selectedItemsListener;
 
 	private GuideSelectedItemsListener guideSelectedItemsListener;
-
-	//private GuideActiveListener guideActiveListener;
 
 	@SuppressWarnings( "WeakerAccess" )
 	public GuideTool( ProgramProduct product, Asset asset ) {
@@ -45,7 +45,9 @@ public class GuideTool extends ProgramTool {
 		guideTree.setShowRoot( false );
 		getChildren().add( guideTree );
 
-		activeToolWatcher = new ActiveToolWatcher();
+		//activeToolWatcher = new ActiveToolWatcher();
+		toolActivatedWatcher = new ToolActivatedWatcher();
+		toolConcealedWatcher = new ToolConcealedWatcher();
 		selectedItemsListener = new GuideTreeSelectedItemsListener();
 		guideSelectedItemsListener = new GuideSelectedItemsListener();
 		//guideActiveListener = new GuideActiveListener();
@@ -58,14 +60,16 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	protected void allocate() {
-		// Attach to the workpane and listen for current tool changes
-		getWorkpane().addWorkpaneListener( activeToolWatcher );
+		// Listen for tool changes
+		getWorkpane().addEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
+		getWorkpane().addEventHandler( ToolEvent.CONCEALED, toolConcealedWatcher );
 	}
 
 	@Override
 	protected void deallocate() {
-		// Disconnect from the asset guide
-		getWorkpane().removeWorkpaneListener( activeToolWatcher );
+		// Stop listening for tool changes
+		getWorkpane().removeEventHandler( ToolEvent.CONCEALED, toolConcealedWatcher );
+		getWorkpane().removeEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
 	}
 
 	private void setGuide( Guide guide ) {
@@ -184,28 +188,26 @@ public class GuideTool extends ProgramTool {
 		}
 	}
 
-	private class ActiveToolWatcher implements WorkpaneListener {
+	private class ToolActivatedWatcher implements javafx.event.EventHandler<ToolEvent> {
 
 		@Override
-		public void handle( WorkpaneEvent event ) {
-			if( !(event instanceof WorkpaneToolEvent) ) return;
-
-			WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
-			Tool tool = toolEvent.getTool();
+		public void handle( ToolEvent event ) {
+			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
+			log.debug( "show guide: " + event.getTool().getClass().getName() );
+			setGuide( ((GuidedTool)tool).getGuide() );
+		}
 
-			GuidedTool guidedTool = (GuidedTool)tool;
-			switch( event.getType() ) {
-				case TOOL_ACTIVATED: {
-					log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
-					setGuide( guidedTool.getGuide() );
-					break;
-				}
-				case TOOL_CONCEALED: {
-					log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
-					setGuide( null );
-				}
-			}
+	}
+
+	private class ToolConcealedWatcher implements javafx.event.EventHandler<ToolEvent> {
+
+		@Override
+		public void handle( ToolEvent event ) {
+			Tool tool = event.getTool();
+			if( !(tool instanceof GuidedTool) ) return;
+			log.debug( "hide guide: " + event.getTool().getClass().getName() );
+			setGuide( null );
 		}
 	}
 
@@ -242,14 +244,5 @@ public class GuideTool extends ProgramTool {
 		}
 
 	}
-
-	//	private class GuideActiveListener implements ChangeListener<Boolean> {
-	//
-	//		@Override
-	//		public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-	//			log.warn( "Guide active: " + newValue );
-	//		}
-	//
-	//	}
 
 }

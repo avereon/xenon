@@ -37,7 +37,7 @@ public class AssetSwitchedEvent extends AssetEvent {
 
 	@Override
 	public String toString() {
-		return super.toString() + ": " + oldAsset.getUri() + " -> " + newAsset.getUri();
+		return super.toString() + ": " + (oldAsset == null ? "null" : oldAsset.getUri()) + " -> " + (newAsset == null ? "null" : newAsset.getUri());
 	}
 
 }

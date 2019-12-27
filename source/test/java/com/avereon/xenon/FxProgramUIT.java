@@ -4,8 +4,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
-import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneWatcher;
+import com.avereon.xenon.workpane.*;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -26,13 +25,13 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	protected Program program;
 
-	protected Workpane workpane;
-
-	protected WorkpaneWatcher workpaneWatcher;
-
 	protected ProductCard metadata;
 
 	private ProgramWatcher programWatcher;
+
+	protected Workpane workpane;
+
+	protected WorkpaneWatcher workpaneWatcher;
 
 	private long initialMemoryUse;
 
@@ -74,7 +73,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		metadata = program.getCard();
 
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-		workpane.addWorkpaneListener( workpaneWatcher = new WorkpaneWatcher() );
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new WorkpaneWatcher() );
 
 		initialMemoryUse = getMemoryUse();
 	}

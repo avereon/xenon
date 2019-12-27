@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -88,7 +87,8 @@ public class Workpane extends Control implements Configurable {
 
 	private Queue<WorkpaneEvent> events;
 
-	private Collection<WorkpaneListener> listeners;
+	//@Deprecated
+	//private Queue<OldWorkpaneEvent> oldEvents;
 
 	@Deprecated
 	private Settings settings;
@@ -110,11 +110,8 @@ public class Workpane extends Control implements Configurable {
 		rightDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
 		bottomDockSize = new SimpleDoubleProperty( DEFAULT_WALL_SPLIT_RATIO );
 
-		//leftDockSize.addListener( (observable, oldValue, newValue) -> System.out.println( "New left dock size: " + newValue ) );
-
 		operation = new AtomicInteger();
 		events = new LinkedList<>();
-		listeners = new CopyOnWriteArraySet<>();
 
 		// Create the wall edges
 		topWall = new WorkpaneEdge( Orientation.HORIZONTAL, Side.TOP );
@@ -427,14 +424,6 @@ public class Workpane extends Control implements Configurable {
 		return settings;
 	}
 
-	public void addWorkpaneListener( WorkpaneListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeWorkpaneListener( WorkpaneListener listener ) {
-		listeners.remove( listener );
-	}
-
 	@Override
 	protected double computeMinWidth( double height ) {
 		return getInsets().getLeft() + getInsets().getRight();
@@ -479,45 +468,24 @@ public class Workpane extends Control implements Configurable {
 		updateComponentTree( changed );
 	}
 
-	private void fireWorkpaneEvent( WorkpaneEvent event ) throws WorkpaneVetoException {
-		WorkpaneVetoException exception = null;
-
-		for( WorkpaneListener listener : listeners ) {
-			try {
-				listener.handle( event );
-			} catch( WorkpaneVetoException vetoException ) {
-				if( exception == null ) exception = vetoException;
-			}
-		}
-
-		if( exception != null ) throw exception;
+	private void dispatchEvents() {
+		WorkpaneEvent event;
+		while( (event = events.poll()) != null ) fireEvent( event );
 	}
 
-	void queueEvent( WorkpaneEvent data ) {
-		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + data.getType() );
-		events.offer( data );
+	WorkpaneEvent queueEvent( WorkpaneEvent event ) {
+		if( !isOperationActive() ) throw new RuntimeException( "Event should only be queued during active operations: " + event.getEventType() );
+		events.offer( event );
+		return event;
 	}
 
 	private void updateComponentTree( boolean changed ) {
 		if( isOperationActive() ) return;
 
-		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.Type.CHANGED, this ) );
+		if( changed ) events.offer( new WorkpaneEvent( this, WorkpaneEvent.CHANGED, this ) );
 
 		layoutChildren();
 		dispatchEvents();
-	}
-
-	private void dispatchEvents() {
-		for( WorkpaneEvent event : new LinkedList<>( events ) ) {
-			events.remove( event );
-			for( WorkpaneListener listener : listeners ) {
-				try {
-					listener.handle( event );
-				} catch( WorkpaneVetoException exception ) {
-					log.error( "Error dispatching workpane event", exception );
-				}
-			}
-		}
 	}
 
 	private void doSetActiveView( WorkpaneView view, boolean setActiveToolAlso ) {
@@ -529,7 +497,7 @@ public class Workpane extends Control implements Configurable {
 			if( activeToolView != null ) {
 				activeToolView.setActive( false );
 				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", null );
-				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_DEACTIVATED, this, activeToolView ) );
+				queueEvent( new ViewEvent( this, ViewEvent.DEACTIVATED, this, activeToolView ) );
 			}
 
 			// Change the active view
@@ -541,7 +509,7 @@ public class Workpane extends Control implements Configurable {
 				activeToolView.setActive( true );
 				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", true );
 				if( setActiveToolAlso ) doSetActiveTool( activeToolView.getActiveTool(), false );
-				queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ACTIVATED, this, activeToolView ) );
+				queueEvent( new ViewEvent( this, ViewEvent.ACTIVATED, this, activeToolView ) );
 			}
 		} finally {
 			finishOperation( true );
@@ -558,7 +526,6 @@ public class Workpane extends Control implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callDeactivate();
-				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.DEACTIVATED, activeTool ) );
 			}
 
 			// Change the active view
@@ -574,7 +541,6 @@ public class Workpane extends Control implements Configurable {
 			activeTool = getActiveTool();
 			if( activeTool != null ) {
 				activeTool.callActivate();
-				activeTool.fireToolEvent( new ToolEvent( this, ToolEvent.ACTIVATED, activeTool ) );
 			}
 		} finally {
 			finishOperation( true );
@@ -633,7 +599,7 @@ public class Workpane extends Control implements Configurable {
 		try {
 			view.setWorkpane( this );
 			getChildren().add( view );
-			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_ADDED, this, view ) );
+			queueEvent( new ViewEvent( this, ViewEvent.ADDED, this, view ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -662,7 +628,7 @@ public class Workpane extends Control implements Configurable {
 			view.setEdge( Side.LEFT, null );
 			view.setEdge( Side.RIGHT, null );
 
-			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_REMOVED, this, view ) );
+			queueEvent( new ViewEvent( this, ViewEvent.REMOVED, this, view ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -703,15 +669,8 @@ public class Workpane extends Control implements Configurable {
 
 		edge.setWorkpane( this );
 		getChildren().add( edge );
-		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_ADDED, this, edge, edge.getPosition() ) );
-		edge
-			.positionProperty()
-			.addListener( ( observable, oldValue, newValue ) -> queueEvent( new WorkpaneEdgeEvent( this,
-				WorkpaneEvent.Type.EDGE_MOVED,
-				this,
-				edge,
-				newValue.doubleValue()
-			) ) );
+		queueEvent( new EdgeEvent( this, EdgeEvent.ADDED, this, edge ) );
+		edge.positionProperty().addListener( ( observable, oldValue, newValue ) -> queueEvent( new EdgeEvent( this, EdgeEvent.MOVED, this, edge ) ) );
 
 		return edge;
 	}
@@ -725,7 +684,7 @@ public class Workpane extends Control implements Configurable {
 		getChildren().remove( edge );
 		edge.setWorkpane( null );
 
-		queueEvent( new WorkpaneEdgeEvent( this, WorkpaneEvent.Type.EDGE_REMOVED, this, edge, edge.getPosition() ) );
+		queueEvent( new EdgeEvent( this, EdgeEvent.REMOVED, this, edge ) );
 
 		return edge;
 	}
@@ -808,7 +767,7 @@ public class Workpane extends Control implements Configurable {
 			// TODO Does workpane maintain icons?
 			//result.updateIcons();
 
-			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, null ) );
+			queueEvent( new ViewEvent( this, ViewEvent.SPLIT, this, null ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -861,7 +820,7 @@ public class Workpane extends Control implements Configurable {
 			}
 			// TODO Does workpane maintain icons?
 			//result.updateIcons();
-			queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_SPLIT, this, view ) );
+			queueEvent( new ViewEvent( this, ViewEvent.SPLIT, this, view ) );
 		} finally {
 			finishOperation( true );
 		}
@@ -967,7 +926,7 @@ public class Workpane extends Control implements Configurable {
 		try {
 			startOperation();
 			result = merge( target.getEdge( getReverseDirection( direction ) ), direction );
-			if( result ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_MERGED, this, target ) );
+			if( result ) queueEvent( new ViewEvent( this, ViewEvent.MERGED, this, target ) );
 		} finally {
 			finishOperation( result );
 		}
@@ -990,7 +949,7 @@ public class Workpane extends Control implements Configurable {
 		try {
 			startOperation();
 			result = merge( source.getEdge( direction ), direction );
-			if( result ) queueEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_MERGED, this, source ) );
+			if( result ) queueEvent( new ViewEvent( this, ViewEvent.MERGED, this, source ) );
 		} finally {
 			finishOperation( result );
 		}
@@ -1123,7 +1082,6 @@ public class Workpane extends Control implements Configurable {
 			startOperation();
 			if( view == null ) view = determineViewFromPlacement( tool.getPlacement() );
 			view.addTool( tool, index );
-			tool.fireToolEvent( new ToolEvent( this, ToolEvent.ADDED, tool ) );
 			if( activate ) setActiveTool( tool );
 		} finally {
 			finishOperation( true );
@@ -1158,9 +1116,10 @@ public class Workpane extends Control implements Configurable {
 	private Tool openTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.OPENING, tool ) );
+		Workpane pane = tool.getWorkpane();
+		tool.fireEvent( new ToolEvent( null, ToolEvent.OPENING, pane, tool ) );
 		addTool( tool, view, index, activate );
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.OPENED, tool ) );
+		tool.fireEvent( new ToolEvent( null, ToolEvent.OPENED, pane, tool ) );
 
 		return tool;
 	}
@@ -1193,7 +1152,6 @@ public class Workpane extends Control implements Configurable {
 		try {
 			startOperation();
 			view.removeTool( tool );
-			tool.fireToolEvent( new ToolEvent( this, ToolEvent.REMOVED, tool ) );
 			if( autoMerge ) pullMerge( view );
 		} finally {
 			finishOperation( true );
@@ -1225,15 +1183,16 @@ public class Workpane extends Control implements Configurable {
 	 */
 	public Tool closeTool( Tool tool, boolean autoMerge ) {
 		if( tool == null ) return null;
+		Workpane pane = tool.getWorkpane();
 
 		// Notify tool listeners of intent to close
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.CLOSING, tool ) );
+		tool.fireEvent( new ToolEvent( null, ToolEvent.CLOSING, pane, tool ) );
 
 		// Remove the tool
 		if( tool.getCloseOperation() == CloseOperation.REMOVE ) removeTool( tool, autoMerge );
 
 		// Notify tool listeners of view closure
-		tool.fireToolEvent( new ToolEvent( this, ToolEvent.CLOSED, tool ) );
+		tool.fireEvent( new ToolEvent( null, ToolEvent.CLOSED, pane, tool ) );
 
 		return tool;
 	}
@@ -1432,14 +1391,8 @@ public class Workpane extends Control implements Configurable {
 		Set<WorkpaneView> sources = edge.getViews( getReverseDirection( direction ) );
 		Set<WorkpaneView> targets = edge.getViews( direction );
 
-		// Notify the listeners the views will merge.
-		try {
-			for( WorkpaneView source : sources ) {
-				fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_MERGE, this, source ) );
-			}
-		} catch( WorkpaneVetoException exception ) {
-			return false;
-		}
+		// Notify the listeners the views will merge
+		sources.forEach( source -> fireEvent( new ViewEvent( this, ViewEvent.MERGING, this, source ) ) );
 
 		// Get needed objects.
 		WorkpaneEdge farEdge = targets.iterator().next().getEdge( direction );
@@ -1633,12 +1586,8 @@ public class Workpane extends Control implements Configurable {
 		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
+		// Fire the splitting event.
+		fireEvent( new ViewEvent( this, ViewEvent.SPLITTING, this, source ) );
 
 		return isDockSpace( Side.TOP, source ) ? getTopDockView() : newTopView( source, source.getEdge( Side.LEFT ), source.getEdge( Side.RIGHT ), percent );
 	}
@@ -1648,12 +1597,8 @@ public class Workpane extends Control implements Configurable {
 		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
+		// Fire the splitting event.
+		fireEvent( new ViewEvent( this, ViewEvent.SPLITTING, this, source ) );
 
 		return isDockSpace( Side.BOTTOM, source ) ? getBottomDockView() : newBottomView( source,
 			source.getEdge( Side.LEFT ),
@@ -1667,12 +1612,8 @@ public class Workpane extends Control implements Configurable {
 		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
+		// Fire the splitting event.
+		fireEvent( new ViewEvent( this, ViewEvent.SPLITTING, this, source ) );
 
 		return isDockSpace( Side.LEFT, source ) ? getLeftDockView() : newLeftView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
@@ -1682,12 +1623,8 @@ public class Workpane extends Control implements Configurable {
 		if( source == null ) throw new IllegalArgumentException( "WorkpaneView cannot be null." );
 		if( percent < 0f || percent > 1f ) throw new IllegalArgumentException( "Percent must be in range 0 - 1." );
 
-		// Fire the will split event.
-		try {
-			fireWorkpaneEvent( new WorkpaneViewEvent( this, WorkpaneEvent.Type.VIEW_WILL_SPLIT, this, source ) );
-		} catch( WorkpaneVetoException exception ) {
-			return null;
-		}
+		// Fire the splitting event.
+		fireEvent( new ViewEvent( this, ViewEvent.SPLITTING, this, source ) );
 
 		return isDockSpace( Side.RIGHT, source ) ? getRightDockView() : newRightView( source, source.getEdge( Side.TOP ), source.getEdge( Side.BOTTOM ), percent );
 	}
