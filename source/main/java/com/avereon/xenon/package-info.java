@@ -4,6 +4,8 @@
  * The program provides and utilizes a powerful event infrastructure. The main
  * program, most services, assets, mods all use events to provide information
  * to other parts of the program when tight coupling is not intended or desired.
+ * JavaFX also has a similar event infrastructure which allows the program to
+ * wrap JavaFX events and publish them on the program event infrastructure.
  * <h2>Event Scopes</h2>
  * The program provides several event scopes, implemented by
  * {@link com.avereon.event.EventHub} instances. Most scopes also forward their

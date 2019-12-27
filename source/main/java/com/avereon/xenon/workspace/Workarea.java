@@ -3,6 +3,8 @@ package com.avereon.xenon.workspace;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.util.FxEventWrapper;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,10 +30,8 @@ public class Workarea implements Configurable {
 	public Workarea() {
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		workpane.activeToolProperty().addListener( (c,o,n) -> {
-			// NEXT Add a handler to set the current asset
-			//workspace.getEventHub().handle( new ToolSwitchedEvent( this, ToolSwitchedEvent.SWITCHED, o, n ) );
-		} );
+		workpane.addEventHandler( ToolEvent.ANY, e -> workspace.getEventHub().handle( new FxEventWrapper( e ) ) );
+		workpane.activeToolProperty().addListener( (c,o,n) -> workspace.getProgram().getAssetManager().setCurrentAsset( n.getAsset() ) );
 	}
 
 	public final StringProperty nameProperty() {
