@@ -21,6 +21,10 @@ public class AssetEvent extends Event {
 
 	public static final EventType<AssetEvent> UNMODIFIED = new EventType<>( ASSET, "UNMODIFIED" );
 
+	public static final EventType<AssetEvent> ACTIVATED = new EventType<>( ASSET, "ACTIVATED" );
+
+	public static final EventType<AssetEvent> DEACTIVATED = new EventType<>( ASSET, "DEACTIVATED" );
+
 	public static final EventType<AssetEvent> SAVED = new EventType<>( ASSET, "SAVED" );
 
 	public static final EventType<AssetEvent> CLOSED = new EventType<>( ASSET, "CLOSED" );

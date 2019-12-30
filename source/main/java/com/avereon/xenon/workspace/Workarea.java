@@ -3,6 +3,7 @@ package com.avereon.xenon.workspace;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,13 +29,8 @@ public class Workarea implements Configurable {
 	public Workarea() {
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		//workpane.addEventHandler( ToolEvent.ANY, e -> workspace.getEventHub().handle( new FxEventWrapper( e ) ) );
-		//workpane.addEventHandler( ToolEvent.ACTIVATED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
-		//workpane.addEventHandler( ToolEvent.CONCEALED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( null ) );
-		workpane.activeToolProperty().addListener( (c,o,n) -> {
-			if( workpane.getActiveTool() == o ) workspace.getProgram().getAssetManager().setCurrentAsset( null );
-			if( n != null && n.getAsset().getType().isUserType() ) workspace.getProgram().getAssetManager().setCurrentAsset( n.getAsset() );
-		} );
+		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
+		workpane.addEventHandler( ToolEvent.CONCEALED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( null ) );
 	}
 
 	public final StringProperty nameProperty() {

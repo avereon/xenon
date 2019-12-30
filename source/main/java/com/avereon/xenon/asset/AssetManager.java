@@ -5,6 +5,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
+import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.task.Task;
@@ -166,6 +167,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public void setCurrentAsset( Asset asset ) {
+		if( asset != null && asset.getUri().equals( ProgramGuideType.URI ) ) return;
 		program.getTaskManager().submit( new SetCurrentAssetTask( asset ) );
 	}
 
@@ -1181,13 +1183,19 @@ public class AssetManager implements Controllable<AssetManager> {
 			Asset previous = currentAsset;
 
 			// "Disconnect" the old current asset.
-			if( currentAsset != null ) currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
+			if( currentAsset != null ) {
+				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, asset ) );
+				currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
+			}
 
 			// Change current asset.
 			currentAsset = asset;
 
 			// "Connect" the new current asset.
-			if( currentAsset != null ) currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
+			if( currentAsset != null ) {
+				currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
+				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, asset ) );
+			}
 
 			updateActionState();
 

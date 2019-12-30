@@ -193,9 +193,13 @@ public class GuideTool extends ProgramTool {
 		@Override
 		public void handle( ToolEvent event ) {
 			Tool tool = event.getTool();
-			if( !(tool instanceof GuidedTool) ) return;
-			log.debug( "show guide: " + event.getTool().getClass().getName() );
-			setGuide( ((GuidedTool)tool).getGuide() );
+			if( tool instanceof GuideTool ) return;
+			if( tool instanceof GuidedTool ) {
+				log.debug( "show guide: " + event.getTool().getClass().getName() );
+				setGuide( ((GuidedTool)tool).getGuide() );
+			} else {
+				setGuide( null );
+			}
 		}
 
 	}
