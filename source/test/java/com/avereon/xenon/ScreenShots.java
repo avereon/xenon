@@ -115,7 +115,7 @@ public abstract class ScreenShots implements Runnable {
 				}
 			} );
 			ProgramWatcher programWatcher;
-			program.getEventHub().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
+			program.getEventBus().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
 			programWatcher.waitForEvent( ProgramEvent.STARTED );
 			Platform.runLater( () -> {
 				program.getWorkspaceManager().getActiveStage().setX( 0 );

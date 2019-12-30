@@ -62,7 +62,7 @@ public class TaskTool extends ProgramTool {
 	@Override
 	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.assetReady( parameters );
-		getProgram().getTaskManager().getEventHub().register( TaskEvent.ANY, taskWatcher );
+		getProgram().getTaskManager().getEventBus().register( TaskEvent.ANY, taskWatcher );
 		Platform.runLater( this::init );
 	}
 

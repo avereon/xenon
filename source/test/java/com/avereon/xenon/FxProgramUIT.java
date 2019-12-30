@@ -68,7 +68,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
-		program.getEventHub().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
+		program.getEventBus().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
 		metadata = program.getCard();
 
@@ -87,7 +87,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		FxToolkit.cleanupStages();
 
 		programWatcher.waitForEvent( ProgramEvent.STOPPED );
-		program.getEventHub().unregister( ProgramEvent.ANY, programWatcher );
+		program.getEventBus().unregister( ProgramEvent.ANY, programWatcher );
 
 		finalMemoryUse = getMemoryUse();
 

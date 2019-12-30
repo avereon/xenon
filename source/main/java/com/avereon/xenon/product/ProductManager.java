@@ -1,7 +1,6 @@
 package com.avereon.xenon.product;
 
 import com.avereon.event.EventHandler;
-import com.avereon.event.EventHub;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
@@ -14,6 +13,7 @@ import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
+import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 
@@ -159,7 +159,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private UpdateCheckTask task;
 
-	private EventHub<ProductEvent> eventHub;
+	private ProgramEventBus eventBus;
 
 	private long lastAvailableProductCheck;
 
@@ -179,7 +179,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
 		postedUpdateCache = new CopyOnWriteArraySet<>();
-		eventHub = new EventHub<>();
+		eventBus = new ProgramEventBus();
 
 		repoClient = new V2RepoClient( program );
 
@@ -189,8 +189,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		includedProducts.add( new com.avereon.zenna.Program().getCard() );
 	}
 
-	public EventHub<ProductEvent> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	public Set<RepoState> getRepos() {
@@ -446,7 +446,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
 		log.trace( "Set mod enabled: " + settings.getPath() + ": " + enabled );
-		getEventHub().handle( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
+		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
 //		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
 //			.fire( listeners )
 //			.fire( program.getListeners() );
@@ -1007,7 +1007,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
-			getEventHub().handle( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error registering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1017,7 +1017,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
-			getEventHub().handle( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error starting mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1027,7 +1027,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
-			getEventHub().handle( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1036,7 +1036,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
-			getEventHub().handle( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
 		}
@@ -1145,7 +1145,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			registerMod( mod );
 
 			// Notify handlers of install
-			getEventHub().handle( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
 
 			log.debug( "Mod loaded: " + message );
 		} catch( Throwable throwable ) {
@@ -1164,7 +1164,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			unregisterMod( mod );
 
 			// Notify handlers of remove
-			getEventHub().handle( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
 
 			log.debug( "Mod unloaded: " + message );
 		} catch( Throwable throwable ) {

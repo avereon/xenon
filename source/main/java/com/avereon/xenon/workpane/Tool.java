@@ -1,7 +1,6 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.event.EventHandler;
-import com.avereon.event.EventHub;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.asset.Asset;
@@ -300,7 +299,7 @@ public abstract class Tool extends Control {
 	public final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().getEventHub().register( AssetEvent.ANY, watcher = new AssetWatcher() );
+			getAsset().getEventBus().register( AssetEvent.ANY, watcher = new AssetWatcher() );
 			allocate();
 			allocated = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
@@ -374,7 +373,7 @@ public abstract class Tool extends Control {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventHub().unregister( AssetEvent.ANY, watcher );
+			getAsset().getEventBus().unregister( AssetEvent.ANY, watcher );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}
@@ -402,11 +401,12 @@ public abstract class Tool extends Control {
 		}
 	}
 
-	private class AssetWatcher extends EventHub<AssetEvent> implements EventHandler<AssetEvent> {
+	private class AssetWatcher implements EventHandler<AssetEvent> {
 
-		public AssetWatcher() {
-			register( AssetEvent.REFRESHED, e -> Tool.this.callAssetRefreshed() );
-			register( AssetEvent.CLOSED, e -> Tool.this.close() );
+		@Override
+		public void handle( AssetEvent event ) {
+			if( event.getEventType() == AssetEvent.REFRESHED ) Tool.this.callAssetRefreshed();
+			if( event.getEventType() == AssetEvent.CLOSED ) Tool.this.close();
 		}
 
 	}

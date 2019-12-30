@@ -1,10 +1,8 @@
 package com.avereon.xenon;
 
-import com.avereon.event.EventHub;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
-import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
@@ -14,6 +12,7 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
+import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
@@ -36,7 +35,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private EventHub<SettingsEvent> eventHub;
+	private ProgramEventBus eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -48,12 +47,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
-		this.eventHub = new EventHub<>();
+		this.eventBus = new ProgramEventBus();
+
+		this.settings.addSettingsListener( e -> eventBus.dispatch( e ) );
 	}
 
 	public Settings getSettings( String path ) {
 		Settings settings = this.settings.getNode( path );
-		settings.addSettingsListener( eventHub );
+		//settings.addSettingsListener( e -> eventBus.dispatch( e ) );
 		return settings;
 	}
 
@@ -209,8 +210,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	//		return this;
 	//	}
 
-	public EventHub<SettingsEvent> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 }

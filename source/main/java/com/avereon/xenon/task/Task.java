@@ -1,7 +1,7 @@
 package com.avereon.xenon.task;
 
-import com.avereon.event.EventHub;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.util.ProgramEventBus;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -50,7 +50,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private Throwable throwable;
 
-	private EventHub<TaskEvent> eventHub;
+	private ProgramEventBus eventBus;
 
 	private TaskManager manager;
 
@@ -75,14 +75,14 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		this.name = name;
 		this.priority = priority;
 		exceptionSource = new TaskSourceWrapper();
-		eventHub = new EventHub<>();
+		eventBus = new ProgramEventBus();
 		taskCallable.setCallable( this );
 	}
 
 	@Override
 	public void run() {
 		setState( Task.State.RUNNING );
-		eventHub.handle( new TaskEvent( this, TaskEvent.START, this ) );
+		eventBus.dispatch( new TaskEvent( this, TaskEvent.START, this ) );
 		super.run();
 	}
 
@@ -119,8 +119,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return progress;
 	}
 
-	public EventHub<TaskEvent> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	public static <N> Task<N> of( String name, Callable<N> callable ) {
@@ -166,7 +166,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void done() {
 		setProgress( getTotal() );
-		eventHub.handle( new TaskEvent( this, TaskEvent.FINISH, this ) );
+		eventBus.dispatch( new TaskEvent( this, TaskEvent.FINISH, this ) );
 
 		if( isCancelled() ) setState( Task.State.CANCELLED );
 		setTaskManager( null );
@@ -202,7 +202,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	protected void setProgress( long progress ) {
 		this.progress = progress;
-		eventHub.handle( new TaskEvent( this, TaskEvent.PROGRESS, this ) );
+		eventBus.dispatch( new TaskEvent( this, TaskEvent.PROGRESS, this ) );
 	}
 
 	protected void scheduled() {}

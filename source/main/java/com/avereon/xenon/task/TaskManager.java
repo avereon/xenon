@@ -1,15 +1,18 @@
 package com.avereon.xenon.task;
 
-import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.util.ProgramEventBus;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.*;
 
 public class TaskManager implements Configurable, Controllable<TaskManager> {
@@ -44,13 +47,13 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private Queue<Task<?>> taskQueue;
 
-	private EventHub<TaskManagerEvent> eventHub;
+	private ProgramEventBus eventBus;
 
 	public TaskManager() {
 		taskMap = new ConcurrentHashMap<>();
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		eventHub = new EventHub<>();
+		eventBus = new ProgramEventBus();
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
@@ -131,8 +134,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 3 ) );
 	}
 
-	public EventHub<TaskManagerEvent> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	@Override
@@ -231,8 +234,8 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 			if( !(callable instanceof Task) ) callable = new TaskWrapper<>( callable );
 			Task<T> task = (Task<T>)callable;
 
-			task.getEventHub().parent( TaskManager.this.getEventHub() );
-			task.getEventHub().handle( new TaskEvent( TaskManager.this, TaskEvent.SUBMITTED, task ) );
+			task.getEventBus().parent( TaskManager.this.getEventBus() );
+			task.getEventBus().dispatch( new TaskEvent( TaskManager.this, TaskEvent.SUBMITTED, task ) );
 			task.setTaskManager( TaskManager.this );
 
 			taskMap.put( task, task );

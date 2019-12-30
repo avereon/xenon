@@ -1,7 +1,6 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.event.Event;
-import com.avereon.event.EventHub;
+import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Configurable;
@@ -14,6 +13,7 @@ import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
+import com.avereon.xenon.util.ProgramEventBus;
 import com.avereon.xenon.util.TimerUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -60,7 +60,7 @@ public class Workspace implements Configurable {
 
 	private boolean active;
 
-	private EventHub<Event> eventHub;
+	private ProgramEventBus eventBus;
 
 	private StackPane workspaceStack;
 
@@ -120,8 +120,8 @@ public class Workspace implements Configurable {
 
 	public Workspace( final Program program ) {
 		this.program = program;
-		this.eventHub = new EventHub<>(  );
-		this.eventHub.parent( program.getEventHub() );
+		this.eventBus = new ProgramEventBus();
+		this.eventBus.parent( program.getEventBus() );
 
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
@@ -163,8 +163,8 @@ public class Workspace implements Configurable {
 		} );
 	}
 
-	public EventHub<Event> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	private void createMenuBar( Program program ) {
@@ -382,7 +382,7 @@ public class Workspace implements Configurable {
 		}
 
 		// Send a program event when active area changes
-		getEventHub().handle( new WorkareaSwitchedEvent( this, WorkareaSwitchedEvent.SWITCHED, this, priorWorkarea, activeWorkarea ) );
+		getEventBus().dispatch( new WorkareaSwitchedEvent( this, WorkareaSwitchedEvent.SWITCHED, this, priorWorkarea, activeWorkarea ) );
 	}
 
 	public void showNotice( Notice notice ) {
@@ -559,26 +559,28 @@ public class Workspace implements Configurable {
 	//
 	//	}
 	//
-	private class BackgroundSettingsHandler extends EventHub<SettingsEvent> {
+	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
 
-		public BackgroundSettingsHandler() {
-			register( SettingsEvent.CHANGED, e -> background.updateBackgroundFromSettings( backgroundSettings ) );
+		@Override
+		public void handle( SettingsEvent event ) {
+			if( event.getEventType() == SettingsEvent.CHANGED ) background.updateBackgroundFromSettings( backgroundSettings );
+		}
+	}
+
+	private class MemoryMonitorSettingsHandler implements EventHandler<SettingsEvent> {
+
+		@Override
+		public void handle( SettingsEvent event ) {
+			if( event.getEventType() == SettingsEvent.CHANGED ) updateMemoryMonitorFromSettings( memoryMonitorSettings );
 		}
 
 	}
 
-	private class MemoryMonitorSettingsHandler extends EventHub<SettingsEvent> {
+	private class TaskMonitorSettingsHandler implements EventHandler<SettingsEvent> {
 
-		public MemoryMonitorSettingsHandler() {
-			register( SettingsEvent.CHANGED, e -> updateMemoryMonitorFromSettings( memoryMonitorSettings ) );
-		}
-
-	}
-
-	private class TaskMonitorSettingsHandler extends EventHub<SettingsEvent> {
-
-		public TaskMonitorSettingsHandler() {
-			register( SettingsEvent.CHANGED, e -> updateTaskMonitorFromSettings( taskMonitorSettings ) );
+		@Override
+		public void handle( SettingsEvent event ) {
+			if( event.getEventType() == SettingsEvent.CHANGED ) updateTaskMonitorFromSettings( taskMonitorSettings );
 		}
 
 	}

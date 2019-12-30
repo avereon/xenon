@@ -1,7 +1,6 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.event.EventHandler;
-import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.undo.BasicUndoManager;
 import com.avereon.undo.UndoManager;
@@ -12,6 +11,7 @@ import com.avereon.xenon.node.Node;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.util.ProgramEventBus;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -58,9 +58,7 @@ public class Asset extends Node implements Configurable {
 
 	private UndoManager undoManager;
 
-	private EventHub<AssetEvent> eventHub;
-
-	//private Set<AssetListener> listeners;
+	private ProgramEventBus eventBus;
 
 	private Settings settings;
 
@@ -89,7 +87,7 @@ public class Asset extends Node implements Configurable {
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
 
-		eventHub = new EventHub<>();
+		eventBus = new ProgramEventBus();
 
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
@@ -226,11 +224,11 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.open( this );
 
 		open = true;
-		getEventHub().handle( new AssetEvent( this, AssetEvent.OPENED, this ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
 
 		if( isNew() ) {
 			ready = true;
-			getEventHub().handle( new AssetEvent( this, AssetEvent.READY, this ) );
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
 		}
 
 	}
@@ -247,11 +245,11 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.load( this, getCodec() );
 
 		loaded = true;
-		getEventHub().handle( new AssetEvent( this, AssetEvent.LOADED, this ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		if( !ready ) {
 			ready = true;
-			getEventHub().handle( new AssetEvent( this, AssetEvent.READY, this ) );
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
 		}
 
 		notifyAll();
@@ -259,7 +257,7 @@ public class Asset extends Node implements Configurable {
 
 	public synchronized final void refresh( AssetManager manager ) {
 		if( !ready ) return;
-		getEventHub().handle( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -274,7 +272,7 @@ public class Asset extends Node implements Configurable {
 		if( scheme != null ) scheme.save( this, getCodec() );
 		saved = true;
 
-		getEventHub().handle( new AssetEvent( this, AssetEvent.SAVED, this ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
 	}
 
 	public synchronized final boolean isClosed() {
@@ -289,14 +287,14 @@ public class Asset extends Node implements Configurable {
 
 		open = false;
 
-		getEventHub().handle( new AssetEvent( this, AssetEvent.CLOSED, this ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
 	}
 
 	public synchronized void callWhenReady( EventHandler<AssetEvent> handler ) {
 		if( ready ) {
 			handler.handle( new AssetEvent( this, AssetEvent.READY, this ) );
 		} else {
-			eventHub.register( AssetEvent.READY, handler );
+			eventBus.register( AssetEvent.READY, handler );
 		}
 	}
 
@@ -350,8 +348,8 @@ public class Asset extends Node implements Configurable {
 		return settings;
 	}
 
-	public EventHub<AssetEvent> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	@Override
@@ -407,9 +405,9 @@ public class Asset extends Node implements Configurable {
 
 			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
 				if( Boolean.TRUE == event.getNewValue() ) {
-					getEventHub().handle( new AssetEvent( this, AssetEvent.MODIFIED, (Asset)event.getSource() ) );
+					getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, (Asset)event.getSource() ) );
 				} else {
-					getEventHub().handle( new AssetEvent( this, AssetEvent.UNMODIFIED, (Asset)event.getSource() ) );
+					getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, (Asset)event.getSource() ) );
 				}
 			}
 		}

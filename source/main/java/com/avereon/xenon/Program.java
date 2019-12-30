@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.event.Event;
-import com.avereon.event.EventHub;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.rossa.icon.*;
@@ -34,6 +33,7 @@ import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.tool.task.TaskTool;
 import com.avereon.xenon.tool.welcome.WelcomeTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -121,7 +121,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
-	private EventHub<Event> eventHub;
+	private ProgramEventBus eventBus;
 
 	private CloseWorkspaceAction closeAction;
 
@@ -170,7 +170,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "init" );
 
 		// Create the event hub
-		eventHub = new EventHub<>();
+		eventBus = new ProgramEventBus();
 
 		// Load the product card
 		card = new ProductCard().init( getClass() );
@@ -313,11 +313,11 @@ public class Program extends Application implements ProgramProduct {
 		time( "do-startup-tasks" );
 
 		// Create the program event watcher, depends on logging
-		getEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
+		getEventBus().register( Event.ANY, watcher = new ProgramEventWatcher() );
 		time( "event-hub" );
 
 		// Fire the program starting event, depends on the event watcher
-		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STARTING ) );
+		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STARTING ) );
 		time( "program-starting-event" );
 
 		// Create the product manager, depends on icon library
@@ -450,7 +450,7 @@ public class Program extends Application implements ProgramProduct {
 		//getTaskManager().submit( new ShowApplicationNotices() );
 
 		// Program started event should be fired after the window is shown
-		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STARTED ) );
+		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
 		time( "program started" );
 	}
 
@@ -494,7 +494,7 @@ public class Program extends Application implements ProgramProduct {
 	private void doShutdownTasks() throws Exception {
 		time( "do-shutdown-tasks" );
 
-		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STOPPING ) );
+		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STOPPING ) );
 
 		// Stop the product manager
 		if( productManager != null ) {
@@ -575,7 +575,7 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStopSuccess() {
-		getEventHub().handle( new ProgramEvent( this, ProgramEvent.STOPPED ) );
+		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
 	}
 
 	public void requestRestart( String... commands ) {
@@ -763,8 +763,8 @@ public class Program extends Application implements ProgramProduct {
 		return noticeManager;
 	}
 
-	public EventHub<Event> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	private static void time( String markerName ) {
@@ -1194,18 +1194,18 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {
-		settingsManager.getEventHub().parent( eventHub );
+		settingsManager.getEventBus().parent( eventBus );
 		return settingsManager;
 	}
 
 	private TaskManager configureTaskManager( TaskManager taskManager ) {
-		taskManager.getEventHub().parent( eventHub );
+		taskManager.getEventBus().parent( eventBus );
 		taskManager.setSettings( programSettings );
 		return taskManager;
 	}
 
 	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
-		productManager.getEventHub().parent( eventHub );
+		productManager.getEventBus().parent( eventBus );
 
 		// Register the provider repos
 		productManager.registerProviderRepos( RepoState.forProduct( getClass() ) );

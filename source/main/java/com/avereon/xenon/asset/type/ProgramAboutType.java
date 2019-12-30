@@ -43,8 +43,8 @@ public class ProgramAboutType extends AssetType {
 	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
 		asset.setModel( getProduct().getCard() );
 
-		program.getEventHub().register( ModEvent.ENABLED, e -> asset.refresh( program.getAssetManager() ) );
-		program.getEventHub().register( ModEvent.DISABLED, e -> asset.refresh( program.getAssetManager() ) );
+		program.getEventBus().register( ModEvent.ENABLED, e -> asset.refresh( program.getAssetManager() ) );
+		program.getEventBus().register( ModEvent.DISABLED, e -> asset.refresh( program.getAssetManager() ) );
 
 		return true;
 	}

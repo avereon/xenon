@@ -70,7 +70,7 @@ public class NoticeTool extends ProgramTool {
 	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
 		super.assetReady( parameters );
 
-		getAsset().getEventHub().register( AssetEvent.ANY, assetWatcher );
+		getAsset().getEventBus().register( AssetEvent.ANY, assetWatcher );
 	}
 
 	@Override

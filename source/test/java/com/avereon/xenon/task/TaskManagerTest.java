@@ -265,7 +265,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( manager.isRunning(), is( true ) );
 
 		TaskWatcher watcher = new TaskWatcher();
-		manager.getEventHub().register( TaskManagerEvent.ANY, watcher );
+		manager.getEventBus().register( TaskManagerEvent.ANY, watcher );
 
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );

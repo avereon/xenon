@@ -59,7 +59,7 @@ public class TaskMonitor extends AbstractMonitor {
 
 		taskWatcher = new TaskWatcher();
 		// Only register for TaskEvents
-		taskManager.getEventHub().register( TaskEvent.ANY, taskWatcher );
+		taskManager.getEventBus().register( TaskEvent.ANY, taskWatcher );
 	}
 
 	public boolean isTextVisible() {
@@ -81,7 +81,7 @@ public class TaskMonitor extends AbstractMonitor {
 	}
 
 	public void close() {
-		taskManager.getEventHub().unregister( TaskEvent.ANY, taskWatcher );
+		taskManager.getEventBus().unregister( TaskEvent.ANY, taskWatcher );
 	}
 
 	@Override

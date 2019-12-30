@@ -67,7 +67,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isOpen(), is( false ) );
 
 		manager.openAssets( asset );
@@ -80,7 +80,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isOpen(), is( false ) );
 
 		manager.openAssetsAndWait( asset );
@@ -92,7 +92,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isLoaded(), is( false ) );
 
 		manager.loadAssets( asset );
@@ -106,7 +106,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isLoaded(), is( false ) );
 
 		manager.loadAssetsAndWait( asset );
@@ -119,7 +119,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isSaved(), is( false ) );
 
 		// Asset must be open to be saved
@@ -137,7 +137,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 		assertThat( asset.isSaved(), is( false ) );
 
 		// Asset must be open to be saved
@@ -153,7 +153,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 
 		// Asset must be open to be closed
 		manager.openAssets( asset );
@@ -170,7 +170,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		String uri = "mock:///home/user/temp/test.txt";
 		Asset asset = manager.createAsset( uri );
 		AssetWatcher watcher = new AssetWatcher();
-		asset.getEventHub().register( AssetEvent.ANY, watcher );
+		asset.getEventBus().register( AssetEvent.ANY, watcher );
 
 		// Asset must be open to be closed
 		manager.openAssetsAndWait( asset );

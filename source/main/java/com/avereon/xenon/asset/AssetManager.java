@@ -2,7 +2,6 @@ package com.avereon.xenon.asset;
 
 import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
-import com.avereon.event.EventHub;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
@@ -11,6 +10,7 @@ import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.xenon.util.ProgramEventBus;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -64,7 +64,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, Set<Codec>> registeredMediaTypes;
 
-	private EventHub<AssetEvent> eventHub;
+	private ProgramEventBus eventBus;
 
 	private ActiveToolWatcher activeToolWatcher;
 
@@ -104,8 +104,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		registeredFirstLines = new ConcurrentHashMap<>();
 		registeredMediaTypes = new ConcurrentHashMap<>();
 
-		eventHub = new EventHub<>();
-		eventHub.parent( program.getEventHub() );
+		eventBus = new ProgramEventBus();
+		eventBus.parent( program.getEventBus() );
 		activeToolWatcher = new ActiveToolWatcher();
 		currentAssetWatcher = new CurrentAssetWatcher();
 		modifiedAssetWatcher = new ModifiedAssetWatcher();
@@ -157,8 +157,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		return this;
 	}
 
-	public EventHub<AssetEvent> getEventHub() {
-		return eventHub;
+	public ProgramEventBus getEventBus() {
+		return eventBus;
 	}
 
 	public Asset getCurrentAsset() {
@@ -1104,7 +1104,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Add the asset to the list of open assets.
 		openAssets.add( asset );
 
-		getEventHub().handle( new AssetEvent( this, AssetEvent.OPENED, asset ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.trace( "Asset opened: " + asset );
 
 		return true;
@@ -1124,7 +1124,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( !previouslyLoaded ) asset.addNodeListener( modifiedAssetWatcher );
 		asset.refresh( this );
 
-		getEventHub().handle( new AssetEvent( this, AssetEvent.LOADED, asset ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.trace( "Asset loaded: " + asset );
 
 		return true;
@@ -1146,7 +1146,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		// TODO Update the asset type.
 
-		getEventHub().handle( new AssetEvent( this, AssetEvent.SAVED, asset ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
 		log.trace( "Asset saved: " + asset );
 
 		return true;
@@ -1168,7 +1168,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		//		Settings settings = asset.getSettings();
 		//		if( settings != null ) settings.delete();
 
-		getEventHub().handle( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.trace( "Asset closed: " + asset );
 
 		return true;
@@ -1181,18 +1181,18 @@ public class AssetManager implements Controllable<AssetManager> {
 			Asset previous = currentAsset;
 
 			// "Disconnect" the old current asset.
-			if( currentAsset != null ) currentAsset.getEventHub().unregister( AssetEvent.ANY, currentAssetWatcher );
+			if( currentAsset != null ) currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
 
 			// Change current asset.
 			currentAsset = asset;
 
 			// "Connect" the new current asset.
-			if( currentAsset != null ) currentAsset.getEventHub().register( AssetEvent.ANY, currentAssetWatcher );
+			if( currentAsset != null ) currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
 
 			updateActionState();
 
 			// Notify program of current asset change.
-			getEventHub().handle( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
+			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
 			log.trace( "Asset select: " + (asset == null ? "null" : asset) );
 		}
 
@@ -1698,7 +1698,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	private class SetCurrentAssetTask extends AssetTask {
 
 		private SetCurrentAssetTask( Asset asset ) {
-			super( Set.of( asset ) );
+			super( asset == null ? Set.of() : Set.of( asset ) );
 		}
 
 		@Override
@@ -1708,30 +1708,31 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	}
 
-	private class ActiveToolWatcher extends EventHub<Event> implements EventHandler<Event> {
+	private class ActiveToolWatcher implements EventHandler<Event> {
 
 		@Override
 		public void handle( Event event ) {
-//			Tool tool = ((ToolEvent)event).getTool();
-//			Asset asset = tool.getAsset();
-//
-//			if( asset.getUri().equals( ProgramGuideType.URI ) ) return;
-//			if( event.getEventType() == ToolSwitchedEvent.SWITCHED ) setCurrentAsset( asset );
+			//			Tool tool = ((ToolEvent)event).getTool();
+			//			Asset asset = tool.getAsset();
+			//
+			//			if( asset.getUri().equals( ProgramGuideType.URI ) ) return;
+			//			if( event.getEventType() == ToolSwitchedEvent.SWITCHED ) setCurrentAsset( asset );
 		}
 
 	}
 
-	private class CurrentAssetWatcher extends EventHub<AssetEvent> implements EventHandler<AssetEvent> {
+	private class CurrentAssetWatcher implements EventHandler<AssetEvent> {
 
-		public CurrentAssetWatcher() {
-			register( AssetEvent.MODIFIED, e -> {
-				log.trace( "Asset modified: " + e.getAsset() );
+		@Override
+		public void handle( AssetEvent event ) {
+			if( event.getEventType() == AssetEvent.MODIFIED ) {
+				log.trace( "Asset modified: " + event.getAsset() );
 				saveActionHandler.updateEnabled();
-			} );
-			register( AssetEvent.UNMODIFIED, e -> {
-				log.trace( "Asset unmodified: " + e.getAsset() );
+			}
+			if( event.getEventType() == AssetEvent.UNMODIFIED ) {
+				log.trace( "Asset unmodified: " + event.getAsset() );
 				saveActionHandler.updateEnabled();
-			} );
+			}
 		}
 
 	}
