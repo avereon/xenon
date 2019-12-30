@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.settings.Settings;
+import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
@@ -45,6 +46,16 @@ public abstract class ProgramTool extends Tool {
 
 	public void setUid( String uid ) {
 		this.uid = uid;
+	}
+
+	protected ProgramTool pushAction( String key, Action action ) {
+		getProgram().getActionLibrary().getAction( key ).pushAction( action );
+		return this;
+	}
+
+	protected ProgramTool pullAction( String key, Action action ) {
+		getProgram().getActionLibrary().getAction( key ).pullAction( action );
+		return this;
 	}
 
 }
