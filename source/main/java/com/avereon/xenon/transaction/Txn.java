@@ -44,7 +44,6 @@ public class Txn {
 	public static Txn create( boolean nest ) {
 		Txn transaction = peekTransaction();
 		if( transaction == null || nest ) transaction = pushTransaction();
-
 		transaction.depth++;
 
 		return transaction;

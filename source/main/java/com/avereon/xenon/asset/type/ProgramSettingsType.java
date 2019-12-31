@@ -33,10 +33,10 @@ public class ProgramSettingsType extends AssetType {
 	}
 
 	/**
-	 * @see #assetDefault(Program, Asset)
+	 * @see #assetInit(Program, Asset)
 	 */
 	@Override
-	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
+	public boolean assetInit( Program program, Asset asset ) throws AssetException {
 		asset.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		return true;
 	}

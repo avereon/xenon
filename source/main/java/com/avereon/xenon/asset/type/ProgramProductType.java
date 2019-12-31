@@ -21,7 +21,7 @@ public class ProgramProductType extends AssetType {
 	}
 
 	@Override
-	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
+	public boolean assetInit( Program program, Asset asset ) throws AssetException {
 		asset.setModel( program.getCard() );
 		return true;
 	}

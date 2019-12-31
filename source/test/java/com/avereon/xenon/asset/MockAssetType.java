@@ -41,7 +41,7 @@ public class MockAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetDefault( Program program, Asset asset ) {
+	public boolean assetInit( Program program, Asset asset ) {
 		asset.putResource( INIT_RESOURCE_KEY, "init.asset.test" );
 		return true;
 	}

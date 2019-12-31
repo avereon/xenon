@@ -40,7 +40,7 @@ public class ProgramAboutType extends AssetType {
 	}
 
 	@Override
-	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
+	public boolean assetInit( Program program, Asset asset ) throws AssetException {
 		asset.setModel( getProduct().getCard() );
 
 		program.getEventBus().register( ModEvent.ENABLED, e -> asset.refresh( program.getAssetManager() ) );

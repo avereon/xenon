@@ -141,10 +141,10 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * Initialize an asset with default state. This method should provide the
 	 * specified asset with a default state prior to being used in an editor.
 	 * <p>
-	 * Unlike the {@link #assetDialog(Program, Asset)} method this method is
+	 * Unlike the {@link #assetUser(Program, Asset)} method this method is
 	 * always called whenever an asset is new, opened or restored. This method
 	 * should not be used for user interaction. User interaction should be
-	 * implemented in the {@link #assetDialog(Program, Asset)} method.
+	 * implemented in the {@link #assetUser(Program, Asset)} method.
 	 * <p>
 	 * Note: This method is called using a task thread and is not safe to use
 	 * directly on UI components. <br>
@@ -154,7 +154,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
 	 * @throws AssetException if the asset failed to be initialized.
 	 */
-	public boolean assetDefault( Program program, Asset asset ) throws AssetException {
+	public boolean assetInit( Program program, Asset asset ) throws AssetException {
 		return true;
 	}
 
@@ -163,7 +163,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * user interaction. This method is valuable if the asset requires user
 	 * interaction when creating new assets.
 	 * <p>
-	 * Unlike the {@link #assetDefault(Program, Asset)} method this method is
+	 * Unlike the {@link #assetInit(Program, Asset)} method this method is
 	 * only called for new assets when the URI is null. If the URI is not null
 	 * this method will not be called as is the case for opening or restoring
 	 * existing assets.
@@ -176,7 +176,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * @return True if the asset was opened, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
 	 * @throws AssetException if the asset failed to be opened.
 	 */
-	public boolean assetDialog( Program program, Asset asset ) throws AssetException {
+	public boolean assetUser( Program program, Asset asset ) throws AssetException {
 		return true;
 	}
 

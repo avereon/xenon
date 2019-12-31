@@ -1091,12 +1091,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		log.trace( "Asset settings: " + asset.getSettings().getPath() );
 
 		// Initialize the asset.
-		if( !type.assetDefault( program, asset ) ) return false;
+		if( !type.assetInit( program, asset ) ) return false;
 		log.trace( "Asset initialized with default values." );
 
 		// If the asset is new get user input from the asset type.
 		if( asset.isNew() ) {
-			if( !type.assetDialog( program, asset ) ) return false;
+			if( !type.assetUser( program, asset ) ) return false;
 			log.trace( "Asset initialized with user values." );
 		}
 
