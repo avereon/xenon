@@ -304,6 +304,25 @@ class NodeTest {
 	}
 
 	@Test
+	void testClear() {
+		NodeWatcher watcher = new NodeWatcher();
+		data.addNodeListener( watcher );
+
+		assertThat( data, hasStates( false, 0, 0 ) );
+		assertThat( watcher, hasEventCounts( 0, 0, 0 ) );
+
+		data.setValue( "x", 1 );
+		data.setValue( "y", 2 );
+		data.setValue( "z", 3 );
+		assertThat( data, hasStates( true, 3, 0 ) );
+		assertThat( watcher, hasEventCounts( 3, 1, 3 ) );
+
+		data.clear();
+		assertThat( data, hasStates( false, 0, 0 ) );
+		assertThat( watcher, hasEventCounts( 4, 2, 6 ) );
+	}
+
+	@Test
 	void testTestMetaValueModified() {
 		String key = "hidden";
 
