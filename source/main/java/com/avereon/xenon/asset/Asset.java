@@ -193,6 +193,11 @@ public class Asset extends Node implements Configurable {
 
 	public <M> void setModel( M model ) {
 		setValue( MODEL_VALUE_KEY, model );
+		if( model instanceof Node ) {
+			((Node)model).addNodeListener( e -> {
+				if( e.getType() == NodeEvent.Type.VALUE_CHANGED ) refresh();
+			} );
+		}
 	}
 
 	/**
