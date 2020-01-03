@@ -359,7 +359,19 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
 		}
+	}
 
+	protected void clear() {
+		try {
+			Txn.create();
+			for( String key : getValueKeys() ) {
+				Txn.submit( new SetValueOperation( this, key, getValue( key ), null ) );
+			}
+			Txn.submitAfter( new UpdateModifiedOperation( this ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error clearing values", exception );
+		}
 	}
 
 	int getModifiedValueCount() {

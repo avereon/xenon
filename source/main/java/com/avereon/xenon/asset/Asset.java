@@ -255,7 +255,7 @@ public class Asset extends Node implements Configurable {
 		notifyAll();
 	}
 
-	public synchronized final void refresh( AssetManager manager ) {
+	public synchronized final void refresh() {
 		if( !ready ) return;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
