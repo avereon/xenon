@@ -2,7 +2,10 @@ package com.avereon.xenon.tool.task;
 
 import com.avereon.event.EventHandler;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.*;
+import com.avereon.xenon.Profile;
+import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
@@ -60,13 +63,9 @@ public class TaskTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.assetReady( parameters );
+	protected void allocate() throws ToolException {
+		super.allocate();
 		getProgram().getTaskManager().getEventBus().register( TaskEvent.ANY, taskWatcher );
-		Platform.runLater( this::init );
-	}
-
-	private void init() {
 		getProgram().getTaskManager().getTasks().forEach( this::addTaskPane );
 	}
 

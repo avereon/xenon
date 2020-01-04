@@ -2,9 +2,9 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.event.EventHandler;
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -284,9 +284,9 @@ public abstract class Tool extends Control {
 	 * called each time the asset edited by this tool is opened. If it is
 	 * opened another time it may have different parameters.
 	 *
-	 * @param parameters The parameters used to open the tool
+	 * @param request The request used to open the asset
 	 */
-	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {}
+	protected void assetReady( OpenAssetRequest request ) throws ToolException {}
 
 	/**
 	 * Called when the asset data is refreshed.
@@ -382,22 +382,22 @@ public abstract class Tool extends Control {
 	/**
 	 * Called when the asset is ready to be used by the tool.
 	 */
-	public void callAssetReady( OpenToolRequestParameters parameters ) {
+	public void callAssetReady( OpenAssetRequest request ) {
 		try {
-			assetReady( parameters );
+			assetReady( request );
 		} catch( ToolException exception ) {
 			log.error( "Error deallocating tool", exception );
 		}
 	}
 
 	/**
-	 * Called when the asset is ready to be used by the tool.
+	 * Called when the asset data is refreshed.
 	 */
 	private void callAssetRefreshed() {
 		try {
 			assetRefreshed();
 		} catch( ToolException exception ) {
-			log.error( "Error deallocating tool", exception );
+			log.error( "Error refreshing tool", exception );
 		}
 	}
 

@@ -72,7 +72,6 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void addNotice( Notice notice ) {
 		getNoticeList().addNotice( notice );
-		asset.refresh();
 
 		switch( notice.getType() ) {
 			case ERROR: {
@@ -106,12 +105,10 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void removeNotice( Notice notice ) {
 		getNoticeList().removeNotice( notice );
-		asset.refresh();
 	}
 
 	public void removeAll() {
 		getNoticeList().clearAll();
-		asset.refresh();
 	}
 
 	public IntegerProperty unreadCountProperty() {

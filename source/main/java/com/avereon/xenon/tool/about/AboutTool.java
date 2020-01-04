@@ -4,10 +4,10 @@ import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -136,12 +136,11 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.assetReady( parameters );
-		assetRefreshed();
+	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
-		String pageId = parameters.getFragment();
+		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = SUMMARY;
 		selectPage( pageId );

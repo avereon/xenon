@@ -5,10 +5,10 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.IconLibrary;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -123,12 +123,12 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) throws ToolException {
 		log.debug( "Product tool asset ready" );
-		super.assetReady( parameters );
+		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
-		String pageId = parameters.getFragment();
+		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = INSTALLED;
 		selectPage( pageId );

@@ -1126,9 +1126,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Load the asset.
 		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
-		asset.setModified( false );
 		if( !previouslyLoaded ) asset.addNodeListener( modifiedAssetWatcher );
-		asset.refresh();
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.trace( "Asset loaded: " + asset );

@@ -23,6 +23,10 @@ public class OpenToolRequest {
 		this.openAssetRequest = openAssetRequest;
 	}
 
+	public OpenAssetRequest getOpenAssetRequest() {
+		return openAssetRequest;
+	}
+
 	public String getQuery() {return openAssetRequest.getQuery();}
 
 	public String getFragment() {return openAssetRequest.getFragment();}

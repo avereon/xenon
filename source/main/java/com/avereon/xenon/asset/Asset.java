@@ -194,11 +194,9 @@ public class Asset extends Node implements Configurable {
 
 	public <M> void setModel( M model ) {
 		setValue( MODEL_VALUE_KEY, model );
-		if( model instanceof Node ) {
-			((Node)model).addNodeListener( e -> {
-				if( e.getType() == NodeEvent.Type.VALUE_CHANGED ) refresh();
-			} );
-		}
+
+		// Add the model change handler
+		if( model instanceof Node ) ((Node)model).addNodeListener( e -> refresh() );
 	}
 
 	/**
@@ -232,11 +230,7 @@ public class Asset extends Node implements Configurable {
 		open = true;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
 
-		if( isNew() ) {
-			ready = true;
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
-		}
-
+		if( isNew() ) setReady();
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -249,16 +243,27 @@ public class Asset extends Node implements Configurable {
 		loaded = false;
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.load( this, getCodec() );
+		setModified( false );
 
 		loaded = true;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
-		if( !ready ) {
-			ready = true;
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
-		}
-
+		// FIXME Because ready is triggered by event and refresh is called directly
+		// asset.refresh() is usually called before tool.assetReady() causing a race
+		// condition because ready is expected to be called only once before refresh
+		// is ever called. Options:
+		//   1) Get rid of the tool.assetReady() method any only use refresh
+		//   2) Make tool.assetReady() more tightly integrated with asset
+		//   3) Make asset.refresh() less tightly integrated with tool
+		setReady();
+		refresh();
 		notifyAll();
+	}
+
+	private synchronized void setReady() {
+		if( ready ) return;
+		ready = true;
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
 	}
 
 	public synchronized final void refresh() {

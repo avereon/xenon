@@ -1,10 +1,10 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.util.LogUtil;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -71,12 +71,12 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) throws ToolException {
 		log.debug( "Settings tool asset ready" );
-		super.assetReady( parameters );
+		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
-		String pageId = parameters.getFragment();
+		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = GENERAL;
 		selectPage( pageId );

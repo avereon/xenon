@@ -1,13 +1,10 @@
 package com.avereon.xenon.tool.notice;
 
-import com.avereon.event.EventHandler;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.BundleKey;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.tool.ProgramTool;
@@ -29,8 +26,6 @@ import java.util.List;
 public class NoticeTool extends ProgramTool {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
-
-	private AssetWatcher assetWatcher;
 
 	private VBox noticeContainer;
 
@@ -56,9 +51,6 @@ public class NoticeTool extends ProgramTool {
 		clearAllButton.prefWidthProperty().bind( layout.widthProperty() );
 
 		getChildren().addAll( layout );
-		updateNotices();
-
-		assetWatcher = new AssetWatcher();
 	}
 
 	@Override
@@ -67,10 +59,15 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenToolRequestParameters parameters ) throws ToolException {
-		super.assetReady( parameters );
+	protected void assetRefreshed() throws ToolException {
+		super.assetRefreshed();
+		updateNotices();
+	}
 
-		getAsset().getEventBus().register( AssetEvent.ANY, assetWatcher );
+	@Override
+	protected void allocate() throws ToolException {
+		super.allocate();
+		updateNotices();
 	}
 
 	@Override
@@ -102,15 +99,6 @@ public class NoticeTool extends ProgramTool {
 				noticeContainer.getChildren().add( noticePane );
 			}
 		} );
-	}
-
-	private class AssetWatcher implements EventHandler<AssetEvent> {
-
-		@Override
-		public void handle( AssetEvent event ) {
-			if( event.getEventType() == AssetEvent.REFRESHED) updateNotices();
-		}
-
 	}
 
 }
