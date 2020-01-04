@@ -7,6 +7,8 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolException;
+import javafx.application.Platform;
 
 import java.net.URI;
 import java.util.Collections;
@@ -59,4 +61,17 @@ public abstract class ProgramTool extends Tool {
 		return this;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void callAssetRefreshed() {
+		Platform.runLater( () -> {
+			try {
+				assetRefreshed();
+			} catch( ToolException exception ) {
+				getProgram().getNoticeManager().error( "Error refreshing tool", exception );
+			}
+		} );
+	}
 }

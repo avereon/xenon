@@ -296,7 +296,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Allocate the tool.
 	 */
-	public final void callAllocate() {
+	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
 			getAsset().getEventBus().register( AssetEvent.ANY, watcher = new AssetWatcher() );
@@ -311,7 +311,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Display the tool.
 	 */
-	public final void callDisplay() {
+	final void callDisplay() {
 		Workpane pane = getWorkpane();
 		try {
 			display();
@@ -325,7 +325,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Activate the tool.
 	 */
-	public final void callActivate() {
+	final void callActivate() {
 		Workpane pane = getWorkpane();
 		try {
 			activate();
@@ -339,7 +339,7 @@ public abstract class Tool extends Control {
 	 * Deactivate the tool. Called when the tool is deactivated either by the tool
 	 * parent being deactivated or by a different tool being activated.
 	 */
-	public final void callDeactivate() {
+	final void callDeactivate() {
 		Workpane pane = getWorkpane();
 		try {
 			deactivate();
@@ -353,7 +353,7 @@ public abstract class Tool extends Control {
 	 * Conceal the tool. Called when the tool is visible and then is hidden by
 	 * another tool or removed from the tool parent.
 	 */
-	public final void callConceal() {
+	final void callConceal() {
 		Workpane pane = getWorkpane();
 		try {
 			conceal();
@@ -367,7 +367,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Deallocate the tool. Called when the tool is removed from the tool parent.
 	 */
-	public final void callDeallocate() {
+	final void callDeallocate() {
 		Workpane pane = getWorkpane();
 		try {
 			deallocate();
@@ -391,14 +391,17 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Called when the asset data is refreshed.
+	 * Called when the asset data is refreshed. This method calls
+	 * {@link #assetRefreshed()} on the FX platform thread.
 	 */
-	private void callAssetRefreshed() {
-		try {
-			assetRefreshed();
-		} catch( ToolException exception ) {
-			log.error( "Error refreshing tool", exception );
-		}
+	protected void callAssetRefreshed() {
+		Platform.runLater( () -> {
+			try {
+				assetRefreshed();
+			} catch( ToolException exception ) {
+				log.error( "Error refreshing tool", exception );
+			}
+		} );
 	}
 
 	private class AssetWatcher implements EventHandler<AssetEvent> {
