@@ -10,6 +10,8 @@ public interface ProgramSettings {
 
 	String PROGRAM = BASE + "program/";
 
+	String MANAGER = PROGRAM + "manager/";
+
 	//String UPDATE = PROGRAM + "update/";
 
 	// User Interface Settings

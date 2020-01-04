@@ -17,6 +17,7 @@ public class MockCodec extends Codec {
 		this.key = key;
 		addSupportedMediaType( "application/mock" );
 		addSupportedExtension( EXTENSION );
+		addSupportedFileName( "^.*\\." + EXTENSION + "$" );
 		addSupportedFirstLine( "?mock" );
 	}
 

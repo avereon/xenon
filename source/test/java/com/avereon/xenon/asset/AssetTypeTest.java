@@ -72,6 +72,12 @@ public class AssetTypeTest extends BaseTestCase {
 	}
 
 	@Test
+	void testGetCodecByExtension() {
+		AssetType type = new MockAssetType( product );
+		assertThat( type.getCodecByExtension( "test.mock" ), is( type.getDefaultCodec() ) );
+	}
+
+	@Test
 	void testGetCodecByFileName() {
 		AssetType type = new MockAssetType( product );
 		assertThat( type.getCodecByFileName( "test.mock" ), is( type.getDefaultCodec() ) );

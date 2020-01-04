@@ -39,6 +39,24 @@ class CodecTest extends BaseTestCase {
 	}
 
 	@Test
+	void testIsSupportedExtension() {
+		// Edge tests.
+		assertThat( codec.isSupportedExtension( null ), is( false ) );
+		assertThat( codec.isSupportedExtension( "" ), is( false ) );
+
+		// Extension was already added
+		codec.addSupportedExtension( "special" );
+
+		// Positive test.
+		assertThat( codec.isSupportedExtension( "test." + MockCodec.EXTENSION ), is( true ) );
+		assertThat( codec.isSupportedExtension( "mock.special" ), is( true ) );
+
+		// Negative test.
+		assertThat( codec.isSupportedExtension( "test.x" + MockCodec.EXTENSION ), is( false ) );
+		assertThat( codec.isSupportedExtension( "mock.unsupported" ), is( false ) );
+	}
+
+	@Test
 	void testIsSupportedFileName() {
 		// Edge tests.
 		assertThat( codec.isSupportedFileName( null ), is( false ) );

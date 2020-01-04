@@ -1,6 +1,5 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
@@ -16,6 +15,7 @@ import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 
@@ -43,6 +43,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
+	private static final Asset NULL_ASSET = new Asset( URI.create( "program:null" ) );
+
 	private Program program;
 
 	private volatile Asset currentAsset;
@@ -66,8 +68,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	private final Map<String, Set<Codec>> registeredMediaTypes;
 
 	private ProgramEventBus eventBus;
-
-	private ActiveToolWatcher activeToolWatcher;
 
 	private CurrentAssetWatcher currentAssetWatcher;
 
@@ -107,7 +107,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		eventBus = new ProgramEventBus();
 		eventBus.parent( program.getEventBus() );
-		activeToolWatcher = new ActiveToolWatcher();
 		currentAssetWatcher = new CurrentAssetWatcher();
 		modifiedAssetWatcher = new ModifiedAssetWatcher();
 
@@ -450,52 +449,51 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	private void save( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
-		URI uri = asset.getUri();
-		Codec codec = asset.getCodec();
-
 		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
-			//			ProgramConfigurationBuilder settings = program.getSettings().getNode( ProgramSettingsPath.ASSET_MANAGER );
-			//			String currentDirectory = settings.get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) );
-			//
-			//			JFileChooser chooser = new JFileChooser();
-			//			chooser.setMultiSelectionEnabled( true );
-			//			chooser.setCurrentDirectory( new File( currentDirectory ) );
-			//			chooser.setAcceptAllFileFilterUsed( false );
-
 			Codec assetCodec = asset.getCodec();
 
 			// If there is not a codec associated with the asset choose the default.
 			if( assetCodec == null ) assetCodec = asset.getType().getDefaultCodec();
 
-			//			// Add supported asset types.
-			//			FileFilter selectedFilter = null;
-			//			for( String pattern : registeredFileNames.keySet() ) {
-			//				Set<Codec> registration = registeredFileNames.get( pattern );
-			//				for( Codec option : registration ) {
-			//					if( !option.canSave() ) continue;
-			//					FileFilter filter = new FoldersAndCodecFilter( option );
-			//					chooser.addChoosableFileFilter( filter );
-			//					if( option.equals( assetCodec ) ) selectedFilter = filter;
-			//				}
-			//			}
-			//
-			//			if( selectedFilter == null ) {
-			//				program.error( Bundles.getString( BundleKey.MESSAGES, "asset.save.no.codec" ) );
-			//				return false;
-			//			}
-			//			chooser.setFileFilter( selectedFilter );
-			//
-			//			File file = null;
-			//			int result = JOptionPane.YES_OPTION;
+			FileChooser chooser = new FileChooser();
+
+			Map<Codec, FileChooser.ExtensionFilter> filterCodecs = new HashMap<>();
+			Map<FileChooser.ExtensionFilter, Codec> codecFilters = new HashMap<>();
+			AssetType assetType = asset.getType();
+			for( Codec codec : assetType.getCodecs() ) {
+				FileChooser.ExtensionFilter filter = generateFilter( codec );
+				filterCodecs.put( codec, filter );
+				codecFilters.put( filter, codec );
+				chooser.getExtensionFilters().add( filter );
+				if( codec == assetType.getDefaultCodec() ) chooser.setSelectedExtensionFilter( filter );
+			}
+			if( assetCodec != null ) chooser.setSelectedExtensionFilter( filterCodecs.get( assetCodec ) );
+
+			chooser.setInitialDirectory( new File( getSettings().get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) ) ) );
+			chooser.setInitialFileName( "asset" + (assetCodec == null ? "" : "." + assetCodec.getDefaultExtension()) );
+
+			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
+			if( file == null ) return;
+
+			// If the user specified a codec use it to set the codec and asset type
+			AssetType type = null;
+			Codec codec = codecFilters.get( chooser.getSelectedExtensionFilter() );
+			if( codec != null ) type = codec.getAssetType();
+
+			// Resolve the URI
+			URI uri = UriUtil.resolve( file.toString() );
+
+			// Create the target asset
+			try {
+				saveAsAsset = createAsset( type, uri );
+				if( codec != null ) saveAsAsset.setCodec( codec );
+				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
+				//saveAsAsset.getSettings().copyFrom( asset.getSettings() );
+			} catch( AssetException exception ) {
+				program.getNoticeManager().error( exception );
+			}
+
 			//			do {
-			//				int choice = chooser.showSaveDialog( program.getActiveFrame() );
-			//				if( choice == JFileChooser.CANCEL_OPTION ) return false;
-			//
-			//				CodecFileFilter filter = (CodecFileFilter)chooser.getFileFilter();
-			//
-			//				file = chooser.getSelectedFile();
-			//				codec = filter.getCodec();
-			//
 			//				// If the file is not already supported use the default extension from the codec.
 			//				if( !file.exists() && !codec.isSupportedFileName( file.getName() ) ) {
 			//					file = new File( file.getParent(), file.getName() + "." + codec.getDefaultExtension() );
@@ -509,36 +507,31 @@ public class AssetManager implements Controllable<AssetManager> {
 			//					if( result == JOptionPane.CANCEL_OPTION ) return false;
 			//				}
 			//			} while( file.exists() && result != JOptionPane.YES_OPTION );
-			//
-			//			uri = file.toURI();
-			//
-			//			// TODO Set the settings for the asset
-			//			asset.loadSettings( program.getSettingsManager().getAssetSettings( this ) );
-			//
-			//			if( saveAs ) {
-			//				saveAsAsset = new Asset( asset.getType(), uri );
-			//				saveAsAsset.setCodec( codec );
-			//				saveAsAsset.open();
-			//			} else {
-			//				asset.setUri( uri );
-			//				asset.setCodec( codec );
-			//			}
-			//
-			//			File parent = file.isFile() ? file.getParentFile() : file;
-			//			settings.add( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
+
+			File parent = file.isFile() ? file.getParentFile() : file;
+			getSettings().set( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
 		}
 
 		if( saveAsAsset != null ) {
-			if( copy ) {
-				saveAsAsset.copyFrom( asset );
-				asset = saveAsAsset;
-			} else {
-				asset.setUri( saveAsAsset.getUri() );
-				asset.setCodec( saveAsAsset.getCodec() );
-			}
+			if( copy ) asset = saveAsAsset.copyFrom( asset );
+			asset.setUri( saveAsAsset.getUri() );
+			asset.setCodec( saveAsAsset.getCodec() );
+			asset.setScheme( getScheme( saveAsAsset.getUri().getScheme() ) );
 		}
 
 		saveAssets( asset );
+	}
+
+	private FileChooser.ExtensionFilter generateFilter( Codec codec ) {
+		List<String> extensions = new ArrayList<>();
+		StringBuilder desc = new StringBuilder();
+		for( String ext : codec.getSupportedExtensions() ) {
+			extensions.add( "*." + ext );
+			desc.append( "," ).append( ext );
+		}
+		String name = codec.getName() + " (" + desc.toString().substring( 1 ) + ")";
+
+		return new FileChooser.ExtensionFilter( name, extensions );
 	}
 
 	/**
@@ -853,6 +846,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		return Collections.unmodifiableCollection( codecs );
 	}
 
+	Settings getSettings() {
+		return program.getSettingsManager().getSettings( ManagerSettings.ASSET );
+	}
+
 	/**
 	 * Determine the asset type for the given asset. The asset URI is used to find the asset type in the following order: <ol> <li>Lookup the asset
 	 * type by the full URI</li> <li>Lookup the asset type by the URI scheme</li>
@@ -908,7 +905,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		Set<Codec> codecs = new HashSet<>();
 		Collection<AssetType> assetTypes = getAssetTypes();
 
-		// First option: Determine codec by media type.
+		// First option: Determine codec by media type
 		String mediaType = getMediaType( asset );
 		if( mediaType != null ) {
 			for( AssetType assetType : assetTypes ) {
@@ -917,8 +914,16 @@ public class AssetManager implements Controllable<AssetManager> {
 			}
 		}
 
-		// Second option: Determine codec by file name.
+		// Second option: Determine codec by extension
 		String fileName = asset.getFileName();
+		if( fileName != null ) {
+			for( AssetType assetType : assetTypes ) {
+				Codec codec = assetType.getCodecByExtension( fileName );
+				if( codec != null ) codecs.add( codec );
+			}
+		}
+
+		// Third option: Determine codec by file name
 		if( fileName != null ) {
 			for( AssetType assetType : assetTypes ) {
 				Codec codec = assetType.getCodecByFileName( fileName );
@@ -926,8 +931,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			}
 		}
 
-		// Third option: Determine codec by first line.
-		// Load the first line from the asset.
+		// Fouth option: Determine codec by first line
 		String firstLine = getFirstLine( asset );
 		if( firstLine != null ) {
 			for( AssetType assetType : assetTypes ) {
@@ -1040,7 +1044,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
-			asset = new Asset( type, uri );
+			asset = new Asset( uri, type );
 			identifiedAssets.put( uri, asset );
 			Scheme scheme = getScheme( uri.getScheme() );
 			asset.setScheme( scheme );
@@ -1101,7 +1105,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		// Open the asset.
-		asset.open();
+		asset.open( this );
 
 		// Add the asset to the list of open assets.
 		openAssets.add( asset );
@@ -1176,15 +1180,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		return true;
 	}
 
-	// TODO Finish implementing AssetManager.doSetCurrentAsset()
-
 	private boolean doSetCurrentAsset( Asset asset ) {
 		synchronized( currentAssetLock ) {
+			log.warn( "Current asset: " + currentAsset + " new asset: " + asset );
 			Asset previous = currentAsset;
 
 			// "Disconnect" the old current asset.
 			if( currentAsset != null ) {
-				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, asset ) );
+				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
 				currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
 			}
 
@@ -1194,14 +1197,14 @@ public class AssetManager implements Controllable<AssetManager> {
 			// "Connect" the new current asset.
 			if( currentAsset != null ) {
 				currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
-				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, asset ) );
+				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
 			}
 
 			updateActionState();
 
 			// Notify program of current asset change.
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
-			log.trace( "Asset select: " + (asset == null ? "null" : asset) );
+			log.trace( "Asset select: " + asset );
 		}
 
 		return true;
@@ -1347,12 +1350,6 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Start loading the asset after the tool has been created
 			if( !asset.isLoaded() ) loadAssets( asset );
 
-			// FIXME This is the only place this is called,
-			// and probably shouldn't be here anyway. Setting the current asset
-			// should probably be connected to tool activation instead of open and
-			// new asset actions.
-			setCurrentAsset( asset );
-
 			return tool;
 		}
 
@@ -1417,9 +1414,6 @@ public class AssetManager implements Controllable<AssetManager> {
 				OpenAssetRequest request = new OpenAssetRequest().setOpenTool( true ).setSetActive( true );
 				program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) );
 
-				// FIXME Should this be done here and/or when the tool is activated?
-				//setCurrentAsset( asset );
-
 				return asset;
 			}
 
@@ -1437,37 +1431,32 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return isHandling && getUserAssetTypes().size() > 0;
+			return !isHandling && getUserAssetTypes().size() > 0;
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			// TODO Open a file dialog for the user to pick a file
-			// In Escape this opened a separate tool. Do I want to do the same?
-
 			// Disable the action while the dialog is open
 			isHandling = true;
 			updateEnabled();
+
+			FileChooser chooser = new FileChooser();
+
+			File file = chooser.showOpenDialog( getProgram().getWorkspaceManager().getActiveStage() );
+			if( file != null ) open( file.toURI() );
+
+			isHandling = false;
+			updateActionState();
+
+			//				if( event.getActionCommand() == AssetTool.CANCEL_SELECTION ) return;
+			//
+			//				// Open the selected assets.
+			//				Codec codec = tool.getSelectedCodec();
+			//				List<Asset> assets = List.of( tool.getSelectedAssets() );
+			//				program.getTaskManager().submit( new OpenActionTask( assets, codec, program.getActiveWorkPane().getActiveView(), true ) );
+
 		}
 
-		// This class is the action listener of the asset tool used to open files
-		//		private class AssetToolOpenHandler implements ActionListener {
-		//
-		//			public void actionPerformed( ActionEvent event ) {
-		//				isHandling = false;
-		//				tool.removeActionListener( this );
-		//				updateActionState();
-		//
-		//				if( event.getActionCommand() == AssetTool.CANCEL_SELECTION ) return;
-		//
-		//				// Open the selected assets.
-		//				Codec codec = tool.getSelectedCodec();
-		//				List<Asset> assets = List.of( tool.getSelectedAssets() );
-		//				program.getTaskManager().submit( new OpenActionTask( assets, codec, program.getActiveWorkPane().getActiveView(), true ) );
-		//			}
-		//
-		//		}
-		//
 	}
 
 	private class SaveActionHandler extends Action {
@@ -1489,51 +1478,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			Asset asset = getCurrentAsset();
-
-			// NEXT Handle saving new assets
-			if( saveAs || asset.isNew() ) {
-				program.getNoticeManager().warning( "Assets", "This asset is new and there is not a way to save a new asset yet" );
-				//				// Ask the user for the new asset location.
-				//				tool = (AssetTool)program.getToolManager().getWorkTool( AssetTool.class );
-				//				if( tool == null ) return;
-				//
-				//				tool.addActionListener( new AssetToolSaveHandler() );
-				//				program.getActiveWorkPane().addTool( tool, true );
-			} else {
-				saveAssets( asset );
-			}
+			save( getCurrentAsset() );
 		}
-
-		//		private class AssetToolSaveHandler implements ActionListener {
-		//
-		//			@Override
-		//			public void actionPerformed( ActionEvent event ) {
-		//				tool.removeActionListener( this );
-		//
-		//				if( event.getActionCommand() == AssetTool.CANCEL_SELECTION ) return;
-		//
-		//				// If the user specified a codec use it.
-		//				Codec codec = null;
-		//				AssetType type = null;
-		//
-		//				// Set the codec and asset type.
-		//				codec = tool.getSelectedCodec();
-		//				if( codec != null ) type = codec.getAssetType();
-		//
-		//				// Resolve the URI.
-		//				URI uri = UriUtil.resolve( tool.getAssetPath() );
-		//
-		//				// Create the target asset.
-		//				Asset target = createAsset( type, uri );
-		//
-		//				if( copy ) {
-		//					saveCopyAsAsset( asset, target );
-		//				} else {
-		//					saveAsAsset( asset, target );
-		//				}
-		//			}
-		//		}
 
 	}
 
@@ -1616,7 +1562,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		public Collection<Asset> call() {
 			List<Asset> result = new ArrayList<>();
 			Map<Throwable, Asset> throwables = new HashMap<>();
-			if( assets != null ) {
+			if( assets == null ) {
+				try {
+					doOperation( null );
+				} catch( Throwable throwable ) {
+					throwables.put( throwable, NULL_ASSET );
+				}
+			} else {
 				for( Asset asset : assets ) {
 					try {
 						if( doOperation( asset ) ) result.add( asset );
@@ -1706,25 +1658,13 @@ public class AssetManager implements Controllable<AssetManager> {
 	private class SetCurrentAssetTask extends AssetTask {
 
 		private SetCurrentAssetTask( Asset asset ) {
-			super( asset == null ? Set.of() : Set.of( asset ) );
+			// A null collection will call the operation with a null value
+			super( asset == null ? null : Set.of( asset ) );
 		}
 
 		@Override
 		public boolean doOperation( Asset asset ) {
 			return doSetCurrentAsset( asset );
-		}
-
-	}
-
-	private class ActiveToolWatcher implements EventHandler<Event> {
-
-		@Override
-		public void handle( Event event ) {
-			//			Tool tool = ((ToolEvent)event).getTool();
-			//			Asset asset = tool.getAsset();
-			//
-			//			if( asset.getUri().equals( ProgramGuideType.URI ) ) return;
-			//			if( event.getEventType() == ToolSwitchedEvent.SWITCHED ) setCurrentAsset( asset );
 		}
 
 	}

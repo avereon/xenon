@@ -200,6 +200,16 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return null;
 	}
 
+	public Codec getCodecByExtension( String name ) {
+		if( name == null ) return null;
+
+		for( Codec codec : codecs ) {
+			if( codec.isSupportedExtension( name ) ) return codec;
+		}
+
+		return null;
+	}
+
 	public Codec getCodecByFileName( String name ) {
 		if( name == null ) return null;
 

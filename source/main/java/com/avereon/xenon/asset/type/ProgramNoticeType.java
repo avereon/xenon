@@ -2,6 +2,8 @@ package com.avereon.xenon.asset.type;
 
 import com.avereon.product.Product;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.Program;
+import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.notice.NoticeList;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.Asset;
@@ -25,6 +27,12 @@ public class ProgramNoticeType extends AssetType {
 	}
 
 	@Override
+	public boolean assetInit( Program program, Asset asset ) throws AssetException {
+		asset.setModel( new NoticeList() );
+		return true;
+	}
+
+	@Override
 	public boolean isUserType() {
 		return false;
 	}
@@ -43,12 +51,12 @@ public class ProgramNoticeType extends AssetType {
 
 		@Override
 		public boolean canLoad() {
-			return true;
+			return false;
 		}
 
 		@Override
 		public boolean canSave() {
-			return true;
+			return false;
 		}
 
 		@Override

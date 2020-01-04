@@ -81,23 +81,14 @@ public class FileScheme extends BaseScheme {
 	public void load( Asset asset, Codec codec ) throws AssetException {
 		if( codec == null ) throw new NullCodecException( asset );
 
-		InputStream stream = null;
 		File file = getFile( asset );
-		try {
-			stream = new FileInputStream( file );
+		try(InputStream stream = new FileInputStream( file ) ) {
 			codec.load( asset, stream );
 		} catch( MalformedURLException exception ) {
 			throw new AssetException( asset, exception );
 		} catch( IOException exception ) {
 			throw new AssetException( asset, exception );
 		} finally {
-			if( stream != null ) {
-				try {
-					stream.close();
-				} catch( IOException exception ) {
-					throw new AssetException( asset, exception );
-				}
-			}
 			// TODO asset.setExternallyModified( false );
 		}
 
@@ -108,23 +99,14 @@ public class FileScheme extends BaseScheme {
 	public void save( Asset asset, Codec codec ) throws AssetException {
 		if( codec == null ) throw new NullCodecException( asset );
 
-		OutputStream stream = null;
 		File file = getFile( asset );
-		try {
-			stream = new FileOutputStream( file );
+		try(OutputStream stream = new FileOutputStream( file ) ) {
 			codec.save( asset, stream );
 		} catch( MalformedURLException exception ) {
 			throw new AssetException( asset, exception );
 		} catch( IOException exception ) {
 			throw new AssetException( asset, exception );
 		} finally {
-			if( stream != null ) {
-				try {
-					stream.close();
-				} catch( IOException exception ) {
-					throw new AssetException( asset, exception );
-				}
-			}
 			asset.putResource( ASSET_LAST_SAVED_KEY, System.currentTimeMillis() );
 		}
 	}

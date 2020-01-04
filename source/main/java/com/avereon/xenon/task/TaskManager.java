@@ -1,7 +1,5 @@
 package com.avereon.xenon.task;
 
-import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
@@ -15,19 +13,19 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
 
-public class TaskManager implements Configurable, Controllable<TaskManager> {
-
-	static final int THREAD_IDLE_SECONDS = 2;
-
-	private static final int LOW_THREAD_COUNT = 4;
-
-	private static final int HIGH_THREAD_COUNT = 32;
+public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int PROCESSOR_COUNT = Runtime.getRuntime().availableProcessors();
 
-	private static final int DEFAULT_MIN_THREAD_COUNT = Math.max( 4, PROCESSOR_COUNT / 4 );
+	protected static final int LOW_THREAD_COUNT = 4;
 
-	private static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
+	protected static final int HIGH_THREAD_COUNT = 32;
+
+	protected static final int DEFAULT_MIN_THREAD_COUNT = Math.max( 4, PROCESSOR_COUNT / 4 );
+
+	protected static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
+
+	static final int THREAD_IDLE_SECONDS = 2;
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -41,8 +39,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	private int maxThreadCount;
 
-	private Settings settings;
-
 	private Map<Task<?>, Task<?>> taskMap;
 
 	private Queue<Task<?>> taskQueue;
@@ -54,7 +50,7 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
 		eventBus = new ProgramEventBus();
-		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
+		maxThreadCount = DEFAULT_MAX_THREAD_COUNT;
 	}
 
 	public static void taskThreadCheck() {
@@ -128,7 +124,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 
 	public void setMaxThreadCount( int count ) {
 		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
-		if( settings != null ) settings.set( "thread-count", maxThreadCount );
 		if( executorP1 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 1 ) );
 		if( executorP2 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 2 ) );
 		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 3 ) );
@@ -189,17 +184,6 @@ public class TaskManager implements Configurable, Controllable<TaskManager> {
 		if( executor == null ) return null;
 		executor.shutdown();
 		return null;
-	}
-
-	@Override
-	public void setSettings( Settings settings ) {
-		this.settings = settings;
-		this.maxThreadCount = settings.get( "thread-count", Integer.class, maxThreadCount );
-	}
-
-	@Override
-	public Settings getSettings() {
-		return settings;
 	}
 
 	private static boolean isTaskThread() {

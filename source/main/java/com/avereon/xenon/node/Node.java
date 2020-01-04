@@ -173,7 +173,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	 *
 	 * @param node
 	 */
-	public Node copyFrom( Node node ) {
+	public <T extends Node> T copyFrom( Node node ) {
 		return copyFrom( node, false );
 	}
 
@@ -183,7 +183,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	 *
 	 * @param node
 	 */
-	public Node copyFrom( Node node, boolean overwrite ) {
+	@SuppressWarnings( "unchecked" )
+	public <T extends Node> T copyFrom( Node node, boolean overwrite ) {
 		// Clone values
 		for( String key : node.getValueKeys() ) {
 			if( overwrite || getValue( key ) == null ) setValue( key, node.getValue( key ) );
@@ -194,7 +195,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 			if( overwrite || getResource( key ) == null ) putResource( key, node.getResource( key ) );
 		}
 
-		return this;
+		return (T)this;
 	}
 
 	@Override

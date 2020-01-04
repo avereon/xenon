@@ -1,7 +1,9 @@
 package com.avereon.xenon.notice;
 
+import com.avereon.settings.Settings;
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
+import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
@@ -134,6 +136,10 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return this.program;
 	}
 
+	public Settings getSettings() {
+		return getProgram().getSettingsManager().getSettings( ManagerSettings.NOTICE );
+	}
+
 	@Override
 	public boolean isRunning() {
 		return true;
@@ -161,7 +167,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private NoticeList getNoticeList() {
-		return (NoticeList)asset.getModel();
+		return asset.getModel();
 	}
 
 	private void updateUnreadCount() {

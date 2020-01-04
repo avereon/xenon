@@ -85,7 +85,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private SplashScreenPane splashScreen;
 
-	private TaskManager taskManager;
+	private ProgramTaskManager taskManager;
 
 	private ProductCard card;
 
@@ -254,7 +254,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the task manager, depends on program settings
 		// The task manager is created in the init() method so it is available during unit tests
 		log.trace( "Starting task manager..." );
-		taskManager = configureTaskManager( new TaskManager() ).start();
+		taskManager = (ProgramTaskManager)configureTaskManager( new ProgramTaskManager( this ) ).start();
 		log.debug( "Task manager started." );
 		time( "task-manager" );
 
@@ -1200,7 +1200,6 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskManager configureTaskManager( TaskManager taskManager ) {
 		taskManager.getEventBus().parent( eventBus );
-		taskManager.setSettings( programSettings );
 		return taskManager;
 	}
 

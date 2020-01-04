@@ -74,14 +74,15 @@ public class Asset extends Node implements Configurable {
 	private volatile boolean ready;
 
 	public Asset( URI uri ) {
-		this( null, uri );
+		this( uri, null );
 	}
 
 	public Asset( String uri ) {
-		this( null, URI.create( uri ) );
+		this( URI.create( uri ), null );
 	}
 
-	public Asset( AssetType type, URI uri ) {
+	public Asset( URI uri, AssetType type ) {
+		if( uri == null ) throw new IllegalArgumentException( "Asset URI cannot be null" );
 		setUri( uri );
 		setType( type );
 
@@ -222,7 +223,7 @@ public class Asset extends Node implements Configurable {
 		return open;
 	}
 
-	public synchronized final void open() throws AssetException {
+	public synchronized final void open( AssetManager manager ) throws AssetException {
 		if( isOpen() ) return;
 
 		Scheme scheme = getScheme();

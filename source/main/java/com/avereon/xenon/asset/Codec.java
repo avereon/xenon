@@ -24,9 +24,13 @@ public abstract class Codec {
 	 */
 	private Set<String> supportedMediaTypes;
 
+	private Set<String> supportedExtensions;
+
 	private Set<String> supportedFileNames;
 
 	private Set<String> supportedFirstLines;
+
+	private String defaultExtension;
 
 	public abstract String getKey();
 
@@ -48,8 +52,13 @@ public abstract class Codec {
 		this.assetType = type;
 	}
 
-	protected void addSupportedExtension( String extension ) {
-		addSupportedFileName( "^.*\\." + extension + "$" );
+	public String getDefaultExtension() {
+		return defaultExtension;
+	}
+
+	public void setDefaultExtension( String extension ) {
+		addSupportedExtension( extension );
+		this.defaultExtension = extension;
 	}
 
 	/**
@@ -60,6 +69,16 @@ public abstract class Codec {
 	public void addSupportedMediaType( String type ) {
 		if( supportedMediaTypes == null ) supportedMediaTypes = new CopyOnWriteArraySet<>();
 		supportedMediaTypes.add( type );
+	}
+
+	/**
+	 * Add supported extension.
+	 *
+	 * @param extension The extension
+	 */
+	protected void addSupportedExtension( String extension ) {
+		if( supportedExtensions == null ) supportedExtensions = new CopyOnWriteArraySet<>();
+		supportedExtensions.add( extension );
 	}
 
 	/**
@@ -92,6 +111,15 @@ public abstract class Codec {
 	}
 
 	/**
+	 * A set of strings that identify the supported extensions.
+	 *
+	 * @return The set of supported extensions
+	 */
+	public Set<String> getSupportedExtensions() {
+		return supportedExtensions == null ? new HashSet<>() : Collections.unmodifiableSet( supportedExtensions );
+	}
+
+	/**
 	 * A set of strings that identify the supported file names in regular
 	 * expression format.
 	 *
@@ -115,6 +143,17 @@ public abstract class Codec {
 		for( String pattern : getSupportedMediaTypes() ) {
 			boolean matches = pattern.equals( type );
 			log.debug( "Type [" + type + "] matches [" + pattern + "]: " + matches );
+			if( matches ) return true;
+		}
+		return false;
+	}
+
+	public boolean isSupportedExtension( String name ) {
+		if( TextUtil.isEmpty( name ) ) return false;
+		for( String pattern : getSupportedExtensions() ) {
+			pattern = "." + pattern;
+			boolean matches = name.endsWith( pattern );
+			log.debug( "Name [" + name + "] matches [" + pattern + "]: " + matches );
 			if( matches ) return true;
 		}
 		return false;
