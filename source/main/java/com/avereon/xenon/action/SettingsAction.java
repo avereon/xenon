@@ -18,7 +18,7 @@ public class SettingsAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getAssetManager().open( ProgramSettingsType.URI );
+		getProgram().getAssetManager().openAsset( ProgramSettingsType.URI );
 	}
 
 }

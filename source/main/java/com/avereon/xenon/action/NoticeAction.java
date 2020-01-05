@@ -30,7 +30,7 @@ public class NoticeAction extends Action {
 		} else {
 			// Open the notice tool
 			getProgram().getNoticeManager().readAll();
-			getProgram().getAssetManager().open( ProgramNoticeType.URI );
+			getProgram().getAssetManager().openAsset( ProgramNoticeType.URI );
 		}
 	}
 

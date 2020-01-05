@@ -195,12 +195,4 @@ public class AssetManagerTest extends ProgramTestCase {
 		assertThat( codecs, equalTo( type.getCodecs() ) );
 	}
 
-	@Test
-	void testToAssetUri() {
-		assertThat( AssetManager.removeQueryAndFragment( URI.create( "program:product#update" ) ), is( URI.create( "program:product" ) ) );
-		assertThat( AssetManager.removeQueryAndFragment( URI.create( "https://absolute/path?query" ) ), is( URI.create( "https://absolute/path" ) ) );
-		assertThat( AssetManager.removeQueryAndFragment( URI.create( "/absolute/path?query#fragment" ) ), is( URI.create( "/absolute/path" ) ) );
-		assertThat( AssetManager.removeQueryAndFragment( URI.create( "relative/path?query#fragment" ) ), is( URI.create( "relative/path" ) ) );
-	}
-
 }

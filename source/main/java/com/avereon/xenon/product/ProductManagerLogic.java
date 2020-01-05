@@ -604,7 +604,7 @@ public class ProductManagerLogic {
 
 	private void openProductTool() {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
-		Platform.runLater( () -> program.getAssetManager().open( uri ) );
+		Platform.runLater( () -> program.getAssetManager().openAsset( uri ) );
 	}
 
 	private void notifyUserOfUpdates() {
@@ -612,7 +612,7 @@ public class ProductManagerLogic {
 		String message = program.rb().text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
-		Notice notice = new Notice( title, message, () -> program.getAssetManager().open( uri ) )
+		Notice notice = new Notice( title, message, () -> program.getAssetManager().openAsset( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );

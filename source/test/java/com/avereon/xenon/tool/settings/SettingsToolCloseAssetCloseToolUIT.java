@@ -19,7 +19,7 @@ class SettingsToolCloseAssetCloseToolUIT extends SettingsToolUIT {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<ProgramTool> future = program.getAssetManager().open( ProgramSettingsType.URI );
+		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( SettingsTool.class ) );

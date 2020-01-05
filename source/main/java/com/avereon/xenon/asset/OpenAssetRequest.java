@@ -8,7 +8,7 @@ public class OpenAssetRequest {
 
 	private URI uri;
 
-	private String type;
+	private AssetType type;
 
 	private String query;
 
@@ -31,11 +31,11 @@ public class OpenAssetRequest {
 		return this;
 	}
 
-	public String getType() {
+	public AssetType getType() {
 		return type;
 	}
 
-	public OpenAssetRequest setType( String type ) {
+	public OpenAssetRequest setType( AssetType type ) {
 		this.type = type;
 		return this;
 	}

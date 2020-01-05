@@ -18,7 +18,7 @@ public class TaskAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getAssetManager().open( ProgramTaskType.URI );
+		getProgram().getAssetManager().openAsset( ProgramTaskType.URI );
 	}
 
 }

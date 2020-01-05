@@ -249,7 +249,7 @@ public class Asset extends Node implements Configurable {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		// FIXME Because ready is triggered by event and refresh is called directly
-		// asset.refresh() is usually called before tool.assetReady() causing a race
+		// asset.refresh() is often called before tool.assetReady() causing a race
 		// condition because ready is expected to be called only once before refresh
 		// is ever called. Options:
 		//   1) Get rid of the tool.assetReady() method any only use refresh

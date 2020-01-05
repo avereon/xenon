@@ -124,7 +124,7 @@ class UiRegenerator {
 		workarea.setName( "Default" );
 		workspace.setActiveWorkarea( workarea );
 
-		if( !TestUtil.isTest() ) program.getAssetManager().open( ProgramWelcomeType.URI );
+		if( !TestUtil.isTest() ) program.getAssetManager().openAsset( ProgramWelcomeType.URI );
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {

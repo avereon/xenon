@@ -18,7 +18,7 @@ public class AboutAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getAssetManager().open( ProgramAboutType.URI );
+		getProgram().getAssetManager().openAsset( ProgramAboutType.URI );
 	}
 
 }

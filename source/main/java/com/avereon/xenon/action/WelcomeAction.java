@@ -18,7 +18,7 @@ public class WelcomeAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().getAssetManager().open( ProgramWelcomeType.URI );
+		getProgram().getAssetManager().openAsset( ProgramWelcomeType.URI );
 	}
 
 }

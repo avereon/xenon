@@ -70,9 +70,12 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	/**
-	 * @param request
-	 * @return
-	 * @apiNote Should be called from a @code{TaskThread}
+	 * Open a tool using the specified request. The request contains all the
+	 * information regarding the request including the asset.
+	 *
+	 * @param request The open tool request
+	 * @return The tool for the request or null if a tool was not created
+	 * @apiNote Should be called from a {@link TaskManager} thread
 	 */
 	public ProgramTool openTool( OpenToolRequest request ) {
 		// Check the calling thread
@@ -129,7 +132,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Now that we have a tool...open dependent assets and associated tools
 		for( URI dependency : tool.getAssetDependencies() ) {
-			program.getAssetManager().open( dependency, true, false );
+			program.getAssetManager().openAsset( dependency, true, false );
 		}
 
 		// Determine the placement override

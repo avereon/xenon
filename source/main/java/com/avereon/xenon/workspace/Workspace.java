@@ -295,7 +295,7 @@ public class Workspace implements Configurable {
 		taskMonitorContainer = new Group();
 
 		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> program.getAssetManager().open( ProgramTaskType.URI ) );
+		taskMonitor.setOnMouseClicked( ( event ) -> program.getAssetManager().openAsset( ProgramTaskType.URI ) );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();

@@ -1226,7 +1226,7 @@ public class Program extends Application implements ProgramProduct {
 		String runtimeVersion = runtime.getVersion().toHumanString();
 		String title = rb().text( BundleKey.UPDATE, "updates" );
 		String message = rb().text( BundleKey.UPDATE, "program-updated-message", priorVersion, runtimeVersion );
-		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().open( ProgramAboutType.URI ) ).setRead( true ) );
+		getNoticeManager().addNotice( new Notice( title, message, () -> getProgram().getAssetManager().openAsset( ProgramAboutType.URI ) ).setRead( true ) );
 	}
 
 	private boolean calcProgramUpdated() {

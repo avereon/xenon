@@ -80,7 +80,7 @@ public abstract class ScreenShots implements Runnable {
 	}
 
 	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
-		program.getAssetManager().open( ProgramSettingsType.URI );
+		program.getAssetManager().openAsset( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
@@ -88,7 +88,7 @@ public abstract class ScreenShots implements Runnable {
 	}
 
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
-		program.getAssetManager().open( ProgramAboutType.URI );
+		program.getAssetManager().openAsset( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );

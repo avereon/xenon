@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -348,23 +347,68 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	/**
-	 * @implNote This method makes calls to the FX platform.
+	 * This method starts the process of creating a new asset by asset type. The
+	 * returned future allows the caller to get the tool created for the new
+	 * asset. It is possible that a tool was not created for the asset, in which
+	 * case the tool is null.
+	 *
+	 * @param type The new asset type
+	 * @return The future to get the new asset tool
 	 */
-	public Future<ProgramTool> open( URI uri ) {
-		return open( uri, true, true );
+	public Future<ProgramTool> newAsset( AssetType type ) {
+		return newAsset( type, true, true );
+	}
+
+	/**
+	 * This method starts the process of creating a new asset by asset type. The
+	 * returned future allows the caller to get the tool created for the new
+	 * asset. It is possible that a tool was not created for the asset, in which
+	 * case the tool is null.
+	 *
+	 * @param type The new asset type
+	 * @return The future to get the new asset tool
+	 */
+	public Future<ProgramTool> newAsset( AssetType type, boolean openTool, boolean setActive ) {
+		return newAsset( type, null, openTool, setActive );
+	}
+
+	/**
+	 * This method starts the process of creating a new asset by asset type. The
+	 * returned future allows the caller to get the tool created for the new
+	 * asset. It is possible that a tool was not created for the asset, in which
+	 * case the tool is null.
+	 *
+	 * @param type The new asset type
+	 * @return The future to get the new asset tool
+	 */
+	private Future<ProgramTool> newAsset( AssetType type, WorkpaneView view, boolean openTool, boolean setActive ) {
+		OpenAssetRequest request = new OpenAssetRequest();
+		request.setUri( null );
+		request.setType( type );
+		request.setView( view );
+		request.setOpenTool( openTool );
+		request.setSetActive( setActive );
+		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public Future<ProgramTool> open( URI uri, boolean openTool, boolean setActive ) {
-		return open( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
+	public Future<ProgramTool> openAsset( URI uri ) {
+		return openAsset( uri, true, true );
 	}
 
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	private List<Future<ProgramTool>> open( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
+	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
+		return openAsset( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
+	}
+
+	/**
+	 * @implNote This method makes calls to the FX platform.
+	 */
+	private List<Future<ProgramTool>> openAsset( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
 		List<Future<ProgramTool>> futures = new ArrayList<>( uris.size() );
 
 		for( URI uri : uris ) {
@@ -373,7 +417,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			request.setView( view );
 			request.setOpenTool( openTool );
 			request.setSetActive( setActive );
-			futures.add( program.getTaskManager().submit( new OpenActionTask( request ) ) );
+			futures.add( program.getTaskManager().submit( new NewOrOpenAssetTask( request ) ) );
 			setActive = false;
 		}
 
@@ -383,8 +427,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void save( Asset asset ) {
-		save( asset, null, false, false );
+	public void saveAsset( Asset asset ) {
+		saveAsset( asset, null, false, false );
 	}
 
 	/**
@@ -395,7 +439,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void saveAsAsset( Asset source, Asset target ) {
-		save( source, target, true, false );
+		saveAsset( source, target, true, false );
 	}
 
 	//	/**
@@ -421,7 +465,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @implNote This method makes calls to the FX platform.
 	 */
 	public void copyAsAsset( Asset source, Asset target ) {
-		save( source, target, false, true );
+		saveAsset( source, target, false, true );
 	}
 
 	//	/**
@@ -448,7 +492,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param copy The copy as flag
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	private void save( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
+	private void saveAsset( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
 		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
 			Codec assetCodec = asset.getCodec();
 
@@ -554,7 +598,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( result.isPresent() && result.get() != ButtonType.YES ) return;
 		}
 
-		save( asset, null, false, false );
+		saveAsset( asset, null, false, false );
 	}
 
 	public Asset createAsset( Object descriptor ) throws AssetException {
@@ -883,7 +927,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private AssetType findMatchingUriAssetType( URI uri ) {
-		return uriAssetTypes.get( removeQueryAndFragment( uri ) );
+		return uriAssetTypes.get( UriUtil.removeQueryAndFragment( uri ) );
 	}
 
 	/**
@@ -952,7 +996,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	// FIXME Need to check if callers really need to know if it is open or identified
-	private boolean isAssetOpen( Asset asset ) {
+	private boolean isManagedAssetOpen( Asset asset ) {
 		return openAssets.contains( asset );
 	}
 
@@ -1040,7 +1084,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
 		if( uri == null ) uri = URI.create( "asset:" + IdGenerator.getId() );
-		uri = removeQueryAndFragment( uri );
+		uri = UriUtil.removeQueryAndFragment( uri );
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
@@ -1057,25 +1101,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		return asset;
 	}
 
-	static URI removeQueryAndFragment( URI uri ) {
-		if( uri == null ) return null;
-
-		// Return a URI without query or fragment data
-		try {
-			if( uri.isOpaque() ) {
-				return new URI( uri.getScheme(), uri.getSchemeSpecificPart(), null );
-			} else {
-				return new URI( uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), uri.getPath(), null, null );
-			}
-		} catch( URISyntaxException exception ) {
-			// Intentionally ignore exception - should never happen
-			log.error( "Error resolving asset URI: " + uri, exception );
-		}
-		return null;
-	}
-
 	private boolean doOpenAsset( Asset asset ) throws AssetException {
-		if( isAssetOpen( asset ) ) return true;
+		if( isManagedAssetOpen( asset ) ) return true;
 
 		// Determine the asset type.
 		AssetType type = asset.getType();
@@ -1136,7 +1163,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doSaveAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
-		if( !isAssetOpen( asset ) ) return false;
+		if( !isManagedAssetOpen( asset ) ) return false;
 
 		asset.save( this );
 		identifiedAssets.put( asset.getUri(), asset );
@@ -1158,7 +1185,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doCloseAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
-		if( !isAssetOpen( asset ) ) return false;
+		if( !isManagedAssetOpen( asset ) ) return false;
 
 		asset.close( this );
 		openAssets.remove( asset );
@@ -1313,37 +1340,27 @@ public class AssetManager implements Controllable<AssetManager> {
 		return TextUtil.cleanNull( new String( output.toByteArray(), encoding ) );
 	}
 
-	// TODO The OpenActionTask class name is not the best...
-	// but there are other classes with the expected name
-	private class OpenActionTask extends Task<ProgramTool> {
+	private class NewOrOpenAssetTask extends Task<ProgramTool> {
 
 		private OpenAssetRequest request;
 
-		public OpenActionTask( OpenAssetRequest request ) {
+		public NewOrOpenAssetTask( OpenAssetRequest request ) {
 			this.request = request;
 		}
 
 		@Override
 		public ProgramTool call() throws Exception {
-			Asset asset = createAsset( request.getUri() );
-			if( request.getType() != null ) asset.setType( getAssetType( request.getType() ) );
-			log.debug( "Open asset: {}", asset.getUri() );
-
-			boolean openTool = request.isOpenTool() || !isAssetOpen( asset );
+			// Create and configure the asset
 			Codec codec = request.getCodec();
+			Asset asset = createAsset( request.getType(), request.getUri() );
+			if( codec != null ) asset.setCodec( codec );
 
-			try {
-				if( codec != null ) asset.setCodec( codec );
+			// Open the asset
+			openAssetsAndWait( asset );
+			if( !asset.isOpen() || !isManagedAssetOpen( asset ) ) return null;
 
-				// Open the asset
-				openAssetsAndWait( asset );
-				if( !asset.isOpen() ) return null;
-			} catch( Exception exception ) {
-				program.getNoticeManager().error( exception );
-				return null;
-			}
-
-			ProgramTool tool = openTool ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
+			// Create the tool if needed
+			ProgramTool tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
 
 			// Start loading the asset after the tool has been created
 			if( !asset.isLoaded() ) loadAssets( asset );
@@ -1381,40 +1398,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				//					if( result == JOptionPane.OK_OPTION ) type = panel.getAssetType();
 			}
 
-			program.getTaskManager().submit( new LoadAsset( type ) );
-		}
-
-		private class LoadAsset extends Task<Asset> {
-
-			private AssetType type;
-
-			private LoadAsset( AssetType type ) {
-				this.type = type;
-			}
-
-			@Override
-			public Asset call() throws Exception {
-				if( type == null ) return null;
-
-				Asset asset;
-				try {
-					asset = createAsset( type );
-					openAssetsAndWait( asset );
-					if( !asset.isOpen() ) return null;
-				} catch( Exception exception ) {
-					program.getNoticeManager().error( exception );
-					return null;
-				}
-				asset.setModified( true );
-
-				if( !asset.isLoaded() ) loadAssetsAndWait( asset );
-
-				OpenAssetRequest request = new OpenAssetRequest().setOpenTool( true ).setSetActive( true );
-				program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) );
-
-				return asset;
-			}
-
+			newAsset( type );
 		}
 
 	}
@@ -1441,7 +1425,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			FileChooser chooser = new FileChooser();
 
 			File file = chooser.showOpenDialog( getProgram().getWorkspaceManager().getActiveStage() );
-			if( file != null ) open( file.toURI() );
+			if( file != null ) openAsset( file.toURI() );
 
 			isHandling = false;
 			updateActionState();
@@ -1476,7 +1460,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
-			save( getCurrentAsset() );
+			saveAsset( getCurrentAsset() );
 		}
 
 	}

@@ -36,7 +36,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		program.getAssetManager().registerUriAssetType( MockAssetType.URI, assetType );
 		program.getToolManager().registerTool( assetType, new ToolMetadata( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON ) );
 
-		program.getAssetManager().open( MockAssetType.URI );
+		program.getAssetManager().openAsset( MockAssetType.URI );
 
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );

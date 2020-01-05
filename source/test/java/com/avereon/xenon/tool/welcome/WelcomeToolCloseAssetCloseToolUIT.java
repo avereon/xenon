@@ -18,7 +18,7 @@ class WelcomeToolCloseAssetCloseToolUIT extends WelcomeToolUIT {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), is( 0 ) );
 
-		Future<ProgramTool> future = program.getAssetManager().open( ProgramWelcomeType.URI );
+		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramWelcomeType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );

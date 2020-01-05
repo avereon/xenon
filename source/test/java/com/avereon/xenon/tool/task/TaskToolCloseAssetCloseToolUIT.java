@@ -19,7 +19,7 @@ class TaskToolCloseAssetCloseToolUIT extends TaskToolUIT {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertThat( pane.getTools().size(), Matchers.is( 0 ) );
 
-		Future<ProgramTool> future = program.getAssetManager().open( ProgramTaskType.URI );
+		Future<ProgramTool> future = program.getAssetManager().openAsset( ProgramTaskType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertThat( pane.getTools().size(), Matchers.is( 1 ) );
