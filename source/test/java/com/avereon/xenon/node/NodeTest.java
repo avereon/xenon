@@ -1244,7 +1244,7 @@ class NodeTest {
 	}
 
 	private static Matcher<NodeEvent> eventOldValue( Matcher<? super Object> matcher ) {
-		return new FeatureMatcher<>( matcher, "oldValue", "oldValue" ) {
+		return new FeatureMatcher<NodeEvent, Object>( matcher, "oldValue", "oldValue" ) {
 
 			@Override
 			protected Object featureValueOf( NodeEvent event ) {
@@ -1255,7 +1255,7 @@ class NodeTest {
 	}
 
 	private static Matcher<NodeEvent> eventNewValue( Matcher<? super Object> matcher ) {
-		return new FeatureMatcher<>( matcher, "newValue", "newValue" ) {
+		return new FeatureMatcher<NodeEvent, Object>( matcher, "newValue", "newValue" ) {
 
 			@Override
 			protected Object featureValueOf( NodeEvent event ) {
