@@ -12,8 +12,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NodeTest {
 
@@ -324,20 +323,28 @@ class NodeTest {
 
 	@Test
 	void testDoubleClearWithDoubleTxn() throws Exception {
+		// Do this process once and it works fine
 		Txn.create();
 		data.clear();
 		data.setValue( "x", 1 );
 		data.setValue( "y", 2 );
 		data.setValue( "z", 3 );
 		Txn.commit();
+		data.getValueKeys().forEach( k -> System.out.println( k + "=" + data.getValue( k ) ) );
+		assertThat( data.getValue( "x" ), is( 1 ) );
+		assertThat( data.getValue( "y" ), is( 2 ) );
+		assertThat( data.getValue( "z" ), is( 3 ) );
 
+		// Do this process again and it fails
 		Txn.create();
 		data.clear();
 		data.setValue( "x", 1 );
 		data.setValue( "y", 2 );
 		data.setValue( "z", 3 );
 		Txn.commit();
-
+		// NEXT Where did the data go???
+		assertTrue( data.getValueKeys().size() > 0 );
+		data.getValueKeys().forEach( k -> System.out.println( k + "=" + data.getValue( k ) ) );
 		assertThat( data.getValue( "x" ), is( 1 ) );
 		assertThat( data.getValue( "y" ), is( 2 ) );
 		assertThat( data.getValue( "z" ), is( 3 ) );

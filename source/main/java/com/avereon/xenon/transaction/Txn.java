@@ -112,6 +112,7 @@ public class Txn {
 	}
 
 	private void doSubmit( Phase phase, TxnOperation operation ) {
+		System.out.println( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() + "=" + operation );
 		log.trace( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
 
 		// TODO Can this be allowed by making a copy of the operations collection when commit starts?
