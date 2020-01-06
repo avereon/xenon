@@ -323,6 +323,27 @@ class NodeTest {
 	}
 
 	@Test
+	void testDoubleClearWithDoubleTxn() throws Exception {
+		Txn.create();
+		data.clear();
+		data.setValue( "x", 1 );
+		data.setValue( "y", 2 );
+		data.setValue( "z", 3 );
+		Txn.commit();
+
+		Txn.create();
+		data.clear();
+		data.setValue( "x", 1 );
+		data.setValue( "y", 2 );
+		data.setValue( "z", 3 );
+		Txn.commit();
+
+		assertThat( data.getValue( "x" ), is( 1 ) );
+		assertThat( data.getValue( "y" ), is( 2 ) );
+		assertThat( data.getValue( "z" ), is( 3 ) );
+	}
+
+	@Test
 	void testTestMetaValueModified() {
 		String key = "hidden";
 
@@ -1148,14 +1169,7 @@ class NodeTest {
 
 	@SuppressWarnings( "SameParameterValue" )
 	private static void assertEventState(
-		NodeWatcher watcher,
-		int index,
-		NodeEvent.Type type,
-		Node parent,
-		Node child,
-		String key,
-		Object oldValue,
-		Object newValue
+		NodeWatcher watcher, int index, NodeEvent.Type type, Node parent, Node child, String key, Object oldValue, Object newValue
 	) {
 		assertThat( watcher.getEvents().get( index ), hasEventState( parent, child, type, key, oldValue, newValue ) );
 	}
