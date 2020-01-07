@@ -267,6 +267,7 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public synchronized final void refresh() {
+		log.warn( "Asset REFRESHED called: " + this );
 		if( !ready ) return;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}

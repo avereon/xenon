@@ -103,6 +103,7 @@ public class AboutTool extends GuidedTool {
 	protected void allocate() throws ToolException {
 		log.debug( "Tool allocate" );
 		super.allocate();
+		updatePages();
 	}
 
 	@Override
@@ -148,8 +149,13 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void assetRefreshed() throws ToolException {
-		super.assetRefreshed();
+		updatePages();
+	}
+
+	private void updatePages() {
 		ProductCard metadata = getAsset().getModel();
+		if( metadata == null ) return;
+
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );
 		} else {
