@@ -311,12 +311,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only flag: " + key );
 
 		boolean oldValue = getFlag( key );
-		if( newValue == oldValue ) return;
+		//if( newValue == oldValue ) return;
 
 		try {
 			Txn.create();
 			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
-			Txn.submit( new UpdateModifiedOperation( this ) );
+			//Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
@@ -350,12 +350,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only value: " + key );
 
 		Object oldValue = getValue( key );
-		if( newValue == oldValue ) return;
+		//if( newValue == oldValue ) return;
 
 		try {
 			Txn.create();
 			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
-			Txn.submitAfter( new UpdateModifiedOperation( this ) );
+			//Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
@@ -365,10 +365,11 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	protected void clear() {
 		try {
 			Txn.create();
-			for( String key : getValueKeys() ) {
-				Txn.submit( new SetValueOperation( this, key, getValue( key ), null ) );
-			}
-			Txn.submitAfter( new UpdateModifiedOperation( this ) );
+			getValueKeys().forEach( k -> setValue( k, null ) );
+//			for( String key : getValueKeys() ) {
+//				Txn.submit( new SetValueOperation( this, key, getValue( key ), null ) );
+//			}
+//			Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error clearing values", exception );
@@ -535,6 +536,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 		@Override
 		protected void commit() throws TxnException {
+			boolean currentValue = getFlag( key );
+			if( newValue == currentValue ) return;
+
+			// This operation must be created before any changes are made
+			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
+
 			doSetFlag( key, newValue );
 
 			// Propagate the flag value to children
@@ -554,11 +561,18 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
 			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+
+			Txn.submit( updateModified );
 		}
 
 		@Override
 		protected void revert() throws TxnException {
 			doSetFlag( key, oldValue );
+		}
+
+		@Override
+		public String toString() {
+			return "set flag  " + key + " " + oldValue + " -> " + newValue;
 		}
 
 	}
@@ -580,6 +594,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 		@Override
 		protected void commit() throws TxnException {
+			Object currentValue = getValue( key );
+			if( newValue == currentValue ) return;
+
+			// This operation must be created before any changes are made
+			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
+
 			setValue( key, oldValue, newValue );
 
 			Node parent = getParent();
@@ -593,11 +613,18 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 			// Send an event to the parent about the value change
 			if( parent != null ) getResult().addEvent( new NodeEvent( parent, getNode(), type, key, oldValue, newValue ) );
+
+			Txn.submit( updateModified );
 		}
 
 		@Override
 		protected void revert() throws TxnException {
 			setValue( key, newValue, oldValue );
+		}
+
+		@Override
+		public String toString() {
+			return "set value " + key + " " + oldValue + " -> " + newValue;
 		}
 
 		private void setValue( String key, Object oldValue, Object newValue ) {
@@ -659,6 +686,11 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		@Override
 		protected void revert() throws TxnException {
 			doSetFlag( MODIFIED, oldValue );
+		}
+
+		@Override
+		public String toString() {
+			return "update modified from " + oldValue;
 		}
 
 		private boolean hasModifiedValues() {

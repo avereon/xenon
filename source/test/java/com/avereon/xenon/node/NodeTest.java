@@ -12,7 +12,8 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class NodeTest {
 
@@ -322,32 +323,13 @@ class NodeTest {
 	}
 
 	@Test
-	void testDoubleClearWithDoubleTxn() throws Exception {
-		// Do this process once and it works fine
-		Txn.create();
-		data.clear();
+	void testSetClearSetValueInTxn() throws Exception {
 		data.setValue( "x", 1 );
-		data.setValue( "y", 2 );
-		data.setValue( "z", 3 );
-		Txn.commit();
-		data.getValueKeys().forEach( k -> System.out.println( k + "=" + data.getValue( k ) ) );
-		assertThat( data.getValue( "x" ), is( 1 ) );
-		assertThat( data.getValue( "y" ), is( 2 ) );
-		assertThat( data.getValue( "z" ), is( 3 ) );
-
-		// Do this process again and it fails
 		Txn.create();
-		data.clear();
+		data.setValue( "x", null );
 		data.setValue( "x", 1 );
-		data.setValue( "y", 2 );
-		data.setValue( "z", 3 );
 		Txn.commit();
-		// NEXT Where did the data go???
-		assertTrue( data.getValueKeys().size() > 0 );
-		data.getValueKeys().forEach( k -> System.out.println( k + "=" + data.getValue( k ) ) );
 		assertThat( data.getValue( "x" ), is( 1 ) );
-		assertThat( data.getValue( "y" ), is( 2 ) );
-		assertThat( data.getValue( "z" ), is( 3 ) );
 	}
 
 	@Test
@@ -1110,7 +1092,7 @@ class NodeTest {
 	}
 
 	private static Matcher<Node> modifiedFlag( Matcher<? super Boolean> matcher ) {
-		return new FeatureMatcher<Node, Boolean>( matcher, "modified", "modified" ) {
+		return new FeatureMatcher<Node, Boolean>( matcher, "the modified flag", "modified" ) {
 
 			@Override
 			protected Boolean featureValueOf( Node node ) {

@@ -5,36 +5,29 @@ import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Txn {
 
-	private enum Phase {
-		BEFORE,
-		DURING,
-		AFTER
-	}
-
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private static final TxnEventComparator eventComparator = new TxnEventComparator();
 
-	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<Deque<Txn>>();
+	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<>();
 
 	private final ReentrantLock commitLock = new ReentrantLock();
 
-	private Map<Phase, Queue<TxnOperation>> operations;
+	private Queue<TxnOperation> operations;
 
 	private int depth;
 
 	static {
-		threadLocalTransactions.set( new ArrayDeque<Txn>() );
+		threadLocalTransactions.set( new ArrayDeque<>() );
 	}
 
 	public Txn() {
-		operations = new ConcurrentHashMap<>();
+		operations = new ConcurrentLinkedQueue<>();
 	}
 
 	public static Txn create() {
@@ -49,16 +42,8 @@ public class Txn {
 		return transaction;
 	}
 
-	public static void submitBefore( TxnOperation operation ) throws TxnException {
-		verifyActiveTransaction().doSubmit( Phase.BEFORE, operation );
-	}
-
 	public static void submit( TxnOperation operation ) throws TxnException {
-		verifyActiveTransaction().doSubmit( Phase.DURING, operation );
-	}
-
-	public static void submitAfter( TxnOperation operation ) throws TxnException {
-		verifyActiveTransaction().doSubmit( Phase.AFTER, operation );
+		verifyActiveTransaction().operations.offer( operation );
 	}
 
 	public static void commit() throws TxnException {
@@ -97,7 +82,7 @@ public class Txn {
 
 	private static Txn pushTransaction() {
 		Deque<Txn> deque = threadLocalTransactions.get();
-		if( deque == null ) threadLocalTransactions.set( deque = new ArrayDeque<Txn>() );
+		if( deque == null ) threadLocalTransactions.set( deque = new ArrayDeque<>() );
 		Txn transaction = new Txn();
 		deque.offerFirst( transaction );
 		return transaction;
@@ -111,26 +96,13 @@ public class Txn {
 		return transaction;
 	}
 
-	private void doSubmit( Phase phase, TxnOperation operation ) {
-		System.out.println( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() + "=" + operation );
-		log.trace( System.identityHashCode( this ) + " submit by: " + Thread.currentThread() );
-
-		// TODO Can this be allowed by making a copy of the operations collection when commit starts?
-		if( commitLock.isLocked() ) throw new TransactionException( "Transaction " + System.identityHashCode( this ) + " steps cannot be added during a commit" );
-		Queue<TxnOperation> phaseOperations = operations.computeIfAbsent( phase, key -> new ConcurrentLinkedQueue<TxnOperation>() );
-		phaseOperations.offer( operation );
-	}
-
 	private void doCommit() throws TxnException {
 		try {
 			commitLock.lock();
 			log.trace( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
 
 			// Process all the operations
-			List<TxnOperationResult> operationResults = new ArrayList<TxnOperationResult>();
-			operationResults.addAll( processOperations( Phase.BEFORE ) );
-			operationResults.addAll( processOperations( Phase.DURING ) );
-			operationResults.addAll( processOperations( Phase.AFTER ) );
+			List<TxnOperationResult> operationResults = new ArrayList<>( processOperations() );
 
 			// Go through each operation result and collect the events by dispatcher
 			Map<TxnEventDispatcher, List<TxnEvent>> txnEvents = new HashMap<>();
@@ -167,20 +139,19 @@ public class Txn {
 		//System.out.println( "Commit complete!" );
 	}
 
-	private List<TxnOperationResult> processOperations( Phase phase ) throws TxnException {
+	private List<TxnOperationResult> processOperations() throws TxnException {
 		// Process the operations.
 		List<TxnOperationResult> operationResults = new ArrayList<>();
+		List<TxnOperation> completedOperations = new ArrayList<>();
 		try {
-			Queue<TxnOperation> phaseOperations = operations.get( phase );
-			if( phaseOperations != null ) {
-				for( TxnOperation operation : phaseOperations ) {
-					operation.callCommit();
-					operationResults.add( operation.getResult() );
-				}
+			TxnOperation operation;
+			while( (operation = operations.poll()) != null ) {
+				operationResults.add( operation.callCommit() );
+				completedOperations.add( operation );
 			}
 		} catch( TxnException commitException ) {
 			try {
-				for( TxnOperation operation : operations.get( phase ) ) {
+				for( TxnOperation operation : completedOperations ) {
 					if( operation.getStatus() == TxnOperation.Status.COMMITTED ) operation.callRevert();
 				}
 			} catch( TxnException rollbackException ) {

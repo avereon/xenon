@@ -33,11 +33,7 @@ public abstract class TxnOperation {
 		return result;
 	}
 
-	protected void addEvent( TxnEvent event ) {
-		result.addEvent( event );
-	}
-
-	void callCommit() throws TxnException {
+	TxnOperationResult callCommit() throws TxnException {
 		try {
 			status = Status.COMMITTING;
 			commit();
@@ -46,6 +42,7 @@ public abstract class TxnOperation {
 			status = Status.FAILED;
 			throw exception;
 		}
+		return getResult();
 	}
 
 	void callRevert() throws TxnException {
