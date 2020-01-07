@@ -1128,6 +1128,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.trace( "Asset opened: " + asset );
 
+		updateActionState();
 		return true;
 	}
 
@@ -1146,6 +1147,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.trace( "Asset loaded: " + asset );
 
+		updateActionState();
 		return true;
 	}
 
@@ -1164,6 +1166,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
 		log.trace( "Asset saved: " + asset );
 
+		updateActionState();
 		return true;
 	}
 
@@ -1186,6 +1189,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
 		log.trace( "Asset closed: " + asset );
 
+		updateActionState();
 		return true;
 	}
 
@@ -1209,13 +1213,13 @@ public class AssetManager implements Controllable<AssetManager> {
 				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
 			}
 
-			updateActionState();
 
 			// Notify program of current asset change.
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
 			log.trace( "Asset select: " + asset );
 		}
 
+		updateActionState();
 		return true;
 	}
 
@@ -1644,11 +1648,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public void handle( AssetEvent event ) {
 			if( event.getEventType() == AssetEvent.MODIFIED ) {
-				log.trace( "Asset modified: " + event.getAsset() );
+				log.warn( "Asset modified: " + event.getAsset() );
 				updateActionState();
 			}
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) {
-				log.trace( "Asset unmodified: " + event.getAsset() );
+				log.warn( "Asset unmodified: " + event.getAsset() );
 				updateActionState();
 			}
 		}

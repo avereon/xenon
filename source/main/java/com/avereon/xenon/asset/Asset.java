@@ -93,7 +93,7 @@ public class Asset extends Node implements Configurable {
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
 
-		// TODO Connect the node event hub to the event hub
+		// TODO Connect the node event hub to the asset event hub
 		addNodeListener( new NodeWatcher() );
 	}
 
@@ -282,7 +282,6 @@ public class Asset extends Node implements Configurable {
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.save( this, getCodec() );
 		setModified( false );
-
 		saved = true;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
