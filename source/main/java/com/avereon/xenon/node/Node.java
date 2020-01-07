@@ -533,12 +533,18 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		@Override
 		protected void commit() throws TxnException {
 			boolean currentValue = getFlag( key );
-			if( newValue == currentValue ) return;
 
 			// This operation must be created before any changes are made
 			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
 
+			// Even if the flag value does not change, doSetFlag should be called
 			doSetFlag( key, newValue );
+
+			if( newValue != currentValue ) {
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+				Txn.submit( updateModified );
+			}
 
 			// Propagate the flag value to children
 			if( values != null && MODIFIED.equals( key ) && !newValue ) {
@@ -554,11 +560,6 @@ public class Node implements TxnEventDispatcher, Cloneable {
 					}
 				}
 			}
-
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
-
-			Txn.submit( updateModified );
 		}
 
 		@Override
