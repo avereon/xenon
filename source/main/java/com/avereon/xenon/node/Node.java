@@ -436,7 +436,6 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	private void updateModified() {
-		log.warn( "modified flag: " + getFlag( MODIFIED ) + " modified children: " + (getModifiedChildCount() != 0) );
 		modified = getFlag( MODIFIED ) || getModifiedChildCount() != 0;
 	}
 
@@ -540,12 +539,6 @@ public class Node implements TxnEventDispatcher, Cloneable {
 			// Even if the flag value does not change, doSetFlag should be called
 			doSetFlag( key, newValue );
 
-			if( newValue != currentValue ) {
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
-				Txn.submit( updateModified );
-			}
-
 			// Propagate the flag value to children
 			if( values != null && MODIFIED.equals( key ) && !newValue ) {
 				// Clear the modified flag of any child nodes
@@ -559,6 +552,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 						}
 					}
 				}
+			}
+
+			if( newValue != currentValue ) {
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+				Txn.submit( updateModified );
 			}
 		}
 

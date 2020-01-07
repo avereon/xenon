@@ -45,11 +45,8 @@ public class NodeEvent extends TxnEvent {
 	}
 
 	public NodeEvent( Node node, Node child, Type type, String key, Object oldValue, Object newValue ) {
-		this( node, type );
+		this( node, type, key, oldValue, newValue );
 		this.child = child;
-		this.key = key;
-		this.oldValue = oldValue;
-		this.newValue = newValue;
 	}
 
 	public Type getType() {

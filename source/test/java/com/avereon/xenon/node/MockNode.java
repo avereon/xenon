@@ -2,6 +2,8 @@ package com.avereon.xenon.node;
 
 class MockNode extends Node {
 
+	private NodeWatcher watcher;
+
 	MockNode() {
 		this( null );
 	}
@@ -10,6 +12,7 @@ class MockNode extends Node {
 		definePrimaryKey( "id" );
 		setId( id );
 		setModified( false );
+		addNodeListener( watcher = new NodeWatcher() );
 	}
 
 	private String getId() {
@@ -18,6 +21,10 @@ class MockNode extends Node {
 
 	private void setId( String id ) {
 		setValue( "id", id );
+	}
+
+	public NodeWatcher getWatcher() {
+		return watcher;
 	}
 
 }
