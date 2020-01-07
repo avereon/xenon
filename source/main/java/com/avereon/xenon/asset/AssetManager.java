@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 public class AssetManager implements Controllable<AssetManager> {
 
-	public static final String CURRENT_DIRECTORY_SETTING_KEY = "current-folder";
+	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
 
 	// Linux defines this limit in BINPRM_BUF_SIZE
 	private static final int FIRST_LINE_LIMIT = 128;
@@ -494,35 +494,33 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	private void saveAsset( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
 		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
-			Codec assetCodec = asset.getCodec();
+			Codec codec = asset.getCodec();
+			if( codec == null ) codec = asset.getType().getDefaultCodec();
 
-			// If there is not a codec associated with the asset choose the default.
-			if( assetCodec == null ) assetCodec = asset.getType().getDefaultCodec();
+			Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
 
 			FileChooser chooser = new FileChooser();
-
-			Map<Codec, FileChooser.ExtensionFilter> filterCodecs = new HashMap<>();
-			Map<FileChooser.ExtensionFilter, Codec> codecFilters = new HashMap<>();
-			AssetType assetType = asset.getType();
-			for( Codec codec : assetType.getCodecs() ) {
-				FileChooser.ExtensionFilter filter = generateFilter( codec );
-				filterCodecs.put( codec, filter );
-				codecFilters.put( filter, codec );
-				chooser.getExtensionFilters().add( filter );
-				if( codec == assetType.getDefaultCodec() ) chooser.setSelectedExtensionFilter( filter );
-			}
-			if( assetCodec != null ) chooser.setSelectedExtensionFilter( filterCodecs.get( assetCodec ) );
-
-			chooser.setInitialDirectory( new File( getSettings().get( CURRENT_DIRECTORY_SETTING_KEY, System.getProperty( "user.dir" ) ) ) );
-			chooser.setInitialFileName( "asset" + (assetCodec == null ? "" : "." + assetCodec.getDefaultExtension()) );
+			chooser.getExtensionFilters().addAll( codecFilters.values() );
+			chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
+			chooser.setInitialDirectory( new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) ) );
+			chooser.setInitialFileName( "asset" + (codec == null ? "" : "." + codec.getDefaultExtension()) );
 
 			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
 			if( file == null ) return;
 
+			File parent = file.isDirectory() ? file : file.getParentFile();
+			getSettings().set( CURRENT_FOLDER_SETTING_KEY, parent.toString() );
+
 			// If the user specified a codec use it to set the codec and asset type
-			AssetType type = null;
-			Codec codec = codecFilters.get( chooser.getSelectedExtensionFilter() );
-			if( codec != null ) type = codec.getAssetType();
+			AssetType type = asset.getType();
+			Map<FileChooser.ExtensionFilter, Codec> filterCodecs = MapUtil.mirror( codecFilters );
+			Codec selectedCodec = filterCodecs.get( chooser.getSelectedExtensionFilter() );
+			if( selectedCodec != null ) type = selectedCodec.getAssetType();
+
+			// If the file extension is not already supported use the default extension from the codec
+			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupportedExtension( file.getName() ) ) {
+				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
+			}
 
 			// Resolve the URI
 			URI uri = UriUtil.resolve( file.toString() );
@@ -530,30 +528,12 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Create the target asset
 			try {
 				saveAsAsset = createAsset( type, uri );
-				if( codec != null ) saveAsAsset.setCodec( codec );
 				saveAsAsset.setSettings( getAssetSettings( saveAsAsset ) );
-				//saveAsAsset.getSettings().copyFrom( asset.getSettings() );
+				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
+				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
 			} catch( AssetException exception ) {
 				program.getNoticeManager().error( exception );
 			}
-
-			//			do {
-			//				// If the file is not already supported use the default extension from the codec.
-			//				if( !file.exists() && !codec.isSupportedFileName( file.getName() ) ) {
-			//					file = new File( file.getParent(), file.getName() + "." + codec.getDefaultExtension() );
-			//				}
-			//
-			//				// If the file already exists verify with the user.
-			//				if( file.exists() ) {
-			//					String title = Bundles.getString( BundleKey.LABELS, "file.already.exists" );
-			//					String message = MessageFormat.format( Bundles.getString( BundleKey.MESSAGES, "file.already.exists" ), file );
-			//					result = program.notify( title, message, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
-			//					if( result == JOptionPane.CANCEL_OPTION ) return false;
-			//				}
-			//			} while( file.exists() && result != JOptionPane.YES_OPTION );
-
-			File parent = file.isFile() ? file.getParentFile() : file;
-			getSettings().set( CURRENT_DIRECTORY_SETTING_KEY, parent.toString() );
 		}
 
 		if( saveAsAsset != null ) {
@@ -564,6 +544,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		saveAssets( asset );
+	}
+
+	private Map<Codec, FileChooser.ExtensionFilter> generateCodecFilters( AssetType type ) {
+		Map<Codec, FileChooser.ExtensionFilter> codecFilters = new HashMap<>();
+		for( Codec codec : type.getCodecs() ) {
+			codecFilters.put( codec, generateFilter( codec ) );
+		}
+		return codecFilters;
 	}
 
 	private FileChooser.ExtensionFilter generateFilter( Codec codec ) {
@@ -890,7 +878,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return Collections.unmodifiableCollection( codecs );
 	}
 
-	Settings getSettings() {
+	private Settings getSettings() {
 		return program.getSettingsManager().getSettings( ManagerSettings.ASSET );
 	}
 
@@ -1162,8 +1150,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private boolean doSaveAsset( Asset asset ) throws AssetException {
-		if( asset == null ) return false;
-		if( !isManagedAssetOpen( asset ) ) return false;
+		if( asset == null || !isManagedAssetOpen( asset ) ) return false;
 
 		asset.save( this );
 		identifiedAssets.put( asset.getUri(), asset );
@@ -1423,9 +1410,14 @@ public class AssetManager implements Controllable<AssetManager> {
 			updateEnabled();
 
 			FileChooser chooser = new FileChooser();
-
+			chooser.setInitialDirectory( new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) ) );
 			File file = chooser.showOpenDialog( getProgram().getWorkspaceManager().getActiveStage() );
-			if( file != null ) openAsset( file.toURI() );
+
+			if( file != null ) {
+				File parent = file.isDirectory() ? file : file.getParentFile();
+				getSettings().set( CURRENT_FOLDER_SETTING_KEY, parent.toString() );
+				openAsset( file.toURI() );
+			}
 
 			isHandling = false;
 			updateActionState();
