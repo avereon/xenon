@@ -502,7 +502,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			FileChooser chooser = new FileChooser();
 			chooser.getExtensionFilters().addAll( codecFilters.values() );
 			chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
-			chooser.setInitialDirectory( new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) ) );
+			chooser.setInitialDirectory( getFileChooserFolder() );
 			chooser.setInitialFileName( "asset" + (codec == null ? "" : "." + codec.getDefaultExtension()) );
 
 			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
@@ -1327,6 +1327,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		return TextUtil.cleanNull( new String( output.toByteArray(), encoding ) );
 	}
 
+	private File getFileChooserFolder() {
+		File folder = new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
+		if( !folder.exists() ) folder = new File( System.getProperty( "user.dir" ) );
+		return folder;
+	}
+
 	private class NewOrOpenAssetTask extends Task<ProgramTool> {
 
 		private OpenAssetRequest request;
@@ -1410,7 +1416,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			updateEnabled();
 
 			FileChooser chooser = new FileChooser();
-			chooser.setInitialDirectory( new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) ) );
+			chooser.setInitialDirectory( getFileChooserFolder() );
 			File file = chooser.showOpenDialog( getProgram().getWorkspaceManager().getActiveStage() );
 
 			if( file != null ) {
