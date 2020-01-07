@@ -244,8 +244,8 @@ public class Asset extends Node implements Configurable {
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.load( this, getCodec() );
 		setModified( false );
-
 		loaded = true;
+
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
 
 		// FIXME Because ready is triggered by event and refresh is called directly
@@ -267,7 +267,6 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public synchronized final void refresh() {
-		log.warn( "Asset REFRESHED called: " + this );
 		if( !ready ) return;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
@@ -282,6 +281,8 @@ public class Asset extends Node implements Configurable {
 		saved = false;
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.save( this, getCodec() );
+		setModified( false );
+
 		saved = true;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );

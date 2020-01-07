@@ -1159,9 +1159,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		// TODO If the asset is changing URI the settings need to be moved
 		asset.setSettings( getAssetSettings( asset ) );
 
-		// Note: The asset watcher will log that the asset was unmodified.
-		asset.setModified( false );
-
 		// TODO Update the asset type.
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
@@ -1648,11 +1645,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		public void handle( AssetEvent event ) {
 			if( event.getEventType() == AssetEvent.MODIFIED ) {
 				log.trace( "Asset modified: " + event.getAsset() );
-				saveActionHandler.updateEnabled();
+				updateActionState();
 			}
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) {
 				log.trace( "Asset unmodified: " + event.getAsset() );
-				saveActionHandler.updateEnabled();
+				updateActionState();
 			}
 		}
 
@@ -1665,7 +1662,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			NodeEvent.Type type = event.getType();
 			switch( type ) {
 				case FLAG_CHANGED: {
-					updateActionState();
+					//updateActionState();
 					log.debug( "Data flag changed: " + event.getSource() + ": " + event.getKey() + ": " + event.getNewValue() );
 					break;
 				}
