@@ -40,7 +40,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private Map<String, Object> values;
 
 	/**
-	 * The node resources. This map provides a way to associate objects without affecting the data model as a whole. Adding or removing resources does not affect the node state nor does it cause any kind of event. This is simply a storage
+	 * The node resources. This map provides a way to associate objects without affecting the data model as a whole. Adding or removing resources does not affect
+	 * the node state nor does it cause any kind of event. This is simply a storage
 	 * mechanism.
 	 */
 	private Map<String, Object> resources;
@@ -86,7 +87,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private Set<Node> modifiedChildren;
 
 	/**
-	 * Is the node modified. The node is modified if any data value has been modified or any child node has been modified since the last time setModified( false ) was called.
+	 * Is the node modified. The node is modified if any data value has been modified or any child node has been modified since the last time setModified( false )
+	 * was called.
 	 *
 	 * @return true if this node or any child nodes are modified, false otherwise.
 	 */
@@ -178,7 +180,8 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	/**
-	 * Copy the values and resources from the specified node. If overwrite is true this method will replace any values or resources with the specified nodes values and resources. Otherwise, this method will only fill in missing values and
+	 * Copy the values and resources from the specified node. If overwrite is true this method will replace any values or resources with the specified nodes
+	 * values and resources. Otherwise, this method will only fill in missing values and
 	 * resources from the specified node.
 	 *
 	 * @param node
@@ -311,12 +314,10 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only flag: " + key );
 
 		boolean oldValue = getFlag( key );
-		//if( newValue == oldValue ) return;
 
 		try {
 			Txn.create();
 			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
-			//Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
@@ -350,12 +351,10 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only value: " + key );
 
 		Object oldValue = getValue( key );
-		//if( newValue == oldValue ) return;
 
 		try {
 			Txn.create();
 			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
-			//Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
@@ -366,10 +365,6 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		try {
 			Txn.create();
 			getValueKeys().forEach( k -> setValue( k, null ) );
-//			for( String key : getValueKeys() ) {
-//				Txn.submit( new SetValueOperation( this, key, getValue( key ), null ) );
-//			}
-//			Txn.submitAfter( new UpdateModifiedOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error clearing values", exception );
@@ -441,6 +436,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	private void updateModified() {
+		log.warn( "modified flag: " + getFlag( MODIFIED ) + " modified children: " + (getModifiedChildCount() != 0) );
 		modified = getFlag( MODIFIED ) || getModifiedChildCount() != 0;
 	}
 

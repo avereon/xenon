@@ -12,8 +12,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NodeTest {
 
@@ -797,6 +796,25 @@ class NodeTest {
 		assertThat( parent, hasStates( false, 0, 0 ) );
 		assertThat( parentWatcher, hasEventCounts( 1, 1, 1 ) );
 		assertThat( childWatcher, hasEventCounts( 1, 1, 1 ) );
+	}
+
+	@Test
+	void testChildModifiedClearedByParentSetModifiedFalse() {
+		MockNode parent = new MockNode( "parent" );
+		MockNode child = new MockNode( "child" );
+		parent.setValue( "child", child );
+		parent.setModified( false );
+		assertThat( child.getParent(), is( parent ) );
+		assertFalse( parent.isModified() );
+		assertFalse( child.isModified() );
+
+		child.setValue( "x", 2 );
+		assertTrue( parent.isModified() );
+		assertTrue( child.isModified() );
+
+		parent.setModified( false );
+		assertFalse( parent.isModified() );
+		assertFalse( child.isModified() );
 	}
 
 	@Test
