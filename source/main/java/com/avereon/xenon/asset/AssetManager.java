@@ -497,9 +497,9 @@ public class AssetManager implements Controllable<AssetManager> {
 			Codec codec = asset.getCodec();
 			if( codec == null ) codec = asset.getType().getDefaultCodec();
 
-			Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
-
+			// NOTE This logic is very file oriented. It may need to move to the file scheme.
 			FileChooser chooser = new FileChooser();
+			Map<Codec, FileChooser.ExtensionFilter> codecFilters = generateCodecFilters( asset.getType() );
 			chooser.getExtensionFilters().addAll( codecFilters.values() );
 			chooser.setSelectedExtensionFilter( codecFilters.get( codec ) );
 			chooser.setInitialDirectory( getFileChooserFolder() );
@@ -1415,6 +1415,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			isHandling = true;
 			updateEnabled();
 
+			// NOTE This logic is very file oriented. It may need to move to the file scheme.
 			FileChooser chooser = new FileChooser();
 			chooser.setInitialDirectory( getFileChooserFolder() );
 			File file = chooser.showOpenDialog( getProgram().getWorkspaceManager().getActiveStage() );
@@ -1427,14 +1428,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			isHandling = false;
 			updateActionState();
-
-			//				if( event.getActionCommand() == AssetTool.CANCEL_SELECTION ) return;
-			//
-			//				// Open the selected assets.
-			//				Codec codec = tool.getSelectedCodec();
-			//				List<Asset> assets = List.of( tool.getSelectedAssets() );
-			//				program.getTaskManager().submit( new OpenActionTask( assets, codec, program.getActiveWorkPane().getActiveView(), true ) );
-
 		}
 
 	}
