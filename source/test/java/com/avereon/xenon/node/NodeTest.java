@@ -799,6 +799,9 @@ class NodeTest {
 	void testChildModifiedClearedByParentSetModifiedFalse() {
 		MockNode parent = new MockNode( "parent" );
 		MockNode child = new MockNode( "child" );
+		assertFalse( parent.isModified() );
+		assertFalse( child.isModified() );
+
 		parent.setValue( "child", child );
 		assertThat( child.getParent(), is( parent ) );
 		assertTrue( parent.isModified() );
@@ -827,8 +830,11 @@ class NodeTest {
 		parent.setModified( false );
 		assertFalse( parent.isModified() );
 		assertFalse( child.isModified() );
-		// FIXME Should the parent also have some events?
-		assertThat( parent, hasEventCounts( 0, 0, 0 ) );
+		assertThat( parent.getWatcher().getEvents().get( 0 ), hasEventState( parent, NodeEvent.Type.FLAG_CHANGED ));
+		assertThat( parent.getWatcher().getEvents().get( 1 ), hasEventState( parent, NodeEvent.Type.NODE_CHANGED ));
+		assertThat( child.getWatcher().getEvents().get( 0 ), hasEventState( child, NodeEvent.Type.FLAG_CHANGED ));
+		assertThat( child.getWatcher().getEvents().get( 1 ), hasEventState( child, NodeEvent.Type.NODE_CHANGED ));
+		assertThat( parent, hasEventCounts( 1, 1, 0 ) );
 		assertThat( child, hasEventCounts( 1, 1, 0 ) );
 	}
 

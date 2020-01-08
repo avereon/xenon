@@ -416,8 +416,9 @@ public class Node implements TxnEventDispatcher, Cloneable {
 				modifiedValues = null;
 				modifiedChildren = null;
 			}
-			updateModified();
 		}
+
+		updateModified();
 	}
 
 	private void doSetValue( String key, Object oldValue, Object newValue ) {
@@ -532,6 +533,16 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		@Override
 		protected void commit() throws TxnException {
 			boolean currentValue = getFlag( key );
+			// NEXT FIXME Improve/replace logic regarding the modified flag
+			// The concept of other "flags" has not really developed. If anything,
+			// other flags can just be boolean values. The logic behind updating a
+			// flag, like the modified flag, can be rather complex and may need more
+			// handling than is provided here. Particularly there may be logic that
+			// needs to be invoked if a flag/value is changed. Maybe that is the
+			// improvement that needs to be made, the ability to run logic when a
+			// value is changed, but before events are fired. This is also complicated
+			// with the use of Txns because Txn logic is processed at commit.
+			if( MODIFIED.equals( key ) ) currentValue |= modified;
 
 			// This operation must be created before any changes are made
 			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
@@ -690,7 +701,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		}
 
 		private boolean hasModifiedValues() {
-			return modifiedValues != null && modifiedValues.size() > 0;
+			return getModifiedValueCount() != 0;
 		}
 
 	}
