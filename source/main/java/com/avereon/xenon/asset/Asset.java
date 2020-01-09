@@ -260,12 +260,6 @@ public class Asset extends Node implements Configurable {
 		notifyAll();
 	}
 
-	private synchronized void setReady() {
-		if( ready ) return;
-		ready = true;
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
-	}
-
 	public synchronized final void refresh() {
 		if( !ready ) return;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
@@ -285,6 +279,8 @@ public class Asset extends Node implements Configurable {
 		saved = true;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
+
+		updateAssetName();
 	}
 
 	public synchronized final boolean isClosed() {
@@ -296,7 +292,6 @@ public class Asset extends Node implements Configurable {
 
 		Scheme scheme = getScheme();
 		if( scheme != null ) scheme.close( this );
-
 		open = false;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
@@ -382,6 +377,12 @@ public class Asset extends Node implements Configurable {
 		AssetType type = getType();
 		String assetTypeName = type == null ? "Unknown asset type" : type.getName();
 		return isNew() ? assetTypeName : uri.toString();
+	}
+
+	private synchronized void setReady() {
+		if( ready ) return;
+		ready = true;
+		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
 	}
 
 	private void updateAssetName() {
