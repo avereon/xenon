@@ -128,11 +128,11 @@ public class Notice extends Node {
 	}
 
 	public boolean isRead() {
-		return getFlag( READ );
+		return getValue( READ );
 	}
 
 	public Notice setRead( boolean read ) {
-		setFlag( READ, read );
+		setValue( READ, read );
 		return this;
 	}
 

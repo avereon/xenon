@@ -1,7 +1,7 @@
 package com.avereon.xenon.transaction;
 
-public interface TxnEventDispatcher {
+public interface TxnEventDispatcher< T extends TxnEvent> {
 
-	void dispatchEvent( TxnEvent event );
+	void dispatchEvent( T event );
 
 }

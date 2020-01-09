@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-public class Node implements TxnEventDispatcher, Cloneable {
+public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -72,12 +72,20 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private Set<NodeListener> listeners;
 
 	/**
-	 * The internally calculated modified flag used to allow for fast read rates. This is updated only when values or the modified flag is changed.
+	 * The internally calculated modified flag used to allow for fast read rates.
+	 * This is updated only when values or the modified flag is changed.
 	 */
 	private boolean modified;
 
+	// Are there modified values in this node
+	private boolean selfModified;
+
+	// Are there modified child nodes
+	private boolean treeModified;
+
 	/**
-	 * The map of previous values as the node is modified. This map is set to null when the modified flag is set to false.
+	 * The map of previous values as the node is modified. This map is set to null
+	 * when the modified flag is set to false.
 	 */
 	private Map<String, Object> modifiedValues;
 
@@ -87,8 +95,9 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	private Set<Node> modifiedChildren;
 
 	/**
-	 * Is the node modified. The node is modified if any data value has been modified or any child node has been modified since the last time setModified( false )
-	 * was called.
+	 * Is the node modified. The node is modified if any data value has been
+	 * modified or any child node has been modified since the last time
+	 * {@link #setModified setModified(false)} was called.
 	 *
 	 * @return true if this node or any child nodes are modified, false otherwise.
 	 */
@@ -96,8 +105,16 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		return modified;
 	}
 
-	public void setModified( boolean modified ) {
-		setFlag( MODIFIED, modified );
+	public void setModified( boolean newValue ) {
+		boolean oldValue = selfModified;
+
+		try {
+			Txn.create();
+			Txn.submit( new SetSelfModifiedOperation( this, oldValue, newValue ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error setting flag: modified", exception );
+		}
 	}
 
 	//	public Set<Edge> getLinks() {
@@ -146,12 +163,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 	}
 
 	@Override
-	public void dispatchEvent( TxnEvent event ) {
-		if( !(event instanceof NodeEvent) ) return;
+	public void dispatchEvent( NodeEvent event ) {
+		if( event == null ) return;
 
 		if( listeners != null ) {
 			for( NodeListener listener : listeners ) {
-				listener.nodeEvent( (NodeEvent)event );
+				listener.nodeEvent( event );
 			}
 		}
 	}
@@ -304,26 +321,6 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		return readOnlySet != null && readOnlySet.contains( key );
 	}
 
-	protected boolean getFlag( String key ) {
-		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-		return flags != null && flags.contains( key );
-	}
-
-	protected void setFlag( String key, boolean newValue ) {
-		if( key == null ) throw new NullPointerException( "Flag key cannot be null" );
-		if( readOnlySet != null && readOnlySet.contains( key ) ) throw new IllegalStateException( "Attempt to set read-only flag: " + key );
-
-		boolean oldValue = getFlag( key );
-
-		try {
-			Txn.create();
-			Txn.submit( new SetFlagOperation( this, key, oldValue, newValue ) );
-			Txn.commit();
-		} catch( TxnException exception ) {
-			log.error( "Error setting flag: " + key, exception );
-		}
-	}
-
 	protected Set<String> getValueKeys() {
 		return values == null ? Collections.emptySet() : values.keySet();
 	}
@@ -408,14 +405,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		edges.remove( edge );
 	}
 
-	private void doSetFlag( String key, boolean newValue ) {
-		flags = updateSet( flags, key, newValue );
+	private void doSetSelfModified( boolean newValue ) {
+		selfModified = newValue;
 
-		if( MODIFIED.equals( key ) ) {
-			if( !newValue ) {
-				modifiedValues = null;
-				modifiedChildren = null;
-			}
+		if( !newValue ) {
+			modifiedValues = null;
+			modifiedChildren = null;
 		}
 
 		updateModified();
@@ -436,10 +431,6 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		updateModified();
 	}
 
-	private void updateModified() {
-		modified = getFlag( MODIFIED ) || getModifiedChildCount() != 0;
-	}
-
 	private boolean childModified( Node child, boolean modified ) {
 		boolean previousModified = isModified();
 
@@ -453,6 +444,10 @@ public class Node implements TxnEventDispatcher, Cloneable {
 		updateModified();
 
 		return isModified() != previousModified;
+	}
+
+	private void updateModified() {
+		modified = selfModified || getModifiedChildCount() != 0;
 	}
 
 	private <T> Set<T> updateSet( Set<T> set, T child, boolean newValue ) {
@@ -515,50 +510,46 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 	}
 
-	private class SetFlagOperation extends NodeTxnOperation {
-
-		private String key;
+	// NEXT FIXME Improve/replace logic regarding the modified flag
+	// The concept of other "flags" has not really developed. If anything,
+	// other flags can just be boolean values. The logic behind updating a
+	// flag, like the modified flag, can be rather complex and may need more
+	// handling than is provided here. Particularly there may be logic that
+	// needs to be invoked if a flag/value is changed. Maybe that is the
+	// improvement that needs to be made, the ability to run logic when a
+	// value is changed, but before events are fired. This is also complicated
+	// with the use of Txns because Txn logic is processed at commit.
+	private class SetSelfModifiedOperation extends NodeTxnOperation {
 
 		private boolean oldValue;
 
 		private boolean newValue;
 
-		SetFlagOperation( Node node, String key, boolean oldValue, boolean newValue ) {
+		SetSelfModifiedOperation( Node node, boolean oldValue, boolean newValue ) {
 			super( node );
-			this.key = key;
 			this.oldValue = oldValue;
 			this.newValue = newValue;
 		}
 
 		@Override
 		protected void commit() throws TxnException {
-			boolean currentValue = getFlag( key );
-			// NEXT FIXME Improve/replace logic regarding the modified flag
-			// The concept of other "flags" has not really developed. If anything,
-			// other flags can just be boolean values. The logic behind updating a
-			// flag, like the modified flag, can be rather complex and may need more
-			// handling than is provided here. Particularly there may be logic that
-			// needs to be invoked if a flag/value is changed. Maybe that is the
-			// improvement that needs to be made, the ability to run logic when a
-			// value is changed, but before events are fired. This is also complicated
-			// with the use of Txns because Txn logic is processed at commit.
-			if( MODIFIED.equals( key ) ) currentValue |= modified;
+			boolean currentValue = modified;
 
 			// This operation must be created before any changes are made
 			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
 
-			// Even if the flag value does not change, doSetFlag should be called
-			doSetFlag( key, newValue );
+			// Even if the flag value does not change, doSetModified should be called
+			doSetSelfModified( newValue );
 
 			// Propagate the flag value to children
-			if( values != null && MODIFIED.equals( key ) && !newValue ) {
+			if( values != null && !newValue ) {
 				// Clear the modified flag of any child nodes
 				for( Object value : values.values() ) {
 					if( value instanceof Node ) {
 						Node child = (Node)value;
 						if( child.isModified() ) {
-							child.doSetFlag( key, false );
-							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.FLAG_CHANGED, key, true, false ) );
+							child.doSetSelfModified( false );
+							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.FLAG_CHANGED, MODIFIED, true, false ) );
 							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.NODE_CHANGED ) );
 						}
 					}
@@ -566,7 +557,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 			}
 
 			if( newValue != currentValue ) {
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, key, oldValue, newValue ) );
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
 				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
 				Txn.submit( updateModified );
 			}
@@ -574,12 +565,12 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 		@Override
 		protected void revert() throws TxnException {
-			doSetFlag( key, oldValue );
+			doSetSelfModified( oldValue );
 		}
 
 		@Override
 		public String toString() {
-			return "set flag  " + key + " " + oldValue + " -> " + newValue;
+			return "set flag  modified " + oldValue + " -> " + newValue;
 		}
 
 	}
@@ -670,7 +661,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 			// Check if the modified values should change the modified flag
 			if( newValue != oldValue ) {
-				doSetFlag( MODIFIED, newValue );
+				doSetSelfModified( newValue );
 				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
 			}
 
@@ -692,7 +683,7 @@ public class Node implements TxnEventDispatcher, Cloneable {
 
 		@Override
 		protected void revert() throws TxnException {
-			doSetFlag( MODIFIED, oldValue );
+			doSetSelfModified( oldValue );
 		}
 
 		@Override

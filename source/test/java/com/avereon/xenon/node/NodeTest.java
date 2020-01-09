@@ -331,50 +331,50 @@ class NodeTest {
 		assertThat( data.getValue( "x" ), is( 1 ) );
 	}
 
-	@Test
-	void testTestMetaValueModified() {
-		String key = "hidden";
-
-		assertThat( data.getFlag( key ), is( false ) );
-		data.setFlag( key, true );
-		assertThat( data.getFlag( key ), is( true ) );
-		data.setFlag( key, false );
-		assertThat( data.getFlag( key ), is( false ) );
-	}
-
-	@Test
-	void testSetNullMetaValueToFalse() {
-		data.setFlag( "attribute", false );
-		assertThat( data, hasEventCounts( 0, 0, 0 ) );
-	}
-
-	@Test
-	void testSetMetaValueWithNullName() {
-		NodeWatcher watcher = new NodeWatcher();
-		data.addNodeListener( watcher );
-
-		try {
-			data.setFlag( null, true );
-			fail( "Null flag keys are not allowed" );
-		} catch( NullPointerException exception ) {
-			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
-		}
-		assertThat( data, hasEventCounts( 0, 0, 0 ) );
-	}
-
-	@Test
-	void testGetMetaValueWithNullName() {
-		NodeWatcher watcher = new NodeWatcher();
-		data.addNodeListener( watcher );
-
-		try {
-			data.getFlag( null );
-			fail( "Null flag keys are not allowed" );
-		} catch( NullPointerException exception ) {
-			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
-		}
-		assertThat( data, hasEventCounts( 0, 0, 0 ) );
-	}
+//	@Test
+//	void testTestMetaValueModified() {
+//		String key = "hidden";
+//
+//		assertThat( data.getFlag( key ), is( false ) );
+//		data.setFlag( key, true );
+//		assertThat( data.getFlag( key ), is( true ) );
+//		data.setFlag( key, false );
+//		assertThat( data.getFlag( key ), is( false ) );
+//	}
+//
+//	@Test
+//	void testSetNullMetaValueToFalse() {
+//		data.setFlag( "attribute", false );
+//		assertThat( data, hasEventCounts( 0, 0, 0 ) );
+//	}
+//
+//	@Test
+//	void testSetMetaValueWithNullName() {
+//		NodeWatcher watcher = new NodeWatcher();
+//		data.addNodeListener( watcher );
+//
+//		try {
+//			data.setFlag( null, true );
+//			fail( "Null flag keys are not allowed" );
+//		} catch( NullPointerException exception ) {
+//			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
+//		}
+//		assertThat( data, hasEventCounts( 0, 0, 0 ) );
+//	}
+//
+//	@Test
+//	void testGetMetaValueWithNullName() {
+//		NodeWatcher watcher = new NodeWatcher();
+//		data.addNodeListener( watcher );
+//
+//		try {
+//			data.getFlag( null );
+//			fail( "Null flag keys are not allowed" );
+//		} catch( NullPointerException exception ) {
+//			assertThat( exception.getMessage(), is( "Flag key cannot be null" ) );
+//		}
+//		assertThat( data, hasEventCounts( 0, 0, 0 ) );
+//	}
 
 	@Test
 	void testResourceKeys() {
@@ -1126,17 +1126,17 @@ class NodeTest {
 		return allOf( modifiedMatcher, modifiedValueCountMatcher, modifiedChildCountMatcher );
 	}
 
-	@SuppressWarnings( "unused" )
-	private static Matcher<Node> flag( String key, Matcher<? super Boolean> matcher ) {
-		return new FeatureMatcher<Node, Boolean>( matcher, key, key ) {
-
-			@Override
-			protected Boolean featureValueOf( Node node ) {
-				return node.getFlag( key );
-			}
-
-		};
-	}
+//	@SuppressWarnings( "unused" )
+//	private static Matcher<Node> flag( String key, Matcher<? super Boolean> matcher ) {
+//		return new FeatureMatcher<Node, Boolean>( matcher, key, key ) {
+//
+//			@Override
+//			protected Boolean featureValueOf( Node node ) {
+//				return node.getFlag( key );
+//			}
+//
+//		};
+//	}
 
 	private static Matcher<Node> modifiedFlag( Matcher<? super Boolean> matcher ) {
 		return new FeatureMatcher<Node, Boolean>( matcher, "the modified flag", "modified" ) {

@@ -181,11 +181,11 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public boolean isExternallyModified() {
-		return getFlag( EXTERNALLY_MODIFIED );
+		return getValue( EXTERNALLY_MODIFIED );
 	}
 
 	public void setExternallyModified( boolean modified ) {
-		setFlag( EXTERNALLY_MODIFIED, modified );
+		setValue( EXTERNALLY_MODIFIED, modified );
 	}
 
 	public <M> M getModel() {
@@ -409,6 +409,7 @@ public class Asset extends Node implements Configurable {
 		this.name = name;
 	}
 
+	// FIXME Maybe override dispatchEvent( NodeEvent event ) to do this
 	private class NodeWatcher implements NodeListener {
 
 		@Override
