@@ -403,9 +403,6 @@ class NodeTest {
 
 	@Test
 	void testDataEventNotification() {
-		NodeWatcher watcher = new NodeWatcher();
-		data.addNodeListener( watcher );
-
 		assertThat( data, hasStates( false, 0, 0 ) );
 		assertThat( data, hasEventCounts( 0, 0, 0 ) );
 
@@ -430,13 +427,14 @@ class NodeTest {
 		assertThat( data, hasEventCounts( 3, 2, 3 ) );
 
 		int index = 0;
+		NodeWatcher watcher = data.getWatcher();
 		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", null, "value0" );
-		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, false, true );
+		assertEventState( watcher, index++, NodeEvent.Type.MODIFIED, data );
 		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", "value0", "value1" );
 		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", "value1", null );
-		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, true, false );
+		assertEventState( watcher, index++, NodeEvent.Type.UNMODIFIED, data );
 		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}
@@ -466,9 +464,9 @@ class NodeTest {
 
 		int index = 0;
 		assertEventState( watcher, index++, NodeEvent.Type.VALUE_CHANGED, data, "attribute", null, "value0" );
-		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, false, true );
+		assertEventState( watcher, index++, NodeEvent.Type.MODIFIED, data );
 		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
-		assertEventState( watcher, index++, NodeEvent.Type.FLAG_CHANGED, data, Node.MODIFIED, true, false );
+		assertEventState( watcher, index++, NodeEvent.Type.UNMODIFIED, data );
 		assertEventState( watcher, index++, NodeEvent.Type.NODE_CHANGED, data );
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}
@@ -561,7 +559,7 @@ class NodeTest {
 
 		int index = 0;
 		assertEventState( parentWatcher, index++, NodeEvent.Type.VALUE_CHANGED, parent, "child", null, child );
-		assertEventState( parentWatcher, index++, NodeEvent.Type.FLAG_CHANGED, parent, Node.MODIFIED, false, true );
+		assertEventState( parentWatcher, index++, NodeEvent.Type.MODIFIED, parent );
 		assertEventState( parentWatcher, index++, NodeEvent.Type.NODE_CHANGED, parent );
 
 		assertEventState( parentWatcher, index++, NodeEvent.Type.VALUE_CHANGED, parent, child, "attribute", null, "value0" );
@@ -830,9 +828,9 @@ class NodeTest {
 		parent.setModified( false );
 		assertFalse( parent.isModified() );
 		assertFalse( child.isModified() );
-		assertThat( parent.getWatcher().getEvents().get( 0 ), hasEventState( parent, NodeEvent.Type.FLAG_CHANGED ));
+		assertThat( parent.getWatcher().getEvents().get( 0 ), hasEventState( parent, NodeEvent.Type.UNMODIFIED ));
 		assertThat( parent.getWatcher().getEvents().get( 1 ), hasEventState( parent, NodeEvent.Type.NODE_CHANGED ));
-		assertThat( child.getWatcher().getEvents().get( 0 ), hasEventState( child, NodeEvent.Type.FLAG_CHANGED ));
+		assertThat( child.getWatcher().getEvents().get( 0 ), hasEventState( child, NodeEvent.Type.UNMODIFIED ));
 		assertThat( child.getWatcher().getEvents().get( 1 ), hasEventState( child, NodeEvent.Type.NODE_CHANGED ));
 		assertThat( parent, hasEventCounts( 1, 1, 0 ) );
 		assertThat( child, hasEventCounts( 1, 1, 0 ) );
@@ -1173,9 +1171,9 @@ class NodeTest {
 
 	private static Matcher<NodeWatcher> hasWatcherEventCounts( int node, int flag, int value ) {
 		Matcher<NodeWatcher> nodeEventCounter = watcherEventCount( NodeEvent.Type.NODE_CHANGED, is( node ) );
-		Matcher<NodeWatcher> flagEventCounter = watcherEventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
+		//Matcher<NodeWatcher> flagEventCounter = watcherEventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
 		Matcher<NodeWatcher> valueEventCounter = watcherEventCount( NodeEvent.Type.VALUE_CHANGED, is( value ) );
-		return allOf( nodeEventCounter, flagEventCounter, valueEventCounter );
+		return allOf( nodeEventCounter, valueEventCounter );
 	}
 
 	private static Matcher<NodeWatcher> watcherEventCount( NodeEvent.Type type, Matcher<? super Integer> matcher ) {
@@ -1191,9 +1189,9 @@ class NodeTest {
 
 	private static Matcher<MockNode> hasEventCounts( int node, int flag, int value ) {
 		Matcher<MockNode> nodeEventCounter = nodeEventCount( NodeEvent.Type.NODE_CHANGED, is( node ) );
-		Matcher<MockNode> flagEventCounter = nodeEventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
+		//Matcher<MockNode> flagEventCounter = nodeEventCount( NodeEvent.Type.FLAG_CHANGED, is( flag ) );
 		Matcher<MockNode> valueEventCounter = nodeEventCount( NodeEvent.Type.VALUE_CHANGED, is( value ) );
-		return allOf( nodeEventCounter, flagEventCounter, valueEventCounter );
+		return allOf( nodeEventCounter, valueEventCounter );
 	}
 
 	private static Matcher<MockNode> nodeEventCount( NodeEvent.Type type, Matcher<? super Integer> matcher ) {

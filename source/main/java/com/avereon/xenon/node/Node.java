@@ -17,6 +17,7 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	/**
 	 * The modified flag key.
 	 */
+	@Deprecated
 	public static final String MODIFIED = "flag.modified";
 
 	/**
@@ -563,7 +564,8 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 						Node child = (Node)value;
 						if( child.isModified() ) {
 							child.doSetSelfModified( false );
-							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.FLAG_CHANGED, MODIFIED, true, false ) );
+							//getResult().addEvent( new NodeEvent( child, NodeEvent.Type.FLAG_CHANGED, MODIFIED, true, false ) );
+							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.UNMODIFIED ) );
 							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.NODE_CHANGED ) );
 						}
 					}
@@ -571,7 +573,8 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 			}
 
 			if( newValue != currentValue ) {
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+				//getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
 				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
 				Txn.submit( updateModified );
 			}
@@ -676,7 +679,8 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 			// Check if the modified values should change the modified flag
 			if( newValue != oldValue ) {
 				doSetSelfModified( newValue );
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+				//getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
+				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
 			}
 
 			// Add the node changed event
@@ -688,7 +692,8 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 			while( parent != null ) {
 				boolean priorModified = parent.isModified();
 				boolean parentChanged = parent.childModified( node, newValue );
-				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, NodeEvent.Type.FLAG_CHANGED, MODIFIED, priorModified, !priorModified ) );
+				//if( parentChanged ) getResult().addEvent( new NodeEvent( parent, NodeEvent.Type.FLAG_CHANGED, MODIFIED, priorModified, !priorModified ) );
+				if( parentChanged ) getResult().addEvent( new NodeEvent( getNode(), !priorModified ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
 				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.Type.NODE_CHANGED ) );
 				node = parent;
 				parent = parent.getParent();

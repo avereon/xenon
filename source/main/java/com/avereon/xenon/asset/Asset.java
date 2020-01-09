@@ -415,14 +415,10 @@ public class Asset extends Node implements Configurable {
 
 		@Override
 		public void nodeEvent( NodeEvent event ) {
-			if( event.getType() != NodeEvent.Type.FLAG_CHANGED ) return;
-
-			if( Objects.equals( event.getKey(), Node.MODIFIED ) ) {
-				if( Boolean.TRUE == event.getNewValue() ) {
-					getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, (Asset)event.getSource() ) );
-				} else {
-					getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, (Asset)event.getSource() ) );
-				}
+			if( event.getType() != NodeEvent.Type.UNMODIFIED ) {
+				getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, (Asset)event.getSource() ) );
+			} else if( event.getType() != NodeEvent.Type.MODIFIED ) {
+				getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, (Asset)event.getSource() ) );
 			}
 		}
 

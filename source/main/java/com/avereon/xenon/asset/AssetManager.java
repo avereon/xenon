@@ -1665,9 +1665,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		public void nodeEvent( NodeEvent event ) {
 			NodeEvent.Type type = event.getType();
 			switch( type ) {
-				case FLAG_CHANGED: {
+				case MODIFIED:
+				case UNMODIFIED: {
 					//updateActionState();
-					log.debug( "Data flag changed: " + event.getSource() + ": " + event.getKey() + ": " + event.getNewValue() );
+					log.debug( "Modified flag changed: " + event.getSource() + ": " + event.getKey() + ": " + event.getNewValue() );
 					break;
 				}
 				case VALUE_CHANGED: {

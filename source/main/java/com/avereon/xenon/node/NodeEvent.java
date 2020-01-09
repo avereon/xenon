@@ -6,12 +6,14 @@ import java.util.Objects;
 
 public class NodeEvent extends TxnEvent {
 
+	// The order is used to sort the event distribution
 	public enum Type {
+		VALUE_CHANGED,
 		CHILD_REMOVED,
 		CHILD_ADDED,
-		VALUE_CHANGED,
-		FLAG_CHANGED,
-		NODE_CHANGED
+		MODIFIED,
+		UNMODIFIED,
+		NODE_CHANGED,
 	}
 
 	private Type type;
