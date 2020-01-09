@@ -20,7 +20,8 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	public static final String MODIFIED = "flag.modified";
 
 	/**
-	 * A special object to represent previous null values in the modifiedValues map.
+	 * A special object to represent previously null values in the modifiedValues
+	 * map.
 	 */
 	private static final Object NULL = new Object();
 
@@ -40,14 +41,16 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	private Map<String, Object> values;
 
 	/**
-	 * The node resources. This map provides a way to associate objects without affecting the data model as a whole. Adding or removing resources does not affect
-	 * the node state nor does it cause any kind of event. This is simply a storage
-	 * mechanism.
+	 * The node resources. This map provides a way to associate objects without
+	 * affecting the data model as a whole. Adding or removing resources does not
+	 * affect the node state nor does it cause any kind of event. This is simply a
+	 * storage mechanism.
 	 */
 	private Map<String, Object> resources;
 
 	/**
-	 * The collection of edges this node is associated with. The node may be the source or may be the target of the edge.
+	 * The collection of edges this node is associated with. The node may be the
+	 * source or may be the target of the edge.
 	 */
 	private Set<Edge> edges;
 
@@ -78,26 +81,29 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	private boolean modified;
 
 	// Are there modified values in this node
+	// This should be the same as modifiedValues.size() != 0
 	private boolean selfModified;
 
 	// Are there modified child nodes
+	// This should be the same as modifiedChildren.size() != 0
 	private boolean treeModified;
 
 	/**
-	 * The map of previous values as the node is modified. This map is set to null
-	 * when the modified flag is set to false.
+	 * The map of values that are modified since the modified flag was last
+	 * cleared. This map is set to null when the modified flag is cleared.
 	 */
 	private Map<String, Object> modifiedValues;
 
 	/**
-	 * The count of child nodes that are modified.
+	 * The count of child nodes that are modified since the modified flag was last
+	 * cleared. This set is set to null when the modified flag is cleared.
 	 */
 	private Set<Node> modifiedChildren;
 
 	/**
 	 * Is the node modified. The node is modified if any data value has been
-	 * modified or any child node has been modified since the last time
-	 * {@link #setModified setModified(false)} was called.
+	 * modified or any child node has been modified since the last time the
+	 * modified flag was cleared.
 	 *
 	 * @return true if this node or any child nodes are modified, false otherwise.
 	 */
@@ -105,6 +111,11 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 		return modified;
 	}
 
+	/**
+	 * Set(true) or clear(false) the modified flag.
+	 *
+	 * @param newValue The new modified flag value
+	 */
 	public void setModified( boolean newValue ) {
 		boolean oldValue = selfModified;
 
@@ -121,18 +132,18 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	//		return new HashSet<>( edges );
 	//	}
 	//
-	//	public Edge add( Node target ) {
-	//		return add( target, false );
+	//	public Edge link( Node target ) {
+	//		return link( target, false );
 	//	}
 	//
-	//	public Edge add( Node target, boolean directed ) {
+	//	public Edge link( Node target, boolean directed ) {
 	//		Edge edge = new Edge( this, target, directed );
 	//		addEdge( edge );
 	//		target.addEdge( edge );
 	//		return edge;
 	//	}
 	//
-	//	public void remove( Node target ) {
+	//	public void unlink( Node target ) {
 	//		// Find all edges where target is a source or target
 	//		for( Edge edge : findEdges( this.edges, this, target ) ) {
 	//			edge.getSource().removeEdge( edge );
@@ -188,7 +199,8 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	}
 
 	/**
-	 * Copy the values and resources from the specified node. This method will only fill in missing values and resources from the specified node.
+	 * Copy the values and resources from the specified node. This method will
+	 * only fill in missing values and resources from the specified node.
 	 *
 	 * @param node
 	 */
@@ -197,11 +209,13 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	}
 
 	/**
-	 * Copy the values and resources from the specified node. If overwrite is true this method will replace any values or resources with the specified nodes
-	 * values and resources. Otherwise, this method will only fill in missing values and
-	 * resources from the specified node.
+	 * Copy the values and resources from the specified node. If overwrite is true
+	 * this method will replace any values or resources with the specified nodes
+	 * values and resources. Otherwise, this method will only fill in missing
+	 * values and resources from the specified node.
 	 *
-	 * @param node
+	 * @param node The node from which to copy values and resources
+	 * @param overwrite Should the new values overwrite existing values
 	 */
 	@SuppressWarnings( "unchecked" )
 	public <T extends Node> T copyFrom( Node node, boolean overwrite ) {
