@@ -6,14 +6,13 @@ import java.util.Objects;
 
 public class NodeEvent extends TxnEvent {
 
-	// The order is used to sort the event distribution
 	public enum Type {
-		VALUE_CHANGED,
-		CHILD_REMOVED,
-		CHILD_ADDED,
 		MODIFIED,
 		UNMODIFIED,
+		VALUE_CHANGED,
 		NODE_CHANGED,
+		CHILD_REMOVED,
+		CHILD_ADDED,
 	}
 
 	private Type type;
@@ -129,12 +128,6 @@ public class NodeEvent extends TxnEvent {
 		if( !Objects.equals( this.child, that.child ) ) return false;
 
 		return true;
-	}
-
-	@Override
-	public int compareTo( TxnEvent event ) {
-		NodeEvent that = (NodeEvent)event;
-		return that.getType().ordinal() - this.getType().ordinal();
 	}
 
 }
