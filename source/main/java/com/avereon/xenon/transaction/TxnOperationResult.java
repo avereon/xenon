@@ -3,13 +3,13 @@ package com.avereon.xenon.transaction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TxnOperationResult {
+public class  TxnOperationResult {
 
 	private TxnOperation action;
 
 	private List<TxnEvent> events = new ArrayList<>();
 
-	public TxnOperationResult( TxnOperation action ) {
+	TxnOperationResult( TxnOperation action ) {
 		this.action = action;
 	}
 

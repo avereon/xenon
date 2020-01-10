@@ -5,8 +5,6 @@ import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramGuideType;
-import com.avereon.xenon.node.NodeEvent;
-import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
@@ -70,8 +68,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private CurrentAssetWatcher currentAssetWatcher;
 
-	private ModifiedAssetWatcher modifiedAssetWatcher;
-
 	private NewActionHandler newActionHandler;
 
 	private OpenActionHandler openActionHandler;
@@ -107,7 +103,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		eventBus = new ProgramEventBus();
 		eventBus.parent( program.getEventBus() );
 		currentAssetWatcher = new CurrentAssetWatcher();
-		modifiedAssetWatcher = new ModifiedAssetWatcher();
 
 		newActionHandler = new NewActionHandler( program );
 		openActionHandler = new OpenActionHandler( program );
@@ -1142,7 +1137,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Load the asset.
 		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
-		if( !previouslyLoaded ) asset.addNodeListener( modifiedAssetWatcher );
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.trace( "Asset loaded: " + asset );
@@ -1177,7 +1171,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		asset.close( this );
 		openAssets.remove( asset );
 		identifiedAssets.remove( asset.getUri() );
-		asset.removeNodeListener( modifiedAssetWatcher );
 
 		if( openAssets.size() == 0 ) doSetCurrentAsset( null );
 
@@ -1650,35 +1643,6 @@ public class AssetManager implements Controllable<AssetManager> {
 			//log.warn( "Asset " + event.getEventType() + ": " + event.getAsset() );
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
-		}
-
-	}
-
-	private class ModifiedAssetWatcher implements NodeListener {
-
-		@Override
-		public void nodeEvent( NodeEvent event ) {
-			NodeEvent.Type type = event.getType();
-			switch( type ) {
-				case MODIFIED:
-				case UNMODIFIED: {
-					//updateActionState();
-					log.debug( "Modified flag changed: " + event.getSource() + ": " + event.getKey() + ": " + event.getNewValue() );
-					break;
-				}
-				case VALUE_CHANGED: {
-					log.debug( "Data value changed: " + event.getSource() + ": " + event.getKey() + ": " + event.getNewValue() );
-					break;
-				}
-				case CHILD_ADDED: {
-					log.debug( "Data child added: " + event.getChild() );
-					break;
-				}
-				case CHILD_REMOVED: {
-					log.debug( "Data child removed: " + event.getChild() );
-					break;
-				}
-			}
 		}
 
 	}

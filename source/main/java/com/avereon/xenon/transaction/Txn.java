@@ -1,5 +1,6 @@
 package com.avereon.xenon.transaction;
 
+import com.avereon.event.EventType;
 import com.avereon.util.LogUtil;
 import org.slf4j.Logger;
 
@@ -8,11 +9,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Txn is a thread scoped transaction utility for creating and processing
+ * transactions on a specific thread.
+ */
 public class Txn {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
-
-	private static final TxnEventComparator eventComparator = new TxnEventComparator();
 
 	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<>();
 
@@ -26,14 +29,35 @@ public class Txn {
 		threadLocalTransactions.set( new ArrayDeque<>() );
 	}
 
-	public Txn() {
+	private Txn() {
 		operations = new ConcurrentLinkedQueue<>();
 	}
 
+	/**
+	 * Create a transaction for this thread if there is not already an active
+	 * transaction. If there is already an active transaction then the active
+	 * transaction is returned, otherwise a new transaction is created and
+	 * returned.
+	 *
+	 * @return The transaction
+	 */
 	public static Txn create() {
 		return create( false );
 	}
 
+	/**
+	 * Create a transaction for this thread if there is not already an active
+	 * transaction or the nest flag is set to intentionally start a nested
+	 * transaction instead of using an existing transaction.
+	 * <p/>
+	 * Note that the nested transaction becomes the new active transaction until
+	 * it is completed (committed or reset) and therefore nested transactions must
+	 * be completed before the outer transaction can be completed.
+	 *
+	 * @param nest Set to true if this transaction should not be part of an
+	 * existing transaction.
+	 * @return The transaction
+	 */
 	public static Txn create( boolean nest ) {
 		Txn transaction = peekTransaction();
 		if( transaction == null || nest ) transaction = pushTransaction();
@@ -54,7 +78,7 @@ public class Txn {
 		pullTransaction();
 	}
 
-	public static void reset() throws TxnException {
+	public static void reset() {
 		Txn transaction = peekTransaction();
 		if( transaction == null ) return;
 		if( --transaction.depth > 0 ) return;
@@ -97,46 +121,57 @@ public class Txn {
 	}
 
 	private void doCommit() throws TxnException {
+		Set<TxnOperation> operations = new HashSet<>( this.operations );
+
 		try {
 			commitLock.lock();
 			log.trace( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
+
+			// Send a commit begin event to all unique targets
+			sendEvent( TxnEvent.COMMIT_BEGIN, operations );
 
 			// Process all the operations
 			List<TxnOperationResult> operationResults = new ArrayList<>( processOperations() );
 
 			// Go through each operation result and collect the events by dispatcher
-			Map<TxnEventDispatcher, List<TxnEvent>> txnEvents = new HashMap<>();
+			Map<TxnEventTarget, List<TxnEvent>> txnEvents = new HashMap<>();
 			for( TxnOperationResult operationResult : operationResults ) {
 				for( TxnEvent event : operationResult.getEvents() ) {
-					TxnEventDispatcher dispatcher = event.getDispatcher();
-					List<TxnEvent> events = txnEvents.computeIfAbsent( dispatcher, k -> new ArrayList<>() );
+					TxnEventTarget target = event.getTarget();
+					List<TxnEvent> events = txnEvents.computeIfAbsent( target, k -> new ArrayList<>() );
 					int index = events.indexOf( event );
 					if( index > -1 ) events.remove( index );
 					events.add( event );
 				}
 			}
 
-			for( Map.Entry<TxnEventDispatcher, List<TxnEvent>> entry : txnEvents.entrySet() ) {
-				TxnEventDispatcher dispatcher = entry.getKey();
+			for( Map.Entry<TxnEventTarget, List<TxnEvent>> entry : txnEvents.entrySet() ) {
+				TxnEventTarget target = entry.getKey();
 				List<TxnEvent> events = entry.getValue();
-				// Sort the events for each dispatcher
-				events.sort( eventComparator.reversed() );
+
 				for( TxnEvent event : events ) {
-					//System.out.println( "Producer=" + dispatcher + " event=" + event );
 					try {
-						dispatcher.dispatchEvent( event );
+						target.handle( event );
 					} catch( Throwable throwable ) {
 						log.error( "Error dispatching transaction event", throwable );
 					}
 				}
 			}
 		} finally {
+			sendEvent( TxnEvent.COMMIT_END, operations );
 			doReset();
 			commitLock.unlock();
 			log.trace( "Transaction[" + System.identityHashCode( this ) + "] committed!" );
 		}
+	}
 
-		//System.out.println( "Commit complete!" );
+	/**
+	 * Send an event to all unique targets.
+	 *
+	 * @param type The event type
+	 */
+	private void sendEvent( EventType<? extends TxnEvent> type, Collection<TxnOperation> operations ) {
+		operations.stream().map( TxnOperation::getTarget ).distinct().forEach( t -> t.handle( new TxnEvent( t, type ) ) );
 	}
 
 	private List<TxnOperationResult> processOperations() throws TxnException {

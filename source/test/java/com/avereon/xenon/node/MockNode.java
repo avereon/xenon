@@ -27,4 +27,8 @@ class MockNode extends Node {
 		return watcher;
 	}
 
+	int getEventCount() {
+		return watcher.getEvents().size();
+	}
+
 }

@@ -10,6 +10,7 @@ import com.avereon.util.TextUtil;
 import com.avereon.xenon.node.Node;
 import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.transaction.TxnEvent;
 import com.avereon.xenon.util.ProgramEventBus;
 import org.slf4j.Logger;
 
@@ -354,7 +355,8 @@ public class Asset extends Node implements Configurable {
 
 	@Override
 	public int hashCode() {
-		return getUri().hashCode();
+		URI uri = getUri();
+		return uri == null ? super.hashCode() : getUri().hashCode();
 	}
 
 	@Override
@@ -404,17 +406,17 @@ public class Asset extends Node implements Configurable {
 	}
 
 	@Override
-	public void dispatchEvent( NodeEvent event ) {
-		super.dispatchEvent( event );
+	public void handle( TxnEvent event ) {
+		//log.warn( "Asset " + event.getEventType() + ": modified=" + isModified() );
+		super.handle( event );
 
 		if( getEventBus() == null ) return;
 
-		//log.warn( "Asset " + event.getType() + ": " + event.getNode() + " -> " + isModified() );
-		if( event.getType() == NodeEvent.Type.UNMODIFIED ) {
+		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
 			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
-		} else if( event.getType() == NodeEvent.Type.MODIFIED ) {
+		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
 			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
-		} else if( event.getType() == NodeEvent.Type.NODE_CHANGED ) {
+		} else if( event.getEventType() == NodeEvent.NODE_CHANGED ) {
 			refresh();
 		}
 	}

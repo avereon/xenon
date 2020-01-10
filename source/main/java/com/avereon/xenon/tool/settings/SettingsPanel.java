@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.event.EventHandler;
+import com.avereon.event.EventType;
 import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
@@ -233,7 +234,7 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void nodeEvent( NodeEvent event ) {
-			if( event.getSource() != group || event.getType() != NodeEvent.Type.VALUE_CHANGED ) return;
+			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
 				case "disable": {
@@ -269,8 +270,8 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void nodeEvent( NodeEvent event ) {
-			NodeEvent.Type type = event.getType();
-			if( type != NodeEvent.Type.VALUE_CHANGED ) return;
+			EventType<? extends NodeEvent> type = event.getEventType();
+			if( type != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
 				case "disable": {

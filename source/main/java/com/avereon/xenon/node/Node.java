@@ -1,5 +1,6 @@
 package com.avereon.xenon.node;
 
+import com.avereon.event.EventType;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.transaction.*;
 import org.slf4j.Logger;
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
+public class Node implements TxnEventTarget, Cloneable {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -30,11 +31,6 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	 * The parent of the node.
 	 */
 	private Node parent;
-
-	/**
-	 * The node flags.
-	 */
-	private Set<String> flags;
 
 	/**
 	 * The node values.
@@ -77,17 +73,12 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 
 	/**
 	 * The internally calculated modified flag used to allow for fast read rates.
-	 * This is updated only when values or the modified flag is changed.
+	 * This is updated when the self modified flag, values or children are changed.
 	 */
 	private boolean modified;
 
-	// Are there modified values in this node
-	// This should be the same as modifiedValues.size() != 0
+	// The node self modified flag.
 	private boolean selfModified;
-
-	// Are there modified child nodes
-	// This should be the same as modifiedChildren.size() != 0
-	private boolean treeModified;
 
 	/**
 	 * The map of values that are modified since the modified flag was last
@@ -175,12 +166,13 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	}
 
 	@Override
-	public void dispatchEvent( NodeEvent event ) {
-		//log.warn( "Node " + event.getType() + ": " + event.getNode() );
+	public void handle( TxnEvent event ) {
+		if( !(event instanceof NodeEvent) ) return;
 
 		if( listeners != null ) {
+			NodeEvent nodeEvent = (NodeEvent)event;
 			for( NodeListener listener : listeners ) {
-				listener.nodeEvent( event );
+				listener.nodeEvent( nodeEvent );
 			}
 		}
 	}
@@ -239,9 +231,11 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 		return toString( false );
 	}
 
-	public String toString( boolean allValues ) {
-		StringBuilder builder = new StringBuilder();
+	public String toString( String... keys ) {
+		return toString( Arrays.asList( keys ) );
+	}
 
+	public String toString( boolean allValues ) {
 		List<String> keys = new ArrayList<>();
 		if( primaryKeyList != null ) keys.addAll( primaryKeyList );
 		if( naturalKeyList != null ) keys.addAll( naturalKeyList );
@@ -250,6 +244,12 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 			if( values != null ) keys.addAll( values.keySet() );
 			Collections.sort( keys );
 		}
+
+		return toString( keys );
+	}
+
+	public String toString( List<String> keys ) {
+		StringBuilder builder = new StringBuilder();
 
 		boolean first = true;
 		builder.append( getClass().getSimpleName() );
@@ -377,15 +377,23 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	protected void clear() {
 		try {
 			Txn.create();
-			getValueKeys().forEach( k -> setValue( k, null ) );
+			getValueKeys().stream().sorted().forEach( k -> setValue( k, null ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error clearing values", exception );
 		}
 	}
 
+	boolean isModifiedByValue() {
+		return getModifiedValueCount() > 0;
+	}
+
+	boolean isModifiedByChild() {
+		return getModifiedChildCount() > 0;
+	}
+
 	int getModifiedValueCount() {
-		return (modifiedValues == null ? 0 : modifiedValues.size());
+		return modifiedValues == null ? 0 : modifiedValues.size();
 	}
 
 	int getModifiedChildCount() {
@@ -463,7 +471,7 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	}
 
 	private void updateModified() {
-		modified = selfModified || getModifiedChildCount() != 0;
+		modified = selfModified || isModifiedByValue() || isModifiedByChild();
 	}
 
 	private <T> Set<T> updateSet( Set<T> set, T child, boolean newValue ) {
@@ -500,48 +508,25 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 		return result;
 	}
 
-	@Deprecated
-	private int calculateStateHash() {
-		if( values == null ) return 0;
-
-		int hash = 281;
-		for( String key : values.keySet() ) {
-			Object value = values.get( key );
-			hash ^= value.hashCode();
-		}
-		return hash;
-	}
-
-	private abstract class NodeTxnOperation extends TxnOperation {
-
-		private Node node;
+	private static abstract class NodeTxnOperation extends TxnOperation {
 
 		NodeTxnOperation( Node node ) {
-			this.node = node;
+			super( node );
 		}
 
-		protected Node getNode() {
-			return node;
+		final Node getNode() {
+			return (Node)getTarget();
 		}
 
 	}
 
-	// NEXT FIXME Improve/replace logic regarding the modified flag
-	// The concept of other "flags" has not really developed. If anything,
-	// other flags can just be boolean values. The logic behind updating a
-	// flag, like the modified flag, can be rather complex and may need more
-	// handling than is provided here. Particularly there may be logic that
-	// needs to be invoked if a flag/value is changed. Maybe that is the
-	// improvement that needs to be made, the ability to run logic when a
-	// value is changed, but before events are fired. This is also complicated
-	// with the use of Txns because Txn logic is processed at commit.
 	private class SetSelfModifiedOperation extends NodeTxnOperation {
 
 		private boolean oldValue;
 
 		private boolean newValue;
 
-		SetSelfModifiedOperation( Node node, boolean oldValue, boolean newValue ) {
+		private SetSelfModifiedOperation( Node node, boolean oldValue, boolean newValue ) {
 			super( node );
 			this.oldValue = oldValue;
 			this.newValue = newValue;
@@ -565,18 +550,16 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 						Node child = (Node)value;
 						if( child.isModified() ) {
 							child.doSetSelfModified( false );
-							//getResult().addEvent( new NodeEvent( child, NodeEvent.Type.FLAG_CHANGED, MODIFIED, true, false ) );
-							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.UNMODIFIED ) );
-							getResult().addEvent( new NodeEvent( child, NodeEvent.Type.NODE_CHANGED ) );
+							getResult().addEvent( new NodeEvent( child, NodeEvent.UNMODIFIED ) );
+							getResult().addEvent( new NodeEvent( child, NodeEvent.NODE_CHANGED ) );
 						}
 					}
 				}
 			}
 
 			if( newValue != currentValue ) {
-				//getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
-				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
-				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
+				getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
 				Txn.submit( updateModified );
 			}
 		}
@@ -619,10 +602,10 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 			setValue( key, oldValue, newValue );
 
 			Node parent = getParent();
-			NodeEvent.Type type = NodeEvent.Type.VALUE_CHANGED;
-			// FIXME Enable value insert and remove events
-			//type = oldValue == null ? NodeEvent.Type.VALUE_INSERT : type;
-			//type = newValue == null ? NodeEvent.Type.VALUE_REMOVE : type;
+			EventType<? extends NodeEvent> type = NodeEvent.VALUE_CHANGED;
+			// TODO Enable value insert and remove events
+			//type = oldValue == null ? NodeEvent.VALUE_INSERT : type;
+			//type = newValue == null ? NodeEvent.VALUE_REMOVE : type;
 
 			// Send an event to the node about the value change
 			getResult().addEvent( new NodeEvent( getNode(), type, key, oldValue, newValue ) );
@@ -634,7 +617,7 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 		}
 
 		@Override
-		protected void revert() throws TxnException {
+		protected void revert() {
 			setValue( key, newValue, oldValue );
 		}
 
@@ -669,23 +652,22 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 		UpdateModifiedOperation( Node node ) {
 			super( node );
 			// Check only the modified values
-			oldValue = hasModifiedValues();
+			oldValue = isModifiedByValue();
 		}
 
 		@Override
-		protected void commit() throws TxnException {
+		protected void commit() {
 			// Check only the modified values
-			boolean newValue = hasModifiedValues();
+			boolean newValue = isModifiedByValue();
 
 			// Check if the modified values should change the modified flag
 			if( newValue != oldValue ) {
 				doSetSelfModified( newValue );
-				//getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.FLAG_CHANGED, MODIFIED, oldValue, newValue ) );
-				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
+				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
 			}
 
 			// Add the node changed event
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.Type.NODE_CHANGED ) );
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
 
 			// Check all the parents for modification
 			Node node = getNode();
@@ -693,26 +675,21 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 			while( parent != null ) {
 				boolean priorModified = parent.isModified();
 				boolean parentChanged = parent.childModified( node, newValue );
-				//if( parentChanged ) getResult().addEvent( new NodeEvent( parent, NodeEvent.Type.FLAG_CHANGED, MODIFIED, priorModified, !priorModified ) );
-				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, !priorModified ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
-				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.Type.NODE_CHANGED ) );
+				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, node, !priorModified ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
+				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.NODE_CHANGED ) );
 				node = parent;
 				parent = parent.getParent();
 			}
 		}
 
 		@Override
-		protected void revert() throws TxnException {
+		protected void revert() {
 			doSetSelfModified( oldValue );
 		}
 
 		@Override
 		public String toString() {
 			return "update modified from " + oldValue;
-		}
-
-		private boolean hasModifiedValues() {
-			return getModifiedValueCount() != 0;
 		}
 
 	}

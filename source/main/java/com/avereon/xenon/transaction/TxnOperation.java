@@ -12,25 +12,32 @@ public abstract class TxnOperation {
 		FAILED
 	}
 
-	private TxnOperation.Status status;
+	private TxnEventTarget target;
 
 	private TxnOperationResult result;
 
-	protected TxnOperation() {
-		status = Status.WAITING;
+	private TxnOperation.Status status;
+
+	protected TxnOperation( TxnEventTarget target ) {
+		this.target = target;
 		result = new TxnOperationResult( this );
+		status = Status.WAITING;
 	}
 
 	protected abstract void commit() throws TxnException;
 
 	protected abstract void revert() throws TxnException;
 
-	Status getStatus() {
-		return status;
+	public TxnEventTarget getTarget() {
+		return target;
 	}
 
 	protected TxnOperationResult getResult() {
 		return result;
+	}
+
+	Status getStatus() {
+		return status;
 	}
 
 	TxnOperationResult callCommit() throws TxnException {

@@ -3,14 +3,18 @@ package com.avereon.xenon.transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class TxnTest {
 
 	@BeforeEach
-	void setup() throws Exception {
+	void setup() {
 		Txn.reset();
 	}
 
@@ -69,7 +73,7 @@ class TxnTest {
 	}
 
 	@Test
-	void testContinuedException() throws Exception {
+	void testContinuedTransaction() throws Exception {
 		MockTransactionOperation step1 = new MockTransactionOperation();
 		MockTransactionOperation step2 = new MockTransactionOperation();
 		MockTransactionOperation step3 = new MockTransactionOperation();
@@ -80,7 +84,7 @@ class TxnTest {
 		Txn.create();
 		Txn.submit( step1 );
 
-		Txn.create( false );
+		Txn.create();
 		Txn.submit( step2 );
 		Txn.commit();
 
@@ -97,7 +101,7 @@ class TxnTest {
 	}
 
 	@Test
-	void testNestedException() throws Exception {
+	void testNestedTransaction() throws Exception {
 		MockTransactionOperation step1 = new MockTransactionOperation();
 		MockTransactionOperation step2 = new MockTransactionOperation();
 		MockTransactionOperation step3 = new MockTransactionOperation();
@@ -145,15 +149,70 @@ class TxnTest {
 		}
 	}
 
-	//	@Test
-	//	public void testResetWithoutTransaction() throws Exception {
-	//		try {
-	//			Txn.reset();
-	//			Assert.fail( "Reset should throw an exception if there is not an active transaction" );
-	//		} catch( TxnException exception ) {
-	//			// Pass
-	//		}
-	//	}
+	@Test
+	void testResetWithoutTransaction() {
+		assertThat( Txn.getActiveTransaction(), is( nullValue() ) );
+		Txn.reset();
+	}
+
+	@Test
+	void testTxnEventsWithSingleTransaction() throws Exception {
+		MockTxnEventTarget target = new MockTxnEventTarget();
+
+		Txn.create();
+		Txn.submit( new MockTransactionOperation( target ) );
+		Txn.submit( new MockTransactionOperation( target ) );
+		Txn.submit( new MockTransactionOperation( target ) );
+		assertThat( target.getEvents().size(), is( 0 ) );
+		Txn.commit();
+
+		int index = 0;
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_BEGIN ) );
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_END ) );
+		assertThat( target.getEvents().size(), is( index ) );
+	}
+
+	@Test
+	void testTxnEventsWithMultipleTransactions() throws Exception {
+		MockTxnEventTarget target = new MockTxnEventTarget();
+
+		Txn.create();
+		Txn.submit( new MockTransactionOperation( target ) );
+		Txn.commit();
+		Txn.create();
+		Txn.submit( new MockTransactionOperation( target ) );
+		Txn.commit();
+		Txn.create();
+		Txn.submit( new MockTransactionOperation( target ) );
+		Txn.commit();
+
+		int index = 0;
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_BEGIN ) );
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_END ) );
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_BEGIN ) );
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_END ) );
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_BEGIN ) );
+		assertThat( target.getEvents().get( index++ ).getEventType(), is( TxnEvent.COMMIT_END ) );
+		assertThat( target.getEvents().size(), is( index ) );
+	}
+
+	private static class MockTxnEventTarget implements TxnEventTarget {
+
+		private List<TxnEvent> events;
+
+		MockTxnEventTarget() {
+			events = new CopyOnWriteArrayList<>();
+		}
+
+		@Override
+		public void handle( TxnEvent event ) {
+			events.add( event );
+		}
+
+		public List<TxnEvent> getEvents() {
+			return events;
+		}
+	}
 
 	private static class MockTransactionOperation extends TxnOperation {
 
@@ -162,6 +221,19 @@ class TxnTest {
 		private int rollbackCallCount;
 
 		private Throwable throwable;
+
+		protected MockTransactionOperation() {
+			super( new MockTxnEventTarget() );
+		}
+
+		protected MockTransactionOperation( TxnEventTarget target ) {
+			super( target );
+		}
+
+		@Override
+		public MockTxnEventTarget getTarget() {
+			return (MockTxnEventTarget)super.getTarget();
+		}
 
 		@Override
 		protected void commit() throws TxnException {
