@@ -9,7 +9,6 @@ import com.avereon.util.LogUtil;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.node.Node;
 import com.avereon.xenon.node.NodeEvent;
-import com.avereon.xenon.node.NodeListener;
 import com.avereon.xenon.scheme.AssetScheme;
 import com.avereon.xenon.util.ProgramEventBus;
 import org.slf4j.Logger;
@@ -92,9 +91,6 @@ public class Asset extends Node implements Configurable {
 
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
-
-		// TODO Connect the node event hub to the asset event hub
-		addNodeListener( new NodeWatcher() );
 	}
 
 	/**
@@ -194,9 +190,6 @@ public class Asset extends Node implements Configurable {
 
 	public <M> void setModel( M model ) {
 		setValue( MODEL_VALUE_KEY, model );
-
-		// Add the model change handler
-		if( model instanceof Node ) ((Node)model).addNodeListener( e -> refresh() );
 	}
 
 	/**
@@ -410,18 +403,20 @@ public class Asset extends Node implements Configurable {
 		this.name = name;
 	}
 
-	// FIXME Maybe override dispatchEvent( NodeEvent event ) to do this
-	private class NodeWatcher implements NodeListener {
+	@Override
+	public void dispatchEvent( NodeEvent event ) {
+		super.dispatchEvent( event );
 
-		@Override
-		public void nodeEvent( NodeEvent event ) {
-			if( event.getType() != NodeEvent.Type.UNMODIFIED ) {
-				getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, (Asset)event.getSource() ) );
-			} else if( event.getType() != NodeEvent.Type.MODIFIED ) {
-				getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, (Asset)event.getSource() ) );
-			}
+		if( getEventBus() == null ) return;
+
+		//log.warn( "Asset " + event.getType() + ": " + event.getNode() + " -> " + isModified() );
+		if( event.getType() == NodeEvent.Type.UNMODIFIED ) {
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
+		} else if( event.getType() == NodeEvent.Type.MODIFIED ) {
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
+		} else if( event.getType() == NodeEvent.Type.NODE_CHANGED ) {
+			refresh();
 		}
-
 	}
 
 }

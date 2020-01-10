@@ -176,7 +176,7 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 
 	@Override
 	public void dispatchEvent( NodeEvent event ) {
-		if( event == null ) return;
+		//log.warn( "Node " + event.getType() + ": " + event.getNode() );
 
 		if( listeners != null ) {
 			for( NodeListener listener : listeners ) {
@@ -195,6 +195,7 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 	}
 
 	public synchronized void removeNodeListener( NodeListener listener ) {
+		if( listeners == null ) return;
 		listeners.remove( listener );
 		if( listeners.size() == 0 ) listeners = null;
 	}
@@ -693,7 +694,7 @@ public class Node implements TxnEventDispatcher<NodeEvent>, Cloneable {
 				boolean priorModified = parent.isModified();
 				boolean parentChanged = parent.childModified( node, newValue );
 				//if( parentChanged ) getResult().addEvent( new NodeEvent( parent, NodeEvent.Type.FLAG_CHANGED, MODIFIED, priorModified, !priorModified ) );
-				if( parentChanged ) getResult().addEvent( new NodeEvent( getNode(), !priorModified ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
+				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, !priorModified ? NodeEvent.Type.MODIFIED : NodeEvent.Type.UNMODIFIED ) );
 				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.Type.NODE_CHANGED ) );
 				node = parent;
 				parent = parent.getParent();

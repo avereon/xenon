@@ -78,12 +78,12 @@ public class NodeEvent extends TxnEvent {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append(getClass().getSimpleName());
-		builder.append( "[ ");
-		builder.append( "node=");
+		builder.append( getClass().getSimpleName() );
+		builder.append( "[ " );
+		builder.append( "node=" );
 		builder.append( node );
 		if( child != null ) {
-			builder.append( ", child=");
+			builder.append( ", child=" );
 			builder.append( child );
 		}
 		builder.append( ", type=" );
@@ -96,7 +96,7 @@ public class NodeEvent extends TxnEvent {
 			builder.append( ", newValue=" );
 			builder.append( newValue );
 		}
-		builder.append( " ]");
+		builder.append( " ]" );
 
 		return builder.toString();
 	}
@@ -108,8 +108,8 @@ public class NodeEvent extends TxnEvent {
 		if( node != null ) code |= node.hashCode();
 		if( type != null ) code |= type.hashCode();
 		if( key != null ) code |= key.hashCode();
-//		if( oldValue != null ) code |= oldValue.hashCode();
-//		if( newValue != null ) code |= newValue.hashCode();
+		//		if( oldValue != null ) code |= oldValue.hashCode();
+		//		if( newValue != null ) code |= newValue.hashCode();
 		if( child != null ) code |= child.hashCode();
 
 		return code;
@@ -121,10 +121,10 @@ public class NodeEvent extends TxnEvent {
 
 		NodeEvent that = (NodeEvent)object;
 		if( !Objects.equals( this.node, that.node ) ) return false;
-		if( !Objects.equals( this.type, that.type )) return false;
-		if( !Objects.equals( this.key, that.key )) return false;
-//		if( !Objects.equals( this.oldValue, that.oldValue ) ) return false;
-//		if( !Objects.equals( this.newValue, that.newValue ) ) return false;
+		if( !Objects.equals( this.type, that.type ) ) return false;
+		if( !Objects.equals( this.key, that.key ) ) return false;
+		//		if( !Objects.equals( this.oldValue, that.oldValue ) ) return false;
+		//		if( !Objects.equals( this.newValue, that.newValue ) ) return false;
 		if( !Objects.equals( this.child, that.child ) ) return false;
 
 		return true;

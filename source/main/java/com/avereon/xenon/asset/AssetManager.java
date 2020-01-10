@@ -1195,7 +1195,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doSetCurrentAsset( Asset asset ) {
 		synchronized( currentAssetLock ) {
-			log.warn( "Current asset: " + currentAsset + " new asset: " + asset );
+			//log.warn( "Current asset: " + currentAsset + " new asset: " + asset );
 			Asset previous = currentAsset;
 
 			// "Disconnect" the old current asset.
@@ -1212,7 +1212,6 @@ public class AssetManager implements Controllable<AssetManager> {
 				currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
 				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
 			}
-
 
 			// Notify program of current asset change.
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
@@ -1558,6 +1557,7 @@ public class AssetManager implements Controllable<AssetManager> {
 					String taskName = getClass().getSimpleName();
 					String title = program.rb().text( "asset", "assets" );
 					String message = program.rb().text( "program", "task-error-message", errorName, taskName );
+					if( TestUtil.isTest() ) throwable.printStackTrace( System.err );
 					program.getNoticeManager().warning( title, message, throwable );
 				}
 
@@ -1647,14 +1647,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
-			if( event.getEventType() == AssetEvent.MODIFIED ) {
-				log.warn( "Asset modified: " + event.getAsset() );
-				updateActionState();
-			}
-			if( event.getEventType() == AssetEvent.UNMODIFIED ) {
-				log.warn( "Asset unmodified: " + event.getAsset() );
-				updateActionState();
-			}
+			//log.warn( "Asset " + event.getEventType() + ": " + event.getAsset() );
+			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
+			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
 		}
 
 	}
