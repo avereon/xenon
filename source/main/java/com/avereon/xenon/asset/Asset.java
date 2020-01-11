@@ -406,9 +406,9 @@ public class Asset extends Node implements Configurable {
 	}
 
 	@Override
-	public void handle( TxnEvent event ) {
+	public void dispatch( TxnEvent event ) {
 		//log.warn( "Asset " + event.getEventType() + ": modified=" + isModified() );
-		super.handle( event );
+		super.dispatch( event );
 
 		if( getEventBus() == null ) return;
 

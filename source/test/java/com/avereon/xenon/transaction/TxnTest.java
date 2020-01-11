@@ -205,7 +205,7 @@ class TxnTest {
 		}
 
 		@Override
-		public void handle( TxnEvent event ) {
+		public void dispatch( TxnEvent event ) {
 			events.add( event );
 		}
 

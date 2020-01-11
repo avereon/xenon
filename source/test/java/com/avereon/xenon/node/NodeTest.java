@@ -401,11 +401,13 @@ class NodeTest {
 		data.putResource( "name", "value" );
 		assertThat( data.getResource( "name" ), is( "value" ) );
 		assertThat( data, hasStates( false, 0, 0 ) );
+		assertEventState( data, index++, NodeEvent.NODE_CHANGED );
 		assertThat( data.getEventCount(), is( index ) );
 
 		data.putResource( "name", null );
 		assertThat( data.getResource( "name" ), is( nullValue() ) );
 		assertThat( data, hasStates( false, 0, 0 ) );
+		assertEventState( data, index++, NodeEvent.NODE_CHANGED );
 		assertThat( data.getEventCount(), is( index ) );
 	}
 
@@ -1014,16 +1016,14 @@ class NodeTest {
 		// Add the child attribute to parent 1.
 		parent1.setValue( "child", child );
 		assertThat( child.getParent(), is( parent1 ) );
-
-		// Oddly both parents have the child as a value...
-		// FIXME Should both parents have the child?
-		// FIXME If both parents should have the child, what should getParent return?
-		assertThat( parent0.getValue( "child" ), is( child ) );
 		assertThat( parent1.getValue( "child" ), is( child ) );
-
-		assertThat( parent0, hasStates( false, 0, 0 ) );
+		assertThat( parent0.getValue( "child" ), is( nullValue() ) );
+		assertThat( parent0, hasStates( true, 1, 0 ) );
 		assertThat( parent1, hasStates( true, 1, 0 ) );
 		assertThat( child, hasStates( false, 0, 0 ) );
+		assertEventState( parent0, parent0Index++, NodeEvent.VALUE_CHANGED, "child", child, null );
+		assertEventState( parent0, parent0Index++, NodeEvent.MODIFIED );
+		assertEventState( parent0, parent0Index++, NodeEvent.NODE_CHANGED );
 		assertEventState( parent1, parent1Index++, NodeEvent.VALUE_CHANGED, "child", null, child );
 		assertEventState( parent1, parent1Index++, NodeEvent.MODIFIED );
 		assertEventState( parent1, parent1Index++, NodeEvent.NODE_CHANGED );

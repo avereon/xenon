@@ -153,23 +153,32 @@ public class Node implements TxnEventTarget, Cloneable {
 		return resources == null ? null : (T)resources.get( key );
 	}
 
-	public <T> void putResource( String key, T value ) {
-		if( value == null ) {
-			if( resources != null ) {
-				resources.remove( key );
-				if( resources.size() == 0 ) resources = null;
-			}
-		} else {
-			if( resources == null ) resources = new ConcurrentHashMap<>();
-			resources.put( key, value );
+	public <T> void putResource( String key, T newValue ) {
+		T oldValue = getResource( key );
+		try {
+			Txn.create();
+			Txn.submit( new SetResourceOperation( this, key, oldValue, newValue ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error setting resource: " + key + "=" + newValue, exception );
+		}
+	}
+
+	public void refresh() {
+		try {
+			Txn.create();
+			Txn.submit( new RefreshOperation( this ) );
+			Txn.commit();
+		} catch( TxnException exception ) {
+			log.error( "Error refreshing: " + this, exception );
 		}
 	}
 
 	@Override
-	public void handle( TxnEvent event ) {
-		if( !(event instanceof NodeEvent) ) return;
+	public void dispatch( TxnEvent event ) {
+		if( listeners == null ) return;
 
-		if( listeners != null ) {
+		if( event instanceof NodeEvent ) {
 			NodeEvent nodeEvent = (NodeEvent)event;
 			for( NodeListener listener : listeners ) {
 				listener.nodeEvent( nodeEvent );
@@ -367,10 +376,21 @@ public class Node implements TxnEventTarget, Cloneable {
 
 		try {
 			Txn.create();
+			if( newValue instanceof Node ) doParentCheck( (Node)newValue );
 			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
+		}
+	}
+
+	private void doParentCheck( Node newValue ) {
+		Node child = newValue;
+		Node parent = child.getParent();
+		if( parent != null ) {
+			parent.getValueKeys().forEach( k -> {
+				if( parent.getValue( k ).equals( child ) ) parent.setValue( k, null );
+			} );
 		}
 	}
 
@@ -453,6 +473,18 @@ public class Node implements TxnEventTarget, Cloneable {
 		}
 
 		updateModified();
+	}
+
+	private <T> void doPutResource( String key, T oldValue, T newValue ) {
+		if( newValue == null ) {
+			if( resources != null ) {
+				resources.remove( key );
+				if( resources.size() == 0 ) resources = null;
+			}
+		} else {
+			if( resources == null ) resources = new ConcurrentHashMap<>();
+			resources.put( key, newValue );
+		}
 	}
 
 	private boolean childModified( Node child, boolean modified ) {
@@ -643,6 +675,53 @@ public class Node implements TxnEventTarget, Cloneable {
 			}
 		}
 
+	}
+
+	private class SetResourceOperation extends NodeTxnOperation {
+
+		private String key;
+
+		private Object oldValue;
+
+		private Object newValue;
+
+		SetResourceOperation( Node node, String key, Object oldValue, Object newValue ) {
+			super( node );
+			this.key = key;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		@Override
+		protected void commit() {
+			putResource( key, oldValue, newValue );
+			if( !Objects.equals( oldValue, newValue ) ) getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
+		}
+
+		@Override
+		protected void revert() {
+			putResource( key, newValue, oldValue );
+		}
+
+		private void putResource( String key, Object oldValue, Object newValue ) {
+			doPutResource( key, oldValue, newValue );
+		}
+	}
+
+	@SuppressWarnings( "InnerClassMayBeStatic" )
+	private class RefreshOperation extends NodeTxnOperation {
+
+		RefreshOperation( Node node ) {
+			super( node );
+		}
+
+		@Override
+		protected void commit() {
+			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
+		}
+
+		@Override
+		protected void revert() {}
 	}
 
 	private class UpdateModifiedOperation extends NodeTxnOperation {

@@ -151,7 +151,7 @@ public class Txn {
 
 				for( TxnEvent event : events ) {
 					try {
-						target.handle( event );
+						target.dispatch( event );
 					} catch( Throwable throwable ) {
 						log.error( "Error dispatching transaction event", throwable );
 					}
@@ -171,7 +171,7 @@ public class Txn {
 	 * @param type The event type
 	 */
 	private void sendEvent( EventType<? extends TxnEvent> type, Collection<TxnOperation> operations ) {
-		operations.stream().map( TxnOperation::getTarget ).distinct().forEach( t -> t.handle( new TxnEvent( t, type ) ) );
+		operations.stream().map( TxnOperation::getTarget ).distinct().forEach( t -> t.dispatch( new TxnEvent( t, type ) ) );
 	}
 
 	private List<TxnOperationResult> processOperations() throws TxnException {
