@@ -128,7 +128,7 @@ public class Notice extends Node {
 	}
 
 	public boolean isRead() {
-		return getValue( READ );
+		return getValue( READ, false );
 	}
 
 	public Notice setRead( boolean read ) {
