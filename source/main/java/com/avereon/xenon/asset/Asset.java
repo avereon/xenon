@@ -255,8 +255,7 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public synchronized final void refresh() {
-		if( !ready ) return;
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
+		if( ready ) getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
 
 	public synchronized final boolean isSaved() {

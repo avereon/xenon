@@ -1640,7 +1640,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
-			//log.warn( "Asset " + event.getEventType() + ": " + event.getAsset() );
+			//log.warn( "Asset node " + event.getEventType() + ": " + event.getAsset() );
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
 		}

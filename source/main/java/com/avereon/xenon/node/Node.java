@@ -148,9 +148,17 @@ public class Node implements TxnEventTarget, Cloneable {
 		return resources == null ? Collections.emptySet() : resources.keySet();
 	}
 
-	@SuppressWarnings( "unchecked" )
 	public <T> T getResource( String key ) {
-		return resources == null ? null : (T)resources.get( key );
+		return getResource( key, null );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	protected <T> T getResource( String key, T defaultValue ) {
+		if( key == null ) throw new NullPointerException( "Resource key cannot be null" );
+
+		T value = resources == null ? null : (T)resources.get( key );
+
+		return value != null ? value : defaultValue;
 	}
 
 	public <T> void putResource( String key, T newValue ) {
@@ -205,7 +213,7 @@ public class Node implements TxnEventTarget, Cloneable {
 	 * Copy the values and resources from the specified node. This method will
 	 * only fill in missing values and resources from the specified node.
 	 *
-	 * @param node
+	 * @param node The node from which to copy values and resources
 	 */
 	public <T extends Node> T copyFrom( Node node ) {
 		return copyFrom( node, false );
@@ -320,7 +328,7 @@ public class Node implements TxnEventTarget, Cloneable {
 
 	protected void definePrimaryKey( String... keys ) {
 		if( primaryKeyList == null ) {
-			primaryKeyList = Collections.unmodifiableList( Arrays.asList( keys ) );
+			primaryKeyList = List.of( keys );
 		} else {
 			throw new IllegalStateException( "Primary key already set" );
 		}
@@ -328,7 +336,7 @@ public class Node implements TxnEventTarget, Cloneable {
 
 	protected void defineNaturalKey( String... keys ) {
 		if( naturalKeyList == null ) {
-			naturalKeyList = Collections.unmodifiableList( Arrays.asList( keys ) );
+			naturalKeyList = List.of( keys );
 		} else {
 			throw new IllegalStateException( "Natural key already set" );
 		}
@@ -336,7 +344,7 @@ public class Node implements TxnEventTarget, Cloneable {
 
 	protected void defineReadOnly( String... keys ) {
 		if( readOnlySet == null ) {
-			readOnlySet = Collections.unmodifiableSet( new HashSet<>( Arrays.asList( keys ) ) );
+			readOnlySet = Set.of( keys );
 		} else {
 			throw new IllegalStateException( "Read only keys already set" );
 		}
@@ -384,8 +392,7 @@ public class Node implements TxnEventTarget, Cloneable {
 		}
 	}
 
-	private void doParentCheck( Node newValue ) {
-		Node child = newValue;
+	private void doParentCheck( Node child ) {
 		Node parent = child.getParent();
 		if( parent != null ) {
 			parent.getValueKeys().forEach( k -> {
@@ -597,7 +604,7 @@ public class Node implements TxnEventTarget, Cloneable {
 		}
 
 		@Override
-		protected void revert() throws TxnException {
+		protected void revert() {
 			doSetSelfModified( oldValue );
 		}
 

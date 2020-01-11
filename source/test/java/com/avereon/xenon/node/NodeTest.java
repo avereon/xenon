@@ -358,6 +358,18 @@ class NodeTest {
 	}
 
 	@Test
+	void testRefresh() {
+		int index = 0;
+		assertThat( data, hasStates( false, 0, 0 ) );
+		assertThat( data.getEventCount(), is( index ) );
+
+		data.refresh();
+		assertThat( data, hasStates( false, 0, 0 ) );
+		assertEventState( data, index++, NodeEvent.NODE_CHANGED );
+		assertThat( data.getEventCount(), is( index ) );
+	}
+
+	@Test
 	void testClear() {
 		int index = 0;
 		assertThat( data, hasStates( false, 0, 0 ) );
@@ -393,7 +405,7 @@ class NodeTest {
 	}
 
 	@Test
-	void testResources() {
+	void testResource() {
 		int index = 0;
 		assertThat( data, hasStates( false, 0, 0 ) );
 		assertThat( data.getEventCount(), is( index ) );
@@ -409,6 +421,12 @@ class NodeTest {
 		assertThat( data, hasStates( false, 0, 0 ) );
 		assertEventState( data, index++, NodeEvent.NODE_CHANGED );
 		assertThat( data.getEventCount(), is( index ) );
+	}
+
+	@Test
+	void testGetResourceWithDefault() {
+		assertThat( data.getResource( "key" ), is( nullValue() ) );
+		assertThat( data.getResource( "key", "default" ), is( "default" ) );
 	}
 
 	@Test
