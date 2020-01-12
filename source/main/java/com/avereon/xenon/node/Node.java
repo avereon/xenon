@@ -557,6 +557,15 @@ public class Node implements TxnEventTarget, Cloneable {
 			return (Node)getTarget();
 		}
 
+		final void fireCascadingEvent( EventType<NodeEvent> type) {
+			getResult().addEvent( new NodeEvent( getNode(), type ) );
+			Node parent = getNode().getParent();
+			while( parent != null ) {
+				getResult().addEvent( new NodeEvent( parent, type ) );
+				parent = parent.getParent();
+			}
+		}
+
 	}
 
 	private class SetSelfModifiedOperation extends NodeTxnOperation {
@@ -633,7 +642,7 @@ public class Node implements TxnEventTarget, Cloneable {
 		@Override
 		protected void commit() throws TxnException {
 			Object currentValue = getValue( key );
-			if( Objects.equals( currentValue, newValue) ) return;
+			if( Objects.equals( currentValue, newValue ) ) return;
 
 			// This operation must be created before any changes are made
 			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
@@ -702,7 +711,7 @@ public class Node implements TxnEventTarget, Cloneable {
 		@Override
 		protected void commit() {
 			putResource( key, oldValue, newValue );
-			if( !Objects.equals( oldValue, newValue ) ) getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
+			if( !Objects.equals( oldValue, newValue ) ) 				fireCascadingEvent( NodeEvent.NODE_CHANGED );
 		}
 
 		@Override
@@ -724,7 +733,7 @@ public class Node implements TxnEventTarget, Cloneable {
 
 		@Override
 		protected void commit() {
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
+			fireCascadingEvent(NodeEvent.NODE_CHANGED);
 		}
 
 		@Override
@@ -747,25 +756,23 @@ public class Node implements TxnEventTarget, Cloneable {
 			boolean newValue = isModifiedByValue();
 
 			// Check if the modified values should change the modified flag
-			if( !Objects.equals( oldValue, newValue) ) {
+			if( newValue != oldValue ) {
 				doSetSelfModified( newValue );
 				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
 			}
 
-			// Add the node changed event
-			getResult().addEvent( new NodeEvent( getNode(), NodeEvent.NODE_CHANGED ) );
-
 			// Check all the parents for modification
 			Node node = getNode();
-			Node parent = getNode().getParent();
+			Node parent = node.getParent();
 			while( parent != null ) {
 				boolean priorModified = parent.isModified();
 				boolean parentChanged = parent.doSetChildModified( node, newValue );
 				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, node, !priorModified ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
-				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.NODE_CHANGED ) );
 				node = parent;
 				parent = parent.getParent();
 			}
+
+			fireCascadingEvent( NodeEvent.NODE_CHANGED );
 		}
 
 		@Override

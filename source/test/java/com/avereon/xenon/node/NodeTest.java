@@ -402,6 +402,44 @@ class NodeTest {
 	}
 
 	@Test
+	void testRefreshOnChildCausesParentNodeChangedEvent() {
+		MockNode parent = new MockNode( "parent" );
+		MockNode child = new MockNode( "child" );
+		int parentIndex = 0;
+		int childIndex = 0;
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		parent.setValue( "child", child );
+		assertThat( child.getParent(), is( parent ) );
+		assertThat( parent, hasStates( true, 1, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.VALUE_CHANGED, "child", null, child );
+		assertEventState( parent, parentIndex++, NodeEvent.MODIFIED );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		parent.setModified( false );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.UNMODIFIED );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		child.refresh();
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertEventState( child, childIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+	}
+
+	@Test
 	void testClear() {
 		int index = 0;
 		assertThat( data, hasStates( false, 0, 0 ) );
@@ -453,6 +491,54 @@ class NodeTest {
 		assertThat( data, hasStates( false, 0, 0 ) );
 		assertEventState( data, index++, NodeEvent.NODE_CHANGED );
 		assertThat( data.getEventCount(), is( index ) );
+	}
+
+	@Test
+	void testResourceChangesOnChildCausesParentNodeChangedEvent() {
+		MockNode parent = new MockNode( "parent" );
+		MockNode child = new MockNode( "child" );
+		int parentIndex = 0;
+		int childIndex = 0;
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		parent.setValue( "child", child );
+		assertThat( child.getParent(), is( parent ) );
+		assertThat( parent, hasStates( true, 1, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.VALUE_CHANGED, "child", null, child );
+		assertEventState( parent, parentIndex++, NodeEvent.MODIFIED );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		parent.setModified( false );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.UNMODIFIED );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		child.putResource( "name", "value" );
+		assertThat( child.getResource( "name" ), is( "value" ) );
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertEventState( child, childIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
+
+		child.putResource( "name", null );
+		assertThat( child.getResource( "name" ), is( nullValue() ) );
+		assertThat( parent, hasStates( false, 0, 0 ) );
+		assertThat( child, hasStates( false, 0, 0 ) );
+		assertEventState( parent, parentIndex++, NodeEvent.NODE_CHANGED );
+		assertEventState( child, childIndex++, NodeEvent.NODE_CHANGED );
+		assertThat( parent.getEventCount(), is( parentIndex ) );
+		assertThat( child.getEventCount(), is( childIndex ) );
 	}
 
 	@Test
