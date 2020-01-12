@@ -747,7 +747,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			boolean newValue = isModifiedByValue();
 
 			// Check if the modified values should change the modified flag
-			if( newValue != oldValue ) {
+			if( !Objects.equals( oldValue, newValue) ) {
 				doSetSelfModified( newValue );
 				getResult().addEvent( new NodeEvent( getNode(), newValue ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
 			}
