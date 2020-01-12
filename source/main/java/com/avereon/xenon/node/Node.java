@@ -384,20 +384,11 @@ public class Node implements TxnEventTarget, Cloneable {
 
 		try {
 			Txn.create();
-			if( newValue instanceof Node ) doParentCheck( (Node)newValue );
+			if( newValue instanceof Node ) checkForExistingParent( (Node)newValue );
 			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
 			log.error( "Error setting flag: " + key, exception );
-		}
-	}
-
-	private void doParentCheck( Node child ) {
-		Node parent = child.getParent();
-		if( parent != null ) {
-			parent.getValueKeys().forEach( k -> {
-				if( parent.getValue( k ).equals( child ) ) parent.setValue( k, null );
-			} );
 		}
 	}
 
@@ -467,6 +458,18 @@ public class Node implements TxnEventTarget, Cloneable {
 		updateModified();
 	}
 
+	private <T> void doPutResource( String key, T oldValue, T newValue ) {
+		if( newValue == null ) {
+			if( resources != null ) {
+				resources.remove( key );
+				if( resources.size() == 0 ) resources = null;
+			}
+		} else {
+			if( resources == null ) resources = new ConcurrentHashMap<>();
+			resources.put( key, newValue );
+		}
+	}
+
 	private void doSetValue( String key, Object oldValue, Object newValue ) {
 		if( newValue == null ) {
 			if( values == null ) return;
@@ -482,19 +485,7 @@ public class Node implements TxnEventTarget, Cloneable {
 		updateModified();
 	}
 
-	private <T> void doPutResource( String key, T oldValue, T newValue ) {
-		if( newValue == null ) {
-			if( resources != null ) {
-				resources.remove( key );
-				if( resources.size() == 0 ) resources = null;
-			}
-		} else {
-			if( resources == null ) resources = new ConcurrentHashMap<>();
-			resources.put( key, newValue );
-		}
-	}
-
-	private boolean childModified( Node child, boolean modified ) {
+	private boolean doSetChildModified( Node child, boolean modified ) {
 		boolean previousModified = isModified();
 
 		// Search the value map for the modified child
@@ -525,6 +516,15 @@ public class Node implements TxnEventTarget, Cloneable {
 		}
 
 		return set;
+	}
+
+	private void checkForExistingParent( Node child ) {
+		Node parent = child.getParent();
+		if( parent != null ) {
+			parent.getValueKeys().forEach( k -> {
+				if( parent.getValue( k ).equals( child ) ) parent.setValue( k, null );
+			} );
+		}
 	}
 
 	private void checkForCircularReference( Node node ) {
@@ -633,7 +633,13 @@ public class Node implements TxnEventTarget, Cloneable {
 		@Override
 		protected void commit() throws TxnException {
 			Object currentValue = getValue( key );
-			if( newValue == currentValue ) return;
+//			System.out.println( "equal " + Objects.equals(
+//				newValue,
+//				currentValue
+//			) + ", == " + (newValue == currentValue) + ", " + currentValue + "(" + System.identityHashCode( currentValue ) + ")" + " -> " + newValue + "(" + System.identityHashCode(
+//				newValue ) + ")" );
+			if( Objects.equals( currentValue, newValue) ) return;
+			//if( newValue == currentValue ) return;
 
 			// This operation must be created before any changes are made
 			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
@@ -760,7 +766,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			Node parent = getNode().getParent();
 			while( parent != null ) {
 				boolean priorModified = parent.isModified();
-				boolean parentChanged = parent.childModified( node, newValue );
+				boolean parentChanged = parent.doSetChildModified( node, newValue );
 				if( parentChanged ) getResult().addEvent( new NodeEvent( parent, node, !priorModified ? NodeEvent.MODIFIED : NodeEvent.UNMODIFIED ) );
 				getResult().addEvent( new NodeEvent( parent, node, NodeEvent.NODE_CHANGED ) );
 				node = parent;

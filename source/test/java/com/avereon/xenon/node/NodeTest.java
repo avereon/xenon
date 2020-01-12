@@ -152,6 +152,38 @@ class NodeTest {
 		assertThat( data.getValue( key ), is( value ) );
 	}
 
+	@SuppressWarnings( "StringOperationCanBeSimplified" )
+	@Test
+	void testPrimitiveDuplicate() {
+		String key = "key";
+		String value = "value";
+
+		// It is important that these are the same value but not the same object
+		String A = new String( value );
+		String B = new String( value );
+
+		// This checks that the two objects are not the same object
+		assertNotSame( A, B );
+
+		// This checks that the two objects are the same value
+		assertEquals( A, B );
+
+		assertThat( data.getValue( key ), is( nullValue() ) );
+		assertThat( data, hasStates( false, 0, 0 ) );
+
+		data.setValue( key, A );
+		assertThat( data.getValue( key ), is( A ) );
+		assertThat( data, hasStates( true, 1, 0 ) );
+
+		data.setModified( false );
+		assertThat( data.getValue( key ), is( A ) );
+		assertThat( data, hasStates( false, 0, 0 ) );
+
+		data.setValue( key, B );
+		assertThat( data.getValue( key ), is( B ) );
+		assertThat( data, hasStates( false, 0, 0 ) );
+	}
+
 	@Test
 	void testSetNullValueToNull() {
 		String key = "value";
@@ -1195,8 +1227,8 @@ class NodeTest {
 
 		data.setValue( "firstName", "Jane" );
 		data.setValue( "lastName", "Doe" );
-		assertThat( data.toString("firstName"), is( "MockNode[firstName=Jane]" ) );
-		assertThat( data.toString("lastName"), is( "MockNode[lastName=Doe]" ) );
+		assertThat( data.toString( "firstName" ), is( "MockNode[firstName=Jane]" ) );
+		assertThat( data.toString( "lastName" ), is( "MockNode[lastName=Doe]" ) );
 	}
 
 	@Test
