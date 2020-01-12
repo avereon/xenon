@@ -633,13 +633,7 @@ public class Node implements TxnEventTarget, Cloneable {
 		@Override
 		protected void commit() throws TxnException {
 			Object currentValue = getValue( key );
-//			System.out.println( "equal " + Objects.equals(
-//				newValue,
-//				currentValue
-//			) + ", == " + (newValue == currentValue) + ", " + currentValue + "(" + System.identityHashCode( currentValue ) + ")" + " -> " + newValue + "(" + System.identityHashCode(
-//				newValue ) + ")" );
 			if( Objects.equals( currentValue, newValue) ) return;
-			//if( newValue == currentValue ) return;
 
 			// This operation must be created before any changes are made
 			UpdateModifiedOperation updateModified = new UpdateModifiedOperation( Node.this );
