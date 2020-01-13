@@ -1322,7 +1322,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private File getFileChooserFolder() {
 		File folder = new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
-		if( !folder.exists() ) folder = new File( System.getProperty( "user.dir" ) );
+		if( !folder.exists() || !folder.isDirectory() ) folder = new File( System.getProperty( "user.dir" ) );
 		return folder;
 	}
 
