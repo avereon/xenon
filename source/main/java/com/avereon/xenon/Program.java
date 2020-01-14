@@ -267,6 +267,11 @@ public class Program extends Application implements ProgramProduct {
 	public void start( Stage stage ) throws Exception {
 		time( "fx-start" );
 
+		// Add an uncaught exception handler to the FX thread
+		Thread.currentThread().setUncaughtExceptionHandler( ( thread, throwable ) -> {
+			log.error( "Uncaught exception on " + thread.getName() + " thread", throwable );
+		} );
+
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
