@@ -88,15 +88,15 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
-		// TODO The force parameter just means to refresh the cache
+	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<ProductCard> products, boolean interactive ) {
+		// TODO The interactive parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( force )
+		return createFindPostedUpdatesChain( interactive )
 			.link( () -> startResourceDownloads( products ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( this::stageProductUpdates )
-			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, force ) )
+			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
 			.run( program );
 	}
 
@@ -538,7 +538,8 @@ public class ProductManagerLogic {
 	private Collection<ProductUpdate> handleStagedProductUpdates( Collection<ProductUpdate> productUpdates, boolean interactive ) {
 		if( productUpdates.size() == 0 ) return productUpdates;
 
-		if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
+		ProductManager.FoundOption foundOption = program.getProductManager().getFoundOption();
+		if( foundOption == ProductManager.FoundOption.NOTIFY || foundOption == ProductManager.FoundOption.APPLY ) {
 			notifyUpdatesReadyToApply( interactive );
 		}
 
@@ -608,7 +609,7 @@ public class ProductManagerLogic {
 	}
 
 	private void notifyUserOfUpdates() {
-		String title = program.rb().text( BundleKey.UPDATE, "updates" );
+		String title = program.rb().text( BundleKey.UPDATE, "updates-found" );
 		String message = program.rb().text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 

@@ -2,14 +2,15 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.util.LogUtil;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
+import com.avereon.xenon.product.ProgramProductManager;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.venza.javafx.FxUtil;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -233,7 +234,7 @@ class ProductPane extends MigPane {
 		// TODO Get the download task and use it for product progress
 		program.getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
-				manager.applySelectedUpdates( getUpdate() ).get();
+				((ProgramProductManager)manager).applySelectedUpdates( getUpdate(), true ).get();
 				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {

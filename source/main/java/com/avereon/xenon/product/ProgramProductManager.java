@@ -40,6 +40,10 @@ public class ProgramProductManager extends ProductManager {
 		return applySelectedUpdates( updates, false );
 	}
 
+	public Task<Collection<ProductUpdate>> applySelectedUpdates( ProductCard update, boolean interactive ) {
+		return applySelectedUpdates( Set.of( update ), interactive );
+	}
+
 	public Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
 		return new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
 	}
