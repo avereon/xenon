@@ -17,11 +17,17 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int PROCESSOR_COUNT = Runtime.getRuntime().availableProcessors();
 
-	protected static final int LOW_THREAD_COUNT = 4;
+	/**
+	 * The lowest possible number of threads in the task manager
+	 */
+	protected static final int LOW_THREAD_COUNT = 6;
 
-	protected static final int HIGH_THREAD_COUNT = 32;
+	/**
+	 * The highest possible number of threads in the task manager
+	 */
+	protected static final int HIGH_THREAD_COUNT = PROCESSOR_COUNT * LOW_THREAD_COUNT;
 
-	protected static final int DEFAULT_MIN_THREAD_COUNT = Math.max( 4, PROCESSOR_COUNT / 4 );
+	protected static final int DEFAULT_MIN_THREAD_COUNT = Math.max( LOW_THREAD_COUNT, PROCESSOR_COUNT / 4 );
 
 	protected static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
 
@@ -73,7 +79,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		if( existing != null ) return existing;
 
 		task.setState( Task.State.SCHEDULED );
-		return (Task<T>)executorP1.submit( (Callable<T>)task );
+		return executorP1.submit( task );
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -107,9 +113,9 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	public void setMaxThreadCount( int count ) {
 		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
-		if( executorP1 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 1 ) );
-		if( executorP2 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 2 ) );
-		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( 3 ) );
+		if( executorP1 != null ) executorP1.setCorePoolSize( getPriorityThreadCount( Task.Priority.HIGH ) );
+		if( executorP2 != null ) executorP2.setCorePoolSize( getPriorityThreadCount( Task.Priority.MEDIUM ) );
+		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( Task.Priority.LOW ) );
 	}
 
 	public ProgramEventBus getEventBus() {
@@ -124,23 +130,27 @@ public class TaskManager implements Controllable<TaskManager> {
 	@Override
 	public TaskManager start() {
 		if( isRunning() ) return this;
-		executorP3 = new TaskManagerExecutor( Task.Priority.LOW,
-			getPriorityThreadCount( 3 ),
+		executorP3 = new TaskManagerExecutor(
+			Task.Priority.LOW,
+			getPriorityThreadCount( Task.Priority.LOW ),
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(),
-			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
+			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY ),
+			new ThreadPoolExecutor.AbortPolicy()
 		);
-		executorP2 = new TaskManagerExecutor( Task.Priority.MEDIUM,
-			getPriorityThreadCount( 2 ),
+		executorP2 = new TaskManagerExecutor(
+			Task.Priority.MEDIUM,
+			getPriorityThreadCount( Task.Priority.MEDIUM ),
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(),
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 ),
 			new CascadingExecutionExceptionHandler( executorP3 )
 		);
-		executorP1 = new TaskManagerExecutor( Task.Priority.HIGH,
-			getPriorityThreadCount( 1 ),
+		executorP1 = new TaskManagerExecutor(
+			Task.Priority.HIGH,
+			getPriorityThreadCount( Task.Priority.HIGH ),
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(),
@@ -148,21 +158,6 @@ public class TaskManager implements Controllable<TaskManager> {
 			new CascadingExecutionExceptionHandler( executorP2 )
 		);
 		return this;
-	}
-
-	private class CascadingExecutionExceptionHandler implements RejectedExecutionHandler {
-
-		private TaskManagerExecutor backupExecutor;
-
-		public CascadingExecutionExceptionHandler( TaskManagerExecutor backupExecutor ) {
-			this.backupExecutor = backupExecutor;
-		}
-
-		@Override
-		public void rejectedExecution( Runnable runnable, ThreadPoolExecutor executor ) {
-			backupExecutor.submit( runnable, executor );
-		}
-
 	}
 
 	@Override
@@ -190,27 +185,24 @@ public class TaskManager implements Controllable<TaskManager> {
 		return Thread.currentThread() instanceof TaskThread;
 	}
 
-	private int getPriorityThreadCount( int priority ) {
+	private int getPriorityThreadCount( Task.Priority priority ) {
+		int h = Math.max( 1, maxThreadCount / 6 );
+		int m = Math.max( 1, maxThreadCount / 3 );
+		int l = Math.max( 1, maxThreadCount / 2 );
 		switch( priority ) {
-			case 1:
-			case 3: {
-				return maxThreadCount / 4;
+			case HIGH:
+				return h;
+			case MEDIUM:
+				return m;
+			default: {
+				return l;
 			}
-			default:
-				return maxThreadCount / 2;
 		}
 	}
 
 	private class TaskManagerExecutor extends ThreadPoolExecutor {
 
 		private Task.Priority priority;
-
-		private TaskManagerExecutor(
-			Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory
-		) {
-			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory );
-			init( priority );
-		}
 
 		private TaskManagerExecutor(
 			Task.Priority priority,
@@ -222,17 +214,25 @@ public class TaskManager implements Controllable<TaskManager> {
 			RejectedExecutionHandler rejectedExecutionHandler
 		) {
 			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory, rejectedExecutionHandler );
-			init( priority );
-		}
-
-		private void init( Task.Priority priority ) {
-			this.priority = priority;
 			allowCoreThreadTimeOut( true );
+			this.priority = priority;
 		}
 
 		public <T> Task<T> submit( Task<T> task ) {
-			if( task.getPriority().ordinal() < priority.ordinal() ) throw new RejectedExecutionException( "Task priority too low" );
 			return (Task<T>)super.submit( (Callable<T>)task );
+		}
+
+		@Override
+		public void execute( Runnable command ) {
+			if( command instanceof Task && ((Task<?>)command).getPriority().ordinal() < priority.ordinal() ) {
+				getRejectedExecutionHandler().rejectedExecution( command, this );
+				return;
+			} else if( priority != Task.Priority.MEDIUM ) {
+				getRejectedExecutionHandler().rejectedExecution( command, this );
+				return;
+			}
+
+			super.execute( command );
 		}
 
 		@Override
@@ -256,6 +256,22 @@ public class TaskManager implements Controllable<TaskManager> {
 				taskQueue.remove( task );
 				taskMap.remove( task );
 			}
+		}
+
+	}
+
+	private class CascadingExecutionExceptionHandler implements RejectedExecutionHandler {
+
+		private TaskManagerExecutor backupExecutor;
+
+		public CascadingExecutionExceptionHandler( TaskManagerExecutor backupExecutor ) {
+			this.backupExecutor = backupExecutor;
+		}
+
+		@Override
+		public void rejectedExecution( Runnable runnable, ThreadPoolExecutor executor ) {
+			backupExecutor.submit( runnable, executor );
+			log.trace( "Task cascaded to lower executor: " + runnable );
 		}
 
 	}

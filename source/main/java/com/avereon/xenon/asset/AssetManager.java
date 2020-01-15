@@ -1564,7 +1564,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public String toString() {
-			if( assets.size() == 0 ) return super.toString() + ": none";
+			if( assets == null || assets.size() == 0 ) return super.toString() + ": none";
 			return super.toString() + ": " + assets.iterator().next().toString();
 		}
 
