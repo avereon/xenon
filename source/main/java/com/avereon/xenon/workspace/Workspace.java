@@ -526,19 +526,22 @@ public class Workspace implements Configurable {
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
-		updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
-		memoryMonitor.setTextVisible( showText );
-		memoryMonitor.setShowPercent( showPercent );
+		Platform.runLater( () -> {
+			updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
+			memoryMonitor.setTextVisible( showText );
+			memoryMonitor.setShowPercent( showPercent );
+		} );
 	}
 
 	private void updateTaskMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
-
-		updateContainer( taskMonitorContainer, taskMonitor, enabled );
-		taskMonitor.setTextVisible( showText );
-		taskMonitor.setShowPercent( showPercent );
+		Platform.runLater( () -> {
+			updateContainer( taskMonitorContainer, taskMonitor, enabled );
+			taskMonitor.setTextVisible( showText );
+			taskMonitor.setShowPercent( showPercent );
+		} );
 	}
 
 	private void updateContainer( Group container, Node tool, boolean enabled ) {

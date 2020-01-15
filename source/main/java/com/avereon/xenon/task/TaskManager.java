@@ -136,8 +136,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(),
-			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY ),
-			new ThreadPoolExecutor.AbortPolicy()
+			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
 		);
 		executorP2 = new TaskManagerExecutor(
 			Task.Priority.MEDIUM,
@@ -146,7 +145,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(),
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 ),
-			new CascadingExecutionExceptionHandler( executorP3 )
+			executorP3
 		);
 		executorP1 = new TaskManagerExecutor(
 			Task.Priority.HIGH,
@@ -155,7 +154,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			TimeUnit.SECONDS,
 			new LinkedBlockingQueue<>(),
 			new TaskThreadFactory( this, group, Thread.NORM_PRIORITY ),
-			new CascadingExecutionExceptionHandler( executorP2 )
+			executorP2
 		);
 		return this;
 	}
@@ -204,6 +203,15 @@ public class TaskManager implements Controllable<TaskManager> {
 
 		private Task.Priority priority;
 
+		private TaskManagerExecutor backup;
+
+		private TaskManagerExecutor(
+			Task.Priority priority, int poolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory
+		) {
+			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory );
+			init( priority );
+		}
+
 		private TaskManagerExecutor(
 			Task.Priority priority,
 			int poolSize,
@@ -211,28 +219,21 @@ public class TaskManager implements Controllable<TaskManager> {
 			TimeUnit unit,
 			BlockingQueue<Runnable> workQueue,
 			ThreadFactory threadFactory,
-			RejectedExecutionHandler rejectedExecutionHandler
+			TaskManagerExecutor backup
 		) {
-			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory, rejectedExecutionHandler );
+			super( poolSize, poolSize, keepAliveTime, unit, workQueue, threadFactory, new CascadingExecutionExceptionHandler( backup ) );
+			this.backup = backup;
+			init( priority );
+		}
+
+		private void init( Task.Priority priority ) {
 			allowCoreThreadTimeOut( true );
 			this.priority = priority;
 		}
 
 		public <T> Task<T> submit( Task<T> task ) {
+			if( backup != null && task.getPriority().ordinal() < priority.ordinal() ) return backup.submit( task );
 			return (Task<T>)super.submit( (Callable<T>)task );
-		}
-
-		@Override
-		public void execute( Runnable command ) {
-			if( command instanceof Task && ((Task<?>)command).getPriority().ordinal() < priority.ordinal() ) {
-				getRejectedExecutionHandler().rejectedExecution( command, this );
-				return;
-			} else if( priority != Task.Priority.MEDIUM ) {
-				getRejectedExecutionHandler().rejectedExecution( command, this );
-				return;
-			}
-
-			super.execute( command );
 		}
 
 		@Override
@@ -270,8 +271,12 @@ public class TaskManager implements Controllable<TaskManager> {
 
 		@Override
 		public void rejectedExecution( Runnable runnable, ThreadPoolExecutor executor ) {
-			backupExecutor.submit( runnable, executor );
-			log.trace( "Task cascaded to lower executor: " + runnable );
+			if( runnable instanceof Task ) {
+				backupExecutor.submit( (Task<?>)runnable );
+			} else {
+				backupExecutor.submit( runnable );
+			}
+			log.warn( "Task cascaded to lower executor: " + runnable );
 		}
 
 	}
