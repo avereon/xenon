@@ -22,13 +22,12 @@ public class ProgramTaskManager extends TaskManager {
 
 	@Override
 	public void setMaxThreadCount( int count ) {
-		//super.setMaxThreadCount( count );
 		getSettings().set( "thread-count", Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT ) );
 	}
 
 	public Settings getSettings() {
-		if( getProgram() == null ) System.out.println( "Program is null" );
-		if( getProgram().getSettingsManager() == null ) System.out.println( "SettingsManager is null" );
+		if( getProgram() == null ) throw new RuntimeException( "Program cannot be null" );
+		if( getProgram().getSettingsManager() == null ) throw new RuntimeException( "SettingsManager cannot be null" );
 		return getProgram().getSettingsManager().getSettings( ManagerSettings.TASK );
 	}
 

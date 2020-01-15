@@ -81,6 +81,8 @@ public class Program extends Application implements ProgramProduct {
 	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
+	private ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
+
 	private com.avereon.util.Parameters parameters;
 
 	private SplashScreenPane splashScreen;
@@ -156,6 +158,10 @@ public class Program extends Application implements ProgramProduct {
 	// EXCEPTIONS Handled by the FX framework
 	public Program() {
 		time( "instantiate" );
+		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler( this );
+
+		// Add the uncaught exception handler to the JavaFX Application Thread
+		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Do not implicitly close the program
 		Platform.setImplicitExit( false );
@@ -168,6 +174,9 @@ public class Program extends Application implements ProgramProduct {
 	public void init() throws Exception {
 		// NOTE Only do in init() what should be done before the splash screen is shown
 		time( "init" );
+
+		// Add the uncaught exception handler to the JavaFX-Launcher thread
+		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Create the event hub
 		eventBus = new ProgramEventBus();
@@ -204,15 +213,9 @@ public class Program extends Application implements ProgramProduct {
 		// Create the settings manager, depends on program data folder
 		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
 
-		// Load the default settings values
-		Properties properties = new Properties();
-		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		properties.load( new InputStreamReader( getClassLoader().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES ), TextUtil.CHARSET ) );
-		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
-
 		// Create the program settings, depends on settings manager and default settings values
 		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.setDefaultValues( defaultSettingsValues );
+		programSettings.setDefaultValues( loadDefaultSettings() );
 		time( "program-settings" );
 
 		// Check for the VERSION CL parameter, depends on program settings
@@ -268,9 +271,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "fx-start" );
 
 		// Add an uncaught exception handler to the FX thread
-		Thread.currentThread().setUncaughtExceptionHandler( ( thread, throwable ) -> {
-			log.error( "Uncaught exception on " + thread.getName() + " thread", throwable );
-		} );
+		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
@@ -335,20 +336,11 @@ public class Program extends Application implements ProgramProduct {
 		time( "icon-library" );
 
 		// Create program action handlers
-		closeAction = new CloseWorkspaceAction( this );
-		exitAction = new ExitAction( this );
-		aboutAction = new AboutAction( this );
-		settingsAction = new SettingsAction( this );
-		welcomeAction = new WelcomeAction( this );
-		noticeAction = new NoticeAction( this );
-		productAction = new ProductAction( this );
-		updateAction = new UpdateAction( this );
-		restartAction = new RestartAction( this );
-		taskAction = new TaskAction( this );
+		createProgramActions();
 		time( "program-actions" );
 
 		// Create the action library
-		actionLibrary = new ActionLibrary( programResourceBundle );
+		actionLibrary = new ActionLibrary( rb() );
 		registerActionHandlers();
 
 		// Create the UI factory
@@ -780,6 +772,21 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	/**
+	 * Load the default settings map from the classpath.
+	 *
+	 * @return The default settings map
+	 * @throws IOException If an IOException occurs
+	 */
+	private Map<String, Object> loadDefaultSettings() throws IOException {
+		Properties properties = new Properties();
+		Map<String, Object> defaultSettingsValues = new HashMap<>();
+		InputStream defaultSettingsInput = getClassLoader().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES );
+		if( defaultSettingsInput != null ) properties.load( new InputStreamReader( defaultSettingsInput, TextUtil.CHARSET ) );
+		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
+		return defaultSettingsValues;
+	}
+
+	/**
 	 * Initialize the program parameters by converting the FX parameters object into a program parameters object.
 	 *
 	 * @return The program parameters object
@@ -1076,6 +1083,19 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterIcons() {}
+
+	private void createProgramActions() {
+		closeAction = new CloseWorkspaceAction( this );
+		exitAction = new ExitAction( this );
+		aboutAction = new AboutAction( this );
+		settingsAction = new SettingsAction( this );
+		welcomeAction = new WelcomeAction( this );
+		noticeAction = new NoticeAction( this );
+		productAction = new ProductAction( this );
+		updateAction = new UpdateAction( this );
+		restartAction = new RestartAction( this );
+		taskAction = new TaskAction( this );
+	}
 
 	private void registerActionHandlers() {
 		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction );
