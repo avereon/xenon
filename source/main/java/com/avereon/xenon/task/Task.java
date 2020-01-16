@@ -123,6 +123,11 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return eventBus;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ": " + getName();
+	}
+
 	public static <N> Task<N> of( String name, Callable<N> callable ) {
 		if( callable == null ) throw new NullPointerException( "Callable cannot be null" );
 		return new Task<>( name ) {

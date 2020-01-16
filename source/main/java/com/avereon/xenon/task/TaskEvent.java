@@ -33,4 +33,9 @@ public class TaskEvent extends TaskManagerEvent {
 		return (EventType<TaskEvent>)super.getEventType();
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ": " + task;
+	}
+
 }

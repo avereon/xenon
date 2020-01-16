@@ -352,7 +352,7 @@ public class ProductManagerLogic {
 		private ProductCard card;
 
 		DownloadProductResourceTask( RepoState repo, ProductCard card ) {
-			setName( program.rb().text( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
+			setName( program.rb().text( BundleKey.UPDATE, "task-updates-download", card.getName(), card.getVersion() ) );
 			this.repo = repo;
 			this.card = card;
 		}
