@@ -8,43 +8,71 @@ env:
   AVN_KEYSTORE_PASSWORD: ${{ secrets.AVN_KEYSTORE_PASSWORD }}
   AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
   AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
-  DISPLAY: ":99"
   JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/xenon"
   JAVADOC_TARGET_PATH: "/opt/avn/web/product/xenon/javadoc"
+  JDK_VERSION: "13"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
+  XVFB_PARMS: ":99 -screen 0 1920x1080x24 -nolisten unix"
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Fetch sources
-      uses: actions/checkout@v1
-    - name: Set up Secrets
-      run: |
-        source secrets.sh
-    - name: Set up Virtual Display
-      run: |
-        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
-    - name: Set up Java
-      uses: actions/setup-java@v1
-      with:
-        java-version: 13
-    - name: Set up Maven
-      run: |
-        mvn $MAVEN_PARMS dependency:resolve-plugins
-    - name: Compile
-      run: |
-        mvn $MAVEN_PARMS compile
-    - name: Unit Tests
-      run: |
-        mvn $MAVEN_PARMS test
-    - name: Deploy Maven Arifacts
-      run: |
-        mvn $MAVEN_PARMS deploy -Dmaven.test.skip=true
-    - name: Deploy JavaDoc
-      run: |
-        scp -B target/xenon-*-javadoc.jar travis@avereon.com:$JAVADOC_DEPLOY_PATH/javadoc.jar 2>&1
-        if [ $? -ne 0 ]; then exit 1; fi
-        ssh -t travis@avereon.com "mkdir -p $JAVADOC_TARGET_PATH;rm -rf $JAVADOC_TARGET_PATH/*;unzip -o $JAVADOC_DEPLOY_PATH/javadoc.jar -d $JAVADOC_TARGET_PATH"
-        if [ $? -ne 0 ]; then exit 1; fi
+      - name: Fetch sources
+        uses: actions/checkout@v1
+
+      - name: Set up Secrets
+        run: |
+          source secrets.sh
+
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${XVFB_PARMS} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ env.JDK_VERSION }}
+
+      - name: Compile
+        run: |
+          mvn $MAVEN_PARMS compile
+
+      - name: Unit Tests
+        run: |
+          mvn $MAVEN_PARMS test
+
+      - name: Deploy Maven Arifacts
+        run: |
+          mvn $MAVEN_PARMS deploy -Dmaven.test.skip=true
+
+      - name: Deploy JavaDoc
+        run: |
+          scp -B target/xenon-*-javadoc.jar travis@avereon.com:$JAVADOC_DEPLOY_PATH/javadoc.jar 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          ssh -t travis@avereon.com "mkdir -p $JAVADOC_TARGET_PATH;rm -rf $JAVADOC_TARGET_PATH/*;unzip -o $JAVADOC_DEPLOY_PATH/javadoc.jar -d $JAVADOC_TARGET_PATH"
+          if [ $? -ne 0 ]; then exit 1; fi
+
+  linux:
+    name: Linux Binaries
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v1
+
+      - name: Set up Secrets
+        run: |
+          source secrets.sh
+
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${XVFB_PARMS} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ env.JDK_VERSION }}
+
