@@ -2,10 +2,8 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.event.EventHandler;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.task.TaskManagerEvent;
-import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Rectangle;
 
@@ -57,9 +55,8 @@ public class TaskMonitor extends AbstractMonitor {
 
 		getChildren().addAll( max, threads, tasks, label );
 
-		taskWatcher = new TaskWatcher();
-		// Only register for TaskEvents
-		taskManager.getEventBus().register( TaskEvent.ANY, taskWatcher );
+		// Register for TaskManagerEvents (TaskEvent and TaskThreadEvent)
+		taskManager.getEventBus().register( TaskManagerEvent.ANY, taskWatcher = new TaskWatcher() );
 	}
 
 	public boolean isTextVisible() {
@@ -81,7 +78,7 @@ public class TaskMonitor extends AbstractMonitor {
 	}
 
 	public void close() {
-		taskManager.getEventBus().unregister( TaskEvent.ANY, taskWatcher );
+		taskManager.getEventBus().unregister( TaskManagerEvent.ANY, taskWatcher );
 	}
 
 	@Override
@@ -123,24 +120,7 @@ public class TaskMonitor extends AbstractMonitor {
 		max.setHeight( height );
 	}
 
-	private void determineBars() {
-		if( maxThreadCount == priorThreadCount ) return;
-
-		priorThreadCount = maxThreadCount;
-		getChildren().remove( label );
-		getChildren().removeAll( bars );
-		bars = new ArrayList<>();
-		for( int index = 0; index < maxThreadCount; index++ ) {
-			Rectangle bar = new Rectangle();
-			bar.setManaged( false );
-			bar.getStyleClass().add( "task-monitor-progress" );
-			bars.add( bar );
-		}
-		getChildren().addAll( bars );
-		getChildren().add( label );
-	}
-
-	private void update() {
+	protected void update() {
 		maxThreadCount = taskManager.getMaxThreadCount();
 		int currentThreadCount = taskManager.getCurrentThreadCount();
 		int taskCount = taskManager.getTasks().size();
@@ -171,15 +151,28 @@ public class TaskMonitor extends AbstractMonitor {
 		requestLayout();
 	}
 
-	private void requestUpdate() {
-		update();
+	private void determineBars() {
+		if( maxThreadCount == priorThreadCount ) return;
+
+		priorThreadCount = maxThreadCount;
+		getChildren().remove( label );
+		getChildren().removeAll( bars );
+		bars = new ArrayList<>();
+		for( int index = 0; index < maxThreadCount; index++ ) {
+			Rectangle bar = new Rectangle();
+			bar.setManaged( false );
+			bar.getStyleClass().add( "task-monitor-progress" );
+			bars.add( bar );
+		}
+		getChildren().addAll( bars );
+		getChildren().add( label );
 	}
 
 	private class TaskWatcher implements EventHandler<TaskManagerEvent> {
 
 		@Override
 		public void handle( TaskManagerEvent event ) {
-			Platform.runLater( TaskMonitor.this::requestUpdate );
+			requestUpdate();
 		}
 
 	}
