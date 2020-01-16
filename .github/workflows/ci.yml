@@ -19,13 +19,16 @@ jobs:
     steps:
     - name: Fetch sources
       uses: actions/checkout@v1
-    - name: Set up JDK
+    - name: Set up Virtual Display
+      run: |
+        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+    - name: Set up Java Development Kit
       uses: actions/setup-java@v1
       with:
         java-version: 13
-    - name: Set up XVFB
+    - name: Set up Maven
       run: |
-        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+        mvn dependency:resolve-plugins
     - name: Set up Secrets
       run: |
         mkdir "${HOME}/.ssh"
