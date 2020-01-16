@@ -1,10 +1,18 @@
-name: Avereon Xenon CI
+name: Avereon Xenon Continuous
 
 on:
   push:
 
+env:
+  AVN_GPG_PASSWORD: ${{ secrets.AVN_GPG_PASSWORD }}
+  AVN_KEYSTORE_PASSWORD: ${{ secrets.AVN_KEYSTORE_PASSWORD }}
+  AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
+  AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
+  DISPLAY: ":99"
+
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
     - name: Fetch sources
@@ -13,15 +21,22 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 13
-    - name: Build & Test & Deploy
-      env:
-        AVN_GPG_PASSWORD: ${{ secrets.AVN_GPG_PASSWORD }}
-        AVN_KEYSTORE_PASSWORD: ${{ secrets.AVN_KEYSTORE_PASSWORD }}
-        AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
-        AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
+    - name: Set up Secrets
       run: |
-        export DISPLAY=:99
-        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+        mkdir "${HOME}/.ssh"
         gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output .github/avereon.keystore .github/avereon.keystore.gpg
-        mvn deploy -B -U -V --settings .github/settings.xml --file pom.xml
-        .github/deploy/ci-deploy.sh
+        gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/id_rsa .github/id_rsa.gpg
+        gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/id_rsa.pub .github/id_rsa.pub.gpg
+        gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/known_hosts .github/known_hosts.gpg
+    - name: Compile
+      run: |
+        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+        mvn compile -B -U -V --settings .github/settings.xml --file pom.xml
+    - name: Unit Test
+      run: |
+        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+        mvn test -B -U -V --settings .github/settings.xml --file pom.xml
+    - name: Deploy
+      run: |
+        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
+        mvn deploy -B -U -V --settings .github/settings.xml --file pom.xml -Dmaven.test.skip=true
