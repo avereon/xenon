@@ -9,6 +9,8 @@ env:
   AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
   AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
   DISPLAY: ":99"
+  JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/xenon"
+  JAVADOC_TARGET_PATH: "/opt/avn/web/product/xenon/javadoc"
 
 jobs:
   build:
@@ -21,6 +23,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 13
+    - name: Set up XVFB
+      run: |
+        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
     - name: Set up Secrets
       run: |
         mkdir "${HOME}/.ssh"
@@ -28,15 +33,21 @@ jobs:
         gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/id_rsa .github/id_rsa.gpg
         gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/id_rsa.pub .github/id_rsa.pub.gpg
         gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOME/.ssh/known_hosts .github/known_hosts.gpg
+        chmod 600 "${HOME}/.ssh/id_rsa"
+        chmod 600 "${HOME}/.ssh/id_rsa.pub"
+        chmod 600 "${HOME}/.ssh/known_hosts"
     - name: Compile
       run: |
-        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
         mvn compile -B -U -V --settings .github/settings.xml --file pom.xml
-    - name: Unit Test
+    - name: Unit Tests
       run: |
-        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
         mvn test -B -U -V --settings .github/settings.xml --file pom.xml
-    - name: Deploy
+    - name: Deploy Maven Arifacts
       run: |
-        Xvfb ${DISPLAY} -screen 0 1920x1080x24 -nolisten unix &
         mvn deploy -B -U -V --settings .github/settings.xml --file pom.xml -Dmaven.test.skip=true
+    - name: Deploy JavaDoc
+      run: |
+        scp -B target/xenon-*-javadoc.jar travis@avereon.com:$JAVADOC_DEPLOY_PATH/javadoc.jar 2>&1
+        if [ $? -ne 0 ]; then exit 1; fi
+        ssh -t travis@avereon.com "mkdir -p $JAVADOC_TARGET_PATH;rm -rf $JAVADOC_TARGET_PATH/*;unzip -o $JAVADOC_DEPLOY_PATH/javadoc.jar -d $JAVADOC_TARGET_PATH"
+        if [ $? -ne 0 ]; then exit 1; fi
