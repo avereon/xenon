@@ -25,14 +25,13 @@ public class TaskManager implements Controllable<TaskManager> {
 	/**
 	 * The highest possible number of threads in the task manager
 	 */
-	//protected static final int HIGH_THREAD_COUNT = PROCESSOR_COUNT * LOW_THREAD_COUNT;
-	protected static final int HIGH_THREAD_COUNT = 6;
+	protected static final int HIGH_THREAD_COUNT = PROCESSOR_COUNT * LOW_THREAD_COUNT;
 
 	protected static final int DEFAULT_MIN_THREAD_COUNT = Math.max( LOW_THREAD_COUNT, PROCESSOR_COUNT / 4 );
 
 	protected static final int DEFAULT_MAX_THREAD_COUNT = Math.min( HIGH_THREAD_COUNT, Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 ) );
 
-	static final int THREAD_IDLE_SECONDS = 2;
+	private static final int DEFAULT_THREAD_IDLE_TIMEOUT = 2000;
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -134,6 +133,10 @@ public class TaskManager implements Controllable<TaskManager> {
 		return eventBus;
 	}
 
+	public int getThreadIdleTimeout() {
+		return DEFAULT_THREAD_IDLE_TIMEOUT;
+	}
+
 	@Override
 	public boolean isRunning() {
 		return executorP1 != null && !executorP1.isTerminated() && executorP2 != null && !executorP2.isTerminated() && executorP3 != null && !executorP3.isTerminated();
@@ -146,16 +149,16 @@ public class TaskManager implements Controllable<TaskManager> {
 		executorP3 = new TaskManagerExecutor(
 			Task.Priority.LOW,
 			p3ThreadCount,
-			THREAD_IDLE_SECONDS,
-			TimeUnit.SECONDS,
+			getThreadIdleTimeout(),
+			TimeUnit.MILLISECONDS,
 			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
 		);
 		executorP2 = new TaskManagerExecutor(
 			Task.Priority.MEDIUM,
 			p2ThreadCount,
-			THREAD_IDLE_SECONDS,
-			TimeUnit.SECONDS,
+			getThreadIdleTimeout(),
+			TimeUnit.MILLISECONDS,
 			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 ),
 			executorP3
@@ -163,8 +166,8 @@ public class TaskManager implements Controllable<TaskManager> {
 		executorP1 = new TaskManagerExecutor(
 			Task.Priority.HIGH,
 			p1ThreadCount,
-			THREAD_IDLE_SECONDS,
-			TimeUnit.SECONDS,
+			getThreadIdleTimeout(),
+			TimeUnit.MILLISECONDS,
 			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.NORM_PRIORITY ),
 			executorP2

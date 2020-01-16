@@ -278,7 +278,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 		// Wait for the task thread to stop also - this happens after the thread idle timeout
-		watcher.waitForEvent( TaskThreadEvent.FINISH, TaskManager.THREAD_IDLE_SECONDS * 1000 + 100 );
+		watcher.waitForEvent( TaskThreadEvent.FINISH, manager.getThreadIdleTimeout() + 500 );
 
 		int index = 0;
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.SUBMITTED ) );
