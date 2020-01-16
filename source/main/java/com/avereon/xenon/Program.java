@@ -286,6 +286,10 @@ public class Program extends Application implements ProgramProduct {
 
 	private class StartupTask extends Task<Void> {
 
+		private StartupTask() {
+			setPriority( Priority.HIGH );
+		}
+
 		@Override
 		public Void call() throws Exception {
 			doStartTasks();
@@ -462,6 +466,10 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private class ShutdownTask extends Task<Void> {
+
+		private ShutdownTask() {
+			setPriority( Priority.HIGH );
+		}
 
 		@Override
 		public Void call() throws Exception {

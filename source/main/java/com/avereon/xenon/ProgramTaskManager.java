@@ -17,12 +17,15 @@ public class ProgramTaskManager extends TaskManager {
 
 	@Override
 	public int getMaxThreadCount() {
+		if( getProgram() == null ) return super.getMaxThreadCount();
 		return getSettings().get( "thread-count", Integer.class, DEFAULT_MAX_THREAD_COUNT );
 	}
 
 	@Override
-	public void setMaxThreadCount( int count ) {
+	public TaskManager setMaxThreadCount( int count ) {
+		if( getProgram() == null ) return super.setMaxThreadCount( count );
 		getSettings().set( "thread-count", Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT ) );
+		return this;
 	}
 
 	public Settings getSettings() {

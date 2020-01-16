@@ -58,6 +58,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private long progress;
 
+	private Priority processedPriority;
+
 	public Task() {
 		this( null );
 	}
@@ -103,12 +105,21 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return priority;
 	}
 
-	public void setPriority( Priority priority ) {
+	public Task<R> setPriority( Priority priority ) {
 		this.priority = priority;
+		return this;
 	}
 
 	public double getPercent() {
 		return Math.min( 1.0, (double)progress / (double)total );
+	}
+
+	public Priority getProcessedPriority() {
+		return processedPriority;
+	}
+
+	void setProcessedPriority( Priority processedPriority ) {
+		this.processedPriority = processedPriority;
 	}
 
 	public long getTotal() {

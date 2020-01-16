@@ -25,15 +25,22 @@ public class TaskManager implements Controllable<TaskManager> {
 	/**
 	 * The highest possible number of threads in the task manager
 	 */
-	protected static final int HIGH_THREAD_COUNT = PROCESSOR_COUNT * LOW_THREAD_COUNT;
+	//protected static final int HIGH_THREAD_COUNT = PROCESSOR_COUNT * LOW_THREAD_COUNT;
+	protected static final int HIGH_THREAD_COUNT = 6;
 
 	protected static final int DEFAULT_MIN_THREAD_COUNT = Math.max( LOW_THREAD_COUNT, PROCESSOR_COUNT / 4 );
 
-	protected static final int DEFAULT_MAX_THREAD_COUNT = Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 );
+	protected static final int DEFAULT_MAX_THREAD_COUNT = Math.min( HIGH_THREAD_COUNT, Math.max( DEFAULT_MIN_THREAD_COUNT, PROCESSOR_COUNT * 2 ) );
 
 	static final int THREAD_IDLE_SECONDS = 2;
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+
+	int p1ThreadCount;
+
+	int p2ThreadCount;
+
+	int p3ThreadCount;
 
 	private TaskManagerExecutor executorP1;
 
@@ -56,7 +63,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
 		eventBus = new ProgramEventBus();
-		maxThreadCount = DEFAULT_MAX_THREAD_COUNT;
+		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
 	public static void taskThreadCheck() {
@@ -111,11 +118,16 @@ public class TaskManager implements Controllable<TaskManager> {
 		return count;
 	}
 
-	public void setMaxThreadCount( int count ) {
+	public TaskManager setMaxThreadCount( int count ) {
 		maxThreadCount = Math.min( Math.max( LOW_THREAD_COUNT, count ), HIGH_THREAD_COUNT );
-		if( executorP1 != null ) executorP1.setCorePoolSize( getPriorityThreadCount( Task.Priority.HIGH ) );
-		if( executorP2 != null ) executorP2.setCorePoolSize( getPriorityThreadCount( Task.Priority.MEDIUM ) );
-		if( executorP3 != null ) executorP3.setCorePoolSize( getPriorityThreadCount( Task.Priority.LOW ) );
+
+		redistributeThreadCounts( maxThreadCount );
+
+		if( executorP3 != null ) executorP3.setCorePoolSize( p3ThreadCount );
+		if( executorP2 != null ) executorP2.setCorePoolSize( p2ThreadCount );
+		if( executorP1 != null ) executorP1.setCorePoolSize( p1ThreadCount );
+
+		return this;
 	}
 
 	public ProgramEventBus getEventBus() {
@@ -130,29 +142,30 @@ public class TaskManager implements Controllable<TaskManager> {
 	@Override
 	public TaskManager start() {
 		if( isRunning() ) return this;
+		LinkedBlockingQueue<Runnable> sharedQueue = new LinkedBlockingQueue<>();
 		executorP3 = new TaskManagerExecutor(
 			Task.Priority.LOW,
-			getPriorityThreadCount( Task.Priority.LOW ),
+			p3ThreadCount,
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(),
+			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
 		);
 		executorP2 = new TaskManagerExecutor(
 			Task.Priority.MEDIUM,
-			getPriorityThreadCount( Task.Priority.MEDIUM ),
+			p2ThreadCount,
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(),
+			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 ),
 			executorP3
 		);
 		executorP1 = new TaskManagerExecutor(
 			Task.Priority.HIGH,
-			getPriorityThreadCount( Task.Priority.HIGH ),
+			p1ThreadCount,
 			THREAD_IDLE_SECONDS,
 			TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(),
+			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.NORM_PRIORITY ),
 			executorP2
 		);
@@ -174,29 +187,44 @@ public class TaskManager implements Controllable<TaskManager> {
 		return this;
 	}
 
-	private TaskManagerExecutor shutdown( ThreadPoolExecutor executor ) {
-		if( executor == null ) return null;
-		executor.shutdown();
-		return null;
+	int getP1ThreadCount() {
+		return p1ThreadCount;
+	}
+
+	void setP1ThreadCount( int p1ThreadCount ) {
+		this.p1ThreadCount = p1ThreadCount;
+	}
+
+	int getP2ThreadCount() {
+		return p2ThreadCount;
+	}
+
+	void setP2ThreadCount( int p2ThreadCount ) {
+		this.p2ThreadCount = p2ThreadCount;
+	}
+
+	int getP3ThreadCount() {
+		return p3ThreadCount;
+	}
+
+	void setP3ThreadCount( int p3ThreadCount ) {
+		this.p3ThreadCount = p3ThreadCount;
 	}
 
 	private static boolean isTaskThread() {
 		return Thread.currentThread() instanceof TaskThread;
 	}
 
-	private int getPriorityThreadCount( Task.Priority priority ) {
-		int h = Math.max( 1, maxThreadCount / 6 );
-		int m = Math.max( 1, maxThreadCount / 3 );
-		int l = Math.max( 1, maxThreadCount / 2 );
-		switch( priority ) {
-			case HIGH:
-				return h;
-			case MEDIUM:
-				return m;
-			default: {
-				return l;
-			}
-		}
+	private TaskManagerExecutor shutdown( ThreadPoolExecutor executor ) {
+		if( executor == null ) return null;
+		executor.shutdown();
+		return null;
+	}
+
+	private void redistributeThreadCounts( int total ) {
+		setP1ThreadCount( Math.max( 1, total / 6 ) );
+		setP2ThreadCount( Math.max( 1, total / 3 ) );
+		setP3ThreadCount( Math.max( 1, total / 2 ) );
 	}
 
 	private class TaskManagerExecutor extends ThreadPoolExecutor {
@@ -232,7 +260,10 @@ public class TaskManager implements Controllable<TaskManager> {
 		}
 
 		public <T> Task<T> submit( Task<T> task ) {
-			if( backup != null && task.getPriority().ordinal() < priority.ordinal() ) return backup.submit( task );
+			if( backup != null  ) {
+				if( task.getPriority().ordinal() < priority.ordinal() ) return backup.submit( task );
+				if( getCorePoolSize() - getActiveCount() < 1 ) return backup.submit( task );
+			}
 			return (Task<T>)super.submit( (Callable<T>)task );
 		}
 
@@ -244,6 +275,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			task.getEventBus().parent( TaskManager.this.getEventBus() );
 			task.getEventBus().dispatch( new TaskEvent( TaskManager.this, TaskEvent.SUBMITTED, task ) );
 			task.setTaskManager( TaskManager.this );
+			task.setProcessedPriority( this.priority );
 
 			taskMap.put( task, task );
 			taskQueue.add( task );
