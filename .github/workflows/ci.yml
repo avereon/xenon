@@ -11,7 +11,7 @@ env:
   DISPLAY: ":99"
   JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/xenon"
   JAVADOC_TARGET_PATH: "/opt/avn/web/product/xenon/javadoc"
-  MAVEN_OPTS: "-B -U -V --settings .github/settings.xml --file pom.xml"
+  MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
         java-version: 13
     - name: Set up Maven
       run: |
-        mvn $MAVEN_OPTS dependency:resolve-plugins
+        mvn $MAVEN_PARMS dependency:resolve-plugins
     - name: Set up Secrets
       run: |
         mkdir "${HOME}/.ssh"
@@ -42,13 +42,13 @@ jobs:
         chmod 600 "${HOME}/.ssh/known_hosts"
     - name: Compile
       run: |
-        mvn $MAVEN_OPTS compile
+        mvn $MAVEN_PARMS compile
     - name: Unit Tests
       run: |
-        mvn $MAVEN_OPTS test
+        mvn $MAVEN_PARMS test
     - name: Deploy Maven Arifacts
       run: |
-        mvn $MAVEN_OPTS deploy -Dmaven.test.skip=true
+        mvn $MAVEN_PARMS deploy -Dmaven.test.skip=true
     - name: Deploy JavaDoc
       run: |
         scp -B target/xenon-*-javadoc.jar travis@avereon.com:$JAVADOC_DEPLOY_PATH/javadoc.jar 2>&1
