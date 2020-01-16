@@ -24,7 +24,7 @@ jobs:
 
       - name: Set up Secrets
         run: |
-          source secrets.sh
+          source .github/workflows/secrets.sh
 
       - name: Set up Virtual Display
         run: |
@@ -65,7 +65,7 @@ jobs:
 
       - name: Set up Secrets
         run: |
-          source secrets.sh
+          source .github/workflows/secrets.sh
 
       - name: Set up Virtual Display
         run: |
