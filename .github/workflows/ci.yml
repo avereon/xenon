@@ -26,8 +26,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/$AVN_PRODUCT"
-      JAVADOC_TARGET_PATH: "/opt/avn/web/product/$AVN_PRODUCT/javadoc"
+      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/${AVN_PRODUCT}"
+      JAVADOC_TARGET_PATH: "/opt/avn/web/product/${AVN_PRODUCT}/javadoc"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v1
@@ -99,12 +99,12 @@ jobs:
 
       - name: Deploy Install Pack
         run: |
-          scp -B target/*install.jar travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          scp -B target/*install.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Pack
         run: |
-          scp -B target/*product.jar travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          scp -B target/*product.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Card
         run: |
-          scp -B target/main/java/META-INF/*.card travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
