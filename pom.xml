@@ -378,13 +378,14 @@
 											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<target>${images-folder}/xenon.png</target>
 										</image>
-										<image>
-											<class>com.avereon.xenon.image.InstallerBannerImage</class>
-											<target>${images-folder}/banner.png</target>
-										</image>
+<!--										<image>-->
+<!--											<class>com.avereon.xenon.image.InstallerBannerImage</class>-->
+<!--											<target>${images-folder}/banner.png</target>-->
+<!--										</image>-->
 									</images>
 									<icons>
 										<icon>
+											<target>${images-folder}/xenon.ico</target>
 											<images>
 												<image>
 													<class>com.avereon.rossa.icon.XRingLargeIcon</class>
@@ -415,7 +416,6 @@
 													<size>128</size>
 												</image>
 											</images>
-											<target>${images-folder}/xenon.ico</target>
 										</icon>
 									</icons>
 								</configuration>
