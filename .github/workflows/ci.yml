@@ -81,15 +81,22 @@ jobs:
         with:
           java-version: ${{env.JAVA_VERSION}}
 
-      - name: Build Binaries
-        run: |
-          mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
+#      - name: Build Binaries
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} clean verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Binaries
+      - name: Build Binaries - No Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} clean verify -X -P platform-specific-assemblies -Dmaven.test.skip=true
+
+      - name: Deploy Product Pack
         run: |
           scp -B target/*product.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
-          if [ $? -ne 0 ]; then exit 1; fi
+
+      - name: Deploy Install Pack
+        run: |
           scp -B target/*install.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
-          if [ $? -ne 0 ]; then exit 1; fi
+
+      - name: Deploy Product Card
+        run: |
           scp -B target/main/java/META-INF/*.card travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
-          if [ $? -ne 0 ]; then exit 1; fi
