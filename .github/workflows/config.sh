@@ -19,3 +19,5 @@ export PRODUCT_DEPLOY_PATH=/opt/avn/store/${AVN_RELEASE}/${AVN_PRODUCT}/${AVN_PL
 echo "Build date=$(date)"
 echo "GITHUB_REF=${GITHUB_REF}"
 echo "PRODUCT_DEPLOY_PATH=${PRODUCT_DEPLOY_PATH}"
+
+echo "::set-env PRODUCT_DEPLOY_PATH::${PRODUCT_DEPLOY_PATH}"
