@@ -72,9 +72,9 @@ jobs:
         run: |
           source .github/workflows/config.sh
 
-#      - name: Set up Virtual Display
-#        run: |
-#          Xvfb ${{env.XVFB_PARMS}} &
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -83,17 +83,13 @@ jobs:
 
       - name: Build Binaries
         run: |
-          Xvfb ${{env.XVFB_PARMS}} &
-          rm -rf target/jlink
-          if [ $? -ne 0 ]; then exit 1; fi
-          mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
-          if [ $? -ne 0 ]; then exit 1; fi
+          mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
       - name: Deploy Binaries
         run: |
-          scp -B target/*install.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
-          if [ $? -ne 0 ]; then exit 1; fi
           scp -B target/*product.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/*install.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
           if [ $? -ne 0 ]; then exit 1; fi
           scp -B target/main/java/META-INF/*.card travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
           if [ $? -ne 0 ]; then exit 1; fi

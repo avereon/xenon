@@ -375,13 +375,13 @@
 								<configuration>
 									<images>
 										<image>
+											<class>com.avereon.xenon.image.InstallerBannerImage</class>
+											<target>${images-folder}/banner.png</target>
+										</image>
+										<image>
 											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<target>${images-folder}/xenon.png</target>
 										</image>
-<!--										<image>-->
-<!--											<class>com.avereon.xenon.image.InstallerBannerImage</class>-->
-<!--											<target>${images-folder}/banner.png</target>-->
-<!--										</image>-->
 									</images>
 									<icons>
 										<icon>
