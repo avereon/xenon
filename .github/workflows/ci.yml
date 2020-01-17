@@ -87,7 +87,7 @@ jobs:
 
       - name: Build Binaries - No Tests
         run: |
-          mvn ${{env.MAVEN_PARMS}} clean verify -X -P platform-specific-assemblies -Dmaven.test.skip=true
+          mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
       - name: Deploy Product Pack
         run: |
