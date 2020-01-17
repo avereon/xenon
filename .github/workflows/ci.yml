@@ -19,8 +19,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/${{env.AVN_PRODUCT}}"
-      JAVADOC_TARGET_PATH: "/opt/avn/web/product//${{env.AVN_PRODUCT}}/javadoc"
+      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/$AVN_PRODUCT"
+      JAVADOC_TARGET_PATH: "/opt/avn/web/product//$AVN_PRODUCT/javadoc"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v1
