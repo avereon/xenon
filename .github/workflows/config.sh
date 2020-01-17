@@ -8,3 +8,10 @@ gpg --quiet --batch --yes --decrypt --passphrase=$AVN_GPG_PASSWORD --output $HOM
 chmod 600 "${HOME}/.ssh/id_rsa"
 chmod 600 "${HOME}/.ssh/id_rsa.pub"
 chmod 600 "${HOME}/.ssh/known_hosts"
+
+#RELEASE github.ref [refs/heads/master, refs/heads/stable]
+case "${GITHUB_REF}" in
+  "refs/heads/master") AVN_RELEASE="latest" ;;
+  "refs/heads/stable") AVN_RELEASE="stable" ;;
+esac
+export PRODUCT_DEPLOY_PATH=/opt/avn/store/$AVN_RELEASE/$AVN_PRODUCT/$AVN_PLATFORM

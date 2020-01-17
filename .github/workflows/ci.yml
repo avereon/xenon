@@ -4,11 +4,12 @@ on:
   push:
 
 env:
+  AVN_PRODUCT: "xenon"
   AVN_GPG_PASSWORD: ${{ secrets.AVN_GPG_PASSWORD }}
   AVN_KEYSTORE_PASSWORD: ${{ secrets.AVN_KEYSTORE_PASSWORD }}
   AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
   AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
-  PRODUCT: "xenon"
+  GITHUB_REF: ${{ github.ref }}
   JDK_VERSION: "13"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: ":99 -screen 0 1920x1080x24 -nolisten unix"
@@ -18,15 +19,15 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/$PRODUCT"
-      JAVADOC_TARGET_PATH: "/opt/avn/web/product/$PRODUCT/javadoc"
+      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/$AVN_PRODUCT"
+      JAVADOC_TARGET_PATH: "/opt/avn/web/product/$AVN_PRODUCT/javadoc"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v1
 
-      - name: Set up Secrets
+      - name: Configuration
         run: |
-          source .github/workflows/secrets.sh
+          source .github/workflows/config.sh
 
       - name: Set up Virtual Display
         run: |
@@ -67,9 +68,9 @@ jobs:
       - name: Fetch sources
         uses: actions/checkout@v1
 
-      - name: Set up Secrets
+      - name: Configuration
         run: |
-          source .github/workflows/secrets.sh
+          source .github/workflows/config.sh
 
       - name: Set up Virtual Display
         run: |
@@ -80,3 +81,6 @@ jobs:
         with:
           java-version: ${{ env.JDK_VERSION }}
 
+      - name: Check Configuration
+        run: |
+          echo $PRODUCT_DEPLOY_PATH
