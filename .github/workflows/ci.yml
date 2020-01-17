@@ -81,6 +81,18 @@ jobs:
         with:
           java-version: ${{ env.JDK_VERSION }}
 
-      - name: Check Configuration
+      - name: Build Binaries
         run: |
-          echo $PRODUCT_DEPLOY_PATH
+          rm -rf target/jlink
+          if [ $? -ne 0 ]; then exit 1; fi
+          mvn $MAVEN_PARMS verify -P testui,platform-specific-assemblies
+          if [ $? -ne 0 ]; then exit 1; fi
+
+      - name: Deploy Binaries
+        run: |
+          scp -B target/*install.jar travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/*product.jar travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/main/java/META-INF/*.card travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
