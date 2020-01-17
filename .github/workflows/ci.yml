@@ -107,4 +107,5 @@ jobs:
 
       - name: Deploy Product Card
         run: |
+          echo "PRODUCT_DEPLOY_PATH=${PRODUCT_DEPLOY_PATH}"
           scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1

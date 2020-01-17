@@ -17,5 +17,5 @@ esac
 export PRODUCT_DEPLOY_PATH=/opt/avn/store/${AVN_RELEASE}/${AVN_PRODUCT}/${AVN_PLATFORM}
 
 echo "Build date=$(date)"
-echo "[github.ref]=${GITHUB_REF}"
-echo "Deploy path=${PRODUCT_DEPLOY_PATH}"
+echo "GITHUB_REF=${GITHUB_REF}"
+echo "PRODUCT_DEPLOY_PATH=${PRODUCT_DEPLOY_PATH}"
