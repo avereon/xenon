@@ -26,14 +26,14 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Configure
-        run: |
-          source .github/workflows/config.sh
-
       - name: Fetch sources
         uses: actions/checkout@v1
 
-# TODO Is the virtual display needed for the build job
+      - name: Configuration
+        run: |
+          source .github/workflows/config.sh
+
+      # TODO Is the virtual display needed for the build job
       - name: Set up Virtual Display
         run: |
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
@@ -70,12 +70,12 @@ jobs:
     env:
       AVN_PLATFORM: "linux"
     steps:
-      - name: Configure
-        run: |
-          source .github/workflows/config.sh
-
       - name: Fetch sources
         uses: actions/checkout@v1
+
+      - name: Configuration
+        run: |
+          source .github/workflows/config.sh
 
       - name: Set up Virtual Display
         run: |
