@@ -86,7 +86,6 @@ jobs:
           Xvfb ${{env.XVFB_PARMS}} &
           rm -rf target/jlink
           if [ $? -ne 0 ]; then exit 1; fi
-#          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
           mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
           if [ $? -ne 0 ]; then exit 1; fi
 
