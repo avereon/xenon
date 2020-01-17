@@ -30,6 +30,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Configuration
+        shell: bash
         run: |
           source .github/workflows/config.sh
 
@@ -43,24 +44,24 @@ jobs:
         with:
           java-version: ${{env.JAVA_VERSION}}
 
-      - name: Compile
-        run: |
-          mvn ${{env.MAVEN_PARMS}} compile
-
-      - name: Unit Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} test
-
-      - name: Deploy Maven Arifacts
-        run: |
-          mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
-
-      - name: Deploy JavaDoc
-        run: |
-          scp -B target/xenon-*-javadoc.jar travis@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
-          if [ $? -ne 0 ]; then exit 1; fi
-          ssh -t travis@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
-          if [ $? -ne 0 ]; then exit 1; fi
+#      - name: Compile
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} compile
+#
+#      - name: Unit Tests
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} test
+#
+#      - name: Deploy Maven Arifacts
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
+#
+#      - name: Deploy JavaDoc
+#        run: |
+#          scp -B target/xenon-*-javadoc.jar travis@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
+#          if [ $? -ne 0 ]; then exit 1; fi
+#          ssh -t travis@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
+#          if [ $? -ne 0 ]; then exit 1; fi
 
   linux:
     name: Linux Binaries
@@ -74,6 +75,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Configuration
+        shell: bash
         run: |
           source .github/workflows/config.sh
 
@@ -90,19 +92,70 @@ jobs:
       #  run: |
       #    mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
-      - name: Build Binaries
-        run: |
-          mvn ${{env.MAVEN_PARMS}} clean verify -P testui,platform-specific-assemblies
+#      - name: Build Binaries
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} clean verify -P testui,platform-specific-assemblies
+#
+#      - name: Deploy Install Pack
+#        run: |
+#          scp -B target/*install.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+#
+#      - name: Deploy Product Pack
+#        run: |
+#          scp -B target/*product.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+#
+#      - name: Deploy Product Card
+#        run: |
+#          scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
-      - name: Deploy Install Pack
-        run: |
-          scp -B target/*install.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+  macos:
+    name: Mac OS Binaries
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    env:
+      AVN_PLATFORM: "macosx"
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v1
 
-      - name: Deploy Product Pack
+      - name: Configuration
+        shell: bash
         run: |
-          scp -B target/*product.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          source .github/workflows/config.sh
 
-      - name: Deploy Product Card
+      - name: Set up Virtual Display
         run: |
-          echo "PRODUCT_DEPLOY_PATH=${PRODUCT_DEPLOY_PATH}"
-          scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+
+
+  windows:
+    name: Linux Binaries
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    env:
+      AVN_PLATFORM: "windows"
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v1
+
+      - name: Configuration
+        shell: bash
+        run: |
+          source .github/workflows/config.sh
+
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+
