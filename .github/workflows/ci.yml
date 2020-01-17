@@ -71,7 +71,7 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
-      PLATFORM: "linux"
+      AVN_PLATFORM: "linux"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v1
