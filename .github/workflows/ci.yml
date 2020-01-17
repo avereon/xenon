@@ -19,8 +19,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/$AVN_PRODUCT"
-      JAVADOC_TARGET_PATH: "/opt/avn/web/product/$AVN_PRODUCT/javadoc"
+      JAVADOC_DEPLOY_PATH: "/opt/avn/store/latest/${{env.AVN_PRODUCT}}"
+      JAVADOC_TARGET_PATH: "/opt/avn/web/product//${{env.AVN_PRODUCT}}/javadoc"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v1
@@ -31,31 +31,31 @@ jobs:
 
       - name: Set up Virtual Display
         run: |
-          Xvfb ${XVFB_PARMS} &
+          Xvfb ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ env.JDK_VERSION }}
+          java-version: ${{env.JDK_VERSION}}
 
-#      - name: Compile
-#        run: |
-#          mvn $MAVEN_PARMS compile
-#
-#      - name: Unit Tests
-#        run: |
-#          mvn $MAVEN_PARMS test
-#
-#      - name: Deploy Maven Arifacts
-#        run: |
-#          mvn $MAVEN_PARMS deploy -Dmaven.test.skip=true
-#
-#      - name: Deploy JavaDoc
-#        run: |
-#          scp -B target/xenon-*-javadoc.jar travis@avereon.com:$JAVADOC_DEPLOY_PATH/javadoc.jar 2>&1
-#          if [ $? -ne 0 ]; then exit 1; fi
-#          ssh -t travis@avereon.com "mkdir -p $JAVADOC_TARGET_PATH;rm -rf $JAVADOC_TARGET_PATH/*;unzip -o $JAVADOC_DEPLOY_PATH/javadoc.jar -d $JAVADOC_TARGET_PATH"
-#          if [ $? -ne 0 ]; then exit 1; fi
+      - name: Compile
+        run: |
+          mvn ${{env.MAVEN_PARMS}} compile
+
+      - name: Unit Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} test
+
+      - name: Deploy Maven Arifacts
+        run: |
+          mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
+
+      - name: Deploy JavaDoc
+        run: |
+          scp -B target/xenon-*-javadoc.jar travis@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          ssh -t travis@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
+          if [ $? -ne 0 ]; then exit 1; fi
 
   linux:
     name: Linux Binaries
@@ -74,25 +74,25 @@ jobs:
 
       - name: Set up Virtual Display
         run: |
-          Xvfb ${{ env.XVFB_PARMS }} &
+          Xvfb ${{env.XVFB_PARMS}} &
 
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ env.JDK_VERSION }}
+          java-version: ${{env.JDK_VERSION}}
 
       - name: Build Binaries
         run: |
           rm -rf target/jlink
           if [ $? -ne 0 ]; then exit 1; fi
-          mvn $MAVEN_PARMS verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
           if [ $? -ne 0 ]; then exit 1; fi
 
       - name: Deploy Binaries
         run: |
-          scp -B target/*install.jar travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          scp -B target/*install.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
           if [ $? -ne 0 ]; then exit 1; fi
-          scp -B target/*product.jar travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          scp -B target/*product.jar travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
           if [ $? -ne 0 ]; then exit 1; fi
-          scp -B target/main/java/META-INF/*.card travis@avereon.com:$PRODUCT_DEPLOY_PATH 2>&1
+          scp -B target/main/java/META-INF/*.card travis@avereon.com:${{env.PRODUCT_DEPLOY_PATH}} 2>&1
           if [ $? -ne 0 ]; then exit 1; fi
