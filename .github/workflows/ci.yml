@@ -90,13 +90,21 @@ jobs:
         with:
           java-version: ${{env.JAVA_VERSION}}
 
+      - name: Compile
+        run: |
+          mvn ${{env.MAVEN_PARMS}} compile
+
+      - name: Unit Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} test
+
       #- name: Build Binaries - No Tests
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
+      #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
-      - name: Build Binaries
+      - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} clean verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
       - name: Deploy Install Pack
         run: |
@@ -136,13 +144,21 @@ jobs:
         with:
           java-version: ${{env.JAVA_VERSION}}
 
+      - name: Compile
+        run: |
+          mvn ${{env.MAVEN_PARMS}} compile
+
+      - name: Unit Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} test
+
       #- name: Build Binaries - No Tests
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
+      #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
       - name: Build Binaries
         run: |
-          mvn ${{env.MAVEN_PARMS}} clean verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
       - name: Deploy Install Pack
         run: |
@@ -183,13 +199,21 @@ jobs:
         with:
           java-version: ${{env.JAVA_VERSION}}
 
+      - name: Compile
+        run: |
+          mvn ${{env.MAVEN_PARMS}} compile
+
+      - name: Unit Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} test
+
       #- name: Build Binaries - No Tests
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} clean verify -P platform-specific-assemblies -Dmaven.test.skip=true
+      #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
       - name: Build Binaries
         run: |
-          mvn ${{env.MAVEN_PARMS}} clean verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
       - name: Deploy Install Pack
         shell: bash
