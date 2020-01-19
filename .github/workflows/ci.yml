@@ -2,6 +2,8 @@ name: Avereon Xenon Continuous
 
 on:
   push:
+  schedule:
+    - cron: '0 12 * * *'
 
 env:
   AVN_PRODUCT: "xenon"
@@ -104,7 +106,7 @@ jobs:
 
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies -DskipTests=true
 
       - name: Deploy Install Pack
         run: |
@@ -156,9 +158,9 @@ jobs:
       #  run: |
       #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
-      - name: Build Binaries
+      - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies -DskipTests=true
 
       - name: Deploy Install Pack
         run: |
@@ -211,9 +213,9 @@ jobs:
       #  run: |
       #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
-      - name: Build Binaries
+      - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies -DskipTests=true
 
       - name: Deploy Install Pack
         shell: bash
