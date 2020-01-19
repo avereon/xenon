@@ -45,8 +45,10 @@ The framework provides the following basic features:
 
 ### Dependency Licenses
 
-* Avereon Zevra - [MIT](https://avereon.com/license/mit/)
-* Avereon Zenna - [MIT](https://avereon.com/license/mit/)
+* Avereon Zevra (Utility Library - Non-UX)- [MIT](https://avereon.com/license/mit/)
+* Avereon Venza (Utility Library - UX- [MIT](https://avereon.com/license/mit/)
+* Avereon Rossa (Icon Library) - [MIT](https://avereon.com/license/mit/)
+* Avereon Zenna (Updater)- [MIT](https://avereon.com/license/mit/)
 * OpenJDK - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
 * OpenJFX - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
 * MigLayout - [BSD](http://www.debian.org/misc/bsd.license)
