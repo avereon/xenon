@@ -30,9 +30,9 @@ public class Workarea implements Configurable {
 	public Workarea() {
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		workpane.addEventHandler( ToolEvent.ANY, e -> workspace.getEventBus().dispatch( new FxEventWrapper( e ) ) );
 		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
 		workpane.addEventHandler( ToolEvent.CONCEALED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( null ) );
+		workpane.addEventHandler( ToolEvent.ANY, e -> workspace.getEventBus().dispatch( new FxEventWrapper( e ) ) );
 	}
 
 	public final StringProperty nameProperty() {
@@ -57,6 +57,7 @@ public class Workarea implements Configurable {
 	}
 
 	public final void setActive( boolean active ) {
+		workpane.setVisible( active );
 		this.active.set( active );
 		settings.set( "active", active );
 	}

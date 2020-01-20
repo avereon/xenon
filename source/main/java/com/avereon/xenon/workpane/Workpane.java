@@ -161,6 +161,25 @@ public class Workpane extends Control implements Configurable {
 
 		// TODO Set a better default background
 		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
+
+		visibleProperty().addListener( ( o, v, n ) -> setActive( n ) );
+	}
+
+	private void setActive( boolean active ) {
+		try {
+			startOperation();
+			if( active ) {
+				Tool tool = getActiveTool();
+				if( tool != null ) tool.callActivate();
+			} else {
+				getViews().forEach( v -> {
+					Tool tool = v.getActiveTool();
+					if( tool != null ) tool.callConceal();
+				} );
+			}
+		} finally {
+			finishOperation( true );
+		}
 	}
 
 	/**

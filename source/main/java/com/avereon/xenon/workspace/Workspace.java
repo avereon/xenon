@@ -15,6 +15,7 @@ import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.util.ProgramEventBus;
 import com.avereon.xenon.util.TimerUtil;
+import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -354,9 +355,6 @@ public class Workspace implements Configurable {
 	public void setActiveWorkarea( Workarea workarea ) {
 		if( activeWorkarea == workarea ) return;
 
-		// If the workarea is not already added, add it
-		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
-
 		// Disconnect the old active workarea
 		if( activeWorkarea != null ) {
 			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
@@ -364,8 +362,13 @@ public class Workspace implements Configurable {
 			// TODO Remove the menu bar
 			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
+
+			// TODO Can I have the workarea "conceal" the tools instead of directly setting the current asset
+			getProgram().getAssetManager().setCurrentAsset( null );
 		}
 
+		// If the workarea is not already added, add it
+		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
 		// Set the new active workarea
 		Workarea priorWorkarea = activeWorkarea;
 		activeWorkarea = workarea;
@@ -379,6 +382,8 @@ public class Workspace implements Configurable {
 			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
 			workareaSelector.getSelectionModel().select( activeWorkarea );
 			setStageTitle( activeWorkarea.getName() );
+			Tool activeTool = activeWorkarea.getWorkpane().getActiveTool();
+			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );
 		}
 
 		// Send a program event when active area changes
