@@ -106,7 +106,7 @@ jobs:
 
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies -DskipTests=true
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
       - name: Deploy Install Pack
         run: |
@@ -160,7 +160,7 @@ jobs:
 
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies -DskipTests=true
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
       - name: Deploy Install Pack
         run: |
@@ -215,7 +215,7 @@ jobs:
 
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies -DskipTests=true
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
       - name: Deploy Install Pack
         shell: bash
