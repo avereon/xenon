@@ -2,10 +2,11 @@ package com.avereon.xenon;
 
 import com.avereon.util.LogUtil;
 import com.avereon.util.TextUtil;
+import com.avereon.venza.image.Images;
 import com.avereon.venza.image.ProgramIcon;
 import com.avereon.venza.image.ProgramImage;
 import com.avereon.venza.image.ProgramImageIcon;
-import com.avereon.rossa.icon.BrokenIcon;
+import com.avereon.venza.icon.BrokenIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
@@ -87,13 +88,7 @@ public class IconLibrary {
 	}
 
 	private Image[] getStageIcons( String id, int... sizes ) {
-		Image[] images = new Image[ sizes.length ];
-		for( int index = 0; index < sizes.length; index++ ) {
-			ProgramImage image = getIconRenderer( id );
-			if( image == null ) image = new BrokenIcon();
-			images[ index ] = image.setSize( sizes[ index ] ).getImage();
-		}
-		return images;
+		return Images.getStageIcons( getIconRenderer( id ), sizes );
 	}
 
 	private ProgramIcon getIconRenderer( String id, double size ) {
