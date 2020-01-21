@@ -2,6 +2,7 @@ package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
 import com.avereon.util.LogUtil;
+import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
 import org.slf4j.Logger;
@@ -28,9 +29,9 @@ public class DownloadTask extends Task<Download> {
 
 	public static final int DEFAULT_READ_TIMEOUT = 10000;
 
-	private static final int BUFFER_SIZE = 256 * 1024;
+	private static final int BUFFER_SIZE = 256 * (int)SizeUnitBase2.KiB.getSize();
 
-	private static final boolean FORCE_SLOW_DOWNLOAD = true;
+	private static final boolean FORCE_SLOW_DOWNLOAD = false;
 
 	private URI uri;
 

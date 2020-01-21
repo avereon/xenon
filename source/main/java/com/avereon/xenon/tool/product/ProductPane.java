@@ -217,10 +217,10 @@ class ProductPane extends MigPane {
 
 	private void installProduct() {
 		setStatus( ProductStatus.DOWNLOADING );
-		// TODO Get the download task and use it for product progress
 		program.getTaskManager().submit( Task.of( "Install product", () -> {
 			try {
-				DoubleConsumer progressHandler = ( d ) -> Platform.runLater( () -> progress.setProgress( d ) );
+				DoubleConsumer progressHandler = ( progress ) -> Platform.runLater( () -> this.progress.setProgress( progress ) );
+				// TODO Add a way to stop long running download
 				manager.installProducts( new DownloadRequest( source, progressHandler ) ).get();
 				Platform.runLater( () -> setStatus( ProductStatus.INSTALLED ) );
 				tool.getSelectedPage().updateState( false );
@@ -235,7 +235,8 @@ class ProductPane extends MigPane {
 		setStatus( ProductStatus.DOWNLOADING );
 		program.getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
-				DoubleConsumer progressHandler = ( d ) -> Platform.runLater( () -> progress.setProgress( d ) );
+				DoubleConsumer progressHandler = ( progress ) -> Platform.runLater( () -> this.progress.setProgress( progress ) );
+				// TODO Add a way to stop long running download
 				manager.updateProducts( new DownloadRequest( getUpdate(), progressHandler ), true ).get();
 				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
 				tool.getSelectedPage().updateState( false );
