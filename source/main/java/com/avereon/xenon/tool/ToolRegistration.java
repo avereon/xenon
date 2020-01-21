@@ -4,7 +4,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.scene.Node;
 
-public class ToolMetadata {
+public class ToolRegistration {
 
 	private ProgramProduct product;
 
@@ -18,7 +18,7 @@ public class ToolMetadata {
 
 	private ToolInstanceMode instanceMode;
 
-	public ToolMetadata( ProgramProduct product, Class<? extends ProgramTool> type ) {
+	public ToolRegistration( ProgramProduct product, Class<? extends ProgramTool> type ) {
 		this.product = product;
 		this.type = type;
 	}
@@ -27,7 +27,7 @@ public class ToolMetadata {
 		return product;
 	}
 
-	public ToolMetadata setProduct( ProgramProduct product ) {
+	public ToolRegistration setProduct( ProgramProduct product ) {
 		this.product = product;
 		return this;
 	}
@@ -36,7 +36,7 @@ public class ToolMetadata {
 		return type;
 	}
 
-	public ToolMetadata setType( Class<? extends ProgramTool> type ) {
+	public ToolRegistration setType( Class<? extends ProgramTool> type ) {
 		this.type = type;
 		return this;
 	}
@@ -45,7 +45,7 @@ public class ToolMetadata {
 		return name;
 	}
 
-	public ToolMetadata setName( String name ) {
+	public ToolRegistration setName( String name ) {
 		this.name = name;
 		return this;
 	}
@@ -54,7 +54,7 @@ public class ToolMetadata {
 		return icon;
 	}
 
-	public ToolMetadata setIcon( Node icon ) {
+	public ToolRegistration setIcon( Node icon ) {
 		this.icon = icon;
 		return this;
 	}
@@ -63,7 +63,7 @@ public class ToolMetadata {
 		return placement;
 	}
 
-	public ToolMetadata setPlacement( Workpane.Placement placement ) {
+	public ToolRegistration setPlacement( Workpane.Placement placement ) {
 		this.placement = placement;
 		return this;
 	}
@@ -72,7 +72,7 @@ public class ToolMetadata {
 		return instanceMode;
 	}
 
-	public ToolMetadata setInstanceMode( ToolInstanceMode instanceMode ) {
+	public ToolRegistration setInstanceMode( ToolInstanceMode instanceMode ) {
 		this.instanceMode = instanceMode;
 		return this;
 	}

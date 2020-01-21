@@ -24,7 +24,7 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolInstanceMode;
-import com.avereon.xenon.tool.ToolMetadata;
+import com.avereon.xenon.tool.ToolRegistration;
 import com.avereon.xenon.tool.about.AboutTool;
 import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.notice.NoticeTool;
@@ -1217,7 +1217,7 @@ public class Program extends Application implements ProgramProduct {
 		String name = rb().text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
-		ToolMetadata metadata = new ToolMetadata( this, toolClass );
+		ToolRegistration metadata = new ToolRegistration( this, toolClass );
 		metadata.setInstanceMode( mode ).setName( name ).setIcon( icon );
 		manager.registerTool( type, metadata );
 	}

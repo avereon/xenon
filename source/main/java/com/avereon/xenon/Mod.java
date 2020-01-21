@@ -3,6 +3,10 @@ package com.avereon.xenon;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.LogUtil;
+import com.avereon.venza.image.ProgramIcon;
+import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.tool.ToolRegistration;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -58,6 +62,46 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	public ProductBundle rb() {
 		if( resourceBundle == null ) resourceBundle = new ProductBundle( this );
 		return resourceBundle;
+	}
+
+	protected Mod registerIcon( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
+		getProgram().getIconLibrary().register( id, icon, parameters );
+		return this;
+	}
+
+	protected Mod unregisterIcon( String id, Class<? extends ProgramIcon> icon ) {
+		getProgram().getIconLibrary().unregister( id, icon );
+		return this;
+	}
+
+	protected Mod registerAction( ProductBundle bundle, String id ) {
+		getProgram().getActionLibrary().register( bundle, id );
+		return this;
+	}
+
+	protected Mod unregisterAction( String id ) {
+		//getProgram().getActionLibrary().unregister( id );
+		return this;
+	}
+
+	protected Mod registerAssetType( AssetType type ) {
+		getProgram().getAssetManager().addAssetType( type );
+		return this;
+	}
+
+	protected Mod unregisterAssetType( AssetType type ) {
+		getProgram().getAssetManager().removeAssetType( type );
+		return this;
+	}
+
+	protected Mod registerTool( AssetType assetType, ToolRegistration metadata ) {
+		getProgram().getToolManager().registerTool( assetType, metadata );
+		return this;
+	}
+
+	protected Mod unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
+		getProgram().getToolManager().unregisterTool( assetType, type );
+		return this;
 	}
 
 	/**

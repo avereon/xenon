@@ -12,7 +12,7 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolInstanceMode;
-import com.avereon.xenon.tool.ToolMetadata;
+import com.avereon.xenon.tool.ToolRegistration;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -37,7 +37,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private Program program;
 
-	private Map<Class<? extends ProgramTool>, ToolMetadata> toolClassMetadata;
+	private Map<Class<? extends ProgramTool>, ToolRegistration> toolClassMetadata;
 
 	private Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
 
@@ -50,7 +50,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		aliases = new ConcurrentHashMap<>();
 	}
 
-	public void registerTool( AssetType assetType, ToolMetadata metadata ) {
+	public void registerTool( AssetType assetType, ToolRegistration metadata ) {
 		Class<? extends ProgramTool> type = metadata.getType();
 		toolClassMetadata.put( type, metadata );
 
@@ -95,8 +95,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		request.setToolClass( toolClass );
 
 		// Check that the tool is registered
-		ToolMetadata toolMetadata = toolClassMetadata.get( toolClass );
-		if( toolMetadata == null ) throw new IllegalArgumentException( "Tool not registered: " + toolClass );
+		ToolRegistration toolRegistration = toolClassMetadata.get( toolClass );
+		if( toolRegistration == null ) throw new IllegalArgumentException( "Tool not registered: " + toolClass );
 
 		// Determine how many instances the tool allows
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
@@ -159,21 +159,21 @@ public class ToolManager implements Controllable<ToolManager> {
 		toolClassName = getToolClassName( toolClassName );
 
 		// Find the registered tool type metadata
-		ToolMetadata toolMetadata = null;
-		for( ToolMetadata metadata : toolClassMetadata.values() ) {
+		ToolRegistration toolRegistration = null;
+		for( ToolRegistration metadata : toolClassMetadata.values() ) {
 			if( metadata.getType().getName().equals( toolClassName ) ) {
-				toolMetadata = metadata;
+				toolRegistration = metadata;
 				break;
 			}
 		}
 
 		// Check for unregistered tool type
-		if( toolMetadata == null ) {
+		if( toolRegistration == null ) {
 			log.error( "Tool class not registered: " + toolClassName );
 			return null;
 		}
 
-		openToolRequest.setToolClass( toolMetadata.getType() );
+		openToolRequest.setToolClass( toolRegistration.getType() );
 
 		ProgramTool tool = getToolInstance( openToolRequest );
 
@@ -207,7 +207,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	public Product getToolProduct( ProgramTool tool ) {
-		ToolMetadata data = toolClassMetadata.get( tool.getClass() );
+		ToolRegistration data = toolClassMetadata.get( tool.getClass() );
 		return data == null ? null : data.getProduct();
 	}
 

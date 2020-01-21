@@ -6,5 +6,5 @@
 1. Create a tool class
 1. Register the tool with a asset type using the tool manager
 	1. Create the tool metadata object
-	1. program.getToolManager().registerTool( assetType, toolMetadata )
+	1. program.getToolManager().registerTool( assetType, toolRegistration )
 

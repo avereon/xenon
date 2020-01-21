@@ -7,7 +7,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.tool.ToolInstanceMode;
-import com.avereon.xenon.tool.ToolMetadata;
+import com.avereon.xenon.tool.ToolRegistration;
 import com.avereon.xenon.workpane.ToolEvent;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
@@ -34,7 +34,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		MockAssetType assetType = new MockAssetType( program );
 		program.getAssetManager().addAssetType( assetType );
 		program.getAssetManager().registerUriAssetType( MockAssetType.URI, assetType );
-		program.getToolManager().registerTool( assetType, new ToolMetadata( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON ) );
+		program.getToolManager().registerTool( assetType, new ToolRegistration( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON ) );
 
 		program.getAssetManager().openAsset( MockAssetType.URI );
 
