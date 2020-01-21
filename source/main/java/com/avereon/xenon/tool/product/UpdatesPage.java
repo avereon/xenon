@@ -1,9 +1,15 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.util.LogUtil;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
+import org.slf4j.Logger;
+
+import java.lang.invoke.MethodHandles;
 
 class UpdatesPage extends ProductPage {
+
+	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
 	private ProductTool productTool;
 
@@ -12,10 +18,9 @@ class UpdatesPage extends ProductPage {
 		this.productTool = productTool;
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
-		Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
-
 		refreshButton.setOnAction( event -> updateState( true ) );
-		downloadAllButton.setOnAction( event -> downloadAllSelected() );
+		Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
+		downloadAllButton.setOnAction( event -> updateProducts( getSourcePanels() ) );
 
 		getButtonBox().addAll( refreshButton, downloadAllButton );
 	}
@@ -24,10 +29,6 @@ class UpdatesPage extends ProductPage {
 	protected void updateState( boolean force ) {
 		ProductTool.log.trace( "Update available updates" );
 		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, force ) );
-	}
-
-	private void downloadAllSelected() {
-		getSourcePanels().stream().filter( ProductPane::isSelected ).forEach( ProductPane::updateProduct );
 	}
 
 }

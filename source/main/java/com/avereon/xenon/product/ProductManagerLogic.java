@@ -10,6 +10,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.chain.TaskChain;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.Asynchronous;
@@ -107,9 +108,9 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
-	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<DownloadRequest> updates, boolean interactive ) {
+	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<DownloadRequest> requests, boolean interactive ) {
 		return TaskChain
-			.init( () -> startResourceDownloads( updates ) )
+			.init( () -> startResourceDownloads( requests ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( this::stageProductUpdates )
@@ -325,10 +326,10 @@ public class ProductManagerLogic {
 		}
 	}
 
-	private Set<ProductResourceCollector> startResourceDownloads( Set<DownloadRequest> downloads ) {
+	private Set<ProductResourceCollector> startResourceDownloads( Set<DownloadRequest> requests ) {
 		Path stageFolder = getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
 
-		log.debug( "Number of packs to stage: " + downloads.size() );
+		log.debug( "Number of packs to stage: " + requests.size() );
 		log.trace( "Pack stage folder: " + stageFolder );
 
 		try {
@@ -342,17 +343,18 @@ public class ProductManagerLogic {
 		// done this way for a better user experience. The idea is to submit the
 		// product download resource tasks and return the tasks that build product
 		// updates from those resources.
-		return downloads.stream().map( ( download ) -> {
+		return requests.stream().map( ( request ) -> {
 			try {
-				RepoState repo = new RepoState( download.getCard().getRepo() );
+				RepoState repo = new RepoState( request.getCard().getRepo() );
 
 				// The returned ProductResource objects contain the product resource download futures
-				Set<ProductResource> resources = startProductResourceDownloads( repo, download );
+				Set<ProductResource> resources = startProductResourceDownloads( repo, request );
 
 				// Create the task that will produce the ProductUpdate but don't submit it here
-				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( download.getCard() ) );
-				return new ProductResourceCollector( repo, download.getCard(), resources, updatePack );
+				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( request.getCard() ) );
+				return new ProductResourceCollector( repo, request.getCard(), resources, updatePack );
 			} catch( Exception exception ) {
+				getProgram().getNoticeManager().error( exception );
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
@@ -379,7 +381,7 @@ public class ProductManagerLogic {
 
 			resources.forEach( ( resource ) -> {
 				DownloadTask downloadTask = new DownloadTask( getProgram(), getSchemeResolvedUri( resource.getUri() ) );
-				downloadTask.addListener( ( e ) -> request.getProgressIndicator().accept( e.getPercent() ) );
+				downloadTask.getEventBus().register( TaskEvent.ANY, request );
 				resource.setFuture( getProgram().getTaskManager().submit( downloadTask ) );
 			} );
 
@@ -640,8 +642,8 @@ public class ProductManagerLogic {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	private Set<ProductResource> startProductResourceDownloads( RepoState repo, DownloadRequest download ) throws InterruptedException, ExecutionException {
-		return getProgram().getTaskManager().submit( new DownloadProductResourceTask( repo, download ) ).get();
+	private Set<ProductResource> startProductResourceDownloads( RepoState repo, DownloadRequest request ) throws InterruptedException, ExecutionException {
+		return getProgram().getTaskManager().submit( new DownloadProductResourceTask( repo, request ) ).get();
 	}
 
 	void notifyUpdatesReadyToApply( boolean interactive ) {

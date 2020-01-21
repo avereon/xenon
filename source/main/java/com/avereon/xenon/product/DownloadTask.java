@@ -14,9 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -41,11 +38,8 @@ public class DownloadTask extends Task<Download> {
 
 	private int readTimeout = DEFAULT_READ_TIMEOUT;
 
-	private Set<DownloadListener> listeners;
-
 	public DownloadTask( Product product, URI uri ) {
 		this( product, uri, null );
-		listeners = new CopyOnWriteArraySet<>();
 	}
 
 	public DownloadTask( Product product, URI uri, Path target ) {
@@ -118,9 +112,7 @@ public class DownloadTask extends Task<Download> {
 			while( (read = input.read( buffer )) > -1 ) {
 				if( isCancelled() ) return null;
 				download.write( buffer, 0, read );
-				offset += read;
-				setProgress( offset );
-				fireEvent( new DownloadEvent( offset, length ) );
+				setProgress( offset += read );
 				if( FORCE_SLOW_DOWNLOAD ) ThreadUtil.pause( 100 );
 			}
 			if( isCancelled() ) return null;
@@ -130,24 +122,6 @@ public class DownloadTask extends Task<Download> {
 		log.trace( "        to location: " + download.getTarget() );
 
 		return download;
-	}
-
-	public void addListener( DownloadListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeListener( DownloadListener listener ) {
-		listeners.remove( listener );
-	}
-
-	private void fireEvent( DownloadEvent event ) {
-		for( DownloadListener listener : new HashSet<>( listeners ) ) {
-			try {
-				listener.update( event );
-			} catch( Throwable throwable ) {
-				log.error( "Error updating download progress", throwable );
-			}
-		}
 	}
 
 	@Override

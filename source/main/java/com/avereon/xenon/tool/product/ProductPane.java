@@ -6,12 +6,13 @@ import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -21,9 +22,9 @@ import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.function.DoubleConsumer;
 
 class ProductPane extends MigPane {
 
@@ -63,13 +64,16 @@ class ProductPane extends MigPane {
 
 	private Button actionButton2;
 
+	private BooleanProperty selectedProperty;
+
 	ProductPane( ProductTool tool, ProductCard source, ProductCard update ) {
 		super( "insets 0, gap " + UiFactory.PAD + ", hidemode 3" );
 
 		this.tool = tool;
+		this.source = source;
 		this.program = tool.getProgram();
 		this.manager = program.getProductManager();
-		this.source = source;
+		this.selectedProperty = new SimpleBooleanProperty( true );
 		manager.setProductUpdate( source, update );
 
 		setId( "tool-product-artifact" );
@@ -126,23 +130,34 @@ class ProductPane extends MigPane {
 		return manager.getProductUpdate( source );
 	}
 
-	boolean isSelected() {
-		// TODO Connect this method to an attribute
+	public boolean isSelected() {
 		return true;
 	}
 
-	void updateProductState() {
-		ProductCard update = getUpdate();
+	public void setSelected( boolean selected ) {
+		selectedProperty.set( selected );
+	}
 
+	public BooleanProperty selectedProperty() {
+		return selectedProperty;
+	}
+
+	void setProgress( double progress ) {
+		this.progress.setProgress( progress );
+	}
+
+	void updateProductState() {
 		boolean isProgram = program.getCard().equals( source );
-		boolean isEnabled = manager.isEnabled( source );
-		boolean isInstalled = manager.isInstalled( source );
+		boolean isEnabled = manager.isEnabled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
+		boolean isInstalled = manager.isInstalled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
 		boolean inProgress = manager.getStatus( source ) == ProductStatus.DOWNLOADING;
 		boolean isAnyUpdateStaged = manager.isUpdateStaged( source );
-		boolean isSpecificUpdateReleaseStaged = update != null && manager.isSpecificUpdateReleaseStaged( update );
 		boolean isInstalledProductsPanel = FxUtil.isChildOf( this, tool.getInstalledPage() );
 		boolean isAvailableProductsPanel = FxUtil.isChildOf( this, tool.getAvailablePage() );
 		boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, tool.getUpdatesPage() );
+
+		ProductCard update = getUpdate();
+		boolean isSpecificUpdateReleaseStaged = update != null && manager.isSpecificUpdateReleaseStaged( update );
 
 		// Determine state string key
 		String stateLabelKey = "not-installed";
@@ -205,7 +220,7 @@ class ProductPane extends MigPane {
 		}
 	}
 
-	private void setStatus( ProductStatus status ) {
+	void setStatus( ProductStatus status ) {
 		manager.setStatus( getSource(), status );
 		updateProductState();
 	}
@@ -216,35 +231,11 @@ class ProductPane extends MigPane {
 	}
 
 	private void installProduct() {
-		setStatus( ProductStatus.DOWNLOADING );
-		program.getTaskManager().submit( Task.of( "Install product", () -> {
-			try {
-				DoubleConsumer progressHandler = ( progress ) -> Platform.runLater( () -> this.progress.setProgress( progress ) );
-				// TODO Add a way to stop long running download
-				manager.installProducts( new DownloadRequest( source, progressHandler ) ).get();
-				Platform.runLater( () -> setStatus( ProductStatus.INSTALLED ) );
-				tool.getSelectedPage().updateState( false );
-			} catch( Exception exception ) {
-				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
-				ProductTool.log.warn( "Error installing product", exception );
-			}
-		} ) );
+		tool.getAvailablePage().installProducts( List.of( this ) );
 	}
 
-	void updateProduct() {
-		setStatus( ProductStatus.DOWNLOADING );
-		program.getTaskManager().submit( Task.of( "Update product", () -> {
-			try {
-				DoubleConsumer progressHandler = ( progress ) -> Platform.runLater( () -> this.progress.setProgress( progress ) );
-				// TODO Add a way to stop long running download
-				manager.updateProducts( new DownloadRequest( getUpdate(), progressHandler ), true ).get();
-				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
-				tool.getSelectedPage().updateState( false );
-			} catch( Exception exception ) {
-				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
-				ProductTool.log.warn( "Error updating product", exception );
-			}
-		} ) );
+	private void updateProduct() {
+		tool.getUpdatesPage().updateProducts( List.of( this ) );
 	}
 
 	private void requestRemoveProduct() {

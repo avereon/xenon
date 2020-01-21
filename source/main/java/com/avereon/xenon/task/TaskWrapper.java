@@ -15,4 +15,9 @@ public class TaskWrapper<T> extends Task<T> {
 		return callable.call();
 	}
 
+	@Override
+	public String toString() {
+		return "Wrapped " + callable.toString();
+	}
+
 }

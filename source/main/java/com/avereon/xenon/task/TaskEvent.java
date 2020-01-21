@@ -14,6 +14,12 @@ public class TaskEvent extends TaskManagerEvent {
 
 	public static final EventType<TaskEvent> PROGRESS = new EventType<>( TASK, "PROGRESS" );
 
+	public static final EventType<TaskEvent> SUCCESS = new EventType<>( TASK, "SUCCESS" );
+
+	public static final EventType<TaskEvent> FAILURE = new EventType<>( TASK, "FAILURE" );
+
+	public static final EventType<TaskEvent> CANCEL = new EventType<>( TASK, "CANCEL" );
+
 	public static final EventType<TaskEvent> FINISH = new EventType<>( TASK, "FINISH" );
 
 	private Task<?> task;

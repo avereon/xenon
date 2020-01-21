@@ -13,8 +13,10 @@ class AvailablePage extends ProductPage {
 
 		Button refreshButton = new Button( "", program.getIconLibrary().getIcon( "refresh" ) );
 		refreshButton.setOnAction( event -> updateState( true ) );
+		Button downloadAllButton = new Button( "", program.getIconLibrary().getIcon( "download" ) );
+		downloadAllButton.setOnAction( event -> installProducts( getSourcePanels() ) );
 
-		getButtonBox().addAll( refreshButton );
+		getButtonBox().addAll( refreshButton, downloadAllButton );
 	}
 
 	@Override

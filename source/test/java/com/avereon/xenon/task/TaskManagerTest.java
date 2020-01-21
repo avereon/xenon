@@ -285,6 +285,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskThreadEvent.CREATE ) );
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.START ) );
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.PROGRESS ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.SUCCESS ) );
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.FINISH ) );
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskThreadEvent.FINISH ) );
 		assertThat( watcher.getEvents().size(), is( index ) );

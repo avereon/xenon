@@ -34,6 +34,7 @@ class TaskEventTest extends BaseTaskTest {
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.SUBMITTED );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.START );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.PROGRESS );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.SUCCESS );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FINISH );
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}
@@ -68,6 +69,7 @@ class TaskEventTest extends BaseTaskTest {
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.SUBMITTED );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.START );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.PROGRESS );
+		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FAILURE );
 		assertEvent( watcher.getEvents().get( index++ ), task, TaskEvent.FINISH );
 		assertThat( watcher.getEvents().size(), is( index ) );
 	}

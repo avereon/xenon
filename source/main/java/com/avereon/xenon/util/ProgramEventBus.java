@@ -24,7 +24,7 @@ public class ProgramEventBus extends EventBus {
 	}
 
 
-	public ProgramEventBus fireEvent( javafx.event.Event event ) {
+	public ProgramEventBus dispatch( javafx.event.Event event ) {
 		// While the type of the incoming event is known, the parent event types,
 		// used later in the method are not well known. They could be of any event
 		// type and therefore this variable needs to allow any event type.
@@ -41,7 +41,7 @@ public class ProgramEventBus extends EventBus {
 		}
 
 		// If there is a parent event hub, pass the event to it
-		if( parent != null ) parent.fireEvent( event );
+		if( parent != null ) parent.dispatch( event );
 
 		return this;
 	}

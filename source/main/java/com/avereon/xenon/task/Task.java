@@ -184,9 +184,24 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void done() {
 		setProgress( getTotal() );
+		if( isCancelled() ) setState( Task.State.CANCELLED );
+
+		switch( getState() ) {
+			case SUCCESS: {
+				eventBus.dispatch( new TaskEvent( this, TaskEvent.SUCCESS, this ) );
+				break;
+			}
+			case CANCELLED: {
+				eventBus.dispatch( new TaskEvent( this, TaskEvent.CANCEL, this ) );
+				break;
+			}
+			case FAILED: {
+				eventBus.dispatch( new TaskEvent( this, TaskEvent.FAILURE, this ) );
+				break;
+			}
+		}
 		eventBus.dispatch( new TaskEvent( this, TaskEvent.FINISH, this ) );
 
-		if( isCancelled() ) setState( Task.State.CANCELLED );
 		setTaskManager( null );
 		super.done();
 	}

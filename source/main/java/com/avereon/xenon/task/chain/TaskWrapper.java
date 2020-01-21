@@ -68,4 +68,9 @@ class TaskWrapper<P, R> extends Task<R> {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "Chained " + task.getName();
+	}
+
 }

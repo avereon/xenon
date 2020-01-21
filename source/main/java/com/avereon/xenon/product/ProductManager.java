@@ -724,6 +724,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 * @param updates The updates to apply.
 	 */
 	public Task<Collection<ProductUpdate>> updateProducts( Set<DownloadRequest> updates, boolean interactive ) {
+		log.trace( "Number of products to update: " + updates.size() );
 		return new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
 	}
 
