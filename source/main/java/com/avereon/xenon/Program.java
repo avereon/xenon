@@ -15,7 +15,6 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductManagerLogic;
-import com.avereon.xenon.product.ProgramProductManager;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.scheme.AssetScheme;
 import com.avereon.xenon.scheme.FileScheme;
@@ -331,7 +330,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "program-starting-event" );
 
 		// Create the product manager, depends on icon library
-		productManager = configureProductManager( new ProgramProductManager( this ) );
+		productManager = configureProductManager( new ProductManager( this ) );
 		time( "product-manager" );
 
 		// Create the icon library

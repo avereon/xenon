@@ -2,7 +2,6 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.product.ProgramProductManager;
 import javafx.event.ActionEvent;
 
 public class UpdateAction extends Action {
@@ -18,7 +17,7 @@ public class UpdateAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		((ProgramProductManager)getProgram().getProductManager()).checkForUpdates( true );
+		getProgram().getProductManager().checkForUpdates( true );
 	}
 
 }

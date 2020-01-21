@@ -9,7 +9,6 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
-import com.avereon.xenon.product.ProgramProductManager;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
 import javafx.application.Platform;
@@ -237,7 +236,7 @@ class ProductPane extends MigPane {
 		program.getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
 				DoubleConsumer progressHandler = ( d ) -> Platform.runLater( () -> progress.setProgress( d ) );
-				((ProgramProductManager)manager).updateProducts( new DownloadRequest( getUpdate(), progressHandler ), true ).get();
+				manager.updateProducts( new DownloadRequest( getUpdate(), progressHandler ), true ).get();
 				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {

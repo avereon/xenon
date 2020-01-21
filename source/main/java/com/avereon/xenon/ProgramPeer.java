@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.util.Controllable;
 import com.avereon.util.LogUtil;
+import com.avereon.util.TextUtil;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -69,6 +70,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 		try {
 			List<String> commandList = program.getProgramParameters().getOriginalCommands();
 			String[] commands = commandList.toArray( new String[ 0 ] );
+			log.info( TextUtil.toString( commands, " " ) );
 			ObjectOutputStream commandStream = new ObjectOutputStream( socket.getOutputStream() );
 			commandStream.writeObject( commands );
 			commandStream.flush();

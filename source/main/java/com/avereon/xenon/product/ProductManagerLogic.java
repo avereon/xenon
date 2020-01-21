@@ -277,8 +277,7 @@ public class ProductManagerLogic {
 			if( determineAvailable || updateAvailable ) cards.add( new ProductCard().copyFrom( latest ).setRepo( repo ) );
 
 			if( installed != null ) log.debug( "Installed: " + installed.getProductKey() + " " + installed.getRelease() );
-			log.debug( "Available: " + latest.getProductKey() + " " + latest.getRelease() );
-			log.info( "Latest version: " + latest + " " + latest.getRelease() + " found in: " + repo );
+			log.debug( "Available: " + latest.getProductKey() + " " + latest.getRelease() + " found in: " + repo );
 		} );
 
 		return cards;
@@ -286,10 +285,9 @@ public class ProductManagerLogic {
 
 	private Void handlePostedUpdatesResult( Set<DownloadRequest> updates, boolean interactive ) {
 		long connectionErrors = updates.stream().map( DownloadRequest::getCard ).filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
-		boolean available = updates.size() > 0;
 
 		if( interactive ) {
-			if( available ) {
+			if( updates.size() > 0 ) {
 				openProductTool();
 			} else {
 				notifyUserOfNoUpdates( connectionErrors > 0 );
@@ -301,7 +299,7 @@ public class ProductManagerLogic {
 					break;
 				}
 				case NOTIFY: {
-					notifyUserOfUpdates();
+					notifyUserOfUpdates( updates );
 					break;
 				}
 				case STORE: {
@@ -626,7 +624,8 @@ public class ProductManagerLogic {
 		Platform.runLater( () -> getProgram().getAssetManager().openAsset( uri ) );
 	}
 
-	private void notifyUserOfUpdates() {
+	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
+		if( updates.size() == 0 ) return;
 		String title = getProgram().rb().text( BundleKey.UPDATE, "updates-found" );
 		String message = getProgram().rb().text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );

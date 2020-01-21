@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * apply the staged updates. This requires the calling process to terminate to
  * allow the update process to change required files.
  */
-public abstract class ProductManager implements Controllable<ProductManager>, Configurable {
+public class ProductManager implements Controllable<ProductManager>, Configurable {
 
 	public enum CheckOption {
 		MANUAL,
@@ -564,14 +564,12 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * Check for updates for all installed products
 	 */
 	public void checkForUpdates() {
-		if( !isEnabled() ) return;
+		checkForUpdates( false );
+	}
 
-		try {
-			log.trace( "Checking for staged updates..." );
-			new ProductManagerLogic( program ).findAndApplyPostedUpdates( false );
-		} catch( Exception exception ) {
-			log.error( "Error checking for updates", exception );
-		}
+	public void checkForUpdates( boolean interactive ) {
+		if( !isEnabled() ) return;
+		new ProductManagerLogic( program ).checkForUpdates( interactive );
 	}
 
 	public void checkForStagedUpdatesAtStart() {
@@ -596,8 +594,20 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		}
 	}
 
+	/**
+	 * Apply staged updates found at program start, if any.
+	 */
 	public void applyStagedUpdatesAtStart() {
-		applyStagedUpdates();
+		int stagedUpdateCount = getStagedUpdateCount();
+		log.info( "Staged update count: " + stagedUpdateCount );
+		if( !isEnabled() || stagedUpdateCount == 0 ) return;
+
+		if( program.isUpdateInProgress() ) {
+			program.setUpdateInProgress( false );
+			clearStagedUpdates();
+		} else {
+			new ProductManagerLogic( program ).notifyUpdatesReadyToApply( false );
+		}
 	}
 
 	/**
@@ -704,11 +714,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return count;
 	}
 
-	public Task<Collection<ProductUpdate>> updateProducts( ProductCard update ) {
-		return updateProducts( Set.of( update ) );
+	public Task<Collection<ProductUpdate>> updateProducts( DownloadRequest update, boolean interactive ) {
+		return updateProducts( Set.of( update ), interactive );
 	}
 
-	public abstract Task<Collection<ProductUpdate>> updateProducts( Set<ProductCard> updates );
+	/**
+	 * Starts a new task to apply the selected updates.
+	 *
+	 * @param updates The updates to apply.
+	 */
+	public Task<Collection<ProductUpdate>> updateProducts( Set<DownloadRequest> updates, boolean interactive ) {
+		return new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
+	}
 
 	void clearStagedUpdates() {
 		// Remove the updates settings
