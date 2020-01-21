@@ -106,32 +106,22 @@ public class ActionUtil {
 
 	public static Button createMultiStateToolBarButton( Program program, ActionProxy action ) {
 		Button button = createNormalToolBarButton( program, action );
-		button.addEventHandler( ActionEvent.ACTION, new MultiStateButtonActionHandler( program, action ) );
+		button.addEventHandler( ActionEvent.ACTION, new MultiStateButtonActionHandler( action ) );
 		return button;
 	}
 
 	private static class MultiStateButtonActionHandler implements EventHandler<ActionEvent> {
 
-		private Program program;
-
 		private ActionProxy action;
 
-		private String currentState;
-
-		private MultiStateButtonActionHandler( Program program, ActionProxy action ) {
-			this.program = program;
+		private MultiStateButtonActionHandler( ActionProxy action ) {
 			this.action = action;
-			setCurrentState( action.getStates().get( 0 ) );
+			action.setState( action.getStates().get( 0 ) );
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			setCurrentState( action.getStateAfter( currentState ) );
-		}
-
-		private void setCurrentState( String state ) {
-			this.currentState = state;
-			action.setIcon( action.getStateIcon( state ) );
+			action.setState( action.getNextState() );
 		}
 
 	}

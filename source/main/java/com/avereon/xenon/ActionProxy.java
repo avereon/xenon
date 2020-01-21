@@ -38,6 +38,8 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private Map<String, ActionState> stateMap;
 
+	private String currentState;
+
 	private Stack<Action> actionStack;
 
 	private BooleanProperty enabledProperty;
@@ -162,6 +164,19 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		int index = states.indexOf( state ) + 1;
 		if( index >= states.size() ) index = 0;
 		return states.get( index );
+	}
+
+	public String getNextState( ) {
+		return getStateAfter( currentState );
+	}
+
+	public void setState( String state ) {
+		setIcon( getStateIcon( state ) );
+		currentState = state;
+	}
+
+	public String getState() {
+		return currentState;
 	}
 
 	@Override

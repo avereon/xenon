@@ -159,11 +159,10 @@ public class TaskTool extends ProgramTool {
 					}
 					case "START":
 					case "PROGRESS": {
-						TaskPane pane = tasks.get( task );
-						if( pane != null ) {
-							long total = task.getTotal();
-							long progress = task.getProgress();
-							pane.setProgress( (double)progress / (double)total );
+						long total = task.getTotal();
+						if( total != Task.INDETERMINATE_PROGRESS ) {
+							TaskPane pane = tasks.get( task );
+							if( pane != null ) pane.setProgress( task.getProgress() / (double)total );
 						}
 						break;
 					}

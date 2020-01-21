@@ -38,6 +38,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		HIGH
 	}
 
+	public static final long INDETERMINATE_PROGRESS = -1;
+
 	private final Object stateLock = new Object();
 
 	private State state = State.READY;
@@ -54,7 +56,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private TaskManager manager;
 
-	private long total = 1;
+	private long total = INDETERMINATE_PROGRESS;
 
 	private long progress;
 
@@ -212,8 +214,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return throwable;
 	}
 
-	protected void setTotal( long max ) {
-		this.total = max;
+	protected void setTotal( long total ) {
+		this.total = total;
 	}
 
 	protected void setProgress( long progress ) {
