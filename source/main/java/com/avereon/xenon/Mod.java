@@ -64,41 +64,94 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 		return resourceBundle;
 	}
 
+	/**
+	 * A convenience method to register an icon.
+	 *
+	 * @param id
+	 * @param icon
+	 * @param parameters
+	 * @return
+	 */
 	protected Mod registerIcon( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
 		getProgram().getIconLibrary().register( id, icon, parameters );
 		return this;
 	}
 
+	/**
+	 * A convenience method to unregister an icon.
+	 *
+	 * @param id
+	 * @param icon
+	 * @return
+	 */
 	protected Mod unregisterIcon( String id, Class<? extends ProgramIcon> icon ) {
 		getProgram().getIconLibrary().unregister( id, icon );
 		return this;
 	}
 
+	/**
+	 * A convenience method to register an action.
+	 *
+	 * @param bundle
+	 * @param id
+	 * @return
+	 */
 	protected Mod registerAction( ProductBundle bundle, String id ) {
 		getProgram().getActionLibrary().register( bundle, id );
 		return this;
 	}
 
+	/**
+	 * A convenience method to unregister an action.
+	 *
+	 * @param id
+	 * @return
+	 */
 	protected Mod unregisterAction( String id ) {
 		//getProgram().getActionLibrary().unregister( id );
 		return this;
 	}
 
+	/**
+	 * A convenience method to register an asset type.
+	 * @param type
+	 * @return
+	 */
 	protected Mod registerAssetType( AssetType type ) {
 		getProgram().getAssetManager().addAssetType( type );
 		return this;
 	}
 
+	/**
+	 * A convenience method to unregister an asset type.
+	 *
+	 * @param type
+	 * @return
+	 */
 	protected Mod unregisterAssetType( AssetType type ) {
 		getProgram().getAssetManager().removeAssetType( type );
 		return this;
 	}
 
+	/**
+	 * A convenience method to register a tool.
+	 *
+	 * @param assetType
+	 * @param metadata
+	 * @return
+	 */
 	protected Mod registerTool( AssetType assetType, ToolRegistration metadata ) {
 		getProgram().getToolManager().registerTool( assetType, metadata );
 		return this;
 	}
 
+	/**
+	 * A convenience method to unregister a tool.
+	 *
+	 * @param assetType
+	 * @param type
+	 * @return
+	 */
 	protected Mod unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
 		getProgram().getToolManager().unregisterTool( assetType, type );
 		return this;
