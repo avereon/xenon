@@ -36,10 +36,8 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Timer;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 //import java.beans.PropertyChangeEvent;
 //import java.beans.PropertyChangeListener;
@@ -74,6 +72,12 @@ public class Workspace implements Configurable {
 	private MenuBar menubar;
 
 	private ToolBar toolbar;
+
+	private Map<String, Button> toolbarToolButtons;
+
+	private Separator toolbarToolButtonSeparator;
+
+	private Region toolbarToolSpring;
 
 	private StatusBar statusBar;
 
@@ -130,10 +134,16 @@ public class Workspace implements Configurable {
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 
+
 		// FIXME Should this default setup be defined in config files or something else?
-		createMenuBar( program );
-		createToolBar( program );
-		createStatusBar( program );
+		menubar = createMenuBar( program );
+
+		toolbarToolButtons = new ConcurrentHashMap<>();
+		toolbarToolButtonSeparator = new Separator();
+		toolbarToolSpring = ActionUtil.createSpring();
+		toolbar = createToolBar( program );
+
+		statusBar = createStatusBar( program );
 
 		noticeContainer = new VBox();
 		noticeContainer.setPickOnBounds( false );
@@ -168,9 +178,9 @@ public class Workspace implements Configurable {
 		return eventBus;
 	}
 
-	private void createMenuBar( Program program ) {
-		// MENUBAR
-		menubar = new MenuBar();
+	private MenuBar createMenuBar( Program program ) {
+		MenuBar menubar = new MenuBar();
+
 		// FIXME This does not work if there are two menu bars (like this program uses)
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
@@ -230,12 +240,12 @@ public class Workspace implements Configurable {
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
+
+		return menubar;
 	}
 
-	private void createToolBar( Program program ) {
-		// TOOLBAR
-
-		toolbar = new ToolBar();
+	private ToolBar createToolBar( Program program ) {
+		ToolBar toolbar = new ToolBar();
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
@@ -248,7 +258,7 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
 		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
 
-		toolbar.getItems().add( ActionUtil.createSpring() );
+		toolbar.getItems().add( toolbarToolSpring );
 
 		// Workarea menu
 		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
@@ -285,11 +295,12 @@ public class Workspace implements Configurable {
 			} );
 		} );
 		toolbar.getItems().add( noticeButton );
+
+		return toolbar;
 	}
 
-	private void createStatusBar( Program program ) {
-		// STATUS BAR
-		statusBar = new StatusBar();
+	private StatusBar createStatusBar( Program program ) {
+		StatusBar statusBar = new StatusBar();
 
 		// Task Monitor
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
@@ -307,6 +318,34 @@ public class Workspace implements Configurable {
 
 		statusBar.addRight( memoryMonitorContainer );
 		statusBar.addRight( taskMonitorContainer );
+
+		return statusBar;
+	}
+
+	public void pushToolbarActions( String... ids ) {
+		pullToolbarActions();
+		int index = toolbar.getItems().indexOf( toolbarToolSpring );
+		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
+		for( String id : ids ) {
+			Node node;
+			if( "separator".equals( id ) ) {
+				node = new Separator();
+			} else {
+				node = ActionUtil.createToolBarButton( getProgram(), id );
+			}
+			toolbar.getItems().add( index++, node );
+		}
+	}
+
+	public void pullToolbarActions() {
+		int index = toolbar.getItems().indexOf( toolbarToolButtonSeparator );
+		if( index < 0 ) return;
+
+		Node node = toolbar.getItems().get( index );
+		while( node != toolbarToolSpring ) {
+			toolbar.getItems().remove( index );
+			node = toolbar.getItems().get( index );
+		}
 	}
 
 	public Program getProgram() {

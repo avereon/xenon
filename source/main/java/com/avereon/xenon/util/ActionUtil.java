@@ -4,6 +4,8 @@ import com.avereon.util.LogUtil;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
@@ -82,6 +84,14 @@ public class ActionUtil {
 	}
 
 	public static Button createToolBarButton( Program program, ActionProxy action ) {
+		if( "multi-state".equals( action.getType() ) ) {
+			return createMultiStateToolBarButton( program, action );
+		} else {
+			return createNormalToolBarButton( program, action );
+		}
+	}
+
+	private static Button createNormalToolBarButton( Program program, ActionProxy action ) {
 		Button button = new Button();
 
 		button.setOnAction( action );
@@ -94,16 +104,45 @@ public class ActionUtil {
 		return button;
 	}
 
+	public static Button createMultiStateToolBarButton( Program program, ActionProxy action ) {
+		Button button = createNormalToolBarButton( program, action );
+		button.addEventHandler( ActionEvent.ACTION, new MultiStateButtonActionHandler( program, action ) );
+		return button;
+	}
+
+	private static class MultiStateButtonActionHandler implements EventHandler<ActionEvent> {
+
+		private Program program;
+
+		private ActionProxy action;
+
+		private String currentState;
+
+		private MultiStateButtonActionHandler( Program program, ActionProxy action ) {
+			this.program = program;
+			this.action = action;
+			setCurrentState( action.getStates().get( 0 ) );
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			setCurrentState( action.getStateAfter( currentState ) );
+		}
+
+		private void setCurrentState( String state ) {
+			this.currentState = state;
+			action.setIcon( action.getStateIcon( state ) );
+		}
+
+	}
+
 	public static Button createButton( Program program, ActionProxy action ) {
-		Button button = new Button();
+		return createNormalToolBarButton( program, action );
+	}
 
-		button.setOnAction( action );
-		button.setDisable( !action.isEnabled() );
-		button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
-
-		action.enabledProperty().addListener( ( event ) -> button.setDisable( !action.isEnabled() ) );
-		action.iconProperty().addListener( ( event ) -> button.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
-
+	public static Button createNamedButton( Program program, ActionProxy action ) {
+		Button button = createButton( program, action );
+		action.mnemonicNameProperty().addListener( ( event ) -> button.setText( action.getMnemonicName() ) );
 		return button;
 	}
 

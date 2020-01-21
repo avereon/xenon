@@ -116,6 +116,15 @@ public class ActionLibrary {
 			proxy.setMnemonic( ActionProxy.NO_MNEMONIC );
 		}
 
+		if( "multi-state".equals( type ) ) {
+			String[] states = bundle.textOr( BundleKey.ACTION, id + ".states", "" ).split( "," );
+			for( String state : states ) {
+				String stateName = bundle.textOr( BundleKey.ACTION, id + "." + state + ".name", "" );
+				String stateIcon = bundle.textOr( BundleKey.ACTION, id + "." + state + ".icon", "" );
+				proxy.addState( state, stateName, stateIcon );
+			}
+		}
+
 		actions.put( id, proxy );
 	}
 
