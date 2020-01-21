@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProgramProductManager extends ProductManager {
 
@@ -30,21 +31,25 @@ public class ProgramProductManager extends ProductManager {
 		new ProductManagerLogic( program ).checkForUpdates( interactive );
 	}
 
+	public Task<Collection<ProductUpdate>> updateProducts( ProductCard update, boolean interactive ) {
+		return updateProducts( new DownloadRequest( update ), interactive );
+	}
+
+	public Task<Collection<ProductUpdate>> updateProducts( DownloadRequest update, boolean interactive ) {
+		return updateProducts( Set.of( update ), interactive );
+	}
+
 	/**
 	 * Starts a new task to apply the selected updates.
 	 *
 	 * @param updates The updates to apply.
 	 */
 	@Override
-	public Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates ) {
-		return applySelectedUpdates( updates, false );
+	public Task<Collection<ProductUpdate>> updateProducts( Set<ProductCard> updates ) {
+		return updateProducts( updates.stream().map( DownloadRequest::new ).collect( Collectors.toSet() ), false );
 	}
 
-	public Task<Collection<ProductUpdate>> applySelectedUpdates( ProductCard update, boolean interactive ) {
-		return applySelectedUpdates( Set.of( update ), interactive );
-	}
-
-	public Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates, boolean interactive ) {
+	public Task<Collection<ProductUpdate>> updateProducts( Set<DownloadRequest> updates, boolean interactive ) {
 		return new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
 	}
 

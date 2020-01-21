@@ -2,7 +2,7 @@ package com.avereon.xenon.product;
 
 import java.nio.file.Path;
 
-class InstalledProduct {
+public class InstalledProduct {
 
 	private Path target;
 

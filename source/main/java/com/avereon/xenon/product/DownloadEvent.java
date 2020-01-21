@@ -19,4 +19,8 @@ public class DownloadEvent {
 		return total;
 	}
 
+	public double getPercent() {
+		return (double)progress / (double)total;
+	}
+
 }

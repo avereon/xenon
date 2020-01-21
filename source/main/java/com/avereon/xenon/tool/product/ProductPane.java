@@ -6,6 +6,7 @@ import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.product.ProgramProductManager;
@@ -23,6 +24,7 @@ import org.tbee.javafx.scene.layout.MigPane;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.DoubleConsumer;
 
 class ProductPane extends MigPane {
 
@@ -219,7 +221,8 @@ class ProductPane extends MigPane {
 		// TODO Get the download task and use it for product progress
 		program.getTaskManager().submit( Task.of( "Install product", () -> {
 			try {
-				manager.installProducts( source ).get();
+				DoubleConsumer progressHandler = ( d ) -> Platform.runLater( () -> progress.setProgress( d ) );
+				manager.installProducts( new DownloadRequest( source, progressHandler ) ).get();
 				Platform.runLater( () -> setStatus( ProductStatus.INSTALLED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
@@ -231,10 +234,10 @@ class ProductPane extends MigPane {
 
 	void updateProduct() {
 		setStatus( ProductStatus.DOWNLOADING );
-		// TODO Get the download task and use it for product progress
 		program.getTaskManager().submit( Task.of( "Update product", () -> {
 			try {
-				((ProgramProductManager)manager).applySelectedUpdates( getUpdate(), true ).get();
+				DoubleConsumer progressHandler = ( d ) -> Platform.runLater( () -> progress.setProgress( d ) );
+				((ProgramProductManager)manager).updateProducts( new DownloadRequest( getUpdate(), progressHandler ), true ).get();
 				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {

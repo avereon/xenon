@@ -334,13 +334,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		unregisterProduct( mod );
 	}
 
-	public Task<Collection<InstalledProduct>> installProducts( ProductCard... cards ) {
-		return installProducts( Set.of( cards ) );
+	public Task<Collection<InstalledProduct>> installProducts( DownloadRequest... download ) {
+		return installProducts( Set.of( download ) );
 	}
 
-	public Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> cards ) {
-		log.trace( "Number of products to install: " + cards.size() );
-		return new ProductManagerLogic( program ).installProducts( cards );
+	public Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> downloads ) {
+		log.trace( "Number of products to install: " + downloads.size() );
+		return new ProductManagerLogic( program ).installProducts( downloads );
 	}
 
 	public Task<Void> uninstallProducts( ProductCard... cards ) {
@@ -568,7 +568,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		try {
 			log.trace( "Checking for staged updates..." );
-			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards( false ), false );
+			new ProductManagerLogic( program ).findAndApplyPostedUpdates( false );
 		} catch( Exception exception ) {
 			log.error( "Error checking for updates", exception );
 		}
@@ -704,11 +704,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return count;
 	}
 
-	public Task<Collection<ProductUpdate>> applySelectedUpdates( ProductCard update ) {
-		return applySelectedUpdates( Set.of( update ) );
+	public Task<Collection<ProductUpdate>> updateProducts( ProductCard update ) {
+		return updateProducts( Set.of( update ) );
 	}
 
-	public abstract Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates );
+	public abstract Task<Collection<ProductUpdate>> updateProducts( Set<ProductCard> updates );
 
 	void clearStagedUpdates() {
 		// Remove the updates settings
