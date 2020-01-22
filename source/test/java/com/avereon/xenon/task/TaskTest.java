@@ -16,6 +16,18 @@ class TaskTest extends BaseTaskTest {
 	private int delay = 50;
 
 	@Test
+	void testPercent() {
+		Task<?> task = new MockTask( manager );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE_PROGRESS ) );
+
+		task.setProgress( 0 );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE_PROGRESS ) );
+
+		task.setProgress( 1 );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE_PROGRESS ) );
+	}
+
+	@Test
 	void testPriority() {
 		Task<?> task = new MockTask( manager );
 
