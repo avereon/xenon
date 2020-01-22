@@ -20,6 +20,30 @@ class TaskTest extends BaseTaskTest {
 		Task<?> task = new MockTask( manager );
 		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE_PROGRESS ) );
 
+		task.setTotal( 0 );
+		assertThat( task.getPercent(), is( Double.NaN ) );
+
+		task.setTotal( 10 );
+		assertThat( task.getPercent(), is( 0.0 ) );
+
+		task.setProgress( -1 );
+		assertThat( task.getPercent(), is( 0.0 ) );
+
+		int total = 10;
+		for( int count = 0; count <= total; count++ ) {
+			task.setProgress( count );
+			assertThat( task.getPercent(), is( (double)count / (double)total ) );
+		}
+
+		task.setProgress( 11 );
+		assertThat( task.getPercent(), is( 1.0 ) );
+	}
+
+	@Test
+	void testIndeterminatePercent() {
+		Task<?> task = new MockTask( manager );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE_PROGRESS ) );
+
 		task.setProgress( 0 );
 		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE_PROGRESS ) );
 

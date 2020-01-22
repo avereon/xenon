@@ -114,7 +114,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	public double getPercent() {
 		if( total == INDETERMINATE_PROGRESS ) return INDETERMINATE_PROGRESS;
-		return Math.min( 1.0, (double)progress / (double)total );
+		return Math.max( 0.0, Math.min( 1.0, (double)progress / (double)total ) );
 	}
 
 	public Priority getProcessedPriority() {
