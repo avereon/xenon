@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.task;
 
-import com.avereon.event.EventHandler;
 import com.avereon.util.LogUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
@@ -9,7 +8,6 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.task.TaskManagerEvent;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
@@ -25,32 +23,28 @@ import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TaskTool extends ProgramTool {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
-	private TaskWatcher taskWatcher;
+	private final Set<Task<?>> tasks;
 
 	private VBox taskPanes;
 
-	private Map<Task<?>, TaskPane> tasks;
-
 	public TaskTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		tasks = new CopyOnWriteArraySet<>();
 
 		setId( "tool-task" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "task" ) );
 		setTitle( product.rb().text( "tool", "task-name" ) );
 
-		tasks = new ConcurrentHashMap<>();
-		taskWatcher = new TaskWatcher();
-
 		Button startTask = new Button( "Random Test Task" );
-		startTask.setOnAction( ( event ) -> startRandomTasks() );
+		startTask.setOnAction( ( event ) -> startRandomTask() );
 
 		ScrollPane scroller = new ScrollPane( taskPanes = new VBox() );
 		scroller.setFitToWidth( true );
@@ -65,68 +59,40 @@ public class TaskTool extends ProgramTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-		getProgram().getTaskManager().getEventBus().register( TaskEvent.ANY, taskWatcher );
+		getProgram().getTaskManager().getEventBus().register( TaskEvent.SUBMITTED, e -> Platform.runLater( () -> addTaskPane( e.getTask() ) ) );
 		getProgram().getTaskManager().getTasks().forEach( this::addTaskPane );
 	}
 
 	private void addTaskPane( Task<?> task ) {
-		if( task.isDone() || tasks.containsKey( task ) ) return;
-		TaskPane pane = new TaskPane( task );
-		taskPanes.getChildren().add( pane );
-		tasks.put( task, pane );
+		synchronized( tasks ) {
+			if( tasks.contains( task ) ) return;
+			tasks.add( task );
+			TaskPane pane = new TaskPane( task );
+			task.getEventBus().register( TaskEvent.FINISH, e -> Platform.runLater( () -> removeTaskPane( pane ) ) );
+			task.getEventBus().register( TaskEvent.PROGRESS, e -> Platform.runLater( () -> pane.setProgress( e.getTask().getPercent() ) ) );
+			taskPanes.getChildren().add( pane );
+			if( task.isDone() ) removeTaskPane( pane );
+		}
 	}
 
-	private void clearTasks() {
-		tasks.forEach( TaskTool.this::clearTaskIfDone );
+	private void removeTaskPane( TaskPane pane ) {
+		taskPanes.getChildren().remove( pane );
+		tasks.remove( pane.getTask() );
 	}
 
-	private void clearTaskIfDone( Task<?> task, TaskPane pane ) {
-		if( !task.isDone() ) return;
-		if( pane != null ) Platform.runLater( () -> taskPanes.getChildren().remove( pane ) );
-		tasks.remove( task );
-	}
-
-	private void startRandomTasks() {
+	private void startRandomTask() {
 		long duration = 1000 + (long)(7000 * new Random().nextDouble());
 		getProgram().getTaskManager().submit( new RandomTask( duration ) );
 	}
 
-	private static class RandomTask extends Task<Void> {
-
-		// The delay between progress checks ~ 1000ms / 120hz;
-		private static final long DELAY = 1000 / 120;
-
-		RandomTask( long duration ) {
-			super( "Random Task (" + duration + "ms)" );
-			//setMinimum( 0 );
-			setTotal( duration );
-		}
-
-		@Override
-		public Void call() {
-			long time = 0;
-
-			//System.out.println( "Running random task ("+ getMaximum() +")");
-			while( time < getTotal() ) {
-				try {
-					Thread.sleep( DELAY );
-				} catch( InterruptedException exception ) {
-					break;
-				}
-				time += DELAY;
-				setProgress( time );
-			}
-
-			return null;
-		}
-
-	}
-
 	private class TaskPane extends MigPane {
+
+		private Task<?> task;
 
 		private ProgressBar progress;
 
 		TaskPane( Task<?> task ) {
+			this.task = task;
 			progress = new ProgressBar();
 			Label name = new Label( task.getName() );
 
@@ -139,37 +105,42 @@ public class TaskTool extends ProgramTool {
 			add( cancel, "pushy" );
 		}
 
-		void setProgress( double progress ) {
+		public Task<?> getTask() {
+			return task;
+		}
+
+		private void setProgress( double progress ) {
 			this.progress.setProgress( progress );
 		}
 
 	}
 
-	private class TaskWatcher implements EventHandler<TaskManagerEvent> {
+	private static class RandomTask extends Task<Void> {
+
+		// The delay between progress checks ~ 1000ms / 120hz;
+		private static final long DELAY = 1000 / 120;
+
+		private RandomTask( long duration ) {
+			super( "Random Task (" + duration + "ms)" );
+			//setMinimum( 0 );
+			setTotal( duration );
+		}
 
 		@Override
-		public void handle( TaskManagerEvent event ) {
-			Task<?> task = ((TaskEvent)event).getTask();
+		public Void call() {
+			long time = 0;
 
-			Platform.runLater( () -> {
-				switch( event.getEventType().getName() ) {
-					case "SUBMITTED": {
-						addTaskPane( task );
-						break;
-					}
-					case "START":
-					case "PROGRESS": {
-						long total = task.getTotal();
-						if( total != Task.INDETERMINATE_PROGRESS ) {
-							TaskPane pane = tasks.get( task );
-							if( pane != null ) pane.setProgress( task.getProgress() / (double)total );
-						}
-						break;
-					}
+			while( time < getTotal() ) {
+				try {
+					Thread.sleep( DELAY );
+				} catch( InterruptedException exception ) {
+					break;
 				}
-			} );
+				time += DELAY;
+				setProgress( time );
+			}
 
-			TaskTool.this.clearTasks();
+			return null;
 		}
 
 	}

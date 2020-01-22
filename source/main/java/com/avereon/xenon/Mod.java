@@ -39,7 +39,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 		try {
 			card = new ProductCard().load( this );
 		} catch( IOException exception ) {
-			throw new RuntimeException( "Error loading product card: " + getClass().getName() );
+			throw new RuntimeException( "Error loading product card: " + getClass().getName(), exception );
 		}
 	}
 
