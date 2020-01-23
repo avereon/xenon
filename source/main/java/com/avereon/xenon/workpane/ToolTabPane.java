@@ -138,11 +138,11 @@ public class ToolTabPane extends Control {
 		}
 	}
 
-	@Override
-	public void requestFocus() {
-		super.requestFocus();
-		getTool().requestFocus();
-	}
+//	@Override
+//	public void requestFocus() {
+//		super.requestFocus();
+//		getTool().requestFocus();
+//	}
 
 	private Tool cloneTool( Tool tool ) {
 		// TODO Implement tool cloning

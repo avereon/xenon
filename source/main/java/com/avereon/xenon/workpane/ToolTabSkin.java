@@ -92,19 +92,15 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			log.debug( "Drag enter tab: " + event.getDragboard().getUrl() );
 			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolPane().getWorkpane() );
 			getSkinnable().getToolPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			event.consume();
 		} );
 
 		tab.setOnDragOver( ( event ) -> {
-			//log.debug( "Drag over tab: " + event.getDragboard().getUrl() );
 			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
-			event.consume();
 		} );
 
 		tab.setOnDragExited( ( event ) -> {
 			log.debug( "Drag exit tab: " + event.getDragboard().getUrl() );
 			getSkinnable().getToolPane().getWorkpane().setDropHint( null );
-			event.consume();
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
@@ -115,7 +111,6 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
 		tab.setOnCloseRequest( event -> {
-			event.consume();
 			tool.close();
 		} );
 	}
@@ -126,9 +121,11 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		layoutInArea( tabLayout, contentX, contentY, contentWidth, contentHeight, -1, HPos.CENTER, VPos.CENTER );
 	}
 
+	// FIXME Should this be move to a different container for re-use???
 	private void select( ToolTab tab ) {
 		tab.getToolPane().getSelectionModel().select( tab );
 		tab.getToolPane().requestFocus();
+		tab.getToolPane().getTool().requestFocus();
 	}
 
 }

@@ -13,6 +13,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import org.slf4j.Logger;
 
@@ -74,6 +75,8 @@ public abstract class Tool extends Control {
 		clip.widthProperty().bind( widthProperty() );
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
+
+		addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> getToolView().requestFocus() );
 	}
 
 	public Asset getAsset() {
@@ -245,6 +248,12 @@ public abstract class Tool extends Control {
 	}
 
 	@Override
+	public void requestFocus() {
+		super.requestFocus();
+		log.info( "Focus requested on tool: " + this );
+	}
+
+	@Override
 	protected Skin<Tool> createDefaultSkin() {
 		return new ToolSkin( this );
 	}
@@ -402,12 +411,6 @@ public abstract class Tool extends Control {
 				log.error( "Error refreshing tool", exception );
 			}
 		} );
-	}
-
-	@Override
-	public void requestFocus() {
-		super.requestFocus();
-		log.info( "Focus requested on tool: " + this );
 	}
 
 	private class AssetWatcher implements EventHandler<AssetEvent> {

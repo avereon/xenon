@@ -106,26 +106,21 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		headerDrop.setOnDragEntered( ( event ) -> {
 			Bounds bounds = FxUtil.localToParent( headerDrop, control.getWorkpane() );
 			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			event.consume();
 		} );
 
 		headerDrop.setOnDragOver( ( event ) -> {
 			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
-			event.consume();
 		} );
 
 		headerDrop.setOnDragExited( ( event ) -> {
 			control.getWorkpane().setDropHint( null );
-			event.consume();
 		} );
 
 		headerDrop.setOnDragDropped( ( event ) -> {
 			control.handleDrop( event, -1, null );
-			event.consume();
 		} );
 
 		toolArea.setOnDragEntered( ( event ) -> {
-			event.consume();
 		} );
 
 		toolArea.setOnDragOver( ( event ) -> {
@@ -134,13 +129,10 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
 			Bounds dropHintBounds = FxUtil.localToParent( toolArea, control.getWorkpane(), dropBounds );
 			control.getWorkpane().setDropHint( new WorkpaneDropHint( dropHintBounds ) );
-
-			event.consume();
 		} );
 
 		toolArea.setOnDragExited( ( event ) -> {
 			control.getWorkpane().setDropHint( null );
-			event.consume();
 		} );
 
 		toolArea.setOnDragDropped( ( event ) -> {
