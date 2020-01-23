@@ -76,10 +76,7 @@ public abstract class Tool extends Control {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> {
-			log.warn( "Mouse pressed on tool: " + e );
-			getToolView().requestFocus();
-		} );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, ( e ) -> Platform.runLater( () ->getWorkpane().setActiveTool( this ) ) );
 	}
 
 	public Asset getAsset() {
