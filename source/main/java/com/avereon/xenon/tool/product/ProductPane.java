@@ -151,6 +151,7 @@ class ProductPane extends MigPane {
 		boolean isEnabled = manager.isEnabled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
 		boolean isInstalled = manager.isInstalled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
 		boolean inProgress = manager.getStatus( source ) == ProductStatus.DOWNLOADING;
+		boolean isDownloaded = manager.getStatus( source ) == ProductStatus.DOWNLOADED;
 		boolean isAnyUpdateStaged = manager.isUpdateStaged( source );
 		boolean isInstalledProductsPanel = FxUtil.isChildOf( this, tool.getInstalledPage() );
 		boolean isAvailableProductsPanel = FxUtil.isChildOf( this, tool.getAvailablePage() );
@@ -165,7 +166,11 @@ class ProductPane extends MigPane {
 			if( !isProgram && !isEnabled ) {
 				stateLabelKey = "disabled";
 			} else if( isUpdatableProductsPanel ) {
-				stateLabelKey = "available";
+				if( isDownloaded ) {
+					stateLabelKey = "downloaded";
+				} else {
+					stateLabelKey = "available";
+				}
 			} else if( isAvailableProductsPanel ) {
 				stateLabelKey = "installed";
 			} else {
@@ -226,7 +231,7 @@ class ProductPane extends MigPane {
 	}
 
 	private void toggleEnabled( boolean enabled ) {
-		manager.setModEnabled( source, enabled );
+		manager.setModEnabled( getSource(), enabled );
 		updateProductState();
 	}
 
@@ -239,7 +244,7 @@ class ProductPane extends MigPane {
 	}
 
 	private void requestRemoveProduct() {
-		String modName = source.getName();
+		String modName = getSource().getName();
 
 		String title = program.rb().text( BundleKey.PRODUCT, "products" );
 		String header = program.rb().text( BundleKey.PRODUCT, "product-remove-header", modName );
