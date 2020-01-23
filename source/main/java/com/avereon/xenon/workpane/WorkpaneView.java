@@ -28,7 +28,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	private Workpane.Placement placement;
 
-	private ToolPane tools;
+	private ToolTabPane tools;
 
 	private Workpane parent;
 
@@ -38,7 +38,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
-		setCenter( tools = new ToolPane() );
+		setCenter( tools = new ToolTabPane() );
 		setSnapToPixel( true );
 
 		//tools.setTabClosingPolicy( TabPane.TabClosingPolicy.ALL_TABS );

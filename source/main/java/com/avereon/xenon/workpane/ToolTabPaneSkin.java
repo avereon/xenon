@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ToolPaneSkin extends SkinBase<ToolPane> {
+public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 
 	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
 
@@ -33,7 +33,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 	public static final double MINIMUM_PIXELS = 50;
 
-	protected ToolPaneSkin( ToolPane control ) {
+	protected ToolTabPaneSkin( ToolTabPane control ) {
 		super( control );
 
 		Rectangle clipRect = new Rectangle( control.getWidth(), control.getHeight() );
@@ -62,7 +62,7 @@ public class ToolPaneSkin extends SkinBase<ToolPane> {
 
 		getChildren().setAll( header, toolArea );
 
-		pseudoClassStateChanged( ToolPane.ACTIVE_PSEUDOCLASS_STATE, control.isActive() );
+		pseudoClassStateChanged( ToolTabPane.ACTIVE_PSEUDOCLASS_STATE, control.isActive() );
 
 		control.getTabs().addListener( (ListChangeListener<ToolTab>)change -> {
 			while( change.next() ) {

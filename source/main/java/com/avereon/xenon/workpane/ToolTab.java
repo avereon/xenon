@@ -17,7 +17,10 @@ public class ToolTab extends Control {
 
 	static final PseudoClass SELECTED_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "selected" );
 
-	private ToolPane pane;
+	/**
+	 * The parent of the tool tab
+	 */
+	private ToolTabPane pane;
 
 	private Tool tool;
 
@@ -41,11 +44,11 @@ public class ToolTab extends Control {
 		return getTool();
 	}
 
-	public final ToolPane getToolPane() {
+	public final ToolTabPane getToolPane() {
 		return pane;
 	}
 
-	public final void setToolPane( ToolPane pane ) {
+	public final void setToolPane( ToolTabPane pane ) {
 		this.pane = pane;
 	}
 
@@ -164,7 +167,7 @@ public class ToolTab extends Control {
 	}
 
 	private void updateDisabled() {
-		ToolPane pane = getToolPane();
+		ToolTabPane pane = getToolPane();
 		boolean disabled = isDisable() || (pane != null && pane.isDisabled());
 		setDisabled( disabled );
 

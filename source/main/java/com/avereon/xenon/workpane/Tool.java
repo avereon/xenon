@@ -404,6 +404,12 @@ public abstract class Tool extends Control {
 		} );
 	}
 
+	@Override
+	public void requestFocus() {
+		super.requestFocus();
+		log.info( "Focus requested on tool: " + this );
+	}
+
 	private class AssetWatcher implements EventHandler<AssetEvent> {
 
 		@Override

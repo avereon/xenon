@@ -23,7 +23,7 @@ import java.lang.invoke.MethodHandles;
  * The ToolPane class provides a custom tab pane component for the program
  * allowing for extended and custom capabilities.
  */
-public class ToolPane extends Control {
+public class ToolTabPane extends Control {
 
 	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
 
@@ -35,7 +35,7 @@ public class ToolPane extends Control {
 
 	private ReadOnlyBooleanWrapper active;
 
-	public ToolPane() {
+	public ToolTabPane() {
 		getStyleClass().addAll( "tool-pane" );
 		setSelectionModel( new ToolPaneSelectionModel( this ) );
 	}
@@ -76,7 +76,7 @@ public class ToolPane extends Control {
 
 				@Override
 				public Object getBean() {
-					return ToolPane.this;
+					return ToolTabPane.this;
 				}
 
 				@Override
@@ -89,8 +89,12 @@ public class ToolPane extends Control {
 	}
 
 	@Override
-	protected Skin<ToolPane> createDefaultSkin() {
-		return new ToolPaneSkin( this );
+	protected Skin<ToolTabPane> createDefaultSkin() {
+		return new ToolTabPaneSkin( this );
+	}
+
+	protected Tool getTool() {
+		return getSelectionModel().getSelectedItem().getTool();
 	}
 
 	protected WorkpaneView getWorkpaneView() {
@@ -134,6 +138,12 @@ public class ToolPane extends Control {
 		}
 	}
 
+	@Override
+	public void requestFocus() {
+		super.requestFocus();
+		getTool().requestFocus();
+	}
+
 	private Tool cloneTool( Tool tool ) {
 		// TODO Implement tool cloning
 		log.warn( "Tool copy not implemented yet!");
@@ -142,9 +152,9 @@ public class ToolPane extends Control {
 
 	private static class ToolPaneSelectionModel extends SingleSelectionModel<ToolTab> {
 
-		private ToolPane pane;
+		private ToolTabPane pane;
 
-		ToolPaneSelectionModel( ToolPane pane ) {
+		ToolPaneSelectionModel( ToolTabPane pane ) {
 			if( pane == null ) throw new NullPointerException( "ToolPane can not be null" );
 
 			this.pane = pane;

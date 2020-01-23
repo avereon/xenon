@@ -518,7 +518,7 @@ class WorkpaneTest extends WorkpaneTestCase {
 	}
 
 	private Tool getActiveTool( WorkpaneView view ) {
-		ToolPane pane = (ToolPane)view.getChildren().get( 0 );
+		ToolTabPane pane = (ToolTabPane)view.getChildren().get( 0 );
 
 		int selectedIndex = pane.getSelectionModel().getSelectedIndex();
 		ToolTab tab = pane.getTabs().get( selectedIndex );

@@ -87,12 +87,12 @@ public class NoticeTool extends ProgramTool {
 			noticeContainer.getChildren().clear();
 			for( Notice notice : notices ) {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );
-				noticePane.onMouseClickedProperty().set( (event)->{
+				noticePane.setOnMouseClicked( (event)->{
 					noticePane.executeNoticeAction();
 					event.consume();
 					this.close();
 				} );
-				noticePane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+				noticePane.getCloseButton().setOnMouseClicked( ( event ) -> {
 					getProgram().getNoticeManager().removeNotice( notice );
 					event.consume();
 				} );

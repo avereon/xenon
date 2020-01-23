@@ -436,14 +436,14 @@ public class Workspace implements Configurable {
 		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
 		noticeContainer.getChildren().add( 0, pane );
 
-		pane.onMouseClickedProperty().set( ( event ) -> {
+		pane.setOnMouseClicked( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
-		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
 			event.consume();
