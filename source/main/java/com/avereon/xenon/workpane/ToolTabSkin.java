@@ -60,7 +60,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		pseudoClassStateChanged( ToolTab.SELECTED_PSEUDOCLASS_STATE, tab.isSelected() );
 
 		label.setOnMousePressed( ( event ) -> {
-			select( tab );
+			tab.getToolTabPane().getWorkpane().setActiveTool( tab.getTool() );
 			if( event.getClickCount() == 2 ) {
 				WorkpaneView view = tool.getToolView();
 				view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
@@ -90,8 +90,8 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		tab.setOnDragEntered( ( event ) -> {
 			log.debug( "Drag enter tab: " + event.getDragboard().getUrl() );
-			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolPane().getWorkpane() );
-			getSkinnable().getToolPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolTabPane().getWorkpane() );
+			getSkinnable().getToolTabPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 		} );
 
 		tab.setOnDragOver( ( event ) -> {
@@ -100,13 +100,13 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		tab.setOnDragExited( ( event ) -> {
 			log.debug( "Drag exit tab: " + event.getDragboard().getUrl() );
-			getSkinnable().getToolPane().getWorkpane().setDropHint( null );
+			getSkinnable().getToolTabPane().getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
 			log.debug( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
-			int index = tab.getToolPane().getTabs().indexOf( tab );
-			tab.getToolPane().handleDrop( event, index, null );
+			int index = tab.getToolTabPane().getTabs().indexOf( tab );
+			tab.getToolTabPane().handleDrop( event, index, null );
 		} );
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
@@ -119,13 +119,6 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
 		// This is a slight optimization over the default implementation
 		layoutInArea( tabLayout, contentX, contentY, contentWidth, contentHeight, -1, HPos.CENTER, VPos.CENTER );
-	}
-
-	// FIXME Should this be move to a different container for re-use???
-	private void select( ToolTab tab ) {
-		tab.getToolPane().getSelectionModel().select( tab );
-		tab.getToolPane().requestFocus();
-		tab.getToolPane().getTool().requestFocus();
 	}
 
 }

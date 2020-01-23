@@ -44,7 +44,7 @@ public class ToolTab extends Control {
 		return getTool();
 	}
 
-	public final ToolTabPane getToolPane() {
+	public final ToolTabPane getToolTabPane() {
 		return pane;
 	}
 
@@ -167,7 +167,7 @@ public class ToolTab extends Control {
 	}
 
 	private void updateDisabled() {
-		ToolTabPane pane = getToolPane();
+		ToolTabPane pane = getToolTabPane();
 		boolean disabled = isDisable() || (pane != null && pane.isDisabled());
 		setDisabled( disabled );
 

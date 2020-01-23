@@ -46,10 +46,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		// Add a focus listener to the tabs so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
-		tools.focusedProperty().addListener( ( observable, oldValue, newValue ) -> {
-			ToolTab tab = tools.getSelectionModel().getSelectedItem();
-			if( newValue && tab != null ) activateTool( tab.getTool() );
-		} );
+//		tools.activeProperty().addListener( ( observable, oldValue, newValue ) -> {
+//			ToolTab tab = tools.getSelectionModel().getSelectedItem();
+//			if( newValue && tab != null ) activateTool( tab.getTool() );
+//		} );
 
 		// Add a selection listener to the tabs so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
@@ -152,6 +152,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		if( activeTool != null ) {
 			tools.getSelectionModel().select( getToolIndex( tool ) );
 			if( !activeTool.isDisplayed() ) activeTool.callDisplay();
+			activeTool.requestFocus();
 		}
 	}
 
@@ -295,7 +296,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		//if( parent != null ) updateIcons();
 	}
 
-	private void activateTool( Tool tool ) {
+	void activateTool( Tool tool ) {
 		Workpane workpane = getWorkpane();
 		//if( workpane.getActiveTool() == tool ) return;
 		workpane.setActiveTool( tool );

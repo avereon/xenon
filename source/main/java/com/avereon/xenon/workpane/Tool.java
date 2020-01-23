@@ -76,7 +76,10 @@ public abstract class Tool extends Control {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> getToolView().requestFocus() );
+		addEventHandler( MouseEvent.MOUSE_PRESSED, ( e ) -> {
+			log.warn( "Mouse pressed on tool: " + e );
+			getToolView().requestFocus();
+		} );
 	}
 
 	public Asset getAsset() {
@@ -250,7 +253,7 @@ public abstract class Tool extends Control {
 	@Override
 	public void requestFocus() {
 		super.requestFocus();
-		log.info( "Focus requested on tool: " + this );
+		log.warn( "Focus requested on tool: " + this );
 	}
 
 	@Override

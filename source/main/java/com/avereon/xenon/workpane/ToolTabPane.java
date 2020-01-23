@@ -57,14 +57,10 @@ public class ToolTabPane extends Control {
 	}
 
 	public void setActive( boolean active ) {
-		activePropertyImpl().set( active );
+		activeProperty().set( active );
 	}
 
 	public ReadOnlyBooleanWrapper activeProperty() {
-		return activePropertyImpl();
-	}
-
-	private ReadOnlyBooleanWrapper activePropertyImpl() {
 		if( active == null ) {
 			active = new ReadOnlyBooleanWrapper() {
 
@@ -138,15 +134,9 @@ public class ToolTabPane extends Control {
 		}
 	}
 
-//	@Override
-//	public void requestFocus() {
-//		super.requestFocus();
-//		getTool().requestFocus();
-//	}
-
 	private Tool cloneTool( Tool tool ) {
 		// TODO Implement tool cloning
-		log.warn( "Tool copy not implemented yet!");
+		log.warn( "Tool copy not implemented yet!" );
 		return tool;
 	}
 
