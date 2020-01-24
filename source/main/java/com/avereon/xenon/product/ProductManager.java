@@ -27,6 +27,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 /**
@@ -447,9 +449,9 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		settings.flush();
 		log.trace( "Set mod enabled: " + settings.getPath() + ": " + enabled );
 		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
-//		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
-//			.fire( listeners )
-//			.fire( program.getListeners() );
+		//		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
+		//			.fire( listeners )
+		//			.fire( program.getListeners() );
 
 		// Should be called after setting the enabled flag
 		if( enabled ) callModStart( mod );
@@ -799,17 +801,17 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return delay;
 	}
 
-//	public Set<ProductManagerListener> getProductManagerListeners() {
-//		return new HashSet<>( listeners );
-//	}
-//
-//	public void addProductManagerListener( ProductManagerListener listener ) {
-//		listeners.add( listener );
-//	}
-//
-//	public void removeProductManagerListener( ProductManagerListener listener ) {
-//		listeners.remove( listener );
-//	}
+	//	public Set<ProductManagerListener> getProductManagerListeners() {
+	//		return new HashSet<>( listeners );
+	//	}
+	//
+	//	public void addProductManagerListener( ProductManagerListener listener ) {
+	//		listeners.add( listener );
+	//	}
+	//
+	//	public void removeProductManagerListener( ProductManagerListener listener ) {
+	//		listeners.remove( listener );
+	//	}
 
 	@Override
 	public void setSettings( Settings settings ) {
@@ -1152,6 +1154,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				log.warn( "Mod already loaded: " + card.getProductKey() );
 				return;
 			}
+
+			// Configure logging for the mod
+			Level level = LogUtil.convertToJavaLogLevel( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+			Logger slf4jLogger = LogUtil.get( mod.getClass().getPackageName() );
+			LogManager.getLogManager().getLogger( slf4jLogger.getName() ).setLevel( level );
 
 			// Initialize the mod
 			mod.init( program, card );

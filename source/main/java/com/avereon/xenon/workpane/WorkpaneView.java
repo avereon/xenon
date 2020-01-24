@@ -152,7 +152,6 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		if( activeTool != null ) {
 			tools.getSelectionModel().select( getToolIndex( tool ) );
 			if( !activeTool.isDisplayed() ) activeTool.callDisplay();
-			activeTool.requestFocus();
 		}
 	}
 

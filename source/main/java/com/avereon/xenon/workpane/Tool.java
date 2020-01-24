@@ -76,7 +76,7 @@ public abstract class Tool extends Control {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, ( e ) -> Platform.runLater( () ->getWorkpane().setActiveTool( this ) ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Platform.runLater( () -> getWorkpane().setActiveTool( this ) ) );
 	}
 
 	public Asset getAsset() {
@@ -245,12 +245,6 @@ public abstract class Tool extends Control {
 		builder.append( " }" );
 
 		return builder.toString();
-	}
-
-	@Override
-	public void requestFocus() {
-		super.requestFocus();
-		log.warn( "Focus requested on tool: " + this );
 	}
 
 	@Override
