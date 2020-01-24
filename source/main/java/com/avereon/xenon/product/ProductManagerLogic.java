@@ -534,11 +534,13 @@ public class ProductManagerLogic {
 			}
 
 			// Verify the product is installed
+			String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
 			Path installFolder = getProgram().getProductManager().getInstalledProductCard( updateCard ).getInstallFolder();
-			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
-			if( !installFolderValid ) {
-				log.warn( "Missing install folder: " + installFolder );
-				log.warn( "Product not installed:  " + updateCard );
+			if( installFolder == null ) {
+				// This situation happens in development when running a mod from the classpath
+				getProgram().getNoticeManager().warning( title, "install-folder-missing", updateCard );
+			} else if( !Files.exists( installFolder )) {
+				getProgram().getNoticeManager().warning( title, "product-not-installed", updateCard );
 				continue;
 			}
 
