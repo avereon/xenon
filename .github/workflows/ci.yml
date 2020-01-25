@@ -2,6 +2,7 @@ name: Avereon Xenon Continuous
 
 on:
   push:
+  pull_request:
   schedule:
     - cron: '0 12 * * *'
 
@@ -100,7 +101,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      #- name: Build Binaries - No Tests
+      #- name: Build Assemblies - No Tests
       #  run: |
       #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
@@ -154,7 +155,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      #- name: Build Binaries - No Tests
+      #- name: Build Assemblies - No Tests
       #  run: |
       #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
@@ -209,7 +210,7 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      #- name: Build Binaries - No Tests
+      #- name: Build Assemblies - No Tests
       #  run: |
       #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
