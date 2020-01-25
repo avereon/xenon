@@ -2,7 +2,11 @@ name: Avereon Xenon Continuous
 
 on:
   push:
+    branches:
+      - master
   pull_request:
+    branches:
+      - stable
   schedule:
     - cron: '0 12 * * *'
 
