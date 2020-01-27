@@ -46,6 +46,11 @@ public class ProductManagerLogic {
 
 	private V2RepoClient repoClient;
 
+	static {
+		PRODUCT_CONNECTION_ERROR.setGroup( Program.class.getPackageName() );
+		PRODUCT_CONNECTION_ERROR.setArtifact( "product-connection-error" );
+	}
+
 	public ProductManagerLogic( Program program ) {
 		this.program = program;
 		this.repoClient = new V2RepoClient( program );
