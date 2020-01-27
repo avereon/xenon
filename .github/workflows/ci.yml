@@ -66,9 +66,11 @@ jobs:
 
       - name: Deploy JavaDoc
         run: |
-          scp -B target/xenon-*-javadoc.jar travis@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};
           if [ $? -ne 0 ]; then exit 1; fi
-          ssh -t travis@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
+          scp -B target/${AVN_PRODUCT}-*-javadoc.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
 
   linux:
@@ -115,15 +117,15 @@ jobs:
 
       - name: Deploy Install Pack
         run: |
-          scp -B target/*install.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Pack
         run: |
-          scp -B target/*product.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Card
         run: |
-          scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
   macos:
     needs: build
@@ -169,15 +171,15 @@ jobs:
 
       - name: Deploy Install Pack
         run: |
-          scp -B target/*install.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Pack
         run: |
-          scp -B target/*product.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Card
         run: |
-          scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
   windows:
     needs: build
@@ -225,14 +227,14 @@ jobs:
       - name: Deploy Install Pack
         shell: bash
         run: |
-          scp -B target/*install.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Pack
         shell: bash
         run: |
-          scp -B target/*product.jar travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
 
       - name: Deploy Product Card
         shell: bash
         run: |
-          scp -B target/main/java/META-INF/*.card travis@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+          scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
