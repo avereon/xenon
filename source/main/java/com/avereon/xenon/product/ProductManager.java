@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 /**
@@ -1158,7 +1157,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Configure logging for the mod
 			Level level = LogUtil.convertToJavaLogLevel( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 			Logger slf4jLogger = LogUtil.get( mod.getClass().getPackageName() );
-			LogManager.getLogManager().getLogger( slf4jLogger.getName() ).setLevel( level );
+			// FIXME The following line causes the log file to be rewritten at unexpected times
+			//LogManager.getLogManager().getLogger( slf4jLogger.getName() ).setLevel( level );
 
 			// Initialize the mod
 			mod.init( program, card );
