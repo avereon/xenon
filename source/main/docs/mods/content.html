@@ -8,7 +8,7 @@ also that links are relative to the Avereon website or must be fully qualified.
 <div>
 
 	<h1>Mod Guide</h1>
-	<p>2019-12-06</p>
+	<p>Updated 2020-01-27</p>
 
 	<p>
 		This document is step-by-step instruction to create a Xenon mod. These
@@ -158,7 +158,7 @@ public class Mazer extends Mod {
   "version": "${project.version}",
   "timestamp": "${project.timestamp}",
   "packaging": "mod",
-  "iconUri": "&lt;https://www.avereon.com/download/stable/avereon/provider/icon&gt;",
+	"icons": [ "${project.artifactId}", "<https://www.avereon.com/download/stable/avereon/provider/icon&gt;" ],
   "name": "${project.name}",
   "provider": "${project.organization.name}",
   "providerUrl": "${project.organization.url}",
@@ -167,8 +167,6 @@ public class Mazer extends Mod {
   "description": "${project.description}",
   "copyrightSummary": "&lt;All rights reserved.&gt;",
   "licenseSummary": "&lt;${project.name} comes with ABSOLUTELY NO WARRANTY.&gt;,
-  "productUri": "&lt;https://www.example.com/download/product/pack&gt;",
-  "mainClass": "&lt;com.example.project.ExampleMod&gt;",
   "javaVersion": "11",
   "maintainers": [
   {
