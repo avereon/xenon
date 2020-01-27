@@ -241,6 +241,7 @@ public class ProductManagerLogic {
 					productSet.add( product );
 					log.info( "Product card loaded for " + product );
 				} catch( IOException | ExecutionException | InterruptedException exception ) {
+					// FIXME How to report this back to the user in a meaningful way?
 					productSet.add( PRODUCT_CONNECTION_ERROR );
 					exception.printStackTrace();
 				}
