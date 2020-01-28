@@ -14,6 +14,8 @@ public class ProgramEventWatcher implements EventHandler<Event> {
 	public void handle( Event event ) {
 		if( "PROGRESS".equals( event.getEventType().getName() ) ) {
 			log.trace( String.valueOf( event ) );
+		} else if( event instanceof ProgramEvent ) {
+			log.info( String.valueOf( event ) );
 //		} else if( event instanceof AssetEvent ) {
 //			log.warn( String.valueOf( event ) );
 		} else {
