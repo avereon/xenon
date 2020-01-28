@@ -198,7 +198,8 @@ public class Program extends Application implements ProgramProduct {
 		programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
-		LogUtil.configureLogging( this, parameters, programLogFolder, "program.log" );
+		LogUtil.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
+		LogUtil.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging

@@ -90,7 +90,7 @@ public class ProgramShutdownHook extends Thread {
 		String updaterModuleMainClass = com.avereon.zenna.Program.class.getName();
 
 		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
-		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.log" ) );
+		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.%u.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
 		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, null, updaterModuleMain, updaterModuleMainClass ) );

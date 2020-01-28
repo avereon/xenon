@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -190,6 +189,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		includedProducts.add( new com.avereon.zenna.Program().getCard() );
 	}
 
+	private Program getProgram() {
+		return program;
+	}
+
 	public ProgramEventBus getEventBus() {
 		return eventBus;
 	}
@@ -243,7 +246,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			lastAvailableProductCheck = System.currentTimeMillis();
 
 			try {
-				availableProducts = new ProductManagerLogic( program )
+				availableProducts = new ProductManagerLogic( getProgram() )
 					.getAvailableProducts( force )
 					.get()
 					.stream()
@@ -251,7 +254,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 					.collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
-				program.getNoticeManager().error( "Error getting available products", exception );
+				getProgram().getNoticeManager().error( "Error getting available products", exception );
 			}
 
 			return Set.of();
@@ -263,7 +266,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public Product getProduct( String productKey ) {
-		return productKey == null ? program : products.get( productKey );
+		return productKey == null ? getProgram() : products.get( productKey );
 	}
 
 	public Mod getMod( String productKey ) {
@@ -341,7 +344,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> downloads ) {
 		log.trace( "Number of products to install: " + downloads.size() );
-		return new ProductManagerLogic( program ).installProducts( downloads );
+		return new ProductManagerLogic( getProgram() ).installProducts( downloads );
 	}
 
 	public Task<Void> uninstallProducts( ProductCard... cards ) {
@@ -350,7 +353,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public Task<Void> uninstallProducts( Set<ProductCard> cards ) {
 		log.trace( "Number of products to remove: " + cards.size() );
-		return new ProductManagerLogic( program ).uninstallProducts( cards );
+		return new ProductManagerLogic( getProgram() ).uninstallProducts( cards );
 	}
 
 	public int getInstalledProductCount() {
@@ -425,7 +428,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	public boolean isEnabled( ProductCard card ) {
-		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
+		return getProgram().getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
 	public boolean isModEnabled( Mod mod ) {
@@ -443,14 +446,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Should be called before setting the enabled flag
 		if( !enabled ) callModShutdown( mod );
 
-		Settings settings = program.getSettingsManager().getProductSettings( mod.getCard() );
+		Settings settings = getProgram().getSettingsManager().getProductSettings( mod.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
 		log.trace( "Set mod enabled: " + settings.getPath() + ": " + enabled );
 		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
 		//		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
 		//			.fire( listeners )
-		//			.fire( program.getListeners() );
+		//			.fire( getProgram().getListeners() );
 
 		// Should be called after setting the enabled flag
 		if( enabled ) callModStart( mod );
@@ -502,7 +505,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// set, don't schedule update checks. This probably means there is a
 			// problem applying an update. Otherwise, it should be safe to schedule
 			// update checks.
-			if( !program.isProgramUpdated() && program.isUpdateInProgress() ) return;
+			if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
 
 			long now = System.currentTimeMillis();
 
@@ -570,11 +573,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public void checkForUpdates( boolean interactive ) {
 		if( !isEnabled() ) return;
-		new ProductManagerLogic( program ).checkForUpdates( interactive );
+		new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
 	}
 
 	public void checkForStagedUpdatesAtStart() {
-		if( program.getHomeFolder() == null ) {
+		if( getProgram().getHomeFolder() == null ) {
 			log.warn( "Program not running from updatable location." );
 			return;
 		}
@@ -603,11 +606,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		log.info( "Staged update count: " + stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
-		if( program.isUpdateInProgress() ) {
-			program.setUpdateInProgress( false );
+		if( getProgram().isUpdateInProgress() ) {
+			getProgram().setUpdateInProgress( false );
 			clearStagedUpdates();
 		} else {
-			new ProductManagerLogic( program ).notifyUpdatesReadyToApply( false );
+			new ProductManagerLogic( getProgram() ).notifyUpdatesReadyToApply( false );
 		}
 	}
 
@@ -626,11 +629,11 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			lastAvailableUpdateCheck = System.currentTimeMillis();
 
 			try {
-				availableUpdates = new ProductManagerLogic( program ).findPostedUpdates( force ).get();
+				availableUpdates = new ProductManagerLogic( getProgram() ).findPostedUpdates( force ).get();
 				return new HashSet<>( availableUpdates );
 			} catch( Exception exception ) {
 				log.error( "Error refreshing available updates", exception );
-				program.getNoticeManager().error( exception );
+				getProgram().getNoticeManager().error( exception );
 			}
 
 			return Set.of();
@@ -710,7 +713,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> program.requestUpdate() );
+		if( count > 0 ) Platform.runLater( () -> getProgram().requestUpdate() );
 
 		return count;
 	}
@@ -726,7 +729,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 */
 	public Task<Collection<ProductUpdate>> updateProducts( Set<DownloadRequest> updates, boolean interactive ) {
 		log.trace( "Number of products to update: " + updates.size() );
-		return new ProductManagerLogic( program ).stageAndApplyUpdates( updates, interactive );
+		return new ProductManagerLogic( getProgram() ).stageAndApplyUpdates( updates, interactive );
 	}
 
 	void clearStagedUpdates() {
@@ -736,7 +739,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	Void saveRemovedProducts( Collection<InstalledProduct> removedProducts ) {
-		Set<InstalledProduct> products = new HashSet<>( program.getProductManager().getStoredRemovedProducts() );
+		Set<InstalledProduct> products = new HashSet<>( getProgram().getProductManager().getStoredRemovedProducts() );
 		products.addAll( removedProducts );
 		getSettings().set( REMOVES_SETTINGS_KEY, products );
 		return null;
@@ -845,7 +848,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	protected boolean isEnabled() {
-		return !program.getParameters().getNamed().containsKey( ProgramFlag.NOUPDATE );
+		return !getProgram().getParameters().getNamed().containsKey( ProgramFlag.NOUPDATE );
 	}
 
 	@Override
@@ -872,8 +875,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		timer = new Timer( true );
 
 		// Define the module folders.
-		homeModuleFolder = program.getHomeFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
-		userModuleFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		homeModuleFolder = getProgram().getHomeFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		userModuleFolder = getProgram().getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
 
 		// Create the default module folders list.
 		List<Path> moduleFolders = new ArrayList<>();
@@ -881,7 +884,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		moduleFolders.add( getUserModuleFolder() );
 
 		// Check for module paths in the parameters.
-		List<String> modulePaths = program.getProgramParameters().getValues( "module" );
+		List<String> modulePaths = getProgram().getProgramParameters().getValues( "module" );
 		if( modulePaths != null ) {
 			for( String path : modulePaths ) {
 				Path folder = Paths.get( path );
@@ -1020,7 +1023,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		log.debug( "Mod unloaded from: " + source );
 
 		// Remove the product settings
-		program.getSettingsManager().getProductSettings( card ).delete();
+		getProgram().getSettingsManager().getProductSettings( card ).delete();
 	}
 
 	private void callModRegister( Mod mod ) {
@@ -1135,7 +1138,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 		} catch( Throwable throwable ) {
 			log.error( "Error loading standard mods: " + source, throwable );
-			program.getNoticeManager().error( throwable );
+			getProgram().getNoticeManager().error( throwable );
 		}
 	}
 
@@ -1155,13 +1158,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			}
 
 			// Configure logging for the mod
-			Level level = LogUtil.convertToJavaLogLevel( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
-			Logger slf4jLogger = LogUtil.get( mod.getClass().getPackageName() );
-			// FIXME The following line causes the log file to be rewritten at unexpected times
-			//LogManager.getLogManager().getLogger( slf4jLogger.getName() ).setLevel( level );
+			LogUtil.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 
 			// Initialize the mod
-			mod.init( program, card );
+			mod.init( getProgram(), card );
 
 			// Set the mod install folder
 			card.setInstallFolder( source );
