@@ -1191,6 +1191,8 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			// Notify handlers of remove
 			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
 
+			// TODO Disable logging for a mod that has been removed
+
 			log.debug( "Mod unloaded: " + message );
 		} catch( Throwable throwable ) {
 			log.error( "Error unloading mod " + message, throwable );
