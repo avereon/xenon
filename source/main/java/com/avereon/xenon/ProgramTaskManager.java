@@ -37,7 +37,9 @@ public class ProgramTaskManager extends TaskManager {
 
 	@Override
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
-		getProgram().getNoticeManager().error( throwable );
+		if( getProgram() == null ) return;
+		if( getProgram().getNoticeManager() == null ) return;
+		if( getProgram() != null ) getProgram().getNoticeManager().error( throwable );
 	}
 
 }
