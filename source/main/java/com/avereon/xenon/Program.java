@@ -199,6 +199,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Configure logging, depends on parameters and program data folder
 		LogUtil.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
+		LogUtil.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
 		LogUtil.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
 		time( "configure-logging" );
 
@@ -580,6 +581,8 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD TaskPool-worker
 	// EXCEPTIONS Handled by the Task framework
 	private void doStopSuccess() {
+		// Do not add this as a shutdown hook, it hangs the JVM.
+		new JvmSureStop( 5000 ).start();
 		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
 	}
 
@@ -651,6 +654,7 @@ public class Program extends Application implements ProgramProduct {
 		if( workspaceManager != null ) workspaceManager.hideWindows();
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
+
 		if( exiting ) Platform.exit();
 
 		return exiting;
