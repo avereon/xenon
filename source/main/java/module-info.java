@@ -9,8 +9,6 @@ module com.avereon.xenon {
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
-	requires javafx.controls;
-	requires javafx.swing;
 	requires jdk.crypto.ec;
 	requires miglayout.javafx;
 	requires org.controlsfx.controls;
@@ -18,6 +16,11 @@ module com.avereon.xenon {
 	requires org.slf4j.jul;
 	requires transitive com.avereon.venza;
 	requires transitive com.avereon.zevra;
+	requires transitive javafx.controls;
+	requires transitive javafx.graphics;
+	requires transitive javafx.fxml;
+	requires transitive javafx.swing;
+	requires transitive javafx.web;
 
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.asset;

@@ -116,7 +116,19 @@
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
 			<version>${javafx.version}</version>
 		</dependency>
 
@@ -128,27 +140,7 @@
 				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-base</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-controls</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-graphics</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-swing</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-fxml</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-web</artifactId>
+					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -157,6 +149,13 @@
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
 			<version>${miglayout.version}</version>
+			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -170,6 +169,13 @@
 			<artifactId>testfx-core</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -195,27 +201,7 @@
 				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-base</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-controls</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-graphics</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-swing</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-fxml</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-web</artifactId>
+					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
