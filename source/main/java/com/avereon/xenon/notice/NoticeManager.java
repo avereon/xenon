@@ -8,6 +8,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
+import com.avereon.xenon.task.TaskException;
 import com.avereon.xenon.tool.notice.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
@@ -39,11 +40,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void error( Throwable throwable ) {
-		error( throwable.getClass().getSimpleName(), throwable.getMessage(), throwable );
+		error( getThrowableTitle( throwable ), getThrowableMessage( throwable ), throwable );
 	}
 
 	public void error( Object message, Throwable throwable, Object... parameters ) {
-		error( throwable.getClass().getSimpleName(), message, throwable, parameters );
+		error( getThrowableTitle( throwable ), message, throwable, parameters );
 	}
 
 	public void error( Object title, Object message, Object... parameters ) {
@@ -59,11 +60,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void warning( Throwable throwable ) {
-		warning( throwable.getClass().getSimpleName(), throwable.getMessage(), throwable );
+		warning( getThrowableTitle( throwable ), getThrowableMessage( throwable ), throwable );
 	}
 
 	public void warning( Object message, Throwable throwable, Object... parameters ) {
-		warning( throwable.getClass().getSimpleName(), message, throwable, parameters );
+		warning( getThrowableTitle( throwable ), message, throwable, parameters );
 	}
 
 	public void warning( Object title, Object message, Throwable throwable, Object... parameters ) {
@@ -93,14 +94,6 @@ public class NoticeManager implements Controllable<NoticeManager> {
 				updateUnreadCount();
 			}
 		} );
-	}
-
-	private void error( Notice notice ) {
-		log.error( notice.getFormattedMessage(), notice.getThrowable() );
-	}
-
-	private void warning( Notice notice ) {
-		log.warn( notice.getFormattedMessage(), notice.getThrowable() );
 	}
 
 	public void removeNotice( Notice notice ) {
@@ -161,6 +154,24 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		// TODO Unregister an event listener to show unread messages when there is an active workspace
 		program.getAssetManager().saveAssets( asset );
 		return this;
+	}
+
+	private String getThrowableTitle( Throwable throwable ) {
+		if( throwable instanceof TaskException ) throwable = throwable.getCause();
+		return throwable.getClass().getSimpleName();
+	}
+
+	private String getThrowableMessage( Throwable throwable ) {
+		if( throwable instanceof TaskException ) throwable = throwable.getCause();
+		return throwable.getLocalizedMessage();
+	}
+
+	private void error( Notice notice ) {
+		log.error( notice.getFormattedMessage(), notice.getThrowable() );
+	}
+
+	private void warning( Notice notice ) {
+		log.warn( notice.getFormattedMessage(), notice.getThrowable() );
 	}
 
 	private NoticeList getNoticeList() {

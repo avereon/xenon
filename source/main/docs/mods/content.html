@@ -264,4 +264,18 @@ public class Mazer extends Mod {
 		program notice in the Notice tool or check the program log file for errors.
 	</p>
 	<img src="images/xenon-about-tool-mods.png" srcSet="" alt="Xenon About tool showing mods"/>
+	<h2 id="mod-common-problems">Common Problems</h2>
+	<h3>Missing Resource Exception</h3>
+	<p>
+		If you encounter a MissingResourceException, especially when first using
+		resource bundles in your mod, it is usually caused due to a missing
+		<code>opens</code> statement in the module-info.java file. Be sure to open
+		all resource bundle packages.
+	</p>
+	<p>Here is an example using the Mazer project:</p>
+	<pre>module mazer {
+  ...
+  opens com.avereon.mazer.bundles;
+  ...
+}</pre>
 </div>
