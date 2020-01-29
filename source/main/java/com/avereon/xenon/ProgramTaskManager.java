@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
+import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 
 public class ProgramTaskManager extends TaskManager {
@@ -32,6 +33,11 @@ public class ProgramTaskManager extends TaskManager {
 		if( getProgram() == null ) throw new RuntimeException( "Program cannot be null" );
 		if( getProgram().getSettingsManager() == null ) throw new RuntimeException( "SettingsManager cannot be null" );
 		return getProgram().getSettingsManager().getSettings( ManagerSettings.TASK );
+	}
+
+	@Override
+	protected void taskFailed( Task<?> task, Throwable throwable ) {
+		getProgram().getNoticeManager().error( throwable );
 	}
 
 }

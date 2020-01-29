@@ -38,7 +38,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		HIGH
 	}
 
-	public static final long INDETERMINATE_PROGRESS = -1;
+	public static final long INDETERMINATE = -1;
 
 	private final Object stateLock = new Object();
 
@@ -56,7 +56,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private TaskManager manager;
 
-	private long total = INDETERMINATE_PROGRESS;
+	private long total = INDETERMINATE;
 
 	private long progress;
 
@@ -78,7 +78,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		super( taskCallable );
 		this.name = name;
 		this.priority = priority;
-		exceptionSource = new TaskSourceWrapper();
+		exceptionSource = new TaskException();
 		eventBus = new ProgramEventBus();
 		taskCallable.setCallable( this );
 	}
@@ -113,7 +113,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	}
 
 	public double getPercent() {
-		if( total == INDETERMINATE_PROGRESS ) return INDETERMINATE_PROGRESS;
+		if( total == INDETERMINATE ) return INDETERMINATE;
 		return Math.max( 0.0, Math.min( 1.0, (double)progress / (double)total ) );
 	}
 
@@ -248,7 +248,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	protected void cancelled() {}
 
 	protected void failed() {
-		log.error( "Task failed", getException() );
+		getTaskManager().taskFailed( this, getException() );
 	}
 
 	void setTaskManager( TaskManager manager ) {
@@ -293,9 +293,9 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 		private Callable<T> callable;
 
-		TaskCallable() {}
+		private TaskCallable() {}
 
-		void setCallable( Callable<T> callable ) {
+		private void setCallable( Callable<T> callable ) {
 			this.callable = callable;
 		}
 

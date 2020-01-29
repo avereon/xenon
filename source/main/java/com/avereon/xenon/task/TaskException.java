@@ -2,9 +2,9 @@ package com.avereon.xenon.task;
 
 import java.util.Arrays;
 
-public class TaskSourceWrapper extends RuntimeException {
+public class TaskException extends RuntimeException {
 
-	public TaskSourceWrapper(){
+	public TaskException() {
 		super();
 		setStackTrace( trimStackTrace() );
 	}
@@ -14,11 +14,21 @@ public class TaskSourceWrapper extends RuntimeException {
 		String className = Task.class.getName();
 		StackTraceElement[] elements = getStackTrace();
 
-		while( className.equals( elements[index].getClassName() ) ) {
+		while( className.equals( elements[ index ].getClassName() ) ) {
 			index++;
 		}
 
 		return Arrays.copyOfRange( elements, index, elements.length );
+	}
+
+	@Override
+	public String getMessage() {
+		return getCause().getMessage();
+	}
+
+	@Override
+	public String getLocalizedMessage() {
+		return getCause().getLocalizedMessage();
 	}
 
 }

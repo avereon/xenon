@@ -146,16 +146,14 @@ public class TaskManager implements Controllable<TaskManager> {
 	public TaskManager start() {
 		if( isRunning() ) return this;
 		LinkedBlockingQueue<Runnable> sharedQueue = new LinkedBlockingQueue<>();
-		executorP3 = new TaskManagerExecutor(
-			Task.Priority.LOW,
+		executorP3 = new TaskManagerExecutor( Task.Priority.LOW,
 			p3ThreadCount,
 			getThreadIdleTimeout(),
 			TimeUnit.MILLISECONDS,
 			sharedQueue,
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY )
 		);
-		executorP2 = new TaskManagerExecutor(
-			Task.Priority.MEDIUM,
+		executorP2 = new TaskManagerExecutor( Task.Priority.MEDIUM,
 			p2ThreadCount,
 			getThreadIdleTimeout(),
 			TimeUnit.MILLISECONDS,
@@ -163,8 +161,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			new TaskThreadFactory( this, group, Thread.MIN_PRIORITY + 1 ),
 			executorP3
 		);
-		executorP1 = new TaskManagerExecutor(
-			Task.Priority.HIGH,
+		executorP1 = new TaskManagerExecutor( Task.Priority.HIGH,
 			p1ThreadCount,
 			getThreadIdleTimeout(),
 			TimeUnit.MILLISECONDS,
@@ -188,6 +185,10 @@ public class TaskManager implements Controllable<TaskManager> {
 			// Intentionally ignore exception
 		}
 		return this;
+	}
+
+	protected void taskFailed( Task<?> task, Throwable throwable ) {
+		log.error( "Task failed", throwable );
 	}
 
 	int getP1ThreadCount() {
@@ -263,7 +264,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		}
 
 		public <T> Task<T> submit( Task<T> task ) {
-			if( backup != null  ) {
+			if( backup != null ) {
 				if( task.getPriority().ordinal() < priority.ordinal() ) return backup.submit( task );
 				if( getCorePoolSize() - getActiveCount() < 1 ) return backup.submit( task );
 			}
