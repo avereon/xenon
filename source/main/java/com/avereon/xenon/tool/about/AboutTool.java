@@ -345,12 +345,8 @@ public class AboutTool extends GuidedTool {
 		ProductCard metadata = program.getCard();
 		StringBuilder builder = new StringBuilder();
 
-		// Framework summary
-		builder.append( getHeader( "Program: " + metadata.getName() + " " + metadata.getVersion() ) );
-
 		// Program details
-		builder.append( "\n" );
-		builder.append( getHeader( "Program details" ) );
+		builder.append( getHeader( "Program: " + metadata.getName() + " " + metadata.getVersion() ) );
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getProductDetails( program.getCard() ), 4, " " ) );
 		builder.append( "\n" );
@@ -408,6 +404,12 @@ public class AboutTool extends GuidedTool {
 		builder.append( getHeader( "Threads" ) );
 		builder.append( "\n" );
 		builder.append( Indenter.indent( getThreadDetail(), 4, " " ) );
+
+		// Java modules
+		builder.append( "\n" );
+		builder.append( getHeader( "Java modules" ) );
+		builder.append( "\n" );
+		builder.append( Indenter.indent( getJavaModuleDetail(), 4, " " ) );
 
 		// System properties
 		builder.append( "\n" );
@@ -594,6 +596,17 @@ public class AboutTool extends GuidedTool {
 			builder.append( thread.getThreadName() );
 			builder.append( "\n" );
 		}
+
+		return builder.toString();
+	}
+
+	private String getJavaModuleDetail() {
+		StringBuilder builder = new StringBuilder();
+
+		// Java modules
+		ModuleLayer.boot().modules().stream().map( Module::getName ).sorted().forEach( n -> {
+			builder.append( n ).append( "\n" );
+		} );
 
 		return builder.toString();
 	}
