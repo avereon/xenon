@@ -1131,7 +1131,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 		// Create the mod module layer
 		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), ModuleFinder.of( source ), Set.of() );
-		ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, null );
+		ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
 
 		// Load the mods
 		try {
