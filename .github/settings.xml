@@ -27,7 +27,7 @@
 			<id>avn-mirror</id>
 			<name>Mirror to Avereon Maven Repository</name>
 			<url>https://repo.avereon.com/avn</url>
-			<mirrorOf>avn*</mirrorOf>
+			<mirrorOf>*,!central</mirrorOf>
 		</mirror>
 		<mirror>
 			<id>central-mirror</id>
