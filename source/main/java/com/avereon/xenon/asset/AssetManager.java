@@ -1357,9 +1357,10 @@ public class AssetManager implements Controllable<AssetManager> {
 		public ProgramTool call() throws Exception {
 			// Create and configure the asset
 			Codec codec = request.getCodec();
+			Object model = request.getModel();
 			Asset asset = createAsset( request.getType(), request.getUri() );
 			if( codec != null ) asset.setCodec( codec );
-			asset.setModel( request.getModel() );
+			if( model != null ) asset.setModel( model );
 
 			// Open the asset
 			openAssetsAndWait( asset );
