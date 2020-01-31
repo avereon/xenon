@@ -10,9 +10,7 @@ public class OpenAssetRequest {
 
 	private AssetType type;
 
-	private String query;
-
-	private String fragment;
+	private Object model;
 
 	private Codec codec;
 
@@ -37,6 +35,16 @@ public class OpenAssetRequest {
 
 	public OpenAssetRequest setType( AssetType type ) {
 		this.type = type;
+		return this;
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public <M> M getModel() {
+		return (M)model;
+	}
+
+	public <M> OpenAssetRequest setModel( M model ) {
+		this.model = model;
 		return this;
 	}
 

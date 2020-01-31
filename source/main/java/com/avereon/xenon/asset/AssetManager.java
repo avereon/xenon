@@ -54,6 +54,8 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, AssetType> assetTypesByTypeKey;
 
+	private final Map<Class<? extends AssetType>, AssetType> assetTypesByClass;
+
 	private final Map<URI, AssetType> uriAssetTypes;
 
 	private final Map<String, AssetType> schemeAssetTypes;
@@ -94,6 +96,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		identifiedAssets = new ConcurrentHashMap<>();
 		schemes = new ConcurrentHashMap<>();
 		assetTypesByTypeKey = new ConcurrentHashMap<>();
+		assetTypesByClass = new ConcurrentHashMap<>();
 		uriAssetTypes = new ConcurrentHashMap<>();
 		schemeAssetTypes = new ConcurrentHashMap<>();
 		registeredFileNames = new ConcurrentHashMap<>();
@@ -249,9 +252,16 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param key The asset type key
 	 * @return The asset type associated to the key
 	 */
+	@Deprecated
 	public AssetType getAssetType( String key ) {
 		AssetType type = assetTypesByTypeKey.get( key );
 		if( type == null ) log.warn( "Asset type not found: " + key );
+		return type;
+	}
+
+	public AssetType getAssetType( Class<? extends AssetType> assetTypeClass ) {
+		AssetType type = assetTypesByTypeKey.get( assetTypeClass.getName() );
+		if( type == null ) log.warn( "Asset type not found: " + assetTypeClass.getName() );
 		return type;
 	}
 
@@ -354,17 +364,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		return newAsset( type, true, true );
 	}
 
-	/**
-	 * This method starts the process of creating a new asset by asset type. The
-	 * returned future allows the caller to get the tool created for the new
-	 * asset. It is possible that a tool was not created for the asset, in which
-	 * case the tool is null.
-	 *
-	 * @param type The new asset type
-	 * @return The future to get the new asset tool
-	 */
-	public Future<ProgramTool> newAsset( AssetType type, boolean openTool, boolean setActive ) {
-		return newAsset( type, null, openTool, setActive );
+	public Future<ProgramTool> newAsset( Class<? extends AssetType> assetTypeClass ) {
+		return newAsset( getAssetType( assetTypeClass ), true, true );
+	}
+
+	public Future<ProgramTool> newAsset( Class<? extends AssetType> assetTypeClass, Object model ) {
+		return newAsset( getAssetType( assetTypeClass ), model, null, true, true );
 	}
 
 	/**
@@ -376,10 +381,24 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param type The new asset type
 	 * @return The future to get the new asset tool
 	 */
-	private Future<ProgramTool> newAsset( AssetType type, WorkpaneView view, boolean openTool, boolean setActive ) {
+	public Future<ProgramTool> newAsset( AssetType type, boolean openTool, boolean setActive ) {
+		return newAsset( type, null, null, openTool, setActive );
+	}
+
+	/**
+	 * This method starts the process of creating a new asset by asset type. The
+	 * returned future allows the caller to get the tool created for the new
+	 * asset. It is possible that a tool was not created for the asset, in which
+	 * case the tool is null.
+	 *
+	 * @param type The new asset type
+	 * @return The future to get the new asset tool
+	 */
+	private Future<ProgramTool> newAsset( AssetType type, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( null );
 		request.setType( type );
+		request.setModel( model );
 		request.setView( view );
 		request.setOpenTool( openTool );
 		request.setSetActive( setActive );
@@ -1340,6 +1359,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			Codec codec = request.getCodec();
 			Asset asset = createAsset( request.getType(), request.getUri() );
 			if( codec != null ) asset.setCodec( codec );
+			asset.setModel( request.getModel() );
 
 			// Open the asset
 			openAssetsAndWait( asset );

@@ -257,6 +257,14 @@
 	-fx-font: 1em monospaced;
 }
 
+#tool-fault .text-area {
+	-fx-background-color: transparent;
+}
+
+#tool-fault-text {
+	-fx-font: 1em monospaced;
+}
+
 #tool-product-page-header {
 	-fx-background-insets: 0 0 1mm 0;
 	-fx-background-color: -ex-background-text;

@@ -87,10 +87,12 @@ public class Notice extends Node {
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
 		setValue( THROWABLE, throwable );
-		setValue( ACTION, action );
-		setValue( TYPE, Type.NORM );
 		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
 		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
+
+		setType( Type.NORM );
+		setAction( action );
+
 		setModified( false );
 	}
 
@@ -116,6 +118,11 @@ public class Notice extends Node {
 
 	public Runnable getAction() {
 		return getValue( ACTION );
+	}
+
+	public Notice setAction( Runnable action ) {
+		setValue( ACTION, action );
+		return this;
 	}
 
 	public Type getType() {

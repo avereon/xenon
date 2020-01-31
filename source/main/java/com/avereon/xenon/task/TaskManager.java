@@ -85,7 +85,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		if( existing != null ) return existing;
 
 		task.setState( Task.State.SCHEDULED );
-		return executorP1.submit( task );
+		return executorP1 == null ? null : executorP1.submit( task );
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -182,7 +182,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			if( executorP2 != null ) executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			if( executorP1 != null ) executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} catch( InterruptedException exception ) {
-			// Intentionally ignore exception
+			log.error( "Error waiting for executor termination", exception );
 		}
 		return this;
 	}

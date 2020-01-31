@@ -7,6 +7,7 @@ import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
+import com.avereon.xenon.asset.type.ProgramFaultType;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.task.TaskException;
 import com.avereon.xenon.tool.notice.NoticeTool;
@@ -52,7 +53,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void error( Object title, Object message, Throwable throwable, Object... parameters ) {
-		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.ERROR ).setBalloonStickiness( Notice.Balloon.ALWAYS ) );
+		fault( title, message, throwable, Notice.Type.ERROR, parameters );
 	}
 
 	public void warning( Object title, Object message, Object... parameters ) {
@@ -68,7 +69,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void warning( Object title, Object message, Throwable throwable, Object... parameters ) {
-		addNotice( new Notice( title, message, throwable, parameters ).setType( Notice.Type.WARN ) );
+		fault( title, message, throwable, Notice.Type.WARN, parameters );
+	}
+
+	private void fault( Object title, Object message, Throwable throwable, Notice.Type type, Object... parameters ) {
+		Notice notice = new Notice( title, message, throwable, parameters ).setType( type );
+		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
+		notice.setAction( () -> getProgram().getAssetManager().newAsset( ProgramFaultType.class, throwable ) );
+		addNotice( notice );
 	}
 
 	public void addNotice( Notice notice ) {

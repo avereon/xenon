@@ -25,6 +25,7 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolInstanceMode;
 import com.avereon.xenon.tool.ToolRegistration;
 import com.avereon.xenon.tool.about.AboutTool;
+import com.avereon.xenon.tool.about.FaultTool;
 import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.notice.NoticeTool;
 import com.avereon.xenon.tool.product.ProductTool;
@@ -1058,6 +1059,7 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "settings", SettingsIcon.class );
 
 		getIconLibrary().register( "guide", GuideIcon.class );
+		getIconLibrary().register( "fault", FaultIcon.class );
 
 		getIconLibrary().register( "welcome", WelcomeIcon.class );
 		getIconLibrary().register( "help-content", QuestionIcon.class );
@@ -1169,9 +1171,13 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriAssetType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
 		manager.registerUriAssetType( ProgramProductType.URI, new ProgramProductType( this ) );
 		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
+
+		manager.registerSchemeAssetType( "fault", new ProgramFaultType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.unregisterSchemeAssetType( "fault" );
+
 		manager.unregisterUriAssetType( ProgramTaskType.URI );
 		manager.unregisterUriAssetType( ProgramProductType.URI );
 		manager.unregisterUriAssetType( ProgramNoticeType.URI );
@@ -1189,6 +1195,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramFaultType.class, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
 
 		toolManager.addToolAlias( "com.xeomar.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.xeomar.xenon.tool.guide.GuideTool", GuideTool.class );
@@ -1200,6 +1207,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		unregisterTool( manager, ProgramFaultType.class, FaultTool.class );
 		unregisterTool( manager, ProgramTaskType.class, TaskTool.class );
 		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
 		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
