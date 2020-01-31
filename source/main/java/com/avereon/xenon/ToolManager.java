@@ -5,6 +5,7 @@ import com.avereon.product.Product;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.LogUtil;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.AssetType;
@@ -28,8 +29,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-
-//import javafx.concurrent.Task;
 
 public class ToolManager implements Controllable<ToolManager> {
 
@@ -269,11 +268,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			return null;
 		} );
 
-		if( Platform.isFxApplicationThread() ) {
-			createToolTask.run();
-		} else {
-			Platform.runLater( createToolTask );
-		}
+		FxUtil.runLater( createToolTask );
 
 		try {
 			return createToolTask.get( 10, TimeUnit.SECONDS );
