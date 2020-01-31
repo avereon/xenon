@@ -117,15 +117,17 @@ public class ToolManager implements Controllable<ToolManager> {
 			final ProgramTool finalTool = tool;
 			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
-		} else {
-			tool = getToolInstance( request );
 		}
 
-		// Verify there is a tool to use
-		if( tool == null ) {
+		try {
+			tool = getToolInstance( request ).get( 10, TimeUnit.SECONDS );
+		} catch( NoToolRegisteredException exception ) {
 			String title = program.rb().text( "program", "no-tool-for-asset-title" );
 			String message = program.rb().text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
 			program.getNoticeManager().warning( title, message, asset.getName() );
+			return null;
+		} catch( Exception exception ) {
+			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
 			return null;
 		}
 
@@ -174,11 +176,14 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		openToolRequest.setToolClass( toolRegistration.getType() );
 
-		ProgramTool tool = getToolInstance( openToolRequest );
-
-		if( tool != null ) scheduleAssetReady( openToolRequest, tool );
-
-		return tool;
+		try {
+			ProgramTool tool = getToolInstance( openToolRequest ).get( 10, TimeUnit.SECONDS );
+			scheduleAssetReady( openToolRequest, tool );
+			return tool;
+		} catch( Exception exception ) {
+			log.error( "Error creating tool: " + openToolRequest.getToolClass().getName(), exception );
+			return null;
+		}
 	}
 
 	private ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
@@ -240,42 +245,41 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	// Safe to call on any thread
-	private ProgramTool getToolInstance( OpenToolRequest request ) {
+	private Task<ProgramTool> getToolInstance( OpenToolRequest request ) throws NoToolRegisteredException {
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
+		// In order for this to be safe on any thread a task needs to be created
+		// that is then run on the FX platform thread and the result obtained on
+		// the calling thread.
 		String taskName = program.rb().text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
 		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
-			// Have to have a ProductTool to support modules
-			try {
-				// Create the new tool instance
-				Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
-				ProgramTool tool = constructor.newInstance( product, asset );
+			// Create the new tool instance
+			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
+			ProgramTool tool = constructor.newInstance( product, asset );
 
-				// Set the id before using settings
-				tool.setUid( request.getId() == null ? IdGenerator.getId() : request.getId() );
-				tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
-				tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
-				if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
-				addToolListenerForSettings( tool );
-				log.debug( "Tool instance created: " + tool.getClass().getName() );
-				return tool;
-			} catch( Exception exception ) {
-				log.error( "Error creating instance: " + toolClass.getName(), exception );
-			}
-
-			return null;
+			// Set the id before using settings
+			tool.setUid( request.getId() == null ? IdGenerator.getId() : request.getId() );
+			tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
+			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
+			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
+			addToolListenerForSettings( tool );
+			log.debug( "Tool instance created: " + tool.getClass().getName() );
+			return tool;
 		} );
 
+		// Run the task on the FX platform thread
 		FxUtil.runLater( createToolTask );
 
-		try {
-			return createToolTask.get( 10, TimeUnit.SECONDS );
-		} catch( Exception exception ) {
-			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
-			return null;
-		}
+		// Obtain the result on the calling thread
+//		try {
+//			return createToolTask.get( 10, TimeUnit.SECONDS );
+//		} catch( Exception exception ) {
+//			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
+//			return null;
+//		}
+		return createToolTask;
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
@@ -285,7 +289,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
 		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
 		tool.addEventHandler( ToolEvent.DEACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", null ) );
-		tool.addEventHandler( ToolEvent.CLOSED, e -> ((ProgramTool)e.getTool()).getSettings().delete());
+		tool.addEventHandler( ToolEvent.CLOSED, e -> ((ProgramTool)e.getTool()).getSettings().delete() );
 	}
 
 	/**
