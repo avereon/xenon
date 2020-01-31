@@ -84,8 +84,11 @@ public class TaskManager implements Controllable<TaskManager> {
 		Task<T> existing = getExisting( task );
 		if( existing != null ) return existing;
 
+		if( executorP1 == null ) return null;
+		//if( executorP1 == null ) throw new IllegalStateException( "Task manager not running" );
+
 		task.setState( Task.State.SCHEDULED );
-		return executorP1 == null ? null : executorP1.submit( task );
+		return executorP1.submit( task );
 	}
 
 	@SuppressWarnings( "unchecked" )

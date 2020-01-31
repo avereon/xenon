@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskManagerTest extends BaseTaskTest {
@@ -173,17 +174,12 @@ public class TaskManagerTest extends BaseTaskTest {
 		MockTask task = new MockTask( manager );
 		assertThat( task.getState(), is( Task.State.READY ) );
 
-		try {
-			manager.submit( task );
-			fail( "TaskManager.submit() should throw and exception if the manager is not running" );
-		} catch( Exception exception ) {
-			assertThat( exception, instanceOf( Exception.class ) );
-		}
+		assertNull( manager.submit( task ) );
 
 		assertThat( manager.isRunning(), is( false ) );
 		assertThat( task.isDone(), is( false ) );
 		assertThat( task.isCancelled(), is( false ) );
-		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 	}
 
 	@Test
