@@ -152,7 +152,7 @@ class ProductPane extends MigPane {
 		boolean isInstalled = manager.isInstalled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
 		boolean inProgress = manager.getStatus( source ) == ProductStatus.DOWNLOADING;
 		boolean isDownloaded = manager.getStatus( source ) == ProductStatus.DOWNLOADED;
-		boolean isAnyUpdateStaged = manager.isUpdateStaged( source );
+		boolean isUpdateStaged = manager.isUpdateStaged( source );
 		boolean isInstalledProductsPanel = FxUtil.isChildOf( this, tool.getInstalledPage() );
 		boolean isAvailableProductsPanel = FxUtil.isChildOf( this, tool.getAvailablePage() );
 		boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, tool.getUpdatesPage() );
@@ -167,7 +167,7 @@ class ProductPane extends MigPane {
 				stateLabelKey = "disabled";
 			} else if( isUpdatableProductsPanel ) {
 				if( isDownloaded ) {
-					stateLabelKey = "downloaded";
+					stateLabelKey = "restart-required";
 				} else {
 					stateLabelKey = "available";
 				}
@@ -177,7 +177,7 @@ class ProductPane extends MigPane {
 				stateLabelKey = "enabled";
 			}
 		}
-		if( isAnyUpdateStaged ) {
+		if( isUpdateStaged ) {
 			stateLabelKey = "restart-required";
 			if( update != null && !isSpecificUpdateReleaseStaged ) stateLabelKey = "update-available";
 		}
