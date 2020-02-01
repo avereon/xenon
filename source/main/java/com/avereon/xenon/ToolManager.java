@@ -76,13 +76,13 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @return The tool for the request or null if a tool was not created
 	 * @apiNote Should be called from a {@link TaskManager} thread
 	 */
-	public ProgramTool openTool( OpenToolRequest request ) {
+	public ProgramTool openTool( OpenToolRequest request ) throws NoToolRegisteredException {
 		// Check the calling thread
 		TaskManager.taskThreadCheck();
 
 		// Verify the request parameters
 		Asset asset = request.getAsset();
-		if( asset == null ) throw new NullPointerException( "asset cannot be null" );
+		if( asset == null ) throw new NullPointerException( "Asset cannot be null" );
 
 		// Get the asset type to look up the registered tool classes
 		AssetType assetType = asset.getType();
@@ -90,7 +90,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Determine which tool class will be used
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		if( toolClass == null ) toolClass = determineToolClassForAssetType( assetType );
-		if( toolClass == null ) throw new NullPointerException( "No tools registered for: " + assetType );
+		if( toolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
 		request.setToolClass( toolClass );
 
 		// Check that the tool is registered
@@ -121,11 +121,6 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		try {
 			tool = getToolInstance( request ).get( 10, TimeUnit.SECONDS );
-		} catch( NoToolRegisteredException exception ) {
-			String title = program.rb().text( "program", "no-tool-for-asset-title" );
-			String message = program.rb().text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
-			program.getNoticeManager().warning( title, message, asset.getName() );
-			return null;
 		} catch( Exception exception ) {
 			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
 			return null;
@@ -245,7 +240,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	// Safe to call on any thread
-	private Task<ProgramTool> getToolInstance( OpenToolRequest request ) throws NoToolRegisteredException {
+	private Task<ProgramTool> getToolInstance( OpenToolRequest request ) {
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
@@ -272,13 +267,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		// Run the task on the FX platform thread
 		FxUtil.runLater( createToolTask );
 
-		// Obtain the result on the calling thread
-//		try {
-//			return createToolTask.get( 10, TimeUnit.SECONDS );
-//		} catch( Exception exception ) {
-//			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
-//			return null;
-//		}
+		// Return the task
 		return createToolTask;
 	}
 

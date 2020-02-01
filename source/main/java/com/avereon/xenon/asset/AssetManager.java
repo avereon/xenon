@@ -1367,7 +1367,15 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( !asset.isOpen() || !isManagedAssetOpen( asset ) ) return null;
 
 			// Create the tool if needed
-			ProgramTool tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
+			ProgramTool tool;
+			try {
+				tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
+			} catch( NoToolRegisteredException exception ) {
+				String title = program.rb().text( "program", "no-tool-for-asset-title" );
+				String message = program.rb().text( "program", "no-tool-for-asset-message", asset.getUri().toString() );
+				program.getNoticeManager().warning( title, message, asset.getName() );
+				return null;
+			}
 
 			// Start loading the asset after the tool has been created
 			if( !asset.isLoaded() ) loadAssets( asset );
