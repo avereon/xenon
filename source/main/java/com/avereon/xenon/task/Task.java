@@ -248,7 +248,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	protected void cancelled() {}
 
 	protected void failed() {
-		getTaskManager().taskFailed( this, getException() );
+		TaskManager manager = getTaskManager();
+		if( manager != null ) manager.taskFailed( this, getException() );
 	}
 
 	void setTaskManager( TaskManager manager ) {
