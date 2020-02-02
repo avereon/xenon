@@ -4,7 +4,6 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.LogUtil;
 import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
@@ -19,7 +18,6 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.application.Platform;
-import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
@@ -30,9 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.System.Logger.Level.*;
+
 public class ToolManager implements Controllable<ToolManager> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
 
 	private Program program;
 
@@ -56,7 +56,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		log.debug( "Tool registered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
+		log.log( DEBUG, "Tool registered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
 	}
 
 	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
@@ -65,7 +65,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( assetType );
 		if( assetTypeTools != null ) assetTypeTools.remove( type );
 
-		log.debug( "Tool unregistered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
+		log.log( DEBUG, "Tool unregistered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		try {
 			tool = getToolInstance( request ).get( 10, TimeUnit.SECONDS );
 		} catch( Exception exception ) {
-			log.error( "Error creating tool: " + request.getToolClass().getName(), exception );
+			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
 			return null;
 		}
 
@@ -165,7 +165,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		// Check for unregistered tool type
 		if( toolRegistration == null ) {
-			log.error( "Tool class not registered: " + toolClassName );
+			log.log( ERROR, "Tool class not registered: " + toolClassName );
 			return null;
 		}
 
@@ -176,7 +176,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			scheduleAssetReady( openToolRequest, tool );
 			return tool;
 		} catch( Exception exception ) {
-			log.error( "Error creating tool: " + openToolRequest.getToolClass().getName(), exception );
+			log.log( ERROR, "Error creating tool: " + openToolRequest.getToolClass().getName(), exception );
 			return null;
 		}
 	}
@@ -192,14 +192,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 		if( toolClasses == null ) {
 			// There are no registered tools for the asset type
-			log.warn( "No tools registered for asset type {}", assetType.getKey() );
+			log.log( WARNING, "No tools registered for asset type {}", assetType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
-			log.debug( "One tool registered for asset type {}", assetType.getKey() );
+			log.log( DEBUG, "One tool registered for asset type {}", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		} else {
 			// There is more than one tool registered for the asset type
-			log.warn( "Multiple tools registered for asset type {}", assetType.getKey() );
+			log.log( WARNING, "Multiple tools registered for asset type {}", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		}
 		return toolClass;
@@ -260,7 +260,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
 			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
 			addToolListenerForSettings( tool );
-			log.debug( "Tool instance created: " + tool.getClass().getName() );
+			log.log( DEBUG, "Tool instance created: " + tool.getClass().getName() );
 			return tool;
 		} );
 

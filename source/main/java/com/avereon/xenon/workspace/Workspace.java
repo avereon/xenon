@@ -30,11 +30,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Workspace implements Configurable {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final System.Logger log = LogUtil.log();
 
 	private Program program;
 
