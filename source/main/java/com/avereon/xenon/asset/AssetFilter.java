@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.xenon.node.DataFilter;
+import com.avereon.data.DataFilter;
 
 /**
  * <p>

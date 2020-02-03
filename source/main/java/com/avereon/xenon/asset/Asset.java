@@ -7,14 +7,13 @@ import com.avereon.undo.UndoManager;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.node.Node;
-import com.avereon.xenon.node.NodeEvent;
+import com.avereon.data.Node;
+import com.avereon.data.NodeEvent;
 import com.avereon.xenon.scheme.AssetScheme;
-import com.avereon.xenon.transaction.TxnEvent;
+import com.avereon.transaction.TxnEvent;
 import com.avereon.xenon.util.ProgramEventBus;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;

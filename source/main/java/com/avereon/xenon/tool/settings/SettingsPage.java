@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
-import com.avereon.xenon.node.Node;
+import com.avereon.data.Node;
 import com.avereon.product.Product;
 
 import java.util.Collections;

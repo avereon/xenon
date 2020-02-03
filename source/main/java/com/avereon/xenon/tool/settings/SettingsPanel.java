@@ -8,8 +8,8 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.node.NodeEvent;
-import com.avereon.xenon.node.NodeListener;
+import com.avereon.data.NodeEvent;
+import com.avereon.data.NodeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -19,7 +19,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.util.List;
 

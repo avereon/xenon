@@ -2,13 +2,11 @@ package com.avereon.xenon.notice;
 
 import com.avereon.util.HashUtil;
 import com.avereon.util.Log;
-import com.avereon.xenon.node.Node;
+import com.avereon.data.Node;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import java.lang.System.Logger;
-
-import java.lang.invoke.MethodHandles;
 
 public class Notice extends Node {
 
