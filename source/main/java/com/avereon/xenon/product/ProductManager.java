@@ -15,10 +15,9 @@ import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
 import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Platform;
-import java.lang.System.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.nio.file.Files;
@@ -254,7 +253,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 					.collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
-				getProgram().getNoticeManager().error( "Error getting available products", exception );
+				log.log( Log.ERROR, "Error getting available products", exception );
 			}
 
 			return Set.of();
@@ -633,7 +632,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				return new HashSet<>( availableUpdates );
 			} catch( Exception exception ) {
 				log.log( Log.ERROR,  "Error refreshing available updates", exception );
-				getProgram().getNoticeManager().error( exception );
 			}
 
 			return Set.of();
@@ -1138,7 +1136,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR,  "Error loading standard mods: " + source, throwable );
-			getProgram().getNoticeManager().error( throwable );
 		}
 	}
 

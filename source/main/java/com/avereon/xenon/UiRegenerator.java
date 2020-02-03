@@ -17,9 +17,8 @@ import com.avereon.xenon.workspace.Workspace;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +109,7 @@ class UiRegenerator {
 			program.getAssetManager().openAssetsAndWait( assets );
 			program.getAssetManager().loadAssets( assets );
 		} catch( Exception exception ) {
-			program.getNoticeManager().error( exception );
+			log.log( Log.ERROR, exception );
 		}
 	}
 

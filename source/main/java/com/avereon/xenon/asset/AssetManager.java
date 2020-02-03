@@ -15,13 +15,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import java.lang.System.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.net.URLConnection;
 import java.util.*;
@@ -546,7 +545,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				saveAsAsset.getSettings().copyFrom( asset.getSettings() );
 				if( selectedCodec != null ) saveAsAsset.setCodec( selectedCodec );
 			} catch( AssetException exception ) {
-				program.getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 			}
 		}
 
@@ -1494,7 +1493,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				saveAssets( getModifiedAssets() );
 			} catch( Exception exception ) {
-				program.getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 			}
 		}
 
@@ -1516,7 +1515,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				closeAssets( getCurrentAsset() );
 			} catch( Exception exception ) {
-				program.getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 			}
 		}
 
@@ -1538,7 +1537,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				closeAssets( openAssets );
 			} catch( Exception exception ) {
-				program.getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 			}
 		}
 

@@ -12,6 +12,7 @@ import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.type.*;
 import com.avereon.xenon.notice.Notice;
+import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.RepoState;
@@ -55,6 +56,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import static java.lang.System.Logger.Level.*;
 
@@ -157,7 +159,7 @@ public class Program extends Application implements ProgramProduct {
 	// EXCEPTIONS Handled by the FX framework
 	public Program() {
 		time( "instantiate" );
-		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler( this );
+		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler();
 
 		// Add the uncaught exception handler to the JavaFX Application Thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
@@ -198,9 +200,7 @@ public class Program extends Application implements ProgramProduct {
 		programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
-		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
-		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
-		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
+		configureLogging();
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
@@ -389,6 +389,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the notice manager
 		log.log( TRACE, "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
+		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
 		Platform.runLater( () -> splashScreen.update() );
 		log.log( DEBUG, "Notice manager started." );
 
@@ -995,6 +996,12 @@ public class Program extends Application implements ProgramProduct {
 		return profile == null ? "" : "-" + profile;
 	}
 
+	private void configureLogging() {
+		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
+		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
+		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
+	}
+
 	/**
 	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
 	 * <code>$HOME/lib/program.jar</code>
@@ -1126,8 +1133,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
-			log.log( WARNING, "E - TEST MESSAGE" );
-			this.getNoticeManager().error( new Throwable( "This is a test throwable" ) );
+			log.log( Log.ERROR, new Throwable( "This is a test throwable" ) );
 		} ) );
 		getActionLibrary().getAction( "test-action-2" ).pushAction( new RunnableTestAction( this, () -> {
 			this.getNoticeManager().warning( "Warning Title", "Warning message to user: %s", "mark" );

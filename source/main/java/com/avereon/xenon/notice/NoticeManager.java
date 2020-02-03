@@ -15,9 +15,8 @@ import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,39 +39,15 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return getNoticeList().getNotices();
 	}
 
-	public void error( Throwable throwable ) {
-		error( getThrowableTitle( throwable ), getThrowableMessage( throwable ), throwable );
-	}
-
-	public void error( Object message, Throwable throwable, Object... parameters ) {
-		error( getThrowableTitle( throwable ), message, throwable, parameters );
-	}
-
 	public void error( Object title, Object message, Object... parameters ) {
-		error( title, message, null, parameters );
-	}
-
-	public void error( Object title, Object message, Throwable throwable, Object... parameters ) {
-		fault( title, message, throwable, Notice.Type.ERROR, parameters );
+		fault( title, message, null, Notice.Type.ERROR, parameters );
 	}
 
 	public void warning( Object title, Object message, Object... parameters ) {
-		warning( title, message, null, parameters );
+		fault( title, message, null, Notice.Type.WARN, parameters );
 	}
 
-	public void warning( Throwable throwable ) {
-		warning( getThrowableTitle( throwable ), getThrowableMessage( throwable ), throwable );
-	}
-
-	public void warning( Object message, Throwable throwable, Object... parameters ) {
-		warning( getThrowableTitle( throwable ), message, throwable, parameters );
-	}
-
-	public void warning( Object title, Object message, Throwable throwable, Object... parameters ) {
-		fault( title, message, throwable, Notice.Type.WARN, parameters );
-	}
-
-	private void fault( Object title, Object message, Throwable throwable, Notice.Type type, Object... parameters ) {
+	void fault( Object title, Object message, Throwable throwable, Notice.Type type, Object... parameters ) {
 		Notice notice = new Notice( title, message, throwable, parameters ).setType( type );
 		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
 		notice.setAction( () -> getProgram().getAssetManager().newAsset( ProgramFaultType.class, throwable ) );
@@ -81,17 +56,6 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	public void addNotice( Notice notice ) {
 		getNoticeList().addNotice( notice );
-
-		switch( notice.getType() ) {
-			case ERROR: {
-				error( notice );
-				break;
-			}
-			case WARN: {
-				warning( notice );
-				break;
-			}
-		}
 
 		Platform.runLater( () -> {
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveTools( NoticeTool.class );
@@ -164,22 +128,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return this;
 	}
 
-	private String getThrowableTitle( Throwable throwable ) {
+	String getThrowableTitle( Throwable throwable ) {
 		if( throwable instanceof TaskException ) throwable = throwable.getCause();
 		return throwable.getClass().getSimpleName();
 	}
 
-	private String getThrowableMessage( Throwable throwable ) {
+	String getThrowableMessage( Throwable throwable ) {
 		if( throwable instanceof TaskException ) throwable = throwable.getCause();
 		return throwable.getLocalizedMessage();
-	}
-
-	private void error( Notice notice ) {
-		log.log( Log.ERROR,  notice.getFormattedMessage(), notice.getThrowable() );
-	}
-
-	private void warning( Notice notice ) {
-		log.log( Log.WARN,  notice.getFormattedMessage(), notice.getThrowable() );
 	}
 
 	private NoticeList getNoticeList() {

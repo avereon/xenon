@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.settings.Settings;
+import com.avereon.util.Log;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -15,6 +16,8 @@ import java.util.Collections;
 import java.util.Set;
 
 public abstract class ProgramTool extends Tool {
+
+	private static final System.Logger log = Log.log();
 
 	private ProgramProduct product;
 
@@ -70,8 +73,9 @@ public abstract class ProgramTool extends Tool {
 			try {
 				assetRefreshed();
 			} catch( ToolException exception ) {
-				getProgram().getNoticeManager().error( "Error refreshing tool", exception );
+				log.log( Log.ERROR, "Error refreshing tool", exception );
 			}
 		} );
 	}
+
 }

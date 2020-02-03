@@ -20,10 +20,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import java.lang.System.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -171,7 +170,7 @@ public class ProductManagerLogic {
 		Map<RepoState, Task<Download>> downloads = new HashMap<>();
 
 		repos.forEach( ( r ) -> {
-			log.log( Log.DEBUG,  "Creating catalog downloads for repo: " + r );
+			log.log( Log.DEBUG, "Creating catalog downloads for repo: " + r );
 			URI uri = repoClient.getCatalogUri( r );
 			downloads.put( r, getProgram().getTaskManager().submit( new DownloadTask( getProgram(), uri ) ) );
 		} );
@@ -184,10 +183,10 @@ public class ProductManagerLogic {
 
 		downloads.keySet().forEach( ( r ) -> {
 			try {
-				log.log( Log.DEBUG,  "Loading catalog card: " + r );
+				log.log( Log.DEBUG, "Loading catalog card: " + r );
 				catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
 			} catch( Exception exception ) {
-				getProgram().getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 			}
 		} );
 
@@ -239,7 +238,7 @@ public class ProductManagerLogic {
 				try {
 					ProductCard product = new ProductCard().load( task.get().getInputStream(), task.get().getSource() );
 					productSet.add( product );
-					log.log( Log.INFO,  "Product card loaded for " + product );
+					log.log( Log.INFO, "Product card loaded for " + product );
 				} catch( IOException | ExecutionException | InterruptedException exception ) {
 					// FIXME How to report this back to the user in a meaningful way?
 					productSet.add( PRODUCT_CONNECTION_ERROR );
@@ -283,8 +282,8 @@ public class ProductManagerLogic {
 
 			if( determineAvailable || updateAvailable ) cards.add( new ProductCard().copyFrom( latest ).setRepo( repo ) );
 
-			if( installed != null ) log.log( Log.DEBUG,  "Installed: " + installed.getProductKey() + " " + installed.getRelease() );
-			log.log( Log.DEBUG,  "Available: " + latest.getProductKey() + " " + latest.getRelease() + " found in: " + repo );
+			if( installed != null ) log.log( Log.DEBUG, "Installed: " + installed.getProductKey() + " " + installed.getRelease() );
+			log.log( Log.DEBUG, "Available: " + latest.getProductKey() + " " + latest.getRelease() + " found in: " + repo );
 		} );
 
 		return cards;
@@ -335,13 +334,13 @@ public class ProductManagerLogic {
 	private Set<ProductResourceCollector> startResourceDownloads( Set<DownloadRequest> requests ) {
 		Path stageFolder = getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
 
-		log.log( Log.DEBUG,  "Number of packs to stage: " + requests.size() );
-		log.log( Log.TRACE,  "Pack stage folder: " + stageFolder );
+		log.log( Log.DEBUG, "Number of packs to stage: " + requests.size() );
+		log.log( Log.TRACE, "Pack stage folder: " + stageFolder );
 
 		try {
 			Files.createDirectories( stageFolder );
 		} catch( IOException exception ) {
-			log.log( Log.WARN,  "Error creating update stage folder: " + stageFolder, exception );
+			log.log( Log.WARN, "Error creating update stage folder: " + stageFolder, exception );
 			return Set.of();
 		}
 
@@ -360,7 +359,7 @@ public class ProductManagerLogic {
 				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( request.getCard() ) );
 				return new ProductResourceCollector( repo, request.getCard(), resources, updatePack );
 			} catch( Exception exception ) {
-				getProgram().getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
@@ -383,7 +382,7 @@ public class ProductManagerLogic {
 			// Determine all the resources to download.
 			PackProvider provider = new PackProvider( getProgram(), repo, repoClient, request.getCard() );
 			Set<ProductResource> resources = provider.getResources();
-			log.log( Log.DEBUG,  "Product resource count: " + resources.size() );
+			log.log( Log.DEBUG, "Product resource count: " + resources.size() );
 
 			resources.forEach( ( resource ) -> {
 				DownloadTask downloadTask = new DownloadTask( getProgram(), getSchemeResolvedUri( resource.getUri() ) );
@@ -424,20 +423,19 @@ public class ProductManagerLogic {
 			resources.forEach( ( resource ) -> {
 				try {
 					resource.waitFor();
-					log.log( Log.DEBUG,  "Product resource target: " + resource.getLocalFile() );
+					log.log( Log.DEBUG, "Product resource target: " + resource.getLocalFile() );
 				} catch( CancellationException exception ) {
-					log.log( Log.INFO,  "Download cancelled: " + resource );
+					log.log( Log.INFO, "Download cancelled: " + resource );
 					getProgram().getNoticeManager().warning( "Download", "Download cancelled: " + resource );
 				} catch( Exception exception ) {
 					resource.setThrowable( exception );
-					log.log( Log.ERROR,  "Error downloading resource: " + resource, exception );
-					getProgram().getNoticeManager().error( "Download", "Error downloading resource: " + resource, exception );
+					log.log( Log.ERROR, "Error downloading resource: " + resource, exception );
 				}
 			} );
 
 			// Verify the resources have all been staged successfully
 			if( !areAllResourcesValid( resources ) ) {
-				log.log( Log.WARN,  "Update missing resources: " + product );
+				log.log( Log.WARN, "Update missing resources: " + product );
 				return null;
 			}
 
@@ -449,8 +447,8 @@ public class ProductManagerLogic {
 				installFolder = manager.getInstalledProductCard( product ).getInstallFolder();
 			}
 
-			log.log( Log.DEBUG,  "Update staged: " + product.getProductKey() + " " + product.getRelease() );
-			log.log( Log.DEBUG,  "           to: " + localPackPath );
+			log.log( Log.DEBUG, "Update staged: " + product.getProductKey() + " " + product.getRelease() );
+			log.log( Log.DEBUG, "           to: " + localPackPath );
 
 			// Notify listeners the update is staged
 			manager.getEventBus().dispatch( new ProductEvent( manager, ProductEvent.STAGED, product ) );
@@ -520,7 +518,7 @@ public class ProductManagerLogic {
 			try {
 				return future.get();
 			} catch( Exception exception ) {
-				getProgram().getNoticeManager().error( exception );
+				log.log( Log.ERROR, exception );
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
@@ -535,7 +533,7 @@ public class ProductManagerLogic {
 
 			// Verify the product is registered
 			if( !getProgram().getProductManager().isInstalled( updateCard ) ) {
-				log.log( Log.WARN,  "Product not registered: " + updateCard );
+				log.log( Log.WARN, "Product not registered: " + updateCard );
 				continue;
 			}
 
@@ -545,7 +543,7 @@ public class ProductManagerLogic {
 			if( installFolder == null ) {
 				// This situation happens in development when running a mod from the classpath
 				getProgram().getNoticeManager().warning( title, "install-folder-missing", updateCard );
-			} else if( !Files.exists( installFolder )) {
+			} else if( !Files.exists( installFolder ) ) {
 				getProgram().getNoticeManager().warning( title, "product-not-installed", updateCard );
 				continue;
 			}
@@ -556,7 +554,7 @@ public class ProductManagerLogic {
 
 		getProgram().getTaskManager().submit( Task.of( "Store staged update settings", () -> getProgram().getProductManager().setStagedUpdates( stagedUpdates ) ) );
 
-		log.log( Log.DEBUG,  "Product update count: " + stagedUpdates.size() );
+		log.log( Log.DEBUG, "Product update count: " + stagedUpdates.size() );
 
 		return stagedUpdates;
 	}
@@ -583,7 +581,7 @@ public class ProductManagerLogic {
 				if( update == null ) continue;
 				ProductCard card = update.getCard();
 
-				log.log( Log.DEBUG,  "Product update downloaded: " + update.getCard().getProductKey() );
+				log.log( Log.DEBUG, "Product update downloaded: " + update.getCard().getProductKey() );
 
 				// Install the products.
 				try {
@@ -591,14 +589,14 @@ public class ProductManagerLogic {
 					getProgram().getProductManager().doInstallMod( card, Set.of( resource ) );
 					installedProducts.add( new InstalledProduct( getProgram().getProductManager().getProductInstallFolder( card ) ) );
 				} catch( Exception exception ) {
-					log.log( Log.ERROR,  "Error installing: " + card, exception );
+					log.log( Log.ERROR, "Error installing: " + card, exception );
 				}
 			} catch( Exception exception ) {
-				log.log( Log.ERROR,  "Error creating product update pack", exception );
+				log.log( Log.ERROR, "Error creating product update pack", exception );
 			}
 		}
 
-		log.log( Log.DEBUG,  "Product update count: " + installedProducts.size() );
+		log.log( Log.DEBUG, "Product update count: " + installedProducts.size() );
 
 		return installedProducts;
 	}
@@ -612,7 +610,7 @@ public class ProductManagerLogic {
 				getProgram().getProductManager().doRemoveMod( getProgram().getProductManager().getMod( card.getProductKey() ) );
 				removedProducts.add( new InstalledProduct( getProgram().getProductManager().getProductInstallFolder( card ) ) );
 			} catch( Exception exception ) {
-				log.log( Log.ERROR,  "Error uninstalling: " + card, exception );
+				log.log( Log.ERROR, "Error uninstalling: " + card, exception );
 			}
 		}
 
