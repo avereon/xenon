@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.event.EventHandler;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -24,7 +24,7 @@ import java.lang.invoke.MethodHandles;
  */
 public abstract class Tool extends Control {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 

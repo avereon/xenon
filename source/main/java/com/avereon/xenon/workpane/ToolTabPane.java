@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,7 +27,7 @@ public class ToolTabPane extends Control {
 
 	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 

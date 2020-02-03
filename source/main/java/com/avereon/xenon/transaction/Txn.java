@@ -1,7 +1,7 @@
 package com.avereon.xenon.transaction;
 
 import com.avereon.event.EventType;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Txn {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<>();
 

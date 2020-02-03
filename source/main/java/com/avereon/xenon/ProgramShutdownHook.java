@@ -31,7 +31,7 @@ public class ProgramShutdownHook extends Thread {
 		UPDATE
 	}
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private volatile Program program;
 

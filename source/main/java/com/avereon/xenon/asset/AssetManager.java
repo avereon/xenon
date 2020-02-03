@@ -38,7 +38,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	// Linux defines this limit in BINPRM_BUF_SIZE
 	private static final int FIRST_LINE_LIMIT = 128;
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final Asset NULL_ASSET = new Asset( URI.create( "program:null" ) );
 

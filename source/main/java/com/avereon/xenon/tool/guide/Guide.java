@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class Guide {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private TreeItem<GuideNode> root;
 

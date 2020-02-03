@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WorkpaneWatcher implements EventHandler<WorkpaneEvent> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 

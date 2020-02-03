@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.product.Product;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
@@ -16,7 +16,7 @@ public class ProgramAboutType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:about" );
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String WATCHER_KEY = "program.asset.watcher";
 

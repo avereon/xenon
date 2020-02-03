@@ -2,7 +2,7 @@ package com.avereon.xenon.notice;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.Controllable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.IconLibrary;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -30,7 +30,7 @@ public class ProductTool extends GuidedTool {
 
 	public static final String SOURCES = "sources";
 
-	static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	static final int ICON_SIZE = 48;
 

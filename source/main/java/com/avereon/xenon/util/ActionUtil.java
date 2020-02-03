@@ -1,6 +1,6 @@
 package com.avereon.xenon.util;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -22,7 +22,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ActionUtil {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 

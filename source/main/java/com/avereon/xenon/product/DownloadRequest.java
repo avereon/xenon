@@ -5,7 +5,7 @@ import com.avereon.event.EventBus;
 import com.avereon.event.EventHandler;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductCard;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.task.TaskEvent;
 import org.slf4j.Logger;
 
@@ -13,7 +13,7 @@ import java.lang.invoke.MethodHandles;
 
 public class DownloadRequest implements EventHandler<TaskEvent> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private ProductCard card;
 

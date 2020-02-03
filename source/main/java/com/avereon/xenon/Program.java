@@ -72,7 +72,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
 
-	private static final System.Logger log = LogUtil.log();
+	private static final System.Logger log = Log.log();
 
 	private static final boolean showTiming = false;
 
@@ -198,9 +198,9 @@ public class Program extends Application implements ProgramProduct {
 		programLogFolder = programDataFolder.resolve( "logs" );
 
 		// Configure logging, depends on parameters and program data folder
-		LogUtil.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
-		LogUtil.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
-		LogUtil.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
+		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
+		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
+		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging

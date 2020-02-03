@@ -1,7 +1,7 @@
 package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
@@ -19,7 +19,7 @@ public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	/**
 	 * The key to the cached file object.

@@ -1,6 +1,6 @@
 package com.avereon.xenon.action;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.util.DialogUtil;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class RenameWorkareaAction extends Action {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Workarea workarea;
 

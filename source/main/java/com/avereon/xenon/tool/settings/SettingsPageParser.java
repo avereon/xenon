@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
 import com.avereon.product.Product;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import org.slf4j.Logger;
 
 import javax.xml.stream.XMLInputFactory;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class SettingsPageParser {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String SETTINGS = "settings";
 

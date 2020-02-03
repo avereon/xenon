@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.javafx.FxUtil;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
@@ -18,7 +18,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ToolTabSkin extends SkinBase<ToolTab> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private BorderPane tabLayout;
 

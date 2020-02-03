@@ -4,7 +4,7 @@ import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.util.FileUtil;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramProductType;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class ProductManagerLogic {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final ProductCard PRODUCT_CONNECTION_ERROR = new ProductCard();
 

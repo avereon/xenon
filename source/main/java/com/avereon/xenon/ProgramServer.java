@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.Controllable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.Parameters;
 import org.slf4j.Logger;
 
@@ -17,7 +17,7 @@ import java.util.logging.LogRecord;
 
 public class ProgramServer implements Controllable<ProgramServer> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

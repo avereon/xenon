@@ -1,6 +1,6 @@
 package com.avereon.xenon.util;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class Lambda {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public static TimerTask timerTask( Runnable runnable ) {
 		return new TimerTask() {

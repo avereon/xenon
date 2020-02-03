@@ -2,14 +2,14 @@ package com.avereon.xenon;
 
 import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
 
 public class ProgramEventWatcher implements EventHandler<Event> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public void handle( Event event ) {
 		if( "PROGRESS".equals( event.getEventType().getName() ) ) {

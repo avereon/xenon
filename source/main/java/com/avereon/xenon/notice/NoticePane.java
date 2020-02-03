@@ -1,6 +1,6 @@
 package com.avereon.xenon.notice;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
@@ -13,7 +13,7 @@ import java.lang.invoke.MethodHandles;
 
 public class NoticePane extends GridPane {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import org.slf4j.Logger;
@@ -9,7 +9,7 @@ import java.lang.invoke.MethodHandles;
 
 public abstract class Action implements EventHandler<ActionEvent> {
 
-	protected static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	protected static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

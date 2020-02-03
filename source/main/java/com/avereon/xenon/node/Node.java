@@ -1,7 +1,7 @@
 package com.avereon.xenon.node;
 
 import com.avereon.event.EventType;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.transaction.*;
 import org.slf4j.Logger;
 
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Node implements TxnEventTarget, Cloneable {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	/**
 	 * The modified flag key.

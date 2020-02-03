@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.venza.image.Images;
 import com.avereon.venza.image.ProgramIcon;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final int DEFAULT_SIZE = 16;
 

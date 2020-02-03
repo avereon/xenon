@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
@@ -28,7 +28,7 @@ import java.util.TimeZone;
 
 class ProductPane extends MigPane {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private ProductTool tool;
 

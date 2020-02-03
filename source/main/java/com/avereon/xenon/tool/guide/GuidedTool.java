@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramGuideType;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 

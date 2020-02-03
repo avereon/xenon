@@ -5,7 +5,7 @@ import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String ROOT = "settings";
 

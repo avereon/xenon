@@ -1,7 +1,7 @@
 package com.avereon.xenon.task;
 
 import com.avereon.util.Controllable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.util.ProgramEventBus;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int DEFAULT_THREAD_IDLE_TIMEOUT = 2000;
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	int p1ThreadCount;
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 public class DownloadTask extends Task<Download> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 

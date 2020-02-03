@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import org.slf4j.Logger;
 
 import java.lang.invoke.MethodHandles;
@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Map<String, ActionProxy> actions;
 

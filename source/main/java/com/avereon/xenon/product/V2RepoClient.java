@@ -3,7 +3,7 @@ package com.avereon.xenon.product;
 import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.Program;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class V2RepoClient implements RepoClient {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

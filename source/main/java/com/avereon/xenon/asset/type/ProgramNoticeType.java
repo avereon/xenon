@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset.type;
 
 import com.avereon.product.Product;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.notice.NoticeList;
@@ -19,7 +19,7 @@ public class ProgramNoticeType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:notice" );
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public ProgramNoticeType( Product product ) {
 		super( product, "notice" );

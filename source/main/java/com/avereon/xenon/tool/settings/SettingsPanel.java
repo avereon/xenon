@@ -5,7 +5,7 @@ import com.avereon.event.EventType;
 import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.node.NodeEvent;
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SettingsPanel extends VBox {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	//	private String[] fontNames;
 	//

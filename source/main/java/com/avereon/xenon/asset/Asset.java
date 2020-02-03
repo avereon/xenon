@@ -5,7 +5,7 @@ import com.avereon.settings.Settings;
 import com.avereon.undo.BasicUndoManager;
 import com.avereon.undo.UndoManager;
 import com.avereon.util.Configurable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.node.Node;
 import com.avereon.xenon.node.NodeEvent;
@@ -51,7 +51,7 @@ public class Asset extends Node implements Configurable {
 
 	//	private static final String UNDO_MANAGER = "asset.undo.manager";
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	// Name is not stored in the node data, it is derived
 	private String name;

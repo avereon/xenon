@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.javafx.JavaFxStarter;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -19,7 +19,7 @@ import java.lang.invoke.MethodHandles;
 
 public class SplashScreenPane extends Pane {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final int WIDTH = 320;
 

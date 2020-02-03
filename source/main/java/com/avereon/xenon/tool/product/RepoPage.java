@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.product.RepoState;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 class RepoPage extends ProductToolPage {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

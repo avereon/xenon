@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -16,7 +16,7 @@ import java.lang.invoke.MethodHandles;
 
 public class FontSettingEditor extends SettingEditor {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Label label;
 

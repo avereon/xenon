@@ -4,7 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Configurable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Workspace implements Configurable {
 
-	private static final System.Logger log = LogUtil.log();
+	private static final System.Logger log = Log.log();
 
 	private Program program;
 

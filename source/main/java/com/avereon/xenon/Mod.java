@@ -2,7 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.image.ProgramIcon;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.ProgramTool;
@@ -27,7 +27,7 @@ import java.nio.file.Path;
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

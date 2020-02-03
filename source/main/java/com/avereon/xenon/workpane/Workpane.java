@@ -3,7 +3,7 @@ package com.avereon.xenon.workpane;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
 import javafx.beans.property.*;
@@ -49,7 +49,7 @@ public class Workpane extends Control implements Configurable {
 
 	private static final double DEFAULT_EDGE_SIZE = 5;
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private WorkpaneEdge topWall;
 

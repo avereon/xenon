@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
 import org.slf4j.Logger;
@@ -9,7 +9,7 @@ import java.lang.invoke.MethodHandles;
 
 class UpdatesPage extends ProductPage {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private ProductTool productTool;
 

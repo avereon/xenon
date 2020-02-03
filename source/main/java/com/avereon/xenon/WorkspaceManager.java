@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.Controllable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private Program program;
 

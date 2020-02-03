@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AboutTool extends GuidedTool {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String SUMMARY = "summary";
 
@@ -440,7 +440,7 @@ public class AboutTool extends GuidedTool {
 		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
 		builder.append( "Data folder: " ).append( program.getDataFolder() ).append( "\n" );
 		builder.append( "User folder: " ).append( System.getProperty( "user.home" ) ).append( "\n" );
-		builder.append( "Log file:    " ).append( LogUtil.getLogFile() ).append( "\n" );
+		builder.append( "Log file:    " ).append( Log.getLogFile() ).append( "\n" );
 
 		return builder.toString();
 	}

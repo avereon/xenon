@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.notice;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class NoticeTool extends ProgramTool {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private VBox noticeContainer;
 

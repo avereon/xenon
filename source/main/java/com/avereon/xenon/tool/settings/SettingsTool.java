@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
@@ -19,7 +19,7 @@ public class SettingsTool extends GuidedTool {
 
 	public static final String GENERAL = "general";
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private static final String PAGE_ID = "page-id";
 

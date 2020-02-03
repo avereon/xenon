@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.task;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TaskTool extends ProgramTool {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	private final Set<Task<?>> tasks;
 

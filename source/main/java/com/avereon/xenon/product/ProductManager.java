@@ -77,7 +77,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		STORE
 	}
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
 
 	public static final String LAST_CHECK_TIME = "product-update-last-check-time";
 
@@ -1158,7 +1158,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			}
 
 			// Configure logging for the mod
-			LogUtil.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 
 			// Initialize the mod
 			mod.init( getProgram(), card );
