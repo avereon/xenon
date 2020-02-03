@@ -3,9 +3,8 @@ package com.avereon.xenon.asset;
 import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
-import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -87,6 +86,9 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return product.rb().text( "asset", rbKey + "-description" );
 	}
 
+	public String getIcon() {
+		return product.rb().textOr( "asset", rbKey + "-icon", "asset" );
+	}
 	/**
 	 * Is this asset type a user defined asset type. Usually it is a user
 	 * defined asset type so this should return true. For program defined

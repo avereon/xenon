@@ -257,6 +257,20 @@
 	-fx-font: 1em monospaced;
 }
 
+#tool-asset .asset-type-tile {
+	-fx-min-width: 250px;
+	-fx-min-height: 200px;
+	-fx-max-width: 250px;
+	-fx-max-height: 200px;
+	-fx-background-color: -ex-background-text;
+	-fx-background-insets: 10px;
+
+	-fx-border-color: -ex-background-tabs;
+	-fx-border-style: solid;
+	-fx-border-insets: 5px;
+	-fx-border-width: 5px;
+}
+
 #tool-fault .text-area {
 	-fx-background-color: transparent;
 }

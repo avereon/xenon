@@ -1042,6 +1042,7 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "close", CloseIcon.class );
 		getIconLibrary().register( "exit", PowerIcon.class );
 
+		getIconLibrary().register( "asset", DocumentIcon.class );
 		getIconLibrary().register( "asset-new", DocumentIcon.class );
 		getIconLibrary().register( "asset-open", FolderIcon.class );
 		//getIconLibrary().register( "asset-save", SaveIcon.class );
