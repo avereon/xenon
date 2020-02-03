@@ -23,7 +23,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AboutTool extends GuidedTool {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	public static final String SUMMARY = "summary";
 
@@ -101,38 +101,38 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.debug( "Tool allocate" );
+		log.log( Log.DEBUG,  "Tool allocate" );
 		super.allocate();
 		updatePages();
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.debug( "Tool display" );
+		log.log( Log.DEBUG,  "Tool display" );
 		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.debug( "Tool activate" );
+		log.log( Log.DEBUG,  "Tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.debug( "Tool deactivate" );
+		log.log( Log.DEBUG,  "Tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.debug( "Tool conceal" );
+		log.log( Log.DEBUG,  "Tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.debug( "Tool deallocate" );
+		log.log( Log.DEBUG,  "Tool deallocate" );
 		super.deallocate();
 	}
 

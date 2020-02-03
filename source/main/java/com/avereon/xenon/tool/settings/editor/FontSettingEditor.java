@@ -10,13 +10,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
 public class FontSettingEditor extends SettingEditor {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Label label;
 
@@ -64,14 +64,14 @@ public class FontSettingEditor extends SettingEditor {
 
 	private void updateFont( String value ) {
 		Font font = FontUtil.decode( value );
-		log.debug( "Setting font updated: " + font );
+		log.log( Log.DEBUG,  "Setting font updated: " + font );
 		button.setText( font.getName() + " " + font.getSize() );
 		button.setFont( Font.font( font.getFamily(), FontUtil.getFontWeight( font.getStyle() ), FontUtil.getFontPosture( font.getStyle() ), -1 ) );
 //		button.setOnAction( ( event ) -> {
 //			FontSelectorDialog dialog = new FontSelectorDialog( font );
 //			Optional<Font> optional = dialog.showAndWait();
 //			optional.ifPresent( font1 -> {
-//				log.debug( "Setting font selected: " + font1 );
+//				log.log( Log.DEBUG,  "Setting font selected: " + font1 );
 //				setting.getSettings().set( setting.getKey(), FontUtil.encode( font1 ) );
 //			} );
 //		} );

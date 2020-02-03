@@ -16,13 +16,13 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
 public class ActionUtil {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 

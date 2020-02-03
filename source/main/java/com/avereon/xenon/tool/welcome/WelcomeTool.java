@@ -13,14 +13,14 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Ellipse;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
 
 public class WelcomeTool extends ProgramTool {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final double PAD = 2 * UiFactory.PAD;
 
@@ -57,36 +57,36 @@ public class WelcomeTool extends ProgramTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.debug( "Tool allocate" );
+		log.log( Log.DEBUG,  "Tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.debug( "Tool display" );
+		log.log( Log.DEBUG,  "Tool display" );
 		Workpane workpane = getWorkpane();
 		if( workpane != null ) workpane.setMaximizedView( getToolView() );
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.debug( "Tool activate" );
+		log.log( Log.DEBUG,  "Tool activate" );
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.debug( "Tool deactivate" );
+		log.log( Log.DEBUG,  "Tool deactivate" );
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.debug( "Tool conceal" );
+		log.log( Log.DEBUG,  "Tool conceal" );
 		Workpane workpane = getWorkpane();
 		if( workpane != null && workpane.getMaximizedView() == getToolView() ) workpane.setMaximizedView( null );
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.debug( "Tool deallocate" );
+		log.log( Log.DEBUG,  "Tool deallocate" );
 	}
 
 }

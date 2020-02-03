@@ -4,7 +4,6 @@ module com.avereon.xenon {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	requires com.avereon.rossa;
 	requires com.avereon.zenna;
 	requires java.logging;
 	requires java.management;
@@ -12,8 +11,7 @@ module com.avereon.xenon {
 	requires jdk.crypto.ec;
 	requires miglayout.javafx;
 	requires org.controlsfx.controls;
-	requires org.slf4j;
-	requires org.slf4j.jul;
+	requires transitive com.avereon.rossa;
 	requires transitive com.avereon.venza;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;

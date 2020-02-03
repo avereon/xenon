@@ -15,7 +15,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
@@ -24,7 +24,7 @@ import java.lang.invoke.MethodHandles;
  */
 public abstract class Tool extends Control {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 
@@ -227,7 +227,7 @@ public abstract class Tool extends Control {
 		try {
 			tool = getClass().getConstructor().newInstance();
 		} catch( Exception exception ) {
-			log.error( "Error cloning tool: " + getClass().getName(), exception );
+			log.log( Log.ERROR,  "Error cloning tool: " + getClass().getName(), exception );
 		}
 
 		return tool;
@@ -307,7 +307,7 @@ public abstract class Tool extends Control {
 			allocated = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.error( "Error allocating tool", exception );
+			log.log( Log.ERROR,  "Error allocating tool", exception );
 		}
 	}
 
@@ -321,7 +321,7 @@ public abstract class Tool extends Control {
 			displayed = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DISPLAYED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.error( "Error displaying tool", exception );
+			log.log( Log.ERROR,  "Error displaying tool", exception );
 		}
 	}
 
@@ -334,7 +334,7 @@ public abstract class Tool extends Control {
 			activate();
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ACTIVATED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.error( "Error activating tool", exception );
+			log.log( Log.ERROR,  "Error activating tool", exception );
 		}
 	}
 
@@ -348,7 +348,7 @@ public abstract class Tool extends Control {
 			deactivate();
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.DEACTIVATED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.error( "Error deactivating tool", exception );
+			log.log( Log.ERROR,  "Error deactivating tool", exception );
 		}
 	}
 
@@ -363,7 +363,7 @@ public abstract class Tool extends Control {
 			displayed = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.CONCEALED, pane, this ) ) );
 		} catch( ToolException exception ) {
-			log.error( "Error concealing tool", exception );
+			log.log( Log.ERROR,  "Error concealing tool", exception );
 		}
 	}
 
@@ -378,7 +378,7 @@ public abstract class Tool extends Control {
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
 			getAsset().getEventBus().unregister( AssetEvent.ANY, watcher );
 		} catch( ToolException exception ) {
-			log.error( "Error deallocating tool", exception );
+			log.log( Log.ERROR,  "Error deallocating tool", exception );
 		}
 	}
 
@@ -389,7 +389,7 @@ public abstract class Tool extends Control {
 		try {
 			assetReady( request );
 		} catch( ToolException exception ) {
-			log.error( "Error deallocating tool", exception );
+			log.log( Log.ERROR,  "Error deallocating tool", exception );
 		}
 	}
 
@@ -402,7 +402,7 @@ public abstract class Tool extends Control {
 			try {
 				assetRefreshed();
 			} catch( ToolException exception ) {
-				log.error( "Error refreshing tool", exception );
+				log.log( Log.ERROR,  "Error refreshing tool", exception );
 			}
 		} );
 	}

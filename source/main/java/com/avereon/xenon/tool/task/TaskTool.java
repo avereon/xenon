@@ -19,7 +19,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TaskTool extends ProgramTool {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private final Set<Task<?>> tasks;
 

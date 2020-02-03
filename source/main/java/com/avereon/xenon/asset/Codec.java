@@ -2,7 +2,7 @@ package com.avereon.xenon.asset;
 
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public abstract class Codec {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private AssetType assetType;
 
@@ -142,7 +142,7 @@ public abstract class Codec {
 		if( TextUtil.isEmpty( type ) ) return false;
 		for( String pattern : getSupportedMediaTypes() ) {
 			boolean matches = pattern.equals( type );
-			log.debug( "Type [" + type + "] matches [" + pattern + "]: " + matches );
+			log.log( Log.DEBUG,  "Type [" + type + "] matches [" + pattern + "]: " + matches );
 			if( matches ) return true;
 		}
 		return false;
@@ -153,7 +153,7 @@ public abstract class Codec {
 		for( String pattern : getSupportedExtensions() ) {
 			pattern = "." + pattern;
 			boolean matches = name.endsWith( pattern );
-			log.debug( "Name [" + name + "] matches [" + pattern + "]: " + matches );
+			log.log( Log.DEBUG,  "Name [" + name + "] matches [" + pattern + "]: " + matches );
 			if( matches ) return true;
 		}
 		return false;
@@ -163,7 +163,7 @@ public abstract class Codec {
 		if( TextUtil.isEmpty( name ) ) return false;
 		for( String pattern : getSupportedFileNames() ) {
 			boolean matches = name.matches( pattern );
-			log.debug( "Name [" + name + "] matches [" + pattern + "]: " + matches );
+			log.log( Log.DEBUG,  "Name [" + name + "] matches [" + pattern + "]: " + matches );
 			if( matches ) return true;
 		}
 		return false;
@@ -174,7 +174,7 @@ public abstract class Codec {
 		for( String pattern : getSupportedFirstLines() ) {
 			//boolean matches = line.matches( pattern );
 			boolean matches = line.startsWith( pattern );
-			log.debug( "Line [" + line + "] matches [" + pattern + "]: " + matches );
+			log.log( Log.DEBUG,  "Line [" + line + "] matches [" + pattern + "]: " + matches );
 			if( matches ) return true;
 		}
 		return false;

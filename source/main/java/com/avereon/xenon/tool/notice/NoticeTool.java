@@ -15,7 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class NoticeTool extends ProgramTool {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private VBox noticeContainer;
 

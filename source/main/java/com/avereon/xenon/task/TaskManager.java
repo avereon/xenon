@@ -4,7 +4,7 @@ import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.util.ProgramEventBus;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int DEFAULT_THREAD_IDLE_TIMEOUT = 2000;
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	int p1ThreadCount;
 
@@ -185,13 +185,13 @@ public class TaskManager implements Controllable<TaskManager> {
 			if( executorP2 != null ) executorP2.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 			if( executorP1 != null ) executorP1.awaitTermination( Program.MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		} catch( InterruptedException exception ) {
-			log.error( "Error waiting for executor termination", exception );
+			log.log( Log.ERROR,  "Error waiting for executor termination", exception );
 		}
 		return this;
 	}
 
 	protected void taskFailed( Task<?> task, Throwable throwable ) {
-		log.error( "Task failed", throwable );
+		log.log( Log.ERROR,  "Task failed", throwable );
 	}
 
 	int getP1ThreadCount() {
@@ -315,7 +315,7 @@ public class TaskManager implements Controllable<TaskManager> {
 			} else {
 				backupExecutor.submit( runnable );
 			}
-			log.warn( "Task cascaded to lower executor: " + runnable );
+			log.log( Log.WARN,  "Task cascaded to lower executor: " + runnable );
 		}
 
 	}

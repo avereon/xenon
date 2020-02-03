@@ -15,7 +15,7 @@ import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Skin;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
@@ -27,7 +27,7 @@ public class ToolTabPane extends Control {
 
 	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 
@@ -111,7 +111,7 @@ public class ToolTabPane extends Control {
 			WorkpaneView targetView = getWorkpaneView();
 			Workpane targetPane = getWorkpane();
 
-			log.debug( "DnD transfer mode: " + event.getTransferMode() );
+			log.log( Log.DEBUG,  "DnD transfer mode: " + event.getTransferMode() );
 
 			if( event.getTransferMode() == TransferMode.MOVE ) {
 				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
@@ -120,7 +120,7 @@ public class ToolTabPane extends Control {
 				sourceTool = cloneTool( sourceTool );
 			}
 
-			log.warn( "Dropped on side :" + side );
+			log.log( Log.WARN,  "Dropped on side :" + side );
 			if( side != null ) targetView = targetPane.split( targetView, side );
 
 			int targetViewTabCount = targetView.getTools().size();
@@ -136,7 +136,7 @@ public class ToolTabPane extends Control {
 
 	private Tool cloneTool( Tool tool ) {
 		// TODO Implement tool cloning
-		log.warn( "Tool copy not implemented yet!" );
+		log.log( Log.WARN,  "Tool copy not implemented yet!" );
 		return tool;
 	}
 

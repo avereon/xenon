@@ -15,7 +15,7 @@ import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Program program;
 
@@ -175,11 +175,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	private void error( Notice notice ) {
-		log.error( notice.getFormattedMessage(), notice.getThrowable() );
+		log.log( Log.ERROR,  notice.getFormattedMessage(), notice.getThrowable() );
 	}
 
 	private void warning( Notice notice ) {
-		log.warn( notice.getFormattedMessage(), notice.getThrowable() );
+		log.log( Log.WARN,  notice.getFormattedMessage(), notice.getThrowable() );
 	}
 
 	private NoticeList getNoticeList() {

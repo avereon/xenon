@@ -5,7 +5,7 @@ import com.avereon.util.Log;
 import com.avereon.util.SizeUnitBase2;
 import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 public class DownloadTask extends Task<Download> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 
@@ -118,8 +118,8 @@ public class DownloadTask extends Task<Download> {
 			if( isCancelled() ) return null;
 		}
 
-		log.debug( "Resource downloaded: " + uri );
-		log.trace( "        to location: " + download.getTarget() );
+		log.log( Log.DEBUG,  "Resource downloaded: " + uri );
+		log.log( Log.TRACE,  "        to location: " + download.getTarget() );
 
 		return download;
 	}

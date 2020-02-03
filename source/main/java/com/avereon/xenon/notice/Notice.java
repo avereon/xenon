@@ -6,7 +6,7 @@ import com.avereon.xenon.node.Node;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
@@ -34,7 +34,7 @@ public class Notice extends Node {
 
 	}
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final String ID = "id";
 

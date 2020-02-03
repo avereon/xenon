@@ -16,7 +16,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
@@ -49,7 +49,7 @@ public class Workpane extends Control implements Configurable {
 
 	private static final double DEFAULT_EDGE_SIZE = 5;
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private WorkpaneEdge topWall;
 
@@ -483,7 +483,7 @@ public class Workpane extends Control implements Configurable {
 
 	private void finishOperation( boolean changed ) {
 		int value = operation.decrementAndGet();
-		if( value < 0 ) log.error( "Workpane operation flag is less than zero." );
+		if( value < 0 ) log.log( Log.ERROR,  "Workpane operation flag is less than zero." );
 		updateComponentTree( changed );
 	}
 
@@ -2120,7 +2120,7 @@ public class Workpane extends Control implements Configurable {
 		MergeDirection( WorkpaneView target, Side direction ) {
 			this.direction = direction;
 			this.weight = getMergeWeight( target, direction );
-			log.trace( "Direction: " + direction + "  Weight: " + weight );
+			log.log( Log.TRACE,  "Direction: " + direction + "  Weight: " + weight );
 		}
 
 		Side getDirection() {

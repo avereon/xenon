@@ -17,7 +17,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SettingsPanel extends VBox {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	//	private String[] fontNames;
 	//
@@ -121,11 +121,11 @@ public class SettingsPanel extends VBox {
 
 			// Create the editor
 			if( editorClass == null ) {
-				log.warn( "Setting editor not registered: {}", editorType );
+				log.log( Log.WARN,  "Setting editor not registered: {}", editorType );
 			} else {
 				SettingEditor editor = createSettingEditor( product, setting, editorClass );
 				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.debug( "Editor not created: {}", editorClass.getName() );
+				if( editor == null ) log.log( Log.DEBUG,  "Editor not created: {}", editorClass.getName() );
 			}
 
 			// Add a watcher to each dependency
@@ -151,7 +151,7 @@ public class SettingsPanel extends VBox {
 			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, Setting.class );
 			editor = constructor.newInstance( (ProgramProduct)product, setting );
 		} catch( Exception exception ) {
-			log.error( "Error creating setting editor: " + editorClass.getName(), exception );
+			log.log( Log.ERROR,  "Error creating setting editor: " + editorClass.getName(), exception );
 		}
 		if( editor == null ) return null;
 

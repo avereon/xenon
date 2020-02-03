@@ -14,14 +14,14 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 public class GuideTool extends ProgramTool {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Guide guide;
 
@@ -195,7 +195,7 @@ public class GuideTool extends ProgramTool {
 			Tool tool = event.getTool();
 			if( tool instanceof GuideTool ) return;
 			if( tool instanceof GuidedTool ) {
-				log.debug( "show guide: " + event.getTool().getClass().getName() );
+				log.log( Log.DEBUG,  "show guide: " + event.getTool().getClass().getName() );
 				setGuide( ((GuidedTool)tool).getGuide() );
 			} else {
 				setGuide( null );
@@ -210,7 +210,7 @@ public class GuideTool extends ProgramTool {
 		public void handle( ToolEvent event ) {
 			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
-			log.debug( "hide guide: " + event.getTool().getClass().getName() );
+			log.log( Log.DEBUG,  "hide guide: " + event.getTool().getClass().getName() );
 			setGuide( null );
 		}
 	}

@@ -3,13 +3,12 @@ package com.avereon.xenon.tool.product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 class UpdatesPage extends ProductPage {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private ProductTool productTool;
 
@@ -27,7 +26,7 @@ class UpdatesPage extends ProductPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.trace( "Update available updates" );
+		ProductTool.log.log( Log.TRACE,  "Update available updates" );
 		productTool.getProgram().getTaskManager().submit( new RefreshUpdatableProducts( productTool, force ) );
 	}
 

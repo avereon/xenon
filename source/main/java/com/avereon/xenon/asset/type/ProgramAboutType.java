@@ -8,7 +8,7 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.product.ModEvent;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
@@ -16,7 +16,7 @@ public class ProgramAboutType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:about" );
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final String WATCHER_KEY = "program.asset.watcher";
 

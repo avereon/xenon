@@ -10,7 +10,7 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.ScrollPane;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Set;
@@ -19,7 +19,7 @@ public class SettingsTool extends GuidedTool {
 
 	public static final String GENERAL = "general";
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final String PAGE_ID = "page-id";
 
@@ -36,43 +36,43 @@ public class SettingsTool extends GuidedTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.debug( "Settings tool allocate" );
+		log.log( Log.DEBUG,  "Settings tool allocate" );
 		super.allocate();
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.debug( "Settings tool display" );
+		log.log( Log.DEBUG,  "Settings tool display" );
 		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.debug( "Settings tool activate" );
+		log.log( Log.DEBUG,  "Settings tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.debug( "Settings tool deactivate" );
+		log.log( Log.DEBUG,  "Settings tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.debug( "Settings tool conceal" );
+		log.log( Log.DEBUG,  "Settings tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.debug( "Settings tool deallocate" );
+		log.log( Log.DEBUG,  "Settings tool deallocate" );
 		super.deallocate();
 	}
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
-		log.debug( "Settings tool asset ready" );
+		log.log( Log.DEBUG,  "Settings tool asset ready" );
 		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?

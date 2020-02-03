@@ -6,15 +6,14 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.product.RepoState;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.List;
 import java.util.stream.Collectors;
 
 class RepoPage extends ProductToolPage {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Program program;
 
@@ -43,7 +42,7 @@ class RepoPage extends ProductToolPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.debug( "Update product repos" );
+		ProductTool.log.log( Log.DEBUG,  "Update product repos" );
 		productTool.getProgram().getTaskManager().submit( new RefreshProductRepos( productTool, false ) );
 	}
 

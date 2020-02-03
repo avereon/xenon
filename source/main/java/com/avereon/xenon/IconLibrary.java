@@ -2,16 +2,15 @@ package com.avereon.xenon;
 
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import com.avereon.venza.icon.BrokenIcon;
 import com.avereon.venza.image.Images;
 import com.avereon.venza.image.ProgramIcon;
 import com.avereon.venza.image.ProgramImage;
 import com.avereon.venza.image.ProgramImageIcon;
-import com.avereon.venza.icon.BrokenIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.image.Image;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final int DEFAULT_SIZE = 16;
 
@@ -103,7 +102,7 @@ public class IconLibrary {
 		try {
 			return icons.get( id ).newInstance();
 		} catch( Exception exception ) {
-			log.error( "Unable to create icon: " + id, exception );
+			log.log( Log.ERROR,  "Unable to create icon: " + id, exception );
 			return null;
 		}
 	}

@@ -2,7 +2,7 @@ package com.avereon.xenon.transaction;
 
 import com.avereon.event.EventType;
 import com.avereon.util.Log;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Txn {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final ThreadLocal<Deque<Txn>> threadLocalTransactions = new ThreadLocal<>();
 
@@ -125,7 +125,7 @@ public class Txn {
 
 		try {
 			commitLock.lock();
-			log.trace( System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
+			log.log( Log.TRACE,  System.identityHashCode( this ) + " locked by: " + Thread.currentThread() );
 
 			// Send a commit begin event to all unique targets
 			sendEvent( TxnEvent.COMMIT_BEGIN, operations );
@@ -153,7 +153,7 @@ public class Txn {
 					try {
 						target.dispatch( event );
 					} catch( Throwable throwable ) {
-						log.error( "Error dispatching transaction event", throwable );
+						log.log( Log.ERROR,  "Error dispatching transaction event", throwable );
 					}
 				}
 			}
@@ -161,7 +161,7 @@ public class Txn {
 			sendEvent( TxnEvent.COMMIT_END, operations );
 			doReset();
 			commitLock.unlock();
-			log.trace( "Transaction[" + System.identityHashCode( this ) + "] committed!" );
+			log.log( Log.TRACE,  "Transaction[" + System.identityHashCode( this ) + "] committed!" );
 		}
 	}
 

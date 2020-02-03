@@ -3,23 +3,22 @@ package com.avereon.xenon;
 import com.avereon.event.Event;
 import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 public class ProgramEventWatcher implements EventHandler<Event> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	public void handle( Event event ) {
 		if( "PROGRESS".equals( event.getEventType().getName() ) ) {
-			log.trace( String.valueOf( event ) );
+			log.log( Log.TRACE,  String.valueOf( event ) );
 		} else if( event instanceof ProgramEvent ) {
-			log.info( String.valueOf( event ) );
+			log.log( Log.INFO,  String.valueOf( event ) );
 //		} else if( event instanceof AssetEvent ) {
-//			log.warn( String.valueOf( event ) );
+//			log.log( Log.WARN,  String.valueOf( event ) );
 		} else {
-			log.debug( String.valueOf( event ) );
+			log.log( Log.DEBUG,  String.valueOf( event ) );
 		}
 	}
 

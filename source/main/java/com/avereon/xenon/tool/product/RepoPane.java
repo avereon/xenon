@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.RepoCard;
+import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -185,7 +186,7 @@ class RepoPane extends MigPane {
 				productTool.getProgram().getProductManager().removeRepo( source );
 				page.updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.warn( "Error removing repository", exception );
+				ProductTool.log.log( Log.WARN,  "Error removing repository", exception );
 			}
 		} ) );
 	}

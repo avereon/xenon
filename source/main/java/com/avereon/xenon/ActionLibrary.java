@@ -2,15 +2,14 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.util.Log;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static Logger log = Log.log();
 
 	private Map<String, ActionProxy> actions;
 
@@ -91,7 +90,7 @@ public class ActionLibrary {
 
 	public ActionProxy getAction( String id ) {
 		ActionProxy proxy = actions.get( id );
-		if( proxy == null ) log.warn( "Action proxy not found: " + id );
+		if( proxy == null ) log.log( Log.WARN,  "Action proxy not found: " + id );
 		return proxy;
 	}
 

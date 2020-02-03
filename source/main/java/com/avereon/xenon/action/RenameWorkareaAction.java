@@ -8,14 +8,14 @@ import com.avereon.xenon.workspace.Workarea;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 public class RenameWorkareaAction extends Action {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Workarea workarea;
 
@@ -48,7 +48,7 @@ public class RenameWorkareaAction extends Action {
 		try {
 			workarea.setName( name );
 		} catch( Exception exception ) {
-			log.error( "Error creating new workarea: " + name, exception );
+			log.log( Log.ERROR,  "Error creating new workarea: " + name, exception );
 		}
 	}
 

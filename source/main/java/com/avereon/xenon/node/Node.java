@@ -3,7 +3,7 @@ package com.avereon.xenon.node;
 import com.avereon.event.EventType;
 import com.avereon.util.Log;
 import com.avereon.xenon.transaction.*;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.*;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Node implements TxnEventTarget, Cloneable {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	/**
 	 * The modified flag key.
@@ -116,7 +116,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			Txn.submit( new SetSelfModifiedOperation( this, oldValue, newValue ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
-			log.error( "Error setting flag: modified", exception );
+			log.log( Log.ERROR,  "Error setting flag: modified", exception );
 		}
 	}
 
@@ -168,7 +168,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			Txn.submit( new SetResourceOperation( this, key, oldValue, newValue ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
-			log.error( "Error setting resource: " + key + "=" + newValue, exception );
+			log.log( Log.ERROR,  "Error setting resource: " + key + "=" + newValue, exception );
 		}
 	}
 
@@ -178,7 +178,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			Txn.submit( new RefreshOperation( this ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
-			log.error( "Error refreshing: " + this, exception );
+			log.log( Log.ERROR,  "Error refreshing: " + this, exception );
 		}
 	}
 
@@ -388,7 +388,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			Txn.submit( new SetValueOperation( this, key, oldValue, newValue ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
-			log.error( "Error setting flag: " + key, exception );
+			log.log( Log.ERROR,  "Error setting flag: " + key, exception );
 		}
 	}
 
@@ -398,7 +398,7 @@ public class Node implements TxnEventTarget, Cloneable {
 			getValueKeys().stream().sorted().forEach( k -> setValue( k, null ) );
 			Txn.commit();
 		} catch( TxnException exception ) {
-			log.error( "Error clearing values", exception );
+			log.log( Log.ERROR,  "Error clearing values", exception );
 		}
 	}
 

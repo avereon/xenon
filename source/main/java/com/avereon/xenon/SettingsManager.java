@@ -16,7 +16,7 @@ import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private static final String ROOT = "settings";
 
@@ -80,14 +80,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			pages = new SettingsPageParser( product, settings ).parse( path );
 			addSettingsPages( pages );
 		} catch( IOException exception ) {
-			log.error( "Error loading settings page: " + path, exception );
+			log.log( Log.ERROR,  "Error loading settings page: " + path, exception );
 		}
 		return pages;
 	}
 
 	public void addSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.debug( "Adding settings pages..." );
+			log.log( Log.DEBUG,  "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -100,7 +100,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.debug( "Removing settings pages..." );
+			log.log( Log.DEBUG,  "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				rootSettingsPages.remove( page.getId() );
@@ -128,7 +128,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			// Create the guide tree
 			createGuide( guide.getRoot(), pages );
 		} catch( Exception exception ) {
-			log.error( "Error getting settings asset", exception );
+			log.log( Log.ERROR,  "Error getting settings asset", exception );
 		}
 	}
 

@@ -2,11 +2,11 @@ package com.avereon.xenon;
 
 import com.avereon.util.Log;
 import com.avereon.xenon.notice.NoticeManager;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 class ProgramUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
-	private static final Logger log = Log.get( Program.class );
+	private static final Logger log = Log.log();
 
 	private Program program;
 
@@ -21,7 +21,7 @@ class ProgramUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler
 		if( noticeManager != null ) {
 			noticeManager.error( message, throwable );
 		} else {
-			log.error( message, throwable );
+			log.log( Log.ERROR,  message, throwable );
 		}
 	}
 

@@ -3,7 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
@@ -51,7 +51,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public abstract class AssetType implements Comparable<AssetType> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private final String key = getClass().getName();
 

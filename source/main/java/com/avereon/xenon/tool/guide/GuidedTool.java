@@ -10,7 +10,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 

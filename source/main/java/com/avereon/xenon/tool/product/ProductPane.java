@@ -18,7 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.controlsfx.control.ToggleSwitch;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.lang.invoke.MethodHandles;
@@ -28,7 +28,7 @@ import java.util.TimeZone;
 
 class ProductPane extends MigPane {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private ProductTool tool;
 
@@ -267,7 +267,7 @@ class ProductPane extends MigPane {
 				manager.uninstallProducts( source ).get();
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.warn( "Error uninstalling product", exception );
+				ProductTool.log.log( Log.WARN,  "Error uninstalling product", exception );
 			}
 			Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );

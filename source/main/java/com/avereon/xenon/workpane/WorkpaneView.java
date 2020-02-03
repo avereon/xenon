@@ -7,7 +7,7 @@ import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private WorkpaneEdge topEdge;
 

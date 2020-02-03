@@ -15,9 +15,8 @@ import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.*;
 
 public class ProductTool extends GuidedTool {
@@ -30,7 +29,7 @@ public class ProductTool extends GuidedTool {
 
 	public static final String SOURCES = "sources";
 
-	static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	static final Logger log = Log.log();
 
 	static final int ICON_SIZE = 48;
 
@@ -88,43 +87,43 @@ public class ProductTool extends GuidedTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-		log.debug( "Product tool allocate" );
+		log.log( Log.DEBUG,  "Product tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.debug( "Product tool display" );
+		log.log( Log.DEBUG,  "Product tool display" );
 		super.display();
 		checkInfo.updateInfo();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.debug( "Product tool activate" );
+		log.log( Log.DEBUG,  "Product tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.debug( "Product tool deactivate" );
+		log.log( Log.DEBUG,  "Product tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.debug( "Product tool conceal" );
+		log.log( Log.DEBUG,  "Product tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.debug( "Product tool deallocate" );
+		log.log( Log.DEBUG,  "Product tool deallocate" );
 		super.deallocate();
 	}
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
-		log.debug( "Product tool asset ready" );
+		log.log( Log.DEBUG,  "Product tool asset ready" );
 		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
@@ -136,7 +135,7 @@ public class ProductTool extends GuidedTool {
 
 	@Override
 	protected void assetRefreshed() throws ToolException {
-		log.trace( "Product tool asset refreshed" );
+		log.log( Log.TRACE,  "Product tool asset refreshed" );
 		super.assetRefreshed();
 	}
 

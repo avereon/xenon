@@ -11,7 +11,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Program program;
 

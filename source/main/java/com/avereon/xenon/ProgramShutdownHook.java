@@ -5,7 +5,7 @@ import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.zenna.UpdateCommandBuilder;
 import com.avereon.zenna.UpdateFlag;
 import com.avereon.zenna.UpdateTask;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class ProgramShutdownHook extends Thread {
 		UPDATE
 	}
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private volatile Program program;
 
@@ -104,7 +104,7 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL, "info" ) );
 		builder.command().add( UpdateFlag.STDIN );
 
-		log.debug( mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+		log.log( Log.DEBUG,  mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
@@ -150,7 +150,7 @@ public class ProgramShutdownHook extends Thread {
 		) );
 		launchCommands.addAll( List.of( restartCommands ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
-		log.debug( ucb.toString() );
+		log.log( Log.DEBUG,  ucb.toString() );
 
 		Path updateCommandFile = program.getDataFolder().resolve( "update.commands.txt" );
 		Files.writeString( updateCommandFile, ucb.toString() );
@@ -189,13 +189,13 @@ public class ProgramShutdownHook extends Thread {
 		Files.createDirectories( updaterHomeRoot );
 
 		// Copy all the modules needed for the updater
-		log.debug( "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
+		log.log( Log.DEBUG,  "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
 		FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
 
 		// Fix the permissions on the executable
 		String ext = OperatingSystem.isWindows() ? ".exe" : "";
 		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
-		if( !bin.toFile().setExecutable( true, true ) ) log.warn( "Unable to make updater executable: " + bin );
+		if( !bin.toFile().setExecutable( true, true ) ) log.log( Log.WARN,  "Unable to make updater executable: " + bin );
 
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
@@ -207,11 +207,11 @@ public class ProgramShutdownHook extends Thread {
 			.list( FileUtil.getTempFolder() )
 			.filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) )
 			.forEach( ( p ) -> {
-				log.info( "Delete prior updater: " + p.getFileName() );
+				log.log( Log.INFO,  "Delete prior updater: " + p.getFileName() );
 				try {
 					FileUtil.delete( p );
 				} catch( IOException exception ) {
-					log.error( "Unable to cleanup prior updater files", exception );
+					log.log( Log.ERROR,  "Unable to cleanup prior updater files", exception );
 				}
 			} );
 	}
@@ -232,7 +232,7 @@ public class ProgramShutdownHook extends Thread {
 			process.getOutputStream().close();
 			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
-			log.error( "Error restarting program", throwable );
+			log.log( Log.ERROR,  "Error restarting program", throwable );
 			throwable.printStackTrace( System.err );
 		}
 	}

@@ -1,5 +1,6 @@
 package com.avereon.xenon.action;
 
+import com.avereon.util.Log;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import javafx.event.ActionEvent;
@@ -23,7 +24,7 @@ public class RunnableTestAction extends Action {
 		try {
 			runnable.run();
 		} catch( Throwable throwable ) {
-			log.error( "Error running action", throwable );
+			log.log( Log.ERROR,  "Error running action", throwable );
 		}
 	}
 

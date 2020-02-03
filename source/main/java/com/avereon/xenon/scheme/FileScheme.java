@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.NullCodecException;
 import com.avereon.xenon.asset.AssetException;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.*;
 import java.lang.invoke.MethodHandles;
@@ -19,7 +19,7 @@ public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	/**
 	 * The key to the cached file object.

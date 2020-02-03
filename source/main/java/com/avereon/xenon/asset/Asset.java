@@ -12,7 +12,7 @@ import com.avereon.xenon.node.NodeEvent;
 import com.avereon.xenon.scheme.AssetScheme;
 import com.avereon.xenon.transaction.TxnEvent;
 import com.avereon.xenon.util.ProgramEventBus;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -51,7 +51,7 @@ public class Asset extends Node implements Configurable {
 
 	//	private static final String UNDO_MANAGER = "asset.undo.manager";
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	// Name is not stored in the node data, it is derived
 	private String name;
@@ -406,7 +406,7 @@ public class Asset extends Node implements Configurable {
 
 	@Override
 	public void dispatch( TxnEvent event ) {
-		//log.warn( "Asset " + event.getEventType() + ": modified=" + isModified() );
+		//log.log( Log.WARN,  "Asset " + event.getEventType() + ": modified=" + isModified() );
 		super.dispatch( event );
 
 		if( getEventBus() == null ) return;

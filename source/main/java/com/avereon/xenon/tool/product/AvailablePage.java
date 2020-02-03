@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
 
@@ -21,7 +22,7 @@ class AvailablePage extends ProductPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.trace( "Update available products" );
+		ProductTool.log.log( Log.TRACE,  "Update available products" );
 		productTool.getProgram().getTaskManager().submit( new RefreshAvailableProducts( productTool, force ) );
 	}
 

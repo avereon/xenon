@@ -7,7 +7,7 @@ import com.avereon.util.Log;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.UriUtil;
 import com.avereon.xenon.Program;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class V2RepoClient implements RepoClient {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Program program;
 
@@ -67,10 +67,10 @@ public class V2RepoClient implements RepoClient {
 				try( InputStream input = download.getInputStream() ) {
 					catalogCards.add( CatalogCard.load( matchingRepoCards.get( future ), input ) );
 				} catch( Exception exception ) {
-					log.warn( "Error downloading catalog card: " + download.getSource(), exception );
+					log.log( Log.WARN,  "Error downloading catalog card: " + download.getSource(), exception );
 				}
 			} catch( Exception exception ) {
-				log.warn( "Error downloading catalog card", exception );
+				log.log( Log.WARN,  "Error downloading catalog card", exception );
 			}
 		}
 
@@ -96,10 +96,10 @@ public class V2RepoClient implements RepoClient {
 				try( InputStream input = download.getInputStream() ) {
 					productCards.add( new ProductCard().load( input, download.getSource() ) );
 				} catch( Exception exception ) {
-					log.warn( "Error downloading product card: " + download.getSource(), exception );
+					log.log( Log.WARN,  "Error downloading product card: " + download.getSource(), exception );
 				}
 			} catch( Exception exception ) {
-				log.warn( "Error downloading product card", exception );
+				log.log( Log.WARN,  "Error downloading product card", exception );
 			}
 		}
 

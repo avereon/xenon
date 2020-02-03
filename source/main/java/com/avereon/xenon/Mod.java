@@ -7,7 +7,7 @@ import com.avereon.venza.image.ProgramIcon;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.tool.ToolRegistration;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -27,7 +27,7 @@ import java.nio.file.Path;
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private Program program;
 

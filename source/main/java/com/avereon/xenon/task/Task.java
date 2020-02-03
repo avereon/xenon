@@ -2,7 +2,7 @@ package com.avereon.xenon.task;
 
 import com.avereon.util.Log;
 import com.avereon.xenon.util.ProgramEventBus;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Callable;
@@ -21,7 +21,7 @@ import java.util.concurrent.FutureTask;
 
 public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	public enum State {
 		READY,

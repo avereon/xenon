@@ -12,13 +12,13 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.lang.invoke.MethodHandles;
 
 public class ToolTabSkin extends SkinBase<ToolTab> {
 
-	private static final Logger log = Log.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.log();
 
 	private BorderPane tabLayout;
 
@@ -80,16 +80,16 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			//Image image = tab.snapshot( null, null );
 			//board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 
-			log.debug( "Drag start: " + tool.getAsset().getUri() );
+			log.log( Log.DEBUG,  "Drag start: " + tool.getAsset().getUri() );
 		} );
 
 		tab.setOnDragDone( ( event ) -> {
-			log.debug( "Drag done: " + tool.getAsset().getUri() );
+			log.log( Log.DEBUG,  "Drag done: " + tool.getAsset().getUri() );
 			//if( !event.isDropCompleted() ) getSkinnable().getToolPane().getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragEntered( ( event ) -> {
-			log.debug( "Drag enter tab: " + event.getDragboard().getUrl() );
+			log.log( Log.DEBUG,  "Drag enter tab: " + event.getDragboard().getUrl() );
 			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolTabPane().getWorkpane() );
 			getSkinnable().getToolTabPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 		} );
@@ -99,12 +99,12 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragExited( ( event ) -> {
-			log.debug( "Drag exit tab: " + event.getDragboard().getUrl() );
+			log.log( Log.DEBUG,  "Drag exit tab: " + event.getDragboard().getUrl() );
 			getSkinnable().getToolTabPane().getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
-			log.debug( "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			log.log( Log.DEBUG,  "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
 			int index = tab.getToolTabPane().getTabs().indexOf( tab );
 			tab.getToolTabPane().handleDrop( event, index, null );
 		} );
