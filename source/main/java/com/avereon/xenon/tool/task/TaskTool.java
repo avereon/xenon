@@ -12,6 +12,7 @@ import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -19,10 +20,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -43,15 +43,21 @@ public class TaskTool extends ProgramTool {
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "task" ) );
 		setTitle( product.rb().text( "tool", "task-name" ) );
 
-		Button startTask = new Button( "Random Test Task" );
-		startTask.setOnAction( ( event ) -> startRandomTask() );
+		Button testTask = new Button( "Test Task" );
+		testTask.setOnAction( ( event ) -> startRandomTask( false ) );
+
+		Button failTask = new Button( "Fail Task" );
+		failTask.setOnAction( ( event ) -> startRandomTask( true ) );
 
 		ScrollPane scroller = new ScrollPane( taskPanes = new VBox() );
 		scroller.setFitToWidth( true );
 
+		HBox buttonBox = new HBox( UiFactory.PAD, testTask, failTask );
+		buttonBox.setAlignment( Pos.CENTER );
+
 		BorderPane layoutPane = new BorderPane();
 		layoutPane.setPadding( new Insets( UiFactory.PAD ) );
-		if( Profile.DEV.equals( getProgram().getProfile() ) ) layoutPane.setTop( new HBox( startTask ) );
+		if( Profile.DEV.equals( getProgram().getProfile() ) ) layoutPane.setTop( buttonBox );
 		layoutPane.setCenter( scroller );
 		getChildren().add( layoutPane );
 	}
@@ -68,10 +74,9 @@ public class TaskTool extends ProgramTool {
 			if( tasks.contains( task ) ) return;
 			tasks.add( task );
 			TaskPane pane = new TaskPane( task );
-			task.getEventBus().register( TaskEvent.FINISH, e -> Platform.runLater( () -> removeTaskPane( pane ) ) );
 			task.getEventBus().register( TaskEvent.PROGRESS, e -> Platform.runLater( () -> pane.setProgress( e.getTask().getPercent() ) ) );
-			taskPanes.getChildren().add( pane );
-			if( task.isDone() ) removeTaskPane( pane );
+			task.getEventBus().register( TaskEvent.FINISH, e -> Platform.runLater( () -> removeTaskPane( pane ) ) );
+			if( !task.isDone() ) taskPanes.getChildren().add( pane );
 		}
 	}
 
@@ -80,9 +85,10 @@ public class TaskTool extends ProgramTool {
 		tasks.remove( pane.getTask() );
 	}
 
-	private void startRandomTask() {
-		long duration = 1000 + (long)(7000 * new Random().nextDouble());
-		getProgram().getTaskManager().submit( new RandomTask( duration ) );
+	private void startRandomTask( boolean fail ) {
+		Random random = new Random();
+		long duration = 1000 + (long)(7000 * random.nextDouble());
+		getProgram().getTaskManager().submit( new RandomTask( duration, fail ) );
 	}
 
 	private class TaskPane extends MigPane {
@@ -91,7 +97,7 @@ public class TaskTool extends ProgramTool {
 
 		private ProgressBar progress;
 
-		TaskPane( Task<?> task ) {
+		private TaskPane( Task<?> task ) {
 			this.task = task;
 			progress = new ProgressBar();
 			Label name = new Label( task.getName() );
@@ -120,10 +126,12 @@ public class TaskTool extends ProgramTool {
 		// The delay between progress checks ~ 1000ms / 120hz;
 		private static final long DELAY = 1000 / 120;
 
-		private RandomTask( long duration ) {
+		private boolean fail;
+
+		private RandomTask( long duration, boolean fail ) {
 			super( "Random Task (" + duration + "ms)" );
-			//setMinimum( 0 );
 			setTotal( duration );
+			this.fail = fail;
 		}
 
 		@Override
@@ -139,6 +147,8 @@ public class TaskTool extends ProgramTool {
 				time += DELAY;
 				setProgress( time );
 			}
+
+			if( fail ) throw new RuntimeException( "Random task failure" );
 
 			return null;
 		}
