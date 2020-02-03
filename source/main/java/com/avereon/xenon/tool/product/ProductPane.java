@@ -18,10 +18,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.controlsfx.control.ToggleSwitch;
-import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -194,7 +193,7 @@ class ProductPane extends MigPane {
 		if( isInstalledProductsPanel ) {
 			enableSwitch.setVisible( true );
 			enableSwitch.setDisable( isProgram );
-			enableSwitch.setSelected( tool.getProgram().getProductManager().isEnabled( source ) );
+			enableSwitch.setSelected( isProgram || tool.getProgram().getProductManager().isEnabled( source ) );
 
 			actionButton1.setVisible( false );
 
