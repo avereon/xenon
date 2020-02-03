@@ -144,6 +144,7 @@ public class Workspace implements Configurable {
 		statusBar = createStatusBar( program );
 
 		noticeContainer = new VBox();
+		noticeContainer.getStyleClass().add( "notice-container" );
 		noticeContainer.setPickOnBounds( false );
 
 		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );

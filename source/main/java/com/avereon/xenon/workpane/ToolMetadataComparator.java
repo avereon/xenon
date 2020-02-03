@@ -1,6 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.xenon.tool.ToolRegistration;
+import com.avereon.xenon.ToolRegistration;
 
 import java.util.Comparator;
 

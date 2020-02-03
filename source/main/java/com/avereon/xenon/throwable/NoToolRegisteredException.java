@@ -1,4 +1,4 @@
-package com.avereon.xenon;
+package com.avereon.xenon.throwable;
 
 public class NoToolRegisteredException extends Exception {
 

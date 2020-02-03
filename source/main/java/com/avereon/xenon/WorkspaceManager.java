@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
-import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
@@ -13,7 +12,6 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;

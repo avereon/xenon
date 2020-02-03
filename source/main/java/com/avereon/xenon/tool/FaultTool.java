@@ -1,12 +1,12 @@
-package com.avereon.xenon.tool.about;
+package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.tool.ProgramTool;
 import javafx.scene.control.TextArea;
 
 import java.io.PrintWriter;

@@ -4,7 +4,7 @@ import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramGuideType;
-import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -12,7 +12,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;

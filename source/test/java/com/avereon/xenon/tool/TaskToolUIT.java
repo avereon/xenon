@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.task;
+package com.avereon.xenon.tool;
 
 import com.avereon.xenon.BaseToolUIT;
 

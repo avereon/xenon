@@ -1,6 +1,5 @@
-package com.avereon.xenon.tool;
+package com.avereon.xenon;
 
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.scene.Node;
 

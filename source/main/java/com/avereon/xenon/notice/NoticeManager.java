@@ -10,7 +10,7 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.type.ProgramFaultType;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
 import com.avereon.xenon.task.TaskException;
-import com.avereon.xenon.tool.notice.NoticeTool;
+import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;

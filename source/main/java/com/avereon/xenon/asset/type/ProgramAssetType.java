@@ -4,12 +4,12 @@ import com.avereon.product.Product;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 
-public class ProgramFaultType extends AssetType {
+public class ProgramAssetType extends AssetType {
 
-	public static final java.net.URI URI = java.net.URI.create( "program:fault" );
+	public static final java.net.URI URI = java.net.URI.create( "program:asset" );
 
-	public ProgramFaultType( Product product ) {
-		super( product, "fault" );
+	public ProgramAssetType( Product product ) {
+		super( product, "asset" );
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.welcome;
+package com.avereon.xenon.tool;
 
 import com.avereon.xenon.BaseToolUIT;
 

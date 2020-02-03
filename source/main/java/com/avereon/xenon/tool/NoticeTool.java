@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.notice;
+package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
@@ -7,7 +7,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
@@ -17,7 +17,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 /**

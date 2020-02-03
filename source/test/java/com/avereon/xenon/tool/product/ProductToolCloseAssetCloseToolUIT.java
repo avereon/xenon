@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.xenon.asset.type.ProgramProductType;
-import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;

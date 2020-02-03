@@ -6,7 +6,7 @@ import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -16,7 +16,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 public class GuideTool extends ProgramTool {

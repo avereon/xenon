@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.about;
+package com.avereon.xenon.tool;
 
 import com.avereon.xenon.workpane.ToolEvent;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.task;
+package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
 import com.avereon.xenon.Profile;
@@ -8,7 +8,7 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;

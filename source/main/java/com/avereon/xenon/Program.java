@@ -21,17 +21,11 @@ import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.ProgramScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
-import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.tool.ToolInstanceMode;
-import com.avereon.xenon.tool.ToolRegistration;
-import com.avereon.xenon.tool.about.AboutTool;
-import com.avereon.xenon.tool.about.FaultTool;
+import com.avereon.xenon.throwable.ProgramUncaughtExceptionHandler;
+import com.avereon.xenon.tool.*;
 import com.avereon.xenon.tool.guide.GuideTool;
-import com.avereon.xenon.tool.notice.NoticeTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.tool.task.TaskTool;
-import com.avereon.xenon.tool.welcome.WelcomeTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Application;
@@ -1179,13 +1173,13 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriAssetType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
 		manager.registerUriAssetType( ProgramProductType.URI, new ProgramProductType( this ) );
 		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
-
-		manager.registerSchemeAssetType( "fault", new ProgramFaultType( this ) );
+		manager.registerUriAssetType( ProgramFaultType.URI, new ProgramFaultType( this ) );
+		manager.registerUriAssetType( ProgramAssetType.URI, new ProgramAssetType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
-		manager.unregisterSchemeAssetType( "fault" );
-
+		manager.unregisterUriAssetType( ProgramAssetType.URI );
+		manager.unregisterUriAssetType( ProgramFaultType.URI );
 		manager.unregisterUriAssetType( ProgramTaskType.URI );
 		manager.unregisterUriAssetType( ProgramProductType.URI );
 		manager.unregisterUriAssetType( ProgramNoticeType.URI );
@@ -1204,17 +1198,16 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, ProgramFaultType.class, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
+		registerTool( manager, ProgramAssetType.class, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.about.AboutTool", AboutTool.class );
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.guide.GuideTool", GuideTool.class );
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.notice.NoticeTool", NoticeTool.class );
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.product.ProductTool", ProductTool.class );
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.settings.SettingsTool", SettingsTool.class );
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.task.TaskTool", TaskTool.class );
-		toolManager.addToolAlias( "com.xeomar.xenon.tool.welcome.WelcomeTool", WelcomeTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.AboutTool", AboutTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.NoticeTool", NoticeTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.TaskTool", TaskTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.WelcomeTool", WelcomeTool.class );
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		unregisterTool( manager, ProgramAssetType.class, AssetTool.class );
 		unregisterTool( manager, ProgramFaultType.class, FaultTool.class );
 		unregisterTool( manager, ProgramTaskType.class, TaskTool.class );
 		unregisterTool( manager, ProgramProductType.class, ProductTool.class );

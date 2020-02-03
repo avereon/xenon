@@ -4,9 +4,10 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.xenon.*;
+import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
-import com.avereon.xenon.tool.ProgramTool;
+import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.util.ProgramEventBus;
 import com.avereon.xenon.workpane.WorkpaneView;
@@ -1399,20 +1400,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		public void handle( ActionEvent event ) {
 			Collection<AssetType> types = getUserAssetTypes();
 
-			AssetType type = null;
 			if( types.size() == 1 ) {
-				type = types.iterator().next();
+				newAsset( types.iterator().next() );
 			} else {
-				// TODO Re-enable AssetManager.NewActionHandler.handle()
-				//					String title = program.getResourceBundle().getString( BundleKey.LABELS, "new" );
-				//					AssetTypePanel panel = new AssetTypePanel( AssetManager.this );
-				//
-				//					int result = program.notify( title, panel, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE );
-				//
-				//					if( result == JOptionPane.OK_OPTION ) type = panel.getAssetType();
+				openAsset( ProgramAssetType.URI );
 			}
-
-			newAsset( type );
 		}
 
 	}

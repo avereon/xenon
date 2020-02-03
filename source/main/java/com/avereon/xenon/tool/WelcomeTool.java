@@ -1,11 +1,11 @@
-package com.avereon.xenon.tool.welcome;
+package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.scene.Node;
@@ -13,10 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Ellipse;
-import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 public class WelcomeTool extends ProgramTool {
 

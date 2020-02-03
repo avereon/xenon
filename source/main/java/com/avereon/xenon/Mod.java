@@ -5,12 +5,10 @@ import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
 import com.avereon.venza.image.ProgramIcon;
 import com.avereon.xenon.asset.AssetType;
-import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.tool.ToolRegistration;
+
 import java.lang.System.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 
 /**

@@ -1,11 +1,7 @@
-package com.avereon.xenon.tool;
+package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
-import com.avereon.xenon.Action;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolException;

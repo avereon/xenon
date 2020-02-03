@@ -3,7 +3,6 @@ package com.avereon.xenon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.tool.ProgramTool;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneView;
 

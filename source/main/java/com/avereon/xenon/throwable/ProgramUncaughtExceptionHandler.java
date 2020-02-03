@@ -1,10 +1,10 @@
-package com.avereon.xenon;
+package com.avereon.xenon.throwable;
 
 import com.avereon.util.Log;
 
 import java.lang.System.Logger;
 
-class ProgramUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+public class ProgramUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
 	private static final Logger log = Log.log();
 

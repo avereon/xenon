@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.about;
+package com.avereon.xenon.tool;
 
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramAboutType;

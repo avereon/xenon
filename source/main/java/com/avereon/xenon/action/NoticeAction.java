@@ -3,7 +3,7 @@ package com.avereon.xenon.action;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
-import com.avereon.xenon.tool.notice.NoticeTool;
+import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
 import javafx.event.ActionEvent;
 

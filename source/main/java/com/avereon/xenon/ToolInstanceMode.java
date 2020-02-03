@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool;
+package com.avereon.xenon;
 
 /**
  * The various modes that tools instances can be handled.

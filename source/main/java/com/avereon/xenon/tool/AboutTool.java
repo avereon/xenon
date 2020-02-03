@@ -1,4 +1,4 @@
-package com.avereon.xenon.tool.about;
+package com.avereon.xenon.tool;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
@@ -23,11 +23,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
-import java.lang.System.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
 import java.io.File;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.lang.management.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
