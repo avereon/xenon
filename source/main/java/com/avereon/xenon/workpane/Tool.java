@@ -15,9 +15,8 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
-import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 /**
  * The Tool class is a control that "works on" a asset.

@@ -16,9 +16,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;

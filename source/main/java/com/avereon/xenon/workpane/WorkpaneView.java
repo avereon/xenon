@@ -7,16 +7,14 @@ import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
-import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
 
-	private static final Logger log = Log.log();
+	private static final System.Logger log = Log.log();
 
 	private WorkpaneEdge topEdge;
 
@@ -46,10 +44,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		// Add a focus listener to the tabs so when a tab is focused, the tool
 		// is activated. This may happen even if the tab is not selected.
-//		tools.activeProperty().addListener( ( observable, oldValue, newValue ) -> {
-//			ToolTab tab = tools.getSelectionModel().getSelectedItem();
-//			if( newValue && tab != null ) activateTool( tab.getTool() );
-//		} );
+		//		tools.activeProperty().addListener( ( observable, oldValue, newValue ) -> {
+		//			ToolTab tab = tools.getSelectionModel().getSelectedItem();
+		//			if( newValue && tab != null ) activateTool( tab.getTool() );
+		//		} );
 
 		// Add a selection listener to the tabs so when a tab is selected, the tool
 		// is activated. This may happen even if the tab is not focused.
@@ -59,7 +57,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		// Add a listener to the tab list to store the order when the tabs change
 		tools.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> {
-			for( ToolTab tab : tools.getTabs() ){
+			for( ToolTab tab : tools.getTabs() ) {
 				Tool tool = tab.getTool();
 				tool.fireEvent( new ToolEvent( null, ToolEvent.ORDERED, tool.getWorkpane(), tool ) );
 			}
