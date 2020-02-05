@@ -141,7 +141,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	/**
 	 * Initialize an asset with default state. This method should provide the
-	 * specified asset with a default state prior to being used in an editor.
+	 * specified asset with a default state prior to being used in a tool.
 	 * <p>
 	 * Unlike the {@link #assetUser(Program, Asset)} method this method is
 	 * always called whenever an asset is new, opened or restored. This method
@@ -166,9 +166,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 * interaction when creating new assets.
 	 * <p>
 	 * Unlike the {@link #assetInit(Program, Asset)} method this method is
-	 * only called for new assets when the URI is null. If the URI is not null
-	 * this method will not be called as is the case for opening or restoring
-	 * existing assets.
+	 * only called for new assets. If the asset is not new this method will not
+	 * be called as is the case for opening or restoring existing assets.
 	 * <p>
 	 * Note: This method is called using a task thread and is not safe to use
 	 * directly on UI components.
