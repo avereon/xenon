@@ -1191,15 +1191,15 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerTools( ToolManager manager ) {
-		registerTool( manager, ProgramAboutType.class, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
-		registerTool( manager, ProgramGuideType.class, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
-		registerTool( manager, ProgramNoticeType.class, NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
-		registerTool( manager, ProgramProductType.class, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
-		registerTool( manager, ProgramSettingsType.class, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
-		registerTool( manager, ProgramTaskType.class, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
-		registerTool( manager, ProgramWelcomeType.class, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
-		registerTool( manager, ProgramFaultType.class, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
-		registerTool( manager, ProgramAssetType.class, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, ProgramAboutType.MEDIA_TYPE, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
+		registerTool( manager, ProgramGuideType.MEDIA_TYPE, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
+		registerTool( manager, ProgramNoticeType.MEDIA_TYPE, NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
+		registerTool( manager, ProgramProductType.MEDIA_TYPE, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, ProgramSettingsType.MEDIA_TYPE, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
+		registerTool( manager, ProgramTaskType.MEDIA_TYPE, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
+		registerTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
+		registerTool( manager, ProgramAssetType.MEDIA_TYPE, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.NoticeTool", NoticeTool.class );
@@ -1208,26 +1208,21 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, ProgramAssetType.class, AssetTool.class );
-		unregisterTool( manager, ProgramFaultType.class, FaultTool.class );
-		unregisterTool( manager, ProgramTaskType.class, TaskTool.class );
-		unregisterTool( manager, ProgramProductType.class, ProductTool.class );
-		unregisterTool( manager, ProgramWelcomeType.class, WelcomeTool.class );
-		unregisterTool( manager, ProgramNoticeType.class, NoticeTool.class );
-		unregisterTool( manager, ProgramSettingsType.class, SettingsTool.class );
-		unregisterTool( manager, ProgramAboutType.class, AboutTool.class );
-		unregisterTool( manager, ProgramGuideType.class, GuideTool.class );
+		unregisterTool( manager, ProgramAssetType.MEDIA_TYPE, AssetTool.class );
+		unregisterTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class );
+		unregisterTool( manager, ProgramTaskType.MEDIA_TYPE, TaskTool.class );
+		unregisterTool( manager, ProgramProductType.MEDIA_TYPE, ProductTool.class );
+		unregisterTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class );
+		unregisterTool( manager, ProgramNoticeType.MEDIA_TYPE, NoticeTool.class );
+		unregisterTool( manager, ProgramSettingsType.MEDIA_TYPE, SettingsTool.class );
+		unregisterTool( manager, ProgramAboutType.MEDIA_TYPE, AboutTool.class );
+		unregisterTool( manager, ProgramGuideType.MEDIA_TYPE, GuideTool.class );
 	}
 
 	private void registerTool(
-		ToolManager manager,
-		Class<? extends AssetType> assetTypeClass,
-		Class<? extends ProgramTool> toolClass,
-		ToolInstanceMode mode,
-		String toolRbKey,
-		String iconKey
+		ToolManager manager, String assetTypeKey, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey
 	) {
-		AssetType type = assetManager.getAssetType( assetTypeClass.getName() );
+		AssetType type = assetManager.getAssetType( assetTypeKey );
 		String name = rb().text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
@@ -1236,8 +1231,8 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerTool( type, metadata );
 	}
 
-	private void unregisterTool( ToolManager manager, Class<? extends AssetType> assetTypeClass, Class<? extends ProgramTool> toolClass ) {
-		manager.unregisterTool( assetManager.getAssetType( assetTypeClass.getName() ), toolClass );
+	private void unregisterTool( ToolManager manager, String key, Class<? extends ProgramTool> toolClass ) {
+		manager.unregisterTool( assetManager.getAssetType( key ), toolClass );
 	}
 
 	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {
