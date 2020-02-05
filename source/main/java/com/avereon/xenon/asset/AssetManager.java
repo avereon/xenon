@@ -252,16 +252,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param key The asset type key
 	 * @return The asset type associated to the key
 	 */
-	@Deprecated
 	public AssetType getAssetType( String key ) {
 		AssetType type = assetTypesByTypeKey.get( key );
 		if( type == null ) log.log( Log.WARN,  "Asset type not found: " + key );
-		return type;
-	}
-
-	public AssetType getAssetType( Class<? extends AssetType> assetTypeClass ) {
-		AssetType type = assetTypesByTypeKey.get( assetTypeClass.getName() );
-		if( type == null ) log.log( Log.WARN,  "Asset type not found: " + assetTypeClass.getName() );
 		return type;
 	}
 
@@ -351,6 +344,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		schemeAssetTypes.remove( scheme );
 	}
 
+	public Future<ProgramTool> newAsset( String key ) {
+		return newAsset( key, null );
+	}
+
+	public Future<ProgramTool> newAsset( String key, Object model ) {
+		return newAsset( getAssetType( key ), model, null, true, true );
+	}
+
 	/**
 	 * This method starts the process of creating a new asset by asset type. The
 	 * returned future allows the caller to get the tool created for the new
@@ -362,14 +363,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public Future<ProgramTool> newAsset( AssetType type ) {
 		return newAsset( type, true, true );
-	}
-
-	public Future<ProgramTool> newAsset( Class<? extends AssetType> assetTypeClass ) {
-		return newAsset( getAssetType( assetTypeClass ), true, true );
-	}
-
-	public Future<ProgramTool> newAsset( Class<? extends AssetType> assetTypeClass, Object model ) {
-		return newAsset( getAssetType( assetTypeClass ), model, null, true, true );
 	}
 
 	/**

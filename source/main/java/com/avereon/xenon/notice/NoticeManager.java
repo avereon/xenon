@@ -50,7 +50,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	void fault( Object title, Object message, Throwable throwable, Notice.Type type, Object... parameters ) {
 		Notice notice = new Notice( title, message, throwable, parameters ).setType( type );
 		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
-		notice.setAction( () -> getProgram().getAssetManager().newAsset( ProgramFaultType.class, throwable ) );
+		notice.setAction( () -> getProgram().getAssetManager().newAsset( ProgramFaultType.MEDIA_TYPE, throwable ) );
 		addNotice( notice );
 	}
 

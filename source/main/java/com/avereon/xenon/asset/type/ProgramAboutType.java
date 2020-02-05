@@ -8,11 +8,12 @@ import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.product.ModEvent;
+
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-
 public class ProgramAboutType extends AssetType {
+
+	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.about";
 
 	public static final java.net.URI URI = java.net.URI.create( "program:about" );
 
@@ -22,6 +23,11 @@ public class ProgramAboutType extends AssetType {
 
 	public ProgramAboutType( Product product ) {
 		super( product, "about" );
+	}
+
+	@Override
+	public String getKey() {
+		return MEDIA_TYPE;
 	}
 
 	@Override

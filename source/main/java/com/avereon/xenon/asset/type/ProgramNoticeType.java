@@ -3,19 +3,20 @@ package com.avereon.xenon.asset.type;
 import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.notice.NoticeList;
-import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
-import java.lang.System.Logger;
+import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.notice.NoticeList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 public class ProgramNoticeType extends AssetType {
+
+	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.notice";
 
 	public static final java.net.URI URI = java.net.URI.create( "program:notice" );
 
@@ -30,6 +31,11 @@ public class ProgramNoticeType extends AssetType {
 	public boolean assetInit( Program program, Asset asset ) throws AssetException {
 		asset.setModel( new NoticeList() );
 		return true;
+	}
+
+	@Override
+	public String getKey() {
+		return MEDIA_TYPE;
 	}
 
 	@Override

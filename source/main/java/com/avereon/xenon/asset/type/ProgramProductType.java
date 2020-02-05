@@ -9,10 +9,17 @@ import com.avereon.xenon.asset.AssetException;
 
 public class ProgramProductType extends AssetType {
 
+	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.product";
+
 	public static final java.net.URI URI = java.net.URI.create( "program:product" );
 
 	public ProgramProductType( Product product ) {
 		super( product, "product" );
+	}
+
+	@Override
+	public String getKey() {
+		return MEDIA_TYPE;
 	}
 
 	@Override
