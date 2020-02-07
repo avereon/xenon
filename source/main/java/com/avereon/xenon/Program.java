@@ -1058,12 +1058,15 @@ public class Program extends Application implements ProgramProduct {
 		getIconLibrary().register( "delete", DeleteIcon.class );
 		getIconLibrary().register( "indent", IndentIcon.class );
 		getIconLibrary().register( "unindent", UnindentIcon.class );
+		getIconLibrary().register( "play", PlayIcon.class );
+		getIconLibrary().register( "pause", PauseIcon.class );
 
 		getIconLibrary().register( "setting", SettingIcon.class );
 		getIconLibrary().register( "settings", SettingsIcon.class );
 
 		getIconLibrary().register( "guide", GuideIcon.class );
 		getIconLibrary().register( "fault", FaultIcon.class );
+		getIconLibrary().register( "terminal", TerminalIcon.class );
 
 		getIconLibrary().register( "welcome", WelcomeIcon.class );
 		getIconLibrary().register( "help-content", QuestionIcon.class );
