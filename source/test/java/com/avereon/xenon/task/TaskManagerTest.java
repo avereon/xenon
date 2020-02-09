@@ -22,8 +22,8 @@ public class TaskManagerTest extends BaseTaskTest {
 	@BeforeEach
 	@Override
 	public void setup() {
-		manager = new TaskManager();
 		watcher = new TaskWatcher();
+		manager = new TaskManager();
 		manager.getEventBus().register( TaskManagerEvent.ANY, watcher );
 	}
 
@@ -328,12 +328,15 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( watcher.getEvents().size(), is( 0 ) );
 
 		// Submit a high priority task that takes a "long" time
-		manager.submit( new MockTask( manager, 1000 ).setPriority( Task.Priority.HIGH ) );
+		Task<?> longTask = new MockTask( manager, 2000 ).setPriority( Task.Priority.HIGH );
+		manager.submit( longTask );
 
 		Future<Object> future = manager.submit( task );
 		assertThat( future.get(), is( result ) );
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.getProcessedPriority(), is( Task.Priority.MEDIUM ) );
+
+		longTask.cancel( true );
 	}
 
 }
