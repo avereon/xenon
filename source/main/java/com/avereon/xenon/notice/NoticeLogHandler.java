@@ -29,10 +29,10 @@ public class NoticeLogHandler extends Handler {
 		Notice.Type type = types.get( record.getLevel() );
 		Throwable thrown = record.getThrown();
 		if( type == null || thrown == null ) return;
-		fault( type, record, thrown );
+		fault( record, type, thrown );
 	}
 
-	private void fault( Notice.Type type, LogRecord record, Throwable thrown ) {
+	private void fault( LogRecord record, Notice.Type type, Throwable thrown ) {
 		String title = manager.getThrowableTitle( thrown );
 
 		String message = record.getMessage();

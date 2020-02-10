@@ -4,13 +4,12 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.NullCodecException;
-import com.avereon.xenon.asset.AssetException;
-import java.lang.System.Logger;
 
 import java.io.*;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,9 +83,7 @@ public class FileScheme extends BaseScheme {
 		File file = getFile( asset );
 		try(InputStream stream = new FileInputStream( file ) ) {
 			codec.load( asset, stream );
-		} catch( MalformedURLException exception ) {
-			throw new AssetException( asset, exception );
-		} catch( IOException exception ) {
+		} catch( Throwable exception ) {
 			throw new AssetException( asset, exception );
 		} finally {
 			// TODO asset.setExternallyModified( false );

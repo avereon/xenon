@@ -1561,13 +1561,10 @@ public class AssetManager implements Controllable<AssetManager> {
 				for( Throwable throwable : throwables.keySet() ) {
 					String errorName = throwable.getClass().getSimpleName();
 					String taskName = getClass().getSimpleName();
-					String title = program.rb().text( "asset", "assets" );
 					String message = program.rb().text( "program", "task-error-message", errorName, taskName );
 					if( TestUtil.isTest() ) throwable.printStackTrace( System.err );
-					program.getNoticeManager().warning( title, message, throwable );
+					log.log( Log.WARN, message, throwable );
 				}
-
-				//throw new RuntimeException( messages.toString().trim() );
 			}
 
 			return result;
