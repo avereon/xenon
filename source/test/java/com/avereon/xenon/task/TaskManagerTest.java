@@ -1,5 +1,6 @@
 package com.avereon.xenon.task;
 
+import com.avereon.util.ThreadUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -274,7 +275,7 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 		// Wait for the task thread to stop also - this happens after the thread idle timeout
-		watcher.waitForEvent( TaskThreadEvent.FINISH, manager.getThreadIdleTimeout() + 500 );
+		watcher.waitForEvent( TaskThreadEvent.FINISH, manager.getThreadIdleTimeout() + 5000 );
 
 		int index = 0;
 		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.SUBMITTED ) );
@@ -328,8 +329,11 @@ public class TaskManagerTest extends BaseTaskTest {
 		assertThat( watcher.getEvents().size(), is( 0 ) );
 
 		// Submit a high priority task that takes a "long" time
-		Task<?> longTask = new MockTask( manager, 2000 ).setPriority( Task.Priority.HIGH );
+		Task<?> longTask = new MockTask( manager, 10000 ).setPriority( Task.Priority.HIGH );
 		manager.submit( longTask );
+
+		// Small pause to let the longTask get rolling
+		ThreadUtil.pause( 100 );
 
 		Future<Object> future = manager.submit( task );
 		assertThat( future.get(), is( result ) );
