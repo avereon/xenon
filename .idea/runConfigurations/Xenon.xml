@@ -3,6 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
     <module name="xenon" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug" />
+    <option name="VM_PARAMETERS" value="-Xmx256m " />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.avereon.xenon.*" />
