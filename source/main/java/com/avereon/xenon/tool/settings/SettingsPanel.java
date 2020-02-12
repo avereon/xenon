@@ -160,7 +160,7 @@ public class SettingsPanel extends VBox {
 	}
 
 	private void addGroupDependencyWatchers( Settings settings, SettingGroup group, SettingDependency dependency ) {
-		settings.addSettingsListener( new GroupDependencyWatcher( dependency, group ) );
+		settings.register( SettingsEvent.CHANGED, new GroupDependencyWatcher( dependency, group ) );
 
 		List<SettingDependency> dependencies = group.getDependencies();
 		if( dependencies.size() > 0 ) {
@@ -171,7 +171,7 @@ public class SettingsPanel extends VBox {
 	}
 
 	private void addSettingDependencyWatchers( Settings settings, Setting setting, SettingDependency dependency ) {
-		settings.addSettingsListener( new SettingDependencyWatcher( dependency, setting ) );
+		settings.register( SettingsEvent.CHANGED, new SettingDependencyWatcher( dependency, setting ) );
 
 		List<SettingDependency> dependencies = setting.getDependencies();
 		if( dependencies.size() > 0 ) {
@@ -194,7 +194,7 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			if( this.key == null ) return;
+			if( key == null ) return;
 			if( key.equals( event.getKey() ) ) group.updateState();
 		}
 
@@ -213,7 +213,7 @@ public class SettingsPanel extends VBox {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			if( event.getEventType() != SettingsEvent.CHANGED ) return;
+			if( key == null ) return;
 			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
 
@@ -260,13 +260,13 @@ public class SettingsPanel extends VBox {
 
 		private SettingEditor editor;
 
-		public EditorChangeHandler( SettingEditor editor, Setting setting ) {
+		private EditorChangeHandler( SettingEditor editor, Setting setting ) {
 			this.editor = editor;
 			setting.register( NodeEvent.ANY, this::handleNodeEvent );
-			setting.getSettings().addSettingsListener( this::handleSettingsEvent );
+			setting.getSettings().register( SettingsEvent.CHANGED, editor::handle );
 		}
 
-		public void handleNodeEvent( NodeEvent event ) {
+		private void handleNodeEvent( NodeEvent event ) {
 			EventType<? extends NodeEvent> type = event.getEventType();
 			if( type != NodeEvent.VALUE_CHANGED ) return;
 
@@ -280,13 +280,6 @@ public class SettingsPanel extends VBox {
 					break;
 				}
 			}
-		}
-
-		public void handleSettingsEvent( SettingsEvent event ) {
-			if( event.getEventType() != SettingsEvent.CHANGED ) return;
-
-			// Forward the event to the editor
-			editor.handle( event );
 		}
 
 	}

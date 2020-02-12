@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.event.EventHandler;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.DateUtil;
 import com.avereon.xenon.BundleKey;
@@ -15,7 +14,7 @@ import javafx.scene.layout.Priority;
 import java.util.Date;
 import java.util.TimeZone;
 
-class UpdateCheckInformationPane extends HBox implements EventHandler<SettingsEvent> {
+class UpdateCheckInformationPane extends HBox {
 
 	private Program program;
 
@@ -44,7 +43,14 @@ class UpdateCheckInformationPane extends HBox implements EventHandler<SettingsEv
 		HBox.setHgrow( spring, Priority.ALWAYS );
 		getChildren().addAll( lastUpdateCheckLabel, lastUpdateCheckField, spring, nextUpdateCheckLabel, nextUpdateCheckField );
 
-		program.getProductManager().getSettings().addSettingsListener( this );
+		program.getProductManager().getSettings().register( SettingsEvent.CHANGED, e -> {
+			switch( e.getKey() ) {
+				case ProductManager.LAST_CHECK_TIME:
+				case ProductManager.NEXT_CHECK_TIME: {
+					updateInfo();
+				}
+			}
+		});
 	}
 
 	void updateInfo() {
@@ -61,17 +67,6 @@ class UpdateCheckInformationPane extends HBox implements EventHandler<SettingsEv
 			lastUpdateCheckField.setText( lastUpdateCheckText );
 			nextUpdateCheckField.setText( nextUpdateCheckText );
 		} );
-	}
-
-	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() != SettingsEvent.CHANGED ) return;
-		switch( event.getKey() ) {
-			case ProductManager.LAST_CHECK_TIME:
-			case ProductManager.NEXT_CHECK_TIME: {
-				updateInfo();
-			}
-		}
 	}
 
 }

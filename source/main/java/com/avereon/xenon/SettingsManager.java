@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
+import com.avereon.settings.SettingsEvent;
 import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
@@ -16,10 +17,9 @@ import com.avereon.xenon.util.ProgramEventBus;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
-import java.lang.System.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,7 +49,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.rootSettingsPages = new ConcurrentHashMap<>();
 		this.eventBus = new ProgramEventBus();
 
-		this.settings.addSettingsListener( e -> eventBus.dispatch( e ) );
+		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
 	}
 
 	public Settings getSettings( String path ) {

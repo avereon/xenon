@@ -518,19 +518,19 @@ public class Workspace implements Configurable {
 		} );
 
 		backgroundSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
+		backgroundSettings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
 		background.updateBackgroundFromSettings( backgroundSettings );
-		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
+		backgroundSettings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
 
 		memoryMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		memoryMonitorSettings.removeSettingsListener( memoryMonitorSettingsHandler );
+		memoryMonitorSettings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 		updateMemoryMonitorFromSettings( memoryMonitorSettings );
-		memoryMonitorSettings.addSettingsListener( memoryMonitorSettingsHandler );
+		memoryMonitorSettings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 
 		taskMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		taskMonitorSettings.removeSettingsListener( taskMonitorSettingsHandler );
+		taskMonitorSettings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 		updateTaskMonitorFromSettings( taskMonitorSettings );
-		taskMonitorSettings.addSettingsListener( taskMonitorSettingsHandler );
+		taskMonitorSettings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 	}
 
 	@Override
@@ -609,7 +609,7 @@ public class Workspace implements Configurable {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			if( event.getEventType() == SettingsEvent.CHANGED ) background.updateBackgroundFromSettings( backgroundSettings );
+			background.updateBackgroundFromSettings( backgroundSettings );
 		}
 	}
 
@@ -617,7 +617,7 @@ public class Workspace implements Configurable {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			if( event.getEventType() == SettingsEvent.CHANGED ) updateMemoryMonitorFromSettings( memoryMonitorSettings );
+			updateMemoryMonitorFromSettings( memoryMonitorSettings );
 		}
 
 	}
@@ -626,7 +626,7 @@ public class Workspace implements Configurable {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			if( event.getEventType() == SettingsEvent.CHANGED ) updateTaskMonitorFromSettings( taskMonitorSettings );
+			updateTaskMonitorFromSettings( taskMonitorSettings );
 		}
 
 	}
