@@ -390,6 +390,7 @@ public class Program extends Application implements ProgramProduct {
 		// Start the product manager
 		log.log( TRACE, "Starting product manager..." );
 		productManager.start();
+		productManager.startMods();
 		log.log( DEBUG, "Product manager started." );
 
 		// Restore the user interface
@@ -397,9 +398,6 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.log( DEBUG, "User interface restored." );
-
-		// Notify the product manager the UI is ready
-		productManager.startMods();
 
 		// Finish the splash screen
 		int totalSteps = splashScreen.getSteps();
@@ -499,12 +497,10 @@ public class Program extends Application implements ProgramProduct {
 
 		// Stop the product manager
 		if( productManager != null ) {
-			// Notify the product manager the UI is ready
+			log.log( TRACE, "Stopping product manager..." );
 			productManager.stopMods();
-
-			log.log( TRACE, "Stopping update manager..." );
 			productManager.stop();
-			log.log( DEBUG, "Update manager stopped." );
+			log.log( DEBUG, "Product manager stopped." );
 		}
 
 		// Stop the NoticeManager
