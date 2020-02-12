@@ -9,7 +9,6 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
@@ -33,14 +32,13 @@ public class AssetTool extends ProgramTool {
 		setTitle( product.rb().text( BundleKey.TOOL, "asset-name" ) );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( product.rb().text( BundleKey.TOOL, "asset-icon" ) ) );
 
-		Node pane = new TileView();
+		view = new AssetTypeView();
 
-		ScrollPane scroller = new ScrollPane( pane );
+		ScrollPane scroller = new ScrollPane( view );
+		scroller.setFitToHeight( true );
 		scroller.setFitToWidth( true );
 
 		getChildren().add( scroller );
-
-		view = (AssetTypeView)pane;
 	}
 
 	@Override
@@ -48,15 +46,9 @@ public class AssetTool extends ProgramTool {
 		view.update();
 	}
 
-	private interface AssetTypeView {
+	private class AssetTypeView extends FlowPane {
 
-		void update();
-
-	}
-
-	private class TileView extends FlowPane implements AssetTypeView {
-
-		public TileView() {
+		private AssetTypeView() {
 			setAlignment( Pos.CENTER );
 		}
 
@@ -79,7 +71,7 @@ public class AssetTool extends ProgramTool {
 
 		private AssetType type;
 
-		public AssetTypeTile( AssetType type ) {
+		AssetTypeTile( AssetType type ) {
 			this.type = type;
 			getStyleClass().add( "asset-type-tile" );
 
@@ -97,7 +89,7 @@ public class AssetTool extends ProgramTool {
 			getChildren().add( description );
 		}
 
-		public AssetType getAssetType() {
+		AssetType getAssetType() {
 			return type;
 		}
 
