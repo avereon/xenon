@@ -35,12 +35,18 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
 
       - name: Configuration
         shell: bash
         run: |
-          source .github/workflows/config.sh
+          source .github/config.sh
 
       ## The virtual display is technically not needed for the build job
       #- name: Set up Virtual Display
@@ -91,12 +97,18 @@ jobs:
       AVN_PLATFORM: "linux"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
 
       - name: Configuration
         shell: bash
         run: |
-          source .github/workflows/config.sh
+          source .github/config.sh
 
       - name: Set up Virtual Display
         run: |
@@ -153,12 +165,18 @@ jobs:
       AVN_PLATFORM: "macosx"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
 
       - name: Configuration
         shell: bash
         run: |
-          source .github/workflows/config.sh
+          source .github/config.sh
 
       - name: Set up Virtual Display
         run: |
@@ -215,12 +233,18 @@ jobs:
       AVN_PLATFORM: "windows"
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
 
       - name: Configuration
         shell: bash
         run: |
-          source .github/workflows/config.sh
+          source .github/config.sh
 
       # Not needed on Windows
       #- name: Set up Virtual Display
