@@ -52,6 +52,14 @@ jobs:
         with:
           java-version: ${{env.JAVA_VERSION}}
 
+      - name: Maven Repository Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Compile
         run: |
           mvn ${{env.MAVEN_PARMS}} compile
