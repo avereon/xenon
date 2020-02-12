@@ -1,4 +1,4 @@
-[build-status]: https://github.com/avereon/xenon/workflows/Avereon%20Xenon%20CI/badge.svg "Build status"
+[build-status]: https://github.com/avereon/xenon/workflows/Avereon%20Xenon%20Continuous/badge.svg "Build status"
 
 # Xenon [![][build-status]](https://github.com/avereon/xenon/actions)
 
