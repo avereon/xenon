@@ -87,6 +87,12 @@ jobs:
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
 
+      - name: Deploy Product Icon
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
+
   linux:
     needs: build
     name: Linux Binaries
