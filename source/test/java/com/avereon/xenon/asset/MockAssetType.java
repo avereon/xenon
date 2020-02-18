@@ -13,8 +13,6 @@ public class MockAssetType extends AssetType {
 
 	private static final String DESCRIPTION = "Mock Asset Type";
 
-	private static final String INIT_RESOURCE_KEY = "init.asset.key";
-
 	public MockAssetType( Product product ) {
 		this( product, "mock", new MockCodec() );
 	}
@@ -42,7 +40,6 @@ public class MockAssetType extends AssetType {
 
 	@Override
 	public boolean assetInit( Program program, Asset asset ) {
-		asset.putResource( INIT_RESOURCE_KEY, "init.asset.test" );
 		return true;
 	}
 

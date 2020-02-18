@@ -1,19 +1,20 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.data.Node;
+import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
+import com.avereon.transaction.TxnEvent;
 import com.avereon.undo.BasicUndoManager;
 import com.avereon.undo.UndoManager;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.data.Node;
-import com.avereon.data.NodeEvent;
 import com.avereon.xenon.scheme.AssetScheme;
-import com.avereon.transaction.TxnEvent;
 import com.avereon.xenon.util.ProgramEventBus;
-import java.lang.System.Logger;
 
+import java.io.File;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -32,19 +33,24 @@ public class Asset extends Node implements Configurable {
 
 	public static final String FIRST_LINE_ASSET_KEY = "asset.first.line";
 
-	private static final String TYPE_VALUE_KEY = "value.type";
+	// FIXME Is this the same value as SETTINGS_TYPE_KEY above?
+	private static final String TYPE_VALUE_KEY = "asset.type";
 
-	private static final String URI_VALUE_KEY = "value.uri";
+	private static final String URI_VALUE_KEY = "asset.uri";
 
-	private static final String SCHEME_VALUE_KEY = "value.scheme";
+	private static final String SCHEME_VALUE_KEY = "asset.scheme";
 
-	private static final String CODEC_VALUE_KEY = "value.codec";
+	private static final String CODEC_VALUE_KEY = "asset.codec";
 
-	private static final String ENCODING_VALUE_KEY = "value.encoding";
+	private static final String ENCODING_VALUE_KEY = "asset.encoding";
 
-	private static final String MODEL_VALUE_KEY = "value.model";
+	private static final String MODEL_VALUE_KEY = "asset.model";
 
-	private static final String EXTERNALLY_MODIFIED = "flag.externally.modified";
+	private static final String EXTERNALLY_MODIFIED = "asset.externally.modified";
+
+	private static final String LAST_SAVED_KEY = "asset.last.saved";
+
+	private static final String FILE = "asset.file";
 
 	//	private static final String EDITABLE = "asset.editable";
 
@@ -146,6 +152,13 @@ public class Asset extends Node implements Configurable {
 		setValue( ENCODING_VALUE_KEY, encoding );
 	}
 
+	public String getMediaType() {
+		return getValue( MEDIA_TYPE_ASSET_KEY );
+	}
+
+	public void setMediaType( String mediaType ) {
+		setValue( MEDIA_TYPE_ASSET_KEY, mediaType );
+	}
 	/**
 	 * Get the name of the asset. This returns the asset type name if the
 	 * URI is null, the entire URI if the path portion of the URI is null, or the
@@ -182,6 +195,22 @@ public class Asset extends Node implements Configurable {
 
 	public void setExternallyModified( boolean modified ) {
 		setValue( EXTERNALLY_MODIFIED, modified );
+	}
+
+	public long getLastSaved() {
+		return getValue( LAST_SAVED_KEY );
+	}
+
+	public void setLastSaved( long timestamp ) {
+		setValue( LAST_SAVED_KEY, timestamp );
+	}
+
+	public File getFile() {
+		return getValue( FILE );
+	}
+
+	public void setFile( File file ) {
+		setValue( FILE, file );
 	}
 
 	public <M> M getModel() {

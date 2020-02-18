@@ -1262,14 +1262,14 @@ public class AssetManager implements Controllable<AssetManager> {
 	//	}
 
 	private String getMediaType( Asset asset ) {
-		String mediaType = asset.getResource( Asset.MEDIA_TYPE_ASSET_KEY );
+		String mediaType = asset.getMediaType();
 
 		if( mediaType == null ) {
 			URLConnection connection = asset.getScheme().getConnection( asset );
 			if( connection != null ) {
 				try {
 					mediaType = TextUtil.cleanNull( connection.getContentType() );
-					asset.putResource( Asset.MEDIA_TYPE_ASSET_KEY, mediaType );
+					asset.setMediaType( mediaType );
 					connection.getInputStream().close();
 				} catch( IOException exception ) {
 					log.log( Log.WARN,  "Error closing asset connection", exception );

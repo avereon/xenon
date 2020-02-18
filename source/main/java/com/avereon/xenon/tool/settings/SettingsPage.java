@@ -79,19 +79,19 @@ public class SettingsPage extends Node {
 	}
 
 	public Product getProduct() {
-		return getResource( PRODUCT );
+		return getValue( PRODUCT );
 	}
 
 	public void setProduct( Product product ) {
-		putResource( PRODUCT, product );
+		setValue( PRODUCT, product );
 	}
 
 	public Settings getSettings() {
-		return getResource( SETTINGS );
+		return getValue( SETTINGS );
 	}
 
 	public void setSettings( Settings settings ) {
-		putResource( SETTINGS, settings );
+		setValue( SETTINGS, settings );
 	}
 
 }

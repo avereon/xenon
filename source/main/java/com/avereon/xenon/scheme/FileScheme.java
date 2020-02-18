@@ -20,11 +20,6 @@ public class FileScheme extends BaseScheme {
 
 	private static final Logger log = Log.log();
 
-	/**
-	 * The key to the cached file object.
-	 */
-	public static final String FILE_CACHE = "scheme.file.cache";
-
 	private List<Asset> roots;
 
 	//private FileAssetWatcher assetWatcher;
@@ -81,7 +76,7 @@ public class FileScheme extends BaseScheme {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		File file = getFile( asset );
-		try(InputStream stream = new FileInputStream( file ) ) {
+		try( InputStream stream = new FileInputStream( file ) ) {
 			codec.load( asset, stream );
 		} catch( Throwable exception ) {
 			throw new AssetException( asset, exception );
@@ -97,14 +92,14 @@ public class FileScheme extends BaseScheme {
 		if( codec == null ) throw new NullCodecException( asset );
 
 		File file = getFile( asset );
-		try(OutputStream stream = new FileOutputStream( file ) ) {
+		try( OutputStream stream = new FileOutputStream( file ) ) {
 			codec.save( asset, stream );
 		} catch( MalformedURLException exception ) {
 			throw new AssetException( asset, exception );
 		} catch( IOException exception ) {
 			throw new AssetException( asset, exception );
 		} finally {
-			asset.putResource( ASSET_LAST_SAVED_KEY, System.currentTimeMillis() );
+			asset.setLastSaved( System.currentTimeMillis() );
 		}
 	}
 
@@ -220,7 +215,7 @@ public class FileScheme extends BaseScheme {
 	 * Get the file.
 	 */
 	private File getFile( Asset asset ) throws AssetException {
-		File file = asset.getResource( FILE_CACHE );
+		File file = asset.getFile();
 		if( file != null ) return file;
 
 		// Get the canonical file.
@@ -230,7 +225,7 @@ public class FileScheme extends BaseScheme {
 			throw new AssetException( asset, exception );
 		}
 
-		asset.putResource( FILE_CACHE, file );
+		asset.setFile( file );
 
 		return file;
 	}
