@@ -12,14 +12,13 @@ import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.ScrollPane;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Set;
 
 public class SettingsTool extends GuidedTool {
 
 	public static final String GENERAL = "general";
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final String PAGE_ID = "page-id";
 

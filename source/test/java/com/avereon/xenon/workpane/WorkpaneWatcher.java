@@ -5,7 +5,6 @@ import javafx.event.EventHandler;
 import javafx.event.EventType;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -14,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 
 public class WorkpaneWatcher implements EventHandler<WorkpaneEvent> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 

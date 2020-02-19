@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class ProgramEventWatcher implements EventHandler<Event> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final Map<EventType<?>, Logger.Level> LEVELS;
 

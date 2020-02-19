@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 public class ProductManagerLogic {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final ProductCard PRODUCT_CONNECTION_ERROR = new ProductCard();
 

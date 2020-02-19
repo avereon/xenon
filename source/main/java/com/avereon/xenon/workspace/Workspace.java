@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Workspace implements Configurable {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private Program program;
 

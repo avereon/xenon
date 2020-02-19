@@ -56,7 +56,7 @@ public class Asset extends Node implements Configurable {
 
 	//	private static final String UNDO_MANAGER = "asset.undo.manager";
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	// Name is not stored in the node data, it is derived
 	private String name;

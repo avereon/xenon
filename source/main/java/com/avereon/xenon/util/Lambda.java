@@ -3,14 +3,13 @@ package com.avereon.xenon.util;
 import com.avereon.util.Log;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Lambda {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public static TimerTask timerTask( Runnable runnable ) {
 		return new TimerTask() {

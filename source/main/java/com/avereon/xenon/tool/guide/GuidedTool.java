@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 

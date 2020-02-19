@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = Log.log();
+	private static Logger log = Log.get();
 
 	private Map<String, ActionProxy> actions;
 

@@ -17,8 +17,6 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.TransferMode;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-
 /**
  * The ToolPane class provides a custom tab pane component for the program
  * allowing for extended and custom capabilities.
@@ -27,7 +25,7 @@ public class ToolTabPane extends Control {
 
 	static final PseudoClass ACTIVE_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "active" );
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 

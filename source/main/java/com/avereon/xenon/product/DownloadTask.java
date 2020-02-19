@@ -9,7 +9,6 @@ import java.lang.System.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 
 public class DownloadTask extends Task<Download> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 

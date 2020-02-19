@@ -32,7 +32,7 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private static final int DEFAULT_THREAD_IDLE_TIMEOUT = 2000;
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	int p1ThreadCount;
 

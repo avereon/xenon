@@ -29,7 +29,7 @@ public class ProductTool extends GuidedTool {
 
 	public static final String SOURCES = "sources";
 
-	static final Logger log = Log.log();
+	static final Logger log = Log.get();
 
 	static final int ICON_SIZE = 48;
 

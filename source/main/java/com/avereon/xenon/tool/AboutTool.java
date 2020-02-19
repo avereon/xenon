@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AboutTool extends GuidedTool {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public static final String SUMMARY = "summary";
 

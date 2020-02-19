@@ -23,7 +23,7 @@ import java.util.List;
 
 public class SettingsPanel extends VBox {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	//	private String[] fontNames;
 	//

@@ -76,7 +76,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		STORE
 	}
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public static final String LAST_CHECK_TIME = "product-update-last-check-time";
 

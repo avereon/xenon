@@ -7,7 +7,7 @@ import com.avereon.xenon.task.TaskManager;
 
 public class ProgramTaskManager extends TaskManager {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private Program program;
 

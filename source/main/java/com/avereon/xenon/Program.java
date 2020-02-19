@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.event.Event;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Release;
 import com.avereon.rossa.icon.*;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
@@ -68,7 +69,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private static final boolean showTiming = false;
 

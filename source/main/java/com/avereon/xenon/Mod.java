@@ -25,7 +25,7 @@ import java.nio.file.Path;
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

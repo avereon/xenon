@@ -18,7 +18,7 @@ public class FileScheme extends BaseScheme {
 
 	public static final String ID = "file";
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private List<Asset> roots;
 

@@ -13,7 +13,7 @@ import java.util.Set;
 
 public abstract class ProgramTool extends Tool {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private ProgramProduct product;
 

@@ -16,14 +16,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Pane header;
 

@@ -9,7 +9,6 @@ import java.lang.System.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +30,7 @@ public class ProgramShutdownHook extends Thread {
 		UPDATE
 	}
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private volatile Program program;
 

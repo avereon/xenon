@@ -11,7 +11,7 @@ import java.lang.System.Logger;
 
 public class DownloadRequest implements EventHandler<TaskEvent> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private ProductCard card;
 

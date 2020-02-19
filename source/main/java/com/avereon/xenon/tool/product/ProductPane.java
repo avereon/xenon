@@ -27,7 +27,7 @@ import java.util.TimeZone;
 
 class ProductPane extends MigPane {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private ProductTool tool;
 

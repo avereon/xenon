@@ -20,7 +20,7 @@ public class ProgramNoticeType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:notice" );
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public ProgramNoticeType( Product product ) {
 		super( product, "notice" );

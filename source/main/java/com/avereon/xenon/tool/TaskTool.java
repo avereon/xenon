@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TaskTool extends ProgramTool {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private final Set<Task<?>> tasks;
 

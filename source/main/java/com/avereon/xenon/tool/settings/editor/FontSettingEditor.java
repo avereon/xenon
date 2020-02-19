@@ -12,11 +12,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-
 public class FontSettingEditor extends SettingEditor {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Label label;
 

@@ -9,7 +9,6 @@ import java.lang.System.Logger;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -17,7 +16,7 @@ import java.util.logging.LogRecord;
 
 public class ProgramServer implements Controllable<ProgramServer> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

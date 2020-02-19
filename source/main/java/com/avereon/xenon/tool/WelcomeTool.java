@@ -19,7 +19,7 @@ import java.lang.System.Logger;
 
 public class WelcomeTool extends ProgramTool {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final double PAD = 2 * UiFactory.PAD;
 

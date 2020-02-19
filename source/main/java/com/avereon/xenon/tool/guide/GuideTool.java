@@ -20,7 +20,7 @@ import java.util.*;
 
 public class GuideTool extends ProgramTool {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Guide guide;
 

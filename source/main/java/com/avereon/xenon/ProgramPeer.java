@@ -17,7 +17,7 @@ import java.util.logging.LogRecord;
 
 public class ProgramPeer implements Controllable<ProgramPeer> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

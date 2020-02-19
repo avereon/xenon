@@ -18,11 +18,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-
 public class ActionUtil {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 

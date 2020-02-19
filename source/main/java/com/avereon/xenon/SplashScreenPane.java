@@ -24,7 +24,7 @@ import java.lang.System.Logger;
 
 public class SplashScreenPane extends Pane {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final double WIDTH = 480;
 

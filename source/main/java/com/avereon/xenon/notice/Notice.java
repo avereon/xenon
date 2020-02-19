@@ -32,7 +32,7 @@ public class Notice extends Node {
 
 	}
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final String ID = "id";
 

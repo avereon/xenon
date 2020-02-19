@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 class UiRegenerator {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

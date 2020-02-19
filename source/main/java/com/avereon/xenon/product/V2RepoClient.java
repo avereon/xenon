@@ -10,7 +10,6 @@ import com.avereon.xenon.Program;
 import java.lang.System.Logger;
 
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class V2RepoClient implements RepoClient {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

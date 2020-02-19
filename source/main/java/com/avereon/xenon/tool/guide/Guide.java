@@ -10,13 +10,12 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Guide {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private TreeItem<GuideNode> root;
 

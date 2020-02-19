@@ -11,13 +11,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SettingsPageParser {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final String SETTINGS = "settings";
 

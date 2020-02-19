@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class IconLibrary {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final int DEFAULT_SIZE = 16;
 

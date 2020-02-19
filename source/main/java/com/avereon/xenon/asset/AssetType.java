@@ -50,7 +50,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public abstract class AssetType implements Comparable<AssetType> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private final String key = getClass().getName();
 

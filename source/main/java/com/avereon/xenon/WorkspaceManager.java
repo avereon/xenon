@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

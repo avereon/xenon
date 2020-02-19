@@ -8,7 +8,7 @@ import java.lang.System.Logger;
 
 public abstract class Action implements EventHandler<ActionEvent> {
 
-	protected static final Logger log = Log.log();
+	protected static final Logger log = Log.get();
 
 	private Program program;
 

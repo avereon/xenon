@@ -20,7 +20,7 @@ import java.util.concurrent.FutureTask;
 
 public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public enum State {
 		READY,

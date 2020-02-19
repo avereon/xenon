@@ -10,12 +10,11 @@ import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 public class RenameWorkareaAction extends Action {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Workarea workarea;
 

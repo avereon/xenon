@@ -17,7 +17,7 @@ public class ProgramAboutType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:about" );
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final String WATCHER_KEY = "program.asset.watcher";
 

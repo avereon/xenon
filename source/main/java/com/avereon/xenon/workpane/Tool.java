@@ -23,7 +23,7 @@ import java.lang.System.Logger;
  */
 public abstract class Tool extends Control {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	public static final String SETTINGS_TYPE_KEY = "type";
 

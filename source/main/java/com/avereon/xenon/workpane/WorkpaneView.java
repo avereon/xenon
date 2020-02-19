@@ -14,7 +14,7 @@ import java.util.List;
 
 public class WorkpaneView extends BorderPane implements Configurable {
 
-	private static final System.Logger log = Log.log();
+	private static final System.Logger log = Log.get();
 
 	private WorkpaneEdge topEdge;
 

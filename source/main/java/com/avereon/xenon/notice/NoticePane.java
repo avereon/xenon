@@ -9,11 +9,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-
 public class NoticePane extends GridPane {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 

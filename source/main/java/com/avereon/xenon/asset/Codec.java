@@ -7,7 +7,6 @@ import java.lang.System.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public abstract class Codec {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private AssetType assetType;
 

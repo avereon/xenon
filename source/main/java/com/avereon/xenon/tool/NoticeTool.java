@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class NoticeTool extends ProgramTool {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private VBox noticeContainer;
 

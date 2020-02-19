@@ -14,11 +14,9 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-
 public class ToolTabSkin extends SkinBase<ToolTab> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private BorderPane tabLayout;
 

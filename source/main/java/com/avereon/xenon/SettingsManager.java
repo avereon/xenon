@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private static final String ROOT = "settings";
 

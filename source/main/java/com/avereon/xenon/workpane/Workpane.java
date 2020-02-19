@@ -48,7 +48,7 @@ public class Workpane extends Control implements Configurable {
 
 	private static final double DEFAULT_EDGE_SIZE = 5;
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private WorkpaneEdge topWall;
 

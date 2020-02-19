@@ -8,7 +8,7 @@ import java.lang.System.Logger;
 
 class UpdatesPage extends ProductPage {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private ProductTool productTool;
 

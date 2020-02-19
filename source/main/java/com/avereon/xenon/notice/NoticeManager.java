@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
 
-	private static final Logger log = Log.log();
+	private static final Logger log = Log.get();
 
 	private Program program;
 
