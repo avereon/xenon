@@ -10,6 +10,7 @@ import java.net.URL;
 
 public class InstallerBannerImage extends ProgramImage {
 
+	private static final Color TEXT_COLOR = new Color( 0.2, 0.2, 0.2, 1.0 );
 	private ProductCard card;
 
 	private URL providerUrl;
@@ -37,12 +38,12 @@ public class InstallerBannerImage extends ProgramImage {
 		reset();
 
 		// Draw the program name
-		setFillPaint( Color.web( "#202020" ) );
+		setFillPaint( TEXT_COLOR );
 		setTextAlign( TextAlignment.CENTER );
 		fillText( card.getName(), 2.0, 0.6, 0.65, 2.0 );
 
 		// Draw the program web address
-		setFillPaint( Color.web( "#202020" ) );
+		setFillPaint( TEXT_COLOR );
 		setTextAlign( TextAlignment.CENTER );
 		fillText( providerUrl.getHost(), 2.0, 0.85, 0.2, 2 );
 	}
