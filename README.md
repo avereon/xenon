@@ -21,8 +21,9 @@ The framework provides the following basic features:
 #### Version 2.0
 | Release | Feature Goals | Status |
 |---|---|---|
-|1.2|Theme modification, dark theme | Planning |
-|1.1|Mazer Mod | In Progress |
+|[1.3](https://github.com/avereon/xenon/milestone/5)|Java 14, jpackage installers | Planning |
+|[1.2](https://github.com/avereon/xenon/milestone/4)|Theme modification, dark theme | Planning |
+|[1.1](https://github.com/avereon/xenon/milestone/3)|Mazer Mod | In Progress |
 
 #### Version 1.0
 | Release | Feature Goals | Status |
@@ -52,4 +53,3 @@ The framework provides the following basic features:
 * OpenJDK - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
 * OpenJFX - [GNU General Public License, version 2, with the Classpath Exception](https://openjdk.java.net/legal/gplv2+ce.html)
 * MigLayout - [BSD](http://www.debian.org/misc/bsd.license)
-* SLF4J - [MIT](https://www.slf4j.org/license.html)
