@@ -72,7 +72,6 @@
 		<javafx.version>13</javafx.version>
 		<controlsfx.version>11.0.0</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
-		<slf4j.version>1.8.0-beta4</slf4j.version>
 
 		<!-- Test dependencies -->
 		<testfx.version>4.0.15-alpha</testfx.version>
