@@ -3,10 +3,9 @@ package com.avereon.xenon.task;
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.util.ProgramEventBus;
+import com.avereon.xenon.util.ProgramEventHub;
 import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,13 +54,13 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private Queue<Task<?>> taskQueue;
 
-	private ProgramEventBus eventBus;
+	private ProgramEventHub eventBus;
 
 	public TaskManager() {
 		taskMap = new ConcurrentHashMap<>();
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		eventBus = new ProgramEventBus();
+		eventBus = new ProgramEventHub();
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
@@ -132,7 +131,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		return this;
 	}
 
-	public ProgramEventBus getEventBus() {
+	public ProgramEventHub getEventBus() {
 		return eventBus;
 	}
 

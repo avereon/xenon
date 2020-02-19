@@ -8,7 +8,7 @@
  * wrap JavaFX events and publish them on the program event infrastructure.
  * <h2>Event Scopes</h2>
  * The program provides several event scopes, implemented by
- * {@link com.avereon.event.EventBus} instances. Most scopes also forward their
+ * {@link com.avereon.event.EventHub} instances. Most scopes also forward their
  * events to a parent scope, with the program scope being the top most scope.
  * <ul>
  *   <li>Program - {@link com.avereon.xenon.ProgramEvent ProgramEvent}

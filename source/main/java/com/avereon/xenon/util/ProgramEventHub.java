@@ -8,23 +8,23 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ProgramEventBus extends EventBus {
+public class ProgramEventHub extends EventHub {
 
-	private ProgramEventBus parent;
+	private ProgramEventHub parent;
 
 	private Map<javafx.event.EventType<? extends javafx.event.Event>, Collection<FxEventHandlerWrapper<?>>> fxHandlers;
 
-	public ProgramEventBus() {
+	public ProgramEventHub() {
 		this( null );
 	}
 
-	public ProgramEventBus( ProgramEventBus parent ) {
+	public ProgramEventHub( ProgramEventHub parent ) {
 		this.parent = parent;
 		this.fxHandlers = new ConcurrentHashMap<>();
 	}
 
 
-	public ProgramEventBus dispatch( javafx.event.Event event ) {
+	public ProgramEventHub dispatch( javafx.event.Event event ) {
 		// While the type of the incoming event is known, the parent event types,
 		// used later in the method are not well known. They could be of any event
 		// type and therefore this variable needs to allow any event type.
@@ -46,12 +46,12 @@ public class ProgramEventBus extends EventBus {
 		return this;
 	}
 
-	public <T extends javafx.event.Event> ProgramEventBus register( javafx.event.EventType<? super T> type, javafx.event.EventHandler<? super T> handler ) {
+	public <T extends javafx.event.Event> ProgramEventHub register( javafx.event.EventType<? super T> type, javafx.event.EventHandler<? super T> handler ) {
 		fxHandlers.computeIfAbsent( type, k -> new HashSet<>() ).add( new FxEventHandlerWrapper<>( handler ) );
 		return this;
 	}
 
-	public <T extends javafx.event.Event> ProgramEventBus unregister( javafx.event.EventType<? super T> type, javafx.event.EventHandler<? super T> handler ) {
+	public <T extends javafx.event.Event> ProgramEventHub unregister( javafx.event.EventType<? super T> type, javafx.event.EventHandler<? super T> handler ) {
 		fxHandlers.computeIfPresent( type, ( t, c ) -> {
 			c.removeIf( w -> w.getHandler() == handler );
 			return c.isEmpty() ? null : c;

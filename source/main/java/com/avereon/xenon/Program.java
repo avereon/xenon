@@ -27,7 +27,7 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.util.ProgramEventBus;
+import com.avereon.xenon.util.ProgramEventHub;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -118,7 +118,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
-	private ProgramEventBus eventBus;
+	private ProgramEventHub eventBus;
 
 	private CloseWorkspaceAction closeAction;
 
@@ -174,7 +174,7 @@ public class Program extends Application implements ProgramProduct {
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Create the event hub
-		eventBus = new ProgramEventBus();
+		eventBus = new ProgramEventHub();
 
 		// Load the product card
 		card = new ProductCard().init( getClass() );
@@ -766,7 +766,7 @@ public class Program extends Application implements ProgramProduct {
 		return noticeManager;
 	}
 
-	public ProgramEventBus getEventBus() {
+	public ProgramEventHub getEventBus() {
 		return eventBus;
 	}
 

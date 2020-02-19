@@ -13,7 +13,7 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.util.ProgramEventBus;
+import com.avereon.xenon.util.ProgramEventHub;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
@@ -35,7 +35,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private ProgramEventBus eventBus;
+	private ProgramEventHub eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -47,7 +47,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
-		this.eventBus = new ProgramEventBus();
+		this.eventBus = new ProgramEventHub();
 
 		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
 	}
@@ -210,7 +210,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	//		return this;
 	//	}
 
-	public ProgramEventBus getEventBus() {
+	public ProgramEventHub getEventBus() {
 		return eventBus;
 	}
 

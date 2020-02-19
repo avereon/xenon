@@ -13,7 +13,7 @@ import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.xenon.util.ProgramEventBus;
+import com.avereon.xenon.util.ProgramEventHub;
 import javafx.application.Platform;
 
 import java.io.IOException;
@@ -158,7 +158,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	private UpdateCheckTask task;
 
-	private ProgramEventBus eventBus;
+	private ProgramEventHub eventBus;
 
 	private long lastAvailableProductCheck;
 
@@ -178,7 +178,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
 		postedUpdateCache = new CopyOnWriteArraySet<>();
-		eventBus = new ProgramEventBus();
+		eventBus = new ProgramEventHub();
 
 		repoClient = new V2RepoClient( program );
 
@@ -192,7 +192,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return program;
 	}
 
-	public ProgramEventBus getEventBus() {
+	public ProgramEventHub getEventBus() {
 		return eventBus;
 	}
 
