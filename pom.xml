@@ -69,7 +69,7 @@
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
 		<!--JavaFX must be version 13 or higher for DnD to function correctly -->
-		<javafx.version>13</javafx.version>
+		<openjfx.version>13</openjfx.version>
 		<controlsfx.version>11.0.0</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
 
@@ -110,25 +110,25 @@
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
+			<version>${openjfx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-fxml</artifactId>
-			<version>${javafx.version}</version>
+			<version>${openjfx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-swing</artifactId>
-			<version>${javafx.version}</version>
+			<version>${openjfx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-web</artifactId>
-			<version>${javafx.version}</version>
+			<version>${openjfx.version}</version>
 		</dependency>
 
 		<dependency>
@@ -438,19 +438,6 @@
 										<jar>
 											<name>image4j.jar</name>
 										</jar>
-<!--										<jar>-->
-<!--											<name>jackson-core.jar</name>-->
-<!--										</jar>-->
-<!--										<jar>-->
-<!--											<name>jackson-annotations.jar</name>-->
-<!--										</jar>-->
-<!--										<jar>-->
-<!--											<name>jackson-databind.jar</name>-->
-<!--											<modules>-->
-<!--												<module>com.fasterxml.jackson.core</module>-->
-<!--												<module>com.fasterxml.jackson.annotation</module>-->
-<!--											</modules>-->
-<!--										</jar>-->
 										<jar>
 											<name>miglayout-core.jar</name>
 										</jar>
