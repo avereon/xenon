@@ -17,6 +17,14 @@
 	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
+.splashscreen-tint {
+	-fx-fill: derive( #ececec80, 50% );
+}
+
+.splashscreen-title {
+	-fx-text-fill: -fx-text-background-color;
+}
+
 .splashscreen-progress {
 	-fx-arc-height: 10;
 	-fx-arc-width: 5;
@@ -27,7 +35,7 @@
 }
 
 .splashscreen-progress-incomplete {
-	-fx-fill: lightgray;
+	-fx-fill: derive(-fx-accent, 20%);
 }
 
 .splashscreen-progress-complete {

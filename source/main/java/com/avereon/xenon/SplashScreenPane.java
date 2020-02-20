@@ -64,10 +64,10 @@ public class SplashScreenPane extends Pane {
 		icon.setLayoutY( 0.5 * (HEIGHT - icon.getHeight() - BAR_PAD - BAR_SIZE) );
 
 		Rectangle tint = new Rectangle( 0, 0, WIDTH, HEIGHT );
-		tint.setFill( new Color( 0.0, 0.0, 0.0, 0.7 ) );
+		tint.getStyleClass().addAll( "splashscreen-tint" );
 
 		Text titleText = new Text( title );
-		titleText.setFill( new Color( 0.8, 0.8, 0.8, 1.0 ) );
+		titleText.getStyleClass().addAll( "splashscreen-title" );
 		titleText.setBoundsType( TextBoundsType.VISUAL );
 		titleText.setFont( new Font( 100 ) );
 
@@ -105,7 +105,9 @@ public class SplashScreenPane extends Pane {
 
 	public SplashScreenPane show( Stage stage ) {
 		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
-		scene.getStylesheets().add( Program.STYLESHEET );
+
+		// WORKAROUND Had to add the modena css in order for the custom css to work
+		scene.getStylesheets().addAll( "com/sun/javafx/scene/control/skin/modena/modena.css", Program.STYLESHEET );
 
 		stage.setTitle( title );
 		stage.setScene( scene );
