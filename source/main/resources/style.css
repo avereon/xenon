@@ -18,7 +18,8 @@
 }
 
 .splashscreen-tint {
-	-fx-fill: derive( #ececec80, 50% );
+	-fx-fill: -fx-background;
+	-fx-opacity: 0.6;
 }
 
 .splashscreen-title {
@@ -31,15 +32,16 @@
 }
 
 .splashscreen-progress-tray {
-	-fx-fill: dimgray;
+	-fx-fill: -fx-background;
 }
 
 .splashscreen-progress-incomplete {
-	-fx-fill: derive(-fx-accent, 20%);
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.5;
 }
 
 .splashscreen-progress-complete {
-	-fx-fill: derive(-fx-accent, 50%);
+	-fx-fill: -fx-accent;
 }
 
 #menu-development > .label {

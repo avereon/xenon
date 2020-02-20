@@ -109,6 +109,12 @@ public class SplashScreenPane extends Pane {
 		// WORKAROUND Had to add the modena css in order for the custom css to work
 		scene.getStylesheets().addAll( "com/sun/javafx/scene/control/skin/modena/modena.css", Program.STYLESHEET );
 
+//		log.log( Log.WARN, "CSS metadata count: " + this.getCssMetaData().size() );
+//
+//		this.getCssMetaData().stream().forEach( md -> {
+//			log.log( Log.WARN, md.getProperty() );
+//		} );
+
 		stage.setTitle( title );
 		stage.setScene( scene );
 		stage.sizeToScene();
