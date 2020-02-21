@@ -57,7 +57,7 @@ import static java.lang.System.Logger.Level.*;
 
 public class Program extends Application implements ProgramProduct {
 
-	public static final String STYLESHEET = "style.css";
+	public static final String STYLESHEET = "xenon.css";
 
 	public static final long MANAGER_ACTION_SECONDS = 10;
 
@@ -268,6 +268,9 @@ public class Program extends Application implements ProgramProduct {
 
 		// Add an uncaught exception handler to the FX thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
+
+		// This must be set before the splash screen is shown
+		setUserAgentStylesheet( STYLESHEET_MODENA );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM

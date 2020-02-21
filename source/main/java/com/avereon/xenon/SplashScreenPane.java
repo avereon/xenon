@@ -4,8 +4,6 @@ import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.util.Log;
 import com.avereon.venza.color.Colors;
 import com.avereon.venza.image.ProgramImage;
-import com.avereon.venza.javafx.JavaFxStarter;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -18,7 +16,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.lang.System.Logger;
 
@@ -84,8 +81,8 @@ public class SplashScreenPane extends Pane {
 		double offset = 80;
 		double centerLine = 0.5 * (HEIGHT - BAR_PAD - BAR_SIZE);
 
-		Circle accentA=new Circle( -40, centerLine - 0.5 * radius, radius, new Color( 1, 1, 1, 0.4 ) );
-		Circle accentB=new Circle( -40, centerLine + 0.5 * radius, radius, new Color( 1, 1, 1, 0.5 ) );
+		Circle accentA = new Circle( -40, centerLine - 0.5 * radius, radius, new Color( 1, 1, 1, 0.4 ) );
+		Circle accentB = new Circle( -40, centerLine + 0.5 * radius, radius, new Color( 1, 1, 1, 0.5 ) );
 		accentA.getStyleClass().addAll( "splashscreen-accent" );
 		accentB.getStyleClass().addAll( "splashscreen-accent" );
 
@@ -116,14 +113,8 @@ public class SplashScreenPane extends Pane {
 	public SplashScreenPane show( Stage stage ) {
 		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
 
-		// WORKAROUND Had to add the modena css in order for the custom css to work
-		scene.getStylesheets().addAll( "com/sun/javafx/scene/control/skin/modena/modena.css", Program.STYLESHEET );
-
-		//		log.log( Log.WARN, "CSS metadata count: " + this.getCssMetaData().size() );
-		//
-		//		this.getCssMetaData().stream().forEach( md -> {
-		//			log.log( Log.WARN, md.getProperty() );
-		//		} );
+		// NOTE Application.setUserAgentStylesheet( STYLESHEET_MODENA ) must be called for this to work properly
+		scene.getStylesheets().addAll( Program.STYLESHEET );
 
 		stage.setTitle( title );
 		stage.setScene( scene );
@@ -131,6 +122,7 @@ public class SplashScreenPane extends Pane {
 		stage.centerOnScreen();
 		stage.show();
 		stage.toFront();
+
 		return this;
 	}
 
@@ -140,6 +132,7 @@ public class SplashScreenPane extends Pane {
 
 	public void setProgress( double progress ) {
 		if( progress >= 1.0 ) {
+			progress = 1.0;
 			progressTray.setVisible( false );
 			progressBar.getStyleClass().remove( "splashscreen-progress-incomplete" );
 			progressBar.getStyleClass().add( "splashscreen-progress-complete" );
@@ -156,15 +149,33 @@ public class SplashScreenPane extends Pane {
 		if( getScene() != null ) getScene().getWindow().hide();
 	}
 
-	public static void main( String[] commands ) {
-		JavaFxStarter.startAndWait( 1000 );
-		Platform.runLater( () -> {
-			SplashScreenPane splash = new SplashScreenPane( "Xenon" );
-			splash.setProgress( 0.8 );
-			Stage stage = new Stage();
-			stage.initStyle( StageStyle.UTILITY );
-			splash.show( stage );
-		} );
-	}
+//	public static void main( String[] commands ) {
+//		Application splash = new Application() {
+//
+//
+//
+//			@Override
+//			public void start( Stage stage ) throws Exception {
+//				SplashScreenPane splash = new SplashScreenPane( "Xenon" );
+//				splash.setProgress( 0.8 );
+//				stage.initStyle( StageStyle.UTILITY );
+//				splash.show( stage );
+//			}
+//
+//		};
+
+
+
+//				Platform.startup(() -> {
+//					try {
+//						splash.init();
+//					} catch( Exception e ) {
+//						e.printStackTrace();
+//					}
+//				});
+//		JavaFxStarter.startAndWait( 1000 );
+//		Platform.runLater( () -> {
+//		} );
+//	}
 
 }

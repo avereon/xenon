@@ -27,7 +27,7 @@
 }
 
 .splashscreen-accent {
-	-fx-fill: -fx-accent;
+	-fx-fill: #7986CB;
 	-fx-opacity: 0.2;
 }
 
@@ -37,8 +37,8 @@
 }
 
 .splashscreen-progress-tray {
-	-fx-fill: -fx-text-background-color;
-	-fx-opacity: 0.1;
+	-fx-fill: gray;
+	-fx-opacity: 0.2;
 }
 
 .splashscreen-progress-incomplete {

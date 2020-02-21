@@ -25,7 +25,7 @@ public class WorkpaneMain extends Application {
 		container.setBackground( new Background( new BackgroundImage( image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize ) ) );
 
 		Scene scene = new Scene( container, 640, 360 );
-		scene.getStylesheets().add( "style.css" );
+		scene.getStylesheets().add( "xenon.css" );
 		stage.setScene( scene );
 		stage.show();
 	}
