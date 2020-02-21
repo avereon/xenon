@@ -19,11 +19,16 @@
 
 .splashscreen-tint {
 	-fx-fill: -fx-background;
-	-fx-opacity: 0.6;
+	-fx-opacity: 0.8;
 }
 
 .splashscreen-title {
-	-fx-text-fill: -fx-text-background-color;
+	-fx-fill: -fx-text-background-color;
+}
+
+.splashscreen-accent {
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.2;
 }
 
 .splashscreen-progress {
@@ -32,16 +37,18 @@
 }
 
 .splashscreen-progress-tray {
-	-fx-fill: -fx-background;
+	-fx-fill: -fx-text-background-color;
+	-fx-opacity: 0.1;
 }
 
 .splashscreen-progress-incomplete {
 	-fx-fill: -fx-accent;
-	-fx-opacity: 0.5;
+	-fx-opacity: 0.4;
 }
 
 .splashscreen-progress-complete {
 	-fx-fill: -fx-accent;
+	-fx-opacity: 0.8;
 }
 
 #menu-development > .label {

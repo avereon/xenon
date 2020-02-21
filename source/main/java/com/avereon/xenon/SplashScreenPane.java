@@ -72,7 +72,7 @@ public class SplashScreenPane extends Pane {
 		titleText.setFont( new Font( 100 ) );
 
 		titleText.setX( 0.5 * (WIDTH - titleText.getLayoutBounds().getWidth()) );
-		titleText.setY( 0.4 * (HEIGHT - titleText.getLayoutBounds().getHeight() - BAR_PAD - BAR_SIZE) + titleText.getLayoutBounds().getHeight() );
+		titleText.setY( 0.5 * (HEIGHT - titleText.getLayoutBounds().getHeight() - BAR_PAD - BAR_SIZE) + titleText.getLayoutBounds().getHeight() );
 
 		progressTray = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, WIDTH - 2 * BAR_PAD, BAR_SIZE );
 		progressTray.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-tray" );
@@ -80,11 +80,21 @@ public class SplashScreenPane extends Pane {
 		progressBar = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, 0, BAR_SIZE );
 		progressBar.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-incomplete" );
 
-		getChildren().add( background );
-		getChildren().add( new Circle( -40, 80, 160, new Color( 1, 1, 1, 0.1 ) ) );
-		getChildren().add( new Circle( 80, -240, 360, new Color( 1, 1, 1, 0.1 ) ) );
+		double radius = 80;
+		double offset = 80;
+		double centerLine = 0.5 * (HEIGHT - BAR_PAD - BAR_SIZE);
+
+		Circle accentA=new Circle( -40, centerLine - 0.5 * radius, radius, new Color( 1, 1, 1, 0.4 ) );
+		Circle accentB=new Circle( -40, centerLine + 0.5 * radius, radius, new Color( 1, 1, 1, 0.5 ) );
+		accentA.getStyleClass().addAll( "splashscreen-accent" );
+		accentB.getStyleClass().addAll( "splashscreen-accent" );
+
+		getChildren().addAll( background );
+		//getChildren().add( new Circle( -40, centerLine - 0.5 * radius, radius, new Color( 1, 1, 1, 0.4 ) ) );
+		//getChildren().add( new Circle( -40, centerLine + 0.5 * radius, radius, new Color( 1, 1, 1, 0.5 ) ) );
+		//getChildren().add( new Circle( 80, -240, 360, new Color( 1, 1, 1, 0.1 ) ) );
 		getChildren().add( icon );
-		getChildren().add( tint );
+		getChildren().addAll( tint, accentA, accentB );
 		getChildren().addAll( titleText, progressTray, progressBar );
 
 		setWidth( WIDTH );
@@ -109,11 +119,11 @@ public class SplashScreenPane extends Pane {
 		// WORKAROUND Had to add the modena css in order for the custom css to work
 		scene.getStylesheets().addAll( "com/sun/javafx/scene/control/skin/modena/modena.css", Program.STYLESHEET );
 
-//		log.log( Log.WARN, "CSS metadata count: " + this.getCssMetaData().size() );
-//
-//		this.getCssMetaData().stream().forEach( md -> {
-//			log.log( Log.WARN, md.getProperty() );
-//		} );
+		//		log.log( Log.WARN, "CSS metadata count: " + this.getCssMetaData().size() );
+		//
+		//		this.getCssMetaData().stream().forEach( md -> {
+		//			log.log( Log.WARN, md.getProperty() );
+		//		} );
 
 		stage.setTitle( title );
 		stage.setScene( scene );
