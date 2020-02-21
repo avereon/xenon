@@ -28,8 +28,8 @@ The framework provides the following basic features:
 #### Version 1.0
 | Release | Feature Goals | Status |
 |---|---|---|
-|1.0|Documentation, licensing, housekeeping| 28 Nov 2019 |
-|0.9|Custom tool pane and tabs, CI configuration | 19 Sep 2019 |
+|[1.0](https://github.com/avereon/xenon/milestone/2)|Documentation, licensing, housekeeping| 28 Nov 2019 |
+|[0.9](https://github.com/avereon/xenon/milestone/1)|Custom tool pane and tabs, CI configuration | 19 Sep 2019 |
 |0.8|Mod manager, mod tool, mod updates | 16 Jun 2019 |
 |0.7|Java 11, Java FX 11, status bar, memory status, task status| 24 Jan 2019 |
 |0.6|Update manager, product updates| 4 Jun 2018 |
