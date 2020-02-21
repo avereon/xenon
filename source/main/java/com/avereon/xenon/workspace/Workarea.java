@@ -3,13 +3,18 @@ package com.avereon.xenon.workspace;
 import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.FxEventWrapper;
+import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Workarea implements Configurable {
 
@@ -82,6 +87,14 @@ public class Workarea implements Configurable {
 		} else {
 			settings.set( UiFactory.PARENT_WORKSPACE_ID, null );
 		}
+	}
+
+	public Set<Asset> getAssets() {
+		return getWorkpane().getTools().stream().map( Tool::getAsset ).collect( Collectors.toSet() );
+	}
+
+	public Set<Asset> getModifiedAssets() {
+		return getAssets().stream().filter( Asset::isNewOrModified ).collect( Collectors.toSet() );
 	}
 
 	@Override

@@ -632,6 +632,8 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
+		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
+
 		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
 		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
 

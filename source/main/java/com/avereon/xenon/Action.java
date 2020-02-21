@@ -18,7 +18,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 		this.program = program;
 	}
 
-	public Program getProgram() {
+	public final Program getProgram() {
 		return program;
 	}
 

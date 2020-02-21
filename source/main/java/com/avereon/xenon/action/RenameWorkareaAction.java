@@ -33,9 +33,9 @@ public class RenameWorkareaAction extends Action {
 		workarea = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea();
 
 		TextInputDialog dialog = new TextInputDialog( workarea.getName() );
-		dialog.setTitle( program.rb().text( "workarea", "workarea.rename.title" ) );
-		dialog.setHeaderText( program.rb().text( "workarea", "workarea.rename.message" ) );
-		dialog.setContentText( program.rb().text( "workarea", "workarea.rename.prompt" ) );
+		dialog.setTitle( program.rb().text( "workarea", "workarea-rename-title" ) );
+		dialog.setHeaderText( program.rb().text( "workarea", "workarea-rename-message" ) );
+		dialog.setContentText( program.rb().text( "workarea", "workarea-rename-prompt" ) );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );

@@ -239,6 +239,10 @@ public class Asset extends Node implements Configurable {
 		return AssetScheme.ID.equals( getUri().getScheme() );
 	}
 
+	public synchronized final boolean isNewOrModified() {
+		return isNew() || isModified();
+	}
+
 	public synchronized final boolean isOpen() {
 		return open;
 	}
