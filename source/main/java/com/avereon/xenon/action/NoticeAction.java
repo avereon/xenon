@@ -22,7 +22,7 @@ public class NoticeAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpane().getTools( NoticeTool.class );
+		Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
 
 		if( tools.size() > 0 ) {
 			// Close the notice tools

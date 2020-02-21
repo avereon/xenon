@@ -168,8 +168,11 @@ public class Workspace implements Configurable {
 		stage = new Stage();
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
-			event.consume();
 			program.getWorkspaceManager().requestCloseWorkspace( this );
+			event.consume();
+		} );
+		stage.focusedProperty().addListener( (p,o,n ) -> {
+			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
 	}
 

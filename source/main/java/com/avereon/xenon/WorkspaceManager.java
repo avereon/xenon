@@ -160,13 +160,13 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
 	}
 
-	public Set<Tool> getActiveTools( Class<? extends Tool> type ) {
+	public Set<Tool> getActiveWorkpaneTools( Class<? extends Tool> type ) {
 		return getActiveWorkpane().getTools( type );
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {
 		Platform.runLater( () -> {
-			Set<Tool> tools = getActiveTools( type );
+			Set<Tool> tools = getActiveWorkpaneTools( type );
 			tools.forEach( Tool::close );
 		} );
 	}
