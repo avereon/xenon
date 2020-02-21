@@ -50,6 +50,14 @@ public abstract class ProgramTool extends Tool {
 		this.uid = uid;
 	}
 
+	protected void pushToolActions( String... actions ) {
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions(actions);
+	}
+
+	protected void pullToolActions() {
+		getProgram().getWorkspaceManager().getActiveWorkspace().pullToolbarActions();
+	}
+
 	protected ProgramTool pushAction( String key, Action action ) {
 		getProgram().getActionLibrary().getAction( key ).pushAction( action );
 		return this;
