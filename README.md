@@ -21,9 +21,9 @@ The framework provides the following basic features:
 #### Version 2.0
 | Release | Feature Goals | Status |
 |---|---|---|
-|[1.3](https://github.com/avereon/xenon/milestone/5)|Java 14, jpackage installers | Planning |
+|[1.3](https://github.com/avereon/xenon/milestone/5)|Java 14, jpackage installers | Proposed |
 |[1.2](https://github.com/avereon/xenon/milestone/4)|Theme modification, dark theme | Planning |
-|[1.1](https://github.com/avereon/xenon/milestone/3)|Mazer Mod | In Progress |
+|[1.1](https://github.com/avereon/xenon/milestone/3)|Example Mod (Mazer) | In Progress |
 
 #### Version 1.0
 | Release | Feature Goals | Status |
