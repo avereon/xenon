@@ -1199,12 +1199,9 @@ public class Workpane extends Control implements Configurable {
 	 * @param autoMerge If the workpane should automatically merge the tool view
 	 * @return The tool that was closed
 	 */
-	public Tool closeTool( Tool tool, boolean autoMerge ) {
+	Tool closeTool( Tool tool, boolean autoMerge ) {
 		if( tool == null ) return null;
 		Workpane pane = tool.getWorkpane();
-
-		// NEXT #232 Handle modified asset when closing last asset tool
-		// This probably cannot be handled here but needs to be supported here
 
 		// Notify tool listeners of intent to close
 		tool.fireEvent( new ToolEvent( null, ToolEvent.CLOSING, pane, tool ) );

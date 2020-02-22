@@ -195,7 +195,11 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() ) {
-			if( result.get() == ButtonType.YES ) getProgram().getAssetManager().saveAssets( assets );
+			if( result.get() == ButtonType.YES ) {
+				for( Asset asset : assets ) {
+					if( !getProgram().getAssetManager().saveAsset( asset ) ) return false;
+				}
+			}
 			return result.get() == ButtonType.YES || result.get() == ButtonType.NO;
 		}
 

@@ -48,8 +48,18 @@ public abstract class ProgramTool extends Tool {
 		this.uid = uid;
 	}
 
+	@Override
+	public void close() {
+		Asset asset = getAsset();
+		if( asset.isNewOrModified() && !getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( asset ) ) ) return;
+
+		// NEXT #153 Handle closing asset when closing last asset tool
+
+		super.close();
+	}
+
 	protected void pushToolActions( String... actions ) {
-		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions(actions);
+		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( actions );
 	}
 
 	protected void pullToolActions() {

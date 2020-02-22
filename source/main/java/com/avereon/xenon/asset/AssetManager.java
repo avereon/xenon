@@ -434,8 +434,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	/**
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void saveAsset( Asset asset ) {
-		saveAsset( asset, null, false, false );
+	public boolean saveAsset( Asset asset ) {
+		return saveAsset( asset, null, false, false );
 	}
 
 	/**
@@ -445,8 +445,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param target The target asset
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void saveAsAsset( Asset source, Asset target ) {
-		saveAsset( source, target, true, false );
+	public boolean saveAsAsset( Asset source, Asset target ) {
+		return saveAsset( source, target, true, false );
 	}
 
 	//	/**
@@ -471,8 +471,8 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param target The target asset
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	public void copyAsAsset( Asset source, Asset target ) {
-		saveAsset( source, target, false, true );
+	public boolean copyAsAsset( Asset source, Asset target ) {
+		return saveAsset( source, target, false, true );
 	}
 
 	//	/**
@@ -499,7 +499,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @param copy The copy as flag
 	 * @implNote This method makes calls to the FX platform.
 	 */
-	private void saveAsset( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
+	private boolean saveAsset( Asset asset, Asset saveAsAsset, boolean saveAs, boolean copy ) {
 		if( asset.isNew() || (saveAs && saveAsAsset == null) ) {
 			Codec codec = asset.getCodec();
 			if( codec == null ) codec = asset.getType().getDefaultCodec();
@@ -513,7 +513,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			chooser.setInitialFileName( "asset" + (codec == null ? "" : "." + codec.getDefaultExtension()) );
 
 			File file = chooser.showSaveDialog( program.getWorkspaceManager().getActiveStage() );
-			if( file == null ) return;
+			if( file == null ) return false;
 
 			File parent = file.isDirectory() ? file : file.getParentFile();
 			getSettings().set( CURRENT_FOLDER_SETTING_KEY, parent.toString() );
@@ -551,6 +551,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		}
 
 		saveAssets( asset );
+
+		return true;
 	}
 
 	private Map<Codec, FileChooser.ExtensionFilter> generateCodecFilters( AssetType type ) {
