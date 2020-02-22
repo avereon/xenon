@@ -69,12 +69,12 @@
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
 		<!--JavaFX must be version 13 or higher for DnD to function correctly -->
-		<openjfx.version>13</openjfx.version>
-		<controlsfx.version>11.0.0</controlsfx.version>
+		<openjfx.version>13.0.2</openjfx.version>
+		<controlsfx.version>11.0.1</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
 
 		<!-- Test dependencies -->
-		<testfx.version>4.0.15-alpha</testfx.version>
+		<testfx.version>4.0.16-alpha</testfx.version>
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
 		<!-- Build dependencies -->
