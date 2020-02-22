@@ -1,5 +1,9 @@
 package com.avereon.xenon.task;
 
+import com.avereon.event.Event;
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,39 +11,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
 
-class TaskWatcher implements TaskListener {
+class TaskWatcher implements EventHandler<TaskManagerEvent> {
 
 	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
 
-	private List<TaskEvent> events = new CopyOnWriteArrayList<>();
+	private List<TaskManagerEvent> events = new CopyOnWriteArrayList<>();
 
-	private Map<TaskEvent.Type, TaskEvent> eventMap = new ConcurrentHashMap<>();
+	private Map<EventType<? extends Event>, TaskManagerEvent> eventMap = new ConcurrentHashMap<>();
 
-	public List<TaskEvent> getEvents() {
+	public List<? extends TaskManagerEvent> getEvents() {
 		return new ArrayList<>( events );
 	}
 
 	@Override
-	public synchronized void handleEvent( TaskEvent event ) {
+	public synchronized void handle( TaskManagerEvent event ) {
 		events.add( event );
-		eventMap.put( event.getType(), event );
+		eventMap.put( event.getEventType(), event );
 		notifyAll();
 	}
 
-	private void clearEvent( TaskEvent.Type type ) {
+	private void clearEvent( EventType<? extends Event> type ) {
 		eventMap.remove( type );
 	}
 
-	public void waitForEvent( TaskEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( EventType<? extends Event> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
 	@SuppressWarnings( "unused" )
-	public void waitForNextEvent( TaskEvent.Type type ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( EventType<? extends Event> type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	public synchronized void waitForEvent( TaskEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( EventType<? extends Event> type, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
@@ -55,7 +59,7 @@ class TaskWatcher implements TaskListener {
 	}
 
 	@SuppressWarnings( "SameParameterValue" )
-	private synchronized void waitForNextEvent( TaskEvent.Type type, long timeout ) throws InterruptedException, TimeoutException {
+	private synchronized void waitForNextEvent( EventType<? extends Event> type, long timeout ) throws InterruptedException, TimeoutException {
 		clearEvent( type );
 		waitForEvent( type, timeout );
 	}

@@ -1,14 +1,14 @@
 package com.avereon.xenon.tool.settings;
 
+import com.avereon.data.NodeEvent;
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventType;
 import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.node.NodeEvent;
-import com.avereon.xenon.node.NodeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -16,15 +16,14 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
 public class SettingsPanel extends VBox {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	//	private String[] fontNames;
 	//
@@ -84,7 +83,7 @@ public class SettingsPanel extends VBox {
 	private Control createGroupPane( Product product, SettingsPage page, String name, SettingGroup group ) {
 		Pane pane = createSettingsPane( product, page, group );
 
-		group.addNodeListener( new GroupChangeHandler( group, pane ) );
+		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
 
 		Settings pageSettings = page.getSettings();
 		List<SettingDependency> dependencies = group.getDependencies();
@@ -120,11 +119,11 @@ public class SettingsPanel extends VBox {
 
 			// Create the editor
 			if( editorClass == null ) {
-				log.warn( "Setting editor not registered: {}", editorType );
+				log.log( Log.WARN, "Setting editor not registered: {}", editorType );
 			} else {
 				SettingEditor editor = createSettingEditor( product, setting, editorClass );
 				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.debug( "Editor not created: ", editorClass.getName() );
+				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {}", editorClass.getName() );
 			}
 
 			// Add a watcher to each dependency
@@ -150,7 +149,7 @@ public class SettingsPanel extends VBox {
 			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, Setting.class );
 			editor = constructor.newInstance( (ProgramProduct)product, setting );
 		} catch( Exception exception ) {
-			log.error( "Error creating setting editor: " + editorClass.getName(), exception );
+			log.log( Log.ERROR, "Error creating setting editor: " + editorClass.getName(), exception );
 		}
 		if( editor == null ) return null;
 
@@ -161,7 +160,7 @@ public class SettingsPanel extends VBox {
 	}
 
 	private void addGroupDependencyWatchers( Settings settings, SettingGroup group, SettingDependency dependency ) {
-		settings.addSettingsListener( new GroupDependencyWatcher( dependency, group ) );
+		settings.register( SettingsEvent.CHANGED, new GroupDependencyWatcher( dependency, group ) );
 
 		List<SettingDependency> dependencies = group.getDependencies();
 		if( dependencies.size() > 0 ) {
@@ -172,7 +171,7 @@ public class SettingsPanel extends VBox {
 	}
 
 	private void addSettingDependencyWatchers( Settings settings, Setting setting, SettingDependency dependency ) {
-		settings.addSettingsListener( new SettingDependencyWatcher( dependency, setting ) );
+		settings.register( SettingsEvent.CHANGED, new SettingDependencyWatcher( dependency, setting ) );
 
 		List<SettingDependency> dependencies = setting.getDependencies();
 		if( dependencies.size() > 0 ) {
@@ -182,7 +181,7 @@ public class SettingsPanel extends VBox {
 		}
 	}
 
-	private static final class GroupDependencyWatcher implements SettingsListener {
+	private static final class GroupDependencyWatcher implements EventHandler<SettingsEvent> {
 
 		private SettingGroup group;
 
@@ -194,14 +193,14 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( this.key == null ) return;
+		public void handle( SettingsEvent event ) {
+			if( key == null ) return;
 			if( key.equals( event.getKey() ) ) group.updateState();
 		}
 
 	}
 
-	private static final class SettingDependencyWatcher implements SettingsListener {
+	private static final class SettingDependencyWatcher implements EventHandler<SettingsEvent> {
 
 		private Setting setting;
 
@@ -213,14 +212,14 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+		public void handle( SettingsEvent event ) {
+			if( key == null ) return;
 			if( key.equals( event.getKey() ) ) setting.updateState();
 		}
 
 	}
 
-	private static class GroupChangeHandler implements NodeListener {
+	private static class GroupChangeHandler implements EventHandler<NodeEvent> {
 
 		private SettingGroup group;
 
@@ -232,8 +231,8 @@ public class SettingsPanel extends VBox {
 		}
 
 		@Override
-		public void nodeEvent( NodeEvent event ) {
-			if( event.getSource() != group || event.getType() != NodeEvent.Type.VALUE_CHANGED ) return;
+		public void handle( NodeEvent event ) {
+			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
 				case "disable": {
@@ -257,20 +256,19 @@ public class SettingsPanel extends VBox {
 
 	}
 
-	private static class EditorChangeHandler implements NodeListener, SettingsListener {
+	private static class EditorChangeHandler {
 
 		private SettingEditor editor;
 
-		public EditorChangeHandler( SettingEditor editor, Setting setting ) {
+		private EditorChangeHandler( SettingEditor editor, Setting setting ) {
 			this.editor = editor;
-			setting.addNodeListener( this );
-			setting.getSettings().addSettingsListener( this );
+			setting.register( NodeEvent.ANY, this::handleNodeEvent );
+			setting.getSettings().register( SettingsEvent.CHANGED, editor::handle );
 		}
 
-		@Override
-		public void nodeEvent( NodeEvent event ) {
-			NodeEvent.Type type = event.getType();
-			if( type != NodeEvent.Type.VALUE_CHANGED ) return;
+		private void handleNodeEvent( NodeEvent event ) {
+			EventType<? extends NodeEvent> type = event.getEventType();
+			if( type != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
 				case "disable": {
@@ -282,14 +280,6 @@ public class SettingsPanel extends VBox {
 					break;
 				}
 			}
-		}
-
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-
-			// Forward the event to the editor
-			editor.handleEvent( event );
 		}
 
 	}

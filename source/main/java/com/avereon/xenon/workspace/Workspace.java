@@ -1,21 +1,21 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.util.Configurable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.event.WorkareaChangedEvent;
+import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.resource.type.ProgramTaskType;
 import com.avereon.xenon.util.ActionUtil;
+import com.avereon.xenon.util.ProgramEventHub;
 import com.avereon.xenon.util.TimerUtil;
-import com.avereon.xenon.workarea.Workarea;
+import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,16 +30,12 @@ import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Timer;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 //import java.beans.PropertyChangeEvent;
 //import java.beans.PropertyChangeListener;
@@ -49,7 +45,7 @@ import java.util.Timer;
  */
 public class Workspace implements Configurable {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final System.Logger log = Log.get();
 
 	private Program program;
 
@@ -60,6 +56,8 @@ public class Workspace implements Configurable {
 	private Scene scene;
 
 	private boolean active;
+
+	private ProgramEventHub eventBus;
 
 	private StackPane workspaceStack;
 
@@ -72,6 +70,12 @@ public class Workspace implements Configurable {
 	private MenuBar menubar;
 
 	private ToolBar toolbar;
+
+	private Map<String, Button> toolbarToolButtons;
+
+	private Separator toolbarToolButtonSeparator;
+
+	private Region toolbarToolSpring;
 
 	private StatusBar statusBar;
 
@@ -105,7 +109,7 @@ public class Workspace implements Configurable {
 
 	private Settings backgroundSettings;
 
-	private SettingsListener backgroundSettingsHandler;
+	private BackgroundSettingsHandler backgroundSettingsHandler;
 
 	private Settings memoryMonitorSettings;
 
@@ -119,6 +123,8 @@ public class Workspace implements Configurable {
 
 	public Workspace( final Program program ) {
 		this.program = program;
+		this.eventBus = new ProgramEventHub();
+		this.eventBus.parent( program.getEventBus() );
 
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
@@ -126,10 +132,57 @@ public class Workspace implements Configurable {
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 
-		// FIXME Should this default setup be defined in config files or something else?
 
-		// MENUBAR
-		menubar = new MenuBar();
+		// FIXME Should this default setup be defined in config files or something else?
+		menubar = createMenuBar( program );
+
+		toolbarToolButtons = new ConcurrentHashMap<>();
+		toolbarToolButtonSeparator = new Separator();
+		toolbarToolSpring = ActionUtil.createSpring();
+		toolbar = createToolBar( program );
+
+		statusBar = createStatusBar( program );
+
+		noticeContainer = new VBox();
+		noticeContainer.getStyleClass().add( "notice-container" );
+		noticeContainer.setPickOnBounds( false );
+
+		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
+		noticeLayout.setPickOnBounds( false );
+
+		// Workpane Container
+		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
+		workpaneContainer.getStyleClass().add( "workspace" );
+
+		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		workspaceStack.setPickOnBounds( false );
+
+		VBox bars = new VBox( menubar, toolbar );
+
+		workareaLayout = new BorderPane();
+		workareaLayout.setTop( bars );
+		workareaLayout.setCenter( workspaceStack );
+		workareaLayout.setBottom( statusBar );
+
+		// Create the stage
+		stage = new Stage();
+		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
+		stage.setOnCloseRequest( event -> {
+			program.getWorkspaceManager().requestCloseWorkspace( this );
+			event.consume();
+		} );
+		stage.focusedProperty().addListener( (p,o,n ) -> {
+			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
+		} );
+	}
+
+	public ProgramEventHub getEventBus() {
+		return eventBus;
+	}
+
+	private MenuBar createMenuBar( Program program ) {
+		MenuBar menubar = new MenuBar();
+
 		// FIXME This does not work if there are two menu bars (like this program uses)
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
@@ -149,6 +202,8 @@ public class Workspace implements Configurable {
 		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
+		file.getItems().add( new SeparatorMenuItem() );
+		file.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
 
 		Menu edit = ActionUtil.createMenu( program, "edit" );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
@@ -188,8 +243,26 @@ public class Workspace implements Configurable {
 		menubar.getMenus().addAll( prog, file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
 
-		// Workarea menu
+		return menubar;
+	}
 
+	private ToolBar createToolBar( Program program ) {
+		ToolBar toolbar = new ToolBar();
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "properties" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
+		toolbar.getItems().add( new Separator() );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
+		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
+
+		toolbar.getItems().add( toolbarToolSpring );
+
+		// Workarea menu
 		Menu workareaMenu = ActionUtil.createMenu( program, "workarea" );
 		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-new" ) );
 		workareaMenu.getItems().add( new SeparatorMenuItem() );
@@ -209,22 +282,6 @@ public class Workspace implements Configurable {
 		workareaSelector.setButtonCell( new WorkareaPropertyCell() );
 		workareaSelector.valueProperty().addListener( ( value, oldValue, newValue ) -> setActiveWorkarea( newValue ) );
 
-		// TOOLBAR
-
-		toolbar = new ToolBar();
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
-
-		toolbar.getItems().add( ActionUtil.createSpring() );
-
 		toolbar.getItems().add( workareaMenuBar );
 		toolbar.getItems().add( workareaSelector );
 
@@ -241,15 +298,18 @@ public class Workspace implements Configurable {
 		} );
 		toolbar.getItems().add( noticeButton );
 
-		// STATUS BAR
-		statusBar = new StatusBar();
+		return toolbar;
+	}
+
+	private StatusBar createStatusBar( Program program ) {
+		StatusBar statusBar = new StatusBar();
 
 		// Task Monitor
 		taskMonitor = new TaskMonitor( program.getTaskManager() );
 		taskMonitorContainer = new Group();
 
 		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> program.getResourceManager().open( ProgramTaskType.URI ) );
+		taskMonitor.setOnMouseClicked( ( event ) -> program.getAssetManager().openAsset( ProgramTaskType.URI ) );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
@@ -258,42 +318,36 @@ public class Workspace implements Configurable {
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		HBox leftStatusBarItems = new HBox( statusBar );
-		leftStatusBarItems.getStyleClass().addAll( "box" );
+		statusBar.addRight( memoryMonitorContainer );
+		statusBar.addRight( taskMonitorContainer );
 
-		HBox rightStatusBarItems = new HBox( taskMonitorContainer, memoryMonitorContainer );
-		rightStatusBarItems.getStyleClass().addAll( "box" );
+		return statusBar;
+	}
 
-		BorderPane statusBarContainer = new BorderPane( null, null, rightStatusBarItems, null, leftStatusBarItems );
-		statusBarContainer.getStyleClass().add( "status-bar" );
+	public void pushToolbarActions( String... ids ) {
+		pullToolbarActions();
+		int index = toolbar.getItems().indexOf( toolbarToolSpring );
+		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
+		for( String id : ids ) {
+			Node node;
+			if( "separator".equals( id ) ) {
+				node = new Separator();
+			} else {
+				node = ActionUtil.createToolBarButton( getProgram(), id );
+			}
+			toolbar.getItems().add( index++, node );
+		}
+	}
 
-		noticeContainer = new VBox();
-		noticeContainer.setPickOnBounds( false );
+	public void pullToolbarActions() {
+		int index = toolbar.getItems().indexOf( toolbarToolButtonSeparator );
+		if( index < 0 ) return;
 
-		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
-		noticeLayout.setPickOnBounds( false );
-
-		// Workpane Container
-		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
-		workpaneContainer.getStyleClass().add( "workspace" );
-
-		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
-		workspaceStack.setPickOnBounds( false );
-
-		VBox bars = new VBox( menubar, toolbar );
-
-		workareaLayout = new BorderPane();
-		workareaLayout.setTop( bars );
-		workareaLayout.setCenter( workspaceStack );
-		workareaLayout.setBottom( statusBarContainer );
-
-		// Create the stage
-		stage = new Stage();
-		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
-		stage.setOnCloseRequest( event -> {
-			event.consume();
-			program.getWorkspaceManager().requestCloseWorkspace( this );
-		} );
+		Node node = toolbar.getItems().get( index );
+		while( node != toolbarToolSpring ) {
+			toolbar.getItems().remove( index );
+			node = toolbar.getItems().get( index );
+		}
 	}
 
 	public Program getProgram() {
@@ -342,9 +396,6 @@ public class Workspace implements Configurable {
 	public void setActiveWorkarea( Workarea workarea ) {
 		if( activeWorkarea == workarea ) return;
 
-		// If the workarea is not already added, add it
-		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
-
 		// Disconnect the old active workarea
 		if( activeWorkarea != null ) {
 			activeWorkarea.nameProperty().removeListener( workareaNameWatcher );
@@ -352,9 +403,15 @@ public class Workspace implements Configurable {
 			// TODO Remove the menu bar
 			// TODO Remove the tool bar
 			workpaneContainer.getChildren().remove( activeWorkarea.getWorkpane() );
+
+			// TODO Can I have the workarea "conceal" the tools instead of directly setting the current asset
+			getProgram().getAssetManager().setCurrentAsset( null );
 		}
 
+		// If the workarea is not already added, add it
+		if( !workareas.contains( workarea ) ) addWorkarea( workarea );
 		// Set the new active workarea
+		Workarea priorWorkarea = activeWorkarea;
 		activeWorkarea = workarea;
 
 		// Connect the new active workarea
@@ -366,10 +423,12 @@ public class Workspace implements Configurable {
 			activeWorkarea.nameProperty().addListener( workareaNameWatcher );
 			workareaSelector.getSelectionModel().select( activeWorkarea );
 			setStageTitle( activeWorkarea.getName() );
+			Tool activeTool = activeWorkarea.getWorkpane().getActiveTool();
+			if( activeTool != null ) getProgram().getAssetManager().setCurrentAsset( activeTool.getAsset() );
 		}
 
 		// Send a program event when active area changes
-		getProgram().fireEvent( new WorkareaChangedEvent( this, activeWorkarea ) );
+		getEventBus().dispatch( new WorkareaSwitchedEvent( this, WorkareaSwitchedEvent.SWITCHED, this, priorWorkarea, activeWorkarea ) );
 	}
 
 	public void showNotice( Notice notice ) {
@@ -379,14 +438,14 @@ public class Workspace implements Configurable {
 		noticeContainer.getChildren().removeIf( node -> Objects.equals( ((NoticePane)node).getNotice().getId(), notice.getId() ) );
 		noticeContainer.getChildren().add( 0, pane );
 
-		pane.onMouseClickedProperty().set( ( event ) -> {
+		pane.setOnMouseClicked( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
-		pane.getCloseButton().onMouseClickedProperty().set( ( event ) -> {
+		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
 			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
 			event.consume();
@@ -462,19 +521,19 @@ public class Workspace implements Configurable {
 		} );
 
 		backgroundSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		backgroundSettings.removeSettingsListener( backgroundSettingsHandler );
+		backgroundSettings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
 		background.updateBackgroundFromSettings( backgroundSettings );
-		backgroundSettings.addSettingsListener( backgroundSettingsHandler );
+		backgroundSettings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
 
 		memoryMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		memoryMonitorSettings.removeSettingsListener( memoryMonitorSettingsHandler );
+		memoryMonitorSettings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 		updateMemoryMonitorFromSettings( memoryMonitorSettings );
-		memoryMonitorSettings.addSettingsListener( memoryMonitorSettingsHandler );
+		memoryMonitorSettings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 
 		taskMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		taskMonitorSettings.removeSettingsListener( taskMonitorSettingsHandler );
+		taskMonitorSettings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 		updateTaskMonitorFromSettings( taskMonitorSettings );
-		taskMonitorSettings.addSettingsListener( taskMonitorSettingsHandler );
+		taskMonitorSettings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 	}
 
 	@Override
@@ -513,19 +572,22 @@ public class Workspace implements Configurable {
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
-		updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
-		memoryMonitor.setTextVisible( showText );
-		memoryMonitor.setShowPercent( showPercent );
+		Platform.runLater( () -> {
+			updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
+			memoryMonitor.setTextVisible( showText );
+			memoryMonitor.setShowPercent( showPercent );
+		} );
 	}
 
 	private void updateTaskMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
-
-		updateContainer( taskMonitorContainer, taskMonitor, enabled );
-		taskMonitor.setTextVisible( showText );
-		taskMonitor.setShowPercent( showPercent );
+		Platform.runLater( () -> {
+			updateContainer( taskMonitorContainer, taskMonitor, enabled );
+			taskMonitor.setTextVisible( showText );
+			taskMonitor.setShowPercent( showPercent );
+		} );
 	}
 
 	private void updateContainer( Group container, Node tool, boolean enabled ) {
@@ -536,32 +598,38 @@ public class Workspace implements Configurable {
 		}
 	}
 
-	private class BackgroundSettingsHandler implements SettingsListener {
+	//	private class BackgroundSettingsHandler implements SettingsListener {
+	//
+	//		@Override
+	//		public void handle( SettingsEvent event ) {
+	//			if( event.getEventType() != SettingsEvent.CHANGED ) return;
+	//			background.updateBackgroundFromSettings( backgroundSettings );
+	//		}
+	//
+	//	}
+	//
+	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+		public void handle( SettingsEvent event ) {
 			background.updateBackgroundFromSettings( backgroundSettings );
 		}
-
 	}
 
-	private class MemoryMonitorSettingsHandler implements SettingsListener {
+	private class MemoryMonitorSettingsHandler implements EventHandler<SettingsEvent> {
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
+		public void handle( SettingsEvent event ) {
 			updateMemoryMonitorFromSettings( memoryMonitorSettings );
 		}
 
 	}
 
-	private class TaskMonitorSettingsHandler implements SettingsListener {
+	private class TaskMonitorSettingsHandler implements EventHandler<SettingsEvent> {
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-			Platform.runLater( () -> updateTaskMonitorFromSettings( taskMonitorSettings ) );
+		public void handle( SettingsEvent event ) {
+			updateTaskMonitorFromSettings( taskMonitorSettings );
 		}
 
 	}

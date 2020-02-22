@@ -3,21 +3,20 @@ package com.avereon.xenon.tool.product;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.IconLibrary;
-import com.avereon.xenon.OpenToolRequestParameters;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.*;
 
 public class ProductTool extends GuidedTool {
@@ -30,7 +29,7 @@ public class ProductTool extends GuidedTool {
 
 	public static final String SOURCES = "sources";
 
-	static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	static final Logger log = Log.get();
 
 	static final int ICON_SIZE = 48;
 
@@ -54,8 +53,8 @@ public class ProductTool extends GuidedTool {
 
 	private String currentPageId;
 
-	public ProductTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public ProductTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 
 		Program program = getProgram();
 
@@ -88,56 +87,56 @@ public class ProductTool extends GuidedTool {
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-		log.debug( "Product tool allocate" );
+		log.log( Log.DEBUG,  "Product tool allocate" );
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.debug( "Product tool display" );
+		log.log( Log.DEBUG,  "Product tool display" );
 		super.display();
 		checkInfo.updateInfo();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.debug( "Product tool activate" );
+		log.log( Log.DEBUG,  "Product tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.debug( "Product tool deactivate" );
+		log.log( Log.DEBUG,  "Product tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.debug( "Product tool conceal" );
+		log.log( Log.DEBUG,  "Product tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.debug( "Product tool deallocate" );
+		log.log( Log.DEBUG,  "Product tool deallocate" );
 		super.deallocate();
 	}
 
 	@Override
-	protected void resourceReady( OpenToolRequestParameters parameters ) throws ToolException {
-		log.debug( "Product tool resource ready" );
-		super.resourceReady( parameters );
+	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+		log.log( Log.DEBUG,  "Product tool asset ready" );
+		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
-		String pageId = parameters.getFragment();
+		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = INSTALLED;
 		selectPage( pageId );
 	}
 
 	@Override
-	protected void resourceRefreshed() throws ToolException {
-		log.trace( "Product tool resource refreshed" );
-		super.resourceRefreshed();
+	protected void assetRefreshed() throws ToolException {
+		log.log( Log.TRACE,  "Product tool asset refreshed" );
+		super.assetRefreshed();
 	}
 
 	@Override

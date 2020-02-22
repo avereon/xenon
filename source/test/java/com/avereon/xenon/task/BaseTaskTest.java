@@ -19,7 +19,7 @@ public abstract class BaseTaskTest extends BaseTestCase {
 	@Override
 	public void setup() {
 		manager = new TaskManager().start();
-		manager.addTaskListener( taskWatcher = new TaskWatcher() );
+		manager.getEventBus().register( TaskManagerEvent.ANY, taskWatcher = new TaskWatcher() );
 	}
 
 }

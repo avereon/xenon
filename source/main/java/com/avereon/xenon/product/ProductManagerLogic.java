@@ -4,12 +4,13 @@ import com.avereon.product.CatalogCard;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.util.FileUtil;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.notice.Notice;
-import com.avereon.xenon.resource.type.ProgramProductType;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.task.chain.TaskChain;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.Asynchronous;
@@ -19,10 +20,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 public class ProductManagerLogic {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private static final ProductCard PRODUCT_CONNECTION_ERROR = new ProductCard();
 
@@ -44,6 +44,11 @@ public class ProductManagerLogic {
 	private Program program;
 
 	private V2RepoClient repoClient;
+
+	static {
+		PRODUCT_CONNECTION_ERROR.setGroup( Program.class.getPackageName() );
+		PRODUCT_CONNECTION_ERROR.setArtifact( "product-connection-error" );
+	}
 
 	public ProductManagerLogic( Program program ) {
 		this.program = program;
@@ -56,6 +61,10 @@ public class ProductManagerLogic {
 		notifyUpdatesReadyToApply( true );
 	}
 
+	private Program getProgram() {
+		return program;
+	}
+
 	@Asynchronous
 	Task<Set<ProductCard>> getAvailableProducts( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
@@ -66,14 +75,17 @@ public class ProductManagerLogic {
 			.link( this::startAllProductCardDownloadTasks )
 			.link( this::collectProductCardDownloads )
 			.link( this::determineAvailableProducts )
-			.run( program );
+			.run( getProgram() );
 	}
 
 	@Asynchronous
 	Task<Void> checkForUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( force ).link( ( cards ) -> handlePostedUpdatesResult( cards, force ) ).run( program );
+		return createFindPostedUpdatesChain( force )
+			.link( ( cards ) -> cards.stream().map( DownloadRequest::new ).collect( Collectors.toSet() ) )
+			.link( ( updates ) -> handlePostedUpdatesResult( updates, force ) )
+			.run( getProgram() );
 	}
 
 	/**
@@ -84,47 +96,56 @@ public class ProductManagerLogic {
 	Task<Set<ProductCard>> findPostedUpdates( boolean force ) {
 		// TODO The force parameter just means to refresh the cache
 
-		return createFindPostedUpdatesChain( force ).run( program );
+		return createFindPostedUpdatesChain( force ).run( getProgram() );
 	}
 
 	@Asynchronous
-	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<ProductCard> products, boolean force ) {
-		// TODO The force parameter just means to refresh the cache
-
-		return createFindPostedUpdatesChain( force )
-			.link( () -> startResourceDownloads( products ) )
+	Task<Collection<ProductUpdate>> findAndApplyPostedUpdates( boolean interactive ) {
+		return createFindPostedUpdatesChain( interactive )
+			.link( ( cards ) -> cards.stream().map( DownloadRequest::new ).collect( Collectors.toSet() ) )
+			.link( this::startResourceDownloads )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( this::stageProductUpdates )
-			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, force ) )
-			.run( program );
+			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
+			.run( getProgram() );
 	}
 
 	@Asynchronous
-	Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> products ) {
-		String name = program.rb().text( BundleKey.UPDATE, "task-products-install-selected" );
+	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<DownloadRequest> requests, boolean interactive ) {
+		return TaskChain
+			.init( () -> startResourceDownloads( requests ) )
+			.link( this::startProductResourceCollectors )
+			.link( this::collectProductUpdates )
+			.link( this::stageProductUpdates )
+			.link( ( productUpdates ) -> handleStagedProductUpdates( productUpdates, interactive ) )
+			.run( getProgram() );
+	}
+
+	@Asynchronous
+	Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> requests ) {
+		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-install-selected" );
 
 		return TaskChain
-			.init( () -> startResourceDownloads( products ) )
+			.init( () -> startResourceDownloads( requests ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( name, this::installProductUpdates )
-			.run( program );
+			.run( getProgram() );
 	}
 
 	@Asynchronous
 	Task<Void> uninstallProducts( Set<ProductCard> products ) {
-		String name = program.rb().text( BundleKey.UPDATE, "task-products-uninstall-selected" );
+		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-uninstall-selected" );
 
 		return TaskChain
 			.init( () -> doUninstallProducts( products ) )
-			.link( name, ( removedProducts ) -> program.getProductManager().saveRemovedProducts( removedProducts ) )
-			.run( program );
+			.link( name, ( removedProducts ) -> getProgram().getProductManager().saveRemovedProducts( removedProducts ) )
+			.run( getProgram() );
 	}
 
 	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( boolean force ) {
-		Map<String, ProductCard> installedProducts = program.getProductManager().getInstalledProductCardsMap();
-
+		Map<String, ProductCard> installedProducts = getProgram().getProductManager().getInstalledProductCardsMap();
 		return TaskChain
 			.init( () -> initFindPostedUpdates( force ) )
 			.link( this::startEnabledCatalogCardDownloads )
@@ -139,19 +160,19 @@ public class ProductManagerLogic {
 		//this.postedCacheAge = System.currentTimeMillis() - postedUpdateCacheTime;
 		//if( !force && postedCacheAge < POSTED_UPDATE_CACHE_TIMEOUT ) return;
 
-		program.getProductManager().updateLastCheckTime();
+		getProgram().getProductManager().updateLastCheckTime();
 
 		return null;
 	}
 
 	private Map<RepoState, Task<Download>> startEnabledCatalogCardDownloads() {
-		Set<RepoState> repos = program.getProductManager().getRepos().stream().filter( RepoState::isEnabled ).collect( Collectors.toSet() );
+		Set<RepoState> repos = getProgram().getProductManager().getRepos().stream().filter( RepoState::isEnabled ).collect( Collectors.toSet() );
 		Map<RepoState, Task<Download>> downloads = new HashMap<>();
 
 		repos.forEach( ( r ) -> {
-			log.info( "Creating catalog downloads for repo: " + r.getName() );
+			log.log( Log.DEBUG, "Creating catalog downloads for repo: " + r );
 			URI uri = repoClient.getCatalogUri( r );
-			downloads.put( r, program.getTaskManager().submit( new DownloadTask( program, uri ) ) );
+			downloads.put( r, getProgram().getTaskManager().submit( new DownloadTask( getProgram(), uri ) ) );
 		} );
 
 		return downloads;
@@ -162,11 +183,10 @@ public class ProductManagerLogic {
 
 		downloads.keySet().forEach( ( r ) -> {
 			try {
+				log.log( Log.DEBUG, "Loading catalog card: " + r );
 				catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
-				log.info( "Catalog card loaded for " + r );
-			} catch( IOException | ExecutionException | InterruptedException exception ) {
-				// FIXME Need to indicate there was an IO exception, maybe as a notice
-				exception.printStackTrace();
+			} catch( Exception exception ) {
+				log.log( Log.ERROR, exception );
 			}
 		} );
 
@@ -184,9 +204,9 @@ public class ProductManagerLogic {
 				.getProducts()
 				.stream()
 				.filter( artifacts::contains )
-				.forEach( ( product ) -> repoDownloads.add( program
+				.forEach( ( product ) -> repoDownloads.add( getProgram()
 					.getTaskManager()
-					.submit( new DownloadTask( program, repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
+					.submit( new DownloadTask( getProgram(), repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
 		} );
 
 		return downloads;
@@ -200,9 +220,9 @@ public class ProductManagerLogic {
 			Set<Task<Download>> repoDownloads = downloads.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
 			catalog
 				.getProducts()
-				.forEach( ( product ) -> repoDownloads.add( program
+				.forEach( ( product ) -> repoDownloads.add( getProgram()
 					.getTaskManager()
-					.submit( new DownloadTask( program, repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
+					.submit( new DownloadTask( getProgram(), repoClient.getProductUri( repo, product, "product", "card" ) ) ) ) );
 		} );
 
 		return downloads;
@@ -218,8 +238,9 @@ public class ProductManagerLogic {
 				try {
 					ProductCard product = new ProductCard().load( task.get().getInputStream(), task.get().getSource() );
 					productSet.add( product );
-					log.info( "Product card loaded for " + product );
+					log.log( Log.INFO, "Product card loaded for " + product );
 				} catch( IOException | ExecutionException | InterruptedException exception ) {
+					// FIXME How to report this back to the user in a meaningful way?
 					productSet.add( PRODUCT_CONNECTION_ERROR );
 					exception.printStackTrace();
 				}
@@ -261,36 +282,34 @@ public class ProductManagerLogic {
 
 			if( determineAvailable || updateAvailable ) cards.add( new ProductCard().copyFrom( latest ).setRepo( repo ) );
 
-			if( installed != null ) log.debug( "Installed: " + installed.getProductKey() + " " + installed.getRelease() );
-			log.debug( "Available: " + latest.getProductKey() + " " + latest.getRelease() );
-			log.info( "Latest version: " + latest + " " + latest.getRelease() + " found in: " + repo );
+			if( installed != null ) log.log( Log.DEBUG, "Installed: " + installed.getProductKey() + " " + installed.getRelease() );
+			log.log( Log.DEBUG, "Available: " + latest.getProductKey() + " " + latest.getRelease() + " found in: " + repo );
 		} );
 
 		return cards;
 	}
 
-	private Void handlePostedUpdatesResult( Set<ProductCard> cards, boolean interactive ) {
-		long connectionErrors = cards.stream().filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
-		boolean available = cards.size() > 0;
+	private Void handlePostedUpdatesResult( Set<DownloadRequest> updates, boolean interactive ) {
+		long connectionErrors = updates.stream().map( DownloadRequest::getCard ).filter( ( source ) -> source.getRepo() == REPO_CONNECTION_ERROR ).count();
 
 		if( interactive ) {
-			if( available ) {
+			if( updates.size() > 0 ) {
 				openProductTool();
 			} else {
 				notifyUserOfNoUpdates( connectionErrors > 0 );
 			}
 		} else {
-			switch( program.getProductManager().getFoundOption() ) {
+			switch( getProgram().getProductManager().getFoundOption() ) {
 				case APPLY: {
-					stageAndApplyUpdates( cards, false );
+					stageAndApplyUpdates( updates, false );
 					break;
 				}
 				case NOTIFY: {
-					notifyUserOfUpdates();
+					notifyUserOfUpdates( updates );
 					break;
 				}
 				case STORE: {
-					stageUpdates( cards );
+					stageUpdates( updates );
 					break;
 				}
 			}
@@ -299,29 +318,29 @@ public class ProductManagerLogic {
 		return null;
 	}
 
-	private void stageUpdates( Set<ProductCard> updates ) {
+	private void stageUpdates( Set<DownloadRequest> updates ) {
 		try {
 			TaskChain
 				.init( () -> startResourceDownloads( updates ) )
 				.link( this::startProductResourceCollectors )
 				.link( this::collectProductUpdates )
 				.link( this::stageProductUpdates )
-				.run( program );
+				.run( getProgram() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();
 		}
 	}
 
-	private Set<ProductResourceCollector> startResourceDownloads( Set<ProductCard> cards ) {
-		Path stageFolder = program.getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
+	private Set<ProductResourceCollector> startResourceDownloads( Set<DownloadRequest> requests ) {
+		Path stageFolder = getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
 
-		log.debug( "Number of packs to stage: " + cards.size() );
-		log.trace( "Pack stage folder: " + stageFolder );
+		log.log( Log.DEBUG, "Number of packs to stage: " + requests.size() );
+		log.log( Log.TRACE, "Pack stage folder: " + stageFolder );
 
 		try {
 			Files.createDirectories( stageFolder );
 		} catch( IOException exception ) {
-			log.warn( "Error creating update stage folder: " + stageFolder, exception );
+			log.log( Log.WARN, "Error creating update stage folder: " + stageFolder, exception );
 			return Set.of();
 		}
 
@@ -329,17 +348,18 @@ public class ProductManagerLogic {
 		// done this way for a better user experience. The idea is to submit the
 		// product download resource tasks and return the tasks that build product
 		// updates from those resources.
-		return cards.stream().map( ( card ) -> {
+		return requests.stream().map( ( request ) -> {
 			try {
-				RepoState repo = new RepoState( card.getRepo() );
+				RepoState repo = new RepoState( request.getCard().getRepo() );
 
 				// The returned ProductResource objects contain the product resource download futures
-				Set<ProductResource> resources = startProductResourceDownloads( repo, card );
+				Set<ProductResource> resources = startProductResourceDownloads( repo, request );
 
 				// Create the task that will produce the ProductUpdate but don't submit it here
-				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( card ) );
-				return new ProductResourceCollector( repo, card, resources, updatePack );
+				Path updatePack = stageFolder.resolve( getStagedUpdateFileName( request.getCard() ) );
+				return new ProductResourceCollector( repo, request.getCard(), resources, updatePack );
 			} catch( Exception exception ) {
+				log.log( Log.ERROR, exception );
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
@@ -349,24 +369,26 @@ public class ProductManagerLogic {
 
 		private RepoState repo;
 
-		private ProductCard card;
+		private DownloadRequest request;
 
-		DownloadProductResourceTask( RepoState repo, ProductCard card ) {
-			setName( program.rb().text( BundleKey.UPDATE, "task-updates-cache-update", card.getName(), card.getVersion() ) );
+		private DownloadProductResourceTask( RepoState repo, DownloadRequest request ) {
+			setName( getProgram().rb().text( BundleKey.UPDATE, "task-updates-download", request.getCard().getName(), request.getCard().getVersion() ) );
 			this.repo = repo;
-			this.card = card;
+			this.request = request;
 		}
 
 		@Override
 		public Set<ProductResource> call() throws Exception {
 			// Determine all the resources to download.
-			PackProvider provider = new PackProvider( program, repo, repoClient, card );
+			PackProvider provider = new PackProvider( getProgram(), repo, repoClient, request.getCard() );
 			Set<ProductResource> resources = provider.getResources();
-			log.debug( "Product resource count: " + resources.size() );
+			log.log( Log.DEBUG, "Product resource count: " + resources.size() );
 
-			resources.forEach( ( resource ) -> resource.setFuture( program
-				.getTaskManager()
-				.submit( new DownloadTask( program, getSchemeResolvedUri( resource.getUri() ) ) ) ) );
+			resources.forEach( ( resource ) -> {
+				DownloadTask downloadTask = new DownloadTask( getProgram(), getSchemeResolvedUri( resource.getUri() ) );
+				downloadTask.getEventBus().register( TaskEvent.ANY, request );
+				resource.setFuture( getProgram().getTaskManager().submit( downloadTask ) );
+			} );
 
 			return resources;
 		}
@@ -401,36 +423,35 @@ public class ProductManagerLogic {
 			resources.forEach( ( resource ) -> {
 				try {
 					resource.waitFor();
-					log.debug( "Product resource target: " + resource.getLocalFile() );
+					log.log( Log.DEBUG, "Product resource target: " + resource.getLocalFile() );
 				} catch( CancellationException exception ) {
-					log.info( "Download cancelled: " + resource );
-					program.getNoticeManager().warning( "Download", "Download cancelled: " + resource );
+					log.log( Log.INFO, "Download cancelled: " + resource );
+					getProgram().getNoticeManager().warning( "Download", "Download cancelled: " + resource );
 				} catch( Exception exception ) {
 					resource.setThrowable( exception );
-					log.error( "Error downloading resource: " + resource, exception );
-					program.getNoticeManager().error( "Download", "Error downloading resource: " + resource, exception );
+					log.log( Log.ERROR, "Error downloading resource: " + resource, exception );
 				}
 			} );
 
 			// Verify the resources have all been staged successfully
 			if( !areAllResourcesValid( resources ) ) {
-				log.warn( "Update missing resources: " + product );
+				log.log( Log.WARN, "Update missing resources: " + product );
 				return null;
 			}
 
 			stageResources( localPackPath, this::setProgress );
 
-			ProductManager manager = program.getProductManager();
+			ProductManager manager = getProgram().getProductManager();
 			Path installFolder = manager.getProductInstallFolder( product );
 			if( manager.isInstalled( product ) ) {
 				installFolder = manager.getInstalledProductCard( product ).getInstallFolder();
 			}
 
-			log.debug( "Update staged: " + product.getProductKey() + " " + product.getRelease() );
-			log.debug( "           to: " + localPackPath );
+			log.log( Log.DEBUG, "Update staged: " + product.getProductKey() + " " + product.getRelease() );
+			log.log( Log.DEBUG, "           to: " + localPackPath );
 
 			// Notify listeners the update is staged
-			new ProductManagerEvent( manager, ProductManagerEvent.Type.PRODUCT_STAGED, product ).fire( manager.getProductManagerListeners() );
+			manager.getEventBus().dispatch( new ProductEvent( manager, ProductEvent.STAGED, product ) );
 
 			return new ProductUpdate( repo, product, localPackPath, installFolder );
 		}
@@ -451,7 +472,7 @@ public class ProductManagerLogic {
 			} else {
 				// Collect everything into one zip file
 				Path updateFolder = FileUtil.createTempFolder( "update", "folder" );
-				program.getProductManager().copyProductResources( resources, updateFolder );
+				getProgram().getProductManager().copyProductResources( resources, updateFolder );
 				setTotal( FileUtil.getDeepSize( updateFolder ) );
 				FileUtil.zip( updateFolder, updatePack, progressCallback );
 				FileUtil.deleteOnExit( updateFolder );
@@ -476,11 +497,11 @@ public class ProductManagerLogic {
 	//		public Collection<ProductUpdate> call() throws Exception {
 	//			Collection<ProductUpdate> updates = collectProductUpdates( updateFutures, interactive );
 	//
-	//			if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
-	//				//program.getTaskManager().submit( new UpdatesReadyToApply( interactive ) );
+	//			if( getProgram().getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
+	//				//getProgram().getTaskManager().submit( new UpdatesReadyToApply( interactive ) );
 	//
 	//				// Because this is the last task and it returns void...this one is easy
-	//				program.getTaskManager().submit( Lambda.task( "", () -> updatesReadyToApply( interactive ) ) );
+	//				getProgram().getTaskManager().submit( Lambda.task( "", () -> updatesReadyToApply( interactive ) ) );
 	//			}
 	//
 	//			return updates;
@@ -489,7 +510,7 @@ public class ProductManagerLogic {
 	//	}
 
 	private Set<Task<ProductUpdate>> startProductResourceCollectors( Set<ProductResourceCollector> collectors ) {
-		return collectors.stream().map( ( task ) -> program.getTaskManager().submit( task ) ).collect( Collectors.toSet() );
+		return collectors.stream().map( ( task ) -> getProgram().getTaskManager().submit( task ) ).collect( Collectors.toSet() );
 	}
 
 	private Collection<ProductUpdate> collectProductUpdates( Set<Task<ProductUpdate>> updateFutures ) {
@@ -497,6 +518,7 @@ public class ProductManagerLogic {
 			try {
 				return future.get();
 			} catch( Exception exception ) {
+				log.log( Log.ERROR, exception );
 				return null;
 			}
 		} ).filter( Objects::nonNull ).collect( Collectors.toSet() );
@@ -510,17 +532,19 @@ public class ProductManagerLogic {
 			ProductCard updateCard = update.getCard();
 
 			// Verify the product is registered
-			if( !program.getProductManager().isInstalled( updateCard ) ) {
-				log.warn( "Product not registered: " + updateCard );
+			if( !getProgram().getProductManager().isInstalled( updateCard ) ) {
+				log.log( Log.WARN, "Product not registered: " + updateCard );
 				continue;
 			}
 
 			// Verify the product is installed
-			Path installFolder = program.getProductManager().getInstalledProductCard( updateCard ).getInstallFolder();
-			boolean installFolderValid = installFolder != null && Files.exists( installFolder );
-			if( !installFolderValid ) {
-				log.warn( "Missing install folder: " + installFolder );
-				log.warn( "Product not installed:  " + updateCard );
+			String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
+			Path installFolder = getProgram().getProductManager().getInstalledProductCard( updateCard ).getInstallFolder();
+			if( installFolder == null ) {
+				// This situation happens in development when running a mod from the classpath
+				getProgram().getNoticeManager().warning( title, "install-folder-missing", updateCard );
+			} else if( !Files.exists( installFolder ) ) {
+				getProgram().getNoticeManager().warning( title, "product-not-installed", updateCard );
 				continue;
 			}
 
@@ -528,9 +552,9 @@ public class ProductManagerLogic {
 			stagedUpdates.add( update );
 		}
 
-		program.getTaskManager().submit( Task.of( "Store staged update settings", () -> program.getProductManager().setStagedUpdates( stagedUpdates ) ) );
+		getProgram().getTaskManager().submit( Task.of( "Store staged update settings", () -> getProgram().getProductManager().setStagedUpdates( stagedUpdates ) ) );
 
-		log.debug( "Product update count: " + stagedUpdates.size() );
+		log.log( Log.DEBUG, "Product update count: " + stagedUpdates.size() );
 
 		return stagedUpdates;
 	}
@@ -538,7 +562,8 @@ public class ProductManagerLogic {
 	private Collection<ProductUpdate> handleStagedProductUpdates( Collection<ProductUpdate> productUpdates, boolean interactive ) {
 		if( productUpdates.size() == 0 ) return productUpdates;
 
-		if( program.getProductManager().getFoundOption() == ProductManager.FoundOption.APPLY ) {
+		ProductManager.FoundOption foundOption = getProgram().getProductManager().getFoundOption();
+		if( foundOption == ProductManager.FoundOption.NOTIFY || foundOption == ProductManager.FoundOption.APPLY ) {
 			notifyUpdatesReadyToApply( interactive );
 		}
 
@@ -556,22 +581,22 @@ public class ProductManagerLogic {
 				if( update == null ) continue;
 				ProductCard card = update.getCard();
 
-				log.debug( "Product downloaded: " + update.getCard().getProductKey() );
+				log.log( Log.DEBUG, "Product update downloaded: " + update.getCard().getProductKey() );
 
 				// Install the products.
 				try {
 					ProductResource resource = new ProductResource( ProductResource.Type.PACK, update.getSource() );
-					program.getProductManager().doInstallMod( card, Set.of( resource ) );
-					installedProducts.add( new InstalledProduct( program.getProductManager().getProductInstallFolder( card ) ) );
+					getProgram().getProductManager().doInstallMod( card, Set.of( resource ) );
+					installedProducts.add( new InstalledProduct( getProgram().getProductManager().getProductInstallFolder( card ) ) );
 				} catch( Exception exception ) {
-					log.error( "Error installing: " + card, exception );
+					log.log( Log.ERROR, "Error installing: " + card, exception );
 				}
 			} catch( Exception exception ) {
-				log.error( "Error creating product install pack", exception );
+				log.log( Log.ERROR, "Error creating product update pack", exception );
 			}
 		}
 
-		log.debug( "Product install count: " + installedProducts.size() );
+		log.log( Log.DEBUG, "Product update count: " + installedProducts.size() );
 
 		return installedProducts;
 	}
@@ -582,10 +607,10 @@ public class ProductManagerLogic {
 
 		for( ProductCard card : cards ) {
 			try {
-				program.getProductManager().doRemoveMod( program.getProductManager().getMod( card.getProductKey() ) );
-				removedProducts.add( new InstalledProduct( program.getProductManager().getProductInstallFolder( card ) ) );
+				getProgram().getProductManager().doRemoveMod( getProgram().getProductManager().getMod( card.getProductKey() ) );
+				removedProducts.add( new InstalledProduct( getProgram().getProductManager().getProductInstallFolder( card ) ) );
 			} catch( Exception exception ) {
-				log.error( "Error uninstalling: " + card, exception );
+				log.log( Log.ERROR, "Error uninstalling: " + card, exception );
 			}
 		}
 
@@ -595,35 +620,36 @@ public class ProductManagerLogic {
 	// Utility methods -----------------------------------------------------------
 
 	private void notifyUserOfNoUpdates( boolean connectionErrors ) {
-		String title = program.rb().text( BundleKey.UPDATE, "updates" );
-		String updatesNotAvailable = program.rb().text( BundleKey.UPDATE, "updates-not-available" );
-		String updatesCannotConnect = program.rb().text( BundleKey.UPDATE, "updates-source-cannot-connect" );
+		String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
+		String updatesNotAvailable = getProgram().rb().text( BundleKey.UPDATE, "updates-not-available" );
+		String updatesCannotConnect = getProgram().rb().text( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
-		Platform.runLater( () -> program.getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
+		Platform.runLater( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
 
 	private void openProductTool() {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
-		Platform.runLater( () -> program.getResourceManager().open( uri ) );
+		Platform.runLater( () -> getProgram().getAssetManager().openAsset( uri ) );
 	}
 
-	private void notifyUserOfUpdates() {
-		String title = program.rb().text( BundleKey.UPDATE, "updates" );
-		String message = program.rb().text( BundleKey.UPDATE, "updates-found-review" );
+	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
+		if( updates.size() == 0 ) return;
+		String title = getProgram().rb().text( BundleKey.UPDATE, "updates-found" );
+		String message = getProgram().rb().text( BundleKey.UPDATE, "updates-found-review" );
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
 
-		Notice notice = new Notice( title, message, () -> program.getResourceManager().open( uri ) )
+		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
-		Platform.runLater( () -> program.getNoticeManager().addNotice( notice ) );
+		Platform.runLater( () -> getProgram().getNoticeManager().addNotice( notice ) );
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
 		return card.getGroup() + "." + card.getArtifact() + ".pack";
 	}
 
-	private Set<ProductResource> startProductResourceDownloads( RepoState repo, ProductCard card ) throws InterruptedException, ExecutionException {
-		return program.getTaskManager().submit( new DownloadProductResourceTask( repo, card ) ).get();
+	private Set<ProductResource> startProductResourceDownloads( RepoState repo, DownloadRequest request ) throws InterruptedException, ExecutionException {
+		return getProgram().getTaskManager().submit( new DownloadProductResourceTask( repo, request ) ).get();
 	}
 
 	void notifyUpdatesReadyToApply( boolean interactive ) {
@@ -635,36 +661,36 @@ public class ProductManagerLogic {
 	}
 
 	private void showNotice() {
-		String header = program.rb().text( BundleKey.UPDATE, "restart-required" );
-		String message = program.rb().text( BundleKey.UPDATE, "restart-recommended-notice" );
+		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
+		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-notice" );
 
 		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
-		program.getNoticeManager().addNotice( notice );
+		getProgram().getNoticeManager().addNotice( notice );
 	}
 
 	private void showAlert() {
-		String title = program.rb().text( BundleKey.UPDATE, "updates" );
-		String header = program.rb().text( BundleKey.UPDATE, "restart-required" );
-		String message = program.rb().text( BundleKey.UPDATE, "restart-recommended-alert" );
+		String title = getProgram().rb().text( BundleKey.UPDATE, "updates" );
+		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
+		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-alert" );
 
-		ButtonType discard = new ButtonType( program.rb().text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
+		ButtonType discard = new ButtonType( getProgram().rb().text( BundleKey.UPDATE, "updates-discard" ), ButtonBar.ButtonData.LEFT );
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", discard, ButtonType.YES, ButtonType.NO );
-		alert.setGraphic( program.getIconLibrary().getIcon( "update", 64 ) );
+		alert.setGraphic( getProgram().getIconLibrary().getIcon( "update", 64 ) );
 		alert.setTitle( title );
 		alert.setHeaderText( header );
 		alert.setContentText( message );
 
-		Stage stage = program.getWorkspaceManager().getActiveStage();
+		Stage stage = getProgram().getWorkspaceManager().getActiveStage();
 		Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
 		if( result.isPresent() ) {
 			if( result.get() == ButtonType.YES ) {
-				program.getWorkspaceManager().requestCloseTools( ProductTool.class );
-				program.getProductManager().applyStagedUpdates();
+				getProgram().getWorkspaceManager().requestCloseTools( ProductTool.class );
+				getProgram().getProductManager().applyStagedUpdates();
 			} else if( result.get() == discard ) {
-				program.getProductManager().clearStagedUpdates();
+				getProgram().getProductManager().clearStagedUpdates();
 			}
 		}
 	}

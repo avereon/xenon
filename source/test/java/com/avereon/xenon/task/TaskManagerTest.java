@@ -1,5 +1,6 @@
 package com.avereon.xenon.task;
 
+import com.avereon.util.ThreadUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,17 +11,21 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TaskManagerTest extends BaseTaskTest {
 
 	private TaskManager manager;
 
+	private TaskWatcher watcher;
+
 	@BeforeEach
 	@Override
 	public void setup() {
-		// Use a different manager instance
+		watcher = new TaskWatcher();
 		manager = new TaskManager();
+		manager.getEventBus().register( TaskManagerEvent.ANY, watcher );
 	}
 
 	@Test
@@ -153,7 +158,7 @@ public class TaskManagerTest extends BaseTaskTest {
 			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskException.class ) );
 			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
 			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
@@ -170,17 +175,12 @@ public class TaskManagerTest extends BaseTaskTest {
 		MockTask task = new MockTask( manager );
 		assertThat( task.getState(), is( Task.State.READY ) );
 
-		try {
-			manager.submit( task );
-			fail( "TaskManager.submit() should throw and exception if the manager is not running" );
-		} catch( Exception exception ) {
-			assertThat( exception, instanceOf( Exception.class ) );
-		}
+		assertNull( manager.submit( task ) );
 
 		assertThat( manager.isRunning(), is( false ) );
 		assertThat( task.isDone(), is( false ) );
 		assertThat( task.isCancelled(), is( false ) );
-		assertThat( task.getState(), is( Task.State.SCHEDULED ) );
+		assertThat( task.getState(), is( Task.State.READY ) );
 	}
 
 	@Test
@@ -248,7 +248,7 @@ public class TaskManagerTest extends BaseTaskTest {
 			fail( "Task should throw an Exception" );
 		} catch( ExecutionException exception ) {
 			assertThat( exception, instanceOf( ExecutionException.class ) );
-			assertThat( exception.getCause(), instanceOf( TaskSourceWrapper.class ) );
+			assertThat( exception.getCause(), instanceOf( TaskException.class ) );
 			assertThat( exception.getCause().getCause(), instanceOf( Exception.class ) );
 			assertThat( exception.getCause().getCause().getMessage(), is( MockTask.EXCEPTION_MESSAGE ) );
 			assertThat( exception.getCause().getCause().getCause(), is( nullValue() ) );
@@ -264,28 +264,83 @@ public class TaskManagerTest extends BaseTaskTest {
 		manager.start();
 		assertThat( manager.isRunning(), is( true ) );
 
-		TaskWatcher listener = new TaskWatcher();
-		manager.addTaskListener( listener );
-
 		Object result = new Object();
 		MockTask task = new MockTask( manager, result );
 		assertThat( task.getState(), is( Task.State.READY ) );
-		assertThat( listener.getEvents().size(), is( 0 ) );
+		assertThat( watcher.getEvents().size(), is( 0 ) );
 
 		Future<Object> future = manager.submit( task );
 		assertThat( future.get(), is( result ) );
 		assertThat( task.isDone(), is( true ) );
 		assertThat( task.isCancelled(), is( false ) );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
-		listener.waitForEvent( TaskEvent.Type.TASK_FINISH );
+		// Wait for the task thread to stop also - this happens after the thread idle timeout
+		watcher.waitForEvent( TaskThreadEvent.FINISH, manager.getThreadIdleTimeout() + 5000 );
 
-		int count = 0;
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_SUBMITTED ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.THREAD_CREATE ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_START ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_PROGRESS ) );
-		assertThat( listener.getEvents().get( count++ ).getType(), is( TaskEvent.Type.TASK_FINISH ) );
-		assertThat( listener.getEvents().size(), is( count ) );
+		int index = 0;
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.SUBMITTED ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskThreadEvent.CREATE ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.START ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.PROGRESS ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.SUCCESS ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskEvent.FINISH ) );
+		assertThat( watcher.getEvents().get( index++ ).getEventType(), is( TaskThreadEvent.FINISH ) );
+		assertThat( watcher.getEvents().size(), is( index ) );
+	}
+
+	@Test
+	void testTaskCascadeOnPriority() throws Exception {
+		manager.setP1ThreadCount( 1 );
+		manager.setP2ThreadCount( 1 );
+		manager.setP3ThreadCount( 1 );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
+		assertThat( manager.getP1ThreadCount(), is( 1 ) );
+		assertThat( manager.getP2ThreadCount(), is( 1 ) );
+		assertThat( manager.getP3ThreadCount(), is( 1 ) );
+
+		Object result = new Object();
+		MockTask task = new MockTask( manager, result );
+		task.setPriority( Task.Priority.LOW );
+		assertThat( task.getState(), is( Task.State.READY ) );
+		assertThat( watcher.getEvents().size(), is( 0 ) );
+
+		Future<Object> future = manager.submit( task );
+		assertThat( future.get(), is( result ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.getProcessedPriority(), is( Task.Priority.LOW ) );
+	}
+
+	@Test
+	void testTaskCascadeOnAvailability() throws Exception {
+		manager.setP1ThreadCount( 1 );
+		manager.setP2ThreadCount( 1 );
+		manager.setP3ThreadCount( 1 );
+		manager.start();
+		assertThat( manager.isRunning(), is( true ) );
+		assertThat( manager.getP1ThreadCount(), is( 1 ) );
+		assertThat( manager.getP2ThreadCount(), is( 1 ) );
+		assertThat( manager.getP3ThreadCount(), is( 1 ) );
+
+		Object result = new Object();
+		MockTask task = new MockTask( manager, result );
+		task.setPriority( Task.Priority.HIGH );
+		assertThat( task.getState(), is( Task.State.READY ) );
+		assertThat( watcher.getEvents().size(), is( 0 ) );
+
+		// Submit a high priority task that takes a "long" time
+		Task<?> longTask = new MockTask( manager, 10000 ).setPriority( Task.Priority.HIGH );
+		manager.submit( longTask );
+
+		// Small pause to let the longTask get rolling
+		ThreadUtil.pause( 100 );
+
+		Future<Object> future = manager.submit( task );
+		assertThat( future.get(), is( result ) );
+		assertThat( task.isDone(), is( true ) );
+		assertThat( task.getProcessedPriority(), is( Task.Priority.MEDIUM ) );
+
+		longTask.cancel( true );
 	}
 
 }

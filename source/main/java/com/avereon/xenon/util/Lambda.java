@@ -1,16 +1,15 @@
 package com.avereon.xenon.util;
 
-import com.avereon.util.LogUtil;
-import org.slf4j.Logger;
+import com.avereon.util.Log;
+import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Lambda {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	public static TimerTask timerTask( Runnable runnable ) {
 		return new TimerTask() {
@@ -29,7 +28,7 @@ public class Lambda {
 			try {
 				consumer.accept( parameter );
 			} catch( Throwable throwable ) {
-				log.error( "Exception occurred in lambda", throwable );
+				log.log( Log.ERROR,  "Exception occurred in lambda", throwable );
 			}
 		};
 
@@ -41,7 +40,7 @@ public class Lambda {
 			try {
 				return function.apply( parameter );
 			} catch( Throwable throwable ) {
-				log.error( "Exception occurred in lambda", throwable );
+				log.log( Log.ERROR,  "Exception occurred in lambda", throwable );
 			}
 			return null;
 		};

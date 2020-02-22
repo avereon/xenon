@@ -16,6 +16,42 @@ class TaskTest extends BaseTaskTest {
 	private int delay = 50;
 
 	@Test
+	void testPercent() {
+		Task<?> task = new MockTask( manager );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE ) );
+
+		task.setTotal( 0 );
+		assertThat( task.getPercent(), is( Double.NaN ) );
+
+		task.setTotal( 10 );
+		assertThat( task.getPercent(), is( 0.0 ) );
+
+		task.setProgress( -1 );
+		assertThat( task.getPercent(), is( 0.0 ) );
+
+		int total = 10;
+		for( int count = 0; count <= total; count++ ) {
+			task.setProgress( count );
+			assertThat( task.getPercent(), is( (double)count / (double)total ) );
+		}
+
+		task.setProgress( 11 );
+		assertThat( task.getPercent(), is( 1.0 ) );
+	}
+
+	@Test
+	void testIndeterminatePercent() {
+		Task<?> task = new MockTask( manager );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE ) );
+
+		task.setProgress( 0 );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE ) );
+
+		task.setProgress( 1 );
+		assertThat( task.getPercent(), is( (double)Task.INDETERMINATE ) );
+	}
+
+	@Test
 	void testPriority() {
 		Task<?> task = new MockTask( manager );
 
@@ -35,9 +71,9 @@ class TaskTest extends BaseTaskTest {
 
 		manager.submit( task );
 
-		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
+		taskWatcher.waitForEvent( TaskEvent.START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		taskWatcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
+		taskWatcher.waitForEvent( TaskEvent.FINISH );
 		assertThat( task.getState(), is( Task.State.SUCCESS ) );
 	}
 
@@ -49,9 +85,9 @@ class TaskTest extends BaseTaskTest {
 
 		manager.submit( task );
 
-		taskWatcher.waitForEvent( TaskEvent.Type.TASK_START );
+		taskWatcher.waitForEvent( TaskEvent.START );
 		assertThat( task.getState(), is( Task.State.RUNNING ) );
-		taskWatcher.waitForEvent( TaskEvent.Type.TASK_FINISH );
+		taskWatcher.waitForEvent( TaskEvent.FINISH );
 		assertThat( task.getState(), is( Task.State.FAILED ) );
 	}
 

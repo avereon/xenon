@@ -4,13 +4,15 @@ public interface ProgramSettings {
 
 	String BASE = "/";
 
+	String ASSET = BASE + "asset/";
+
 	String PRODUCT = BASE + "product/";
 
 	String PROGRAM = BASE + "program/";
 
-	//String UPDATE = PROGRAM + "update/";
+	String MANAGER = PROGRAM + "manager/";
 
-	String RESOURCE = BASE + "resource/";
+	//String UPDATE = PROGRAM + "update/";
 
 	// User Interface Settings
 

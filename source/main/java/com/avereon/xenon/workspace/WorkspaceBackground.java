@@ -1,8 +1,8 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
-import com.avereon.xenon.util.Colors;
-import com.avereon.xenon.util.FxUtil;
+import com.avereon.venza.color.Colors;
+import com.avereon.venza.javafx.FxUtil;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;

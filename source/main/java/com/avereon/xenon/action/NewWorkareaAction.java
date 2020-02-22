@@ -1,22 +1,21 @@
 package com.avereon.xenon.action;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.workarea.Workarea;
+import com.avereon.xenon.workspace.Workarea;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
 public class NewWorkareaAction extends Action {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	public NewWorkareaAction( Program program ) {
 		super( program );
@@ -32,9 +31,9 @@ public class NewWorkareaAction extends Action {
 		Program program = getProgram();
 
 		TextInputDialog dialog = new TextInputDialog();
-		dialog.setTitle( program.rb().text( "workarea", "workarea.new.title" ) );
-		dialog.setHeaderText( program.rb().text( "workarea", "workarea.new.message" ) );
-		dialog.setContentText( program.rb().text( "workarea", "workarea.new.prompt" ) );
+		dialog.setTitle( program.rb().text( "workarea", "workarea-new-title" ) );
+		dialog.setHeaderText( program.rb().text( "workarea", "workarea-new-message" ) );
+		dialog.setContentText( program.rb().text( "workarea", "workarea-new-prompt" ) );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		Optional<String> result = DialogUtil.showAndWait( stage, dialog );
@@ -49,7 +48,7 @@ public class NewWorkareaAction extends Action {
 			workarea.setName( name );
 			getProgram().getWorkspaceManager().getActiveWorkspace().setActiveWorkarea( workarea );
 		} catch( Exception exception ) {
-			log.error( "Error creating new workarea: " + name, exception );
+			log.log( Log.ERROR,  "Error creating new workarea: " + name, exception );
 		}
 	}
 

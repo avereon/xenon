@@ -1,19 +1,17 @@
 package com.avereon.xenon.notice;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import org.slf4j.Logger;
-
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 public class NoticePane extends GridPane {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private Program program;
 

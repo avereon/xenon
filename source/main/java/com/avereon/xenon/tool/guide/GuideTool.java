@@ -1,43 +1,42 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.util.FxUtil;
-import com.avereon.xenon.workarea.*;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 public class GuideTool extends ProgramTool {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private Guide guide;
 
 	private TreeView<GuideNode> guideTree;
 
-	private ActiveToolWatcher activeToolWatcher;
+	private ToolActivatedWatcher toolActivatedWatcher;
+
+	private ToolConcealedWatcher toolConcealedWatcher;
 
 	private GuideTreeSelectedItemsListener selectedItemsListener;
 
 	private GuideSelectedItemsListener guideSelectedItemsListener;
 
-	//private GuideActiveListener guideActiveListener;
-
 	@SuppressWarnings( "WeakerAccess" )
-	public GuideTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public GuideTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 		setId( "tool-guide" );
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
 		setTitle( product.rb().text( "tool", "guide-name" ) );
@@ -45,7 +44,9 @@ public class GuideTool extends ProgramTool {
 		guideTree.setShowRoot( false );
 		getChildren().add( guideTree );
 
-		activeToolWatcher = new ActiveToolWatcher();
+		//activeToolWatcher = new ActiveToolWatcher();
+		toolActivatedWatcher = new ToolActivatedWatcher();
+		toolConcealedWatcher = new ToolConcealedWatcher();
 		selectedItemsListener = new GuideTreeSelectedItemsListener();
 		guideSelectedItemsListener = new GuideSelectedItemsListener();
 		//guideActiveListener = new GuideActiveListener();
@@ -58,14 +59,16 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	protected void allocate() {
-		// Attach to the workpane and listen for current tool changes
-		getWorkpane().addWorkpaneListener( activeToolWatcher );
+		// Listen for tool changes
+		getWorkpane().addEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
+		getWorkpane().addEventHandler( ToolEvent.CONCEALED, toolConcealedWatcher );
 	}
 
 	@Override
 	protected void deallocate() {
-		// Disconnect from the resource guide
-		getWorkpane().removeWorkpaneListener( activeToolWatcher );
+		// Stop listening for tool changes
+		getWorkpane().removeEventHandler( ToolEvent.CONCEALED, toolConcealedWatcher );
+		getWorkpane().removeEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
 	}
 
 	private void setGuide( Guide guide ) {
@@ -184,28 +187,30 @@ public class GuideTool extends ProgramTool {
 		}
 	}
 
-	private class ActiveToolWatcher implements WorkpaneListener {
+	private class ToolActivatedWatcher implements javafx.event.EventHandler<ToolEvent> {
 
 		@Override
-		public void handle( WorkpaneEvent event ) {
-			if( !(event instanceof WorkpaneToolEvent) ) return;
-
-			WorkpaneToolEvent toolEvent = (WorkpaneToolEvent)event;
-			Tool tool = toolEvent.getTool();
-			if( !(tool instanceof GuidedTool) ) return;
-
-			GuidedTool guidedTool = (GuidedTool)tool;
-			switch( event.getType() ) {
-				case TOOL_ACTIVATED: {
-					log.debug( "show guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
-					setGuide( guidedTool.getGuide() );
-					break;
-				}
-				case TOOL_CONCEALED: {
-					log.debug( "hide guide: " + ((WorkpaneToolEvent)event).getTool().getClass().getName() );
-					setGuide( null );
-				}
+		public void handle( ToolEvent event ) {
+			Tool tool = event.getTool();
+			if( tool instanceof GuideTool ) return;
+			if( tool instanceof GuidedTool ) {
+				log.log( Log.DEBUG,  "show guide: " + event.getTool().getClass().getName() );
+				setGuide( ((GuidedTool)tool).getGuide() );
+			} else {
+				setGuide( null );
 			}
+		}
+
+	}
+
+	private class ToolConcealedWatcher implements javafx.event.EventHandler<ToolEvent> {
+
+		@Override
+		public void handle( ToolEvent event ) {
+			Tool tool = event.getTool();
+			if( !(tool instanceof GuidedTool) ) return;
+			log.log( Log.DEBUG,  "hide guide: " + event.getTool().getClass().getName() );
+			setGuide( null );
 		}
 	}
 
@@ -242,14 +247,5 @@ public class GuideTool extends ProgramTool {
 		}
 
 	}
-
-	//	private class GuideActiveListener implements ChangeListener<Boolean> {
-	//
-	//		@Override
-	//		public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-	//			log.warn( "Guide active: " + newValue );
-	//		}
-	//
-	//	}
 
 }

@@ -87,10 +87,10 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 	}
 
 	@Override
-	public void handleEvent( SettingsEvent event ) {
+	public void handle( SettingsEvent event ) {
 		// If the values are the same, don't set the text because it moves the cursor
 		if( Objects.equals( event.getNewValue(), text.getText() ) ) return;
-		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) text.setText( event.getNewValue().toString() );
+		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) text.setText( event.getNewValue().toString() );
 	}
 
 	@Override

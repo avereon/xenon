@@ -2,8 +2,8 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.settings.Settings;
 import com.avereon.product.Product;
-import com.avereon.util.LogUtil;
-import org.slf4j.Logger;
+import com.avereon.util.Log;
+import java.lang.System.Logger;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -11,13 +11,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SettingsPageParser {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private static final String SETTINGS = "settings";
 
@@ -65,7 +64,7 @@ public class SettingsPageParser {
 	public Map<String, SettingsPage> parse( String path ) throws IOException {
 		if( path.startsWith( "/" ) ) path = path.substring( 1 );
 		InputStream input = product.getClassLoader().getResourceAsStream( path );
-		if( input == null ) log.warn( "Settings page input stream is null: " + path );
+		if( input == null ) log.log( Log.WARN,  "Settings page input stream is null: " + path );
 		return parse( input );
 	}
 

@@ -18,10 +18,7 @@ class FunctionTask<P, R> extends TaskChainTask<R> {
 
 	@Override
 	public R call() throws Exception {
-		//TaskChain<R> link = getLink();
-		R result = function.apply( parameter );
-		//if( link.getNext() != null ) link.submit( getProgram(), result, link.getNext().getTask() );
-		return result;
+		return function.apply( parameter );
 	}
 
 }

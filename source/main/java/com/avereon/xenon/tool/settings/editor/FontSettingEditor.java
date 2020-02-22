@@ -1,22 +1,20 @@
 package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.xenon.util.FontUtil;
+import com.avereon.venza.font.FontUtil;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
-import org.slf4j.Logger;
-
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 public class FontSettingEditor extends SettingEditor {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private Label label;
 
@@ -58,20 +56,20 @@ public class FontSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void handleEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
+	public void handle( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
 	}
 
 	private void updateFont( String value ) {
 		Font font = FontUtil.decode( value );
-		log.debug( "Setting font updated: " + font );
+		log.log( Log.DEBUG,  "Setting font updated: " + font );
 		button.setText( font.getName() + " " + font.getSize() );
 		button.setFont( Font.font( font.getFamily(), FontUtil.getFontWeight( font.getStyle() ), FontUtil.getFontPosture( font.getStyle() ), -1 ) );
 //		button.setOnAction( ( event ) -> {
 //			FontSelectorDialog dialog = new FontSelectorDialog( font );
 //			Optional<Font> optional = dialog.showAndWait();
 //			optional.ifPresent( font1 -> {
-//				log.debug( "Setting font selected: " + font1 );
+//				log.log( Log.DEBUG,  "Setting font selected: " + font1 );
 //				setting.getSettings().set( setting.getKey(), FontUtil.encode( font1 ) );
 //			} );
 //		} );

@@ -2,16 +2,16 @@ package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
-import com.avereon.xenon.event.ProgramStartedEvent;
-import com.avereon.xenon.resource.type.ProgramAboutType;
-import com.avereon.xenon.resource.type.ProgramSettingsType;
-import com.avereon.xenon.tool.about.AboutTool;
+import com.avereon.venza.javafx.FxUtil;
+import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.asset.type.ProgramSettingsType;
+import com.avereon.xenon.tool.AboutTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.tool.welcome.WelcomeTool;
-import com.avereon.xenon.util.FxUtil;
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneEvent;
-import com.avereon.xenon.workarea.WorkpaneWatcher;
+import com.avereon.xenon.tool.WelcomeTool;
+import com.avereon.xenon.workpane.ToolEvent;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEvent;
+import com.avereon.xenon.workpane.WorkpaneWatcher;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -30,8 +30,6 @@ public abstract class ScreenShots implements Runnable {
 	private Path screenshots;
 
 	private Program program;
-
-	private ProgramWatcher programWatcher;
 
 	private Workspace workspace;
 
@@ -67,14 +65,14 @@ public abstract class ScreenShots implements Runnable {
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpaneWatcher = new WorkpaneWatcher();
-		workpane.addWorkpaneListener( workpaneWatcher );
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		FxUtil.fxWait( 2000 );
 	}
 
 	private void snapshotWelcomeTool() throws InterruptedException, TimeoutException {
 		workspace.snapshot( getPath( "welcome-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotDefaultWorkarea() {
@@ -82,19 +80,19 @@ public abstract class ScreenShots implements Runnable {
 	}
 
 	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
-		program.getResourceManager().open( ProgramSettingsType.URI );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		program.getAssetManager().openAsset( ProgramSettingsType.URI );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
-		program.getResourceManager().open( ProgramAboutType.URI );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		program.getAssetManager().openAsset( ProgramAboutType.URI );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_REMOVED );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private Path getPath( String name ) {
@@ -116,8 +114,9 @@ public abstract class ScreenShots implements Runnable {
 					exception.printStackTrace( System.err );
 				}
 			} );
-			program.addEventListener( programWatcher = new ProgramWatcher() );
-			programWatcher.waitForEvent( ProgramStartedEvent.class );
+			ProgramWatcher programWatcher;
+			program.getEventBus().register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
+			programWatcher.waitForEvent( ProgramEvent.STARTED );
 			Platform.runLater( () -> {
 				program.getWorkspaceManager().getActiveStage().setX( 0 );
 				program.getWorkspaceManager().getActiveStage().setY( 0 );

@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneEvent;
+import com.avereon.xenon.workpane.ToolEvent;
+import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,8 +17,8 @@ class ProductToolOpenUIT extends ProductToolUIT {
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-product" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
 		assertThat( pane.getTools().size(), is( 2 ) );
 		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );

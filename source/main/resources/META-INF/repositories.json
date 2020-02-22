@@ -4,6 +4,7 @@
 		"name" : "${project.organization.name} Official",
 		"url" : "https://www.avereon.com/download/stable",
 		"icon" : "https://www.avereon.com/download/stable/avereon/provider/icon",
+		"icons": [ "provider", "https://www.avereon.com/download/stable/avereon/provider/icon" ],
 		"enabled" : "true",
 		"removable" : "false",
 		"rank": -2
@@ -13,6 +14,7 @@
 		"name" : "${project.organization.name} Nightly",
 		"url" : "https://www.avereon.com/download/latest",
 		"icon" : "https://www.avereon.com/download/stable/avereon/provider/icon",
+		"icons": [ "provider", "https://www.avereon.com/download/stable/avereon/provider/icon" ],
 		"enabled" : "false",
 		"removable" : "false",
 		"rank": -1

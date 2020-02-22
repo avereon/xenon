@@ -2,8 +2,8 @@ package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
-import com.avereon.xenon.workarea.Workarea;
-import com.avereon.xenon.workarea.Workpane;
+import com.avereon.xenon.workspace.Workarea;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderStroke;

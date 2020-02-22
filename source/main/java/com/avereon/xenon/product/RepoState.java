@@ -70,13 +70,13 @@ public class RepoState extends RepoCard {
 		return this;
 	}
 
-	public static List<RepoState> forProduct( Class<?> loader ) throws IOException {
-		try( InputStream input = loader.getResourceAsStream( CONFIG ) ) {
+	public static List<RepoState> forProduct( Class<?> source ) throws IOException {
+		try( InputStream input = source.getResourceAsStream( CONFIG ) ) {
 			return loadCards( input );
 		}
 	}
 
-	public static List<RepoState> loadCards( InputStream input ) throws IOException {
+	static List<RepoState> loadCards( InputStream input ) throws IOException {
 		return new ObjectMapper().readerFor( new TypeReference<List<RepoState>>() {} ).readValue( input );
 	}
 

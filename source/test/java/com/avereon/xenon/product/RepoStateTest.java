@@ -20,14 +20,20 @@ class RepoStateTest {
 
 		assertThat( cards.get( 0 ).getName(), is( "Avereon Official" ) );
 		assertThat( cards.get( 0 ).getUrl(), is( "https://www.avereon.com/download/stable" ) );
-		assertThat( cards.get( 0 ).getIcon(), is( "https://www.avereon.com/download/stable/avereon/provider/icon" ) );
+		//assertThat( cards.get( 0 ).getIcon(), is( "https://www.avereon.com/download/stable/avereon/provider/icon" ) );
+		assertThat( cards.get( 0 ).getIcons().get( 0 ), is( "provider" ) );
+		assertThat( cards.get( 0 ).getIcons().get( 1 ), is( "https://www.avereon.com/download/stable/avereon/provider/icon" ) );
+		assertThat( cards.get( 0 ).getIcons().size(), is( 2 ) );
 		assertThat( cards.get( 0 ).isEnabled(), is( true ) );
 		assertThat( cards.get( 0 ).isRemovable(), is( false ) );
 		assertThat( cards.get( 0 ).getRank(), is( -2 ) );
 
 		assertThat( cards.get( 1 ).getName(), is( "Avereon Nightly" ) );
 		assertThat( cards.get( 1 ).getUrl(), is( "https://www.avereon.com/download/latest" ) );
-		assertThat( cards.get( 1 ).getIcon(), is( "https://www.avereon.com/download/stable/avereon/provider/icon" ) );
+		//assertThat( cards.get( 1 ).getIcon(), is( "https://www.avereon.com/download/stable/avereon/provider/icon" ) );
+		assertThat( cards.get( 1 ).getIcons().get( 0 ), is( "provider" ) );
+		assertThat( cards.get( 1 ).getIcons().get( 1 ), is( "https://www.avereon.com/download/stable/avereon/provider/icon" ) );
+		assertThat( cards.get( 1 ).getIcons().size(), is( 2 ) );
 		assertThat( cards.get( 1 ).isEnabled(), is( false ) );
 		assertThat( cards.get( 1 ).isRemovable(), is( false ) );
 		assertThat( cards.get( 1 ).getRank(), is( -1 ) );

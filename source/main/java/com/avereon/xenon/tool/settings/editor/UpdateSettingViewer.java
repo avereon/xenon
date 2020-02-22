@@ -71,7 +71,7 @@ public class UpdateSettingViewer extends SettingEditor {
 	}
 
 	@Override
-	public void handleEvent( SettingsEvent event ) {
+	public void handle( SettingsEvent event ) {
 		Platform.runLater( this::updateLabels );
 	}
 

@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -69,13 +69,12 @@
 		<!-- Runtime dependencies -->
 		<!--java.version defined in parent pom -->
 		<!--JavaFX must be version 13 or higher for DnD to function correctly -->
-		<javafx.version>13</javafx.version>
-		<controlsfx.version>11.0.0</controlsfx.version>
+		<openjfx.version>13.0.2</openjfx.version>
+		<controlsfx.version>11.0.1</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
-		<slf4j.version>1.8.0-beta4</slf4j.version>
 
 		<!-- Test dependencies -->
-		<testfx.version>4.0.15-alpha</testfx.version>
+		<testfx.version>4.0.16-alpha</testfx.version>
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
 		<!-- Build dependencies -->
@@ -87,25 +86,49 @@
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zevra</artifactId>
+			<version>0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.avereon</groupId>
+			<artifactId>venza</artifactId>
+			<version>0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.avereon</groupId>
+			<artifactId>rossa</artifactId>
 			<version>0.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
-			<version>0.1</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
+			<version>${openjfx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>${openjfx.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-swing</artifactId>
-			<version>${javafx.version}</version>
+			<version>${openjfx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>${openjfx.version}</version>
 		</dependency>
 
 		<dependency>
@@ -116,27 +139,7 @@
 				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-base</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-controls</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-graphics</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-swing</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-fxml</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-web</artifactId>
+					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -145,12 +148,13 @@
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-javafx</artifactId>
 			<version>${miglayout.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>${slf4j.version}</version>
+			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -158,6 +162,13 @@
 			<artifactId>testfx-core</artifactId>
 			<version>${testfx.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<!-- Exclude the openjfx libraries, they are already available -->
+				<exclusion>
+					<groupId>org.openjfx</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -183,27 +194,7 @@
 				<!-- Exclude the openjfx libraries, they are already available -->
 				<exclusion>
 					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-base</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-controls</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-graphics</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-swing</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-fxml</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openjfx</groupId>
-					<artifactId>javafx-web</artifactId>
+					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -227,23 +218,19 @@
 				<configuration>
 					<!-- The argLine and systemPropertyVariables should match the failsafe configuration below -->
 					<argLine>
+						-Xmx128m
 						--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.node=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.resource=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.about=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.task=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.welcom=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.transaction=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
-						--add-opens=com.avereon.xenon/com.avereon.xenon.workarea=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
 					</argLine>
 					<systemPropertyVariables>
@@ -276,6 +263,68 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.avereon</groupId>
+				<artifactId>cameo</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>render-images</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>render</goal>
+						</goals>
+						<configuration>
+							<images>
+								<image>
+									<class>com.avereon.xenon.image.InstallerBannerImage</class>
+									<target>${images-folder}/banner.png</target>
+								</image>
+								<image>
+									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<target>${images-folder}/xenon.png</target>
+								</image>
+							</images>
+							<icons>
+								<icon>
+									<target>${images-folder}/xenon.ico</target>
+									<images>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>16</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>24</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>32</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>48</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>64</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>96</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>128</size>
+										</image>
+									</images>
+								</icon>
+							</icons>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -318,6 +367,17 @@
 										-Xmx128m
 										--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.product=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.tool.settings=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.util=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.workpane=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.workspace=ALL-UNNAMED
 									</argLine>
 									<systemPropertyVariables>
 										<!-- Set testfx.setup.timeout to a reasonable time -->
@@ -350,68 +410,6 @@
 				<plugins>
 
 					<plugin>
-						<groupId>com.avereon</groupId>
-						<artifactId>cameo</artifactId>
-						<version>2.1</version>
-						<executions>
-							<execution>
-								<id>render-images</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>render</goal>
-								</goals>
-								<configuration>
-									<images>
-										<image>
-											<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-											<target>${images-folder}/xenon.png</target>
-										</image>
-										<image>
-											<class>com.avereon.xenon.image.InstallerBannerImage</class>
-											<target>${images-folder}/banner.png</target>
-										</image>
-									</images>
-									<icons>
-										<icon>
-											<images>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>16</size>
-												</image>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>24</size>
-												</image>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>32</size>
-												</image>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>48</size>
-												</image>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>64</size>
-												</image>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>96</size>
-												</image>
-												<image>
-													<class>com.avereon.xenon.icon.XRingLargeIcon</class>
-													<size>128</size>
-												</image>
-											</images>
-											<target>${images-folder}/xenon.ico</target>
-										</icon>
-									</icons>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
 						<version>3.1.1</version>
@@ -433,7 +431,7 @@
 					<plugin>
 						<groupId>com.avereon</groupId>
 						<artifactId>curex</artifactId>
-						<version>1.0-SNAPSHOT</version>
+						<version>1.0</version>
 						<executions>
 							<execution>
 								<id>patch-dependencies</id>
@@ -445,17 +443,7 @@
 									<modulePath>${project.build.directory}/dependency</modulePath>
 									<jars>
 										<jar>
-											<name>jackson-core.jar</name>
-										</jar>
-										<jar>
-											<name>jackson-annotations.jar</name>
-										</jar>
-										<jar>
-											<name>jackson-databind.jar</name>
-											<modules>
-												<module>com.fasterxml.jackson.core</module>
-												<module>com.fasterxml.jackson.annotation</module>
-											</modules>
+											<name>image4j.jar</name>
 										</jar>
 										<jar>
 											<name>miglayout-core.jar</name>

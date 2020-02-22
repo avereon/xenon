@@ -1,6 +1,6 @@
 package com.avereon.xenon.notice;
 
-import com.avereon.xenon.node.Node;
+import com.avereon.data.Node;
 
 import java.util.Comparator;
 import java.util.List;

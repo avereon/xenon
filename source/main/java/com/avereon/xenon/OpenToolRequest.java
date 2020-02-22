@@ -1,17 +1,16 @@
 package com.avereon.xenon;
 
-import com.avereon.xenon.resource.Codec;
-import com.avereon.xenon.resource.OpenResourceRequest;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneView;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneView;
 
 public class OpenToolRequest {
 
-	private OpenResourceRequest openResourceRequest;
+	private OpenAssetRequest openAssetRequest;
 
-	private Resource resource;
+	private Asset asset;
 
 	private Workpane pane;
 
@@ -19,30 +18,33 @@ public class OpenToolRequest {
 
 	private Class<? extends ProgramTool> toolClass;
 
-	public OpenToolRequest( OpenResourceRequest openResourceRequest ) {
-		this.openResourceRequest = openResourceRequest;
+	public OpenToolRequest( OpenAssetRequest openAssetRequest ) {
+		this.openAssetRequest = openAssetRequest;
 	}
 
-	//public URI getUri() {return openResourceRequest.getUri();}
+	public OpenAssetRequest getOpenAssetRequest() {
+		return openAssetRequest;
+	}
 
-	public String getQuery() {return openResourceRequest.getQuery();}
+	public String getQuery() {return openAssetRequest.getQuery();}
 
-	public String getFragment() {return openResourceRequest.getFragment();}
+	public String getFragment() {return openAssetRequest.getFragment();}
 
-	public Codec getCodec() {return openResourceRequest.getCodec();}
+	public Codec getCodec() {return openAssetRequest.getCodec();}
 
-	public WorkpaneView getView() {return openResourceRequest.getView();}
+	public WorkpaneView getView() {return openAssetRequest.getView();}
 
-	public boolean isOpenTool() {return openResourceRequest.isOpenTool();}
+	public boolean isOpenTool() {return openAssetRequest.isOpenTool();}
 
-	public boolean isSetActive() {return openResourceRequest.isSetActive();}
+	public boolean isSetActive() {return openAssetRequest.isSetActive();}
 
 	public String getId() {
 		return id;
 	}
 
-	public void setId( String id ) {
+	public OpenToolRequest setId( String id ) {
 		this.id = id;
+		return this;
 	}
 
 	public Class<? extends ProgramTool> getToolClass() {
@@ -54,12 +56,12 @@ public class OpenToolRequest {
 		return this;
 	}
 
-	public Resource getResource() {
-		return resource;
+	public Asset getAsset() {
+		return asset;
 	}
 
-	public OpenToolRequest setResource( Resource resource ) {
-		this.resource = resource;
+	public OpenToolRequest setAsset( Asset asset ) {
+		this.asset = asset;
 		return this;
 	}
 

@@ -1,11 +1,11 @@
 package com.avereon.xenon.product;
 
+import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.util.*;
 import com.avereon.xenon.Mod;
 import com.avereon.xenon.Program;
@@ -13,11 +13,11 @@ import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
+import com.avereon.xenon.util.ProgramEventHub;
 import javafx.application.Platform;
-import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.nio.file.Files;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * apply the staged updates. This requires the calling process to terminate to
  * allow the update process to change required files.
  */
-public abstract class ProductManager implements Controllable<ProductManager>, Configurable {
+public class ProductManager implements Controllable<ProductManager>, Configurable {
 
 	public enum CheckOption {
 		MANUAL,
@@ -76,7 +76,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		STORE
 	}
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	public static final String LAST_CHECK_TIME = "product-update-last-check-time";
 
@@ -158,7 +158,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 	private UpdateCheckTask task;
 
-	private Set<ProductManagerListener> listeners;
+	private ProgramEventHub eventBus;
 
 	private long lastAvailableProductCheck;
 
@@ -178,7 +178,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productCards = new ConcurrentHashMap<>();
 		productStates = new ConcurrentHashMap<>();
 		postedUpdateCache = new CopyOnWriteArraySet<>();
-		listeners = new CopyOnWriteArraySet<>();
+		eventBus = new ProgramEventHub();
 
 		repoClient = new V2RepoClient( program );
 
@@ -186,6 +186,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
 		includedProducts.add( new com.avereon.zenna.Program().getCard() );
+	}
+
+	private Program getProgram() {
+		return program;
+	}
+
+	public ProgramEventHub getEventBus() {
+		return eventBus;
 	}
 
 	public Set<RepoState> getRepos() {
@@ -199,14 +207,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public RepoCard addRepo( RepoCard repo ) {
-		log.warn( "upsert repo=" + repo );
+		log.log( Log.WARN, "upsert repo=" + repo );
 		this.repos.put( repo.getInternalId(), new RepoState( repo ) );
 		saveRepos();
 		return repo;
 	}
 
 	public RepoCard removeRepo( RepoCard repo ) {
-		log.warn( "remove repo=" + repo );
+		log.log( Log.WARN, "remove repo=" + repo );
 		this.repos.remove( repo.getInternalId() );
 		saveRepos();
 		return repo;
@@ -237,7 +245,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			lastAvailableProductCheck = System.currentTimeMillis();
 
 			try {
-				availableProducts = new ProductManagerLogic( program )
+				availableProducts = new ProductManagerLogic( getProgram() )
 					.getAvailableProducts( force )
 					.get()
 					.stream()
@@ -245,7 +253,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 					.collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
-				program.getNoticeManager().error( "Error getting available products", exception );
+				log.log( Log.ERROR, "Error getting available products", exception );
 			}
 
 			return Set.of();
@@ -257,7 +265,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public Product getProduct( String productKey ) {
-		return productKey == null ? program : products.get( productKey );
+		return productKey == null ? getProgram() : products.get( productKey );
 	}
 
 	public Mod getMod( String productKey ) {
@@ -279,23 +287,24 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return productCards;
 	}
 
-	public void registerProduct( Product product ) {
+	private void registerProduct( Product product ) {
 		ProductCard card = product.getCard();
-
 		String productKey = card.getProductKey();
 		products.put( productKey, product );
 		productCards.put( productKey, card );
 		productStates.put( productKey, new ProductState() );
+	}
+
+	public void registerProgram( Program program ) {
+		registerProduct( program );
+		ProductCard card = program.getCard();
 
 		setUpdatable( card, true );
 		setRemovable( card, false );
-		setEnabled( card, true );
 	}
 
 	private void registerMod( Mod mod ) {
-		// Treat mods like other products
 		registerProduct( mod );
-
 		ProductCard card = mod.getCard();
 
 		// Add the mod to the collection
@@ -304,6 +313,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Set the state flags
 		setUpdatable( card, card.getProductUri() != null );
 		setRemovable( card, true );
+		// Don't set enabled here
 	}
 
 	private void unregisterProduct( Product product ) {
@@ -313,23 +323,27 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		productStates.remove( productKey );
 	}
 
-	private void unregisterProduct( Mod mod ) {
+	public void unregisterProgram( Program program ) {
+		unregisterProduct( program );
+	}
+
+	private void unregisterMod( Mod mod ) {
 		ProductCard card = mod.getCard();
 
 		// Remove the module.
 		modules.remove( card.getProductKey() );
 
 		// Treat mods like other products
-		unregisterProduct( (Product)mod );
+		unregisterProduct( mod );
 	}
 
-	public Task<Collection<InstalledProduct>> installProducts( ProductCard... cards ) {
-		return installProducts( Set.of( cards ) );
+	public Task<Collection<InstalledProduct>> installProducts( DownloadRequest... download ) {
+		return installProducts( Set.of( download ) );
 	}
 
-	public Task<Collection<InstalledProduct>> installProducts( Set<ProductCard> cards ) {
-		log.trace( "Number of products to install: " + cards.size() );
-		return new ProductManagerLogic( program ).installProducts( cards );
+	public Task<Collection<InstalledProduct>> installProducts( Set<DownloadRequest> downloads ) {
+		log.log( Log.TRACE, "Number of products to install: " + downloads.size() );
+		return new ProductManagerLogic( getProgram() ).installProducts( downloads );
 	}
 
 	public Task<Void> uninstallProducts( ProductCard... cards ) {
@@ -337,8 +351,8 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public Task<Void> uninstallProducts( Set<ProductCard> cards ) {
-		log.trace( "Number of products to remove: " + cards.size() );
-		return new ProductManagerLogic( program ).uninstallProducts( cards );
+		log.log( Log.TRACE, "Number of products to remove: " + cards.size() );
+		return new ProductManagerLogic( getProgram() ).uninstallProducts( cards );
 	}
 
 	public int getInstalledProductCount() {
@@ -388,7 +402,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( state == null ) return;
 
 		state.setUpdatable( updatable );
-		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
 	private boolean isRemovable( ProductCard card ) {
@@ -402,7 +415,6 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		if( state == null ) return;
 
 		state.setRemovable( removable );
-		new ProductManagerEvent( this, ProductManagerEvent.Type.PRODUCT_CHANGED, card ).fire( listeners );
 	}
 
 	public ProductCard getProductUpdate( ProductCard card ) {
@@ -415,26 +427,35 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public boolean isEnabled( ProductCard card ) {
-		return program.getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
+		return getProgram().getSettingsManager().getProductSettings( card ).get( PRODUCT_ENABLED_KEY, Boolean.class, false );
 	}
 
-	public void setEnabled( ProductCard card, boolean enabled ) {
-		if( isEnabled( card ) == enabled ) return;
+	public boolean isModEnabled( Mod mod ) {
+		return isEnabled( mod.getCard() );
+	}
 
+	public void setModEnabled( ProductCard card, boolean enabled ) {
 		Mod mod = getMod( card.getProductKey() );
+		if( mod != null ) setModEnabled( mod, enabled );
+	}
 
-		// Should be before after setting the enabled flag
-		if( mod != null && !enabled ) callModDestroy( mod );
+	private void setModEnabled( Mod mod, boolean enabled ) {
+		if( isModEnabled( mod ) == enabled ) return;
 
-		Settings settings = program.getSettingsManager().getProductSettings( card );
+		// Should be called before setting the enabled flag
+		if( !enabled ) callModShutdown( mod );
+
+		Settings settings = getProgram().getSettingsManager().getProductSettings( mod.getCard() );
 		settings.set( PRODUCT_ENABLED_KEY, enabled );
 		settings.flush();
-		log.trace( "Set product enabled: " + settings.getPath() + ": " + enabled );
+		log.log( Log.TRACE, "Set mod enabled: " + settings.getPath() + ": " + enabled );
+		getEventBus().dispatch( new ModEvent( this, enabled ? ModEvent.ENABLED : ModEvent.DISABLED, mod.getCard() ) );
+		//		new ProductManagerEventOld( this, enabled ? ProductManagerEventOld.Type.MOD_ENABLED : ProductManagerEventOld.Type.MOD_DISABLED, mod.getCard() )
+		//			.fire( listeners )
+		//			.fire( getProgram().getListeners() );
 
 		// Should be called after setting the enabled flag
-		if( mod != null && enabled ) callModCreate( mod );
-
-		new ProductManagerEvent( this, enabled ? ProductManagerEvent.Type.PRODUCT_ENABLED : ProductManagerEvent.Type.PRODUCT_DISABLED, card ).fire( listeners );
+		if( enabled ) callModStart( mod );
 	}
 
 	public CheckOption getCheckOption() {
@@ -483,7 +504,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			// set, don't schedule update checks. This probably means there is a
 			// problem applying an update. Otherwise, it should be safe to schedule
 			// update checks.
-			if( !program.isProgramUpdated() && program.isUpdateInProgress() ) return;
+			if( !getProgram().isProgramUpdated() && getProgram().isUpdateInProgress() ) return;
 
 			long now = System.currentTimeMillis();
 
@@ -491,7 +512,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 				boolean alreadyRun = task.scheduledExecutionTime() < now;
 				task.cancel();
 				task = null;
-				if( !alreadyRun ) log.trace( "Current check for updates task cancelled for new schedule." );
+				if( !alreadyRun ) log.log( Log.TRACE, "Current check for updates task cancelled for new schedule." );
 			}
 
 			Settings checkSettings = getSettings();
@@ -524,7 +545,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 			if( delay == NO_CHECK ) {
 				checkSettings.set( NEXT_CHECK_TIME, 0 );
-				log.debug( "Future update check not scheduled." );
+				log.log( Log.DEBUG, "Future update check not scheduled." );
 				return;
 			}
 
@@ -538,7 +559,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 			// Log the next update check time
 			String date = DateUtil.format( new Date( nextCheckTime ), DateUtil.DEFAULT_DATE_FORMAT, DateUtil.LOCAL_TIME_ZONE );
-			log.debug( "Next check scheduled for: " + (delay == 0 ? "now" : date) );
+			log.log( Log.DEBUG, "Next check scheduled for: " + (delay == 0 ? "now" : date) );
 		}
 	}
 
@@ -546,40 +567,50 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * Check for updates for all installed products
 	 */
 	public void checkForUpdates() {
-		if( !isEnabled() ) return;
+		checkForUpdates( false );
+	}
 
-		try {
-			log.trace( "Checking for staged updates..." );
-			new ProductManagerLogic( program ).stageAndApplyUpdates( getInstalledProductCards( false ), false );
-		} catch( Exception exception ) {
-			log.error( "Error checking for updates", exception );
-		}
+	public void checkForUpdates( boolean interactive ) {
+		if( !isEnabled() ) return;
+		new ProductManagerLogic( getProgram() ).checkForUpdates( interactive );
 	}
 
 	public void checkForStagedUpdatesAtStart() {
-		if( program.getHomeFolder() == null ) {
-			log.warn( "Program not running from updatable location." );
+		if( getProgram().getHomeFolder() == null ) {
+			log.log( Log.WARN, "Program not running from updatable location." );
 			return;
 		}
 
-		log.trace( "Checking for staged updates..." );
+		log.log( Log.TRACE, "Checking for staged updates..." );
 
 		// If updates are staged, apply them.
 		int updateCount = getStagedUpdateCount();
 		if( updateCount > 0 ) {
-			log.info( "Staged updates detected: {}", updateCount );
+			log.log( Log.INFO, "Staged updates detected: {}", updateCount );
 			try {
 				applyStagedUpdatesAtStart();
 			} catch( Exception exception ) {
-				log.warn( "Failed to apply staged updates", exception );
+				log.log( Log.WARN, "Failed to apply staged updates", exception );
 			}
 		} else {
-			log.debug( "No staged updates detected." );
+			log.log( Log.DEBUG, "No staged updates detected." );
 		}
 	}
 
+	/**
+	 * Apply staged updates found at program start, if any.
+	 */
 	public void applyStagedUpdatesAtStart() {
-		applyStagedUpdates();
+		int stagedUpdateCount = getStagedUpdateCount();
+		log.log( Log.INFO, "Staged update count: " + stagedUpdateCount );
+		if( !isEnabled() || stagedUpdateCount == 0 ) return;
+
+		if( getProgram().isUpdateInProgress() ) {
+			getProgram().setUpdateInProgress( false );
+			clearStagedUpdates();
+		} else {
+			new ProductManagerLogic( getProgram() ).notifyUpdatesReadyToApply( false );
+		}
 	}
 
 	/**
@@ -597,11 +628,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			lastAvailableUpdateCheck = System.currentTimeMillis();
 
 			try {
-				availableUpdates = new ProductManagerLogic( program ).findPostedUpdates( force ).get();
+				availableUpdates = new ProductManagerLogic( getProgram() ).findPostedUpdates( force ).get();
 				return new HashSet<>( availableUpdates );
 			} catch( Exception exception ) {
-				log.error( "Error refreshing available updates", exception );
-				program.getNoticeManager().error( exception );
+				log.log( Log.ERROR, "Error refreshing available updates", exception );
 			}
 
 			return Set.of();
@@ -619,10 +649,10 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		for( ProductUpdate update : updates.values() ) {
 			if( Files.exists( update.getSource() ) ) {
 				staged.add( update );
-				log.debug( "Staged update found: " + update.getSource() );
+				log.log( Log.DEBUG, "Staged update found: " + update.getSource() );
 			} else {
 				remove.add( update );
-				log.warn( "Staged update missing: " + update.getSource() );
+				log.log( Log.WARN, "Staged update missing: " + update.getSource() );
 			}
 		}
 
@@ -677,20 +707,28 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	 * @return The number of updates applied.
 	 */
 	public int applyStagedUpdates() {
-		log.info( "Update manager enabled: " + isEnabled() );
+		log.log( Log.INFO, "Update manager enabled: " + isEnabled() );
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> program.requestUpdate() );
+		if( count > 0 ) Platform.runLater( () -> getProgram().requestUpdate() );
 
 		return count;
 	}
 
-	public Task<Collection<ProductUpdate>> applySelectedUpdates( ProductCard update ) {
-		return applySelectedUpdates( Set.of( update ) );
+	public Task<Collection<ProductUpdate>> updateProducts( DownloadRequest update, boolean interactive ) {
+		return updateProducts( Set.of( update ), interactive );
 	}
 
-	public abstract Task<Collection<ProductUpdate>> applySelectedUpdates( Set<ProductCard> updates );
+	/**
+	 * Starts a new task to apply the selected updates.
+	 *
+	 * @param updates The updates to apply.
+	 */
+	public Task<Collection<ProductUpdate>> updateProducts( Set<DownloadRequest> updates, boolean interactive ) {
+		log.log( Log.TRACE, "Number of products to update: " + updates.size() );
+		return new ProductManagerLogic( getProgram() ).stageAndApplyUpdates( updates, interactive );
+	}
 
 	void clearStagedUpdates() {
 		// Remove the updates settings
@@ -699,7 +737,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	Void saveRemovedProducts( Collection<InstalledProduct> removedProducts ) {
-		Set<InstalledProduct> products = new HashSet<>( program.getProductManager().getStoredRemovedProducts() );
+		Set<InstalledProduct> products = new HashSet<>( getProgram().getProductManager().getStoredRemovedProducts() );
 		products.addAll( removedProducts );
 		getSettings().set( REMOVES_SETTINGS_KEY, products );
 		return null;
@@ -763,17 +801,17 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		return delay;
 	}
 
-	public Set<ProductManagerListener> getProductManagerListeners() {
-		return new HashSet<>( listeners );
-	}
-
-	public void addProductManagerListener( ProductManagerListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeProductManagerListener( ProductManagerListener listener ) {
-		listeners.remove( listener );
-	}
+	//	public Set<ProductManagerListener> getProductManagerListeners() {
+	//		return new HashSet<>( listeners );
+	//	}
+	//
+	//	public void addProductManagerListener( ProductManagerListener listener ) {
+	//		listeners.add( listener );
+	//	}
+	//
+	//	public void removeProductManagerListener( ProductManagerListener listener ) {
+	//		listeners.remove( listener );
+	//	}
 
 	@Override
 	public void setSettings( Settings settings ) {
@@ -808,7 +846,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	protected boolean isEnabled() {
-		return !program.getParameters().getNamed().containsKey( ProgramFlag.NOUPDATE );
+		return !getProgram().getParameters().getNamed().containsKey( ProgramFlag.NOUPDATE );
 	}
 
 	@Override
@@ -829,14 +867,14 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	public ProductManager start() {
 		purgeRemovedProducts();
 
-		getSettings().addSettingsListener( new SettingsChangeHandler() );
+		getSettings().register( SettingsEvent.CHANGED, new SettingsChangeHandler() );
 
 		// Create the update check timer.
 		timer = new Timer( true );
 
 		// Define the module folders.
-		homeModuleFolder = program.getHomeFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
-		userModuleFolder = program.getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		homeModuleFolder = getProgram().getHomeFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
+		userModuleFolder = getProgram().getDataFolder().resolve( MODULE_INSTALL_FOLDER_NAME );
 
 		// Create the default module folders list.
 		List<Path> moduleFolders = new ArrayList<>();
@@ -844,7 +882,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		moduleFolders.add( getUserModuleFolder() );
 
 		// Check for module paths in the parameters.
-		List<String> modulePaths = program.getProgramParameters().getValues( "module" );
+		List<String> modulePaths = getProgram().getProgramParameters().getValues( "module" );
 		if( modulePaths != null ) {
 			for( String path : modulePaths ) {
 				Path folder = Paths.get( path );
@@ -871,14 +909,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	public void startMods() {
-		modules.values().forEach( this::callModCreate );
+		modules.values().forEach( this::callModStart );
 	}
 
 	public void stopMods() {
-		modules.values().forEach( this::callModDestroy );
+		modules.values().forEach( this::callModShutdown );
 	}
 
-	@SuppressWarnings( "Convert2Diamond" )
 	private void loadRepos() {
 		// NOTE The TypeReference must have the parameterized type in it, the diamond operator cannot be used here
 		Set<RepoState> repoStates = updateSettings.get( REPOS_SETTINGS_KEY, new TypeReference<Set<RepoState>>() {}, new HashSet<>() );
@@ -929,7 +966,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		try {
 			loadModulePathMods();
 		} catch( Exception exception ) {
-			log.error( "Error loading modules from module path", exception );
+			log.log( Log.ERROR, "Error loading modules from module path", exception );
 		}
 
 		// Look for standard mods (most common)
@@ -937,7 +974,7 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 			try {
 				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
 			} catch( IOException exception ) {
-				log.error( "Error loading modules from: " + folder, exception );
+				log.log( Log.ERROR, "Error loading modules from: " + folder, exception );
 			}
 		} );
 	}
@@ -945,83 +982,83 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	void doInstallMod( ProductCard card, Set<ProductResource> resources ) throws Exception {
 		Path installFolder = getProductInstallFolder( card );
 
-		log.debug( "Install product to: " + installFolder );
+		log.log( Log.DEBUG, "Install product to: " + installFolder );
 
 		// Install all the resource files to the install folder
 		copyProductResources( resources, installFolder );
-		log.debug( "Mod copied to: " + installFolder );
+		log.log( Log.DEBUG, "Mod copied to: " + installFolder );
 
-		// Load the mods
+		// Load the mod
 		loadModules( getUserModuleFolder() );
-		log.debug( "Mod loaded from: " + getUserModuleFolder() );
+		log.log( Log.DEBUG, "Mod loaded from: " + getUserModuleFolder() );
 
 		// Allow the mod to register resources
 		callModRegister( getMod( card.getProductKey() ) );
-		log.debug( "Mod registered as: " + card.getProductKey() );
+		log.log( Log.DEBUG, "Mod registered: " + card.getProductKey() );
 
 		// Set the enabled state
-		setEnabled( card, true );
-		log.debug( "Mod enabled: " + card.getProductKey() );
-
-		// Notify listeners of install
-		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_INSTALLED, card ).fire( listeners );
+		setModEnabled( getMod( card.getProductKey() ), true );
+		log.log( Log.DEBUG, "Mod enabled: " + card.getProductKey() );
 	}
 
 	void doRemoveMod( Mod mod ) {
 		ProductCard card = mod.getCard();
-
 		Path installFolder = card.getInstallFolder();
+		String source = installFolder == null ? "classpath" : installFolder.toString();
 
-		log.debug( "Remove product from: " + installFolder );
+		log.log( Log.DEBUG, "Remove product from: " + source );
 
 		// Disable the product
-		setEnabled( card, false );
+		setModEnabled( mod, false );
+		log.log( Log.DEBUG, "Mod disabled: " + card.getProductKey() );
 
+		// Allow the mod to unregister resources
 		callModUnregister( mod );
+		log.log( Log.DEBUG, "Mod unregistered: " + card.getProductKey() );
 
+		// Unload the mod
 		unloadMod( mod );
-
-		// Remove the product from the manager
-		unregisterProduct( mod );
+		log.log( Log.DEBUG, "Mod unloaded from: " + source );
 
 		// Remove the product settings
-		program.getSettingsManager().getProductSettings( card ).delete();
-
-		// Notify listeners of remove
-		new ProductManagerEvent( ProductManager.this, ProductManagerEvent.Type.PRODUCT_REMOVED, card ).fire( listeners );
+		getProgram().getSettingsManager().getProductSettings( card ).delete();
 	}
 
 	private void callModRegister( Mod mod ) {
 		try {
 			mod.register();
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.error( "Error registering mod: " + mod.getCard().getProductKey(), throwable );
+			log.log( Log.ERROR, "Error registering mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
-	private void callModCreate( Mod mod ) {
+	private void callModStart( Mod mod ) {
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.startup();
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STARTED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.error( "Error starting mod: " + mod.getCard().getProductKey(), throwable );
+			log.log( Log.ERROR, "Error starting mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
-	private void callModDestroy( Mod mod ) {
+	private void callModShutdown( Mod mod ) {
 		if( !isEnabled( mod.getCard() ) ) return;
 		try {
 			mod.shutdown();
+			getEventBus().dispatch( new ModEvent( this, ModEvent.STOPPED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.error( "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
+			log.log( Log.ERROR, "Error stopping mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
 	private void callModUnregister( Mod mod ) {
 		try {
 			mod.unregister();
+			getEventBus().dispatch( new ModEvent( this, ModEvent.UNREGISTERED, mod.getCard() ) );
 		} catch( Throwable throwable ) {
-			log.error( "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
+			log.log( Log.ERROR, "Error unregistering mod: " + mod.getCard().getProductKey(), throwable );
 		}
 	}
 
@@ -1029,11 +1066,11 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		// Check for products marked for removal and remove the files.
 		Set<InstalledProduct> products = getStoredRemovedProducts();
 		for( InstalledProduct product : products ) {
-			log.debug( "Purging: " + product );
+			log.log( Log.DEBUG, "Purging: " + product );
 			try {
 				FileUtil.delete( product.getTarget() );
 			} catch( IOException exception ) {
-				log.error( "Error removing product: " + product, exception );
+				log.log( Log.ERROR, "Error removing product: " + product, exception );
 			}
 		}
 		getSettings().remove( REMOVES_SETTINGS_KEY );
@@ -1073,18 +1110,18 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 	}
 
 	private void loadModulePathMods() {
-		log.trace( "Loading standard mod from: module-path" );
+		log.log( Log.TRACE, "Loading standard mod from: module-path" );
 		try {
 			ServiceLoader.load( Mod.class ).forEach( ( mod ) -> loadMod( mod, null ) );
 		} catch( Throwable throwable ) {
-			log.error( "Error loading module-path mods", throwable );
+			log.log( Log.ERROR, "Error loading module-path mods", throwable );
 		}
 	}
 
 	private void loadStandardMods( Path source ) {
 		// In this context module refers to Java modules and mod refers to program mods
 
-		log.trace( "Loading standard mod from: " + source );
+		log.log( Log.TRACE, "Loading standard mod from: " + source );
 
 		// Obtain the boot module layer
 		ModuleLayer bootLayer = ModuleLayer.boot();
@@ -1092,14 +1129,13 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 
 		// Create the mod module layer
 		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), ModuleFinder.of( source ), Set.of() );
-		ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, null );
+		ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
 
 		// Load the mods
 		try {
 			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
 		} catch( Throwable throwable ) {
-			log.error( "Error loading standard mods: " + source, throwable );
-			program.getNoticeManager().error( throwable );
+			log.log( Log.ERROR, "Error loading standard mods: " + source, throwable );
 		}
 	}
 
@@ -1107,45 +1143,64 @@ public abstract class ProductManager implements Controllable<ProductManager>, Co
 		ProductCard card = mod.getCard();
 		String message = card.getProductKey() + " from: " + (source == null ? "classpath" : source);
 		try {
-			log.debug( "Loading mod: " + message );
+			log.log( Log.DEBUG, "Loading mod: " + message );
 
 			// Ignore included products
 			if( isIncludedProduct( card ) ) return;
 
 			// Check if mod is already loaded
 			if( getMod( card.getProductKey() ) != null ) {
-				log.warn( "Mod already loaded: " + card.getProductKey() );
+				log.log( Log.WARN, "Mod already loaded: " + card.getProductKey() );
 				return;
 			}
 
+			// Configure logging for the mod
+			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+
 			// Initialize the mod
-			mod.init( program, card );
+			mod.init( getProgram(), card );
 
 			// Set the mod install folder
 			card.setInstallFolder( source );
 
-			// Register the mod
+			// Add the product registration to the manager
 			registerMod( mod );
 
-			log.debug( "Mod loaded: " + message );
+			// Notify handlers of install
+			getEventBus().dispatch( new ModEvent( this, ModEvent.INSTALLED, mod.getCard() ) );
+
+			log.log( Log.DEBUG, "Mod loaded: " + message );
 		} catch( Throwable throwable ) {
-			log.error( "Error loading mod " + message, throwable );
+			log.log( Log.ERROR, "Error loading mod " + message, throwable );
 		}
 	}
 
 	private void unloadMod( Mod mod ) {
-		// Not sure what to do to unload a mod
+		ProductCard card = mod.getCard();
+
+		String message = card.getProductKey();
+		try {
+			log.log( Log.DEBUG, "Unloading mod: " + message );
+
+			// Remove the product registration from the manager
+			unregisterMod( mod );
+
+			// Notify handlers of remove
+			getEventBus().dispatch( new ModEvent( this, ModEvent.REMOVED, mod.getCard() ) );
+
+			// TODO Disable logging for a mod that has been removed
+
+			log.log( Log.DEBUG, "Mod unloaded: " + message );
+		} catch( Throwable throwable ) {
+			log.log( Log.ERROR, "Error unloading mod " + message, throwable );
+		}
 	}
 
-	private final class SettingsChangeHandler implements SettingsListener {
+	private final class SettingsChangeHandler implements EventHandler<SettingsEvent> {
 
 		@Override
-		public void handleEvent( SettingsEvent event ) {
-			if( event.getType() != SettingsEvent.Type.CHANGED ) return;
-
-			String key = event.getKey();
-
-			switch( key ) {
+		public void handle( SettingsEvent event ) {
+			switch( event.getKey() ) {
 				case CHECK: {
 					setCheckOption( CheckOption.valueOf( event.getNewValue().toString().toUpperCase() ) );
 					scheduleUpdateCheck( false );

@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool.product;
 
+import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import javafx.scene.control.Button;
 
@@ -19,7 +20,7 @@ class InstalledPage extends ProductPage {
 
 	@Override
 	protected void updateState( boolean force ) {
-		ProductTool.log.trace( "Update installed products" );
+		ProductTool.log.log( Log.TRACE,  "Update installed products" );
 		productTool.getProgram().getTaskManager().submit( new RefreshInstalledProducts( productTool, force ) );
 	}
 

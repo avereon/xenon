@@ -1,35 +1,33 @@
 package com.avereon.xenon.product;
 
 import com.avereon.product.Product;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
+import com.avereon.util.SizeUnitBase2;
+import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.task.Task;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class DownloadTask extends Task<Download> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 2000;
 
 	public static final int DEFAULT_READ_TIMEOUT = 10000;
 
-	private static final int BUFFER_SIZE = 256 * 1024;
+	private static final int BUFFER_SIZE = 256 * (int)SizeUnitBase2.KiB.getSize();
 
-	private Product product;
+	private static final boolean FORCE_SLOW_DOWNLOAD = false;
 
 	private URI uri;
 
@@ -39,11 +37,8 @@ public class DownloadTask extends Task<Download> {
 
 	private int readTimeout = DEFAULT_READ_TIMEOUT;
 
-	private Set<DownloadListener> listeners;
-
 	public DownloadTask( Product product, URI uri ) {
 		this( product, uri, null );
-		listeners = new CopyOnWriteArraySet<>();
 	}
 
 	public DownloadTask( Product product, URI uri, Path target ) {
@@ -54,6 +49,22 @@ public class DownloadTask extends Task<Download> {
 
 	public URI getUri() {
 		return uri;
+	}
+
+	public int getConnectTimeout() {
+		return connectTimeout;
+	}
+
+	public void setConnectTimeout( int connectTimeout ) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public int getReadTimeout() {
+		return readTimeout;
+	}
+
+	public void setReadTimeout( int readTimeout ) {
+		this.readTimeout = readTimeout;
 	}
 
 	@Override
@@ -91,46 +102,25 @@ public class DownloadTask extends Task<Download> {
 
 		setTotal( length );
 
-		byte[] buffer = new byte[ BUFFER_SIZE ];
+		byte[] buffer = new byte[ FORCE_SLOW_DOWNLOAD ? 1024 : BUFFER_SIZE ];
 		Download download = new Download( uri, length, encoding, target );
 
-		try {
-			int read = 0;
+		try( download ) {
+			int read;
 			int offset = 0;
 			while( (read = input.read( buffer )) > -1 ) {
 				if( isCancelled() ) return null;
 				download.write( buffer, 0, read );
-				offset += read;
-				setProgress( offset );
-				fireEvent( new DownloadEvent( offset, length ) );
+				setProgress( offset += read );
+				if( FORCE_SLOW_DOWNLOAD ) ThreadUtil.pause( 100 );
 			}
 			if( isCancelled() ) return null;
-		} finally {
-			download.close();
 		}
 
-		log.debug( "Resource downloaded: " + uri );
-		log.trace( "        to location: " + download.getTarget() );
+		log.log( Log.DEBUG,  "Resource downloaded: " + uri );
+		log.log( Log.TRACE,  "        to location: " + download.getTarget() );
 
 		return download;
-	}
-
-	public void addListener( DownloadListener listener ) {
-		listeners.add( listener );
-	}
-
-	public void removeListener( DownloadListener listener ) {
-		listeners.remove( listener );
-	}
-
-	private void fireEvent( DownloadEvent event ) {
-		for( DownloadListener listener : new HashSet<>( listeners ) ) {
-			try {
-				listener.update( event );
-			} catch( Throwable throwable ) {
-				log.error( "Error updating download progress", throwable );
-			}
-		}
 	}
 
 	@Override

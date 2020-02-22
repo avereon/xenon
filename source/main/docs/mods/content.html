@@ -1,7 +1,14 @@
+<!--
+This is the Xenon mods manual. It is formatted as a partial HTML document in
+order to be used with the DocViewer component on the Avereon website. The
+h1-h6 tags that are children of the root div element will be used as an outline
+when displayed and links are generated for the id attribute in the header. Note
+also that links are relative to the Avereon website or must be fully qualified.
+-->
 <div>
 
-	<h1 id="mod-development">Mod Development</h1>
-	<p>2019-11-28</p>
+	<h1>Mod Guide</h1>
+	<p>Updated 2020-01-27</p>
 
 	<p>
 		This document is step-by-step instruction to create a Xenon mod. These
@@ -43,7 +50,7 @@
 		your own groupId, artifactId and version:
 	</p>
 
-	<pre className="code">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+	<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 
 &lt;project
   xmlns="http://maven.apache.org/POM/4.0.0"
@@ -81,7 +88,7 @@
 		<a href="https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html">Maven Standard Directory Layout</a>.:
 	</p>
 
-	<pre className="code">pom.xml
+	<pre>pom.xml
 source/main/java</pre>
 
 	<p>
@@ -90,7 +97,7 @@ source/main/java</pre>
 		that your configuration is correct.
 	</p>
 
-	<h2 id="implementing-the-mod">Implementing the Mod</h2>
+	<h2 id="mod-implementation">Mod Implementation</h2>
 
 	<h3 id="java-module">Java Module</h3>
 	<p>
@@ -114,12 +121,14 @@ source/main/java</pre>
 
 	<h3 id="mod-class">Mod Class</h3>
 	<p>
-		Create your module class and extend the com.averon.xenon.Mod class:
+		Create your mod class and extend the com.averon.xenon.Mod class:
 	</p>
-	<pre>module com.avereon.mazer {
-  requires com.avereon.xenon;
-  exports com.avereon.mazer to com.avereon.xenon;
-  provides com.avereon.xenon.Mod with com.avereon.mazer.Mazer;
+	<pre>package [your package];
+
+import com.avereon.xenon.Mod;
+
+public class [YourModClassName] extends Mod {
+
 }</pre>
 
 	<p>
@@ -133,12 +142,15 @@ public class Mazer extends Mod {
 
 }</pre>
 
-	<h3>Module Card</h3>
+	<h3 id="mod-card">Mod Card</h3>
 	<p>
-		Mods use a small file, called a product card, as a descriptor. Create a new
-		JSON text file, source/main/resources/META-INF/product.card, with the
-		following content. All the values surrounded by ${...} are replaced by
-		Maven at build time. You can update the other values as desired:
+		Mods use a small file, called a product card, or mod card, as a descriptor.
+		Create a new JSON text file,
+		<code>source/main/resources/META-INF/product.card</code>,	with the
+		following content. Values surrounded by ${...} are replaced by
+		Maven at build time. Values surrounded by &lt;...&gt; should be updated
+		to use your values. The remaining values, such as packaging, should be left
+		as defined:
 	</p>
 	<pre>{
   "group": "${project.groupId}",
@@ -146,41 +158,124 @@ public class Mazer extends Mod {
   "version": "${project.version}",
   "timestamp": "${project.timestamp}",
   "packaging": "mod",
-  "iconUri": "https://www.avereon.com/download/stable/avereon/provider/icon",
+  "icons": [ "${project.artifactId}", "&lt;https://www.avereon.com/download/stable/avereon/provider/icon&gt;" ],
   "name": "${project.name}",
   "provider": "${project.organization.name}",
   "providerUrl": "${project.organization.url}",
   "inception": "${project.inceptionYear}",
-  "summary": "[project summary]",
+  "summary": "&lt;A program to provide capability&gt;",
   "description": "${project.description}",
-  "copyrightSummary": "All rights reserved.",
-  "licenseSummary": "${project.name} comes with ABSOLUTELY NO WARRANTY. This is open software, and you are welcome to redistribute it under certain conditions.",
-  "productUri": "https://www.example.com/download/product/pack",
-  "mainClass": "com.example.project.ExampleMod",
+  "copyrightSummary": "&lt;All rights reserved.&gt;",
+  "licenseSummary": "&lt;${project.name} comes with ABSOLUTELY NO WARRANTY.&gt;",
   "javaVersion": "11",
   "maintainers": [
   {
-    "name": "[maintainer name]",
-    "email": "[maintainer email]",
-    "timezone": "[maintain time zone]",
-    "organization": "[provider organization]",
-    "organizationUrl": "[provider organization url]",
-    "roles": [ "Architect", "Developer" ]
+    "name": "&lt;John Doe&gt;",
+    "email": "&lt;john.doe@example.com&gt;",
+    "timezone": "&lt;time zone&gt;",
+    "organization": "&lt;Example Organization&gt;",
+    "organizationUrl": "&lt;https://example.com&gt;",
+    "roles": [&lt;"Architect", "Developer"&gt;]
   }
   ],
   "contributors": []
 }</pre>
+	<p>
+		With the mod card in place there is enough
+		implementation to build the <a href="#module-library">mod library</a> and
+		eventually <a href="#mod-deployment">try it with Xenon</a>.
+	</p>
 
 	<h3 id="mod-library">Mod Library</h3>
 	<p>
-		With the product card in place there is enough implementation to build the
-		mod and try it with Xenon. Of course, this mod doesn't do much but it's a
-		start. To build the mod, use Maven with the platform-agnostic-assemblies
-		profile enabled:
+		To build the mod, use Maven
+		with the package goal:
 	</p>
-	<code>mvn clean package -U -P platform-agnostic-assemblies</code>
+	<pre>mvn -U clean package</pre>
 	<p>
-		If all has gone well there is now a product.jar file in the target folder.
-		This file is your mod library.
+		If all has gone well there is now a jar file (not the sources or javadoc
+		jar) in the target folder. This file is your mod library.
 	</p>
+
+	<h2 id="mod-deployment">Mod Deployment</h2>
+	<h3 id="online-deployment">Online Deployment</h3>
+	<p>
+		Online deployment is the recommended method to deploy mods. This allows
+		users to install your mod and stay up-to-date using the built-in online
+		update features of Xenon. While this method requires a bit more effort to
+		configure initially, it provides a much better experience for your users
+		and fits <a href="https://en.wikipedia.org/wiki/Continuous_delivery">modern
+		software development practices</a>.
+	</p>
+	<p>
+		Online deployment requires the use of a simple artifact repository (also
+		called a product market). Only one
+		version of an artifact is allowed in a repository so it is common to have
+		multiple repositories for different stages of mod development. It is
+		recommended to have at least a stable (production quality) repository and
+		a latest (development quality) repository.
+	</p>
+	<p>
+		To deploy a mod to a repository both the mod library (also called a product
+		pack) and the mod card (also called a product card) must be made available
+		in the repository location for the mod. Xenon uses the mod card to
+		determine if the mod needs to be updated on user installations so be sure
+		the mod card information is updated along with the mod library. Using Maven
+		to build your mod will also create an updated mod card.
+	</p>
+	<p>
+		Once the mod is deployed to a repository, add that repository to the Xenon
+		Product Markets in the Product tool, if not already added. Once the
+		repository is added to the Product Markets, select Available Products in
+		the Guide tool and the available products should be refreshed. If all has
+		gone well your mod will show in the available products list and it can be
+		installed. If an update is deployed to the repository the Xenon update
+		functionality will be used to discover and install the update.
+	</p>
+	<h3 id="manual-deployment">Manual Deployment</h3>
+	<p>
+		Manual deployment is not the recommended way to deploy mods. It is useful
+		for early development purposes but it is not recommended for regular
+		deployment. Instead, it is recommended that an automated
+		process be set up to post mod releases (both development and production)
+		online and use <a href="#online-deployment">online deployment</a>.
+	</p>
+	<p>
+		For manual deployment all that is needed is to copy the mod library to a
+		mod folder and start, or restart, Xenon. To do
+		this, navigate to the <a href="/product/xenon/docs/manual#terminology-program-data-folder">program data folder</a>. In the program
+		data folder create a modules folder, if it does not already exist, and
+		inside the modules folder create folder for your mod. It does not matter
+		what the mod folder name is nor what the jar file name is but it is
+		convention to name the mod folder after the Java module name and the jar
+		file after the mod name. For example, if your mod's Java module name was
+		com.example.mymod the mod path would look like this:
+	</p>
+	<pre>{program data folder}/modules/com.example.mymod/mymod.jar</pre>
+	<p>
+		Here is an example using the Mazer project:
+	</p>
+	<pre>{program data folder}/modules/com.avereon.mazer/mazer.jar</pre>
+	<p>
+		With the mod now in a mod folder, start or restart Xenon. You can see if it
+		loaded or not in the About tool. Open the About tool (from the menu Help >
+		About) and select the Mods item in the guide. You should see your mod in the
+		list in the About tool. If it does not appear in the list, there may be a
+		program notice in the Notice tool or check the program log file for errors.
+	</p>
+	<img src="images/xenon-about-tool-mods.png" srcSet="" alt="Xenon About tool showing mods"/>
+	<h2 id="mod-common-problems">Common Problems</h2>
+	<h3 id="missing-resource-exception">Missing Resource Exception</h3>
+	<p>
+		If you encounter a MissingResourceException, especially when first using
+		resource bundles in your mod, it is usually caused due to a missing
+		<code>opens</code> statement in the module-info.java file. Be sure to open
+		all resource bundle packages.
+	</p>
+	<p>Here is an example using the Mazer project:</p>
+	<pre>module mazer {
+  ...
+  opens com.avereon.mazer.bundles;
+  ...
+}</pre>
 </div>

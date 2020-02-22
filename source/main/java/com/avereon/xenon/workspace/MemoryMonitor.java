@@ -2,7 +2,6 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.util.Lambda;
-import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Rectangle;
 
@@ -39,7 +38,7 @@ public class MemoryMonitor extends AbstractMonitor {
 	static {
 		monitors = new CopyOnWriteArraySet<>();
 		Timer timer = new Timer( "Memory Monitor Timer", true );
-		timer.schedule( Lambda.timerTask( MemoryMonitor::requestUpdate ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
+		timer.schedule( Lambda.timerTask( MemoryMonitor::updateAll ), DEFAULT_POLL_INTERVAL, DEFAULT_POLL_INTERVAL );
 	}
 
 	public MemoryMonitor() {
@@ -83,6 +82,15 @@ public class MemoryMonitor extends AbstractMonitor {
 		update();
 	}
 
+	@Override
+	public void requestUpdate() {
+		Runtime runtime = Runtime.getRuntime();
+		maximum = runtime.maxMemory();
+		allocated = runtime.totalMemory();
+		used = allocated - runtime.freeMemory();
+		super.requestUpdate();
+	}
+
 	public void close() {
 		monitors.remove( this );
 	}
@@ -104,7 +112,7 @@ public class MemoryMonitor extends AbstractMonitor {
 		memoryUsed.setHeight( height );
 	}
 
-	private void update() {
+	protected void update() {
 		allocatedPercent = (float)allocated / (float)maximum;
 		usedPercent = (float)used / (float)maximum;
 
@@ -121,10 +129,10 @@ public class MemoryMonitor extends AbstractMonitor {
 			String maximumSize = FileUtil.getHumanSizeBase2( maximum, true );
 
 			text.append( isPercent ? percentUsed : usedSize );
-//			text.append( " " );
-//			text.append( DIVIDER );
-//			text.append( " " );
-//			text.append( isPercent ? percentAllocated : allocatedSize );
+			//			text.append( " " );
+			//			text.append( DIVIDER );
+			//			text.append( " " );
+			//			text.append( isPercent ? percentAllocated : allocatedSize );
 			text.append( " " );
 			text.append( DIVIDER );
 			text.append( " " );
@@ -135,21 +143,9 @@ public class MemoryMonitor extends AbstractMonitor {
 		requestLayout();
 	}
 
-	private void update( long maximum, long allocated, long used ) {
-		this.maximum = maximum;
-		this.allocated = allocated;
-		this.used = used;
-		update();
-	}
-
-	private static void requestUpdate() {
-		Runtime runtime = Runtime.getRuntime();
-		long maximum = runtime.maxMemory();
-		long allocated = runtime.totalMemory();
-		long used = allocated - runtime.freeMemory();
-
+	private static void updateAll() {
 		for( MemoryMonitor monitor : monitors ) {
-			Platform.runLater( () -> monitor.update( maximum, allocated, used ) );
+			monitor.requestUpdate();
 		}
 	}
 

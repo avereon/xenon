@@ -75,7 +75,7 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 	}
 
 	@Override
-	public void handleEvent( SettingsEvent event ) {
+	public void handle( SettingsEvent event ) {
 		// No need to change the editor
 	}
 

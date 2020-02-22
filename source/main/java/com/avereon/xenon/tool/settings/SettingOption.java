@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.xenon.node.Node;
+import com.avereon.data.Node;
 
 public class SettingOption extends Node {
 

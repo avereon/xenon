@@ -1,7 +1,6 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
-import com.avereon.xenon.tool.ProgramTool;
 
 import java.util.Comparator;
 

@@ -4,7 +4,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import com.avereon.xenon.util.Colors;
+import com.avereon.venza.color.Colors;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ColorPicker;
@@ -64,8 +64,8 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	}
 
 	@Override
-	public void handleEvent( SettingsEvent event ) {
-		if( event.getType() == SettingsEvent.Type.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue().toString() ) );
+	public void handle( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue().toString() ) );
 	}
 
 }

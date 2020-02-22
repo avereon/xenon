@@ -1,20 +1,23 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.LogUtil;
-import com.avereon.xenon.resource.OpenResourceRequest;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramGuideType;
-import com.avereon.xenon.resource.type.ProgramWelcomeType;
-import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.*;
+import com.avereon.util.Log;
+import com.avereon.util.TestUtil;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.type.ProgramWelcomeType;
+import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEdge;
+import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import org.slf4j.Logger;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
  */
 class UiRegenerator {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private Program program;
 
@@ -99,13 +102,13 @@ class UiRegenerator {
 		}
 	}
 
-	void startResourceLoading() {
-		Collection<Resource> resources = tools.values().stream().map( Tool::getResource ).collect( Collectors.toList() );
+	void startAssetLoading() {
+		Collection<Asset> assets = tools.values().stream().map( Tool::getAsset ).collect( Collectors.toList() );
 		try {
-			program.getResourceManager().openResourcesAndWait( resources );
-			program.getResourceManager().loadResources( resources );
+			program.getAssetManager().openAssetsAndWait( assets );
+			program.getAssetManager().loadAssets( assets );
 		} catch( Exception exception ) {
-			program.getNoticeManager().error( exception );
+			log.log( Log.ERROR, exception );
 		}
 	}
 
@@ -119,8 +122,7 @@ class UiRegenerator {
 		workarea.setName( "Default" );
 		workspace.setActiveWorkarea( workarea );
 
-		program.getResourceManager().open( ProgramGuideType.URI );
-		program.getResourceManager().open( ProgramWelcomeType.URI );
+		if( !TestUtil.isTest() ) program.getAssetManager().openAsset( ProgramWelcomeType.URI );
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
@@ -186,11 +188,11 @@ class UiRegenerator {
 					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
 					nodes.add( edge );
 				} else {
-					log.debug( "Removing invalid workpane edge settings: " + settings.getName() );
+					log.log( Log.DEBUG,  "Removing invalid workpane edge settings: " + settings.getName() );
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.warn( "Error linking edge: " + edge.getEdgeId(), exception );
+				log.log( Log.WARN,  "Error linking edge: " + edge.getEdgeId(), exception );
 				return;
 			}
 		}
@@ -204,11 +206,11 @@ class UiRegenerator {
 					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
 					nodes.add( view );
 				} else {
-					log.debug( "Removing invalid workpane edge settings: " + settings.getName() );
+					log.log( Log.DEBUG,  "Removing invalid workpane edge settings: " + settings.getName() );
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.warn( "Error linking view: " + view.getViewId(), exception );
+				log.log( Log.WARN,  "Error linking view: " + view.getViewId(), exception );
 				return;
 			}
 		}
@@ -301,7 +303,7 @@ class UiRegenerator {
 				Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
 
-				log.debug( "Tool restored: " + tool.getClass() + ": " + tool.getResource().getUri() );
+				log.log( Log.DEBUG,  "Tool restored: " + tool.getClass() + ": " + tool.getAsset().getUri() );
 			}
 		}
 
@@ -313,7 +315,7 @@ class UiRegenerator {
 	}
 
 	private void restoreWorkspace( String id ) {
-		log.debug( "Restoring workspace: " + id );
+		log.log( Log.DEBUG,  "Restoring workspace: " + id );
 		try {
 			Workspace workspace = new Workspace( program );
 
@@ -328,7 +330,7 @@ class UiRegenerator {
 
 			workspaces.put( id, workspace );
 		} catch( Exception exception ) {
-			log.error( "Error restoring workspace", exception );
+			log.log( Log.ERROR,  "Error restoring workspace", exception );
 		}
 	}
 
@@ -338,7 +340,7 @@ class UiRegenerator {
 
 		// If the workspace is not found, then the workarea is orphaned...delete the settings
 		if( workspace == null ) {
-			log.debug( "Removing orphaned workarea settings: " + id );
+			log.log( Log.DEBUG,  "Removing orphaned workarea settings: " + id );
 			program.getSettingsManager().getSettings( ProgramSettings.PANE, id ).delete();
 			settings.delete();
 			return;
@@ -357,7 +359,7 @@ class UiRegenerator {
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( workpane == null ) {
-				log.debug( "Removing orphaned workpane edge settings: " + id );
+				log.log( Log.DEBUG,  "Removing orphaned workpane edge settings: " + id );
 				settings.delete();
 				return;
 			}
@@ -368,7 +370,7 @@ class UiRegenerator {
 
 			edges.put( id, edge );
 		} catch( Exception exception ) {
-			log.error( "Error restoring workpane", exception );
+			log.log( Log.ERROR,  "Error restoring workpane", exception );
 		}
 	}
 
@@ -380,7 +382,7 @@ class UiRegenerator {
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( workpane == null ) {
-				log.debug( "Removing orphaned workpane view settings: " + id );
+				log.log( Log.DEBUG,  "Removing orphaned workpane view settings: " + id );
 				settings.delete();
 				return;
 			}
@@ -390,36 +392,37 @@ class UiRegenerator {
 
 			views.put( id, view );
 		} catch( Exception exception ) {
-			log.error( "Error restoring workpane", exception );
+			log.log( Log.ERROR,  "Error restoring workpane", exception );
 		}
 	}
 
 	private void restoreWorktool( String id ) {
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, id );
-		String toolType = settings.get( "type" );
-		URI uri = settings.get( "uri", URI.class );
+		String toolType = settings.get( Tool.SETTINGS_TYPE_KEY );
+		URI uri = settings.get( Asset.SETTINGS_URI_KEY, URI.class );
+		String assetTypeKey = settings.get( Asset.SETTINGS_TYPE_KEY );
+		AssetType assetType = assetTypeKey == null ? null : program.getAssetManager().getAssetType( assetTypeKey );
 		WorkpaneView view = views.get( settings.get( UiFactory.PARENT_WORKPANEVIEW_ID ) );
 
 		try {
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uri == null ) {
-				log.warn( "Removing orphaned tool: " + "id=" + id + " type=" + toolType );
+				log.log( Log.WARN,  "Removing orphaned tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();
 				return;
 			}
 
-			// Create the open resource request
-			OpenResourceRequest openResourceRequest = new OpenResourceRequest().setUri( uri );
+			// Create the open asset request
+			OpenAssetRequest openAssetRequest = new OpenAssetRequest();
 
 			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( openResourceRequest );
-			openToolRequest.setResource( program.getResourceManager().createResource( uri ) );
-			openToolRequest.setId( id );
+			OpenToolRequest openToolRequest = new OpenToolRequest( openAssetRequest ).setId( id );
+			openToolRequest.setAsset( program.getAssetManager().createAsset( assetType, uri ) );
 
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
 			if( tool == null ) {
-				log.warn( "Removing unknown tool: " + "id=" + id + " type=" + toolType );
+				log.log( Log.WARN,  "Removing unknown tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();
 				return;
 			}
@@ -429,7 +432,7 @@ class UiRegenerator {
 
 			tools.put( tool.getUid(), tool );
 		} catch( Exception exception ) {
-			log.error( "Error restoring tool: type=" + toolType, exception );
+			log.log( Log.ERROR,  "Error restoring tool: type=" + toolType, exception );
 		}
 	}
 

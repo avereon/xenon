@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.SettingsListener;
+import com.avereon.event.EventHandler;
+import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
 import javafx.scene.layout.GridPane;
@@ -8,7 +9,7 @@ import javafx.scene.layout.GridPane;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class SettingEditor implements SettingsListener {
+public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 
 	private static Map<String, Class<? extends SettingEditor>> editors;
 

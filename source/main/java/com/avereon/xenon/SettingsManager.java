@@ -4,31 +4,28 @@ import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.settings.SettingsListener;
 import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
-import com.avereon.xenon.event.SettingsLoadedEvent;
-import com.avereon.xenon.event.SettingsSavedEvent;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
+import com.avereon.xenon.util.ProgramEventHub;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingsManager implements Controllable<SettingsManager> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private static final String ROOT = "settings";
 
@@ -38,7 +35,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private SettingsListener settingsWatcher;
+	private ProgramEventHub eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -50,12 +47,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
-		this.settingsWatcher = new SettingsWatcher( program );
+		this.eventBus = new ProgramEventHub();
+
+		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
 	}
 
 	public Settings getSettings( String path ) {
 		Settings settings = this.settings.getNode( path );
-		settings.addSettingsListener( settingsWatcher );
+		//settings.addSettingsListener( e -> eventBus.dispatch( e ) );
 		return settings;
 	}
 
@@ -81,14 +80,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			pages = new SettingsPageParser( product, settings ).parse( path );
 			addSettingsPages( pages );
 		} catch( IOException exception ) {
-			log.error( "Error loading settings page: " + path, exception );
+			log.log( Log.ERROR,  "Error loading settings page: " + path, exception );
 		}
 		return pages;
 	}
 
 	public void addSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.debug( "Adding settings pages..." );
+			log.log( Log.DEBUG,  "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -101,7 +100,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.debug( "Removing settings pages..." );
+			log.log( Log.DEBUG,  "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				rootSettingsPages.remove( page.getId() );
@@ -122,14 +121,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	private void updateSettingsGuide() {
 		Map<String, SettingsPage> pages = Collections.unmodifiableMap( rootSettingsPages );
 
-		// Get the settings program resource
+		// Get the settings program asset
 		try {
 			guide.setSelectionMode( SelectionMode.MULTIPLE );
 
 			// Create the guide tree
 			createGuide( guide.getRoot(), pages );
 		} catch( Exception exception ) {
-			log.error( "Error getting settings resource", exception );
+			log.log( Log.ERROR,  "Error getting settings asset", exception );
 		}
 	}
 
@@ -183,22 +182,22 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-//	@Override
-//	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
-//
-//	@Override
-//	public SettingsManager restart() {
-//		stop();
-//		start();
-//		return this;
-//	}
-//
-//	@Override
-//	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
+	//	@Override
+	//	public SettingsManager awaitStart( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
+	//
+	//	@Override
+	//	public SettingsManager restart() {
+	//		stop();
+	//		start();
+	//		return this;
+	//	}
+	//
+	//	@Override
+	//	public SettingsManager awaitRestart( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
 
 	@Override
 	public SettingsManager stop() {
@@ -206,37 +205,13 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return this;
 	}
 
-//	@Override
-//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
-//		return this;
-//	}
+	//	@Override
+	//	public SettingsManager awaitStop( long timeout, TimeUnit unit ) throws InterruptedException {
+	//		return this;
+	//	}
 
-	private static class SettingsWatcher implements SettingsListener {
-
-		private Program program;
-
-		private SettingsWatcher( Program program ) {
-			this.program = program;
-		}
-
-		@Override
-		public void handleEvent( SettingsEvent event ) {
-			String message = event.getPath();
-			switch( event.getType() ) {
-				case LOADED: {
-					program.fireEvent( new SettingsLoadedEvent( this, message ) );
-					break;
-				}
-				case SAVED: {
-					program.fireEvent( new SettingsSavedEvent( this, message ) );
-					break;
-				}
-				case CHANGED: {
-					log.trace( "Setting changed: " + event.getPath() + ":" + event.getKey() + "=" + event.getNewValue() );
-				}
-			}
-		}
-
+	public ProgramEventHub getEventBus() {
+		return eventBus;
 	}
 
 }

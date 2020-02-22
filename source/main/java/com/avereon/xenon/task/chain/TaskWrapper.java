@@ -16,12 +16,13 @@ class TaskWrapper<P, R> extends Task<R> {
 	private Exception priorException;
 
 	public TaskWrapper( Task<R> task ) {
-		this.task = task;
+		this( task.getName(), task );
 	}
 
 	public TaskWrapper( String name, Task<R> task ) {
 		super( name );
 		this.task = task;
+		setPriority( task.getPriority() );
 	}
 
 	public Program getProgram() {
@@ -65,6 +66,11 @@ class TaskWrapper<P, R> extends Task<R> {
 			if( link.getNext() != null ) link.failure( getProgram(), link.getNext().getTask(), throwable );
 			return null;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Chained " + task.getName();
 	}
 
 }

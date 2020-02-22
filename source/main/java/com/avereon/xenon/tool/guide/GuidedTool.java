@@ -1,18 +1,17 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.resource.Resource;
-import com.avereon.xenon.resource.type.ProgramGuideType;
-import com.avereon.xenon.tool.ProgramTool;
-import com.avereon.xenon.workarea.ToolException;
+import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.type.ProgramGuideType;
+import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
-import org.slf4j.Logger;
+import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 
 public abstract class GuidedTool extends ProgramTool {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	protected static final String GUIDE_SELECTED_IDS = "guide-selected-ids";
 
@@ -31,15 +30,15 @@ public abstract class GuidedTool extends ProgramTool {
 
 	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
 
-	public GuidedTool( ProgramProduct product, Resource resource ) {
-		super( product, resource );
+	public GuidedTool( ProgramProduct product, Asset asset ) {
+		super( product, asset );
 	}
 
 	@Override
-	public Set<URI> getResourceDependencies() {
-		Set<URI> resources = new HashSet<>();
-		resources.add( ProgramGuideType.URI );
-		return resources;
+	public Set<URI> getAssetDependencies() {
+		Set<URI> assets = new HashSet<>();
+		assets.add( ProgramGuideType.URI );
+		return assets;
 	}
 
 	@Override

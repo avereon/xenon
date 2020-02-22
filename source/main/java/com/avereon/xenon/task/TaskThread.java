@@ -7,7 +7,7 @@ final class TaskThread extends Thread {
 	TaskThread( TaskManager manager, ThreadGroup group, Runnable target, String name, long stackSize ) {
 		super( group, target, name, stackSize );
 		this.manager = manager;
-		manager.taskThreadEvent( this, TaskEvent.Type.THREAD_CREATE );
+		manager.getEventBus().dispatch( new TaskThreadEvent( manager, TaskThreadEvent.CREATE, this ) );
 	}
 
 	@Override
@@ -15,7 +15,7 @@ final class TaskThread extends Thread {
 		try {
 			super.run();
 		} finally {
-			manager.taskThreadEvent( this, TaskEvent.Type.THREAD_FINISH );
+			manager.getEventBus().dispatch( new TaskThreadEvent( manager, TaskThreadEvent.FINISH, this ) );
 		}
 	}
 

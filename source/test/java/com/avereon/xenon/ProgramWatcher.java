@@ -1,29 +1,30 @@
 package com.avereon.xenon;
 
-import com.avereon.product.ProductEvent;
-import com.avereon.product.ProductEventListener;
+import com.avereon.event.Event;
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventType;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
-public class ProgramWatcher implements ProductEventListener {
+public class ProgramWatcher implements EventHandler<Event> {
 
 	public static final long DEFAULT_WAIT_TIMEOUT = 10000;
 
-	private Queue<ProductEvent> events = new ConcurrentLinkedQueue<>();
+	private Queue<Event> events = new ConcurrentLinkedQueue<>();
 
 	@Override
-	public synchronized void handleEvent( ProductEvent event ) {
+	public synchronized void handle( Event event ) {
 		events.offer( event );
 		notifyAll();
 	}
 
-	public void waitForEvent( Class<? extends ProductEvent> type ) throws InterruptedException, TimeoutException {
+	public void waitForEvent( EventType<ProgramEvent> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
-	public void waitForNextEvent( Class<? extends ProductEvent> type ) throws InterruptedException, TimeoutException {
+	public void waitForNextEvent( EventType<ProgramEvent> type ) throws InterruptedException, TimeoutException {
 		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
@@ -37,7 +38,7 @@ public class ProgramWatcher implements ProductEventListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForEvent( Class<? extends ProductEvent> type, long timeout ) throws InterruptedException, TimeoutException {
+	public synchronized void waitForEvent( EventType<ProgramEvent> type, long timeout ) throws InterruptedException, TimeoutException {
 		boolean shouldWait = timeout > 0;
 		long start = System.currentTimeMillis();
 		long duration = 0;
@@ -49,7 +50,7 @@ public class ProgramWatcher implements ProductEventListener {
 		}
 		duration = System.currentTimeMillis() - start;
 
-		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type.getName() );
+		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type );
 	}
 
 	/**
@@ -61,15 +62,15 @@ public class ProgramWatcher implements ProductEventListener {
 	 * @param timeout How long, in milliseconds, to wait for the event
 	 * @throws InterruptedException If the timeout is exceeded
 	 */
-	public synchronized void waitForNextEvent( Class<? extends ProductEvent> type, long timeout ) throws InterruptedException, TimeoutException {
-		events.remove( type );
+	public synchronized void waitForNextEvent( EventType<ProgramEvent> type, long timeout ) throws InterruptedException, TimeoutException {
+		findNext( type );
 		waitForEvent( type, timeout );
 	}
 
-	private ProductEvent findNext( Class<? extends ProductEvent> type ) {
-		ProductEvent event;
+	private Event findNext( EventType<ProgramEvent> type ) {
+		Event event;
 		while( (event = events.poll()) != null ) {
-			if( event.getClass().isAssignableFrom( type ) ) return event;
+			if( event.getEventType() ==  type ) return event;
 		}
 		return null;
 	}

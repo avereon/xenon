@@ -1,16 +1,15 @@
 package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
-import com.avereon.util.LogUtil;
-import org.slf4j.Logger;
+import com.avereon.util.Log;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static Logger log = Log.get();
 
 	private Map<String, ActionProxy> actions;
 
@@ -41,6 +40,7 @@ public class ActionLibrary {
 		register( bundle, "delete" );
 		register( bundle, "indent" );
 		register( bundle, "unindent" );
+		register( bundle, "properties" );
 
 		register( bundle, "view" );
 		register( bundle, "workspace-new" );
@@ -90,7 +90,7 @@ public class ActionLibrary {
 
 	public ActionProxy getAction( String id ) {
 		ActionProxy proxy = actions.get( id );
-		if( proxy == null ) log.warn( "Action proxy not found: " + id );
+		if( proxy == null ) log.log( Log.WARN,  "Action proxy not found: " + id );
 		return proxy;
 	}
 
@@ -101,15 +101,28 @@ public class ActionLibrary {
 		String icon = bundle.textOr( BundleKey.ACTION, id + ".icon", "" );
 		String name = bundle.textOr( BundleKey.ACTION, id + ".name", id );
 		String type = bundle.textOr( BundleKey.ACTION, id + ".type", null );
-		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", String.valueOf( ActionProxy.NO_MNEMONIC ) );
+		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", null );
 		String shortcut = bundle.textOr( BundleKey.ACTION, id + ".shortcut", null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
 		proxy.setName( name );
 		proxy.setType( type );
-		proxy.setMnemonic( Integer.parseInt( mnemonic ) );
 		proxy.setShortcut( shortcut );
+		try {
+			proxy.setMnemonic( Integer.parseInt( mnemonic ) );
+		} catch( NumberFormatException exception ) {
+			proxy.setMnemonic( ActionProxy.NO_MNEMONIC );
+		}
+
+		if( "multi-state".equals( type ) ) {
+			String[] states = bundle.textOr( BundleKey.ACTION, id + ".states", "" ).split( "," );
+			for( String state : states ) {
+				String stateName = bundle.textOr( BundleKey.ACTION, id + "." + state + ".name", "" );
+				String stateIcon = bundle.textOr( BundleKey.ACTION, id + "." + state + ".icon", "" );
+				proxy.addState( state, stateName, stateIcon );
+			}
+		}
 
 		actions.put( id, proxy );
 	}

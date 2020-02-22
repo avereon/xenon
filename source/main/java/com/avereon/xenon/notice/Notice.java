@@ -1,14 +1,12 @@
 package com.avereon.xenon.notice;
 
 import com.avereon.util.HashUtil;
-import com.avereon.util.LogUtil;
-import com.avereon.xenon.node.Node;
+import com.avereon.util.Log;
+import com.avereon.data.Node;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.slf4j.Logger;
-
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
 
 public class Notice extends Node {
 
@@ -34,7 +32,7 @@ public class Notice extends Node {
 
 	}
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private static final String ID = "id";
 
@@ -87,10 +85,12 @@ public class Notice extends Node {
 		setValue( TITLE, title );
 		setValue( MESSAGE, message );
 		setValue( THROWABLE, throwable );
-		setValue( ACTION, action );
-		setValue( TYPE, Type.NORM );
 		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
 		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
+
+		setType( Type.NORM );
+		setAction( action );
+
 		setModified( false );
 	}
 
@@ -118,6 +118,11 @@ public class Notice extends Node {
 		return getValue( ACTION );
 	}
 
+	public Notice setAction( Runnable action ) {
+		setValue( ACTION, action );
+		return this;
+	}
+
 	public Type getType() {
 		return getValue( TYPE );
 	}
@@ -128,11 +133,11 @@ public class Notice extends Node {
 	}
 
 	public boolean isRead() {
-		return getFlag( READ );
+		return getValue( READ, false );
 	}
 
 	public Notice setRead( boolean read ) {
-		setFlag( READ, read );
+		setValue( READ, read );
 		return this;
 	}
 
@@ -153,18 +158,6 @@ public class Notice extends Node {
 
 	private String formatMessage( Object message, Throwable throwable ) {
 		String string = message == null ? null : getMessageStringContent();
-
-		switch( getType() ) {
-			case ERROR: {
-				log.error( string, throwable );
-				break;
-			}
-			case WARN: {
-				log.warn( string, throwable );
-				break;
-			}
-		}
-
 		if( string == null && throwable != null ) return throwable.getLocalizedMessage();
 		return string;
 	}

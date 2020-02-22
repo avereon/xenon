@@ -1,5 +1,6 @@
 package com.avereon.xenon.action;
 
+import com.avereon.util.Log;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import javafx.event.ActionEvent;
@@ -20,7 +21,7 @@ public class RestartAction extends Action {
 		try {
 			getProgram().requestRestart();
 		} catch( Throwable throwable ) {
-			log.error( "Error requesting restart", throwable );
+			log.log( Log.ERROR,  "Error requesting restart", throwable );
 		}
 	}
 

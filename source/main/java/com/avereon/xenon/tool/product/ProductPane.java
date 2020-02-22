@@ -1,7 +1,8 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
-import com.avereon.util.LogUtil;
+import com.avereon.util.Log;
+import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -9,23 +10,24 @@ import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.util.FxUtil;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.controlsfx.control.ToggleSwitch;
-import org.slf4j.Logger;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.System.Logger;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
 class ProductPane extends MigPane {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	private ProductTool tool;
 
@@ -61,19 +63,21 @@ class ProductPane extends MigPane {
 
 	private Button actionButton2;
 
+	private BooleanProperty selectedProperty;
+
 	ProductPane( ProductTool tool, ProductCard source, ProductCard update ) {
 		super( "insets 0, gap " + UiFactory.PAD + ", hidemode 3" );
 
 		this.tool = tool;
+		this.source = source;
 		this.program = tool.getProgram();
 		this.manager = program.getProductManager();
-		this.source = source;
+		this.selectedProperty = new SimpleBooleanProperty( true );
 		manager.setProductUpdate( source, update );
 
 		setId( "tool-product-artifact" );
 
-		String iconUri = source.getIconUri();
-		Node productIcon = program.getIconLibrary().getIcon( iconUri, "product", ProductTool.ICON_SIZE );
+		Node productIcon = program.getIconLibrary().getIcon( source.getIcons(), "product", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );
@@ -125,23 +129,35 @@ class ProductPane extends MigPane {
 		return manager.getProductUpdate( source );
 	}
 
-	boolean isSelected() {
-		// TODO Connect this method to an attribute
+	public boolean isSelected() {
 		return true;
 	}
 
-	void updateProductState() {
-		ProductCard update = getUpdate();
+	public void setSelected( boolean selected ) {
+		selectedProperty.set( selected );
+	}
 
+	public BooleanProperty selectedProperty() {
+		return selectedProperty;
+	}
+
+	void setProgress( double progress ) {
+		this.progress.setProgress( progress );
+	}
+
+	void updateProductState() {
 		boolean isProgram = program.getCard().equals( source );
-		boolean isEnabled = manager.isEnabled( source );
-		boolean isInstalled = manager.isInstalled( source );
+		boolean isEnabled = manager.isEnabled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
+		boolean isInstalled = manager.isInstalled( source ) || manager.getStatus( source ) == ProductStatus.INSTALLED;
 		boolean inProgress = manager.getStatus( source ) == ProductStatus.DOWNLOADING;
-		boolean isAnyUpdateStaged = manager.isUpdateStaged( source );
-		boolean isSpecificUpdateReleaseStaged = update != null && manager.isSpecificUpdateReleaseStaged( update );
+		boolean isDownloaded = manager.getStatus( source ) == ProductStatus.DOWNLOADED;
+		boolean isUpdateStaged = manager.isUpdateStaged( source );
 		boolean isInstalledProductsPanel = FxUtil.isChildOf( this, tool.getInstalledPage() );
 		boolean isAvailableProductsPanel = FxUtil.isChildOf( this, tool.getAvailablePage() );
 		boolean isUpdatableProductsPanel = FxUtil.isChildOf( this, tool.getUpdatesPage() );
+
+		ProductCard update = getUpdate();
+		boolean isSpecificUpdateReleaseStaged = update != null && manager.isSpecificUpdateReleaseStaged( update );
 
 		// Determine state string key
 		String stateLabelKey = "not-installed";
@@ -149,14 +165,18 @@ class ProductPane extends MigPane {
 			if( !isProgram && !isEnabled ) {
 				stateLabelKey = "disabled";
 			} else if( isUpdatableProductsPanel ) {
-				stateLabelKey = "available";
+				if( isDownloaded ) {
+					stateLabelKey = "restart-required";
+				} else {
+					stateLabelKey = "available";
+				}
 			} else if( isAvailableProductsPanel ) {
 				stateLabelKey = "installed";
 			} else {
 				stateLabelKey = "enabled";
 			}
 		}
-		if( isAnyUpdateStaged ) {
+		if( isUpdateStaged ) {
 			stateLabelKey = "restart-required";
 			if( update != null && !isSpecificUpdateReleaseStaged ) stateLabelKey = "update-available";
 		}
@@ -171,9 +191,9 @@ class ProductPane extends MigPane {
 
 		// Configure the action buttons
 		if( isInstalledProductsPanel ) {
-			enableSwitch.setVisible( true  );
+			enableSwitch.setVisible( true );
 			enableSwitch.setDisable( isProgram );
-			enableSwitch.setSelected( tool.getProgram().getProductManager().isEnabled( source ) );
+			enableSwitch.setSelected( isProgram || tool.getProgram().getProductManager().isEnabled( source ) );
 
 			actionButton1.setVisible( false );
 
@@ -204,55 +224,33 @@ class ProductPane extends MigPane {
 		}
 	}
 
-	private void setStatus( ProductStatus status ) {
+	void setStatus( ProductStatus status ) {
 		manager.setStatus( getSource(), status );
 		updateProductState();
 	}
 
-	private void toggleEnabled(boolean enabled) {
-		manager.setEnabled( source, enabled );
+	private void toggleEnabled( boolean enabled ) {
+		manager.setModEnabled( getSource(), enabled );
 		updateProductState();
 	}
 
 	private void installProduct() {
-		setStatus( ProductStatus.DOWNLOADING );
-		// TODO Get the download task and use it for product progress
-		program.getTaskManager().submit( Task.of( "Install product", () -> {
-			try {
-				manager.installProducts( source ).get();
-				Platform.runLater( () -> setStatus( ProductStatus.INSTALLED ) );
-				tool.getSelectedPage().updateState( false );
-			} catch( Exception exception ) {
-				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
-				ProductTool.log.warn( "Error installing product", exception );
-			}
-		} ) );
+		tool.getAvailablePage().installProducts( List.of( this ) );
 	}
 
-	void updateProduct() {
-		setStatus( ProductStatus.DOWNLOADING );
-		// TODO Get the download task and use it for product progress
-		program.getTaskManager().submit( Task.of( "Update product", () -> {
-			try {
-				manager.applySelectedUpdates( getUpdate() ).get();
-				Platform.runLater( () -> setStatus( ProductStatus.DOWNLOADED ) );
-				tool.getSelectedPage().updateState( false );
-			} catch( Exception exception ) {
-				Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
-				ProductTool.log.warn( "Error updating product", exception );
-			}
-		} ) );
+	private void updateProduct() {
+		tool.getUpdatesPage().updateProducts( List.of( this ) );
 	}
 
 	private void requestRemoveProduct() {
-		String modName = source.getName();
+		String modName = getSource().getName();
 
 		String title = program.rb().text( BundleKey.PRODUCT, "products" );
 		String header = program.rb().text( BundleKey.PRODUCT, "product-remove-header", modName );
 		String message = program.rb().text( BundleKey.PRODUCT, "product-remove-message" );
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO );
-		alert.setGraphic( program.getIconLibrary().getIcon( source.getIconUri(), 64 ) );
+		alert.setGraphic( program.getIconLibrary().getIcon( source.getIcons(), 64 ) );
 		alert.setTitle( title );
 		alert.setHeaderText( header );
 
@@ -268,7 +266,7 @@ class ProductPane extends MigPane {
 				manager.uninstallProducts( source ).get();
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.warn( "Error uninstalling product", exception );
+				ProductTool.log.log( Log.WARN,  "Error uninstalling product", exception );
 			}
 			Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );

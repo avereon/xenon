@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.product;
 
-import com.avereon.xenon.workarea.Workpane;
-import com.avereon.xenon.workarea.WorkpaneEvent;
+import com.avereon.xenon.workpane.ToolEvent;
+import com.avereon.xenon.workpane.Workpane;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,15 +17,15 @@ class ProductToolOpenTwiceUIT extends ProductToolUIT {
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-product" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( ProductTool.class ) );
 		assertThat( pane.getTools().size(), is( 2 ) );
 
 		// Try to open the tool again and make sure there is still only one
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-product" );
-		workpaneWatcher.waitForEvent( WorkpaneEvent.Type.TOOL_ACTIVATED );
+		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( pane.getTools().size(), is( 2 ) );
 	}
 

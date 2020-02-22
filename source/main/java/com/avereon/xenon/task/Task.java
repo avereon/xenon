@@ -1,12 +1,10 @@
 package com.avereon.xenon.task;
 
-import com.avereon.util.LogUtil;
-import org.slf4j.Logger;
+import com.avereon.util.Log;
+import com.avereon.xenon.util.ProgramEventHub;
+import java.lang.System.Logger;
 
-import java.lang.invoke.MethodHandles;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -22,7 +20,7 @@ import java.util.concurrent.FutureTask;
 
 public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
-	private static final Logger log = LogUtil.get( MethodHandles.lookup().lookupClass() );
+	private static final Logger log = Log.get();
 
 	public enum State {
 		READY,
@@ -39,6 +37,8 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		HIGH
 	}
 
+	public static final long INDETERMINATE = -1;
+
 	private final Object stateLock = new Object();
 
 	private State state = State.READY;
@@ -51,13 +51,15 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private Throwable throwable;
 
-	private Set<TaskListener> listeners;
+	private ProgramEventHub eventBus;
 
 	private TaskManager manager;
 
-	private long total = 1;
+	private long total = INDETERMINATE;
 
 	private long progress;
+
+	private Priority processedPriority;
 
 	public Task() {
 		this( null );
@@ -75,15 +77,15 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		super( taskCallable );
 		this.name = name;
 		this.priority = priority;
-		exceptionSource = new TaskSourceWrapper();
-		listeners = new CopyOnWriteArraySet<>();
+		exceptionSource = new TaskException();
+		eventBus = new ProgramEventHub();
 		taskCallable.setCallable( this );
 	}
 
 	@Override
 	public void run() {
 		setState( Task.State.RUNNING );
-		fireTaskEvent( TaskEvent.Type.TASK_START );
+		eventBus.dispatch( new TaskEvent( this, TaskEvent.START, this ) );
 		super.run();
 	}
 
@@ -104,12 +106,22 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return priority;
 	}
 
-	public void setPriority( Priority priority ) {
+	public Task<R> setPriority( Priority priority ) {
 		this.priority = priority;
+		return this;
 	}
 
 	public double getPercent() {
-		return Math.min( 1.0, (double)progress / (double)total );
+		if( total == INDETERMINATE ) return INDETERMINATE;
+		return Math.max( 0.0, Math.min( 1.0, (double)progress / (double)total ) );
+	}
+
+	public Priority getProcessedPriority() {
+		return processedPriority;
+	}
+
+	void setProcessedPriority( Priority processedPriority ) {
+		this.processedPriority = processedPriority;
 	}
 
 	public long getTotal() {
@@ -120,12 +132,13 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return progress;
 	}
 
-	public void addTaskListener( TaskListener listener ) {
-		listeners.add( listener );
+	public ProgramEventHub getEventBus() {
+		return eventBus;
 	}
 
-	public void removeTaskListener( TaskListener listener ) {
-		listeners.remove( listener );
+	@Override
+	public String toString() {
+		return super.toString() + ": " + getName();
 	}
 
 	public static <N> Task<N> of( String name, Callable<N> callable ) {
@@ -143,7 +156,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	public static Task<?> of( String name, Runnable runnable ) {
 		if( runnable == null ) throw new NullPointerException( "Runnable cannot be null" );
 
-		return new Task( name ) {
+		return new Task<Void>( name ) {
 
 			@Override
 			public Void call() {
@@ -171,8 +184,24 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	@Override
 	protected void done() {
 		setProgress( getTotal() );
-		fireTaskEvent( TaskEvent.Type.TASK_FINISH );
 		if( isCancelled() ) setState( Task.State.CANCELLED );
+
+		switch( getState() ) {
+			case SUCCESS: {
+				eventBus.dispatch( new TaskEvent( this, TaskEvent.SUCCESS, this ) );
+				break;
+			}
+			case CANCELLED: {
+				eventBus.dispatch( new TaskEvent( this, TaskEvent.CANCEL, this ) );
+				break;
+			}
+			case FAILED: {
+				eventBus.dispatch( new TaskEvent( this, TaskEvent.FAILURE, this ) );
+				break;
+			}
+		}
+		eventBus.dispatch( new TaskEvent( this, TaskEvent.FINISH, this ) );
+
 		setTaskManager( null );
 		super.done();
 	}
@@ -200,13 +229,13 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return throwable;
 	}
 
-	protected void setTotal( long max ) {
-		this.total = max;
+	protected void setTotal( long total ) {
+		this.total = total;
 	}
 
 	protected void setProgress( long progress ) {
 		this.progress = progress;
-		fireTaskEvent( TaskEvent.Type.TASK_PROGRESS );
+		eventBus.dispatch( new TaskEvent( this, TaskEvent.PROGRESS, this ) );
 	}
 
 	protected void scheduled() {}
@@ -218,12 +247,12 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	protected void cancelled() {}
 
 	protected void failed() {
-		log.error( "Task failed", getException() );
+		TaskManager manager = getTaskManager();
+		if( manager != null ) manager.taskFailed( this, getException() );
 	}
 
 	void setTaskManager( TaskManager manager ) {
 		this.manager = manager;
-		if( manager != null ) fireTaskEvent( TaskEvent.Type.TASK_SUBMITTED );
 	}
 
 	void setState( State state ) {
@@ -260,19 +289,13 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return manager;
 	}
 
-	private void fireTaskEvent( TaskEvent.Type type ) {
-		TaskEvent event = new TaskEvent( this, this, type );
-		if( getTaskManager() != null ) event.fire( getTaskManager().getTaskListeners() );
-		event.fire( listeners );
-	}
-
 	private static class TaskCallable<T> implements Callable<T> {
 
 		private Callable<T> callable;
 
-		TaskCallable() {}
+		private TaskCallable() {}
 
-		void setCallable( Callable<T> callable ) {
+		private void setCallable( Callable<T> callable ) {
 			this.callable = callable;
 		}
 
