@@ -9,7 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 public class AssetWatcher implements EventHandler<AssetEvent> {
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
+	private static final long DEFAULT_WAIT_TIMEOUT = 2500;
 
 	private Map<EventType<? extends AssetEvent>, AssetEvent> events = new ConcurrentHashMap<>();
 
@@ -21,11 +21,6 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 
 	public void waitForEvent( EventType<AssetEvent> type ) throws InterruptedException, TimeoutException {
 		waitForEvent( type, DEFAULT_WAIT_TIMEOUT );
-	}
-
-	@SuppressWarnings( "unused" )
-	public void waitForNextEvent( EventType<AssetEvent> type ) throws InterruptedException, TimeoutException {
-		waitForNextEvent( type, DEFAULT_WAIT_TIMEOUT );
 	}
 
 	/**
@@ -51,21 +46,6 @@ public class AssetWatcher implements EventHandler<AssetEvent> {
 		duration = System.currentTimeMillis() - start;
 
 		if( duration >= timeout ) throw new TimeoutException( "Timeout waiting for event " + type.getName() );
-	}
-
-	/**
-	 * Wait for the next event of a specific class to occur. This method always
-	 * waits until the next event occurs, or the specified timeout, whichever
-	 * comes first.
-	 *
-	 * @param type The event class to wait for
-	 * @param timeout How long, in milliseconds, to wait for the event
-	 * @throws InterruptedException If the timeout is exceeded
-	 */
-	@SuppressWarnings( "SameParameterValue" )
-	private synchronized void waitForNextEvent( EventType<AssetEvent> type, long timeout ) throws InterruptedException, TimeoutException {
-		events.remove( type );
-		waitForEvent( type, timeout );
 	}
 
 }
