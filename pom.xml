@@ -86,25 +86,25 @@
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zevra</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>venza</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>rossa</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
@@ -268,7 +268,7 @@
 			<plugin>
 				<groupId>com.avereon</groupId>
 				<artifactId>cameo</artifactId>
-				<version>2.5-SNAPSHOT</version>
+				<version>2.5</version>
 				<executions>
 					<execution>
 						<id>render-images</id>
@@ -431,7 +431,7 @@
 					<plugin>
 						<groupId>com.avereon</groupId>
 						<artifactId>curex</artifactId>
-						<version>1.0-SNAPSHOT</version>
+						<version>1.0</version>
 						<executions>
 							<execution>
 								<id>patch-dependencies</id>
