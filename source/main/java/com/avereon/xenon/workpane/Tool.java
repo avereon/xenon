@@ -78,7 +78,7 @@ public abstract class Tool extends Control {
 		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Platform.runLater( () -> getWorkpane().setActiveTool( this ) ) );
 	}
 
-	public Asset getAsset() {
+	public final Asset getAsset() {
 		return asset;
 	}
 
@@ -215,7 +215,11 @@ public abstract class Tool extends Control {
 	}
 
 	public void close() {
-		Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
+		doClose();
+	}
+
+	private void doClose() {
+		if( getWorkpane() != null ) Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
 	}
 
 	@SuppressWarnings( { "MethodDoesntCallSuperMethod" } )
@@ -411,7 +415,7 @@ public abstract class Tool extends Control {
 		@Override
 		public void handle( AssetEvent event ) {
 			if( event.getEventType() == AssetEvent.REFRESHED ) Tool.this.callAssetRefreshed();
-			if( event.getEventType() == AssetEvent.CLOSED ) Tool.this.close();
+			if( event.getEventType() == AssetEvent.CLOSED ) Tool.this.doClose();
 		}
 
 	}

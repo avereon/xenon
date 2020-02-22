@@ -254,7 +254,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public AssetType getAssetType( String key ) {
 		AssetType type = assetTypesByTypeKey.get( key );
-		if( type == null ) log.log( Log.WARN,  "Asset type not found: " + key );
+		if( type == null ) log.log( Log.WARN, "Asset type not found: " + key );
 		return type;
 	}
 
@@ -583,19 +583,19 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public void close( Asset asset ) {
 		if( asset.isModified() && canSaveAsset( asset ) ) {
-			Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
-			alert.setTitle( program.rb().text( "asset", "close-save-title" ) );
-			alert.setHeaderText( program.rb().text( "workarea", "close-save-message" ) );
-			alert.setContentText( program.rb().text( "asset", "close-save-prompt" ) );
-			alert.getButtonTypes().addAll( ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
+			alert.setTitle( program.rb().text( BundleKey.ASSET, "close-save-title" ) );
+			alert.setHeaderText( program.rb().text( BundleKey.ASSET, "close-save-message" ) );
+			alert.setContentText( program.rb().text( BundleKey.ASSET, "close-save-prompt" ) );
 
 			Stage stage = program.getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			if( result.isPresent() && result.get() != ButtonType.YES ) return;
+			if( result.isPresent() && result.get() == ButtonType.YES ) saveAsset( asset, null, false, false );
+			if( result.isEmpty() || result.get() == ButtonType.CANCEL ) return;
 		}
 
-		saveAsset( asset, null, false, false );
+		closeAssets( asset );
 	}
 
 	public Asset createAsset( Object descriptor ) throws AssetException {
@@ -1065,7 +1065,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			Codec codec = asset.getCodec();
 			result = scheme.canSave( asset ) && (codec == null || codec.canSave());
 		} catch( AssetException exception ) {
-			log.log( Log.ERROR,  "Error checking if asset can be saved", exception );
+			log.log( Log.ERROR, "Error checking if asset can be saved", exception );
 		}
 
 		return result;
@@ -1090,9 +1090,9 @@ public class AssetManager implements Controllable<AssetManager> {
 			Scheme scheme = getScheme( uri.getScheme() );
 			asset.setScheme( scheme );
 			scheme.init( asset );
-			log.log( Log.TRACE,  "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
+			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {
-			log.log( Log.TRACE,  "Asset exists: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
+			log.log( Log.TRACE, "Asset exists: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		}
 
 		return asset;
@@ -1112,20 +1112,20 @@ public class AssetManager implements Controllable<AssetManager> {
 			codec = asset.getType().getDefaultCodec();
 			asset.setCodec( codec );
 		}
-		log.log( Log.TRACE,  "Asset codec: " + codec );
+		log.log( Log.TRACE, "Asset codec: " + codec );
 
 		// Create the asset settings
 		asset.setSettings( getAssetSettings( asset ) );
-		log.log( Log.TRACE,  "Asset settings: " + asset.getSettings().getPath() );
+		log.log( Log.TRACE, "Asset settings: " + asset.getSettings().getPath() );
 
 		// Initialize the asset.
 		if( !type.assetInit( program, asset ) ) return false;
-		log.log( Log.TRACE,  "Asset initialized with default values." );
+		log.log( Log.TRACE, "Asset initialized with default values." );
 
 		// If the asset is new get user input from the asset type.
 		if( asset.isNew() ) {
 			if( !type.assetUser( program, asset ) ) return false;
-			log.log( Log.TRACE,  "Asset initialized with user values." );
+			log.log( Log.TRACE, "Asset initialized with user values." );
 		}
 
 		// Open the asset.
@@ -1135,7 +1135,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAssets.add( asset );
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
-		log.log( Log.TRACE,  "Asset opened: " + asset );
+		log.log( Log.TRACE, "Asset opened: " + asset );
 
 		updateActionState();
 		return true;
@@ -1153,7 +1153,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		asset.load( this );
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
-		log.log( Log.TRACE,  "Asset loaded: " + asset );
+		log.log( Log.TRACE, "Asset loaded: " + asset );
 
 		updateActionState();
 		return true;
@@ -1172,7 +1172,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// TODO Update the asset type.
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, asset ) );
-		log.log( Log.TRACE,  "Asset saved: " + asset );
+		log.log( Log.TRACE, "Asset saved: " + asset );
 
 		updateActionState();
 		return true;
@@ -1194,7 +1194,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		//		if( settings != null ) settings.delete();
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, asset ) );
-		log.log( Log.TRACE,  "Asset closed: " + asset );
+		log.log( Log.TRACE, "Asset closed: " + asset );
 
 		updateActionState();
 		return true;
@@ -1222,7 +1222,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 			// Notify program of current asset change.
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
-			log.log( Log.TRACE,  "Asset select: " + asset );
+			log.log( Log.TRACE, "Asset select: " + asset );
 		}
 
 		updateActionState();
@@ -1274,7 +1274,7 @@ public class AssetManager implements Controllable<AssetManager> {
 					asset.setMediaType( mediaType );
 					connection.getInputStream().close();
 				} catch( IOException exception ) {
-					log.log( Log.WARN,  "Error closing asset connection", exception );
+					log.log( Log.WARN, "Error closing asset connection", exception );
 				}
 			}
 		}
@@ -1294,7 +1294,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				firstLine = readFirstLine( connection.getInputStream(), encoding );
 				connection.getInputStream().close();
 			} catch( IOException exception ) {
-				log.log( Log.WARN,  "Error closing asset connection", exception );
+				log.log( Log.WARN, "Error closing asset connection", exception );
 			}
 		}
 

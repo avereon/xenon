@@ -50,12 +50,13 @@ public abstract class ProgramTool extends Tool {
 
 	@Override
 	public void close() {
-		Asset asset = getAsset();
-		if( asset.isNewOrModified() && !getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( asset ) ) ) return;
+		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getAsset() );
 
-		// NEXT #153 Handle closing asset when closing last asset tool
-
-		super.close();
+		if( tools.size() == 1 && tools.iterator().next() == this ) {
+			getProgram().getAssetManager().close( getAsset() );
+		} else if( getAsset().isNewOrModified() ) {
+			getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) );
+		}
 	}
 
 	protected void pushToolActions( String... actions ) {
