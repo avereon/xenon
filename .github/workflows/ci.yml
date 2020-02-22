@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
       - stable
   schedule:
     - cron: '0 12 * * *'
@@ -33,6 +31,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
