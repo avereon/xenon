@@ -345,6 +345,37 @@
 
 	<profiles>
 		<profile>
+			<id>screenshots</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.5.0</version>
+						<executions>
+							<execution>
+								<id>java</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/java</executable>
+									<arguments>
+										<argument>-cp</argument>
+										<argument>${build.outputDirectory}</argument>
+										<argument>com.avereon.xenon.Screenshots</argument>
+<!--										<target>${images-folder}-->
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>testui</id>
 			<build>
 				<plugins>
