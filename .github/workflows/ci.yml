@@ -75,7 +75,7 @@ jobs:
 
       - name: Deploy Arifacts
         run: |
-          mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
+          mvn ${{env.MAVEN_PARMS}} -Pscreenshots deploy -Dmaven.test.skip=true
 
       - name: Post Product Icon
         run: |
