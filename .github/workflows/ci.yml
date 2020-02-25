@@ -85,9 +85,9 @@ jobs:
 
       - name: Post Screenshots
         run: |
-          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/client/screenshot;"
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/client/screenshots;"
           if [ $? -ne 0 ]; then exit 1; fi
-          scp -B target/screenshots/*.png ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/client/screenshot/ 2>&1
+          scp -B target/screenshots/*.png ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/client/screenshots/ 2>&1
 
       - name: Post JavaDoc
         run: |
