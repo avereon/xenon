@@ -77,7 +77,19 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
 
-      - name: Deploy JavaDoc
+      - name: Post Product Icon
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
+
+      - name: Post Screenshots
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/client/screenshot;"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/screenshots/*.png ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/client/screenshot/ 2>&1
+
+      - name: Post JavaDoc
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
           if [ $? -ne 0 ]; then exit 1; fi
@@ -85,12 +97,6 @@ jobs:
           if [ $? -ne 0 ]; then exit 1; fi
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
-
-      - name: Deploy Product Icon
-        run: |
-          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
-          if [ $? -ne 0 ]; then exit 1; fi
-          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
 
   linux:
     needs: build
@@ -148,15 +154,15 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Install Pack
+      - name: Post Install Pack
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Pack
+      - name: Post Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Card
+      - name: Post Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
@@ -216,15 +222,15 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Install Pack
+      - name: Post Install Pack
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Pack
+      - name: Post Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Card
+      - name: Post Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
@@ -285,17 +291,17 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Install Pack
+      - name: Post Install Pack
         shell: bash
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Pack
+      - name: Post Product Pack
         shell: bash
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Card
+      - name: Post Product Card
         shell: bash
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1

@@ -86,25 +86,25 @@
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zevra</artifactId>
-			<version>0.2</version>
+			<version>0.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>venza</artifactId>
-			<version>0.1</version>
+			<version>0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>rossa</artifactId>
-			<version>0.1</version>
+			<version>0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
-			<version>0.2</version>
+			<version>0.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -351,26 +351,43 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.5.0</version>
+						<version>1.6.0</version>
 						<executions>
 							<execution>
-								<id>java</id>
+								<id>screenshots2</id>
 								<phase>package</phase>
 								<goals>
 									<goal>exec</goal>
 								</goals>
 								<configuration>
-									<executable>${java.home}/bin/java</executable>
+									<executable>java</executable>
+									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-cp</argument>
-										<argument>${build.outputDirectory}</argument>
-										<argument>com.avereon.xenon.Screenshots</argument>
-<!--										<target>${images-folder}-->
+										<argument>-p</argument>
+										<modulepath/>
+										<argument>-m</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>screenshots1</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<classpathScope>runtime</classpathScope>
+									<arguments>
+										<argument>-p</argument>
+										<modulepath/>
+										<argument>-m</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
 									</arguments>
 								</configuration>
 							</execution>
 						</executions>
-
 					</plugin>
 				</plugins>
 			</build>
@@ -497,7 +514,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.5.0</version>
+						<version>1.6.0</version>
 						<executions>
 							<execution>
 								<id>jlink</id>

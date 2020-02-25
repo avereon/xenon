@@ -846,7 +846,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	protected boolean isEnabled() {
-		return !getProgram().getParameters().getNamed().containsKey( ProgramFlag.NOUPDATE );
+		return !getProgram().getProgramParameters().isTrue( ProgramFlag.NOUPDATE );
 	}
 
 	@Override

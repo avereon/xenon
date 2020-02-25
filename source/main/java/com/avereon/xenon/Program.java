@@ -241,7 +241,7 @@ public class Program extends Application implements ProgramProduct {
 		}
 		time( "peer-check" );
 
-		// NOTE At this point we know we are a host not a peer
+		// NOTE At this point this instance is a host not a peer
 
 		// If this instance is a host, process the control commands before showing the splash screen
 		if( processCliActions( getProgramParameters(), true ) ) {
@@ -651,7 +651,7 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// The workspaceManager can be null if the program is already running as a peer
-		if( workspaceManager != null ) workspaceManager.hideWindows();
+		if( workspaceManager != null ) Platform.runLater( () -> workspaceManager.hideWindows() );
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 

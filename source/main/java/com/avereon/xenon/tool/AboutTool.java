@@ -13,7 +13,6 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -491,8 +490,8 @@ public class AboutTool extends GuidedTool {
 		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n" );
 
 		// Program commands
-		Application.Parameters parameters = program.getParameters();
-		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n" );
+		Parameters parameters = program.getProgramParameters();
+		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getOriginalCommands(), " " ) ).append( "\n" );
 
 		return builder.toString();
 	}
