@@ -9,7 +9,9 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.Release;
 import com.avereon.rossa.icon.*;
 import com.avereon.settings.Settings;
+import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
@@ -31,7 +33,6 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.venza.event.FxEventHub;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -271,8 +272,11 @@ public class Program extends Application implements ProgramProduct {
 		time( "uncaught-exception-handler" );
 
 		// This must be set before the splash screen is shown
-		setUserAgentStylesheet( STYLESHEET_MODENA );
-		time( "stylesheet" );
+		setTheme( programSettings.get( "workspace-theme-name" ) );
+		getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+			if( "workspace-theme-name".equals( e.getKey() ) ) getProgram().setTheme( (String)e.getNewValue() );
+		} );
+		time( "theme" );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
@@ -781,6 +785,12 @@ public class Program extends Application implements ProgramProduct {
 
 	public <T extends Event> EventHub unregister( EventType<? super T> type, EventHandler<? super T> handler ) {
 		return fxEventHub.unregister( type, handler );
+	}
+
+	public void setTheme( String key ) {
+		Path path = getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
+		if( Files.notExists( path ) ) path = getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
+		Application.setUserAgentStylesheet( Files.exists( path ) ? path.toUri().toString() : "MODENA" );
 	}
 
 	FxEventHub getFxEventHub() {

@@ -356,7 +356,7 @@
 
 .tool-tab {
 	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
-	-fx-background-color: -ex-background-tabs;
+	-fx-background-color: -ex-background-text;
 }
 
 .tool-tab:hover {
@@ -366,7 +366,7 @@
 .tool-tab:selected {
 	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
 	-fx-border-width: 0 0 0.5mm 0;
-	-fx-border-color: -fx-selection-bar-non-focused;
+	-fx-border-color: -fx-faint-focus-color;
 	-fx-background-color: -ex-background-tags;
 }
 
@@ -377,12 +377,12 @@
 .tool-pane:active .tool-tab:selected {
 	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
 	-fx-border-width: 0 0 0.5mm 0;
-	-fx-border-color: derive(-fx-selection-bar, 20%);
+	-fx-border-color: derive(-fx-focus-color, 20%);
 	-fx-background-color: -ex-background-note;
 }
 
 .tool-pane:active .tool-tab:selected:hover {
-	-fx-border-color: derive(-fx-selection-bar, 40%);
+	-fx-border-color: derive(-fx-focus-color, 40%);
 	-fx-background-color: -ex-background-note;
 }
 
