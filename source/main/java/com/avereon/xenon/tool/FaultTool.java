@@ -30,7 +30,7 @@ public class FaultTool extends ProgramTool {
 
 		getChildren().addAll( text );
 
-		getProgram().getEventBus().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> {
+		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> {
 			// Tasks have to finish before the program exists so this ensures the tool will close
 			getProgram().getTaskManager().submit( Task.of( "", this::close ) );
 		} );
@@ -50,7 +50,7 @@ public class FaultTool extends ProgramTool {
 
 	@Override
 	protected void deallocate() {
-		getProgram().getEventBus().unregister( ProgramEvent.STOPPING, closingHandler );
+		getProgram().unregister( ProgramEvent.STOPPING, closingHandler );
 	}
 
 }

@@ -1,7 +1,7 @@
 package com.avereon.xenon.task;
 
 import com.avereon.util.Log;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 import java.lang.System.Logger;
 
 import java.util.concurrent.Callable;
@@ -51,7 +51,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private Throwable throwable;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private TaskManager manager;
 
@@ -78,7 +78,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		this.name = name;
 		this.priority = priority;
 		exceptionSource = new TaskException();
-		eventBus = new ProgramEventHub();
+		eventBus = new FxEventHub();
 		taskCallable.setCallable( this );
 	}
 
@@ -132,7 +132,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return progress;
 	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 

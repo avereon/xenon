@@ -50,6 +50,7 @@ public class UiFactory {
 		settings.set( "h", DEFAULT_HEIGHT );
 
 		Workspace workspace = new Workspace( program );
+		workspace.getEventBus().parent( program.getFxEventHub() );
 		workspace.setSettings( settings );
 		return workspace;
 	}

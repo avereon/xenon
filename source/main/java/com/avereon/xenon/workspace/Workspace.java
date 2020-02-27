@@ -13,7 +13,7 @@ import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
@@ -57,7 +57,7 @@ public class Workspace implements Configurable {
 
 	private boolean active;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private StackPane workspaceStack;
 
@@ -123,8 +123,7 @@ public class Workspace implements Configurable {
 
 	public Workspace( final Program program ) {
 		this.program = program;
-		this.eventBus = new ProgramEventHub();
-		this.eventBus.parent( program.getEventBus() );
+		this.eventBus = new FxEventHub();
 
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
@@ -176,7 +175,7 @@ public class Workspace implements Configurable {
 		} );
 	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 

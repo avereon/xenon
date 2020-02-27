@@ -3,7 +3,7 @@ package com.avereon.xenon.task;
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 import java.lang.System.Logger;
 
 import java.util.ArrayList;
@@ -54,13 +54,13 @@ public class TaskManager implements Controllable<TaskManager> {
 
 	private Queue<Task<?>> taskQueue;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	public TaskManager() {
 		taskMap = new ConcurrentHashMap<>();
 		taskQueue = new ConcurrentLinkedQueue<>();
 		group = new ThreadGroup( getClass().getName() );
-		eventBus = new ProgramEventHub();
+		eventBus = new FxEventHub();
 		setMaxThreadCount( DEFAULT_MAX_THREAD_COUNT );
 	}
 
@@ -131,7 +131,7 @@ public class TaskManager implements Controllable<TaskManager> {
 		return this;
 	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 

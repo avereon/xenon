@@ -29,6 +29,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Workspace activeWorkspace;
 
+	private boolean uiReady;
+
 	WorkspaceManager( Program program ) {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
@@ -79,8 +81,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 		activeWorkspace = null;
 		workspaces.clear();
+		setUiReady( false );
 
 		return this;
+	}
+
+	public boolean isUiReady() {
+		return uiReady;
+	}
+
+	void setUiReady( boolean uiReady ) {
+		this.uiReady = uiReady;
 	}
 
 	//	@Override
@@ -128,15 +139,14 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace getActiveWorkspace() {
+		if( activeWorkspace == null && workspaces.size() > 0 ) setActiveWorkspace( workspaces.iterator().next() );
 		if( activeWorkspace != null ) return activeWorkspace;
-		if( workspaces.size() > 0 ) return workspaces.iterator().next();
-		throw new IllegalStateException( "No workspaces exist" );
+		throw new IllegalStateException( "No workspaces available" );
 	}
 
 	public Stage getActiveStage() {
-		if( activeWorkspace != null ) return activeWorkspace.getStage();
-		if( workspaces.size() > 0 ) return workspaces.iterator().next().getStage();
-		throw new IllegalStateException( "No available stage" );
+		if( activeWorkspace != null ) return getActiveWorkspace().getStage();
+		throw new IllegalStateException( "No workspace stages available" );
 	}
 
 	public Set<Tool> getAssetTools( Asset asset ) {

@@ -1,6 +1,9 @@
 package com.avereon.xenon;
 
 import com.avereon.event.Event;
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
+import com.avereon.event.EventType;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Release;
@@ -28,7 +31,7 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -119,7 +122,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private ProgramEventWatcher watcher;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub fxEventHub;
 
 	private CloseWorkspaceAction closeAction;
 
@@ -175,7 +178,7 @@ public class Program extends Application implements ProgramProduct {
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Create the event hub
-		eventBus = new ProgramEventHub();
+		fxEventHub = new FxEventHub();
 
 		// Load the product card
 		card = new ProductCard().init( getClass() );
@@ -322,11 +325,11 @@ public class Program extends Application implements ProgramProduct {
 		time( "do-startup-tasks" );
 
 		// Create the program event watcher, depends on logging
-		getEventBus().register( Event.ANY, watcher = new ProgramEventWatcher() );
+		getFxEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
 		time( "event-hub" );
 
 		// Fire the program starting event, depends on the event watcher
-		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STARTING ) );
+		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTING ) );
 		time( "program-starting-event" );
 
 		// Create the product manager, depends on icon library
@@ -362,6 +365,7 @@ public class Program extends Application implements ProgramProduct {
 		// Start the asset manager
 		log.log( TRACE, "Starting asset manager..." );
 		assetManager = new AssetManager( Program.this );
+		assetManager.getEventBus().parent( getFxEventHub() );
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
 		assetManager.start();
@@ -384,7 +388,7 @@ public class Program extends Application implements ProgramProduct {
 		Platform.runLater( () -> splashScreen.update() );
 		log.log( DEBUG, "Workspace manager started." );
 
-		// Create the notice manager
+		// Create the notice manager, depends on workspace manager
 		log.log( TRACE, "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
 		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
@@ -397,7 +401,7 @@ public class Program extends Application implements ProgramProduct {
 		productManager.startMods();
 		log.log( DEBUG, "Product manager started." );
 
-		// Restore the user interface
+		// Restore the user interface, depends on workspace manager
 		log.log( TRACE, "Restore the user interface..." );
 		Platform.runLater( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
@@ -449,7 +453,7 @@ public class Program extends Application implements ProgramProduct {
 		//getTaskManager().submit( new ShowApplicationNotices() );
 
 		// Program started event should be fired after the window is shown
-		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
+		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );
 		time( "program started" );
 	}
 
@@ -497,7 +501,7 @@ public class Program extends Application implements ProgramProduct {
 	private void doShutdownTasks() {
 		time( "do-shutdown-tasks" );
 
-		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STOPPING ) );
+		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPING ) );
 
 		// Stop the product manager
 		if( productManager != null ) {
@@ -578,10 +582,10 @@ public class Program extends Application implements ProgramProduct {
 	private void doStopSuccess() {
 		// Do not add this as a shutdown hook, it hangs the JVM.
 		new JvmSureStop( 5000 ).start();
-		getEventBus().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
+		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STOPPED ) );
 
 		// Unregister the event watcher
-		getEventBus().unregister( Event.ANY, watcher );
+		getFxEventHub().unregister( Event.ANY, watcher );
 	}
 
 	public void requestRestart( String... commands ) {
@@ -772,8 +776,16 @@ public class Program extends Application implements ProgramProduct {
 		return noticeManager;
 	}
 
-	public ProgramEventHub getEventBus() {
-		return eventBus;
+	public <T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler ) {
+		return fxEventHub.register( type, handler );
+	}
+
+	public <T extends Event> EventHub unregister( EventType<? super T> type, EventHandler<? super T> handler ) {
+		return fxEventHub.unregister( type, handler );
+	}
+
+	FxEventHub getFxEventHub() {
+		return fxEventHub;
 	}
 
 	private static void time( String markerName ) {
@@ -1241,17 +1253,17 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {
-		settingsManager.getEventBus().parent( eventBus );
+		settingsManager.getEventBus().parent( fxEventHub );
 		return settingsManager;
 	}
 
 	private TaskManager configureTaskManager( TaskManager taskManager ) {
-		taskManager.getEventBus().parent( eventBus );
+		taskManager.getEventBus().parent( fxEventHub );
 		return taskManager;
 	}
 
 	private ProductManager configureProductManager( ProductManager productManager ) throws IOException {
-		productManager.getEventBus().parent( eventBus );
+		productManager.getEventBus().parent( fxEventHub );
 
 		// Register the provider repos
 		productManager.registerProviderRepos( RepoState.forProduct( getClass() ) );

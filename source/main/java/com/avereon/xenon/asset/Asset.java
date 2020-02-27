@@ -11,7 +11,7 @@ import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.scheme.AssetScheme;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -63,7 +63,7 @@ public class Asset extends Node implements Configurable {
 
 	private UndoManager undoManager;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private Settings settings;
 
@@ -93,7 +93,7 @@ public class Asset extends Node implements Configurable {
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
 
-		eventBus = new ProgramEventHub();
+		eventBus = new FxEventHub();
 
 		// Create the undo manager
 		undoManager = new BasicUndoManager();
@@ -380,7 +380,7 @@ public class Asset extends Node implements Configurable {
 		return settings;
 	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 

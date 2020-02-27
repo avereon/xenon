@@ -9,7 +9,7 @@ import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -66,7 +66,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, Set<Codec>> registeredMediaTypes;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private CurrentAssetWatcher currentAssetWatcher;
 
@@ -103,8 +103,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		registeredFirstLines = new ConcurrentHashMap<>();
 		registeredMediaTypes = new ConcurrentHashMap<>();
 
-		eventBus = new ProgramEventHub();
-		eventBus.parent( program.getEventBus() );
+		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
 
 		newActionHandler = new NewActionHandler( program );
@@ -154,7 +153,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return this;
 	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 

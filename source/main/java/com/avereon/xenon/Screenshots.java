@@ -128,7 +128,7 @@ abstract class Screenshots {
 					exception.printStackTrace( System.err );
 				}
 			} );
-			program.getEventBus().register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
+			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
 			programWatcher.waitForEvent( ProgramEvent.STARTED, 2000 );
 			Platform.runLater( () -> {
 				program.getWorkspaceManager().getActiveStage().setX( 0 );
