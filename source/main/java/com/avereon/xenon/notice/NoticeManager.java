@@ -118,6 +118,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	@Override
 	public NoticeManager start() {
+		log.log( Log.TRACE, "Notice manager starting..." );
 		try {
 			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
 			asset = getProgram().getAssetManager().createAsset( ProgramNoticeType.URI );
@@ -125,13 +126,16 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		} catch( AssetException exception ) {
 			exception.printStackTrace();
 		}
+		log.log( Log.DEBUG, "Notice manager started." );
 
 		return this;
 	}
 
 	@Override
 	public NoticeManager stop() {
+		log.log( Log.TRACE, "Notice manager stopping..." );
 		getProgram().getAssetManager().saveAssets( asset );
+		log.log( Log.DEBUG, "Notice manager stopped." );
 		return this;
 	}
 
