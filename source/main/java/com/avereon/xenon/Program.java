@@ -64,6 +64,8 @@ public class Program extends Application implements ProgramProduct {
 
 	public static final long MANAGER_ACTION_SECONDS = 10;
 
+	private static final System.Logger log = Log.get();
+
 	private static final String PROGRAM_RELEASE = "product-release";
 
 	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
@@ -72,12 +74,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
 
-	private static final System.Logger log = Log.get();
+	private static final boolean SHOW_TIMING = false;
 
-	private static final boolean showTiming = false;
-
-	/* This field is used for timing checks */
-	@SuppressWarnings( "unused" )
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
 	private ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
@@ -180,7 +178,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the event hub
 		fxEventHub = new FxEventHub();
 
-		// Load the product card
+		// Init the product card
 		card = new ProductCard().init( getClass() );
 		time( "card" );
 
@@ -192,22 +190,21 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card, parameters );
 		time( "print-header" );
 
+		// Create the product resource bundle
+		programResourceBundle = new ProductBundle( this );
+		time( "resource-bundle" );
+
 		// Determine the program data folder, depends on program parameters
-		String suffix = getProfileSuffix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
-		programLogFolder = programDataFolder.resolve( "logs" );
+		configureDataFolder();
+		time( "configure-data-folder" );
 
 		// Configure logging, depends on parameters and program data folder
 		configureLogging();
 		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
-		configureHome( parameters );
-		time( "configure-home" );
-
-		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( this );
-		time( "resource-bundle" );
+		configureHomeFolder( parameters );
+		time( "configure-home-folder" );
 
 		// Create the settings manager, depends on program data folder
 		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
@@ -271,9 +268,11 @@ public class Program extends Application implements ProgramProduct {
 
 		// Add an uncaught exception handler to the FX thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
+		time( "uncaught-exception-handler" );
 
 		// This must be set before the splash screen is shown
 		setUserAgentStylesheet( STYLESHEET_MODENA );
+		time( "stylesheet" );
 
 		// Show the splash screen
 		// NOTE If there is a test failure here it is because tests were run in the same VM
@@ -789,7 +788,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private static void time( String markerName ) {
-		if( !showTiming ) return;
+		if( !SHOW_TIMING ) return;
 		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread
 			.currentThread()
 			.getName() );
@@ -1004,7 +1003,13 @@ public class Program extends Application implements ProgramProduct {
 		return profile == null ? "" : "-" + profile;
 	}
 
+	private void configureDataFolder() {
+		String suffix = getProfileSuffix();
+		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+	}
+
 	private void configureLogging() {
+		programLogFolder = programDataFolder.resolve( "logs" );
 		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
 		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
 		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
@@ -1016,7 +1021,7 @@ public class Program extends Application implements ProgramProduct {
 	 *
 	 * @param parameters The command line parameters
 	 */
-	private void configureHome( com.avereon.util.Parameters parameters ) {
+	private void configureHomeFolder( com.avereon.util.Parameters parameters ) {
 		try {
 			// If the HOME flag was specified on the command line use it.
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
