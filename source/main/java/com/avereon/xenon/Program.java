@@ -787,21 +787,20 @@ public class Program extends Application implements ProgramProduct {
 		return fxEventHub.unregister( type, handler );
 	}
 
-	public void setTheme( String key ) {
+	FxEventHub getFxEventHub() {
+		return fxEventHub;
+	}
+
+	private void setTheme( String key ) {
 		Path path = getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
 		if( Files.notExists( path ) ) path = getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
 		Application.setUserAgentStylesheet( Files.exists( path ) ? path.toUri().toString() : "MODENA" );
 	}
 
-	FxEventHub getFxEventHub() {
-		return fxEventHub;
-	}
-
 	private static void time( String markerName ) {
 		if( !SHOW_TIMING ) return;
-		System.err.println( "time" + "=" + (System.currentTimeMillis() - programStartTime) + " marker=" + markerName + " thread=" + Thread
-			.currentThread()
-			.getName() );
+		long delta = System.currentTimeMillis() - programStartTime;
+		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
 	}
 
 	/**
