@@ -1,6 +1,8 @@
 package com.avereon.xenon;
 
+import com.avereon.settings.Settings;
 import com.avereon.util.Controllable;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
@@ -8,11 +10,18 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
+import javafx.css.CssParser;
+import javafx.css.Selector;
+import javafx.css.Stylesheet;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.lang.System.Logger;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +34,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Program program;
 
+	private String currentTheme;
+
 	private Set<Workspace> workspaces;
 
 	private Workspace activeWorkspace;
@@ -34,6 +45,10 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	WorkspaceManager( Program program ) {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
+
+//		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+//			if( "workspace-theme-name".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
+//		} );
 	}
 
 	public Program getProgram() {
@@ -100,8 +115,52 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	//		return this;
 	//	}
 
+	public void setTheme( String key ) {
+		Path path = getProgram().getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
+		if( Files.notExists( path ) ) path = getProgram().getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
+
+		currentTheme = Files.exists( path ) ? path.toUri().toString() : null;
+		workspaces.forEach( w -> w.setTheme( currentTheme ) );
+
+		studyStylesheets( currentTheme );
+	}
+
+	private void studyStylesheets( String url ) {
+		// NEXT Study Stylesheets
+		try {
+			Stylesheet stylesheet = new CssParser().parse( new URL( url ) );
+
+			stylesheet.getRules().forEach( r -> {
+				int index = 0;
+				for( Selector s : r.getSelectors() ) {
+					if( index > 0 ) log.log( Log.WARN, "selector=" + s.toString() );
+					index++;
+				}
+			} );
+		} catch( IOException exception ) {
+			log.log( Log.ERROR, exception );
+		}
+	}
+
 	public Set<Workspace> getWorkspaces() {
 		return new HashSet<>( workspaces );
+	}
+
+	public Workspace newWorkspace() {
+		String id = IdGenerator.getId();
+
+		Workspace workspace = new Workspace( program );
+		workspace.getEventBus().parent( program.getFxEventHub() );
+		workspace.setTheme( currentTheme );
+
+		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
+		// Intentionally do not set the x property
+		// Intentionally do not set the y property
+		settings.set( "w", UiFactory.DEFAULT_WIDTH );
+		settings.set( "h", UiFactory.DEFAULT_HEIGHT );
+		workspace.setSettings( settings );
+
+		return workspace;
 	}
 
 	public void addWorkspace( Workspace workspace ) {

@@ -4,6 +4,7 @@ import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.util.Log;
 import com.avereon.venza.color.Colors;
 import com.avereon.venza.image.ProgramImage;
+import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -114,7 +115,8 @@ public class SplashScreenPane extends Pane {
 		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
 
 		// NOTE Application.setUserAgentStylesheet( STYLESHEET_MODENA ) must be called for this to work properly
-		scene.getStylesheets().addAll( Program.STYLESHEET );
+		//scene.getStylesheets().addAll( Application.STYLESHEET_MODENA, Program.STYLESHEET );
+		scene.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
 
 		stage.setTitle( title );
 		stage.setScene( scene );

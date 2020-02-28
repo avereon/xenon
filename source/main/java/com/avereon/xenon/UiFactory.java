@@ -2,9 +2,8 @@ package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.IdGenerator;
-import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workspace.Workspace;
+import com.avereon.xenon.workspace.Workarea;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderStroke;
 
@@ -38,21 +37,6 @@ public class UiFactory {
 
 	public UiFactory( Program program ) {
 		this.program = program;
-	}
-
-	public Workspace newWorkspace() {
-		String id = IdGenerator.getId();
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
-
-		// Intentionally do not set the x property
-		// Intentionally do not set the y property
-		settings.set( "w", DEFAULT_WIDTH );
-		settings.set( "h", DEFAULT_HEIGHT );
-
-		Workspace workspace = new Workspace( program );
-		workspace.getEventBus().parent( program.getFxEventHub() );
-		workspace.setSettings( settings );
-		return workspace;
 	}
 
 	public Workarea newWorkarea() {

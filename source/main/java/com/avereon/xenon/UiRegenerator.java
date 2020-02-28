@@ -115,7 +115,7 @@ class UiRegenerator {
 
 	private void createDefaultWorkspace() {
 		// Create the default workspace
-		Workspace workspace = factory.newWorkspace();
+		Workspace workspace = program.getWorkspaceManager().newWorkspace();
 		program.getWorkspaceManager().setActiveWorkspace( workspace );
 
 		// Create the default workarea

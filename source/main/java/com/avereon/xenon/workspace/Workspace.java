@@ -131,7 +131,6 @@ public class Workspace implements Configurable {
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
 
-
 		// FIXME Should this default setup be defined in config files or something else?
 		menubar = createMenuBar( program );
 
@@ -170,9 +169,15 @@ public class Workspace implements Configurable {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
 			event.consume();
 		} );
-		stage.focusedProperty().addListener( (p,o,n ) -> {
+		stage.focusedProperty().addListener( ( p, o, n ) -> {
 			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
+	}
+
+	public void setTheme( String url ) {
+//		scene.getStylesheets().clear();
+//		if( url != null ) scene.getStylesheets().add( url );
+//		scene.getStylesheets().add( Program.STYLESHEET );
 	}
 
 	public FxEventHub getEventBus() {
@@ -484,7 +489,6 @@ public class Workspace implements Configurable {
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
 		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
-		scene.getStylesheets().add( Program.STYLESHEET );
 		stage.sizeToScene();
 
 		// Position the stage if x and y are specified

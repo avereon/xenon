@@ -9,7 +9,6 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.Release;
 import com.avereon.rossa.icon.*;
 import com.avereon.settings.Settings;
-import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.action.*;
@@ -272,10 +271,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "uncaught-exception-handler" );
 
 		// This must be set before the splash screen is shown
-		setTheme( programSettings.get( "workspace-theme-name" ) );
-		getProgramSettings().register( SettingsEvent.CHANGED, e -> {
-			if( "workspace-theme-name".equals( e.getKey() ) ) getProgram().setTheme( (String)e.getNewValue() );
-		} );
+		Application.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
 		time( "theme" );
 
 		// Show the splash screen
@@ -388,6 +384,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the workspace manager
 		log.log( TRACE, "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
+		workspaceManager.setTheme( programSettings.get( "workspace-theme-name" ) );
 		Platform.runLater( () -> splashScreen.update() );
 		log.log( DEBUG, "Workspace manager started." );
 
@@ -789,12 +786,6 @@ public class Program extends Application implements ProgramProduct {
 
 	FxEventHub getFxEventHub() {
 		return fxEventHub;
-	}
-
-	private void setTheme( String key ) {
-		Path path = getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
-		if( Files.notExists( path ) ) path = getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
-		Application.setUserAgentStylesheet( Files.exists( path ) ? path.toUri().toString() : "MODENA" );
 	}
 
 	private static void time( String markerName ) {
