@@ -10,7 +10,7 @@ public class SplashScreenCheck extends Application {
 
 	@Override
 	public void start( Stage stage ) {
-		setUserAgentStylesheet( STYLESHEET_MODENA );
+		Application.setUserAgentStylesheet( STYLESHEET_MODENA );
 		SplashScreenPane splash = new SplashScreenPane( "Xenon" );
 		stage.initStyle( StageStyle.UTILITY );
 		splash.show( stage );

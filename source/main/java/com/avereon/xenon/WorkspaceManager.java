@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.settings.Settings;
+import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
@@ -8,6 +9,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
 import javafx.css.CssParser;
@@ -46,9 +48,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
 
-//		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
-//			if( "workspace-theme-name".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
-//		} );
+		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+			if( "workspace-theme-name".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
+		} );
 	}
 
 	public Program getProgram() {
@@ -101,6 +103,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		return this;
 	}
 
+	//	@Override
+	//	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) {
+	//		// This method intentionally does nothing. See explanation in stop() method.
+	//		return this;
+	//	}
+
 	public boolean isUiReady() {
 		return uiReady;
 	}
@@ -109,12 +117,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.uiReady = uiReady;
 	}
 
-	//	@Override
-	//	public WorkspaceManager awaitStop( long timeout, TimeUnit unit ) {
-	//		// This method intentionally does nothing. See explanation in stop() method.
-	//		return this;
-	//	}
-
 	public void setTheme( String key ) {
 		Path path = getProgram().getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
 		if( Files.notExists( path ) ) path = getProgram().getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
@@ -122,7 +124,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		currentTheme = Files.exists( path ) ? path.toUri().toString() : null;
 		workspaces.forEach( w -> w.setTheme( currentTheme ) );
 
-		studyStylesheets( currentTheme );
+		//studyStylesheets( currentTheme );
 	}
 
 	private void studyStylesheets( String url ) {
@@ -147,11 +149,13 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace newWorkspace() {
-		String id = IdGenerator.getId();
+		return newWorkspace( IdGenerator.getId() );
+	}
+
+	public Workspace newWorkspace( String id ) {
 
 		Workspace workspace = new Workspace( program );
 		workspace.getEventBus().parent( program.getFxEventHub() );
-		workspace.setTheme( currentTheme );
 
 		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
 		// Intentionally do not set the x property
@@ -159,6 +163,8 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		settings.set( "w", UiFactory.DEFAULT_WIDTH );
 		settings.set( "h", UiFactory.DEFAULT_HEIGHT );
 		workspace.setSettings( settings );
+
+		workspace.setTheme( currentTheme );
 
 		return workspace;
 	}
@@ -301,11 +307,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workpane getActiveWorkpane() {
+		Workspace workspace = getActiveWorkspace();
+		if( workspace == null ) return null;
+		Workarea workarea = workspace.getActiveWorkarea();
+		if( workarea == null ) return null;
 		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
 	}
 
 	public Set<Tool> getActiveWorkpaneTools( Class<? extends Tool> type ) {
-		return getActiveWorkpane().getTools( type );
+		Workpane workpane = getActiveWorkpane();
+		if( workpane == null ) return Set.of();
+		return workpane.getTools( type );
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {

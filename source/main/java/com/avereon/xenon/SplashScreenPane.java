@@ -4,7 +4,6 @@ import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.util.Log;
 import com.avereon.venza.color.Colors;
 import com.avereon.venza.image.ProgramImage;
-import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -112,11 +111,10 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public SplashScreenPane show( Stage stage ) {
-		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
+		Scene scene = new Scene( this, getWidth(), getHeight(), Color.DARKGRAY );
 
-		// NOTE Application.setUserAgentStylesheet( STYLESHEET_MODENA ) must be called for this to work properly
-		//scene.getStylesheets().addAll( Application.STYLESHEET_MODENA, Program.STYLESHEET );
-		scene.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
+		// NOTE Application.setUserAgentStylesheet() must be called in application for this to work properly
+		scene.getStylesheets().addAll( Program.STYLESHEET );
 
 		stage.setTitle( title );
 		stage.setScene( scene );
@@ -151,33 +149,31 @@ public class SplashScreenPane extends Pane {
 		if( getScene() != null ) getScene().getWindow().hide();
 	}
 
-//	public static void main( String[] commands ) {
-//		Application splash = new Application() {
-//
-//
-//
-//			@Override
-//			public void start( Stage stage ) throws Exception {
-//				SplashScreenPane splash = new SplashScreenPane( "Xenon" );
-//				splash.setProgress( 0.8 );
-//				stage.initStyle( StageStyle.UTILITY );
-//				splash.show( stage );
-//			}
-//
-//		};
+	//	public static void main( String[] commands ) {
+	//		Application splash = new Application() {
+	//
+	//
+	//
+	//			@Override
+	//			public void start( Stage stage ) throws Exception {
+	//				SplashScreenPane splash = new SplashScreenPane( "Xenon" );
+	//				splash.setProgress( 0.8 );
+	//				stage.initStyle( StageStyle.UTILITY );
+	//				splash.show( stage );
+	//			}
+	//
+	//		};
 
-
-
-//				Platform.startup(() -> {
-//					try {
-//						splash.init();
-//					} catch( Exception e ) {
-//						e.printStackTrace();
-//					}
-//				});
-//		JavaFxStarter.startAndWait( 1000 );
-//		Platform.runLater( () -> {
-//		} );
-//	}
+	//				Platform.startup(() -> {
+	//					try {
+	//						splash.init();
+	//					} catch( Exception e ) {
+	//						e.printStackTrace();
+	//					}
+	//				});
+	//		JavaFxStarter.startAndWait( 1000 );
+	//		Platform.runLater( () -> {
+	//		} );
+	//	}
 
 }

@@ -318,12 +318,7 @@ class UiRegenerator {
 	private void restoreWorkspace( String id ) {
 		log.log( Log.DEBUG, "Restoring workspace: " + id );
 		try {
-			Workspace workspace = new Workspace( program );
-			workspace.getEventBus().parent( program.getFxEventHub() );
-
-			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
-			workspace.setSettings( settings );
-
+			Workspace workspace = program.getWorkspaceManager().newWorkspace( id );
 			program.getWorkspaceManager().addWorkspace( workspace );
 			if( workspace.isActive() ) program.getWorkspaceManager().setActiveWorkspace( workspace );
 

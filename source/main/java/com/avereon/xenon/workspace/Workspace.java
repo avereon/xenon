@@ -5,6 +5,7 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -13,7 +14,6 @@ import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
@@ -175,9 +175,9 @@ public class Workspace implements Configurable {
 	}
 
 	public void setTheme( String url ) {
-//		scene.getStylesheets().clear();
-//		if( url != null ) scene.getStylesheets().add( url );
-//		scene.getStylesheets().add( Program.STYLESHEET );
+		scene.getStylesheets().clear();
+		if( url != null ) scene.getStylesheets().add( url );
+		scene.getStylesheets().add( Program.STYLESHEET );
 	}
 
 	public FxEventHub getEventBus() {

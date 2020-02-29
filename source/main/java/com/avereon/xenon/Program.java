@@ -272,9 +272,9 @@ public class Program extends Application implements ProgramProduct {
 
 		// This must be set before the splash screen is shown
 		Application.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
-		time( "theme" );
+		time( "stylesheet" );
 
-		// Show the splash screen
+		// Show the splash screen, depends stylesheet
 		// NOTE If there is a test failure here it is because tests were run in the same VM
 		if( stage.getStyle() != StageStyle.UTILITY ) stage.initStyle( StageStyle.UTILITY );
 		splashScreen = new SplashScreenPane( card.getName() );
