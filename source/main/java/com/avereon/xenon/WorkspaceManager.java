@@ -282,22 +282,30 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
+		log.log( Log.WARN, "Number of workspaces: " + workspaces.size() );
 		boolean closeProgram = workspaces.size() == 1;
+		boolean shutdownVerify = getProgram().getProgramSettings().get( "shutdown-verify", Boolean.class, true );
+
 		if( closeProgram ) {
 			program.requestExit( false, false );
 		} else {
-			handleModifiedAssets( ProgramScope.WORKSPACE, getModifiedAssets( workspace ) );
+			if( !handleModifiedAssets( ProgramScope.WORKSPACE, getModifiedAssets( workspace ) ) ) return;
 
-			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( program.rb().text( "workspace", "workspace-close-title" ) );
-			alert.setHeaderText( program.rb().text( "workspace", "workspace-close-message" ) );
-			alert.setContentText( program.rb().text( "workspace", "workspace-close-prompt" ) );
-			alert.initOwner( workspace.getStage() );
+			boolean shouldContinue = !shutdownVerify;
+			if( shutdownVerify ) {
+				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+				alert.setTitle( program.rb().text( "workspace", "workspace-close-title" ) );
+				alert.setHeaderText( program.rb().text( "workspace", "workspace-close-message" ) );
+				alert.setContentText( program.rb().text( "workspace", "workspace-close-prompt" ) );
+				alert.initOwner( workspace.getStage() );
 
-			Stage stage = program.getWorkspaceManager().getActiveStage();
-			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+				Stage stage = program.getWorkspaceManager().getActiveStage();
+				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			if( result.isPresent() && result.get() == ButtonType.YES ) closeWorkspace( workspace );
+				shouldContinue = result.isPresent() && result.get() == ButtonType.YES;
+			}
+
+			if( shouldContinue ) closeWorkspace( workspace );
 		}
 	}
 
