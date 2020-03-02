@@ -22,7 +22,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -155,10 +154,8 @@ public class Workspace implements Configurable {
 		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
 		workspaceStack.setPickOnBounds( false );
 
-		VBox bars = new VBox( menubar, toolbar );
-
 		workareaLayout = new BorderPane();
-		workareaLayout.setTop( bars );
+		workareaLayout.setTop( new VBox( menubar, toolbar ) );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
@@ -242,7 +239,6 @@ public class Workspace implements Configurable {
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
 		help.getItems().add( new SeparatorMenuItem() );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-		dev.setId( "menu-development" );
 
 		menubar.getMenus().addAll( prog, file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
@@ -275,10 +271,8 @@ public class Workspace implements Configurable {
 		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-close" ) );
 
 		MenuBar workareaMenuBar = new MenuBar();
+		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		workareaMenuBar.getMenus().add( workareaMenu );
-		workareaMenuBar.setBackground( Background.EMPTY );
-		workareaMenuBar.setPadding( Insets.EMPTY );
-		workareaMenuBar.setBorder( Border.EMPTY );
 
 		// Workarea selector
 		workareaSelector = new ComboBox<>();

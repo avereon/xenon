@@ -16,6 +16,22 @@
 	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
+.debug {
+	-fx-border: 1px solid yellow;
+	-fx-backgroud-color: red;
+}
+
+.prompt {
+	-fx-padding: 0 1mm 0 0;
+}
+
+.padded {
+	-fx-padding: 1.5mm;
+}
+
+/*******************************************************************************
+ * Splash Screen
+ ******************************************************************************/
 .splashscreen-tint {
 	-fx-fill: -fx-background;
 	-fx-opacity: 0.8;
@@ -50,32 +66,46 @@
 	-fx-opacity: 0.8;
 }
 
-#menu-development > .label {
-	-fx-text-fill: red;
-	-fx-font-weight: 700;
+/*******************************************************************************
+ * Development Menu
+ ******************************************************************************/
+/* Not sure why the class selector does not work but the id selector does */
+#menu-development {
+	-fx-background-color: #ffff0030;
 }
 
-#menu-development:hover > .label {
+#menu-development > .label {
 	-fx-text-fill: -fx-text-background-color;
 }
 
-#menu-development {
-	-fx-background-color: transparent;
-}
-
 #menu-development:hover {
-	-fx-background-color: red;
+	-fx-background-color: #ffff0040;
 }
 
-.prompt {
-	-fx-padding: 0 1mm 0 0;
+/*#menu-development:hover > .label {*/
+/*	-fx-text-fill: -fx-text-background-color;*/
+/*}*/
+
+/*******************************************************************************
+ * Workspace
+ ******************************************************************************/
+.workspace {
+	/* Will override the user preference background */
+	/*-fx-background-color: #80a0c0ff;*/
 }
 
-.padded {
-	-fx-padding: 1.5mm;
+/*******************************************************************************
+ * Workarea
+ ******************************************************************************/
+.workarea-menu-bar {
+	-fx-background-color: transparent;
+	-fx-padding: 0;
+	-fx-border: none;
 }
 
-/* ScrollPane */
+/*******************************************************************************
+ * Workpane Scroll Pane
+ ******************************************************************************/
 .workpane .scroll-pane {
 	-fx-background-color: transparent;
 }
@@ -88,7 +118,9 @@
 	-fx-background-color: transparent;
 }
 
-/* Workpane */
+/*******************************************************************************
+ * Workpane
+ ******************************************************************************/
 .workpane {
 	-fx-background-color: transparent;
 }
@@ -114,13 +146,9 @@
 	-fx-background-color: -ex-background-tabs
 }
 
-/* Workspace */
-.workspace {
-	/* Will override the user preference background */
-	/*-fx-background-color: #80a0c0ff;*/
-}
-
-/* Tools */
+/*******************************************************************************
+ * Tool
+ ******************************************************************************/
 .tool {
 	-fx-background-color: -ex-background-text
 }
@@ -165,6 +193,9 @@
 	-fx-opacity: 0.3;
 }
 
+/*******************************************************************************
+ * Status Bar
+ ******************************************************************************/
 .status-bar {
 	-fx-padding: 1mm 1mm 1mm 1mm;
 }
@@ -173,6 +204,9 @@
 	-fx-spacing: 1mm;
 }
 
+/*******************************************************************************
+ * Memory Monitor
+ ******************************************************************************/
 .memory-monitor {
 }
 
@@ -192,6 +226,9 @@
 	-fx-fill: -fx-accent;
 }
 
+/*******************************************************************************
+ * Notice
+ ******************************************************************************/
 .notice {
 	-fx-background-color: -ex-background-text;
 	-fx-background-insets: 1.5mm;
@@ -214,6 +251,9 @@
 	-fx-font-weight: normal;
 }
 
+/*******************************************************************************
+ * Task Monitor
+ ******************************************************************************/
 .task-monitor {
 }
 
@@ -237,6 +277,9 @@
 	-fx-fill: -fx-accent;
 }
 
+/*******************************************************************************
+ * About Tool
+ ******************************************************************************/
 #tool-about .text-area {
 	-fx-background-color: transparent;
 }
@@ -273,6 +316,9 @@
 	-fx-font: 1em monospaced;
 }
 
+/*******************************************************************************
+ * New Asset Tool
+ ******************************************************************************/
 #tool-asset .asset-type-tile {
 	-fx-min-width: 250px;
 	-fx-min-height: 200px;
@@ -287,6 +333,9 @@
 	-fx-border-width: 5px;
 }
 
+/*******************************************************************************
+ * Fault Tool
+ ******************************************************************************/
 #tool-fault .text-area {
 	-fx-background-color: transparent;
 }
@@ -295,6 +344,9 @@
 	-fx-font: 1em monospaced;
 }
 
+/*******************************************************************************
+ * Product Tool
+ ******************************************************************************/
 #tool-product-page-header {
 	-fx-background-insets: 0 0 1mm 0;
 	-fx-background-color: -ex-background-text;
@@ -340,6 +392,9 @@
 	-fx-font-size: 2em;
 }
 
+/*******************************************************************************
+ * Welcome Tool
+ ******************************************************************************/
 #tool-welcome {
 	-fx-background-color: transparent;
 }
@@ -348,11 +403,16 @@
 	-fx-font-size: 5em;
 }
 
-/* TitledPane */
+/*******************************************************************************
+ * Titled Pane
+ ******************************************************************************/
 .titled-pane > *.content {
 	-fx-background-color: red;
 }
 
+/*******************************************************************************
+ * Tool Tab
+ ******************************************************************************/
 .tool-tab {
 	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
 	-fx-background-color: -ex-background-text;
@@ -382,6 +442,9 @@
 	-fx-padding: 0 0 0 1mm;
 }
 
+/*******************************************************************************
+ * ToolPane
+ ******************************************************************************/
 .tool-pane {
 	-fx-background-color: transparent;
 }

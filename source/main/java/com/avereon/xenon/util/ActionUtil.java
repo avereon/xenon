@@ -32,6 +32,7 @@ public class ActionUtil {
 		Menu item = new Menu();
 
 		item.setId( "menu-" + action.getId() );
+		item.getStyleClass().add( "menu-" + action.getId() );
 		item.setMnemonicParsing( true );
 		item.setText( action.getMnemonicName() );
 		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
