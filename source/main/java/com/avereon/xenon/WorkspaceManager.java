@@ -6,6 +6,8 @@ import com.avereon.util.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
+import com.avereon.venza.color.ColorTheme;
+import com.avereon.venza.image.ProgramIcon;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
@@ -13,11 +15,10 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
-import javafx.css.CssParser;
-import javafx.css.Selector;
-import javafx.css.Stylesheet;
+import javafx.css.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -129,9 +130,30 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		workspaces.forEach( w -> w.setTheme( currentTheme ) );
 
 		// TODO Use the new theme information to set the icon color scheme
-		//ProgramIcon.setDefaultColorTheme( new ColorTheme( new Color( 0.8,0.8,0.8,1.0) ) );
+		ProgramIcon.setDefaultColorTheme( new ColorTheme( getThemeBaseColor( currentTheme ) ) );
 
 		studyStylesheets( currentTheme );
+	}
+
+	private Color getThemeBaseColor( String url ) {
+		try {
+			Stylesheet stylesheet = new CssParser().parse( new URL( url ) );
+
+			for( Rule r : stylesheet.getRules() ) {
+				for( Selector s : r.getSelectors() ) {
+					if( "*.root".equals( s.toString() ) ){
+						log.log( Log.WARN, "selector=" + s.toString() );
+						for( Declaration d : s.getRule().getDeclarations() ) {
+							log.log( Log.WARN, "declaration=" + d.getProperty() + "=" + d.getParsedValue().getValue() );
+							if( "-fx-mid-text-color".equals( d.getProperty())) return (Color)d.getParsedValue().getValue();
+						}
+					}
+				}
+			}
+		} catch( IOException exception ) {
+			log.log( Log.ERROR, exception );
+		}
+		return Color.BLACK;
 	}
 
 	private void studyStylesheets( String url ) {
@@ -161,27 +183,27 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		//StyleManager.getInstance();
 
 
-		try {
-			Stylesheet stylesheet = new CssParser().parse( new URL( url ) );
-
-			stylesheet.getRules().forEach( r -> {
-				int index = 0;
-				for( Selector s : r.getSelectors() ) {
-					//log.log( Log.WARN, "selector=" + s.toString() );
-					index++;
-
-					if( "*.root".equals( s.toString() ) ){
-						log.log( Log.WARN, "selector=" + s.toString() );
-						s.getRule().getDeclarations().forEach( d -> {
-							log.log( Log.WARN, "declaration=" + d.getProperty() + "=" + d.getParsedValue().getValue() );
-
-						} );
-					}
-				}
-			} );
-		} catch( IOException exception ) {
-			log.log( Log.ERROR, exception );
-		}
+//		try {
+//			Stylesheet stylesheet = new CssParser().parse( new URL( url ) );
+//
+//			stylesheet.getRules().forEach( r -> {
+//				int index = 0;
+//				for( Selector s : r.getSelectors() ) {
+//					//log.log( Log.WARN, "selector=" + s.toString() );
+//					index++;
+//
+//					if( "*.root".equals( s.toString() ) ){
+//						log.log( Log.WARN, "selector=" + s.toString() );
+//						s.getRule().getDeclarations().forEach( d -> {
+//							log.log( Log.WARN, "declaration=" + d.getProperty() + "=" + d.getParsedValue().getValue() );
+//
+//						} );
+//					}
+//				}
+//			} );
+//		} catch( IOException exception ) {
+//			log.log( Log.ERROR, exception );
+//		}
 	}
 
 	public Set<Workspace> getWorkspaces() {
