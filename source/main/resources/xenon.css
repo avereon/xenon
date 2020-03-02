@@ -5,14 +5,13 @@
 .root {
 	/* Base colors can be overridden here */
 	/* -fx-base: rgba( 63, 60, 65, 255 ); /* dark */
-	/* -fx-base: rgba( 236, 236, 236, 1 ); /* light */
-	/* -fx-background: rgba( 241, 241, 241, 0.2 ); */
+	/* -fx-base: rgba( 236, 236, 236, 255 ); /* light */
 
 	/* Program colors */
-	-ex-background-text: rgba(241, 241, 241, 0.2);
-	-ex-background-tabs: rgba(241, 241, 241, 0.4);
-	-ex-background-tags: rgba(241, 241, 241, 0.6);
-	-ex-background-note: rgba(241, 241, 241, 0.8);
+	-ex-background-text: rgba(236, 236, 236, 0.2);
+	-ex-background-tabs: rgba(236, 236, 236, 0.4);
+	-ex-background-tags: rgba(236, 236, 236, 0.6);
+	-ex-background-note: rgba(236, 236, 236, 0.8);
 
 	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
 }
@@ -359,8 +358,8 @@
 	-fx-background-color: -ex-background-text;
 }
 
-.tool-tab:hover {
-	-fx-background-color: -ex-background-tags;
+.tool-tab-label {
+	-fx-text-fill: -fx-text-base-color;
 }
 
 .tool-tab:selected {
@@ -374,6 +373,19 @@
 	-fx-background-color: -ex-background-tags;
 }
 
+.tool-tab:hover {
+	-fx-background-color: -ex-background-tags;
+}
+
+.tool-tab-close {
+	-fx-background-color: transparent;
+	-fx-padding: 0 0 0 1mm;
+}
+
+.tool-pane {
+	-fx-background-color: transparent;
+}
+
 .tool-pane:active .tool-tab:selected {
 	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
 	-fx-border-width: 0 0 0.5mm 0;
@@ -384,15 +396,6 @@
 .tool-pane:active .tool-tab:selected:hover {
 	-fx-border-color: derive(-fx-focus-color, 40%);
 	-fx-background-color: -ex-background-note;
-}
-
-.tool-tab-close {
-	-fx-background-color: transparent;
-	-fx-padding: 0 0 0 1mm;
-}
-
-.tool-pane {
-	-fx-background-color: transparent;
 }
 
 .tool-pane-header-area {

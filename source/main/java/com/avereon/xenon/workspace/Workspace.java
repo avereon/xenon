@@ -176,8 +176,8 @@ public class Workspace implements Configurable {
 
 	public void setTheme( String url ) {
 		scene.getStylesheets().clear();
-		if( url != null ) scene.getStylesheets().add( url );
 		scene.getStylesheets().add( Program.STYLESHEET );
+		if( url != null ) scene.getStylesheets().add( url );
 	}
 
 	public FxEventHub getEventBus() {
