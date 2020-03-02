@@ -7,10 +7,11 @@ import com.avereon.event.EventType;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.Release;
-import com.avereon.rossa.icon.*;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
+import com.avereon.venza.color.ColorTheme;
 import com.avereon.venza.event.FxEventHub;
+import com.avereon.venza.image.ProgramIcon;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
@@ -38,7 +39,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -337,16 +337,12 @@ public class Program extends Application implements ProgramProduct {
 
 		// Create the icon library
 		iconLibrary = new IconLibrary( this );
-		registerIcons();
 		time( "icon-library" );
 
-		// Create program action handlers
-		createProgramActions();
-		time( "program-actions" );
-
 		// Create the action library
-		actionLibrary = new ActionLibrary( rb() );
+		actionLibrary = new ActionLibrary( this );
 		registerActionHandlers();
+		time( "program-actions" );
 
 		// Create the UI factory
 		UiRegenerator uiRegenerator = new UiRegenerator( Program.this );
@@ -553,9 +549,6 @@ public class Program extends Application implements ProgramProduct {
 
 		// Unregister action handlers
 		if( actionLibrary != null ) unregisterActionHandlers();
-
-		// Unregister icons
-		if( iconLibrary != null ) unregisterIcons();
 
 		// Unregister the program
 		if( productManager != null ) productManager.unregisterProgram( this );
@@ -1055,99 +1048,17 @@ public class Program extends Application implements ProgramProduct {
 		log.log( DEBUG, "Program data: " + programDataFolder );
 	}
 
-	private void registerIcons() {
-		getIconLibrary().register( "provider", WingDiscLargeIcon.class );
-		getIconLibrary().register( "program", XRingLargeIcon.class );
-		getIconLibrary().register( "close", CloseIcon.class );
-		getIconLibrary().register( "exit", PowerIcon.class );
-
-		getIconLibrary().register( "asset", DocumentIcon.class );
-		getIconLibrary().register( "asset-new", DocumentIcon.class );
-		getIconLibrary().register( "asset-open", FolderIcon.class );
-		//getIconLibrary().register( "asset-save", SaveIcon.class );
-		getIconLibrary().register( "asset-save", LightningIcon.class );
-		getIconLibrary().register( "asset-close", DocumentCloseIcon.class );
-		getIconLibrary().register( "properties", SettingsIcon.class );
-
-		getIconLibrary().register( "undo", UndoIcon.class );
-		getIconLibrary().register( "redo", RedoIcon.class );
-		getIconLibrary().register( "cut", CutIcon.class );
-		getIconLibrary().register( "copy", CopyIcon.class );
-		getIconLibrary().register( "paste", PasteIcon.class );
-		getIconLibrary().register( "delete", DeleteIcon.class );
-		getIconLibrary().register( "indent", IndentIcon.class );
-		getIconLibrary().register( "unindent", UnindentIcon.class );
-		getIconLibrary().register( "play", PlayIcon.class );
-		getIconLibrary().register( "pause", PauseIcon.class );
-
-		getIconLibrary().register( "setting", SettingIcon.class );
-		getIconLibrary().register( "settings", SettingsIcon.class );
-
-		getIconLibrary().register( "guide", GuideIcon.class );
-		getIconLibrary().register( "fault", FaultIcon.class );
-		getIconLibrary().register( "terminal", TerminalIcon.class );
-
-		getIconLibrary().register( "welcome", WelcomeIcon.class );
-		getIconLibrary().register( "help-content", QuestionIcon.class );
-		getIconLibrary().register( "notice", NoticeIcon.class );
-		getIconLibrary().register( "notice-error", NoticeIcon.class, Color.RED );
-		getIconLibrary().register( "notice-warn", NoticeIcon.class, Color.YELLOW );
-		getIconLibrary().register( "notice-info", NoticeIcon.class, Color.GREEN.brighter() );
-		getIconLibrary().register( "notice-norm", NoticeIcon.class, Color.web( "#40a0c0" ) );
-		getIconLibrary().register( "notice-none", NoticeIcon.class );
-		getIconLibrary().register( "task", TaskQueueIcon.class );
-		getIconLibrary().register( "product", ProductIcon.class );
-		getIconLibrary().register( "update", DownloadIcon.class );
-		getIconLibrary().register( "about", ExclamationIcon.class );
-
-		getIconLibrary().register( "workspace", FrameIcon.class );
-		getIconLibrary().register( "workspace-new", FrameIcon.class );
-		getIconLibrary().register( "workspace-close", FrameIcon.class );
-
-		getIconLibrary().register( "workarea", WorkareaIcon.class );
-		getIconLibrary().register( "workarea-new", WorkareaIcon.class );
-		getIconLibrary().register( "workarea-rename", WorkareaRenameIcon.class );
-		getIconLibrary().register( "workarea-close", CloseToolIcon.class );
-
-		getIconLibrary().register( "add", PlusIcon.class );
-		getIconLibrary().register( "refresh", RefreshIcon.class );
-		getIconLibrary().register( "download", DownloadIcon.class );
-		getIconLibrary().register( "market", MarketIcon.class );
-		getIconLibrary().register( "module", ModuleIcon.class );
-		getIconLibrary().register( "enable", LightningIcon.class );
-		getIconLibrary().register( "disable", DisableIcon.class );
-		getIconLibrary().register( "remove", CloseIcon.class );
-
-		getIconLibrary().register( "toggle-enabled", ToggleIcon.class, true );
-		getIconLibrary().register( "toggle-disabled", ToggleIcon.class, false );
-	}
-
-	private void unregisterIcons() {}
-
-	private void createProgramActions() {
-		closeAction = new CloseWorkspaceAction( this );
-		exitAction = new ExitAction( this );
-		aboutAction = new AboutAction( this );
-		settingsAction = new SettingsAction( this );
-		welcomeAction = new WelcomeAction( this );
-		noticeAction = new NoticeAction( this );
-		productAction = new ProductAction( this );
-		updateAction = new UpdateAction( this );
-		restartAction = new RestartAction( this );
-		taskAction = new TaskAction( this );
-	}
-
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction );
-		getActionLibrary().getAction( "exit" ).pushAction( exitAction );
-		getActionLibrary().getAction( "about" ).pushAction( aboutAction );
-		getActionLibrary().getAction( "settings" ).pushAction( settingsAction );
-		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction );
-		getActionLibrary().getAction( "task" ).pushAction( taskAction );
-		getActionLibrary().getAction( "notice" ).pushAction( noticeAction );
-		getActionLibrary().getAction( "product" ).pushAction( productAction );
-		getActionLibrary().getAction( "update" ).pushAction( updateAction );
-		getActionLibrary().getAction( "restart" ).pushAction( restartAction );
+		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction  = new CloseWorkspaceAction( this ));
+		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
+		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
+		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
+		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
+		getActionLibrary().getAction( "notice" ).pushAction( noticeAction = new NoticeAction( this ) );
+		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
+		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
+		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
 			log.log( Log.ERROR, new Throwable( "This is a test throwable" ) );

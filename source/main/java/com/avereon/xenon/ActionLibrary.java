@@ -13,8 +13,10 @@ public class ActionLibrary {
 
 	private Map<String, ActionProxy> actions;
 
-	public ActionLibrary( ProductBundle bundle ) {
+	public ActionLibrary( Program program ) {
 		this.actions = new ConcurrentHashMap<>();
+
+		ProductBundle bundle = program.rb();
 
 		// Create default actions
 		register( bundle, "settings" );
