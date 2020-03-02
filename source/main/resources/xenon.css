@@ -17,8 +17,7 @@
 }
 
 .debug {
-	-fx-border: 1px solid yellow;
-	-fx-backgroud-color: red;
+	-fx-backgroud-color: #80800080;
 }
 
 .prompt {

@@ -128,19 +128,55 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		currentTheme = Files.exists( path ) ? path.toUri().toString() : null;
 		workspaces.forEach( w -> w.setTheme( currentTheme ) );
 
-		//studyStylesheets( currentTheme );
+		// TODO Use the new theme information to set the icon color scheme
+		//ProgramIcon.setDefaultColorTheme( new ColorTheme( new Color( 0.8,0.8,0.8,1.0) ) );
+
+		studyStylesheets( currentTheme );
 	}
 
 	private void studyStylesheets( String url ) {
 		// NEXT Study Stylesheets
+
+//		Label label = new Label();
+//		Scene scene = new Scene( label );
+//		scene.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
+//		scene.getStylesheets().add( Program.STYLESHEET );
+//		if( url != null ) scene.getStylesheets().add( url );
+//
+//		log.log( Log.WARN, "text-fill=" + label.getTextFill() );
+
+//		// Collect the stylesheets
+//		Label node = new Label();
+//		node.getStylesheets().add( Program.STYLESHEET );
+//		if( url != null ) node.getStylesheets().add( url );
+
+//		label.getCssMetaData().forEach( s -> {
+//			log.log( Log.WARN, "styleable=" + s);
+//			if( "-fx-text-fill".equals( s.getProperty())) {
+//				Color paint = (Color)s.getInitialValue( null );
+//				ProgramIcon.setDefaultColorTheme( new ColorTheme( paint ) );
+//			}
+//		} );
+
+		//StyleManager.getInstance();
+
+
 		try {
 			Stylesheet stylesheet = new CssParser().parse( new URL( url ) );
 
 			stylesheet.getRules().forEach( r -> {
 				int index = 0;
 				for( Selector s : r.getSelectors() ) {
-					if( index > 0 ) log.log( Log.WARN, "selector=" + s.toString() );
+					//log.log( Log.WARN, "selector=" + s.toString() );
 					index++;
+
+					if( "*.root".equals( s.toString() ) ){
+						log.log( Log.WARN, "selector=" + s.toString() );
+						s.getRule().getDeclarations().forEach( d -> {
+							log.log( Log.WARN, "declaration=" + d.getProperty() + "=" + d.getParsedValue().getValue() );
+
+						} );
+					}
 				}
 			} );
 		} catch( IOException exception ) {
