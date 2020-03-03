@@ -3,7 +3,6 @@ package com.avereon.xenon;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Controllable;
-import com.avereon.util.FileUtil;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import com.avereon.venza.color.ColorTheme;
@@ -26,7 +25,6 @@ import java.lang.System.Logger;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -121,8 +119,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void setTheme( String key ) {
-		if( Profile.DEV.equals( getProgram().getProfile() ) ) updateThemesInProfile();
-
 		Path path = getProgram().getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
 		if( Files.notExists( path ) ) path = getProgram().getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
 
@@ -401,16 +397,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	private void closeWorkspace( Workspace workspace ) {
 		removeWorkspace( workspace );
 		workspace.close();
-	}
-
-	private void updateThemesInProfile() {
-		// Copy the themes
-		try {
-			FileUtil.delete( getProgram().getDataFolder().resolve( "themes") );
-			FileUtil.copy( Paths.get( "source/main/assembly/resources/themes" ), getProgram().getDataFolder(), true );
-		} catch( IOException e ) {
-			log.log( Log.ERROR, e );
-		}
 	}
 
 }

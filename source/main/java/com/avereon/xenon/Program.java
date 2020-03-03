@@ -110,6 +110,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private AssetManager assetManager;
 
+	private ThemeManager themeManager;
+
 	private WorkspaceManager workspaceManager;
 
 	private ProductManager productManager;
@@ -346,7 +348,7 @@ public class Program extends Application implements ProgramProduct {
 		UiRegenerator uiRegenerator = new UiRegenerator( Program.this );
 
 		// Set the number of startup steps
-		int managerCount = 5;
+		int managerCount = 6;
 		int steps = managerCount + uiRegenerator.getToolCount();
 		Platform.runLater( () -> splashScreen.setSteps( steps ) );
 
@@ -374,6 +376,13 @@ public class Program extends Application implements ProgramProduct {
 		registerTools( toolManager );
 		Platform.runLater( () -> splashScreen.update() );
 		log.log( DEBUG, "Tool manager started." );
+
+		// Create the theme manager
+		log.log( TRACE, "Starting theme manager..." );
+		themeManager = new ThemeManager( Program.this ).start();
+		getSettingsManager().putOptionProvider( "workspace-theme-option-provider", new ThemeSettingOptionProvider( this ) );
+		Platform.runLater( () -> splashScreen.update() );
+		log.log( DEBUG, "Theme manager started." );
 
 		// Create the workspace manager
 		log.log( TRACE, "Starting workspace manager..." );
@@ -517,6 +526,13 @@ public class Program extends Application implements ProgramProduct {
 			log.log( TRACE, "Stopping workspace manager..." );
 			workspaceManager.stop();
 			log.log( DEBUG, "Workspace manager stopped." );
+		}
+
+		// Stop the theme manager
+		if( themeManager != null ) {
+			log.log( TRACE, "Stopping theme manager..." );
+			themeManager.stop();
+			log.log( DEBUG, "Theme manager stopped." );
 		}
 
 		// Stop the tool manager
@@ -753,6 +769,10 @@ public class Program extends Application implements ProgramProduct {
 
 	public final AssetManager getAssetManager() {
 		return assetManager;
+	}
+
+	public final ThemeManager getThemeManager() {
+		return themeManager;
 	}
 
 	public final WorkspaceManager getWorkspaceManager() {

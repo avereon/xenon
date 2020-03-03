@@ -96,7 +96,7 @@
 	<page id="appearance">
 
 		<group id="workspace-theme">
-			<setting key="workspace-theme-name" editor="combobox">
+			<setting key="workspace-theme-name" editor="combobox" provider="workspace-theme-option-provider">
 				<option key="modena-light" value="modena-light" />
 				<option key="modena-dark" value="modena-dark" />
 			</setting>

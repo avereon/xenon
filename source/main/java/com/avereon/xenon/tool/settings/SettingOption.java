@@ -19,24 +19,27 @@ public class SettingOption extends Node {
 		return getValue( KEY );
 	}
 
-	public void setKey( String key ) {
+	public SettingOption setKey( String key ) {
 		setValue( KEY, key );
+		return this;
 	}
 
 	public String getName() {
 		return getValue( NAME );
 	}
 
-	public void setName( String name ) {
+	public SettingOption setName( String name ) {
 		setValue( NAME, name );
+		return this;
 	}
 
 	public String getOptionValue() {
 		return getValue( VALUE );
 	}
 
-	public void setOptionValue( String value ) {
+	public SettingOption setOptionValue( String value ) {
 		setValue( VALUE, value );
+		return this;
 	}
 
 	@Override

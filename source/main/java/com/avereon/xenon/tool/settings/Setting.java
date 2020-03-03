@@ -1,7 +1,7 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.data.Node;
+import com.avereon.settings.Settings;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +24,8 @@ public class Setting extends Node {
 	private static final String OPAQUE = "opaque";
 
 	private static final String OPTIONS = "options";
+
+	private static final String OPTION_PROVIDER = "option-provider";
 
 	private static final String DEPENDENCIES = "dependencies";
 
@@ -107,7 +109,16 @@ public class Setting extends Node {
 	}
 
 	public List<SettingOption> getOptions() {
+		SettingOptionProvider provider = getValue( OPTION_PROVIDER );
+
+		// NEXT Implement setting option provider
+		//if( provider != null ) return provider.getKeys().map( k -> return new SettingOption().setKey( k ).setName(provider.getName( k)).setOptionValue( provider.getValue( k ));).collect( Collectors.toList());
+
 		return Collections.unmodifiableList( getValue( OPTIONS ) );
+	}
+
+	public void setOptionProvider( SettingOptionProvider provider ) {
+		setValue( OPTION_PROVIDER, provider );
 	}
 
 	public void addOption( SettingOption option ) {
