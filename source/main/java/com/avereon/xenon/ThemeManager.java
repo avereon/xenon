@@ -19,8 +19,11 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	private Map<String, ThemeMetadata> themes;
 
+	private Path profileThemeFolder;
+
 	public ThemeManager( Program program ) {
 		this.program = program;
+		this.profileThemeFolder = getProgram().getDataFolder().resolve( "themes" );
 	}
 
 	public Program getProgram() {
@@ -36,11 +39,10 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	public ThemeManager start() {
 		themes = new HashMap<>();
 
-		if( Profile.DEV.equals( getProgram().getProfile() ) ) updateThemesInProfile();
+		updateProfileThemes();
 
 		try {
-			Path themeFolder = getProgram().getDataFolder().resolve( "themes" );
-			Files.list( themeFolder ).forEach( p -> {
+			Files.list( profileThemeFolder ).forEach( p -> {
 				if( !Files.isDirectory( p ) ) return;
 				try {
 					Path propertiesFile = p.resolve( "theme.properties" );
@@ -82,13 +84,26 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		log.log( Log.WARN, "Theme registered: " + name );
 	}
 
-	private void updateThemesInProfile() {
+	private void updateProfileThemes() {
+		Path source = Paths.get( "source/main/assembly/resources/themes" );
+		Path target = profileThemeFolder;
+
 		// Copy the themes
 		try {
-			FileUtil.delete( getProgram().getDataFolder().resolve( "themes" ) );
-			FileUtil.copy( Paths.get( "source/main/assembly/resources/themes" ), getProgram().getDataFolder(), true );
-		} catch( IOException e ) {
-			log.log( Log.ERROR, e );
+			Files.createDirectories( target );
+			if( !Files.exists( source ) ) return;
+
+			Files.list( source ).forEach( f -> {
+				try {
+					log.log( Log.DEBUG, "Replacing theme: {0}", target.resolve( f.getFileName() ) );
+					FileUtil.delete( target.resolve( f.getFileName() ) );
+					FileUtil.copy( f, target, true );
+				} catch( IOException exception ) {
+					log.log( Log.ERROR, exception );
+				}
+			} );
+		} catch( IOException exception ) {
+			log.log( Log.ERROR, exception );
 		}
 	}
 
