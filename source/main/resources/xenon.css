@@ -410,54 +410,10 @@
 }
 
 /*******************************************************************************
- * Tool Tab
- ******************************************************************************/
-.tool-tab {
-	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
-	-fx-background-color: -ex-background-text;
-}
-
-.tool-tab-label {
-	-fx-text-fill: -fx-text-base-color;
-}
-
-.tool-tab:selected {
-	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
-	-fx-border-width: 0 0 0.5mm 0;
-	-fx-border-color: -fx-faint-focus-color;
-	-fx-background-color: -ex-background-tags;
-}
-
-.tool-tab:selected:hover {
-	-fx-background-color: -ex-background-tags;
-}
-
-.tool-tab:hover {
-	-fx-background-color: -ex-background-tags;
-}
-
-.tool-tab-close {
-	-fx-background-color: transparent;
-	-fx-padding: 0 0 0 1mm;
-}
-
-/*******************************************************************************
- * ToolPane
+ * Tool Pane
  ******************************************************************************/
 .tool-pane {
 	-fx-background-color: transparent;
-}
-
-.tool-pane:active .tool-tab:selected {
-	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
-	-fx-border-width: 0 0 0.5mm 0;
-	-fx-border-color: derive(-fx-focus-color, 20%);
-	-fx-background-color: -ex-background-note;
-}
-
-.tool-pane:active .tool-tab:selected:hover {
-	-fx-border-color: derive(-fx-focus-color, 40%);
-	-fx-background-color: -ex-background-note;
 }
 
 .tool-pane-header-area {
@@ -473,6 +429,42 @@
 	-fx-background-color: transparent;
 }
 
+/*******************************************************************************
+ * Tool Tab
+ ******************************************************************************/
+.tool-pane .tool-tab {
+	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
+	-fx-background-color: -ex-background-text;
+}
+
+.tool-pane .tool-tab .tool-tab-label {
+	-fx-text-fill: -fx-text-base-color;
+}
+
+.tool-pane .tool-tab:hover {
+	-fx-background-color: -ex-background-tags;
+}
+
+.tool-pane .tool-tab-close {
+	-fx-background-color: transparent;
+	-fx-padding: 0 0 0 1mm;
+}
+
+.tool-pane:active .tool-tab:selected {
+	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
+	-fx-border-width: 0 0 0.5mm 0;
+	-fx-border-color: derive(-fx-focus-color, 20%);
+	-fx-background-color: -ex-background-note;
+}
+
+.tool-pane:active .tool-tab:selected:hover {
+	-fx-border-color: derive(-fx-focus-color, 40%);
+	-fx-background-color: -ex-background-note;
+}
+
+/*******************************************************************************
+ * Work Pane
+ ******************************************************************************/
 .work-pane-drop-hint {
 	-fx-fill: -ex-work-pane-drop-hint;
 }

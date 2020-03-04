@@ -387,7 +387,7 @@ public class Program extends Application implements ProgramProduct {
 		// Create the workspace manager
 		log.log( TRACE, "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
-		workspaceManager.setTheme( programSettings.get( "workspace-theme-name" ) );
+		workspaceManager.setTheme( programSettings.get( "workspace-theme-id" ) );
 		Platform.runLater( () -> splashScreen.update() );
 		log.log( DEBUG, "Workspace manager started." );
 

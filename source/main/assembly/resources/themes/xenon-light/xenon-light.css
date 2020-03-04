@@ -42,7 +42,10 @@
 	/*
   -fx-selection-bar-non-focused: rgb(50, 50, 50);
   */
-  
+	-fx-accent: #5C6BC0;
+	-fx-focus-color: #3F51B5;
+	-fx-faint-focus-color: #3F51B522;
+
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
 	-ex-background-tags: rgba(236, 236, 236, 0.6);

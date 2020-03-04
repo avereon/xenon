@@ -50,7 +50,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		workspaces = new CopyOnWriteArraySet<>();
 
 		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
-			if( "workspace-theme-name".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
+			if( "workspace-theme-id".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
 		} );
 	}
 
