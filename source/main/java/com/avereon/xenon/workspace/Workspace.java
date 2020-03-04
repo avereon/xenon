@@ -4,6 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Configurable;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.Profile;
@@ -161,6 +162,7 @@ public class Workspace implements Configurable {
 
 		// Create the stage
 		stage = new Stage();
+		stage.getProperties().put( "id", IdGenerator.getId() );
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
@@ -471,7 +473,10 @@ public class Workspace implements Configurable {
 		// The incoming settings are the workspace settings
 
 		this.settings = settings;
+
 		this.id = settings.get( "id" );
+		// FIXME Use the properties map in the stage to store the id
+		// stage.getProperties().put( "id", settings.get( "id" ) );
 
 		Double x = settings.get( "x", Double.class, null );
 		Double y = settings.get( "y", Double.class, null );
