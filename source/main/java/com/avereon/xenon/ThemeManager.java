@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ThemeManager implements Controllable<ThemeManager> {
 
@@ -26,6 +27,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	public ThemeManager( Program program ) {
 		this.program = program;
+		this.themes = new ConcurrentHashMap<>();
 		this.profileThemeFolder = getProgram().getDataFolder().resolve( "themes" );
 	}
 
