@@ -5,6 +5,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOption;
+import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ComboBox;
@@ -13,6 +14,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ComboBoxSettingEditor extends SettingEditor implements ChangeListener<SettingOption> {
 
@@ -31,7 +33,21 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 
 		label = new Label( product.rb().text( "settings", rbKey ) );
 
-		List<SettingOption> options = setting.getOptions();
+		List<SettingOption> options = List.of();
+		String id = setting.getProvider();
+		if( id != null ) {
+			SettingOptionProvider provider = product.getProgram().getSettingsManager().getOptionProvider( id );
+			if( provider != null ) {
+				options = provider
+					.getKeys()
+					.stream()
+					.map( k -> new SettingOption().setKey( k ).setName( provider.getName( k ) ).setOptionValue( provider.getValue( k ) ) )
+					.collect( Collectors.toList() );
+			}
+		} else {
+			options = setting.getOptions();
+		}
+
 		combobox = new ComboBox<>();
 		combobox.getItems().addAll( options );
 		combobox.setMaxWidth( Double.MAX_VALUE );

@@ -78,6 +78,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return ProgramSettings.PRODUCT + card.getProductKey();
 	}
 
+	public Map<String,SettingOptionProvider> getOptionProviders(){
+		return Collections.unmodifiableMap( optionProviders );
+	}
+
+	public SettingOptionProvider getOptionProvider( String id ) {
+		return optionProviders.get( id );
+	}
+
 	public void putOptionProvider( String id, SettingOptionProvider provider ) {
 		optionProviders.put( id, provider );
 	}

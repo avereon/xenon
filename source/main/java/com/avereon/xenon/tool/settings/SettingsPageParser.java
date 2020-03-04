@@ -26,6 +26,8 @@ public class SettingsPageParser {
 
 	private static final String SETTING = "setting";
 
+	private static final String PROVIDER = "provider";
+
 	private static final String OPTION = "option";
 
 	private static final String DEPENDENCY = "dependency";
@@ -195,6 +197,7 @@ public class SettingsPageParser {
 		if( opaque == null ) opaque = String.valueOf( false );
 		String editable = attributes.get( EDITABLE );
 		if( editable == null ) editable = String.valueOf( false );
+		String provider = attributes.get( PROVIDER );
 
 		Setting setting = new Setting( settings );
 		setting.setKey( key );
@@ -202,6 +205,7 @@ public class SettingsPageParser {
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		//setting.setEditable( Boolean.parseBoolean( editable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
+		setting.setProvider( provider );
 
 		while( reader.hasNext() ) {
 			reader.next();

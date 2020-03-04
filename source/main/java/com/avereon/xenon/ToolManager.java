@@ -54,7 +54,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		log.log( DEBUG, "Tool registered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
+		log.log( DEBUG, "Tool registered: assetType={0} -> tool={1}", assetType.getKey(), type.getName() );
 	}
 
 	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {

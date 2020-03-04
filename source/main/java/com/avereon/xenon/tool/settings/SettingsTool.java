@@ -3,6 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.SettingsManager;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
@@ -10,6 +11,7 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.ScrollPane;
+
 import java.lang.System.Logger;
 
 import java.util.Set;
@@ -35,43 +37,43 @@ public class SettingsTool extends GuidedTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool allocate" );
+		log.log( Log.DEBUG, "Settings tool allocate" );
 		super.allocate();
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool display" );
+		log.log( Log.DEBUG, "Settings tool display" );
 		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool activate" );
+		log.log( Log.DEBUG, "Settings tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool deactivate" );
+		log.log( Log.DEBUG, "Settings tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool conceal" );
+		log.log( Log.DEBUG, "Settings tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool deallocate" );
+		log.log( Log.DEBUG, "Settings tool deallocate" );
 		super.deallocate();
 	}
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) throws ToolException {
-		log.log( Log.DEBUG,  "Settings tool asset ready" );
+		log.log( Log.DEBUG, "Settings tool asset ready" );
 		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
@@ -103,7 +105,8 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void setPage( SettingsPage page ) {
-		SettingsPanel panel = new SettingsPanel( getProduct(), page );
+		SettingsManager manager = getProgram().getSettingsManager();
+		SettingsPanel panel = new SettingsPanel( getProduct(), page, manager.getOptionProviders() );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
 		getChildren().clear();

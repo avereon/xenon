@@ -9,7 +9,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ThemeManager implements Controllable<ThemeManager> {
 
@@ -21,6 +25,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	public ThemeManager( Program program ) {
 		this.program = program;
+		this.themes = new ConcurrentHashMap<>();
 	}
 
 	public Program getProgram() {
@@ -29,13 +34,11 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	@Override
 	public boolean isRunning() {
-		return themes != null;
+		return themes.size() > 0;
 	}
 
 	@Override
 	public ThemeManager start() {
-		themes = new HashMap<>();
-
 		if( Profile.DEV.equals( getProgram().getProfile() ) ) updateThemesInProfile();
 
 		try {
@@ -60,7 +63,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	@Override
 	public ThemeManager stop() {
-		themes = null;
+		themes.clear();
 		return this;
 	}
 
@@ -79,7 +82,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 		themes.put( id, new ThemeMetadata( id, name, stylesheet ) );
 
-		log.log( Log.WARN, "Theme registered: " + name );
+		log.log( Log.DEBUG, "Theme registered: " + name );
 	}
 
 	private void updateThemesInProfile() {
