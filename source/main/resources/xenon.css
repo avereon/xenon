@@ -1,13 +1,4 @@
-/*
- * This style sheet is intentionally coded to refer to the modena.css properties
- */
-
 .root {
-	/* Base colors can be overridden here */
-	/* -fx-base: rgba( 63, 60, 65, 255 ); /* dark */
-	/* -fx-base: rgba( 236, 236, 236, 255 ); /* light */
-
-	/* Program colors */
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
 	-ex-background-tags: rgba(236, 236, 236, 0.6);
