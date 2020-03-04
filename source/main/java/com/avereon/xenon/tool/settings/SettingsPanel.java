@@ -131,15 +131,15 @@ public class SettingsPanel extends VBox {
 
 			// Determine setting option provider, if any
 			String providerId = setting.getProvider();
-			if( providerId != null ) setting.setOptionProvider( optionProviders.get( providerId ) );
+			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
 
 			// Create the editor
 			if( editorClass == null ) {
-				log.log( Log.WARN, "Setting editor not registered: {}", editorType );
+				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
 			} else {
 				SettingEditor editor = createSettingEditor( product, setting, editorClass );
 				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {}", editorClass.getName() );
+				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
 			}
 
 			// Add a watcher to each dependency
