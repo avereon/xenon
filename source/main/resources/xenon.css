@@ -204,28 +204,6 @@
 }
 
 /*******************************************************************************
- * Memory Monitor
- ******************************************************************************/
-.memory-monitor {
-}
-
-.memory-monitor-label {
-	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
-}
-
-.memory-monitor-max {
-	-fx-fill: #e0e0e0;
-}
-
-.memory-monitor-allocated {
-	-fx-fill: #c0c0c0;
-}
-
-.memory-monitor-used {
-	-fx-fill: -fx-accent;
-}
-
-/*******************************************************************************
  * Notice
  ******************************************************************************/
 .notice {
@@ -251,29 +229,47 @@
 }
 
 /*******************************************************************************
+ * Memory Monitor
+ ******************************************************************************/
+.memory-monitor {
+	-fx-background-color: derive( -fx-color, 15% );
+	-fx-text-fill: -fx-text-base-color;
+}
+
+.memory-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
+
+.memory-monitor-allocated {
+	-fx-fill: derive( -fx-color, 30%);
+}
+
+.memory-monitor-used {
+	-fx-fill: derive( -fx-accent, 50%);
+}
+
+/*******************************************************************************
  * Task Monitor
  ******************************************************************************/
 .task-monitor {
+	-fx-background-color: derive( -fx-color, 15% );
+	-fx-text-fill: -fx-text-base-color;
 }
 
 .task-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
 
-.task-monitor-max {
-	-fx-fill: #e0e0e0;
-}
-
 .task-monitor-threads {
-	-fx-fill: #c0c0c0;
+	-fx-fill: derive( -fx-color, 30%);
 }
 
 .task-monitor-tasks {
-	-fx-fill: derive(-fx-accent, 80%);
+	-fx-fill: derive( -fx-accent, 10%);
 }
 
 .task-monitor-progress {
-	-fx-fill: -fx-accent;
+	-fx-fill: derive( -fx-accent, 50%);
 }
 
 /*******************************************************************************

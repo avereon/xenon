@@ -43,8 +43,8 @@
   -fx-selection-bar-non-focused: rgb(50, 50, 50);
   */
 	-fx-accent: #5C6BC0;
-	-fx-focus-color: #3F51B5;
-	-fx-faint-focus-color: #3F51B522;
+	-fx-focus-color: #EF6C00;
+	-fx-faint-focus-color: #EF6C0022;
 
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
@@ -85,3 +85,37 @@
   -fx-background-color: -fx-mark-highlight-color, rgb(255, 255, 255);
 }
 */
+
+/*******************************************************************************
+ * Memory Monitor
+ ******************************************************************************/
+.memory-monitor {
+	-fx-background-color: derive( -fx-color, -10% );
+}
+
+.memory-monitor-allocated {
+	-fx-fill: derive( -fx-color, -20%);
+}
+
+.memory-monitor-used {
+	-fx-fill: derive( -fx-accent, 50%);
+}
+
+/*******************************************************************************
+ * Task Monitor
+ ******************************************************************************/
+.task-monitor {
+	-fx-background-color: derive( -fx-color, -10% );
+}
+
+.task-monitor-threads {
+	-fx-fill: derive( -fx-color, -20%);
+}
+
+.task-monitor-tasks {
+	-fx-fill: derive( -fx-accent, 50%);
+}
+
+.task-monitor-progress {
+	-fx-fill: derive( -fx-accent, 10%);
+}
