@@ -20,10 +20,13 @@ import javafx.scene.text.Font;
 import java.lang.System.Logger;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Map;
 
 public class SettingsPanel extends VBox {
 
 	private static final Logger log = Log.get();
+
+	private Map<String,SettingOptionProvider> optionProviders;
 
 	//	private String[] fontNames;
 	//
@@ -35,7 +38,15 @@ public class SettingsPanel extends VBox {
 	// TODO Add a default button to set individual setting back to default.
 	// TODO Add an undo button to set individual setting back to previous.
 
-	public SettingsPanel( Product product, SettingsPage page ) {
+	/**
+	 *
+	 * @param product
+	 * @param page
+	 * @param optionProviders The map of available option providers
+	 */
+	public SettingsPanel( Product product, SettingsPage page, Map<String,SettingOptionProvider> optionProviders ) {
+		this.optionProviders = optionProviders;
+
 		//		String fontPlain = product.getResourceBundle().getString( "settings", "font-plain" );
 		//		String fontBold = product.getResourceBundle().getString( "settings", "font-bold" );
 		//		String fontItalic = product.getResourceBundle().getString( "settings", "font-italic" );
@@ -47,6 +58,7 @@ public class SettingsPanel extends VBox {
 		//		fontSizes = new String[]{ "8", "10", "12", "14", "16", "18", "20", "22", "24", "26" };
 
 		//setBorder( new Border( new BorderStroke( Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+
 
 		// Get the title
 		String title = page.getTitle();
@@ -117,13 +129,17 @@ public class SettingsPanel extends VBox {
 			Class<? extends SettingEditor> editorClass = SettingEditor.getType( editorType );
 			if( editorClass == null ) editorClass = SettingEditor.getType( "textline" );
 
+			// Determine setting option provider, if any
+			String providerId = setting.getProvider();
+			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
+
 			// Create the editor
 			if( editorClass == null ) {
-				log.log( Log.WARN, "Setting editor not registered: {}", editorType );
+				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
 			} else {
 				SettingEditor editor = createSettingEditor( product, setting, editorClass );
 				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {}", editorClass.getName() );
+				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
 			}
 
 			// Add a watcher to each dependency
