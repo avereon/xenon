@@ -381,6 +381,7 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
+										<argument>-Xmx64m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
