@@ -54,8 +54,10 @@ public class MemoryMonitor extends AbstractMonitor {
 		memoryUsed.getStyleClass().add( "memory-monitor-used" );
 
 		getChildren().addAll( memoryAllocated, memoryUsed, label );
+		update();
 
 		monitors.add( this );
+
 	}
 
 	public boolean isTextVisible() {
@@ -74,15 +76,6 @@ public class MemoryMonitor extends AbstractMonitor {
 	public void setShowPercent( boolean showPercent ) {
 		this.showPercent = showPercent;
 		update();
-	}
-
-	@Override
-	public void requestUpdate() {
-		Runtime runtime = Runtime.getRuntime();
-		maximum = runtime.maxMemory();
-		allocated = runtime.totalMemory();
-		used = allocated - runtime.freeMemory();
-		super.requestUpdate();
 	}
 
 	public void close() {
@@ -104,6 +97,11 @@ public class MemoryMonitor extends AbstractMonitor {
 	}
 
 	protected void update() {
+		Runtime runtime = Runtime.getRuntime();
+		maximum = runtime.maxMemory();
+		allocated = runtime.totalMemory();
+		used = allocated - runtime.freeMemory();
+
 		allocatedPercent = (float)allocated / (float)maximum;
 		usedPercent = (float)used / (float)maximum;
 

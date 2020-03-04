@@ -48,6 +48,7 @@ public class TaskMonitor extends AbstractMonitor {
 		threads.getStyleClass().add( "task-monitor-threads" );
 
 		getChildren().addAll( threads, tasks, label );
+		update();
 
 		// Register for TaskManagerEvents (TaskEvent and TaskThreadEvent)
 		taskManager.getEventBus().register( TaskManagerEvent.ANY, taskWatcher = new TaskWatcher() );
