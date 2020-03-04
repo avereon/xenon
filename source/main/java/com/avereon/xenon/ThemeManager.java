@@ -88,7 +88,8 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	}
 
 	private void updateProfileThemes() {
-		Path source = Paths.get( "source/main/assembly/resources/themes" );
+		Path source = getProgram().getHomeFolder().resolve( "themes" );
+		if( !Files.exists( source ) ) source = Paths.get( "source/main/assembly/resources/themes" );
 		Path target = profileThemeFolder;
 
 		// Copy the themes
