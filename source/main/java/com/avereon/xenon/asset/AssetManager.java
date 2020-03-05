@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.net.URI;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -1329,7 +1330,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( eol ) break;
 		}
 
-		if( encoding == null ) encoding = ProgramDefaults.ENCODING;
+		if( encoding == null ) encoding = StandardCharsets.UTF_8.name();
 		return TextUtil.cleanNull( new String( output.toByteArray(), encoding ) );
 	}
 
