@@ -25,6 +25,10 @@
 	-ex-work-pane-drop-hint: rgba(224, 224, 224, 0.2);
 }
 
+.xe-icon {
+	-xe-outline-paint: derive( -fx-text-base-color, -20% );
+}
+
 .text-input {
   -fx-prompt-text-fill: derive(-fx-control-inner-background, +50%);
 }
