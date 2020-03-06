@@ -9,9 +9,9 @@ import javafx.scene.layout.BorderStroke;
 
 public class UiFactory {
 
-	public static final double DEFAULT_WIDTH = 960;
+	public static final double DEFAULT_WIDTH = 800;
 
-	public static final double DEFAULT_HEIGHT = 540;
+	public static final double DEFAULT_HEIGHT = 500;
 
 	public static final double PAD = BorderStroke.THICK.getTop();
 
