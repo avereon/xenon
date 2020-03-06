@@ -41,12 +41,10 @@ abstract class Screenshots {
 
 	private FxEventWatcher workpaneWatcher;
 
-	Screenshots( int scale ) {
+	public void generate( int scale ) {
 		this.scale = scale;
-	}
-
-	public void run() {
 		System.out.println( "Screenshots scale=" + scale );
+
 		try {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
@@ -131,8 +129,8 @@ abstract class Screenshots {
 			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
 			programWatcher.waitForEvent( ProgramEvent.STARTED, 2000 );
 			Platform.runLater( () -> {
-				program.getWorkspaceManager().getActiveStage().setX( 0 );
-				program.getWorkspaceManager().getActiveStage().setY( 0 );
+				//program.getWorkspaceManager().getActiveStage().setX( 0 );
+				//program.getWorkspaceManager().getActiveStage().setY( 0 );
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * UiFactory.DEFAULT_WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * UiFactory.DEFAULT_HEIGHT );
 			} );
