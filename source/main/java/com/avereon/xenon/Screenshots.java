@@ -27,6 +27,10 @@ abstract class Screenshots {
 
 	private static String PROFILE = "screenshots";
 
+	private static final double WIDTH = 800;
+
+	private static final double HEIGHT = 500;
+
 	private int scale;
 
 	private Path screenshots;
@@ -131,8 +135,8 @@ abstract class Screenshots {
 			Platform.runLater( () -> {
 				//program.getWorkspaceManager().getActiveStage().setX( 0 );
 				//program.getWorkspaceManager().getActiveStage().setY( 0 );
-				program.getWorkspaceManager().getActiveStage().setWidth( scale * UiFactory.DEFAULT_WIDTH );
-				program.getWorkspaceManager().getActiveStage().setHeight( scale * UiFactory.DEFAULT_HEIGHT );
+				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
+				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
 			} );
 			FxUtil.fxWait( 2000 );
 		} catch( Exception exception ) {
