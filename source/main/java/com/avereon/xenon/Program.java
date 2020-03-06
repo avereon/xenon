@@ -132,6 +132,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private SettingsAction settingsAction;
 
+	private ThemesAction themesAction;
+
 	private WelcomeAction welcomeAction;
 
 	private NoticeAction noticeAction;
@@ -1071,6 +1073,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction = new NoticeAction( this ) );
@@ -1097,6 +1100,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
+		getActionLibrary().getAction( "themes" ).pullAction( themesAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "task" ).pullAction( taskAction );
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
@@ -1127,9 +1131,11 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
 		manager.registerUriAssetType( ProgramFaultType.URI, new ProgramFaultType( this ) );
 		manager.registerUriAssetType( ProgramAssetType.URI, new ProgramAssetType( this ) );
+		manager.registerUriAssetType( ProgramThemesType.URI, new ProgramThemesType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.unregisterUriAssetType( ProgramThemesType.URI );
 		manager.unregisterUriAssetType( ProgramAssetType.URI );
 		manager.unregisterUriAssetType( ProgramFaultType.URI );
 		manager.unregisterUriAssetType( ProgramTaskType.URI );
@@ -1151,11 +1157,12 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
 		registerTool( manager, ProgramAssetType.MEDIA_TYPE, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, ProgramThemesType.MEDIA_TYPE, ThemesTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 
-		toolManager.addToolAlias( "com.avereon.xenon.tool.AboutTool", AboutTool.class );
-		toolManager.addToolAlias( "com.avereon.xenon.tool.NoticeTool", NoticeTool.class );
-		toolManager.addToolAlias( "com.avereon.xenon.tool.TaskTool", TaskTool.class );
-		toolManager.addToolAlias( "com.avereon.xenon.tool.WelcomeTool", WelcomeTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.task.TaskTool", TaskTool.class );
+		toolManager.addToolAlias( "com.avereon.xenon.tool.welcome.WelcomeTool", WelcomeTool.class );
 	}
 
 	private void unregisterTools( ToolManager manager ) {

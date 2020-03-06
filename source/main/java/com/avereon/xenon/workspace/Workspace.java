@@ -217,6 +217,7 @@ public class Workspace implements Configurable {
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
+		view.getItems().add( ActionUtil.createMenuItem( program, "themes" ) );
 		view.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
