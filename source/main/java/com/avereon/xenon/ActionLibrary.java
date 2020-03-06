@@ -19,9 +19,6 @@ public class ActionLibrary {
 		ProductBundle bundle = program.rb();
 
 		// Create default actions
-		register( bundle, "settings" );
-		register( bundle, "exit" );
-
 		register( bundle, "program" );
 		register( bundle, "file" );
 		register( bundle, "new" );
@@ -32,6 +29,7 @@ public class ActionLibrary {
 		register( bundle, "save-all" );
 		register( bundle, "close" );
 		register( bundle, "close-all" );
+		register( bundle, "exit" );
 
 		register( bundle, "edit" );
 		register( bundle, "undo" );
@@ -56,6 +54,7 @@ public class ActionLibrary {
 		//		register( bundle, "view-merge-east" );
 		//		register( bundle, "view-merge-west" );
 		register( bundle, "statusbar-show" );
+		register( bundle, "settings" );
 
 		register( bundle, "help" );
 		register( bundle, "help-content" );

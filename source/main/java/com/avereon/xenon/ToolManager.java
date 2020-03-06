@@ -102,7 +102,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
 		if( pane == null && view != null ) pane = view.getWorkpane();
-		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
 		ProgramTool tool = null;

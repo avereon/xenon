@@ -190,23 +190,16 @@ public class Workspace implements Configurable {
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
 
-		Menu prog = ActionUtil.createMenu( program, "program" );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
-		prog.getItems().add( new SeparatorMenuItem() );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
-		prog.getItems().add( new SeparatorMenuItem() );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
-
 		Menu file = ActionUtil.createMenu( program, "file" );
 		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		file.getItems().add( new SeparatorMenuItem() );
 		file.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
+		file.getItems().add( new SeparatorMenuItem() );
+		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 
 		Menu edit = ActionUtil.createMenu( program, "edit" );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
@@ -221,7 +214,10 @@ public class Workspace implements Configurable {
 		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
 
 		Menu view = ActionUtil.createMenu( program, "view" );
+		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
+		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
+		view.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
@@ -239,10 +235,10 @@ public class Workspace implements Configurable {
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-3" ) );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
-		help.getItems().add( new SeparatorMenuItem() );
+		dev.getItems().add( new SeparatorMenuItem() );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
-		menubar.getMenus().addAll( prog, file, edit, view, help );
+		menubar.getMenus().addAll( file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
 
 		return menubar;
