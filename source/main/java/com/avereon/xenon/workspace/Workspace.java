@@ -506,20 +506,20 @@ public class Workspace implements Configurable {
 		setActive( settings.get( "active", Boolean.class, false ) );
 
 		// Add the property listeners
-		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( stage.isShowing() ) settings.set( "maximized", newValue );
+		stage.maximizedProperty().addListener( ( v, o, n ) -> {
+			if( stage.isShowing() ) settings.set( "maximized", n );
 		} );
-		stage.xProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "x", newValue );
+		stage.xProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "x", n );
 		} );
-		stage.yProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "y", newValue );
+		stage.yProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "y", n );
 		} );
-		scene.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "w", newValue );
+		scene.widthProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "w", n );
 		} );
-		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "h", newValue );
+		scene.heightProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "h", n );
 		} );
 
 		backgroundSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );

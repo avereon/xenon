@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
@@ -220,19 +219,10 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace newWorkspace( String id ) {
-
 		Workspace workspace = new Workspace( program );
 		workspace.getEventBus().parent( program.getFxEventHub() );
-
-		Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
-		// Intentionally do not set the x property
-		// Intentionally do not set the y property
-		settings.set( "w", UiFactory.DEFAULT_WIDTH );
-		settings.set( "h", UiFactory.DEFAULT_HEIGHT );
-		workspace.setSettings( settings );
-
+		workspace.setSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( currentTheme );
-
 		return workspace;
 	}
 
