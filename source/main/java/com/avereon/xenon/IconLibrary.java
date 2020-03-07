@@ -60,6 +60,7 @@ public class IconLibrary {
 
 		register( "setting", SettingIcon.class );
 		register( "settings", SettingsIcon.class );
+		register( "themes", ThemeIcon.class );
 
 		register( "guide", GuideIcon.class );
 		register( "fault", FaultIcon.class );

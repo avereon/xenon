@@ -8,6 +8,8 @@ public class ThemesTool extends GuidedTool {
 
 	public ThemesTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		setGraphic( product.getProgram().getIconLibrary().getIcon( "themes" ) );
+		setTitle( product.rb().text( "tool", "themes-name" ) );
 	}
 
 }
