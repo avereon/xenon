@@ -23,8 +23,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
@@ -35,7 +33,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Program program;
 
-	private String currentTheme;
+	private String currentThemeId;
 
 	private Set<Workspace> workspaces;
 
@@ -116,22 +114,16 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.uiReady = uiReady;
 	}
 
-	public void setTheme( String key ) {
-		Path path = getProgram().getHomeFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
-		if( Files.notExists( path ) ) path = getProgram().getDataFolder().resolve( "themes" ).resolve( key ).resolve( key + ".css" );
-
-		currentTheme = Files.exists( path ) ? path.toUri().toString() : null;
-		workspaces.forEach( w -> w.setTheme( currentTheme ) );
-
-		// TODO Use the new theme information to set the icon color scheme
-		//ProgramIcon.setDefaultColorTheme( new ColorTheme( getThemeColor( "-fx-color" ) ) );
-		//ProgramIcon.setDefaultOutlineColor( getThemeColor( "-fx-text-base-color" ) );
-
-		studyStylesheets( currentTheme );
+	public String getTheme() {
+		return currentThemeId;
 	}
 
-	private Color getThemeColor( String key ) {
-		return getThemeBaseColor( currentTheme, key );
+	public void setTheme( String id ) {
+		this.currentThemeId = id;
+		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
+		workspaces.forEach( w -> w.setTheme( theme.getStylesheet() ) );
+
+		studyStylesheets( theme.getStylesheet() );
 	}
 
 	private Color getThemeBaseColor( String url, String key ) {
@@ -222,7 +214,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Workspace workspace = new Workspace( program );
 		workspace.getEventBus().parent( program.getFxEventHub() );
 		workspace.setSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
-		workspace.setTheme( currentTheme );
+		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
 		return workspace;
 	}
 

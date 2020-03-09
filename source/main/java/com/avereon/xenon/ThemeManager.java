@@ -42,24 +42,8 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	@Override
 	public ThemeManager start() {
-		updateProfileThemes();
-
-		try {
-			Files.list( profileThemeFolder ).forEach( p -> {
-				if( !Files.isDirectory( p ) ) return;
-				try {
-					Path propertiesFile = p.resolve( "theme.properties" );
-					Properties properties = new Properties();
-					properties.load( new FileReader( propertiesFile.toFile() ) );
-					registerTheme( properties );
-				} catch( IOException exception ) {
-					exception.printStackTrace();
-				}
-			} );
-		} catch( IOException exception ) {
-			throw new RuntimeException( "Unable to start theme manager", exception );
-		}
-
+		updateProvidedThemes();
+		reloadProfileThemes();
 		return this;
 	}
 
@@ -82,12 +66,33 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		String name = properties.getProperty( "name" );
 		String stylesheet = properties.getProperty( "stylesheet" );
 
-		themes.put( id, new ThemeMetadata( id, name, stylesheet ) );
+		Path path = getProgram().getDataFolder().resolve( "themes" ).resolve( id ).resolve( stylesheet );
+
+		themes.put( id, new ThemeMetadata( id, name, path.toUri().toString() ) );
 
 		log.log( Log.DEBUG, "Theme registered: " + name );
 	}
 
-	private void updateProfileThemes() {
+	private void reloadProfileThemes() {
+		try {
+			themes.clear();
+			Files.list( profileThemeFolder ).forEach( p -> {
+				if( !Files.isDirectory( p ) ) return;
+				try {
+					Path propertiesFile = p.resolve( "theme.properties" );
+					Properties properties = new Properties();
+					properties.load( new FileReader( propertiesFile.toFile() ) );
+					registerTheme( properties );
+				} catch( IOException exception ) {
+					exception.printStackTrace();
+				}
+			} );
+		} catch( IOException exception ) {
+			throw new RuntimeException( "Unable to start theme manager", exception );
+		}
+	}
+
+	private void updateProvidedThemes() {
 		Path source = getProgram().getHomeFolder().resolve( "themes" );
 		if( !Files.exists( source ) ) source = Paths.get( "source/main/assembly/resources/themes" );
 		Path target = profileThemeFolder;

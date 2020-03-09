@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-public final class ThemeMetadata {
+public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 
 	private String id;
 
@@ -26,4 +26,13 @@ public final class ThemeMetadata {
 		return stylesheet;
 	}
 
+	@Override
+	public int compareTo( ThemeMetadata that ) {
+		return this.name.compareTo( that.name );
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }
