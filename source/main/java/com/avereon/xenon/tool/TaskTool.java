@@ -1,14 +1,10 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
-import com.avereon.xenon.Profile;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -22,14 +18,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.lang.System.Logger;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class TaskTool extends ProgramTool {
 
-	private static final Logger log = Log.get();
+	private static final System.Logger log = Log.get();
 
 	private final Set<Task<?>> tasks;
 
