@@ -310,9 +310,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		}
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-		alert.setTitle( program.rb().text( BundleKey.PROGRAM, "asset-modifed" ) );
-		alert.setHeaderText( program.rb().text( BundleKey.PROGRAM, "asset-modifed-message" ) );
-		alert.setContentText( program.rb().text( BundleKey.PROGRAM, "asset-modifed-prompt" ) );
+		alert.setTitle( program.rb().text( BundleKey.PROGRAM, "asset-modified" ) );
+		alert.setHeaderText( program.rb().text( BundleKey.PROGRAM, "asset-modified-message" ) );
+		alert.setContentText( program.rb().text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
 		alert.initOwner( getActiveWorkspace().getStage() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();

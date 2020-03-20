@@ -653,9 +653,9 @@ public class Program extends Application implements ProgramProduct {
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
 			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( rb().text( "program", "program.close.title" ) );
-			alert.setHeaderText( rb().text( "program", "program.close.message" ) );
-			alert.setContentText( rb().text( "program", "program.close.prompt" ) );
+			alert.setTitle( rb().text( BundleKey.PROGRAM, "program.close.title" ) );
+			alert.setHeaderText( rb().text( BundleKey.PROGRAM, "program.close.message" ) );
+			alert.setContentText( rb().text( BundleKey.PROGRAM, "program.close.prompt" ) );
 
 			Stage stage = getWorkspaceManager().getActiveStage();
 			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
