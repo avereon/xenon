@@ -8,7 +8,6 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -57,14 +56,12 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetRefreshed() throws ToolException {
-		super.assetRefreshed();
+	protected void assetRefreshed() {
 		updateNotices();
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		super.allocate();
+	protected void allocate() {
 		updateNotices();
 	}
 

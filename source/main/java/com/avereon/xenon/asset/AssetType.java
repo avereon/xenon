@@ -3,6 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
 
 import java.lang.System.Logger;
 import java.util.Collections;
@@ -54,7 +55,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private final String key = getClass().getName();
 
-	private Product product;
+	private ProgramProduct product;
 
 	private String rbKey;
 
@@ -62,12 +63,16 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private Codec defaultCodec;
 
-	public AssetType( Product product, String rbKey ) {
+	public AssetType( ProgramProduct product, String rbKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( rbKey == null ) throw new NullPointerException( "Resource bundle key cannot be null" );
 		this.product = product;
 		this.rbKey = rbKey;
 		this.codecs = new CopyOnWriteArraySet<>();
+	}
+
+	public Program getProgram() {
+		return product.getProgram();
 	}
 
 	public Product getProduct() {
@@ -153,7 +158,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 *
 	 * @param program
 	 * @param asset
-	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
+	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
 	 * @throws AssetException if the asset failed to be initialized.
 	 */
 	public boolean assetInit( Program program, Asset asset ) throws AssetException {

@@ -388,7 +388,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Called when the asset is ready to be used by the tool.
 	 */
-	public void callAssetReady( OpenAssetRequest request ) {
+	public final void callAssetReady( OpenAssetRequest request ) {
 		try {
 			assetReady( request );
 		} catch( ToolException exception ) {
