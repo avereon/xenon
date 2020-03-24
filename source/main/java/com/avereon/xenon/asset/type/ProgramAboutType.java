@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
@@ -18,7 +18,7 @@ public class ProgramAboutType extends AssetType {
 
 	private static final Logger log = Log.get();
 
-	public ProgramAboutType( Product product ) {
+	public ProgramAboutType( ProgramProduct product ) {
 		super( product, "about" );
 	}
 

@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
-import com.avereon.product.Product;
 import com.avereon.xenon.BaseTestCase;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.mod.MockMod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 
 public class AssetTypeTest extends BaseTestCase {
 
-	private Product product;
+	private ProgramProduct product;
 
 	@BeforeEach
 	@Override

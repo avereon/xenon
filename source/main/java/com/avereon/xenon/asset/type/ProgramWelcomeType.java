@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.product.Product;
-import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.Codec;
 
 public class ProgramWelcomeType extends AssetType {
 
@@ -10,7 +10,7 @@ public class ProgramWelcomeType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:welcome" );
 
-	public ProgramWelcomeType( Product product ) {
+	public ProgramWelcomeType( ProgramProduct product ) {
 		super( product, "welcome" );
 	}
 

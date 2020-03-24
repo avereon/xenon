@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.Program;
-import com.avereon.product.Product;
+import com.avereon.xenon.ProgramProduct;
 
 public class MockAssetType extends AssetType {
 
@@ -13,11 +13,11 @@ public class MockAssetType extends AssetType {
 
 	private static final String DESCRIPTION = "Mock Asset Type";
 
-	public MockAssetType( Product product ) {
+	public MockAssetType( ProgramProduct product ) {
 		this( product, "mock", new MockCodec() );
 	}
 
-	public MockAssetType( Product product, String key, Codec defaultCodec ) {
+	public MockAssetType( ProgramProduct product, String key, Codec defaultCodec ) {
 		super( product, key );
 		this.key = key;
 		setDefaultCodec( defaultCodec );

@@ -1,6 +1,6 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.product.Product;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 
@@ -10,7 +10,7 @@ public class ProgramGuideType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:guide" );
 
-	public ProgramGuideType( Product product ) {
+	public ProgramGuideType( ProgramProduct product ) {
 		super( product, "guide" );
 	}
 
