@@ -222,20 +222,23 @@ public class Asset extends Node implements Configurable {
 	}
 
 	/**
-	 * A asset is "new" if it is created with an asset type. The URI is
-	 * assigned when the asset is saved.
-	 * <p>
-	 * A asset is "old" if it is created with a URI. The asset type is
-	 * determined when the asset is opened.
-	 * <p>
 	 * A asset is "new" if it does not have a URI associated with it yet. This
 	 * usually occurs when the asset is created with only an asset type and
 	 * has not been saved yet. When it is saved, a URI will be associated to the
 	 * asset and it will be considered "old" from that point forward.
+	 * <p>
+	 * A asset is "old" if it is created with a URI. The asset type is
+	 * determined when the asset is opened.
 	 *
 	 * @return If the asset is "new"
 	 */
 	public synchronized final boolean isNew() {
+		// FIXME The isNew() logic may need improving
+		// This logic is problematic in the case of an asset that has been created
+		// but not yet saved. It can be in a tool, the program restarted and the
+		// tool restored. In this case it should be restored with any prior
+		// temporary state that should have been saved. The asset is not new but
+		// it does not yet have a "real" URI.
 		return AssetScheme.ID.equals( getUri().getScheme() );
 	}
 
