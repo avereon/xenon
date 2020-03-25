@@ -4,11 +4,14 @@ import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import javafx.application.Platform;
 
 import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>
@@ -94,6 +97,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	public String getIcon() {
 		return product.rb().textOr( "asset", rbKey + "-icon", "asset" );
 	}
+
 	/**
 	 * Is this asset type a user defined asset type. Usually it is a user
 	 * defined asset type so this should return true. For program defined
@@ -165,6 +169,10 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return true;
 	}
 
+	boolean callAssetInit( Program program, Asset asset ) throws AssetException {
+		return assetInit( program, asset );
+	}
+
 	/**
 	 * This method is called just before a new asset is opened to allow for
 	 * user interaction. This method is valuable if the asset requires user
@@ -186,6 +194,35 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return true;
 	}
 
+	boolean callAssetUser( Program program, Asset asset ) throws AssetException {
+		Object lock = new Object();
+		AtomicBoolean result = new AtomicBoolean(  );
+		AtomicReference<AssetException> resultException = new AtomicReference<>();
+
+		Platform.runLater( () -> {
+			synchronized( lock ) {
+				try {
+					result.set( assetUser( program, asset ) );
+				} catch( AssetException exception ) {
+					resultException.set( exception );
+				} finally {
+					lock.notifyAll();
+				}
+			}
+		} );
+
+		synchronized( lock ) {
+			try {
+				lock.wait( 60000 );
+			} catch( InterruptedException exception ) {
+				exception.printStackTrace();
+			}
+		}
+
+		if( resultException.get() != null ) throw resultException.get();
+		return result.get();
+	}
+
 	@Override
 	public String toString() {
 		return getName();
@@ -200,7 +237,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		if( type == null ) return null;
 
 		for( Codec codec : codecs ) {
-			if( codec.isSupportedMediaType( type )) return codec;
+			if( codec.isSupportedMediaType( type ) ) return codec;
 		}
 
 		return null;
@@ -230,7 +267,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		if( line == null ) return null;
 
 		for( Codec codec : codecs ) {
-			if( codec.isSupportedFirstLine( line )) return codec;
+			if( codec.isSupportedFirstLine( line ) ) return codec;
 		}
 
 		return null;
