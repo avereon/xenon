@@ -1122,12 +1122,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( !type.callAssetInit( program, asset ) ) return false;
 		log.log( Log.TRACE, "Asset initialized with default values." );
 
-		// If the asset is new get user input from the asset type.
-		if( asset.isNew() ) {
-			if( !type.callAssetUser( program, asset ) ) return false;
-			log.log( Log.TRACE, "Asset initialized with user values." );
-		}
-
 		// Open the asset.
 		asset.open( this );
 
@@ -1364,6 +1358,12 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Create the tool if needed
 			ProgramTool tool;
 			try {
+				// If the asset is new get user input from the asset type.
+				//if( asset.isNew() ) {
+					if( !asset.getType().callAssetUser( program, asset ) ) return null;
+					log.log( Log.TRACE, "Asset initialized with user values." );
+				//}
+
 				tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
 			} catch( NoToolRegisteredException exception ) {
 				String title = program.rb().text( "program", "no-tool-for-asset-title" );
