@@ -72,7 +72,7 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) {
 		log.log( Log.DEBUG, "Settings tool asset ready" );
 		super.assetReady( request );
 

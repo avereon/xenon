@@ -93,7 +93,7 @@ public class Asset extends Node implements Configurable {
 
 		if( isNew() && type == null ) throw new IllegalArgumentException( "New assets require an asset type" );
 
-		eventBus = new FxEventHub();
+		eventBus = new FxEventHub().parent( super.getEventHub() );
 
 		// Create the undo manager
 		undoManager = new BasicUndoManager();

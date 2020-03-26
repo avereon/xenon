@@ -147,7 +147,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) {
 		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
@@ -158,7 +158,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetRefreshed() throws ToolException {
+	protected void assetRefreshed() {
 		updatePages();
 	}
 

@@ -8,7 +8,6 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
-import com.avereon.xenon.workpane.ToolException;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -45,7 +44,7 @@ public class AssetTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) {
 		view.update();
 	}
 

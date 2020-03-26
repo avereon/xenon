@@ -292,7 +292,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			@Override
 			public void handle( AssetEvent event ) {
 				asset.getEventBus().unregister( AssetEvent.READY, this );
-				Platform.runLater( () -> tool.callAssetReady( request.getOpenAssetRequest() ) );
+				tool.callAssetReady( request.getOpenAssetRequest() );
 			}
 
 		} );
