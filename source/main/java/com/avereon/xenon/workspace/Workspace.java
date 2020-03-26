@@ -45,8 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Workspace implements Configurable {
 
-	public static final String SEPARATOR = "|";
-
 	private static final System.Logger log = Log.get();
 
 	private Program program;
@@ -249,18 +247,8 @@ public class Workspace implements Configurable {
 
 	private ToolBar createToolBar( Program program ) {
 		ToolBar toolbar = new ToolBar();
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "properties" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
-
+		String[] ids = new String[]{ "new", "open", "save", "properties", ActionUtil.SEPARATOR, "undo", "redo", ActionUtil.SEPARATOR, "cut", "copy", "paste" };
+		toolbar.getItems().addAll( ActionUtil.createToolBarItems( program, ids ) );
 		toolbar.getItems().add( toolbarToolSpring );
 
 		// Workarea menu
@@ -327,15 +315,7 @@ public class Workspace implements Configurable {
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolSpring );
 		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
-		for( String id : ids ) {
-			Node node;
-			if( SEPARATOR.equals( id ) ) {
-				node = new Separator();
-			} else {
-				node = ActionUtil.createToolBarButton( getProgram(), id );
-			}
-			toolbar.getItems().add( index++, node );
-		}
+		toolbar.getItems().addAll( index, ActionUtil.createToolBarItems( getProgram(), ids ) );
 	}
 
 	public void pullToolbarActions() {

@@ -6,21 +6,24 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+
 import java.lang.System.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActionUtil {
 
 	private static final Logger log = Log.get();
+
+	public static final String SEPARATOR = "|";
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 
@@ -76,6 +79,17 @@ public class ActionUtil {
 		action.iconProperty().addListener( ( event ) -> item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) ) );
 
 		return item;
+	}
+
+	public static List<Node> createToolBarItems( Program program, String... ids ) {
+		List<Node> nodes = new ArrayList<>();
+
+		for( String id : ids ) {
+			boolean isSeparator = ActionUtil.SEPARATOR.equals( id );
+			nodes.add( isSeparator ? new Separator() : ActionUtil.createToolBarButton( program, id ) );
+		}
+
+		return nodes;
 	}
 
 	public static Button createToolBarButton( Program program, String id ) {
