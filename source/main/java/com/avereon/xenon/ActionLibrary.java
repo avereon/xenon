@@ -81,6 +81,7 @@ public class ActionLibrary {
 		register( bundle, "task" );
 		register( bundle, "themes" );
 
+		register( bundle, "reset" );
 		register( bundle, "refresh" );
 		register( bundle, "enable" );
 		register( bundle, "disable" );
@@ -88,6 +89,8 @@ public class ActionLibrary {
 		register( bundle, "remove" );
 		register( bundle, "add-market" );
 		register( bundle, "remove-market" );
+
+		register( bundle, "runpause" );
 	}
 
 	public ActionProxy getAction( String id ) {

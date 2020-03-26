@@ -400,7 +400,7 @@ public abstract class Tool extends Control {
 	 * Called when the asset data is refreshed. This method calls
 	 * {@link #assetRefreshed()} on the FX platform thread.
 	 */
-	protected void callAssetRefreshed() {
+	protected final void callAssetRefreshed() {
 		Platform.runLater( () -> {
 			try {
 				assetRefreshed();

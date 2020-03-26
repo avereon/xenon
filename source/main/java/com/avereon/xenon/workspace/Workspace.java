@@ -45,6 +45,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Workspace implements Configurable {
 
+	public static final String SEPARATOR = "|";
+
 	private static final System.Logger log = Log.get();
 
 	private Program program;
@@ -327,7 +329,7 @@ public class Workspace implements Configurable {
 		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
 		for( String id : ids ) {
 			Node node;
-			if( "separator".equals( id ) ) {
+			if( SEPARATOR.equals( id ) ) {
 				node = new Separator();
 			} else {
 				node = ActionUtil.createToolBarButton( getProgram(), id );
