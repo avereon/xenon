@@ -82,6 +82,10 @@ public abstract class Tool extends Control {
 		return asset;
 	}
 
+	public final <T> T getAssetModel() {
+		return asset.getModel();
+	}
+
 	public Workpane.Placement getPlacement() {
 		return DEFAULT_TOOL_PLACEMENT;
 	}
