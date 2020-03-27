@@ -1,9 +1,12 @@
 package com.avereon.xenon.task;
 
+import com.avereon.event.Event;
+import com.avereon.event.EventHandler;
+import com.avereon.event.EventHub;
+import com.avereon.event.EventType;
 import com.avereon.util.Log;
-import com.avereon.venza.event.FxEventHub;
-import java.lang.System.Logger;
 
+import java.lang.System.Logger;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -51,7 +54,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 
 	private Throwable throwable;
 
-	private FxEventHub eventBus;
+	private EventHub eventBus;
 
 	private TaskManager manager;
 
@@ -78,7 +81,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		this.name = name;
 		this.priority = priority;
 		exceptionSource = new TaskException();
-		eventBus = new FxEventHub();
+		eventBus = new EventHub();
 		taskCallable.setCallable( this );
 	}
 
@@ -132,9 +135,9 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		return progress;
 	}
 
-	public FxEventHub getEventBus() {
-		return eventBus;
-	}
+	public <T extends Event> EventHub register( EventType<? super T> type, EventHandler<? super T> handler ) {return eventBus.register( type, handler );}
+
+	public <T extends Event> EventHub unregister( EventType<? super T> type, EventHandler<? super T> handler ) {return eventBus.unregister( type, handler );}
 
 	@Override
 	public String toString() {
@@ -249,6 +252,10 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 	protected void failed() {
 		TaskManager manager = getTaskManager();
 		if( manager != null ) manager.taskFailed( this, getException() );
+	}
+
+	EventHub getEventBus() {
+		return eventBus;
 	}
 
 	void setTaskManager( TaskManager manager ) {

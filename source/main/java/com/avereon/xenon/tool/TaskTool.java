@@ -69,8 +69,8 @@ public class TaskTool extends ProgramTool {
 			if( tasks.contains( task ) ) return;
 			tasks.add( task );
 			TaskPane pane = new TaskPane( task );
-			task.getEventBus().register( TaskEvent.PROGRESS, e -> Platform.runLater( () -> pane.setProgress( e.getTask().getPercent() ) ) );
-			task.getEventBus().register( TaskEvent.FINISH, e -> Platform.runLater( () -> removeTaskPane( pane ) ) );
+			task.register( TaskEvent.PROGRESS, e -> Platform.runLater( () -> pane.setProgress( e.getTask().getPercent() ) ) );
+			task.register( TaskEvent.FINISH, e -> Platform.runLater( () -> removeTaskPane( pane ) ) );
 			if( !task.isDone() ) taskPanes.getChildren().add( pane );
 		}
 	}

@@ -103,6 +103,10 @@ public class TaskManager implements Controllable<TaskManager> {
 		return new ArrayList<>( taskQueue );
 	}
 
+	public ExecutorService getExecutor() {
+		return new TaskExecutor( this );
+	}
+
 	public int getCurrentThreadCount() {
 		int count = 0;
 		count += executorP1 == null ? 0 : executorP1.getPoolSize();
