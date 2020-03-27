@@ -4,8 +4,6 @@ import com.avereon.util.Log;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -97,14 +95,6 @@ public class ActionUtil {
 	}
 
 	public static Button createToolBarButton( Program program, ActionProxy action ) {
-		if( "multi-state".equals( action.getType() ) ) {
-			return createMultiStateToolBarButton( program, action );
-		} else {
-			return createNormalToolBarButton( program, action );
-		}
-	}
-
-	private static Button createNormalToolBarButton( Program program, ActionProxy action ) {
 		Button button = new Button();
 
 		button.setOnAction( action );
@@ -117,30 +107,8 @@ public class ActionUtil {
 		return button;
 	}
 
-	public static Button createMultiStateToolBarButton( Program program, ActionProxy action ) {
-		Button button = createNormalToolBarButton( program, action );
-		button.addEventHandler( ActionEvent.ACTION, new MultiStateButtonActionHandler( action ) );
-		return button;
-	}
-
-	private static class MultiStateButtonActionHandler implements EventHandler<ActionEvent> {
-
-		private ActionProxy action;
-
-		private MultiStateButtonActionHandler( ActionProxy action ) {
-			this.action = action;
-			action.setState( action.getStates().get( 0 ) );
-		}
-
-		@Override
-		public void handle( ActionEvent event ) {
-			action.setState( action.getNextState() );
-		}
-
-	}
-
 	public static Button createButton( Program program, ActionProxy action ) {
-		return createNormalToolBarButton( program, action );
+		return createToolBarButton( program, action );
 	}
 
 	public static Button createNamedButton( Program program, ActionProxy action ) {

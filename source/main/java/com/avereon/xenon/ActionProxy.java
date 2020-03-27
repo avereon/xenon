@@ -115,6 +115,14 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		updateMnemonicName();
 	}
 
+	void setMnemonic( String mnemonic ) {
+		try {
+			setMnemonic( Integer.parseInt( mnemonic ) );
+		} catch( NumberFormatException exception ) {
+			setMnemonic( ActionProxy.NO_MNEMONIC );
+		}
+	}
+
 	public String getType() {
 		return type;
 	}
@@ -146,6 +154,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	public void addState( String id, String name, String icon ) {
 		stateMap.put( id, new ActionState( id, name, icon ) );
 		states.add( id );
+		if( states.size() == 1 ) setState( id );
 	}
 
 	public List<String> getStates() {
@@ -166,7 +175,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		return states.get( index );
 	}
 
-	public String getNextState( ) {
+	public String getNextState() {
 		return getStateAfter( currentState );
 	}
 
@@ -183,6 +192,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	public void handle( ActionEvent event ) {
 		if( actionStack.size() == 0 ) return;
 		actionStack.peek().handle( event );
+		setState( getNextState() );
 	}
 
 	public void pushAction( Action action ) {
@@ -221,7 +231,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 		private String icon;
 
-		public ActionState( String id, String name, String icon ) {
+		private ActionState( String id, String name, String icon ) {
 			this.id = id;
 			this.name = name;
 			this.icon = icon;

@@ -95,7 +95,7 @@ public class ActionLibrary {
 
 	public ActionProxy getAction( String id ) {
 		ActionProxy proxy = actions.get( id );
-		if( proxy == null ) log.log( Log.WARN,  "Action proxy not found: " + id );
+		if( proxy == null ) log.log( Log.WARN, "Action proxy not found: " + id );
 		return proxy;
 	}
 
@@ -114,22 +114,20 @@ public class ActionLibrary {
 		proxy.setName( name );
 		proxy.setType( type );
 		proxy.setShortcut( shortcut );
-		try {
-			proxy.setMnemonic( Integer.parseInt( mnemonic ) );
-		} catch( NumberFormatException exception ) {
-			proxy.setMnemonic( ActionProxy.NO_MNEMONIC );
-		}
+		proxy.setMnemonic( mnemonic );
 
-		if( "multi-state".equals( type ) ) {
-			String[] states = bundle.textOr( BundleKey.ACTION, id + ".states", "" ).split( "," );
-			for( String state : states ) {
-				String stateName = bundle.textOr( BundleKey.ACTION, id + "." + state + ".name", "" );
-				String stateIcon = bundle.textOr( BundleKey.ACTION, id + "." + state + ".icon", "" );
-				proxy.addState( state, stateName, stateIcon );
-			}
-		}
+		if( "multi-state".equals( type ) ) addStates( bundle, id, proxy );
 
 		actions.put( id, proxy );
+	}
+
+	private void addStates( ProductBundle bundle, String id, ActionProxy proxy ) {
+		String[] states = bundle.textOr( BundleKey.ACTION, id + ".states", "" ).split( "," );
+		for( String state : states ) {
+			String stateName = bundle.textOr( BundleKey.ACTION, id + "." + state + ".name", "" );
+			String stateIcon = bundle.textOr( BundleKey.ACTION, id + "." + state + ".icon", "" );
+			proxy.addState( state, stateName, stateIcon );
+		}
 	}
 
 }

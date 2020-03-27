@@ -38,6 +38,15 @@ public abstract class Action implements EventHandler<ActionEvent> {
 		return this;
 	}
 
+	/**
+	 * Get the current state of the action for multi-state actions.
+	 *
+	 * @return The state id
+	 */
+	protected String getState() {
+		return proxy == null ? null : proxy.getState();
+	}
+
 	void setActionProxy( ActionProxy proxy ) {
 		this.proxy = proxy;
 	}

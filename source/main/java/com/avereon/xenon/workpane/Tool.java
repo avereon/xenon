@@ -292,7 +292,8 @@ public abstract class Tool extends Control {
 	/**
 	 * Called when the asset is ready to be used by the tool. This method is
 	 * called each time the asset edited by this tool is opened. If it is
-	 * opened another time it may have different parameters.
+	 * opened another time it may have different request parameters such as
+	 * a different query string or fragment.
 	 *
 	 * @param request The request used to open the asset
 	 */
