@@ -170,6 +170,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public String getStateAfter( String state ) {
+		if( states.isEmpty() ) return null;
 		int index = states.indexOf( state ) + 1;
 		if( index >= states.size() ) index = 0;
 		return states.get( index );
@@ -180,6 +181,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public void setState( String state ) {
+		if( state == null ) return;
 		setIcon( getStateIcon( state ) );
 		currentState = state;
 	}
