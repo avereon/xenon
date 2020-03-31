@@ -30,7 +30,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
@@ -102,7 +102,7 @@ jobs:
     needs: build
     name: Linux Binaries
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
@@ -170,7 +170,7 @@ jobs:
     needs: build
     name: Mac OS Binaries
     runs-on: macos-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "macosx"
@@ -238,7 +238,7 @@ jobs:
     needs: build
     name: Windows Binaries
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "windows"
