@@ -32,17 +32,17 @@
  * Splash Screen
  ******************************************************************************/
 .splashscreen-tint {
-	-fx-fill: -fx-background;
-	-fx-opacity: 0.8;
+	-fx-fill: #202020;
+	-fx-opacity: 0.75;
 }
 
 .splashscreen-title {
-	-fx-fill: -fx-text-background-color;
+	-fx-fill: #c0c0c0;
 }
 
 .splashscreen-accent {
-	-fx-fill: #7986CB;
-	-fx-opacity: 0.2;
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.4;
 }
 
 .splashscreen-progress {

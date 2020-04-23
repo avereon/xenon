@@ -2,14 +2,10 @@ package com.avereon.xenon;
 
 import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.util.Log;
-import com.avereon.venza.color.Colors;
 import com.avereon.venza.image.ProgramImage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -46,15 +42,9 @@ public class SplashScreenPane extends Pane {
 	public SplashScreenPane( String title ) {
 		this.title = title;
 
-		Color a = Colors.mix( Color.web( "#7986CB" ), Color.BLACK, 0.2 );
-		Color b = Colors.mix( Color.web( "#FF9800" ), Color.web( "#7986CB" ), 0.5 );
-		double x = 0;
-		double y = 0;
-		LinearGradient paint = new LinearGradient( x, y, 0, HEIGHT, false, CycleMethod.NO_CYCLE, new Stop( 0, a ), new Stop( 1, b ) );
-
 		// The background is a workaround to the stage color changing on Windows
 		Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
-		background.setFill( paint );
+		background.setFill( Color.GRAY );
 
 		ProgramImage icon = new XRingLargeIcon().setSize( 192 );
 		icon.setLayoutX( 0.5 * (WIDTH - icon.getWidth()) );
@@ -78,21 +68,16 @@ public class SplashScreenPane extends Pane {
 		progressBar.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-incomplete" );
 
 		double radius = 80;
-		double offset = 80;
 		double centerLine = 0.5 * (HEIGHT - BAR_PAD - BAR_SIZE);
 
-		Circle accentA = new Circle( -40, centerLine - 0.5 * radius, radius, new Color( 1, 1, 1, 0.4 ) );
-		Circle accentB = new Circle( -40, centerLine + 0.5 * radius, radius, new Color( 1, 1, 1, 0.5 ) );
+		Circle accentA = new Circle( -40, centerLine - 0.5 * radius, radius );
+		Circle accentB = new Circle( -40, centerLine - 0.0 * radius, radius );
 		accentA.getStyleClass().addAll( "splashscreen-accent" );
 		accentB.getStyleClass().addAll( "splashscreen-accent" );
 
-		getChildren().addAll( background );
-		//getChildren().add( new Circle( -40, centerLine - 0.5 * radius, radius, new Color( 1, 1, 1, 0.4 ) ) );
-		//getChildren().add( new Circle( -40, centerLine + 0.5 * radius, radius, new Color( 1, 1, 1, 0.5 ) ) );
-		//getChildren().add( new Circle( 80, -240, 360, new Color( 1, 1, 1, 0.1 ) ) );
-		getChildren().add( icon );
-		getChildren().addAll( tint, accentA, accentB );
-		getChildren().addAll( titleText, progressTray, progressBar );
+		getChildren().addAll( background, icon, tint );
+		getChildren().addAll( accentA, accentB, titleText );
+		getChildren().addAll( progressTray, progressBar );
 
 		setWidth( WIDTH );
 		setHeight( HEIGHT );
