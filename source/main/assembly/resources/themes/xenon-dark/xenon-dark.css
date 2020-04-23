@@ -16,6 +16,8 @@
 	-fx-faint-focus-color: #E6510022;
 
   -fx-selection-bar-non-focused: rgb(50, 50, 50);
+
+	-ex-background-tint-color: #20202040;
   
  	-ex-background-text: rgba(108, 108, 108, 0.2);
 	-ex-background-tabs: rgba(108, 108, 108, 0.4);

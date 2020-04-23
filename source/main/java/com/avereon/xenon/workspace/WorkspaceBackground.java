@@ -97,7 +97,8 @@ public class WorkspaceBackground extends Pane {
 		configureImagePane();
 		imagePane.setVisible( imageEnabled );
 
-		tintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
+		//tintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
+		tintPane.getStyleClass().add( "workspace-tint" );
 		tintPane.setVisible( tintEnabled );
 	}
 

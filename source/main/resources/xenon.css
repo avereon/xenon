@@ -1,4 +1,6 @@
 .root {
+	-ex-background-tint-color: #c0c0c040;
+
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
 	-ex-background-tags: rgba(236, 236, 236, 0.6);
@@ -91,6 +93,10 @@
 .workspace {
 	/* Will override the user preference background */
 	/*-fx-background-color: #80a0c0ff;*/
+}
+
+.workspace-tint {
+	-fx-background-color: -ex-background-tint-color;
 }
 
 /*******************************************************************************
