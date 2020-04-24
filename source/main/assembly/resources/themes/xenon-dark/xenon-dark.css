@@ -11,7 +11,9 @@
   -fx-mid-text-color: rgb(100, 100, 100);
   -fx-dark-text-color: rgb(20, 20, 20);
 
-	-fx-accent: #303F9F;
+	-fx-accent: #3040a0;
+	-fx-default-button: #404858;
+
 	-fx-focus-color: #E65100;
 	-fx-faint-focus-color: #E6510022;
 
