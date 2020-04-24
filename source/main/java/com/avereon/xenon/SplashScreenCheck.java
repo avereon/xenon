@@ -9,8 +9,12 @@ import javafx.stage.StageStyle;
 public class SplashScreenCheck extends Application {
 
 	@Override
-	public void start( Stage stage ) {
+	public void init() {
 		Application.setUserAgentStylesheet( STYLESHEET_MODENA );
+	}
+
+	@Override
+	public void start( Stage stage ) {
 		SplashScreenPane splash = new SplashScreenPane( "Xenon" );
 		stage.initStyle( StageStyle.UTILITY );
 		splash.show( stage );
@@ -19,7 +23,7 @@ public class SplashScreenCheck extends Application {
 			ThreadUtil.pause( 500 );
 
 			double progress = 0;
-			while( progress < 1 ) {
+			while( progress < 1.0 ) {
 				double lambdaProgress = progress += 0.009;
 				Platform.runLater( () -> splash.setProgress( lambdaProgress ) );
 				ThreadUtil.pause( 10 );

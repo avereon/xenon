@@ -41,20 +41,23 @@ public class SplashScreenPane extends Pane {
 
 	public SplashScreenPane( String title ) {
 		this.title = title;
+		getStyleClass().addAll( "splashscreen" );
 
 		// The background is a workaround to the stage color changing on Windows
-		Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
-		background.setFill( Color.GRAY );
+		//Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
+		//background.setFill( Color.GRAY );
 
 		ProgramImage icon = new XRingLargeIcon().setSize( 192 );
+		// Remove the style class that changes the outline
+		icon.getStyleClass().remove( "xe-image" );
 		icon.setLayoutX( 0.5 * (WIDTH - icon.getWidth()) );
 		icon.setLayoutY( 0.5 * (HEIGHT - icon.getHeight() - BAR_PAD - BAR_SIZE) );
 
 		Rectangle tint = new Rectangle( 0, 0, WIDTH, HEIGHT );
-		tint.getStyleClass().addAll( "splashscreen-tint" );
+		tint.getStyleClass().addAll( "tint" );
 
 		Text titleText = new Text( title );
-		titleText.getStyleClass().addAll( "splashscreen-title" );
+		titleText.getStyleClass().addAll( "title" );
 		titleText.setBoundsType( TextBoundsType.VISUAL );
 		titleText.setFont( new Font( 100 ) );
 
@@ -62,20 +65,20 @@ public class SplashScreenPane extends Pane {
 		titleText.setY( 0.5 * (HEIGHT - titleText.getLayoutBounds().getHeight() - BAR_PAD - BAR_SIZE) + titleText.getLayoutBounds().getHeight() );
 
 		progressTray = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, WIDTH - 2 * BAR_PAD, BAR_SIZE );
-		progressTray.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-tray" );
+		progressTray.getStyleClass().addAll( "progress", "progress-tray" );
 
 		progressBar = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, 0, BAR_SIZE );
-		progressBar.getStyleClass().addAll( "splashscreen-progress", "splashscreen-progress-incomplete" );
+		progressBar.getStyleClass().addAll( "progress", "progress-incomplete" );
 
 		double radius = 80;
 		double centerLine = 0.5 * (HEIGHT - BAR_PAD - BAR_SIZE);
 
 		Circle accentA = new Circle( -40, centerLine - 0.5 * radius, radius );
 		Circle accentB = new Circle( -40, centerLine - 0.0 * radius, radius );
-		accentA.getStyleClass().addAll( "splashscreen-accent" );
-		accentB.getStyleClass().addAll( "splashscreen-accent" );
+		accentA.getStyleClass().addAll( "accent" );
+		accentB.getStyleClass().addAll( "accent" );
 
-		getChildren().addAll( background, icon, tint );
+		getChildren().addAll(  icon, tint );
 		getChildren().addAll( accentA, accentB, titleText );
 		getChildren().addAll( progressTray, progressBar );
 
@@ -96,7 +99,7 @@ public class SplashScreenPane extends Pane {
 	}
 
 	public SplashScreenPane show( Stage stage ) {
-		Scene scene = new Scene( this, getWidth(), getHeight(), Color.DARKGRAY );
+		Scene scene = new Scene( this, getWidth(), getHeight(), Color.BLACK );
 
 		// NOTE Application.setUserAgentStylesheet() must be called in application for this to work properly
 		scene.getStylesheets().addAll( Program.STYLESHEET );
@@ -119,8 +122,8 @@ public class SplashScreenPane extends Pane {
 		if( progress >= 1.0 ) {
 			progress = 1.0;
 			progressTray.setVisible( false );
-			progressBar.getStyleClass().remove( "splashscreen-progress-incomplete" );
-			progressBar.getStyleClass().add( "splashscreen-progress-complete" );
+			progressBar.getStyleClass().remove( "progress-incomplete" );
+			progressBar.getStyleClass().add( "progress-complete" );
 		}
 		progressBar.setWidth( (getWidth() - 2 * BAR_PAD) * progress );
 	}
@@ -133,32 +136,5 @@ public class SplashScreenPane extends Pane {
 	public void hide() {
 		if( getScene() != null ) getScene().getWindow().hide();
 	}
-
-	//	public static void main( String[] commands ) {
-	//		Application splash = new Application() {
-	//
-	//
-	//
-	//			@Override
-	//			public void start( Stage stage ) throws Exception {
-	//				SplashScreenPane splash = new SplashScreenPane( "Xenon" );
-	//				splash.setProgress( 0.8 );
-	//				stage.initStyle( StageStyle.UTILITY );
-	//				splash.show( stage );
-	//			}
-	//
-	//		};
-
-	//				Platform.startup(() -> {
-	//					try {
-	//						splash.init();
-	//					} catch( Exception e ) {
-	//						e.printStackTrace();
-	//					}
-	//				});
-	//		JavaFxStarter.startAndWait( 1000 );
-	//		Platform.runLater( () -> {
-	//		} );
-	//	}
 
 }
