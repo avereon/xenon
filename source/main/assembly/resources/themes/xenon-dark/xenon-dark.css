@@ -56,3 +56,37 @@
 .scroll-bar > .decrement-button:pressed > .decrement-arrow {
 	-fx-background-color: -fx-mark-highlight-color, rgb(255, 255, 255);
 }
+
+/*******************************************************************************
+ * Memory Monitor
+ ******************************************************************************/
+.memory-monitor {
+	-fx-background-color: derive(-fx-color, 15%);
+}
+
+.memory-monitor-allocated {
+	-fx-fill: derive(-fx-color, 30%);
+}
+
+.memory-monitor-used {
+	-fx-fill: derive(-fx-accent, 50%);
+}
+
+/*******************************************************************************
+ * Task Monitor
+ ******************************************************************************/
+.task-monitor {
+	-fx-background-color: derive(-fx-color, 15%);
+}
+
+.task-monitor-threads {
+	-fx-fill: derive(-fx-color, 30%);
+}
+
+.task-monitor-tasks {
+	-fx-fill: derive(-fx-accent, 10%);
+}
+
+.task-monitor-progress {
+	-fx-fill: derive(-fx-accent, 50%);
+}

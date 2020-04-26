@@ -1157,7 +1157,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
 		registerTool( manager, ProgramAssetType.MEDIA_TYPE, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
-		registerTool( manager, ProgramThemesType.MEDIA_TYPE, ThemesTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
+		registerTool( manager, ProgramThemesType.MEDIA_TYPE, ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );

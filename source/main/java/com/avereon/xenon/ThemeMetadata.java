@@ -1,5 +1,11 @@
 package com.avereon.xenon;
 
+import com.avereon.util.FileUtil;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
+
 public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 
 	private String id;
@@ -24,6 +30,12 @@ public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 
 	public String getStylesheet() {
 		return stylesheet;
+	}
+
+	public String getStyle() throws IOException {
+		URI uri = URI.create( stylesheet );
+
+		return FileUtil.load( Paths.get( uri.getPath() ) );
 	}
 
 	@Override
