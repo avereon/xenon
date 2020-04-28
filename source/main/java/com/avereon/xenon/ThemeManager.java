@@ -3,16 +3,13 @@ package com.avereon.xenon;
 import com.avereon.util.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
+import com.avereon.util.TextUtil;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ThemeManager implements Controllable<ThemeManager> {
@@ -61,15 +58,9 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		return themes.get( id );
 	}
 
-	private void registerTheme( Properties properties ) {
-		String id = properties.getProperty( "id" );
-		String name = properties.getProperty( "name" );
-		String stylesheet = properties.getProperty( "stylesheet" );
-
-		Path path = getProgram().getDataFolder().resolve( "themes" ).resolve( id ).resolve( stylesheet );
-
+	private void registerTheme( String id, String name, String stylesheet ) {
+		Path path = profileThemeFolder.resolve( stylesheet );
 		themes.put( id, new ThemeMetadata( id, name, path.toUri().toString() ) );
-
 		log.log( Log.DEBUG, "Theme registered: " + name );
 	}
 
@@ -77,12 +68,13 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		try {
 			themes.clear();
 			Files.list( profileThemeFolder ).forEach( p -> {
-				if( !Files.isDirectory( p ) ) return;
+				if( Files.isDirectory( p ) ) return;
 				try {
-					Path propertiesFile = p.resolve( "theme.properties" );
-					Properties properties = new Properties();
-					properties.load( new FileReader( propertiesFile.toFile() ) );
-					registerTheme( properties );
+					List<String> lines = TextUtil.getLines( FileUtil.load( p ) );
+					String id = getProperty( lines, "id" );
+					String name = getProperty( lines, "name" );
+					String theme = p.toAbsolutePath().toString();
+					registerTheme( id, name, theme );
 				} catch( IOException exception ) {
 					exception.printStackTrace();
 				}
@@ -90,6 +82,12 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		} catch( IOException exception ) {
 			throw new RuntimeException( "Unable to start theme manager", exception );
 		}
+	}
+
+	private String getProperty( List<String> lines, String key ) {
+		key += "=";
+		String line = TextUtil.findLine( lines, "^.*" + key + ".*" );
+		return line == null ? null : line.substring( line.indexOf( key ) + key.length() );
 	}
 
 	private void updateProvidedThemes() {

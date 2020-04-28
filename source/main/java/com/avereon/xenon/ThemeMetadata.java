@@ -33,9 +33,7 @@ public final class ThemeMetadata implements Comparable<ThemeMetadata> {
 	}
 
 	public String getStyle() throws IOException {
-		URI uri = URI.create( stylesheet );
-
-		return FileUtil.load( Paths.get( uri.getPath() ) );
+		return FileUtil.load( Paths.get( URI.create( stylesheet ).getPath() ) );
 	}
 
 	@Override

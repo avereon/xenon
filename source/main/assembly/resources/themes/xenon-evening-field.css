@@ -1,25 +1,38 @@
+/*
+ * id=xenon-evening-field
+ * name=Xenon Evening Field
+ */
+
+/*
+//FEF7C9
+//ABC6AC
+//657DA0
+//345879
+//1C1E27
+*/
+
 .root {
-	-fx-base: #ececec;
-	-fx-background: derive(-fx-base, 26.4%);
+	-fx-base: #fef7c9;
 
-	-fx-color: -fx-base;
+	-fx-background: derive(-fx-base, -25%);
+	-fx-color: derive(-fx-base, 10%);
 
-	-fx-control-inner-background: derive(-fx-base, 80%);
-	-fx-control-inner-background-alt: derive(-fx-control-inner-background, -2%);
+	/*-fx-control-inner-background: rgb(20, 20, 20);*/
+	/*-fx-control-inner-background-alt: derive(-fx-control-inner-background, 2.5%);*/
 
-	-fx-light-text-color: black;
-	-fx-mid-text-color: #333;
-	-fx-dark-text-color: white;
+	/*-fx-light-text-color: rgb(220, 220, 220);*/
+	/*-fx-mid-text-color: rgb(100, 100, 100);*/
+	/*-fx-dark-text-color: rgb(20, 20, 20);*/
 
-	-fx-accent: rgb(53, 146, 196);
-	-fx-default-button: #abd8ed;
+	-fx-accent: #abc6ac;
+	-fx-default-button: #abc6ac;
 
-	-fx-focus-color: rgb(220, 112, 0);
-	-fx-faint-focus-color: rgba(220, 112, 0, 0.13);
+	-fx-focus-color: #657da0;
+	-fx-faint-focus-color: #657da040;
 
 	-fx-selection-bar-non-focused: rgb(50, 50, 50);
 
-	-ex-background-tint-color: #c0c0c040;
+	-ex-background-tint-color: #c0c0c080;
 
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
@@ -30,11 +43,11 @@
 }
 
 .xe-icon {
-	-xe-outline-paint: #404040;
+	-xe-outline-paint: derive(-fx-text-base-color, -20%);
 }
 
 .text-input {
-	-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+	-fx-prompt-text-fill: derive(-fx-control-inner-background, +50%);
 }
 
 /* Keep prompt invisible when focused (above color fix overrides it) */
@@ -44,43 +57,43 @@
 
 .scroll-bar > .increment-button > .increment-arrow,
 .scroll-bar > .decrement-button > .decrement-arrow {
-	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -45%);
+	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 50%);
 }
 
 .scroll-bar > .increment-button:hover > .increment-arrow,
 .scroll-bar > .decrement-button:hover > .decrement-arrow {
-	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -50%);
+	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 75%);
 }
 
 .scroll-bar > .increment-button:pressed > .increment-arrow,
 .scroll-bar > .decrement-button:pressed > .decrement-arrow {
-	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -55%);
+	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 100%);
 }
 
 /*******************************************************************************
  * Memory Monitor
  ******************************************************************************/
 .memory-monitor {
-	-fx-background-color: derive(-fx-color, -10%);
+	-fx-background-color: derive(-fx-color, 15%);
 }
 
 .memory-monitor-allocated {
-	-fx-fill: derive(-fx-color, -20%);
+	-fx-fill: derive(-fx-accent, 50%);
 }
 
 .memory-monitor-used {
-	-fx-fill: derive(-fx-accent, 50%);
+	-fx-fill: derive(-fx-accent, 10%);
 }
 
 /*******************************************************************************
  * Task Monitor
  ******************************************************************************/
 .task-monitor {
-	-fx-background-color: derive(-fx-color, -10%);
+	-fx-background-color: derive(-fx-color, 15%);
 }
 
 .task-monitor-threads {
-	-fx-fill: derive(-fx-color, -20%);
+	-fx-fill: derive(-fx-color, 30%);
 }
 
 .task-monitor-tasks {

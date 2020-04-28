@@ -196,6 +196,7 @@ public class ThemeTool extends GuidedTool {
 
 		@Override
 		public String toString() {
+			if( values == null ) return "null";
 			// -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -45%);
 
 			StringBuilder builder = new StringBuilder();
