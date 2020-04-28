@@ -97,25 +97,25 @@ public class ThemeTool extends GuidedTool {
 			List<Rule> rules = new CssParser().parse( new URL( theme.getStylesheet() ) ).getRules();
 			Map<String, Rule> ruleSelectors = new HashMap<>();
 			for( Rule rule : rules ) {
+
+				// NOTE Each rule is a many-to-many mapping of selectors and declarations.
+				// Selectors are simple enough and can be easily reproduced
+				// Declarations on the other hand are quite a bit more complex and CSS handles them fairly well
+
 				for( Selector selector : rule.getSelectors() ) {
 					ruleSelectors.put( selector.toString(), rule );
 					log.log( Log.INFO, "selector=" + selector.toString() );
 					for( Declaration declaration : rule.getDeclarations() ) {
-						StyleConverter<?,?> converter = declaration.getParsedValue().getConverter();
+						StyleConverter<?, ?> converter = declaration.getParsedValue().getConverter();
 						if( converter == null ) {
-							log.log( Log.INFO, "  decl=" + declaration.getProperty() + "=" + declaration.getParsedValue().getValue() );
+							Assign assign = Assign.of( declaration );
+							log.log( Log.INFO, "  " + assign );
 						} else if( converter instanceof DeriveColorConverter ) {
-							log.log( Log.INFO, "  decl=" + declaration.getProperty() + "=derive" );
-							ParsedValue<?, ?>[] values = (ParsedValue<?, ?>[])declaration.getParsedValue().getValue();
-							for( ParsedValue<?, ?> value : values ) {
-								log.log( Log.INFO, "  val=" + value.getValue() );
-							}
+							Derive derive = Derive.of( declaration );
+							log.log( Log.INFO, "  " + derive );
 						} else if( converter instanceof PaintConverter.SequenceConverter ) {
-							log.log( Log.INFO, "  decl=" + declaration.getProperty() + "=paint" );
-							ParsedValue<?, ?>[] values = (ParsedValue<?, ?>[])declaration.getParsedValue().getValue();
-							for( ParsedValue<?, ?> value : values ) {
-								log.log( Log.INFO, "  val=" + value.getValue() );
-							}
+							PaintSequence seq = PaintSequence.of( declaration );
+							log.log( Log.INFO, "  " + seq );
 						} else {
 							log.log( Log.WARN, "unknown type=" + converter.getClass().getName() );
 						}
@@ -125,6 +125,101 @@ public class ThemeTool extends GuidedTool {
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Unable to parse theme CSS: " + theme.getId(), exception );
 		}
+	}
+
+	static abstract class Decl {
+
+		private final String key;
+
+		public Decl( String key ) {
+			this.key = key;
+		}
+
+		@Override
+		public String toString() {
+			return key;
+		}
+
+	}
+
+	static class Assign extends Decl {
+
+		private final String value;
+
+		public Assign( String key, String value ) {
+			super( key );
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + ": " + value;
+		}
+
+		public static Assign of( Declaration declaration ) {
+			return new Assign( declaration.getProperty(), declaration.getParsedValue().getValue().toString().replace( "0x", "#" ) );
+		}
+
+	}
+
+	static class Derive extends Decl {
+
+		private final String source;
+
+		private final String value;
+
+		public Derive( String key, String source, String value ) {
+			super( key );
+			this.source = source;
+			this.value = value;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + ": derive(" + source + "," + value + ")";
+		}
+
+		public static Derive of( Declaration declaration ) {
+			ParsedValue<?, ?>[] values = (ParsedValue<?, ?>[])declaration.getParsedValue().getValue();
+			return new Derive( declaration.getProperty(), String.valueOf( values[ 0 ].getValue() ), String.valueOf( values[ 1 ].getValue() ) );
+		}
+
+	}
+
+	static class PaintSequence extends Decl {
+
+		private Object[] values;
+
+		public PaintSequence( String key ) {
+			super( key );
+		}
+
+		@Override
+		public String toString() {
+			// -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -45%);
+
+			StringBuilder builder = new StringBuilder();
+
+			boolean first = false;
+			for( Object value : values ) {
+				if( !first ) builder.append( ",");
+				builder.append( value );
+				first = true;
+			}
+
+			return builder.toString();
+		}
+
+		public static PaintSequence of( Declaration declaration ) {
+			log.log( Log.INFO, "  decl=" + declaration.getProperty() + "=paint" );
+			ParsedValue<?, ?>[] values = (ParsedValue<?, ?>[])declaration.getParsedValue().getValue();
+			for( ParsedValue<?, ?> value : values ) {
+				log.log( Log.INFO, "  val=" + value.getValue() );
+			}
+
+			return new PaintSequence( declaration.getProperty() );
+		}
+
 	}
 
 }
