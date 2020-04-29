@@ -4,7 +4,7 @@ name=Xenon Light
 */
 
 .root {
-	-fx-base: #ECECEC;
+	-fx-base: #ececec;
 	-fx-background: derive(-fx-base, 25%);
 
 	-fx-color: -fx-base;
@@ -22,16 +22,15 @@ name=Xenon Light
 	-fx-focus-color: rgb(220, 112, 0);
 	-fx-faint-focus-color: rgba(220, 112, 0, 0.13);
 
-	-fx-selection-bar-non-focused: rgb(50, 50, 50);
-
-	-ex-background-tint-color: #c0c0c080;
+	-fx-selection-bar-non-focused: #d0d0d0;
 
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
 	-ex-background-tags: rgba(236, 236, 236, 0.6);
 	-ex-background-note: rgba(236, 236, 236, 0.8);
 
-	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
+	-ex-workspace-tint-color: #c0c0c080;
+	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
 .xe-icon {

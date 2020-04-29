@@ -7,7 +7,7 @@ public class WorkpaneDropHint extends Rectangle {
 
 	public WorkpaneDropHint( Bounds bounds) {
 		super( bounds.getMinX(), bounds.getMinY(), bounds.getWidth(), bounds.getHeight() );
-		getStyleClass().add( "work-pane-drop-hint");
+		getStyleClass().add( "drop-hint");
 		setMouseTransparent( true );
 	}
 

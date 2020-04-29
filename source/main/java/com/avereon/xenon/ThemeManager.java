@@ -4,12 +4,17 @@ import com.avereon.util.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import javafx.scene.paint.Color;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ThemeManager implements Controllable<ThemeManager> {
@@ -40,6 +45,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	@Override
 	public ThemeManager start() {
 		updateProvidedThemes();
+		createProvidedThemes();
 		reloadProfileThemes();
 		return this;
 	}
@@ -109,6 +115,30 @@ public class ThemeManager implements Controllable<ThemeManager> {
 					log.log( Log.ERROR, exception );
 				}
 			} );
+		} catch( IOException exception ) {
+			log.log( Log.ERROR, exception );
+		}
+	}
+
+	private void createProvidedThemes() {
+		createTheme( "Xenon Evening Field", "#FEF7C9", "#ABC6AC", "#657DA0", "#345879", "#1C1E27" );
+		createTheme( "Xenon Evening Sky", "#1A2C3A", "#223854", "#68685E", "#C9CE6B", "#EEDC9D" );
+	}
+
+	private void createTheme( String name, String a, String b, String c, String d, String e ) {
+		Color colorA = a == null ? null : Color.web( a );
+		Color colorB = b == null ? null : Color.web( b );
+		Color colorC = c == null ? null : Color.web( c );
+		Color colorD = d == null ? null : Color.web( d );
+		Color colorE = e == null ? null : Color.web( e );
+		createTheme( name, colorA, colorB, colorC, colorD, colorE );
+	}
+
+	private void createTheme( String name, Color a, Color b, Color c, Color d, Color e ) {
+		String id = name.replace( ' ', '-' ).toLowerCase();
+		Path path = profileThemeFolder.resolve( id + ".css" );
+		try( FileWriter writer = new FileWriter( path.toFile() ) ) {
+			new ThemeWriter( a, b, c, d, e ).write( id, name, writer );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, exception );
 		}

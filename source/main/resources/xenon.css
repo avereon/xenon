@@ -1,12 +1,11 @@
 .root {
-	-ex-background-tint-color: #c0c0c040;
-
 	-ex-background-text: rgba(236, 236, 236, 0.2);
 	-ex-background-tabs: rgba(236, 236, 236, 0.4);
 	-ex-background-tags: rgba(236, 236, 236, 0.6);
 	-ex-background-note: rgba(236, 236, 236, 0.8);
 
-	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
+	-ex-workspace-tint-color: #c0c0c040;
+	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
 .debug {
@@ -102,7 +101,7 @@
 }
 
 .workspace-tint {
-	-fx-background-color: -ex-background-tint-color;
+	-fx-background-color: -ex-workspace-tint-color;
 }
 
 /*******************************************************************************
@@ -473,6 +472,6 @@
 /*******************************************************************************
  * Work Pane
  ******************************************************************************/
-.work-pane-drop-hint {
-	-fx-fill: -ex-work-pane-drop-hint;
+.workpane .drop-hint {
+	-fx-fill: -ex-workspace-drop-hint;
 }

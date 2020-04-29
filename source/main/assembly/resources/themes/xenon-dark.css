@@ -29,14 +29,13 @@ name=Xenon Dark
 
 	-fx-selection-bar-non-focused: rgb(50, 50, 50);
 
-	-ex-background-tint-color: #40404080;
-
 	-ex-background-text: rgba(108, 108, 108, 0.2);
 	-ex-background-tabs: rgba(108, 108, 108, 0.4);
 	-ex-background-tags: rgba(108, 108, 108, 0.6);
 	-ex-background-note: rgba(108, 108, 108, 0.8);
 
-	-ex-work-pane-drop-hint: rgba(224, 224, 224, 0.2);
+	-ex-workspace-tint-color: #40404080;
+	-ex-workspace-drop-hint: rgba(224, 224, 224, 0.2);
 }
 
 .xe-icon {
