@@ -3,23 +3,11 @@ id=xenon-dark
 name=Xenon Dark
 */
 
-/*
-#333333
-#3592C4
-#
-*/
 .root {
 	-fx-base: #333333;
 	-fx-background:  derive(-fx-base, -25%);
 
 	-fx-color: derive(-fx-base, 10%);
-
-	-fx-control-inner-background: derive(-fx-base, -50%);
-	-fx-control-inner-background-alt: derive(-fx-control-inner-background, 2.5%);
-
-	/*-fx-light-text-color: rgb(220, 220, 220);*/
-	/*-fx-mid-text-color: rgb(100, 100, 100);*/
-	/*-fx-dark-text-color: rgb(20, 20, 20);*/
 
 	-fx-accent: #3592C4;
 	-fx-default-button: derive( -fx-accent, -40% );
@@ -37,61 +25,3 @@ name=Xenon Dark
 	-ex-workspace-tint-color: #40404080;
 	-ex-workspace-drop-hint: rgba(224, 224, 224, 0.2);
 }
-
-/*.text-input {*/
-/*	-fx-prompt-text-fill: derive(-fx-control-inner-background, 50%);*/
-/*}*/
-
-/*!* Keep prompt invisible when focused (above color fix overrides it) *!*/
-/*.text-input:focused {*/
-/*	-fx-prompt-text-fill: transparent;*/
-/*}*/
-
-/*.scroll-bar > .increment-button > .increment-arrow,*/
-/*.scroll-bar > .decrement-button > .decrement-arrow {*/
-/*	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 50%);*/
-/*}*/
-
-/*.scroll-bar > .increment-button:hover > .increment-arrow,*/
-/*.scroll-bar > .decrement-button:hover > .decrement-arrow {*/
-/*	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 75%);*/
-/*}*/
-
-/*.scroll-bar > .increment-button:pressed > .increment-arrow,*/
-/*.scroll-bar > .decrement-button:pressed > .decrement-arrow {*/
-/*	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 100%);*/
-/*}*/
-
-/*******************************************************************************
- * Memory Monitor
- ******************************************************************************/
-/*.memory-monitor {*/
-/*	-fx-background-color: derive(-fx-color, 15%);*/
-/*}*/
-
-/*.memory-monitor-allocated {*/
-/*	-fx-fill: derive(-fx-accent, 10%);*/
-/*}*/
-
-/*.memory-monitor-used {*/
-/*	-fx-fill: derive(-fx-accent, 50%);*/
-/*}*/
-
-/*!********************************************************************************/
-/* * Task Monitor*/
-/* ******************************************************************************!*/
-/*.task-monitor {*/
-/*	-fx-background-color: derive(-fx-color, 15%);*/
-/*}*/
-
-/*.task-monitor-threads {*/
-/*	-fx-fill: derive(-fx-color, 30%);*/
-/*}*/
-
-/*.task-monitor-tasks {*/
-/*	-fx-fill: derive(-fx-accent, 10%);*/
-/*}*/
-
-/*.task-monitor-progress {*/
-/*	-fx-fill: derive(-fx-accent, 50%);*/
-/*}*/
