@@ -14,7 +14,7 @@
 .root {
 	-fx-base: #fef7c9;
 
-	-fx-background: derive(-fx-base, -25%);
+	-fx-background: derive(-fx-base, 25%);
 	-fx-color: derive(-fx-base, 10%);
 
 	/*-fx-control-inner-background: rgb(20, 20, 20);*/
