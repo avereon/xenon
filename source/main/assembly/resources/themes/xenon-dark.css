@@ -38,64 +38,60 @@ name=Xenon Dark
 	-ex-workspace-drop-hint: rgba(224, 224, 224, 0.2);
 }
 
-.xe-icon {
-	-xe-outline-paint: derive(-fx-text-base-color, -50%);
-}
+/*.text-input {*/
+/*	-fx-prompt-text-fill: derive(-fx-control-inner-background, 50%);*/
+/*}*/
 
-.text-input {
-	-fx-prompt-text-fill: derive(-fx-control-inner-background, +50%);
-}
+/*!* Keep prompt invisible when focused (above color fix overrides it) *!*/
+/*.text-input:focused {*/
+/*	-fx-prompt-text-fill: transparent;*/
+/*}*/
 
-/* Keep prompt invisible when focused (above color fix overrides it) */
-.text-input:focused {
-	-fx-prompt-text-fill: transparent;
-}
+/*.scroll-bar > .increment-button > .increment-arrow,*/
+/*.scroll-bar > .decrement-button > .decrement-arrow {*/
+/*	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 50%);*/
+/*}*/
 
-.scroll-bar > .increment-button > .increment-arrow,
-.scroll-bar > .decrement-button > .decrement-arrow {
-	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 50%);
-}
+/*.scroll-bar > .increment-button:hover > .increment-arrow,*/
+/*.scroll-bar > .decrement-button:hover > .decrement-arrow {*/
+/*	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 75%);*/
+/*}*/
 
-.scroll-bar > .increment-button:hover > .increment-arrow,
-.scroll-bar > .decrement-button:hover > .decrement-arrow {
-	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 75%);
-}
-
-.scroll-bar > .increment-button:pressed > .increment-arrow,
-.scroll-bar > .decrement-button:pressed > .decrement-arrow {
-	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 100%);
-}
+/*.scroll-bar > .increment-button:pressed > .increment-arrow,*/
+/*.scroll-bar > .decrement-button:pressed > .decrement-arrow {*/
+/*	-fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 100%);*/
+/*}*/
 
 /*******************************************************************************
  * Memory Monitor
  ******************************************************************************/
-.memory-monitor {
-	-fx-background-color: derive(-fx-color, 15%);
-}
+/*.memory-monitor {*/
+/*	-fx-background-color: derive(-fx-color, 15%);*/
+/*}*/
 
-.memory-monitor-allocated {
-	-fx-fill: derive(-fx-accent, 10%);
-}
+/*.memory-monitor-allocated {*/
+/*	-fx-fill: derive(-fx-accent, 10%);*/
+/*}*/
 
-.memory-monitor-used {
-	-fx-fill: derive(-fx-accent, 50%);
-}
+/*.memory-monitor-used {*/
+/*	-fx-fill: derive(-fx-accent, 50%);*/
+/*}*/
 
-/*******************************************************************************
- * Task Monitor
- ******************************************************************************/
-.task-monitor {
-	-fx-background-color: derive(-fx-color, 15%);
-}
+/*!********************************************************************************/
+/* * Task Monitor*/
+/* ******************************************************************************!*/
+/*.task-monitor {*/
+/*	-fx-background-color: derive(-fx-color, 15%);*/
+/*}*/
 
-.task-monitor-threads {
-	-fx-fill: derive(-fx-color, 30%);
-}
+/*.task-monitor-threads {*/
+/*	-fx-fill: derive(-fx-color, 30%);*/
+/*}*/
 
-.task-monitor-tasks {
-	-fx-fill: derive(-fx-accent, 10%);
-}
+/*.task-monitor-tasks {*/
+/*	-fx-fill: derive(-fx-accent, 10%);*/
+/*}*/
 
-.task-monitor-progress {
-	-fx-fill: derive(-fx-accent, 50%);
-}
+/*.task-monitor-progress {*/
+/*	-fx-fill: derive(-fx-accent, 50%);*/
+/*}*/

@@ -121,8 +121,10 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	}
 
 	private void createProvidedThemes() {
+		createTheme( "Xenon Dark", "#333333", "#3592C4", "#C05000", null, null );
+		createTheme( "Xenon Light", "#ECECEC", "#3592C4", "#DC7000", null, null );
 		createTheme( "Xenon Evening Field", "#FEF7C9", "#ABC6AC", "#657DA0", "#345879", "#1C1E27" );
-		createTheme( "Xenon Evening Sky", "#1A2C3A", "#223854", "#68685E", "#C9CE6B", "#EEDC9D" );
+		createTheme( "Xenon Evening Sky", "#1A2C3A", "#EEDC9D", "#C9CE6B", "#223854", "#68685E" );
 	}
 
 	private void createTheme( String name, String a, String b, String c, String d, String e ) {

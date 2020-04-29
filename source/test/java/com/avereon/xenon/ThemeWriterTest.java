@@ -48,16 +48,34 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( "  -fx-focus-color: #657DA0FF;" ) );
 		assertThat( lines.next(), is( "  -fx-faint-focus-color: #657DA040;" ) );
 		assertThat( lines.next(), is( "  -fx-selection-bar-non-focused: #D0D0D0;" ) );
-
 		assertThat( lines.next(), is( "  -ex-background-text: #CBC6A133;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tabs: #CBC6A166;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tags: #CBC6A199;" ) );
 		assertThat( lines.next(), is( "  -ex-background-note: #CBC6A1CC;" ) );
-
 		assertThat( lines.next(), is( "  -ex-workspace-tint-color: #FEF7C980;" ) );
 		assertThat( lines.next(), is( "  -ex-workspace-drop-hint: #00000033;" ) );
-
 		assertThat( lines.next(), is( "}" ) );
+
+//		assertThat( lines.next(), is( ".text-input {" ) );
+//		assertThat( lines.next(), is( "  -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+//		assertThat( lines.next(), is( ".text-input {" ) );
+//		assertThat( lines.next(), is( "  -fx-prompt-text-fill: transparent;" ) );
+//		assertThat( lines.next(), is( "}" ) );
+
+//		assertThat( lines.next(), is( ".scroll-bar > .increment-button > .increment-arrow," ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .decrement-button > .decrement-arrow {" ) );
+//		assertThat( lines.next(), is( "  -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -45%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .increment-button:hover > .increment-arrow," ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .decrement-button:hover > .decrement-arrow {" ) );
+//		assertThat( lines.next(), is( "  -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -50%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .increment-button:pressed > .increment-arrow," ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .decrement-button:pressed > .decrement-arrow {" ) );
+//		assertThat( lines.next(), is( "  -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, -55%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+
 		assertFalse( lines.hasNext(), "More lines than expected" );
 	}
 
@@ -85,6 +103,7 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( " * name=Xenon Evening Sky" ) );
 		assertThat( lines.next(), is( " */" ) );
 		assertThat( lines.next(), is( "" ) );
+
 		assertThat( lines.next(), is( ".root {" ) );
 		assertThat( lines.next(), is( "  -fx-base: #1A2C3AFF;" ) );
 		assertThat( lines.next(), is( "  -fx-background: derive(-fx-base, -25%);" ) );
@@ -96,16 +115,33 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( "  -fx-focus-color: #68685EFF;" ) );
 		assertThat( lines.next(), is( "  -fx-faint-focus-color: #68685E40;" ) );
 		assertThat( lines.next(), is( "  -fx-selection-bar-non-focused: #303030;" ) );
-
 		assertThat( lines.next(), is( "  -ex-background-text: #48566133;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tabs: #48566166;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tags: #48566199;" ) );
 		assertThat( lines.next(), is( "  -ex-background-note: #485661CC;" ) );
-
 		assertThat( lines.next(), is( "  -ex-workspace-tint-color: #1A2C3A80;" ) );
 		assertThat( lines.next(), is( "  -ex-workspace-drop-hint: #FFFFFF33;" ) );
-
 		assertThat( lines.next(), is( "}" ) );
+
+//		assertThat( lines.next(), is( ".text-input {" ) );
+//		assertThat( lines.next(), is( "  -fx-prompt-text-fill: derive(-fx-control-inner-background, 50%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+//		assertThat( lines.next(), is( ".text-input {" ) );
+//		assertThat( lines.next(), is( "  -fx-prompt-text-fill: transparent;" ) );
+//		assertThat( lines.next(), is( "}" ) );
+
+//		assertThat( lines.next(), is( ".scroll-bar > .increment-button > .increment-arrow," ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .decrement-button > .decrement-arrow {" ) );
+//		assertThat( lines.next(), is( "  -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 45%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .increment-button:hover > .increment-arrow," ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .decrement-button:hover > .decrement-arrow {" ) );
+//		assertThat( lines.next(), is( "  -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 50%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .increment-button:pressed > .increment-arrow," ) );
+//		assertThat( lines.next(), is( ".scroll-bar > .decrement-button:pressed > .decrement-arrow {" ) );
+//		assertThat( lines.next(), is( "  -fx-background-color: -fx-mark-highlight-color, derive(-fx-base, 55%);" ) );
+//		assertThat( lines.next(), is( "}" ) );
 
 		assertFalse( lines.hasNext(), "More lines than expected" );
 	}

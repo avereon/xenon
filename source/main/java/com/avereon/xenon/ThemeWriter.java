@@ -60,6 +60,20 @@ public class ThemeWriter {
 		PrintWriter printer = new PrintWriter( writer );
 
 		printHeader( id, name, printer );
+		printRoot( printer );
+		//printTextInput( printer );
+		//printScrollBarArrows( printer );
+	}
+
+	private void printHeader( String id, String name, PrintWriter printer ) {
+		printer.println( "/*" );
+		printer.println( " * id=" + id );
+		printer.println( " * name=" + name );
+		printer.println( " */" );
+		printer.println();
+	}
+
+	private void printRoot( PrintWriter printer ) {
 		printer.println( ".root {" );
 		printFxBase( printer );
 
@@ -81,16 +95,33 @@ public class ThemeWriter {
 
 		printExWorkareaTintColor( printer );
 		printExWorkareaDropHintColor( printer );
-
 		printer.println( "}" );
 	}
 
-	private void printHeader( String id, String name, PrintWriter printer ) {
-		printer.println( "/*" );
-		printer.println( " * id=" + id );
-		printer.println( " * name=" + name );
-		printer.println( " */" );
-		printer.println();
+	private void printTextInput( PrintWriter printer ) {
+		printer.println( ".text-input {" );
+		printer.println( derive( "-fx-prompt-text-fill", "-fx-control-inner-background", "50%", "-30%" ) );
+		printer.println( "}" );
+		printer.println( ".text-input {" );
+		printer.println( "  -fx-prompt-text-fill: transparent;" );
+		printer.println( "}" );
+	}
+
+	private void printScrollBarArrows( PrintWriter printer ) {
+		printer.println( ".scroll-bar > .increment-button > .increment-arrow," );
+		printer.println( ".scroll-bar > .decrement-button > .decrement-arrow {" );
+		printer.println( "  -fx-background-color: -fx-mark-highlight-color, " + derive( "-fx-base", "45%", "-45%") + ";" );
+		printer.println( "}" );
+
+		printer.println( ".scroll-bar > .increment-button:hover > .increment-arrow," );
+		printer.println( ".scroll-bar > .decrement-button:hover > .decrement-arrow {" );
+		printer.println( "  -fx-background-color: -fx-mark-highlight-color, " + derive( "-fx-base", "50%", "-50%") + ";" );
+		printer.println( "}" );
+
+		printer.println( ".scroll-bar > .increment-button:pressed > .increment-arrow," );
+		printer.println( ".scroll-bar > .decrement-button:pressed > .decrement-arrow {" );
+		printer.println( "  -fx-background-color: -fx-mark-highlight-color, " + derive( "-fx-base", "55%", "-55%") + ";" );
+		printer.println( "}" );
 	}
 
 	/**
@@ -232,7 +263,11 @@ public class ThemeWriter {
 	}
 
 	private String derive( String key, String source, String dark, String light ) {
-		return "  " + key + ": derive(" + source + ", " + (isDark ? dark : light) + ");";
+		return "  " + key + ": " + derive( source, dark, light ) + ";";
+	}
+
+	private String derive( String source, String dark, String light ) {
+		return "derive(" + source + ", " + (isDark ? dark : light) + ")";
 	}
 
 	private String format( Color color ) {
