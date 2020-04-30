@@ -7,6 +7,7 @@ import com.avereon.xenon.asset.type.ProgramAboutType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.tool.AboutTool;
 import com.avereon.xenon.tool.WelcomeTool;
+import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -81,6 +82,7 @@ public abstract class ScreenShots implements Runnable {
 
 	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( ProgramSettingsType.URI );
+		if( workpane.getTools( GuideTool.class ).size() == 0 ) workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
@@ -89,6 +91,7 @@ public abstract class ScreenShots implements Runnable {
 
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( ProgramAboutType.URI );
+		if( workpane.getTools( GuideTool.class ).size() == 0 ) workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );

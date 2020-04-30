@@ -44,6 +44,11 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	@Override
 	public ThemeManager start() {
+		try {
+			Files.createDirectories( profileThemeFolder );
+		} catch( IOException exception ) {
+			log.log( Log.ERROR, exception );
+		}
 		createProvidedThemes();
 		reloadProfileThemes();
 		return this;

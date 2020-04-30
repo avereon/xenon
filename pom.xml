@@ -354,7 +354,7 @@
 						<version>1.6.0</version>
 						<executions>
 							<execution>
-								<id>screenshots2</id>
+								<id>screenshots2x</id>
 								<phase>package</phase>
 								<goals>
 									<goal>exec</goal>
@@ -372,7 +372,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>screenshots1</id>
+								<id>screenshots1x</id>
 								<phase>package</phase>
 								<goals>
 									<goal>exec</goal>
