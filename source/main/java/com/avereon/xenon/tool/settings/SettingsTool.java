@@ -13,8 +13,9 @@ import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.ScrollPane;
 
 import java.lang.System.Logger;
-
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SettingsTool extends GuidedTool {
 
@@ -23,6 +24,8 @@ public class SettingsTool extends GuidedTool {
 	private static final Logger log = Log.get();
 
 	private static final String PAGE_ID = "page-id";
+
+	private Map<String, SettingsPanel> panelCache;
 
 	private SettingsPage currentPage;
 
@@ -33,6 +36,8 @@ public class SettingsTool extends GuidedTool {
 		setId( "tool-settings" );
 		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );
 		setTitle( product.rb().text( "tool", "settings-name" ) );
+
+		panelCache = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -106,7 +111,7 @@ public class SettingsTool extends GuidedTool {
 
 	private void setPage( SettingsPage page ) {
 		SettingsManager manager = getProgram().getSettingsManager();
-		SettingsPanel panel = new SettingsPanel( getProduct(), page, manager.getOptionProviders() );
+		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( getProduct(), page, manager.getOptionProviders() ) );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
 		getChildren().clear();

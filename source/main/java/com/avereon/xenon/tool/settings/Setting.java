@@ -2,6 +2,7 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
+import com.avereon.util.Log;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +17,9 @@ public class Setting extends Node {
 
 	public static final String EDITOR = "editor";
 
-	private static final String DISABLE = "disable";
+	public static final String DISABLE = "disable";
 
-	private static final String VISIBLE = "visible";
+	public static final String VISIBLE = "visible";
 
 	private static final String EDITABLE = "editable";
 
@@ -30,7 +31,9 @@ public class Setting extends Node {
 
 	private static final String DEPENDENCIES = "dependencies";
 
-	private Settings settings;
+	private static final System.Logger log = Log.get();
+
+	private final Settings settings;
 
 	private SettingOptionProvider optionProvider;
 
@@ -39,6 +42,7 @@ public class Setting extends Node {
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setModified( false );
+		addModifyingKeys( DISABLE, VISIBLE );
 	}
 
 	public String getKey() {
@@ -73,10 +77,6 @@ public class Setting extends Node {
 		setValue( DISABLE, disable );
 	}
 
-	public void updateState() {
-		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
-	}
-
 	public boolean isVisible() {
 		return getValue( VISIBLE, true );
 	}
@@ -93,6 +93,13 @@ public class Setting extends Node {
 	//		setValue( EDITABLE, editable );
 	//	}
 
+	public void updateState() {
+		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
+	}
+
+	/**
+	 * For color settings, if the color is required to be opaque.
+	 */
 	public boolean isOpaque() {
 		return getValue( OPAQUE );
 	}
