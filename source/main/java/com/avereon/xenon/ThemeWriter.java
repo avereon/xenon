@@ -11,64 +11,34 @@ import java.io.Writer;
  */
 public class ThemeWriter {
 
-	private Color a;
+	private Color base;
 
-	private Color b;
+	private Color accent;
 
-	private Color c;
-
-	private Color d;
-
-	private Color e;
-
-	private Color f;
+	private Color focus;
 
 	private boolean isDark;
 
-	public ThemeWriter( Color a ) {
-		this( a, null );
-	}
-
-	public ThemeWriter( Color a, Color b ) {
-		this( a, b, null );
-	}
-
-	public ThemeWriter( Color a, Color b, Color c ) {
-		this( a, b, c, null );
-	}
-
-	public ThemeWriter( Color a, Color b, Color c, Color d ) {
-		this( a, b, c, d, null );
-	}
-
-	public ThemeWriter( Color a, Color b, Color c, Color d, Color e ) {
-		this( a, b, c, d, e, null );
-	}
-
-	public ThemeWriter( Color a, Color b, Color c, Color d, Color e, Color f ) {
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-		this.e = e;
-		this.f = f;
-
-		isDark = Colors.getLuminance( a ) < 0.5;
+	public ThemeWriter( Color base, Color accent, Color focus ) {
+		this.base = base;
+		this.accent = accent;
+		this.focus = focus;
+		isDark = Colors.getLuminance( base ) < 0.5;
 	}
 
 	public void write( String id, String name, Writer writer ) {
 		PrintWriter printer = new PrintWriter( writer );
-
 		printHeader( id, name, printer );
 		printRoot( printer );
-		//printTextInput( printer );
-		//printScrollBarArrows( printer );
 	}
 
 	private void printHeader( String id, String name, PrintWriter printer ) {
 		printer.println( "/*" );
 		printer.println( " * id=" + id );
 		printer.println( " * name=" + name );
+		printer.println( " * base=" + format( base ) );
+		printer.println( " * accent=" + format( accent ) );
+		printer.println( " * focus=" + format( focus ) );
 		printer.println( " */" );
 		printer.println();
 	}
@@ -98,32 +68,6 @@ public class ThemeWriter {
 		printer.println( "}" );
 	}
 
-	private void printTextInput( PrintWriter printer ) {
-		printer.println( ".text-input {" );
-		printer.println( derive( "-fx-prompt-text-fill", "-fx-control-inner-background", "50%", "-30%" ) );
-		printer.println( "}" );
-		printer.println( ".text-input {" );
-		printer.println( "  -fx-prompt-text-fill: transparent;" );
-		printer.println( "}" );
-	}
-
-	private void printScrollBarArrows( PrintWriter printer ) {
-		printer.println( ".scroll-bar > .increment-button > .increment-arrow," );
-		printer.println( ".scroll-bar > .decrement-button > .decrement-arrow {" );
-		printer.println( "  -fx-background-color: -fx-mark-highlight-color, " + derive( "-fx-base", "45%", "-45%") + ";" );
-		printer.println( "}" );
-
-		printer.println( ".scroll-bar > .increment-button:hover > .increment-arrow," );
-		printer.println( ".scroll-bar > .decrement-button:hover > .decrement-arrow {" );
-		printer.println( "  -fx-background-color: -fx-mark-highlight-color, " + derive( "-fx-base", "50%", "-50%") + ";" );
-		printer.println( "}" );
-
-		printer.println( ".scroll-bar > .increment-button:pressed > .increment-arrow," );
-		printer.println( ".scroll-bar > .decrement-button:pressed > .decrement-arrow {" );
-		printer.println( "  -fx-background-color: -fx-mark-highlight-color, " + derive( "-fx-base", "55%", "-55%") + ";" );
-		printer.println( "}" );
-	}
-
 	/**
 	 * The base color for "objects". Instead of using -fx-base directly the
 	 * theme will typically use -fx-color.
@@ -131,7 +75,7 @@ public class ThemeWriter {
 	 * @param printer The print writer
 	 */
 	private void printFxBase( PrintWriter printer ) {
-		printer.println( "  -fx-base: " + format( a ) + ";" );
+		printer.println( "  -fx-base: " + format( base ) + ";" );
 	}
 
 	/**
@@ -188,7 +132,7 @@ public class ThemeWriter {
 	 * @param printer The print writer
 	 */
 	private void printFxAccent( PrintWriter printer ) {
-		printer.println( "  -fx-accent: " + format( b ) + ";" );
+		printer.println( "  -fx-accent: " + format( accent ) + ";" );
 	}
 
 	/**
@@ -208,7 +152,7 @@ public class ThemeWriter {
 	 * @param printer The print writer
 	 */
 	private void printFxFocusColor( PrintWriter printer ) {
-		printer.println( "  -fx-focus-color: " + format( c ) + ";" );
+		printer.println( "  -fx-focus-color: " + format( focus ) + ";" );
 	}
 
 	/**
@@ -218,7 +162,7 @@ public class ThemeWriter {
 	 * @see #printFxFocusColor(PrintWriter)
 	 */
 	private void printFxFaintFocusColor( PrintWriter printer ) {
-		printer.println( "  -fx-faint-focus-color: " + format( c, 0.25 ) + ";" );
+		printer.println( "  -fx-faint-focus-color: " + format( focus, 0.25 ) + ";" );
 	}
 
 	/**
@@ -240,10 +184,10 @@ public class ThemeWriter {
 	 */
 	private void printExBackgrounds( PrintWriter printer ) {
 		// -fx-base tone with alpha
-		Color base = isDark ? Colors.getTone( a, 0.2 ) : Colors.getTone( a, -0.2 );
-		printer.println( "  -ex-background-text: " + format( base.deriveColor( 0, 1, 1, 0.2 ) ) + ";" );
-		printer.println( "  -ex-background-tabs: " + format( base.deriveColor( 0, 1, 1, 0.4 ) ) + ";" );
-		printer.println( "  -ex-background-tags: " + format( base.deriveColor( 0, 1, 1, 0.6 ) ) + ";" );
+		Color base = isDark ? Colors.getTone( this.base, 0.2 ) : Colors.getTone( this.base, -0.2 );
+		printer.println( "  -ex-background-text: " + format( base.deriveColor( 0, 1, 1, 0.5 ) ) + ";" );
+		printer.println( "  -ex-background-tabs: " + format( base.deriveColor( 0, 1, 1, 0.6 ) ) + ";" );
+		printer.println( "  -ex-background-tags: " + format( base.deriveColor( 0, 1, 1, 0.7 ) ) + ";" );
 		printer.println( "  -ex-background-note: " + format( base.deriveColor( 0, 1, 1, 0.8 ) ) + ";" );
 	}
 
@@ -254,7 +198,7 @@ public class ThemeWriter {
 	 * @param printer The print writer
 	 */
 	private void printExWorkareaTintColor( PrintWriter printer ) {
-		printer.println( "  -ex-workspace-tint-color: " + format( a.deriveColor( 0, 1, 1, 0.5 ) ) + ";" );
+		printer.println( "  -ex-workspace-tint-color: " + format( base.deriveColor( 0, 1, 1, 0.4 ) ) + ";" );
 	}
 
 	private void printExWorkareaDropHintColor( PrintWriter printer ) {

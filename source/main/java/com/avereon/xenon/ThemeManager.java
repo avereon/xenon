@@ -4,13 +4,13 @@ import com.avereon.util.Controllable;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import com.avereon.venza.color.Colors;
 import javafx.scene.paint.Color;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,11 +21,11 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	private static final System.Logger log = Log.get();
 
-	private Program program;
+	private final Program program;
 
-	private Map<String, ThemeMetadata> themes;
+	private final Map<String, ThemeMetadata> themes;
 
-	private Path profileThemeFolder;
+	private final Path profileThemeFolder;
 
 	public ThemeManager( Program program ) {
 		this.program = program;
@@ -44,7 +44,6 @@ public class ThemeManager implements Controllable<ThemeManager> {
 
 	@Override
 	public ThemeManager start() {
-		updateProvidedThemes();
 		createProvidedThemes();
 		reloadProfileThemes();
 		return this;
@@ -96,54 +95,58 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		return line == null ? null : line.substring( line.indexOf( key ) + key.length() );
 	}
 
-	private void updateProvidedThemes() {
-		Path source = getProgram().getHomeFolder().resolve( "themes" );
-		if( !Files.exists( source ) ) source = Paths.get( "source/main/assembly/resources/themes" );
-		Path target = profileThemeFolder;
+	private void createProvidedThemes() {
+		createTheme( "Xenon Dark", "#333333", "#3592C4", "#C05000" );
+		createTheme( "Xenon Light", "#ECECEC", "#3592C4", "#DC7000" );
+		createTheme( "Xenon Evening Field", "#FEF7C9", "#ABC6AC", "#657DA0" );
+		createTheme( "Xenon Evening Sky", "#1A2C3A", "#EEDC9D", "#C9CE6B" );
 
-		// Copy the themes
-		try {
-			Files.createDirectories( target );
-			if( !Files.exists( source ) ) return;
+		for( String id : MaterialColor.getIds() ) {
+			createMaterialDarkTheme( id );
+		}
 
-			Files.list( source ).forEach( f -> {
-				try {
-					log.log( Log.DEBUG, "Replacing theme: {0}", target.resolve( f.getFileName() ) );
-					FileUtil.delete( target.resolve( f.getFileName() ) );
-					FileUtil.copy( f, target, true );
-				} catch( IOException exception ) {
-					log.log( Log.ERROR, exception );
-				}
-			} );
-		} catch( IOException exception ) {
-			log.log( Log.ERROR, exception );
+		for( String id : MaterialColor.getIds() ) {
+			createMaterialLightTheme( id );
 		}
 	}
 
-	private void createProvidedThemes() {
-		createTheme( "Xenon Dark", "#333333", "#3592C4", "#C05000", null, null );
-		createTheme( "Xenon Light", "#ECECEC", "#3592C4", "#DC7000", null, null );
-		createTheme( "Xenon Evening Field", "#FEF7C9", "#ABC6AC", "#657DA0", "#345879", "#1C1E27" );
-		createTheme( "Xenon Evening Sky", "#1A2C3A", "#EEDC9D", "#C9CE6B", "#223854", "#68685E" );
+	private void createMaterialDarkTheme( String id ) {
+		String name = "Xenon Dark Material " + MaterialColor.getName( id );
+		Color ref = MaterialColor.getColor( id );
+		Color base = Colors.mix( Colors.web( "#333333" ), ref, 0.1 );
+		Color accent = Colors.mix( ref, Color.WHITE, 0.1 );
+		Color focus = ref;
+		createTheme( name, format( base ), format( accent ), format( focus ) );
 	}
 
-	private void createTheme( String name, String a, String b, String c, String d, String e ) {
-		Color colorA = a == null ? null : Color.web( a );
-		Color colorB = b == null ? null : Color.web( b );
-		Color colorC = c == null ? null : Color.web( c );
-		Color colorD = d == null ? null : Color.web( d );
-		Color colorE = e == null ? null : Color.web( e );
-		createTheme( name, colorA, colorB, colorC, colorD, colorE );
+	private void createMaterialLightTheme( String id ) {
+		String name = "Xenon Light Material " + MaterialColor.getName( id );
+		Color ref = MaterialColor.getColor( id );
+		Color base = Colors.mix( Colors.web( "#ECECEC" ), ref, 0.1 );
+		Color accent = Colors.mix( ref, Color.WHITE, 0.1 );
+		Color focus = ref;
+		createTheme( name, format( base ), format( accent ), format( focus ) );
 	}
 
-	private void createTheme( String name, Color a, Color b, Color c, Color d, Color e ) {
+	private void createTheme( String name, String base, String accent, String focus ) {
+		Color colorA = base == null ? null : Color.web( base );
+		Color colorB = accent == null ? null : Color.web( accent );
+		Color colorC = focus == null ? null : Color.web( focus );
+		createTheme( name, colorA, colorB, colorC );
+	}
+
+	private void createTheme( String name, Color base, Color accent, Color focus ) {
 		String id = name.replace( ' ', '-' ).toLowerCase();
 		Path path = profileThemeFolder.resolve( id + ".css" );
 		try( FileWriter writer = new FileWriter( path.toFile() ) ) {
-			new ThemeWriter( a, b, c, d, e ).write( id, name, writer );
+			new ThemeWriter( base, accent, focus ).write( id, name, writer );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, exception );
 		}
+	}
+
+	private String format( Color color ) {
+		return color.toString().replace( "0x", "#" ).toUpperCase();
 	}
 
 }

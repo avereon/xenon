@@ -121,8 +121,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public void setTheme( String id ) {
 		this.currentThemeId = id;
 		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
-		workspaces.forEach( w -> w.setTheme( theme.getStylesheet() ) );
-
+		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( "xenon-dark" );
+		final ThemeMetadata finalTheme = theme;
+		workspaces.forEach( w -> w.setTheme( finalTheme.getStylesheet() ) );
 		studyStylesheets( theme.getStylesheet() );
 	}
 

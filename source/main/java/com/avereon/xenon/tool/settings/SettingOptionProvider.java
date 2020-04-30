@@ -1,10 +1,10 @@
 package com.avereon.xenon.tool.settings;
 
-import java.util.Set;
+import java.util.List;
 
 public interface SettingOptionProvider {
 
-	Set<String> getKeys();
+	List<String> getKeys();
 
 	String getName( String key );
 

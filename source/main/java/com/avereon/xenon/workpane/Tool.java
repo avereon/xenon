@@ -223,7 +223,8 @@ public abstract class Tool extends Control {
 	}
 
 	private void doClose() {
-		if( getWorkpane() != null ) Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
+		Workpane workpane = getWorkpane();
+		if( workpane != null ) Platform.runLater( () -> workpane.closeTool( this, true ) );
 	}
 
 	@SuppressWarnings( { "MethodDoesntCallSuperMethod" } )
