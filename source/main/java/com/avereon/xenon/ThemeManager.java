@@ -106,30 +106,66 @@ public class ThemeManager implements Controllable<ThemeManager> {
 		createTheme( "Xenon Evening Field", "#FEF7C9", "#ABC6AC", "#657DA0" );
 		createTheme( "Xenon Evening Sky", "#1A2C3A", "#EEDC9D", "#C9CE6B" );
 
-		for( String id : MaterialColor.getIds() ) {
-			createMaterialDarkTheme( id );
+		for( Color color : MaterialColor.getColors() ) {
+			createTheme( "Xenon Dark Material " + MaterialColor.getName( color ), Color.TRANSPARENT,color, false );
 		}
 
-		for( String id : MaterialColor.getIds() ) {
-			createMaterialLightTheme( id );
+		for( Color color : MaterialColor.getColors() ) {
+			createTheme( "Xenon Dark Material " + MaterialColor.getName( color ) + " Tint", color, false );
+		}
+
+		for( Color color : MaterialColor.getColors() ) {
+			createTheme( "Xenon Light Material " + MaterialColor.getName( color ), Color.TRANSPARENT,color, true );
+		}
+
+		for( Color color : MaterialColor.getColors() ) {
+			createTheme( "Xenon Light Material " + MaterialColor.getName( color ) + " Tint", color, true );
 		}
 	}
 
-	private void createMaterialDarkTheme( String id ) {
-		String name = "Xenon Dark Material " + MaterialColor.getName( id );
-		Color ref = MaterialColor.getColor( id );
-		Color base = Colors.mix( Colors.web( "#333333" ), ref, 0.1 );
-		Color accent = Colors.mix( ref, Color.WHITE, 0.1 );
-		Color focus = ref;
+	private void createTheme( String name, Color color, boolean light ) {
+		createTheme( name, color, color, color, light );
+	}
+
+	private void createTheme( String name, Color tint, Color accent, boolean light ) {
+		createTheme( name, tint, accent, accent, light );
+	}
+
+	/**
+	 * Generate a light or dark theme tinted with the tint color and using the
+	 * specified accent and focus colors. The accent color is left unchanged and
+	 * the focus color is lightened just a bit. This will produce reasonable
+	 * results if all three colors are the same color. More variety can be
+	 * obtained by using different accent and focus colors.
+	 * <p/>
+	 * The base color is forced to be opaque, otherwise rendering artifacts will
+	 * occur. The accent and focus colors are allowed to have transparency.
+	 *
+	 * @param name The name of the theme
+	 * @param tint The tint color
+	 * @param accent The accent color
+	 * @param focus The focus color
+	 * @param light False for dark theme, true for light theme
+	 */
+	private void createTheme( String name, Color tint, Color accent, Color focus, boolean light ) {
+		Color base = light ? Colors.web( "#E0E0E0" ) : Colors.web( "#303030" );
+		if( tint != Color.TRANSPARENT ) base = Colors.mix( base, tint, 0.1 );
+		createTheme( name, Colors.opaque( base ), accent, Colors.mix( focus, Color.WHITE, 0.1 ) );
+	}
+
+	private void createMaterialDarkTheme( Color color ) {
+		String name = "Xenon Dark Material " + MaterialColor.getName( color );
+		Color base = Colors.mix( Colors.web( "#202020" ), color, 0.1 );
+		Color accent = Colors.mix( color, Color.WHITE, 0.1 );
+		Color focus = color;
 		createTheme( name, format( base ), format( accent ), format( focus ) );
 	}
 
-	private void createMaterialLightTheme( String id ) {
-		String name = "Xenon Light Material " + MaterialColor.getName( id );
-		Color ref = MaterialColor.getColor( id );
-		Color base = Colors.mix( Colors.web( "#ECECEC" ), ref, 0.1 );
-		Color accent = Colors.mix( ref, Color.WHITE, 0.1 );
-		Color focus = ref;
+	private void createMaterialLightTheme( Color color ) {
+		String name = "Xenon Light Material " + MaterialColor.getName( color );
+		Color base = Colors.mix( Colors.web( "#E0E0E0" ), color, 0.1 );
+		Color accent = Colors.mix( color, Color.WHITE, 0.1 );
+		Color focus = color;
 		createTheme( name, format( base ), format( accent ), format( focus ) );
 	}
 

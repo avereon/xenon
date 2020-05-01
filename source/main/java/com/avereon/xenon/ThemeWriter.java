@@ -11,13 +11,13 @@ import java.io.Writer;
  */
 public class ThemeWriter {
 
-	private Color base;
+	private final Color base;
 
-	private Color accent;
+	private final Color accent;
 
-	private Color focus;
+	private final Color focus;
 
-	private boolean isDark;
+	private final boolean isDark;
 
 	public ThemeWriter( Color base, Color accent, Color focus ) {
 		this.base = base;

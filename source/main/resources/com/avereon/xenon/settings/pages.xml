@@ -97,47 +97,14 @@
 
 		<group id="workspace-theme">
 			<setting key="workspace-theme-id" editor="combobox" provider="workspace-theme-option-provider"/>
-			<setting key="workspace-theme-font" editor="font"/>
-			<setting key="workspace-theme-base" editor="color"/>
-			<setting key="workspace-theme-background" editor="color" disabled="true"/>
-			<setting key="workspace-theme-foreground" editor="color" disabled="true"/>
 		</group>
-
-		<!--
-		<page id="look.and.feel">
-			<group id="look.and.feel">
-				<setting key="workspace-lookandfeel-name" editor="combobox">
-					<option key="nimbus" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
-					<option key="metal" value="javax.swing.plaf.metal.MetalLookAndFeel" />
-					<option key="platform" />
-				</setting>
-			</group>
-
-			<group id="nimbus.theme">
-				<dependency key="workspace-lookandfeel-name" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
-				<setting key="workspace-lookandfeel-nimbus-theme" editor="color" opaque="true">
-					<dependency key="workspace-lookandfeel-name" value="javax.swing.plaf.nimbus.NimbusLookAndFeel" />
-				</setting>
-			</group>
-
-			<group id="metal.theme">
-				<dependency key="workspace-lookandfeel-name" value="javax.swing.plaf.metal.MetalLookAndFeel" />
-				<setting key="workspace-lookandfeel-metal-theme" editor="combobox">
-					<dependency key="workspace-lookandfeel-name" value="javax.swing.plaf.metal.MetalLookAndFeel" />
-					<option key="default" />
-					<option key="softblue" value="com.parallelsymmetry.escape.SoftBlueTheme" />
-					<option key="deepblue" value="com.parallelsymmetry.escape.DeepBlueTheme" />
-					<option key="basic" />
-				</setting>
-			</group>
-		</page>
-		-->
 
 		<page id="background">
 			<group id="background">
 				<setting key="workspace-scenery-back-direction" editor="combobox">
+<!--					<option key="theme" value="0"/>-->
 					<option key="vertical" value="1"/>
-					<option key="horizontal" value="0"/>
+					<option key="horizontal" value="2"/>
 				</setting>
 				<setting key="workspace-scenery-back-color1" editor="color" opaque="true"/>
 				<setting key="workspace-scenery-back-color2" editor="color" opaque="true"/>
@@ -156,10 +123,7 @@
 				</setting>
 				<setting key="workspace-scenery-image-align" editor="combobox">
 					<dependency key="workspace-scenery-image-enabled" value="true"/>
-					<dependency key="workspace-scenery-image-style" value="fill"/>
-					<dependency key="workspace-scenery-image-style" value="fit" operator="or"/>
-					<dependency key="workspace-scenery-image-style" value="tile" operator="or"/>
-					<dependency key="workspace-scenery-image-style" value="anchor" operator="or"/>
+					<dependency key="workspace-scenery-image-style" value="stretch" operator="not"/>
 					<option key="northwest"/>
 					<option key="north"/>
 					<option key="northeast"/>
@@ -172,10 +136,11 @@
 				</setting>
 
 				<setting key="workspace-scenery-tint-enabled" editor="checkbox"/>
-				<setting key="workspace-scenery-tint-direction" editor="combobox">
+				<setting key="workspace-scenery-tint-mode" editor="combobox">
 					<dependency key="workspace-scenery-tint-enabled" value="true"/>
+					<option key="theme" value="0"/>
 					<option key="vertical" value="1"/>
-					<option key="horizontal" value="0"/>
+					<option key="horizontal" value="2"/>
 				</setting>
 				<setting key="workspace-scenery-tint-color1" editor="color">
 					<dependency key="workspace-scenery-tint-enabled" value="true"/>

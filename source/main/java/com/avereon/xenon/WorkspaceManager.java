@@ -11,19 +11,14 @@ import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
-import javafx.css.CssParser;
-import javafx.css.Declaration;
-import javafx.css.Rule;
-import javafx.css.Selector;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.lang.System.Logger;
-import java.net.URL;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -119,88 +114,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void setTheme( String id ) {
-		this.currentThemeId = id;
 		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
-		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( "xenon-dark" );
+		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = "xenon-dark" );
+
+		this.currentThemeId = id;
 		final ThemeMetadata finalTheme = theme;
 		workspaces.forEach( w -> w.setTheme( finalTheme.getStylesheet() ) );
-		studyStylesheets( theme.getStylesheet() );
-	}
-
-	private Color getThemeBaseColor( String url, String key ) {
-		List<Rule> rules = new ArrayList<>();
-		try {
-			// FIXME Can't load modena.css
-			URL modena = getClass().getClassLoader().getResource( "/com/sun/javafx/scene/control/skin/modena/modena.css" );
-			log.log( Log.WARN, "Found modena: " + (modena != null ) );
-			rules.addAll( new CssParser().parse( getClass().getResource( "/com/sun/javafx/scene/control/skin/modena/modena.css" ) ).getRules() );
-			rules.addAll( new CssParser().parse( new URL( url ) ).getRules() );
-
-			for( Rule r : rules ) {
-				for( Selector s : r.getSelectors() ) {
-					if( "*.root".equals( s.toString() ) ) {
-						log.log( Log.WARN, "selector=" + s.toString() );
-						for( Declaration d : s.getRule().getDeclarations() ) {
-							log.log( Log.WARN, "declaration=" + d.getProperty() + "=" + d.getParsedValue().getValue() );
-							if( key.equals( d.getProperty() ) ) return (Color)d.getParsedValue().getValue();
-						}
-					}
-				}
-			}
-		} catch( IOException exception ) {
-			log.log( Log.ERROR, exception );
-		}
-
-		return Color.RED;
-	}
-
-	private void studyStylesheets( String url ) {
-		// NEXT Study Stylesheets
-
-		//		Label label = new Label();
-		//		Scene scene = new Scene( label );
-		//		scene.setUserAgentStylesheet( Application.STYLESHEET_MODENA );
-		//		scene.getStylesheets().add( Program.STYLESHEET );
-		//		if( url != null ) scene.getStylesheets().add( url );
-		//
-		//		log.log( Log.WARN, "text-fill=" + label.getTextFill() );
-
-		//		// Collect the stylesheets
-		//		Label node = new Label();
-		//		node.getStylesheets().add( Program.STYLESHEET );
-		//		if( url != null ) node.getStylesheets().add( url );
-
-		//		label.getCssMetaData().forEach( s -> {
-		//			log.log( Log.WARN, "styleable=" + s);
-		//			if( "-fx-text-fill".equals( s.getProperty())) {
-		//				Color paint = (Color)s.getInitialValue( null );
-		//				ProgramIcon.setDefaultColorTheme( new ColorTheme( paint ) );
-		//			}
-		//		} );
-
-		//StyleManager.getInstance();
-
-		//		try {
-		//			Stylesheet stylesheet = new CssParser().parse( new URL( url ) );
-		//
-		//			stylesheet.getRules().forEach( r -> {
-		//				int index = 0;
-		//				for( Selector s : r.getSelectors() ) {
-		//					//log.log( Log.WARN, "selector=" + s.toString() );
-		//					index++;
-		//
-		//					if( "*.root".equals( s.toString() ) ){
-		//						log.log( Log.WARN, "selector=" + s.toString() );
-		//						s.getRule().getDeclarations().forEach( d -> {
-		//							log.log( Log.WARN, "declaration=" + d.getProperty() + "=" + d.getParsedValue().getValue() );
-		//
-		//						} );
-		//					}
-		//				}
-		//			} );
-		//		} catch( IOException exception ) {
-		//			log.log( Log.ERROR, exception );
-		//		}
 	}
 
 	public Set<Workspace> getWorkspaces() {

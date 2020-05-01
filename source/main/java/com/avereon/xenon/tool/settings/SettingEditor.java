@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 
-	private static Map<String, Class<? extends SettingEditor>> editors;
+	private static final Map<String, Class<? extends SettingEditor>> editors;
 
 	protected ProgramProduct product;
 
