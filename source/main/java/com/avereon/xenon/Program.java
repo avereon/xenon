@@ -144,6 +144,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private TaskAction taskAction;
 
+	private WallpaperToggleAction wallpaperToggleAction;
+
 	private Boolean isProgramUpdated;
 
 	// THREAD main
@@ -1080,6 +1082,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
+		getActionLibrary().getAction( "wallpaper-toggle" ).pushAction( wallpaperToggleAction = new WallpaperToggleAction( this ) );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
 			log.log( Log.ERROR, new Throwable( "This is a test throwable" ) );
@@ -1107,6 +1110,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
+		getActionLibrary().getAction( "wallpaper-toggle" ).pullAction( wallpaperToggleAction );
 	}
 
 	private void registerSchemes( AssetManager manager ) {

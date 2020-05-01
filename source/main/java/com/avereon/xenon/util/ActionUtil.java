@@ -30,13 +30,26 @@ public class ActionUtil {
 	}
 
 	public static Menu createMenu( Program program, ActionProxy action ) {
+		return createMenu( program, action, false );
+	}
+
+	public static Menu createSubMenu( Program program, String id ) {
+		return createMenu( program, program.getActionLibrary().getAction( id ), true );
+	}
+
+	public static Menu createSubMenu( Program program, ActionProxy action ) {
+		return createMenu( program, action, true );
+	}
+
+
+	private static Menu createMenu( Program program, ActionProxy action, boolean submenu ) {
 		Menu item = new Menu();
 
 		item.setId( "menu-" + action.getId() );
 		item.getStyleClass().add( "menu-" + action.getId() );
 		item.setMnemonicParsing( true );
 		item.setText( action.getMnemonicName() );
-		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+		if( submenu ) item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );

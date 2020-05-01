@@ -212,13 +212,18 @@ public class Workspace implements Configurable {
 		edit.getItems().add( new SeparatorMenuItem() );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
+		edit.getItems().add( new SeparatorMenuItem() );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+
+		Menu options = ActionUtil.createSubMenu( program, "options" );
+		options.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
+		//options.getItems().add( ActionUtil.createMenuItem( program, "wallpaper-toggle" ) );
 
 		Menu view = ActionUtil.createMenu( program, "view" );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
-		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
-		view.getItems().add( ActionUtil.createMenuItem( program, "themes" ) );
-		view.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		view.getItems().add( new SeparatorMenuItem() );
+		view.getItems().add( options );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );

@@ -80,6 +80,7 @@ public class ActionLibrary {
 
 		register( bundle, "task" );
 		register( bundle, "themes" );
+		register( bundle, "wallpaper-toggle" );
 
 		register( bundle, "reset" );
 		register( bundle, "refresh" );
@@ -90,6 +91,7 @@ public class ActionLibrary {
 		register( bundle, "add-market" );
 		register( bundle, "remove-market" );
 
+		register( bundle, "options" );
 		register( bundle, "runpause" );
 	}
 

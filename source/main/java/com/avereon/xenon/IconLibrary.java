@@ -39,6 +39,8 @@ public class IconLibrary {
 		register( "close", CloseIcon.class );
 		register( "exit", PowerIcon.class );
 
+		register( "document", DocumentIcon.class );
+
 		register( "asset", DocumentIcon.class );
 		register( "asset-new", DocumentIcon.class );
 		register( "asset-open", FolderIcon.class );
@@ -61,6 +63,7 @@ public class IconLibrary {
 		register( "setting", SettingIcon.class );
 		register( "settings", SettingsIcon.class );
 		register( "themes", ThemeIcon.class );
+		register( "options", SettingsIcon.class );
 
 		register( "guide", GuideIcon.class );
 		register( "fault", FaultIcon.class );
@@ -87,6 +90,8 @@ public class IconLibrary {
 		register( "workarea-new", WorkareaIcon.class );
 		register( "workarea-rename", WorkareaRenameIcon.class );
 		register( "workarea-close", CloseToolIcon.class );
+
+		register( "wallpaper", WorkareaIcon.class );
 
 		register( "add", PlusIcon.class );
 		register( "refresh", RefreshIcon.class );
@@ -170,7 +175,7 @@ public class IconLibrary {
 		try {
 			return icons.get( id ).newInstance();
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Unable to create icon: " + id, exception );
+			log.log( Log.ERROR, "Unable to create icon: " + id, exception );
 			return null;
 		}
 	}
