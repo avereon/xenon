@@ -2,6 +2,11 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.util.Log;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 
 import java.lang.System.Logger;
 import java.util.Map;
@@ -9,12 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ActionLibrary {
 
-	private static Logger log = Log.get();
+	private static final Logger log = Log.get();
 
-	private Map<String, ActionProxy> actions;
+	private final Map<String, ActionProxy> actions;
+
+	private final EventHandler<KeyEvent> shortcutHandler;
 
 	public ActionLibrary( Program program ) {
 		this.actions = new ConcurrentHashMap<>();
+		shortcutHandler = this::handleEvent;
 
 		ProductBundle bundle = program.rb();
 
@@ -70,8 +78,8 @@ public class ActionLibrary {
 		register( bundle, "test-action-3" );
 		register( bundle, "test-action-4" );
 		register( bundle, "test-action-5" );
-		//		register( bundle, "settings-reset" );
 		register( bundle, "restart" );
+		register( bundle, "reset" );
 
 		register( bundle, "workarea" );
 		register( bundle, "workarea-new" );
@@ -81,6 +89,8 @@ public class ActionLibrary {
 		register( bundle, "task" );
 		register( bundle, "themes" );
 		register( bundle, "wallpaper-toggle" );
+		register( bundle, "wallpaper-prior" );
+		register( bundle, "wallpaper-next" );
 
 		register( bundle, "reset" );
 		register( bundle, "refresh" );
@@ -110,6 +120,7 @@ public class ActionLibrary {
 		String type = bundle.textOr( BundleKey.ACTION, id + ".type", null );
 		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", null );
 		String shortcut = bundle.textOr( BundleKey.ACTION, id + ".shortcut", null );
+		String description = bundle.textOr( BundleKey.ACTION, id + ".description", null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
@@ -117,10 +128,30 @@ public class ActionLibrary {
 		proxy.setType( type );
 		proxy.setShortcut( shortcut );
 		proxy.setMnemonic( mnemonic );
+		proxy.setDescription( description );
 
 		if( "multi-state".equals( type ) ) addStates( bundle, id, proxy );
 
 		actions.put( id, proxy );
+	}
+
+	private void handleEvent( KeyEvent event ) {
+		for( ActionProxy proxy : actions.values() ) {
+			KeyCombination accelerator = proxy.getAccelerator();
+			if( accelerator != null && accelerator.match( event )) {
+				proxy.handle( new ActionEvent() );
+				event.consume();
+				break;
+			}
+		}
+	}
+
+	public void registerScene( Scene scene ) {
+		scene.addEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
+	}
+
+	public void unregisterScene( Scene scene ) {
+		scene.removeEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
 	private void addStates( ProductBundle bundle, String id, ActionProxy proxy ) {

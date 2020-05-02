@@ -215,15 +215,11 @@ public class Workspace implements Configurable {
 		edit.getItems().add( new SeparatorMenuItem() );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
-		Menu options = ActionUtil.createSubMenu( program, "options" );
-		options.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
-		//options.getItems().add( ActionUtil.createMenuItem( program, "wallpaper-toggle" ) );
-
 		Menu view = ActionUtil.createMenu( program, "view" );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
 		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
 		view.getItems().add( new SeparatorMenuItem() );
-		view.getItems().add( options );
+		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
@@ -455,27 +451,29 @@ public class Workspace implements Configurable {
 		if( this.settings != null ) return;
 
 		// The incoming settings are the workspace settings
-
 		this.settings = settings;
 
 		this.id = settings.get( "id" );
 		// FIXME Use the properties map in the stage to store the id
-		// stage.getProperties().put( "id", settings.get( "id" ) );
+		stage.getProperties().put( "id", settings.get( "id" ) );
 
-		Double x = settings.get( "x", Double.class, null );
-		Double y = settings.get( "y", Double.class, null );
-		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
-		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
-
-		// Due to differences in how FX handles stage size (width and height) on
+		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
-		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
+		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
+		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
+		scene = new Scene( workareaLayout, w, h );
+		getProgram().getActionLibrary().registerScene( scene );
+
+		// Setup the stage
+		stage.setScene( scene );
 		stage.sizeToScene();
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
+		Double x = settings.get( "x", Double.class, null );
+		Double y = settings.get( "y", Double.class, null );
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
 
@@ -524,6 +522,7 @@ public class Workspace implements Configurable {
 
 	@Override
 	public Settings getSettings() {
+		//return getProgram().getSettingsManager().getWorkspaceSettings( this );
 		return settings;
 	}
 
@@ -539,6 +538,7 @@ public class Workspace implements Configurable {
 	}
 
 	public void close() {
+		getProgram().getActionLibrary().unregisterScene( scene );
 		memoryMonitor.close();
 		taskMonitor.close();
 		getStage().close();

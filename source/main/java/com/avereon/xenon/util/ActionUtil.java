@@ -142,7 +142,7 @@ public class ActionUtil {
 		return pad;
 	}
 
-	private static KeyCombination parseShortcut( String shortcut ) {
+	public static KeyCombination parseShortcut( String shortcut ) {
 		if( shortcut == null ) return null;
 
 		// Make sure the shortcut definition is in upper case

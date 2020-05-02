@@ -1,8 +1,10 @@
 package com.avereon.xenon;
 
+import com.avereon.xenon.util.ActionUtil;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.input.KeyCombination;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,9 +32,13 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private StringProperty mnemonicName;
 
+	private StringProperty description;
+
 	private String type;
 
 	private String shortcut;
+
+	private KeyCombination accelerator;
 
 	private List<String> states;
 
@@ -48,6 +54,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		mnemonic = NO_MNEMONIC;
 		icon = new SimpleStringProperty();
 		mnemonicName = new SimpleStringProperty();
+		description = new SimpleStringProperty();
 		enabledProperty = new SimpleBooleanProperty();
 		states = new CopyOnWriteArrayList<>();
 		stateMap = new ConcurrentHashMap<>();
@@ -123,6 +130,18 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		}
 	}
 
+	public ReadOnlyStringProperty descriptionProperty() {
+		return description;
+	}
+
+	public String getDescription() {
+		return description.get();
+	}
+
+	public void setDescription( String description ) {
+		this.description.set( description );
+	}
+
 	public String getType() {
 		return type;
 	}
@@ -137,6 +156,11 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	public void setShortcut( String shortcut ) {
 		this.shortcut = shortcut;
+		this.accelerator = ActionUtil.parseShortcut( shortcut );
+	}
+
+	public KeyCombination getAccelerator() {
+		return accelerator;
 	}
 
 	public boolean isEnabled() {

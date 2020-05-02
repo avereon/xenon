@@ -34,7 +34,7 @@ public class ProgramPeer implements Controllable<ProgramPeer> {
 	public ProgramPeer start() {
 		// Running as a peer
 		if( log.isLoggable( Log.DEBUG ) ) {
-			log.log( Log.DEBUG,  "Program already running on port {}", port );
+			log.log( Log.DEBUG,  "Program already running on port {0}", port );
 		} else {
 			log.log( Log.INFO,  "Program already running" );
 		}
