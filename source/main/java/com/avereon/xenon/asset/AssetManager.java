@@ -1003,6 +1003,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		saveActionHandler.updateEnabled();
 		saveAsActionHandler.updateEnabled();
 		saveAllActionHandler.updateEnabled();
+		closeActionHandler.updateEnabled();
 		closeAllActionHandler.updateEnabled();
 	}
 
@@ -1494,7 +1495,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return openAssets.size() > 0;
+			return openAssets.stream().anyMatch( a -> a.getType().isUserType() );
 		}
 
 		@Override
