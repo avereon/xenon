@@ -45,7 +45,7 @@ public abstract class WallpaperFileAction extends Action {
 
 	public static List<Path> listImageFiles( Path folder ) throws IOException {
 		List<Path> result = new ArrayList<>();
-		try( DirectoryStream<Path> stream = Files.newDirectoryStream( folder, "*.{gif,jpg,jpeg,png}" ) ) {
+		try( DirectoryStream<Path> stream = Files.newDirectoryStream( folder, "*.{gif,GIF,jpg,JPG,jpeg,JPEG,png,PNG}" ) ) {
 			for( Path entry : stream ) {
 				result.add( entry );
 			}
