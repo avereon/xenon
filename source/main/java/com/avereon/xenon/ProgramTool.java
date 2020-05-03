@@ -51,11 +51,14 @@ public abstract class ProgramTool extends Tool {
 	@Override
 	public void close() {
 		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getAsset() );
+		if( !tools.contains( this ) ) return;
 
-		if( tools.size() == 1 && tools.iterator().next() == this ) {
-			getProgram().getAssetManager().close( getAsset() );
-		} else if( getAsset().isNewOrModified() ) {
+		if( getAsset().isNewOrModified() ) {
 			getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) );
+		} else if( tools.size() == 1 ) {
+			getProgram().getAssetManager().close( getAsset() );
+		} else {
+			super.close();
 		}
 	}
 
