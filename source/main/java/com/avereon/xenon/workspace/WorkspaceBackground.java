@@ -91,7 +91,7 @@ public class WorkspaceBackground extends StackPane {
 
 	private boolean configureImagePane( Settings settings ) {
 		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
-		String imageFileString = settings.get( "workspace-scenery-image-file", (String)null );
+		String imageFileString = settings.get( "workspace-scenery-image-file", "" );
 		String imagePathString = settings.get( "workspace-scenery-image-path", imageFileString );
 		String imageIndexString = settings.get( "workspace-scenery-image-index", "0" );
 		Path imagePath = FileUtil.findValidFolder( Paths.get( imagePathString ) );
