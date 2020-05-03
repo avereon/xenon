@@ -1,8 +1,11 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
+import com.avereon.util.FileUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.color.Colors;
 import com.avereon.venza.javafx.FxUtil;
+import com.avereon.xenon.action.WallpaperFileAction;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -10,11 +13,14 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class WorkspaceBackground extends StackPane {
+
+	private static final System.Logger log = Log.get();
 
 	private final Pane backPane;
 
@@ -25,6 +31,10 @@ public class WorkspaceBackground extends StackPane {
 	private final Pane themeTintPane;
 
 	private final Pane customTintPane;
+
+	private Path wallpaper;
+
+	private int wallpaperIndex;
 
 	private Image image;
 
@@ -48,28 +58,8 @@ public class WorkspaceBackground extends StackPane {
 		themeTintPane.setVisible( false );
 		customTintPane.setVisible( false );
 
-//		backPane.prefWidthProperty().bind( this.widthProperty() );
-//		backPane.prefHeightProperty().bind( this.heightProperty() );
-//		imagePane.prefWidthProperty().bind( this.widthProperty() );
-//		imagePane.prefHeightProperty().bind( this.heightProperty() );
-//		tintPane.prefWidthProperty().bind( this.widthProperty() );
-//		tintPane.prefHeightProperty().bind( this.heightProperty() );
-//
-//		themeTintPane.prefWidthProperty().bind( tintPane.widthProperty() );
-//		themeTintPane.prefHeightProperty().bind( tintPane.heightProperty() );
-//		customTintPane.prefWidthProperty().bind( tintPane.widthProperty() );
-//		customTintPane.prefHeightProperty().bind( tintPane.heightProperty() );
-
 		tintPane.getChildren().addAll( themeTintPane, customTintPane );
 		getChildren().addAll( backPane, imagePane, tintPane );
-
-//		Rectangle clip = new Rectangle();
-//		this.setClip( clip );
-//		this.layoutBoundsProperty().addListener( ( observable, oldBounds, newBounds ) -> {
-//			clip.setWidth( newBounds.getWidth() );
-//			clip.setHeight( newBounds.getHeight() );
-//			useFillBackgroundWorkaround( false );
-//		} );
 	}
 
 	void updateBackgroundFromSettings( Settings settings ) {
@@ -77,7 +67,7 @@ public class WorkspaceBackground extends StackPane {
 		configureBackPane( settings );
 
 		// Image layer
-		imagePane.setVisible( configureImagePane(settings) );
+		imagePane.setVisible( configureImagePane( settings ) );
 
 		// Tint layer
 		tintPane.setVisible( configureTintPane( settings ) );
@@ -99,20 +89,37 @@ public class WorkspaceBackground extends StackPane {
 		backPane.setBackground( new Background( new BackgroundFill( backFill, null, null ) ) );
 	}
 
-	private boolean configureImagePane(Settings settings) {
-		image = null;
+	private boolean configureImagePane( Settings settings ) {
 		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
+		String imageFileString = settings.get( "workspace-scenery-image-file", (String)null );
+		String imagePathString = settings.get( "workspace-scenery-image-path", imageFileString );
+		String imageIndexString = settings.get( "workspace-scenery-image-index", "0" );
+		Path imagePath = FileUtil.findValidFolder( Paths.get( imagePathString ) );
 
-		String imageFile = settings.get( "workspace-scenery-image-file", (String)null );
-		Path imagePath = imageFile == null ? null : Paths.get( imageFile );
-		if( imageEnabled && imagePath != null && Files.exists( imagePath ) ) image = new Image( imagePath.toUri().toString() );
-		style = settings.get( "workspace-scenery-image-style", "fill" );
-		align = settings.get( "workspace-scenery-image-align", "center" );
+		List<Path> images;
+		try {
+			images = WallpaperFileAction.listImageFiles( imagePath );
+		} catch( IOException exception ) {
+			images = List.of();
+		}
+
+		try {
+			wallpaperIndex = Integer.parseInt( imageIndexString );
+		} catch( NumberFormatException exception ) {
+			wallpaperIndex = 0;
+		}
+		if( wallpaperIndex > images.size() - 1 ) wallpaperIndex = -1;
+
+		image = null;
+		if( imageEnabled && wallpaperIndex > -1 ) image = new Image( images.get( wallpaperIndex ).toUri().toString() );
 
 		if( image == null ) {
 			imagePane.setBackground( null );
 			return false;
 		}
+
+		style = settings.get( "workspace-scenery-image-style", "fill" );
+		align = settings.get( "workspace-scenery-image-align", "center" );
 
 		BackgroundImage background = null;
 		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );

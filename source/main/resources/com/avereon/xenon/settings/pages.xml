@@ -110,7 +110,7 @@
 				<setting key="workspace-scenery-back-color2" editor="color" opaque="true"/>
 
 				<setting key="workspace-scenery-image-enabled" editor="checkbox"/>
-				<setting key="workspace-scenery-image-file" editor="file">
+				<setting key="workspace-scenery-image-path" editor="folder">
 					<dependency key="workspace-scenery-image-enabled" value="true"/>
 				</setting>
 				<setting key="workspace-scenery-image-style" editor="combobox">

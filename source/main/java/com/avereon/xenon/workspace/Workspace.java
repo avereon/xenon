@@ -584,22 +584,13 @@ public class Workspace implements Configurable {
 		}
 	}
 
-	//	private class BackgroundSettingsHandler implements SettingsListener {
-	//
-	//		@Override
-	//		public void handle( SettingsEvent event ) {
-	//			if( event.getEventType() != SettingsEvent.CHANGED ) return;
-	//			background.updateBackgroundFromSettings( backgroundSettings );
-	//		}
-	//
-	//	}
-	//
 	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
 
 		@Override
 		public void handle( SettingsEvent event ) {
 			background.updateBackgroundFromSettings( backgroundSettings );
 		}
+
 	}
 
 	private class MemoryMonitorSettingsHandler implements EventHandler<SettingsEvent> {

@@ -31,6 +31,7 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 		addType( "infoarea", InfoAreaSettingEditor.class );
 		addType( "color", ColorSettingEditor.class );
 		addType( "file", FileSettingEditor.class );
+		addType( "folder", FolderSettingEditor.class );
 		addType( "font", FontSettingEditor.class );
 		//		//		addType( "link", LinkSettingEditor.class );
 		//		//		addType( "time", TimeSettingEditor.class );

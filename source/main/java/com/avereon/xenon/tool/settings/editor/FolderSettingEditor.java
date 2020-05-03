@@ -15,11 +15,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 
 import java.io.File;
 
-public class FileSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+public class FolderSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
 	private Label label;
 
@@ -27,7 +27,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 
 	private Button button;
 
-	public FileSettingEditor( ProgramProduct product, Setting setting ) {
+	public FolderSettingEditor( ProgramProduct product, Setting setting ) {
 		super( product, setting );
 	}
 
@@ -121,17 +121,11 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	private void getFile() {
 		String fileName = field.getText();
 
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle( product.rb().text( "settings", "select-file" ) );
+		DirectoryChooser chooser = new DirectoryChooser();
+		chooser.setTitle( product.rb().text( "settings", "select-folder" ) );
 
-		if( fileName != null ) {
-			File file = new File( fileName );
-			boolean exists = file.exists();
-			fileChooser.setInitialDirectory( FileUtil.findValidParent( file ) );
-			fileChooser.setInitialFileName( exists ? file.getName() : "" );
-		}
-
-		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
+		if( fileName != null ) chooser.setInitialDirectory( FileUtil.findValidParent( new File( fileName ) ) );
+		File selectedFile = chooser.showDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
 		if( selectedFile != null ) {
 			field.setText( selectedFile.toString() );
 			setting.getSettings().set( key, field.getText() );

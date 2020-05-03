@@ -146,6 +146,10 @@ public class Program extends Application implements ProgramProduct {
 
 	private WallpaperToggleAction wallpaperToggleAction;
 
+	private WallpaperPriorAction wallpaperPriorAction;
+
+	private WallpaperNextAction wallpaperNextAction;
+
 	private Boolean isProgramUpdated;
 
 	// THREAD main
@@ -1071,7 +1075,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerActionHandlers() {
-		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction  = new CloseWorkspaceAction( this ));
+		getActionLibrary().getAction( "workspace-close" ).pushAction( closeAction = new CloseWorkspaceAction( this ) );
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
@@ -1083,6 +1087,8 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pushAction( wallpaperToggleAction = new WallpaperToggleAction( this ) );
+		getActionLibrary().getAction( "wallpaper-prior" ).pushAction( wallpaperPriorAction = new WallpaperPriorAction( this ) );
+		getActionLibrary().getAction( "wallpaper-next" ).pushAction( wallpaperNextAction = new WallpaperNextAction( this ) );
 
 		getActionLibrary().getAction( "test-action-1" ).pushAction( new RunnableTestAction( this, () -> {
 			log.log( Log.ERROR, new Throwable( "This is a test throwable" ) );
@@ -1111,6 +1117,8 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pullAction( wallpaperToggleAction );
+		getActionLibrary().getAction( "wallpaper-prior" ).pullAction( wallpaperPriorAction );
+		getActionLibrary().getAction( "wallpaper-next" ).pullAction( wallpaperNextAction );
 	}
 
 	private void registerSchemes( AssetManager manager ) {
