@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -86,25 +86,25 @@
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zevra</artifactId>
-			<version>0.3-SNAPSHOT</version>
+			<version>0.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>venza</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>rossa</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
-			<version>0.3-SNAPSHOT</version>
+			<version>0.3</version>
 		</dependency>
 
 		<dependency>
