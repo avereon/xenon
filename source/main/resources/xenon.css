@@ -1,71 +1,15 @@
-/*
- * This style sheet is intentionally coded to refer to the modena.css properties
- */
-
 .root {
-	/* Base colors can be overridden here */
-	/* -fx-base: rgba( 63, 60, 65, 255 ); /* dark */
-	/* -fx-base: rgba( 236, 236, 236, 1 ); /* light */
-	/* -fx-background: rgba( 241, 241, 241, 0.2 ); */
+	-ex-background-text: rgba(236, 236, 236, 0.2);
+	-ex-background-tabs: rgba(236, 236, 236, 0.4);
+	-ex-background-tags: rgba(236, 236, 236, 0.6);
+	-ex-background-note: rgba(236, 236, 236, 0.8);
 
-	/* Program colors */
-	-ex-background-text: rgba(241, 241, 241, 0.2);
-	-ex-background-tabs: rgba(241, 241, 241, 0.4);
-	-ex-background-tags: rgba(241, 241, 241, 0.6);
-	-ex-background-note: rgba(241, 241, 241, 0.8);
-
-	-ex-work-pane-drop-hint: rgba(32, 32, 32, 0.2);
+	-ex-workspace-tint-color: #c0c0c040;
+	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
 }
 
-.splashscreen-tint {
-	-fx-fill: -fx-background;
-	-fx-opacity: 0.8;
-}
-
-.splashscreen-title {
-	-fx-fill: -fx-text-background-color;
-}
-
-.splashscreen-accent {
-	-fx-fill: #7986CB;
-	-fx-opacity: 0.2;
-}
-
-.splashscreen-progress {
-	-fx-arc-height: 10;
-	-fx-arc-width: 5;
-}
-
-.splashscreen-progress-tray {
-	-fx-fill: gray;
-	-fx-opacity: 0.2;
-}
-
-.splashscreen-progress-incomplete {
-	-fx-fill: -fx-accent;
-	-fx-opacity: 0.4;
-}
-
-.splashscreen-progress-complete {
-	-fx-fill: -fx-accent;
-	-fx-opacity: 0.8;
-}
-
-#menu-development > .label {
-	-fx-text-fill: red;
-	-fx-font-weight: 700;
-}
-
-#menu-development:hover > .label {
-	-fx-text-fill: -fx-text-background-color;
-}
-
-#menu-development {
-	-fx-background-color: transparent;
-}
-
-#menu-development:hover {
-	-fx-background-color: red;
+.debug {
+	-fx-backgroud-color: #80800080;
 }
 
 .prompt {
@@ -76,7 +20,151 @@
 	-fx-padding: 1.5mm;
 }
 
-/* ScrollPane */
+/*******************************************************************************
+ * Modena fixes
+ ******************************************************************************/
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
+	-fx-background-color: -fx-mark-highlight-color, ladder(
+		-fx-base,
+		derive(-fx-base, 45%) 50%,
+		derive(-fx-base, -45%) 50%
+	);
+}
+
+.scroll-bar > .increment-button:hover > .increment-arrow,
+.scroll-bar > .decrement-button:hover > .decrement-arrow {
+	-fx-background-color: -fx-mark-highlight-color, ladder(
+		-fx-base,
+		derive(-fx-base, 50%) 50%,
+		derive(-fx-base, -50%) 50%
+	);
+}
+
+.scroll-bar > .increment-button:pressed > .increment-arrow,
+.scroll-bar > .decrement-button:pressed > .decrement-arrow {
+	-fx-background-color: -fx-mark-highlight-color, ladder(
+		-fx-base,
+		derive(-fx-base, 55%) 50%,
+		derive(-fx-base, -55%) 50%
+	);
+}
+
+.text-input {
+	-fx-prompt-text-fill: ladder(
+		-fx-base,
+		derive(-fx-control-inner-background, 50%) 50%,
+		derive(-fx-control-inner-background, -30%) 50%
+	);
+}
+
+/* Keep prompt invisible when focused (above color fix overrides it) */
+.text-input:focused {
+	-fx-prompt-text-fill: transparent;
+}
+
+
+/*******************************************************************************
+ * Icons
+ ******************************************************************************/
+.xe-icon {
+	-xe-theme-color: #c0c0c0;
+	-xe-outline-width: 0.03125; /* 1/32 */
+	-xe-outline-paint: ladder(
+		-fx-text-background-color,
+		derive(-xe-theme-color, -50%) 50%,
+		derive(-xe-theme-color, 50%) 50%
+	);
+
+}
+
+/*******************************************************************************
+ * Splash Screen
+ ******************************************************************************/
+.splashscreen {
+	/*-fx-background-color: linear-gradient(to bottom, rgb(48, 48, 48), rgb(53, 146, 196));*/
+	/*-fx-background-color:  linear-gradient( to bottom, #202038, #9c809c );*/
+	-fx-background-color: rgb(96, 96, 96);
+}
+
+.splashscreen .tint {
+	-fx-fill: rgb(32, 32, 32);
+	-fx-opacity: 0.7;
+}
+
+.splashscreen .title {
+	-fx-fill: #c0c0c0;
+}
+
+.splashscreen .accent {
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.4;
+}
+
+.splashscreen .progress {
+	-fx-arc-height: 10;
+	-fx-arc-width: 5;
+}
+
+.splashscreen .progress-tray {
+	-fx-fill: gray;
+	-fx-opacity: 0.2;
+}
+
+.splashscreen .progress-incomplete {
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.4;
+}
+
+.splashscreen .progress-complete {
+	-fx-fill: -fx-accent;
+	-fx-opacity: 0.8;
+}
+
+/*******************************************************************************
+ * Development Menu
+ ******************************************************************************/
+/* Not sure why the class selector does not work but the id selector does */
+#menu-development {
+	-fx-background-color: #ffff0030;
+}
+
+#menu-development > .label {
+	-fx-text-fill: -fx-text-background-color;
+}
+
+#menu-development:hover {
+	-fx-background-color: #ffff0040;
+}
+
+/*#menu-development:hover > .label {*/
+/*	-fx-text-fill: -fx-text-background-color;*/
+/*}*/
+
+/*******************************************************************************
+ * Workspace
+ ******************************************************************************/
+.workspace {
+	/* Will override the user preference background */
+	/*-fx-background-color: #80a0c0ff;*/
+}
+
+.workspace-tint {
+	-fx-background-color: -ex-workspace-tint-color;
+}
+
+/*******************************************************************************
+ * Workarea
+ ******************************************************************************/
+.workarea-menu-bar {
+	-fx-background-color: transparent;
+	-fx-padding: 0;
+	-fx-border: none;
+}
+
+/*******************************************************************************
+ * Workpane Scroll Pane
+ ******************************************************************************/
 .workpane .scroll-pane {
 	-fx-background-color: transparent;
 }
@@ -89,7 +177,9 @@
 	-fx-background-color: transparent;
 }
 
-/* Workpane */
+/*******************************************************************************
+ * Workpane
+ ******************************************************************************/
 .workpane {
 	-fx-background-color: transparent;
 }
@@ -115,13 +205,9 @@
 	-fx-background-color: -ex-background-tabs
 }
 
-/* Workspace */
-.workspace {
-	/* Will override the user preference background */
-	/*-fx-background-color: #80a0c0ff;*/
-}
-
-/* Tools */
+/*******************************************************************************
+ * Tool
+ ******************************************************************************/
 .tool {
 	-fx-background-color: -ex-background-text
 }
@@ -166,6 +252,9 @@
 	-fx-opacity: 0.3;
 }
 
+/*******************************************************************************
+ * Status Bar
+ ******************************************************************************/
 .status-bar {
 	-fx-padding: 1mm 1mm 1mm 1mm;
 }
@@ -174,25 +263,9 @@
 	-fx-spacing: 1mm;
 }
 
-.memory-monitor {
-}
-
-.memory-monitor-label {
-	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
-}
-
-.memory-monitor-max {
-	-fx-fill: #e0e0e0;
-}
-
-.memory-monitor-allocated {
-	-fx-fill: #c0c0c0;
-}
-
-.memory-monitor-used {
-	-fx-fill: -fx-accent;
-}
-
+/*******************************************************************************
+ * Notice
+ ******************************************************************************/
 .notice {
 	-fx-background-color: -ex-background-text;
 	-fx-background-insets: 1.5mm;
@@ -215,29 +288,76 @@
 	-fx-font-weight: normal;
 }
 
+/*******************************************************************************
+ * Memory Monitor
+ ******************************************************************************/
+.memory-monitor {
+	-fx-background-color: ladder(
+		-fx-color,
+		derive(-fx-color, 10%) 50%,
+		derive(-fx-color, -10%) 50%
+	);
+}
+
+.memory-monitor-allocated {
+	-fx-fill: ladder(
+		-fx-color,
+		derive(-fx-color, 40%) 50%,
+		derive(-fx-color, -20%) 50%
+	);
+}
+
+.memory-monitor-used {
+	-fx-fill: -fx-accent;
+	/*-fx-fill: ladder(*/
+	/*	-fx-color,*/
+	/*	derive(-fx-color, 50%) 50%,*/
+	/*	derive(-fx-color, -30%) 50%*/
+	/*);*/
+}
+
+.memory-monitor-label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
+}
+
+/*******************************************************************************
+ * Task Monitor
+ ******************************************************************************/
 .task-monitor {
+	-fx-background-color: ladder(
+		-fx-color,
+		derive(-fx-color, 15%) 50%,
+		derive(-fx-color, -15%) 50%
+	);
+}
+
+.task-monitor-threads {
+	-fx-fill: ladder(
+		-fx-color,
+		derive(-fx-color, 40%) 50%,
+		derive(-fx-color, -20%) 50%
+	);
+}
+
+.task-monitor-tasks {
+	-fx-fill: -fx-accent;
+}
+
+.task-monitor-progress {
+	-fx-fill: ladder(
+		-fx-accent,
+		derive(-fx-accent, 30%) 50%,
+		derive(-fx-accent, 30%) 50%
+	);
 }
 
 .task-monitor-label {
 	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
 
-.task-monitor-max {
-	-fx-fill: #e0e0e0;
-}
-
-.task-monitor-threads {
-	-fx-fill: #c0c0c0;
-}
-
-.task-monitor-tasks {
-	-fx-fill: derive(-fx-accent, 80%);
-}
-
-.task-monitor-progress {
-	-fx-fill: -fx-accent;
-}
-
+/*******************************************************************************
+ * About Tool
+ ******************************************************************************/
 #tool-about .text-area {
 	-fx-background-color: transparent;
 }
@@ -274,6 +394,9 @@
 	-fx-font: 1em monospaced;
 }
 
+/*******************************************************************************
+ * New Asset Tool
+ ******************************************************************************/
 #tool-asset .asset-type-tile {
 	-fx-min-width: 250px;
 	-fx-min-height: 200px;
@@ -288,6 +411,9 @@
 	-fx-border-width: 5px;
 }
 
+/*******************************************************************************
+ * Fault Tool
+ ******************************************************************************/
 #tool-fault .text-area {
 	-fx-background-color: transparent;
 }
@@ -296,6 +422,9 @@
 	-fx-font: 1em monospaced;
 }
 
+/*******************************************************************************
+ * Product Tool
+ ******************************************************************************/
 #tool-product-page-header {
 	-fx-background-insets: 0 0 1mm 0;
 	-fx-background-color: -ex-background-text;
@@ -341,6 +470,9 @@
 	-fx-font-size: 2em;
 }
 
+/*******************************************************************************
+ * Welcome Tool
+ ******************************************************************************/
 #tool-welcome {
 	-fx-background-color: transparent;
 }
@@ -349,48 +481,16 @@
 	-fx-font-size: 5em;
 }
 
-/* TitledPane */
+/*******************************************************************************
+ * Titled Pane
+ ******************************************************************************/
 .titled-pane > *.content {
 	-fx-background-color: red;
 }
 
-.tool-tab {
-	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
-	-fx-background-color: -ex-background-tabs;
-}
-
-.tool-tab:hover {
-	-fx-background-color: -ex-background-tags;
-}
-
-.tool-tab:selected {
-	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
-	-fx-border-width: 0 0 0.5mm 0;
-	-fx-border-color: -fx-selection-bar-non-focused;
-	-fx-background-color: -ex-background-tags;
-}
-
-.tool-tab:selected:hover {
-	-fx-background-color: -ex-background-tags;
-}
-
-.tool-pane:active .tool-tab:selected {
-	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
-	-fx-border-width: 0 0 0.5mm 0;
-	-fx-border-color: derive(-fx-selection-bar, 20%);
-	-fx-background-color: -ex-background-note;
-}
-
-.tool-pane:active .tool-tab:selected:hover {
-	-fx-border-color: derive(-fx-selection-bar, 40%);
-	-fx-background-color: -ex-background-note;
-}
-
-.tool-tab-close {
-	-fx-background-color: transparent;
-	-fx-padding: 0 0 0 1mm;
-}
-
+/*******************************************************************************
+ * Tool Pane
+ ******************************************************************************/
 .tool-pane {
 	-fx-background-color: transparent;
 }
@@ -408,6 +508,42 @@
 	-fx-background-color: transparent;
 }
 
-.work-pane-drop-hint {
-	-fx-fill: -ex-work-pane-drop-hint;
+/*******************************************************************************
+ * Tool Tab
+ ******************************************************************************/
+.tool-pane .tool-tab {
+	-fx-padding: 0.5mm 0.5mm 0.5mm 0.5mm;
+	-fx-background-color: -ex-background-text;
+}
+
+.tool-pane .tool-tab .tool-tab-label {
+	-fx-text-fill: -fx-text-base-color;
+}
+
+.tool-pane .tool-tab:hover {
+	-fx-background-color: -ex-background-tags;
+}
+
+.tool-pane .tool-tab-close {
+	-fx-background-color: transparent;
+	-fx-padding: 0 0 0 1mm;
+}
+
+.tool-pane:active .tool-tab:selected {
+	-fx-padding: 0.5mm 0.5mm 0 0.5mm;
+	-fx-border-width: 0 0 0.5mm 0;
+	-fx-border-color: derive(-fx-focus-color, 20%);
+	-fx-background-color: -ex-background-note;
+}
+
+.tool-pane:active .tool-tab:selected:hover {
+	-fx-border-color: derive(-fx-focus-color, 40%);
+	-fx-background-color: -ex-background-note;
+}
+
+/*******************************************************************************
+ * Work Pane
+ ******************************************************************************/
+.workpane .drop-hint {
+	-fx-fill: -ex-workspace-drop-hint;
 }

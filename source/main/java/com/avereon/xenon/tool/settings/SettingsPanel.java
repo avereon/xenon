@@ -2,13 +2,13 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
-import com.avereon.event.EventType;
 import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -20,10 +20,14 @@ import javafx.scene.text.Font;
 import java.lang.System.Logger;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class SettingsPanel extends VBox {
 
 	private static final Logger log = Log.get();
+
+	private Map<String, SettingOptionProvider> optionProviders;
 
 	//	private String[] fontNames;
 	//
@@ -35,7 +39,14 @@ public class SettingsPanel extends VBox {
 	// TODO Add a default button to set individual setting back to default.
 	// TODO Add an undo button to set individual setting back to previous.
 
-	public SettingsPanel( Product product, SettingsPage page ) {
+	/**
+	 * @param product
+	 * @param page
+	 * @param optionProviders The map of available option providers
+	 */
+	public SettingsPanel( Product product, SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
+		this.optionProviders = optionProviders;
+
 		//		String fontPlain = product.getResourceBundle().getString( "settings", "font-plain" );
 		//		String fontBold = product.getResourceBundle().getString( "settings", "font-bold" );
 		//		String fontItalic = product.getResourceBundle().getString( "settings", "font-italic" );
@@ -117,13 +128,17 @@ public class SettingsPanel extends VBox {
 			Class<? extends SettingEditor> editorClass = SettingEditor.getType( editorType );
 			if( editorClass == null ) editorClass = SettingEditor.getType( "textline" );
 
+			// Determine setting option provider, if any
+			String providerId = setting.getProvider();
+			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
+
 			// Create the editor
 			if( editorClass == null ) {
-				log.log( Log.WARN, "Setting editor not registered: {}", editorType );
+				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
 			} else {
 				SettingEditor editor = createSettingEditor( product, setting, editorClass );
 				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {}", editorClass.getName() );
+				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
 			}
 
 			// Add a watcher to each dependency
@@ -154,7 +169,7 @@ public class SettingsPanel extends VBox {
 		if( editor == null ) return null;
 
 		// Add the change handler
-		new EditorChangeHandler( editor, setting );
+		new EditorChangeHandler( editor );
 
 		return editor;
 	}
@@ -202,19 +217,19 @@ public class SettingsPanel extends VBox {
 
 	private static final class SettingDependencyWatcher implements EventHandler<SettingsEvent> {
 
-		private Setting setting;
+		private final String dependencyKey;
 
-		private String key;
+		private final Setting setting;
 
 		public SettingDependencyWatcher( SettingDependency dependency, Setting setting ) {
+			if( dependency.getKey() == null ) throw new NullPointerException( "Dependency key cannot be null for " + setting.getKey() );
+			this.dependencyKey = dependency.getKey();
 			this.setting = setting;
-			this.key = dependency.getKey();
 		}
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			if( key == null ) return;
-			if( key.equals( event.getKey() ) ) setting.updateState();
+			if( Objects.equals( event.getKey(), dependencyKey ) ) setting.updateState();
 		}
 
 	}
@@ -258,25 +273,27 @@ public class SettingsPanel extends VBox {
 
 	private static class EditorChangeHandler {
 
-		private SettingEditor editor;
+		private final SettingEditor editor;
 
-		private EditorChangeHandler( SettingEditor editor, Setting setting ) {
+		private EditorChangeHandler( SettingEditor editor ) {
 			this.editor = editor;
-			setting.register( NodeEvent.ANY, this::handleNodeEvent );
-			setting.getSettings().register( SettingsEvent.CHANGED, editor::handle );
+			Setting setting = editor.getSetting();
+
+			// Register a handler when the setting value changes to update the editor
+			setting.getSettings().register( SettingsEvent.CHANGED, editor );
+
+			// Register a handler on the setting node to update other setting nodes
+			setting.register( NodeEvent.VALUE_CHANGED, this::handleNodeEvent );
 		}
 
 		private void handleNodeEvent( NodeEvent event ) {
-			EventType<? extends NodeEvent> type = event.getEventType();
-			if( type != NodeEvent.VALUE_CHANGED ) return;
-
 			switch( event.getKey() ) {
-				case "disable": {
-					editor.setDisable( (Boolean)event.getNewValue() );
+				case Setting.DISABLE: {
+					Platform.runLater( () -> editor.setDisable( (Boolean)event.getNewValue() ) );
 					break;
 				}
-				case "visible": {
-					editor.setVisible( (Boolean)event.getNewValue() );
+				case Setting.VISIBLE: {
+					Platform.runLater( () -> editor.setVisible( (Boolean)event.getNewValue() ) );
 					break;
 				}
 			}

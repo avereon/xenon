@@ -14,7 +14,7 @@ class TaskEventTest extends BaseTaskTest {
 		Task<Object> task = new MockTask( manager );
 
 		TaskWatcher watcher = new TaskWatcher();
-		task.getEventBus().register( TaskEvent.ANY, watcher );
+		task.register( TaskEvent.ANY, watcher );
 
 		manager.submit( task );
 		task.get();
@@ -44,7 +44,7 @@ class TaskEventTest extends BaseTaskTest {
 		Task<Object> task = new MockTask( manager, null, true );
 
 		TaskWatcher watcher = new TaskWatcher();
-		task.getEventBus().register( TaskManagerEvent.ANY, watcher );
+		task.register( TaskManagerEvent.ANY, watcher );
 
 		manager.submit( task );
 		try {

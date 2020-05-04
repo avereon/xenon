@@ -54,7 +54,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeToolClasses = this.assetTypeToolClasses.computeIfAbsent( assetType, k -> new CopyOnWriteArrayList<>() );
 		assetTypeToolClasses.add( type );
 
-		log.log( DEBUG, "Tool registered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
+		log.log( DEBUG, "Tool registered: assetType={0} -> tool={1}", assetType.getKey(), type.getName() );
 	}
 
 	public void unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
@@ -102,7 +102,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		Workpane pane = request.getPane();
 		WorkpaneView view = request.getView();
 		if( pane == null && view != null ) pane = view.getWorkpane();
-		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
+		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
 		ProgramTool tool = null;
@@ -292,7 +292,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			@Override
 			public void handle( AssetEvent event ) {
 				asset.getEventBus().unregister( AssetEvent.READY, this );
-				Platform.runLater( () -> tool.callAssetReady( request.getOpenAssetRequest() ) );
+				tool.callAssetReady( request.getOpenAssetRequest() );
 			}
 
 		} );

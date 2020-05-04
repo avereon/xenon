@@ -21,6 +21,7 @@ module com.avereon.xenon {
 	requires transitive javafx.web;
 
 	exports com.avereon.xenon;
+	exports com.avereon.xenon.action.common;
 	exports com.avereon.xenon.asset;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.notice;

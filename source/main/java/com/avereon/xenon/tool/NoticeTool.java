@@ -4,18 +4,16 @@ import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
-import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import java.lang.System.Logger;
 
 import java.util.List;
 
@@ -24,7 +22,7 @@ import java.util.List;
  */
 public class NoticeTool extends ProgramTool {
 
-	private static final Logger log = Log.get();
+	private static final System.Logger log = Log.get();
 
 	private VBox noticeContainer;
 
@@ -58,14 +56,12 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetRefreshed() throws ToolException {
-		super.assetRefreshed();
+	protected void assetRefreshed() {
 		updateNotices();
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		super.allocate();
+	protected void allocate() {
 		updateNotices();
 	}
 

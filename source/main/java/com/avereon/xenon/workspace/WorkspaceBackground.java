@@ -1,27 +1,40 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
+import com.avereon.util.FileUtil;
+import com.avereon.util.Log;
 import com.avereon.venza.color.Colors;
 import com.avereon.venza.javafx.FxUtil;
+import com.avereon.xenon.action.WallpaperFileAction;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
-import javafx.scene.shape.Rectangle;
 
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
-public class WorkspaceBackground extends Pane {
+public class WorkspaceBackground extends StackPane {
 
-	private Pane backPane;
+	private static final System.Logger log = Log.get();
 
-	private Pane imagePane;
+	private final Pane backPane;
 
-	private Pane tintPane;
+	private final Pane imagePane;
+
+	private final Pane tintPane;
+
+	private final Pane themeTintPane;
+
+	private final Pane customTintPane;
+
+	private Path wallpaper;
+
+	private int wallpaperIndex;
 
 	private Image image;
 
@@ -34,78 +47,79 @@ public class WorkspaceBackground extends Pane {
 	public WorkspaceBackground() {
 		backPane = new Pane();
 		imagePane = new Pane();
-		tintPane = new Pane();
+		tintPane = new StackPane();
+		themeTintPane = new Pane();
+		customTintPane = new Pane();
+
+		themeTintPane.getStyleClass().add( "workspace-tint" );
 
 		imagePane.setVisible( false );
 		tintPane.setVisible( false );
+		themeTintPane.setVisible( false );
+		customTintPane.setVisible( false );
 
-		backPane.prefWidthProperty().bind( this.widthProperty() );
-		backPane.prefHeightProperty().bind( this.heightProperty() );
-		imagePane.prefWidthProperty().bind( this.widthProperty() );
-		imagePane.prefHeightProperty().bind( this.heightProperty() );
-		tintPane.prefWidthProperty().bind( this.widthProperty() );
-		tintPane.prefHeightProperty().bind( this.heightProperty() );
-
+		tintPane.getChildren().addAll( themeTintPane, customTintPane );
 		getChildren().addAll( backPane, imagePane, tintPane );
-
-		Rectangle clip = new Rectangle();
-		this.setClip( clip );
-		this.layoutBoundsProperty().addListener( ( observable, oldBounds, newBounds ) -> {
-			clip.setWidth( newBounds.getWidth() );
-			clip.setHeight( newBounds.getHeight() );
-			useFillBackgroundWorkaround( false );
-		} );
 	}
 
 	void updateBackgroundFromSettings( Settings settings ) {
 		// Back layer
-		boolean backDirection = "0".equals( settings.get( "workspace-scenery-back-direction", "0" ) );
+		configureBackPane( settings );
+
+		// Image layer
+		imagePane.setVisible( configureImagePane( settings ) );
+
+		// Tint layer
+		tintPane.setVisible( configureTintPane( settings ) );
+	}
+
+	private void configureBackPane( Settings settings ) {
+		boolean backDirection = "2".equals( settings.get( "workspace-scenery-back-direction", "1" ) );
 		Color backColor1 = Colors.web( settings.get( "workspace-scenery-back-color1", "#80a0c0ff" ) );
 		Color backColor2 = Colors.web( settings.get( "workspace-scenery-back-color2", "#ffffffff" ) );
 		LinearGradient backFill;
 		Stop[] stops = new Stop[]{ new Stop( 0, backColor1 ), new Stop( 1, backColor2 ) };
 		if( backDirection ) {
+			// Horizontal
 			backFill = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops );
 		} else {
+			// Vertical
 			backFill = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops );
 		}
-
-		// Image layer
-		image = null;
-		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
-		String imageFile = settings.get( "workspace-scenery-image-file", (String)null );
-		Path imagePath = imageFile == null ? null : Paths.get( imageFile );
-		if( imageEnabled && imagePath != null && Files.exists( imagePath ) ) image = new Image( imagePath.toUri().toString() );
-		style = settings.get( "workspace-scenery-image-style", "fill" );
-		align = settings.get( "workspace-scenery-image-align", "center" );
-
-		// Tint layer
-		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
-		boolean tintDirection = "0".equals( settings.get( "workspace-scenery-tint-direction", "0" ) );
-		Color tintColor1 = Colors.web( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
-		Color tintColor2 = Colors.web( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
-		LinearGradient tintFill;
-		Stop[] tintStops = new Stop[]{ new Stop( 0, tintColor1 ), new Stop( 1, tintColor2 ) };
-		if( tintDirection ) {
-			tintFill = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, tintStops );
-		} else {
-			tintFill = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, tintStops );
-		}
-
 		backPane.setBackground( new Background( new BackgroundFill( backFill, null, null ) ) );
-
-		configureImagePane();
-		imagePane.setVisible( imageEnabled );
-
-		tintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
-		tintPane.setVisible( tintEnabled );
 	}
 
-	private void configureImagePane() {
+	private boolean configureImagePane( Settings settings ) {
+		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
+		String imageFileString = settings.get( "workspace-scenery-image-file", "" );
+		String imagePathString = settings.get( "workspace-scenery-image-path", imageFileString );
+		String imageIndexString = settings.get( "workspace-scenery-image-index", "0" );
+		Path imagePath = FileUtil.findValidFolder( Paths.get( imagePathString ) );
+
+		List<Path> images;
+		try {
+			images = WallpaperFileAction.listImageFiles( imagePath );
+		} catch( IOException exception ) {
+			images = List.of();
+		}
+
+		try {
+			wallpaperIndex = Integer.parseInt( imageIndexString );
+		} catch( NumberFormatException exception ) {
+			wallpaperIndex = 0;
+		}
+		if( wallpaperIndex > images.size() - 1 ) wallpaperIndex = -1;
+
+		image = null;
+		if( imageEnabled && wallpaperIndex > -1 ) image = new Image( images.get( wallpaperIndex ).toUri().toString() );
+
 		if( image == null ) {
 			imagePane.setBackground( null );
-			return;
+			return false;
 		}
+
+		style = settings.get( "workspace-scenery-image-style", "fill" );
+		align = settings.get( "workspace-scenery-image-align", "center" );
 
 		BackgroundImage background = null;
 		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );
@@ -140,6 +154,43 @@ public class WorkspaceBackground extends Pane {
 		}
 
 		if( background != null ) imagePane.setBackground( new Background( background ) );
+
+		return imageEnabled;
+	}
+
+	private boolean configureTintPane( Settings settings ) {
+		boolean tintEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-tint-enabled", "false" ) );
+		int tintMode = Integer.parseInt( settings.get( "workspace-scenery-tint-mode", "0" ) );
+		Color tintColor1 = Colors.web( settings.get( "workspace-scenery-tint-color1", "#ffffff80" ) );
+		Color tintColor2 = Colors.web( settings.get( "workspace-scenery-tint-color2", "#ffffff80" ) );
+		LinearGradient tintFill;
+		Stop[] tintStops = new Stop[]{ new Stop( 0, tintColor1 ), new Stop( 1, tintColor2 ) };
+
+		themeTintPane.setVisible( false );
+		customTintPane.setVisible( false );
+		switch( tintMode ) {
+			case 0: {
+				// Theme
+				themeTintPane.setVisible( true );
+				break;
+			}
+			case 1: {
+				// Vertical
+				tintFill = new LinearGradient( 0, 0, 0, 1, true, CycleMethod.NO_CYCLE, tintStops );
+				customTintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
+				customTintPane.setVisible( true );
+				break;
+			}
+			case 2: {
+				// Horizontal
+				tintFill = new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE, tintStops );
+				customTintPane.setBackground( new Background( new BackgroundFill( tintFill, null, null ) ) );
+				customTintPane.setVisible( true );
+				break;
+			}
+		}
+
+		return tintEnabled;
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.product.Product;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.AssetException;
 
 public class ProgramProductType extends AssetType {
 
@@ -13,7 +13,7 @@ public class ProgramProductType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:product" );
 
-	public ProgramProductType( Product product ) {
+	public ProgramProductType( ProgramProduct product ) {
 		super( product, "product" );
 	}
 

@@ -53,7 +53,7 @@ public abstract class Tool extends Control {
 
 	private boolean displayed;
 
-	private AssetWatcher watcher;
+	private EventHandler<AssetEvent> closer;
 
 	public Tool( Asset asset ) {
 		this( asset, null );
@@ -80,6 +80,10 @@ public abstract class Tool extends Control {
 
 	public final Asset getAsset() {
 		return asset;
+	}
+
+	public final <T> T getAssetModel() {
+		return asset.getModel();
 	}
 
 	public Workpane.Placement getPlacement() {
@@ -219,7 +223,8 @@ public abstract class Tool extends Control {
 	}
 
 	private void doClose() {
-		if( getWorkpane() != null ) Platform.runLater( () -> getWorkpane().closeTool( this, true ) );
+		Workpane workpane = getWorkpane();
+		if( workpane != null ) Platform.runLater( () -> workpane.closeTool( this, true ) );
 	}
 
 	@SuppressWarnings( { "MethodDoesntCallSuperMethod" } )
@@ -288,16 +293,19 @@ public abstract class Tool extends Control {
 	/**
 	 * Called when the asset is ready to be used by the tool. This method is
 	 * called each time the asset edited by this tool is opened. If it is
-	 * opened another time it may have different parameters.
+	 * opened another time it may have different request parameters such as
+	 * a different query string or fragment.
 	 *
 	 * @param request The request used to open the asset
 	 */
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {}
+	protected void assetReady( OpenAssetRequest request ) {}
 
 	/**
 	 * Called when the asset data is refreshed.
+	 *
+	 * @deprecated Register an asset event handler instead
 	 */
-	protected void assetRefreshed() throws ToolException {}
+	protected void assetRefreshed() {}
 
 	/**
 	 * Allocate the tool.
@@ -305,7 +313,7 @@ public abstract class Tool extends Control {
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().getEventBus().register( AssetEvent.ANY, watcher = new AssetWatcher() );
+			getAsset().getEventBus().register( AssetEvent.CLOSED, closer = ( e ) -> Tool.this.doClose() );
 			allocate();
 			allocated = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
@@ -379,7 +387,7 @@ public abstract class Tool extends Control {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventBus().unregister( AssetEvent.ANY, watcher );
+			getAsset().getEventBus().unregister( AssetEvent.ANY, closer );
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
 		}
@@ -388,36 +396,17 @@ public abstract class Tool extends Control {
 	/**
 	 * Called when the asset is ready to be used by the tool.
 	 */
-	public void callAssetReady( OpenAssetRequest request ) {
-		try {
-			assetReady( request );
-		} catch( ToolException exception ) {
-			log.log( Log.ERROR, "Error deallocating tool", exception );
-		}
+	public final void callAssetReady( OpenAssetRequest request ) {
+		Platform.runLater( () -> assetReady( request ) );
 	}
 
 	/**
 	 * Called when the asset data is refreshed. This method calls
 	 * {@link #assetRefreshed()} on the FX platform thread.
 	 */
-	protected void callAssetRefreshed() {
-		Platform.runLater( () -> {
-			try {
-				assetRefreshed();
-			} catch( ToolException exception ) {
-				log.log( Log.ERROR, "Error refreshing tool", exception );
-			}
-		} );
-	}
-
-	private class AssetWatcher implements EventHandler<AssetEvent> {
-
-		@Override
-		public void handle( AssetEvent event ) {
-			if( event.getEventType() == AssetEvent.REFRESHED ) Tool.this.callAssetRefreshed();
-			if( event.getEventType() == AssetEvent.CLOSED ) Tool.this.doClose();
-		}
-
+	@Deprecated
+	protected final void callAssetRefreshed() {
+		Platform.runLater( this::assetRefreshed );
 	}
 
 }

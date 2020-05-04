@@ -1,8 +1,10 @@
 package com.avereon.xenon;
 
+import com.avereon.xenon.util.ActionUtil;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.input.KeyCombination;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,9 +32,13 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private StringProperty mnemonicName;
 
+	private StringProperty description;
+
 	private String type;
 
 	private String shortcut;
+
+	private KeyCombination accelerator;
 
 	private List<String> states;
 
@@ -48,6 +54,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		mnemonic = NO_MNEMONIC;
 		icon = new SimpleStringProperty();
 		mnemonicName = new SimpleStringProperty();
+		description = new SimpleStringProperty();
 		enabledProperty = new SimpleBooleanProperty();
 		states = new CopyOnWriteArrayList<>();
 		stateMap = new ConcurrentHashMap<>();
@@ -115,6 +122,26 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		updateMnemonicName();
 	}
 
+	void setMnemonic( String mnemonic ) {
+		try {
+			setMnemonic( Integer.parseInt( mnemonic ) );
+		} catch( NumberFormatException exception ) {
+			setMnemonic( ActionProxy.NO_MNEMONIC );
+		}
+	}
+
+	public ReadOnlyStringProperty descriptionProperty() {
+		return description;
+	}
+
+	public String getDescription() {
+		return description.get();
+	}
+
+	public void setDescription( String description ) {
+		this.description.set( description );
+	}
+
 	public String getType() {
 		return type;
 	}
@@ -129,6 +156,11 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	public void setShortcut( String shortcut ) {
 		this.shortcut = shortcut;
+		this.accelerator = ActionUtil.parseShortcut( shortcut );
+	}
+
+	public KeyCombination getAccelerator() {
+		return accelerator;
 	}
 
 	public boolean isEnabled() {
@@ -146,6 +178,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	public void addState( String id, String name, String icon ) {
 		stateMap.put( id, new ActionState( id, name, icon ) );
 		states.add( id );
+		if( states.size() == 1 ) setState( id );
 	}
 
 	public List<String> getStates() {
@@ -161,16 +194,18 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public String getStateAfter( String state ) {
+		if( states.isEmpty() ) return null;
 		int index = states.indexOf( state ) + 1;
 		if( index >= states.size() ) index = 0;
 		return states.get( index );
 	}
 
-	public String getNextState( ) {
+	public String getNextState() {
 		return getStateAfter( currentState );
 	}
 
 	public void setState( String state ) {
+		if( state == null ) return;
 		setIcon( getStateIcon( state ) );
 		currentState = state;
 	}
@@ -183,6 +218,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	public void handle( ActionEvent event ) {
 		if( actionStack.size() == 0 ) return;
 		actionStack.peek().handle( event );
+		setState( getNextState() );
 	}
 
 	public void pushAction( Action action ) {
@@ -221,7 +257,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 		private String icon;
 
-		public ActionState( String id, String name, String icon ) {
+		private ActionState( String id, String name, String icon ) {
 			this.id = id;
 			this.name = name;
 			this.icon = icon;

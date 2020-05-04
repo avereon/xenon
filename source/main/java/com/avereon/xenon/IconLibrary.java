@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.rossa.icon.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.venza.icon.BrokenIcon;
@@ -9,6 +10,7 @@ import com.avereon.venza.image.ProgramImage;
 import com.avereon.venza.image.ProgramImageIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 import java.lang.System.Logger;
 import java.lang.reflect.InvocationTargetException;
@@ -31,6 +33,77 @@ public class IconLibrary {
 	public IconLibrary( Program program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
+
+		register( "provider", WingDiscLargeIcon.class );
+		register( "program", XRingLargeIcon.class );
+		register( "close", CloseIcon.class );
+		register( "exit", PowerIcon.class );
+
+		register( "document", DocumentIcon.class );
+
+		register( "asset", DocumentIcon.class );
+		register( "asset-new", DocumentIcon.class );
+		register( "asset-open", FolderIcon.class );
+		//register( "asset-save", SaveIcon.class );
+		register( "asset-save", LightningIcon.class );
+		register( "asset-close", DocumentCloseIcon.class );
+		register( "properties", SettingsIcon.class );
+
+		register( "undo", UndoIcon.class );
+		register( "redo", RedoIcon.class );
+		register( "cut", CutIcon.class );
+		register( "copy", CopyIcon.class );
+		register( "paste", PasteIcon.class );
+		register( "delete", DeleteIcon.class );
+		register( "indent", IndentIcon.class );
+		register( "unindent", UnindentIcon.class );
+		register( "play", PlayIcon.class );
+		register( "pause", PauseIcon.class );
+
+		register( "setting", SettingIcon.class );
+		register( "settings", SettingsIcon.class );
+		register( "themes", ThemeIcon.class );
+		register( "options", SettingsIcon.class );
+
+		register( "guide", GuideIcon.class );
+		register( "fault", FaultIcon.class );
+		register( "terminal", TerminalIcon.class );
+
+		register( "welcome", WelcomeIcon.class );
+		register( "help-content", QuestionIcon.class );
+		register( "notice", NoticeIcon.class );
+		register( "notice-error", NoticeIcon.class, Color.RED );
+		register( "notice-warn", NoticeIcon.class, Color.YELLOW );
+		register( "notice-info", NoticeIcon.class, Color.GREEN.brighter() );
+		register( "notice-norm", NoticeIcon.class, Color.web( "#40a0c0" ) );
+		register( "notice-none", NoticeIcon.class );
+		register( "task", TaskQueueIcon.class );
+		register( "product", ProductIcon.class );
+		register( "update", DownloadIcon.class );
+		register( "about", ExclamationIcon.class );
+
+		register( "workspace", FrameIcon.class );
+		register( "workspace-new", FrameIcon.class );
+		register( "workspace-close", FrameIcon.class );
+
+		register( "workarea", WorkareaIcon.class );
+		register( "workarea-new", WorkareaIcon.class );
+		register( "workarea-rename", WorkareaRenameIcon.class );
+		register( "workarea-close", CloseToolIcon.class );
+
+		register( "wallpaper", WorkareaIcon.class );
+
+		register( "add", PlusIcon.class );
+		register( "refresh", RefreshIcon.class );
+		register( "download", DownloadIcon.class );
+		register( "market", MarketIcon.class );
+		register( "module", ModuleIcon.class );
+		register( "enable", LightningIcon.class );
+		register( "disable", DisableIcon.class );
+		register( "remove", CloseIcon.class );
+
+		register( "toggle-enabled", ToggleIcon.class, true );
+		register( "toggle-disabled", ToggleIcon.class, false );
 	}
 
 	public void register( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
@@ -102,7 +175,7 @@ public class IconLibrary {
 		try {
 			return icons.get( id ).newInstance();
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Unable to create icon: " + id, exception );
+			log.log( Log.ERROR, "Unable to create icon: " + id, exception );
 			return null;
 		}
 	}

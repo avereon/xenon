@@ -81,7 +81,7 @@ public abstract class GuidedTool extends ProgramTool {
 	 * @return The tool guide
 	 */
 	protected Guide getGuide() {
-		return null;
+		return Guide.EMPTY;
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}

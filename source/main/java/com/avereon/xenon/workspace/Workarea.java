@@ -4,7 +4,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.Configurable;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.util.FxEventWrapper;
+import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;

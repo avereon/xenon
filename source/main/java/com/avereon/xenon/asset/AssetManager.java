@@ -9,7 +9,7 @@ import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.xenon.util.ProgramEventHub;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.net.URI;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -66,7 +67,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, Set<Codec>> registeredMediaTypes;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private CurrentAssetWatcher currentAssetWatcher;
 
@@ -103,8 +104,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		registeredFirstLines = new ConcurrentHashMap<>();
 		registeredMediaTypes = new ConcurrentHashMap<>();
 
-		eventBus = new ProgramEventHub();
-		eventBus.parent( program.getEventBus() );
+		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
 
 		newActionHandler = new NewActionHandler( program );
@@ -154,7 +154,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		return this;
 	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 
@@ -1003,6 +1003,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		saveActionHandler.updateEnabled();
 		saveAsActionHandler.updateEnabled();
 		saveAllActionHandler.updateEnabled();
+		closeActionHandler.updateEnabled();
 		closeAllActionHandler.updateEnabled();
 	}
 
@@ -1119,14 +1120,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		log.log( Log.TRACE, "Asset settings: " + asset.getSettings().getPath() );
 
 		// Initialize the asset.
-		if( !type.assetInit( program, asset ) ) return false;
+		if( !type.callAssetInit( program, asset ) ) return false;
 		log.log( Log.TRACE, "Asset initialized with default values." );
-
-		// If the asset is new get user input from the asset type.
-		if( asset.isNew() ) {
-			if( !type.assetUser( program, asset ) ) return false;
-			log.log( Log.TRACE, "Asset initialized with user values." );
-		}
 
 		// Open the asset.
 		asset.open( this );
@@ -1330,7 +1325,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( eol ) break;
 		}
 
-		if( encoding == null ) encoding = ProgramDefaults.ENCODING;
+		if( encoding == null ) encoding = StandardCharsets.UTF_8.name();
 		return TextUtil.cleanNull( new String( output.toByteArray(), encoding ) );
 	}
 
@@ -1364,6 +1359,12 @@ public class AssetManager implements Controllable<AssetManager> {
 			// Create the tool if needed
 			ProgramTool tool;
 			try {
+				// If the asset is new get user input from the asset type.
+				//if( asset.isNew() ) {
+					if( !asset.getType().callAssetUser( program, asset ) ) return null;
+					log.log( Log.TRACE, "Asset initialized with user values." );
+				//}
+
 				tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
 			} catch( NoToolRegisteredException exception ) {
 				String title = program.rb().text( "program", "no-tool-for-asset-title" );
@@ -1494,7 +1495,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public boolean isEnabled() {
-			return openAssets.size() > 0;
+			return openAssets.stream().anyMatch( a -> a.getType().isUserType() );
 		}
 
 		@Override

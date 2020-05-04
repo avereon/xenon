@@ -76,9 +76,11 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 	// Setting listener
 	@Override
 	public void handle( SettingsEvent event ) {
-		Object newValue = event.getNewValue();
-		SettingOption option = setting.getOption( newValue == null ? null : newValue.toString() );
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) combobox.getSelectionModel().select( option );
+		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) {
+			Object newValue = event.getNewValue();
+			SettingOption option = setting.getOption( newValue == null ? null : newValue.toString() );
+			combobox.getSelectionModel().select( option );
+		}
 	}
 
 }

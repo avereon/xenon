@@ -30,7 +30,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
@@ -75,9 +75,21 @@ jobs:
 
       - name: Deploy Arifacts
         run: |
-          mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
+          mvn ${{env.MAVEN_PARMS}} -Pscreenshots deploy -Dmaven.test.skip=true
 
-      - name: Deploy JavaDoc
+      - name: Post Product Icon
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
+
+      - name: Post Screenshots
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p /opt/avn/web/client/screenshots;"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/screenshots/*.png ${{env.AVN_REPO_USERNAME}}@avereon.com:/opt/avn/web/client/screenshots/ 2>&1
+
+      - name: Post JavaDoc
         run: |
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
           if [ $? -ne 0 ]; then exit 1; fi
@@ -86,17 +98,11 @@ jobs:
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
 
-      - name: Deploy Product Icon
-        run: |
-          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
-          if [ $? -ne 0 ]; then exit 1; fi
-          scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
-
   linux:
     needs: build
     name: Linux Binaries
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
@@ -148,15 +154,15 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Install Pack
+      - name: Post Install Pack
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Pack
+      - name: Post Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Card
+      - name: Post Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
@@ -164,7 +170,7 @@ jobs:
     needs: build
     name: Mac OS Binaries
     runs-on: macos-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "macosx"
@@ -216,15 +222,15 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Install Pack
+      - name: Post Install Pack
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Pack
+      - name: Post Product Pack
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Card
+      - name: Post Product Card
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
@@ -232,7 +238,7 @@ jobs:
     needs: build
     name: Windows Binaries
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "windows"
@@ -285,17 +291,17 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Deploy Install Pack
+      - name: Post Install Pack
         shell: bash
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Pack
+      - name: Post Product Pack
         shell: bash
         run: |
           scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-      - name: Deploy Product Card
+      - name: Post Product Card
         shell: bash
         run: |
           scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1

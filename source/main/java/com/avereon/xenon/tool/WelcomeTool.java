@@ -15,11 +15,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Ellipse;
 import org.tbee.javafx.scene.layout.MigPane;
 
-import java.lang.System.Logger;
-
 public class WelcomeTool extends ProgramTool {
 
-	private static final Logger log = Log.get();
+	private static final System.Logger log = Log.get();
 
 	private static final double PAD = 2 * UiFactory.PAD;
 

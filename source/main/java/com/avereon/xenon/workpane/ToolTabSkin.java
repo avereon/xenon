@@ -108,9 +108,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
-		tab.setOnCloseRequest( event -> {
-			tool.close();
-		} );
+		tab.setOnCloseRequest( event -> tool.close() );
 	}
 
 	@Override

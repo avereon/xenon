@@ -27,8 +27,6 @@ public class MemoryMonitor extends AbstractMonitor {
 
 	private double usedPercent;
 
-	private Rectangle memoryMax;
-
 	private Rectangle memoryAllocated;
 
 	private Rectangle memoryUsed;
@@ -42,14 +40,10 @@ public class MemoryMonitor extends AbstractMonitor {
 	}
 
 	public MemoryMonitor() {
-		getStyleClass().setAll( "memory-monitor" );
+		getStyleClass().add( "memory-monitor" );
 
 		label = new Label();
 		label.getStyleClass().add( "memory-monitor-label" );
-
-		memoryMax = new Rectangle();
-		memoryMax.setManaged( false );
-		memoryMax.getStyleClass().add( "memory-monitor-max" );
 
 		memoryAllocated = new Rectangle();
 		memoryAllocated.setManaged( false );
@@ -59,9 +53,11 @@ public class MemoryMonitor extends AbstractMonitor {
 		memoryUsed.setManaged( false );
 		memoryUsed.getStyleClass().add( "memory-monitor-used" );
 
-		getChildren().addAll( memoryMax, memoryAllocated, memoryUsed, label );
+		getChildren().addAll( memoryAllocated, memoryUsed, label );
+		update();
 
 		monitors.add( this );
+
 	}
 
 	public boolean isTextVisible() {
@@ -82,15 +78,6 @@ public class MemoryMonitor extends AbstractMonitor {
 		update();
 	}
 
-	@Override
-	public void requestUpdate() {
-		Runtime runtime = Runtime.getRuntime();
-		maximum = runtime.maxMemory();
-		allocated = runtime.totalMemory();
-		used = allocated - runtime.freeMemory();
-		super.requestUpdate();
-	}
-
 	public void close() {
 		monitors.remove( this );
 	}
@@ -102,9 +89,6 @@ public class MemoryMonitor extends AbstractMonitor {
 		double width = super.getWidth() - 1;
 		double height = super.getHeight() - 1;
 
-		memoryMax.setWidth( width );
-		memoryMax.setHeight( height );
-
 		memoryAllocated.setWidth( width * allocatedPercent );
 		memoryAllocated.setHeight( height );
 
@@ -113,6 +97,11 @@ public class MemoryMonitor extends AbstractMonitor {
 	}
 
 	protected void update() {
+		Runtime runtime = Runtime.getRuntime();
+		maximum = runtime.maxMemory();
+		allocated = runtime.totalMemory();
+		used = allocated - runtime.freeMemory();
+
 		allocatedPercent = (float)allocated / (float)maximum;
 		usedPercent = (float)used / (float)maximum;
 

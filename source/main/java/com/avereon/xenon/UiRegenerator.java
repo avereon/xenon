@@ -83,6 +83,7 @@ class UiRegenerator {
 			} else {
 				restoreWorkspaces( splashScreen, workspaceIds );
 			}
+			program.getWorkspaceManager().setUiReady( true );
 		} finally {
 			restored = true;
 			restoredCondition.signalAll();
@@ -114,7 +115,7 @@ class UiRegenerator {
 
 	private void createDefaultWorkspace() {
 		// Create the default workspace
-		Workspace workspace = factory.newWorkspace();
+		Workspace workspace = program.getWorkspaceManager().newWorkspace();
 		program.getWorkspaceManager().setActiveWorkspace( workspace );
 
 		// Create the default workarea
@@ -188,11 +189,11 @@ class UiRegenerator {
 					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
 					nodes.add( edge );
 				} else {
-					log.log( Log.DEBUG,  "Removing invalid workpane edge settings: " + settings.getName() );
+					log.log( Log.DEBUG, "Removing invalid workpane edge settings: " + settings.getName() );
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN,  "Error linking edge: " + edge.getEdgeId(), exception );
+				log.log( Log.WARN, "Error linking edge: " + edge.getEdgeId(), exception );
 				return;
 			}
 		}
@@ -206,11 +207,11 @@ class UiRegenerator {
 					Set<Node> nodes = workpaneNodes.computeIfAbsent( workpane, k -> new HashSet<>() );
 					nodes.add( view );
 				} else {
-					log.log( Log.DEBUG,  "Removing invalid workpane edge settings: " + settings.getName() );
+					log.log( Log.DEBUG, "Removing invalid workpane edge settings: " + settings.getName() );
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN,  "Error linking view: " + view.getViewId(), exception );
+				log.log( Log.WARN, "Error linking view: " + view.getViewId(), exception );
 				return;
 			}
 		}
@@ -303,7 +304,7 @@ class UiRegenerator {
 				Settings settings = program.getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
 
-				log.log( Log.DEBUG,  "Tool restored: " + tool.getClass() + ": " + tool.getAsset().getUri() );
+				log.log( Log.DEBUG, "Tool restored: " + tool.getClass() + ": " + tool.getAsset().getUri() );
 			}
 		}
 
@@ -315,22 +316,15 @@ class UiRegenerator {
 	}
 
 	private void restoreWorkspace( String id ) {
-		log.log( Log.DEBUG,  "Restoring workspace: " + id );
+		log.log( Log.DEBUG, "Restoring workspace: " + id );
 		try {
-			Workspace workspace = new Workspace( program );
-
-			Settings settings = program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id );
-			workspace.setSettings( settings );
-
-			if( workspace.isActive() ) {
-				program.getWorkspaceManager().setActiveWorkspace( workspace );
-			} else {
-				program.getWorkspaceManager().addWorkspace( workspace );
-			}
+			Workspace workspace = program.getWorkspaceManager().newWorkspace( id );
+			program.getWorkspaceManager().addWorkspace( workspace );
+			if( workspace.isActive() ) program.getWorkspaceManager().setActiveWorkspace( workspace );
 
 			workspaces.put( id, workspace );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error restoring workspace", exception );
+			log.log( Log.ERROR, "Error restoring workspace", exception );
 		}
 	}
 
@@ -340,7 +334,7 @@ class UiRegenerator {
 
 		// If the workspace is not found, then the workarea is orphaned...delete the settings
 		if( workspace == null ) {
-			log.log( Log.DEBUG,  "Removing orphaned workarea settings: " + id );
+			log.log( Log.DEBUG, "Removing orphaned workarea settings: " + id );
 			program.getSettingsManager().getSettings( ProgramSettings.PANE, id ).delete();
 			settings.delete();
 			return;
@@ -359,7 +353,7 @@ class UiRegenerator {
 
 			// If the workpane is not found, then the edge is orphaned...delete the settings
 			if( workpane == null ) {
-				log.log( Log.DEBUG,  "Removing orphaned workpane edge settings: " + id );
+				log.log( Log.DEBUG, "Removing orphaned workpane edge settings: " + id );
 				settings.delete();
 				return;
 			}
@@ -370,7 +364,7 @@ class UiRegenerator {
 
 			edges.put( id, edge );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error restoring workpane", exception );
+			log.log( Log.ERROR, "Error restoring workpane", exception );
 		}
 	}
 
@@ -382,7 +376,7 @@ class UiRegenerator {
 
 			// If the workpane is not found, then the view is orphaned...delete the settings
 			if( workpane == null ) {
-				log.log( Log.DEBUG,  "Removing orphaned workpane view settings: " + id );
+				log.log( Log.DEBUG, "Removing orphaned workpane view settings: " + id );
 				settings.delete();
 				return;
 			}
@@ -392,7 +386,7 @@ class UiRegenerator {
 
 			views.put( id, view );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error restoring workpane", exception );
+			log.log( Log.ERROR, "Error restoring workpane", exception );
 		}
 	}
 
@@ -407,7 +401,7 @@ class UiRegenerator {
 		try {
 			// If the view is not found, then the tool is orphaned...delete the settings
 			if( view == null || uri == null ) {
-				log.log( Log.WARN,  "Removing orphaned tool: " + "id=" + id + " type=" + toolType );
+				log.log( Log.WARN, "Removing orphaned tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();
 				return;
 			}
@@ -422,7 +416,7 @@ class UiRegenerator {
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
 			if( tool == null ) {
-				log.log( Log.WARN,  "Removing unknown tool: " + "id=" + id + " type=" + toolType );
+				log.log( Log.WARN, "Removing unknown tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();
 				return;
 			}
@@ -432,7 +426,7 @@ class UiRegenerator {
 
 			tools.put( tool.getUid(), tool );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error restoring tool: type=" + toolType, exception );
+			log.log( Log.ERROR, "Error restoring tool: type=" + toolType, exception );
 		}
 	}
 
