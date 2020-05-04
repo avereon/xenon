@@ -1,4 +1,4 @@
-package com.avereon.xenon;
+package com.avereon.xenon.util;
 
 import java.io.File;
 import java.io.FileFilter;

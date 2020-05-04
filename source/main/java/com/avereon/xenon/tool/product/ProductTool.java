@@ -122,7 +122,7 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) {
 		log.log( Log.DEBUG,  "Product tool asset ready" );
 		super.assetReady( request );
 
@@ -134,9 +134,8 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetRefreshed() throws ToolException {
+	protected void assetRefreshed() {
 		log.log( Log.TRACE,  "Product tool asset refreshed" );
-		super.assetRefreshed();
 	}
 
 	@Override

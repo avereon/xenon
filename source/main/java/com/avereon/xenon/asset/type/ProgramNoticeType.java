@@ -1,8 +1,8 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
@@ -22,7 +22,7 @@ public class ProgramNoticeType extends AssetType {
 
 	private static final Logger log = Log.get();
 
-	public ProgramNoticeType( Product product ) {
+	public ProgramNoticeType( ProgramProduct product ) {
 		super( product, "notice" );
 		setDefaultCodec( new NoticeCodec() );
 	}

@@ -1,9 +1,8 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.product.Product;
+import com.avereon.settings.Settings;
 import com.avereon.util.Log;
-import java.lang.System.Logger;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -11,6 +10,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +25,8 @@ public class SettingsPageParser {
 	private static final String GROUP = "group";
 
 	private static final String SETTING = "setting";
+
+	private static final String PROVIDER = "provider";
 
 	private static final String OPTION = "option";
 
@@ -195,6 +197,7 @@ public class SettingsPageParser {
 		if( opaque == null ) opaque = String.valueOf( false );
 		String editable = attributes.get( EDITABLE );
 		if( editable == null ) editable = String.valueOf( false );
+		String provider = attributes.get( PROVIDER );
 
 		Setting setting = new Setting( settings );
 		setting.setKey( key );
@@ -202,19 +205,18 @@ public class SettingsPageParser {
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		//setting.setEditable( Boolean.parseBoolean( editable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
+		setting.setProvider( provider );
 
 		while( reader.hasNext() ) {
 			reader.next();
 			if( reader.isEndElement() && reader.getLocalName().equals( SETTING ) ) break;
 
-			switch( reader.getEventType() ) {
-				case XMLStreamReader.START_ELEMENT: {
-					String tagName = reader.getLocalName();
-					if( OPTION.equals( tagName ) ) {
-						setting.addOption( parseOption( reader, setting ) );
-					} else if( DEPENDENCY.equals( tagName ) ) {
-						setting.addDependency( parseDependency( reader ) );
-					}
+			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
+				String tagName = reader.getLocalName();
+				if( OPTION.equals( tagName ) ) {
+					setting.addOption( parseOption( reader, setting ) );
+				} else if( DEPENDENCY.equals( tagName ) ) {
+					setting.addDependency( parseDependency( reader ) );
 				}
 			}
 		}

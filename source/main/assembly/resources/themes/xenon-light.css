@@ -1,0 +1,27 @@
+/*
+id=xenon-light
+name=Xenon Light
+*/
+
+.root {
+	-fx-base: #ececec;
+	-fx-background: derive(-fx-base, 25%);
+
+	-fx-color: -fx-base;
+
+	-fx-accent: #3592C4;
+	-fx-default-button: #ABD8ED;
+
+	-fx-focus-color: rgb(220, 112, 0);
+	-fx-faint-focus-color: rgba(220, 112, 0, 0.13);
+
+	-fx-selection-bar-non-focused: #d0d0d0;
+
+	-ex-background-text: rgba(236, 236, 236, 0.2);
+	-ex-background-tabs: rgba(236, 236, 236, 0.4);
+	-ex-background-tags: rgba(236, 236, 236, 0.6);
+	-ex-background-note: rgba(236, 236, 236, 0.8);
+
+	-ex-workspace-tint-color: #c0c0c080;
+	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
+}

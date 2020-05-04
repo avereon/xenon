@@ -2,6 +2,7 @@ package com.avereon.xenon.tool;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
+import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
@@ -13,7 +14,6 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -22,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import org.tbee.javafx.scene.layout.MigPane;
 
@@ -88,6 +89,16 @@ public class AboutTool extends GuidedTool {
 		pages.put( SUMMARY, summaryPane );
 		pages.put( DETAILS, detailsPane );
 		pages.put( MODS, modsPane );
+
+		getProgram().getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+			switch( e.getKey() ) {
+				case ProductManager.LAST_CHECK_TIME:
+				case ProductManager.NEXT_CHECK_TIME: {
+					summaryPane.updateUpdateCheckInfo();
+					break;
+				}
+			}
+		} );
 	}
 
 	public String getTitleSuffix() {
@@ -100,43 +111,43 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool allocate" );
+		log.log( Log.DEBUG, "Tool allocate" );
 		super.allocate();
 		updatePages();
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.log( Log.DEBUG,  "Tool display" );
+		log.log( Log.DEBUG, "Tool display" );
 		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool activate" );
+		log.log( Log.DEBUG, "Tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool deactivate" );
+		log.log( Log.DEBUG, "Tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG,  "Tool conceal" );
+		log.log( Log.DEBUG, "Tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool deallocate" );
+		log.log( Log.DEBUG, "Tool deallocate" );
 		super.deallocate();
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) {
 		super.assetReady( request );
 
 		// TODO Can this be generalized in GuidedTool?
@@ -147,7 +158,7 @@ public class AboutTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetRefreshed() throws ToolException {
+	protected void assetRefreshed() {
 		updatePages();
 	}
 
@@ -245,8 +256,12 @@ public class AboutTool extends GuidedTool {
 			add( productName = makeLabel( "tool-about-title" ) );
 			add( productVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( productProvider = makeLabel( "tool-about-provider" ), "newline" );
+			add( makeSeparator(), "newline" );
+			add( lastUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
+			add( nextUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
 
-			add( makeLabel( "tool-about-separator" ), "newline" );
+			add( makeSeparator(), "newline" );
+			add( makeSeparator(), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( "java", 64 ), "newline, span 1 2" );
 			add( javaLabel = makeLabel( "tool-about-header" ), "newline" );
 			//add( javaName = makeLabel( "tool-about-name" ), "newline" );
@@ -254,17 +269,17 @@ public class AboutTool extends GuidedTool {
 			add( javaVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( javaProvider = makeLabel( "tool-about-provider" ), "newline" );
 
-			add( makeLabel( "tool-about-separator" ), "newline" );
+			add( makeSeparator(), "newline" );
+			add( makeSeparator(), "newline" );
 			//add( getProgram().getIconLibrary().getIcon( osFamily, 64 ), "newline, span 1 2" );
 			add( osLabel = makeLabel( "tool-about-header" ), "newline" );
 			add( osName = makeLabel( "tool-about-name" ), "newline" );
 			add( osVersion = makeLabel( "tool-about-version" ), "newline, span 2 1" );
 			add( osProvider = makeLabel( "tool-about-provider" ), "newline" );
 
-			add( makeLabel( "tool-about-separator" ), "newline" );
-			add( informationLabel = makeLabel( "tool-about-header" ), "newline" );
-			add( lastUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
-			add( nextUpdateTimestamp = makeLabel( "tool-about-version" ), "newline" );
+			//			add( makeSeparator(), "newline" );
+			//			add( makeSeparator(), "newline" );
+			//			add( informationLabel = makeLabel( "tool-about-header" ), "newline" );
 		}
 
 		public void update( ProductCard card ) {
@@ -293,11 +308,11 @@ public class AboutTool extends GuidedTool {
 			osVersion.setText( OperatingSystem.getVersion() );
 			osProvider.setText( from + " " + OperatingSystem.getProvider() );
 
-			informationLabel.setText( getProgram().rb().text( BundleKey.LABEL, "information" ) );
-			updateUpdateCheckInfo( lastUpdateTimestamp, nextUpdateTimestamp );
+			//informationLabel.setText( getProgram().rb().text( BundleKey.LABEL, "information" ) );
+			updateUpdateCheckInfo();
 		}
 
-		private void updateUpdateCheckInfo( Label lastUpdateCheckField, Label nextUpdateCheckField ) {
+		private void updateUpdateCheckInfo() {
 			long lastUpdateCheck = getProgram().getProductManager().getLastUpdateCheck();
 			long nextUpdateCheck = getProgram().getProductManager().getNextUpdateCheck();
 			if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
@@ -314,16 +329,20 @@ public class AboutTool extends GuidedTool {
 			);
 
 			Platform.runLater( () -> {
-				lastUpdateCheckField.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );
-				nextUpdateCheckField.setText( nextUpdateCheckPrompt + "  " + nextUpdateCheckText );
+				lastUpdateTimestamp.setText( lastUpdateCheckPrompt + "  " + lastUpdateCheckText );
+				nextUpdateTimestamp.setText( nextUpdateCheckPrompt + "  " + nextUpdateCheckText );
 			} );
 		}
 
 	}
 
-	private Label makeLabel( String labelClass ) {
+	private Node makeSeparator() {
+		return new Pane();
+	}
+
+	private Label makeLabel( String styleClass ) {
 		Label label = new Label();
-		label.getStyleClass().addAll( labelClass );
+		label.getStyleClass().addAll( styleClass );
 		return label;
 	}
 
@@ -491,8 +510,8 @@ public class AboutTool extends GuidedTool {
 		builder.append( "JVM commands:     " ).append( TextUtil.toString( runtimeMXBean.getInputArguments(), " " ) ).append( "\n" );
 
 		// Program commands
-		Application.Parameters parameters = program.getParameters();
-		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getRaw(), " " ) ).append( "\n" );
+		Parameters parameters = program.getProgramParameters();
+		builder.append( "Program commands: " ).append( parameters == null ? "" : TextUtil.toString( parameters.getOriginalCommands(), " " ) ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -603,9 +622,9 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "Mod layers:\n" );
-		getProgram().getProductManager().getModules().stream().sorted( ).forEach( m -> {
+		getProgram().getProductManager().getModules().stream().sorted().forEach( m -> {
 			builder.append( m.getClass().getModule().getName() ).append( "\n" );
-		});
+		} );
 
 		// Java modules
 		builder.append( "\n" );

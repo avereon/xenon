@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.event.EventHandler;
+import com.avereon.util.Log;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -13,6 +14,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class FaultTool extends ProgramTool {
+
+	private static final System.Logger log = Log.get();
 
 	private TextArea text;
 
@@ -30,7 +33,7 @@ public class FaultTool extends ProgramTool {
 
 		getChildren().addAll( text );
 
-		getProgram().getEventBus().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> {
+		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> {
 			// Tasks have to finish before the program exists so this ensures the tool will close
 			getProgram().getTaskManager().submit( Task.of( "", this::close ) );
 		} );
@@ -50,7 +53,7 @@ public class FaultTool extends ProgramTool {
 
 	@Override
 	protected void deallocate() {
-		getProgram().getEventBus().unregister( ProgramEvent.STOPPING, closingHandler );
+		getProgram().unregister( ProgramEvent.STOPPING, closingHandler );
 	}
 
 }

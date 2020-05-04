@@ -4,23 +4,24 @@ import com.avereon.util.Log;
 import com.avereon.xenon.ActionProxy;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+
 import java.lang.System.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActionUtil {
 
 	private static final Logger log = Log.get();
+
+	public static final String SEPARATOR = "|";
 
 	public static final String SHORTCUT_SEPARATOR = "-";
 
@@ -29,12 +30,26 @@ public class ActionUtil {
 	}
 
 	public static Menu createMenu( Program program, ActionProxy action ) {
+		return createMenu( program, action, false );
+	}
+
+	public static Menu createSubMenu( Program program, String id ) {
+		return createMenu( program, program.getActionLibrary().getAction( id ), true );
+	}
+
+	public static Menu createSubMenu( Program program, ActionProxy action ) {
+		return createMenu( program, action, true );
+	}
+
+
+	private static Menu createMenu( Program program, ActionProxy action, boolean submenu ) {
 		Menu item = new Menu();
 
 		item.setId( "menu-" + action.getId() );
+		item.getStyleClass().add( "menu-" + action.getId() );
 		item.setMnemonicParsing( true );
 		item.setText( action.getMnemonicName() );
-		//item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
+		if( submenu ) item.setGraphic( program.getIconLibrary().getIcon( action.getIcon() ) );
 		//item.setAccelerator( parseShortcut( action.getShortcut() ) );
 
 		action.mnemonicNameProperty().addListener( ( event ) -> item.setText( action.getName() ) );
@@ -77,19 +92,22 @@ public class ActionUtil {
 		return item;
 	}
 
+	public static List<Node> createToolBarItems( Program program, String... ids ) {
+		List<Node> nodes = new ArrayList<>();
+
+		for( String id : ids ) {
+			boolean isSeparator = ActionUtil.SEPARATOR.equals( id );
+			nodes.add( isSeparator ? new Separator() : ActionUtil.createToolBarButton( program, id ) );
+		}
+
+		return nodes;
+	}
+
 	public static Button createToolBarButton( Program program, String id ) {
 		return createToolBarButton( program, program.getActionLibrary().getAction( id ) );
 	}
 
 	public static Button createToolBarButton( Program program, ActionProxy action ) {
-		if( "multi-state".equals( action.getType() ) ) {
-			return createMultiStateToolBarButton( program, action );
-		} else {
-			return createNormalToolBarButton( program, action );
-		}
-	}
-
-	private static Button createNormalToolBarButton( Program program, ActionProxy action ) {
 		Button button = new Button();
 
 		button.setOnAction( action );
@@ -102,30 +120,8 @@ public class ActionUtil {
 		return button;
 	}
 
-	public static Button createMultiStateToolBarButton( Program program, ActionProxy action ) {
-		Button button = createNormalToolBarButton( program, action );
-		button.addEventHandler( ActionEvent.ACTION, new MultiStateButtonActionHandler( action ) );
-		return button;
-	}
-
-	private static class MultiStateButtonActionHandler implements EventHandler<ActionEvent> {
-
-		private ActionProxy action;
-
-		private MultiStateButtonActionHandler( ActionProxy action ) {
-			this.action = action;
-			action.setState( action.getStates().get( 0 ) );
-		}
-
-		@Override
-		public void handle( ActionEvent event ) {
-			action.setState( action.getNextState() );
-		}
-
-	}
-
 	public static Button createButton( Program program, ActionProxy action ) {
-		return createNormalToolBarButton( program, action );
+		return createToolBarButton( program, action );
 	}
 
 	public static Button createNamedButton( Program program, ActionProxy action ) {
@@ -146,7 +142,7 @@ public class ActionUtil {
 		return pad;
 	}
 
-	private static KeyCombination parseShortcut( String shortcut ) {
+	public static KeyCombination parseShortcut( String shortcut ) {
 		if( shortcut == null ) return null;
 
 		// Make sure the shortcut definition is in upper case

@@ -123,10 +123,6 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle( product.rb().text( "settings", "select-file" ) );
-		//String label = product.getResourceBundle().getString( "settings", "image-files" );
-
-		// TODO Get extension filter from configuration
-		//fileChooser.getExtensionFilters().addAll( new FileChooser.ExtensionFilter( label, "*.png", "*.jpg", "*.gif" ) );
 
 		if( fileName != null ) {
 			File file = new File( fileName );

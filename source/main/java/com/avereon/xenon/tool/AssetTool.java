@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -7,7 +8,6 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.compare.AssetTypeNameComparator;
-import com.avereon.xenon.workpane.ToolException;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AssetTool extends ProgramTool {
+
+	private static final System.Logger log = Log.get();
 
 	private AssetTypeView view;
 
@@ -42,7 +44,7 @@ public class AssetTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) throws ToolException {
+	protected void assetReady( OpenAssetRequest request ) {
 		view.update();
 	}
 

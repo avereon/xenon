@@ -1,11 +1,13 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.data.Node;
+import com.avereon.settings.Settings;
+import com.avereon.util.Log;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class Setting extends Node {
 
@@ -15,9 +17,9 @@ public class Setting extends Node {
 
 	public static final String EDITOR = "editor";
 
-	private static final String DISABLE = "disable";
+	public static final String DISABLE = "disable";
 
-	private static final String VISIBLE = "visible";
+	public static final String VISIBLE = "visible";
 
 	private static final String EDITABLE = "editable";
 
@@ -25,15 +27,22 @@ public class Setting extends Node {
 
 	private static final String OPTIONS = "options";
 
+	private static final String OPTION_PROVIDER = "option-provider";
+
 	private static final String DEPENDENCIES = "dependencies";
 
-	private Settings settings;
+	private static final System.Logger log = Log.get();
+
+	private final Settings settings;
+
+	private SettingOptionProvider optionProvider;
 
 	public Setting( Settings settings ) {
 		this.settings = settings;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setModified( false );
+		addModifyingKeys( DISABLE, VISIBLE );
 	}
 
 	public String getKey() {
@@ -68,10 +77,6 @@ public class Setting extends Node {
 		setValue( DISABLE, disable );
 	}
 
-	public void updateState() {
-		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
-	}
-
 	public boolean isVisible() {
 		return getValue( VISIBLE, true );
 	}
@@ -80,20 +85,44 @@ public class Setting extends Node {
 		setValue( VISIBLE, visible );
 	}
 
-//	public boolean isEditable() {
-//		return getValue( EDITABLE );
-//	}
-//
-//	public void setEditable( boolean editable ) {
-//		setValue( EDITABLE, editable );
-//	}
+	//	public boolean isEditable() {
+	//		return getValue( EDITABLE );
+	//	}
+	//
+	//	public void setEditable( boolean editable ) {
+	//		setValue( EDITABLE, editable );
+	//	}
 
+	public void updateState() {
+		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
+	}
+
+	/**
+	 * For color settings, if the color is required to be opaque.
+	 */
 	public boolean isOpaque() {
 		return getValue( OPAQUE );
 	}
 
 	public void setOpaque( boolean opaque ) {
 		setValue( OPAQUE, opaque );
+	}
+
+	public String getProvider() {
+		return getValue( OPTION_PROVIDER );
+	}
+
+	public Setting setProvider( String provider ) {
+		setValue( OPTION_PROVIDER, provider );
+		return this;
+	}
+
+	public SettingOptionProvider getOptionProvider() {
+		return optionProvider;
+	}
+
+	public void setOptionProvider( SettingOptionProvider optionProvider ) {
+		this.optionProvider = optionProvider;
 	}
 
 	public SettingOption getOption( String value ) {
@@ -107,7 +136,15 @@ public class Setting extends Node {
 	}
 
 	public List<SettingOption> getOptions() {
-		return Collections.unmodifiableList( getValue( OPTIONS ) );
+		if( optionProvider == null ) {
+			return Collections.unmodifiableList( getValue( OPTIONS ) );
+		} else {
+			return optionProvider
+				.getKeys()
+				.stream()
+				.map( k -> new SettingOption().setKey( k ).setName( optionProvider.getName( k ) ).setOptionValue( optionProvider.getValue( k ) ) )
+				.collect( Collectors.toList() );
+		}
 	}
 
 	public void addOption( SettingOption option ) {

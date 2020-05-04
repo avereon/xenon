@@ -1,12 +1,12 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.product.Product;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.Codec;
 
 public class ProgramSettingsType extends AssetType {
 
@@ -14,7 +14,7 @@ public class ProgramSettingsType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:settings" );
 
-	public ProgramSettingsType( Product product ) {
+	public ProgramSettingsType( ProgramProduct product ) {
 		super( product, "settings" );
 	}
 

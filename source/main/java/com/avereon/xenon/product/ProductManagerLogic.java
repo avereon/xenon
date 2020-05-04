@@ -386,7 +386,7 @@ public class ProductManagerLogic {
 
 			resources.forEach( ( resource ) -> {
 				DownloadTask downloadTask = new DownloadTask( getProgram(), getSchemeResolvedUri( resource.getUri() ) );
-				downloadTask.getEventBus().register( TaskEvent.ANY, request );
+				downloadTask.register( TaskEvent.ANY, request );
 				resource.setFuture( getProgram().getTaskManager().submit( downloadTask ) );
 			} );
 

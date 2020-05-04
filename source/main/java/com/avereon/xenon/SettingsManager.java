@@ -8,12 +8,13 @@ import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
+import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import com.avereon.xenon.util.ProgramEventHub;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
@@ -35,11 +36,13 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private StoredSettings settings;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
 	private final Map<String, SettingsPage> rootSettingsPages;
+
+	private final Map<String, SettingOptionProvider> optionProviders;
 
 	public SettingsManager( Program program ) {
 		this.program = program;
@@ -47,7 +50,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.settings = new StoredSettings( program.getDataFolder().resolve( ROOT ) );
 		this.allSettingsPages = new ConcurrentHashMap<>();
 		this.rootSettingsPages = new ConcurrentHashMap<>();
-		this.eventBus = new ProgramEventHub();
+		this.optionProviders = new ConcurrentHashMap<>();
+		this.eventBus = new FxEventHub();
 
 		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
 	}
@@ -70,8 +74,20 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return getSettings( getSettingsPath( card ) );
 	}
 
-	private static final String getSettingsPath( ProductCard card ) {
+	private static String getSettingsPath( ProductCard card ) {
 		return ProgramSettings.PRODUCT + card.getProductKey();
+	}
+
+	public Map<String,SettingOptionProvider> getOptionProviders(){
+		return Collections.unmodifiableMap( optionProviders );
+	}
+
+	public SettingOptionProvider getOptionProvider( String id ) {
+		return optionProviders.get( id );
+	}
+
+	public void putOptionProvider( String id, SettingOptionProvider provider ) {
+		optionProviders.put( id, provider );
 	}
 
 	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
@@ -80,14 +96,14 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			pages = new SettingsPageParser( product, settings ).parse( path );
 			addSettingsPages( pages );
 		} catch( IOException exception ) {
-			log.log( Log.ERROR,  "Error loading settings page: " + path, exception );
+			log.log( Log.ERROR, "Error loading settings page: " + path, exception );
 		}
 		return pages;
 	}
 
 	public void addSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.log( Log.DEBUG,  "Adding settings pages..." );
+			log.log( Log.DEBUG, "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
@@ -100,7 +116,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public void removeSettingsPages( Map<String, SettingsPage> pages ) {
 		synchronized( rootSettingsPages ) {
-			log.log( Log.DEBUG,  "Removing settings pages..." );
+			log.log( Log.DEBUG, "Removing settings pages..." );
 
 			for( SettingsPage page : pages.values() ) {
 				rootSettingsPages.remove( page.getId() );
@@ -128,7 +144,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 			// Create the guide tree
 			createGuide( guide.getRoot(), pages );
 		} catch( Exception exception ) {
-			log.log( Log.ERROR,  "Error getting settings asset", exception );
+			log.log( Log.ERROR, "Error getting settings asset", exception );
 		}
 	}
 
@@ -210,7 +226,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	//		return this;
 	//	}
 
-	public ProgramEventHub getEventBus() {
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 

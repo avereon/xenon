@@ -5,6 +5,7 @@ import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.xenon.ManagerSettings;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.type.ProgramFaultType;
@@ -19,6 +20,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import java.lang.System.Logger;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class NoticeManager implements Controllable<NoticeManager> {
@@ -29,10 +31,13 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private Asset asset;
 
+	private List<Notice> startupNotices;
+
 	private IntegerProperty unreadCount = new SimpleIntegerProperty();
 
 	public NoticeManager( Program program ) {
 		this.program = program;
+		this.startupNotices = new CopyOnWriteArrayList<>();
 	}
 
 	public List<Notice> getNotices() {
@@ -55,9 +60,13 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void addNotice( Notice notice ) {
-		getNoticeList().addNotice( notice );
+		if( !getProgram().getWorkspaceManager().isUiReady() ) {
+			startupNotices.add( notice );
+			return;
+		}
 
 		Platform.runLater( () -> {
+			getNoticeList().addNotice( notice );
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
 			if( tools.size() > 0 ) {
 				getProgram().getWorkspaceManager().getActiveWorkpane().setActiveTool( tools.iterator().next() );
@@ -109,22 +118,24 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	@Override
 	public NoticeManager start() {
+		log.log( Log.TRACE, "Notice manager starting..." );
 		try {
-			asset = program.getAssetManager().createAsset( ProgramNoticeType.URI );
-			program.getAssetManager().loadAssets( asset );
-			// TODO Register an event listener to show unread messages after the program is finished starting
-			// At startup there may be notices that need to be shown but the workspace has not been restored yet
+			getProgram().register( ProgramEvent.STARTED, e -> startupNotices.forEach( this::addNotice ) );
+			asset = getProgram().getAssetManager().createAsset( ProgramNoticeType.URI );
+			getProgram().getAssetManager().loadAssets( asset );
 		} catch( AssetException exception ) {
 			exception.printStackTrace();
 		}
+		log.log( Log.DEBUG, "Notice manager started." );
 
 		return this;
 	}
 
 	@Override
 	public NoticeManager stop() {
-		// TODO Unregister an event listener to show unread messages when there is an active workspace
-		program.getAssetManager().saveAssets( asset );
+		log.log( Log.TRACE, "Notice manager stopping..." );
+		getProgram().getAssetManager().saveAssets( asset );
+		log.log( Log.DEBUG, "Notice manager stopped." );
 		return this;
 	}
 

@@ -14,8 +14,6 @@ public class TaskMonitor extends AbstractMonitor {
 
 	private TaskManager taskManager;
 
-	private Rectangle max;
-
 	private Rectangle tasks;
 
 	private Rectangle threads;
@@ -41,10 +39,6 @@ public class TaskMonitor extends AbstractMonitor {
 		label = new Label();
 		label.getStyleClass().add( "task-monitor-label" );
 
-		max = new Rectangle();
-		max.setManaged( false );
-		max.getStyleClass().add( "task-monitor-max" );
-
 		tasks = new Rectangle();
 		tasks.setManaged( false );
 		tasks.getStyleClass().add( "task-monitor-tasks" );
@@ -53,7 +47,8 @@ public class TaskMonitor extends AbstractMonitor {
 		threads.setManaged( false );
 		threads.getStyleClass().add( "task-monitor-threads" );
 
-		getChildren().addAll( max, threads, tasks, label );
+		getChildren().addAll( threads, tasks, label );
+		update();
 
 		// Register for TaskManagerEvents (TaskEvent and TaskThreadEvent)
 		taskManager.getEventBus().register( TaskManagerEvent.ANY, taskWatcher = new TaskWatcher() );
@@ -115,9 +110,6 @@ public class TaskMonitor extends AbstractMonitor {
 
 		this.tasks.setWidth( width * Math.min( taskCount / (double)maxThreadCount, 1.0 ) );
 		this.tasks.setHeight( height );
-
-		max.setWidth( width );
-		max.setHeight( height );
 	}
 
 	protected void update() {

@@ -3,11 +3,15 @@ package com.avereon.xenon.asset;
 import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramProduct;
+import javafx.application.Platform;
 
 import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>
@@ -54,7 +58,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private final String key = getClass().getName();
 
-	private Product product;
+	private ProgramProduct product;
 
 	private String rbKey;
 
@@ -62,12 +66,16 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private Codec defaultCodec;
 
-	public AssetType( Product product, String rbKey ) {
+	public AssetType( ProgramProduct product, String rbKey ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( rbKey == null ) throw new NullPointerException( "Resource bundle key cannot be null" );
 		this.product = product;
 		this.rbKey = rbKey;
 		this.codecs = new CopyOnWriteArraySet<>();
+	}
+
+	public Program getProgram() {
+		return product.getProgram();
 	}
 
 	public Product getProduct() {
@@ -89,6 +97,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 	public String getIcon() {
 		return product.rb().textOr( "asset", rbKey + "-icon", "asset" );
 	}
+
 	/**
 	 * Is this asset type a user defined asset type. Usually it is a user
 	 * defined asset type so this should return true. For program defined
@@ -153,11 +162,15 @@ public abstract class AssetType implements Comparable<AssetType> {
 	 *
 	 * @param program
 	 * @param asset
-	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and an editor from being created.
+	 * @return True if the asset was initialized, false otherwise. A value of false will keep the asset from being opened and a tool from being created.
 	 * @throws AssetException if the asset failed to be initialized.
 	 */
 	public boolean assetInit( Program program, Asset asset ) throws AssetException {
 		return true;
+	}
+
+	boolean callAssetInit( Program program, Asset asset ) throws AssetException {
+		return assetInit( program, asset );
 	}
 
 	/**
@@ -181,6 +194,35 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return true;
 	}
 
+	boolean callAssetUser( Program program, Asset asset ) throws AssetException {
+		Object lock = new Object();
+		AtomicBoolean result = new AtomicBoolean(  );
+		AtomicReference<AssetException> resultException = new AtomicReference<>();
+
+		Platform.runLater( () -> {
+			synchronized( lock ) {
+				try {
+					result.set( assetUser( program, asset ) );
+				} catch( AssetException exception ) {
+					resultException.set( exception );
+				} finally {
+					lock.notifyAll();
+				}
+			}
+		} );
+
+		synchronized( lock ) {
+			try {
+				lock.wait( 60000 );
+			} catch( InterruptedException exception ) {
+				exception.printStackTrace();
+			}
+		}
+
+		if( resultException.get() != null ) throw resultException.get();
+		return result.get();
+	}
+
 	@Override
 	public String toString() {
 		return getName();
@@ -195,7 +237,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		if( type == null ) return null;
 
 		for( Codec codec : codecs ) {
-			if( codec.isSupportedMediaType( type )) return codec;
+			if( codec.isSupportedMediaType( type ) ) return codec;
 		}
 
 		return null;
@@ -225,7 +267,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		if( line == null ) return null;
 
 		for( Codec codec : codecs ) {
-			if( codec.isSupportedFirstLine( line )) return codec;
+			if( codec.isSupportedFirstLine( line ) ) return codec;
 		}
 
 		return null;

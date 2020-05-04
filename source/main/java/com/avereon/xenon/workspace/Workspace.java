@@ -4,7 +4,9 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Configurable;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -13,7 +15,6 @@ import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
-import com.avereon.xenon.util.ProgramEventHub;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import javafx.application.Platform;
@@ -22,7 +23,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -57,7 +57,7 @@ public class Workspace implements Configurable {
 
 	private boolean active;
 
-	private ProgramEventHub eventBus;
+	private FxEventHub eventBus;
 
 	private StackPane workspaceStack;
 
@@ -123,15 +123,13 @@ public class Workspace implements Configurable {
 
 	public Workspace( final Program program ) {
 		this.program = program;
-		this.eventBus = new ProgramEventHub();
-		this.eventBus.parent( program.getEventBus() );
+		this.eventBus = new FxEventHub();
 
 		workareas = FXCollections.observableArrayList();
 		workareaNameWatcher = new WorkareaNameWatcher();
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
-
 
 		// FIXME Should this default setup be defined in config files or something else?
 		menubar = createMenuBar( program );
@@ -157,26 +155,31 @@ public class Workspace implements Configurable {
 		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
 		workspaceStack.setPickOnBounds( false );
 
-		VBox bars = new VBox( menubar, toolbar );
-
 		workareaLayout = new BorderPane();
-		workareaLayout.setTop( bars );
+		workareaLayout.setTop( new VBox( menubar, toolbar ) );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );
 
 		// Create the stage
 		stage = new Stage();
+		stage.getProperties().put( "id", IdGenerator.getId() );
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
 			event.consume();
 		} );
-		stage.focusedProperty().addListener( (p,o,n ) -> {
+		stage.focusedProperty().addListener( ( p, o, n ) -> {
 			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
 	}
 
-	public ProgramEventHub getEventBus() {
+	public void setTheme( String url ) {
+		scene.getStylesheets().clear();
+		scene.getStylesheets().add( Program.STYLESHEET );
+		if( url != null ) scene.getStylesheets().add( url );
+	}
+
+	public FxEventHub getEventBus() {
 		return eventBus;
 	}
 
@@ -187,23 +190,16 @@ public class Workspace implements Configurable {
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
 
-		Menu prog = ActionUtil.createMenu( program, "program" );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
-		prog.getItems().add( new SeparatorMenuItem() );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
-		prog.getItems().add( new SeparatorMenuItem() );
-		prog.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
-
 		Menu file = ActionUtil.createMenu( program, "file" );
 		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		file.getItems().add( new SeparatorMenuItem() );
 		file.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
+		file.getItems().add( new SeparatorMenuItem() );
+		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
+		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 
 		Menu edit = ActionUtil.createMenu( program, "edit" );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
@@ -216,8 +212,13 @@ public class Workspace implements Configurable {
 		edit.getItems().add( new SeparatorMenuItem() );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
 		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
+		edit.getItems().add( new SeparatorMenuItem() );
+		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
 
 		Menu view = ActionUtil.createMenu( program, "view" );
+		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
+		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
+		view.getItems().add( new SeparatorMenuItem() );
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
 		Menu help = ActionUtil.createMenu( program, "help" );
@@ -236,11 +237,10 @@ public class Workspace implements Configurable {
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-3" ) );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
-		help.getItems().add( new SeparatorMenuItem() );
+		dev.getItems().add( new SeparatorMenuItem() );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-		dev.setId( "menu-development" );
 
-		menubar.getMenus().addAll( prog, file, edit, view, help );
+		menubar.getMenus().addAll( file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
 
 		return menubar;
@@ -248,18 +248,8 @@ public class Workspace implements Configurable {
 
 	private ToolBar createToolBar( Program program ) {
 		ToolBar toolbar = new ToolBar();
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "new" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "open" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "save" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "properties" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "undo" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "redo" ) );
-		toolbar.getItems().add( new Separator() );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "cut" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "copy" ) );
-		toolbar.getItems().add( ActionUtil.createToolBarButton( program, "paste" ) );
-
+		String[] ids = new String[]{ "new", "open", "save", "properties", ActionUtil.SEPARATOR, "undo", "redo", ActionUtil.SEPARATOR, "cut", "copy", "paste" };
+		toolbar.getItems().addAll( ActionUtil.createToolBarItems( program, ids ) );
 		toolbar.getItems().add( toolbarToolSpring );
 
 		// Workarea menu
@@ -271,10 +261,8 @@ public class Workspace implements Configurable {
 		workareaMenu.getItems().add( ActionUtil.createMenuItem( program, "workarea-close" ) );
 
 		MenuBar workareaMenuBar = new MenuBar();
+		workareaMenuBar.getStyleClass().addAll( "workarea-menu-bar" );
 		workareaMenuBar.getMenus().add( workareaMenu );
-		workareaMenuBar.setBackground( Background.EMPTY );
-		workareaMenuBar.setPadding( Insets.EMPTY );
-		workareaMenuBar.setBorder( Border.EMPTY );
 
 		// Workarea selector
 		workareaSelector = new ComboBox<>();
@@ -328,15 +316,7 @@ public class Workspace implements Configurable {
 		pullToolbarActions();
 		int index = toolbar.getItems().indexOf( toolbarToolSpring );
 		toolbar.getItems().add( index++, toolbarToolButtonSeparator );
-		for( String id : ids ) {
-			Node node;
-			if( "separator".equals( id ) ) {
-				node = new Separator();
-			} else {
-				node = ActionUtil.createToolBarButton( getProgram(), id );
-			}
-			toolbar.getItems().add( index++, node );
-		}
+		toolbar.getItems().addAll( index, ActionUtil.createToolBarItems( getProgram(), ids ) );
 	}
 
 	public void pullToolbarActions() {
@@ -471,25 +451,29 @@ public class Workspace implements Configurable {
 		if( this.settings != null ) return;
 
 		// The incoming settings are the workspace settings
-
 		this.settings = settings;
+
 		this.id = settings.get( "id" );
+		// FIXME Use the properties map in the stage to store the id
+		stage.getProperties().put( "id", settings.get( "id" ) );
 
-		Double x = settings.get( "x", Double.class, null );
-		Double y = settings.get( "y", Double.class, null );
-		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
-		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
-
-		// Due to differences in how FX handles stage size (width and height) on
+		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
 		// properties below.
-		stage.setScene( scene = new Scene( workareaLayout, w, h ) );
-		scene.getStylesheets().add( Program.STYLESHEET );
+		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
+		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
+		scene = new Scene( workareaLayout, w, h );
+		getProgram().getActionLibrary().registerScene( scene );
+
+		// Setup the stage
+		stage.setScene( scene );
 		stage.sizeToScene();
 
 		// Position the stage if x and y are specified
 		// If not specified the stage is centered on the screen
+		Double x = settings.get( "x", Double.class, null );
+		Double y = settings.get( "y", Double.class, null );
 		if( x != null ) stage.setX( x );
 		if( y != null ) stage.setY( y );
 
@@ -504,20 +488,20 @@ public class Workspace implements Configurable {
 		setActive( settings.get( "active", Boolean.class, false ) );
 
 		// Add the property listeners
-		stage.maximizedProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( stage.isShowing() ) settings.set( "maximized", newValue );
+		stage.maximizedProperty().addListener( ( v, o, n ) -> {
+			if( stage.isShowing() ) settings.set( "maximized", n );
 		} );
-		stage.xProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "x", newValue );
+		stage.xProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "x", n );
 		} );
-		stage.yProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "y", newValue );
+		stage.yProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "y", n );
 		} );
-		scene.widthProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "w", newValue );
+		scene.widthProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "w", n );
 		} );
-		scene.heightProperty().addListener( ( observableValue, oldValue, newValue ) -> {
-			if( !stage.isMaximized() ) settings.set( "h", newValue );
+		scene.heightProperty().addListener( ( v, o, n ) -> {
+			if( !stage.isMaximized() ) settings.set( "h", n );
 		} );
 
 		backgroundSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
@@ -538,6 +522,7 @@ public class Workspace implements Configurable {
 
 	@Override
 	public Settings getSettings() {
+		//return getProgram().getSettingsManager().getWorkspaceSettings( this );
 		return settings;
 	}
 
@@ -553,6 +538,7 @@ public class Workspace implements Configurable {
 	}
 
 	public void close() {
+		getProgram().getActionLibrary().unregisterScene( scene );
 		memoryMonitor.close();
 		taskMonitor.close();
 		getStage().close();
@@ -598,22 +584,13 @@ public class Workspace implements Configurable {
 		}
 	}
 
-	//	private class BackgroundSettingsHandler implements SettingsListener {
-	//
-	//		@Override
-	//		public void handle( SettingsEvent event ) {
-	//			if( event.getEventType() != SettingsEvent.CHANGED ) return;
-	//			background.updateBackgroundFromSettings( backgroundSettings );
-	//		}
-	//
-	//	}
-	//
 	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
 
 		@Override
 		public void handle( SettingsEvent event ) {
 			background.updateBackgroundFromSettings( backgroundSettings );
 		}
+
 	}
 
 	private class MemoryMonitorSettingsHandler implements EventHandler<SettingsEvent> {

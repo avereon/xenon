@@ -15,7 +15,7 @@
 	<!-- Update the product roadmap when the version changes -->
 	<groupId>com.avereon</groupId>
 	<artifactId>xenon</artifactId>
-	<version>1.1</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -86,25 +86,25 @@
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zevra</artifactId>
-			<version>0.2</version>
+			<version>0.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>venza</artifactId>
-			<version>0.1</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>rossa</artifactId>
-			<version>0.1</version>
+			<version>0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>zenna</artifactId>
-			<version>0.2</version>
+			<version>0.3</version>
 		</dependency>
 
 		<dependency>
@@ -344,6 +344,56 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>screenshots</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.6.0</version>
+						<executions>
+							<execution>
+								<id>screenshots2x</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<classpathScope>runtime</classpathScope>
+									<arguments>
+										<argument>-Xmx64m</argument>
+										<argument>-p</argument>
+										<modulepath/>
+										<argument>-m</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>screenshots1x</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<classpathScope>runtime</classpathScope>
+									<arguments>
+										<argument>-Xmx64m</argument>
+										<argument>-p</argument>
+										<modulepath/>
+										<argument>-m</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>testui</id>
 			<build>

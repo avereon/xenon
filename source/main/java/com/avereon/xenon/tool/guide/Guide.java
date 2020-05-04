@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 public class Guide {
 
+	public static final Guide EMPTY = new Guide();
+
 	private static final Logger log = Log.get();
 
 	private TreeItem<GuideNode> root;

@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.Log;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -10,11 +11,14 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	protected static final Logger log = Log.get();
 
+	private static final ActionProxy NONE = new ActionProxy();
+
 	private Program program;
 
-	private ActionProxy proxy;
+	private ActionProxy proxy = NONE;
 
 	protected Action( Program program ) {
+		if( program == null ) throw new NullPointerException( "Program cannot be null" );
 		this.program = program;
 	}
 
@@ -38,8 +42,26 @@ public abstract class Action implements EventHandler<ActionEvent> {
 		return this;
 	}
 
+	/**
+	 * Get the current state of the action for multi-state actions.
+	 *
+	 * @return The state id
+	 */
+	public String getState() {
+		return proxy.getState();
+	}
+
+	/**
+	 * Set the action state for multi-state actions.
+	 *
+	 * @param id The state id
+	 */
+	public void setState( String id ) {
+		Platform.runLater( () ->  proxy.setState( id ) );
+	}
+
 	void setActionProxy( ActionProxy proxy ) {
-		this.proxy = proxy;
+		this.proxy = proxy == null ? NONE : proxy;
 	}
 
 }

@@ -1,11 +1,14 @@
 package com.avereon.xenon;
 
+import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Controllable;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -25,13 +28,21 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	private Program program;
 
+	private String currentThemeId;
+
 	private Set<Workspace> workspaces;
 
 	private Workspace activeWorkspace;
 
+	private boolean uiReady;
+
 	WorkspaceManager( Program program ) {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
+
+		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+			if( "workspace-theme-id".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
+		} );
 	}
 
 	public Program getProgram() {
@@ -79,6 +90,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 		activeWorkspace = null;
 		workspaces.clear();
+		setUiReady( false );
 
 		return this;
 	}
@@ -89,8 +101,41 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	//		return this;
 	//	}
 
+	public boolean isUiReady() {
+		return uiReady;
+	}
+
+	void setUiReady( boolean uiReady ) {
+		this.uiReady = uiReady;
+	}
+
+	public String getTheme() {
+		return currentThemeId;
+	}
+
+	public void setTheme( String id ) {
+		ThemeMetadata theme = getProgram().getThemeManager().getMetadata( id );
+		if( theme == null ) theme = getProgram().getThemeManager().getMetadata( id = "xenon-dark" );
+
+		this.currentThemeId = id;
+		final ThemeMetadata finalTheme = theme;
+		workspaces.forEach( w -> w.setTheme( finalTheme.getStylesheet() ) );
+	}
+
 	public Set<Workspace> getWorkspaces() {
 		return new HashSet<>( workspaces );
+	}
+
+	public Workspace newWorkspace() {
+		return newWorkspace( IdGenerator.getId() );
+	}
+
+	public Workspace newWorkspace( String id ) {
+		Workspace workspace = new Workspace( program );
+		workspace.getEventBus().parent( program.getFxEventHub() );
+		workspace.setSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
+		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
+		return workspace;
 	}
 
 	public void addWorkspace( Workspace workspace ) {
@@ -128,15 +173,14 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public Workspace getActiveWorkspace() {
+		if( activeWorkspace == null && workspaces.size() > 0 ) setActiveWorkspace( workspaces.iterator().next() );
 		if( activeWorkspace != null ) return activeWorkspace;
-		if( workspaces.size() > 0 ) return workspaces.iterator().next();
-		throw new IllegalStateException( "No workspaces exist" );
+		throw new IllegalStateException( "No workspaces available" );
 	}
 
 	public Stage getActiveStage() {
-		if( activeWorkspace != null ) return activeWorkspace.getStage();
-		if( workspaces.size() > 0 ) return workspaces.iterator().next().getStage();
-		throw new IllegalStateException( "No available stage" );
+		if( activeWorkspace != null ) return getActiveWorkspace().getStage();
+		throw new IllegalStateException( "No workspace stages available" );
 	}
 
 	public Set<Tool> getAssetTools( Asset asset ) {
@@ -186,9 +230,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		}
 
 		Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL );
-		alert.setTitle( program.rb().text( BundleKey.PROGRAM, "asset-modifed" ) );
-		alert.setHeaderText( program.rb().text( BundleKey.PROGRAM, "asset-modifed-message" ) );
-		alert.setContentText( program.rb().text( BundleKey.PROGRAM, "asset-modifed-prompt" ) );
+		alert.setTitle( program.rb().text( BundleKey.PROGRAM, "asset-modified" ) );
+		alert.setHeaderText( program.rb().text( BundleKey.PROGRAM, "asset-modified-message" ) );
+		alert.setContentText( program.rb().text( BundleKey.PROGRAM, "asset-modified-prompt" ) );
 		alert.initOwner( getActiveWorkspace().getStage() );
 
 		Stage stage = program.getWorkspaceManager().getActiveStage();
@@ -207,36 +251,45 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
+		log.log( Log.WARN, "Number of workspaces: " + workspaces.size() );
 		boolean closeProgram = workspaces.size() == 1;
+		boolean shutdownVerify = getProgram().getProgramSettings().get( "shutdown-verify", Boolean.class, true );
+
 		if( closeProgram ) {
 			program.requestExit( false, false );
 		} else {
-			handleModifiedAssets( ProgramScope.WORKSPACE, getModifiedAssets( workspace ) );
+			if( !handleModifiedAssets( ProgramScope.WORKSPACE, getModifiedAssets( workspace ) ) ) return;
 
-			Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
-			alert.setTitle( program.rb().text( "workspace", "workspace-close-title" ) );
-			alert.setHeaderText( program.rb().text( "workspace", "workspace-close-message" ) );
-			alert.setContentText( program.rb().text( "workspace", "workspace-close-prompt" ) );
-			alert.initOwner( workspace.getStage() );
+			boolean shouldContinue = !shutdownVerify;
+			if( shutdownVerify ) {
+				Alert alert = new Alert( Alert.AlertType.CONFIRMATION, "", ButtonType.YES, ButtonType.NO );
+				alert.setTitle( program.rb().text( "workspace", "workspace-close-title" ) );
+				alert.setHeaderText( program.rb().text( "workspace", "workspace-close-message" ) );
+				alert.setContentText( program.rb().text( "workspace", "workspace-close-prompt" ) );
+				alert.initOwner( workspace.getStage() );
 
-			Stage stage = program.getWorkspaceManager().getActiveStage();
-			Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
+				Stage stage = program.getWorkspaceManager().getActiveStage();
+				Optional<ButtonType> result = DialogUtil.showAndWait( stage, alert );
 
-			if( result.isPresent() && result.get() == ButtonType.YES ) closeWorkspace( workspace );
+				shouldContinue = result.isPresent() && result.get() == ButtonType.YES;
+			}
+
+			if( shouldContinue ) closeWorkspace( workspace );
 		}
 	}
 
-	private void closeWorkspace( Workspace workspace ) {
-		removeWorkspace( workspace );
-		workspace.close();
-	}
-
 	public Workpane getActiveWorkpane() {
+		Workspace workspace = getActiveWorkspace();
+		if( workspace == null ) return null;
+		Workarea workarea = workspace.getActiveWorkarea();
+		if( workarea == null ) return null;
 		return getActiveWorkspace().getActiveWorkarea().getWorkpane();
 	}
 
 	public Set<Tool> getActiveWorkpaneTools( Class<? extends Tool> type ) {
-		return getActiveWorkpane().getTools( type );
+		Workpane workpane = getActiveWorkpane();
+		if( workpane == null ) return Set.of();
+		return workpane.getTools( type );
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {
@@ -250,6 +303,11 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		for( Workspace workspace : getWorkspaces() ) {
 			workspace.getStage().hide();
 		}
+	}
+
+	private void closeWorkspace( Workspace workspace ) {
+		removeWorkspace( workspace );
+		workspace.close();
 	}
 
 }
