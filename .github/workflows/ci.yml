@@ -22,7 +22,7 @@ env:
 
   DISPLAY: ":99"
   GITHUB_REF: ${{ github.ref }}
-  JAVA_VERSION: "13"
+  JAVA_VERSION: "14"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
 
