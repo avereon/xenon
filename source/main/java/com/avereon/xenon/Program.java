@@ -462,6 +462,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// TODO Show user notifications
 		//getTaskManager().submit( new ShowApplicationNotices() );
+		new ProgramChecks( this );
 
 		// Program started event should be fired after the window is shown
 		getFxEventHub().dispatch( new ProgramEvent( this, ProgramEvent.STARTED ) );

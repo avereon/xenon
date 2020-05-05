@@ -53,6 +53,8 @@ public abstract class Tool extends Control {
 
 	private boolean displayed;
 
+	private EventHandler<AssetEvent> refresher;
+
 	private EventHandler<AssetEvent> closer;
 
 	public Tool( Asset asset ) {
@@ -313,7 +315,8 @@ public abstract class Tool extends Control {
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().getEventBus().register( AssetEvent.CLOSED, closer = ( e ) -> Tool.this.doClose() );
+			getAsset().register( AssetEvent.REFRESHED, refresher = ( e ) -> this.callAssetRefreshed() );
+			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
@@ -387,7 +390,8 @@ public abstract class Tool extends Control {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventBus().unregister( AssetEvent.ANY, closer );
+			getAsset().getEventBus().unregister( AssetEvent.REFRESHED, refresher );
+			getAsset().getEventBus().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
 		}
@@ -406,6 +410,7 @@ public abstract class Tool extends Control {
 	 */
 	@Deprecated
 	protected final void callAssetRefreshed() {
+		// Not calling this method caused a bunch of stuff to break
 		Platform.runLater( this::assetRefreshed );
 	}
 
