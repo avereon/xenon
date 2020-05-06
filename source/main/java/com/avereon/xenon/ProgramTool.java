@@ -4,6 +4,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.Tool;
+import javafx.application.Platform;
 
 import java.net.URI;
 import java.util.Collections;
@@ -53,13 +54,15 @@ public abstract class ProgramTool extends Tool {
 		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getAsset() );
 		if( !tools.contains( this ) ) return;
 
-		if( getAsset().isNewOrModified() ) {
-			getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) );
-		} else if( tools.size() == 1 ) {
-			getProgram().getAssetManager().close( getAsset() );
-		} else {
-			super.close();
-		}
+		Platform.runLater( () -> {
+			if( getAsset().isNewOrModified() ) {
+				if( getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) ) ) super.close();
+			} else if( tools.size() == 1 ) {
+				getProgram().getAssetManager().close( getAsset() );
+			} else {
+				super.close();
+			}
+		} );
 	}
 
 	protected void pushToolActions( String... actions ) {
