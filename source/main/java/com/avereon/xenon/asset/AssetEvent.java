@@ -13,16 +13,20 @@ public class AssetEvent extends Event {
 
 	public static final EventType<AssetEvent> LOADED = new EventType<>( ASSET, "LOADED" );
 
+	@Deprecated
 	public static final EventType<AssetEvent> READY = new EventType<>( ASSET, "READY" );
 
+	@Deprecated
 	public static final EventType<AssetEvent> REFRESHED = new EventType<>( ASSET, "REFRESHED" );
 
 	public static final EventType<AssetEvent> MODIFIED = new EventType<>( ASSET, "MODIFIED" );
 
 	public static final EventType<AssetEvent> UNMODIFIED = new EventType<>( ASSET, "UNMODIFIED" );
 
+	// The asset is the asset in the active tool
 	public static final EventType<AssetEvent> ACTIVATED = new EventType<>( ASSET, "ACTIVATED" );
 
+	// The asset is not the the asset in the active tool
 	public static final EventType<AssetEvent> DEACTIVATED = new EventType<>( ASSET, "DEACTIVATED" );
 
 	public static final EventType<AssetEvent> SAVED = new EventType<>( ASSET, "SAVED" );

@@ -289,6 +289,7 @@ public class Asset extends Node implements Configurable {
 		notifyAll();
 	}
 
+	@Deprecated
 	public synchronized final void refresh() {
 		if( ready ) getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}

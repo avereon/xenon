@@ -2,7 +2,7 @@ package com.avereon.xenon.throwable;
 
 public class NoToolRegisteredException extends Exception {
 
-	private String toolClassName;
+	private final String toolClassName;
 
 	public NoToolRegisteredException( String toolClassName ) {
 		this.toolClassName = toolClassName;

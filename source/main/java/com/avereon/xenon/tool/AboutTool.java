@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.event.EventHandler;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.SettingsEvent;
@@ -64,6 +65,8 @@ public class AboutTool extends GuidedTool {
 
 	private String currentPageId;
 
+	private EventHandler<SettingsEvent> updateCheckHandler;
+
 	public AboutTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-about" );
@@ -89,16 +92,6 @@ public class AboutTool extends GuidedTool {
 		pages.put( SUMMARY, summaryPane );
 		pages.put( DETAILS, detailsPane );
 		pages.put( MODS, modsPane );
-
-		getProgram().getProgramSettings().register( SettingsEvent.CHANGED, e -> {
-			switch( e.getKey() ) {
-				case ProductManager.LAST_CHECK_TIME:
-				case ProductManager.NEXT_CHECK_TIME: {
-					summaryPane.updateUpdateCheckInfo();
-					break;
-				}
-			}
-		} );
 	}
 
 	public String getTitleSuffix() {
@@ -111,38 +104,49 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void allocate() throws ToolException {
-		log.log( Log.DEBUG, "Tool allocate" );
 		super.allocate();
+
+		// Register listeners
+		getProgram().getProgramSettings().register( SettingsEvent.CHANGED, updateCheckHandler = e -> {
+			switch( e.getKey() ) {
+				case ProductManager.LAST_CHECK_TIME:
+				case ProductManager.NEXT_CHECK_TIME: {
+					summaryPane.updateUpdateCheckInfo();
+					break;
+				}
+			}
+		} );
+
+		// It would be nice if:
+		//getProgram().getProgramSettings().register( SettingsEvent.CHANGED, ProductManager.LAST_CHECK_TIME, updateCheckHandler = e -> {} );
+		//getProgram().getProgramSettings().register( SettingsEvent.CHANGED, ProductManager.NEXT_CHECK_TIME, updateCheckHandler = e -> {} );
+
 		updatePages();
 	}
 
 	@Override
 	protected void display() throws ToolException {
-		log.log( Log.DEBUG, "Tool display" );
 		super.display();
 	}
 
 	@Override
 	protected void activate() throws ToolException {
-		log.log( Log.DEBUG, "Tool activate" );
 		super.activate();
 	}
 
 	@Override
 	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG, "Tool deactivate" );
 		super.deactivate();
 	}
 
 	@Override
 	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG, "Tool conceal" );
 		super.conceal();
 	}
 
 	@Override
 	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG, "Tool deallocate" );
+		getProgram().getProgramSettings().unregister( SettingsEvent.CHANGED, updateCheckHandler );
 		super.deallocate();
 	}
 

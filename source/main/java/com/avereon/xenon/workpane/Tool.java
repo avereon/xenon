@@ -19,7 +19,7 @@ import javafx.scene.shape.Rectangle;
 import java.lang.System.Logger;
 
 /**
- * The Tool class is a control that "works on" a asset.
+ * The Tool class is a control that "works on" an asset.
  */
 public abstract class Tool extends Control {
 
@@ -307,6 +307,7 @@ public abstract class Tool extends Control {
 	 *
 	 * @deprecated Register an asset event handler instead
 	 */
+	@Deprecated
 	protected void assetRefreshed() {}
 
 	/**

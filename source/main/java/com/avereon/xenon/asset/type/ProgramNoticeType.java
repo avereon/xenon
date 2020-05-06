@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.notice.NoticeList;
+import com.avereon.xenon.notice.NoticeModel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ public class ProgramNoticeType extends AssetType {
 
 	@Override
 	public boolean assetInit( Program program, Asset asset ) throws AssetException {
-		asset.setModel( new NoticeList() );
+		asset.setModel( new NoticeModel() );
 		return true;
 	}
 
@@ -67,7 +67,7 @@ public class ProgramNoticeType extends AssetType {
 
 		@Override
 		public void load( Asset asset, InputStream input ) throws IOException {
-			NoticeList notices = new NoticeList();
+			NoticeModel notices = new NoticeModel();
 
 			log.log( Log.TRACE,  "Load program notices..." );
 			// TODO How do I want to store the notices? In settings? In a folder as separate files? As a single file?
@@ -79,7 +79,7 @@ public class ProgramNoticeType extends AssetType {
 
 		@Override
 		public void save( Asset asset, OutputStream output ) throws IOException {
-			NoticeList notices = asset.getModel();
+			NoticeModel notices = asset.getModel();
 
 			log.log( Log.TRACE,  "Save program notices..." );
 

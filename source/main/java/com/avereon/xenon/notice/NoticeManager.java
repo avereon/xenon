@@ -82,7 +82,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void removeAll() {
-		getNoticeList().clearAll();
+		getNoticeList().removeAll();
 	}
 
 	public IntegerProperty unreadCountProperty() {
@@ -149,7 +149,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return throwable.getLocalizedMessage();
 	}
 
-	private NoticeList getNoticeList() {
+	private NoticeModel getNoticeList() {
 		return asset.getModel();
 	}
 

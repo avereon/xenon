@@ -70,26 +70,26 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * Open a tool using the specified request. The request contains all the
 	 * information regarding the request including the asset.
 	 *
-	 * @param request The open tool request
+	 * @param openToolRequest The open tool request
 	 * @return The tool for the request or null if a tool was not created
 	 * @apiNote Should be called from a {@link TaskManager} thread
 	 */
-	public ProgramTool openTool( OpenToolRequest request ) throws NoToolRegisteredException {
+	public ProgramTool openTool( OpenToolRequest openToolRequest ) throws NoToolRegisteredException {
 		// Check the calling thread
 		TaskManager.taskThreadCheck();
 
 		// Verify the request parameters
-		Asset asset = request.getAsset();
+		Asset asset = openToolRequest.getAsset();
 		if( asset == null ) throw new NullPointerException( "Asset cannot be null" );
 
 		// Get the asset type to look up the registered tool classes
 		AssetType assetType = asset.getType();
 
 		// Determine which tool class will be used
-		Class<? extends ProgramTool> toolClass = request.getToolClass();
+		Class<? extends ProgramTool> toolClass = openToolRequest.getToolClass();
 		if( toolClass == null ) toolClass = determineToolClassForAssetType( assetType );
 		if( toolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
-		request.setToolClass( toolClass );
+		openToolRequest.setToolClass( toolClass );
 
 		// Check that the tool is registered
 		ToolRegistration toolRegistration = toolClassMetadata.get( toolClass );
@@ -99,8 +99,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
 
 		// Before checking for existing tools, the workpane needs to be determined
-		Workpane pane = request.getPane();
-		WorkpaneView view = request.getView();
+		Workpane pane = openToolRequest.getPane();
+		WorkpaneView view = openToolRequest.getView();
 		if( pane == null && view != null ) pane = view.getWorkpane();
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
@@ -113,14 +113,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( alreadyExists ) {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			if( openToolRequest.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
 		}
 
 		try {
-			tool = getToolInstance( request ).get( 10, TimeUnit.SECONDS );
+			tool = getToolInstance( openToolRequest ).get( 10, TimeUnit.SECONDS );
 		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
+			log.log( ERROR, "Error creating tool: " + openToolRequest.getToolClass().getName(), exception );
 			return null;
 		}
 
@@ -135,16 +135,18 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, request.isSetActive() ) );
+		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, openToolRequest.isSetActive() ) );
 
-		scheduleAssetReady( request, finalTool );
+		scheduleAssetReady( openToolRequest, finalTool );
 
 		return tool;
 	}
 
 	/**
-	 * @param openToolRequest
-	 * @param toolClassName
+	 * Called from the {@link UiRegenerator} to restore a tool.
+	 *
+	 * @param openToolRequest The open tool request for restoring the tool
+	 * @param toolClassName The tool class name
 	 * @return The restored tool
 	 * @apiNote Could be called from a @code{task thread} or an @code{FX application thread}
 	 */

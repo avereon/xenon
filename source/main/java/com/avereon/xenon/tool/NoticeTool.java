@@ -1,5 +1,7 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.data.NodeEvent;
+import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
@@ -7,6 +9,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.notice.Notice;
+import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
@@ -24,7 +27,9 @@ public class NoticeTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	private VBox noticeContainer;
+	private final VBox noticeContainer;
+
+	private EventHandler<NodeEvent> assetHandler;
 
 	public NoticeTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -56,18 +61,21 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetRefreshed() {
-		updateNotices();
-	}
-
-	@Override
 	protected void allocate() {
+		NoticeModel notices = getAssetModel();
+		notices.register( NodeEvent.NODE_CHANGED, assetHandler = (e) -> updateNotices() );
 		updateNotices();
 	}
 
 	@Override
 	protected void display() {
 		getProgram().getWorkspaceManager().getActiveWorkspace().hideNotices();
+	}
+
+	@Override
+	protected void deallocate() {
+		NoticeModel notices = getAssetModel();
+		notices.unregister( NodeEvent.NODE_CHANGED, assetHandler );
 	}
 
 	private void clearAll() {

@@ -6,15 +6,20 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NoticeList extends Node {
+/**
+ * A simple storage model for notices.
+ */
+public class NoticeModel extends Node {
 
+	/**
+	 * Get the notices. The list is returned in reverse chronological order of the
+	 * notice create timestamp.
+	 *
+	 * @return The notice list
+	 */
 	List<Notice> getNotices() {
 		return getValues( Notice.class ).stream().sorted( new ReverseTimestampComparator() ).collect( Collectors.toList() );
 	}
-
-	//	public Notice getNotice( String id ) {
-	//		return getValue( id );
-	//	}
 
 	void addNotice( Notice notice ) {
 		setValue( notice.getId(), notice );
@@ -24,13 +29,9 @@ public class NoticeList extends Node {
 		setValue( notice.getId(), null );
 	}
 
-	void clearAll() {
+	void removeAll() {
 		getValueKeys().forEach( ( key ) -> setValue( key, null ) );
 	}
-
-	//	public int size() {
-	//		return getValues( Notice.class ).size();
-	//	}
 
 	private static class ReverseTimestampComparator implements Comparator<Notice> {
 
