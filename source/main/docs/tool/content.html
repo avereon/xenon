@@ -1,0 +1,35 @@
+<!--
+This is the Xenon user manual. It is formatted as a partial HTML document in
+order to be used with the DocViewer component on the Avereon website. The
+h1-h6 tags that are children of the root div element will be used as an outline
+when displayed and links are generated for the id attribute in the header. Note
+also that links are relative to the Avereon website or must be fully qualified.
+-->
+
+<div>
+
+	<h1>Tool Guide</h1>
+	<p>2020-05-06</p>
+
+	<h2 id="getting-started">Getting Started</h2>
+
+	<p>
+		Tools are at the heart of functionality in Xenon. Without tools Xenon
+		does not provide functionality for user work.
+	</p>
+
+	<h2 id="recommended-practices">Recommended Practices</h2>
+
+	<h3>
+		Updating the tool state when the asset changes
+	</h3>
+	<p>
+		The recommended way to update the tool state when the asset changes is to
+		register event handlers on the asset model for the changes the tool needs
+		in order to keep the state up-to-date. Registering event handlers on the
+		asset will provide high-level update notifications, but will not provide
+		enough information for the tool to make efficient decisions. Also keep in
+		mind that there may be other tools also watching the asset model.
+	</p>
+
+</div>
