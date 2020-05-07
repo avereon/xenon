@@ -46,11 +46,9 @@ public class AboutTool extends GuidedTool {
 
 	private static final double ICON_SIZE = 96;
 
-	private String titleSuffix;
+	private final Map<String, Node> pages;
 
-	private Map<String, Node> pages;
-
-	private SummaryPane summaryPane;
+	private final SummaryPane summaryPane;
 
 	private TextArea summaryText;
 
@@ -66,16 +64,15 @@ public class AboutTool extends GuidedTool {
 
 	private String currentPageId;
 
-	private EventHandler<SettingsEvent> updateCheckHandler;
+	private EventHandler<SettingsEvent> updateCheckWatcher;
 
-	private EventHandler<ModEvent> modEventHandler;
+	private EventHandler<ModEvent> modEnabledWatcher;
 
 	public AboutTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-about" );
 
 		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
-		setTitleSuffix( product.rb().text( "tool", "about-suffix" ) );
 
 		summaryPane = new SummaryPane();
 
@@ -97,28 +94,10 @@ public class AboutTool extends GuidedTool {
 		pages.put( MODS, modsPane );
 	}
 
-	public String getTitleSuffix() {
-		return titleSuffix;
-	}
-
-	public void setTitleSuffix( String titleSuffix ) {
-		this.titleSuffix = titleSuffix;
-	}
 
 	@Override
 	protected void allocate() throws ToolException {
 		super.allocate();
-
-		// Register listeners
-		updateCheckHandler = e -> summaryPane.updateUpdateCheckInfo();
-		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckHandler );
-		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckHandler );
-
-		modEventHandler = e -> updatePages();
-		getProgram().register( ModEvent.ENABLED, modEventHandler );
-		getProgram().register( ModEvent.DISABLED, modEventHandler );
-
-		updatePages();
 	}
 
 	@Override
@@ -143,16 +122,27 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void deallocate() throws ToolException {
-		getProgram().unregister( ModEvent.ENABLED, modEventHandler );
-		getProgram().unregister( ModEvent.DISABLED, modEventHandler );
-		getProgram().getProgramSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckHandler );
-		getProgram().getProgramSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckHandler );
+		getProgram().unregister( ModEvent.ENABLED, modEnabledWatcher );
+		getProgram().unregister( ModEvent.DISABLED, modEnabledWatcher );
+		getProgram().getProgramSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProgramSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 		super.deallocate();
 	}
 
 	@Override
 	protected void assetReady( OpenAssetRequest request ) {
 		super.assetReady( request );
+
+		// Register listeners
+		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
+		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
+
+		modEnabledWatcher = e -> Platform.runLater( this::updatePages );
+		getProgram().register( ModEvent.ENABLED, modEnabledWatcher );
+		getProgram().register( ModEvent.DISABLED, modEnabledWatcher );
+
+		updatePages();
 
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = request.getFragment();
@@ -163,13 +153,7 @@ public class AboutTool extends GuidedTool {
 
 	private void updatePages() {
 		ProductCard metadata = getProgram().getCard();
-
-		if( titleSuffix == null ) {
-			setTitle( metadata.getName() );
-		} else {
-			setTitle( metadata.getName() + " - " + titleSuffix );
-		}
-		//summaryText.setText( getSummaryText( metadata ) );
+		setTitle( metadata.getName() );
 		summaryPane.update( metadata );
 		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
@@ -357,6 +341,7 @@ public class AboutTool extends GuidedTool {
 		return builder.toString();
 	}
 
+	@SuppressWarnings( "StringBufferReplaceableByString" )
 	private String getDetailsText( Program program ) {
 		ProductCard metadata = program.getCard();
 		StringBuilder builder = new StringBuilder();
@@ -450,6 +435,7 @@ public class AboutTool extends GuidedTool {
 		return "--- " + text + "\n";
 	}
 
+	@SuppressWarnings( "StringBufferReplaceableByString" )
 	private String getProgramDetails( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
@@ -475,9 +461,9 @@ public class AboutTool extends GuidedTool {
 		builder.append( "Timestamp:   " ).append( card.getTimestamp() ).append( "\n" );
 
 		ProductManager productManager = getProgram().getProductManager();
-		builder.append( "Enabled:     " + productManager.isEnabled( card ) ).append( "\n" );
-		//		builder.append( "Updatable:   " + productManager.isUpdatable( card )).append( "\n" );
-		//		builder.append( "Removable:   " + productManager.isRemovable( card )).append( "\n" );
+		builder.append( "Enabled:     " ).append( productManager.isEnabled( card ) ).append( "\n" );
+		//		builder.append( "Updatable:   " ).append( productManager.isUpdatable( card )).append( "\n" );
+		//		builder.append( "Removable:   " ).append( productManager.isRemovable( card )).append( "\n" );
 
 		return builder.toString();
 	}
@@ -530,12 +516,10 @@ public class AboutTool extends GuidedTool {
 	private String getScreenDetail( Screen primary, Screen screen ) {
 		boolean isPrimary = primary.hashCode() == screen.hashCode();
 		Rectangle2D size = screen.getBounds();
-		Rectangle2D vsize = screen.getVisualBounds();
 		Rectangle2D scale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
 		int dpi = (int)screen.getDpi();
 
 		String sizeText = TextUtil.justify( TextUtil.RIGHT, (int)size.getWidth() + "x" + (int)size.getHeight(), 10 );
-		String vsizeText = TextUtil.justify( TextUtil.RIGHT, (int)vsize.getWidth() + "x" + (int)vsize.getHeight(), 10 );
 		String scaleText = scale.getWidth() + "x" + scale.getWidth();
 
 		return (isPrimary ? "p" : "s") + "-screen: " + scaleText + " [" + dpi + "dpi] " + sizeText + "\n";
@@ -545,10 +529,10 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
-		builder.append( "Name:        " + bean.getName() ).append( "\n" );
-		builder.append( "Arch:        " + bean.getArch() ).append( "\n" );
-		builder.append( "Version:     " + bean.getVersion() ).append( "\n" );
-		builder.append( "Processors:  " + bean.getAvailableProcessors() ).append( "\n" );
+		builder.append( "Name:        " ).append( bean.getName() ).append( "\n" );
+		builder.append( "Arch:        " ).append( bean.getArch() ).append( "\n" );
+		builder.append( "Version:     " ).append( bean.getVersion() ).append( "\n" );
+		builder.append( "Processors:  " ).append( bean.getAvailableProcessors() ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -558,23 +542,16 @@ public class AboutTool extends GuidedTool {
 
 		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
 		long uptime = bean.getUptime();
-		builder.append( "Start time:        " + DateUtil.format( new Date( bean.getStartTime() ), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
-		builder.append( "Current time:      " + DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
-		builder.append( "Uptime:            " + DateUtil.formatDuration( uptime ) ).append( "\n" );
+		builder.append( "Start time:        " ).append( DateUtil.format( new Date( bean.getStartTime() ), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
+		builder.append( "Current time:      " ).append( DateUtil.format( new Date(), DateUtil.DEFAULT_DATE_FORMAT ) ).append( "\n" );
+		builder.append( "Uptime:            " ).append( DateUtil.formatDuration( uptime ) ).append( "\n" );
 
-		long lastUpdateCheck = program.getProductManager().getLastUpdateCheck();
-		long nextUpdateCheck = program.getProductManager().getNextUpdateCheck();
-		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		String lastUpdateCheck = program.getProductManager().getLastUpdateCheckText();
+		String nextUpdateCheck = program.getProductManager().getNextUpdateCheckText();
 
-		String unknown = program.rb().text( BundleKey.UPDATE, "unknown" );
-		String notScheduled = program.rb().text( BundleKey.UPDATE, "not-scheduled" );
 		builder.append( "\n" );
-		builder
-			.append( "Last update check: " + (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) )
-			.append( "\n" );
-		builder
-			.append( "Next update check: " + (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT )) )
-			.append( "\n" );
+		builder.append( "Last update check: " ).append( lastUpdateCheck ).append( "\n" );
+		builder.append( "Next update check: " ).append( nextUpdateCheck ).append( "\n" );
 
 		return builder.toString();
 	}
@@ -583,13 +560,13 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		MemoryMXBean bean = ManagementFactory.getMemoryMXBean();
-		builder.append( "Heap use:     " + bean.getHeapMemoryUsage() ).append( "\n" );
-		builder.append( "Non-heap use: " + bean.getNonHeapMemoryUsage() ).append( "\n" );
+		builder.append( "Heap use:     " ).append( bean.getHeapMemoryUsage() ).append( "\n" );
+		builder.append( "Non-heap use: " ).append( bean.getNonHeapMemoryUsage() ).append( "\n" );
 
 		builder.append( "\n" );
 		List<MemoryPoolMXBean> pools = ManagementFactory.getMemoryPoolMXBeans();
 		for( MemoryPoolMXBean pool : pools ) {
-			builder.append( pool.getName() + " (" + pool.getType() + "): " + pool.getUsage() ).append( "\n" );
+			builder.append( pool.getName() ).append( " (" ).append( pool.getType() ).append( "): " ).append( pool.getUsage() ).append( "\n" );
 		}
 
 		return builder.toString();
@@ -600,12 +577,12 @@ public class AboutTool extends GuidedTool {
 
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 
-		builder.append( "Highest thread count:        " + bean.getPeakThreadCount() ).append( "\n" );
-		builder.append( "Current thread count:        " + bean.getThreadCount() ).append( "\n" );
+		builder.append( "Highest thread count:        " ).append( bean.getPeakThreadCount() ).append( "\n" );
+		builder.append( "Current thread count:        " ).append( bean.getThreadCount() ).append( "\n" );
 
 		builder.append( "\n" );
 		List<ThreadInfo> threads = Arrays.asList( bean.getThreadInfo( bean.getAllThreadIds() ) );
-		Collections.sort( threads, new ThreadInfoNameComparator() );
+		threads.sort( new ThreadInfoNameComparator() );
 		for( ThreadInfo thread : threads ) {
 			builder.append( TextUtil.leftJustify( thread.getThreadState().toString(), 15 ) );
 			builder.append( "  " );
@@ -620,16 +597,12 @@ public class AboutTool extends GuidedTool {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "Mod layers:\n" );
-		getProgram().getProductManager().getModules().stream().sorted().forEach( m -> {
-			builder.append( m.getClass().getModule().getName() ).append( "\n" );
-		} );
+		getProgram().getProductManager().getModules().stream().sorted().forEach( m -> builder.append( m.getClass().getModule().getName() ).append( "\n" ) );
 
 		// Java modules
 		builder.append( "\n" );
 		builder.append( "Boot layer:\n" );
-		ModuleLayer.boot().modules().stream().sorted( Comparator.comparing( Module::getName ) ).forEach( m -> {
-			builder.append( m.getName() ).append( "\n" );
-		} );
+		ModuleLayer.boot().modules().stream().sorted( Comparator.comparing( Module::getName ) ).forEach( m -> builder.append( m.getName() ).append( "\n" ) );
 
 		return builder.toString();
 	}

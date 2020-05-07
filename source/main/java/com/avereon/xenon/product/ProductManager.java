@@ -7,13 +7,14 @@ import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
+import com.avereon.venza.event.FxEventHub;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Mod;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramFlag;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.venza.event.FxEventHub;
 import javafx.application.Platform;
 
 import java.io.IOException;
@@ -478,6 +479,19 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 	public long getLastUpdateCheck() {
 		return getSettings().get( LAST_CHECK_TIME, Long.class, 0L );
+	}
+
+	public String getLastUpdateCheckText() {
+		long lastUpdateCheck = getLastUpdateCheck();
+		String unknown = getProgram().rb().text( BundleKey.UPDATE, "unknown" );
+		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+	}
+
+	public String getNextUpdateCheckText() {
+		long nextUpdateCheck = getNextUpdateCheck();
+		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		String notScheduled = getProgram().rb().text( BundleKey.UPDATE, "not-scheduled" );
+		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
 	}
 
 	public long getNextUpdateCheck() {

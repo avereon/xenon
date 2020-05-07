@@ -105,12 +105,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
-		ProgramTool tool = null;
-		// If the instance mode is SINGLETON, check for an existing tool in the workpane
-		if( instanceMode == ToolInstanceMode.SINGLETON ) tool = findToolInPane( pane, toolClass );
-		final boolean alreadyExists = tool != null;
+		ProgramTool tool = findToolInPane( pane, toolClass );
 
-		if( alreadyExists ) {
+		// If the instance mode is SINGLETON, check for an existing tool in the workpane
+		if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
 			if( openToolRequest.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );

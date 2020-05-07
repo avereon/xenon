@@ -389,6 +389,9 @@ public abstract class Tool extends Control {
 	/**
 	 * Called when the asset is ready to be used by the tool.
 	 */
+	// FIXME This needs to be split into two methods
+	// One that is called one time for the tool when the asset is ready
+	// Another for when the asset is opened again with, possibly, different parameters
 	public final void callAssetReady( OpenAssetRequest request ) {
 		Platform.runLater( () -> assetReady( request ) );
 	}
