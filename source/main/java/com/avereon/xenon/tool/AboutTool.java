@@ -10,6 +10,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.product.ModEvent;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -67,6 +68,8 @@ public class AboutTool extends GuidedTool {
 
 	private EventHandler<SettingsEvent> updateCheckHandler;
 
+	private EventHandler<ModEvent> modEventHandler;
+
 	public AboutTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-about" );
@@ -107,19 +110,13 @@ public class AboutTool extends GuidedTool {
 		super.allocate();
 
 		// Register listeners
-		getProgram().getProgramSettings().register( SettingsEvent.CHANGED, updateCheckHandler = e -> {
-			switch( e.getKey() ) {
-				case ProductManager.LAST_CHECK_TIME:
-				case ProductManager.NEXT_CHECK_TIME: {
-					summaryPane.updateUpdateCheckInfo();
-					break;
-				}
-			}
-		} );
+		updateCheckHandler = e -> summaryPane.updateUpdateCheckInfo();
+		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckHandler );
+		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckHandler );
 
-		// It would be nice if:
-		//getProgram().getProgramSettings().register( SettingsEvent.CHANGED, ProductManager.LAST_CHECK_TIME, updateCheckHandler = e -> {} );
-		//getProgram().getProgramSettings().register( SettingsEvent.CHANGED, ProductManager.NEXT_CHECK_TIME, updateCheckHandler = e -> {} );
+		modEventHandler = e -> updatePages();
+		getProgram().register( ModEvent.ENABLED, modEventHandler );
+		getProgram().register( ModEvent.DISABLED, modEventHandler );
 
 		updatePages();
 	}
@@ -146,7 +143,10 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void deallocate() throws ToolException {
-		getProgram().getProgramSettings().unregister( SettingsEvent.CHANGED, updateCheckHandler );
+		getProgram().unregister( ModEvent.ENABLED, modEventHandler );
+		getProgram().unregister( ModEvent.DISABLED, modEventHandler );
+		getProgram().getProgramSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckHandler );
+		getProgram().getProgramSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckHandler );
 		super.deallocate();
 	}
 
@@ -161,14 +161,8 @@ public class AboutTool extends GuidedTool {
 		selectPage( pageId );
 	}
 
-	@Override
-	protected void assetRefreshed() {
-		updatePages();
-	}
-
 	private void updatePages() {
-		ProductCard metadata = getAsset().getModel();
-		if( metadata == null ) return;
+		ProductCard metadata = getProgram().getCard();
 
 		if( titleSuffix == null ) {
 			setTitle( metadata.getName() );

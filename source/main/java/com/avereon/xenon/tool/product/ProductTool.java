@@ -134,11 +134,6 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetRefreshed() {
-		log.log( Log.TRACE,  "Product tool asset refreshed" );
-	}
-
-	@Override
 	protected Guide getGuide() {
 		if( this.guide != null ) return this.guide;
 

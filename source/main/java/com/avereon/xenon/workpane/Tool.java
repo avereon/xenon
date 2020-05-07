@@ -53,8 +53,6 @@ public abstract class Tool extends Control {
 
 	private boolean displayed;
 
-	private EventHandler<AssetEvent> refresher;
-
 	private EventHandler<AssetEvent> closer;
 
 	public Tool( Asset asset ) {
@@ -303,20 +301,11 @@ public abstract class Tool extends Control {
 	protected void assetReady( OpenAssetRequest request ) {}
 
 	/**
-	 * Called when the asset data is refreshed.
-	 *
-	 * @deprecated Register an asset event handler instead
-	 */
-	@Deprecated
-	protected void assetRefreshed() {}
-
-	/**
 	 * Allocate the tool.
 	 */
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().register( AssetEvent.REFRESHED, refresher = ( e ) -> this.callAssetRefreshed() );
 			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
@@ -391,7 +380,6 @@ public abstract class Tool extends Control {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventBus().unregister( AssetEvent.REFRESHED, refresher );
 			getAsset().getEventBus().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
@@ -403,16 +391,6 @@ public abstract class Tool extends Control {
 	 */
 	public final void callAssetReady( OpenAssetRequest request ) {
 		Platform.runLater( () -> assetReady( request ) );
-	}
-
-	/**
-	 * Called when the asset data is refreshed. This method calls
-	 * {@link #assetRefreshed()} on the FX platform thread.
-	 */
-	@Deprecated
-	protected final void callAssetRefreshed() {
-		// Not calling this method caused a bunch of stuff to break
-		Platform.runLater( this::assetRefreshed );
 	}
 
 }
