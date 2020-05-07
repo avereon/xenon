@@ -260,9 +260,11 @@ public abstract class Tool extends Control {
 		return new ToolSkin( this );
 	}
 
+	// FIXME Do I need a ready(),
 	/**
 	 * Allocate the tool.
 	 */
+	// FIXME Rename to add()
 	protected void allocate() throws ToolException {}
 
 	/**
@@ -288,6 +290,7 @@ public abstract class Tool extends Control {
 	/**
 	 * Deallocate the tool.
 	 */
+	// FIXME Rename to remove()
 	protected void deallocate() throws ToolException {}
 
 	/**
