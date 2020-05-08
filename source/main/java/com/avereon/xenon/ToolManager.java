@@ -136,9 +136,8 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, openToolRequest.isSetActive() ) );
-
 		scheduleAssetReady( openToolRequest, finalTool );
+		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, openToolRequest.isSetActive() ) );
 
 		return tool;
 	}
@@ -329,7 +328,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
 			tool.addEventFilter( ToolEvent.ADDED, h );
 			try {
-				if( tool.getToolView() != null ) latch.await( 1, TimeUnit.SECONDS );
+				if( tool.getToolView() != null ) latch.await( 5, TimeUnit.SECONDS );
 			} finally {
 				log.log( Log.WARN, "Tool added=" + tool );
 				tool.removeEventFilter( ToolEvent.ADDED, h );
@@ -354,7 +353,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			EventHandler<AssetEvent> h = e -> latch.countDown();
 			asset.register( AssetEvent.LOADED, h );
 			try {
-				if( !asset.isLoaded() ) latch.await( 1, TimeUnit.SECONDS );
+				if( !asset.isLoaded() ) latch.await( 5, TimeUnit.SECONDS );
 			} finally {
 				log.log( Log.WARN, "Asset loaded=" + asset );
 				asset.unregister( AssetEvent.LOADED, h );

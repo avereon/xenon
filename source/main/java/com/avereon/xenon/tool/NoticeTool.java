@@ -8,6 +8,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
@@ -21,7 +22,8 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 
 /**
- * The notice tool displays the program notices that have been posted. The tool allows the user to close/dismiss notices or click on the notice to execute a program action.
+ * The notice tool displays the program notices that have been posted. The tool allows the user to close/dismiss notices or click on the notice to execute a
+ * program action.
  */
 public class NoticeTool extends ProgramTool {
 
@@ -61,9 +63,12 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void allocate() {
-		NoticeModel notices = getAssetModel();
-		notices.register( NodeEvent.NODE_CHANGED, assetHandler = (e) -> updateNotices() );
+	protected void ready( OpenAssetRequest request ) {
+		((NoticeModel)getAssetModel()).register( NodeEvent.NODE_CHANGED, assetHandler = ( e ) -> updateNotices() );
+	}
+
+	@Override
+	protected void open( OpenAssetRequest request ) {
 		updateNotices();
 	}
 
@@ -74,8 +79,7 @@ public class NoticeTool extends ProgramTool {
 
 	@Override
 	protected void deallocate() {
-		NoticeModel notices = getAssetModel();
-		notices.unregister( NodeEvent.NODE_CHANGED, assetHandler );
+		((NoticeModel)getAssetModel()).unregister( NodeEvent.NODE_CHANGED, assetHandler );
 	}
 
 	private void clearAll() {
@@ -90,7 +94,7 @@ public class NoticeTool extends ProgramTool {
 			noticeContainer.getChildren().clear();
 			for( Notice notice : notices ) {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );
-				noticePane.setOnMouseClicked( (event)->{
+				noticePane.setOnMouseClicked( ( event ) -> {
 					noticePane.executeNoticeAction();
 					event.consume();
 					this.close();

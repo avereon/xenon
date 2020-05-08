@@ -17,7 +17,7 @@ public class FaultTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	private TextArea text;
+	private final TextArea text;
 
 	private EventHandler<ProgramEvent> closingHandler;
 
@@ -33,10 +33,12 @@ public class FaultTool extends ProgramTool {
 
 		getChildren().addAll( text );
 
-		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> {
-			// Tasks have to finish before the program exists so this ensures the tool will close
-			getProgram().getTaskManager().submit( Task.of( "", this::close ) );
-		} );
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		// Tasks have to finish before the program exits so this ensures the tool will close
+		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> getProgram().getTaskManager().submit( Task.of( "", this::close ) ) );
 	}
 
 	@Override

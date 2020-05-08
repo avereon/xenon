@@ -4,6 +4,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 
+@Deprecated
 public class ProgramThemesType extends AssetType {
 
 	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.themes";
