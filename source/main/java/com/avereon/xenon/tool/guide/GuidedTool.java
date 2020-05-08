@@ -119,6 +119,9 @@ public abstract class GuidedTool extends ProgramTool {
 			if( !oldNodes.equals( newNodes ) ) {
 				getSettings().set( GUIDE_SELECTED_IDS, Guide.nodesToString( newNodes ) );
 				guideNodesSelected( oldNodes, newNodes );
+
+				// Run this later to set the tool to be the active tool again
+				Platform.runLater( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
 			}
 		}
 
