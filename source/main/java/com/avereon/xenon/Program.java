@@ -21,6 +21,7 @@ import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.RepoState;
 import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.scheme.FaultScheme;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.ProgramScheme;
 import com.avereon.xenon.task.Task;
@@ -1124,6 +1125,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private void registerSchemes( AssetManager manager ) {
 		manager.addScheme( new AssetScheme( this ) );
+		manager.addScheme( new FaultScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new ProgramScheme( this ) );
 	}
@@ -1131,6 +1133,7 @@ public class Program extends Application implements ProgramProduct {
 	private void unregisterSchemes( AssetManager manager ) {
 		manager.removeScheme( ProgramScheme.ID );
 		manager.removeScheme( FileScheme.ID );
+		manager.removeScheme( FaultScheme.ID );
 		manager.removeScheme( AssetScheme.ID );
 	}
 
@@ -1142,15 +1145,17 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriAssetType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
 		manager.registerUriAssetType( ProgramProductType.URI, new ProgramProductType( this ) );
 		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
-		manager.registerUriAssetType( ProgramFaultType.URI, new ProgramFaultType( this ) );
 		manager.registerUriAssetType( ProgramAssetType.URI, new ProgramAssetType( this ) );
 		manager.registerUriAssetType( ProgramThemesType.URI, new ProgramThemesType( this ) );
+
+		manager.registerSchemeAssetType( FaultScheme.ID, new ProgramFaultType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.unregisterSchemeAssetType( FaultScheme.ID );
+
 		manager.unregisterUriAssetType( ProgramThemesType.URI );
 		manager.unregisterUriAssetType( ProgramAssetType.URI );
-		manager.unregisterUriAssetType( ProgramFaultType.URI );
 		manager.unregisterUriAssetType( ProgramTaskType.URI );
 		manager.unregisterUriAssetType( ProgramProductType.URI );
 		manager.unregisterUriAssetType( ProgramNoticeType.URI );

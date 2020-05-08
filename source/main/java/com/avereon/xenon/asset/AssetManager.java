@@ -3,13 +3,14 @@ package com.avereon.xenon.asset;
 import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
+import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
+import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.workpane.WorkpaneView;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -403,6 +404,16 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public Future<ProgramTool> openAsset( URI uri ) {
 		return openAsset( uri, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, Object model ) {
+		OpenAssetRequest request = new OpenAssetRequest();
+		request.setUri( uri );
+		request.setView( null );
+		request.setOpenTool( true );
+		request.setSetActive( true );
+		request.setModel( model );
+		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
 	/**
@@ -1089,6 +1100,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			asset = new Asset( uri, type );
 			identifiedAssets.put( uri, asset );
 			Scheme scheme = getScheme( uri.getScheme() );
+			if( scheme == null ) throw new AssetException( asset, new SchemeNotRegisteredException( uri.getScheme() ) );
 			asset.setScheme( scheme );
 			scheme.init( asset );
 			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
@@ -1140,9 +1152,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private boolean doLoadAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
-
 		if( !asset.isOpen() ) doOpenAsset( asset );
-
 		if( !asset.exists() ) return false;
 
 		// Load the asset.
@@ -1363,8 +1373,8 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				// If the asset is new get user input from the asset type.
 				//if( asset.isNew() ) {
-					if( !asset.getType().callAssetUser( program, asset ) ) return null;
-					log.log( Log.TRACE, "Asset initialized with user values." );
+				if( !asset.getType().callAssetUser( program, asset ) ) return null;
+				log.log( Log.TRACE, "Asset initialized with user values." );
 				//}
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;

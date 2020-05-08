@@ -25,7 +25,7 @@ public class AssetTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	private AssetTypeView view;
+	private final AssetTypeView view;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -59,19 +59,22 @@ public class AssetTool extends ProgramTool {
 			types.sort( new AssetTypeNameComparator() );
 
 			getChildren().clear();
-			getChildren().addAll( types.stream().filter( AssetType::isUserType ).map( AssetTypeTile::new ).peek(tile->{
-				tile.addEventFilter( MouseEvent.MOUSE_PRESSED, e -> {
+			getChildren().addAll( types
+				.stream()
+				.filter( AssetType::isUserType )
+				.map( AssetTypeTile::new )
+				.peek( tile -> tile.addEventFilter( MouseEvent.MOUSE_PRESSED, e -> {
 					getProgram().getAssetManager().newAsset( tile.getAssetType() );
 					AssetTool.this.close();
-				} );
-			}).collect( Collectors.toList() ) );
+				} ) )
+				.collect( Collectors.toList() ) );
 		}
 
 	}
 
 	private class AssetTypeTile extends VBox {
 
-		private AssetType type;
+		private final AssetType type;
 
 		AssetTypeTile( AssetType type ) {
 			this.type = type;

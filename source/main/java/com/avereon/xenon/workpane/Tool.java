@@ -20,6 +20,7 @@ import java.lang.System.Logger;
 /**
  * The Tool class is a control that "works on" an asset.
  */
+// FIXME Can tool extends StackPane or BorderPane?
 public abstract class Tool extends Control {
 
 	private static final Logger log = Log.get();

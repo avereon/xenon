@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class ThemeTool extends GuidedTool {
 
 	private static final System.Logger log = Log.get();

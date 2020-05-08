@@ -6,8 +6,6 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.workpane.ToolException;
-import com.avereon.xenon.workpane.Workpane;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -53,37 +51,13 @@ public class WelcomeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool allocate" );
+	protected void display() {
+		getWorkpane().setMaximizedView( getToolView() );
 	}
 
 	@Override
-	protected void display() throws ToolException {
-		log.log( Log.DEBUG,  "Tool display" );
-		Workpane workpane = getWorkpane();
-		if( workpane != null ) workpane.setMaximizedView( getToolView() );
-	}
-
-	@Override
-	protected void activate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool activate" );
-	}
-
-	@Override
-	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool deactivate" );
-	}
-
-	@Override
-	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG,  "Tool conceal" );
-		Workpane workpane = getWorkpane();
-		if( workpane != null && workpane.getMaximizedView() == getToolView() ) workpane.setMaximizedView( null );
-	}
-
-	@Override
-	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG,  "Tool deallocate" );
+	protected void conceal() {
+		if( getToolView().isMaximized() ) getWorkpane().setMaximizedView( null );
 	}
 
 }
