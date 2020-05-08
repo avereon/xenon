@@ -94,30 +94,26 @@ public class AboutTool extends GuidedTool {
 		pages.put( MODS, modsPane );
 	}
 
-
 	@Override
-	protected void allocate() throws ToolException {
-		super.allocate();
+	protected void ready( OpenAssetRequest request ) {
+		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
+		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
+
+		modEnabledWatcher = e -> Platform.runLater( this::updatePages );
+		getProgram().register( ModEvent.ENABLED, modEnabledWatcher );
+		getProgram().register( ModEvent.DISABLED, modEnabledWatcher );
 	}
 
 	@Override
-	protected void display() throws ToolException {
-		super.display();
-	}
+	protected void open( OpenAssetRequest request ) {
+		updatePages();
 
-	@Override
-	protected void activate() throws ToolException {
-		super.activate();
-	}
-
-	@Override
-	protected void deactivate() throws ToolException {
-		super.deactivate();
-	}
-
-	@Override
-	protected void conceal() throws ToolException {
-		super.conceal();
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = request.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = SUMMARY;
+		selectPage( pageId );
 	}
 
 	@Override
@@ -127,28 +123,6 @@ public class AboutTool extends GuidedTool {
 		getProgram().getProgramSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
 		getProgram().getProgramSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 		super.deallocate();
-	}
-
-	@Override
-	protected void assetReady( OpenAssetRequest request ) {
-		super.assetReady( request );
-
-		// Register listeners
-		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
-		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
-		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
-
-		modEnabledWatcher = e -> Platform.runLater( this::updatePages );
-		getProgram().register( ModEvent.ENABLED, modEnabledWatcher );
-		getProgram().register( ModEvent.DISABLED, modEnabledWatcher );
-
-		updatePages();
-
-		// TODO Can this be generalized in GuidedTool?
-		String pageId = request.getFragment();
-		if( pageId == null ) pageId = currentPageId;
-		if( pageId == null ) pageId = SUMMARY;
-		selectPage( pageId );
 	}
 
 	private void updatePages() {

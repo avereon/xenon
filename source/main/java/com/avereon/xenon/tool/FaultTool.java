@@ -40,7 +40,7 @@ public class FaultTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) {
+	protected void open( OpenAssetRequest request ) {
 		Throwable throwable = getAsset().getModel();
 
 		if( throwable != null ) {

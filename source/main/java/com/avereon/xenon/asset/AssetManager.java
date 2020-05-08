@@ -1132,6 +1132,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
 		log.log( Log.TRACE, "Asset opened: " + asset );
 
+		if( asset.isNew() ) doLoadAsset( asset );
+
 		updateActionState();
 		return true;
 	}

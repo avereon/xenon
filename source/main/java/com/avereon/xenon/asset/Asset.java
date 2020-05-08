@@ -2,7 +2,6 @@ package com.avereon.xenon.asset;
 
 import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
-import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
 import com.avereon.undo.BasicUndoManager;
@@ -10,8 +9,8 @@ import com.avereon.undo.UndoManager;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.scheme.AssetScheme;
 import com.avereon.venza.event.FxEventHub;
+import com.avereon.xenon.scheme.AssetScheme;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -76,7 +75,7 @@ public class Asset extends Node implements Configurable {
 	// Ready to use flag. This indicates the asset is now ready to be used,
 	// particularly by tools. If the asset is new or has been loaded then the
 	// asset is "ready".
-	private volatile boolean ready;
+	//private volatile boolean ready;
 
 	public Asset( URI uri ) {
 		this( uri, null );
@@ -159,6 +158,7 @@ public class Asset extends Node implements Configurable {
 	public void setMediaType( String mediaType ) {
 		setValue( MEDIA_TYPE_ASSET_KEY, mediaType );
 	}
+
 	/**
 	 * Get the name of the asset. This returns the asset type name if the
 	 * URI is null, the entire URI if the path portion of the URI is null, or the
@@ -258,8 +258,6 @@ public class Asset extends Node implements Configurable {
 
 		open = true;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
-
-		if( isNew() ) setReady();
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -284,7 +282,7 @@ public class Asset extends Node implements Configurable {
 		//   1) Get rid of the tool.assetReady() method any only use refresh
 		//   2) Make tool.assetReady() more tightly integrated with asset
 		//   3) Make asset.refresh() less tightly integrated with tool
-		setReady();
+		//setReady();
 		notifyAll();
 	}
 
@@ -318,15 +316,6 @@ public class Asset extends Node implements Configurable {
 		open = false;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
-	}
-
-	// FIXME Can this be changed to "call when loaded" and put in ToolManager?
-	public synchronized void callWhenReady( EventHandler<AssetEvent> handler ) {
-		if( ready ) {
-			handler.handle( new AssetEvent( this, AssetEvent.READY, this ) );
-		} else {
-			eventBus.register( AssetEvent.READY, handler );
-		}
 	}
 
 	public boolean exists() throws AssetException {
@@ -407,11 +396,11 @@ public class Asset extends Node implements Configurable {
 	// FIXME Is ready just a different way of saying loaded?
 	// If an asset is new, it could just be marked open and loaded.
 	// In the case of "connections", open and loaded could be the same.
-	private synchronized void setReady() {
-		if( ready ) return;
-		ready = true;
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
-	}
+	//	private synchronized void setReady() {
+	//		if( ready ) return;
+	//		ready = true;
+	//		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
+	//	}
 
 	private void updateAssetName() {
 		AssetType type = getType();

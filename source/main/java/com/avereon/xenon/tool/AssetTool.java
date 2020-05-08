@@ -44,7 +44,7 @@ public class AssetTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) {
+	protected void open( OpenAssetRequest request ) {
 		view.update();
 	}
 

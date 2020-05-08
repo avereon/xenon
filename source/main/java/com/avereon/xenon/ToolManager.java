@@ -4,6 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
+import com.avereon.util.Log;
 import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
@@ -11,10 +12,7 @@ import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
-import com.avereon.xenon.workpane.Tool;
-import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.xenon.workpane.*;
 import javafx.application.Platform;
 
 import java.lang.invoke.MethodHandles;
@@ -24,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.Logger.Level.*;
@@ -45,6 +44,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		toolClassMetadata = new ConcurrentHashMap<>();
 		assetTypeToolClasses = new ConcurrentHashMap<>();
 		aliases = new ConcurrentHashMap<>();
+	}
+
+	public Program getProgram() {
+		return program;
 	}
 
 	public void registerTool( AssetType assetType, ToolRegistration metadata ) {
@@ -279,6 +282,10 @@ public class ToolManager implements Controllable<ToolManager> {
 		tool.addEventHandler( ToolEvent.CLOSED, e -> ((ProgramTool)e.getTool()).getSettings().delete() );
 	}
 
+	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
+		return (ProgramTool)pane.getTools().stream().filter( t -> t.getClass() == type ).findAny().orElse( null );
+	}
+
 	/**
 	 * This method creates a task that waits for the asset to be ready then calls the tool assetReady() method.
 	 *
@@ -286,23 +293,75 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
 	private void scheduleAssetReady( OpenToolRequest request, ProgramTool tool ) {
-		Asset asset = request.getAsset();
-		asset.callWhenReady( new EventHandler<>() {
+		getProgram().getTaskManager().submit( Task.of( "wait for ready", () -> {
+			Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( tool ) );
+			Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( tool.getAsset() ) );
 
-			@Override
-			public void handle( AssetEvent event ) {
-				asset.getEventBus().unregister( AssetEvent.READY, this );
-				tool.callAssetReady( request.getOpenAssetRequest() );
+			try {
+				toolLatch.get();
+				assetLatch.get();
+				Platform.runLater( () -> {
+					try {
+						tool.ready( request.getOpenAssetRequest() );
+						tool.open( request.getOpenAssetRequest() );
+					} catch( ToolException exception ) {
+						log.log( Log.ERROR, exception );
+					}
+				} );
+			} catch( Exception exception ) {
+				log.log( Log.ERROR, exception );
 			}
-
-		} );
+		} ) );
 	}
 
-	private ProgramTool findToolInPane( Workpane pane, Class<? extends Tool> type ) {
-		for( Tool paneTool : pane.getTools() ) {
-			if( paneTool.getClass() == type ) return (ProgramTool)paneTool;
+	private static class ToolAddedLatch extends Task<Void> {
+
+		private final CountDownLatch latch = new CountDownLatch( 1 );
+
+		private final ProgramTool tool;
+
+		public ToolAddedLatch( ProgramTool tool ) {
+			this.tool = tool;
 		}
-		return null;
+
+		@Override
+		public Void call() throws Exception {
+			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
+			tool.addEventFilter( ToolEvent.ADDED, h );
+			try {
+				if( tool.getToolView() != null ) latch.await( 1, TimeUnit.SECONDS );
+			} finally {
+				log.log( Log.WARN, "Tool added=" + tool );
+				tool.removeEventFilter( ToolEvent.ADDED, h );
+			}
+			return null;
+		}
+
+	}
+
+	public static class AssetLoadedLatch extends Task<Void> {
+
+		private final CountDownLatch latch = new CountDownLatch( 1 );
+
+		private final Asset asset;
+
+		public AssetLoadedLatch( Asset asset ) {
+			this.asset = asset;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			EventHandler<AssetEvent> h = e -> latch.countDown();
+			asset.register( AssetEvent.LOADED, h );
+			try {
+				if( !asset.isLoaded() ) latch.await( 1, TimeUnit.SECONDS );
+			} finally {
+				log.log( Log.WARN, "Asset loaded=" + asset );
+				asset.unregister( AssetEvent.LOADED, h );
+			}
+			return null;
+		}
+
 	}
 
 }
