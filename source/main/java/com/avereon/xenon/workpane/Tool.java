@@ -4,7 +4,6 @@ import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.xenon.asset.OpenAssetRequest;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -56,18 +55,13 @@ public abstract class Tool extends Control {
 	private EventHandler<AssetEvent> closer;
 
 	public Tool( Asset asset ) {
-		this( asset, null );
-	}
+		this.asset = asset;
 
-	public Tool( Asset asset, String title ) {
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
 		getStyleClass().add( "tool" );
-
-		this.asset = asset;
-		setTitle( title );
 
 		// Tools are not allowed to paint outside their bounds
 		Rectangle clip = new Rectangle();
@@ -260,51 +254,49 @@ public abstract class Tool extends Control {
 		return new ToolSkin( this );
 	}
 
-	// FIXME Do I need a ready(),
 	/**
-	 * Allocate the tool.
+	 * Allocate the tool. Called just after the tool is added to the tool view
+	 * but before the {@link ToolEvent#ADDED} event is fired.
 	 */
-	// FIXME Rename to add()
 	protected void allocate() throws ToolException {}
 
 	/**
-	 * Display the tool.
+	 * Display the tool. Called just after the tool is displayed but before the
+	 * {@link ToolEvent#DISPLAYED} event is fired.
 	 */
 	protected void display() throws ToolException {}
 
 	/**
-	 * Activate the tool.
+	 * Activate the tool. Called just after the tool is activated but before the
+	 * {@link ToolEvent#ACTIVATED} event is fired.
 	 */
 	protected void activate() throws ToolException {}
 
 	/**
-	 * Deactivate the tool.
+	 * Deactivate the tool. Called just after the tool is deactivated but before
+	 * the {@link ToolEvent#DEACTIVATED} event is fired. The tool may be
+	 * deactivated either by the tool parent being deactivated or by a different
+	 * tool being activated.
 	 */
 	protected void deactivate() throws ToolException {}
 
 	/**
-	 * Conceal the tool.
+	 * Conceal the tool. Called just after the tool is concealed but before the
+	 * {@link ToolEvent#CONCEALED} event is fired. The tool may be concealed when
+	 * the tool was visible and then is hidden by another tool or removed from the
+	 * tool parent.
 	 */
 	protected void conceal() throws ToolException {}
 
 	/**
-	 * Deallocate the tool.
+	 * Deallocate the tool. Called just after the tool is removed from the tool
+	 * view but before the {@link ToolEvent#REMOVED} event is fired.
 	 */
-	// FIXME Rename to remove()
 	protected void deallocate() throws ToolException {}
 
 	/**
-	 * Called when the asset is ready to be used by the tool. This method is
-	 * called each time the asset edited by this tool is opened. If it is
-	 * opened another time it may have different request parameters such as
-	 * a different query string or fragment.
-	 *
-	 * @param request The request used to open the asset
-	 */
-	protected void assetReady( OpenAssetRequest request ) {}
-
-	/**
 	 * Allocate the tool.
+	 * @see #allocate
 	 */
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
@@ -320,6 +312,7 @@ public abstract class Tool extends Control {
 
 	/**
 	 * Display the tool.
+	 * @see #display
 	 */
 	final void callDisplay() {
 		Workpane pane = getWorkpane();
@@ -334,6 +327,7 @@ public abstract class Tool extends Control {
 
 	/**
 	 * Activate the tool.
+	 * @see #activate
 	 */
 	final void callActivate() {
 		Workpane pane = getWorkpane();
@@ -346,8 +340,8 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Deactivate the tool. Called when the tool is deactivated either by the tool
-	 * parent being deactivated or by a different tool being activated.
+	 * Deactivate the tool.
+	 * @see #deactivate
 	 */
 	final void callDeactivate() {
 		Workpane pane = getWorkpane();
@@ -360,8 +354,8 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Conceal the tool. Called when the tool is visible and then is hidden by
-	 * another tool or removed from the tool parent.
+	 * Conceal the tool.
+	 * @see #conceal
 	 */
 	final void callConceal() {
 		Workpane pane = getWorkpane();
@@ -375,7 +369,8 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Deallocate the tool. Called when the tool is removed from the tool parent.
+	 * Deallocate the tool.
+	 * @see #deallocate
 	 */
 	final void callDeallocate() {
 		Workpane pane = getWorkpane();
@@ -387,16 +382,6 @@ public abstract class Tool extends Control {
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
 		}
-	}
-
-	/**
-	 * Called when the asset is ready to be used by the tool.
-	 */
-	// FIXME This needs to be split into two methods
-	// One that is called one time for the tool when the asset is ready
-	// Another for when the asset is opened again with, possibly, different parameters
-	public final void callAssetReady( OpenAssetRequest request ) {
-		Platform.runLater( () -> assetReady( request ) );
 	}
 
 }

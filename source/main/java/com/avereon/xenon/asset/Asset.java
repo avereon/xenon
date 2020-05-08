@@ -285,13 +285,7 @@ public class Asset extends Node implements Configurable {
 		//   2) Make tool.assetReady() more tightly integrated with asset
 		//   3) Make asset.refresh() less tightly integrated with tool
 		setReady();
-		refresh();
 		notifyAll();
-	}
-
-	@Deprecated
-	public synchronized final void refresh() {
-		if( ready ) getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -326,6 +320,7 @@ public class Asset extends Node implements Configurable {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
 	}
 
+	// FIXME Can this be changed to "call when loaded" and put in ToolManager?
 	public synchronized void callWhenReady( EventHandler<AssetEvent> handler ) {
 		if( ready ) {
 			handler.handle( new AssetEvent( this, AssetEvent.READY, this ) );
@@ -409,6 +404,9 @@ public class Asset extends Node implements Configurable {
 		return isNew() ? assetTypeName : uri.toString();
 	}
 
+	// FIXME Is ready just a different way of saying loaded?
+	// If an asset is new, it could just be marked open and loaded.
+	// In the case of "connections", open and loaded could be the same.
 	private synchronized void setReady() {
 		if( ready ) return;
 		ready = true;
@@ -451,8 +449,6 @@ public class Asset extends Node implements Configurable {
 			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
 		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
 			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
-		} else if( event.getEventType() == NodeEvent.NODE_CHANGED ) {
-			refresh();
 		}
 	}
 
