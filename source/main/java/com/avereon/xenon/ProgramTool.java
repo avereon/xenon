@@ -88,7 +88,7 @@ public abstract class ProgramTool extends Tool {
 
 	private static final System.Logger log = Log.get();
 
-	private ProgramProduct product;
+	private final ProgramProduct product;
 
 	private String uid;
 
@@ -171,17 +171,6 @@ public abstract class ProgramTool extends Tool {
 	protected ProgramTool pullAction( String key, Action action ) {
 		getProgram().getActionLibrary().getAction( key ).pullAction( action );
 		return this;
-	}
-
-	/**
-	 * Called when the asset is ready to be used by the tool.
-	 */
-	// FIXME This needs to be split into two methods
-	// One that is called one time for the tool when the asset is ready
-	// Another for when the asset is opened again with, possibly, different parameters
-	@Deprecated
-	public final void callAssetReady( OpenAssetRequest request ) {
-		Platform.runLater( () -> open( request ) );
 	}
 
 }

@@ -330,7 +330,6 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				if( tool.getToolView() != null ) latch.await( 5, TimeUnit.SECONDS );
 			} finally {
-				log.log( Log.WARN, "Tool added=" + tool );
 				tool.removeEventFilter( ToolEvent.ADDED, h );
 			}
 			return null;
@@ -355,7 +354,6 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				if( !asset.isLoaded() ) latch.await( 5, TimeUnit.SECONDS );
 			} finally {
-				log.log( Log.WARN, "Asset loaded=" + asset );
 				asset.unregister( AssetEvent.LOADED, h );
 			}
 			return null;
