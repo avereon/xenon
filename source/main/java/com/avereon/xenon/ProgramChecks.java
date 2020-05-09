@@ -18,7 +18,7 @@ public class ProgramChecks {
 		boolean noScale = primary.getOutputScaleX() == 1.0;
 		boolean largeSize = primary.getBounds().getWidth() > 1920;
 
-		if( noScale && ( hiDpi | largeSize)) {
+		if( noScale && hiDpi && largeSize ) {
 			String title = program.rb().text( "program", "program-hidpi-title" );
 			String message = program.rb().text( "program", "program-hidpi-message" );
 			program.getNoticeManager().addNotice( new Notice( title, message ) );
