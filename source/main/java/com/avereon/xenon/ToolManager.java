@@ -9,6 +9,7 @@ import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -73,26 +74,26 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * Open a tool using the specified request. The request contains all the
 	 * information regarding the request including the asset.
 	 *
-	 * @param openToolRequest The open tool request
+	 * @param request The open asset request
 	 * @return The tool for the request or null if a tool was not created
 	 * @apiNote Should be called from a {@link TaskManager} thread
 	 */
-	public ProgramTool openTool( OpenToolRequest openToolRequest ) throws NoToolRegisteredException {
+	public ProgramTool openTool( OpenAssetRequest request ) throws NoToolRegisteredException {
 		// Check the calling thread
 		TaskManager.taskThreadCheck();
 
 		// Verify the request parameters
-		Asset asset = openToolRequest.getAsset();
+		Asset asset = request.getAsset();
 		if( asset == null ) throw new NullPointerException( "Asset cannot be null" );
 
 		// Get the asset type to look up the registered tool classes
 		AssetType assetType = asset.getType();
 
 		// Determine which tool class will be used
-		Class<? extends ProgramTool> toolClass = openToolRequest.getToolClass();
+		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		if( toolClass == null ) toolClass = determineToolClassForAssetType( assetType );
 		if( toolClass == null ) throw new NoToolRegisteredException( "No tools registered for: " + assetType );
-		openToolRequest.setToolClass( toolClass );
+		request.setToolClass( toolClass );
 
 		// Check that the tool is registered
 		ToolRegistration toolRegistration = toolClassMetadata.get( toolClass );
@@ -102,9 +103,8 @@ public class ToolManager implements Controllable<ToolManager> {
 		ToolInstanceMode instanceMode = getToolInstanceMode( toolClass );
 
 		// Before checking for existing tools, the workpane needs to be determined
-		Workpane pane = openToolRequest.getPane();
-		WorkpaneView view = openToolRequest.getView();
-		if( pane == null && view != null ) pane = view.getWorkpane();
+		WorkpaneView view = request.getView();
+		Workpane pane = view == null ? null : view.getWorkpane();
 		if( pane == null ) pane = program.getWorkspaceManager().getActiveWorkpane();
 		if( pane == null ) throw new NullPointerException( "Workpane cannot be null when opening tool" );
 
@@ -114,14 +114,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			if( openToolRequest.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
 		}
 
 		try {
-			tool = getToolInstance( openToolRequest ).get( 10, TimeUnit.SECONDS );
+			tool = getToolInstance( request ).get( 10, TimeUnit.SECONDS );
 		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + openToolRequest.getToolClass().getName(), exception );
+			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
 			return null;
 		}
 
@@ -136,8 +136,8 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
-		scheduleAssetReady( openToolRequest, finalTool );
-		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, openToolRequest.isSetActive() ) );
+		scheduleAssetReady( request, finalTool );
+		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, request.isSetActive() ) );
 
 		return tool;
 	}
@@ -145,12 +145,12 @@ public class ToolManager implements Controllable<ToolManager> {
 	/**
 	 * Called from the {@link UiRegenerator} to restore a tool.
 	 *
-	 * @param openToolRequest The open tool request for restoring the tool
+	 * @param request The open asset request for restoring the tool
 	 * @param toolClassName The tool class name
 	 * @return The restored tool
 	 * @apiNote Could be called from a @code{task thread} or an @code{FX application thread}
 	 */
-	ProgramTool restoreTool( OpenToolRequest openToolRequest, String toolClassName ) {
+	ProgramTool restoreTool( OpenAssetRequest request, String toolClassName ) {
 		// Run this class through the alias map
 		toolClassName = getToolClassName( toolClassName );
 
@@ -169,14 +169,14 @@ public class ToolManager implements Controllable<ToolManager> {
 			return null;
 		}
 
-		openToolRequest.setToolClass( toolRegistration.getType() );
+		request.setToolClass( toolRegistration.getType() );
 
 		try {
-			ProgramTool tool = getToolInstance( openToolRequest ).get( 10, TimeUnit.SECONDS );
-			scheduleAssetReady( openToolRequest, tool );
+			ProgramTool tool = getToolInstance( request ).get( 10, TimeUnit.SECONDS );
+			scheduleAssetReady( request, tool );
 			return tool;
 		} catch( Exception exception ) {
-			log.log( ERROR, "Error creating tool: " + openToolRequest.getToolClass().getName(), exception );
+			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
 			return null;
 		}
 	}
@@ -210,7 +210,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		return data == null ? null : data.getProduct();
 	}
 
-	public String getToolClassName( String className ) {
+	String getToolClassName( String className ) {
 		String alias = null;
 		if( className != null ) alias = aliases.get( className );
 		return alias == null ? className : alias;
@@ -240,7 +240,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	}
 
 	// Safe to call on any thread
-	private Task<ProgramTool> getToolInstance( OpenToolRequest request ) {
+	private Task<ProgramTool> getToolInstance( OpenAssetRequest request ) {
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
@@ -291,7 +291,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
-	private void scheduleAssetReady( OpenToolRequest request, ProgramTool tool ) {
+	private void scheduleAssetReady( OpenAssetRequest request, ProgramTool tool ) {
 		getProgram().getTaskManager().submit( Task.of( "wait for ready", () -> {
 			Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( tool ) );
 			Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( tool.getAsset() ) );
@@ -301,8 +301,8 @@ public class ToolManager implements Controllable<ToolManager> {
 				assetLatch.get();
 				Platform.runLater( () -> {
 					try {
-						tool.ready( request.getOpenAssetRequest() );
-						tool.open( request.getOpenAssetRequest() );
+						tool.ready( request );
+						tool.open( request );
 					} catch( ToolException exception ) {
 						log.log( Log.ERROR, exception );
 					}

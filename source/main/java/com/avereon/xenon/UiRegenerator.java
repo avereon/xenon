@@ -408,13 +408,10 @@ class UiRegenerator {
 
 			// Create the open asset request
 			OpenAssetRequest openAssetRequest = new OpenAssetRequest();
-
-			// Create an open tool request
-			OpenToolRequest openToolRequest = new OpenToolRequest( openAssetRequest ).setId( id );
-			openToolRequest.setAsset( program.getAssetManager().createAsset( assetType, uri ) );
+			openAssetRequest.setAsset( program.getAssetManager().createAsset( assetType, uri ) );
 
 			// Restore the tool
-			ProgramTool tool = program.getToolManager().restoreTool( openToolRequest, toolType );
+			ProgramTool tool = program.getToolManager().restoreTool( openAssetRequest, toolType );
 			if( tool == null ) {
 				log.log( Log.WARN, "Removing unknown tool: " + "id=" + id + " type=" + toolType );
 				settings.delete();

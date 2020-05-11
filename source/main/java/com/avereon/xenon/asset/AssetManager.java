@@ -1361,6 +1361,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		public ProgramTool call() throws Exception {
 			// Create and configure the asset
 			Asset asset = createAsset( request.getType(), request.getUri() );
+			request.setAsset( asset );
 			Object model = request.getModel();
 			Codec codec = request.getCodec();
 			if( model != null ) asset.setModel( model );
@@ -1379,7 +1380,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				log.log( Log.TRACE, "Asset initialized with user values." );
 				//}
 
-				tool = request.isOpenTool() ? program.getToolManager().openTool( new OpenToolRequest( request ).setAsset( asset ) ) : null;
+				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
 			} catch( NoToolRegisteredException exception ) {
 				String title = program.rb().text( "program", "no-tool-for-asset-title" );
 				String message = program.rb().text( "program", "no-tool-for-asset-message", asset.getUri().toString() );

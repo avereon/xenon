@@ -1,5 +1,6 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.WorkpaneView;
 
 import java.net.URI;
@@ -19,6 +20,12 @@ public class OpenAssetRequest {
 	private boolean openTool;
 
 	private boolean setActive;
+
+	private Asset asset;
+
+	private String id;
+
+	private Class<? extends ProgramTool> toolClass;
 
 	URI getUri() {
 		return uri;
@@ -92,4 +99,28 @@ public class OpenAssetRequest {
 		return this;
 	}
 
+	public Asset getAsset() {
+		return asset;
+	}
+
+	public OpenAssetRequest setAsset( Asset asset ) {
+		this.asset = asset;
+		return this;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId( String id ) {
+		this.id = id;
+	}
+
+	public Class<? extends ProgramTool> getToolClass() {
+		return toolClass;
+	}
+
+	public void setToolClass( Class<? extends ProgramTool> toolClass ) {
+		this.toolClass = toolClass;
+	}
 }
