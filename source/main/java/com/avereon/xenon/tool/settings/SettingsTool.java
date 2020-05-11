@@ -79,7 +79,6 @@ public class SettingsTool extends GuidedTool {
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		log.log( Log.DEBUG, "Settings tool asset ready" );
-		super.open( request );
 
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = request.getFragment();

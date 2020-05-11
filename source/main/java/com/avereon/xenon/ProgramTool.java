@@ -95,7 +95,6 @@ public abstract class ProgramTool extends Tool {
 	public ProgramTool( ProgramProduct product, Asset asset ) {
 		super( asset );
 		this.product = product;
-		setTitle( getAsset().getName() );
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
@@ -142,7 +141,10 @@ public abstract class ProgramTool extends Tool {
 	/**
 	 * The tool and asset are ready.
 	 */
-	protected void ready( OpenAssetRequest request ) throws ToolException {}
+	@SuppressWarnings( "RedundantThrows" )
+	protected void ready( OpenAssetRequest request ) throws ToolException {
+		setTitle( getAsset().getName() );
+	}
 
 	/**
 	 * Called to open or reopen the tool. This is called at least once after
@@ -153,7 +155,8 @@ public abstract class ProgramTool extends Tool {
 	 *
 	 * @param request The request used to open the asset
 	 */
-	protected void open( OpenAssetRequest request ) {}
+	@SuppressWarnings( "RedundantThrows" )
+	protected void open( OpenAssetRequest request ) throws ToolException {}
 
 	protected void pushToolActions( String... actions ) {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( actions );

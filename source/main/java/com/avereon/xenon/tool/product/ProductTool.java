@@ -124,7 +124,6 @@ public class ProductTool extends GuidedTool {
 	@Override
 	protected void open( OpenAssetRequest request ) {
 		log.log( Log.DEBUG,  "Product tool asset ready" );
-		super.open( request );
 
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = request.getFragment();
