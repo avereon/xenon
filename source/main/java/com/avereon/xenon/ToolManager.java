@@ -330,7 +330,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				if( tool.getToolView() == null ) {
 					latch.await( 2, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool" );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated" );
 				}
 			} finally {
 				tool.removeEventFilter( ToolEvent.ADDED, h );
@@ -357,7 +357,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				if( !asset.isLoaded() ) {
 					latch.await( 20, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset" );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load" );
 				}
 			} finally {
 				asset.unregister( AssetEvent.LOADED, h );

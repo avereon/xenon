@@ -1114,12 +1114,12 @@ public class AssetManager implements Controllable<AssetManager> {
 	private boolean doOpenAsset( Asset asset ) throws AssetException {
 		if( isManagedAssetOpen( asset ) ) return true;
 
-		// Determine the asset type.
+		// Determine the asset type
 		AssetType type = asset.getType();
 		if( type == null ) type = autoDetectAssetType( asset );
 		if( type == null ) throw new AssetException( asset, "Asset type could not be determined: " + asset );
 
-		// Determine the codec.
+		// Determine the codec
 		Codec codec = asset.getCodec();
 		if( codec == null ) {
 			codec = asset.getType().getDefaultCodec();
@@ -1131,14 +1131,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		asset.setSettings( getAssetSettings( asset ) );
 		log.log( Log.TRACE, "Asset settings: " + asset.getSettings().getPath() );
 
-		// Initialize the asset.
+		// Initialize the asset
 		if( !type.callAssetInit( program, asset ) ) return false;
 		log.log( Log.TRACE, "Asset initialized with default values." );
 
-		// Open the asset.
+		// Open the asset
 		asset.open( this );
 
-		// Add the asset to the list of open assets.
+		// Add the asset to the list of open assets
 		openAssets.add( asset );
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, asset ) );
@@ -1153,9 +1153,11 @@ public class AssetManager implements Controllable<AssetManager> {
 	private boolean doLoadAsset( Asset asset ) throws AssetException {
 		if( asset == null ) return false;
 		if( !asset.isOpen() ) doOpenAsset( asset );
-		if( !asset.exists() ) return false;
 
-		// Load the asset.
+		// It's problematic to check if an asset exists, particularly for new assets
+		//if( !asset.exists() ) return false;
+
+		// Load the asset
 		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
 
@@ -1212,22 +1214,22 @@ public class AssetManager implements Controllable<AssetManager> {
 			//log.log( Log.WARN,  "Current asset: " + currentAsset + " new asset: " + asset );
 			Asset previous = currentAsset;
 
-			// "Disconnect" the old current asset.
+			// "Disconnect" the old current asset
 			if( currentAsset != null ) {
 				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.DEACTIVATED, currentAsset ) );
 				currentAsset.getEventBus().unregister( AssetEvent.ANY, currentAssetWatcher );
 			}
 
-			// Change current asset.
+			// Change current asset
 			currentAsset = asset;
 
-			// "Connect" the new current asset.
+			// "Connect" the new current asset
 			if( currentAsset != null ) {
 				currentAsset.getEventBus().register( AssetEvent.ANY, currentAssetWatcher );
 				currentAsset.getEventBus().dispatch( new AssetEvent( this, AssetEvent.ACTIVATED, currentAsset ) );
 			}
 
-			// Notify program of current asset change.
+			// Notify program of current asset change
 			getEventBus().dispatch( new AssetSwitchedEvent( this, AssetSwitchedEvent.SWITCHED, previous, currentAsset ) );
 			log.log( Log.TRACE, "Asset select: " + asset );
 		}
@@ -1290,7 +1292,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private String getFirstLine( Asset asset ) {
-		// Load the first line from the asset.
+		// Load the first line from the asset
 		String firstLine = null;
 
 		URLConnection connection = asset.getScheme().getConnection( asset );
@@ -1333,7 +1335,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			output.write( buffer, 0, read );
 			count += read;
 
-			// If a line break was encountered stop.
+			// If a line break was encountered stop
 			if( eol ) break;
 		}
 
@@ -1349,7 +1351,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class NewOrOpenAssetTask extends Task<ProgramTool> {
 
-		private OpenAssetRequest request;
+		private final OpenAssetRequest request;
 
 		public NewOrOpenAssetTask( OpenAssetRequest request ) {
 			this.request = request;
@@ -1358,11 +1360,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public ProgramTool call() throws Exception {
 			// Create and configure the asset
-			Codec codec = request.getCodec();
-			Object model = request.getModel();
 			Asset asset = createAsset( request.getType(), request.getUri() );
-			if( codec != null ) asset.setCodec( codec );
+			Object model = request.getModel();
+			Codec codec = request.getCodec();
 			if( model != null ) asset.setModel( model );
+			if( codec != null ) asset.setCodec( codec );
 
 			// Open the asset
 			openAssetsAndWait( asset );
@@ -1455,9 +1457,9 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private class SaveActionHandler extends Action {
 
-		private boolean saveAs;
+		private final boolean saveAs;
 
-		private boolean copy;
+		private final boolean copy;
 
 		private SaveActionHandler( Program program, boolean saveAs, boolean copy ) {
 			super( program );

@@ -39,8 +39,6 @@ public class TaskTool extends ProgramTool {
 		tasks = new CopyOnWriteArraySet<>();
 
 		setId( "tool-task" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "task" ) );
-		setTitle( product.rb().text( "tool", "task-name" ) );
 
 		Button testTask = new Button( "Test Task" );
 		testTask.setOnAction( ( event ) -> startRandomTask( false ) );
@@ -63,6 +61,9 @@ public class TaskTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "task-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "task" ) );
+
 		taskManagerWatcher = e -> Platform.runLater( () -> addTaskPane( e.getTask() ) );
 		getProgram().getTaskManager().getEventBus().register( TaskEvent.SUBMITTED, taskManagerWatcher );
 	}

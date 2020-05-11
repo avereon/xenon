@@ -72,8 +72,6 @@ public class AboutTool extends GuidedTool {
 		super( product, asset );
 		setId( "tool-about" );
 
-		setGraphic( product.getProgram().getIconLibrary().getIcon( "about" ) );
-
 		summaryPane = new SummaryPane();
 
 		detailsText = new TextArea();
@@ -96,6 +94,9 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
+		setTitle( getAsset().getName() );
+		setGraphic( getProgram().getIconLibrary().getIcon( "about" ) );
+
 		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
 		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
 		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );

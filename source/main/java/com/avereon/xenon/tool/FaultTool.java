@@ -25,8 +25,6 @@ public class FaultTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-fault" );
 
-		setGraphic( product.getProgram().getIconLibrary().getIcon( "fault" ) );
-
 		text = new TextArea();
 		text.setId( "tool-fault-text" );
 		text.setEditable( false );
@@ -37,6 +35,8 @@ public class FaultTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
+		setTitle( getAsset().getName() );
+		setGraphic( getProgram().getIconLibrary().getIcon( "fault" ) );
 		// Tasks have to finish before the program exits so this ensures the tool will close
 		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> getProgram().getTaskManager().submit( Task.of( "", this::close ) ) );
 	}

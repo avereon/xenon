@@ -1,7 +1,6 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.util.Log;
-import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.SettingsManager;
 import com.avereon.xenon.asset.Asset;
@@ -9,7 +8,6 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
-import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.control.ScrollPane;
 
 import java.lang.System.Logger;
@@ -23,63 +21,25 @@ public class SettingsTool extends GuidedTool {
 
 	private static final Logger log = Log.get();
 
-	private static final String PAGE_ID = "page-id";
-
-	private Map<String, SettingsPanel> panelCache;
-
-	private SettingsPage currentPage;
+	private final Map<String, SettingsPanel> panelCache;
 
 	private String currentPageId;
 
 	public SettingsTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-settings" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "settings" ) );
-		setTitle( product.rb().text( "tool", "settings-name" ) );
 
 		panelCache = new ConcurrentHashMap<>();
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		log.log( Log.DEBUG, "Settings tool allocate" );
-		super.allocate();
-	}
-
-	@Override
-	protected void display() throws ToolException {
-		log.log( Log.DEBUG, "Settings tool display" );
-		super.display();
-	}
-
-	@Override
-	protected void activate() throws ToolException {
-		log.log( Log.DEBUG, "Settings tool activate" );
-		super.activate();
-	}
-
-	@Override
-	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG, "Settings tool deactivate" );
-		super.deactivate();
-	}
-
-	@Override
-	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG, "Settings tool conceal" );
-		super.conceal();
-	}
-
-	@Override
-	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG, "Settings tool deallocate" );
-		super.deallocate();
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "settings-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "settings" ) );
 	}
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
-		log.log( Log.DEBUG, "Settings tool asset ready" );
-
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
@@ -100,11 +60,6 @@ public class SettingsTool extends GuidedTool {
 	private void selectPage( String pageId ) {
 		currentPageId = pageId;
 		if( pageId == null ) return;
-
-		SettingsPage page = getProgram().getSettingsManager().getSettingsPage( pageId );
-		if( page == null ) page = getProgram().getSettingsManager().getSettingsPage( GENERAL );
-		currentPage = page;
-
 		setPage( getProgram().getSettingsManager().getSettingsPage( pageId ) );
 	}
 

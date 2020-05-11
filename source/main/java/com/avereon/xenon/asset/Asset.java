@@ -227,7 +227,7 @@ public class Asset extends Node implements Configurable {
 	 * has not been saved yet. When it is saved, a URI will be associated to the
 	 * asset and it will be considered "old" from that point forward.
 	 * <p>
-	 * A asset is "old" if it is created with a URI. The asset type is
+	 * A asset is existing if it is created with a URI. The asset type is
 	 * determined when the asset is opened.
 	 *
 	 * @return If the asset is "new"
@@ -320,6 +320,7 @@ public class Asset extends Node implements Configurable {
 
 	public boolean exists() throws AssetException {
 		Scheme scheme = getScheme();
+		log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists");
 		return scheme != null && scheme.exists( this );
 	}
 
@@ -368,6 +369,20 @@ public class Asset extends Node implements Configurable {
 		return settings;
 	}
 
+	@Override
+	public void dispatch( TxnEvent event ) {
+		//log.log( Log.WARN,  "Asset " + event.getEventType() + ": modified=" + isModified() );
+		super.dispatch( event );
+
+		if( getEventBus() == null ) return;
+
+		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
+		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
+		}
+	}
+
 	public FxEventHub getEventBus() {
 		return eventBus;
 	}
@@ -393,15 +408,6 @@ public class Asset extends Node implements Configurable {
 		return isNew() ? assetTypeName : uri.toString();
 	}
 
-	// FIXME Is ready just a different way of saying loaded?
-	// If an asset is new, it could just be marked open and loaded.
-	// In the case of "connections", open and loaded could be the same.
-	//	private synchronized void setReady() {
-	//		if( ready ) return;
-	//		ready = true;
-	//		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
-	//	}
-
 	private void updateAssetName() {
 		AssetType type = getType();
 		URI uri = getUri();
@@ -425,20 +431,6 @@ public class Asset extends Node implements Configurable {
 		}
 
 		this.name = name;
-	}
-
-	@Override
-	public void dispatch( TxnEvent event ) {
-		//log.log( Log.WARN,  "Asset " + event.getEventType() + ": modified=" + isModified() );
-		super.dispatch( event );
-
-		if( getEventBus() == null ) return;
-
-		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
-		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
-		}
 	}
 
 }

@@ -7,6 +7,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -38,8 +39,6 @@ public class GuideTool extends ProgramTool {
 	public GuideTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-guide" );
-		setGraphic( product.getProgram().getIconLibrary().getIcon( "guide" ) );
-		setTitle( product.rb().text( "tool", "guide-name" ) );
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
 		getChildren().add( guideTree );
@@ -55,6 +54,12 @@ public class GuideTool extends ProgramTool {
 	@Override
 	public Workpane.Placement getPlacement() {
 		return Workpane.Placement.DOCK_LEFT;
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "guide-name" ) );
+		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
 	}
 
 	@Override

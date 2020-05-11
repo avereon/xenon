@@ -4,7 +4,6 @@ import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
-import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -36,8 +35,6 @@ public class NoticeTool extends ProgramTool {
 	public NoticeTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-notice" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "notice" ) );
-		setTitle( product.rb().text( "tool", "notice-name" ) );
 
 		String clearAllText = product.rb().text( BundleKey.TOOL, "notice-clear-all" );
 		Button clearAllButton = new Button( clearAllText );
@@ -64,6 +61,8 @@ public class NoticeTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "notice-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "notice" ) );
 		((NoticeModel)getAssetModel()).register( NodeEvent.NODE_CHANGED, assetHandler = ( e ) -> updateNotices() );
 	}
 

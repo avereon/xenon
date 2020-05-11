@@ -6,6 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -26,8 +27,6 @@ public class WelcomeTool extends ProgramTool {
 	public WelcomeTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-welcome" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "welcome" ) );
-		setTitle( product.rb().text( "tool", "welcome-name" ) );
 
 		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );
 
@@ -48,6 +47,12 @@ public class WelcomeTool extends ProgramTool {
 		stack.getChildren().addAll( accentPane, contentPane );
 
 		getChildren().addAll( stack );
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "welcome-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 
 	@Override

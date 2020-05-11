@@ -31,9 +31,6 @@ public class AssetTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-asset" );
 
-		setTitle( product.rb().text( BundleKey.TOOL, "asset-name" ) );
-		setGraphic( product.getProgram().getIconLibrary().getIcon( product.rb().text( BundleKey.TOOL, "asset-icon" ) ) );
-
 		view = new AssetTypeView();
 
 		ScrollPane scroller = new ScrollPane( view );
@@ -41,6 +38,12 @@ public class AssetTool extends ProgramTool {
 		scroller.setFitToWidth( true );
 
 		getChildren().add( scroller );
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( BundleKey.TOOL, "asset-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( getProduct().rb().text( BundleKey.TOOL, "asset-icon" ) ) );
 	}
 
 	@Override

@@ -55,13 +55,9 @@ public class ProductTool extends GuidedTool {
 
 	public ProductTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		setId( "tool-product" );
 
 		Program program = getProgram();
-
-		setId( "tool-product" );
-		setGraphic( program.getIconLibrary().getIcon( "product" ) );
-		setTitle( product.rb().text( "tool", "product-name" ) );
-
 		installedPage = new InstalledPage( program, this );
 		availablePage = new AvailablePage( program, this );
 		updatesPage = new UpdatesPage( program, this );
@@ -82,6 +78,21 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setCenter( installedPage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "product-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "product" ) );
+	}
+
+	@Override
+	protected void open( OpenAssetRequest request ) {
+		// TODO Can this be generalized in GuidedTool?
+		String pageId = request.getFragment();
+		if( pageId == null ) pageId = currentPageId;
+		if( pageId == null ) pageId = INSTALLED;
+		selectPage( pageId );
 	}
 
 	@Override
@@ -119,17 +130,6 @@ public class ProductTool extends GuidedTool {
 	protected void deallocate() throws ToolException {
 		log.log( Log.DEBUG,  "Product tool deallocate" );
 		super.deallocate();
-	}
-
-	@Override
-	protected void open( OpenAssetRequest request ) {
-		log.log( Log.DEBUG,  "Product tool asset ready" );
-
-		// TODO Can this be generalized in GuidedTool?
-		String pageId = request.getFragment();
-		if( pageId == null ) pageId = currentPageId;
-		if( pageId == null ) pageId = INSTALLED;
-		selectPage( pageId );
 	}
 
 	@Override

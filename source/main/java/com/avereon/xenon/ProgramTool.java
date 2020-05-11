@@ -142,9 +142,7 @@ public abstract class ProgramTool extends Tool {
 	 * The tool and asset are ready.
 	 */
 	@SuppressWarnings( "RedundantThrows" )
-	protected void ready( OpenAssetRequest request ) throws ToolException {
-		setTitle( getAsset().getName() );
-	}
+	protected void ready( OpenAssetRequest request ) throws ToolException {}
 
 	/**
 	 * Called to open or reopen the tool. This is called at least once after
