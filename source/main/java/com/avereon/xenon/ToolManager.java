@@ -192,14 +192,14 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> toolClasses = assetTypeToolClasses.get( assetType );
 		if( toolClasses == null ) {
 			// There are no registered tools for the asset type
-			log.log( WARNING, "No tools registered for asset type {}", assetType.getKey() );
+			log.log( WARNING, "No tools registered for asset type {0}", assetType.getKey() );
 		} else if( toolClasses.size() == 1 ) {
 			// There is exactly one tool registered for the asset type
-			log.log( DEBUG, "One tool registered for asset type {}", assetType.getKey() );
+			log.log( DEBUG, "One tool registered for asset type {0}", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		} else {
 			// There is more than one tool registered for the asset type
-			log.log( WARNING, "Multiple tools registered for asset type {}", assetType.getKey() );
+			log.log( WARNING, "Multiple tools registered for asset type {0}", assetType.getKey() );
 			toolClass = toolClasses.get( 0 );
 		}
 		return toolClass;
