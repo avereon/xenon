@@ -328,7 +328,10 @@ public class ToolManager implements Controllable<ToolManager> {
 			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
 			tool.addEventFilter( ToolEvent.ADDED, h );
 			try {
-				if( tool.getToolView() != null ) latch.await( 5, TimeUnit.SECONDS );
+				if( tool.getToolView() == null ) {
+					latch.await( 2, TimeUnit.SECONDS );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool" );
+				}
 			} finally {
 				tool.removeEventFilter( ToolEvent.ADDED, h );
 			}
@@ -352,7 +355,10 @@ public class ToolManager implements Controllable<ToolManager> {
 			EventHandler<AssetEvent> h = e -> latch.countDown();
 			asset.register( AssetEvent.LOADED, h );
 			try {
-				if( !asset.isLoaded() ) latch.await( 5, TimeUnit.SECONDS );
+				if( !asset.isLoaded() ) {
+					latch.await( 20, TimeUnit.SECONDS );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset" );
+				}
 			} finally {
 				asset.unregister( AssetEvent.LOADED, h );
 			}
