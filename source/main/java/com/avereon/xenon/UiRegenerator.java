@@ -409,6 +409,7 @@ class UiRegenerator {
 			// Create the open asset request
 			OpenAssetRequest openAssetRequest = new OpenAssetRequest();
 			openAssetRequest.setAsset( program.getAssetManager().createAsset( assetType, uri ) );
+			openAssetRequest.setToolId( id );
 
 			// Restore the tool
 			ProgramTool tool = program.getToolManager().restoreTool( openAssetRequest, toolType );

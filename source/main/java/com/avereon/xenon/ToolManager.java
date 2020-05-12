@@ -67,7 +67,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		List<Class<? extends ProgramTool>> assetTypeTools = assetTypeToolClasses.get( assetType );
 		if( assetTypeTools != null ) assetTypeTools.remove( type );
 
-		log.log( DEBUG, "Tool unregistered: assetType={} -> tool={}", assetType.getKey(), type.getName() );
+		log.log( DEBUG, "Tool unregistered: assetType={0} -> tool={0}", assetType.getKey(), type.getName() );
 	}
 
 	/**
@@ -330,7 +330,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				if( tool.getToolView() == null ) {
 					latch.await( 2, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated" );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + tool );
 				}
 			} finally {
 				tool.removeEventFilter( ToolEvent.ADDED, h );
@@ -356,8 +356,8 @@ public class ToolManager implements Controllable<ToolManager> {
 			asset.register( AssetEvent.LOADED, h );
 			try {
 				if( !asset.isLoaded() ) {
-					latch.await( 20, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load" );
+					latch.await( 2, TimeUnit.SECONDS );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
 				}
 			} finally {
 				asset.unregister( AssetEvent.LOADED, h );
