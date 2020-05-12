@@ -25,13 +25,8 @@ public class FileScheme extends BaseScheme {
 	//private FileAssetWatcher assetWatcher;
 
 	public FileScheme( Program program ) {
-		super( program );
+		super( program, ID );
 		//assetWatcher = new FileAssetWatcher();
-	}
-
-	@Override
-	public String getName() {
-		return ID;
 	}
 
 	@Override

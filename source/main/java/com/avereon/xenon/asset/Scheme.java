@@ -17,9 +17,10 @@ public interface Scheme {
 	String ASSET_LAST_SAVED_KEY = "asset.last.saved";
 
 	/**
-	 * Get the scheme name. The scheme name is equivalent to the URI scheme defined in <a href="http://tools.ietf.org/html/rfc3986">RFC-3986</a>.
+	 * Get the scheme name. The scheme name is equivalent to the URI scheme
+	 * defined in <a href="http://tools.ietf.org/html/rfc3986">RFC-3986</a>.
 	 *
-	 * @return The asset name
+	 * @return The scheme name
 	 */
 	String getName();
 

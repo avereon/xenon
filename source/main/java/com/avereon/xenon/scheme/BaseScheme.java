@@ -12,10 +12,22 @@ import java.util.List;
 
 public abstract class BaseScheme implements Scheme {
 
-	protected Program program;
+	protected final Program program;
 
-	public BaseScheme( Program program ) {
+	private final String id;
+
+	public BaseScheme( Program program, String id ) {
 		this.program = program;
+		this.id = id;
+	}
+
+	public Program getProgram() {
+		return program;
+	}
+
+	@Override
+	public String getName() {
+		return id;
 	}
 
 	@Override
