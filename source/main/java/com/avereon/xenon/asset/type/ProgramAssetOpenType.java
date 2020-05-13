@@ -4,14 +4,14 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 
-public class ProgramAssetType extends AssetType {
+public class ProgramAssetOpenType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.asset";
+	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.asset.open";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:asset" );
+	public static final java.net.URI URI = java.net.URI.create( "program:asset:open" );
 
-	public ProgramAssetType( ProgramProduct product ) {
-		super( product, "asset" );
+	public ProgramAssetOpenType( ProgramProduct product ) {
+		super( product, "asset-open" );
 	}
 
 	@Override

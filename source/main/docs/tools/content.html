@@ -53,15 +53,26 @@ public class MyTool extends ProgramTool {
 		disabled or uninstalled the tools should also be unregistered.
 	</p>
 	<pre>
-...
-String assetTypeKey = MyAssetType.MEDIA_TYPE;
-AssetType type = getProgram().getAssetManager().getAssetType( assetTypeKey );
-String name = getProduct().rb().text( "tool", toolNameKey );
-Node icon = getProgram().getIconLibrary().getIcon( iconKey );
-ToolRegistration registration = new ToolRegistration( getProduct(), MyTool.class );
-registration.setName( name ).setIcon( icon ).setInstanceMode( ToolInstanceMode.UNLIMITED );
-getProgram().getToolManager.registerTool( type, registration );
-...</pre>
+public class MyMod extends Mod {
+
+  public void startup() {
+    ...
+    registerAssetType( myAssetType = new MyAssetType( this ) );
+    ToolRegistration registration = new ToolRegistration( getProduct(), MyTool.class );
+    // Optionally set name, icon and instance mode
+    registration.setName( name ).setIcon( icon ).setInstanceMode( ToolInstanceMode.UNLIMITED );
+    registerTool( ptyAssetType, registration );
+    ...
+  }
+
+  public void shutdown() {
+    ...
+    unregisterTool( myAssetType, MylTool.class );
+    unregisterAssetType( myAssetType );
+    ...
+  }
+
+}</pre>
 
 	<h2 id="recommended-practices">Recommended Practices</h2>
 

@@ -5,7 +5,7 @@ import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.type.ProgramAssetType;
+import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -1414,7 +1414,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( types.size() == 1 ) {
 				newAsset( types.iterator().next() );
 			} else {
-				openAsset( ProgramAssetType.URI );
+				openAsset( ProgramAssetNewType.URI );
 			}
 		}
 

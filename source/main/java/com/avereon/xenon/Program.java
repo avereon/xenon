@@ -1145,7 +1145,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerUriAssetType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
 		manager.registerUriAssetType( ProgramProductType.URI, new ProgramProductType( this ) );
 		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
-		manager.registerUriAssetType( ProgramAssetType.URI, new ProgramAssetType( this ) );
+		manager.registerUriAssetType( ProgramAssetNewType.URI, new ProgramAssetNewType( this ) );
 		manager.registerUriAssetType( ProgramThemesType.URI, new ProgramThemesType( this ) );
 
 		manager.registerSchemeAssetType( FaultScheme.ID, new ProgramFaultType( this ) );
@@ -1155,7 +1155,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.unregisterSchemeAssetType( FaultScheme.ID );
 
 		manager.unregisterUriAssetType( ProgramThemesType.URI );
-		manager.unregisterUriAssetType( ProgramAssetType.URI );
+		manager.unregisterUriAssetType( ProgramAssetNewType.URI );
 		manager.unregisterUriAssetType( ProgramTaskType.URI );
 		manager.unregisterUriAssetType( ProgramProductType.URI );
 		manager.unregisterUriAssetType( ProgramNoticeType.URI );
@@ -1174,7 +1174,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, ProgramTaskType.MEDIA_TYPE, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
 		registerTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
-		registerTool( manager, ProgramAssetType.MEDIA_TYPE, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, ProgramAssetNewType.MEDIA_TYPE, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, ProgramThemesType.MEDIA_TYPE, ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
@@ -1184,7 +1184,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, ProgramAssetType.MEDIA_TYPE, AssetTool.class );
+		unregisterTool( manager, ProgramAssetNewType.MEDIA_TYPE, AssetTool.class );
 		unregisterTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class );
 		unregisterTool( manager, ProgramTaskType.MEDIA_TYPE, TaskTool.class );
 		unregisterTool( manager, ProgramProductType.MEDIA_TYPE, ProductTool.class );
