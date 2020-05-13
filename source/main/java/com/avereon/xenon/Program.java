@@ -1203,7 +1203,7 @@ public class Program extends Application implements ProgramProduct {
 		Node icon = getIconLibrary().getIcon( iconKey );
 
 		ToolRegistration metadata = new ToolRegistration( this, toolClass );
-		metadata.setInstanceMode( mode ).setName( name ).setIcon( icon );
+		metadata.setName( name ).setIcon( icon ).setInstanceMode( mode );
 		manager.registerTool( type, metadata );
 	}
 
