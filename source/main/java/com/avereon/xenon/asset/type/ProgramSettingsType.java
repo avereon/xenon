@@ -3,47 +3,34 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.asset.AssetType;
-import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.*;
 
 public class ProgramSettingsType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.settings";
+	private static final String uriPattern = "program:settings";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:settings" );
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	public ProgramSettingsType( ProgramProduct product ) {
 		super( product, "settings" );
+
+		PlaceholderCodec codec = new PlaceholderCodec();
+		codec.addSupported( Codec.Pattern.URI, uriPattern );
+		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
-	/**
-	 * @see #isUserType()
-	 */
 	@Override
 	public boolean isUserType() {
 		return false;
 	}
 
-	/**
-	 * @see #getDefaultCodec()
-	 */
 	@Override
-	public Codec getDefaultCodec() {
-		return null;
-	}
-
-	/**
-	 * @see #assetInit(Program, Asset)
-	 */
-	@Override
-	public boolean assetInit( Program program, Asset asset ) throws AssetException {
+	public boolean assetInit( Program program, Asset asset ) {
 		asset.setModel( program.getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		return true;
 	}

@@ -44,7 +44,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private static final Asset NULL_ASSET = new Asset( URI.create( "program:null" ) );
 
-	private Program program;
+	private final Program program;
 
 	private volatile Asset currentAsset;
 
@@ -54,39 +54,29 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private final Map<String, Scheme> schemes;
 
-	private final Map<String, AssetType> assetTypesByTypeKey;
+	private final Map<String, AssetType> assetTypes;
 
-	private final Map<Class<? extends AssetType>, AssetType> assetTypesByClass;
+	private final Map<Codec.Pattern, Map<String, Set<Codec>>> registeredCodecs;
 
-	private final Map<URI, AssetType> uriAssetTypes;
+	private final FxEventHub eventBus;
 
-	private final Map<String, AssetType> schemeAssetTypes;
+	private final NewActionHandler newActionHandler;
 
-	private final Map<String, Set<Codec>> registeredFileNames;
+	private final OpenActionHandler openActionHandler;
 
-	private final Map<String, Set<Codec>> registeredFirstLines;
+	private final SaveActionHandler saveActionHandler;
 
-	private final Map<String, Set<Codec>> registeredMediaTypes;
+	private final SaveActionHandler saveAsActionHandler;
 
-	private FxEventHub eventBus;
+	private final SaveActionHandler saveCopyAsActionHandler;
 
-	private CurrentAssetWatcher currentAssetWatcher;
+	private final SaveAllActionHandler saveAllActionHandler;
 
-	private NewActionHandler newActionHandler;
+	private final CloseActionHandler closeActionHandler;
 
-	private OpenActionHandler openActionHandler;
+	private final CloseAllActionHandler closeAllActionHandler;
 
-	private SaveActionHandler saveActionHandler;
-
-	private SaveActionHandler saveAsActionHandler;
-
-	private SaveActionHandler saveCopyAsActionHandler;
-
-	private SaveAllActionHandler saveAllActionHandler;
-
-	private CloseActionHandler closeActionHandler;
-
-	private CloseAllActionHandler closeAllActionHandler;
+	private final CurrentAssetWatcher currentAssetWatcher;
 
 	private final Object currentAssetLock = new Object();
 
@@ -97,13 +87,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		openAssets = new CopyOnWriteArraySet<>();
 		identifiedAssets = new ConcurrentHashMap<>();
 		schemes = new ConcurrentHashMap<>();
-		assetTypesByTypeKey = new ConcurrentHashMap<>();
-		assetTypesByClass = new ConcurrentHashMap<>();
-		uriAssetTypes = new ConcurrentHashMap<>();
-		schemeAssetTypes = new ConcurrentHashMap<>();
-		registeredFileNames = new ConcurrentHashMap<>();
-		registeredFirstLines = new ConcurrentHashMap<>();
-		registeredMediaTypes = new ConcurrentHashMap<>();
+		assetTypes = new ConcurrentHashMap<>();
+		registeredCodecs = new ConcurrentHashMap<>();
 
 		eventBus = new FxEventHub();
 		currentAssetWatcher = new CurrentAssetWatcher();
@@ -185,7 +170,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	Set<AssetType> getUserAssetTypes() {
-		return assetTypesByTypeKey.values().stream().filter( AssetType::isUserType ).collect( Collectors.toSet() );
+		return assetTypes.values().stream().filter( AssetType::isUserType ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -194,7 +179,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The set of externally modified assets
 	 */
 	public Set<Asset> getExternallyModifiedAssets() {
-		Set<Asset> externallyModifiedAssets = new HashSet<Asset>();
+		Set<Asset> externallyModifiedAssets = new HashSet<>();
 		for( Asset asset : getOpenAssets() ) {
 			if( asset.isExternallyModified() ) externallyModifiedAssets.add( asset );
 		}
@@ -254,7 +239,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The asset type associated to the key
 	 */
 	public AssetType getAssetType( String key ) {
-		AssetType type = assetTypesByTypeKey.get( key );
+		AssetType type = assetTypes.get( key );
 		if( type == null ) log.log( Log.WARN, "Asset type not found: " + key );
 		return type;
 	}
@@ -265,7 +250,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The set of supported asset types
 	 */
 	public Collection<AssetType> getAssetTypes() {
-		return Collections.unmodifiableCollection( assetTypesByTypeKey.values() );
+		return Collections.unmodifiableCollection( assetTypes.values() );
 	}
 
 	/**
@@ -276,19 +261,21 @@ public class AssetManager implements Controllable<AssetManager> {
 	public void addAssetType( AssetType type ) {
 		if( type == null ) return;
 
-		synchronized( assetTypesByTypeKey ) {
-			if( assetTypesByTypeKey.get( type.getKey() ) != null ) throw new IllegalArgumentException( "AssetType already exists: " + type.getKey() );
+		synchronized( assetTypes ) {
+			if( assetTypes.get( type.getKey() ) != null ) throw new IllegalArgumentException( "AssetType already exists: " + type.getKey() );
 
-			Set<Codec> codecs = type.getCodecs();
-			for( Codec codec : codecs ) {
-				// Register codec support.
-				registerCodec( codec, codec.getSupportedFileNames(), registeredFileNames );
-				registerCodec( codec, codec.getSupportedFirstLines(), registeredFirstLines );
-				registerCodec( codec, codec.getSupportedMediaTypes(), registeredMediaTypes );
+			// Register codecs
+			for( Codec codec : type.getCodecs() ) {
+				registerCodecs( Codec.Pattern.URI, codec );
+				registerCodecs( Codec.Pattern.MEDIATYPE, codec );
+				registerCodecs( Codec.Pattern.EXTENSION, codec );
+				registerCodecs( Codec.Pattern.FILENAME, codec );
+				registerCodecs( Codec.Pattern.SCHEME, codec );
+				registerCodecs( Codec.Pattern.FIRSTLINE, codec );
 			}
 
 			// Add the asset type to the registered asset types.
-			assetTypesByTypeKey.put( type.getKey(), type );
+			assetTypes.put( type.getKey(), type );
 
 			// Update the actions.
 			updateActionState();
@@ -302,47 +289,25 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public void removeAssetType( AssetType type ) {
 		if( type == null ) return;
-		synchronized( assetTypesByTypeKey ) {
-			if( !assetTypesByTypeKey.containsKey( type.getKey() ) ) return;
+		synchronized( assetTypes ) {
+			if( !assetTypes.containsKey( type.getKey() ) ) return;
 
 			// Remove the asset type from the registered asset types
-			assetTypesByTypeKey.remove( type.getKey() );
-			for( Map.Entry entry : uriAssetTypes.entrySet() ) {
-				if( entry.getValue() == type ) uriAssetTypes.remove( entry.getKey() );
-			}
-			for( Map.Entry entry : schemeAssetTypes.entrySet() ) {
-				if( entry.getValue() == type ) schemeAssetTypes.remove( entry.getKey() );
-			}
+			type = assetTypes.remove( type.getKey() );
 
-			Set<Codec> codecs = type.getCodecs();
-			for( Codec codec : codecs ) {
-				// Unregister codec support.
-				unregisterCodec( codec, codec.getSupportedFileNames(), registeredFileNames );
-				unregisterCodec( codec, codec.getSupportedFirstLines(), registeredFirstLines );
-				unregisterCodec( codec, codec.getSupportedMediaTypes(), registeredMediaTypes );
+			for( Codec codec : type.getCodecs() ) {
+				// Unregister codecs
+				unregisterCodecs( Codec.Pattern.URI, codec );
+				unregisterCodecs( Codec.Pattern.MEDIATYPE, codec );
+				unregisterCodecs( Codec.Pattern.EXTENSION, codec );
+				unregisterCodecs( Codec.Pattern.FILENAME, codec );
+				unregisterCodecs( Codec.Pattern.SCHEME, codec );
+				unregisterCodecs( Codec.Pattern.FIRSTLINE, codec );
 			}
 
 			// Update the actions.
 			updateActionState();
 		}
-	}
-
-	public void registerUriAssetType( URI uri, AssetType type ) {
-		if( assetTypesByTypeKey.get( type.getKey() ) == null ) addAssetType( type );
-		uriAssetTypes.put( uri, type );
-	}
-
-	public void unregisterUriAssetType( URI uri ) {
-		uriAssetTypes.remove( uri );
-	}
-
-	public void registerSchemeAssetType( String scheme, AssetType type ) {
-		if( assetTypesByTypeKey.get( type.getKey() ) == null ) addAssetType( type );
-		schemeAssetTypes.put( scheme, type );
-	}
-
-	public void unregisterSchemeAssetType( String scheme ) {
-		schemeAssetTypes.remove( scheme );
 	}
 
 	public Future<ProgramTool> newAsset( String key ) {
@@ -536,7 +501,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			if( selectedCodec != null ) type = selectedCodec.getAssetType();
 
 			// If the file extension is not already supported use the default extension from the codec
-			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupportedExtension( file.getName() ) ) {
+			if( !file.exists() && selectedCodec != null && !selectedCodec.isSupported( Codec.Pattern.EXTENSION, file.getName() ) ) {
 				file = new File( file.getParent(), file.getName() + "." + selectedCodec.getDefaultExtension() );
 			}
 
@@ -568,16 +533,14 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private Map<Codec, FileChooser.ExtensionFilter> generateCodecFilters( AssetType type ) {
 		Map<Codec, FileChooser.ExtensionFilter> codecFilters = new HashMap<>();
-		for( Codec codec : type.getCodecs() ) {
-			codecFilters.put( codec, generateFilter( codec ) );
-		}
+		type.getCodecs().forEach( c -> codecFilters.put( c, generateExtensionFilter( c ) ) );
 		return codecFilters;
 	}
 
-	private FileChooser.ExtensionFilter generateFilter( Codec codec ) {
+	private FileChooser.ExtensionFilter generateExtensionFilter( Codec codec ) {
 		List<String> extensions = new ArrayList<>();
 		StringBuilder desc = new StringBuilder();
-		for( String ext : codec.getSupportedExtensions() ) {
+		for( String ext : codec.getSupported( Codec.Pattern.EXTENSION ) ) {
 			extensions.add( "*." + ext );
 			desc.append( "," ).append( ext );
 		}
@@ -886,16 +849,10 @@ public class AssetManager implements Controllable<AssetManager> {
 	/**
 	 * Get a collection of the supported codecs.
 	 *
-	 * @return
+	 * @return A collection of all supported codecs
 	 */
 	public Collection<Codec> getCodecs() {
-		Set<Codec> codecs = new HashSet<>();
-
-		for( AssetType type : assetTypesByTypeKey.values() ) {
-			codecs.addAll( type.getCodecs() );
-		}
-
-		return Collections.unmodifiableCollection( codecs );
+		return assetTypes.values().stream().flatMap( t -> t.getCodecs().stream() ).collect( Collectors.toUnmodifiableSet() );
 	}
 
 	private Settings getSettings() {
@@ -909,33 +866,22 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * codec</li> </ol>
 	 *
 	 * @param asset The asset for which to resolve the asset type
-	 * @return
+	 * @return The auto detected asset type
 	 */
 	AssetType autoDetectAssetType( Asset asset ) {
-		URI uri = asset.getUri();
 		AssetType type = null;
 
 		// Look for asset types assigned to specific codecs
 		List<Codec> codecs = new ArrayList<>( autoDetectCodecs( asset ) );
 		codecs.sort( new CodecPriorityComparator().reversed() );
 		Codec codec = codecs.size() == 0 ? null : codecs.get( 0 );
-		if( type == null && codec != null ) type = codec.getAssetType();
-
-		// Look for asset type assigned to specific URIs
-		if( type == null && uri != null ) type = findMatchingUriAssetType( uri );
-
-		// Look for asset types assigned to specific schemes
-		if( type == null && uri != null ) type = schemeAssetTypes.get( uri.getScheme() );
+		if( codec != null ) type = codec.getAssetType();
 
 		// Assign values to asset
 		if( codec != null ) asset.setCodec( codec );
 		if( type != null ) asset.setType( type );
 
 		return type;
-	}
-
-	private AssetType findMatchingUriAssetType( URI uri ) {
-		return uriAssetTypes.get( UriUtil.removeQueryAndFragment( uri ) );
 	}
 
 	/**
@@ -954,44 +900,20 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The set of codecs that match the asset
 	 */
 	Set<Codec> autoDetectCodecs( Asset asset ) {
-		Set<Codec> codecs = new HashSet<>();
-		Collection<AssetType> assetTypes = getAssetTypes();
-
-		// First option: Determine codec by media type
+		String uri = UriUtil.removeQueryAndFragment( asset.getUri() ).toString();
 		String mediaType = getMediaType( asset );
-		if( mediaType != null ) {
-			for( AssetType assetType : assetTypes ) {
-				Codec codec = assetType.getCodecByMediaType( mediaType );
-				if( codec != null ) codecs.add( codec );
-			}
-		}
-
-		// Second option: Determine codec by extension
 		String fileName = asset.getFileName();
-		if( fileName != null ) {
-			for( AssetType assetType : assetTypes ) {
-				Codec codec = assetType.getCodecByExtension( fileName );
-				if( codec != null ) codecs.add( codec );
-			}
-		}
-
-		// Third option: Determine codec by file name
-		if( fileName != null ) {
-			for( AssetType assetType : assetTypes ) {
-				Codec codec = assetType.getCodecByFileName( fileName );
-				if( codec != null ) codecs.add( codec );
-			}
-		}
-
-		// Fouth option: Determine codec by first line
 		String firstLine = getFirstLine( asset );
-		if( firstLine != null ) {
-			for( AssetType assetType : assetTypes ) {
-				Codec codec = assetType.getCodecByFirstLine( firstLine );
-				if( codec != null ) codecs.add( codec );
-			}
-		}
 
+		Set<Codec> codecs = new HashSet<>();
+		for( AssetType assetType : getAssetTypes() ) {
+			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.URI, uri ) );
+			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.SCHEME, uri ) );
+			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.MEDIATYPE, mediaType ) );
+			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.EXTENSION, fileName ) );
+			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.FILENAME, fileName ) );
+			codecs.addAll( assetType.getSupportedCodecs( Codec.Pattern.FIRSTLINE, firstLine ) );
+		}
 		return codecs;
 	}
 
@@ -1018,23 +940,16 @@ public class AssetManager implements Controllable<AssetManager> {
 		closeAllActionHandler.updateEnabled();
 	}
 
-	private void registerCodec( Codec codec, Set<String> values, Map<String, Set<Codec>> registrations ) {
-		if( values == null ) return;
-
-		for( String value : values ) {
-			Set<Codec> registeredCodecs = registrations.computeIfAbsent( value, k -> new CopyOnWriteArraySet<Codec>() );
-			registeredCodecs.add( codec );
-		}
+	private void registerCodecs( Codec.Pattern patternType, Codec codec ) {
+		Set<String> patterns = codec.getSupported( patternType );
+		Map<String, Set<Codec>> codecs = registeredCodecs.computeIfAbsent( patternType, ( k ) -> new ConcurrentHashMap<>() );
+		patterns.forEach( pattern -> codecs.computeIfAbsent( pattern, k -> new CopyOnWriteArraySet<>() ).add( codec ) );
 	}
 
-	private void unregisterCodec( Codec codec, Set<String> values, Map<String, Set<Codec>> registrations ) {
-		if( values == null ) return;
-
-		for( String fileName : values ) {
-			Set<Codec> registeredCodecs = registrations.get( fileName );
-			if( registeredCodecs == null ) continue;
-			registeredCodecs.remove( codec );
-		}
+	private void unregisterCodecs( Codec.Pattern patternType, Codec codec ) {
+		Set<String> patterns = codec.getSupported( patternType );
+		Map<String, Set<Codec>> codecs = registeredCodecs.getOrDefault( patternType, new HashMap<>() );
+		patterns.forEach( pattern -> codecs.getOrDefault( pattern, new HashSet<>() ).remove( codec ) );
 	}
 
 	/**
@@ -1117,7 +1032,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		// Determine the asset type
 		AssetType type = asset.getType();
 		if( type == null ) type = autoDetectAssetType( asset );
-		if( type == null ) throw new AssetException( asset, "Asset type could not be determined: " + asset );
+		if( type == null ) throw new AssetException( asset, "Asset type could not be determined" );
 
 		// Determine the codec
 		Codec codec = asset.getCodec();
@@ -1245,32 +1160,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	private Settings getAssetSettings( URI uri ) {
 		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
 	}
-
-	//	/**
-	//	 * @param asset
-	//	 * @return
-	//	 * @deprecated Instead use Scheme.getConnection( Asset )
-	//	 */
-	//	@Deprecated
-	//	private URLConnection getConnection( Asset asset ) {
-	//		URI uri = asset.getUri();
-	//		Scheme scheme = getScheme( uri.getScheme() );
-	//		if( scheme == null ) return null;
-	//
-	//		try {
-	//			// FIXME Should not convert to URL to get a connection
-	//      // TODO Should use scheme to get a connection
-	//			//return uri.toURL().openConnection();
-	//
-	//			// It should come from the scheme
-	//			//return scheme.openConnection( asset );
-	//		} catch( Exception exception ) {
-	//			log.log( Log.WARN,  "Error opening asset connection", asset );
-	//			log.log( Log.WARN,  "Error opening asset connection", exception );
-	//		}
-	//
-	//		return null;
-	//	}
 
 	private String getMediaType( Asset asset ) {
 		String mediaType = asset.getMediaType();
@@ -1439,6 +1328,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			isHandling = true;
 			updateEnabled();
 
+			// TODO Replace this with a call to open the program:asset:open asset
 			// NOTE This logic is very file oriented. It may need to move to the file scheme.
 			FileChooser chooser = new FileChooser();
 			chooser.setInitialDirectory( getFileChooserFolder() );
@@ -1548,7 +1438,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private abstract class AssetTask extends ProgramTask<Collection<Asset>> {
 
-		private Collection<Asset> assets;
+		private final Collection<Asset> assets;
 
 		private AssetTask( Collection<Asset> assets ) {
 			super( program );
@@ -1668,7 +1558,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( AssetEvent event ) {
-			//log.log( Log.WARN,  "Asset node " + event.getEventType() + ": " + event.getAsset() );
 			if( event.getEventType() == AssetEvent.MODIFIED ) updateActionState();
 			if( event.getEventType() == AssetEvent.UNMODIFIED ) updateActionState();
 		}

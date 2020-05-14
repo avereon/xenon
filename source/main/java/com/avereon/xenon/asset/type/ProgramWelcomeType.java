@@ -3,20 +3,25 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class ProgramWelcomeType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.welcome";
+	private static final String uriPattern = "program:welcome";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:welcome" );
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	public ProgramWelcomeType( ProgramProduct product ) {
 		super( product, "welcome" );
+
+		PlaceholderCodec codec = new PlaceholderCodec();
+		codec.addSupported( Codec.Pattern.URI, uriPattern );
+		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
 	@Override

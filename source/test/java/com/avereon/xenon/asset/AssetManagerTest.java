@@ -24,7 +24,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		manager = new AssetManager( program );
 		manager.addScheme( new MockScheme( program ) );
 		manager.addScheme( new AssetScheme( program ) );
-		manager.registerSchemeAssetType( MockScheme.ID, new MockAssetType( program ) );
+		manager.addAssetType( new MockAssetType( program ) );
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
-		AssetType type = manager.getAssetType( MockScheme.ID );
+		AssetType type = manager.getAssetType( new MockAssetType( program ).getKey() );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs, equalTo( type.getCodecs() ) );

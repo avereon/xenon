@@ -1138,44 +1138,44 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerAssetTypes( AssetManager manager ) {
-		manager.registerUriAssetType( ProgramGuideType.URI, new ProgramGuideType( this ) );
-		manager.registerUriAssetType( ProgramAboutType.URI, new ProgramAboutType( this ) );
-		manager.registerUriAssetType( ProgramSettingsType.URI, new ProgramSettingsType( this ) );
-		manager.registerUriAssetType( ProgramWelcomeType.URI, new ProgramWelcomeType( this ) );
-		manager.registerUriAssetType( ProgramNoticeType.URI, new ProgramNoticeType( this ) );
-		manager.registerUriAssetType( ProgramProductType.URI, new ProgramProductType( this ) );
-		manager.registerUriAssetType( ProgramTaskType.URI, new ProgramTaskType( this ) );
-		manager.registerUriAssetType( ProgramAssetNewType.URI, new ProgramAssetNewType( this ) );
-		manager.registerUriAssetType( ProgramThemesType.URI, new ProgramThemesType( this ) );
-
-		manager.registerSchemeAssetType( FaultScheme.ID, new ProgramFaultType( this ) );
+		manager.addAssetType( new ProgramGuideType( this ) );
+		manager.addAssetType( new ProgramAboutType( this ) );
+		manager.addAssetType( new ProgramSettingsType( this ) );
+		manager.addAssetType( new ProgramWelcomeType( this ) );
+		manager.addAssetType( new ProgramNoticeType( this ) );
+		manager.addAssetType( new ProgramProductType( this ) );
+		manager.addAssetType( new ProgramTaskType( this ) );
+		manager.addAssetType( new ProgramAssetNewType( this ) );
+		manager.addAssetType( new ProgramAssetOpenType( this ) );
+		manager.addAssetType( new ProgramThemesType( this ) );
+		manager.addAssetType( new ProgramFaultType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
-		manager.unregisterSchemeAssetType( FaultScheme.ID );
-
-		manager.unregisterUriAssetType( ProgramThemesType.URI );
-		manager.unregisterUriAssetType( ProgramAssetNewType.URI );
-		manager.unregisterUriAssetType( ProgramTaskType.URI );
-		manager.unregisterUriAssetType( ProgramProductType.URI );
-		manager.unregisterUriAssetType( ProgramNoticeType.URI );
-		manager.unregisterUriAssetType( ProgramWelcomeType.URI );
-		manager.unregisterUriAssetType( ProgramSettingsType.URI );
-		manager.unregisterUriAssetType( ProgramAboutType.URI );
-		manager.unregisterUriAssetType( ProgramGuideType.URI );
+		manager.removeAssetType( new ProgramFaultType( this ) );
+		manager.removeAssetType( new ProgramThemesType( this ) );
+		manager.removeAssetType( new ProgramAssetOpenType( this ) );
+		manager.removeAssetType( new ProgramAssetNewType( this ) );
+		manager.removeAssetType( new ProgramTaskType( this ) );
+		manager.removeAssetType( new ProgramProductType( this ) );
+		manager.removeAssetType( new ProgramNoticeType( this ) );
+		manager.removeAssetType( new ProgramWelcomeType( this ) );
+		manager.removeAssetType( new ProgramSettingsType( this ) );
+		manager.removeAssetType( new ProgramAboutType( this ) );
+		manager.removeAssetType( new ProgramGuideType( this ) );
 	}
 
 	private void registerTools( ToolManager manager ) {
-		registerTool( manager, ProgramAboutType.MEDIA_TYPE, AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
-		registerTool( manager, ProgramGuideType.MEDIA_TYPE, GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
-		registerTool( manager, ProgramNoticeType.MEDIA_TYPE, NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
-		registerTool( manager, ProgramProductType.MEDIA_TYPE, ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
-		registerTool( manager, ProgramSettingsType.MEDIA_TYPE, SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
-		registerTool( manager, ProgramTaskType.MEDIA_TYPE, TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
-		registerTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
-		registerTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
-		registerTool( manager, ProgramAssetNewType.MEDIA_TYPE, AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
-		registerTool( manager, ProgramThemesType.MEDIA_TYPE, ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
+		registerTool( manager, new ProgramAboutType( this ), AboutTool.class, ToolInstanceMode.SINGLETON, "about", "about" );
+		registerTool( manager, new ProgramGuideType( this ), GuideTool.class, ToolInstanceMode.SINGLETON, "guide", "guide" );
+		registerTool( manager, new ProgramNoticeType( this ), NoticeTool.class, ToolInstanceMode.SINGLETON, "notice", "notice" );
+		registerTool( manager, new ProgramProductType( this ), ProductTool.class, ToolInstanceMode.SINGLETON, "product", "product" );
+		registerTool( manager, new ProgramSettingsType( this ), SettingsTool.class, ToolInstanceMode.SINGLETON, "settings", "settings" );
+		registerTool( manager, new ProgramTaskType( this ), TaskTool.class, ToolInstanceMode.SINGLETON, "task", "task" );
+		registerTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
+		registerTool( manager, new ProgramFaultType( this ), FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
+		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );
@@ -1184,21 +1184,22 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
-		unregisterTool( manager, ProgramAssetNewType.MEDIA_TYPE, AssetTool.class );
-		unregisterTool( manager, ProgramFaultType.MEDIA_TYPE, FaultTool.class );
-		unregisterTool( manager, ProgramTaskType.MEDIA_TYPE, TaskTool.class );
-		unregisterTool( manager, ProgramProductType.MEDIA_TYPE, ProductTool.class );
-		unregisterTool( manager, ProgramWelcomeType.MEDIA_TYPE, WelcomeTool.class );
-		unregisterTool( manager, ProgramNoticeType.MEDIA_TYPE, NoticeTool.class );
-		unregisterTool( manager, ProgramSettingsType.MEDIA_TYPE, SettingsTool.class );
-		unregisterTool( manager, ProgramAboutType.MEDIA_TYPE, AboutTool.class );
-		unregisterTool( manager, ProgramGuideType.MEDIA_TYPE, GuideTool.class );
+		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
+		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
+		unregisterTool( manager, new ProgramTaskType( this ), TaskTool.class );
+		unregisterTool( manager, new ProgramProductType( this ), ProductTool.class );
+		unregisterTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class );
+		unregisterTool( manager, new ProgramNoticeType( this ), NoticeTool.class );
+		unregisterTool( manager, new ProgramSettingsType( this ), SettingsTool.class );
+		unregisterTool( manager, new ProgramAboutType( this ), AboutTool.class );
+		unregisterTool( manager, new ProgramGuideType( this ), GuideTool.class );
 	}
 
 	private void registerTool(
-		ToolManager manager, String assetTypeKey, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey
+		ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass, ToolInstanceMode mode, String toolRbKey, String iconKey
 	) {
-		AssetType type = assetManager.getAssetType( assetTypeKey );
+		// The problem with using the class name is it can change if the class package or name is changed.
+		AssetType type = assetManager.getAssetType( assetType.getKey() );
 		String name = rb().text( "tool", toolRbKey + "-name" );
 		Node icon = getIconLibrary().getIcon( iconKey );
 
@@ -1207,8 +1208,8 @@ public class Program extends Application implements ProgramProduct {
 		manager.registerTool( type, metadata );
 	}
 
-	private void unregisterTool( ToolManager manager, String key, Class<? extends ProgramTool> toolClass ) {
-		manager.unregisterTool( assetManager.getAssetType( key ), toolClass );
+	private void unregisterTool( ToolManager manager, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
+		manager.unregisterTool( assetManager.getAssetType( assetType.getKey() ), toolClass );
 	}
 
 	private SettingsManager configureSettingsManager( SettingsManager settingsManager ) {

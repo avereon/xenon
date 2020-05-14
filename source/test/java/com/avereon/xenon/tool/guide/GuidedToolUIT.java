@@ -1,13 +1,9 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.venza.javafx.FxUtil;
-import com.avereon.xenon.BaseToolUIT;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
-import com.avereon.xenon.ToolInstanceMode;
-import com.avereon.xenon.ToolRegistration;
 import com.avereon.xenon.workpane.ToolEvent;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
@@ -33,7 +29,6 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		MockAssetType assetType = new MockAssetType( program );
 		program.getAssetManager().addAssetType( assetType );
-		program.getAssetManager().registerUriAssetType( MockAssetType.URI, assetType );
 		program.getToolManager().registerTool( assetType, new ToolRegistration( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON ) );
 
 		program.getAssetManager().openAsset( MockAssetType.URI );

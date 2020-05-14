@@ -3,21 +3,26 @@ package com.avereon.xenon.asset.type;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.PlaceholderCodec;
 
 @Deprecated
 public class ProgramThemesType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.themes";
+	private static final String uriPattern = "program:themes";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:themes" );
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	public ProgramThemesType( ProgramProduct product ) {
 		super( product, "themes" );
+
+		PlaceholderCodec codec = new PlaceholderCodec();
+		codec.addSupported( Codec.Pattern.URI, uriPattern );
+		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
 	@Override

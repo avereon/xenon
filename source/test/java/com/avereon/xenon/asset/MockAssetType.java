@@ -7,11 +7,11 @@ public class MockAssetType extends AssetType {
 
 	public static final java.net.URI URI = java.net.URI.create( "program:mock" );
 
-	private String key;
-
 	private static final String NAME = "Mock Asset";
 
 	private static final String DESCRIPTION = "Mock Asset Type";
+
+	private final String key;
 
 	public MockAssetType( ProgramProduct product ) {
 		this( product, "mock", new MockCodec() );

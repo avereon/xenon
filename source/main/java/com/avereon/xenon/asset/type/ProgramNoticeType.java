@@ -16,15 +16,17 @@ import java.lang.System.Logger;
 
 public class ProgramNoticeType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.notice";
+	private static final String mediaTypePattern = "application/vnd.avereon.xenon.program.notice";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:notice" );
+	private static final String uriPattern = "program:notice";
+
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	private static final Logger log = Log.get();
 
 	public ProgramNoticeType( ProgramProduct product ) {
 		super( product, "notice" );
-		setDefaultCodec( new NoticeCodec() );
+		setDefaultCodec( new ProgramNoticeCodec() );
 	}
 
 	@Override
@@ -35,7 +37,7 @@ public class ProgramNoticeType extends AssetType {
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
 	@Override
@@ -43,7 +45,12 @@ public class ProgramNoticeType extends AssetType {
 		return false;
 	}
 
-	private class NoticeCodec extends Codec {
+	private static class ProgramNoticeCodec extends Codec {
+
+		public ProgramNoticeCodec() {
+			addSupported( Pattern.URI, uriPattern );
+			addSupported( Pattern.MEDIATYPE, mediaTypePattern );
+		}
 
 		@Override
 		public String getKey() {

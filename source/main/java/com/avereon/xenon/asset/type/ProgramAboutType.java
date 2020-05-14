@@ -1,44 +1,34 @@
 package com.avereon.xenon.asset.type;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-
-import java.lang.System.Logger;
+import com.avereon.xenon.asset.PlaceholderCodec;
 
 public class ProgramAboutType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.about";
+	private static final String uriPattern = "program:about";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:about" );
-
-	private static final Logger log = Log.get();
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	public ProgramAboutType( ProgramProduct product ) {
 		super( product, "about" );
+
+		PlaceholderCodec codec = new PlaceholderCodec();
+		codec.addSupported( Codec.Pattern.URI, uriPattern );
+		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
 	@Override
 	public boolean isUserType() {
 		return false;
-	}
-
-	/**
-	 * There are no codecs for this asset type so this method always returns null.
-	 *
-	 * @return null
-	 */
-	@Override
-	public Codec getDefaultCodec() {
-		return null;
 	}
 
 	@Override

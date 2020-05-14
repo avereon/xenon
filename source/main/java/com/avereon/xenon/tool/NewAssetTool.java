@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AssetTool extends ProgramTool {
+public class NewAssetTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
 	private final AssetTypeView view;
 
-	public AssetTool( ProgramProduct product, Asset asset ) {
+	public NewAssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-asset" );
 
@@ -68,7 +68,7 @@ public class AssetTool extends ProgramTool {
 				.map( AssetTypeTile::new )
 				.peek( tile -> tile.addEventFilter( MouseEvent.MOUSE_PRESSED, e -> {
 					getProgram().getAssetManager().newAsset( tile.getAssetType() );
-					AssetTool.this.close();
+					NewAssetTool.this.close();
 				} ) )
 				.collect( Collectors.toList() ) );
 		}
