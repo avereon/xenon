@@ -29,9 +29,4 @@ public class ProgramWelcomeType extends AssetType {
 		return false;
 	}
 
-	@Override
-	public Codec getDefaultCodec() {
-		return null;
-	}
-
 }

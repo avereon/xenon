@@ -22,7 +22,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
@@ -140,31 +139,26 @@ public class AboutTool extends GuidedTool {
 
 		ProductBundle rb = getProduct().rb();
 		Guide guide = new Guide();
-		guide.getRoot().getChildren().clear();
 
-		GuideNode summaryNode = new GuideNode();
+		GuideNode summaryNode = new GuideNode( getProgram() );
 		summaryNode.setId( AboutTool.SUMMARY );
 		summaryNode.setName( rb.text( "tool", "about-summary" ) );
 		summaryNode.setIcon( "about" );
-		guide.getRoot().getChildren().add( createGuideNode( getProgram(), summaryNode ) );
+		guide.addNode( summaryNode );
 
-		GuideNode detailsNode = new GuideNode();
+		GuideNode detailsNode = new GuideNode( getProgram() );
 		detailsNode.setId( AboutTool.DETAILS );
 		detailsNode.setName( rb.text( "tool", "about-details" ) );
 		detailsNode.setIcon( "about" );
-		guide.getRoot().getChildren().add( createGuideNode( getProgram(), detailsNode ) );
+		guide.addNode( detailsNode );
 
-		GuideNode productsNode = new GuideNode();
+		GuideNode productsNode = new GuideNode( getProgram() );
 		productsNode.setId( AboutTool.MODS );
 		productsNode.setName( rb.text( "tool", "about-mods" ) );
 		productsNode.setIcon( "about" );
-		guide.getRoot().getChildren().add( createGuideNode( getProgram(), productsNode ) );
+		guide.addNode( productsNode );
 
 		return this.guide = guide;
-	}
-
-	private TreeItem<GuideNode> createGuideNode( Program program, GuideNode node ) {
-		return new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
 	}
 
 	private class SummaryPane extends MigPane {

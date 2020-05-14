@@ -26,9 +26,4 @@ public class ProgramFaultType extends AssetType {
 		return false;
 	}
 
-	@Override
-	public Codec getDefaultCodec() {
-		return null;
-	}
-
 }

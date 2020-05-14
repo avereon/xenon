@@ -19,9 +19,9 @@ class CodecTest extends BaseTestCase {
 	@Test
 	void testGetSupportedUris() {
 		// This should already have one for the extension
-		assertThat( codec.getSupported( Codec.Pattern.URI ).size(), is( 1 ) );
-		codec.addSupported( Codec.Pattern.URI, "mock:testuri.mock" );
 		assertThat( codec.getSupported( Codec.Pattern.URI ).size(), is( 2 ) );
+		codec.addSupported( Codec.Pattern.URI, "mock:testuri.mock" );
+		assertThat( codec.getSupported( Codec.Pattern.URI ).size(), is( 3 ) );
 	}
 
 	@Test

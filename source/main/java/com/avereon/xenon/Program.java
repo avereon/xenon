@@ -1175,6 +1175,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramWelcomeType( this ), WelcomeTool.class, ToolInstanceMode.SINGLETON, "welcome", "welcome" );
 		registerTool( manager, new ProgramFaultType( this ), FaultTool.class, ToolInstanceMode.UNLIMITED, "fault", "fault" );
 		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
+		registerTool( manager, new ProgramAssetOpenType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
@@ -1184,6 +1185,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		unregisterTool( manager, new ProgramAssetOpenType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );
 		unregisterTool( manager, new ProgramTaskType( this ), TaskTool.class );

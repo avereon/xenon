@@ -17,7 +17,6 @@ import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import javafx.application.Platform;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
 
 import java.io.IOException;
 import java.lang.System.Logger;
@@ -53,6 +52,8 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		this.optionProviders = new ConcurrentHashMap<>();
 		this.eventBus = new FxEventHub();
 
+		guide.setSelectionMode( SelectionMode.MULTIPLE );
+
 		this.settings.register( SettingsEvent.ANY, e -> eventBus.dispatch( e ) );
 	}
 
@@ -78,7 +79,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return ProgramSettings.PRODUCT + card.getProductKey();
 	}
 
-	public Map<String,SettingOptionProvider> getOptionProviders(){
+	public Map<String, SettingOptionProvider> getOptionProviders() {
 		return Collections.unmodifiableMap( optionProviders );
 	}
 
@@ -135,20 +136,10 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	private void updateSettingsGuide() {
-		Map<String, SettingsPage> pages = Collections.unmodifiableMap( rootSettingsPages );
-
-		// Get the settings program asset
-		try {
-			guide.setSelectionMode( SelectionMode.MULTIPLE );
-
-			// Create the guide tree
-			createGuide( guide.getRoot(), pages );
-		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Error getting settings asset", exception );
-		}
+		createGuide( null, Collections.unmodifiableMap( rootSettingsPages ) );
 	}
 
-	private void createGuide( TreeItem<GuideNode> parent, Map<String, SettingsPage> pages ) {
+	private void createGuide( GuideNode node, Map<String, SettingsPage> pages ) {
 		// Create a map of the title keys except the general key, it gets special handling
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
@@ -161,31 +152,26 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		Collections.sort( titles );
 
 		// Clear the guide nodes
-		parent.getChildren().clear();
+		guide.clear( node );
 
 		// Add the general node to the guide
-		addGuideNode( parent, pages.get( "general" ) );
+		addGuideNode( null, pages.get( "general" ) );
 
 		// Add the remaining nodes to the guide
 		for( String title : titles ) {
-			addGuideNode( parent, pages.get( titledKeys.get( title ) ) );
+			addGuideNode( node, pages.get( titledKeys.get( title ) ) );
 		}
 	}
 
-	private void addGuideNode( TreeItem<GuideNode> parent, SettingsPage page ) {
+	private void addGuideNode( GuideNode parent, SettingsPage page ) {
 		if( page == null ) return;
 
 		allSettingsPages.put( page.getId(), page );
 
-		GuideNode guideNode = new GuideNode();
-		guideNode.setId( page.getId() );
-		guideNode.setIcon( page.getIcon() );
-		guideNode.setName( page.getTitle() );
+		GuideNode guideNode = new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() );
+		guide.addNode( parent, guideNode );
 
-		TreeItem<GuideNode> child = new TreeItem<>( guideNode, program.getIconLibrary().getIcon( page.getIcon() ) );
-		parent.getChildren().add( child );
-
-		createGuide( child, page.getPages() );
+		createGuide( guideNode, page.getPages() );
 	}
 
 	@Override

@@ -47,21 +47,21 @@ public class GuideUIT extends FxProgramUIT {
 	private Guide createGuide() {
 		Guide guide = new Guide();
 
-		TreeItem<GuideNode> general = new TreeItem<>( new GuideNode().init( "general", "General" ) );
-		general.getChildren().add( new TreeItem<>( new GuideNode().init( "shutdown", "Shutdown" ) ) );
-		general.getChildren().add( new TreeItem<>( new GuideNode().init( "security", "Security" ) ) );
-		general.getChildren().add( new TreeItem<>( new GuideNode().init( "updates", "Updates" ) ) );
+		TreeItem<GuideNode> general = new TreeItem<>( new GuideNode( program ).init( "general", "General" ) );
+		general.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "shutdown", "Shutdown" ) ) );
+		general.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "security", "Security" ) ) );
+		general.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "updates", "Updates" ) ) );
 
-		TreeItem<GuideNode> workspace = new TreeItem<>( new GuideNode().init( "workspace", "Workspace" ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "theme", "Theme" ) ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "background", "Background" ) ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "task-monitor", "Task Monitor" ) ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "memory-monitor", "Memory Monitor" ) ) );
+		TreeItem<GuideNode> workspace = new TreeItem<>( new GuideNode( program ).init( "workspace", "Workspace" ) );
+		workspace.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "theme", "Theme" ) ) );
+		workspace.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "background", "Background" ) ) );
+		workspace.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "task-monitor", "Task Monitor" ) ) );
+		workspace.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "memory-monitor", "Memory Monitor" ) ) );
 
-		TreeItem<GuideNode> network = new TreeItem<>( new GuideNode().init( "network", "Network" ) );
-		network.getChildren().add( new TreeItem<>( new GuideNode().init( "proxy", "Proxy" ) ) );
+		TreeItem<GuideNode> network = new TreeItem<>( new GuideNode( program ).init( "network", "Network" ) );
+		network.getChildren().add( new TreeItem<>( new GuideNode( program ).init( "proxy", "Proxy" ) ) );
 
-		TreeItem<GuideNode> tools = new TreeItem<>( new GuideNode().init( "tools", "Tools" ) );
+		TreeItem<GuideNode> tools = new TreeItem<>( new GuideNode( program ).init( "tools", "Tools" ) );
 
 		guide.getRoot().getChildren().add( general );
 		guide.getRoot().getChildren().add( workspace );

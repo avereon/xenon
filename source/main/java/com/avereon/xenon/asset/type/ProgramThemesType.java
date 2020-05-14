@@ -30,9 +30,4 @@ public class ProgramThemesType extends AssetType {
 		return false;
 	}
 
-	@Override
-	public Codec getDefaultCodec() {
-		return null;
-	}
-
 }

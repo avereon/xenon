@@ -1,12 +1,15 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.venza.javafx.FxUtil;
-import com.avereon.xenon.*;
+import com.avereon.xenon.BaseToolUIT;
+import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ToolInstanceMode;
+import com.avereon.xenon.ToolRegistration;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
+import com.avereon.xenon.asset.MockCodec;
 import com.avereon.xenon.workpane.ToolEvent;
 import javafx.application.Platform;
-import javafx.scene.control.TreeItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +18,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GuidedToolUIT extends BaseToolUIT {
 
@@ -26,12 +30,18 @@ public class GuidedToolUIT extends BaseToolUIT {
 		super.setup();
 
 		assertThat( workpane.getTools().size(), is( 0 ) );
+		assertThat( program.getAssetManager().getAssetTypes().size(), is( 11 ) );
 
+		assertNotNull( program.getAssetManager().getAssetType( "program:guide" ) );
 		MockAssetType assetType = new MockAssetType( program );
 		program.getAssetManager().addAssetType( assetType );
-		program.getToolManager().registerTool( assetType, new ToolRegistration( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON ) );
 
-		program.getAssetManager().openAsset( MockAssetType.URI );
+		// FIXME The program asset types are not getting registered
+		// so when the MockGuidedTool tries to open, which opens the
+		// GuideTool...it doesn't.
+		ToolRegistration registration = new ToolRegistration( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
+		program.getToolManager().registerTool( assetType, registration );
+		program.getAssetManager().openAsset( MockCodec.URI );
 
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
@@ -134,23 +144,22 @@ public class GuidedToolUIT extends BaseToolUIT {
 			if( guide != null ) return guide;
 
 			Guide guide = new Guide();
-			guide.getRoot().getChildren().clear();
+			guide.clear();
 
-			GuideNode generalNode = new GuideNode();
+			GuideNode generalNode = new GuideNode( getProgram() );
 			generalNode.setId( "general" );
 			generalNode.setName( "general" );
-			TreeItem<GuideNode> generalTreeNode  = createGuideNode( getProgram(), generalNode );
-			guide.getRoot().getChildren().add( generalTreeNode );
+			guide.addNode( generalNode );
 
-			GuideNode summaryNode = new GuideNode();
+			GuideNode summaryNode = new GuideNode( getProgram() );
 			summaryNode.setId( "summary" );
 			summaryNode.setName( "summary" );
-			generalTreeNode.getChildren().add( createGuideNode( getProgram(), summaryNode ) );
+			guide.addNode( generalNode, summaryNode );
 
-			GuideNode detailsNode = new GuideNode();
+			GuideNode detailsNode = new GuideNode( getProgram() );
 			detailsNode.setId( "details" );
 			detailsNode.setName( "details" );
-			generalTreeNode.getChildren().add( createGuideNode( getProgram(), detailsNode ) );
+			guide.addNode( generalNode, detailsNode );
 
 			return this.guide = guide;
 		}
@@ -167,10 +176,6 @@ public class GuidedToolUIT extends BaseToolUIT {
 			System.out.println( "Select: " + newNodes );
 			guideNodesSelectedEventCount++;
 			this.selectedNodes = newNodes;
-		}
-
-		private TreeItem<GuideNode> createGuideNode( Program program, GuideNode node ) {
-			return new TreeItem<>( node, program.getIconLibrary().getIcon( node.getIcon() ) );
 		}
 
 	}

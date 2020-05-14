@@ -29,9 +29,4 @@ public class ProgramAssetOpenType extends AssetType {
 		return false;
 	}
 
-	@Override
-	public Codec getDefaultCodec() {
-		return null;
-	}
-
 }

@@ -40,7 +40,6 @@ public class IconLibrary {
 		register( "exit", PowerIcon.class );
 
 		register( "document", DocumentIcon.class );
-
 		register( "asset", DocumentIcon.class );
 		register( "asset-new", DocumentIcon.class );
 		register( "asset-open", FolderIcon.class );
@@ -92,6 +91,9 @@ public class IconLibrary {
 		register( "workarea-close", CloseToolIcon.class );
 
 		register( "wallpaper", WorkareaIcon.class );
+
+		register( "file", DocumentIcon.class );
+		register( "folder", FolderIcon.class );
 
 		register( "add", PlusIcon.class );
 		register( "refresh", RefreshIcon.class );

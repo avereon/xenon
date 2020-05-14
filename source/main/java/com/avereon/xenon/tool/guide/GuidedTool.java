@@ -2,19 +2,18 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramGuideType;
-import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
-import java.lang.System.Logger;
 
+import java.lang.System.Logger;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,9 +35,7 @@ public abstract class GuidedTool extends ProgramTool {
 
 	@Override
 	public Set<URI> getAssetDependencies() {
-		Set<URI> assets = new HashSet<>();
-		assets.add( ProgramGuideType.URI );
-		return assets;
+		return Set.of( ProgramGuideType.URI );
 	}
 
 	@Override

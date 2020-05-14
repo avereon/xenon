@@ -6,6 +6,7 @@ import com.avereon.util.*;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
+import com.avereon.xenon.asset.type.ProgramAssetOpenType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -1328,17 +1329,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			isHandling = true;
 			updateEnabled();
 
-			// TODO Replace this with a call to open the program:asset:open asset
-			// NOTE This logic is very file oriented. It may need to move to the file scheme.
-			FileChooser chooser = new FileChooser();
-			chooser.setInitialDirectory( getFileChooserFolder() );
-			File file = chooser.showOpenDialog( getProgram().getWorkspaceManager().getActiveStage() );
-
-			if( file != null ) {
-				File parent = file.isDirectory() ? file : file.getParentFile();
-				getSettings().set( CURRENT_FOLDER_SETTING_KEY, parent.toString() );
-				openAsset( file.toURI() );
-			}
+			openAsset( ProgramAssetOpenType.URI );
 
 			isHandling = false;
 			updateActionState();

@@ -69,7 +69,7 @@ public class AssetTypeTest extends BaseTestCase {
 	@Test
 	void testGetCodecByUri() {
 		AssetType type = new MockAssetType( product );
-		assertThat( type.getSupportedCodecs( Codec.Pattern.URI, "mock:test.mock"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.URI, "mock:test"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
 	@Test
