@@ -94,6 +94,8 @@ public class IconLibrary {
 
 		register( "file", DocumentIcon.class );
 		register( "folder", FolderIcon.class );
+		register( "asset-home", HomeIcon.class );
+		register( "asset-root", FileSystemIcon.class );
 
 		register( "add", PlusIcon.class );
 		register( "refresh", RefreshIcon.class );
