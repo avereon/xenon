@@ -1,8 +1,10 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
@@ -36,6 +38,14 @@ public class AssetTool extends GuidedTool {
 	}
 
 	@Override
+	protected void open( OpenAssetRequest request ) {
+		// Set the title depending on the mode requested
+		String action = request.getFragment();
+		if( TextUtil.isEmpty( action )) action = "open";
+		setTitle( getProduct().rb().text( "action", action + ".name" ));
+	}
+
+	@Override
 	protected Guide getGuide() {
 		return guide;
 	}
@@ -51,17 +61,21 @@ public class AssetTool extends GuidedTool {
 
 	private Guide testing( Guide guide ) {
 		for( Path fsRoot : FileSystems.getDefault().getRootDirectories() ) {
+			boolean folder = Files.isDirectory( fsRoot );
 			Path filenamePath = fsRoot.getFileName();
 			String filename = filenamePath == null ? "" : filenamePath.toString();
 
-			String name = filename;
-			String icon = "file";
-			if( Files.isDirectory( fsRoot ) ) {
-				name = "/" + filename;
-				icon = "folder";
-			}
+			String name = folder ? "/" + filename : filename;
+			String icon = folder ? "folder": "file";
 
-			guide.addNode( new GuideNode( getProgram() , fsRoot.toUri().toString(), name, icon ) );
+			GuideNode node = new GuideNode( getProgram() , fsRoot.toUri().toString(), name, icon );
+			guide.addNode( node );
+
+			if( folder ) {
+				// Need to add a "dummy" node when not expanded
+				// The dummy node will be replaced when the parent is expanded
+				guide.addNode( node, new GuideNode( getProgram(), "dummy", "dummy", "dummy" ) );
+			}
 		}
 
 		return guide;

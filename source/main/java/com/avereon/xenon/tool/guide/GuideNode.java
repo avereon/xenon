@@ -18,22 +18,20 @@ public class GuideNode extends Node {
 	private final Program program;
 
 	public GuideNode( Program program ) {
-		this.program = program;
-		definePrimaryKey( ID );
-		defineNaturalKey( NAME );
+		this( program, null, null, null );
+	}
+
+	public GuideNode( Program program, String id, String name ) {
+		this( program, id, name, null );
 	}
 
 	public GuideNode( Program program, String id, String name, String icon ) {
-		this( program );
+		this.program = program;
+		definePrimaryKey( ID );
+		defineNaturalKey( NAME );
 		setId( id );
 		setName( name );
 		setIcon( icon );
-	}
-
-	public GuideNode init( String id, String name ) {
-		setId( id );
-		setName( name );
-		return this;
 	}
 
 	public String getId() {

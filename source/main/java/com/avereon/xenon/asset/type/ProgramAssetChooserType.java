@@ -5,13 +5,19 @@ import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
 import com.avereon.xenon.asset.PlaceholderCodec;
 
-public class ProgramAssetOpenType extends AssetType {
+public class ProgramAssetChooserType extends AssetType {
 
-	private static final String uriPattern = "program:asset:open";
+	private static final String uriPattern = "program:asset";
 
-	public static final java.net.URI URI = java.net.URI.create( uriPattern );
+	private static final String openUriPattern = uriPattern + "#open";
 
-	public ProgramAssetOpenType( ProgramProduct product ) {
+	private static final String saveUriPattern = uriPattern + "#save";
+
+	public static final java.net.URI OPEN_URI = java.net.URI.create( openUriPattern );
+
+	public static final java.net.URI SAVE_URI = java.net.URI.create( saveUriPattern );
+
+	public ProgramAssetChooserType( ProgramProduct product ) {
 		super( product, "asset-open" );
 
 		PlaceholderCodec codec = new PlaceholderCodec();

@@ -6,7 +6,7 @@ import com.avereon.util.*;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
-import com.avereon.xenon.asset.type.ProgramAssetOpenType;
+import com.avereon.xenon.asset.type.ProgramAssetChooserType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -1329,7 +1329,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			isHandling = true;
 			updateEnabled();
 
-			openAsset( ProgramAssetOpenType.URI );
+			openAsset( ProgramAssetChooserType.OPEN_URI );
 
 			isHandling = false;
 			updateActionState();
@@ -1356,6 +1356,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 		@Override
 		public void handle( ActionEvent event ) {
+			if( saveAs ) openAsset( ProgramAssetChooserType.SAVE_URI );
 			saveAsset( getCurrentAsset() );
 		}
 

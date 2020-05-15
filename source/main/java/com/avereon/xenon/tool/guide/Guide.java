@@ -66,11 +66,6 @@ public class Guide {
 		return this;
 	}
 
-	@Deprecated
-	public TreeItem<GuideNode> getRoot() {
-		return root;
-	}
-
 	public SelectionMode getSelectionMode() {
 		return selectionMode;
 	}
@@ -89,6 +84,11 @@ public class Guide {
 
 	public BooleanProperty activeProperty() {
 		return activeProperty;
+	}
+
+	/* Only intended to be used by the GuideTool */
+	final TreeItem<GuideNode> getRoot() {
+		return root;
 	}
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
