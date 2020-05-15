@@ -10,18 +10,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
 import java.lang.System.Logger;
 
 /**
- * The Tool class is a control that "works on" an asset.
+ * The Tool class is a pane that "works on" an asset.
  */
-// FIXME Can tool extends StackPane or BorderPane?
-public abstract class Tool extends Control {
+public abstract class Tool extends StackPane {
 
 	private static final Logger log = Log.get();
 
@@ -248,11 +246,6 @@ public abstract class Tool extends Control {
 		builder.append( " }" );
 
 		return builder.toString();
-	}
-
-	@Override
-	protected Skin<Tool> createDefaultSkin() {
-		return new ToolSkin( this );
 	}
 
 	/**

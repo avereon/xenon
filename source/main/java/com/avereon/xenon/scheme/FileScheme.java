@@ -27,6 +27,14 @@ public class FileScheme extends BaseScheme {
 	public FileScheme( Program program ) {
 		super( program, ID );
 		//assetWatcher = new FileAssetWatcher();
+
+		// NOTE Temporary
+		//	private FileSystemManager fsManager;
+		//		try {
+		//			fsManager = VFS.getManager();
+		//		} catch( FileSystemException e ) {
+		//			log.log( Log.ERROR, e );
+		//		}
 	}
 
 	@Override

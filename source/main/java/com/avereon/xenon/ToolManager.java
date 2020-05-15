@@ -30,6 +30,10 @@ import static java.lang.System.Logger.Level.*;
 
 public class ToolManager implements Controllable<ToolManager> {
 
+	public static final int ASSET_READY_TIMEOUT = 10;
+
+	public static final int TOOL_READY_TIMEOUT = 2;
+
 	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
 
 	private Program program;
@@ -329,7 +333,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			tool.addEventFilter( ToolEvent.ADDED, h );
 			try {
 				if( tool.getToolView() == null ) {
-					latch.await( 2, TimeUnit.SECONDS );
+					latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
 					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + tool );
 				}
 			} finally {
@@ -340,7 +344,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	}
 
-	public static class AssetLoadedLatch extends Task<Void> {
+	private static class AssetLoadedLatch extends Task<Void> {
 
 		private final CountDownLatch latch = new CountDownLatch( 1 );
 
@@ -356,7 +360,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			asset.register( AssetEvent.LOADED, h );
 			try {
 				if( !asset.isLoaded() ) {
-					latch.await( 2, TimeUnit.SECONDS );
+					latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
 					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
 				}
 			} finally {

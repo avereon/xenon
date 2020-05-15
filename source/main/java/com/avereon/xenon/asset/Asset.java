@@ -9,6 +9,7 @@ import com.avereon.undo.UndoManager;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import com.avereon.util.UriUtil;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.scheme.AssetScheme;
 
@@ -20,22 +21,20 @@ import java.util.Objects;
 
 public class Asset extends Node implements Configurable {
 
-	public static final int ASSET_READY_TIMEOUT = 10;
-
 	public static final String SETTINGS_URI_KEY = "uri";
 
 	public static final String SETTINGS_TYPE_KEY = "asset-type";
 
-	public static final String MEDIA_TYPE_ASSET_KEY = "asset.media.type";
+	public static final String MEDIA_TYPE_KEY = "asset.media.type";
 
-	public static final String FILE_NAME_ASSET_KEY = "asset.file.name";
-
-	public static final String FIRST_LINE_ASSET_KEY = "asset.first.line";
+	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 
 	// FIXME Is this the same value as SETTINGS_TYPE_KEY above?
 	private static final String TYPE_VALUE_KEY = "asset.type";
 
 	private static final String URI_VALUE_KEY = "asset.uri";
+
+	public static final String ICON_VALUE_KEY = "asset.icon";
 
 	private static final String SCHEME_VALUE_KEY = "asset.scheme";
 
@@ -111,6 +110,15 @@ public class Asset extends Node implements Configurable {
 		updateAssetName();
 	}
 
+	public String getIcon() {
+		return getValue( ICON_VALUE_KEY, "file" );
+	}
+
+	public Asset setIcon( String icon ) {
+		setValue( ICON_VALUE_KEY, icon );
+		return this;
+	}
+
 	public AssetType getType() {
 		return getValue( TYPE_VALUE_KEY );
 	}
@@ -152,11 +160,11 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public String getMediaType() {
-		return getValue( MEDIA_TYPE_ASSET_KEY );
+		return getValue( MEDIA_TYPE_KEY, UNKNOWN_MEDIA_TYPE );
 	}
 
 	public void setMediaType( String mediaType ) {
-		setValue( MEDIA_TYPE_ASSET_KEY, mediaType );
+		setValue( MEDIA_TYPE_KEY, mediaType );
 	}
 
 	/**
@@ -181,7 +189,12 @@ public class Asset extends Node implements Configurable {
 		if( uri.isOpaque() ) {
 			return uri.getSchemeSpecificPart();
 		} else {
-			return uri.getPath().substring( uri.getPath().lastIndexOf( '/' ) + 1 );
+			String path = uri.getPath();
+			//boolean isFolder = path.endsWith( "/" );
+			//if( isFolder ) path = path.substring( 0, path.length() - 1 );
+			return UriUtil.parseName( uri );
+
+			//return path.substring( uri.getPath().lastIndexOf( '/' ) + 1 );
 		}
 	}
 
@@ -320,8 +333,9 @@ public class Asset extends Node implements Configurable {
 
 	public boolean exists() throws AssetException {
 		Scheme scheme = getScheme();
-		log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists");
-		return scheme != null && scheme.exists( this );
+		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
+		//log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists" );
+		return scheme.exists( this );
 	}
 
 	public boolean delete() throws AssetException {
@@ -334,7 +348,8 @@ public class Asset extends Node implements Configurable {
 	 */
 	public boolean isFolder() throws AssetException {
 		Scheme scheme = getScheme();
-		return scheme != null && scheme.isFolder( this );
+		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if folder" );
+		return scheme.isFolder( this );
 	}
 
 	/**
@@ -408,6 +423,12 @@ public class Asset extends Node implements Configurable {
 		return isNew() ? assetTypeName : uri.toString();
 	}
 
+	public String toUserString() {
+		String string = toString();
+		if( string.startsWith( "file:" )) string = string.substring( 5 );
+		return string;
+	}
+
 	private void updateAssetName() {
 		AssetType type = getType();
 		URI uri = getUri();
@@ -421,14 +442,15 @@ public class Asset extends Node implements Configurable {
 		if( name == null && TextUtil.isEmpty( path ) ) name = uri.toString();
 
 		// Get the name from the path
-		if( name == null && !TextUtil.isEmpty( path ) ) {
-			try {
-				if( isFolder() && path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
-			} catch( AssetException exception ) {
-				// Intentionally ignore exception
-			}
-			name = path.substring( path.lastIndexOf( '/' ) + 1 );
-		}
+		if( name == null && !TextUtil.isEmpty( path ) ) name = getFileName();
+		//		if( name == null && !TextUtil.isEmpty( path ) ) {
+		//			try {
+		//				if( isFolder() && path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
+		//			} catch( AssetException exception ) {
+		//				// Intentionally ignore exception
+		//			}
+		//			name = path.substring( path.lastIndexOf( '/' ) + 1 );
+		//		}
 
 		this.name = name;
 	}

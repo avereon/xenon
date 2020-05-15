@@ -62,8 +62,19 @@ public class GuideNode extends Node {
 		return this;
 	}
 
-	GuideNode reset() {
+	public GuideNode reset() {
 		if( exists( TREE_ITEM ) ) Platform.runLater( () -> getTreeItem().getChildren().clear() );
+		return this;
+	}
+
+	public GuideNode add( GuideNode child ) {
+		Platform.runLater( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
+		return this;
+	}
+
+	public GuideNode remove( GuideNode child ) {
+		if( !exists( TREE_ITEM ) ) return this;
+		Platform.runLater( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
 		return this;
 	}
 

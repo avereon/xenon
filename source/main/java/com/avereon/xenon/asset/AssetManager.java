@@ -5,8 +5,8 @@ import com.avereon.settings.Settings;
 import com.avereon.util.*;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.*;
-import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;
+import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -195,6 +195,12 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	public Scheme getScheme( String name ) {
 		return schemes.get( name );
+	}
+
+	private Scheme resolveScheme( Asset asset, String name ) throws AssetException {
+		Scheme scheme = getScheme( name );
+		if( scheme == null ) throw new AssetException( asset, new SchemeNotRegisteredException( name ) );
+		return scheme;
 	}
 
 	/**
@@ -520,11 +526,15 @@ public class AssetManager implements Controllable<AssetManager> {
 			}
 		}
 
-		if( saveAsAsset != null ) {
-			if( copy ) asset = saveAsAsset.copyFrom( asset );
-			asset.setUri( saveAsAsset.getUri() );
-			asset.setCodec( saveAsAsset.getCodec() );
-			asset.setScheme( getScheme( saveAsAsset.getUri().getScheme() ) );
+		try {
+			if( saveAsAsset != null ) {
+				if( copy ) asset = saveAsAsset.copyFrom( asset );
+				asset.setUri( saveAsAsset.getUri() );
+				asset.setCodec( saveAsAsset.getCodec() );
+				asset.setScheme( resolveScheme(asset, saveAsAsset.getUri().getScheme() ) );
+			}
+		} catch( AssetException exception ) {
+			log.log( Log.ERROR, exception );
 		}
 
 		saveAssets( asset );
@@ -1015,10 +1025,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) {
 			asset = new Asset( uri, type );
 			identifiedAssets.put( uri, asset );
-			Scheme scheme = getScheme( uri.getScheme() );
-			if( scheme == null ) throw new AssetException( asset, new SchemeNotRegisteredException( uri.getScheme() ) );
-			asset.setScheme( scheme );
-			scheme.init( asset );
+			asset.setScheme( resolveScheme( asset, asset.getUri().getScheme() ) );
 			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {
 			log.log( Log.TRACE, "Asset exists: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
