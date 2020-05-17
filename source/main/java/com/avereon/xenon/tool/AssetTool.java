@@ -16,22 +16,20 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.util.Callback;
 
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -53,6 +51,8 @@ public class AssetTool extends GuidedTool {
 
 	private final TableView<Asset> table;
 
+	TableColumn<Asset, Node> assetLabel;
+
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
@@ -61,15 +61,17 @@ public class AssetTool extends GuidedTool {
 		goButton = new Button();
 
 		table = new TableView<>( children = FXCollections.observableArrayList() );
-		TableColumn<Asset, Node> assetIcon = new TableColumn<>( "Icon" );
-		assetIcon.setCellValueFactory( assetNodeCellDataFeatures -> new SimpleObjectProperty<>( getProgram()
-			.getIconLibrary()
-			.getIcon( assetNodeCellDataFeatures.getValue().getIcon() ) ) );
-		TableColumn<Asset, String> assetName = new TableColumn<>( "Name" );
-		assetName.setCellValueFactory( new PropertyValueFactory<>( "name" ) );
+		table.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
+		assetLabel = new TableColumn<>( "Name" );
+		assetLabel.setCellValueFactory( new NameValueFactory(  ) );
+		assetLabel.prefWidthProperty().bind( table.widthProperty().multiply( 0.3 ) );
 		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI" );
 		assetUri.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
-		table.getColumns().addAll( assetIcon, assetName, assetUri );
+		// Size
+		// Type (or is this icon?)
+		// Mime Type
+		table.getColumns().add( assetLabel );
+		table.getColumns().add( assetUri );
 
 		BorderPane layout = new BorderPane();
 		layout.setPadding( new Insets( UiFactory.PAD ) );
@@ -81,6 +83,18 @@ public class AssetTool extends GuidedTool {
 		goButton.setOnAction( e -> selectAsset( uriField.getText() ) );
 
 		guide = initializeGuide();
+	}
+
+	private class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset,Node>, ObservableValue<Node>> {
+
+		@Override
+		public ObservableValue<Node> call( TableColumn.CellDataFeatures<Asset, Node> assetStringCellDataFeatures ) {
+			Asset asset = assetStringCellDataFeatures.getValue();
+			String name = asset.getName();
+			Node icon = getProgram().getIconLibrary().getIcon( assetStringCellDataFeatures.getValue().getIcon() );
+			return new ReadOnlyObjectWrapper<>( new Label( name, icon ) );
+		}
+
 	}
 
 	@Override
@@ -95,6 +109,8 @@ public class AssetTool extends GuidedTool {
 		// TODO Select to the current asset
 		String current = getProgram().getProgramSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
 		selectAsset( current );
+
+		// TODO Resize the columns???
 	}
 
 	@Override
@@ -186,22 +202,6 @@ public class AssetTool extends GuidedTool {
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
 		asset.register( Asset.ICON_VALUE_KEY, e -> node.setIcon( e.getNewValue() ) );
 		return node;
-	}
-
-	private Guide testing( Guide guide ) {
-		for( Path fsRoot : FileSystems.getDefault().getRootDirectories() ) {
-			boolean folder = Files.isDirectory( fsRoot );
-			Path filenamePath = fsRoot.getFileName();
-			String filename = filenamePath == null ? "" : filenamePath.toString();
-
-			String name = folder ? "/" + filename : filename;
-			String icon = folder ? "folder" : "file";
-
-			GuideNode node = new GuideNode( getProgram(), fsRoot.toUri().toString(), name, icon );
-			guide.addNode( node );
-		}
-
-		return guide;
 	}
 
 }
