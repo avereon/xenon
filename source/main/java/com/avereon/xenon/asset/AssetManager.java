@@ -1026,6 +1026,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			asset = new Asset( uri, type );
 			identifiedAssets.put( uri, asset );
 			asset.setScheme( resolveScheme( asset, asset.getUri().getScheme() ) );
+			asset.setIcon( asset.isFolder() ? "folder" : "file" );
 			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {
 			log.log( Log.TRACE, "Asset exists: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );

@@ -12,6 +12,7 @@ import java.io.*;
 import java.lang.System.Logger;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileScheme extends BaseScheme {
@@ -187,16 +188,16 @@ public class FileScheme extends BaseScheme {
 
 		File file = getFile( asset );
 		File[] children = file.listFiles();
-
 		if( children == null ) return new ArrayList<>();
 
-		//		return program.getAssetManager().createAssets( (Object[])children );
-		return null;
+		return (List<Asset>)program.getAssetManager().createAssets( Arrays.asList( children ) );
 	}
 
 	@Override
 	public long getSize( Asset asset ) throws AssetException {
-		return getFile( asset ).length();
+		File file = getFile( asset );
+		if( file.isDirectory() ) return file.listFiles().length;
+		return file.length();
 	}
 
 	@Override
@@ -219,16 +220,17 @@ public class FileScheme extends BaseScheme {
 	 */
 	private File getFile( Asset asset ) throws AssetException {
 		File file = asset.getFile();
-		if( file != null ) return file;
 
-		// Get the canonical file.
-		try {
-			file = new File( asset.getUri() ).getCanonicalFile();
-		} catch( IOException exception ) {
-			throw new AssetException( asset, exception );
+		if( file == null ) {
+			// Get the canonical file.
+			try {
+				file = new File( asset.getUri() ).getCanonicalFile();
+			} catch( IOException exception ) {
+				throw new AssetException( asset, exception );
+			}
+
+			asset.setFile( file );
 		}
-
-		asset.setFile( file );
 
 		return file;
 	}

@@ -6,6 +6,8 @@
 
 	-ex-workspace-tint-color: #c0c0c040;
 	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
+
+	-ex-background-error: CHART_COLOR_7_TRANS_20;
 }
 
 .debug {
@@ -397,7 +399,7 @@
 /*******************************************************************************
  * New Asset Tool
  ******************************************************************************/
-#tool-asset .asset-type-tile {
+#tool-asset-new .asset-type-tile {
 	-fx-min-width: 250px;
 	-fx-min-height: 200px;
 	-fx-max-width: 250px;
@@ -409,6 +411,10 @@
 	-fx-border-style: solid;
 	-fx-border-insets: 5px;
 	-fx-border-width: 5px;
+}
+
+#tool-asset #user-notice {
+	-fx-background-color: -ex-background-error;
 }
 
 /*******************************************************************************

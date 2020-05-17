@@ -29,7 +29,7 @@ public class NewAssetTool extends ProgramTool {
 
 	public NewAssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
-		setId( "tool-asset" );
+		setId( "tool-asset-new" );
 
 		view = new AssetTypeView();
 

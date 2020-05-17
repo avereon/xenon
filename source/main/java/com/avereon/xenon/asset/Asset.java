@@ -71,9 +71,12 @@ public class Asset extends Node implements Configurable {
 
 	private volatile boolean saved;
 
+	private Asset parent;
+
 	// Ready to use flag. This indicates the asset is now ready to be used,
 	// particularly by tools. If the asset is new or has been loaded then the
 	// asset is "ready".
+
 	//private volatile boolean ready;
 
 	public Asset( URI uri ) {
@@ -370,8 +373,21 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public Asset getParent() {
-		// TODO Implement Asset.getParent()
-		return null;
+		if( parent == null ) {
+			Scheme scheme = getScheme();
+			//parent = scheme.getParent( this );
+		}
+		return parent;
+	}
+
+	public List<Asset> getChildren() throws AssetException {
+		Scheme scheme = getScheme();
+		return scheme.listAssets( this );
+	}
+
+	public long getSize() throws AssetException {
+		Scheme scheme = getScheme();
+		return scheme.getSize( this );
 	}
 
 	@Override
@@ -425,7 +441,7 @@ public class Asset extends Node implements Configurable {
 
 	public String toUserString() {
 		String string = toString();
-		if( string.startsWith( "file:" )) string = string.substring( 5 );
+		if( string.startsWith( "file:" ) ) string = string.substring( 5 );
 		return string;
 	}
 
