@@ -16,10 +16,15 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -56,11 +61,15 @@ public class AssetTool extends GuidedTool {
 		goButton = new Button();
 
 		table = new TableView<>( children = FXCollections.observableArrayList() );
+		TableColumn<Asset, Node> assetIcon = new TableColumn<>( "Icon" );
+		assetIcon.setCellValueFactory( assetNodeCellDataFeatures -> new SimpleObjectProperty<>( getProgram()
+			.getIconLibrary()
+			.getIcon( assetNodeCellDataFeatures.getValue().getIcon() ) ) );
 		TableColumn<Asset, String> assetName = new TableColumn<>( "Name" );
 		assetName.setCellValueFactory( new PropertyValueFactory<>( "name" ) );
-		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI");
+		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI" );
 		assetUri.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
-		table.getColumns().addAll( assetName, assetUri );
+		table.getColumns().addAll( assetIcon, assetName, assetUri );
 
 		BorderPane layout = new BorderPane();
 		layout.setPadding( new Insets( UiFactory.PAD ) );
