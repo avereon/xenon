@@ -1,14 +1,12 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
 import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.asset.AssetManager;
-import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.asset.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
@@ -31,6 +29,7 @@ import javafx.util.Callback;
 import java.awt.event.KeyEvent;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -96,14 +95,17 @@ public class AssetTool extends GuidedTool {
 		table.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
 		assetLabel = new TableColumn<>( "Name" );
 		assetLabel.setCellValueFactory( new NameValueFactory() );
-		//assetLabel.prefWidthProperty().bind( table.widthProperty().multiply( 0.3 ) );
+		assetLabel.setComparator( new AssetLabelComparator() );
+		assetLabel.setSortType( TableColumn.SortType.ASCENDING );
 		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI" );
 		assetUri.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
-		TableColumn<Asset, Long> assetSize = new TableColumn<>( "Size" );
-		assetSize.setCellValueFactory( new PropertyValueFactory<>( "size" ) );
+		TableColumn<Asset, String> assetSize = new TableColumn<>( "Size" );
+		assetSize.setCellValueFactory( new SizeValueFactory() );
 		table.getColumns().add( assetLabel );
 		table.getColumns().add( assetUri );
 		table.getColumns().add( assetSize );
+
+		table.getSortOrder().add( assetLabel );
 
 		// Tool layout
 		VBox layout = new VBox( UiFactory.PAD );
@@ -192,7 +194,10 @@ public class AssetTool extends GuidedTool {
 		getProgram().getTaskManager().submit( Task.of( "", () -> {
 			try {
 				List<Asset> assets = asset.getChildren();
-				Platform.runLater( () -> children.addAll( assets ) );
+				Platform.runLater( () -> {
+					children.addAll( assets );
+					table.sort();
+				} );
 			} catch( AssetException exception ) {
 				notifyUser( "asset-error", exception.getMessage() );
 				log.log( Log.ERROR, exception );
@@ -269,7 +274,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	/**
-	 * A table value factory to create the asset label.
+	 * A table value factory for the asset label.
 	 */
 	private class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
 
@@ -278,9 +283,43 @@ public class AssetTool extends GuidedTool {
 			Asset asset = assetStringCellDataFeatures.getValue();
 			String name = asset.getName();
 			Node icon = getProgram().getIconLibrary().getIcon( assetStringCellDataFeatures.getValue().getIcon() );
-			return new ReadOnlyObjectWrapper<>( new Label( name, icon ) );
+			Label label = new Label( name, icon );
+			label.getProperties().put( "asset", asset );
+			return new ReadOnlyObjectWrapper<>( label );
 		}
 
+	}
+
+	/**
+	 * A table value factory for the asset size.
+	 */
+	private class SizeValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, String>, ObservableValue<String>> {
+
+		@Override
+		public ObservableValue<String> call( TableColumn.CellDataFeatures<Asset, String> assetStringCellDataFeatures ) {
+			try {
+				Asset asset = assetStringCellDataFeatures.getValue();
+				long size = asset.getSize();
+				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( String.valueOf( size ) );
+				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true) );
+			} catch( AssetException exception ) {
+				log.log( Log.ERROR, exception );
+				return new ReadOnlyObjectWrapper<>("");
+			}
+		}
+
+	}
+
+	private static final class AssetLabelComparator implements Comparator<Node> {
+
+		private Comparator<Asset> assetComparator = new AssetTypeAndNameComparator();
+
+		@Override
+		public int compare( Node o1, Node o2 ) {
+			Asset asset1 = (Asset)o1.getProperties().get( "asset" );
+			Asset asset2 = (Asset)o2.getProperties().get( "asset" );
+			return assetComparator.compare( asset1, asset2 );
+		}
 	}
 
 }

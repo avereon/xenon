@@ -194,7 +194,7 @@
 	-fx-text-fill: -fx-text-background-color;
 }
 .workpane .table-row-cell:odd {
-	-fx-background: -ex-background-tabs;
+	-fx-background: -ex-background-tags;
 }
 
 .workpane .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected {
