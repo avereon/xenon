@@ -4,6 +4,8 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
 import com.avereon.venza.javafx.FxUtil;
+import com.avereon.xenon.Action;
+import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.*;
@@ -11,11 +13,13 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
+import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -46,7 +50,7 @@ public class AssetTool extends GuidedTool {
 
 	private static final System.Logger log = Log.get();
 
-	private Mode mode;
+	private Mode mode = Mode.OPEN;
 
 	private final Guide guide;
 
@@ -65,6 +69,14 @@ public class AssetTool extends GuidedTool {
 	private final TableView<Asset> table;
 
 	private final TableColumn<Asset, Node> assetLabel;
+
+	private final Action priorAction;
+
+	private final Action nextAction;
+
+	private final Action parentAction;
+
+	private Asset currentAsset;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -94,13 +106,14 @@ public class AssetTool extends GuidedTool {
 		VBox.setVgrow( table, Priority.ALWAYS );
 		table.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
 		assetLabel = new TableColumn<>( "Name" );
-		assetLabel.setCellValueFactory( new NameValueFactory() );
+		assetLabel.setCellValueFactory( new NameValueFactory( getProgram() ) );
 		assetLabel.setComparator( new AssetLabelComparator() );
 		assetLabel.setSortType( TableColumn.SortType.ASCENDING );
 		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI" );
 		assetUri.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
 		TableColumn<Asset, String> assetSize = new TableColumn<>( "Size" );
-		assetSize.setCellValueFactory( new SizeValueFactory() );
+		assetSize.setCellValueFactory( new SizeValueFactory( getProgram() ) );
+		assetSize.setStyle( "-fx-alignment: CENTER-RIGHT;" );
 		table.getColumns().add( assetLabel );
 		table.getColumns().add( assetUri );
 		table.getColumns().add( assetSize );
@@ -115,28 +128,31 @@ public class AssetTool extends GuidedTool {
 		layout.getChildren().add( table );
 		getChildren().add( layout );
 
+		// Actions
+		priorAction = new PriorAction( getProgram() );
+		nextAction = new PriorAction( getProgram() );
+		parentAction = new ParentAction( getProgram() );
+
 		// Basic behavior
 		uriField.setOnKeyPressed( e -> {
 			if( e.getCode().getCode() == KeyEvent.VK_ESCAPE && userNotice.isVisible() ) closeUserNotice();
 		} );
-		uriField.setOnAction( e -> selectAsset( uriField.getText() ) );
-		goButton.setOnAction( e -> selectAsset( uriField.getText() ) );
+		uriField.setOnAction( e -> selectAssetUri( uriField.getText() ) );
+		goButton.setOnAction( e -> selectAssetUri( uriField.getText() ) );
+		table.setOnMousePressed( e -> {
+			int clickCount = Integer.parseInt( getSettings().get( "click-count", "1" ) );
+			@SuppressWarnings( "unchecked" ) TableView<Asset> table = (TableView<Asset>)e.getSource();
+			Asset item = table.getSelectionModel().getSelectedItem();
+			if( item != null && e.getClickCount() >= clickCount ) selectAssetUri( item.getUri().toString() );
+		} );
 
 		guide = initializeGuide();
-	}
-
-	private static Mode resolveMode( String fragment ) {
-		if( fragment == null ) return Mode.OPEN;
-		try {
-			return Mode.valueOf( fragment.trim().toUpperCase() );
-		} catch( IllegalArgumentException exception ) {
-			return Mode.OPEN;
-		}
 	}
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
 		// TODO Put the columns in the preferred order
+		// TODO Set the columns to the preferred size
 	}
 
 	@Override
@@ -149,46 +165,98 @@ public class AssetTool extends GuidedTool {
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Select the current asset
-		String current = getProgram().getProgramSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
-		selectAsset( current );
-
-		// TODO Resize the columns???
+		Path currentFolder = FileUtil.findValidFolder( getProgram()
+			.getProgramSettings()
+			.get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
+		selectAssetUri( currentFolder.toAbsolutePath().toString() );
 	}
 
-	//	@Override
-	//	protected void activate() throws ToolException {
-	//		super.activate();
-	//	}
+	@Override
+	protected void activate() throws ToolException {
+		super.activate();
+		pushAction( "prior", priorAction );
+		pushAction( "next", nextAction );
+		pushAction( "up", parentAction );
+		pushToolActions( "prior", "next", "up" );
+	}
 
-	private void selectAsset( String text ) {
+	@Override
+	protected void conceal() throws ToolException {
+		super.conceal();
+		pullToolActions();
+		pullAction( "up", parentAction );
+		pullAction( "next", nextAction );
+		pullAction( "prior", priorAction );
+	}
+
+	@Override
+	protected Guide getGuide() {
+		return guide;
+	}
+
+	@Override
+	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
+		if( newNodes.isEmpty() ) return;
+		selectAssetUri( newNodes.stream().findAny().get().getId() );
+	}
+
+	private static Mode resolveMode( String fragment ) {
+		if( fragment == null ) return Mode.OPEN;
+		try {
+			return Mode.valueOf( fragment.trim().toUpperCase() );
+		} catch( IllegalArgumentException exception ) {
+			return Mode.OPEN;
+		}
+	}
+
+	private void selectAssetUri( String text ) {
 		FxUtil.assertFxThread();
 		uriField.setText( text );
 
 		try {
 			Asset asset = getProgram().getAssetManager().createAsset( text );
-			if( mode == Mode.OPEN ) {
-				if( !asset.exists() ) {
-					notifyUser( "asset-not-found", text );
-				} else if( asset.isFolder() ) {
-					loadFolder( asset );
 
-					// TODO if there is a non-folder asset selected in the table...open it
-				} else {
-					getProgram().getAssetManager().openAssets( asset );
+			if( asset.isFolder() ) {
+				loadFolder( asset );
+			} else {
+				if( mode == Mode.OPEN ) {
+					if( !asset.exists() ) {
+						notifyUser( "asset-not-found", text );
+					} else {
+						getProgram().getAssetManager().openAsset( asset.getUri() );
+						close();
+						return;
+					}
+				} else if( mode == Mode.SAVE ) {
+					// TODO The save action
+					//getProgram().getAssetManager().saveAsAsset( incomingAsset, asset.getUri() );
 					close();
 					return;
 				}
-				activateUriField();
-				closeUserNotice();
 			}
-			// TODO The save action
+			activateUriField();
 		} catch( AssetException exception ) {
 			notifyUser( "asset-error", exception.getMessage() );
 			log.log( Log.ERROR, exception );
+		} finally {
+			updateActionState();
 		}
 	}
 
+	private void updateActionState() {
+		priorAction.updateEnabled();
+		nextAction.updateEnabled();
+		parentAction.updateEnabled();
+	}
+
+	private Asset getCurrentAsset() {
+		return currentAsset;
+	}
+
 	private void loadFolder( Asset asset ) {
+		getProgram().getProgramSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
+		closeUserNotice();
+		currentAsset = asset;
 		children.clear();
 
 		getProgram().getTaskManager().submit( Task.of( "", () -> {
@@ -213,8 +281,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void notifyUser( String messageKey, String... parameters ) {
-		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" )
-		String message = getProduct().rb().text( "program", messageKey, parameters );
+		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = getProduct().rb().text( "program", messageKey, parameters );
 
 		Platform.runLater( () -> {
 			userMessage.setText( message );
@@ -226,23 +293,6 @@ public class AssetTool extends GuidedTool {
 	private void closeUserNotice() {
 		userNotice.setVisible( false );
 		userNotice.setManaged( false );
-	}
-
-	//	private File getFileChooserFolder() {
-	//		File folder = new File( getSettings().get( CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
-	//		if( !folder.exists() || !folder.isDirectory() ) folder = new File( System.getProperty( "user.dir" ) );
-	//		return folder;
-	//	}
-
-	@Override
-	protected Guide getGuide() {
-		return guide;
-	}
-
-	@Override
-	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
-		if( newNodes.isEmpty() ) return;
-		selectAsset( newNodes.stream().findAny().get().getId() );
 	}
 
 	private Guide initializeGuide() {
@@ -276,13 +326,19 @@ public class AssetTool extends GuidedTool {
 	/**
 	 * A table value factory for the asset label.
 	 */
-	private class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
+	private static class NameValueFactory implements Callback<javafx.scene.control.TableColumn.CellDataFeatures<Asset, Node>, ObservableValue<Node>> {
+
+		private final Program program;
+
+		public NameValueFactory( Program program ) {
+			this.program = program;
+		}
 
 		@Override
 		public ObservableValue<Node> call( TableColumn.CellDataFeatures<Asset, Node> assetStringCellDataFeatures ) {
 			Asset asset = assetStringCellDataFeatures.getValue();
 			String name = asset.getName();
-			Node icon = getProgram().getIconLibrary().getIcon( assetStringCellDataFeatures.getValue().getIcon() );
+			Node icon = program.getIconLibrary().getIcon( assetStringCellDataFeatures.getValue().getIcon() );
 			Label label = new Label( name, icon );
 			label.getProperties().put( "asset", asset );
 			return new ReadOnlyObjectWrapper<>( label );
@@ -293,18 +349,24 @@ public class AssetTool extends GuidedTool {
 	/**
 	 * A table value factory for the asset size.
 	 */
-	private class SizeValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, String>, ObservableValue<String>> {
+	private static class SizeValueFactory implements Callback<TableColumn.CellDataFeatures<Asset, String>, ObservableValue<String>> {
+
+		private final Program program;
+
+		public SizeValueFactory( Program program ) {
+			this.program = program;
+		}
 
 		@Override
 		public ObservableValue<String> call( TableColumn.CellDataFeatures<Asset, String> assetStringCellDataFeatures ) {
 			try {
 				Asset asset = assetStringCellDataFeatures.getValue();
 				long size = asset.getSize();
-				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( String.valueOf( size ) );
-				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true) );
+				if( asset.isFolder() ) return new ReadOnlyObjectWrapper<>( program.rb().text( "asset", "asset-open-folder-size", size ) );
+				return new ReadOnlyObjectWrapper<>( FileUtil.getHumanSize( size, false, true ) );
 			} catch( AssetException exception ) {
 				log.log( Log.ERROR, exception );
-				return new ReadOnlyObjectWrapper<>("");
+				return new ReadOnlyObjectWrapper<>( "" );
 			}
 		}
 
@@ -312,7 +374,7 @@ public class AssetTool extends GuidedTool {
 
 	private static final class AssetLabelComparator implements Comparator<Node> {
 
-		private Comparator<Asset> assetComparator = new AssetTypeAndNameComparator();
+		private final Comparator<Asset> assetComparator = new AssetTypeAndNameComparator();
 
 		@Override
 		public int compare( Node o1, Node o2 ) {
@@ -320,6 +382,63 @@ public class AssetTool extends GuidedTool {
 			Asset asset2 = (Asset)o2.getProperties().get( "asset" );
 			return assetComparator.compare( asset1, asset2 );
 		}
+	}
+
+	private final class PriorAction extends Action {
+
+		protected PriorAction( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			//return history.currentIndex > 0;
+			return false;
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			// TODO Choose the prior item in the history (undo scope?)
+		}
+
+	}
+
+	private final class NextAction extends Action {
+
+		protected NextAction( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			//return history.currentIndex < history.length;
+			return false;
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			// TODO Choose the next item in the history (undo scope?)
+		}
+
+	}
+
+	private final class ParentAction extends Action {
+
+		protected ParentAction( Program program ) {
+			super( program );
+		}
+
+		@Override
+		public boolean isEnabled() {
+			Asset current = getCurrentAsset();
+			return current != null && current.getParent() != null;
+		}
+
+		@Override
+		public void handle( ActionEvent event ) {
+			selectAssetUri( getCurrentAsset().getParent().getUri().toString() );
+		}
+
 	}
 
 }

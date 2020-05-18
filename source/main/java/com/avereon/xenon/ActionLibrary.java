@@ -93,6 +93,8 @@ public class ActionLibrary {
 		register( bundle, "wallpaper-next" );
 
 		register( bundle, "reset" );
+		register( bundle, "runpause" );
+
 		register( bundle, "refresh" );
 		register( bundle, "enable" );
 		register( bundle, "disable" );
@@ -101,8 +103,13 @@ public class ActionLibrary {
 		register( bundle, "add-market" );
 		register( bundle, "remove-market" );
 
+		// Navigation
+		register( bundle, "prior" );
+		register( bundle, "next" );
+		register( bundle, "up" );
+		register( bundle, "down" );
+
 		register( bundle, "options" );
-		register( bundle, "runpause" );
 	}
 
 	public ActionProxy getAction( String id ) {
@@ -138,7 +145,7 @@ public class ActionLibrary {
 	private void handleEvent( KeyEvent event ) {
 		for( ActionProxy proxy : actions.values() ) {
 			KeyCombination accelerator = proxy.getAccelerator();
-			if( accelerator != null && accelerator.match( event )) {
+			if( accelerator != null && accelerator.match( event ) ) {
 				proxy.handle( new ActionEvent() );
 				event.consume();
 				break;
