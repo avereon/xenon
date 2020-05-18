@@ -92,10 +92,11 @@ public class AssetTool extends GuidedTool {
 
 		// Asset table
 		table = new TableView<>( children = FXCollections.observableArrayList() );
+		VBox.setVgrow( table, Priority.ALWAYS );
 		table.setColumnResizePolicy( TableView.CONSTRAINED_RESIZE_POLICY );
 		assetLabel = new TableColumn<>( "Name" );
 		assetLabel.setCellValueFactory( new NameValueFactory() );
-		assetLabel.prefWidthProperty().bind( table.widthProperty().multiply( 0.3 ) );
+		//assetLabel.prefWidthProperty().bind( table.widthProperty().multiply( 0.3 ) );
 		TableColumn<Asset, String> assetUri = new TableColumn<>( "URI" );
 		assetUri.setCellValueFactory( new PropertyValueFactory<>( "uri" ) );
 		TableColumn<Asset, Long> assetSize = new TableColumn<>( "Size" );

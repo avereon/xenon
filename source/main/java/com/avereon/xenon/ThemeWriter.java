@@ -185,9 +185,9 @@ public class ThemeWriter {
 	private void printExBackgrounds( PrintWriter printer ) {
 		// -fx-base tone with alpha
 		Color base = isDark ? Colors.getTone( this.base, 0.2 ) : Colors.getTone( this.base, -0.2 );
-		printer.println( "  -ex-background-text: " + format( base.deriveColor( 0, 1, 1, 0.5 ) ) + ";" );
-		printer.println( "  -ex-background-tabs: " + format( base.deriveColor( 0, 1, 1, 0.6 ) ) + ";" );
-		printer.println( "  -ex-background-tags: " + format( base.deriveColor( 0, 1, 1, 0.7 ) ) + ";" );
+		printer.println( "  -ex-background-text: " + format( base.deriveColor( 0, 1, 1, 0.35 ) ) + ";" );
+		printer.println( "  -ex-background-tabs: " + format( base.deriveColor( 0, 1, 1, 0.5 ) ) + ";" );
+		printer.println( "  -ex-background-tags: " + format( base.deriveColor( 0, 1, 1, 0.65 ) ) + ";" );
 		printer.println( "  -ex-background-note: " + format( base.deriveColor( 0, 1, 1, 0.8 ) ) + ";" );
 	}
 

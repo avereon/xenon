@@ -180,6 +180,33 @@
 }
 
 /*******************************************************************************
+ * Workpane Table View
+ ******************************************************************************/
+.workpane .table-view {
+	-fx-background-color: transparent;
+}
+
+.workpane .table-row-cell {
+	/* This sets the variable -fx-background */
+	-fx-background: -ex-background-text;
+	-fx-background-color: -fx-background;
+	-fx-padding: 0;
+	-fx-text-fill: -fx-text-background-color;
+}
+.workpane .table-row-cell:odd {
+	-fx-background: -ex-background-tabs;
+}
+
+.workpane .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected {
+	-fx-background: -fx-selection-bar;
+	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+}
+
+.workpane .table-row-cell:filled:selected {
+	-fx-background: -fx-selection-bar-non-focused;
+	-fx-table-cell-border-color: derive(-fx-selection-bar-non-focused, 20%);
+}
+/*******************************************************************************
  * Workpane
  ******************************************************************************/
 .workpane {

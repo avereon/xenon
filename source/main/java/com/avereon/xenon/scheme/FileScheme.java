@@ -196,7 +196,11 @@ public class FileScheme extends BaseScheme {
 	@Override
 	public long getSize( Asset asset ) throws AssetException {
 		File file = getFile( asset );
-		if( file.isDirectory() ) return file.listFiles().length;
+		if( file == null ) return -1;
+		if( file.isDirectory() ) {
+			File[] files = file.listFiles();
+			return files == null ? -1 : files.length;
+		}
 		return file.length();
 	}
 
@@ -222,14 +226,11 @@ public class FileScheme extends BaseScheme {
 		File file = asset.getFile();
 
 		if( file == null ) {
-			// Get the canonical file.
 			try {
-				file = new File( asset.getUri() ).getCanonicalFile();
+				asset.setFile( file = new File( asset.getUri() ).getCanonicalFile() );
 			} catch( IOException exception ) {
 				throw new AssetException( asset, exception );
 			}
-
-			asset.setFile( file );
 		}
 
 		return file;
