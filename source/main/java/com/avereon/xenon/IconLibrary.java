@@ -106,6 +106,13 @@ public class IconLibrary {
 		register( "disable", DisableIcon.class );
 		register( "remove", CloseIcon.class );
 
+		register( "up", ArrowUpIcon.class );
+		register( "down", ArrowDownIcon.class );
+		register( "left", ArrowLeftIcon.class );
+		register( "right", ArrowRightIcon.class );
+		register( "prior", ArrowLeftIcon.class );
+		register( "next", ArrowRightIcon.class );
+
 		register( "toggle-enabled", ToggleIcon.class, true );
 		register( "toggle-disabled", ToggleIcon.class, false );
 	}

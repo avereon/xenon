@@ -1,5 +1,6 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.undo.UndoManager;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
@@ -81,6 +82,8 @@ public class AssetTool extends GuidedTool {
 	private Asset parentAsset;
 
 	private Asset currentAsset;
+
+	private UndoManager undoScope;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -408,13 +411,14 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			//return history.currentIndex > 0;
+			//return undoScope.canUndo();
 			return false;
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
 			// TODO Choose the prior item in the history (undo scope?)
+			//undoScope.undo();
 		}
 
 	}
@@ -427,13 +431,14 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			//return history.currentIndex < history.length;
+			//return undoScope.canRedo();
 			return false;
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
 			// TODO Choose the next item in the history (undo scope?)
+			//undoScope.redo();
 		}
 
 	}
