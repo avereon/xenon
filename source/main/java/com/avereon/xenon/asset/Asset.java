@@ -11,7 +11,7 @@ import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
 import com.avereon.venza.event.FxEventHub;
-import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.scheme.NewScheme;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class Asset extends Node implements Configurable {
+
+	public static final Asset NONE = new Asset( URI.create( "program:none" ) );
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
@@ -83,12 +85,12 @@ public class Asset extends Node implements Configurable {
 		this( uri, null );
 	}
 
+	// Testing only
 	public Asset( String uri ) {
 		this( URI.create( uri ), null );
 	}
 
 	public Asset( URI uri, AssetType type ) {
-		if( uri == null ) throw new IllegalArgumentException( "Asset URI cannot be null" );
 		setUri( uri );
 		setType( type );
 
@@ -109,6 +111,7 @@ public class Asset extends Node implements Configurable {
 
 	public void setUri( URI uri ) {
 		if( uri == null ) throw new NullPointerException( "The uri cannot be null." );
+		if( !uri.toString().equals( uri.normalize().toString() ) ) throw new IllegalArgumentException( "URI must be normalized" );
 		setValue( URI_VALUE_KEY, uri );
 		updateAssetName();
 	}
@@ -255,7 +258,7 @@ public class Asset extends Node implements Configurable {
 		// tool restored. In this case it should be restored with any prior
 		// temporary state that should have been saved. The asset is not new but
 		// it does not yet have a "real" URI.
-		return AssetScheme.ID.equals( getUri().getScheme() );
+		return NewScheme.ID.equals( getUri().getScheme() );
 	}
 
 	public synchronized final boolean isNewOrModified() {
@@ -372,12 +375,9 @@ public class Asset extends Node implements Configurable {
 		return scheme == null ? null : scheme.listAssets( this );
 	}
 
-	public Asset getParent() {
-		if( parent == null ) {
-			Scheme scheme = getScheme();
-			//parent = scheme.getParent( this );
-		}
-		return parent;
+	Asset add( Asset child ) {
+		setValue( child.getUri().toString(), child );
+		return this;
 	}
 
 	public List<Asset> getChildren() throws AssetException {

@@ -31,10 +31,12 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.awt.event.KeyEvent;
+import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 //import org.apache.commons.vfs2.FileSystemException;
@@ -75,6 +77,8 @@ public class AssetTool extends GuidedTool {
 	private final Action nextAction;
 
 	private final Action parentAction;
+
+	private Asset parentAsset;
 
 	private Asset currentAsset;
 
@@ -137,13 +141,13 @@ public class AssetTool extends GuidedTool {
 		uriField.setOnKeyPressed( e -> {
 			if( e.getCode().getCode() == KeyEvent.VK_ESCAPE && userNotice.isVisible() ) closeUserNotice();
 		} );
-		uriField.setOnAction( e -> selectAssetUri( uriField.getText() ) );
-		goButton.setOnAction( e -> selectAssetUri( uriField.getText() ) );
+		uriField.setOnAction( e -> selectAsset( uriField.getText() ) );
+		goButton.setOnAction( e -> selectAsset( uriField.getText() ) );
 		table.setOnMousePressed( e -> {
 			int clickCount = Integer.parseInt( getSettings().get( "click-count", "1" ) );
 			@SuppressWarnings( "unchecked" ) TableView<Asset> table = (TableView<Asset>)e.getSource();
 			Asset item = table.getSelectionModel().getSelectedItem();
-			if( item != null && e.getClickCount() >= clickCount ) selectAssetUri( item.getUri().toString() );
+			if( item != null && e.getClickCount() >= clickCount ) selectAsset( item.getUri().toString() );
 		} );
 
 		guide = initializeGuide();
@@ -168,7 +172,7 @@ public class AssetTool extends GuidedTool {
 		Path currentFolder = FileUtil.findValidFolder( getProgram()
 			.getProgramSettings()
 			.get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
-		selectAssetUri( currentFolder.toAbsolutePath().toString() );
+		selectAsset( currentFolder.toAbsolutePath().toString() );
 	}
 
 	@Override
@@ -197,7 +201,7 @@ public class AssetTool extends GuidedTool {
 	@Override
 	protected void guideNodesSelected( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {
 		if( newNodes.isEmpty() ) return;
-		selectAssetUri( newNodes.stream().findAny().get().getId() );
+		selectAsset( newNodes.stream().findAny().get().getId() );
 	}
 
 	private static Mode resolveMode( String fragment ) {
@@ -209,7 +213,17 @@ public class AssetTool extends GuidedTool {
 		}
 	}
 
-	private void selectAssetUri( String text ) {
+	private void selectAsset( Asset asset ) {
+		selectAsset( asset.getUri() );
+	}
+
+	private void selectAsset( URI uri ) {
+		selectAsset( uri.toString() );
+	}
+
+	private void selectAsset( String text ) {
+		Objects.requireNonNull( text );
+
 		FxUtil.assertFxThread();
 		uriField.setText( text );
 
@@ -255,14 +269,16 @@ public class AssetTool extends GuidedTool {
 
 	private void loadFolder( Asset asset ) {
 		getProgram().getProgramSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
-		closeUserNotice();
 		currentAsset = asset;
-		children.clear();
+		updateActionState();
+		closeUserNotice();
 
-		getProgram().getTaskManager().submit( Task.of( "", () -> {
+		getProgram().getTaskManager().submit( Task.of( "load-folder", () -> {
 			try {
+				parentAsset = getProgram().getAssetManager().getParent( asset );
 				List<Asset> assets = asset.getChildren();
 				Platform.runLater( () -> {
+					children.clear();
 					children.addAll( assets );
 					table.sort();
 				} );
@@ -430,13 +446,12 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			Asset current = getCurrentAsset();
-			return current != null && current.getParent() != null;
+			return currentAsset != null && UriUtil.hasParent( currentAsset.getUri() );
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			selectAssetUri( getCurrentAsset().getParent().getUri().toString() );
+			selectAsset( parentAsset );
 		}
 
 	}

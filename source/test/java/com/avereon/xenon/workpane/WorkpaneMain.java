@@ -8,11 +8,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.net.URI;
-
 public class WorkpaneMain extends Application {
 
-	private static Asset asset = new Asset( URI.create( "" ) );
+	private static final Asset asset = Asset.NONE;
 
 	@Override
 	public void start( Stage stage ) {

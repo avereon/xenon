@@ -8,6 +8,7 @@ import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
 import com.avereon.xenon.asset.type.ProgramGuideType;
+import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
@@ -42,8 +43,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	private static final int FIRST_LINE_LIMIT = 128;
 
 	private static final Logger log = Log.get();
-
-	private static final Asset NULL_ASSET = new Asset( URI.create( "program:null" ) );
 
 	private final Program program;
 
@@ -531,7 +530,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				if( copy ) asset = saveAsAsset.copyFrom( asset );
 				asset.setUri( saveAsAsset.getUri() );
 				asset.setCodec( saveAsAsset.getCodec() );
-				asset.setScheme( resolveScheme(asset, saveAsAsset.getUri().getScheme() ) );
+				asset.setScheme( resolveScheme( asset, saveAsAsset.getUri().getScheme() ) );
 			}
 		} catch( AssetException exception ) {
 			log.log( Log.ERROR, exception );
@@ -866,6 +865,13 @@ public class AssetManager implements Controllable<AssetManager> {
 		return assetTypes.values().stream().flatMap( t -> t.getCodecs().stream() ).collect( Collectors.toUnmodifiableSet() );
 	}
 
+	public Asset getParent( Asset asset ) throws AssetException {
+		if( !UriUtil.hasParent( asset.getUri() ) ) return Asset.NONE;
+		Asset parent = asset.getParent();
+		if( parent == null ) parent = createAsset( UriUtil.getParent( asset.getUri() ) ).add( asset );
+		return parent;
+	}
+
 	private Settings getSettings() {
 		return program.getSettingsManager().getSettings( ManagerSettings.ASSET );
 	}
@@ -1018,8 +1024,9 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The asset created from the asset type and URI
 	 */
 	private synchronized Asset doCreateAsset( AssetType type, URI uri ) throws AssetException {
-		if( uri == null ) uri = URI.create( "asset:" + IdGenerator.getId() );
+		if( uri == null ) uri = URI.create( NewScheme.ID + ":" + IdGenerator.getId() );
 		uri = UriUtil.removeQueryAndFragment( uri );
+		uri = uri.normalize();
 
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
@@ -1453,7 +1460,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				try {
 					doOperation( null );
 				} catch( Throwable throwable ) {
-					throwables.put( throwable, NULL_ASSET );
+					throwables.put( throwable, Asset.NONE );
 				}
 			} else {
 				for( Asset asset : assets ) {

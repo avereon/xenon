@@ -20,7 +20,7 @@ import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.RepoState;
-import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.scheme.FaultScheme;
 import com.avereon.xenon.scheme.FileScheme;
 import com.avereon.xenon.scheme.ProgramScheme;
@@ -1124,7 +1124,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void registerSchemes( AssetManager manager ) {
-		manager.addScheme( new AssetScheme( this ) );
+		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
 		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new ProgramScheme( this ) );
@@ -1134,7 +1134,7 @@ public class Program extends Application implements ProgramProduct {
 		manager.removeScheme( ProgramScheme.ID );
 		manager.removeScheme( FileScheme.ID );
 		manager.removeScheme( FaultScheme.ID );
-		manager.removeScheme( AssetScheme.ID );
+		manager.removeScheme( NewScheme.ID );
 	}
 
 	private void registerAssetTypes( AssetManager manager ) {

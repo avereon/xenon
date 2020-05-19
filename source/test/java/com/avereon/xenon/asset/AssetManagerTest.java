@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.ProgramTestCase;
-import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.scheme.NewScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public class AssetManagerTest extends ProgramTestCase {
 		super.setup();
 		manager = new AssetManager( program );
 		manager.addScheme( new MockScheme( program ) );
-		manager.addScheme( new AssetScheme( program ) );
+		manager.addScheme( new NewScheme( program ) );
 		manager.addAssetType( new MockAssetType( program ) );
 	}
 
