@@ -11,7 +11,7 @@
 }
 
 .debug {
-	-fx-backgroud-color: #80800080;
+	-fx-background-color: #80800080;
 }
 
 .prompt {
@@ -70,6 +70,17 @@
  * Icons
  ******************************************************************************/
 .xe-icon {
+	-xe-scheme-color: #c0c0c0;
+	-xe-render-paint: ladder(
+		-fx-text-background-color,
+		derive(-xe-scheme-color, -50%) 50%,
+		derive(-xe-scheme-color, 50%) 50%
+	);
+	-xe-stroke-width: 0.125; /* 4/32 */
+}
+
+/* DEPRECATED */
+.xe-icon-old {
 	-xe-theme-color: #c0c0c0;
 	-xe-outline-width: 0.03125; /* 1/32 */
 	-xe-outline-paint: ladder(
