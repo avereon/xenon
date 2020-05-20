@@ -4,8 +4,8 @@ import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.undo.BasicUndoManager;
-import com.avereon.undo.UndoManager;
+import com.avereon.undo.BasicUndoScope;
+import com.avereon.undo.UndoScope;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
@@ -61,7 +61,7 @@ public class Asset extends Node implements Configurable {
 	// Name is not stored in the node data, it is derived
 	private String name;
 
-	private UndoManager undoManager;
+	private UndoScope undoScope;
 
 	private FxEventHub eventBus;
 
@@ -99,7 +99,7 @@ public class Asset extends Node implements Configurable {
 		eventBus = new FxEventHub().parent( super.getEventHub() );
 
 		// Create the undo manager
-		undoManager = new BasicUndoManager();
+		undoScope = new BasicUndoScope();
 	}
 
 	/**
@@ -204,8 +204,8 @@ public class Asset extends Node implements Configurable {
 		}
 	}
 
-	public UndoManager getUndoManager() {
-		return undoManager;
+	public UndoScope getUndoScope() {
+		return undoScope;
 	}
 
 	public boolean isExternallyModified() {

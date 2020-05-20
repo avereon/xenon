@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
-import com.avereon.undo.UndoManager;
+import com.avereon.undo.BasicUndoScope;
+import com.avereon.undo.UndoScope;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
@@ -79,11 +80,11 @@ public class AssetTool extends GuidedTool {
 
 	private final Action parentAction;
 
+	private final UndoScope undoScope;
+
 	private Asset parentAsset;
 
 	private Asset currentAsset;
-
-	private UndoManager undoScope;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -139,6 +140,7 @@ public class AssetTool extends GuidedTool {
 		priorAction = new PriorAction( getProgram() );
 		nextAction = new PriorAction( getProgram() );
 		parentAction = new ParentAction( getProgram() );
+		undoScope = new BasicUndoScope();
 
 		// Basic behavior
 		uriField.setOnKeyPressed( e -> {
@@ -169,6 +171,7 @@ public class AssetTool extends GuidedTool {
 		// Set the title depending on the mode requested
 		String action = mode.name().toLowerCase();
 		setTitle( getProduct().rb().text( "action", action + ".name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Select the current asset
@@ -411,14 +414,12 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			//return undoScope.canUndo();
-			return false;
+			return undoScope.canUndo();
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			// TODO Choose the prior item in the history (undo scope?)
-			//undoScope.undo();
+			undoScope.undo();
 		}
 
 	}
@@ -431,14 +432,12 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			//return undoScope.canRedo();
-			return false;
+			return undoScope.canRedo();
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			// TODO Choose the next item in the history (undo scope?)
-			//undoScope.redo();
+			undoScope.redo();
 		}
 
 	}
