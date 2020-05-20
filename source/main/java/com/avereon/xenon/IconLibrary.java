@@ -4,11 +4,13 @@ import com.avereon.rossa.icon.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.venza.icon.BrokenIcon;
+import com.avereon.venza.icon.RenderedIcon;
 import com.avereon.venza.image.Images;
 import com.avereon.venza.image.ProgramIcon;
 import com.avereon.venza.image.ProgramImage;
 import com.avereon.venza.image.ProgramImageIcon;
 import com.avereon.xenon.task.Task;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
@@ -28,11 +30,15 @@ public class IconLibrary {
 
 	private Program program;
 
-	private Map<String, IconConfig> icons;
+	@Deprecated
+	private Map<String, IconConfig> oldIcons;
+
+	private Map<String, RenderedIcon> icons;
 
 	public IconLibrary( Program program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
+		oldIcons = new ConcurrentHashMap<>();
 
 		register( "provider", WingDiscLargeIcon.class );
 		register( "program", XRingLargeIcon.class );
@@ -106,61 +112,80 @@ public class IconLibrary {
 		register( "disable", DisableIcon.class );
 		register( "remove", CloseIcon.class );
 
-		register( "up", ArrowUpIcon.class );
-		register( "down", ArrowDownIcon.class );
-		register( "left", ArrowLeftIcon.class );
-		register( "right", ArrowRightIcon.class );
-		register( "prior", ArrowLeftIcon.class );
-		register( "next", ArrowRightIcon.class );
+		register( "up", new ArrowUpIcon() );
+		register( "down", new ArrowDownIcon() );
+		register( "left", new ArrowLeftIcon() );
+		register( "right", new ArrowRightIcon() );
+		register( "prior", new ArrowLeftIcon() );
+		register( "next", new ArrowRightIcon() );
 
 		register( "toggle-enabled", ToggleIcon.class, true );
 		register( "toggle-disabled", ToggleIcon.class, false );
 	}
 
+	public void register( String id, RenderedIcon icon ) {
+		icons.put( id, icon );
+	}
+
 	public void register( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
-		icons.put( id, new IconConfig( icon, parameters ) );
+		oldIcons.put( id, new IconConfig( icon, parameters ) );
 	}
 
 	public void unregister( String id, Class<? extends ProgramIcon> icon ) {
-		if( icon.isInstance( icons.get( id ) ) ) icons.remove( id );
+		if( icon.isInstance( oldIcons.get( id ) ) ) oldIcons.remove( id );
 	}
 
-	public ProgramIcon getIcon( String id ) {
+	public Node getIcon( String id ) {
 		return getIcon( List.of( id == null ? "" : id ), DEFAULT_SIZE );
 	}
 
-	public ProgramIcon getIcon( String id, double size ) {
+	public Node getIcon( String id, double size ) {
 		return getIcon( List.of( id == null ? "" : id ), size );
 	}
 
-	public ProgramIcon getIcon( String id, String backupId ) {
+	public Node getIcon( String id, String backupId ) {
 		return getIcon( List.of( id == null ? "" : id, backupId == null ? "" : backupId ), DEFAULT_SIZE );
 	}
 
-	public ProgramIcon getIcon( String id, String backupId, double size ) {
+	public Node getIcon( String id, String backupId, double size ) {
 		return getIcon( List.of( id == null ? "" : id, backupId == null ? "" : backupId ), size );
 	}
 
-	public ProgramIcon getIcon( List<String> ids ) {
+	public Node getIcon( List<String> ids ) {
 		return getIcon( ids, DEFAULT_SIZE );
 	}
 
-	public ProgramIcon getIcon( List<String> ids, String backupId ) {
+	public Node getIcon( List<String> ids, String backupId ) {
 		return getIcon( ids, backupId, DEFAULT_SIZE );
 	}
 
-	public ProgramIcon getIcon( List<String> ids, double size ) {
-		ProgramIcon icon = null;
+	public Node getIcon( List<String> ids, double size ) {
+		RenderedIcon icon = null;
 		for( String id : ids ) {
-			icon = getIconRenderer( id, size );
+			icon = icons.get( id );
 			if( icon != null ) break;
 		}
-		if( icon == null ) icon = new BrokenIcon();
-		icon.setSize( size );
-		return icon;
+		if( icon != null ) {
+			icon = icon.copy().resize( size );
+			return icon;
+		}
+
+		ProgramIcon oldIcon = null;
+		for( String id : ids ) {
+			oldIcon = getIconRenderer( id, size );
+			if( oldIcon != null ) break;
+		}
+
+		if( oldIcon == null ) {
+			return new BrokenIcon().resize(size);
+		} else {
+			oldIcon.setSize( size );
+		}
+
+		return oldIcon;
 	}
 
-	public ProgramIcon getIcon( List<String> ids, String backupId, double size ) {
+	public Node getIcon( List<String> ids, String backupId, double size ) {
 		List<String> combined = ids == null ? new ArrayList<>() : new ArrayList<>( ids );
 		combined.add( backupId );
 		return getIcon( combined, size );
@@ -181,10 +206,10 @@ public class IconLibrary {
 	}
 
 	private ProgramIcon getIconRenderer( String id ) {
-		if( id == null || !icons.containsKey( id ) ) return null;
+		if( id == null || !oldIcons.containsKey( id ) ) return null;
 
 		try {
-			return icons.get( id ).newInstance();
+			return oldIcons.get( id ).newInstance();
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Unable to create icon: " + id, exception );
 			return null;
