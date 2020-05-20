@@ -1,6 +1,13 @@
 package com.avereon.xenon;
 
 import com.avereon.rossa.icon.*;
+import com.avereon.rossa.icon.flat.CloseIcon;
+import com.avereon.rossa.icon.flat.DocumentIcon;
+import com.avereon.rossa.icon.flat.NoticeIcon;
+import com.avereon.rossa.icon.flat.PowerIcon;
+import com.avereon.rossa.icon.flat.ToggleIcon;
+import com.avereon.rossa.icon.flat.WelcomeIcon;
+import com.avereon.rossa.icon.flat.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.venza.icon.BrokenIcon;
@@ -28,12 +35,12 @@ public class IconLibrary {
 
 	private static final int DEFAULT_SIZE = 16;
 
-	private Program program;
+	private final Program program;
+
+	private final Map<String, RenderedIcon> icons;
 
 	@Deprecated
-	private Map<String, IconConfig> oldIcons;
-
-	private Map<String, RenderedIcon> icons;
+	private final Map<String, IconConfig> oldIcons;
 
 	public IconLibrary( Program program ) {
 		this.program = program;
@@ -42,12 +49,12 @@ public class IconLibrary {
 
 		register( "provider", WingDiscLargeIcon.class );
 		register( "program", XRingLargeIcon.class );
-		register( "close", CloseIcon.class );
-		register( "exit", PowerIcon.class );
+		register( "close", new CloseIcon() );
+		register( "exit", new PowerIcon() );
 
-		register( "document", DocumentIcon.class );
-		register( "asset", DocumentIcon.class );
-		register( "asset-new", DocumentIcon.class );
+		register( "document", new DocumentIcon() );
+		register( "asset", new DocumentIcon() );
+		register( "asset-new", new DocumentIcon() );
 		register( "asset-open", FolderIcon.class );
 		//register( "asset-save", SaveIcon.class );
 		register( "asset-save", LightningIcon.class );
@@ -74,14 +81,14 @@ public class IconLibrary {
 		register( "fault", FaultIcon.class );
 		register( "terminal", TerminalIcon.class );
 
-		register( "welcome", WelcomeIcon.class );
+		register( "welcome", new WelcomeIcon() );
 		register( "help-content", QuestionIcon.class );
-		register( "notice", NoticeIcon.class );
-		register( "notice-error", NoticeIcon.class, Color.RED );
-		register( "notice-warn", NoticeIcon.class, Color.YELLOW );
-		register( "notice-info", NoticeIcon.class, Color.GREEN.brighter() );
-		register( "notice-norm", NoticeIcon.class, Color.web( "#40a0c0" ) );
-		register( "notice-none", NoticeIcon.class );
+		register( "notice", new NoticeIcon() );
+		register( "notice-error", new NoticeIcon( Color.RED ) );
+		register( "notice-warn", new NoticeIcon( Color.YELLOW ) );
+		register( "notice-info", new NoticeIcon( Color.GREEN.brighter() ) );
+		register( "notice-norm", new NoticeIcon( Color.web( "#40a0c0" ) ) );
+		register( "notice-none", new NoticeIcon() );
 		register( "task", TaskQueueIcon.class );
 		register( "product", ProductIcon.class );
 		register( "update", DownloadIcon.class );
@@ -98,7 +105,7 @@ public class IconLibrary {
 
 		register( "wallpaper", WorkareaIcon.class );
 
-		register( "file", DocumentIcon.class );
+		register( "file", new DocumentIcon() );
 		register( "folder", FolderIcon.class );
 		register( "asset-home", HomeIcon.class );
 		register( "asset-root", FileSystemIcon.class );
@@ -110,7 +117,7 @@ public class IconLibrary {
 		register( "module", ModuleIcon.class );
 		register( "enable", LightningIcon.class );
 		register( "disable", DisableIcon.class );
-		register( "remove", CloseIcon.class );
+		register( "remove", new CloseIcon() );
 
 		register( "up", new ArrowUpIcon() );
 		register( "down", new ArrowDownIcon() );
@@ -119,8 +126,8 @@ public class IconLibrary {
 		register( "prior", new ArrowLeftIcon() );
 		register( "next", new ArrowRightIcon() );
 
-		register( "toggle-enabled", ToggleIcon.class, true );
-		register( "toggle-disabled", ToggleIcon.class, false );
+		register( "toggle-enabled", new ToggleIcon( true ) );
+		register( "toggle-disabled", new ToggleIcon( false ) );
 	}
 
 	public void register( String id, RenderedIcon icon ) {
@@ -177,7 +184,7 @@ public class IconLibrary {
 		}
 
 		if( oldIcon == null ) {
-			return new BrokenIcon().resize(size);
+			return new BrokenIcon().resize( size );
 		} else {
 			oldIcon.setSize( size );
 		}
