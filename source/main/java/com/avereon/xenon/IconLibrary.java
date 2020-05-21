@@ -8,6 +8,8 @@ import com.avereon.rossa.icon.flat.NoticeIcon;
 import com.avereon.rossa.icon.flat.PowerIcon;
 import com.avereon.rossa.icon.flat.ToggleIcon;
 import com.avereon.rossa.icon.flat.WelcomeIcon;
+import com.avereon.rossa.icon.flat.WingDiscLargeIcon;
+import com.avereon.rossa.icon.flat.XRingLargeIcon;
 import com.avereon.rossa.icon.flat.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
@@ -48,8 +50,8 @@ public class IconLibrary {
 		icons = new ConcurrentHashMap<>();
 		oldIcons = new ConcurrentHashMap<>();
 
-		register( "provider", WingDiscLargeIcon.class );
-		register( "program", XRingLargeIcon.class );
+		register( "provider", new WingDiscLargeIcon() );
+		register( "program", new XRingLargeIcon() );
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );
 
