@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.rossa.icon.*;
 import com.avereon.rossa.icon.flat.CloseIcon;
+import com.avereon.rossa.icon.flat.CloseToolIcon;
 import com.avereon.rossa.icon.flat.DocumentIcon;
 import com.avereon.rossa.icon.flat.NoticeIcon;
 import com.avereon.rossa.icon.flat.PowerIcon;
@@ -101,7 +102,7 @@ public class IconLibrary {
 		register( "workarea", WorkareaIcon.class );
 		register( "workarea-new", WorkareaIcon.class );
 		register( "workarea-rename", WorkareaRenameIcon.class );
-		register( "workarea-close", CloseToolIcon.class );
+		register( "workarea-close", new CloseToolIcon() );
 
 		register( "wallpaper", WorkareaIcon.class );
 
