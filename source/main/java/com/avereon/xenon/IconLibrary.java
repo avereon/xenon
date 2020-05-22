@@ -4,11 +4,16 @@ import com.avereon.rossa.icon.*;
 import com.avereon.rossa.icon.flat.CloseIcon;
 import com.avereon.rossa.icon.flat.CloseToolIcon;
 import com.avereon.rossa.icon.flat.CopyIcon;
+import com.avereon.rossa.icon.flat.DeleteIcon;
 import com.avereon.rossa.icon.flat.DocumentIcon;
+import com.avereon.rossa.icon.flat.FolderIcon;
 import com.avereon.rossa.icon.flat.NoticeIcon;
 import com.avereon.rossa.icon.flat.PasteIcon;
 import com.avereon.rossa.icon.flat.PowerIcon;
+import com.avereon.rossa.icon.flat.RedoIcon;
+import com.avereon.rossa.icon.flat.SaveIcon;
 import com.avereon.rossa.icon.flat.ToggleIcon;
+import com.avereon.rossa.icon.flat.UndoIcon;
 import com.avereon.rossa.icon.flat.WelcomeIcon;
 import com.avereon.rossa.icon.flat.WingDiscLargeIcon;
 import com.avereon.rossa.icon.flat.XRingLargeIcon;
@@ -60,18 +65,17 @@ public class IconLibrary {
 		register( "document", new DocumentIcon() );
 		register( "asset", new DocumentIcon() );
 		register( "asset-new", new DocumentIcon() );
-		register( "asset-open", FolderIcon.class );
-		//register( "asset-save", SaveIcon.class );
-		register( "asset-save", LightningIcon.class );
-		register( "asset-close", DocumentCloseIcon.class );
+		register( "asset-open", new FolderIcon() );
+		register( "asset-save", new SaveIcon() );
+		register( "asset-close", new CloseToolIcon() );
 		register( "properties", SettingsIcon.class );
 
-		register( "undo", UndoIcon.class );
-		register( "redo", RedoIcon.class );
+		register( "undo", new UndoIcon() );
+		register( "redo", new RedoIcon() );
 		register( "cut", CutIcon.class );
 		register( "copy", new CopyIcon() );
 		register( "paste", new PasteIcon() );
-		register( "delete", DeleteIcon.class );
+		register( "delete", new DeleteIcon() );
 		register( "indent", IndentIcon.class );
 		register( "unindent", UnindentIcon.class );
 		register( "play", PlayIcon.class );
@@ -111,7 +115,7 @@ public class IconLibrary {
 		register( "wallpaper", WorkareaIcon.class );
 
 		register( "file", new DocumentIcon() );
-		register( "folder", FolderIcon.class );
+		register( "folder", new FolderIcon() );
 		register( "asset-home", HomeIcon.class );
 		register( "asset-root", FileSystemIcon.class );
 
