@@ -148,6 +148,7 @@ public class IconLibrary {
 	}
 
 	public void register( String id, RenderedIcon icon ) {
+		icon.getProperties().put( "stylesheet", Program.STYLESHEET );
 		icons.put( id, icon );
 	}
 
@@ -216,11 +217,7 @@ public class IconLibrary {
 	}
 
 	public Image[] getStageIcons( String id ) {
-		return getStageIcons( id, 16, 24, 32, 48, 64, 128, 256 );
-	}
-
-	private Image[] getStageIcons( String id, int... sizes ) {
-		return Images.getStageIcons( getIconRenderer( id ), sizes );
+		return Images.getStageIcons( (RenderedIcon)getIcon( id ), 16, 24, 32, 48, 64, 128, 256 );
 	}
 
 	private ProgramIcon getIconRenderer( String id, double size ) {

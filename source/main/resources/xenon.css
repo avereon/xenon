@@ -70,13 +70,13 @@
  * Icons
  ******************************************************************************/
 .xe-icon {
-	-xe-scheme-color: #c0c0c0;
-	-xe-render-paint: ladder(
-		-fx-text-background-color,
-		derive(-xe-scheme-color, -50%) 50%,
-		derive(-xe-scheme-color, 50%) 50%
-	);
+	-fx-stroke: -fx-text-base-color;
+	-fx-accent-color: -fx-accent;
 	-xe-stroke-width: 0.125; /* 4/32 */
+}
+
+.menu-item:hover .xe-icon, .menu-item:focused .xe-icon {
+	-fx-stroke: -fx-focused-text-base-color;
 }
 
 /* DEPRECATED */
