@@ -147,7 +147,7 @@ public class ActionLibrary {
 			KeyCombination accelerator = proxy.getAccelerator();
 			if( accelerator != null && accelerator.match( event ) ) {
 				proxy.handle( new ActionEvent() );
-				event.consume();
+				if( proxy.isEnabled() ) event.consume();
 				break;
 			}
 		}
