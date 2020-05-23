@@ -4,16 +4,24 @@ import com.avereon.rossa.icon.*;
 import com.avereon.rossa.icon.flat.CloseIcon;
 import com.avereon.rossa.icon.flat.CloseToolIcon;
 import com.avereon.rossa.icon.flat.CopyIcon;
+import com.avereon.rossa.icon.flat.CutIcon;
 import com.avereon.rossa.icon.flat.DeleteIcon;
 import com.avereon.rossa.icon.flat.DocumentIcon;
 import com.avereon.rossa.icon.flat.FolderIcon;
+import com.avereon.rossa.icon.flat.IndentIcon;
 import com.avereon.rossa.icon.flat.NoticeIcon;
 import com.avereon.rossa.icon.flat.PasteIcon;
+import com.avereon.rossa.icon.flat.PauseIcon;
+import com.avereon.rossa.icon.flat.PlayIcon;
+import com.avereon.rossa.icon.flat.PlusIcon;
 import com.avereon.rossa.icon.flat.PowerIcon;
 import com.avereon.rossa.icon.flat.RedoIcon;
 import com.avereon.rossa.icon.flat.SaveIcon;
+import com.avereon.rossa.icon.flat.SettingIcon;
+import com.avereon.rossa.icon.flat.SettingsIcon;
 import com.avereon.rossa.icon.flat.ToggleIcon;
 import com.avereon.rossa.icon.flat.UndoIcon;
+import com.avereon.rossa.icon.flat.UnindentIcon;
 import com.avereon.rossa.icon.flat.WelcomeIcon;
 import com.avereon.rossa.icon.flat.WingDiscLargeIcon;
 import com.avereon.rossa.icon.flat.XRingLargeIcon;
@@ -68,23 +76,23 @@ public class IconLibrary {
 		register( "asset-open", new FolderIcon() );
 		register( "asset-save", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
-		register( "properties", SettingsIcon.class );
+		register( "properties", new PropertiesIcon() );
 
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
-		register( "cut", CutIcon.class );
+		register( "cut", new CutIcon() );
 		register( "copy", new CopyIcon() );
 		register( "paste", new PasteIcon() );
 		register( "delete", new DeleteIcon() );
-		register( "indent", IndentIcon.class );
-		register( "unindent", UnindentIcon.class );
-		register( "play", PlayIcon.class );
-		register( "pause", PauseIcon.class );
+		register( "indent", new IndentIcon() );
+		register( "unindent", new UnindentIcon() );
+		register( "play", new PlayIcon() );
+		register( "pause", new PauseIcon() );
 
-		register( "setting", SettingIcon.class );
-		register( "settings", SettingsIcon.class );
+		register( "setting", new SettingIcon() );
+		register( "settings", new SettingsIcon() );
 		register( "themes", ThemeIcon.class );
-		register( "options", SettingsIcon.class );
+		register( "options", new PreferencesIcon() );
 
 		register( "guide", GuideIcon.class );
 		register( "fault", FaultIcon.class );
@@ -119,7 +127,7 @@ public class IconLibrary {
 		register( "asset-home", HomeIcon.class );
 		register( "asset-root", FileSystemIcon.class );
 
-		register( "add", PlusIcon.class );
+		register( "add", new PlusIcon() );
 		register( "refresh", RefreshIcon.class );
 		register( "download", DownloadIcon.class );
 		register( "market", MarketIcon.class );
