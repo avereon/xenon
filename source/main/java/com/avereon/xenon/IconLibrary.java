@@ -7,18 +7,24 @@ import com.avereon.rossa.icon.flat.CopyIcon;
 import com.avereon.rossa.icon.flat.CutIcon;
 import com.avereon.rossa.icon.flat.DeleteIcon;
 import com.avereon.rossa.icon.flat.DocumentIcon;
+import com.avereon.rossa.icon.flat.FaultIcon;
 import com.avereon.rossa.icon.flat.FolderIcon;
+import com.avereon.rossa.icon.flat.GuideIcon;
 import com.avereon.rossa.icon.flat.IndentIcon;
+import com.avereon.rossa.icon.flat.LightningIcon;
 import com.avereon.rossa.icon.flat.NoticeIcon;
 import com.avereon.rossa.icon.flat.PasteIcon;
 import com.avereon.rossa.icon.flat.PauseIcon;
 import com.avereon.rossa.icon.flat.PlayIcon;
 import com.avereon.rossa.icon.flat.PlusIcon;
 import com.avereon.rossa.icon.flat.PowerIcon;
+import com.avereon.rossa.icon.flat.QuestionIcon;
 import com.avereon.rossa.icon.flat.RedoIcon;
 import com.avereon.rossa.icon.flat.SaveIcon;
 import com.avereon.rossa.icon.flat.SettingIcon;
 import com.avereon.rossa.icon.flat.SettingsIcon;
+import com.avereon.rossa.icon.flat.TerminalIcon;
+import com.avereon.rossa.icon.flat.ThemeIcon;
 import com.avereon.rossa.icon.flat.ToggleIcon;
 import com.avereon.rossa.icon.flat.UndoIcon;
 import com.avereon.rossa.icon.flat.UnindentIcon;
@@ -91,15 +97,15 @@ public class IconLibrary {
 
 		register( "setting", new SettingIcon() );
 		register( "settings", new SettingsIcon() );
-		register( "themes", ThemeIcon.class );
+		register( "themes", new ThemeIcon() );
 		register( "options", new PreferencesIcon() );
 
-		register( "guide", GuideIcon.class );
-		register( "fault", FaultIcon.class );
-		register( "terminal", TerminalIcon.class );
+		register( "guide", new GuideIcon() );
+		register( "fault", new FaultIcon() );
+		register( "terminal", new TerminalIcon() );
 
 		register( "welcome", new WelcomeIcon() );
-		register( "help-content", QuestionIcon.class );
+		register( "help-content", new QuestionIcon() );
 		register( "notice", new NoticeIcon() );
 		register( "notice-error", new NoticeIcon( Color.RED ) );
 		register( "notice-warn", new NoticeIcon( Color.YELLOW ) );
@@ -132,7 +138,7 @@ public class IconLibrary {
 		register( "download", DownloadIcon.class );
 		register( "market", MarketIcon.class );
 		register( "module", ModuleIcon.class );
-		register( "enable", LightningIcon.class );
+		register( "enable", new LightningIcon() );
 		register( "disable", DisableIcon.class );
 		register( "remove", new CloseIcon() );
 
