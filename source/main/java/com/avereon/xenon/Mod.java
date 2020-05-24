@@ -3,12 +3,11 @@ package com.avereon.xenon;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
-import com.avereon.venza.image.ProgramIcon;
+import com.avereon.venza.icon.RenderedIcon;
 import com.avereon.xenon.asset.AssetType;
 
-import java.lang.System.Logger;
-
 import java.io.IOException;
+import java.lang.System.Logger;
 import java.nio.file.Path;
 
 /**
@@ -65,24 +64,23 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	/**
 	 * A convenience method to register an icon.
 	 *
-	 * @param id
-	 * @param icon
-	 * @param parameters
-	 * @return
+	 * @param id The icon id
+	 * @param icon The icon to register
+	 * @return the mod
 	 */
-	protected Mod registerIcon( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
-		getProgram().getIconLibrary().register( id, icon, parameters );
+	protected Mod registerIcon( String id, RenderedIcon icon ) {
+		getProgram().getIconLibrary().register( id, icon );
 		return this;
 	}
 
 	/**
 	 * A convenience method to unregister an icon.
 	 *
-	 * @param id
-	 * @param icon
-	 * @return
+	 * @param id The icon id
+	 * @param icon The icon to unregister
+	 * @return the mod
 	 */
-	protected Mod unregisterIcon( String id, Class<? extends ProgramIcon> icon ) {
+	protected Mod unregisterIcon( String id, RenderedIcon icon ) {
 		getProgram().getIconLibrary().unregister( id, icon );
 		return this;
 	}

@@ -137,16 +137,16 @@ public class ProductTool extends GuidedTool {
 		Guide guide = new Guide();
 		ProductBundle rb = getProduct().rb();
 
-		GuideNode installed = new GuideNode( getProgram(), INSTALLED, rb.text( "tool", "product-installed" ), "product" );
+		GuideNode installed = new GuideNode( getProgram(), INSTALLED, rb.text( "tool", "product-installed" ), "module" );
 		guide.addNode( installed );
 
-		GuideNode available = new GuideNode( getProgram(), AVAILABLE, rb.text( "tool", "product-available" ), "product" );
+		GuideNode available = new GuideNode( getProgram(), AVAILABLE, rb.text( "tool", "product-available" ), "module" );
 		guide.addNode( available );
 
-		GuideNode updates = new GuideNode( getProgram(), UPDATES, rb.text( "tool", "product-updates" ), "product" );
+		GuideNode updates = new GuideNode( getProgram(), UPDATES, rb.text( "tool", "product-updates" ), "download" );
 		guide.addNode( updates );
 
-		GuideNode sources = new GuideNode( getProgram(), SOURCES, rb.text( "tool", "product-sources" ), "product" );
+		GuideNode sources = new GuideNode( getProgram(), SOURCES, rb.text( "tool", "product-sources" ), "market" );
 		guide.addNode( sources );
 
 		return this.guide = guide;

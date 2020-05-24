@@ -1,62 +1,19 @@
 package com.avereon.xenon;
 
-import com.avereon.rossa.icon.*;
-import com.avereon.rossa.icon.flat.CloseIcon;
-import com.avereon.rossa.icon.flat.CloseToolIcon;
-import com.avereon.rossa.icon.flat.CopyIcon;
-import com.avereon.rossa.icon.flat.CutIcon;
-import com.avereon.rossa.icon.flat.DeleteIcon;
-import com.avereon.rossa.icon.flat.DocumentIcon;
-import com.avereon.rossa.icon.flat.DownloadIcon;
-import com.avereon.rossa.icon.flat.ExclamationIcon;
-import com.avereon.rossa.icon.flat.FaultIcon;
-import com.avereon.rossa.icon.flat.FolderIcon;
-import com.avereon.rossa.icon.flat.FrameIcon;
-import com.avereon.rossa.icon.flat.GuideIcon;
-import com.avereon.rossa.icon.flat.HomeIcon;
-import com.avereon.rossa.icon.flat.IndentIcon;
-import com.avereon.rossa.icon.flat.LightningIcon;
-import com.avereon.rossa.icon.flat.NoticeIcon;
-import com.avereon.rossa.icon.flat.PasteIcon;
-import com.avereon.rossa.icon.flat.PauseIcon;
-import com.avereon.rossa.icon.flat.PlayIcon;
-import com.avereon.rossa.icon.flat.PlusIcon;
-import com.avereon.rossa.icon.flat.PowerIcon;
-import com.avereon.rossa.icon.flat.ProductIcon;
-import com.avereon.rossa.icon.flat.QuestionIcon;
-import com.avereon.rossa.icon.flat.RedoIcon;
-import com.avereon.rossa.icon.flat.SaveIcon;
-import com.avereon.rossa.icon.flat.SettingIcon;
-import com.avereon.rossa.icon.flat.SettingsIcon;
-import com.avereon.rossa.icon.flat.TaskQueueIcon;
-import com.avereon.rossa.icon.flat.TerminalIcon;
-import com.avereon.rossa.icon.flat.ThemeIcon;
-import com.avereon.rossa.icon.flat.ToggleIcon;
-import com.avereon.rossa.icon.flat.UndoIcon;
-import com.avereon.rossa.icon.flat.UnindentIcon;
-import com.avereon.rossa.icon.flat.WelcomeIcon;
-import com.avereon.rossa.icon.flat.WingDiscLargeIcon;
-import com.avereon.rossa.icon.flat.WorkareaIcon;
-import com.avereon.rossa.icon.flat.WorkareaRenameIcon;
-import com.avereon.rossa.icon.flat.XRingLargeIcon;
 import com.avereon.rossa.icon.flat.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.venza.icon.BrokenIcon;
+import com.avereon.venza.icon.ImageIcon;
 import com.avereon.venza.icon.RenderedIcon;
 import com.avereon.venza.image.Images;
-import com.avereon.venza.image.ProgramIcon;
-import com.avereon.venza.image.ProgramImage;
-import com.avereon.venza.image.ProgramImageIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 import java.lang.System.Logger;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,12 +29,12 @@ public class IconLibrary {
 	private final Map<String, RenderedIcon> icons;
 
 	@Deprecated
-	private final Map<String, IconConfig> oldIcons;
+	//private final Map<String, IconConfig> oldIcons;
 
 	public IconLibrary( Program program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
-		oldIcons = new ConcurrentHashMap<>();
+		//oldIcons = new ConcurrentHashMap<>();
 
 		register( "provider", new WingDiscLargeIcon() );
 		register( "program", new XRingLargeIcon() );
@@ -139,15 +96,15 @@ public class IconLibrary {
 		register( "file", new DocumentIcon() );
 		register( "folder", new FolderIcon() );
 		register( "asset-home", new HomeIcon() );
-		register( "asset-root", FileSystemIcon.class );
+		register( "asset-root", new FileSystemIcon() );
 
 		register( "add", new PlusIcon() );
-		register( "refresh", RefreshIcon.class );
+		register( "refresh", new RefreshIcon() );
 		register( "download", new DownloadIcon() );
-		register( "market", MarketIcon.class );
-		register( "module", ModuleIcon.class );
+		register( "market", new MarketIcon() );
+		register( "module", new ModuleIcon() );
 		register( "enable", new LightningIcon() );
-		register( "disable", DisableIcon.class );
+		register( "disable", new DisableIcon() );
 		register( "remove", new CloseIcon() );
 
 		register( "up", new ArrowUpIcon() );
@@ -166,12 +123,8 @@ public class IconLibrary {
 		icons.put( id, icon );
 	}
 
-	public void register( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
-		oldIcons.put( id, new IconConfig( icon, parameters ) );
-	}
-
-	public void unregister( String id, Class<? extends ProgramIcon> icon ) {
-		if( icon.isInstance( oldIcons.get( id ) ) ) oldIcons.remove( id );
+	public void unregister( String id, RenderedIcon icon ) {
+		if( icons.get( id ).getClass() == icon.getClass() ) icons.remove( id );
 	}
 
 	public Node getIcon( String id ) {
@@ -202,26 +155,28 @@ public class IconLibrary {
 		RenderedIcon icon = null;
 		for( String id : ids ) {
 			icon = icons.get( id );
+			icon = getIconFromUrl( id, size );
 			if( icon != null ) break;
 		}
-		if( icon != null ) {
-			icon = icon.copy().resize( size );
-			return icon;
-		}
-
-		ProgramIcon oldIcon = null;
-		for( String id : ids ) {
-			oldIcon = getIconRenderer( id, size );
-			if( oldIcon != null ) break;
-		}
-
-		if( oldIcon == null ) {
+		if( icon == null ) {
 			return new BrokenIcon().resize( size );
 		} else {
-			oldIcon.setSize( size );
+			return icon.copy().resize( size );
 		}
 
-		return oldIcon;
+//		ProgramIcon oldIcon = null;
+//		for( String id : ids ) {
+//			oldIcon = getIconRenderer( id, size );
+//			if( oldIcon != null ) break;
+//		}
+//
+//		if( oldIcon == null ) {
+//			return new BrokenIcon().resize( size );
+//		} else {
+//			oldIcon.setSize( size );
+//		}
+//
+//		return oldIcon;
 	}
 
 	public Node getIcon( List<String> ids, String backupId, double size ) {
@@ -234,51 +189,51 @@ public class IconLibrary {
 		return Images.getStageIcons( (RenderedIcon)getIcon( id ), 16, 24, 32, 48, 64, 128, 256 );
 	}
 
-	private ProgramIcon getIconRenderer( String id, double size ) {
-		ProgramIcon icon = getIconRenderer( id );
-		if( icon == null ) icon = getIconFromUrl( id, size );
-		return icon;
-	}
+//	private ProgramIcon getIconRenderer( String id, double size ) {
+//		ProgramIcon icon = getIconRenderer( id );
+//		//if( icon == null ) icon = getIconFromUrl( id, size );
+//		return icon;
+//	}
 
-	private ProgramIcon getIconRenderer( String id ) {
-		if( id == null || !oldIcons.containsKey( id ) ) return null;
+//	private ProgramIcon getIconRenderer( String id ) {
+//		if( id == null || !oldIcons.containsKey( id ) ) return null;
+//
+//		try {
+//			return oldIcons.get( id ).newInstance();
+//		} catch( Exception exception ) {
+//			log.log( Log.ERROR, "Unable to create icon: " + id, exception );
+//			return null;
+//		}
+//	}
 
-		try {
-			return oldIcons.get( id ).newInstance();
-		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Unable to create icon: " + id, exception );
-			return null;
-		}
-	}
-
-	private ProgramIcon getIconFromUrl( String url, double size ) {
+	private RenderedIcon getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 
-		ProgramImageIcon icon = new ProgramImageIcon( url );
-		icon.setSize( size );
+		ImageIcon icon = new ImageIcon( url );
+		icon.resize( size );
 		program.getTaskManager().submit( Task.of( "Load icon: " + url, icon.getPreloadRunner() ) );
 
-		return icon;
+		return null;
 	}
 
-	private static class IconConfig {
-
-		private Class<? extends ProgramImage> icon;
-
-		private Class<?>[] parameterTypes;
-
-		private Object[] parameters;
-
-		IconConfig( Class<? extends ProgramIcon> icon, Object... parameters ) {
-			this.icon = icon;
-			this.parameters = parameters;
-			this.parameterTypes = Arrays.stream( parameters ).map( Object::getClass ).toArray( Class[]::new );
-		}
-
-		ProgramIcon newInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-			return (ProgramIcon)icon.getConstructor( parameterTypes ).newInstance( parameters );
-		}
-
-	}
+//	private static class IconConfig {
+//
+//		private Class<? extends ProgramImage> icon;
+//
+//		private Class<?>[] parameterTypes;
+//
+//		private Object[] parameters;
+//
+//		IconConfig( Class<? extends ProgramIcon> icon, Object... parameters ) {
+//			this.icon = icon;
+//			this.parameters = parameters;
+//			this.parameterTypes = Arrays.stream( parameters ).map( Object::getClass ).toArray( Class[]::new );
+//		}
+//
+//		ProgramIcon newInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+//			return (ProgramIcon)icon.getConstructor( parameterTypes ).newInstance( parameters );
+//		}
+//
+//	}
 
 }
