@@ -5,6 +5,7 @@ import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.zenna.UpdateCommandBuilder;
 import com.avereon.zenna.UpdateFlag;
 import com.avereon.zenna.UpdateTask;
+
 import java.lang.System.Logger;
 
 import java.io.File;
@@ -27,6 +28,7 @@ public class ProgramShutdownHook extends Thread {
 
 	public enum Mode {
 		RESTART,
+		MOCK_UPDATE,
 		UPDATE
 	}
 
@@ -47,20 +49,19 @@ public class ProgramShutdownHook extends Thread {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	synchronized ProgramShutdownHook configureForRestart( String... extraCommands ) {
+	synchronized ProgramShutdownHook configureForRestart( String... additionalParameters ) {
 		mode = Mode.RESTART;
 
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		List<String> commands = ProcessCommands.forModule(
-			OperatingSystem.getJavaExecutablePath(),
+		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(),
 			modulePath,
 			moduleMain,
 			moduleMainClass,
 			program.getProgramParameters(),
-			extraCommands
+			additionalParameters
 		);
 
 		builder = new ProcessBuilder( commands );
@@ -70,7 +71,7 @@ public class ProgramShutdownHook extends Thread {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	synchronized ProgramShutdownHook configureForUpdate( String... restartCommands ) throws IOException {
+	synchronized ProgramShutdownHook configureForUpdate( boolean mock, String... additionalParameters ) throws IOException {
 		// In a development environment, what would the updater update?
 		// In development the program is not executed from a location that looks
 		// like the installed program location and therefore would not be a
@@ -78,13 +79,19 @@ public class ProgramShutdownHook extends Thread {
 		// prove the logic, but restarting the application based on the initial
 		// start parameters would not start the program at the mock location.
 
-		mode = Mode.UPDATE;
+		mode = mock ? Mode.MOCK_UPDATE : Mode.UPDATE;
 
 		// Stage the updater
+		// FIXME This can take a long time and has a lot of IO...locking the UI
 		String updaterHome = stageUpdater();
-		String updaterJavaExecutablePath = updaterHome + "/bin/" + OperatingSystem.getJavaExecutableName();
+		String updaterJavaExecutablePath = mock ? OperatingSystem.getJavaExecutablePath() : updaterHome + "/bin/" + OperatingSystem.getJavaExecutableName();
+
+		String modulePath = System.getProperty( "jdk.module.path" );
+		String moduleMain = System.getProperty( "jdk.module.main" );
+		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
 		// Linked programs do not have a module path
+		String updaterModulePath = mock ? modulePath : null;
 		String updaterModuleMain = com.avereon.zenna.Program.class.getModule().getName();
 		String updaterModuleMainClass = com.avereon.zenna.Program.class.getName();
 
@@ -92,7 +99,7 @@ public class ProgramShutdownHook extends Thread {
 		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.%u.log" ) );
 		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, null, updaterModuleMain, updaterModuleMainClass ) );
+		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
 		builder.directory( new File( updaterHome ) );
 
 		builder.command().add( UpdateFlag.TITLE );
@@ -103,53 +110,56 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL, "info" ) );
 		builder.command().add( UpdateFlag.STDIN );
 
-		log.log( Log.DEBUG,  mode + " command: " + TextUtil.toString( builder.command(), " " ) );
+		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
 
-		for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
-			String key = update.getCard().getProductKey();
-			String version = program.getProductManager().getProduct( key ).getCard().getVersion();
-			Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
+		if( mock ) {
+			ucb.add( UpdateTask.PAUSE + " 500 \"Preparing update\"" ).line();
+			ucb.add( UpdateTask.ECHO + " hello1" ).line();
+			ucb.add( UpdateTask.PAUSE + " 2000 \"Simulating update\"" ).line();
+			ucb.add( UpdateTask.ECHO + " hello2" ).line();
+			ucb.add( UpdateTask.PAUSE + " 500 \"Finishing update\"" ).line();
+		} else {
+			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
+				String key = update.getCard().getProductKey();
+				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
+				Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
 
-			String updatePath = update.getSource().toString().replace( File.separator, "/" );
-			String targetPath = update.getTarget().toString().replace( File.separator, "/" );
-			String backupPath = backup.toString().replace( File.separator, "/" );
+				String updatePath = update.getSource().toString().replace( File.separator, "/" );
+				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
+				String backupPath = backup.toString().replace( File.separator, "/" );
 
-			ucb.add( UpdateTask.DELETE, backupPath ).line();
-			ucb.add( UpdateTask.MOVE, targetPath, backupPath ).line();
-			ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
+				ucb.add( UpdateTask.DELETE, backupPath ).line();
+				ucb.add( UpdateTask.MOVE, targetPath, backupPath ).line();
+				ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
 
-			if( update.getCard().equals( program.getCard() ) ) {
-				String exe = OperatingSystem.isWindows() ? ".exe" : "";
-				String cmd = OperatingSystem.isWindows() ? ".bat" : "";
-				String javaFile = targetPath + "/bin/java" + exe;
-				String javawFile = targetPath + "/bin/javaw" + exe;
-				String keytoolFile = targetPath + "/bin/keytool" + exe;
-				String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
-				String macScriptFile = targetPath + "/MacOS/" + program.getCard().getArtifact();
-				ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile, macScriptFile ).line();
+				if( update.getCard().equals( program.getCard() ) ) {
+					String exe = OperatingSystem.isWindows() ? ".exe" : "";
+					String cmd = OperatingSystem.isWindows() ? ".bat" : "";
+					String javaFile = targetPath + "/bin/java" + exe;
+					String javawFile = targetPath + "/bin/javaw" + exe;
+					String keytoolFile = targetPath + "/bin/keytool" + exe;
+					String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
+					String macScriptFile = targetPath + "/MacOS/" + program.getCard().getArtifact();
+					ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile, macScriptFile ).line();
+				}
 			}
 		}
 
 		// Add parameters to restart program
-		String modulePath = System.getProperty( "jdk.module.path" );
-		String moduleMain = System.getProperty( "jdk.module.main" );
-		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule(
-			OperatingSystem.getJavaExecutablePath(),
+		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(),
 			modulePath,
 			moduleMain,
 			moduleMainClass,
 			program.getProgramParameters()
 		) );
-		launchCommands.addAll( List.of( restartCommands ) );
+		launchCommands.addAll( List.of( additionalParameters ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
-		log.log( Log.DEBUG,  ucb.toString() );
+		log.log( Log.DEBUG, ucb.toString() );
 
 		Path updateCommandFile = program.getDataFolder().resolve( "update.commands.txt" );
 		Files.writeString( updateCommandFile, ucb.toString() );
@@ -182,19 +192,21 @@ public class ProgramShutdownHook extends Thread {
 
 		// Determine where to put the updater
 		Path updaterHomeRoot = FileUtil.createTempFolder( prefix );
-		if( program.getProfile() == Profile.DEV ) updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + program.getCard().getArtifact() + "-updater" );
+		if( program.getProfile() == Profile.DEV ) {
+			updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + program.getCard().getArtifact() + "-updater" );
+		}
 
 		// Create the updater home folders
 		Files.createDirectories( updaterHomeRoot );
 
 		// Copy all the modules needed for the updater
-		log.log( Log.DEBUG,  "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
+		log.log( Log.DEBUG, "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
 		FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
 
 		// Fix the permissions on the executable
 		String ext = OperatingSystem.isWindows() ? ".exe" : "";
 		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
-		if( !bin.toFile().setExecutable( true, true ) ) log.log( Log.WARN,  "Unable to make updater executable: " + bin );
+		if( !bin.toFile().setExecutable( true, true ) ) log.log( Log.WARN, "Unable to make updater executable: " + bin );
 
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
 
@@ -202,17 +214,14 @@ public class ProgramShutdownHook extends Thread {
 	}
 
 	private void removePriorFolders( String prefix ) throws IOException {
-		Files
-			.list( FileUtil.getTempFolder() )
-			.filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) )
-			.forEach( ( p ) -> {
-				log.log( Log.INFO,  "Delete prior updater: " + p.getFileName() );
-				try {
-					FileUtil.delete( p );
-				} catch( IOException exception ) {
-					log.log( Log.ERROR,  "Unable to cleanup prior updater files", exception );
-				}
-			} );
+		Files.list( FileUtil.getTempFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
+			log.log( Log.INFO, "Delete prior updater: " + p.getFileName() );
+			try {
+				FileUtil.delete( p );
+			} catch( IOException exception ) {
+				log.log( Log.ERROR, "Unable to cleanup prior updater files", exception );
+			}
+		} );
 	}
 
 	@Override
@@ -231,7 +240,7 @@ public class ProgramShutdownHook extends Thread {
 			process.getOutputStream().close();
 			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR,  "Error restarting program", throwable );
+			log.log( Log.ERROR, "Error restarting program", throwable );
 			throwable.printStackTrace( System.err );
 		}
 	}

@@ -238,6 +238,7 @@ public class Workspace implements Configurable {
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
 		dev.getItems().add( new SeparatorMenuItem() );
+		dev.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
 		menubar.getMenus().addAll( file, edit, view, help );

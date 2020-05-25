@@ -143,6 +143,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private UpdateAction updateAction;
 
+	private MockUpdateAction mockUpdateAction;
+
 	private TaskAction taskAction;
 
 	private WallpaperToggleAction wallpaperToggleAction;
@@ -623,12 +625,11 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	public void requestUpdate( String... restartCommands ) {
+	public void requestUpdate( boolean mock, String... restartCommands ) {
 		// Register a shutdown hook to update the program
 		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
 		try {
-			// FIXME This can take a long time and has a lot of IO...locking the UI
-			programShutdownHook.configureForUpdate( restartCommands );
+			programShutdownHook.configureForUpdate( mock, restartCommands );
 			Runtime.getRuntime().addShutdownHook( programShutdownHook );
 		} catch( IOException exception ) {
 			String title = rb().text( BundleKey.UPDATE, "updates" );
@@ -1087,6 +1088,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "notice" ).pushAction( noticeAction = new NoticeAction( this ) );
 		getActionLibrary().getAction( "product" ).pushAction( productAction = new ProductAction( this ) );
 		getActionLibrary().getAction( "update" ).pushAction( updateAction = new UpdateAction( this ) );
+		getActionLibrary().getAction( "mock-update" ).pushAction( mockUpdateAction = new MockUpdateAction( this ) );
 		getActionLibrary().getAction( "restart" ).pushAction( restartAction = new RestartAction( this ) );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pushAction( wallpaperToggleAction = new WallpaperToggleAction( this ) );
 		getActionLibrary().getAction( "wallpaper-prior" ).pushAction( wallpaperPriorAction = new WallpaperPriorAction( this ) );

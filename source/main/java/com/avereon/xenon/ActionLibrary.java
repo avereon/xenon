@@ -78,6 +78,7 @@ public class ActionLibrary {
 		register( bundle, "test-action-3" );
 		register( bundle, "test-action-4" );
 		register( bundle, "test-action-5" );
+		register( bundle, "mock-update" );
 		register( bundle, "restart" );
 		register( bundle, "reset" );
 
