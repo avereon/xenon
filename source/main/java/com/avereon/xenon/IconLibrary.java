@@ -28,13 +28,9 @@ public class IconLibrary {
 
 	private final Map<String, RenderedIcon> icons;
 
-	@Deprecated
-	//private final Map<String, IconConfig> oldIcons;
-
 	public IconLibrary( Program program ) {
 		this.program = program;
 		icons = new ConcurrentHashMap<>();
-		//oldIcons = new ConcurrentHashMap<>();
 
 		register( "provider", new WingDiscLargeIcon() );
 		register( "program", new XRingLargeIcon() );
@@ -155,7 +151,7 @@ public class IconLibrary {
 		RenderedIcon icon = null;
 		for( String id : ids ) {
 			icon = icons.get( id );
-			icon = getIconFromUrl( id, size );
+			if( icon == null ) icon = getIconFromUrl( id, size );
 			if( icon != null ) break;
 		}
 		if( icon == null ) {
@@ -163,20 +159,6 @@ public class IconLibrary {
 		} else {
 			return icon.copy().resize( size );
 		}
-
-//		ProgramIcon oldIcon = null;
-//		for( String id : ids ) {
-//			oldIcon = getIconRenderer( id, size );
-//			if( oldIcon != null ) break;
-//		}
-//
-//		if( oldIcon == null ) {
-//			return new BrokenIcon().resize( size );
-//		} else {
-//			oldIcon.setSize( size );
-//		}
-//
-//		return oldIcon;
 	}
 
 	public Node getIcon( List<String> ids, String backupId, double size ) {
@@ -189,23 +171,6 @@ public class IconLibrary {
 		return Images.getStageIcons( (RenderedIcon)getIcon( id ), 16, 24, 32, 48, 64, 128, 256 );
 	}
 
-//	private ProgramIcon getIconRenderer( String id, double size ) {
-//		ProgramIcon icon = getIconRenderer( id );
-//		//if( icon == null ) icon = getIconFromUrl( id, size );
-//		return icon;
-//	}
-
-//	private ProgramIcon getIconRenderer( String id ) {
-//		if( id == null || !oldIcons.containsKey( id ) ) return null;
-//
-//		try {
-//			return oldIcons.get( id ).newInstance();
-//		} catch( Exception exception ) {
-//			log.log( Log.ERROR, "Unable to create icon: " + id, exception );
-//			return null;
-//		}
-//	}
-
 	private RenderedIcon getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 
@@ -215,25 +180,5 @@ public class IconLibrary {
 
 		return null;
 	}
-
-//	private static class IconConfig {
-//
-//		private Class<? extends ProgramImage> icon;
-//
-//		private Class<?>[] parameterTypes;
-//
-//		private Object[] parameters;
-//
-//		IconConfig( Class<? extends ProgramIcon> icon, Object... parameters ) {
-//			this.icon = icon;
-//			this.parameters = parameters;
-//			this.parameterTypes = Arrays.stream( parameters ).map( Object::getClass ).toArray( Class[]::new );
-//		}
-//
-//		ProgramIcon newInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-//			return (ProgramIcon)icon.getConstructor( parameterTypes ).newInstance( parameters );
-//		}
-//
-//	}
 
 }
