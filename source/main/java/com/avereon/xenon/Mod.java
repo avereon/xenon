@@ -142,6 +142,20 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	/**
+	 * A convenience method to register a tool.
+	 *
+	 * @param product The program product providing the asset type and tool
+	 * @param assetType The asset type associated with the tool
+	 * @param toolClass The tool class
+	 * @return The tool registration
+	 */
+	protected ToolRegistration registerTool( ProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
+		ToolRegistration registration = new ToolRegistration( product, toolClass );
+		getProgram().getToolManager().registerTool( assetType, registration );
+		return registration;
+	}
+
+	/**
 	 * A convenience method to unregister a tool.
 	 *
 	 * @param assetType
