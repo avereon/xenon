@@ -1,7 +1,5 @@
 package com.avereon.xenon.tool;
 
-import com.avereon.undo.BasicUndoScope;
-import com.avereon.undo.UndoScope;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
@@ -36,10 +34,7 @@ import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 //import org.apache.commons.vfs2.FileSystemException;
 //import org.apache.commons.vfs2.FileSystemManager;
@@ -80,11 +75,15 @@ public class AssetTool extends GuidedTool {
 
 	private final Action parentAction;
 
-	private final UndoScope undoScope;
+	//private final UndoScope undoScope;
 
 	private Asset parentAsset;
 
 	private Asset currentAsset;
+
+	private LinkedList<String> history;
+
+	private int currentIndex;
 
 	public AssetTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -138,9 +137,12 @@ public class AssetTool extends GuidedTool {
 
 		// Actions
 		priorAction = new PriorAction( getProgram() );
-		nextAction = new PriorAction( getProgram() );
+		nextAction = new NextAction( getProgram() );
 		parentAction = new ParentAction( getProgram() );
-		undoScope = new BasicUndoScope();
+
+		history = new LinkedList<>();
+		currentIndex = -1;
+		//undoScope = new BasicUndoScope();
 
 		// Basic behavior
 		uriField.setOnKeyPressed( e -> {
@@ -175,10 +177,11 @@ public class AssetTool extends GuidedTool {
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Select the current asset
-		Path currentFolder = FileUtil.findValidFolder( getProgram()
-			.getProgramSettings()
-			.get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) ) );
-		selectAsset( currentFolder.toAbsolutePath().toString() );
+		String currentFolderString = getProgram().getProgramSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
+				log.log( Log.INFO, "Current folder string=" + currentFolderString );
+		URI uri = URI.create( currentFolderString );
+//		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
+		selectAsset( uri );
 	}
 
 	@Override
@@ -228,7 +231,21 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void selectAsset( String text ) {
+		selectAsset( text, true );
+	}
+
+	private void selectAsset( String text, boolean updateHistory ) {
 		Objects.requireNonNull( text );
+
+		if( updateHistory ) {
+			log.log( Log.WARN, "History size=" + history.size() + " > " + currentIndex );
+			while( history.size() - 1 > currentIndex ) {
+				history.pop();
+			}
+
+			history.add( text );
+			currentIndex++;
+		}
 
 		FxUtil.assertFxThread();
 		uriField.setText( text );
@@ -274,7 +291,9 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void loadFolder( Asset asset ) {
-		getProgram().getProgramSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
+		if( "file".equals( asset.getUri().getScheme() ) ){
+			getProgram().getProgramSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
+		}
 		currentAsset = asset;
 		updateActionState();
 		closeUserNotice();
@@ -414,12 +433,13 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			return undoScope.canUndo();
+			return currentIndex > 0;
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			undoScope.undo();
+			if( currentIndex > 0 ) currentIndex--;
+			selectAsset( history.get( currentIndex ), false );
 		}
 
 	}
@@ -432,12 +452,13 @@ public class AssetTool extends GuidedTool {
 
 		@Override
 		public boolean isEnabled() {
-			return undoScope.canRedo();
+			return currentIndex < history.size() - 1;
 		}
 
 		@Override
 		public void handle( ActionEvent event ) {
-			undoScope.redo();
+			if( currentIndex < history.size() - 1 ) currentIndex++;
+			selectAsset( history.get( currentIndex ), false );
 		}
 
 	}
