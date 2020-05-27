@@ -1032,7 +1032,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		if( asset == null ) {
 			asset = new Asset( uri, type );
 			identifiedAssets.put( uri, asset );
-			asset.setScheme( resolveScheme( asset, asset.getUri().getScheme() ) );
+			//asset.setScheme( resolveScheme( asset, asset.getUri().getScheme() ) );
+			asset.setScheme( getScheme( asset.getUri().getScheme() ) );
 			asset.setIcon( asset.isFolder() ? "folder" : "file" );
 			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {
@@ -1197,19 +1198,21 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	private String getFirstLine( Asset asset ) {
+		Scheme scheme = asset.getScheme();
+		if( scheme == null ) return null;
+
+		URLConnection connection = scheme.getConnection( asset );
+		if( connection == null ) return null;
+
 		// Load the first line from the asset
 		String firstLine = null;
-
-		URLConnection connection = asset.getScheme().getConnection( asset );
-		if( connection != null ) {
-			try {
-				String encoding = asset.getEncoding();
-				if( encoding == null ) encoding = connection.getContentEncoding();
-				firstLine = readFirstLine( connection.getInputStream(), encoding );
-				connection.getInputStream().close();
-			} catch( IOException exception ) {
-				log.log( Log.WARN, "Error closing asset connection", exception );
-			}
+		try {
+			String encoding = asset.getEncoding();
+			if( encoding == null ) encoding = connection.getContentEncoding();
+			firstLine = readFirstLine( connection.getInputStream(), encoding );
+			connection.getInputStream().close();
+		} catch( IOException exception ) {
+			log.log( Log.WARN, "Error closing asset connection", exception );
 		}
 
 		return firstLine;

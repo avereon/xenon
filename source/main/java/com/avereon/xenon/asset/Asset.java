@@ -338,10 +338,14 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public boolean exists() throws AssetException {
+		// NEXT Should the asset assume it exists if there is not a scheme to verify?
+		// TODO What about remote resources when there is NOT a connection possible?
+		// TODO What about remote resources when there IS a connection possible?
+
 		Scheme scheme = getScheme();
-		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
+		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
 		//log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists" );
-		return scheme.exists( this );
+		return scheme == null || scheme.exists( this );
 	}
 
 	public boolean delete() throws AssetException {
@@ -354,8 +358,8 @@ public class Asset extends Node implements Configurable {
 	 */
 	public boolean isFolder() throws AssetException {
 		Scheme scheme = getScheme();
-		if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if folder" );
-		return scheme.isFolder( this );
+		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if folder" );
+		return scheme != null && scheme.isFolder( this );
 	}
 
 	/**

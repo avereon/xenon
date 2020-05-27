@@ -43,7 +43,7 @@ public abstract class Codec {
 		},
 		URI {
 			boolean accept( String pattern, String value ) {
-				return value.equals( pattern );
+				return value.startsWith( pattern );
 			}
 		};
 
