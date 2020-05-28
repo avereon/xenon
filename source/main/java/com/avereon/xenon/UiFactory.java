@@ -60,7 +60,8 @@ public class UiFactory {
 		workpaneSettings.set( PARENT_WORKAREA_ID, id );
 
 		Workarea workarea = new Workarea();
-		workarea.setSettings( settings );
+		workarea.setProductId( settings.getName() );
+		workarea.updateFromSettings( settings );
 		setupWorkpaneSettings( workarea.getWorkpane(), workpaneSettings );
 
 		return workarea;

@@ -1,10 +1,10 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
+import com.avereon.skill.Identified;
+import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
@@ -16,7 +16,7 @@ import javafx.beans.property.StringProperty;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Workarea implements Configurable {
+public class Workarea implements Identified {
 
 	private StringProperty name = new SimpleStringProperty( this, "name", "" );
 
@@ -31,6 +31,8 @@ public class Workarea implements Configurable {
 	// private ToolBar extraToolBarItems
 
 	private Settings settings;
+
+	private String id;
 
 	public Workarea() {
 		workpane = new Workpane();
@@ -50,7 +52,7 @@ public class Workarea implements Configurable {
 
 	public final void setName( String name ) {
 		this.name.set( name );
-		settings.set( "name", name );
+		getSettings().set( "name", name );
 	}
 
 	public final BooleanProperty activeProperty() {
@@ -64,8 +66,12 @@ public class Workarea implements Configurable {
 	public final void setActive( boolean active ) {
 		workpane.setVisible( active );
 		this.active.set( active );
-		settings.set( "active", active );
+		getSettings().set( "active", active );
 	}
+
+//	public Program getProgram() {
+//		return getWorkspace().getProgram();
+//	}
 
 	public Workpane getWorkpane() {
 		return workpane;
@@ -83,9 +89,9 @@ public class Workarea implements Configurable {
 		this.workspace = workspace;
 
 		if( this.workspace != null ) {
-			settings.set( UiFactory.PARENT_WORKSPACE_ID, this.workspace.getSettings().getName() );
+			getSettings().set( UiFactory.PARENT_WORKSPACE_ID, this.workspace.getSettings().getName() );
 		} else {
-			settings.set( UiFactory.PARENT_WORKSPACE_ID, null );
+			getSettings().set( UiFactory.PARENT_WORKSPACE_ID, null );
 		}
 	}
 
@@ -98,16 +104,22 @@ public class Workarea implements Configurable {
 	}
 
 	@Override
-	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
+	public String getProductId() {
+		return id;
+	}
 
+	@Override
+	public void setProductId( String id ) {
+		this.id = id;
+	}
+
+	public void updateFromSettings( Settings settings ) {
+		// FIXME It would be nice if we did not need to keep the settings
 		this.settings = settings;
-
 		setName( settings.get( "name" ) );
 		setActive( settings.get( "active", Boolean.class, false ) );
 	}
 
-	@Override
 	public Settings getSettings() {
 		return settings;
 	}
