@@ -62,6 +62,10 @@ class UiRegenerator {
 		this.factory = new UiFactory( program );
 	}
 
+	private Program getProgram() {
+		return program;
+	}
+
 	//	int getUiObjectCount() {
 	//		int s = getSettingsFiles( Prefix.WORKSPACE ).length;
 	//		int a = getSettingsFiles( Prefix.WORKAREA ).length;
@@ -170,7 +174,7 @@ class UiRegenerator {
 	private void linkWorkareas() {
 		// Link the workareas to the workspaces
 		for( Workarea workarea : areas.values() ) {
-			Settings settings = workarea.getSettings();
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getProductId() );
 			Workspace workspace = workspaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 			workspace.addWorkarea( workarea );
 			if( workarea.isActive() ) workspace.setActiveWorkarea( workarea );
