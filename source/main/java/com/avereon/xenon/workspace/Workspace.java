@@ -3,8 +3,7 @@ package com.avereon.xenon.workspace;
 import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.util.Configurable;
-import com.avereon.util.IdGenerator;
+import com.avereon.skill.Identified;
 import com.avereon.util.Log;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.Profile;
@@ -43,13 +42,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
-public class Workspace implements Configurable {
+public class Workspace implements Identified {
 
 	private static final System.Logger log = Log.get();
 
 	private Program program;
 
-	private String id;
+	@Deprecated
+	//private String id;
 
 	private Stage stage;
 
@@ -105,17 +105,9 @@ public class Workspace implements Configurable {
 
 	private WorkareaNameWatcher workareaNameWatcher;
 
-	private Settings settings;
-
-	private Settings backgroundSettings;
-
 	private BackgroundSettingsHandler backgroundSettingsHandler;
 
-	private Settings memoryMonitorSettings;
-
 	private MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
-
-	private Settings taskMonitorSettings;
 
 	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
 
@@ -162,7 +154,6 @@ public class Workspace implements Configurable {
 
 		// Create the stage
 		stage = new Stage();
-		stage.getProperties().put( "id", IdGenerator.getId() );
 		stage.getIcons().addAll( program.getIconLibrary().getStageIcons( "program" ) );
 		stage.setOnCloseRequest( event -> {
 			program.getWorkspaceManager().requestCloseWorkspace( this );
@@ -345,7 +336,7 @@ public class Workspace implements Configurable {
 
 	public void setActive( boolean active ) {
 		this.active = active;
-		settings.set( "active", active );
+		getSettings().set( "active", active );
 	}
 
 	public Set<Workarea> getWorkareas() {
@@ -448,16 +439,20 @@ public class Workspace implements Configurable {
 	}
 
 	@Override
-	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
+	public String getProductId() {
+		return stage.getProperties().get( Identified.KEY ).toString();
+	}
 
-		// The incoming settings are the workspace settings
-		this.settings = settings;
+	@Override
+	public void setProductId( String id ) {
+		stage.getProperties().put( Identified.KEY, id );
+	}
 
-		this.id = settings.get( "id" );
-		// FIXME Use the properties map in the stage to store the id
-		stage.getProperties().put( "id", settings.get( "id" ) );
+	Settings getSettings() {
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getProductId() );
+	}
 
+	public void updateFromSettings( Settings settings ) {
 		// Due to differences in how FX handles stage sizes (width and height) on
 		// different operating systems, the width and height from the scene, not the
 		// stage, are used. This includes the listeners for the width and height
@@ -505,26 +500,9 @@ public class Workspace implements Configurable {
 			if( !stage.isMaximized() ) settings.set( "h", n );
 		} );
 
-		backgroundSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		backgroundSettings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
-		background.updateBackgroundFromSettings( backgroundSettings );
-		backgroundSettings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
-
-		memoryMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		memoryMonitorSettings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
-		updateMemoryMonitorFromSettings( memoryMonitorSettings );
-		memoryMonitorSettings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
-
-		taskMonitorSettings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		taskMonitorSettings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
-		updateTaskMonitorFromSettings( taskMonitorSettings );
-		taskMonitorSettings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
-	}
-
-	@Override
-	public Settings getSettings() {
-		//return getProgram().getSettingsManager().getWorkspaceSettings( this );
-		return settings;
+		updateBackgroundFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 	}
 
 	public void snapshot( Path file ) {
@@ -554,15 +532,23 @@ public class Workspace implements Configurable {
 		return workareas.get( index == 0 ? 1 : index - 1 );
 	}
 
+	private void updateBackgroundFromSettings( Settings settings ) {
+		settings.unregister( SettingsEvent.CHANGED, backgroundSettingsHandler );
+		background.updateFromSettings( settings );
+		settings.register( SettingsEvent.CHANGED, backgroundSettingsHandler );
+	}
+
 	private void updateMemoryMonitorFromSettings( Settings settings ) {
 		Boolean enabled = settings.get( "workspace-memory-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
 		Platform.runLater( () -> {
+			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 			updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
 			memoryMonitor.setTextVisible( showText );
 			memoryMonitor.setShowPercent( showPercent );
+			settings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 		} );
 	}
 
@@ -571,9 +557,11 @@ public class Workspace implements Configurable {
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
 		Platform.runLater( () -> {
+			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 			updateContainer( taskMonitorContainer, taskMonitor, enabled );
 			taskMonitor.setTextVisible( showText );
 			taskMonitor.setShowPercent( showPercent );
+			settings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 		} );
 	}
 
@@ -589,7 +577,7 @@ public class Workspace implements Configurable {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			background.updateBackgroundFromSettings( backgroundSettings );
+			updateBackgroundFromSettings( event.getSettings() );
 		}
 
 	}
@@ -598,7 +586,7 @@ public class Workspace implements Configurable {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			updateMemoryMonitorFromSettings( memoryMonitorSettings );
+			updateMemoryMonitorFromSettings( event.getSettings() );
 		}
 
 	}
@@ -607,7 +595,7 @@ public class Workspace implements Configurable {
 
 		@Override
 		public void handle( SettingsEvent event ) {
-			updateTaskMonitorFromSettings( taskMonitorSettings );
+			updateTaskMonitorFromSettings( event.getSettings() );
 		}
 
 	}

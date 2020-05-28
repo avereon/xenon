@@ -62,7 +62,7 @@ public class WorkspaceBackground extends StackPane {
 		getChildren().addAll( backPane, imagePane, tintPane );
 	}
 
-	void updateBackgroundFromSettings( Settings settings ) {
+	void updateFromSettings( Settings settings ) {
 		// Back layer
 		configureBackPane( settings );
 

@@ -132,9 +132,12 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program );
+		log.log( Log.WARN, "workspace-id=" + id );
+		workspace.setProductId( id );
 		workspace.getEventBus().parent( program.getFxEventHub() );
-		workspace.setSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
+		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
+
 		return workspace;
 	}
 
@@ -251,8 +254,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
-		log.log( Log.WARN, "Number of workspaces: " + workspaces.size() );
-		boolean closeProgram = workspaces.size() == 1;
+		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
+		log.log( Log.WARN, "Number of visible workspaces: " + visibleWorkspaces );
+		boolean closeProgram = visibleWorkspaces == 1;
 		boolean shutdownVerify = getProgram().getProgramSettings().get( "shutdown-verify", Boolean.class, true );
 
 		if( closeProgram ) {
