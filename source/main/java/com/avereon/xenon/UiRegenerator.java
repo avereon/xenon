@@ -189,7 +189,7 @@ class UiRegenerator {
 
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getEdgeId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getProductId() );
 			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( edge ) ) {
@@ -199,14 +199,14 @@ class UiRegenerator {
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN, "Error linking edge: " + edge.getEdgeId(), exception );
+				log.log( Log.WARN, "Error linking edge: " + edge.getProductId(), exception );
 				return;
 			}
 		}
 
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getViewId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getProductId() );
 			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( view ) ) {
@@ -216,7 +216,7 @@ class UiRegenerator {
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN, "Error linking view: " + view.getViewId(), exception );
+				log.log( Log.WARN, "Error linking view: " + view.getProductId(), exception );
 				return;
 			}
 		}
@@ -232,7 +232,7 @@ class UiRegenerator {
 			pane.restoreNodes( edges, views );
 
 			// Active, default and maximized views
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getPaneId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getProductId() );
 			setView( settings, "view-active", pane::setActiveView );
 			setView( settings, "view-default", pane::setDefaultView );
 			setView( settings, "view-maximized", pane::setMaximizedView );
@@ -246,7 +246,7 @@ class UiRegenerator {
 	}
 
 	private boolean linkEdge( WorkpaneEdge edge ) {
-		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getEdgeId() );
+		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getProductId() );
 		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 		switch( edge.getOrientation() ) {
@@ -272,7 +272,7 @@ class UiRegenerator {
 	}
 
 	private boolean linkView( WorkpaneView view ) {
-		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getViewId() );
+		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getProductId() );
 		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 		WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
@@ -381,8 +381,8 @@ class UiRegenerator {
 
 			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
 			WorkpaneEdge edge = new WorkpaneEdge( orientation );
-			edge.setEdgeId( id );
-			edges.put( edge.getEdgeId(), edge );
+			edge.setProductId( id );
+			edges.put( edge.getProductId(), edge );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring workpane", exception );
 		}
@@ -401,9 +401,9 @@ class UiRegenerator {
 			}
 
 			WorkpaneView view = new WorkpaneView();
-			view.setViewId( id );
+			view.setProductId( id );
 
-			views.put( view.getViewId(), view );
+			views.put( view.getProductId(), view );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring workpane", exception );
 		}

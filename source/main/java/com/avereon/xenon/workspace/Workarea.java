@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.settings.Settings;
-import com.avereon.skill.Identified;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
@@ -13,7 +13,7 @@ import javafx.beans.property.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Workarea implements Identified {
+public class Workarea implements WritableIdentity {
 
 	private final StringProperty name;
 
@@ -100,12 +100,12 @@ public class Workarea implements Identified {
 
 	@Override
 	public String getProductId() {
-		return workpane.getPaneId();
+		return workpane.getProductId();
 	}
 
 	@Override
 	public void setProductId( String id ) {
-		workpane.setPaneId( id );
+		workpane.setProductId( id );
 	}
 
 	// TODO Could this be moved to UiFactory?

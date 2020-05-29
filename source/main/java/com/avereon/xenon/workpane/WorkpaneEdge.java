@@ -1,7 +1,7 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.settings.Settings;
-import com.avereon.skill.Identified;
+import com.avereon.skill.Identity;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.util.IdGenerator;
 import javafx.beans.property.*;
 import javafx.css.*;
@@ -12,7 +12,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -21,13 +20,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Created by ecco on 5/29/17.
  */
-public class WorkpaneEdge extends Control {
+public class WorkpaneEdge extends Control implements WritableIdentity {
 
 	private static final PseudoClass HORIZONTAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "horizontal" );
 
 	private static final PseudoClass VERTICAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "vertical" );
 
 	private StyleableObjectProperty<Orientation> orientation;
+
+	private final Side wall;
 
 	private ObjectProperty<WorkpaneEdge> topEdge;
 
@@ -50,18 +51,12 @@ public class WorkpaneEdge extends Control {
 	 * and 1.0 (inclusive) when the position is relative. 0.0 represents the
 	 * left-most or top-most point, and 1.0 represents the right-most or
 	 * bottom-most point (depending on the orientation property).
-	 * <p>
-	 * <p>As the user drags the edge around this property will be updated to always represent its current location.
+	 * <p>As the user drags the edge around this property will be updated to
+	 * always represent its current location.
 	 */
 	private DoubleProperty position;
 
-	private boolean absolute;
-
-	private Side wall;
-
 	private Workpane parent;
-
-	//private String edgeId;
 
 	public WorkpaneEdge( Orientation orientation ) {
 		this( orientation, null );
@@ -70,7 +65,7 @@ public class WorkpaneEdge extends Control {
 	public WorkpaneEdge( Orientation orientation, Side wall ) {
 		getStyleClass().add( "workpane-edge" );
 
-		setEdgeId( IdGenerator.getId() );
+		setProductId( IdGenerator.getId() );
 		setOrientation( orientation );
 		setSnapToPixel( true );
 		setPosition( 0 );
@@ -98,13 +93,15 @@ public class WorkpaneEdge extends Control {
 		return wall != null;
 	}
 
-	public String getEdgeId() {
+	@Override
+	public String getProductId() {
 		if( isWall() ) return wall.name().toLowerCase();
-		return getProperties().get( Identified.KEY ).toString();
+		return getProperties().get( Identity.KEY ).toString();
 	}
 
-	public void setEdgeId( String id ) {
-		getProperties().put( Identified.KEY, id );
+	@Override
+	public void setProductId( String id ) {
+		getProperties().put( Identity.KEY, id );
 	}
 
 	/**
@@ -296,39 +293,15 @@ public class WorkpaneEdge extends Control {
 		return Set.of();
 	}
 
-	@Deprecated
-	public void setSettings( Settings settings ) {
-		//		if( settings == null ) {
-		//			this.settings = null;
-		//			return;
-		//		} else if( this.settings != null ) {
-		//			return;
-		//		}
-
-		//this.settings = settings;
-
-		// Restore state from settings
-		//setEdgeId( settings.getName() );
-		//if( settings.exists( "position" ) ) setPosition( settings.get( "position", Double.class ) );
-
-		// Persist state to settings
-		//settings.set( "orientation", getOrientation().name().toLowerCase() );
-		//settings.set( "position", getPosition() );
-	}
-
-	//	@Deprecated
-	//	public Settings getSettings() {
-	//		return settings;
-	//	}
-
 	@Override
+	@SuppressWarnings( "StringBufferReplaceableByString" )
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "<" );
 		builder.append( getClass().getSimpleName() );
 		builder.append( " id=" );
-		builder.append( getEdgeId() );
+		builder.append( getProductId() );
 		builder.append( " orientation=" );
 		builder.append( getOrientation() );
 		builder.append( " position=" );
@@ -356,6 +329,7 @@ public class WorkpaneEdge extends Control {
 
 	private static class StyleableProperties {
 
+		@SuppressWarnings( "unused" )
 		private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
 		private static final StyleConverter<String, Orientation> converter = StyleConverter.getEnumConverter( Orientation.class );
@@ -379,9 +353,7 @@ public class WorkpaneEdge extends Control {
 		};
 
 		static {
-			final List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>( Control.getClassCssMetaData() );
-			styleables.add( ORIENTATION );
-			STYLEABLES = Collections.unmodifiableList( styleables );
+			STYLEABLES = Collections.unmodifiableList( List.of( ORIENTATION ) );
 		}
 
 	}

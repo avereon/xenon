@@ -3,7 +3,8 @@ package com.avereon.xenon.workspace;
 import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
-import com.avereon.skill.Identified;
+import com.avereon.skill.Identity;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
 import com.avereon.venza.event.FxEventHub;
 import com.avereon.xenon.Profile;
@@ -42,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The workspace manages the menu bar, tool bar and workareas.
  */
-public class Workspace implements Identified {
+public class Workspace implements WritableIdentity {
 
 	private static final System.Logger log = Log.get();
 
@@ -437,12 +438,12 @@ public class Workspace implements Identified {
 
 	@Override
 	public String getProductId() {
-		return stage.getProperties().get( Identified.KEY ).toString();
+		return stage.getProperties().get( Identity.KEY ).toString();
 	}
 
 	@Override
 	public void setProductId( String id ) {
-		stage.getProperties().put( Identified.KEY, id );
+		stage.getProperties().put( Identity.KEY, id );
 	}
 
 	Settings getSettings() {

@@ -58,7 +58,7 @@ public class UiFactory {
 		workarea.updateFromSettings( settings );
 
 		Workpane workpane = workarea.getWorkpane();
-		workpane.setPaneId( id );
+		workpane.setProductId( id );
 
 		// When restoring clear all prior nodes before setting up the settings
 		if( restore ) workpane.clearNodes();
@@ -85,15 +85,15 @@ public class UiFactory {
 		workpane.leftDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_LEFT_SIZE, newValue ) );
 		workpane.rightDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_RIGHT_SIZE, newValue ) );
 		workpane.bottomDockSizeProperty().addListener( ( observable, oldValue, newValue ) -> settings.set( DOCK_BOTTOM_SIZE, newValue ) );
-		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getViewId() ) );
-		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getViewId() ) );
-		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getViewId() ) );
+		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getProductId() ) );
+		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getProductId() ) );
+		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getProductId() ) );
 		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)( c ) -> processWorkpaneChildrenChanges( c, settings ) );
 
 		// Store the current values
-		settings.set( "view-active", workpane.getActiveView() == null ? null : workpane.getActiveView().getViewId() );
-		settings.set( "view-default", workpane.getDefaultView() == null ? null : workpane.getDefaultView().getViewId() );
-		settings.set( "view-maximized", workpane.getMaximizedView() == null ? null : workpane.getMaximizedView().getViewId() );
+		settings.set( "view-active", workpane.getActiveView() == null ? null : workpane.getActiveView().getProductId() );
+		settings.set( "view-default", workpane.getDefaultView() == null ? null : workpane.getDefaultView().getProductId() );
+		settings.set( "view-maximized", workpane.getMaximizedView() == null ? null : workpane.getMaximizedView().getProductId() );
 	}
 
 	private void processWorkpaneChildrenChanges( ListChangeListener.Change<? extends Node> change, Settings settings ) {
@@ -106,7 +106,7 @@ public class UiFactory {
 	}
 
 	private void setupWorkpaneEdgeSettings( WorkpaneEdge edge, Settings settings ) {
-		Settings edgeSettings = settings.getNode( ProgramSettings.EDGE, edge.getEdgeId() );
+		Settings edgeSettings = settings.getNode( ProgramSettings.EDGE, edge.getProductId() );
 		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, settings.getName() );
 
 		// Restore state from settings
@@ -117,30 +117,29 @@ public class UiFactory {
 		// Add the change listeners
 		edge.positionProperty().addListener( ( v, o, n ) -> edgeSettings.set( "position", n ) );
 		edge.orientationProperty().addListener( ( v, o, n ) -> edgeSettings.set( "orientation", n ) );
-		edge.topEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "t", n == null ? null : n.getEdgeId() ) );
-		edge.leftEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "l", n == null ? null : n.getEdgeId() ) );
-		edge.rightEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "r", n == null ? null : n.getEdgeId() ) );
-		edge.bottomEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "b", n == null ? null : n.getEdgeId() ) );
+		edge.topEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "t", n == null ? null : n.getProductId() ) );
+		edge.leftEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "l", n == null ? null : n.getProductId() ) );
+		edge.rightEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "r", n == null ? null : n.getProductId() ) );
+		edge.bottomEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "b", n == null ? null : n.getProductId() ) );
 
 		// Store the current values
 		edgeSettings.set( "position", edge.getPosition() );
 		edgeSettings.set( "orientation", edge.getOrientation().name().toLowerCase() );
-		edgeSettings.set( "t", edge.getTopEdge() == null ? null : edge.getTopEdge().getEdgeId() );
-		edgeSettings.set( "l", edge.getLeftEdge() == null ? null : edge.getLeftEdge().getEdgeId() );
-		edgeSettings.set( "r", edge.getRightEdge() == null ? null : edge.getRightEdge().getEdgeId() );
-		edgeSettings.set( "b", edge.getBottomEdge() == null ? null : edge.getBottomEdge().getEdgeId() );
+		edgeSettings.set( "t", edge.getTopEdge() == null ? null : edge.getTopEdge().getProductId() );
+		edgeSettings.set( "l", edge.getLeftEdge() == null ? null : edge.getLeftEdge().getProductId() );
+		edgeSettings.set( "r", edge.getRightEdge() == null ? null : edge.getRightEdge().getProductId() );
+		edgeSettings.set( "b", edge.getBottomEdge() == null ? null : edge.getBottomEdge().getProductId() );
 		log.log( Log.WARN, "Added: " + edge );
 	}
 
 	private void removeWorkpaneEdgeSettings( WorkpaneEdge edge, Settings settings ) {
-		String id = edge.getEdgeId();
-		// FIXME Some events may happen after the settings are deleted
+		String id = edge.getProductId();
 		if( id != null ) settings.getNode( ProgramSettings.EDGE, id ).delete();
 		log.log( Log.WARN, "Removed: " + edge );
 	}
 
 	private void setupWorkpaneViewSettings( WorkpaneView view, Settings settings ) {
-		Settings viewSettings = settings.getNode( ProgramSettings.VIEW, view.getViewId() );
+		Settings viewSettings = settings.getNode( ProgramSettings.VIEW, view.getProductId() );
 		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, settings.getName() );
 
 		// Restore state from settings
@@ -149,23 +148,22 @@ public class UiFactory {
 
 		// Add the change listeners
 		view.placementProperty().addListener( ( v, o, n ) -> viewSettings.set( "placement", n == null ? null : n.name().toLowerCase() ) );
-		view.topEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "t", n == null ? null : n.getEdgeId() ) );
-		view.leftEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "l", n == null ? null : n.getEdgeId() ) );
-		view.rightEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "r", n == null ? null : n.getEdgeId() ) );
-		view.bottomEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "b", n == null ? null : n.getEdgeId() ) );
+		view.topEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "t", n == null ? null : n.getProductId() ) );
+		view.leftEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "l", n == null ? null : n.getProductId() ) );
+		view.rightEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "r", n == null ? null : n.getProductId() ) );
+		view.bottomEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "b", n == null ? null : n.getProductId() ) );
 
 		// Store the current values
 		viewSettings.set( "placement", view.getPlacement() == null ? null : view.getPlacement().name().toLowerCase() );
-		viewSettings.set( "t", view.getTopEdge() == null ? null : view.getTopEdge().getEdgeId() );
-		viewSettings.set( "l", view.getLeftEdge() == null ? null : view.getLeftEdge().getEdgeId() );
-		viewSettings.set( "r", view.getRightEdge() == null ? null : view.getRightEdge().getEdgeId() );
-		viewSettings.set( "b", view.getBottomEdge() == null ? null : view.getBottomEdge().getEdgeId() );
+		viewSettings.set( "t", view.getTopEdge() == null ? null : view.getTopEdge().getProductId() );
+		viewSettings.set( "l", view.getLeftEdge() == null ? null : view.getLeftEdge().getProductId() );
+		viewSettings.set( "r", view.getRightEdge() == null ? null : view.getRightEdge().getProductId() );
+		viewSettings.set( "b", view.getBottomEdge() == null ? null : view.getBottomEdge().getProductId() );
 		log.log( Log.WARN, "Added: " + view );
 	}
 
 	private void removeWorkpaneViewSettings( WorkpaneView view, Settings settings ) {
-		String id = view.getViewId();
-		// FIXME Some events may happen after the settings are deleted
+		String id = view.getProductId();
 		if( id != null ) settings.getNode( ProgramSettings.VIEW, id ).delete();
 		log.log( Log.WARN, "Removed: " + view );
 	}

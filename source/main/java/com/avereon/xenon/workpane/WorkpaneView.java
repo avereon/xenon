@@ -1,6 +1,7 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.skill.Identified;
+import com.avereon.skill.Identity;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import javafx.beans.property.ObjectProperty;
@@ -16,9 +17,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class WorkpaneView extends BorderPane {
+public class WorkpaneView extends BorderPane implements WritableIdentity {
 
+	@SuppressWarnings( "unused" )
 	private static final System.Logger log = Log.get();
+
+	private final ToolTabPane tools;
 
 	private ObjectProperty<WorkpaneEdge> topEdge;
 
@@ -30,8 +34,6 @@ public class WorkpaneView extends BorderPane {
 
 	private ObjectProperty<Workpane.Placement> placement;
 
-	private ToolTabPane tools;
-
 	private Workpane parent;
 
 	private Tool activeTool;
@@ -39,7 +41,7 @@ public class WorkpaneView extends BorderPane {
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 
-		setViewId( IdGenerator.getId() );
+		setProductId( IdGenerator.getId() );
 		setCenter( tools = new ToolTabPane() );
 		setSnapToPixel( true );
 
@@ -68,12 +70,14 @@ public class WorkpaneView extends BorderPane {
 		} );
 	}
 
-	public String getViewId() {
-		return getProperties().get( Identified.KEY ).toString();
+	@Override
+	public String getProductId() {
+		return getProperties().get( Identity.KEY ).toString();
 	}
 
-	public void setViewId( String id ) {
-		getProperties().put( Identified.KEY, id );
+	@Override
+	public void setProductId( String id ) {
+		getProperties().put( Identity.KEY, id );
 	}
 
 	public WorkpaneEdge getTopEdge() {
@@ -143,10 +147,7 @@ public class WorkpaneView extends BorderPane {
 		return Collections.unmodifiableList( toolList );
 	}
 
-	Tool addTool( Tool tool ) {
-		return addTool( tool, tools.getTabs().size() );
-	}
-
+	@SuppressWarnings( "UnusedReturnValue" )
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
 		tool.setToolView( this );
@@ -159,6 +160,7 @@ public class WorkpaneView extends BorderPane {
 		return tool;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	Tool removeTool( Tool tool ) {
 		boolean isActiveTool = tool == activeTool;
 
@@ -297,47 +299,16 @@ public class WorkpaneView extends BorderPane {
 		return placement;
 	}
 
-	//	@Deprecated
-	//	public void setSettings( Settings settings ) {
-	//		if( settings == null ) {
-	//			this.settings = null;
-	//			return;
-	//		} else if( this.settings != null ) {
-	//			return;
-	//		}
-
-	//		this.settings = settings;
-
-	// Restore state from settings
-	//setViewId( settings.getName() );
-	//if( settings.exists( "placement" ) ) setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
-
-	// Persist state to settings
-	//		if( isActive() ) settings.set( "active", true );
-	//		if( isDefault() ) settings.set( "default", true );
-	//		if( isMaximized() ) settings.set( "maximized", true );
-	//		settings.set( "placement", getPlacement() == null ? null : getPlacement().name().toLowerCase() );
-	//	}
-
-	//	@Deprecated
-	//	public Settings getSettings() {
-	//		return settings;
-	//	}
-
-	//	@Override
-	//	public String toString() {
-	//		return super.toString() + "(" + System.identityHashCode( this ) + ")";
-	//	}
-
 	@Override
+	@SuppressWarnings( "StringBufferReplaceableByString" )
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-
 		Bounds bounds = getLayoutBounds();
+
+		StringBuilder builder = new StringBuilder();
 		builder.append( "<" );
 		builder.append( getClass().getSimpleName() );
 		builder.append( " id=" );
-		builder.append( getViewId() );
+		builder.append( getProductId() );
 		builder.append( " bounds=" );
 		builder.append( bounds.getMinX() ).append( "," ).append( bounds.getMinX() );
 		builder.append( " " );
@@ -366,14 +337,10 @@ public class WorkpaneView extends BorderPane {
 
 	void setWorkpane( Workpane parent ) {
 		this.parent = parent;
-		// TODO Should workpanes have icons? If so, update them.
-		//if( parent != null ) updateIcons();
 	}
 
 	void activateTool( Tool tool ) {
-		Workpane workpane = getWorkpane();
-		//if( workpane.getActiveTool() == tool ) return;
-		workpane.setActiveTool( tool );
+		getWorkpane().setActiveTool( tool );
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.skill.Identified;
+import com.avereon.skill.Identity;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -18,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Workpane extends Control {
+public class Workpane extends Control implements WritableIdentity {
 
 	public enum Placement {
 		DEFAULT,
@@ -46,41 +47,41 @@ public class Workpane extends Control {
 
 	private static final Logger log = Log.get();
 
-	private WorkpaneEdge topWall;
+	private final WorkpaneEdge topWall;
 
-	private WorkpaneEdge leftWall;
+	private final WorkpaneEdge leftWall;
 
-	private WorkpaneEdge rightWall;
+	private final WorkpaneEdge rightWall;
 
-	private WorkpaneEdge bottomWall;
+	private final WorkpaneEdge bottomWall;
 
 	private WorkpaneDropHint dragHint;
 
-	private DoubleProperty edgeSize;
+	private final DoubleProperty edgeSize;
 
-	private WorkpaneLayout layout;
+	private final WorkpaneLayout layout;
 
-	private ObjectProperty<WorkpaneView> activeViewProperty;
+	private final ObjectProperty<WorkpaneView> activeViewProperty;
 
-	private ObjectProperty<WorkpaneView> defaultViewProperty;
+	private final ObjectProperty<WorkpaneView> defaultViewProperty;
 
-	private ObjectProperty<WorkpaneView> maximizedViewProperty;
+	private final ObjectProperty<WorkpaneView> maximizedViewProperty;
 
-	private ObjectProperty<Tool> activeToolProperty;
+	private final ObjectProperty<Tool> activeToolProperty;
 
-	private ObjectProperty<DockMode> dockModeProperty;
+	private final ObjectProperty<DockMode> dockModeProperty;
 
-	private DoubleProperty topDockSize;
+	private final DoubleProperty topDockSize;
 
-	private DoubleProperty leftDockSize;
+	private final DoubleProperty leftDockSize;
 
-	private DoubleProperty rightDockSize;
+	private final DoubleProperty rightDockSize;
 
-	private DoubleProperty bottomDockSize;
+	private final DoubleProperty bottomDockSize;
 
-	private AtomicInteger operation;
+	private final AtomicInteger operation;
 
-	private Queue<WorkpaneEvent> events;
+	private final Queue<WorkpaneEvent> events;
 
 	public Workpane() {
 		layout = new WorkpaneLayout( this );
@@ -154,43 +155,37 @@ public class Workpane extends Control {
 		visibleProperty().addListener( ( o, v, n ) -> setActive( n ) );
 	}
 
-	public String getPaneId() {
-		return getProperties().get( Identified.KEY ).toString();
+	@Override
+	public String getProductId() {
+		return getProperties().get( Identity.KEY ).toString();
 	}
 
-	public void setPaneId( String id ) {
-		getProperties().put( Identified.KEY, id );
+	@Override
+	public void setProductId( String id ) {
+		getProperties().put( Identity.KEY, id );
 	}
 
 	/**
 	 * Returns an unmodifiable list of the edges.
 	 *
-	 * @return
+	 * @return The edges in the workpane
 	 */
 	public Set<WorkpaneEdge> getEdges() {
-		Set<WorkpaneEdge> edges = new HashSet<>();
-
-		// Count the edges that are not walls
-		getChildren().filtered( ( c ) -> c instanceof WorkpaneEdge ).forEach( ( c ) -> edges.add( (WorkpaneEdge)c ) );
-		edges.remove( topWall );
-		edges.remove( bottomWall );
-		edges.remove( leftWall );
-		edges.remove( rightWall );
-
-		return Collections.unmodifiableSet( edges );
+		return getChildren()
+			.stream()
+			.filter( ( c ) -> c instanceof WorkpaneEdge )
+			.map( n -> (WorkpaneEdge)n )
+			.filter( e -> !e.isWall() )
+			.collect( Collectors.toSet() );
 	}
 
 	/**
 	 * Returns an unmodifiable list of the views.
 	 *
-	 * @return
+	 * @return The views in the workpane
 	 */
 	public Set<WorkpaneView> getViews() {
-		Set<WorkpaneView> views = new HashSet<>();
-		for( Node node : getChildren() ) {
-			if( node instanceof WorkpaneView ) views.add( (WorkpaneView)node );
-		}
-		return Collections.unmodifiableSet( views );
+		return getChildren().stream().filter( n -> n instanceof WorkpaneView ).map( n -> (WorkpaneView)n ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -588,6 +583,7 @@ public class Workpane extends Control {
 		}
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	private WorkpaneView addView( WorkpaneView view ) {
 		if( view == null ) return null;
 
@@ -603,6 +599,7 @@ public class Workpane extends Control {
 		return view;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	private WorkpaneView removeView( WorkpaneView view ) {
 		if( view == null ) return null;
 
@@ -657,6 +654,7 @@ public class Workpane extends Control {
 		return null;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	private WorkpaneEdge addEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return null;
 
@@ -668,6 +666,7 @@ public class Workpane extends Control {
 		return edge;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	private WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return null;
 
@@ -682,10 +681,11 @@ public class Workpane extends Control {
 	/**
 	 * Move the specified edge the specified offset in pixels.
 	 *
-	 * @param edge
-	 * @param offset
-	 * @return
+	 * @param edge The edge to move
+	 * @param offset The distance to move in pixels
+	 * @return The actual distance moved
 	 */
+	@SuppressWarnings( "UnusedReturnValue" )
 	double moveEdge( WorkpaneEdge edge, double offset ) {
 		if( offset == 0 ) return 0;
 
@@ -714,29 +714,30 @@ public class Workpane extends Control {
 	}
 
 	/**
-	 * Split the workpane using the space in the specified direction to make a new tool view along the entire edge of the workpane.
+	 * Split the workpane using the space in the specified direction to make a new
+	 * tool view along the entire edge of the workpane.
 	 *
-	 * @param direction
-	 * @return
+	 * @param side Which side of the pane to split
+	 * @return The new view
 	 */
-	public WorkpaneView split( Side direction ) {
-		return split( direction, DEFAULT_WALL_SPLIT_RATIO );
+	public WorkpaneView split( Side side ) {
+		return split( side, DEFAULT_WALL_SPLIT_RATIO );
 	}
 
 	/**
 	 * Split the workpane using the space in the specified direction to make a new tool view along the entire edge of the workpane. The new tool view is created
 	 * using the specified percentage of the original space.
 	 *
-	 * @param direction
-	 * @param percent
-	 * @return
+	 * @param side Which side of the pane to split
+	 * @param percent The percent of space to use
+	 * @return The new view
 	 */
-	public WorkpaneView split( Side direction, double percent ) {
+	public WorkpaneView split( Side side, double percent ) {
 		WorkpaneView result = null;
 		startOperation();
 		try {
 			// Calculate the location of the split.
-			switch( direction ) {
+			switch( side ) {
 				case TOP: {
 					result = splitNorth( percent );
 					break;
@@ -768,29 +769,29 @@ public class Workpane extends Control {
 	/**
 	 * Split an existing tool view using the space in the specified direction to create a new tool view.
 	 *
-	 * @param view
-	 * @param direction
-	 * @return
+	 * @param view The view to split
+	 * @param side Which side of the view to split
+	 * @return The new view
 	 */
-	public WorkpaneView split( WorkpaneView view, Side direction ) {
-		return split( view, direction, DEFAULT_VIEW_SPLIT_RATIO );
+	public WorkpaneView split( WorkpaneView view, Side side ) {
+		return split( view, side, DEFAULT_VIEW_SPLIT_RATIO );
 	}
 
 	/**
 	 * Split an existing tool view using the space in the specified direction to create a new tool view. The new tool view is created using the specified
 	 * percentage of the original space.
 	 *
-	 * @param view
-	 * @param direction
-	 * @param percent
-	 * @return
+	 * @param view The view to split
+	 * @param side Which side of the pane to split
+	 * @param percent The percent of space to use
+	 * @return The new view
 	 */
-	public WorkpaneView split( WorkpaneView view, Side direction, double percent ) {
+	public WorkpaneView split( WorkpaneView view, Side side, double percent ) {
 		WorkpaneView result = null;
 		startOperation();
 		try {
 			// Calculate the location of the split.
-			switch( direction ) {
+			switch( side ) {
 				case TOP: {
 					result = splitNorth( view, percent );
 					break;
@@ -818,8 +819,8 @@ public class Workpane extends Control {
 		return result;
 	}
 
-	private static Side getReverseDirection( Side direction ) {
-		switch( direction ) {
+	private static Side getOppositeSide( Side side ) {
+		switch( side ) {
 			case TOP: {
 				return Side.BOTTOM;
 			}
@@ -837,8 +838,9 @@ public class Workpane extends Control {
 		return Side.TOP;
 	}
 
-	private static Side getLeftDirection( Side direction ) {
-		switch( direction ) {
+	@SuppressWarnings( "SuspiciousNameCombination" )
+	private static Side getSideAtLeft( Side side ) {
+		switch( side ) {
 			case TOP: {
 				return Side.LEFT;
 			}
@@ -856,8 +858,9 @@ public class Workpane extends Control {
 		return Side.TOP;
 	}
 
-	private static Side getRightDirection( Side direction ) {
-		switch( direction ) {
+	@SuppressWarnings( "SuspiciousNameCombination" )
+	private static Side getSideAtRight( Side side ) {
+		switch( side ) {
 			case TOP: {
 				return Side.RIGHT;
 			}
@@ -875,47 +878,38 @@ public class Workpane extends Control {
 		return Side.TOP;
 	}
 
-	private static Orientation getPerpendicularDirectionOrientation( Side direction ) {
-		switch( direction ) {
-			case TOP:
-			case BOTTOM: {
-				return Orientation.HORIZONTAL;
-			}
-			case LEFT:
-			case RIGHT: {
-				return Orientation.VERTICAL;
-			}
-		}
-
-		return null;
+	private static Orientation getPerpendicularDirectionOrientation( Side side ) {
+		return side.isHorizontal() ? Orientation.HORIZONTAL : Orientation.VERTICAL;
 	}
 
 	/**
-	 * Performs an automatic pull merge. The direction is automatically determined by a weighted algorithm.
+	 * Performs an automatic pull merge. The side is automatically determined by
+	 * a weighted algorithm.
 	 *
-	 * @param target
+	 * @param target The target view
 	 * @return If the merge was successful
 	 */
+	@SuppressWarnings( "UnusedReturnValue" )
 	public boolean pullMerge( WorkpaneView target ) {
 		Side direction = getPullMergeDirection( target, true );
 		return direction != null && pullMerge( target, direction );
 	}
 
 	/**
-	 * Performs a pull merge in the specified direction.
+	 * Performs a pull merge toward the specified side.
 	 *
-	 * @param target
-	 * @param direction
+	 * @param target The target view
+	 * @param side The side to which to pull
 	 * @return If the merge was successful
 	 */
-	public boolean pullMerge( WorkpaneView target, Side direction ) {
+	public boolean pullMerge( WorkpaneView target, Side side ) {
 		// Check the parameters.
 		if( target == null ) return false;
 
 		boolean result = false;
 		try {
 			startOperation();
-			result = merge( target.getEdge( getReverseDirection( direction ) ), direction );
+			result = merge( target.getEdge( getOppositeSide( side ) ), side );
 			if( result ) queueEvent( new ViewEvent( this, ViewEvent.MERGED, this, target ) );
 		} finally {
 			finishOperation( result );
@@ -927,18 +921,19 @@ public class Workpane extends Control {
 	/**
 	 * Performs a push merge in the specified direction.
 	 *
-	 * @param source
-	 * @param direction
-	 * @return If the merge was successful
+	 * @param source The view to merge from
+	 * @param side The side to merge toward
+	 * @return True if the merge was successful, false otherwise
 	 */
-	public boolean pushMerge( WorkpaneView source, Side direction ) {
+	@SuppressWarnings( "UnusedReturnValue" )
+	public boolean pushMerge( WorkpaneView source, Side side ) {
 		// Check the parameters.
 		if( source == null ) return false;
 
 		boolean result = false;
 		try {
 			startOperation();
-			result = merge( source.getEdge( direction ), direction );
+			result = merge( source.getEdge( side ), side );
 			if( result ) queueEvent( new ViewEvent( this, ViewEvent.MERGED, this, source ) );
 		} finally {
 			finishOperation( result );
@@ -947,12 +942,12 @@ public class Workpane extends Control {
 		return result;
 	}
 
-	public boolean canPushMerge( WorkpaneView source, Side direction, boolean auto ) {
-		return canMerge( source.getEdge( direction ), direction, auto );
+	public boolean canPushMerge( WorkpaneView source, Side side, boolean auto ) {
+		return canMerge( source.getEdge( side ), side, auto );
 	}
 
-	public boolean canPullMerge( WorkpaneView target, Side direction, boolean auto ) {
-		return canMerge( target.getEdge( getReverseDirection( direction ) ), direction, auto );
+	public boolean canPullMerge( WorkpaneView target, Side side, boolean auto ) {
+		return canMerge( target.getEdge( getOppositeSide( side ) ), side, auto );
 	}
 
 	/**
@@ -1375,10 +1370,17 @@ public class Workpane extends Control {
 		return delta;
 	}
 
+	/**
+	 * Merge toward a specific side.
+	 *
+	 * @param edge The edge to merge across
+	 * @param direction The side to merge toward
+	 * @return True if the merge is successful, false otherwise
+	 */
 	private boolean merge( WorkpaneEdge edge, Side direction ) {
 		if( !canMerge( edge, direction, false ) ) return false;
 
-		Set<WorkpaneView> sources = edge.getViews( getReverseDirection( direction ) );
+		Set<WorkpaneView> sources = edge.getViews( getOppositeSide( direction ) );
 		Set<WorkpaneView> targets = edge.getViews( direction );
 
 		// Notify the listeners the views will merge
@@ -1391,13 +1393,13 @@ public class Workpane extends Control {
 		for( WorkpaneView source : sources ) {
 			source.setEdge( direction, farEdge );
 
-			if( source.getEdge( getLeftDirection( direction ) ).getEdge( direction ) == edge ) {
-				source.getEdge( getLeftDirection( direction ) ).setEdge( direction, farEdge );
+			if( source.getEdge( getSideAtLeft( direction ) ).getEdge( direction ) == edge ) {
+				source.getEdge( getSideAtLeft( direction ) ).setEdge( direction, farEdge );
 			}
-			if( source.getEdge( getRightDirection( direction ) ).getEdge( direction ) == edge ) {
-				source.getEdge( getRightDirection( direction ) ).setEdge( direction, farEdge );
+			if( source.getEdge( getSideAtRight( direction ) ).getEdge( direction ) == edge ) {
+				source.getEdge( getSideAtRight( direction ) ).setEdge( direction, farEdge );
 			}
-			farEdge.getViews( getReverseDirection( direction ) ).add( source );
+			farEdge.getViews( getOppositeSide( direction ) ).add( source );
 		}
 
 		// Process the target views and edges.
@@ -1418,9 +1420,9 @@ public class Workpane extends Control {
 
 			// Clean up target edges.
 			cleanupTargetEdge( target, direction );
-			cleanupTargetEdge( target, getReverseDirection( direction ) );
-			cleanupTargetEdge( target, getLeftDirection( direction ) );
-			cleanupTargetEdge( target, getRightDirection( direction ) );
+			cleanupTargetEdge( target, getOppositeSide( direction ) );
+			cleanupTargetEdge( target, getSideAtLeft( direction ) );
+			cleanupTargetEdge( target, getSideAtRight( direction ) );
 
 			// Remove the target view.
 			removeView( target );
@@ -1429,9 +1431,9 @@ public class Workpane extends Control {
 		// Remove the edge.
 		edge.getWorkpane().removeEdge( edge );
 		edge.setEdge( direction, null );
-		edge.setEdge( getReverseDirection( direction ), null );
-		edge.setEdge( getLeftDirection( direction ), null );
-		edge.setEdge( getRightDirection( direction ), null );
+		edge.setEdge( getOppositeSide( direction ), null );
+		edge.setEdge( getSideAtLeft( direction ), null );
+		edge.setEdge( getSideAtRight( direction ), null );
 
 		return true;
 	}
@@ -1457,10 +1459,10 @@ public class Workpane extends Control {
 		WorkpaneEdge edge = target.getEdge( direction );
 
 		// Remove the target from the edge.
-		edge.getViews( getReverseDirection( direction ) ).remove( target );
+		edge.getViews( getOppositeSide( direction ) ).remove( target );
 
 		// If there are no more associated views, remove the edge.
-		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getReverseDirection( direction ) ).size() == 0 ) removeEdge( edge );
+		if( !edge.isWall() && edge.getViews( direction ).size() == 0 && edge.getViews( getOppositeSide( direction ) ).size() == 0 ) removeEdge( edge );
 	}
 
 	private WorkpaneView determineViewFromPlacement( Workpane.Placement placement ) {
@@ -1622,9 +1624,9 @@ public class Workpane extends Control {
 	boolean isDockSpace( Side side, WorkpaneView source ) {
 		if( source == null ) return false;
 
-		WorkpaneEdge leftTurn = source.getEdge( getLeftDirection( side ) );
+		WorkpaneEdge leftTurn = source.getEdge( getSideAtLeft( side ) );
 		WorkpaneEdge direct = source.getEdge( side );
-		WorkpaneEdge rightTurn = source.getEdge( getRightDirection( side ) );
+		WorkpaneEdge rightTurn = source.getEdge( getSideAtRight( side ) );
 
 		switch( side ) {
 			case TOP: {
