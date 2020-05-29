@@ -1,5 +1,6 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.skill.Identified;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
 import javafx.beans.property.ObjectProperty;
@@ -35,8 +36,6 @@ public class WorkpaneView extends BorderPane {
 
 	private Tool activeTool;
 
-	private String viewId;
-
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 
@@ -70,11 +69,11 @@ public class WorkpaneView extends BorderPane {
 	}
 
 	public String getViewId() {
-		return viewId;
+		return getProperties().get( Identified.KEY ).toString();
 	}
 
 	public void setViewId( String id ) {
-		this.viewId = id;
+		getProperties().put( Identified.KEY, id );
 	}
 
 	public WorkpaneEdge getTopEdge() {

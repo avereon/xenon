@@ -1,6 +1,7 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.settings.Settings;
+import com.avereon.skill.Identified;
 import com.avereon.util.IdGenerator;
 import javafx.beans.property.*;
 import javafx.css.*;
@@ -60,7 +61,7 @@ public class WorkpaneEdge extends Control {
 
 	private Workpane parent;
 
-	private String edgeId;
+	//private String edgeId;
 
 	public WorkpaneEdge( Orientation orientation ) {
 		this( orientation, null );
@@ -99,11 +100,11 @@ public class WorkpaneEdge extends Control {
 
 	public String getEdgeId() {
 		if( isWall() ) return wall.name().toLowerCase();
-		return edgeId;
+		return getProperties().get( Identified.KEY ).toString();
 	}
 
 	public void setEdgeId( String id ) {
-		this.edgeId = id;
+		getProperties().put( Identified.KEY, id );
 	}
 
 	/**

@@ -48,9 +48,6 @@ public class Workspace implements Identified {
 
 	private Program program;
 
-	@Deprecated
-	//private String id;
-
 	private Stage stage;
 
 	private Scene scene;

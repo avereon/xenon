@@ -100,12 +100,12 @@ public class Workarea implements Identified {
 
 	@Override
 	public String getProductId() {
-		return id;
+		return workpane.getPaneId();
 	}
 
 	@Override
 	public void setProductId( String id ) {
-		this.id = id;
+		workpane.setPaneId( id );
 	}
 
 	// TODO Could this be moved to UiFactory?

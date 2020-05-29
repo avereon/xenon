@@ -1,5 +1,6 @@
 package com.avereon.xenon.workpane;
 
+import com.avereon.skill.Identified;
 import com.avereon.util.Log;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
@@ -81,14 +82,6 @@ public class Workpane extends Control {
 
 	private Queue<WorkpaneEvent> events;
 
-	private String paneId;
-
-	//@Deprecated
-	//private Queue<OldWorkpaneEvent> oldEvents;
-
-	//@Deprecated
-	//private Settings settings;
-
 	public Workpane() {
 		layout = new WorkpaneLayout( this );
 
@@ -162,11 +155,11 @@ public class Workpane extends Control {
 	}
 
 	public String getPaneId() {
-		return paneId;
+		return getProperties().get( Identified.KEY ).toString();
 	}
 
-	public void setPaneId( String paneId ) {
-		this.paneId = paneId;
+	public void setPaneId( String id ) {
+		getProperties().put( Identified.KEY, id );
 	}
 
 	/**
@@ -418,14 +411,14 @@ public class Workpane extends Control {
 		this.bottomDockSize.set( bottomDockSize );
 	}
 
-//	public void updateFromSettings( Settings settings ) {
-//		if( this.settings != null ) return;
-//		this.settings = settings;
-//	}
-//
-//	public Settings getSettings() {
-//		return settings;
-//	}
+	//	public void updateFromSettings( Settings settings ) {
+	//		if( this.settings != null ) return;
+	//		this.settings = settings;
+	//	}
+	//
+	//	public Settings getSettings() {
+	//		return settings;
+	//	}
 
 	@Override
 	protected double computeMinWidth( double height ) {
@@ -484,7 +477,7 @@ public class Workpane extends Control {
 
 	private void finishOperation( boolean changed ) {
 		int value = operation.decrementAndGet();
-		if( value < 0 ) log.log( Log.ERROR,  "Workpane operation flag is less than zero." );
+		if( value < 0 ) log.log( Log.ERROR, "Workpane operation flag is less than zero." );
 		updateComponentTree( changed );
 	}
 
@@ -2071,27 +2064,27 @@ public class Workpane extends Control {
 		return null;
 	}
 
-//	private void createEdgeSettings( WorkpaneEdge edge ) {
-//		// TODO To replace this method an observable collection of the edges is needed
-//		// Or watch the children collection
-//		Settings paneSettings = getSettings();
-//		if( paneSettings == null ) return;
-//
-//		Settings edgeSettings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
-//		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
-//		edge.setSettings( edgeSettings );
-//	}
-//
-//	private void createViewSettings( WorkpaneView view ) {
-//		// TODO To replace this method an observable collection of the views is needed
-//		// Or watch the children collection
-//		Settings paneSettings = getSettings();
-//		if( paneSettings == null ) return;
-//
-//		Settings viewSettings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
-//		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
-//		view.setSettings( viewSettings );
-//	}
+	//	private void createEdgeSettings( WorkpaneEdge edge ) {
+	//		// TODO To replace this method an observable collection of the edges is needed
+	//		// Or watch the children collection
+	//		Settings paneSettings = getSettings();
+	//		if( paneSettings == null ) return;
+	//
+	//		Settings edgeSettings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
+	//		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
+	//		edge.setSettings( edgeSettings );
+	//	}
+	//
+	//	private void createViewSettings( WorkpaneView view ) {
+	//		// TODO To replace this method an observable collection of the views is needed
+	//		// Or watch the children collection
+	//		Settings paneSettings = getSettings();
+	//		if( paneSettings == null ) return;
+	//
+	//		Settings viewSettings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
+	//		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
+	//		view.setSettings( viewSettings );
+	//	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {
 
@@ -2102,7 +2095,7 @@ public class Workpane extends Control {
 		MergeDirection( WorkpaneView target, Side direction ) {
 			this.direction = direction;
 			this.weight = getMergeWeight( target, direction );
-			log.log( Log.TRACE,  "Direction: " + direction + "  Weight: " + weight );
+			log.log( Log.TRACE, "Direction: " + direction + "  Weight: " + weight );
 		}
 
 		Side getDirection() {

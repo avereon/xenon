@@ -61,7 +61,7 @@ public class UiFactory {
 		workpane.setPaneId( id );
 
 		// When restoring clear all prior nodes before setting up the settings
-		if( restore) workpane.clearNodes();
+		if( restore ) workpane.clearNodes();
 		setupWorkpaneSettings( workarea.getWorkpane(), workpaneSettings );
 
 		return workarea;
@@ -88,23 +88,21 @@ public class UiFactory {
 		workpane.activeViewProperty().addListener( ( v, o, n ) -> settings.set( "view-active", n == null ? null : n.getViewId() ) );
 		workpane.defaultViewProperty().addListener( ( v, o, n ) -> settings.set( "view-default", n == null ? null : n.getViewId() ) );
 		workpane.maximizedViewProperty().addListener( ( v, o, n ) -> settings.set( "view-maximized", n == null ? null : n.getViewId() ) );
-		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)( c ) -> {
-			while( c.next() ) {
-				for( Node n : c.getAddedSubList() ) {
-					if( n instanceof WorkpaneEdge ) setupWorkpaneEdgeSettings( (WorkpaneEdge)n, settings );
-					if( n instanceof WorkpaneView ) setupWorkpaneViewSettings( (WorkpaneView)n, settings );
-				}
-				for( Node n : c.getRemoved() ) {
-					if( n instanceof WorkpaneEdge ) removeWorkpaneEdgeSettings( (WorkpaneEdge)n, settings );
-					if( n instanceof WorkpaneView ) removeWorkpaneViewSettings( (WorkpaneView)n, settings );
-				}
-			}
-		} );
+		workpane.getChildrenUnmodifiable().addListener( (ListChangeListener<? super Node>)( c ) -> processWorkpaneChildrenChanges( c, settings ) );
 
 		// Store the current values
 		settings.set( "view-active", workpane.getActiveView() == null ? null : workpane.getActiveView().getViewId() );
 		settings.set( "view-default", workpane.getDefaultView() == null ? null : workpane.getDefaultView().getViewId() );
 		settings.set( "view-maximized", workpane.getMaximizedView() == null ? null : workpane.getMaximizedView().getViewId() );
+	}
+
+	private void processWorkpaneChildrenChanges( ListChangeListener.Change<? extends Node> change, Settings settings ) {
+		while( change.next() ) {
+			change.getAddedSubList().stream().filter( WorkpaneEdge.class::isInstance ).forEach( n -> setupWorkpaneEdgeSettings( (WorkpaneEdge)n, settings ) );
+			change.getAddedSubList().stream().filter( WorkpaneView.class::isInstance ).forEach( n -> setupWorkpaneViewSettings( (WorkpaneView)n, settings ) );
+			change.getRemoved().stream().filter( WorkpaneEdge.class::isInstance ).forEach( n -> removeWorkpaneEdgeSettings( (WorkpaneEdge)n, settings ) );
+			change.getRemoved().stream().filter( WorkpaneView.class::isInstance ).forEach( n -> removeWorkpaneViewSettings( (WorkpaneView)n, settings ) );
+		}
 	}
 
 	private void setupWorkpaneEdgeSettings( WorkpaneEdge edge, Settings settings ) {
