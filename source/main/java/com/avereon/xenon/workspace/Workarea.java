@@ -108,6 +108,7 @@ public class Workarea implements Identified {
 		this.id = id;
 	}
 
+	// TODO Could this be moved to UiFactory?
 	public void updateFromSettings( Settings settings ) {
 		setName( settings.get( "name" ) );
 		setActive( settings.get( "active", Boolean.class, false ) );

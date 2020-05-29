@@ -1,9 +1,8 @@
 package com.avereon.xenon.workpane;
 
 import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import com.avereon.util.IdGenerator;
+import javafx.beans.property.*;
 import javafx.css.*;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
@@ -21,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Created by ecco on 5/29/17.
  */
-public class WorkpaneEdge extends Control implements Configurable {
+public class WorkpaneEdge extends Control {
 
 	private static final PseudoClass HORIZONTAL_PSEUDOCLASS_STATE = PseudoClass.getPseudoClass( "horizontal" );
 
@@ -29,13 +28,13 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	private StyleableObjectProperty<Orientation> orientation;
 
-	private WorkpaneEdge topEdge;
+	private ObjectProperty<WorkpaneEdge> topEdge;
 
-	private WorkpaneEdge leftEdge;
+	private ObjectProperty<WorkpaneEdge> leftEdge;
 
-	private WorkpaneEdge rightEdge;
+	private ObjectProperty<WorkpaneEdge> rightEdge;
 
-	private WorkpaneEdge bottomEdge;
+	private ObjectProperty<WorkpaneEdge> bottomEdge;
 
 	Set<WorkpaneView> topViews;
 
@@ -46,8 +45,10 @@ public class WorkpaneEdge extends Control implements Configurable {
 	Set<WorkpaneView> rightViews;
 
 	/**
-	 * <p>Represents the location where the divider should ideally be positioned, between 0.0 and 1.0 (inclusive) when the position is relative. 0.0 represents the left- or top-most point, and 1.0 represents the right- or bottom-most point
-	 * (depending on the orientation property).
+	 * <p>The location where the divider should ideally be positioned, between 0.0
+	 * and 1.0 (inclusive) when the position is relative. 0.0 represents the
+	 * left-most or top-most point, and 1.0 represents the right-most or
+	 * bottom-most point (depending on the orientation property).
 	 * <p>
 	 * <p>As the user drags the edge around this property will be updated to always represent its current location.
 	 */
@@ -55,22 +56,25 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 	private boolean absolute;
 
-	private Side side;
+	private Side wall;
 
 	private Workpane parent;
 
-	private Settings settings;
+	private String edgeId;
 
 	public WorkpaneEdge( Orientation orientation ) {
 		this( orientation, null );
 	}
 
-	public WorkpaneEdge( Orientation orientation, Side side ) {
+	public WorkpaneEdge( Orientation orientation, Side wall ) {
 		getStyleClass().add( "workpane-edge" );
+
+		setEdgeId( IdGenerator.getId() );
 		setOrientation( orientation );
 		setSnapToPixel( true );
 		setPosition( 0 );
-		this.side = side;
+
+		this.wall = wall;
 
 		// Create the view lists.
 		Set<WorkpaneView> viewsA = new CopyOnWriteArraySet<>();
@@ -90,13 +94,16 @@ public class WorkpaneEdge extends Control implements Configurable {
 	}
 
 	final boolean isWall() {
-		return side != null;
+		return wall != null;
 	}
 
 	public String getEdgeId() {
-		if( settings != null ) return settings.getName();
-		if( side != null ) return side.name().toLowerCase();
-		return null;
+		if( isWall() ) return wall.name().toLowerCase();
+		return edgeId;
+	}
+
+	public void setEdgeId( String id ) {
+		this.edgeId = id;
 	}
 
 	/**
@@ -106,7 +113,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 *
 	 * @param value the orientation value
 	 */
-	private void setOrientation( Orientation value ) {
+	public void setOrientation( Orientation value ) {
 		orientationProperty().set( value );
 	}
 
@@ -115,7 +122,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 *
 	 * @return The orientation for the WorkpaneEdge.
 	 */
-	public final Orientation getOrientation() {
+	public Orientation getOrientation() {
 		return orientation == null ? Orientation.VERTICAL : orientation.get();
 	}
 
@@ -124,7 +131,7 @@ public class WorkpaneEdge extends Control implements Configurable {
 	 *
 	 * @return the orientation property for the WorkpaneEdge
 	 */
-	private StyleableObjectProperty<Orientation> orientationProperty() {
+	public StyleableObjectProperty<Orientation> orientationProperty() {
 		if( orientation == null ) {
 			orientation = new StyleableObjectProperty<>( null ) {
 
@@ -155,18 +162,69 @@ public class WorkpaneEdge extends Control implements Configurable {
 		return orientation;
 	}
 
-	public final double getPosition() {
+	public double getPosition() {
 		return position == null ? 0.5F : position.get();
 	}
 
-	final void setPosition( double value ) {
-		positionProperty().set( value );
-		if( settings != null ) settings.set( "position", value );
+	public void setPosition( double value ) {
+		((DoubleProperty)positionProperty()).set( value );
 	}
 
-	final DoubleProperty positionProperty() {
+	public ReadOnlyDoubleProperty positionProperty() {
 		if( position == null ) position = new SimpleDoubleProperty( this, "position", 0 );
 		return position;
+	}
+
+	public WorkpaneEdge getTopEdge() {
+		return topEdge == null ? null : topEdgeProperty().get();
+	}
+
+	public void setTopEdge( WorkpaneEdge topEdge ) {
+		((ObjectProperty<WorkpaneEdge>)topEdgeProperty()).set( topEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> topEdgeProperty() {
+		if( topEdge == null ) topEdge = new SimpleObjectProperty<>();
+		return topEdge;
+	}
+
+	public WorkpaneEdge getLeftEdge() {
+		return leftEdge == null ? null : leftEdgeProperty().get();
+	}
+
+	public void setLeftEdge( WorkpaneEdge leftEdge ) {
+		((ObjectProperty<WorkpaneEdge>)leftEdgeProperty()).set( leftEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> leftEdgeProperty() {
+		if( leftEdge == null ) leftEdge = new SimpleObjectProperty<>();
+		return leftEdge;
+	}
+
+	public WorkpaneEdge getRightEdge() {
+		return rightEdge == null ? null : rightEdgeProperty().get();
+	}
+
+	public void setRightEdge( WorkpaneEdge rightEdge ) {
+		((ObjectProperty<WorkpaneEdge>)rightEdgeProperty()).set( rightEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> rightEdgeProperty() {
+		if( rightEdge == null ) rightEdge = new SimpleObjectProperty<>();
+		return rightEdge;
+	}
+
+	public WorkpaneEdge getBottomEdge() {
+		return bottomEdge == null ? null : bottomEdgeProperty().get();
+	}
+
+	public void setBottomEdge( WorkpaneEdge bottomEdge ) {
+		((ObjectProperty<WorkpaneEdge>)bottomEdgeProperty()).set( bottomEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> bottomEdgeProperty() {
+		if( bottomEdge == null ) bottomEdge = new SimpleObjectProperty<>();
+		return bottomEdge;
 	}
 
 	Workpane getWorkpane() {
@@ -181,16 +239,16 @@ public class WorkpaneEdge extends Control implements Configurable {
 
 		switch( direction ) {
 			case TOP: {
-				return topEdge;
+				return getTopEdge();
 			}
 			case BOTTOM: {
-				return bottomEdge;
+				return getBottomEdge();
 			}
 			case LEFT: {
-				return leftEdge;
+				return getLeftEdge();
 			}
 			case RIGHT: {
-				return rightEdge;
+				return getRightEdge();
 			}
 		}
 
@@ -200,23 +258,19 @@ public class WorkpaneEdge extends Control implements Configurable {
 	public void setEdge( Side direction, WorkpaneEdge edge ) {
 		switch( direction ) {
 			case TOP: {
-				topEdge = edge;
-				if( settings != null ) settings.set( "t", edge == null ? null : edge.getEdgeId() );
+				setTopEdge( edge );
 				break;
 			}
 			case LEFT: {
-				leftEdge = edge;
-				if( settings != null ) settings.set( "l", edge == null ? null : edge.getEdgeId() );
+				setLeftEdge( edge );
 				break;
 			}
 			case RIGHT: {
-				rightEdge = edge;
-				if( settings != null ) settings.set( "r", edge == null ? null : edge.getEdgeId() );
+				setRightEdge( edge );
 				break;
 			}
 			case BOTTOM: {
-				bottomEdge = edge;
-				if( settings != null ) settings.set( "b", edge == null ? null : edge.getEdgeId() );
+				setBottomEdge( edge );
 				break;
 			}
 		}
@@ -238,32 +292,33 @@ public class WorkpaneEdge extends Control implements Configurable {
 			}
 		}
 
-		return null;
+		return Set.of();
 	}
 
-	@Override
+	@Deprecated
 	public void setSettings( Settings settings ) {
-		if( settings == null ) {
-			this.settings = null;
-			return;
-		} else if( this.settings != null ) {
-			return;
-		}
+		//		if( settings == null ) {
+		//			this.settings = null;
+		//			return;
+		//		} else if( this.settings != null ) {
+		//			return;
+		//		}
 
-		this.settings = settings;
+		//this.settings = settings;
 
 		// Restore state from settings
-		if( settings.get( "position" ) != null ) setPosition( settings.get( "position", Double.class ) );
+		//setEdgeId( settings.getName() );
+		//if( settings.exists( "position" ) ) setPosition( settings.get( "position", Double.class ) );
 
 		// Persist state to settings
-		settings.set( "orientation", getOrientation().name().toLowerCase() );
-		settings.set( "position", getPosition() );
+		//settings.set( "orientation", getOrientation().name().toLowerCase() );
+		//settings.set( "position", getPosition() );
 	}
 
-	@Override
-	public Settings getSettings() {
-		return settings;
-	}
+	//	@Deprecated
+	//	public Settings getSettings() {
+	//		return settings;
+	//	}
 
 	@Override
 	public String toString() {

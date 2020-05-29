@@ -1,11 +1,6 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
-import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
-import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.UiFactory;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.*;
@@ -22,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Workpane extends Control implements Configurable {
+public class Workpane extends Control {
 
 	public enum Placement {
 		DEFAULT,
@@ -86,11 +81,13 @@ public class Workpane extends Control implements Configurable {
 
 	private Queue<WorkpaneEvent> events;
 
+	private String paneId;
+
 	//@Deprecated
 	//private Queue<OldWorkpaneEvent> oldEvents;
 
-	@Deprecated
-	private Settings settings;
+	//@Deprecated
+	//private Settings settings;
 
 	public Workpane() {
 		layout = new WorkpaneLayout( this );
@@ -164,21 +161,12 @@ public class Workpane extends Control implements Configurable {
 		visibleProperty().addListener( ( o, v, n ) -> setActive( n ) );
 	}
 
-	private void setActive( boolean active ) {
-		try {
-			startOperation();
-			if( active ) {
-				Tool tool = getActiveTool();
-				if( tool != null ) tool.callActivate();
-			} else {
-				getViews().forEach( v -> {
-					Tool tool = v.getActiveTool();
-					if( tool != null ) tool.callConceal();
-				} );
-			}
-		} finally {
-			finishOperation( true );
-		}
+	public String getPaneId() {
+		return paneId;
+	}
+
+	public void setPaneId( String paneId ) {
+		this.paneId = paneId;
 	}
 
 	/**
@@ -277,14 +265,14 @@ public class Workpane extends Control implements Configurable {
 		if( defaultView == view ) return;
 
 		if( defaultView != null ) {
-			if( defaultView.getSettings() != null ) defaultView.getSettings().set( "default", null );
+			//
 		}
 
 		defaultViewProperty.set( view );
 		defaultView = view;
 
 		if( defaultView != null ) {
-			if( defaultView.getSettings() != null ) defaultView.getSettings().set( "default", true );
+			//
 		}
 
 		updateComponentTree( true );
@@ -303,14 +291,14 @@ public class Workpane extends Control implements Configurable {
 		if( maximizedView == view ) return;
 
 		if( maximizedView != null ) {
-			if( maximizedView.getSettings() != null ) maximizedView.getSettings().set( "maximized", null );
+			//
 		}
 
 		maximizedViewProperty.set( view );
 		maximizedView = view;
 
 		if( maximizedView != null ) {
-			if( maximizedView.getSettings() != null ) maximizedView.getSettings().set( "maximized", true );
+			//
 		}
 
 		updateComponentTree( true );
@@ -430,17 +418,14 @@ public class Workpane extends Control implements Configurable {
 		this.bottomDockSize.set( bottomDockSize );
 	}
 
-	@Override
-	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
-
-		this.settings = settings;
-	}
-
-	@Override
-	public Settings getSettings() {
-		return settings;
-	}
+//	public void updateFromSettings( Settings settings ) {
+//		if( this.settings != null ) return;
+//		this.settings = settings;
+//	}
+//
+//	public Settings getSettings() {
+//		return settings;
+//	}
 
 	@Override
 	protected double computeMinWidth( double height ) {
@@ -472,12 +457,29 @@ public class Workpane extends Control implements Configurable {
 		return new WorkpaneSkin( this );
 	}
 
-	private boolean isOperationActive() {
-		return operation.get() > 0;
+	private void setActive( boolean active ) {
+		try {
+			startOperation();
+			if( active ) {
+				Tool tool = getActiveTool();
+				if( tool != null ) tool.callActivate();
+			} else {
+				getViews().forEach( v -> {
+					Tool tool = v.getActiveTool();
+					if( tool != null ) tool.callConceal();
+				} );
+			}
+		} finally {
+			finishOperation( true );
+		}
 	}
 
 	private void startOperation() {
 		operation.incrementAndGet();
+	}
+
+	private boolean isOperationActive() {
+		return operation.get() > 0;
 	}
 
 	private void finishOperation( boolean changed ) {
@@ -514,7 +516,6 @@ public class Workpane extends Control implements Configurable {
 			WorkpaneView activeToolView = getActiveView();
 			if( activeToolView != null ) {
 				activeToolView.setActive( false );
-				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", null );
 				queueEvent( new ViewEvent( this, ViewEvent.DEACTIVATED, this, activeToolView ) );
 			}
 
@@ -525,7 +526,6 @@ public class Workpane extends Control implements Configurable {
 			activeToolView = getActiveView();
 			if( activeToolView != null ) {
 				activeToolView.setActive( true );
-				if( activeToolView.getSettings() != null ) activeToolView.getSettings().set( "active", true );
 				if( setActiveToolAlso ) doSetActiveTool( activeToolView.getActiveTool(), false );
 				queueEvent( new ViewEvent( this, ViewEvent.ACTIVATED, this, activeToolView ) );
 			}
@@ -573,38 +573,23 @@ public class Workpane extends Control implements Configurable {
 		return area1 - area2;
 	}
 
+	public void clearNodes() {
+		restoreNodes( Set.of(), Set.of() );
+	}
+
 	/**
 	 * For use when restoring the state of the workpane.
 	 */
-	public void restoreNodes( Set<Node> nodes ) {
+	public void restoreNodes( Set<WorkpaneEdge> edges, Set<WorkpaneView> views ) {
 		startOperation();
 		try {
-			// Remove existing views
-			for( WorkpaneView view : getViews() ) {
-				removeView( view );
-			}
+			// Remove existing views and edges
+			getViews().forEach( this::removeView );
+			getEdges().forEach( this::removeEdge );
 
 			// Add edges and views
-			for( Node node : nodes ) {
-				if( node instanceof WorkpaneEdge ) {
-					addEdge( (WorkpaneEdge)node );
-				} else if( node instanceof WorkpaneView ) {
-					WorkpaneView view = (WorkpaneView)node;
-
-					addView( view );
-
-					Settings settings = view.getSettings();
-					if( settings != null ) {
-						boolean isActive = settings.get( "active", Boolean.class, false );
-						boolean isDefault = settings.get( "default", Boolean.class, false );
-						boolean isMaximized = settings.get( "maximized", Boolean.class, false );
-
-						if( isActive ) setActiveView( view );
-						if( isDefault ) setDefaultView( view );
-						if( isMaximized ) setMaximizedView( view );
-					}
-				}
-			}
+			edges.forEach( this::addEdge );
+			views.forEach( this::addView );
 		} finally {
 			finishOperation( false );
 		}
@@ -630,9 +615,6 @@ public class Workpane extends Control implements Configurable {
 
 		try {
 			startOperation();
-
-			if( view.getSettings() != null ) view.getSettings().delete();
-			view.setSettings( null );
 
 			getChildren().remove( view );
 			view.setWorkpane( null );
@@ -695,9 +677,6 @@ public class Workpane extends Control implements Configurable {
 
 	private WorkpaneEdge removeEdge( WorkpaneEdge edge ) {
 		if( edge == null ) return null;
-
-		if( edge.getSettings() != null ) edge.getSettings().delete();
-		edge.setSettings( null );
 
 		getChildren().remove( edge );
 		edge.setWorkpane( null );
@@ -1776,11 +1755,11 @@ public class Workpane extends Control implements Configurable {
 
 	private WorkpaneView newTopView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
-		createViewSettings( newView );
+		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		createEdgeSettings( newEdge );
+		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -1846,11 +1825,11 @@ public class Workpane extends Control implements Configurable {
 	private WorkpaneView newLeftView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
-		createViewSettings( newView );
+		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		createEdgeSettings( newEdge );
+		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1909,11 +1888,11 @@ public class Workpane extends Control implements Configurable {
 	private WorkpaneView newRightView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
-		createViewSettings( newView );
+		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		createEdgeSettings( newEdge );
+		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1978,11 +1957,11 @@ public class Workpane extends Control implements Configurable {
 
 	private WorkpaneView newBottomView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
-		createViewSettings( newView );
+		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		createEdgeSettings( newEdge );
+		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -2092,23 +2071,27 @@ public class Workpane extends Control implements Configurable {
 		return null;
 	}
 
-	private void createEdgeSettings( WorkpaneEdge edge ) {
-		Settings paneSettings = getSettings();
-		if( paneSettings == null ) return;
-
-		Settings settings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
-		settings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
-		edge.setSettings( settings );
-	}
-
-	private void createViewSettings( WorkpaneView view ) {
-		Settings paneSettings = getSettings();
-		if( paneSettings == null ) return;
-
-		Settings settings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
-		settings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
-		view.setSettings( settings );
-	}
+//	private void createEdgeSettings( WorkpaneEdge edge ) {
+//		// TODO To replace this method an observable collection of the edges is needed
+//		// Or watch the children collection
+//		Settings paneSettings = getSettings();
+//		if( paneSettings == null ) return;
+//
+//		Settings edgeSettings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
+//		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
+//		edge.setSettings( edgeSettings );
+//	}
+//
+//	private void createViewSettings( WorkpaneView view ) {
+//		// TODO To replace this method an observable collection of the views is needed
+//		// Or watch the children collection
+//		Settings paneSettings = getSettings();
+//		if( paneSettings == null ) return;
+//
+//		Settings viewSettings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
+//		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
+//		view.setSettings( viewSettings );
+//	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {
 
