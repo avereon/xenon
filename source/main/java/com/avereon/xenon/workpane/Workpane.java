@@ -406,15 +406,6 @@ public class Workpane extends Control implements WritableIdentity {
 		this.bottomDockSize.set( bottomDockSize );
 	}
 
-	//	public void updateFromSettings( Settings settings ) {
-	//		if( this.settings != null ) return;
-	//		this.settings = settings;
-	//	}
-	//
-	//	public Settings getSettings() {
-	//		return settings;
-	//	}
-
 	@Override
 	protected double computeMinWidth( double height ) {
 		return getInsets().getLeft() + getInsets().getRight();
@@ -1750,11 +1741,9 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private WorkpaneView newTopView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
-		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -1820,11 +1809,9 @@ public class Workpane extends Control implements WritableIdentity {
 	private WorkpaneView newLeftView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
-		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1883,11 +1870,9 @@ public class Workpane extends Control implements WritableIdentity {
 	private WorkpaneView newRightView( WorkpaneView source, WorkpaneEdge topEdge, WorkpaneEdge bottomEdge, double percent ) {
 		// Create the new view.
 		WorkpaneView newView = new WorkpaneView();
-		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
-		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1952,11 +1937,9 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private WorkpaneView newBottomView( WorkpaneView source, WorkpaneEdge leftEdge, WorkpaneEdge rightEdge, double percent ) {
 		WorkpaneView newView = new WorkpaneView();
-		//createViewSettings( newView );
 
 		// Create the new edge.
 		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
-		//createEdgeSettings( newEdge );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -2065,28 +2048,6 @@ public class Workpane extends Control implements WritableIdentity {
 
 		return null;
 	}
-
-	//	private void createEdgeSettings( WorkpaneEdge edge ) {
-	//		// TODO To replace this method an observable collection of the edges is needed
-	//		// Or watch the children collection
-	//		Settings paneSettings = getSettings();
-	//		if( paneSettings == null ) return;
-	//
-	//		Settings edgeSettings = paneSettings.getNode( ProgramSettings.EDGE, IdGenerator.getId() );
-	//		edgeSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
-	//		edge.setSettings( edgeSettings );
-	//	}
-	//
-	//	private void createViewSettings( WorkpaneView view ) {
-	//		// TODO To replace this method an observable collection of the views is needed
-	//		// Or watch the children collection
-	//		Settings paneSettings = getSettings();
-	//		if( paneSettings == null ) return;
-	//
-	//		Settings viewSettings = paneSettings.getNode( ProgramSettings.VIEW, IdGenerator.getId() );
-	//		viewSettings.set( UiFactory.PARENT_WORKPANE_ID, getSettings().getName() );
-	//		view.setSettings( viewSettings );
-	//	}
 
 	private static class MergeDirection implements Comparable<MergeDirection> {
 

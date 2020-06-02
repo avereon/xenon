@@ -1,18 +1,14 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.settings.MapSettings;
-import com.avereon.settings.Settings;
 import com.avereon.xenon.FxPlatformTestCase;
 import com.avereon.xenon.workspace.Workarea;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class WorkareaTest extends FxPlatformTestCase {
-
-	private Settings settings = new MapSettings();
 
 	@Test
 	void testConstructor() {
@@ -26,13 +22,27 @@ class WorkareaTest extends FxPlatformTestCase {
 
 		// Create and setup the settings
 		Workarea area = new Workarea();
-		area.updateFromSettings( settings );
 
 		// Set the method
 		area.setName( name );
 
 		// Assertions
 		assertThat( area.getName(), is( name ) );
+	}
+
+	@Test
+	void testActiveProperty() {
+		// Create and setup the settings
+		Workarea area = new Workarea();
+		assertFalse( area.isActive() );
+
+		// Active
+		area.setActive( true );
+		assertTrue( area.isActive() );
+
+		// Inactive
+		area.setActive( false );
+		assertFalse( area.isActive() );
 	}
 
 }

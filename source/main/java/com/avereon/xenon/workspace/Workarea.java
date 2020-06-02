@@ -1,6 +1,5 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.settings.Settings;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.UiFactory;
@@ -106,16 +105,6 @@ public class Workarea implements WritableIdentity {
 	@Override
 	public void setProductId( String id ) {
 		workpane.setProductId( id );
-	}
-
-	// TODO Could this be moved to UiFactory?
-	public void updateFromSettings( Settings settings ) {
-		setName( settings.get( "name" ) );
-		setActive( settings.get( "active", Boolean.class, false ) );
-
-		nameProperty().addListener( ( v, o, n ) -> settings.set( "name", n ) );
-		activeProperty().addListener( ( v, o, n ) -> settings.set( "active", n ) );
-		workspaceProperty().addListener( (v,o,n) -> settings.set( UiFactory.PARENT_WORKSPACE_ID, n == null ? null : n.getProductId() ) );
 	}
 
 	@Override

@@ -133,40 +133,23 @@ class UiRegenerator {
 	}
 
 	private void restoreWorkspaces( SplashScreenPane splashScreen, List<String> workspaceIds ) {
-		List<String> areaIds = getUiSettingsIds( ProgramSettings.AREA );
-		List<String> edgeIds = getUiSettingsIds( ProgramSettings.EDGE );
-		List<String> viewIds = getUiSettingsIds( ProgramSettings.VIEW );
-		List<String> toolIds = getUiSettingsIds( ProgramSettings.TOOL );
-
 		// Create the workspaces (includes the window)
-		for( String id : workspaceIds ) {
-			restoreWorkspace( id );
-			//splashScreen.update();
-		}
+		workspaceIds.forEach( this::restoreWorkspace );
 
 		// Create the workareas (includes the workpane)
-		for( String id : areaIds ) {
-			restoreWorkarea( id );
-			//splashScreen.update();
-		}
+		getUiSettingsIds( ProgramSettings.AREA ).forEach( this::restoreWorkarea );
 
 		// Create the workpane edges
-		for( String id : edgeIds ) {
-			restoreWorkpaneEdge( id );
-			//splashScreen.update();
-		}
+		getUiSettingsIds( ProgramSettings.EDGE ).forEach( this::restoreWorkpaneEdge );
 
 		// Create the workpane views
-		for( String id : viewIds ) {
-			restoreWorkpaneView( id );
-			//splashScreen.update();
-		}
+		getUiSettingsIds( ProgramSettings.VIEW ).forEach( this::restoreWorkpaneView );
 
 		// Create the tools
-		for( String id : toolIds ) {
+		getUiSettingsIds( ProgramSettings.TOOL ).forEach( id -> {
 			restoreWorktool( id );
 			splashScreen.update();
-		}
+		} );
 
 		linkWorkareas();
 		linkEdgesAndViews();
@@ -231,6 +214,7 @@ class UiRegenerator {
 			Set<WorkpaneView> views = workpaneViews.computeIfAbsent( pane, k -> new HashSet<>() );
 			pane.restoreNodes( edges, views );
 
+			// FIXME Default view has already been overwritten in the settings and is getting lost
 			// Active, default and maximized views
 			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getProductId() );
 			setView( settings, "view-active", pane::setActiveView );
@@ -243,6 +227,7 @@ class UiRegenerator {
 		String viewId = settings.get( key );
 		WorkpaneView view = viewId == null ? null : views.get( viewId );
 		if( view != null ) handler.accept( view );
+		if( "view-default".equals( key ) && view == null ) log.log( Log.ERROR, "The default view was not restored. This will cause a UI problem." );
 	}
 
 	private boolean linkEdge( WorkpaneEdge edge ) {
@@ -382,6 +367,8 @@ class UiRegenerator {
 			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
 			WorkpaneEdge edge = new WorkpaneEdge( orientation );
 			edge.setProductId( id );
+			if( settings.exists( "position" ) ) edge.setPosition( settings.get( "position", Double.class ) );
+			edge.setPosition( settings.get( "position", Double.class ) );
 			edges.put( edge.getProductId(), edge );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring workpane", exception );
@@ -402,6 +389,7 @@ class UiRegenerator {
 
 			WorkpaneView view = new WorkpaneView();
 			view.setProductId( id );
+			if( settings.exists( "placement" ) ) view.setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
 
 			views.put( view.getProductId(), view );
 		} catch( Exception exception ) {
