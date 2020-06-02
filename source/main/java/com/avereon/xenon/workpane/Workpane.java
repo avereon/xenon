@@ -104,10 +104,10 @@ public class Workpane extends Control implements WritableIdentity {
 		events = new LinkedList<>();
 
 		// Create the wall edges
-		topWall = new WorkpaneEdge( Orientation.HORIZONTAL, Side.TOP );
-		leftWall = new WorkpaneEdge( Orientation.VERTICAL, Side.LEFT );
-		rightWall = new WorkpaneEdge( Orientation.VERTICAL, Side.RIGHT );
-		bottomWall = new WorkpaneEdge( Orientation.HORIZONTAL, Side.BOTTOM );
+		topWall = new WorkpaneEdge( Side.TOP ).setOrientation( Orientation.HORIZONTAL );
+		leftWall = new WorkpaneEdge( Side.LEFT ).setOrientation( Orientation.VERTICAL );
+		rightWall = new WorkpaneEdge( Side.RIGHT ).setOrientation( Orientation.VERTICAL );
+		bottomWall = new WorkpaneEdge( Side.BOTTOM ).setOrientation( Orientation.HORIZONTAL );
 
 		// Set the workpane on the edges
 		topWall.setWorkpane( this );
@@ -1743,7 +1743,7 @@ public class Workpane extends Control implements WritableIdentity {
 		WorkpaneView newView = new WorkpaneView();
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge().setOrientation( Orientation.HORIZONTAL );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 
@@ -1811,7 +1811,7 @@ public class Workpane extends Control implements WritableIdentity {
 		WorkpaneView newView = new WorkpaneView();
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge().setOrientation( Orientation.VERTICAL );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1872,7 +1872,7 @@ public class Workpane extends Control implements WritableIdentity {
 		WorkpaneView newView = new WorkpaneView();
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.VERTICAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge().setOrientation( Orientation.VERTICAL );
 		newEdge.setEdge( Side.TOP, topEdge );
 		newEdge.setEdge( Side.BOTTOM, bottomEdge );
 
@@ -1939,7 +1939,7 @@ public class Workpane extends Control implements WritableIdentity {
 		WorkpaneView newView = new WorkpaneView();
 
 		// Create the new edge.
-		WorkpaneEdge newEdge = new WorkpaneEdge( Orientation.HORIZONTAL );
+		WorkpaneEdge newEdge = new WorkpaneEdge().setOrientation( Orientation.HORIZONTAL );
 		newEdge.setEdge( Side.LEFT, leftEdge );
 		newEdge.setEdge( Side.RIGHT, rightEdge );
 

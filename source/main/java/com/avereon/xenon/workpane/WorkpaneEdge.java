@@ -58,15 +58,14 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 
 	private Workpane parent;
 
-	public WorkpaneEdge( Orientation orientation ) {
-		this( orientation, null );
+	public WorkpaneEdge() {
+		this( null );
 	}
 
-	public WorkpaneEdge( Orientation orientation, Side wall ) {
+	WorkpaneEdge( Side wall ) {
 		getStyleClass().add( "workpane-edge" );
 
 		setProductId( IdGenerator.getId() );
-		setOrientation( orientation );
 		setSnapToPixel( true );
 		setPosition( 0 );
 
@@ -111,8 +110,9 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 	 *
 	 * @param value the orientation value
 	 */
-	public void setOrientation( Orientation value ) {
+	public WorkpaneEdge setOrientation( Orientation value ) {
 		orientationProperty().set( value );
+		return this;
 	}
 
 	/**

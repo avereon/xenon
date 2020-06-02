@@ -364,11 +364,11 @@ class UiRegenerator {
 				return;
 			}
 
-			Orientation orientation = Orientation.valueOf( settings.get( "orientation" ).toUpperCase() );
-			WorkpaneEdge edge = new WorkpaneEdge( orientation );
+			WorkpaneEdge edge = new WorkpaneEdge();
 			edge.setProductId( id );
+			if( settings.exists( "orientation" ) ) edge.setOrientation( Orientation.valueOf( settings.get( "orientation" ).toUpperCase() ) );
 			if( settings.exists( "position" ) ) edge.setPosition( settings.get( "position", Double.class ) );
-			edge.setPosition( settings.get( "position", Double.class ) );
+
 			edges.put( edge.getProductId(), edge );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring workpane", exception );
