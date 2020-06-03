@@ -143,14 +143,12 @@ public class UiFactory {
 		edge.leftEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "l", n == null ? null : n.getProductId() ) );
 		edge.rightEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "r", n == null ? null : n.getProductId() ) );
 		edge.bottomEdgeProperty().addListener( ( v, o, n ) -> edgeSettings.set( "b", n == null ? null : n.getProductId() ) );
-		log.log( Log.WARN, "Added: " + edge );
 	}
 
 	private void removeWorkpaneEdgeSettings( WorkpaneEdge edge ) {
 		String id = edge.getProductId();
 		if( id == null ) return;
 		program.getSettingsManager().getSettings( ProgramSettings.EDGE, id ).delete();
-		log.log( Log.WARN, "Removed: " + edge );
 	}
 
 	private void setupWorkpaneViewSettings( Workpane workpane, WorkpaneView view ) {
@@ -174,14 +172,12 @@ public class UiFactory {
 		view.leftEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "l", n == null ? null : n.getProductId() ) );
 		view.rightEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "r", n == null ? null : n.getProductId() ) );
 		view.bottomEdgeProperty().addListener( ( v, o, n ) -> viewSettings.set( "b", n == null ? null : n.getProductId() ) );
-		log.log( Log.WARN, "Added: " + view );
 	}
 
 	private void removeWorkpaneViewSettings( WorkpaneView view ) {
 		String id = view.getProductId();
 		if( id == null ) return;
 		program.getSettingsManager().getSettings( ProgramSettings.VIEW, id ).delete();
-		log.log( Log.WARN, "Removed: " + view );
 	}
 
 }
