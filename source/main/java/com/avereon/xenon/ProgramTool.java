@@ -1,5 +1,6 @@
 package com.avereon.xenon;
 
+import com.avereon.product.ProductBundle;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
@@ -114,10 +115,12 @@ public abstract class ProgramTool extends Tool {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
 	}
 
+	// TODO Replace with Identity methods
 	public String getUid() {
 		return uid;
 	}
 
+	// TODO Replace with WritableIdentity methods
 	public void setUid( String uid ) {
 		this.uid = uid;
 	}
@@ -136,6 +139,15 @@ public abstract class ProgramTool extends Tool {
 				super.close();
 			}
 		} );
+	}
+
+	/**
+	 * A convenience method to get the product resource bundle from the tool.
+	 *
+	 * @return The product resource bundle
+	 */
+	protected ProductBundle rb() {
+		return getProduct().rb();
 	}
 
 	/**
