@@ -196,10 +196,14 @@ public class AssetManager implements Controllable<AssetManager> {
 		return schemes.get( name );
 	}
 
-	private Scheme resolveScheme( Asset asset, String name ) throws AssetException {
+	private void resolveScheme( Asset asset ) throws AssetException {
+		resolveScheme( asset, asset.getUri().getScheme() );
+	}
+
+	private void resolveScheme( Asset asset, String name ) throws AssetException {
 		Scheme scheme = getScheme( name );
 		if( scheme == null ) throw new AssetException( asset, new SchemeNotRegisteredException( name ) );
-		return scheme;
+		asset.setScheme( scheme );
 	}
 
 	/**
@@ -530,7 +534,7 @@ public class AssetManager implements Controllable<AssetManager> {
 				if( copy ) asset = saveAsAsset.copyFrom( asset );
 				asset.setUri( saveAsAsset.getUri() );
 				asset.setCodec( saveAsAsset.getCodec() );
-				asset.setScheme( resolveScheme( asset, saveAsAsset.getUri().getScheme() ) );
+				resolveScheme( asset, saveAsAsset.getUri().getScheme() );
 			}
 		} catch( AssetException exception ) {
 			log.log( Log.ERROR, exception );
@@ -1031,9 +1035,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		Asset asset = identifiedAssets.get( uri );
 		if( asset == null ) {
 			asset = new Asset( uri, type );
+			resolveScheme( asset );
 			identifiedAssets.put( uri, asset );
-			//asset.setScheme( resolveScheme( asset, asset.getUri().getScheme() ) );
-			asset.setScheme( getScheme( asset.getUri().getScheme() ) );
 			asset.setIcon( asset.isFolder() ? "folder" : "file" );
 			log.log( Log.TRACE, "Asset create: " + asset + "[" + System.identityHashCode( asset ) + "] uri=" + uri );
 		} else {

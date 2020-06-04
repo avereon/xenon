@@ -20,10 +20,7 @@ import com.avereon.xenon.notice.NoticeLogHandler;
 import com.avereon.xenon.notice.NoticeManager;
 import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.RepoState;
-import com.avereon.xenon.scheme.NewScheme;
-import com.avereon.xenon.scheme.FaultScheme;
-import com.avereon.xenon.scheme.FileScheme;
-import com.avereon.xenon.scheme.ProgramScheme;
+import com.avereon.xenon.scheme.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.throwable.ProgramUncaughtExceptionHandler;
@@ -1128,13 +1125,17 @@ public class Program extends Application implements ProgramProduct {
 	private void registerSchemes( AssetManager manager ) {
 		manager.addScheme( new NewScheme( this ) );
 		manager.addScheme( new FaultScheme( this ) );
-		manager.addScheme( new FileScheme( this ) );
 		manager.addScheme( new ProgramScheme( this ) );
+		manager.addScheme( new FileScheme( this ) );
+		manager.addScheme( new HttpsScheme( this ) );
+		manager.addScheme( new HttpScheme( this ) );
 	}
 
 	private void unregisterSchemes( AssetManager manager ) {
-		manager.removeScheme( ProgramScheme.ID );
+		manager.removeScheme( HttpScheme.ID );
+		manager.removeScheme( HttpsScheme.ID );
 		manager.removeScheme( FileScheme.ID );
+		manager.removeScheme( ProgramScheme.ID );
 		manager.removeScheme( FaultScheme.ID );
 		manager.removeScheme( NewScheme.ID );
 	}

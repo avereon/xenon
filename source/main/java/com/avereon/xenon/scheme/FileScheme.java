@@ -49,33 +49,6 @@ public class FileScheme extends BaseScheme {
 	}
 
 	@Override
-	public void init( Asset asset ) throws AssetException {
-		super.init( asset );
-
-		File file = getFile( asset );
-		boolean folder = file.isDirectory();
-
-		//		// Set the asset display icon.
-		//		String iconName = "file";
-		//		if( folder ) iconName = "folder";
-		//		if( drive ) iconName = "drive";
-		//		asset.putAsset( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
-		//
-		//		// Set the asset display name.
-		//		asset.putAsset( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
-		//
-		//		// Set the asset display description.
-		//		String description = fsv.getSystemTypeDescription( file );
-		//		if( folder && StringUtils.isEmpty( description ) ) description = ProductUtil.getString( program, BundleKey.LABELS, "folder" );
-		//		asset.putAsset( FxUtil.DISPLAY_DESC, description );
-	}
-
-	@Override
-	public void open( Asset asset ) throws AssetException {
-		super.open( asset );
-	}
-
-	@Override
 	public void load( Asset asset, Codec codec ) throws AssetException {
 		if( codec == null ) throw new NullCodecException( asset );
 
