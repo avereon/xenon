@@ -2,6 +2,8 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.settings.Settings;
+import com.avereon.skill.Identity;
+import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
@@ -85,13 +87,11 @@ import java.util.Set;
  *   <li>Constructor</li>
  * </ul>
  */
-public abstract class ProgramTool extends Tool {
+public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	private static final System.Logger log = Log.get();
 
 	private final ProgramProduct product;
-
-	private String uid;
 
 	public ProgramTool( ProgramProduct product, Asset asset ) {
 		super( asset );
@@ -112,17 +112,17 @@ public abstract class ProgramTool extends Tool {
 	}
 
 	public Settings getSettings() {
-		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getProductId() );
 	}
 
-	// TODO Replace with Identity methods
-	public String getUid() {
-		return uid;
+	@Override
+	public String getProductId() {
+		return getProperties().get( Identity.KEY ).toString();
 	}
 
-	// TODO Replace with WritableIdentity methods
-	public void setUid( String uid ) {
-		this.uid = uid;
+	@Override
+	public void setProductId( String id ) {
+		getProperties().put( Identity.KEY, id );
 	}
 
 	@Override
