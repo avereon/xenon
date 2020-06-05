@@ -1030,7 +1030,7 @@ public class Program extends Application implements ProgramProduct {
 	private void configureLogging() {
 		programLogFolder = programDataFolder.resolve( "logs" );
 		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
-		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL ) );
+		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL, LogFlag.INFO ) );
 		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
 	}
 

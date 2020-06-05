@@ -161,7 +161,7 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
 		log.log( Log.DEBUG, ucb.toString() );
 
-		Path updateCommandFile = program.getDataFolder().resolve( "update.commands.txt" );
+		Path updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
 		Files.writeString( updateCommandFile, ucb.toString() );
 
 		updateCommandsForStdIn = ucb.toString().getBytes( TextUtil.CHARSET );
