@@ -2,15 +2,14 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.NullCodecException;
+import com.avereon.xenon.asset.*;
 
 import java.io.*;
 import java.lang.System.Logger;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -182,6 +181,27 @@ public class FileScheme extends BaseScheme {
 		File file = getFile( asset );
 		//if( isFolder( asset ) || FileSystemView.getFileSystemView().isDrive( file ) ) throw new AssetException( asset, "Folders do not have a modified date." );
 		return file.lastModified();
+	}
+
+	@Override
+	public String getMediaType( Asset asset ) {
+		try {
+			File file = getFile( asset );
+			return Files.probeContentType( file.toPath() );
+		} catch( IOException | AssetException exception ) {
+			log.log( Log.WARN, "Error determining media type for asset", exception );
+			return StandardMediaTypes.APPLICATION_OCTET_STREAM;
+		}
+	}
+
+	@Override
+	public String getFirstLine( Asset asset ) {
+		try( FileInputStream input = new FileInputStream( getFile( asset ) ) ) {
+			return readFirstLine( input, asset.getEncoding() );
+		} catch( IOException | AssetException exception ) {
+			log.log( Log.WARN, "Error determining first line for asset", exception );
+			return TextUtil.EMPTY;
+		}
 	}
 
 	//	public void startAssetWatching() {

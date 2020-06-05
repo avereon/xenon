@@ -1,20 +1,19 @@
 package com.avereon.xenon.asset;
 
-import java.net.URLConnection;
 import java.util.List;
 
 /**
- * The Scheme class represents a URI scheme in the context of a {@link Asset} . See <a href="http://en.wikipedia.org/wiki/URI_scheme">URI_scheme on Wikipedia</a> for more information regarding URI schemes. Scheme, {@link AssetType}
+ * The Scheme class represents a URI scheme in the context of a {@link Asset} . See <a href="http://en.wikipedia.org/wiki/URI_scheme">URI_scheme on
+ * Wikipedia</a> for more information regarding URI schemes. Scheme, {@link AssetType}
  * and {@link Codec} are used together by the asset manager to manage assets.
  * <p>
- * The scheme is responsible for defining and implementing how an asset is handled for connection and transport purposes. The scheme is solely responsible for the connection and data transfer of the asset, not for interpreting the
+ * The scheme is responsible for defining and implementing how an asset is handled for connection and transport purposes. The scheme is solely responsible for
+ * the connection and data transfer of the asset, not for interpreting the
  * content of the asset.
  *
  * @author SoderquistMV
  */
 public interface Scheme {
-
-	String ASSET_LAST_SAVED_KEY = "asset.last.saved";
 
 	/**
 	 * Get the scheme name. The scheme name is equivalent to the URI scheme
@@ -30,7 +29,9 @@ public interface Scheme {
 	 * @return The list of root assets for this scheme.
 	 * @throws AssetException If an error occurs
 	 */
-	List<Asset> getRoots() throws AssetException;
+	default List<Asset> getRoots() throws AssetException {
+		return List.of();
+	}
 
 	/**
 	 * Determines whether the specified asset can be loaded.
@@ -39,7 +40,9 @@ public interface Scheme {
 	 * @return If the asset can be loaded
 	 * @throws AssetException If an error occurs
 	 */
-	boolean canLoad( Asset asset ) throws AssetException;
+	default boolean canLoad( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Determines whether the specified asset can be saved.
@@ -48,7 +51,9 @@ public interface Scheme {
 	 * @return If the asset can be saved
 	 * @throws AssetException If an error occurs
 	 */
-	boolean canSave( Asset asset ) throws AssetException;
+	default boolean canSave( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Initialize the {@link Asset}. This is called from a {@link Asset} when the {@link Scheme} is set.
@@ -56,7 +61,7 @@ public interface Scheme {
 	 * @param asset The asset to init.
 	 * @throws AssetException If an error occurs
 	 */
-	void init( Asset asset ) throws AssetException;
+	default void init( Asset asset ) throws AssetException {}
 
 	/**
 	 * Open the {@link Asset}.
@@ -64,7 +69,7 @@ public interface Scheme {
 	 * @param asset The asset to open
 	 * @throws AssetException If an error occurs
 	 */
-	void open( Asset asset ) throws AssetException;
+	default void open( Asset asset ) throws AssetException {}
 
 	/**
 	 * Load the {@link Asset}.
@@ -73,7 +78,7 @@ public interface Scheme {
 	 * @param codec The codec to use to load the asset
 	 * @throws AssetException If an error occurs
 	 */
-	void load( Asset asset, Codec codec ) throws AssetException;
+	default void load( Asset asset, Codec codec ) throws AssetException {}
 
 	/**
 	 * Save the {@link Asset}.
@@ -82,7 +87,7 @@ public interface Scheme {
 	 * @param codec The codec to use to save the asset
 	 * @throws AssetException If an error occurs
 	 */
-	void save( Asset asset, Codec codec ) throws AssetException;
+	default void save( Asset asset, Codec codec ) throws AssetException {}
 
 	/**
 	 * Close the {@link Asset}.
@@ -90,7 +95,7 @@ public interface Scheme {
 	 * @param asset The asset to close
 	 * @throws AssetException If an error occurs
 	 */
-	void close( Asset asset ) throws AssetException;
+	default void close( Asset asset ) throws AssetException {}
 
 	/**
 	 * Determine if the asset exists. If the correct value cannot be determined an exception is thrown.
@@ -99,7 +104,9 @@ public interface Scheme {
 	 * @return true If the asset exists, false otherwise
 	 * @throws AssetException If the correct value cannot be determined
 	 */
-	boolean exists( Asset asset ) throws AssetException;
+	default boolean exists( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Create the external asset that the asset represents.
@@ -108,7 +115,9 @@ public interface Scheme {
 	 * @return true If the external source is created, false otherwise
 	 * @throws AssetException If an error occurs during the operation
 	 */
-	boolean create( Asset asset ) throws AssetException;
+	default boolean create( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Save the asset as a different asset.
@@ -117,7 +126,7 @@ public interface Scheme {
 	 * @param target The destination asset
 	 * @throws AssetException If the asset can not be saved
 	 */
-	void saveAs( Asset asset, Asset target ) throws AssetException;
+	default void saveAs( Asset asset, Asset target ) throws AssetException {}
 
 	/**
 	 * Rename the asset as a different asset.
@@ -126,7 +135,9 @@ public interface Scheme {
 	 * @param target The destination asset
 	 * @throws AssetException If the asset can not be renamed
 	 */
-	boolean rename( Asset asset, Asset target ) throws AssetException;
+	default boolean rename( Asset asset, Asset target ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Delete the asset.
@@ -135,22 +146,30 @@ public interface Scheme {
 	 * @return true If and only if the asset is successfully deleted, false otherwise
 	 * @throws AssetException If an error occurred during deletion
 	 */
-	boolean delete( Asset asset ) throws AssetException;
+	default boolean delete( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Determine if the asset a folder for other assets.
 	 */
-	boolean isFolder( Asset asset ) throws AssetException;
+	default boolean isFolder( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Determine if the asset is hidden.
 	 */
-	boolean isHidden( Asset asset ) throws AssetException;
+	default boolean isHidden( Asset asset ) throws AssetException {
+		return false;
+	}
 
 	/**
 	 * Get the child assets if this asset is a folder.
 	 */
-	List<Asset> listAssets( Asset asset ) throws AssetException;
+	default List<Asset> listAssets( Asset asset ) throws AssetException {
+		return List.of();
+	}
 
 	/**
 	 * Get the size of the asset in bytes.
@@ -159,7 +178,9 @@ public interface Scheme {
 	 * @return The size of the asset in bytes
 	 * @throws AssetException If the size can not be determined
 	 */
-	long getSize( Asset asset ) throws AssetException;
+	default long getSize( Asset asset ) throws AssetException {
+		return -1;
+	}
 
 	/**
 	 * Get the modified date.
@@ -167,11 +188,33 @@ public interface Scheme {
 	 * @return The last date the asset was modified
 	 * @throws AssetException If the date can not be determined
 	 */
-	long getModifiedDate( Asset asset ) throws AssetException;
+	default long getModifiedDate( Asset asset ) throws AssetException {
+		return -1;
+	}
 
 	/**
-	 * Get a connection for an asset
+	 * Get the media type for an asset
 	 */
-	URLConnection getConnection( Asset asset );
+	default String getMediaType( Asset asset ) {
+		return StandardMediaTypes.DEFAULT;
+	}
+
+	/**
+	 * Get the first line of content for an asset
+	 */
+	default String getFirstLine( Asset asset ) {
+		return "";
+	}
+
+	/**
+	 * Check if an asset supported by this scheme.
+	 *
+	 * @param asset The asset to check
+	 * @return True if supported, false otherwise
+	 */
+	default boolean isSupported( Asset asset ) {
+		if( asset == null ) return false;
+		return getName().equals( asset.getUri().getScheme() );
+	}
 
 }

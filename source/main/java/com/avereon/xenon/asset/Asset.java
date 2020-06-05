@@ -16,6 +16,7 @@ import com.avereon.xenon.scheme.NewScheme;
 import java.io.File;
 import java.lang.System.Logger;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -158,7 +159,7 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public String getEncoding() {
-		return getValue( ENCODING_VALUE_KEY );
+		return getValue( ENCODING_VALUE_KEY, StandardCharsets.UTF_8.name() );
 	}
 
 	public void setEncoding( String encoding ) {

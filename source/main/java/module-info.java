@@ -6,6 +6,7 @@ module com.avereon.xenon {
 	requires com.fasterxml.jackson.annotation;
 	requires com.avereon.zenna;
 	//requires commons.vfs2;
+	requires java.net.http;
 	requires java.logging;
 	requires java.management;
 	requires java.sql;

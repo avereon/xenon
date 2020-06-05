@@ -20,14 +20,9 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.System.Logger;
 import java.net.URI;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -38,9 +33,6 @@ import java.util.stream.Collectors;
 public class AssetManager implements Controllable<AssetManager> {
 
 	public static final String CURRENT_FOLDER_SETTING_KEY = "current-folder";
-
-	// Linux defines this limit in BINPRM_BUF_SIZE
-	private static final int FIRST_LINE_LIMIT = 128;
 
 	private static final Logger log = Log.get();
 
@@ -922,9 +914,11 @@ public class AssetManager implements Controllable<AssetManager> {
 	 */
 	Set<Codec> autoDetectCodecs( Asset asset ) {
 		String uri = UriUtil.removeQueryAndFragment( asset.getUri() ).toString();
-		String mediaType = getMediaType( asset );
+		// FIXME Only query media type if there are supported codecs to compare with
+		String mediaType = asset.getScheme().getMediaType( asset );
 		String fileName = asset.getFileName();
-		String firstLine = getFirstLine( asset );
+		// FIXME Only query first line if there are supported codecs to compare with
+		String firstLine = asset.getScheme().getFirstLine( asset );
 
 		Set<Codec> codecs = new HashSet<>();
 		for( AssetType assetType : getAssetTypes() ) {
@@ -1179,79 +1173,6 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	private Settings getAssetSettings( URI uri ) {
 		return program.getSettingsManager().getSettings( ProgramSettings.ASSET, IdGenerator.getId( uri.toString() ) );
-	}
-
-	private String getMediaType( Asset asset ) {
-		String mediaType = asset.getMediaType();
-
-		if( mediaType == null ) {
-			URLConnection connection = asset.getScheme().getConnection( asset );
-			if( connection != null ) {
-				try {
-					mediaType = TextUtil.cleanNull( connection.getContentType() );
-					asset.setMediaType( mediaType );
-					connection.getInputStream().close();
-				} catch( IOException exception ) {
-					log.log( Log.WARN, "Error closing asset connection", exception );
-				}
-			}
-		}
-
-		return mediaType;
-	}
-
-	private String getFirstLine( Asset asset ) {
-		Scheme scheme = asset.getScheme();
-		if( scheme == null ) return null;
-
-		URLConnection connection = scheme.getConnection( asset );
-		if( connection == null ) return null;
-
-		// Load the first line from the asset
-		String firstLine = null;
-		try {
-			String encoding = asset.getEncoding();
-			if( encoding == null ) encoding = connection.getContentEncoding();
-			firstLine = readFirstLine( connection.getInputStream(), encoding );
-			connection.getInputStream().close();
-		} catch( IOException exception ) {
-			log.log( Log.WARN, "Error closing asset connection", exception );
-		}
-
-		return firstLine;
-	}
-
-	private String readFirstLine( InputStream input, String encoding ) throws IOException {
-		if( input == null ) return null;
-
-		byte[] buffer = new byte[ FIRST_LINE_LIMIT ];
-		LimitedInputStream boundedInput = new LimitedInputStream( input, FIRST_LINE_LIMIT );
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-		int read;
-		int count = 0;
-		while( (read = input.read( buffer )) > -1 ) {
-			// Search for line termination.
-			boolean eol = false;
-			for( int index = 0; index < read; index++ ) {
-				int data = buffer[ index ];
-				if( data == 10 || data == 13 ) {
-					read = index;
-					eol = true;
-					break;
-				}
-			}
-
-			// Write the buffer.
-			output.write( buffer, 0, read );
-			count += read;
-
-			// If a line break was encountered stop
-			if( eol ) break;
-		}
-
-		if( encoding == null ) encoding = StandardCharsets.UTF_8.name();
-		return TextUtil.cleanNull( new String( output.toByteArray(), encoding ) );
 	}
 
 	private File getFileChooserFolder() {
