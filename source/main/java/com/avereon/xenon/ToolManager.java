@@ -5,7 +5,7 @@ import com.avereon.product.Product;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
-import com.avereon.venza.javafx.FxUtil;
+import com.avereon.venza.javafx.Fx;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.AssetType;
@@ -36,13 +36,13 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
 
-	private Program program;
+	private final Program program;
 
-	private Map<Class<? extends ProgramTool>, ToolRegistration> toolClassMetadata;
+	private final Map<String, String> aliases;
 
-	private Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
+	private final Map<Class<? extends ProgramTool>, ToolRegistration> toolClassMetadata;
 
-	private Map<String, String> aliases;
+	private final Map<AssetType, List<Class<? extends ProgramTool>>> assetTypeToolClasses;
 
 	public ToolManager( Program program ) {
 		this.program = program;
@@ -243,25 +243,39 @@ public class ToolManager implements Controllable<ToolManager> {
 		return this;
 	}
 
+	// Safe to call on any thread
 	private ProgramTool getToolInstance( OpenAssetRequest request ) throws Exception {
-		FxUtil.assertFxThread();
-
 		Asset asset = request.getAsset();
 		Class<? extends ProgramTool> toolClass = request.getToolClass();
 		ProgramProduct product = toolClassMetadata.get( toolClass ).getProduct();
 
-		// Create the new tool instance
-		Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
-		ProgramTool tool = constructor.newInstance( product, asset );
+		// In order for this to be safe on any thread a task needs to be created
+		// that is then run on the FX platform thread and the result obtained on
+		// the calling thread.
+		String taskName = program.rb().text( BundleKey.TOOL, "tool-manager-create-tool", toolClass.getSimpleName() );
+		Task<ProgramTool> createToolTask = Task.of( taskName, () -> {
+			// Create the new tool instance
+			Constructor<? extends ProgramTool> constructor = toolClass.getConstructor( ProgramProduct.class, Asset.class );
+			ProgramTool tool = constructor.newInstance( product, asset );
 
-		// Set the id before using settings
-		tool.setProductId( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
-		tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
-		tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
-		if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
-		addToolListenerForSettings( tool );
-		log.log( DEBUG, "Tool instance created: " + tool.getClass().getName() );
-		return tool;
+			// Set the id before using settings
+			tool.setProductId( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
+			tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
+			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
+			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
+			addToolListenerForSettings( tool );
+			log.log( DEBUG, "Tool instance created: " + tool.getClass().getName() );
+			return tool;
+		} );
+
+		if( Platform.isFxApplicationThread() ) {
+			createToolTask.run();
+		} else {
+			Fx.run( createToolTask );
+		}
+
+		// Return the task
+		return createToolTask.get( 10, TimeUnit.SECONDS );
 	}
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
