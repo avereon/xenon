@@ -6,10 +6,9 @@ import com.avereon.zenna.UpdateCommandBuilder;
 import com.avereon.zenna.UpdateFlag;
 import com.avereon.zenna.UpdateTask;
 
-import java.lang.System.Logger;
-
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -102,8 +101,10 @@ public class ProgramShutdownHook extends Thread {
 		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
 		builder.directory( new File( updaterHome ) );
 
+		String updatingProgramText = program.rb().textOr( BundleKey.LABEL, "updating", "Updating {0}", program.getCard().getName() );
+
 		builder.command().add( UpdateFlag.TITLE );
-		builder.command().add( "Updating " + program.getCard().getName() );
+		builder.command().add( updatingProgramText );
 		builder.command().add( UpdateFlag.LOG_FILE );
 		builder.command().add( "%h/" + logFilePath );
 		builder.command().add( UpdateFlag.LOG_LEVEL );
@@ -113,14 +114,15 @@ public class ProgramShutdownHook extends Thread {
 		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
-		ucb.add( UpdateTask.ECHO, "Updating " + program.getCard().getName() ).line();
+		ucb.add( UpdateTask.LOG, updatingProgramText ).line();
 
 		if( mock ) {
-			ucb.add( UpdateTask.PAUSE + " 500 \"Preparing update\"" ).line();
-			ucb.add( UpdateTask.ECHO + " hello1" ).line();
+			ucb.add( UpdateTask.HEADER + " \"Preparing update\"" ).line();
+			ucb.add( UpdateTask.PAUSE + " 500" ).line();
+			ucb.add( UpdateTask.HEADER + " \"Update Product\"" ).line();
 			ucb.add( UpdateTask.PAUSE + " 2000 \"Simulating update\"" ).line();
-			ucb.add( UpdateTask.ECHO + " hello2" ).line();
-			ucb.add( UpdateTask.PAUSE + " 500 \"Finishing update\"" ).line();
+			ucb.add( UpdateTask.HEADER + " \"Finishing update\"" ).line();
+			ucb.add( UpdateTask.PAUSE + " 500" ).line();
 		} else {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 				String key = update.getCard().getProductKey();
@@ -130,7 +132,9 @@ public class ProgramShutdownHook extends Thread {
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String backupPath = backup.toString().replace( File.separator, "/" );
+				String updateProductText = program.rb().textOr( BundleKey.LABEL, "update", "Update {0}", update.getCard().getName() );
 
+				ucb.add( UpdateTask.HEADER + " \"" + updateProductText + "\"" ).line();
 				ucb.add( UpdateTask.DELETE, backupPath ).line();
 				ucb.add( UpdateTask.MOVE, targetPath, backupPath ).line();
 				ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
