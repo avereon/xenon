@@ -41,7 +41,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
 
-		setProductId( IdGenerator.getId() );
+		setUid( IdGenerator.getId() );
 		setCenter( tools = new ToolTabPane() );
 		setSnapToPixel( true );
 
@@ -71,12 +71,12 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	}
 
 	@Override
-	public String getProductId() {
+	public String getUid() {
 		return getProperties().get( Identity.KEY ).toString();
 	}
 
 	@Override
-	public void setProductId( String id ) {
+	public void setUid( String id ) {
 		getProperties().put( Identity.KEY, id );
 	}
 
@@ -308,7 +308,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		builder.append( "<" );
 		builder.append( getClass().getSimpleName() );
 		builder.append( " id=" );
-		builder.append( getProductId() );
+		builder.append( getUid() );
 		builder.append( " bounds=" );
 		builder.append( bounds.getMinX() ).append( "," ).append( bounds.getMinX() );
 		builder.append( " " );

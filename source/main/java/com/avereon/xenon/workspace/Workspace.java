@@ -437,17 +437,17 @@ public class Workspace implements WritableIdentity {
 	}
 
 	@Override
-	public String getProductId() {
+	public String getUid() {
 		return stage.getProperties().get( Identity.KEY ).toString();
 	}
 
 	@Override
-	public void setProductId( String id ) {
+	public void setUid( String id ) {
 		stage.getProperties().put( Identity.KEY, id );
 	}
 
 	Settings getSettings() {
-		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getProductId() );
+		return getProgram().getSettingsManager().getSettings( ProgramSettings.WORKSPACE, getUid() );
 	}
 
 	public void updateFromSettings( Settings settings ) {

@@ -156,12 +156,12 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	@Override
-	public String getProductId() {
+	public String getUid() {
 		return getProperties().get( Identity.KEY ).toString();
 	}
 
 	@Override
-	public void setProductId( String id ) {
+	public void setUid( String id ) {
 		getProperties().put( Identity.KEY, id );
 	}
 

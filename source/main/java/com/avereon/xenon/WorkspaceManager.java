@@ -133,7 +133,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program );
 		log.log( Log.WARN, "workspace-id=" + id );
-		workspace.setProductId( id );
+		workspace.setUid( id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
 		workspace.getEventBus().parent( program.getFxEventHub() );

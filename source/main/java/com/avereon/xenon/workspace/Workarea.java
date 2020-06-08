@@ -98,13 +98,13 @@ public class Workarea implements WritableIdentity {
 	}
 
 	@Override
-	public String getProductId() {
-		return workpane.getProductId();
+	public String getUid() {
+		return workpane.getUid();
 	}
 
 	@Override
-	public void setProductId( String id ) {
-		workpane.setProductId( id );
+	public void setUid( String id ) {
+		workpane.setUid( id );
 	}
 
 	@Override

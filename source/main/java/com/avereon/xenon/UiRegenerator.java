@@ -159,7 +159,7 @@ class UiRegenerator {
 	private void linkWorkareas() {
 		// Link the workareas to the workspaces
 		for( Workarea workarea : areas.values() ) {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getProductId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.AREA, workarea.getUid() );
 			Workspace workspace = workspaces.get( settings.get( UiFactory.PARENT_WORKSPACE_ID ) );
 			workspace.addWorkarea( workarea );
 			if( workarea.isActive() ) workspace.setActiveWorkarea( workarea );
@@ -172,7 +172,7 @@ class UiRegenerator {
 
 		// Link the edges
 		for( WorkpaneEdge edge : edges.values() ) {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getProductId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkEdge( edge ) ) {
@@ -182,14 +182,14 @@ class UiRegenerator {
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN, "Error linking edge: " + edge.getProductId(), exception );
+				log.log( Log.WARN, "Error linking edge: " + edge.getUid(), exception );
 				return;
 			}
 		}
 
 		// Link the views
 		for( WorkpaneView view : views.values() ) {
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getProductId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 			Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 			try {
 				if( linkView( view ) ) {
@@ -199,7 +199,7 @@ class UiRegenerator {
 					settings.delete();
 				}
 			} catch( Exception exception ) {
-				log.log( Log.WARN, "Error linking view: " + view.getProductId(), exception );
+				log.log( Log.WARN, "Error linking view: " + view.getUid(), exception );
 				return;
 			}
 		}
@@ -216,7 +216,7 @@ class UiRegenerator {
 
 			// FIXME Default view has already been overwritten in the settings and is getting lost
 			// Active, default and maximized views
-			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getProductId() );
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PANE, pane.getUid() );
 			setView( settings, "view-active", pane::setActiveView );
 			setView( settings, "view-default", pane::setDefaultView );
 			setView( settings, "view-maximized", pane::setMaximizedView );
@@ -231,7 +231,7 @@ class UiRegenerator {
 	}
 
 	private boolean linkEdge( WorkpaneEdge edge ) {
-		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getProductId() );
+		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.EDGE, edge.getUid() );
 		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 		switch( edge.getOrientation() ) {
@@ -257,7 +257,7 @@ class UiRegenerator {
 	}
 
 	private boolean linkView( WorkpaneView view ) {
-		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getProductId() );
+		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.VIEW, view.getUid() );
 		Workpane workpane = panes.get( settings.get( UiFactory.PARENT_WORKPANE_ID ) );
 
 		WorkpaneEdge t = lookupEdge( workpane, settings.get( "t" ) );
@@ -308,7 +308,7 @@ class UiRegenerator {
 			for( ProgramTool tool : tools ) {
 				pane.addTool( tool, view, tool.isActive() );
 
-				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getProductId() );
+				Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, tool.getUid() );
 				if( settings.get( "active", Boolean.class, false ) ) activeTool = tool;
 
 				log.log( Log.DEBUG, "Tool restored: " + tool.getClass() + ": " + tool.getAsset().getUri() );
@@ -365,11 +365,11 @@ class UiRegenerator {
 			}
 
 			WorkpaneEdge edge = new WorkpaneEdge();
-			edge.setProductId( id );
+			edge.setUid( id );
 			if( settings.exists( "orientation" ) ) edge.setOrientation( Orientation.valueOf( settings.get( "orientation" ).toUpperCase() ) );
 			if( settings.exists( "position" ) ) edge.setPosition( settings.get( "position", Double.class ) );
 
-			edges.put( edge.getProductId(), edge );
+			edges.put( edge.getUid(), edge );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring workpane", exception );
 		}
@@ -388,10 +388,10 @@ class UiRegenerator {
 			}
 
 			WorkpaneView view = new WorkpaneView();
-			view.setProductId( id );
+			view.setUid( id );
 			if( settings.exists( "placement" ) ) view.setPlacement( Workpane.Placement.valueOf( settings.get( "placement" ).toUpperCase() ) );
 
-			views.put( view.getProductId(), view );
+			views.put( view.getUid(), view );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring workpane", exception );
 		}
@@ -429,7 +429,7 @@ class UiRegenerator {
 			Set<ProgramTool> viewToolSet = viewTools.computeIfAbsent( view, k -> new HashSet<>() );
 			viewToolSet.add( tool );
 
-			tools.put( tool.getProductId(), tool );
+			tools.put( tool.getUid(), tool );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error restoring tool: type=" + toolType, exception );
 		}

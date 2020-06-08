@@ -65,7 +65,7 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 	WorkpaneEdge( Side wall ) {
 		getStyleClass().add( "workpane-edge" );
 
-		setProductId( IdGenerator.getId() );
+		setUid( IdGenerator.getId() );
 		setSnapToPixel( true );
 		setPosition( 0 );
 
@@ -93,13 +93,13 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 	}
 
 	@Override
-	public String getProductId() {
+	public String getUid() {
 		if( isWall() ) return wall.name().toLowerCase();
 		return getProperties().get( Identity.KEY ).toString();
 	}
 
 	@Override
-	public void setProductId( String id ) {
+	public void setUid( String id ) {
 		getProperties().put( Identity.KEY, id );
 	}
 
@@ -301,7 +301,7 @@ public class WorkpaneEdge extends Control implements WritableIdentity {
 		builder.append( "<" );
 		builder.append( getClass().getSimpleName() );
 		builder.append( " id=" );
-		builder.append( getProductId() );
+		builder.append( getUid() );
 		builder.append( " orientation=" );
 		builder.append( getOrientation() );
 		builder.append( " position=" );

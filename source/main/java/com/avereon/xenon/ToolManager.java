@@ -259,7 +259,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			ProgramTool tool = constructor.newInstance( product, asset );
 
 			// Set the id before using settings
-			tool.setProductId( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
+			tool.setUid( request.getToolId() == null ? IdGenerator.getId() : request.getToolId() );
 			tool.getSettings().set( Tool.SETTINGS_TYPE_KEY, tool.getClass().getName() );
 			tool.getSettings().set( Asset.SETTINGS_URI_KEY, tool.getAsset().getUri() );
 			if( tool.getAsset().getType() != null ) tool.getSettings().set( Asset.SETTINGS_TYPE_KEY, tool.getAsset().getType().getKey() );
@@ -280,7 +280,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 	private void addToolListenerForSettings( ProgramTool tool ) {
 		tool.addEventHandler( ToolEvent.ADDED,
-			e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getProductId() )
+			e -> ((ProgramTool)e.getTool()).getSettings().set( UiFactory.PARENT_WORKPANEVIEW_ID, e.getTool().getToolView().getUid() )
 		);
 		tool.addEventHandler( ToolEvent.ORDERED, e -> ((ProgramTool)e.getTool()).getSettings().set( "order", e.getTool().getTabOrder() ) );
 		tool.addEventHandler( ToolEvent.ACTIVATED, e -> ((ProgramTool)e.getTool()).getSettings().set( "active", true ) );
