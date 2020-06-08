@@ -101,7 +101,7 @@ public class ProgramShutdownHook extends Thread {
 		builder = new ProcessBuilder( ProcessCommands.forModule( updaterJavaExecutablePath, updaterModulePath, updaterModuleMain, updaterModuleMainClass ) );
 		builder.directory( new File( updaterHome ) );
 
-		String updatingProgramText = program.rb().textOr( BundleKey.LABEL, "updating", "Updating {0}", program.getCard().getName() );
+		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 
 		builder.command().add( UpdateFlag.TITLE );
 		builder.command().add( updatingProgramText );
@@ -119,7 +119,7 @@ public class ProgramShutdownHook extends Thread {
 		if( mock ) {
 			ucb.add( UpdateTask.HEADER + " \"Preparing update\"" ).line();
 			ucb.add( UpdateTask.PAUSE + " 500" ).line();
-			ucb.add( UpdateTask.HEADER + " \"Update Product\"" ).line();
+			ucb.add( UpdateTask.HEADER + " \"" + updatingProgramText + "\"" ).line();
 			ucb.add( UpdateTask.PAUSE + " 2000 \"Simulating update\"" ).line();
 			ucb.add( UpdateTask.HEADER + " \"Finishing update\"" ).line();
 			ucb.add( UpdateTask.PAUSE + " 500" ).line();
@@ -132,7 +132,7 @@ public class ProgramShutdownHook extends Thread {
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String backupPath = backup.toString().replace( File.separator, "/" );
-				String updateProductText = program.rb().textOr( BundleKey.LABEL, "update", "Update {0}", update.getCard().getName() );
+				String updateProductText = program.rb().textOr( BundleKey.UPDATE, "update", "Update {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updateProductText + "\"" ).line();
 				ucb.add( UpdateTask.DELETE, backupPath ).line();
