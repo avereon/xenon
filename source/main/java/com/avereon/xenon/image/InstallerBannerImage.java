@@ -1,14 +1,14 @@
 package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
-import com.avereon.rossa.icon.XRingLargeIcon;
-import com.avereon.venza.image.ProgramImage;
+import com.avereon.rossa.icon.flat.XRingLargeIcon;
+import com.avereon.venza.image.RenderedImage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 import java.net.URL;
 
-public class InstallerBannerImage extends ProgramImage {
+public class InstallerBannerImage extends RenderedImage {
 
 	private static final Color TEXT_COLOR = new Color( 0.2, 0.2, 0.2, 1.0 );
 	private ProductCard card;
@@ -29,12 +29,11 @@ public class InstallerBannerImage extends ProgramImage {
 
 	@Override
 	protected void render() {
-		double ratio = getHeight() / getWidth();
 		double scale = 0.9;
 		double offset = 0.5 - (scale * 0.5);
 		move( offset, offset );
 		zoom( scale, scale );
-		draw( new XRingLargeIcon() );
+		render( new XRingLargeIcon() );
 		reset();
 
 		// Draw the program name
@@ -49,9 +48,9 @@ public class InstallerBannerImage extends ProgramImage {
 	}
 
 	public static void main( String[] commands ) {
-		ProgramImage image = new InstallerBannerImage();
+		RenderedImage image = new InstallerBannerImage();
 		image.relocate( 50,50 );
-		proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.LIGHTGRAY );
+		proof( image, image.getWidth() + 100, image.getHeight() + 100 );
 		//save( new InstallerBannerImage(), "../../software/xenon/source/main/izpack/banner.png" );
 	}
 

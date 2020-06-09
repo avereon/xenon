@@ -275,7 +275,7 @@
 			<plugin>
 				<groupId>com.avereon</groupId>
 				<artifactId>cameo</artifactId>
-				<version>2.5</version>
+				<version>2.6-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<id>render-images</id>
@@ -290,7 +290,7 @@
 									<target>${images-folder}/banner.png</target>
 								</image>
 								<image>
-									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 									<target>${images-folder}/xenon.png</target>
 								</image>
 							</images>
@@ -299,31 +299,31 @@
 									<target>${images-folder}/xenon.ico</target>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>16</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>24</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>32</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>48</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>64</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>96</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
 											<size>128</size>
 										</image>
 									</images>
