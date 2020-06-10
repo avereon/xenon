@@ -82,6 +82,8 @@ jobs:
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.PRODUCT_DEPLOY_PATH}};"
           if [ $? -ne 0 ]; then exit 1; fi
           scp -B target/main/images/${AVN_PRODUCT}.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product.png 2>&1
+          scp -B target/main/images/${AVN_PRODUCT}-dark.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-dark.png 2>&1
+          scp -B target/main/images/${AVN_PRODUCT}-light.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/product-light.png 2>&1
 
       - name: Post Screenshots
         run: |
