@@ -10,7 +10,8 @@ import java.net.URL;
 
 public class InstallerBannerImage extends RenderedImage {
 
-	private static final Color TEXT_COLOR = new Color( 0.2, 0.2, 0.2, 1.0 );
+	private static final Color TEXT_COLOR = Color.web( "#202020");
+
 	private ProductCard card;
 
 	private URL providerUrl;
@@ -49,8 +50,9 @@ public class InstallerBannerImage extends RenderedImage {
 
 	public static void main( String[] commands ) {
 		RenderedImage image = new InstallerBannerImage();
+		image.setTheme( LIGHT_THEME );
 		image.relocate( 50,50 );
-		proof( image, image.getWidth() + 100, image.getHeight() + 100 );
+		proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.web( "#E0E0E0") );
 		//save( new InstallerBannerImage(), "../../software/xenon/source/main/izpack/banner.png" );
 	}
 
