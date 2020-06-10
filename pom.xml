@@ -275,7 +275,7 @@
 			<plugin>
 				<groupId>com.avereon</groupId>
 				<artifactId>cameo</artifactId>
-				<version>[2.6-SNAPSHOT,)</version>
+				<version>2.6-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<id>render-images</id>
