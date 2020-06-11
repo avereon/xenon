@@ -1,11 +1,11 @@
 package com.avereon.xenon;
 
-import com.avereon.rossa.icon.flat.*;
+import com.avereon.rossa.icon.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.venza.icon.BrokenIcon;
-import com.avereon.venza.icon.ImageIcon;
-import com.avereon.venza.icon.RenderedIcon;
+import com.avereon.venza.image.BrokenIcon;
+import com.avereon.venza.image.ImageIcon;
+import com.avereon.venza.image.RenderedIcon;
 import com.avereon.venza.image.Images;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;

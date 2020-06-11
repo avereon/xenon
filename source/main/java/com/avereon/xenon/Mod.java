@@ -3,7 +3,7 @@ package com.avereon.xenon;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
-import com.avereon.venza.icon.RenderedIcon;
+import com.avereon.venza.image.RenderedIcon;
 import com.avereon.xenon.asset.AssetType;
 
 import java.io.IOException;

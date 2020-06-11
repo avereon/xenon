@@ -1,7 +1,7 @@
 package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
-import com.avereon.rossa.icon.flat.XRingLargeIcon;
+import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.venza.image.RenderedImage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
