@@ -40,7 +40,7 @@
 	<developers>
 		<developer>
 			<name>Mark Soderquist</name>
-			<email>mark@soderquist.net</email>
+			<email>mark@avereon.com</email>
 			<roles>
 				<role>Architect</role>
 			</roles>
@@ -442,6 +442,7 @@
 				</plugins>
 			</build>
 		</profile>
+
 		<profile>
 			<id>testui</id>
 			<build>
@@ -586,12 +587,56 @@
 										<argument>--ignore-signing-information</argument>
 										<argument>--no-header-files</argument>
 										<argument>--no-man-pages</argument>
-										<!-- Valid value: 0, 1, 2 -->
+										<argument>--strip-debug</argument>
 										<argument>--compress</argument>
 										<argument>2</argument>
 									</arguments>
 								</configuration>
 							</execution>
+
+							<execution>
+								<id>jpackage-appimage</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jpackage</executable>
+									<arguments>
+										<argument>--type</argument>
+										<argument>app-image</argument>
+										<argument>--name</argument>
+										<argument>${project.name}</argument>
+										<argument>--icon</argument>
+										<argument>${basedir}/target/main/images/${project.artifactId}.png</argument>
+										<argument>--module</argument>
+										<argument>com.avereon.${project.artifactId}/com.avereon.xenon.Program</argument>
+										<argument>--runtime-image</argument>
+										<argument>${basedir}/target/jlink</argument>
+										<argument>--dest</argument>
+										<argument>${basedir}/target/appimage</argument>
+									</arguments>
+								</configuration>
+							</execution>
+
+<!--							<execution>-->
+<!--								<id>jpackage-package</id>-->
+<!--								<phase>package</phase>-->
+<!--								<goals>-->
+<!--									<goal>exec</goal>-->
+<!--								</goals>-->
+<!--								<configuration>-->
+<!--									<executable>${java.home}/bin/jpackage</executable>-->
+<!--									<arguments>-->
+<!--										<argument>&#45;&#45;name</argument>-->
+<!--										<argument>${project.artifactId}</argument>-->
+<!--										<argument>&#45;&#45;app-image</argument>-->
+<!--										<argument>${basedir}/target/appimage</argument>-->
+<!--										<argument>&#45;&#45;dest</argument>-->
+<!--										<argument>${basedir}/target/jpackage</argument>-->
+<!--									</arguments>-->
+<!--								</configuration>-->
+<!--							</execution>-->
 						</executions>
 					</plugin>
 
@@ -601,7 +646,7 @@
 							<!-- Assemble the installer files -->
 							<execution>
 								<id>assembly-install</id>
-								<phase>post-integration-test</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>single</goal>
 								</goals>
@@ -623,7 +668,7 @@
 						<executions>
 							<execution>
 								<id>copy-izpack-resources</id>
-								<phase>post-integration-test</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -639,7 +684,7 @@
 							</execution>
 							<execution>
 								<id>copy-izpack-resources-filter</id>
-								<phase>post-integration-test</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -659,7 +704,7 @@
 							</execution>
 							<execution>
 								<id>copy-platform-resources</id>
-								<phase>post-integration-test</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>copy-resources</goal>
 								</goals>
@@ -687,7 +732,7 @@
 						<executions>
 							<execution>
 								<id>izpack-deploy</id>
-								<phase>post-integration-test</phase>
+								<phase>package</phase>
 								<goals>
 									<goal>izpack</goal>
 								</goals>

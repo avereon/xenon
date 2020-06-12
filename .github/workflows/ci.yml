@@ -156,7 +156,12 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Post Install Pack
+      - name: Post Install Pack (jpackage)
+        run: |
+          scp -B target/jpackage/*.deb ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+          scp -B target/jpackage/*.rpm ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+
+      - name: Post Install Pack (izpack)
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
@@ -224,7 +229,12 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Post Install Pack
+      - name: Post Install Pack (jpackage)
+        run: |
+          scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+          scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+
+      - name: Post Install Pack (izpack)
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
@@ -293,7 +303,12 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
 
-      - name: Post Install Pack
+      - name: Post Install Pack (jpackage)
+        run: |
+          scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+          scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+
+      - name: Post Install Pack (izpack)
         shell: bash
         run: |
           scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1

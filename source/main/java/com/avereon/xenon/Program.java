@@ -1045,19 +1045,28 @@ public class Program extends Application implements ProgramProduct {
 			// If the HOME flag was specified on the command line use it.
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// Apparently, when running a linked program, there is not a jdk.module.path system property
-			// The program home should be the java home when running as a linked application
-			boolean isLinked = System.getProperty( "jdk.module.path" ) == null;
-			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
+			// When running as a packaged (jpackage) program with a launcher there is
+			// usually a launcher path.
+			if( programHomeFolder == null && System.getProperty( "java.launcher.path" ) != null ) {
+				Path launcherPath = Paths.get( System.getProperty( "java.launcher.path" ) );
+				// The launcher path is a child folder of the program home
+				programHomeFolder = launcherPath.getParent();
+			}
+
+			// When running as a linked (jlink) program, there is not a jdk.module.path system property.
+			// The java home can be used as the program home when running as a linked application.
+			if( programHomeFolder == null && System.getProperty( "jdk.module.path" ) == null ) {
+				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
+			}
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) && !isLinked ) programHomeFolder = Paths.get( "target/program" );
+			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
 			// Canonicalize the home path.
-			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
+			programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
 			// Create the program home folder when in DEV mode
 			if( Profile.DEV.equals( getProfile() ) ) Files.createDirectories( programHomeFolder );
