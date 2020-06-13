@@ -13,14 +13,14 @@ class WelcomeToolOpenUIT extends WelcomeToolUIT {
 	@Test
 	void execute() throws Exception {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
-		assertThat( pane.getTools().size(), is( 0 ) );
+		assertToolCount( pane, 0 );
 
 		clickOn( "#menu-help" );
 		clickOn( "#menuitem-welcome" );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( WelcomeTool.class ) );
 		assertThat( pane.getActiveView().isMaximized(), is( true ) );
-		assertThat( pane.getTools().size(), is( 1 ) );
+		assertToolCount( pane, 1 );
 	}
 
 }
