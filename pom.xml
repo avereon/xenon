@@ -594,30 +594,30 @@
 								</configuration>
 							</execution>
 
-							<execution>
-								<id>jpackage-appimage</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${java.home}/bin/jpackage</executable>
-									<arguments>
-										<argument>--type</argument>
-										<argument>app-image</argument>
-										<argument>--name</argument>
-										<argument>${project.name}</argument>
-										<argument>--icon</argument>
-										<argument>${basedir}/target/main/images/${project.artifactId}.png</argument>
-										<argument>--module</argument>
-										<argument>com.avereon.${project.artifactId}/com.avereon.xenon.Program</argument>
-										<argument>--runtime-image</argument>
-										<argument>${basedir}/target/jlink</argument>
-										<argument>--dest</argument>
-										<argument>${basedir}/target/appimage</argument>
-									</arguments>
-								</configuration>
-							</execution>
+<!--							<execution>-->
+<!--								<id>jpackage-appimage</id>-->
+<!--								<phase>post-integration-test</phase>-->
+<!--								<goals>-->
+<!--									<goal>exec</goal>-->
+<!--								</goals>-->
+<!--								<configuration>-->
+<!--									<executable>${java.home}/bin/jpackage</executable>-->
+<!--									<arguments>-->
+<!--										<argument>&#45;&#45;type</argument>-->
+<!--										<argument>app-image</argument>-->
+<!--										<argument>&#45;&#45;name</argument>-->
+<!--										<argument>${project.name}</argument>-->
+<!--										<argument>&#45;&#45;icon</argument>-->
+<!--										<argument>${basedir}/target/main/images/${project.artifactId}.png</argument>-->
+<!--										<argument>&#45;&#45;module</argument>-->
+<!--										<argument>com.avereon.${project.artifactId}/com.avereon.xenon.Program</argument>-->
+<!--										<argument>&#45;&#45;runtime-image</argument>-->
+<!--										<argument>${basedir}/target/jlink</argument>-->
+<!--										<argument>&#45;&#45;dest</argument>-->
+<!--										<argument>${basedir}/target/appimage</argument>-->
+<!--									</arguments>-->
+<!--								</configuration>-->
+<!--							</execution>-->
 
 <!--							<execution>-->
 <!--								<id>jpackage-package</id>-->
