@@ -375,7 +375,7 @@
 				</executions>
 			</plugin>
 
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
@@ -385,7 +385,7 @@
 					</links>
 					<failOnError>false</failOnError>
 				</configuration>
-			</plugin>
+			</plugin> -->
 
 		</plugins>
 
@@ -619,24 +619,32 @@
 <!--								</configuration>-->
 <!--							</execution>-->
 
-<!--							<execution>-->
-<!--								<id>jpackage-package</id>-->
-<!--								<phase>post-integration-test</phase>-->
-<!--								<goals>-->
-<!--									<goal>exec</goal>-->
-<!--								</goals>-->
-<!--								<configuration>-->
-<!--									<executable>${java.home}/bin/jpackage</executable>-->
-<!--									<arguments>-->
-<!--										<argument>&#45;&#45;name</argument>-->
-<!--										<argument>${project.artifactId}</argument>-->
-<!--										<argument>&#45;&#45;app-image</argument>-->
-<!--										<argument>${basedir}/target/appimage</argument>-->
-<!--										<argument>&#45;&#45;dest</argument>-->
-<!--										<argument>${basedir}/target/jpackage</argument>-->
-<!--									</arguments>-->
-<!--								</configuration>-->
-<!--							</execution>-->
+							<execution>
+								<id>jpackage-package</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jpackage</executable>
+									<arguments>
+										<argument>--name</argument>
+										<argument>${project.name}</argument>
+										<argument>--app-version</argument>
+										<argument>${project.version}</argument>
+										<argument>--description</argument>
+										<argument>${project.description}</argument>
+										<argument>--vendor</argument>
+										<argument>${project.organization.name}</argument>
+										<argument>--module-path</argument>
+										<argument>${jlink.module.path}</argument>
+										<argument>--module</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Program</argument>
+										<argument>--dest</argument>
+										<argument>${basedir}/target/jpackage</argument>
+									</arguments>
+								</configuration>
+							</execution>
 						</executions>
 					</plugin>
 
