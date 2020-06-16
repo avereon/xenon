@@ -631,7 +631,8 @@
 										<argument>--name</argument>
 										<argument>${project.name}</argument>
 										<argument>--app-version</argument>
-										<argument>${project.version}</argument>
+										<!-- Windows requires z.y.x.w https://docs.microsoft.com/en-us/windows/win32/msi/version -->
+										<argument>1.3</argument>
 										<argument>--description</argument>
 										<argument>${project.description}</argument>
 										<argument>--vendor</argument>
