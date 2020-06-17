@@ -317,7 +317,7 @@ jobs:
 
       - name: Post Install Pack (jpackage)
         run: |
-          scp target\jpackage\*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}
+          scp "target\jpackage\*.exe" ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}
       #    scp target\jpackage\*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
       - name: Post Install Pack (izpack)
