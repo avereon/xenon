@@ -316,10 +316,10 @@ jobs:
       #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
 
       - name: Post Install Pack (jpackage)
+        shell: bash
         run: |
-          mv target/jpackage/*.exe Xenon.jjj
-          scp -B "target/jpackage/*.jjj" ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}
-      #    scp -B "target/jpackage/*.msi" ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+          scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+      #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
       - name: Post Install Pack (izpack)
         shell: bash
