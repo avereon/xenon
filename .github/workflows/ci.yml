@@ -239,8 +239,8 @@ jobs:
 
       - name: Post Install Pack (jpackage)
         run: |
-      #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
           scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+      #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
       - name: Post Install Pack (izpack)
         run: |
@@ -317,8 +317,8 @@ jobs:
 
       - name: Post Install Pack (jpackage)
         run: |
-      #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
           scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
+      #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
       - name: Post Install Pack (izpack)
         shell: bash
