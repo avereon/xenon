@@ -75,7 +75,7 @@ jobs:
 
       - name: Deploy Arifacts
         run: |
-          mvn ${{env.MAVEN_PARMS}} -Pscreenshots deploy -Dmaven.test.skip=true
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots deploy
 
       - name: Post Product Icon
         run: |
@@ -150,15 +150,15 @@ jobs:
 
       #- name: Build Assemblies
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
+      #    mvn ${{env.MAVEN_PARMS}} -P platform-specific-assemblies,testui verify
 
       - name: Build Assemblies - No UI Tests
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} -P platform-specific-assemblies verify
 
       #- name: Build Assemblies - No Tests
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
+      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P platform-specific-assemblies verify
 
       - name: Post Install Pack (jpackage)
         run: |
@@ -227,15 +227,15 @@ jobs:
 
       #- name: Build Assemblies
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
+      #    mvn ${{env.MAVEN_PARMS}} -P testui,platform-specific-assemblies verify
 
       - name: Build Assemblies - No UI Tests
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} -P platform-specific-assemblies verify
 
       #- name: Build Assemblies - No Tests
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
+      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P platform-specific-assemblies verify
 
       - name: Post Install Pack (jpackage)
         run: |
@@ -305,15 +305,15 @@ jobs:
 
       #- name: Build Assemblies
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-specific-assemblies
+      #    mvn ${{env.MAVEN_PARMS}} -P testui,platform-specific-assemblies verify
 
       - name: Build Assemblies - No UI Tests
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies
+          mvn ${{env.MAVEN_PARMS}} -P platform-specific-assemblies verify
 
       #- name: Build Assemblies - No Tests
       #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} verify -P platform-specific-assemblies -Dmaven.test.skip=true
+      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P platform-specific-assemblies verify
 
       - name: Post Install Pack (jpackage)
         shell: bash

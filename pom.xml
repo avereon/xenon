@@ -273,13 +273,24 @@
 			</plugin>
 
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<links>
+						<link>https://www.avereon.com/product/zenna/docs/api</link>
+						<link>https://www.avereon.com/product/zevra/docs/api</link>
+					</links>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>com.avereon</groupId>
 				<artifactId>cameo</artifactId>
 				<version>2.6-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<id>render-images</id>
-						<phase>prepare-package</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>render</goal>
 						</goals>
@@ -374,18 +385,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<!-- <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<links>
-						<link>https://www.avereon.com/product/zenna/docs/api</link>
-						<link>https://www.avereon.com/product/zevra/docs/api</link>
-					</links>
-					<failOnError>false</failOnError>
-				</configuration>
-			</plugin> -->
 
 		</plugins>
 
