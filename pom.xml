@@ -724,36 +724,55 @@
 			<build>
 				<plugins>
 
+					<!-- Copy jpackage option files -->
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>jpackage-option-files</id>
+								<!-- This can be put back to post-integration-test once assemblies profiles is removed -->
+								<phase>package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<encoding>UTF-8</encoding>
+									<resources>
+										<resource>
+											<directory>${basedir}/source/main/jpackage</directory>
+											<filtering>true</filtering>
+											<excludes>
+												<exclude>bin</exclude>
+											</excludes>
+										</resource>
+									</resources>
+									<outputDirectory>${basedir}/target/main/jpackage</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Windows does not allow -SNAPSHOT in version -->
+					<!-- Windows requires version format z.y.x.w https://docs.microsoft.com/en-us/windows/win32/msi/version -->
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
 						<version>1.5.0</version>
 						<executions>
-							<!--							<execution>-->
-							<!--								<id>jpackage-appimage</id>-->
-							<!--								<phase>post-integration-test</phase>-->
-							<!--								<goals>-->
-							<!--									<goal>exec</goal>-->
-							<!--								</goals>-->
-							<!--								<configuration>-->
-							<!--									<executable>${java.home}/bin/jpackage</executable>-->
-							<!--									<arguments>-->
-							<!--										<argument>&#45;&#45;type</argument>-->
-							<!--										<argument>app-image</argument>-->
-							<!--										<argument>&#45;&#45;name</argument>-->
-							<!--										<argument>${project.name}</argument>-->
-							<!--										<argument>&#45;&#45;icon</argument>-->
-							<!--										<argument>${basedir}/target/main/images/${project.artifactId}.png</argument>-->
-							<!--										<argument>&#45;&#45;module</argument>-->
-							<!--										<argument>com.avereon.${project.artifactId}/com.avereon.xenon.Program</argument>-->
-							<!--										<argument>&#45;&#45;runtime-image</argument>-->
-							<!--										<argument>${basedir}/target/jlink</argument>-->
-							<!--										<argument>&#45;&#45;dest</argument>-->
-							<!--										<argument>${basedir}/target/appimage</argument>-->
-							<!--									</arguments>-->
-							<!--								</configuration>-->
-							<!--							</execution>-->
-
+							<execution>
+								<id>jpackage-appimage</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jpackage</executable>
+									<arguments>
+										<argument>@${basedir}/target/main/jpackage/app.options</argument>
+										<argument>@${basedir}/target/main/jpackage/image.options</argument>
+									</arguments>
+								</configuration>
+							</execution>
 							<execution>
 								<id>jpackage-package</id>
 								<phase>post-integration-test</phase>
@@ -763,21 +782,8 @@
 								<configuration>
 									<executable>${java.home}/bin/jpackage</executable>
 									<arguments>
-										<argument>--name</argument>
-										<argument>${project.name}</argument>
-										<argument>--app-version</argument>
-										<!-- Windows requires z.y.x.w https://docs.microsoft.com/en-us/windows/win32/msi/version -->
-										<argument>1.3</argument>
-										<argument>--description</argument>
-										<argument>${project.description}</argument>
-										<argument>--vendor</argument>
-										<argument>${project.organization.name}</argument>
-										<argument>--module-path</argument>
-										<argument>${jlink.module.path}</argument>
-										<argument>--module</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Program</argument>
-										<argument>--dest</argument>
-										<argument>${basedir}/target/jpackage</argument>
+										<argument>@${basedir}/target/main/jpackage/app.options</argument>
+										<argument>@${basedir}/target/main/jpackage/${product.platform}.options</argument>
 									</arguments>
 								</configuration>
 							</execution>
