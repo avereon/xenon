@@ -503,7 +503,7 @@
 		</profile>
 
 		<profile>
-			<id>platform-specific-assemblies</id>
+			<id>assemblies</id>
 			<build>
 				<plugins>
 
@@ -520,7 +520,6 @@
 								</goals>
 								<configuration>
 									<includeScope>compile</includeScope>
-									<stripVersion>true</stripVersion>
 								</configuration>
 							</execution>
 						</executions>
@@ -529,7 +528,7 @@
 					<plugin>
 						<groupId>com.avereon</groupId>
 						<artifactId>curex</artifactId>
-						<version>1.0</version>
+						<version>1.1-SNAPSHOT</version>
 						<executions>
 							<execution>
 								<id>patch-dependencies</id>
@@ -541,13 +540,13 @@
 									<modulePath>${project.build.directory}/dependency</modulePath>
 									<jars>
 										<jar>
-											<name>image4j.jar</name>
+											<name>image4j*.jar</name>
 										</jar>
 										<jar>
-											<name>miglayout-core.jar</name>
+											<name>miglayout-core*.jar</name>
 										</jar>
 										<jar>
-											<name>miglayout-javafx.jar</name>
+											<name>miglayout-javafx*.jar</name>
 											<modules>
 												<module>javafx.base</module>
 												<module>javafx.graphics</module>
