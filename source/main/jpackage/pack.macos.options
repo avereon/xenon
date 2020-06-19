@@ -1,5 +1,4 @@
---type deb
---name "${project.artifactId}"
+--type dmg
+--name "${project.name}"
 --app-version "${project.version}"
---dest "${basedir}/target/jpackage"
 --app-image "${basedir}/target/jpackage/${project.artifactId}"
