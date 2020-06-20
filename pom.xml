@@ -752,6 +752,8 @@
 						</executions>
 					</plugin>
 
+					<!-- MacOS does not allow -SNAPSHOT in version -->
+					<!-- MacOS requires version strings can consist of only numbers and up to two dots -->
 					<!-- Windows does not allow -SNAPSHOT in version -->
 					<!-- Windows requires version format z.y.x.w https://docs.microsoft.com/en-us/windows/win32/msi/version -->
 					<plugin>

@@ -1,4 +1,4 @@
 --type dmg
 --name "${project.name}"
---app-version "${project.version}"
+--app-version "1.3"
 --app-image "${basedir}/target/jpackage/${project.artifactId}"
