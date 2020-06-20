@@ -1,3 +1,4 @@
+--verbose
 --description "${project.description}"
 --vendor "${project.organization.name}"
 --copyright "Copyright ${project.inceptionYear} ${project.organization.name}"

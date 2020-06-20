@@ -2,3 +2,5 @@
 --name "${project.artifactId}"
 --app-version "${project.version}"
 --app-image "${basedir}/target/jpackage/${project.artifactId}"
+--linux-shortcut
+--linux-package-name "${project.artifactId}"
