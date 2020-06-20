@@ -724,6 +724,28 @@
 			<build>
 				<plugins>
 
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<!-- Assemble the product pack -->
+							<execution>
+								<id>assembly-product</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<finalName>xproduct</finalName>
+									<descriptorSourceDirectory>source/main/assembly</descriptorSourceDirectory>
+									<descriptorRefs>
+										<descriptorRef>xproduct</descriptorRef>
+									</descriptorRefs>
+									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
 					<!-- Copy jpackage option files -->
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>

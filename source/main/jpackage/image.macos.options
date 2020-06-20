@@ -1,1 +1,2 @@
---verbose
+--icon "${basedir}/target/main/images/${project.artifactId}.png"
+--app-version "1.3"
