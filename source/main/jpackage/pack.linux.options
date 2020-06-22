@@ -1,6 +1,10 @@
 --type deb
 --name "${project.name}"
+--module-path "${jlink.module.path}"
+--module "com.avereon.xenon/com.avereon.xenon.Program"
+
 --app-version "${project.version}"
---app-image "${basedir}/target/jpackage/${project.artifactId}"
+--icon "${basedir}/target/main/images/${project.artifactId}.png"
+
 --linux-shortcut
 --linux-package-name "${project.artifactId}"

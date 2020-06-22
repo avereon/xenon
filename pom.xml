@@ -724,28 +724,6 @@
 			<build>
 				<plugins>
 
-					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<executions>
-							<!-- Assemble the product pack -->
-							<execution>
-								<id>assembly-product</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<finalName>xproduct</finalName>
-									<descriptorSourceDirectory>source/main/assembly</descriptorSourceDirectory>
-									<descriptorRefs>
-										<descriptorRef>xproduct</descriptorRef>
-									</descriptorRefs>
-									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
 					<!-- Copy jpackage option files -->
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
@@ -811,6 +789,27 @@
 										<argument>@${basedir}/target/main/jpackage/pack.common.options</argument>
 										<argument>@${basedir}/target/main/jpackage/pack.${product.platform}.options</argument>
 									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<!-- Assemble the product pack -->
+							<execution>
+								<id>assembly-product</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<finalName>product</finalName>
+									<descriptorRefs>
+										<descriptorRef>product-${product.platform}</descriptorRef>
+									</descriptorRefs>
+									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
 								</configuration>
 							</execution>
 						</executions>

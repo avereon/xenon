@@ -1,4 +1,10 @@
 --type dmg
 --name "${project.name}"
+--module-path "${jlink.module.path}"
+--module "com.avereon.xenon/com.avereon.xenon.Program"
+
 --app-version "1.3"
---app-image "${basedir}/target/jpackage/${project.artifactId}"
+--icon "${basedir}/target/main/images/${project.artifactId}.png"
+
+--mac-package-identifier "com.avereon.xenon"
+--mac-package-name "${project.artifactId}"
