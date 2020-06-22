@@ -1034,26 +1034,6 @@ public class Program extends Application implements ProgramProduct {
 		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
 	}
 
-	private Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath(System.getProperty( "java.launcher.path" ));
-	}
-
-	private Path getHomeFromLauncherPath( String launcherPath) {
-		if( launcherPath == null ) return null;
-
-		Path path = Paths.get( launcherPath );
-		if( OperatingSystem.isWindows() ) {
-			return path;
-		} else if( OperatingSystem.isLinux()) {
-			return path.getParent();
-		} else if( OperatingSystem.isMac() ) {
-			// FIXME Unchecked, may be incorrect. Please review on actual platform.
-			return path.getParent();
-		}
-
-		return null;
-	}
-
 	/**
 	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
 	 * <code>$HOME/lib/program.jar</code>
@@ -1096,6 +1076,26 @@ public class Program extends Application implements ProgramProduct {
 
 		log.log( DEBUG, "Program home: " + programHomeFolder );
 		log.log( DEBUG, "Program data: " + programDataFolder );
+	}
+
+	private Path getHomeFromLauncherPath() {
+		return getHomeFromLauncherPath(System.getProperty( "java.launcher.path" ));
+	}
+
+	private Path getHomeFromLauncherPath( String launcherPath) {
+		if( launcherPath == null ) return null;
+
+		Path path = Paths.get( launcherPath );
+		if( OperatingSystem.isWindows() ) {
+			return path;
+		} else if( OperatingSystem.isLinux()) {
+			return path.getParent();
+		} else if( OperatingSystem.isMac() ) {
+			// FIXME Unchecked, may be incorrect. Please review on actual platform.
+			return path.getParent();
+		}
+
+		return null;
 	}
 
 	private void registerActionHandlers() {
