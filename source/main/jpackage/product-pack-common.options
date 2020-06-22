@@ -1,5 +1,5 @@
 --type app-image
---name "${project.artifactId}"
+--name "${project.name}"
 --dest "${basedir}/target/jpackage"
 --module-path "${jlink.module.path}"
 --module "com.avereon.xenon/com.avereon.xenon.Program"

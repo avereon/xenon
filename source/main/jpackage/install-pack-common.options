@@ -1,1 +1,4 @@
+--name "${project.name}"
+--module-path "${jlink.module.path}"
+--module "com.avereon.xenon/com.avereon.xenon.Program"
 --dest "${basedir}/target/jpackage"
