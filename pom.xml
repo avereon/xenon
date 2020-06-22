@@ -771,8 +771,8 @@
 									<executable>${java.home}/bin/jpackage</executable>
 									<arguments>
 										<argument>@${basedir}/target/main/jpackage/app.options</argument>
-										<argument>@${basedir}/target/main/jpackage/image.common.options</argument>
-										<argument>@${basedir}/target/main/jpackage/image.${product.platform}.options</argument>
+										<argument>@${basedir}/target/main/jpackage/product-pack-common.options</argument>
+										<argument>@${basedir}/target/main/jpackage/product-pack-${product.platform}.options</argument>
 									</arguments>
 								</configuration>
 							</execution>
@@ -786,8 +786,8 @@
 									<executable>${java.home}/bin/jpackage</executable>
 									<arguments>
 										<argument>@${basedir}/target/main/jpackage/app.options</argument>
-										<argument>@${basedir}/target/main/jpackage/pack.common.options</argument>
-										<argument>@${basedir}/target/main/jpackage/pack.${product.platform}.options</argument>
+										<argument>@${basedir}/target/main/jpackage/install-pack-common.options</argument>
+										<argument>@${basedir}/target/main/jpackage/install-pack-${product.platform}.options</argument>
 									</arguments>
 								</configuration>
 							</execution>

@@ -1034,6 +1034,26 @@ public class Program extends Application implements ProgramProduct {
 		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
 	}
 
+	private Path getHomeFromLauncherPath() {
+		return getHomeFromLauncherPath(System.getProperty( "java.launcher.path" ));
+	}
+
+	private Path getHomeFromLauncherPath( String launcherPath) {
+		if( launcherPath == null ) return null;
+
+		Path path = Paths.get( launcherPath );
+		if( OperatingSystem.isWindows() ) {
+			return path;
+		} else if( OperatingSystem.isLinux()) {
+			return path.getParent();
+		} else if( OperatingSystem.isMac() ) {
+			// FIXME Unchecked, may be incorrect. Please review on actual platform.
+			return path.getParent();
+		}
+
+		return null;
+	}
+
 	/**
 	 * Find the home directory. This method expects the program jar file to be installed in a sub-directory of the home directory. Example:
 	 * <code>$HOME/lib/program.jar</code>
@@ -1042,16 +1062,11 @@ public class Program extends Application implements ProgramProduct {
 	 */
 	private void configureHomeFolder( com.avereon.util.Parameters parameters ) {
 		try {
-			// If the HOME flag was specified on the command line use it.
+			// If the HOME flag was specified on the command line use it
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// When running as a packaged (jpackage) program with a launcher there is
-			// usually a launcher path.
-			if( programHomeFolder == null && System.getProperty( "java.launcher.path" ) != null ) {
-				Path launcherPath = Paths.get( System.getProperty( "java.launcher.path" ) );
-				// The launcher path is a child folder of the program home
-				programHomeFolder = launcherPath.getParent();
-			}
+			// Check the launcher path
+			if( programHomeFolder == null ) programHomeFolder = getHomeFromLauncherPath();
 
 			// When running as a linked (jlink) program, there is not a jdk.module.path system property.
 			// The java home can be used as the program home when running as a linked application.
@@ -1065,7 +1080,7 @@ public class Program extends Application implements ProgramProduct {
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
-			// Canonicalize the home path.
+			// Canonicalize the home path
 			programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
 			// Create the program home folder when in DEV mode
