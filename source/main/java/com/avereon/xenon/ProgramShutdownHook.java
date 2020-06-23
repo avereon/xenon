@@ -51,17 +51,7 @@ public class ProgramShutdownHook extends Thread {
 	synchronized ProgramShutdownHook configureForRestart( String... additionalParameters ) {
 		mode = Mode.RESTART;
 
-		String modulePath = System.getProperty( "jdk.module.path" );
-		String moduleMain = System.getProperty( "jdk.module.main" );
-		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
-
-		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaLauncherPath(),
-			modulePath,
-			moduleMain,
-			moduleMainClass,
-			program.getProgramParameters(),
-			additionalParameters
-		);
+		List<String> commands = ProcessCommands.forModule( program.getProgramParameters(), additionalParameters );
 
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
@@ -86,8 +76,8 @@ public class ProgramShutdownHook extends Thread {
 		String updaterJavaExecutablePath = mock ? OperatingSystem.getJavaLauncherPath() : updaterHome + "/bin/" + OperatingSystem.getJavaLauncherName();
 
 		String modulePath = System.getProperty( "jdk.module.path" );
-		String moduleMain = System.getProperty( "jdk.module.main" );
-		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
+		//String moduleMain = System.getProperty( "jdk.module.main" );
+		//String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
 		// Linked programs do not have a module path
 		String updaterModulePath = mock ? modulePath : null;
@@ -155,12 +145,7 @@ public class ProgramShutdownHook extends Thread {
 		// Add parameters to restart program
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaLauncherPath(),
-			modulePath,
-			moduleMain,
-			moduleMainClass,
-			program.getProgramParameters()
-		) );
+		launchCommands.addAll( ProcessCommands.forModule( program.getProgramParameters() ) );
 		launchCommands.addAll( List.of( additionalParameters ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
 		log.log( Log.DEBUG, ucb.toString() );

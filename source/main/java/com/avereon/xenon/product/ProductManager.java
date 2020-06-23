@@ -600,7 +600,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// If updates are staged, apply them.
 		int updateCount = getStagedUpdateCount();
 		if( updateCount > 0 ) {
-			log.log( Log.INFO, "Staged updates detected: {}", updateCount );
+			log.log( Log.INFO, "Staged updates detected: {0}", updateCount );
 			try {
 				applyStagedUpdatesAtStart();
 			} catch( Exception exception ) {
@@ -616,7 +616,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 */
 	public void applyStagedUpdatesAtStart() {
 		int stagedUpdateCount = getStagedUpdateCount();
-		log.log( Log.INFO, "Staged update count: " + stagedUpdateCount );
+		log.log( Log.INFO, "Staged update count: {0}", stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
 		if( getProgram().isUpdateInProgress() ) {

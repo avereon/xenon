@@ -210,11 +210,16 @@ public class Workspace implements WritableIdentity {
 		view.getItems().add( new SeparatorMenuItem() );
 		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
 
+		Menu tools = ActionUtil.createSubMenu( program, "tools" );
+		tools.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
+		tools.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
+		tools.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
+
 		Menu help = ActionUtil.createMenu( program, "help" );
 		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
-		help.getItems().add( new SeparatorMenuItem() );
 		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
+		help.getItems().add( new SeparatorMenuItem() );
+		help.getItems().add( tools );
 		help.getItems().add( new SeparatorMenuItem() );
 		help.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
 		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
@@ -228,7 +233,7 @@ public class Workspace implements WritableIdentity {
 		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
 		dev.getItems().add( new SeparatorMenuItem() );
 		dev.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
+		//dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
 		menubar.getMenus().addAll( file, edit, view, help );
 		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
