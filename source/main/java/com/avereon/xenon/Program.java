@@ -190,6 +190,9 @@ public class Program extends Application implements ProgramProduct {
 		card = new ProductCard().init( getClass() );
 		time( "card" );
 
+		// Set the customer launcher name
+		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
+
 		// Initialize the program parameters
 		parameters = initProgramParameters();
 		time( "parameters" );
@@ -1079,16 +1082,16 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private Path getHomeFromLauncherPath() {
-		return getHomeFromLauncherPath(System.getProperty( "java.launcher.path" ));
+		return getHomeFromLauncherPath( System.getProperty( "java.launcher.path" ) );
 	}
 
-	private Path getHomeFromLauncherPath( String launcherPath) {
+	private Path getHomeFromLauncherPath( String launcherPath ) {
 		if( launcherPath == null ) return null;
 
 		Path path = Paths.get( launcherPath );
 		if( OperatingSystem.isWindows() ) {
 			return path;
-		} else if( OperatingSystem.isLinux()) {
+		} else if( OperatingSystem.isLinux() ) {
 			return path.getParent();
 		} else if( OperatingSystem.isMac() ) {
 			// FIXME Unchecked, may be incorrect. Please review on actual platform.

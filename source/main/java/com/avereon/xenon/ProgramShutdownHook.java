@@ -55,7 +55,7 @@ public class ProgramShutdownHook extends Thread {
 		String moduleMain = System.getProperty( "jdk.module.main" );
 		String moduleMainClass = System.getProperty( "jdk.module.main.class" );
 
-		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(),
+		List<String> commands = ProcessCommands.forModule( OperatingSystem.getJavaLauncherPath(),
 			modulePath,
 			moduleMain,
 			moduleMainClass,
@@ -83,7 +83,7 @@ public class ProgramShutdownHook extends Thread {
 		// Stage the updater
 		// FIXME This can take a long time and has a lot of IO...locking the UI
 		String updaterHome = stageUpdater();
-		String updaterJavaExecutablePath = mock ? OperatingSystem.getJavaExecutablePath() : updaterHome + "/bin/" + OperatingSystem.getJavaExecutableName();
+		String updaterJavaExecutablePath = mock ? OperatingSystem.getJavaLauncherPath() : updaterHome + "/bin/" + OperatingSystem.getJavaLauncherName();
 
 		String modulePath = System.getProperty( "jdk.module.path" );
 		String moduleMain = System.getProperty( "jdk.module.main" );
@@ -155,7 +155,7 @@ public class ProgramShutdownHook extends Thread {
 		// Add parameters to restart program
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaExecutablePath(),
+		launchCommands.addAll( ProcessCommands.forModule( OperatingSystem.getJavaLauncherPath(),
 			modulePath,
 			moduleMain,
 			moduleMainClass,
@@ -208,8 +208,7 @@ public class ProgramShutdownHook extends Thread {
 		FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
 
 		// Fix the permissions on the executable
-		String ext = OperatingSystem.isWindows() ? ".exe" : "";
-		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaExecutableName() + ext );
+		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaLauncherName() + OperatingSystem.getExeSuffix() );
 		if( !bin.toFile().setExecutable( true, true ) ) log.log( Log.WARN, "Unable to make updater executable: " + bin );
 
 		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
