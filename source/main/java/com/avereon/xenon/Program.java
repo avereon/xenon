@@ -29,6 +29,7 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zenna.UpdateFlag;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -50,6 +51,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import static java.lang.System.Logger.Level.*;
@@ -74,7 +76,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
-	private ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
+	private final ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
 
 	private com.avereon.util.Parameters parameters;
 
@@ -89,6 +91,8 @@ public class Program extends Application implements ProgramProduct {
 	private Path programDataFolder;
 
 	private Path programLogFolder;
+
+	private Path updaterFolder;
 
 	private Settings programSettings;
 
@@ -152,6 +156,10 @@ public class Program extends Application implements ProgramProduct {
 
 	private Boolean isProgramUpdated;
 
+	private final Object stageUpdaterLock;
+
+	private StageUpdaterTask stageUpdaterTask;
+
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
 	public static void main( String[] commands ) {
@@ -164,6 +172,7 @@ public class Program extends Application implements ProgramProduct {
 	public Program() {
 		time( "instantiate" );
 		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler();
+		stageUpdaterLock = new Object();
 
 		// Add the uncaught exception handler to the JavaFX Application Thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
@@ -200,10 +209,6 @@ public class Program extends Application implements ProgramProduct {
 		// Print the program header, depends on card and parameters
 		printHeader( card, parameters );
 		time( "print-header" );
-
-		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( this );
-		time( "resource-bundle" );
 
 		// Determine the program data folder, depends on program parameters
 		configureDataFolder();
@@ -245,8 +250,12 @@ public class Program extends Application implements ProgramProduct {
 		// If this instance is a peer, start the peer and wait to exit
 		int port = programSettings.get( "program-port", Integer.class, 0 );
 		if( !TestUtil.isTest() && peerCheck( port ) ) {
-			ProgramPeer peer = new ProgramPeer( this, port );
-			peer.start();
+			if( parameters.isSet( ProgramFlag.UPDATE ) ) {
+				log.log( Log.ERROR, "Cannot run update in peer mode" );
+			} else {
+				ProgramPeer peer = new ProgramPeer( this, port );
+				peer.start();
+			}
 			requestExit( true );
 			return;
 		}
@@ -255,7 +264,7 @@ public class Program extends Application implements ProgramProduct {
 		// NOTE At this point this instance is a host not a peer
 
 		// If this instance is a host, process the control commands before showing the splash screen
-		if( processCliActions( getProgramParameters(), true ) ) {
+		if( !processCliActions( getProgramParameters(), true ) ) {
 			requestExit( true );
 			return;
 		}
@@ -333,6 +342,10 @@ public class Program extends Application implements ProgramProduct {
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
+
+		// Create the product resource bundle
+		programResourceBundle = new ProductBundle( this );
+		time( "resource-bundle" );
 
 		// Create the program event watcher, depends on logging
 		getFxEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
@@ -609,8 +622,7 @@ public class Program extends Application implements ProgramProduct {
 
 	public void requestRestart( String... commands ) {
 		// Register a shutdown hook to restart the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
-		programShutdownHook.configureForRestart( commands );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, ProgramShutdownHook.Mode.RESTART, commands );
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.
@@ -625,18 +637,17 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	public void requestUpdate( boolean mock, String... restartCommands ) {
+	public void requestUpdate( ProgramShutdownHook.Mode mode, String... commands ) {
 		// Register a shutdown hook to update the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
-		try {
-			programShutdownHook.configureForUpdate( mock, restartCommands );
-			Runtime.getRuntime().addShutdownHook( programShutdownHook );
-		} catch( IOException exception ) {
-			String title = rb().text( BundleKey.UPDATE, "updates" );
-			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
-			getNoticeManager().addNotice( new Notice( title, message ) );
-			return;
-		}
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, mode, commands );
+		//try {
+		Runtime.getRuntime().addShutdownHook( programShutdownHook );
+		//		} catch( IOException exception ) {
+		//			String title = rb().text( BundleKey.UPDATE, "updates" );
+		//			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
+		//			getNoticeManager().addNotice( new Notice( title, message ) );
+		//			return;
+		//		}
 
 		// Request the program stop
 		boolean exiting = requestExit( true );
@@ -748,6 +759,32 @@ public class Program extends Application implements ProgramProduct {
 
 	public final Path getLogFolder() {
 		return programLogFolder;
+	}
+
+	public final Path getUpdaterFolder() {
+		synchronized( stageUpdaterLock ) {
+			return updaterFolder;
+		}
+	}
+
+	void setUpdaterFolder( Path path ) {
+		synchronized( stageUpdaterLock ) {
+			this.updaterFolder = path;
+		}
+	}
+
+	void stageUpdaterAndWait( int timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
+		stageUpdater().get( timeout, unit );
+	}
+
+	public StageUpdaterTask stageUpdater() {
+		synchronized( stageUpdaterLock ) {
+			if( updaterFolder == null && stageUpdaterTask == null ) {
+				stageUpdaterTask = new StageUpdaterTask( this );
+				getTaskManager().submit( stageUpdaterTask );
+			}
+			return stageUpdaterTask;
+		}
 	}
 
 	public final TaskManager getTaskManager() {
@@ -879,7 +916,7 @@ public class Program extends Application implements ProgramProduct {
 	 * Process program commands that affect the startup behavior of the product.
 	 *
 	 * @param parameters The command line parameters
-	 * @return True if the program should exit when it is a host
+	 * @return True if the program should continue to start when it is a host
 	 */
 	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
 		if( parameters.isSet( ProgramFlag.HELLO ) ) {
@@ -888,30 +925,36 @@ public class Program extends Application implements ProgramProduct {
 			} else {
 				log.log( WARNING, "Hello peer. Good to hear from you!" );
 			}
-			return true;
+			return false;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
 			printStatus( startup );
-			return true;
+			return false;
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
 			if( startup ) {
 				if( isHost() ) log.log( WARNING, "Program is already stopped!" );
 			} else {
 				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
 			}
-			return true;
+			return false;
 		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			if( startup ) {
 				log.log( WARNING, "No existing host to watch, I'm out!" );
 			} else {
 				log.log( WARNING, "A watcher has connected!" );
 			}
-			return true;
+			return false;
+		} else if( parameters.isSet( ProgramFlag.UPDATE ) ) {
+			if( startup ) {
+				updateProgram( parameters );
+			} else {
+				log.log( WARNING, "Cannot run an update from a peer!" );
+			}
+			return false;
 		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
 			if( !startup ) getWorkspaceManager().showActiveWorkspace();
-			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	//	/**
@@ -1143,6 +1186,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
+		getActionLibrary().getAction( "mock-update" ).pullAction( mockUpdateAction );
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pullAction( wallpaperToggleAction );
 		getActionLibrary().getAction( "wallpaper-prior" ).pullAction( wallpaperPriorAction );
@@ -1268,6 +1312,23 @@ public class Program extends Application implements ProgramProduct {
 		productManager.registerProgram( this );
 
 		return productManager;
+	}
+
+	private void updateProgram( com.avereon.util.Parameters parameters ) {
+		log.log( Log.WARN, "Starting the update process!" );
+
+		// All the update commands should be in a file
+		Path updateCommandsFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
+		if( !Files.exists( updateCommandsFile ) || !Files.isRegularFile( updateCommandsFile ) ) {
+			log.log( Log.WARN, "Missing update command file: " + updateCommandsFile );
+			return;
+		}
+
+		List<String> commands = new ArrayList<>( parameters.getOriginalCommands() );
+		commands.add( UpdateFlag.FILE );
+		commands.add( updateCommandsFile.toString() );
+
+		new com.avereon.zenna.Program().start( commands.toArray( new String[]{} ) );
 	}
 
 	private void notifyProgramUpdated() {

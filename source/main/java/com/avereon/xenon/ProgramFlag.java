@@ -57,6 +57,13 @@ public interface ProgramFlag extends LogFlag {
 	String STOP = "--stop";
 
 	/**
+	 * Request the program to update. The update command can only be run as a host
+	 * and requires and update command file to be specifed.
+	 * @see ProgramShutdownHook
+	 */
+	String UPDATE = "--update";
+
+	/**
 	 * Print the version information and exit.
 	 */
 	String VERSION = "--version";
@@ -72,7 +79,7 @@ public interface ProgramFlag extends LogFlag {
 	String RESET = "--reset";
 
 	/**
-	 * Flags that a host will respond to without showing a hidden workspace.
+	 * Flags that a host will respond to without showing the program.
 	 */
 	Set<String> QUIET_ACTIONS = Set.of( HELLO, STATUS, STOP, WATCH );
 
