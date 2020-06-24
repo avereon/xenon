@@ -408,11 +408,11 @@ public class AboutTool extends GuidedTool {
 	private String getProgramDetails( Program program ) {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "Home folder:   " ).append( program.getHomeFolder() ).append( "\n" );
-		builder.append( "Data folder:   " ).append( program.getDataFolder() ).append( "\n" );
-		builder.append( "User folder:   " ).append( System.getProperty( "user.home" ) ).append( "\n" );
-		builder.append( "Log file:      " ).append( Log.getLogFile() ).append( "\n" );
-		builder.append( "Launcher path: " ).append( OperatingSystem.getJavaLauncherPath() ).append( "\n" );
+		builder.append( "Home folder: " ).append( program.getHomeFolder() ).append( "\n" );
+		builder.append( "Data folder: " ).append( program.getDataFolder() ).append( "\n" );
+		builder.append( "User folder: " ).append( System.getProperty( "user.home" ) ).append( "\n" );
+		builder.append( "Log file:    " ).append( Log.getLogFile() ).append( "\n" );
+		builder.append( "Launcher:    " ).append( OperatingSystem.getJavaLauncherPath() ).append( "\n" );
 
 		return builder.toString();
 	}
