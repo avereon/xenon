@@ -250,12 +250,11 @@ public class Program extends Application implements ProgramProduct {
 		// If this instance is a peer, start the peer and wait to exit
 		int port = programSettings.get( "program-port", Integer.class, 0 );
 		if( !TestUtil.isTest() && peerCheck( port ) ) {
-			if( parameters.isSet( ProgramFlag.UPDATE ) ) {
-				log.log( Log.ERROR, "Cannot run update in peer mode" );
-			} else {
-				ProgramPeer peer = new ProgramPeer( this, port );
-				peer.start();
-			}
+			//			if( parameters.isSet( ProgramFlag.UPDATE ) ) {
+			//				log.log( Log.ERROR, "Cannot run update in peer mode" );
+			//			} else {
+			new ProgramPeer( this, port ).start();
+			//			}
 			requestExit( true );
 			return;
 		}
@@ -950,6 +949,13 @@ public class Program extends Application implements ProgramProduct {
 				log.log( WARNING, "Cannot run an update from a peer!" );
 			}
 			return false;
+		} else if( parameters.isSet( "--mvs" ) ) {
+			if( startup ) {
+				updateProgram( parameters );
+			} else {
+				log.log( WARNING, "Cannot run an elevated update from a peer!" );
+			}
+			return false;
 		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
 			if( !startup ) getWorkspaceManager().showActiveWorkspace();
 		}
@@ -1317,17 +1323,26 @@ public class Program extends Application implements ProgramProduct {
 	private void updateProgram( com.avereon.util.Parameters parameters ) {
 		log.log( Log.WARN, "Starting the update process!" );
 
-		// All the update commands should be in a file
-		Path updateCommandsFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
-		if( !Files.exists( updateCommandsFile ) || !Files.isRegularFile( updateCommandsFile ) ) {
-			log.log( Log.WARN, "Missing update command file: " + updateCommandsFile );
-			return;
+		// Two modes, normal and elevated
+		// Normal will have a command file
+		// Elevated will have the update flag == true
+
+		List<String> commands = new ArrayList<>();
+		if( parameters.isTrue( "--mvs" ) ) {
+			// Elevated
+			commands.addAll( parameters.getOriginalCommands() );
+		} else {
+			// All the update commands should be in a file
+			Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
+			if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
+				log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
+				return;
+			}
+
+			commands.addAll( parameters.getOriginalCommands() );
+			commands.add( UpdateFlag.FILE );
+			commands.add( updateCommandFile.toString() );
 		}
-
-		List<String> commands = new ArrayList<>( parameters.getOriginalCommands() );
-		commands.add( UpdateFlag.FILE );
-		commands.add( updateCommandsFile.toString() );
-
 		new com.avereon.zenna.Program().start( commands.toArray( new String[]{} ) );
 	}
 
