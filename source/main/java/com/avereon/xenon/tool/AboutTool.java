@@ -385,7 +385,13 @@ public class AboutTool extends GuidedTool {
 		builder.append( "\n" );
 		builder.append( getHeader( "System properties" ) );
 		builder.append( "\n" );
-		builder.append( Indenter.indent( getProperties( System.getProperties() ), 4, " " ) );
+		builder.append( Indenter.indent( toOrderedMap( System.getProperties() ), 4, " " ) );
+
+		// Environment variables
+		builder.append( "\n" );
+		builder.append( getHeader( "Environment variables" ) );
+		builder.append( "\n" );
+		builder.append( Indenter.indent( toOrderedMap( System.getenv() ), 4, " " ) );
 
 		//		// Settings
 		//		builder.append( "\n" );
@@ -593,13 +599,13 @@ public class AboutTool extends GuidedTool {
 		getChildren().add( page );
 	}
 
-	private String getProperties( Properties properties ) {
+	private String toOrderedMap( Map<?,?> map ) {
 		StringBuilder builder = new StringBuilder();
 
 		// Load the keys into a list.
 		int keyColumnWidth = 0;
 		List<String> keys = new ArrayList<>();
-		for( Object object : properties.keySet() ) {
+		for( Object object : map.keySet() ) {
 			String key = object.toString();
 			keys.add( key );
 			keyColumnWidth = Math.max( keyColumnWidth, key.length() );
@@ -610,7 +616,7 @@ public class AboutTool extends GuidedTool {
 		keyColumnWidth += 2;
 
 		for( String key : keys ) {
-			String value = properties.getProperty( key );
+			String value = String.valueOf( map.get( key ) );
 
 			if( key.endsWith( ".path" ) ) {
 				String[] elements = value.split( File.pathSeparator );

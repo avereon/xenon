@@ -266,7 +266,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.avereon.xenon.Program</mainClass>
+							<mainClass>com.avereon.xenon.Launcher</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -581,7 +581,7 @@
 										<argument>--output</argument>
 										<argument>${basedir}/target/jlink</argument>
 										<argument>--launcher</argument>
-										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Program</argument>
+										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Launcher</argument>
 										<argument>--ignore-signing-information</argument>
 										<argument>--no-header-files</argument>
 										<argument>--no-man-pages</argument>

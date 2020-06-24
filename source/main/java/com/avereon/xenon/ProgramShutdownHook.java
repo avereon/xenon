@@ -113,10 +113,10 @@ public class ProgramShutdownHook extends Thread {
 
 		builder.command().add( ProgramFlag.UPDATE );
 		builder.command().add( updateCommandFile.toString() );
-		builder.command().add( ProgramFlag.LOG_FILE );
-		builder.command().add( "update.%u.log" );
-		builder.command().add( ProgramFlag.LOG_LEVEL );
-		builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL, "info" ) );
+		if(program.getProgramParameters().isSet( LogFlag.LOG_LEVEL ) ) {
+			builder.command().add( ProgramFlag.LOG_LEVEL );
+			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
+		}
 
 		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 

@@ -29,7 +29,6 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.zenna.ElevatedFlag;
 import com.avereon.zenna.UpdateFlag;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -163,15 +162,9 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
-	public static void main( String[] commands ) {
-		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
-		if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET )) {
-			// FIXME The logging does not configure due to an NPE
-			new com.avereon.zenna.Program().configAndStart( commands );
-		} else {
-			time( "main" );
-			launch( commands );
-		}
+	public static void launch( String[] commands ) {
+		System.out.println( "Starting with Program" );
+		Application.launch( commands );
 	}
 
 	// THREAD JavaFX Application Thread
@@ -189,25 +182,16 @@ public class Program extends Application implements ProgramProduct {
 		time( "implicit-exit-false" );
 	}
 
-	// THREAD JavaFX-Launcher
-	// EXCEPTIONS Handled by the FX framework
-	@Override
-	public void init() throws Exception {
-		// NOTE Only do in init() what should be done before the splash screen is shown
-		time( "init" );
-
+	void config() throws Exception {
 		// Add the uncaught exception handler to the JavaFX-Launcher thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
-
-		// Create the event hub
-		fxEventHub = new FxEventHub();
 
 		// Init the product card
 		card = new ProductCard().init( getClass() );
 		time( "card" );
 
-		// Set the customer launcher name
-		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
+		// Set the custom launcher name
+		configureCustomLauncherName( card );
 
 		// Initialize the program parameters
 		parameters = initProgramParameters();
@@ -221,6 +205,20 @@ public class Program extends Application implements ProgramProduct {
 		configureDataFolder();
 		time( "configure-data-folder" );
 
+		// Create the product resource bundle
+		programResourceBundle = new ProductBundle( this );
+		time( "resource-bundle" );
+	}
+
+	// THREAD JavaFX-Launcher
+	// EXCEPTIONS Handled by the FX framework
+	@Override
+	public void init() throws Exception {
+		// NOTE Only do in init() what should be done before the splash screen is shown
+		time( "init" );
+
+		config();
+
 		// Configure logging, depends on parameters and program data folder
 		configureLogging();
 		time( "configure-logging" );
@@ -228,14 +226,6 @@ public class Program extends Application implements ProgramProduct {
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
-
-		// Create the settings manager, depends on program data folder
-		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
-
-		// Create the program settings, depends on settings manager and default settings values
-		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.setDefaultValues( loadDefaultSettings() );
-		time( "program-settings" );
 
 		// Check for the VERSION CL parameter, depends on program settings
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
@@ -252,6 +242,17 @@ public class Program extends Application implements ProgramProduct {
 			return;
 		}
 		time( "help-check" );
+
+		// Create the event hub
+		fxEventHub = new FxEventHub();
+
+		// Create the settings manager, depends on program data folder, FX event hub
+		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
+
+		// Create the program settings, depends on settings manager and default settings values
+		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		programSettings.setDefaultValues( loadDefaultSettings() );
+		time( "program-settings" );
 
 		// Run the peer check before processing actions in case there is a peer already
 		// If this instance is a peer, start the peer and wait to exit
@@ -348,10 +349,6 @@ public class Program extends Application implements ProgramProduct {
 	// EXCEPTIONS Handled by the Task framework
 	private void doStartTasks() throws Exception {
 		time( "do-startup-tasks" );
-
-		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( this );
-		time( "resource-bundle" );
 
 		// Create the program event watcher, depends on logging
 		getFxEventHub().register( Event.ANY, watcher = new ProgramEventWatcher() );
@@ -670,11 +667,16 @@ public class Program extends Application implements ProgramProduct {
 		return requestExit( skipChecks, skipChecks );
 	}
 
+	@SuppressWarnings( "ConstantConditions" )
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
 
-		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
-		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
+		boolean shutdownVerify = true;
+		boolean shutdownKeepAlive = false;
+		if( programSettings != null ) {
+			shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, shutdownVerify );
+			shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, shutdownKeepAlive );
+		}
 
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
@@ -874,6 +876,10 @@ public class Program extends Application implements ProgramProduct {
 		return defaultSettingsValues;
 	}
 
+	private void configureCustomLauncherName( ProductCard card ) {
+		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
+	}
+
 	/**
 	 * Initialize the program parameters by converting the FX parameters object into a program parameters object.
 	 *
@@ -947,20 +953,6 @@ public class Program extends Application implements ProgramProduct {
 				log.log( WARNING, "No existing host to watch, I'm out!" );
 			} else {
 				log.log( WARNING, "A watcher has connected!" );
-			}
-			return false;
-		} else if( parameters.isSet( ProgramFlag.UPDATE ) ) {
-			if( startup ) {
-				updateProgram( parameters );
-			} else {
-				log.log( WARNING, "Cannot run an update from a peer!" );
-			}
-			return false;
-		} else if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET ) ) {
-			if( startup ) {
-				updateProgram( parameters );
-			} else {
-				log.log( WARNING, "Cannot run an elevated update from a peer!" );
 			}
 			return false;
 		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
@@ -1327,33 +1319,27 @@ public class Program extends Application implements ProgramProduct {
 		return productManager;
 	}
 
-	private void updateProgram( com.avereon.util.Parameters parameters ) {
+	void updateProgram( com.avereon.util.Parameters parameters ) {
 		log.log( Log.WARN, "Starting the update process!" );
 
-		// Two modes, normal and elevated
-		// Normal will have a command file
-		// Elevated will have the update flag == true
+		// All the update commands should be in a file
+		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
+		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
+			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
+			return;
+		}
 
 		List<String> commands = new ArrayList<>();
-		if( parameters.isTrue( ElevatedFlag.CALLBACK_SECRET ) ) {
-			// Elevated
-			commands.addAll( parameters.getOriginalCommands() );
-		} else {
-			// All the update commands should be in a file
-			Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
-			if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
-				log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
-				return;
-			}
-
-			commands.add( UpdateFlag.FILE );
-			commands.add( updateCommandFile.toString() );
-			if( parameters.isSet( LogFlag.LOG_LEVEL )){
-				commands.add( LogFlag.LOG_LEVEL );
-				commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
-			}
+		commands.add( UpdateFlag.FILE );
+		commands.add( updateCommandFile.toString() );
+		commands.add( ProgramFlag.LOG_FILE );
+		commands.add( "update.%u.log" );
+		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
+			commands.add( LogFlag.LOG_LEVEL );
+			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
 		}
-		new com.avereon.zenna.Program().start( commands.toArray( new String[]{} ) );
+
+		new com.avereon.zenna.Program().configAndStart( commands.toArray( new String[]{} ) );
 	}
 
 	private void notifyProgramUpdated() {
