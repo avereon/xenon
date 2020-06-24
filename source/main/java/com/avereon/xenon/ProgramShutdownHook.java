@@ -9,7 +9,6 @@ import java.io.File;
 import java.lang.System.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -103,9 +102,9 @@ public class ProgramShutdownHook extends Thread {
 		//String updaterModuleMain = com.avereon.zenna.Program.class.getModule().getName();
 		//String updaterModuleMainClass = com.avereon.zenna.Program.class.getName();
 
-		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
-		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.%u.log" ) );
-		String logFilePath = logFile.toString().replace( File.separator, "/" );
+//		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
+//		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.%u.log" ) );
+//		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
 		builder = new ProcessBuilder( ProcessCommands.forModule() );
 		builder.directory( updaterPath.toFile() );
@@ -115,7 +114,7 @@ public class ProgramShutdownHook extends Thread {
 		builder.command().add( ProgramFlag.UPDATE );
 		builder.command().add( updateCommandFile.toString() );
 		builder.command().add( ProgramFlag.LOG_FILE );
-		builder.command().add( "%h/" + logFilePath );
+		builder.command().add( "update.%u.log" );
 		builder.command().add( ProgramFlag.LOG_LEVEL );
 		builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL, "info" ) );
 

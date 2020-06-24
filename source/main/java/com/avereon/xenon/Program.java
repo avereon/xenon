@@ -29,6 +29,7 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zenna.ElevatedFlag;
 import com.avereon.zenna.UpdateFlag;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -163,8 +164,14 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
 	public static void main( String[] commands ) {
-		time( "main" );
-		launch( commands );
+		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
+		if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET )) {
+			// FIXME The logging does not configure due to an NPE
+			new com.avereon.zenna.Program().configAndStart( commands );
+		} else {
+			time( "main" );
+			launch( commands );
+		}
 	}
 
 	// THREAD JavaFX Application Thread
@@ -949,7 +956,7 @@ public class Program extends Application implements ProgramProduct {
 				log.log( WARNING, "Cannot run an update from a peer!" );
 			}
 			return false;
-		} else if( parameters.isSet( "--mvs" ) ) {
+		} else if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET ) ) {
 			if( startup ) {
 				updateProgram( parameters );
 			} else {
@@ -1328,7 +1335,7 @@ public class Program extends Application implements ProgramProduct {
 		// Elevated will have the update flag == true
 
 		List<String> commands = new ArrayList<>();
-		if( parameters.isTrue( "--mvs" ) ) {
+		if( parameters.isTrue( ElevatedFlag.CALLBACK_SECRET ) ) {
 			// Elevated
 			commands.addAll( parameters.getOriginalCommands() );
 		} else {
@@ -1339,9 +1346,12 @@ public class Program extends Application implements ProgramProduct {
 				return;
 			}
 
-			commands.addAll( parameters.getOriginalCommands() );
 			commands.add( UpdateFlag.FILE );
 			commands.add( updateCommandFile.toString() );
+			if( parameters.isSet( LogFlag.LOG_LEVEL )){
+				commands.add( LogFlag.LOG_LEVEL );
+				commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
+			}
 		}
 		new com.avereon.zenna.Program().start( commands.toArray( new String[]{} ) );
 	}
