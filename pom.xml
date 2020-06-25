@@ -762,7 +762,7 @@
 						<version>1.5.0</version>
 						<executions>
 							<execution>
-								<id>jpackage-appimage</id>
+								<id>jpackage-product-pack</id>
 								<phase>post-integration-test</phase>
 								<goals>
 									<goal>exec</goal>
@@ -777,7 +777,7 @@
 								</configuration>
 							</execution>
 							<execution>
-								<id>jpackage-package</id>
+								<id>jpackage-install-pack</id>
 								<phase>post-integration-test</phase>
 								<goals>
 									<goal>exec</goal>
@@ -799,6 +799,7 @@
 						<executions>
 							<!-- Assemble the product pack -->
 							<execution>
+								<!-- Must match execution id parent pom -->
 								<id>assembly-product</id>
 								<phase>post-integration-test</phase>
 								<goals>

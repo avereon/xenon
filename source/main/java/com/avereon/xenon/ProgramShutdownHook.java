@@ -147,14 +147,7 @@ public class ProgramShutdownHook extends Thread {
 				ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
 
 				if( update.getCard().equals( program.getCard() ) ) {
-					String exe = OperatingSystem.isWindows() ? ".exe" : "";
-					String cmd = OperatingSystem.isWindows() ? ".bat" : "";
-					String javaFile = targetPath + "/bin/java" + exe;
-					String javawFile = targetPath + "/bin/javaw" + exe;
-					String keytoolFile = targetPath + "/bin/keytool" + exe;
-					String scriptFile = targetPath + "/bin/" + program.getCard().getArtifact() + cmd;
-					String macScriptFile = targetPath + "/MacOS/" + program.getCard().getArtifact();
-					ucb.add( UpdateTask.PERMISSIONS, "777", javaFile, javawFile, keytoolFile, scriptFile, macScriptFile ).line();
+					ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
 				}
 			}
 		}
