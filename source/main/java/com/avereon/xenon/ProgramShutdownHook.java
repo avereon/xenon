@@ -91,7 +91,8 @@ public class ProgramShutdownHook extends Thread {
 		Path updaterPath = program.getUpdaterFolder();
 		if( updaterPath == null ) throw new IllegalStateException( "Updater path is null" );
 
-		//String updaterLauncherPath = mock ? OperatingSystem.getJavaLauncherPath() : updaterPath + "/bin/" + OperatingSystem.getJavaLauncherName();
+		String updaterLauncherPath = OperatingSystem.getJavaLauncherPath().replace( program.getHomeFolder().toString(), updaterPath.toString() );
+		if( mock ) updaterLauncherPath = OperatingSystem.getJavaLauncherPath();
 
 		//String modulePath = System.getProperty( "jdk.module.path" );
 		//String moduleMain = System.getProperty( "jdk.module.main" );
@@ -106,7 +107,7 @@ public class ProgramShutdownHook extends Thread {
 //		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.%u.log" ) );
 //		String logFilePath = logFile.toString().replace( File.separator, "/" );
 
-		builder = new ProcessBuilder( ProcessCommands.forModule() );
+		builder = new ProcessBuilder( updaterLauncherPath );
 		builder.directory( updaterPath.toFile() );
 
 		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
