@@ -51,7 +51,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import static java.lang.System.Logger.Level.*;
@@ -92,7 +91,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private Path programLogFolder;
 
-	private Path updaterFolder;
+	private UpdaterLogic updater;
 
 	private Settings programSettings;
 
@@ -156,10 +155,6 @@ public class Program extends Application implements ProgramProduct {
 
 	private Boolean isProgramUpdated;
 
-	private final Object stageUpdaterLock;
-
-	private StageUpdaterTask stageUpdaterTask;
-
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
 	public static void launch( String[] commands ) {
@@ -171,7 +166,6 @@ public class Program extends Application implements ProgramProduct {
 	public Program() {
 		time( "instantiate" );
 		uncaughtExceptionHandler = new ProgramUncaughtExceptionHandler();
-		stageUpdaterLock = new Object();
 
 		// Add the uncaught exception handler to the JavaFX Application Thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
@@ -428,6 +422,7 @@ public class Program extends Application implements ProgramProduct {
 		log.log( TRACE, "Starting product manager..." );
 		productManager.start();
 		productManager.startMods();
+		updater = new UpdaterLogic( this );
 		log.log( DEBUG, "Product manager started." );
 
 		// Restore the user interface, depends on workspace manager
@@ -768,30 +763,8 @@ public class Program extends Application implements ProgramProduct {
 		return programLogFolder;
 	}
 
-	public final Path getUpdaterFolder() {
-		synchronized( stageUpdaterLock ) {
-			return updaterFolder;
-		}
-	}
-
-	void setUpdaterFolder( Path path ) {
-		synchronized( stageUpdaterLock ) {
-			this.updaterFolder = path;
-		}
-	}
-
-	void stageUpdaterAndWait( int timeout, TimeUnit unit ) throws InterruptedException, ExecutionException, TimeoutException {
-		stageUpdater().get( timeout, unit );
-	}
-
-	public StageUpdaterTask stageUpdater() {
-		synchronized( stageUpdaterLock ) {
-			if( updaterFolder == null && stageUpdaterTask == null ) {
-				stageUpdaterTask = new StageUpdaterTask( this );
-				getTaskManager().submit( stageUpdaterTask );
-			}
-			return stageUpdaterTask;
-		}
+	public final UpdaterLogic getUpdater() {
+		return updater;
 	}
 
 	public final TaskManager getTaskManager() {

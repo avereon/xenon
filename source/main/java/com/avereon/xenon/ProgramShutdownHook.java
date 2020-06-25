@@ -9,6 +9,7 @@ import java.io.File;
 import java.lang.System.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +53,7 @@ public class ProgramShutdownHook extends Thread {
 
 		try {
 			// Ensure the updater is staged...even if we have to wait
-			program.stageUpdaterAndWait( 10, TimeUnit.SECONDS );
+			program.getUpdater().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
 			configure();
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error staging updater", exception );
@@ -86,14 +87,6 @@ public class ProgramShutdownHook extends Thread {
 		// prove the logic, but restarting the application based on the initial
 		// start parameters would not start the program at the mock location.
 
-		boolean mock = mode == Mode.MOCK_UPDATE;
-
-		Path updaterPath = program.getUpdaterFolder();
-		if( updaterPath == null ) throw new IllegalStateException( "Updater path is null" );
-
-		String updaterLauncherPath = OperatingSystem.getJavaLauncherPath().replace( program.getHomeFolder().toString(), updaterPath.toString() );
-		if( mock ) updaterLauncherPath = OperatingSystem.getJavaLauncherPath();
-
 		//String modulePath = System.getProperty( "jdk.module.path" );
 		//String moduleMain = System.getProperty( "jdk.module.main" );
 		//String moduleMainClass = System.getProperty( "jdk.module.main.class" );
@@ -103,18 +96,23 @@ public class ProgramShutdownHook extends Thread {
 		//String updaterModuleMain = com.avereon.zenna.Program.class.getModule().getName();
 		//String updaterModuleMainClass = com.avereon.zenna.Program.class.getName();
 
-//		Path homeFolder = Paths.get( System.getProperty( "user.home" ) );
-//		Path logFile = homeFolder.relativize( program.getLogFolder().resolve( "update.%u.log" ) );
-//		String logFilePath = logFile.toString().replace( File.separator, "/" );
+		UpdaterLogic updater = program.getUpdater();
+		boolean mock = mode == Mode.MOCK_UPDATE;
 
-		builder = new ProcessBuilder( updaterLauncherPath );
-		builder.directory( updaterPath.toFile() );
+		List<String> updaterLaunchCommands = List.of( updater.getUpdaterLauncher().toString() );
+		if( mock ) updaterLaunchCommands = ProcessCommands.forModule();
+
+		Path updaterFolder = updater.getUpdaterFolder();
+		if( mock ) updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
+
+		builder = new ProcessBuilder( updaterLaunchCommands );
+		builder.directory( updaterFolder.toFile() );
 
 		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 
 		builder.command().add( ProgramFlag.UPDATE );
 		builder.command().add( updateCommandFile.toString() );
-		if(program.getProgramParameters().isSet( LogFlag.LOG_LEVEL ) ) {
+		if( program.getProgramParameters().isSet( LogFlag.LOG_LEVEL ) ) {
 			builder.command().add( ProgramFlag.LOG_LEVEL );
 			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
 		}
@@ -159,7 +157,7 @@ public class ProgramShutdownHook extends Thread {
 		launchCommands.addAll( ProcessCommands.forModule( program.getProgramParameters() ) );
 		launchCommands.addAll( List.of( additionalParameters ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
-		log.log( Log.DEBUG, ucb.toString() );
+		//System.out.println( ucb.toString() );
 
 		try {
 			log.log( Log.TRACE, "Storing update commands..." );
@@ -174,21 +172,25 @@ public class ProgramShutdownHook extends Thread {
 
 	@Override
 	public void run() {
-		if( builder == null ) return;
-
-		// NOTE The logger does not consistently work here due to the JVM shutting down
+		if( builder == null ) {
+			log.log( Log.ERROR, "The process builder is null so no " + mode + " action will occur!" );
+			return;
+		}
 
 		try {
+			log.log( Log.INFO, "Starting " + mode + " process..." );
 			System.out.println( "Starting " + mode + " process..." );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
-			builder.redirectInput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			builder.start();
+			log.log( Log.INFO, mode + " process started!" );
 			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR, "Error restarting program", throwable );
 			throwable.printStackTrace( System.err );
+		} finally {
+			Log.flush();
 		}
 	}
 

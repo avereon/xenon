@@ -2,7 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
-import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.task.Task;
 
 import java.io.IOException;
@@ -16,44 +15,46 @@ import java.nio.file.Paths;
  * locking runtime file resources. The task result is the path to the temporary
  * location.
  */
-public class StageUpdaterTask extends Task <String>{
+public class StageUpdaterTask extends Task<Void> {
 
 	private static final System.Logger log = Log.get();
 
 	private final Program program;
 
-	public StageUpdaterTask( Program program ) {
+	StageUpdaterTask( Program program ) {
 		this.program = program;
 	}
 
+	public Program getProgram() {
+		return program;
+	}
+
 	@Override
-	public String call() throws Exception {
-		String prefix = program.getCard().getArtifact() + "-updater-";
+	public Void call() throws Exception {
+		UpdaterLogic updater = getProgram().getUpdater();
 
 		// Cleanup from prior updates
-		removePriorFolders( prefix );
+		removePriorFolders( updater.getPrefix() );
 
 		// Determine where to put the updater
-		Path updaterHomeRoot = FileUtil.createTempFolder( prefix );
-		if( program.getProfile() == Profile.DEV ) {
-			updaterHomeRoot = Paths.get( System.getProperty( "user.dir" ), "target/" + program.getCard().getArtifact() + "-updater" );
-		}
+		Path updaterHome = updater.getUpdaterFolder();
 
 		// Create the updater home folders
-		Files.createDirectories( updaterHomeRoot );
+		Files.createDirectories( updaterHome );
 
 		// Copy all the modules needed for the updater
-		log.log( Log.DEBUG, "Copy " + program.getHomeFolder() + " to " + updaterHomeRoot );
-		FileUtil.copy( program.getHomeFolder(), updaterHomeRoot );
+		log.log( Log.DEBUG, "Copy " + program.getHomeFolder() + " to " + updaterHome );
+		FileUtil.copy( program.getHomeFolder(), updaterHome );
+
+		// NOTE Do not mark the updater files to be deleted on exit
+		// because they need to exist for the updater to start after the JVM exits
 
 		// Fix the permissions on the executable
-		Path bin = updaterHomeRoot.resolve( "bin" ).resolve( OperatingSystem.getJavaLauncherName() + OperatingSystem.getExeSuffix() );
-		if( !bin.toFile().setExecutable( true, true ) ) log.log( Log.WARN, "Unable to make updater executable: " + bin );
+		Path bin = updater.getUpdaterLauncher();
+		boolean result = !bin.toFile().setExecutable( true );
+		if( !result ) log.log( Log.WARN, "Unable to make updater executable: " + bin );
 
-		// NOTE Deleting the updater files when the JVM exits causes the updater to fail to start
-
-		program.setUpdaterFolder( updaterHomeRoot );
-		return updaterHomeRoot.toString();
+		return null;
 	}
 
 	/**
@@ -64,7 +65,7 @@ public class StageUpdaterTask extends Task <String>{
 	 */
 	private void removePriorFolders( String prefix ) throws IOException {
 		Files.list( FileUtil.getTempFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
-			log.log( Log.INFO, "Delete prior updater: " + p.getFileName() );
+			log.log( Log.DEBUG, "Delete prior updater: " + p.getFileName() );
 			try {
 				FileUtil.delete( p );
 			} catch( IOException exception ) {

@@ -41,16 +41,16 @@ public class ProductManagerLogic {
 
 	private static final RepoState REPO_CONNECTION_ERROR = new RepoState();
 
-	private Program program;
+	private final Program program;
 
-	private V2RepoClient repoClient;
+	private final V2RepoClient repoClient;
 
 	static {
 		PRODUCT_CONNECTION_ERROR.setGroup( Program.class.getPackageName() );
 		PRODUCT_CONNECTION_ERROR.setArtifact( "product-connection-error" );
 	}
 
-	public ProductManagerLogic( Program program ) {
+	ProductManagerLogic( Program program ) {
 		this.program = program;
 		this.repoClient = new V2RepoClient( program );
 	}
@@ -100,6 +100,7 @@ public class ProductManagerLogic {
 	}
 
 	@Asynchronous
+	@SuppressWarnings( "unused" )
 	Task<Collection<ProductUpdate>> findAndApplyPostedUpdates( boolean interactive ) {
 		return createFindPostedUpdatesChain( interactive )
 			.link( ( cards ) -> cards.stream().map( DownloadRequest::new ).collect( Collectors.toSet() ) )
@@ -367,9 +368,9 @@ public class ProductManagerLogic {
 
 	private class DownloadProductResourceTask extends Task<Set<ProductResource>> {
 
-		private RepoState repo;
+		private final RepoState repo;
 
-		private DownloadRequest request;
+		private final DownloadRequest request;
 
 		private DownloadProductResourceTask( RepoState repo, DownloadRequest request ) {
 			setName( getProgram().rb().text( BundleKey.UPDATE, "task-updates-download", request.getCard().getName(), request.getCard().getVersion() ) );
@@ -402,15 +403,15 @@ public class ProductManagerLogic {
 
 	private class ProductResourceCollector extends Task<ProductUpdate> {
 
-		private RepoState repo;
+		private final RepoState repo;
 
-		private ProductCard product;
+		private final ProductCard product;
 
-		private Set<ProductResource> resources;
+		private final Set<ProductResource> resources;
 
-		private Path localPackPath;
+		private final Path localPackPath;
 
-		ProductResourceCollector( RepoState repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
+		private ProductResourceCollector( RepoState repo, ProductCard product, Set<ProductResource> resources, Path localPackPath ) {
 			this.repo = repo;
 			this.product = product;
 			this.resources = resources;
@@ -553,7 +554,7 @@ public class ProductManagerLogic {
 		}
 
 		getProgram().getTaskManager().submit( Task.of( "Store staged update settings", () -> getProgram().getProductManager().setStagedUpdates( stagedUpdates ) ) );
-		if( stagedUpdates.size() > 0 ) program.stageUpdater();
+		if( stagedUpdates.size() > 0 ) getProgram().getUpdater().stageUpdater();
 
 		log.log( Log.DEBUG, "Product update count: " + stagedUpdates.size() );
 
