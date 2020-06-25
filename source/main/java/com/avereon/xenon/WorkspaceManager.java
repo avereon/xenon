@@ -222,7 +222,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	 * @return False if the user chooses to cancel the operation
 	 */
 	public boolean handleModifiedAssets( ProgramScope scope, Set<Asset> assets ) {
-		log.log( Log.WARN, "Modified asset count: " + assets.size() );
 		if( assets.isEmpty() ) return true;
 
 		boolean autoSave = getProgram().getProgramSettings().get( "shutdown-autosave", Boolean.class, false );
