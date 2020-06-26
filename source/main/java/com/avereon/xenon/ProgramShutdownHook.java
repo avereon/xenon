@@ -123,15 +123,15 @@ public class ProgramShutdownHook extends Thread {
 		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
 		ucb = new UpdateCommandBuilder();
-		ucb.add( UpdateTask.LOG, updatingProgramText ).line();
+		ucb.add( UpdateTask.LOG, updatingProgramText );
 
 		if( mock ) {
-			ucb.add( UpdateTask.HEADER + " \"Preparing update\"" ).line();
-			ucb.add( UpdateTask.PAUSE + " 500" ).line();
-			ucb.add( UpdateTask.HEADER + " \"" + updatingProgramText + "\"" ).line();
-			ucb.add( UpdateTask.PAUSE + " 2000 \"Simulating update\"" ).line();
-			ucb.add( UpdateTask.HEADER + " \"Finishing update\"" ).line();
-			ucb.add( UpdateTask.PAUSE + " 500" ).line();
+			ucb.add( UpdateTask.HEADER + " \"Preparing update\"" );
+			ucb.add( UpdateTask.PAUSE + " 500" );
+			ucb.add( UpdateTask.HEADER + " \"" + updatingProgramText + "\"" );
+			ucb.add( UpdateTask.PAUSE + " 2000 \"Simulating update\"" );
+			ucb.add( UpdateTask.HEADER + " \"Finishing update\"" );
+			ucb.add( UpdateTask.PAUSE + " 500" );
 		} else {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 				String key = update.getCard().getProductKey();
@@ -143,10 +143,10 @@ public class ProgramShutdownHook extends Thread {
 				String backupPath = backup.toString().replace( File.separator, "/" );
 				String updateProductText = program.rb().textOr( BundleKey.UPDATE, "update", "Update {0}", update.getCard().getName() );
 
-				ucb.add( UpdateTask.HEADER + " \"" + updateProductText + "\"" ).line();
-				ucb.add( UpdateTask.DELETE, backupPath ).line();
-				ucb.add( UpdateTask.MOVE, targetPath, backupPath ).line();
-				ucb.add( UpdateTask.UNPACK, updatePath, targetPath ).line();
+				ucb.add( UpdateTask.HEADER + " \"" + updateProductText + "\"" );
+				ucb.add( UpdateTask.DELETE, backupPath );
+				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
+				ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
 
 				if( update.getCard().equals( program.getCard() ) ) {
 					ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
@@ -159,7 +159,7 @@ public class ProgramShutdownHook extends Thread {
 		launchCommands.add( System.getProperty( "user.dir" ) );
 		launchCommands.addAll( ProcessCommands.forModule( program.getProgramParameters() ) );
 		launchCommands.addAll( List.of( additionalParameters ) );
-		ucb.add( UpdateTask.LAUNCH, launchCommands ).line();
+		ucb.add( UpdateTask.LAUNCH, launchCommands );
 		//System.out.println( ucb.toString() );
 
 		try {
