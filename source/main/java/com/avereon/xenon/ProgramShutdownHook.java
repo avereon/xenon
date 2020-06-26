@@ -51,13 +51,16 @@ public class ProgramShutdownHook extends Thread {
 		this.additionalParameters = additionalParameters;
 		this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
 
-		try {
-			// Ensure the updater is staged...even if we have to wait
-			program.getUpdater().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
-			configure();
-		} catch( Exception exception ) {
-			log.log( Log.ERROR, "Error staging updater", exception );
+		if( mode == Mode.UPDATE || mode == Mode.MOCK_UPDATE ) {
+			try {
+				// Ensure the updater is staged...even if we have to wait
+				program.getUpdater().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
+			} catch( Exception exception ) {
+				log.log( Log.ERROR, "Error staging updater", exception );
+			}
 		}
+
+		configure();
 	}
 
 	private void configure() {

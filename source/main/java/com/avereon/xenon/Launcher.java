@@ -9,7 +9,7 @@ public class Launcher {
 		if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET ) ) {
 			new com.avereon.zenna.Program().start( commands );
 		} else if( parameters.isSet( ProgramFlag.UPDATE ) ) {
-			new com.avereon.zenna.Program().start( new Program().updateProgram( parameters ) );
+			new com.avereon.zenna.Program().start( new Program().getUpdateCommands( parameters ) );
 		} else {
 			Program.launch( commands );
 		}

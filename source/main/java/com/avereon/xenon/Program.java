@@ -636,21 +636,21 @@ public class Program extends Application implements ProgramProduct {
 	// EXCEPTIONS Handled by the FX framework
 	public void requestUpdate( ProgramShutdownHook.Mode mode, String... commands ) {
 		// Register a shutdown hook to update the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, mode, commands );
 		//try {
-		Runtime.getRuntime().addShutdownHook( programShutdownHook );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, mode, commands );
 		//		} catch( IOException exception ) {
 		//			String title = rb().text( BundleKey.UPDATE, "updates" );
 		//			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
 		//			getNoticeManager().addNotice( new Notice( title, message ) );
 		//			return;
 		//		}
+		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop
 		boolean exiting = requestExit( true );
 
 		if( exiting ) {
-			log.log( INFO, "Updating..." );
+			log.log( INFO, "Restarting to update..." );
 			// The shutdown hook should update the program
 		} else {
 			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
@@ -1062,7 +1062,7 @@ public class Program extends Application implements ProgramProduct {
 		programLogFolder = programDataFolder.resolve( "logs" );
 		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
 		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL, LogFlag.INFO ) );
-		Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL ) );
+		//Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL, LogFlag.WARN ) );
 	}
 
 	/**
@@ -1299,7 +1299,7 @@ public class Program extends Application implements ProgramProduct {
 		return productManager;
 	}
 
-	String[] updateProgram( com.avereon.util.Parameters parameters ) {
+	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
 		// Required to set values needed for:
 		// - the title of the progress window to have the product name
 		// - the updater to launch an elevated updater with the correct launcher name

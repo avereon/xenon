@@ -295,16 +295,11 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {
-		Platform.runLater( () -> {
-			Set<Tool> tools = getActiveWorkpaneTools( type );
-			tools.forEach( Tool::close );
-		} );
+		Platform.runLater( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
 	}
 
 	void hideWindows() {
-		for( Workspace workspace : getWorkspaces() ) {
-			workspace.getStage().hide();
-		}
+		getWorkspaces().forEach( workspace -> workspace.getStage().hide() );
 	}
 
 	private void closeWorkspace( Workspace workspace ) {
