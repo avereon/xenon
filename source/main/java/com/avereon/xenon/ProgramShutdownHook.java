@@ -99,7 +99,7 @@ public class ProgramShutdownHook extends Thread {
 		UpdaterLogic updater = program.getUpdater();
 		boolean mock = mode == Mode.MOCK_UPDATE;
 
-		List<String> updaterLaunchCommands = List.of( updater.getUpdaterLauncher().toString() );
+		List<String> updaterLaunchCommands = new ArrayList<>( List.of( updater.getUpdaterLauncher().toString() ) );
 		if( mock ) updaterLaunchCommands = ProcessCommands.forModule();
 
 		Path updaterFolder = updater.getUpdaterFolder();
