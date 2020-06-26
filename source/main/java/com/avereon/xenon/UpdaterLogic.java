@@ -23,8 +23,15 @@ public class UpdaterLogic {
 	UpdaterLogic( Program program ) throws IOException {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater-";
-		this.updaterFolder = FileUtil.createTempFolder( prefix );
-		this.updaterLauncher = updaterFolder.resolve( Paths.get( OperatingSystem.getJavaLauncherPath() ).relativize( program.getHomeFolder() ) );
+
+		if( Profile.DEV.equals( program.getProfile() ) ) {
+			String updaterTarget = "target/" + program.getCard().getArtifact() + "-updater";
+			this.updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
+			this.updaterLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
+		} else {
+			this.updaterFolder = FileUtil.createTempFolder( prefix );
+			this.updaterLauncher = updaterFolder.resolve( program.getHomeFolder().relativize( Paths.get( OperatingSystem.getJavaLauncherPath() ) ) );
+		}
 	}
 
 	public Program getProgram() {
@@ -36,10 +43,6 @@ public class UpdaterLogic {
 	}
 
 	public Path getUpdaterFolder() {
-		if( Profile.DEV.equals( program.getProfile() ) ) {
-			String updaterTarget = "target/" + program.getCard().getArtifact() + "-updater";
-			return Paths.get( System.getProperty( "user.dir" ), updaterTarget );
-		}
 		return updaterFolder;
 	}
 
@@ -58,7 +61,6 @@ public class UpdaterLogic {
 	 *
 	 * @param timeout How long to wait
 	 * @param unit The time unit
-	 *
 	 * @throws Exception If an error occurs
 	 */
 	@SuppressWarnings( "SameParameterValue" )

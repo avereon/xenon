@@ -5,7 +5,6 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
-import com.avereon.venza.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.asset.type.ProgramProductType;
@@ -691,7 +690,6 @@ public class ProductManagerLogic {
 		if( result.isPresent() ) {
 			if( result.get() == ButtonType.YES ) {
 				getProgram().getWorkspaceManager().requestCloseTools( ProductTool.class );
-				FxUtil.fxWaitIgnoreInterrupted( 500 );
 				getProgram().getProductManager().applyStagedUpdates();
 			} else if( result.get() == discard ) {
 				getProgram().getProductManager().clearStagedUpdates();
