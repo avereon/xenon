@@ -195,12 +195,16 @@ public class Program extends Application implements ProgramProduct {
 		time( "print-header" );
 
 		// Determine the program data folder, depends on program parameters
-		configureDataFolder();
+		programDataFolder = configureDataFolder();
 		time( "configure-data-folder" );
 
 		// Create the product resource bundle
 		programResourceBundle = new ProductBundle( this );
 		time( "resource-bundle" );
+
+		// Configure logging, depends on parameters and program data folder
+		configureLogging();
+		time( "configure-logging" );
 	}
 
 	// THREAD JavaFX-Launcher
@@ -211,10 +215,6 @@ public class Program extends Application implements ProgramProduct {
 		time( "init" );
 
 		config();
-
-		// Configure logging, depends on parameters and program data folder
-		configureLogging();
-		time( "configure-logging" );
 
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
@@ -1053,13 +1053,13 @@ public class Program extends Application implements ProgramProduct {
 		return profile == null ? "" : "-" + profile;
 	}
 
-	private void configureDataFolder() {
+	private Path configureDataFolder() {
 		String suffix = getProfileSuffix();
-		programDataFolder = OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
+		return OperatingSystem.getUserProgramDataFolder( card.getArtifact() + suffix, card.getName() + suffix );
 	}
 
 	private void configureLogging() {
-		programLogFolder = programDataFolder.resolve( "logs" );
+		programLogFolder = getDataFolder().resolve( "logs" );
 		Log.configureLogging( this, parameters, programLogFolder, "program.%u.log" );
 		Log.setPackageLogLevel( "com.avereon", parameters.get( LogFlag.LOG_LEVEL, LogFlag.INFO ) );
 		//Log.setPackageLogLevel( "javafx", parameters.get( LogFlag.LOG_LEVEL, LogFlag.WARN ) );
@@ -1105,8 +1105,8 @@ public class Program extends Application implements ProgramProduct {
 		// Set install folder on product card
 		card.setInstallFolder( programHomeFolder );
 
-		log.log( DEBUG, "Program home: " + programHomeFolder );
-		log.log( DEBUG, "Program data: " + programDataFolder );
+		log.log( DEBUG, "Program home: " + getHomeFolder() );
+		log.log( DEBUG, "Program data: " + getDataFolder() );
 	}
 
 	private Path getHomeFromLauncherPath() {
@@ -1303,6 +1303,7 @@ public class Program extends Application implements ProgramProduct {
 		// Required to set values needed for:
 		// - the title of the progress window to have the product name
 		// - the updater to launch an elevated updater with the correct launcher name
+		// - the proper location for the log file
 		config();
 
 		log.log( Log.WARN, "Starting the update process!" );
