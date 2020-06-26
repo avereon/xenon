@@ -29,6 +29,7 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zenna.UpdateFlag;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -74,7 +75,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final long programStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 
-	private ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
+	private final ProgramUncaughtExceptionHandler uncaughtExceptionHandler;
 
 	private com.avereon.util.Parameters parameters;
 
@@ -89,6 +90,8 @@ public class Program extends Application implements ProgramProduct {
 	private Path programDataFolder;
 
 	private Path programLogFolder;
+
+	private UpdaterLogic updater;
 
 	private Settings programSettings;
 
@@ -154,9 +157,8 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD main
 	// EXCEPTIONS Handled by the FX framework
-	public static void main( String[] commands ) {
-		time( "main" );
-		launch( commands );
+	public static void launch( String[] commands ) {
+		Application.launch( commands );
 	}
 
 	// THREAD JavaFX Application Thread
@@ -173,22 +175,16 @@ public class Program extends Application implements ProgramProduct {
 		time( "implicit-exit-false" );
 	}
 
-	// THREAD JavaFX-Launcher
-	// EXCEPTIONS Handled by the FX framework
-	@Override
-	public void init() throws Exception {
-		// NOTE Only do in init() what should be done before the splash screen is shown
-		time( "init" );
-
+	void config() {
 		// Add the uncaught exception handler to the JavaFX-Launcher thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
-		// Create the event hub
-		fxEventHub = new FxEventHub();
-
 		// Init the product card
-		card = new ProductCard().init( getClass() );
+		card = loadProductCard();
 		time( "card" );
+
+		// Set the custom launcher name
+		configureCustomLauncherName( card );
 
 		// Initialize the program parameters
 		parameters = initProgramParameters();
@@ -198,13 +194,23 @@ public class Program extends Application implements ProgramProduct {
 		printHeader( card, parameters );
 		time( "print-header" );
 
-		// Create the product resource bundle
-		programResourceBundle = new ProductBundle( this );
-		time( "resource-bundle" );
-
 		// Determine the program data folder, depends on program parameters
 		configureDataFolder();
 		time( "configure-data-folder" );
+
+		// Create the product resource bundle
+		programResourceBundle = new ProductBundle( this );
+		time( "resource-bundle" );
+	}
+
+	// THREAD JavaFX-Launcher
+	// EXCEPTIONS Handled by the FX framework
+	@Override
+	public void init() throws Exception {
+		// NOTE Only do in init() what should be done before the splash screen is shown
+		time( "init" );
+
+		config();
 
 		// Configure logging, depends on parameters and program data folder
 		configureLogging();
@@ -213,14 +219,6 @@ public class Program extends Application implements ProgramProduct {
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
 		time( "configure-home-folder" );
-
-		// Create the settings manager, depends on program data folder
-		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
-
-		// Create the program settings, depends on settings manager and default settings values
-		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.setDefaultValues( loadDefaultSettings() );
-		time( "program-settings" );
 
 		// Check for the VERSION CL parameter, depends on program settings
 		if( getProgramParameters().isSet( ProgramFlag.VERSION ) ) {
@@ -238,12 +236,26 @@ public class Program extends Application implements ProgramProduct {
 		}
 		time( "help-check" );
 
+		// Create the event hub
+		fxEventHub = new FxEventHub();
+
+		// Create the settings manager, depends on program data folder, FX event hub
+		settingsManager = configureSettingsManager( new SettingsManager( this ) ).start();
+
+		// Create the program settings, depends on settings manager and default settings values
+		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+		programSettings.setDefaultValues( loadDefaultSettings() );
+		time( "program-settings" );
+
 		// Run the peer check before processing actions in case there is a peer already
 		// If this instance is a peer, start the peer and wait to exit
 		int port = programSettings.get( "program-port", Integer.class, 0 );
 		if( !TestUtil.isTest() && peerCheck( port ) ) {
-			ProgramPeer peer = new ProgramPeer( this, port );
-			peer.start();
+			//			if( parameters.isSet( ProgramFlag.UPDATE ) ) {
+			//				log.log( Log.ERROR, "Cannot run update in peer mode" );
+			//			} else {
+			new ProgramPeer( this, port ).start();
+			//			}
 			requestExit( true );
 			return;
 		}
@@ -252,7 +264,7 @@ public class Program extends Application implements ProgramProduct {
 		// NOTE At this point this instance is a host not a peer
 
 		// If this instance is a host, process the control commands before showing the splash screen
-		if( processCliActions( getProgramParameters(), true ) ) {
+		if( !processCliActions( getProgramParameters(), true ) ) {
 			requestExit( true );
 			return;
 		}
@@ -410,6 +422,7 @@ public class Program extends Application implements ProgramProduct {
 		log.log( TRACE, "Starting product manager..." );
 		productManager.start();
 		productManager.startMods();
+		updater = new UpdaterLogic( this );
 		log.log( DEBUG, "Product manager started." );
 
 		// Restore the user interface, depends on workspace manager
@@ -606,8 +619,7 @@ public class Program extends Application implements ProgramProduct {
 
 	public void requestRestart( String... commands ) {
 		// Register a shutdown hook to restart the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
-		programShutdownHook.configureForRestart( commands );
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, ProgramShutdownHook.Mode.RESTART, commands );
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop.
@@ -622,18 +634,17 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	public void requestUpdate( boolean mock, String... restartCommands ) {
+	public void requestUpdate( ProgramShutdownHook.Mode mode, String... commands ) {
 		// Register a shutdown hook to update the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this );
-		try {
-			programShutdownHook.configureForUpdate( mock, restartCommands );
-			Runtime.getRuntime().addShutdownHook( programShutdownHook );
-		} catch( IOException exception ) {
-			String title = rb().text( BundleKey.UPDATE, "updates" );
-			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
-			getNoticeManager().addNotice( new Notice( title, message ) );
-			return;
-		}
+		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, mode, commands );
+		//try {
+		Runtime.getRuntime().addShutdownHook( programShutdownHook );
+		//		} catch( IOException exception ) {
+		//			String title = rb().text( BundleKey.UPDATE, "updates" );
+		//			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
+		//			getNoticeManager().addNotice( new Notice( title, message ) );
+		//			return;
+		//		}
 
 		// Request the program stop
 		boolean exiting = requestExit( true );
@@ -650,11 +661,16 @@ public class Program extends Application implements ProgramProduct {
 		return requestExit( skipChecks, skipChecks );
 	}
 
+	@SuppressWarnings( "ConstantConditions" )
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
 
-		boolean shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, true );
-		boolean shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, false );
+		boolean shutdownVerify = true;
+		boolean shutdownKeepAlive = false;
+		if( programSettings != null ) {
+			shutdownVerify = programSettings.get( "shutdown-verify", Boolean.class, shutdownVerify );
+			shutdownKeepAlive = programSettings.get( "shutdown-keepalive", Boolean.class, shutdownKeepAlive );
+		}
 
 		// If the user desires, prompt to exit the program
 		if( !skipVerifyCheck && shutdownVerify ) {
@@ -747,6 +763,10 @@ public class Program extends Application implements ProgramProduct {
 		return programLogFolder;
 	}
 
+	public final UpdaterLogic getUpdater() {
+		return updater;
+	}
+
 	public final TaskManager getTaskManager() {
 		return taskManager;
 	}
@@ -828,6 +848,18 @@ public class Program extends Application implements ProgramProduct {
 		return defaultSettingsValues;
 	}
 
+	private ProductCard loadProductCard() {
+		try {
+			return new ProductCard().init( getClass() );
+		} catch( IOException exception ) {
+			throw new RuntimeException( exception );
+		}
+	}
+
+	private void configureCustomLauncherName( ProductCard card ) {
+		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
+	}
+
 	/**
 	 * Initialize the program parameters by converting the FX parameters object into a program parameters object.
 	 *
@@ -876,7 +908,7 @@ public class Program extends Application implements ProgramProduct {
 	 * Process program commands that affect the startup behavior of the product.
 	 *
 	 * @param parameters The command line parameters
-	 * @return True if the program should exit when it is a host
+	 * @return True if the program should continue to start when it is a host
 	 */
 	boolean processCliActions( com.avereon.util.Parameters parameters, boolean startup ) {
 		if( parameters.isSet( ProgramFlag.HELLO ) ) {
@@ -885,30 +917,29 @@ public class Program extends Application implements ProgramProduct {
 			} else {
 				log.log( WARNING, "Hello peer. Good to hear from you!" );
 			}
-			return true;
+			return false;
 		} else if( parameters.isSet( ProgramFlag.STATUS ) ) {
 			printStatus( startup );
-			return true;
+			return false;
 		} else if( parameters.isSet( ProgramFlag.STOP ) ) {
 			if( startup ) {
 				if( isHost() ) log.log( WARNING, "Program is already stopped!" );
 			} else {
 				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
 			}
-			return true;
+			return false;
 		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {
 			if( startup ) {
 				log.log( WARNING, "No existing host to watch, I'm out!" );
 			} else {
 				log.log( WARNING, "A watcher has connected!" );
 			}
-			return true;
+			return false;
 		} else if( !parameters.anySet( ProgramFlag.QUIET_ACTIONS ) ) {
 			if( !startup ) getWorkspaceManager().showActiveWorkspace();
-			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	//	/**
@@ -1042,22 +1073,26 @@ public class Program extends Application implements ProgramProduct {
 	 */
 	private void configureHomeFolder( com.avereon.util.Parameters parameters ) {
 		try {
-			// If the HOME flag was specified on the command line use it.
+			// If the HOME flag was specified on the command line use it
 			if( programHomeFolder == null && parameters.isSet( ProgramFlag.HOME ) ) programHomeFolder = Paths.get( parameters.get( ProgramFlag.HOME ) );
 
-			// Apparently, when running a linked program, there is not a jdk.module.path system property
-			// The program home should be the java home when running as a linked application
-			boolean isLinked = System.getProperty( "jdk.module.path" ) == null;
-			if( programHomeFolder == null && isLinked ) programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
+			// Check the launcher path
+			if( programHomeFolder == null ) programHomeFolder = getHomeFromLauncherPath();
+
+			// When running as a linked (jlink) program, there is not a jdk.module.path system property.
+			// The java home can be used as the program home when running as a linked application.
+			if( programHomeFolder == null && System.getProperty( "jdk.module.path" ) == null ) {
+				programHomeFolder = Paths.get( System.getProperty( "java.home" ) );
+			}
 
 			// However, when in development, don't use the java home
-			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) && !isLinked ) programHomeFolder = Paths.get( "target/program" );
+			if( programHomeFolder == null && Profile.DEV.equals( getProfile() ) ) programHomeFolder = Paths.get( "target/program" );
 
 			// Use the user directory as a last resort (usually for unit tests)
 			if( programHomeFolder == null ) programHomeFolder = Paths.get( System.getProperty( "user.dir" ) );
 
-			// Canonicalize the home path.
-			if( programHomeFolder != null ) programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
+			// Canonicalize the home path
+			programHomeFolder = programHomeFolder.toFile().getCanonicalFile().toPath();
 
 			// Create the program home folder when in DEV mode
 			if( Profile.DEV.equals( getProfile() ) ) Files.createDirectories( programHomeFolder );
@@ -1072,6 +1107,26 @@ public class Program extends Application implements ProgramProduct {
 
 		log.log( DEBUG, "Program home: " + programHomeFolder );
 		log.log( DEBUG, "Program data: " + programDataFolder );
+	}
+
+	private Path getHomeFromLauncherPath() {
+		return getHomeFromLauncherPath( System.getProperty( "java.launcher.path" ) );
+	}
+
+	private Path getHomeFromLauncherPath( String launcherPath ) {
+		if( launcherPath == null ) return null;
+
+		Path path = Paths.get( launcherPath );
+		if( OperatingSystem.isWindows() ) {
+			return path;
+		} else if( OperatingSystem.isLinux() ) {
+			return path.getParent();
+		} else if( OperatingSystem.isMac() ) {
+			// FIXME Unchecked, may be incorrect. Please review on actual platform.
+			return path.getParent();
+		}
+
+		return null;
 	}
 
 	private void registerActionHandlers() {
@@ -1116,6 +1171,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "notice" ).pullAction( noticeAction );
 		getActionLibrary().getAction( "product" ).pullAction( productAction );
 		getActionLibrary().getAction( "update" ).pullAction( updateAction );
+		getActionLibrary().getAction( "mock-update" ).pullAction( mockUpdateAction );
 		getActionLibrary().getAction( "restart" ).pullAction( restartAction );
 		getActionLibrary().getAction( "wallpaper-toggle" ).pullAction( wallpaperToggleAction );
 		getActionLibrary().getAction( "wallpaper-prior" ).pullAction( wallpaperPriorAction );
@@ -1241,6 +1297,43 @@ public class Program extends Application implements ProgramProduct {
 		productManager.registerProgram( this );
 
 		return productManager;
+	}
+
+	String[] updateProgram( com.avereon.util.Parameters parameters ) {
+		// Required to set values needed for:
+		// - the title of the progress window to have the product name
+		// - the updater to launch an elevated updater with the correct launcher name
+		config();
+
+		log.log( Log.WARN, "Starting the update process!" );
+
+		// All the update commands should be in a file
+		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
+		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
+			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
+			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
+		}
+
+		// The progress window title
+		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+
+		// Force the location of the updater log file
+		String logFolder = PathUtil.getParent( Log.getLogFile() );
+		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
+
+		List<String> commands = new ArrayList<>();
+		commands.add( UpdateFlag.TITLE );
+		commands.add( updatingProgramText );
+		commands.add( UpdateFlag.FILE );
+		commands.add( parameters.get( ProgramFlag.UPDATE ) );
+		commands.add( ProgramFlag.LOG_FILE );
+		commands.add( logFile );
+		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
+			commands.add( LogFlag.LOG_LEVEL );
+			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
+		}
+
+		return commands.toArray( new String[]{} );
 	}
 
 	private void notifyProgramUpdated() {

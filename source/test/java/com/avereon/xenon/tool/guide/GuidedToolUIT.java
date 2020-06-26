@@ -29,16 +29,13 @@ public class GuidedToolUIT extends BaseToolUIT {
 	public void setup() throws Exception {
 		super.setup();
 
-		assertThat( workpane.getTools().size(), is( 0 ) );
+		assertToolCount( workpane, 0 );
 		assertThat( program.getAssetManager().getAssetTypes().size(), is( 11 ) );
 
 		assertNotNull( program.getAssetManager().getAssetType( "program:guide" ) );
 		MockAssetType assetType = new MockAssetType( program );
 		program.getAssetManager().addAssetType( assetType );
 
-		// FIXME The program asset types are not getting registered
-		// so when the MockGuidedTool tries to open, which opens the
-		// GuideTool...it doesn't.
 		ToolRegistration registration = new ToolRegistration( program, MockGuidedTool.class ).setName( "mock" ).setInstanceMode( ToolInstanceMode.SINGLETON );
 		program.getToolManager().registerTool( assetType, registration );
 		program.getAssetManager().openAsset( MockCodec.URI );
@@ -46,8 +43,8 @@ public class GuidedToolUIT extends BaseToolUIT {
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
-		assertThat( workpane.getTools().size(), is( 2 ) );
 		assertThat( workpane.getActiveTool(), instanceOf( MockGuidedTool.class ) );
+		assertToolCount( workpane, 2 );
 
 		mockGuidedTool = (MockGuidedTool)workpane.getActiveTool();
 		mockGuidedTool.reset();

@@ -40,7 +40,7 @@
 	<developers>
 		<developer>
 			<name>Mark Soderquist</name>
-			<email>mark@soderquist.net</email>
+			<email>mark@avereon.com</email>
 			<roles>
 				<role>Architect</role>
 			</roles>
@@ -108,11 +108,11 @@
 			<version>0.4-SNAPSHOT</version>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.apache.commons</groupId>-->
-<!--			<artifactId>commons-vfs2</artifactId>-->
-<!--			<version>2.6.0</version>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.apache.commons</groupId>-->
+		<!--			<artifactId>commons-vfs2</artifactId>-->
+		<!--			<version>2.6.0</version>-->
+		<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -266,9 +266,20 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.avereon.xenon.Program</mainClass>
+							<mainClass>com.avereon.xenon.Launcher</mainClass>
 						</manifest>
 					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<links>
+						<link>https://www.avereon.com/product/zenna/docs/api</link>
+						<link>https://www.avereon.com/product/zevra/docs/api</link>
+					</links>
 				</configuration>
 			</plugin>
 
@@ -279,7 +290,7 @@
 				<executions>
 					<execution>
 						<id>render-images</id>
-						<phase>prepare-package</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>render</goal>
 						</goals>
@@ -288,10 +299,17 @@
 								<image>
 									<class>com.avereon.xenon.image.InstallerBannerImage</class>
 									<target>${images-folder}/banner.png</target>
+									<theme>light</theme>
 								</image>
 								<image>
-									<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 									<target>${images-folder}/xenon.png</target>
+									<theme>dark</theme>
+								</image>
+								<image>
+									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<target>${images-folder}/xenon-light.png</target>
+									<theme>light</theme>
 								</image>
 							</images>
 							<icons>
@@ -299,31 +317,65 @@
 									<target>${images-folder}/xenon.ico</target>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>16</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>24</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>32</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>48</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>64</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>96</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.flat.XRingLargeIcon</class>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>128</size>
+										</image>
+									</images>
+								</icon>
+								<icon>
+									<target>${images-folder}/xenon-light.ico</target>
+									<theme>light</theme>
+									<images>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>16</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>24</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>32</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>48</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>64</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<size>96</size>
+										</image>
+										<image>
+											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
 											<size>128</size>
 										</image>
 									</images>
@@ -336,14 +388,55 @@
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<links>
-						<link>https://www.avereon.com/product/zenna/docs/api</link>
-						<link>https://www.avereon.com/product/zevra/docs/api</link>
-					</links>
-					<failOnError>false</failOnError>
-				</configuration>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.avereon</groupId>
+				<artifactId>curex</artifactId>
+				<version>1.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>patch-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>patch</goal>
+						</goals>
+						<configuration>
+							<modulePath>${project.build.directory}/dependency</modulePath>
+							<jars>
+								<jar>
+									<name>image4j*.jar</name>
+								</jar>
+								<jar>
+									<name>miglayout-core*.jar</name>
+								</jar>
+								<jar>
+									<name>miglayout-javafx*.jar</name>
+									<modules>
+										<module>javafx.base</module>
+										<module>javafx.graphics</module>
+										<module>javafx.controls</module>
+										<module>miglayout.core</module>
+									</modules>
+								</jar>
+							</jars>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
@@ -401,6 +494,7 @@
 				</plugins>
 			</build>
 		</profile>
+
 		<profile>
 			<id>testui</id>
 			<build>
@@ -462,63 +556,9 @@
 		</profile>
 
 		<profile>
-			<id>platform-specific-assemblies</id>
+			<id>assemblies</id>
 			<build>
 				<plugins>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.1</version>
-						<executions>
-							<execution>
-								<id>copy</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy-dependencies</goal>
-								</goals>
-								<configuration>
-									<includeScope>compile</includeScope>
-									<stripVersion>true</stripVersion>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<plugin>
-						<groupId>com.avereon</groupId>
-						<artifactId>curex</artifactId>
-						<version>1.0</version>
-						<executions>
-							<execution>
-								<id>patch-dependencies</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>patch</goal>
-								</goals>
-								<configuration>
-									<modulePath>${project.build.directory}/dependency</modulePath>
-									<jars>
-										<jar>
-											<name>image4j.jar</name>
-										</jar>
-										<jar>
-											<name>miglayout-core.jar</name>
-										</jar>
-										<jar>
-											<name>miglayout-javafx.jar</name>
-											<modules>
-												<module>javafx.base</module>
-												<module>javafx.graphics</module>
-												<module>javafx.controls</module>
-												<module>miglayout.core</module>
-											</modules>
-										</jar>
-									</jars>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
 
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
@@ -527,7 +567,7 @@
 						<executions>
 							<execution>
 								<id>jlink</id>
-								<phase>package</phase>
+								<phase>post-integration-test</phase>
 								<goals>
 									<goal>exec</goal>
 								</goals>
@@ -541,11 +581,11 @@
 										<argument>--output</argument>
 										<argument>${basedir}/target/jlink</argument>
 										<argument>--launcher</argument>
-										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Program</argument>
+										<argument>xenon=com.avereon.xenon/com.avereon.xenon.Launcher</argument>
 										<argument>--ignore-signing-information</argument>
 										<argument>--no-header-files</argument>
 										<argument>--no-man-pages</argument>
-										<!-- Valid value: 0, 1, 2 -->
+										<argument>--strip-debug</argument>
 										<argument>--compress</argument>
 										<argument>2</argument>
 									</arguments>
@@ -557,6 +597,21 @@
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<executions>
+							<!-- Assemble the product pack -->
+							<execution>
+								<id>assembly-product</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<finalName>product</finalName>
+									<descriptorRefs>
+										<descriptorRef>product-${product.platform}</descriptorRef>
+									</descriptorRefs>
+									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
+								</configuration>
+							</execution>
 							<!-- Assemble the installer files -->
 							<execution>
 								<id>assembly-install</id>
@@ -655,6 +710,107 @@
 									<installFile>${basedir}/target/main/izpack/installer.xml</installFile>
 									<baseDir>${project.build.directory}</baseDir>
 									<finalName>install</finalName>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>packs</id>
+			<build>
+				<plugins>
+
+					<!-- Copy jpackage option files -->
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>jpackage-option-files</id>
+								<!-- This can be put back to post-integration-test once assemblies profiles is removed -->
+								<phase>package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<encoding>UTF-8</encoding>
+									<resources>
+										<resource>
+											<directory>${basedir}/source/main/jpackage</directory>
+											<filtering>true</filtering>
+											<excludes>
+												<exclude>bin</exclude>
+											</excludes>
+										</resource>
+									</resources>
+									<outputDirectory>${basedir}/target/main/jpackage</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- MacOS does not allow -SNAPSHOT in version -->
+					<!-- MacOS requires version strings can consist of only numbers and up to two dots -->
+					<!-- Windows does not allow -SNAPSHOT in version -->
+					<!-- Windows requires version format z.y.x.w https://docs.microsoft.com/en-us/windows/win32/msi/version -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.5.0</version>
+						<executions>
+							<execution>
+								<id>jpackage-product-pack</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jpackage</executable>
+									<arguments>
+										<argument>@${basedir}/target/main/jpackage/app.options</argument>
+										<argument>@${basedir}/target/main/jpackage/product-pack-common.options</argument>
+										<argument>@${basedir}/target/main/jpackage/product-pack-${product.platform}.options</argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>jpackage-install-pack</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${java.home}/bin/jpackage</executable>
+									<arguments>
+										<argument>@${basedir}/target/main/jpackage/app.options</argument>
+										<argument>@${basedir}/target/main/jpackage/install-pack-common.options</argument>
+										<argument>@${basedir}/target/main/jpackage/install-pack-${product.platform}.options</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<executions>
+							<!-- Assemble the product pack -->
+							<execution>
+								<!-- Must match execution id parent pom -->
+								<id>assembly-product</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<finalName>product</finalName>
+									<descriptorRefs>
+										<descriptorRef>product-${product.platform}</descriptorRef>
+									</descriptorRefs>
+									<ignoreMissingDescriptor>true</ignoreMissingDescriptor>
 								</configuration>
 							</execution>
 						</executions>

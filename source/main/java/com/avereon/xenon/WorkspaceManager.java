@@ -132,7 +132,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program );
-		log.log( Log.WARN, "workspace-id=" + id );
 		workspace.setUid( id );
 		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
@@ -223,7 +222,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	 * @return False if the user chooses to cancel the operation
 	 */
 	public boolean handleModifiedAssets( ProgramScope scope, Set<Asset> assets ) {
-		log.log( Log.WARN, "Modified asset count: " + assets.size() );
 		if( assets.isEmpty() ) return true;
 
 		boolean autoSave = getProgram().getProgramSettings().get( "shutdown-autosave", Boolean.class, false );

@@ -64,6 +64,8 @@ public class ActionLibrary {
 		register( bundle, "statusbar-show" );
 		register( bundle, "settings" );
 
+		register( bundle, "tools" );
+
 		register( bundle, "help" );
 		register( bundle, "help-content" );
 		register( bundle, "welcome" );

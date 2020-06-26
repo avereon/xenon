@@ -71,24 +71,11 @@
  ******************************************************************************/
 .xe-icon {
 	-fx-stroke: -fx-text-base-color;
-	-fx-accent-color: -fx-accent;
-	-xe-stroke-width: 0.125; /* 4/32 */
+	-fx-primary: -fx-accent;
 }
 
 .menu-item:hover .xe-icon, .menu-item:focused .xe-icon {
 	-fx-stroke: -fx-focused-text-base-color;
-}
-
-/* DEPRECATED */
-.xe-icon-old {
-	-xe-theme-color: #c0c0c0;
-	-xe-outline-width: 0.03125; /* 1/32 */
-	-xe-outline-paint: ladder(
-		-fx-text-background-color,
-		derive(-xe-theme-color, -50%) 50%,
-		derive(-xe-theme-color, 50%) 50%
-	);
-
 }
 
 /*******************************************************************************

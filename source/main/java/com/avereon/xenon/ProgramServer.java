@@ -51,7 +51,7 @@ public class ProgramServer implements Controllable<ProgramServer> {
 			int localPort = server.getLocalPort();
 			programSettings.set( "program-port", localPort );
 			programSettings.flush();
-			log.log( Log.DEBUG,  "Program server listening on port " + localPort );
+			log.log( Log.DEBUG,  "Program server started on port " + localPort );
 
 			Thread serverThread = new Thread( handler = new SocketHandler(), "ProgramServerThread" );
 			serverThread.setDaemon( true );

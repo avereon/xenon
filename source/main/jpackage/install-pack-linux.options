@@ -1,0 +1,5 @@
+--type deb
+--app-version "${project.version}"
+--icon "${basedir}/target/main/images/${project.artifactId}.png"
+--linux-shortcut
+--linux-package-name "${project.artifactId}"

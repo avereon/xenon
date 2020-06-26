@@ -1,0 +1,2 @@
+--icon "${basedir}/target/main/images/${project.artifactId}.ico"
+--app-version "1.3"

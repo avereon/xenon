@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.rossa.icon.flat.XRingLargeIcon;
+import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.util.Log;
 import com.avereon.venza.image.RenderedImage;
 import javafx.scene.Scene;

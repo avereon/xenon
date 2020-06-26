@@ -8,10 +8,7 @@ import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
 import com.avereon.venza.event.FxEventHub;
-import com.avereon.xenon.BundleKey;
-import com.avereon.xenon.Mod;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramFlag;
+import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
@@ -600,7 +597,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// If updates are staged, apply them.
 		int updateCount = getStagedUpdateCount();
 		if( updateCount > 0 ) {
-			log.log( Log.INFO, "Staged updates detected: {}", updateCount );
+			log.log( Log.INFO, "Staged updates detected: {0}", updateCount );
 			try {
 				applyStagedUpdatesAtStart();
 			} catch( Exception exception ) {
@@ -616,7 +613,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 */
 	public void applyStagedUpdatesAtStart() {
 		int stagedUpdateCount = getStagedUpdateCount();
-		log.log( Log.INFO, "Staged update count: " + stagedUpdateCount );
+		log.log( Log.INFO, "Staged update count: {0}", stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
 		if( getProgram().isUpdateInProgress() ) {
@@ -624,6 +621,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			clearStagedUpdates();
 		} else {
 			new ProductManagerLogic( getProgram() ).notifyUpdatesReadyToApply( false );
+			getProgram().getUpdater().stageUpdater();
 		}
 	}
 
@@ -681,6 +679,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return staged;
 	}
 
+	// THREAD TaskPool-worker
 	void setStagedUpdates( Collection<ProductUpdate> updates ) {
 		Map<String, ProductUpdate> updateMap = new ConcurrentHashMap<>();
 
@@ -688,13 +687,14 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			updateMap.put( update.getCard().getProductKey(), update );
 		}
 
-		this.updates.clear();
+		//this.updates.clear();
 		this.updates.putAll( updateMap );
 
 		saveUpdates( this.updates );
+		getProgram().getUpdater().stageUpdater();
 	}
 
-	int getStagedUpdateCount() {
+	private int getStagedUpdateCount() {
 		return getStagedUpdates().size();
 	}
 
@@ -725,7 +725,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> getProgram().requestUpdate( false ) );
+		if( count > 0 ) Platform.runLater( () -> getProgram().requestUpdate( ProgramShutdownHook.Mode.UPDATE ) );
 
 		return count;
 	}
