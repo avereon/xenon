@@ -91,7 +91,7 @@ public class Program extends Application implements ProgramProduct {
 
 	private Path programLogFolder;
 
-	private UpdaterLogic updater;
+	private UpdateManager updateManager;
 
 	private Settings programSettings;
 
@@ -422,7 +422,7 @@ public class Program extends Application implements ProgramProduct {
 		log.log( TRACE, "Starting product manager..." );
 		productManager.start();
 		productManager.startMods();
-		updater = new UpdaterLogic( this );
+		updateManager = new UpdateManager( this );
 		log.log( DEBUG, "Product manager started." );
 
 		// Restore the user interface, depends on workspace manager
@@ -763,8 +763,8 @@ public class Program extends Application implements ProgramProduct {
 		return programLogFolder;
 	}
 
-	public final UpdaterLogic getUpdater() {
-		return updater;
+	public final UpdateManager getUpdateManager() {
+		return updateManager;
 	}
 
 	public final TaskManager getTaskManager() {

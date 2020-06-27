@@ -54,7 +54,7 @@ public class ProgramShutdownHook extends Thread {
 		if( mode == Mode.UPDATE || mode == Mode.MOCK_UPDATE ) {
 			try {
 				// Ensure the updater is staged...even if we have to wait
-				program.getUpdater().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
+				program.getUpdateManager().stageUpdaterAndWait( 10, TimeUnit.SECONDS );
 			} catch( Exception exception ) {
 				log.log( Log.ERROR, "Error staging updater", exception );
 			}
@@ -99,7 +99,7 @@ public class ProgramShutdownHook extends Thread {
 		//String updaterModuleMain = com.avereon.zenna.Program.class.getModule().getName();
 		//String updaterModuleMainClass = com.avereon.zenna.Program.class.getName();
 
-		UpdaterLogic updater = program.getUpdater();
+		UpdateManager updater = program.getUpdateManager();
 		boolean mock = mode == Mode.MOCK_UPDATE;
 
 		List<String> updaterLaunchCommands = new ArrayList<>( List.of( updater.getUpdaterLauncher().toString() ) );

@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-public class UpdaterLogic {
+public class UpdateManager {
 
 	private final Program program;
 
@@ -20,7 +20,7 @@ public class UpdaterLogic {
 
 	private StageUpdaterTask stageUpdaterTask;
 
-	UpdaterLogic( Program program ) throws IOException {
+	UpdateManager( Program program ) throws IOException {
 		this.program = program;
 		this.prefix = program.getCard().getArtifact() + "-updater-";
 

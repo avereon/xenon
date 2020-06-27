@@ -7,7 +7,6 @@ import com.avereon.xenon.task.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * This task makes a copy of the program in a temporary location to be used to
@@ -31,7 +30,7 @@ public class StageUpdaterTask extends Task<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		UpdaterLogic updater = getProgram().getUpdater();
+		UpdateManager updater = getProgram().getUpdateManager();
 
 		// Cleanup from prior updates
 		removePriorFolders( updater.getPrefix() );

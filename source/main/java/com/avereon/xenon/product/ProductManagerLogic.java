@@ -554,7 +554,7 @@ public class ProductManagerLogic {
 		}
 
 		getProgram().getTaskManager().submit( Task.of( "Store staged update settings", () -> getProgram().getProductManager().setStagedUpdates( stagedUpdates ) ) );
-		if( stagedUpdates.size() > 0 ) getProgram().getUpdater().stageUpdater();
+		if( stagedUpdates.size() > 0 ) getProgram().getUpdateManager().stageUpdater();
 
 		log.log( Log.DEBUG, "Product update count: " + stagedUpdates.size() );
 

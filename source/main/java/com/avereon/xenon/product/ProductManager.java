@@ -621,7 +621,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			clearStagedUpdates();
 		} else {
 			new ProductManagerLogic( getProgram() ).notifyUpdatesReadyToApply( false );
-			getProgram().getUpdater().stageUpdater();
+			getProgram().getUpdateManager().stageUpdater();
 		}
 	}
 
@@ -691,7 +691,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		this.updates.putAll( updateMap );
 
 		saveUpdates( this.updates );
-		getProgram().getUpdater().stageUpdater();
+		getProgram().getUpdateManager().stageUpdater();
 	}
 
 	private int getStagedUpdateCount() {
