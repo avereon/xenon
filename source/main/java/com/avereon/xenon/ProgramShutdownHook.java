@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.util.*;
 import com.avereon.xenon.product.ProductUpdate;
 import com.avereon.zenna.UpdateCommandBuilder;
+import com.avereon.zenna.UpdateFlag;
 import com.avereon.zenna.UpdateTask;
 
 import java.io.File;
@@ -41,8 +42,6 @@ public class ProgramShutdownHook extends Thread {
 	private final Path updateCommandFile;
 
 	private volatile ProcessBuilder builder;
-
-	private volatile UpdateCommandBuilder ucb;
 
 	ProgramShutdownHook( Program program, Mode mode, String... additionalParameters ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
@@ -83,38 +82,27 @@ public class ProgramShutdownHook extends Thread {
 
 	@SuppressWarnings( "UnusedReturnValue" )
 	private synchronized ProgramShutdownHook configureForUpdate() {
-		// In a development environment, what would the updater update?
-		// In development the program is not executed from a location that looks
-		// like the installed program location and therefore would not be a
-		// location to update. It might be worth "updating" a mock location to
-		// prove the logic, but restarting the application based on the initial
-		// start parameters would not start the program at the mock location.
+		UpdateManager manager = program.getUpdateManager();
 
-		//String modulePath = System.getProperty( "jdk.module.path" );
-		//String moduleMain = System.getProperty( "jdk.module.main" );
-		//String moduleMainClass = System.getProperty( "jdk.module.main.class" );
+		List<String> updaterLaunchCommands = new ArrayList<>( List.of( manager.getUpdaterLauncher().toString() ) );
+		Path updaterFolder = manager.getUpdaterFolder();
+		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
+		String logFolder = PathUtil.getParent( Log.getLogFile() );
+		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
 
-		// Linked programs do not have a module path
-		//String updaterModulePath = mock ? modulePath : null;
-		//String updaterModuleMain = com.avereon.zenna.Program.class.getModule().getName();
-		//String updaterModuleMainClass = com.avereon.zenna.Program.class.getName();
-
-		UpdateManager updater = program.getUpdateManager();
-		boolean mock = mode == Mode.MOCK_UPDATE;
-
-		List<String> updaterLaunchCommands = new ArrayList<>( List.of( updater.getUpdaterLauncher().toString() ) );
-		if( mock ) updaterLaunchCommands = ProcessCommands.forModule();
-
-		Path updaterFolder = updater.getUpdaterFolder();
-		if( mock ) updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
+		if( mode == Mode.MOCK_UPDATE ) {
+			updaterLaunchCommands = ProcessCommands.forModule();
+			updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
+		}
 
 		builder = new ProcessBuilder( updaterLaunchCommands );
 		builder.directory( updaterFolder.toFile() );
-
-		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
-
-		builder.command().add( ProgramFlag.UPDATE );
+		builder.command().add( UpdateFlag.TITLE );
+		builder.command().add( updatingProgramText );
+		builder.command().add( UpdateFlag.UPDATE );
 		builder.command().add( updateCommandFile.toString() );
+		builder.command().add( ProgramFlag.LOG_FILE );
+		builder.command().add( logFile );
 		if( program.getProgramParameters().isSet( LogFlag.LOG_LEVEL ) ) {
 			builder.command().add( ProgramFlag.LOG_LEVEL );
 			builder.command().add( program.getProgramParameters().get( LogFlag.LOG_LEVEL ) );
@@ -122,14 +110,27 @@ public class ProgramShutdownHook extends Thread {
 
 		log.log( Log.DEBUG, mode + " command: " + TextUtil.toString( builder.command(), " " ) );
 
-		ucb = new UpdateCommandBuilder();
-		ucb.add( UpdateTask.LOG, updatingProgramText );
+		try {
+			log.log( Log.TRACE, "Storing update commands..." );
+			Files.writeString( updateCommandFile, createUcb().toString() );
+			log.log( Log.DEBUG, "Update commands stored file=" + updateCommandFile );
+		} catch( Throwable throwable ) {
+			log.log( Log.ERROR, "Error storing update commands", throwable );
+		}
+
+		return this;
+	}
+
+	private UpdateCommandBuilder createUcb( ) {
+		boolean mock = mode == Mode.MOCK_UPDATE;
+		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
+		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 
 		if( mock ) {
 			ucb.add( UpdateTask.HEADER + " \"Preparing update\"" );
 			ucb.add( UpdateTask.PAUSE + " 500" );
 			ucb.add( UpdateTask.HEADER + " \"" + updatingProgramText + "\"" );
-			ucb.add( UpdateTask.PAUSE + " 2000 \"Simulating update\"" );
+			ucb.add( UpdateTask.PAUSE + " 1000 \"Simulating update\"" );
 			ucb.add( UpdateTask.HEADER + " \"Finishing update\"" );
 			ucb.add( UpdateTask.PAUSE + " 500" );
 		} else {
@@ -166,15 +167,7 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.LAUNCH, launchCommands );
 		//System.out.println( ucb.toString() );
 
-		try {
-			log.log( Log.TRACE, "Storing update commands..." );
-			Files.writeString( updateCommandFile, ucb.toString() );
-			log.log( Log.DEBUG, "Update commands stored file=" + updateCommandFile );
-		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error storing update commands", throwable );
-		}
-
-		return this;
+		return ucb;
 	}
 
 	@Override

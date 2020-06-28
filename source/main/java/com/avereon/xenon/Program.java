@@ -29,7 +29,6 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
-import com.avereon.zenna.UpdateFlag;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -1299,43 +1298,43 @@ public class Program extends Application implements ProgramProduct {
 		return productManager;
 	}
 
-	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
-		// Required to set values needed for:
-		// - the title of the progress window to have the product name
-		// - the updater to launch an elevated updater with the correct launcher name
-		// - the proper location for the log file
-		config();
-
-		log.log( Log.WARN, "Starting the update process!" );
-
-		// All the update commands should be in a file
-		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
-		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
-			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
-			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
-		}
-
-		// The progress window title
-		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
-
-		// Force the location of the updater log file
-		String logFolder = PathUtil.getParent( Log.getLogFile() );
-		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
-
-		List<String> commands = new ArrayList<>();
-		commands.add( UpdateFlag.TITLE );
-		commands.add( updatingProgramText );
-		commands.add( UpdateFlag.FILE );
-		commands.add( parameters.get( ProgramFlag.UPDATE ) );
-		commands.add( ProgramFlag.LOG_FILE );
-		commands.add( logFile );
-		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
-			commands.add( LogFlag.LOG_LEVEL );
-			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
-		}
-
-		return commands.toArray( new String[]{} );
-	}
+//	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
+//		// Required to set values needed for:
+//		// - the title of the progress window to have the product name
+//		// - the updater to launch an elevated updater with the correct launcher name
+//		// - the proper location for the log file
+//		config();
+//
+//		log.log( Log.WARN, "Starting the update process!" );
+//
+//		// All the update commands should be in a file
+//		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
+//		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
+//			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
+//			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
+//		}
+//
+//		// The progress window title
+//		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+//
+//		// Force the location of the updater log file
+//		String logFolder = PathUtil.getParent( Log.getLogFile() );
+//		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
+//
+//		List<String> commands = new ArrayList<>();
+//		commands.add( UpdateFlag.TITLE );
+//		commands.add( updatingProgramText );
+//		commands.add( UpdateFlag.FILE );
+//		commands.add( parameters.get( ProgramFlag.UPDATE ) );
+//		commands.add( ProgramFlag.LOG_FILE );
+//		commands.add( logFile );
+//		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
+//			commands.add( LogFlag.LOG_LEVEL );
+//			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
+//		}
+//
+//		return commands.toArray( new String[]{} );
+//	}
 
 	private void notifyProgramUpdated() {
 		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );

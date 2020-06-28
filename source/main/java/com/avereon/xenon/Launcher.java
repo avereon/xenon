@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.zenna.ElevatedFlag;
+import com.avereon.zenna.UpdateFlag;
 
 public class Launcher {
 
@@ -8,8 +9,8 @@ public class Launcher {
 		com.avereon.util.Parameters parameters = com.avereon.util.Parameters.parse( commands );
 		if( parameters.isSet( ElevatedFlag.CALLBACK_SECRET ) ) {
 			new com.avereon.zenna.Program().start( commands );
-		} else if( parameters.isSet( ProgramFlag.UPDATE ) ) {
-			new com.avereon.zenna.Program().start( new Program().getUpdateCommands( parameters ) );
+		} else if( parameters.isSet( UpdateFlag.UPDATE ) ) {
+			new com.avereon.zenna.Program().start( commands );
 		} else {
 			Program.launch( commands );
 		}
