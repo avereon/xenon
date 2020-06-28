@@ -19,7 +19,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@BeforeEach
 	@Override
-	public void setup() throws Exception {
+	protected void setup() throws Exception {
 		super.setup();
 		manager = new AssetManager( program );
 		manager.addScheme( new MockScheme( program ) );

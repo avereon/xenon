@@ -6,10 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCombination;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -194,7 +191,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public String getStateIcon( String id ) {
-		return stateMap.get( id ).getIcon();
+		return Optional.ofNullable( stateMap.get( id ) ).map( ActionState::getIcon ).orElse( null );
 	}
 
 	public String getStateAfter( String state ) {

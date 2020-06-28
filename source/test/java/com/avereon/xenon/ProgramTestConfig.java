@@ -3,7 +3,7 @@ package com.avereon.xenon;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface ProgramTest {
+public interface ProgramTestConfig {
 
 	static String[] getParameterValues() {
 		List<String> values = new ArrayList<>();
