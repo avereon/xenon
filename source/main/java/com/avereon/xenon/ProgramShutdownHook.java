@@ -137,16 +137,20 @@ public class ProgramShutdownHook extends Thread {
 				String key = update.getCard().getProductKey();
 				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
 				Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
+				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-delete" );
 
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String backupPath = backup.toString().replace( File.separator, "/" );
+				String deletePath = delete.toString().replace( File.separator, "/" );
 				String updateProductText = program.rb().textOr( BundleKey.UPDATE, "update", "Update {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updateProductText + "\"" );
-				ucb.add( UpdateTask.DELETE, backupPath );
+				ucb.add( UpdateTask.DELETE, deletePath );
+				ucb.add( UpdateTask.MOVE, backupPath, deletePath );
 				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
 				ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
+				ucb.add( UpdateTask.DELETE, deletePath );
 
 				if( update.getCard().equals( program.getCard() ) ) {
 					ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
