@@ -18,7 +18,7 @@ public class MockUpdateAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().requestUpdate( ProgramShutdownHook.Mode.MOCK_UPDATE );
+		getProgram().requestRestart( ProgramShutdownHook.Mode.MOCK_UPDATE );
 	}
 
 }

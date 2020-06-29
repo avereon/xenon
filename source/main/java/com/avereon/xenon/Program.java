@@ -609,41 +609,22 @@ public class Program extends Application implements ProgramProduct {
 		getFxEventHub().unregister( Event.ANY, watcher );
 	}
 
-	public void requestRestart( String... commands ) {
-		// Register a shutdown hook to restart the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, ProgramShutdownHook.Mode.RESTART, commands );
-		Runtime.getRuntime().addShutdownHook( programShutdownHook );
-
-		// Request the program stop.
-		if( !requestExit( true ) ) {
-			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
-			return;
-		}
-
-		// The shutdown hook should restart the program
-		log.log( INFO, "Restarting..." );
-	}
-
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	public void requestUpdate( ProgramShutdownHook.Mode mode, String... commands ) {
-		// Register a shutdown hook to update the program
-		//try {
+	public void requestRestart( ProgramShutdownHook.Mode mode, String... commands ) {
+		// Register a shutdown hook to restart the program
 		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, mode, commands );
-		//		} catch( IOException exception ) {
-		//			String title = rb().text( BundleKey.UPDATE, "updates" );
-		//			String message = rb().text( BundleKey.UPDATE, "update-stage-failure" );
-		//			getNoticeManager().addNotice( new Notice( title, message ) );
-		//			return;
-		//		}
 		Runtime.getRuntime().addShutdownHook( programShutdownHook );
 
 		// Request the program stop
 		boolean exiting = requestExit( true );
 
 		if( exiting ) {
-			log.log( INFO, "Restarting to update..." );
-			// The shutdown hook should update the program
+			if( !programShutdownHook.isConfigured() ) {
+				log.log( Log.ERROR, "The process builder is not configured correctly so no " + programShutdownHook.getMode() + " action will occur!" );
+			}
+			log.log( INFO, "Restarting..." );
+			// The shutdown hook should restart the program
 		} else {
 			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
 		}
@@ -1279,43 +1260,43 @@ public class Program extends Application implements ProgramProduct {
 		return productManager;
 	}
 
-//	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
-//		// Required to set values needed for:
-//		// - the title of the progress window to have the product name
-//		// - the updater to launch an elevated updater with the correct launcher name
-//		// - the proper location for the log file
-//		config();
-//
-//		log.log( Log.WARN, "Starting the update process!" );
-//
-//		// All the update commands should be in a file
-//		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
-//		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
-//			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
-//			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
-//		}
-//
-//		// The progress window title
-//		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
-//
-//		// Force the location of the updater log file
-//		String logFolder = PathUtil.getParent( Log.getLogFile() );
-//		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
-//
-//		List<String> commands = new ArrayList<>();
-//		commands.add( UpdateFlag.TITLE );
-//		commands.add( updatingProgramText );
-//		commands.add( UpdateFlag.FILE );
-//		commands.add( parameters.get( ProgramFlag.UPDATE ) );
-//		commands.add( ProgramFlag.LOG_FILE );
-//		commands.add( logFile );
-//		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
-//			commands.add( LogFlag.LOG_LEVEL );
-//			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
-//		}
-//
-//		return commands.toArray( new String[]{} );
-//	}
+	//	String[] getUpdateCommands( com.avereon.util.Parameters parameters ) {
+	//		// Required to set values needed for:
+	//		// - the title of the progress window to have the product name
+	//		// - the updater to launch an elevated updater with the correct launcher name
+	//		// - the proper location for the log file
+	//		config();
+	//
+	//		log.log( Log.WARN, "Starting the update process!" );
+	//
+	//		// All the update commands should be in a file
+	//		Path updateCommandFile = Paths.get( parameters.get( ProgramFlag.UPDATE ), "" );
+	//		if( !Files.exists( updateCommandFile ) || !Files.isRegularFile( updateCommandFile ) ) {
+	//			log.log( Log.WARN, "Missing update command file: " + updateCommandFile );
+	//			throw new IllegalArgumentException( "Missing update command file: " + updateCommandFile );
+	//		}
+	//
+	//		// The progress window title
+	//		String updatingProgramText = rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", getCard().getName() );
+	//
+	//		// Force the location of the updater log file
+	//		String logFolder = PathUtil.getParent( Log.getLogFile() );
+	//		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
+	//
+	//		List<String> commands = new ArrayList<>();
+	//		commands.add( UpdateFlag.TITLE );
+	//		commands.add( updatingProgramText );
+	//		commands.add( UpdateFlag.FILE );
+	//		commands.add( parameters.get( ProgramFlag.UPDATE ) );
+	//		commands.add( ProgramFlag.LOG_FILE );
+	//		commands.add( logFile );
+	//		if( parameters.isSet( LogFlag.LOG_LEVEL ) ) {
+	//			commands.add( LogFlag.LOG_LEVEL );
+	//			commands.add( parameters.get( LogFlag.LOG_LEVEL ) );
+	//		}
+	//
+	//		return commands.toArray( new String[]{} );
+	//	}
 
 	private void notifyProgramUpdated() {
 		Release prior = Release.decode( programSettings.get( PROGRAM_RELEASE_PRIOR, (String)null ) );

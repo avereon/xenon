@@ -66,6 +66,14 @@ public class ProgramShutdownHook extends Thread {
 		configure();
 	}
 
+	Mode getMode() {
+		return mode;
+	}
+
+	boolean isConfigured() {
+		return builder != null;
+	}
+
 	private void configure() {
 		if( this.mode == Mode.RESTART ) {
 			configureForRestart();
@@ -179,10 +187,9 @@ public class ProgramShutdownHook extends Thread {
 
 	@Override
 	public void run() {
-		if( builder == null ) {
-			log.log( Log.ERROR, "The process builder is null so no " + mode + " action will occur!" );
-			return;
-		}
+		// NOTE Because this is running as a shutdown hook, normal logging does not work
+
+		if( builder == null ) return;
 
 		try {
 			log.log( Log.INFO, "Starting " + mode + " process..." );
