@@ -752,6 +752,7 @@
 						</executions>
 					</plugin>
 
+					<!-- https://docs.oracle.com/en/java/javase/14/jpackage/support-application-features.html -->
 					<!-- MacOS does not allow -SNAPSHOT in version -->
 					<!-- MacOS requires version strings can consist of only numbers and up to two dots -->
 					<!-- Windows does not allow -SNAPSHOT in version -->
