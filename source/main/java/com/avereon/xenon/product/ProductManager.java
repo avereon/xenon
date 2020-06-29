@@ -668,7 +668,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			}
 		}
 
-		// Remove updates that cannot be found.
+		// Remove updates that cannot be found
 		if( remove.size() > 0 ) {
 			for( ProductUpdate update : remove ) {
 				updates.remove( update.getCard().getProductKey(), update );
@@ -679,6 +679,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return staged;
 	}
 
+	/**
+	 * Called when product updates have been staged and the collection of staged
+	 * updates needs to be updated.
+	 *
+	 * @param updates The collection of product updates that were staged
+	 */
 	// THREAD TaskPool-worker
 	void setStagedUpdates( Collection<ProductUpdate> updates ) {
 		Map<String, ProductUpdate> updateMap = new ConcurrentHashMap<>();
@@ -687,7 +693,6 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			updateMap.put( update.getCard().getProductKey(), update );
 		}
 
-		//this.updates.clear();
 		this.updates.putAll( updateMap );
 
 		saveUpdates( this.updates );
