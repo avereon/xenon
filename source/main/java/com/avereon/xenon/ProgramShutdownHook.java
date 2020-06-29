@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,6 +42,8 @@ public class ProgramShutdownHook extends Thread {
 
 	private final Path updateCommandFile;
 
+	private final Random random;
+
 	private volatile ProcessBuilder builder;
 
 	ProgramShutdownHook( Program program, Mode mode, String... additionalParameters ) {
@@ -49,6 +52,7 @@ public class ProgramShutdownHook extends Thread {
 		this.mode = mode;
 		this.additionalParameters = additionalParameters;
 		this.updateCommandFile = program.getLogFolder().resolve( "update.commands.txt" );
+		this.random = new Random();
 
 		if( mode == Mode.UPDATE || mode == Mode.MOCK_UPDATE ) {
 			try {
@@ -112,7 +116,7 @@ public class ProgramShutdownHook extends Thread {
 
 		try {
 			log.log( Log.TRACE, "Storing update commands..." );
-			Files.writeString( updateCommandFile, createUcb().toString() );
+			Files.writeString( updateCommandFile, createUcb() );
 			log.log( Log.DEBUG, "Update commands stored file=" + updateCommandFile );
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR, "Error storing update commands", throwable );
@@ -121,18 +125,21 @@ public class ProgramShutdownHook extends Thread {
 		return this;
 	}
 
-	private UpdateCommandBuilder createUcb( ) {
+	private String createUcb() {
 		boolean mock = mode == Mode.MOCK_UPDATE;
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
-		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 
 		if( mock ) {
-			ucb.add( UpdateTask.HEADER + " \"Preparing update\"" );
-			ucb.add( UpdateTask.PAUSE + " 500" );
-			ucb.add( UpdateTask.HEADER + " \"" + updatingProgramText + "\"" );
-			ucb.add( UpdateTask.PAUSE + " 1000 \"Simulating update\"" );
-			ucb.add( UpdateTask.HEADER + " \"Finishing update\"" );
-			ucb.add( UpdateTask.PAUSE + " 500" );
+			String[] names = new String[]{ program.getCard().getName(), "Mod W", "Mod X", "Mod Y", "Mod Z" };
+			for( String name : names ) {
+				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
+				int steps = name.equals( program.getCard().getName() ) ? 15 : 3;
+				steps += random.nextInt( 5 );
+				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
+				for( int step = 0; step < steps; step++ ) {
+					ucb.add( UpdateTask.PAUSE + " 10 \"Step " + (step + 1) + "\"" );
+				}
+			}
 		} else {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 				String key = update.getCard().getProductKey();
@@ -144,9 +151,9 @@ public class ProgramShutdownHook extends Thread {
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String backupPath = backup.toString().replace( File.separator, "/" );
 				String deletePath = delete.toString().replace( File.separator, "/" );
-				String updateProductText = program.rb().textOr( BundleKey.UPDATE, "update", "Update {0}", update.getCard().getName() );
+				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
-				ucb.add( UpdateTask.HEADER + " \"" + updateProductText + "\"" );
+				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
 				ucb.add( UpdateTask.DELETE, deletePath );
 				ucb.add( UpdateTask.MOVE, backupPath, deletePath );
 				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
@@ -167,7 +174,7 @@ public class ProgramShutdownHook extends Thread {
 		ucb.add( UpdateTask.LAUNCH, launchCommands );
 		//System.out.println( ucb.toString() );
 
-		return ucb;
+		return ucb.toString();
 	}
 
 	@Override
