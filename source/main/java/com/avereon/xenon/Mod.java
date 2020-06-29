@@ -6,7 +6,6 @@ import com.avereon.util.Log;
 import com.avereon.venza.image.RenderedIcon;
 import com.avereon.xenon.asset.AssetType;
 
-import java.io.IOException;
 import java.lang.System.Logger;
 import java.nio.file.Path;
 
@@ -33,11 +32,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	private ProductBundle resourceBundle;
 
 	public Mod() {
-		try {
-			card = new ProductCard().load( this );
-		} catch( IOException exception ) {
-			throw new RuntimeException( "Error loading product card: " + getClass().getName(), exception );
-		}
+		card = new ProductCard().jsonCard( this );
 	}
 
 	@Override
@@ -110,6 +105,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	/**
 	 * A convenience method to register an asset type.
+	 *
 	 * @param type
 	 * @return
 	 */

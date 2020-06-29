@@ -185,7 +185,7 @@ public class ProductManagerLogic {
 		downloads.keySet().forEach( ( r ) -> {
 			try {
 				log.log( Log.DEBUG, "Loading catalog card: " + r );
-				catalogs.put( r, CatalogCard.load( r, downloads.get( r ).get().getInputStream() ) );
+				catalogs.put( r, CatalogCard.fromJson( r, downloads.get( r ).get().getInputStream() ) );
 			} catch( Exception exception ) {
 				log.log( Log.ERROR, exception );
 			}
@@ -237,7 +237,7 @@ public class ProductManagerLogic {
 			repoDownloads.forEach( ( task ) -> {
 				Set<ProductCard> productSet = products.computeIfAbsent( repo, ( k ) -> new HashSet<>() );
 				try {
-					ProductCard product = new ProductCard().load( task.get().getInputStream(), task.get().getSource() );
+					ProductCard product = new ProductCard().fromJson( task.get().getInputStream(), task.get().getSource() );
 					productSet.add( product );
 					log.log( Log.INFO, "Product card loaded for " + product );
 				} catch( IOException | ExecutionException | InterruptedException exception ) {

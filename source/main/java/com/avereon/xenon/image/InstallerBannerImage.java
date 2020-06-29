@@ -21,7 +21,7 @@ public class InstallerBannerImage extends RenderedImage {
 		setHeight( 180 );
 
 		try {
-			card = new ProductCard().load( getClass() );
+			card = new ProductCard().jsonCard( getClass() );
 			providerUrl = new URL( card.getProviderUrl() );
 		} catch( Exception exception ) {
 			exception.printStackTrace();
