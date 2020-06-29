@@ -20,7 +20,8 @@ class ProgramConfig {
 		return card;
 	}
 
-	static void configureCustomLauncherName( ProductCard card ) {
+	static void configureCustomLauncherName() {
+		ProductCard card = loadProductCard();
 		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
 	}
 

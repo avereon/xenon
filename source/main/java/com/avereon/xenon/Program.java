@@ -188,9 +188,6 @@ public class Program extends Application implements ProgramProduct {
 		card = ProgramConfig.loadProductCard();
 		time( "card" );
 
-		// Set the custom launcher name
-		ProgramConfig.configureCustomLauncherName( card );
-
 		// Initialize the program parameters
 		parameters = initProgramParameters();
 		time( "parameters" );
