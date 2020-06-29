@@ -116,7 +116,7 @@ public class ProgramShutdownHook extends Thread {
 
 		try {
 			log.log( Log.TRACE, "Storing update commands..." );
-			Files.writeString( updateCommandFile, createUcb() );
+			Files.writeString( updateCommandFile, createUpdateCommands() );
 			log.log( Log.DEBUG, "Update commands stored file=" + updateCommandFile );
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR, "Error storing update commands", throwable );
@@ -125,7 +125,7 @@ public class ProgramShutdownHook extends Thread {
 		return this;
 	}
 
-	private String createUcb() {
+	private String createUpdateCommands() {
 		boolean mock = mode == Mode.MOCK_UPDATE;
 		UpdateCommandBuilder ucb = new UpdateCommandBuilder();
 
