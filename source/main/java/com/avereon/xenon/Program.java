@@ -174,16 +174,22 @@ public class Program extends Application implements ProgramProduct {
 		time( "implicit-exit-false" );
 	}
 
-	void config() {
+	// THREAD JavaFX-Launcher
+	// EXCEPTIONS Handled by the FX framework
+	@Override
+	public void init() throws Exception {
+		// NOTE Only do in init() what should be done before the splash screen is shown
+		time( "init" );
+
 		// Add the uncaught exception handler to the JavaFX-Launcher thread
 		Thread.currentThread().setUncaughtExceptionHandler( uncaughtExceptionHandler );
 
 		// Init the product card
-		card = loadProductCard();
+		card = ProgramConfig.loadProductCard();
 		time( "card" );
 
 		// Set the custom launcher name
-		configureCustomLauncherName( card );
+		ProgramConfig.configureCustomLauncherName( card );
 
 		// Initialize the program parameters
 		parameters = initProgramParameters();
@@ -204,16 +210,6 @@ public class Program extends Application implements ProgramProduct {
 		// Configure logging, depends on parameters and program data folder
 		configureLogging();
 		time( "configure-logging" );
-	}
-
-	// THREAD JavaFX-Launcher
-	// EXCEPTIONS Handled by the FX framework
-	@Override
-	public void init() throws Exception {
-		// NOTE Only do in init() what should be done before the splash screen is shown
-		time( "init" );
-
-		config();
 
 		// Configure home folder, depends on logging
 		configureHomeFolder( parameters );
@@ -845,18 +841,6 @@ public class Program extends Application implements ProgramProduct {
 		if( defaultSettingsInput != null ) properties.load( new InputStreamReader( defaultSettingsInput, TextUtil.CHARSET ) );
 		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
 		return defaultSettingsValues;
-	}
-
-	private ProductCard loadProductCard() {
-		try {
-			return new ProductCard().init( getClass() );
-		} catch( IOException exception ) {
-			throw new RuntimeException( exception );
-		}
-	}
-
-	private void configureCustomLauncherName( ProductCard card ) {
-		if( System.getProperty( "java.launcher.path" ) != null ) System.setProperty( "java.launcher.name", card.getName() );
 	}
 
 	/**
