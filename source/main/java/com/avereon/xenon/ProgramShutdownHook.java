@@ -191,8 +191,7 @@ public class ProgramShutdownHook extends Thread {
 		// Add parameters to restart program
 		List<String> launchCommands = new ArrayList<>();
 		launchCommands.add( System.getProperty( "user.dir" ) );
-		launchCommands.addAll( ProcessCommands.forModule( program.getProgramParameters() ) );
-		launchCommands.addAll( List.of( additionalParameters ) );
+		launchCommands.addAll( ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters ) );
 		ucb.add( UpdateTask.LAUNCH, launchCommands );
 		//System.out.println( ucb.toString() );
 
