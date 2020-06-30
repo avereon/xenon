@@ -103,7 +103,7 @@ public class ProgramShutdownHook extends Thread {
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
 
 		if( mode == Mode.MOCK_UPDATE ) {
-			updaterLaunchCommands = ProcessCommands.forModule();
+			updaterLaunchCommands = ProcessCommands.forLauncher();
 			updaterFolder = Paths.get( System.getProperty( "user.dir" ) );
 		}
 
@@ -141,11 +141,12 @@ public class ProgramShutdownHook extends Thread {
 			String[] names = new String[]{ program.getCard().getName(), "Mod W", "Mod X", "Mod Y", "Mod Z" };
 			for( String name : names ) {
 				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", name );
-				int steps = name.equals( program.getCard().getName() ) ? 15 : 3;
+				boolean isProgram = name.equals( program.getCard().getName() );
+				int steps = isProgram ? 15 : 3;
 				steps += random.nextInt( 5 );
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
 				for( int step = 0; step < steps; step++ ) {
-					ucb.add( UpdateTask.PAUSE + " 10 \"Step " + (step + 1) + "\"" );
+					ucb.add( (isProgram ? UpdateTask.ELEVATED_PAUSE : UpdateTask.PAUSE) + " 10 \"Step " + (step + 1) + "\"" );
 				}
 			}
 		} else {
