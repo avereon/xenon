@@ -84,7 +84,7 @@ public class ProgramShutdownHook extends Thread {
 
 	@SuppressWarnings( "UnusedReturnValue" )
 	private synchronized ProgramShutdownHook configureForRestart() {
-		List<String> commands = ProcessCommands.forModule( program.getProgramParameters(), additionalParameters );
+		List<String> commands = ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters );
 
 		builder = new ProcessBuilder( commands );
 		builder.directory( new File( System.getProperty( "user.dir" ) ) );
