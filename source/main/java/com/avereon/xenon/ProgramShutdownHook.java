@@ -158,10 +158,10 @@ public class ProgramShutdownHook extends Thread {
 				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-delete" );
 
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
-				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String unpackPath = unpack.toString().replace( File.separator, "/" );
-				String backupPath = backup.toString().replace( File.separator, "/" );
 				String deletePath = delete.toString().replace( File.separator, "/" );
+				String backupPath = backup.toString().replace( File.separator, "/" );
+				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
 				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
@@ -217,8 +217,6 @@ public class ProgramShutdownHook extends Thread {
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR, "Error restarting program", throwable );
 			throwable.printStackTrace( System.err );
-		} finally {
-			Log.flush();
 		}
 	}
 
