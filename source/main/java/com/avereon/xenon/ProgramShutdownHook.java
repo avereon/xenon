@@ -180,13 +180,11 @@ public class ProgramShutdownHook extends Thread {
 				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
 				// ...and move the unpacked product to the target path
 				ucb.add( UpdateTask.MOVE, unpackPath, targetPath );
+				// ...and update the program launcher
+				if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
 
 				// Cleanup
 				ucb.add( UpdateTask.DELETE, deletePath );
-
-				if( update.getCard().equals( program.getCard() ) ) {
-					ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
-				}
 			}
 		}
 
