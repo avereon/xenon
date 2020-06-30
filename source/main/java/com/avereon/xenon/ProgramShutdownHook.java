@@ -169,7 +169,7 @@ public class ProgramShutdownHook extends Thread {
 				// Make sure the unpack path is clear
 				ucb.add( UpdateTask.DELETE, unpackPath );
 				// ...and unpack the update
-				ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
+				ucb.add( UpdateTask.UNPACK, updatePath, unpackPath );
 
 				// Make sure the delete path is clear
 				ucb.add( UpdateTask.DELETE, deletePath );
