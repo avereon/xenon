@@ -3,7 +3,7 @@ package com.avereon.xenon.action;
 import com.avereon.util.Log;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramShutdownHook;
+import com.avereon.xenon.RestartHook;
 import javafx.event.ActionEvent;
 
 public class RestartAction extends Action {
@@ -20,7 +20,7 @@ public class RestartAction extends Action {
 	@Override
 	public void handle( ActionEvent event ) {
 		try {
-			getProgram().requestRestart( ProgramShutdownHook.Mode.RESTART );
+			getProgram().requestRestart( RestartHook.Mode.RESTART );
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR, "Error requesting restart", throwable );
 		}

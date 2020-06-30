@@ -730,7 +730,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> getProgram().requestRestart( ProgramShutdownHook.Mode.UPDATE ) );
+		if( count > 0 ) Platform.runLater( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
 
 		return count;
 	}

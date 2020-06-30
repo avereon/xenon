@@ -2,7 +2,7 @@ package com.avereon.xenon.action;
 
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramShutdownHook;
+import com.avereon.xenon.RestartHook;
 import javafx.event.ActionEvent;
 
 public class MockUpdateAction extends Action {
@@ -18,7 +18,7 @@ public class MockUpdateAction extends Action {
 
 	@Override
 	public void handle( ActionEvent event ) {
-		getProgram().requestRestart( ProgramShutdownHook.Mode.MOCK_UPDATE );
+		getProgram().requestRestart( RestartHook.Mode.MOCK_UPDATE );
 	}
 
 }

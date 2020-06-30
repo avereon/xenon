@@ -611,23 +611,8 @@ public class Program extends Application implements ProgramProduct {
 
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
-	public void requestRestart( ProgramShutdownHook.Mode mode, String... commands ) {
-		// Register a shutdown hook to restart the program
-		ProgramShutdownHook programShutdownHook = new ProgramShutdownHook( this, mode, commands );
-		Runtime.getRuntime().addShutdownHook( programShutdownHook );
-
-		// Request the program stop
-		boolean exiting = requestExit( true );
-
-		if( exiting ) {
-			if( !programShutdownHook.isConfigured() ) {
-				log.log( Log.ERROR, "The process builder is not configured correctly so no " + programShutdownHook.getMode() + " action will occur!" );
-			}
-			log.log( INFO, "Restarting..." );
-			// The shutdown hook should restart the program
-		} else {
-			Runtime.getRuntime().removeShutdownHook( programShutdownHook );
-		}
+	public void requestRestart( RestartHook.Mode mode, String... commands ) {
+		if( requestExit( true ) ) new RestartHook( this, mode, commands ).start();
 	}
 
 	public boolean requestExit( boolean skipChecks ) {

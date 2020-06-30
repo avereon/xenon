@@ -17,14 +17,13 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This shutdown hook is used when a program restart is requested. When a
- * restart is requested the program registers an instance of this shutdown
- * hook and stops the program, which triggers this shutdown hook to start
- * the program again.
+ * This thread is used when a program restart is requested. Similar to a
+ * shutdown hook, this thread is run as the program (not the JVM) is exiting,
+ * and allows the JVM to terminate.
  *
  * @author Mark Soderquist
  */
-public class ProgramShutdownHook extends Thread {
+public class RestartHook extends Thread {
 
 	public enum Mode {
 		RESTART,
@@ -46,7 +45,7 @@ public class ProgramShutdownHook extends Thread {
 
 	private volatile ProcessBuilder builder;
 
-	ProgramShutdownHook( Program program, Mode mode, String... additionalParameters ) {
+	RestartHook( Program program, Mode mode, String... additionalParameters ) {
 		super( program.getCard().getName() + " Shutdown Hook" );
 		this.program = program;
 		this.mode = mode;
@@ -66,14 +65,6 @@ public class ProgramShutdownHook extends Thread {
 		configure();
 	}
 
-	Mode getMode() {
-		return mode;
-	}
-
-	boolean isConfigured() {
-		return builder != null;
-	}
-
 	private void configure() {
 		if( this.mode == Mode.RESTART ) {
 			configureForRestart();
@@ -83,7 +74,7 @@ public class ProgramShutdownHook extends Thread {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	private synchronized ProgramShutdownHook configureForRestart() {
+	private synchronized RestartHook configureForRestart() {
 		List<String> commands = ProcessCommands.forLauncher( program.getProgramParameters(), additionalParameters );
 
 		builder = new ProcessBuilder( commands );
@@ -93,7 +84,7 @@ public class ProgramShutdownHook extends Thread {
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
-	private synchronized ProgramShutdownHook configureForUpdate() {
+	private synchronized RestartHook configureForUpdate() {
 		UpdateManager manager = program.getUpdateManager();
 
 		List<String> updaterLaunchCommands = new ArrayList<>( List.of( manager.getUpdaterLauncher().toString() ) );
@@ -205,17 +196,17 @@ public class ProgramShutdownHook extends Thread {
 		if( builder == null ) return;
 
 		try {
-			log.log( Log.INFO, "Starting " + mode + " process..." );
-			System.out.println( "Starting " + mode + " process..." );
+			log.log( Log.TRACE, "Starting " + mode + " process..." );
+			//System.out.println( "Starting " + mode + " process..." );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			builder.start();
 			log.log( Log.INFO, mode + " process started!" );
-			System.out.println( mode + " process started!" );
+			//System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
 			log.log( Log.ERROR, "Error restarting program", throwable );
-			throwable.printStackTrace( System.err );
+			//throwable.printStackTrace( System.err );
 		}
 	}
 
