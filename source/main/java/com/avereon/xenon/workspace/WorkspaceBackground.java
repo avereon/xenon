@@ -31,10 +31,6 @@ public class WorkspaceBackground extends StackPane {
 
 	private final Pane customTintPane;
 
-	private Path wallpaper;
-
-	private int imageIndex;
-
 	private Image image;
 
 	private String style;
@@ -102,18 +98,31 @@ public class WorkspaceBackground extends StackPane {
 
 	private boolean configureImagePane( Settings settings ) {
 		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
+
+		if( !imageEnabled ) {
+			imagePane.setBackground( null );
+			return false;
+		}
+
 		String imageFileString = settings.get( "workspace-scenery-image-file", "" );
 		String imagePathString = settings.get( "workspace-scenery-image-path", imageFileString );
 		String imageIndexString = settings.get( "workspace-scenery-image-index", "0" );
 		Path imagePath = FileUtil.findValidFolder( Paths.get( imagePathString ) );
 
+		// Determine the list of image files
 		List<Path> images;
 		try {
 			images = listImageFiles( imagePath );
 		} catch( IOException exception ) {
 			images = List.of();
 		}
+		if( images.size() == 0 ) {
+			imagePane.setBackground( null );
+			return false;
+		}
 
+		// Determine the image index
+		int imageIndex;
 		try {
 			imageIndex = Integer.parseInt( imageIndexString );
 		} catch( NumberFormatException exception ) {
@@ -121,18 +130,11 @@ public class WorkspaceBackground extends StackPane {
 		}
 		if( imageIndex < 0 | imageIndex > images.size() - 1 ) imageIndex = 0;
 
-		log.log( Log.DEBUG, "Images: count={0} index={1} path={2}", images.size(), imageIndex, imagePath );
-
-		image = null;
-		if( imageEnabled && imageIndex > -1 ) image = new Image( images.get( imageIndex ).toUri().toString() );
-
-		if( image == null ) {
-			imagePane.setBackground( null );
-			return false;
-		}
-
+		image = new Image( images.get( imageIndex ).toUri().toString() );
 		style = settings.get( "workspace-scenery-image-style", "fill" );
 		align = settings.get( "workspace-scenery-image-align", "center" );
+
+		log.log( Log.DEBUG, "Images: count={0} index={1} path={2}", images.size(), imageIndex, imagePath );
 
 		BackgroundImage background = null;
 		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );
