@@ -20,7 +20,11 @@
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
-	<description>A Java application platform for developing modular cross-platform applications.</description>
+	<description>
+		A modular productivity suite for cross-platform solutions. Xenon provides
+		the framework for Xenon mods that provide unique functionality for a variety
+		of work.
+	</description>
 	<inceptionYear>2017</inceptionYear>
 
 	<licenses>
