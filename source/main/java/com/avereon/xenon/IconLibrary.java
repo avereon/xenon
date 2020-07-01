@@ -5,8 +5,8 @@ import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.venza.image.BrokenIcon;
 import com.avereon.venza.image.ImageIcon;
-import com.avereon.venza.image.RenderedIcon;
 import com.avereon.venza.image.Images;
+import com.avereon.venza.image.RenderedIcon;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -114,6 +114,10 @@ public class IconLibrary {
 		register( "toggle-disabled", new ToggleIcon( false ) );
 	}
 
+	public final Program getProgram() {
+		return program;
+	}
+
 	public void register( String id, RenderedIcon icon ) {
 		icon.getProperties().put( "stylesheet", Program.STYLESHEET );
 		icons.put( id, icon );
@@ -154,11 +158,9 @@ public class IconLibrary {
 			if( icon == null ) icon = getIconFromUrl( id, size );
 			if( icon != null ) break;
 		}
-		if( icon == null ) {
-			return new BrokenIcon().resize( size );
-		} else {
-			return icon.copy().resize( size );
-		}
+		if( icon == null ) icon = new BrokenIcon();
+
+		return icon.copy().resize( size );
 	}
 
 	public Node getIcon( List<String> ids, String backupId, double size ) {
@@ -173,12 +175,10 @@ public class IconLibrary {
 
 	private RenderedIcon getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
-
-		ImageIcon icon = new ImageIcon( url );
-		icon.resize( size );
-		program.getTaskManager().submit( Task.of( "Load icon: " + url, icon.getPreloadRunner() ) );
-
-		return null;
+		ImageIcon icon = new ImageIcon( url ).resize( size );
+		String taskName = getProgram().rb().text( BundleKey.PROMPT, "load-icon", url );
+		program.getTaskManager().submit( Task.of( taskName, icon.getPreloadRunner() ) );
+		return icon;
 	}
 
 }
