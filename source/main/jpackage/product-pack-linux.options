@@ -1,2 +1,1 @@
 --icon "${basedir}/target/main/images/${project.artifactId}.png"
---app-version "${project.version}"
