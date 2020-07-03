@@ -8,12 +8,7 @@ public class MockScheme extends BaseScheme {
 	public static final String ID = "mock";
 
 	MockScheme( Program program ) {
-		super( program );
-	}
-
-	@Override
-	public String getName() {
-		return ID;
+		super( program, ID );
 	}
 
 	@Override

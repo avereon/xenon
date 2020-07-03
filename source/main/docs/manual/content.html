@@ -1,9 +1,9 @@
 <!--
 This is the Xenon user manual. It is formatted as a partial HTML document in
 order to be used with the DocViewer component on the Avereon website. The
-h1-h6 tags that are children of the root div element will be used as an outline
-when displayed and links are generated for the id attribute in the header. Note
-also that links are relative to the Avereon website or must be fully qualified.
+h1-h6 tags that are children of the root div element, and have an id, will be
+used as an outline when displayed. Note also that links are relative to the
+Avereon website or must be fully qualified.
 -->
 
 <div>
@@ -14,10 +14,10 @@ also that links are relative to the Avereon website or must be fully qualified.
 	<h2 id="getting-started">Getting Started</h2>
 
 	<p>
-		Welcome, and thank you for using Xenon, a simple application framework. Xenon
-		is a framework that provides services common to modern desktop applications
+		Welcome, and thank you for using Xenon. Xenon is a simple application
+		framework that provides services common to modern desktop applications
 		like selection tabs, dockable work area, notifications and many others. We
-		hope you find this program useful as you get to know its features and
+		hope you find the framework useful as you get to know its features and
 		capabilities. We particularly encourage you to <a href="/product/xenon/mods">
 		discover the mods</a> available for Xenon that provide capabilities to
 		accomplish all kinds of tasks.
@@ -67,7 +67,9 @@ also that links are relative to the Avereon website or must be fully qualified.
 			tools are available for that asset. If an asset type cannot be
 			determined then Xenon is unable to operate on that asset. Asset
 			types are also used to determine what tools can be used on a particular
-			asset.
+			asset. Asset types are very similar to media types as defined by IANA
+			(<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">https://www.iana.org/assignments/media-types/media-types.xhtml</a>)
+			and are usually associated directly with a media type.
 		</dd>
 	</dl>
 	<dl>

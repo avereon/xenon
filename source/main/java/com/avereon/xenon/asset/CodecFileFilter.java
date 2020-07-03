@@ -8,7 +8,7 @@ import java.nio.file.Path;
  */
 public class CodecFileFilter implements DirectoryStream.Filter<Path> {
 
-	private Codec codec;
+	private final Codec codec;
 
 	public CodecFileFilter( Codec codec ) {
 		this.codec = codec;
@@ -20,7 +20,7 @@ public class CodecFileFilter implements DirectoryStream.Filter<Path> {
 
 	@Override
 	public boolean accept( Path path ) {
-		return codec.isSupportedFileName( path.getFileName().toString() );
+		return codec.isSupported( Codec.Pattern.FILENAME, path.getFileName().toString() );
 	}
 
 }

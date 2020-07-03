@@ -2,24 +2,25 @@ package com.avereon.xenon.asset.type;
 
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.asset.AssetType;
-import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.asset.*;
 
 public class ProgramProductType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.product";
+	private static final String uriPattern = "program:product";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:product" );
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	public ProgramProductType( ProgramProduct product ) {
 		super( product, "product" );
+
+		PlaceholderCodec codec = new PlaceholderCodec();
+		codec.addSupported( Codec.Pattern.URI, uriPattern );
+		setDefaultCodec( codec );
 	}
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
 	@Override
@@ -28,19 +29,9 @@ public class ProgramProductType extends AssetType {
 	}
 
 	@Override
-	public boolean assetInit( Program program, Asset asset ) throws AssetException {
+	public boolean assetInit( Program program, Asset asset ) {
 		asset.setModel( program.getCard() );
 		return true;
-	}
-
-	/**
-	 * There are no codecs for this asset type so this method always returns null.
-	 *
-	 * @return null
-	 */
-	@Override
-	public Codec getDefaultCodec() {
-		return null;
 	}
 
 }

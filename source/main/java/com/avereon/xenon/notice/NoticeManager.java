@@ -8,8 +8,9 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramEvent;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.asset.type.ProgramFaultType;
+import com.avereon.xenon.asset.AssetManager;
 import com.avereon.xenon.asset.type.ProgramNoticeType;
+import com.avereon.xenon.scheme.FaultScheme;
 import com.avereon.xenon.task.TaskException;
 import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
@@ -18,6 +19,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import java.lang.System.Logger;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,7 +57,11 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	void fault( Object title, Object message, Throwable throwable, Notice.Type type, Object... parameters ) {
 		Notice notice = new Notice( title, message, throwable, parameters ).setType( type );
 		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
-		notice.setAction( () -> getProgram().getAssetManager().newAsset( ProgramFaultType.MEDIA_TYPE, throwable ) );
+		notice.setAction( () -> {
+			AssetManager manager = getProgram().getAssetManager();
+			URI uri = URI.create( FaultScheme.ID + ":" + System.identityHashCode( throwable ) );
+			manager.openAsset( uri, throwable );
+		} );
 		addNotice( notice );
 	}
 
@@ -82,7 +88,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void removeAll() {
-		getNoticeList().clearAll();
+		getNoticeList().removeAll();
 	}
 
 	public IntegerProperty unreadCountProperty() {
@@ -149,7 +155,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		return throwable.getLocalizedMessage();
 	}
 
-	private NoticeList getNoticeList() {
+	private NoticeModel getNoticeList() {
 		return asset.getModel();
 	}
 

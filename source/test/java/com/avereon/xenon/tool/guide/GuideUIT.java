@@ -1,9 +1,8 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.xenon.FxProgramUIT;
 import com.avereon.venza.javafx.FxUtil;
+import com.avereon.xenon.FxProgramUIT;
 import javafx.application.Platform;
-import javafx.scene.control.TreeItem;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,26 +46,26 @@ public class GuideUIT extends FxProgramUIT {
 	private Guide createGuide() {
 		Guide guide = new Guide();
 
-		TreeItem<GuideNode> general = new TreeItem<>( new GuideNode().init( "general", "General" ) );
-		general.getChildren().add( new TreeItem<>( new GuideNode().init( "shutdown", "Shutdown" ) ) );
-		general.getChildren().add( new TreeItem<>( new GuideNode().init( "security", "Security" ) ) );
-		general.getChildren().add( new TreeItem<>( new GuideNode().init( "updates", "Updates" ) ) );
+		GuideNode general = new GuideNode( program, "general", "General" );
+		GuideNode workspace = new GuideNode( program, "workspace", "Workspace" );
+		GuideNode network = new GuideNode( program, "network", "Network" );
+		GuideNode tools = new GuideNode( program, "tools", "Tools" );
 
-		TreeItem<GuideNode> workspace = new TreeItem<>( new GuideNode().init( "workspace", "Workspace" ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "theme", "Theme" ) ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "background", "Background" ) ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "task-monitor", "Task Monitor" ) ) );
-		workspace.getChildren().add( new TreeItem<>( new GuideNode().init( "memory-monitor", "Memory Monitor" ) ) );
+		guide.addNode( general );
+		guide.addNode( workspace );
+		guide.addNode( network );
+		guide.addNode( tools );
 
-		TreeItem<GuideNode> network = new TreeItem<>( new GuideNode().init( "network", "Network" ) );
-		network.getChildren().add( new TreeItem<>( new GuideNode().init( "proxy", "Proxy" ) ) );
+		guide.addNode( general, new GuideNode( program, "shutdown", "Shutdown" ) );
+		guide.addNode( general, new GuideNode( program, "security", "Security" ) );
+		guide.addNode( general, new GuideNode( program, "updates", "Updates" ) );
 
-		TreeItem<GuideNode> tools = new TreeItem<>( new GuideNode().init( "tools", "Tools" ) );
+		guide.addNode( workspace, new GuideNode( program, "theme", "Theme" ) );
+		guide.addNode( workspace, new GuideNode( program, "background", "Background" ) );
+		guide.addNode( workspace, new GuideNode( program, "task-monitor", "Task Monitor" ) );
+		guide.addNode( workspace, new GuideNode( program, "memory-monitor", "Memory Monitor" ) );
 
-		guide.getRoot().getChildren().add( general );
-		guide.getRoot().getChildren().add( workspace );
-		guide.getRoot().getChildren().add( network );
-		guide.getRoot().getChildren().add( tools );
+		guide.addNode( network, new GuideNode( program, "proxy", "Proxy" ) );
 
 		return guide;
 	}

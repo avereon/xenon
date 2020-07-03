@@ -5,9 +5,11 @@ import java.io.OutputStream;
 
 public class MockCodec extends Codec {
 
+	public static final java.net.URI URI = java.net.URI.create( "program:mock" );
+
 	static final String EXTENSION = "mock";
 
-	private String key;
+	private final String key;
 
 	MockCodec() {
 		this( null );
@@ -15,10 +17,13 @@ public class MockCodec extends Codec {
 
 	MockCodec( String key ) {
 		this.key = key;
-		addSupportedMediaType( "application/mock" );
-		addSupportedExtension( EXTENSION );
-		addSupportedFileName( "^.*\\." + EXTENSION + "$" );
-		addSupportedFirstLine( "?mock" );
+		addSupported( Pattern.URI, "mock:test" );
+		addSupported( Pattern.URI, "program:mock" );
+		addSupported( Pattern.SCHEME, "mock" );
+		addSupported( Pattern.MEDIATYPE, "application/mock" );
+		addSupported( Pattern.EXTENSION, EXTENSION );
+		addSupported( Pattern.FILENAME, "^.*\\." + EXTENSION + "$" );
+		addSupported( Pattern.FIRSTLINE, "?mock" );
 	}
 
 	@Override

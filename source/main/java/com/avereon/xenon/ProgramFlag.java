@@ -72,7 +72,7 @@ public interface ProgramFlag extends LogFlag {
 	String RESET = "--reset";
 
 	/**
-	 * Flags that a host will respond to without showing a hidden workspace.
+	 * Flags that a host will respond to without showing the program.
 	 */
 	Set<String> QUIET_ACTIONS = Set.of( HELLO, STATUS, STOP, WATCH );
 

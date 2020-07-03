@@ -3,12 +3,10 @@ package com.avereon.xenon;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
-import com.avereon.venza.image.ProgramIcon;
+import com.avereon.venza.image.RenderedIcon;
 import com.avereon.xenon.asset.AssetType;
 
 import java.lang.System.Logger;
-
-import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -34,11 +32,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	private ProductBundle resourceBundle;
 
 	public Mod() {
-		try {
-			card = new ProductCard().load( this );
-		} catch( IOException exception ) {
-			throw new RuntimeException( "Error loading product card: " + getClass().getName(), exception );
-		}
+		card = new ProductCard().jsonCard( this );
 	}
 
 	@Override
@@ -65,24 +59,23 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	/**
 	 * A convenience method to register an icon.
 	 *
-	 * @param id
-	 * @param icon
-	 * @param parameters
-	 * @return
+	 * @param id The icon id
+	 * @param icon The icon to register
+	 * @return the mod
 	 */
-	protected Mod registerIcon( String id, Class<? extends ProgramIcon> icon, Object... parameters ) {
-		getProgram().getIconLibrary().register( id, icon, parameters );
+	protected Mod registerIcon( String id, RenderedIcon icon ) {
+		getProgram().getIconLibrary().register( id, icon );
 		return this;
 	}
 
 	/**
 	 * A convenience method to unregister an icon.
 	 *
-	 * @param id
-	 * @param icon
-	 * @return
+	 * @param id The icon id
+	 * @param icon The icon to unregister
+	 * @return the mod
 	 */
-	protected Mod unregisterIcon( String id, Class<? extends ProgramIcon> icon ) {
+	protected Mod unregisterIcon( String id, RenderedIcon icon ) {
 		getProgram().getIconLibrary().unregister( id, icon );
 		return this;
 	}
@@ -112,6 +105,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	/**
 	 * A convenience method to register an asset type.
+	 *
 	 * @param type
 	 * @return
 	 */
@@ -141,6 +135,20 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	protected Mod registerTool( AssetType assetType, ToolRegistration metadata ) {
 		getProgram().getToolManager().registerTool( assetType, metadata );
 		return this;
+	}
+
+	/**
+	 * A convenience method to register a tool.
+	 *
+	 * @param product The program product providing the asset type and tool
+	 * @param assetType The asset type associated with the tool
+	 * @param toolClass The tool class
+	 * @return The tool registration
+	 */
+	protected ToolRegistration registerTool( ProgramProduct product, AssetType assetType, Class<? extends ProgramTool> toolClass ) {
+		ToolRegistration registration = new ToolRegistration( product, toolClass );
+		getProgram().getToolManager().registerTool( assetType, registration );
+		return registration;
 	}
 
 	/**

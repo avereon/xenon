@@ -7,7 +7,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.notice.NoticeList;
+import com.avereon.xenon.notice.NoticeModel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,26 +16,28 @@ import java.lang.System.Logger;
 
 public class ProgramNoticeType extends AssetType {
 
-	public static final String MEDIA_TYPE = "application/vnd.avereon.xenon.program.notice";
+	private static final String mediaTypePattern = "application/vnd.avereon.xenon.program.notice";
 
-	public static final java.net.URI URI = java.net.URI.create( "program:notice" );
+	private static final String uriPattern = "program:notice";
+
+	public static final java.net.URI URI = java.net.URI.create( uriPattern );
 
 	private static final Logger log = Log.get();
 
 	public ProgramNoticeType( ProgramProduct product ) {
 		super( product, "notice" );
-		setDefaultCodec( new NoticeCodec() );
+		setDefaultCodec( new ProgramNoticeCodec() );
 	}
 
 	@Override
 	public boolean assetInit( Program program, Asset asset ) throws AssetException {
-		asset.setModel( new NoticeList() );
+		asset.setModel( new NoticeModel() );
 		return true;
 	}
 
 	@Override
 	public String getKey() {
-		return MEDIA_TYPE;
+		return uriPattern;
 	}
 
 	@Override
@@ -43,7 +45,12 @@ public class ProgramNoticeType extends AssetType {
 		return false;
 	}
 
-	private class NoticeCodec extends Codec {
+	private static class ProgramNoticeCodec extends Codec {
+
+		public ProgramNoticeCodec() {
+			addSupported( Pattern.URI, uriPattern );
+			addSupported( Pattern.MEDIATYPE, mediaTypePattern );
+		}
 
 		@Override
 		public String getKey() {
@@ -67,7 +74,7 @@ public class ProgramNoticeType extends AssetType {
 
 		@Override
 		public void load( Asset asset, InputStream input ) throws IOException {
-			NoticeList notices = new NoticeList();
+			NoticeModel notices = new NoticeModel();
 
 			log.log( Log.TRACE,  "Load program notices..." );
 			// TODO How do I want to store the notices? In settings? In a folder as separate files? As a single file?
@@ -79,7 +86,7 @@ public class ProgramNoticeType extends AssetType {
 
 		@Override
 		public void save( Asset asset, OutputStream output ) throws IOException {
-			NoticeList notices = asset.getModel();
+			NoticeModel notices = asset.getModel();
 
 			log.log( Log.TRACE,  "Save program notices..." );
 

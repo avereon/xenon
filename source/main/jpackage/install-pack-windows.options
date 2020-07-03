@@ -1,0 +1,6 @@
+--type exe
+--icon "${basedir}/target/main/images/${project.artifactId}.ico"
+--win-menu
+--win-menu-group
+--win-shortcut
+--win-upgrade-uuid f9f30069-41d2-45b1-8622-766e064aad38

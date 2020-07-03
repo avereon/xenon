@@ -5,7 +5,6 @@ import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.venza.color.Colors;
 import com.avereon.venza.javafx.FxUtil;
-import com.avereon.xenon.action.WallpaperFileAction;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -14,8 +13,8 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkspaceBackground extends StackPane {
@@ -31,10 +30,6 @@ public class WorkspaceBackground extends StackPane {
 	private final Pane themeTintPane;
 
 	private final Pane customTintPane;
-
-	private Path wallpaper;
-
-	private int wallpaperIndex;
 
 	private Image image;
 
@@ -62,7 +57,19 @@ public class WorkspaceBackground extends StackPane {
 		getChildren().addAll( backPane, imagePane, tintPane );
 	}
 
-	void updateBackgroundFromSettings( Settings settings ) {
+	public static List<Path> listImageFiles( Path folder ) throws IOException {
+		List<Path> result = new ArrayList<>();
+		try( DirectoryStream<Path> stream = Files.newDirectoryStream( folder, "*.{gif,GIF,jpg,JPG,jpeg,JPEG,png,PNG}" ) ) {
+			for( Path entry : stream ) {
+				result.add( entry );
+			}
+		} catch( DirectoryIteratorException exception ) {
+			log.log( Log.ERROR, "Error listing image files", exception );
+		}
+		return result;
+	}
+
+	void updateFromSettings( Settings settings ) {
 		// Back layer
 		configureBackPane( settings );
 
@@ -91,35 +98,43 @@ public class WorkspaceBackground extends StackPane {
 
 	private boolean configureImagePane( Settings settings ) {
 		boolean imageEnabled = Boolean.parseBoolean( settings.get( "workspace-scenery-image-enabled", "false" ) );
+
+		if( !imageEnabled ) {
+			imagePane.setBackground( null );
+			return false;
+		}
+
 		String imageFileString = settings.get( "workspace-scenery-image-file", "" );
 		String imagePathString = settings.get( "workspace-scenery-image-path", imageFileString );
 		String imageIndexString = settings.get( "workspace-scenery-image-index", "0" );
 		Path imagePath = FileUtil.findValidFolder( Paths.get( imagePathString ) );
 
+		// Determine the list of image files
 		List<Path> images;
 		try {
-			images = WallpaperFileAction.listImageFiles( imagePath );
+			images = listImageFiles( imagePath );
 		} catch( IOException exception ) {
 			images = List.of();
 		}
-
-		try {
-			wallpaperIndex = Integer.parseInt( imageIndexString );
-		} catch( NumberFormatException exception ) {
-			wallpaperIndex = 0;
-		}
-		if( wallpaperIndex > images.size() - 1 ) wallpaperIndex = -1;
-
-		image = null;
-		if( imageEnabled && wallpaperIndex > -1 ) image = new Image( images.get( wallpaperIndex ).toUri().toString() );
-
-		if( image == null ) {
+		if( images.size() == 0 ) {
 			imagePane.setBackground( null );
 			return false;
 		}
 
+		// Determine the image index
+		int imageIndex;
+		try {
+			imageIndex = Integer.parseInt( imageIndexString );
+		} catch( NumberFormatException exception ) {
+			imageIndex = 0;
+		}
+		if( imageIndex < 0 | imageIndex > images.size() - 1 ) imageIndex = 0;
+
+		image = new Image( images.get( imageIndex ).toUri().toString() );
 		style = settings.get( "workspace-scenery-image-style", "fill" );
 		align = settings.get( "workspace-scenery-image-align", "center" );
+
+		log.log( Log.DEBUG, "Images: count={0} index={1} path={2}", images.size(), imageIndex, imagePath );
 
 		BackgroundImage background = null;
 		BackgroundPosition position = FxUtil.parseBackgroundPosition( align );

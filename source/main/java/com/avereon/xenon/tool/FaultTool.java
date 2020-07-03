@@ -17,7 +17,7 @@ public class FaultTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	private TextArea text;
+	private final TextArea text;
 
 	private EventHandler<ProgramEvent> closingHandler;
 
@@ -25,22 +25,24 @@ public class FaultTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-fault" );
 
-		setGraphic( product.getProgram().getIconLibrary().getIcon( "fault" ) );
-
 		text = new TextArea();
 		text.setId( "tool-fault-text" );
 		text.setEditable( false );
 
 		getChildren().addAll( text );
 
-		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> {
-			// Tasks have to finish before the program exists so this ensures the tool will close
-			getProgram().getTaskManager().submit( Task.of( "", this::close ) );
-		} );
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) {
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getAsset().getName() );
+		setGraphic( getProgram().getIconLibrary().getIcon( "fault" ) );
+		// Tasks have to finish before the program exits so this ensures the tool will close
+		getProgram().register( ProgramEvent.STOPPING, closingHandler = ( e ) -> getProgram().getTaskManager().submit( Task.of( "", this::close ) ) );
+	}
+
+	@Override
+	protected void open( OpenAssetRequest request ) {
 		Throwable throwable = getAsset().getModel();
 
 		if( throwable != null ) {

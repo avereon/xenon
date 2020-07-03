@@ -71,7 +71,7 @@ public class ThemeManager implements Controllable<ThemeManager> {
 	private void registerTheme( String id, String name, String stylesheet ) {
 		Path path = profileThemeFolder.resolve( stylesheet );
 		themes.put( id, new ThemeMetadata( id, name, path.toUri().toString() ) );
-		log.log( Log.DEBUG, "Theme registered: " + name );
+		log.log( Log.TRACE, "Theme registered: " + name );
 	}
 
 	private void reloadProfileThemes() {

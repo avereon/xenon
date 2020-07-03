@@ -21,8 +21,8 @@ public class WallpaperPriorAction extends WallpaperFileAction {
 	public void handle( ActionEvent event ) {
 		List<Path> files = listImageFiles();
 		int index = getImageIndex();
-		index++;
-		if( index > files.size() -1 ) index = 0;
+		index--;
+		if( index < 0 ) index = files.size() - 1;
 		setImageIndex( index );
 	}
 

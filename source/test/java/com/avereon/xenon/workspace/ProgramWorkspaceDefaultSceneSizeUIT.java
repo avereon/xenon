@@ -1,5 +1,6 @@
 package com.avereon.xenon.workspace;
 
+import com.avereon.xenon.UiFactory;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +13,8 @@ class ProgramWorkspaceDefaultSceneSizeUIT extends ProgramWorkspaceUIT {
 	void execute() {
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		assertThat( stage.isShowing(), is( true ) );
-		assertThat( stage.getScene().getWidth(), is( 960d ) );
-		assertThat( stage.getScene().getHeight(), is( 540d ) );
+		assertThat( stage.getScene().getWidth(), is( UiFactory.DEFAULT_WIDTH ) );
+		assertThat( stage.getScene().getHeight(), is( UiFactory.DEFAULT_HEIGHT ) );
 	}
 
 }

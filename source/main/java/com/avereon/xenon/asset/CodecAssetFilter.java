@@ -2,7 +2,7 @@ package com.avereon.xenon.asset;
 
 public class CodecAssetFilter implements AssetFilter {
 
-	private Codec codec;
+	private final Codec codec;
 
 	public CodecAssetFilter( Codec codec ) {
 		if( codec == null ) throw new NullPointerException( "Codec cannot be null" );
@@ -17,7 +17,7 @@ public class CodecAssetFilter implements AssetFilter {
 	@Override
 	public boolean accept( Asset asset ) {
 		if( asset == null ) return false;
-		return codec.isSupportedFileName( asset.getName() );
+		return codec.isSupported( Codec.Pattern.FILENAME, asset.getName() );
 	}
 
 }

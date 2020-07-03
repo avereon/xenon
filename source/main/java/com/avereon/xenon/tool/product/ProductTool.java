@@ -4,7 +4,6 @@ import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.product.ProductCardComparator;
 import com.avereon.util.Log;
-import com.avereon.xenon.IconLibrary;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
@@ -13,7 +12,6 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 
 import java.lang.System.Logger;
@@ -55,13 +53,9 @@ public class ProductTool extends GuidedTool {
 
 	public ProductTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		setId( "tool-product" );
 
 		Program program = getProgram();
-
-		setId( "tool-product" );
-		setGraphic( program.getIconLibrary().getIcon( "product" ) );
-		setTitle( product.rb().text( "tool", "product-name" ) );
-
 		installedPage = new InstalledPage( program, this );
 		availablePage = new AvailablePage( program, this );
 		updatesPage = new UpdatesPage( program, this );
@@ -85,47 +79,13 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		super.allocate();
-		log.log( Log.DEBUG,  "Product tool allocate" );
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "product-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "product" ) );
 	}
 
 	@Override
-	protected void display() throws ToolException {
-		log.log( Log.DEBUG,  "Product tool display" );
-		super.display();
-		checkInfo.updateInfo();
-	}
-
-	@Override
-	protected void activate() throws ToolException {
-		log.log( Log.DEBUG,  "Product tool activate" );
-		super.activate();
-	}
-
-	@Override
-	protected void deactivate() throws ToolException {
-		log.log( Log.DEBUG,  "Product tool deactivate" );
-		super.deactivate();
-	}
-
-	@Override
-	protected void conceal() throws ToolException {
-		log.log( Log.DEBUG,  "Product tool conceal" );
-		super.conceal();
-	}
-
-	@Override
-	protected void deallocate() throws ToolException {
-		log.log( Log.DEBUG,  "Product tool deallocate" );
-		super.deallocate();
-	}
-
-	@Override
-	protected void assetReady( OpenAssetRequest request ) {
-		log.log( Log.DEBUG,  "Product tool asset ready" );
-		super.assetReady( request );
-
+	protected void open( OpenAssetRequest request ) {
 		// TODO Can this be generalized in GuidedTool?
 		String pageId = request.getFragment();
 		if( pageId == null ) pageId = currentPageId;
@@ -134,8 +94,40 @@ public class ProductTool extends GuidedTool {
 	}
 
 	@Override
-	protected void assetRefreshed() {
-		log.log( Log.TRACE,  "Product tool asset refreshed" );
+	protected void allocate() throws ToolException {
+		super.allocate();
+		log.log( Log.DEBUG, "Product tool allocate" );
+	}
+
+	@Override
+	protected void display() throws ToolException {
+		log.log( Log.DEBUG, "Product tool display" );
+		super.display();
+		checkInfo.updateInfo();
+	}
+
+	@Override
+	protected void activate() throws ToolException {
+		log.log( Log.DEBUG, "Product tool activate" );
+		super.activate();
+	}
+
+	@Override
+	protected void deactivate() throws ToolException {
+		log.log( Log.DEBUG, "Product tool deactivate" );
+		super.deactivate();
+	}
+
+	@Override
+	protected void conceal() throws ToolException {
+		log.log( Log.DEBUG, "Product tool conceal" );
+		super.conceal();
+	}
+
+	@Override
+	protected void deallocate() throws ToolException {
+		log.log( Log.DEBUG, "Product tool deallocate" );
+		super.deallocate();
 	}
 
 	@Override
@@ -143,28 +135,19 @@ public class ProductTool extends GuidedTool {
 		if( this.guide != null ) return this.guide;
 
 		Guide guide = new Guide();
-		IconLibrary library = getProgram().getIconLibrary();
 		ProductBundle rb = getProduct().rb();
 
-		GuideNode installed = new GuideNode();
-		installed.setId( INSTALLED );
-		installed.setName( rb.text( "tool", "product-installed" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( installed, library.getIcon( "product" ) ) );
+		GuideNode installed = new GuideNode( getProgram(), INSTALLED, rb.text( "tool", "product-installed" ), "module" );
+		guide.addNode( installed );
 
-		GuideNode available = new GuideNode();
-		available.setId( AVAILABLE );
-		available.setName( rb.text( "tool", "product-available" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( available, library.getIcon( "product" ) ) );
+		GuideNode available = new GuideNode( getProgram(), AVAILABLE, rb.text( "tool", "product-available" ), "module" );
+		guide.addNode( available );
 
-		GuideNode updates = new GuideNode();
-		updates.setId( UPDATES );
-		updates.setName( rb.text( "tool", "product-updates" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( updates, library.getIcon( "product" ) ) );
+		GuideNode updates = new GuideNode( getProgram(), UPDATES, rb.text( "tool", "product-updates" ), "download" );
+		guide.addNode( updates );
 
-		GuideNode sources = new GuideNode();
-		sources.setId( SOURCES );
-		sources.setName( rb.text( "tool", "product-sources" ) );
-		guide.getRoot().getChildren().add( new TreeItem<>( sources, library.getIcon( "product" ) ) );
+		GuideNode sources = new GuideNode( getProgram(), SOURCES, rb.text( "tool", "product-sources" ), "market" );
+		guide.addNode( sources );
 
 		return this.guide = guide;
 	}

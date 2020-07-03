@@ -11,7 +11,7 @@ public abstract class BaseTestCase {
 	protected Program program;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	protected void setup() throws Exception {
 		// Be sure that the OperatingSystem class is properly set
 		OperatingSystem.reset();
 		program = new Program();

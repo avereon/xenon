@@ -2,41 +2,42 @@ package com.avereon.xenon.asset;
 
 import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
-import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.undo.BasicUndoManager;
-import com.avereon.undo.UndoManager;
+import com.avereon.undo.BasicUndoScope;
+import com.avereon.undo.UndoScope;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.util.UriUtil;
 import com.avereon.venza.event.FxEventHub;
+import com.avereon.xenon.scheme.NewScheme;
 
 import java.io.File;
 import java.lang.System.Logger;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
 public class Asset extends Node implements Configurable {
 
-	public static final int ASSET_READY_TIMEOUT = 10;
+	public static final Asset NONE = new Asset( URI.create( "program:none" ) );
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
 	public static final String SETTINGS_TYPE_KEY = "asset-type";
 
-	public static final String MEDIA_TYPE_ASSET_KEY = "asset.media.type";
+	public static final String MEDIA_TYPE_KEY = "asset.media.type";
 
-	public static final String FILE_NAME_ASSET_KEY = "asset.file.name";
-
-	public static final String FIRST_LINE_ASSET_KEY = "asset.first.line";
+	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 
 	// FIXME Is this the same value as SETTINGS_TYPE_KEY above?
 	private static final String TYPE_VALUE_KEY = "asset.type";
 
 	private static final String URI_VALUE_KEY = "asset.uri";
+
+	public static final String ICON_VALUE_KEY = "asset.icon";
 
 	private static final String SCHEME_VALUE_KEY = "asset.scheme";
 
@@ -61,7 +62,7 @@ public class Asset extends Node implements Configurable {
 	// Name is not stored in the node data, it is derived
 	private String name;
 
-	private UndoManager undoManager;
+	private UndoScope undoScope;
 
 	private FxEventHub eventBus;
 
@@ -73,21 +74,24 @@ public class Asset extends Node implements Configurable {
 
 	private volatile boolean saved;
 
+	private Asset parent;
+
 	// Ready to use flag. This indicates the asset is now ready to be used,
 	// particularly by tools. If the asset is new or has been loaded then the
 	// asset is "ready".
-	private volatile boolean ready;
+
+	//private volatile boolean ready;
 
 	public Asset( URI uri ) {
 		this( uri, null );
 	}
 
+	// Testing only
 	public Asset( String uri ) {
 		this( URI.create( uri ), null );
 	}
 
 	public Asset( URI uri, AssetType type ) {
-		if( uri == null ) throw new IllegalArgumentException( "Asset URI cannot be null" );
 		setUri( uri );
 		setType( type );
 
@@ -96,7 +100,7 @@ public class Asset extends Node implements Configurable {
 		eventBus = new FxEventHub().parent( super.getEventHub() );
 
 		// Create the undo manager
-		undoManager = new BasicUndoManager();
+		undoScope = new BasicUndoScope();
 	}
 
 	/**
@@ -108,8 +112,18 @@ public class Asset extends Node implements Configurable {
 
 	public void setUri( URI uri ) {
 		if( uri == null ) throw new NullPointerException( "The uri cannot be null." );
+		if( !uri.toString().equals( uri.normalize().toString() ) ) throw new IllegalArgumentException( "URI must be normalized" );
 		setValue( URI_VALUE_KEY, uri );
 		updateAssetName();
+	}
+
+	public String getIcon() {
+		return getValue( ICON_VALUE_KEY, "file" );
+	}
+
+	public Asset setIcon( String icon ) {
+		setValue( ICON_VALUE_KEY, icon );
+		return this;
 	}
 
 	public AssetType getType() {
@@ -145,7 +159,7 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public String getEncoding() {
-		return getValue( ENCODING_VALUE_KEY );
+		return getValue( ENCODING_VALUE_KEY, StandardCharsets.UTF_8.name() );
 	}
 
 	public void setEncoding( String encoding ) {
@@ -153,12 +167,13 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public String getMediaType() {
-		return getValue( MEDIA_TYPE_ASSET_KEY );
+		return getValue( MEDIA_TYPE_KEY, UNKNOWN_MEDIA_TYPE );
 	}
 
 	public void setMediaType( String mediaType ) {
-		setValue( MEDIA_TYPE_ASSET_KEY, mediaType );
+		setValue( MEDIA_TYPE_KEY, mediaType );
 	}
+
 	/**
 	 * Get the name of the asset. This returns the asset type name if the
 	 * URI is null, the entire URI if the path portion of the URI is null, or the
@@ -181,12 +196,17 @@ public class Asset extends Node implements Configurable {
 		if( uri.isOpaque() ) {
 			return uri.getSchemeSpecificPart();
 		} else {
-			return uri.getPath().substring( uri.getPath().lastIndexOf( '/' ) + 1 );
+			String path = uri.getPath();
+			//boolean isFolder = path.endsWith( "/" );
+			//if( isFolder ) path = path.substring( 0, path.length() - 1 );
+			return UriUtil.parseName( uri );
+
+			//return path.substring( uri.getPath().lastIndexOf( '/' ) + 1 );
 		}
 	}
 
-	public UndoManager getUndoManager() {
-		return undoManager;
+	public UndoScope getUndoScope() {
+		return undoScope;
 	}
 
 	public boolean isExternallyModified() {
@@ -227,7 +247,7 @@ public class Asset extends Node implements Configurable {
 	 * has not been saved yet. When it is saved, a URI will be associated to the
 	 * asset and it will be considered "old" from that point forward.
 	 * <p>
-	 * A asset is "old" if it is created with a URI. The asset type is
+	 * A asset is existing if it is created with a URI. The asset type is
 	 * determined when the asset is opened.
 	 *
 	 * @return If the asset is "new"
@@ -239,7 +259,7 @@ public class Asset extends Node implements Configurable {
 		// tool restored. In this case it should be restored with any prior
 		// temporary state that should have been saved. The asset is not new but
 		// it does not yet have a "real" URI.
-		return AssetScheme.ID.equals( getUri().getScheme() );
+		return NewScheme.ID.equals( getUri().getScheme() );
 	}
 
 	public synchronized final boolean isNewOrModified() {
@@ -258,8 +278,6 @@ public class Asset extends Node implements Configurable {
 
 		open = true;
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.OPENED, this ) );
-
-		if( isNew() ) setReady();
 	}
 
 	public synchronized final boolean isLoaded() {
@@ -284,13 +302,8 @@ public class Asset extends Node implements Configurable {
 		//   1) Get rid of the tool.assetReady() method any only use refresh
 		//   2) Make tool.assetReady() more tightly integrated with asset
 		//   3) Make asset.refresh() less tightly integrated with tool
-		setReady();
-		refresh();
+		//setReady();
 		notifyAll();
-	}
-
-	public synchronized final void refresh() {
-		if( ready ) getEventBus().dispatch( new AssetEvent( this, AssetEvent.REFRESHED, this ) );
 	}
 
 	public synchronized final boolean isSaved() {
@@ -325,17 +338,15 @@ public class Asset extends Node implements Configurable {
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.CLOSED, this ) );
 	}
 
-	public synchronized void callWhenReady( EventHandler<AssetEvent> handler ) {
-		if( ready ) {
-			handler.handle( new AssetEvent( this, AssetEvent.READY, this ) );
-		} else {
-			eventBus.register( AssetEvent.READY, handler );
-		}
-	}
-
 	public boolean exists() throws AssetException {
+		// NEXT Should the asset assume it exists if there is not a scheme to verify?
+		// TODO What about remote resources when there is NOT a connection possible?
+		// TODO What about remote resources when there IS a connection possible?
+
 		Scheme scheme = getScheme();
-		return scheme != null && scheme.exists( this );
+		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if exists" );
+		//log.log( Log.WARN, "NO SCHEME - Can't determine if the asset exists" );
+		return scheme == null || scheme.exists( this );
 	}
 
 	public boolean delete() throws AssetException {
@@ -348,6 +359,7 @@ public class Asset extends Node implements Configurable {
 	 */
 	public boolean isFolder() throws AssetException {
 		Scheme scheme = getScheme();
+		//if( scheme == null ) throw new IllegalStateException( "Unresolved scheme when checking if folder" );
 		return scheme != null && scheme.isFolder( this );
 	}
 
@@ -368,9 +380,19 @@ public class Asset extends Node implements Configurable {
 		return scheme == null ? null : scheme.listAssets( this );
 	}
 
-	public Asset getParent() {
-		// TODO Implement Asset.getParent()
-		return null;
+	Asset add( Asset child ) {
+		setValue( child.getUri().toString(), child );
+		return this;
+	}
+
+	public List<Asset> getChildren() throws AssetException {
+		Scheme scheme = getScheme();
+		return scheme.listAssets( this );
+	}
+
+	public long getSize() throws AssetException {
+		Scheme scheme = getScheme();
+		return scheme.getSize( this );
 	}
 
 	@Override
@@ -381,6 +403,20 @@ public class Asset extends Node implements Configurable {
 	@Override
 	public Settings getSettings() {
 		return settings;
+	}
+
+	@Override
+	public void dispatch( TxnEvent event ) {
+		//log.log( Log.WARN,  "Asset " + event.getEventType() + ": modified=" + isModified() );
+		super.dispatch( event );
+
+		if( getEventBus() == null ) return;
+
+		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
+		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
+			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
+		}
 	}
 
 	public FxEventHub getEventBus() {
@@ -408,10 +444,10 @@ public class Asset extends Node implements Configurable {
 		return isNew() ? assetTypeName : uri.toString();
 	}
 
-	private synchronized void setReady() {
-		if( ready ) return;
-		ready = true;
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.READY, this ) );
+	public String toUserString() {
+		String string = toString();
+		if( string.startsWith( "file:" ) ) string = string.substring( 5 );
+		return string;
 	}
 
 	private void updateAssetName() {
@@ -427,32 +463,17 @@ public class Asset extends Node implements Configurable {
 		if( name == null && TextUtil.isEmpty( path ) ) name = uri.toString();
 
 		// Get the name from the path
-		if( name == null && !TextUtil.isEmpty( path ) ) {
-			try {
-				if( isFolder() && path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
-			} catch( AssetException exception ) {
-				// Intentionally ignore exception
-			}
-			name = path.substring( path.lastIndexOf( '/' ) + 1 );
-		}
+		if( name == null && !TextUtil.isEmpty( path ) ) name = getFileName();
+		//		if( name == null && !TextUtil.isEmpty( path ) ) {
+		//			try {
+		//				if( isFolder() && path.endsWith( "/" ) ) path = path.substring( 0, path.length() - 1 );
+		//			} catch( AssetException exception ) {
+		//				// Intentionally ignore exception
+		//			}
+		//			name = path.substring( path.lastIndexOf( '/' ) + 1 );
+		//		}
 
 		this.name = name;
-	}
-
-	@Override
-	public void dispatch( TxnEvent event ) {
-		//log.log( Log.WARN,  "Asset " + event.getEventType() + ": modified=" + isModified() );
-		super.dispatch( event );
-
-		if( getEventBus() == null ) return;
-
-		if( event.getEventType() == NodeEvent.UNMODIFIED ) {
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.UNMODIFIED, Asset.this ) );
-		} else if( event.getEventType() == NodeEvent.MODIFIED ) {
-			getEventBus().dispatch( new AssetEvent( this, AssetEvent.MODIFIED, Asset.this ) );
-		} else if( event.getEventType() == NodeEvent.NODE_CHANGED ) {
-			refresh();
-		}
 	}
 
 }

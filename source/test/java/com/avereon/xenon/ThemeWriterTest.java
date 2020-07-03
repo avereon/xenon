@@ -47,7 +47,8 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( "  -fx-focus-color: #657DA0FF;" ) );
 		assertThat( lines.next(), is( "  -fx-faint-focus-color: #657DA040;" ) );
 		assertThat( lines.next(), is( "  -fx-selection-bar-non-focused: #D0D0D0;" ) );
-		assertThat( lines.next(), is( "  -ex-background-text: #CBC6A180;" ) );
+		assertThat( lines.next(), is( "  -ex-background-text: #CBC6A166;" ) );
+		assertThat( lines.next(), is( "  -ex-background-half: #CBC6A180;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tabs: #CBC6A199;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tags: #CBC6A1B2;" ) );
 		assertThat( lines.next(), is( "  -ex-background-note: #CBC6A1CC;" ) );
@@ -93,7 +94,8 @@ public class ThemeWriterTest {
 		assertThat( lines.next(), is( "  -fx-focus-color: #68685EFF;" ) );
 		assertThat( lines.next(), is( "  -fx-faint-focus-color: #68685E40;" ) );
 		assertThat( lines.next(), is( "  -fx-selection-bar-non-focused: #303030;" ) );
-		assertThat( lines.next(), is( "  -ex-background-text: #48566180;" ) );
+		assertThat( lines.next(), is( "  -ex-background-text: #48566166;" ) );
+		assertThat( lines.next(), is( "  -ex-background-half: #48566180;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tabs: #48566199;" ) );
 		assertThat( lines.next(), is( "  -ex-background-tags: #485661B2;" ) );
 		assertThat( lines.next(), is( "  -ex-background-note: #485661CC;" ) );

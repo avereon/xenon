@@ -3,6 +3,7 @@ package com.avereon.xenon.asset;
 import com.avereon.xenon.BaseTestCase;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.mod.MockMod;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -66,27 +67,39 @@ public class AssetTypeTest extends BaseTestCase {
 	}
 
 	@Test
+	void testGetCodecByUri() {
+		AssetType type = new MockAssetType( product );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.URI, "mock:test"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
+	}
+
+	@Test
+	void testGetCodecByScheme() {
+		AssetType type = new MockAssetType( product );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.SCHEME, "mock:test.mock"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
+	}
+
+	@Test
 	void testGetCodecByMediaType() {
 		AssetType type = new MockAssetType( product );
-		assertThat( type.getCodecByMediaType( "application/mock" ), is( type.getDefaultCodec() ) );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.MEDIATYPE, "application/mock"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
 	@Test
 	void testGetCodecByExtension() {
 		AssetType type = new MockAssetType( product );
-		assertThat( type.getCodecByExtension( "test.mock" ), is( type.getDefaultCodec() ) );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.EXTENSION, "test.mock"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
 	@Test
 	void testGetCodecByFileName() {
 		AssetType type = new MockAssetType( product );
-		assertThat( type.getCodecByFileName( "test.mock" ), is( type.getDefaultCodec() ) );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.FILENAME, "test.mock"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
 	@Test
 	void testGetCodecByFirstLine() {
 		AssetType type = new MockAssetType( product );
-		assertThat( type.getCodecByFirstLine( "?mock" ), is( type.getDefaultCodec() ) );
+		assertThat( type.getSupportedCodecs( Codec.Pattern.FIRSTLINE, "?mock"), Matchers.containsInAnyOrder( type.getDefaultCodec() ) );
 	}
 
 }

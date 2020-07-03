@@ -2,16 +2,16 @@ package com.avereon.xenon.scheme;
 
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetException;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.NullCodecException;
+import com.avereon.xenon.asset.*;
 
 import java.io.*;
 import java.lang.System.Logger;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileScheme extends BaseScheme {
@@ -25,13 +25,16 @@ public class FileScheme extends BaseScheme {
 	//private FileAssetWatcher assetWatcher;
 
 	public FileScheme( Program program ) {
-		super( program );
+		super( program, ID );
 		//assetWatcher = new FileAssetWatcher();
-	}
 
-	@Override
-	public String getName() {
-		return ID;
+		// NOTE Temporary
+		//	private FileSystemManager fsManager;
+		//		try {
+		//			fsManager = VFS.getManager();
+		//		} catch( FileSystemException e ) {
+		//			log.log( Log.ERROR, e );
+		//		}
 	}
 
 	@Override
@@ -42,33 +45,6 @@ public class FileScheme extends BaseScheme {
 	@Override
 	public boolean canSave( Asset asset ) throws AssetException {
 		return isSupported( asset ) && getFile( asset ).canWrite();
-	}
-
-	@Override
-	public void init( Asset asset ) throws AssetException {
-		super.init( asset );
-
-		File file = getFile( asset );
-		boolean folder = file.isDirectory();
-
-		//		// Set the asset display icon.
-		//		String iconName = "file";
-		//		if( folder ) iconName = "folder";
-		//		if( drive ) iconName = "drive";
-		//		asset.putAsset( FxUtil.DISPLAY_ICON, program.getIconLibrary().getIcon( iconName ) );
-		//
-		//		// Set the asset display name.
-		//		asset.putAsset( FxUtil.DISPLAY_NAME, fsv.getSystemDisplayName( file ) );
-		//
-		//		// Set the asset display description.
-		//		String description = fsv.getSystemTypeDescription( file );
-		//		if( folder && StringUtils.isEmpty( description ) ) description = ProductUtil.getString( program, BundleKey.LABELS, "folder" );
-		//		asset.putAsset( FxUtil.DISPLAY_DESC, description );
-	}
-
-	@Override
-	public void open( Asset asset ) throws AssetException {
-		super.open( asset );
 	}
 
 	@Override
@@ -184,16 +160,20 @@ public class FileScheme extends BaseScheme {
 
 		File file = getFile( asset );
 		File[] children = file.listFiles();
-
 		if( children == null ) return new ArrayList<>();
 
-		//		return program.getAssetManager().createAssets( (Object[])children );
-		return null;
+		return (List<Asset>)program.getAssetManager().createAssets( Arrays.asList( children ) );
 	}
 
 	@Override
 	public long getSize( Asset asset ) throws AssetException {
-		return getFile( asset ).length();
+		File file = getFile( asset );
+		if( file == null ) return -1;
+		if( file.isDirectory() ) {
+			File[] files = file.listFiles();
+			return files == null ? -1 : files.length;
+		}
+		return file.length();
 	}
 
 	@Override
@@ -201,6 +181,27 @@ public class FileScheme extends BaseScheme {
 		File file = getFile( asset );
 		//if( isFolder( asset ) || FileSystemView.getFileSystemView().isDrive( file ) ) throw new AssetException( asset, "Folders do not have a modified date." );
 		return file.lastModified();
+	}
+
+	@Override
+	public String getMediaType( Asset asset ) {
+		try {
+			File file = getFile( asset );
+			return Files.probeContentType( file.toPath() );
+		} catch( IOException | AssetException exception ) {
+			log.log( Log.WARN, "Error determining media type for asset", exception );
+			return StandardMediaTypes.APPLICATION_OCTET_STREAM;
+		}
+	}
+
+	@Override
+	public String getFirstLine( Asset asset ) {
+		try( FileInputStream input = new FileInputStream( getFile( asset ) ) ) {
+			return readFirstLine( input, asset.getEncoding() );
+		} catch( IOException | AssetException exception ) {
+			log.log( Log.WARN, "Error determining first line for asset", exception );
+			return TextUtil.EMPTY;
+		}
 	}
 
 	//	public void startAssetWatching() {
@@ -216,16 +217,14 @@ public class FileScheme extends BaseScheme {
 	 */
 	private File getFile( Asset asset ) throws AssetException {
 		File file = asset.getFile();
-		if( file != null ) return file;
 
-		// Get the canonical file.
-		try {
-			file = new File( asset.getUri() ).getCanonicalFile();
-		} catch( IOException exception ) {
-			throw new AssetException( asset, exception );
+		if( file == null ) {
+			try {
+				asset.setFile( file = new File( asset.getUri() ).getCanonicalFile() );
+			} catch( IOException exception ) {
+				throw new AssetException( asset, exception );
+			}
 		}
-
-		asset.setFile( file );
 
 		return file;
 	}

@@ -64,6 +64,8 @@ public class ActionLibrary {
 		register( bundle, "statusbar-show" );
 		register( bundle, "settings" );
 
+		register( bundle, "tools" );
+
 		register( bundle, "help" );
 		register( bundle, "help-content" );
 		register( bundle, "welcome" );
@@ -78,6 +80,7 @@ public class ActionLibrary {
 		register( bundle, "test-action-3" );
 		register( bundle, "test-action-4" );
 		register( bundle, "test-action-5" );
+		register( bundle, "mock-update" );
 		register( bundle, "restart" );
 		register( bundle, "reset" );
 
@@ -93,6 +96,8 @@ public class ActionLibrary {
 		register( bundle, "wallpaper-next" );
 
 		register( bundle, "reset" );
+		register( bundle, "runpause" );
+
 		register( bundle, "refresh" );
 		register( bundle, "enable" );
 		register( bundle, "disable" );
@@ -101,8 +106,13 @@ public class ActionLibrary {
 		register( bundle, "add-market" );
 		register( bundle, "remove-market" );
 
+		// Navigation
+		register( bundle, "prior" );
+		register( bundle, "next" );
+		register( bundle, "up" );
+		register( bundle, "down" );
+
 		register( bundle, "options" );
-		register( bundle, "runpause" );
 	}
 
 	public ActionProxy getAction( String id ) {
@@ -138,9 +148,9 @@ public class ActionLibrary {
 	private void handleEvent( KeyEvent event ) {
 		for( ActionProxy proxy : actions.values() ) {
 			KeyCombination accelerator = proxy.getAccelerator();
-			if( accelerator != null && accelerator.match( event )) {
+			if( accelerator != null && accelerator.match( event ) ) {
 				proxy.handle( new ActionEvent() );
-				event.consume();
+				if( proxy.isEnabled() ) event.consume();
 				break;
 			}
 		}

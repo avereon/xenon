@@ -1,12 +1,15 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.data.NodeEvent;
+import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
-import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.notice.Notice;
+import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.workpane.Workpane;
 import javafx.application.Platform;
@@ -18,19 +21,20 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 
 /**
- * The notice tool displays the program notices that have been posted. The tool allows the user to close/dismiss notices or click on the notice to execute a program action.
+ * The notice tool displays the program notices that have been posted. The tool allows the user to close/dismiss notices or click on the notice to execute a
+ * program action.
  */
 public class NoticeTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	private VBox noticeContainer;
+	private final VBox noticeContainer;
+
+	private EventHandler<NodeEvent> assetHandler;
 
 	public NoticeTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setId( "tool-notice" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "notice" ) );
-		setTitle( product.rb().text( "tool", "notice-name" ) );
 
 		String clearAllText = product.rb().text( BundleKey.TOOL, "notice-clear-all" );
 		Button clearAllButton = new Button( clearAllText );
@@ -56,18 +60,25 @@ public class NoticeTool extends ProgramTool {
 	}
 
 	@Override
-	protected void assetRefreshed() {
-		updateNotices();
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "notice-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "notice" ) );
+		((NoticeModel)getAssetModel()).register( NodeEvent.NODE_CHANGED, assetHandler = ( e ) -> updateNotices() );
 	}
 
 	@Override
-	protected void allocate() {
+	protected void open( OpenAssetRequest request ) {
 		updateNotices();
 	}
 
 	@Override
 	protected void display() {
 		getProgram().getWorkspaceManager().getActiveWorkspace().hideNotices();
+	}
+
+	@Override
+	protected void deallocate() {
+		((NoticeModel)getAssetModel()).unregister( NodeEvent.NODE_CHANGED, assetHandler );
 	}
 
 	private void clearAll() {
@@ -82,7 +93,7 @@ public class NoticeTool extends ProgramTool {
 			noticeContainer.getChildren().clear();
 			for( Notice notice : notices ) {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );
-				noticePane.setOnMouseClicked( (event)->{
+				noticePane.setOnMouseClicked( ( event ) -> {
 					noticePane.executeNoticeAction();
 					event.consume();
 					this.close();

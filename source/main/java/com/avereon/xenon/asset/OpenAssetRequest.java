@@ -1,26 +1,60 @@
 package com.avereon.xenon.asset;
 
+import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.ToolManager;
 import com.avereon.xenon.workpane.WorkpaneView;
 
 import java.net.URI;
 
+/**
+ * The OpenAssetRequest holds all the metadata needed to open an asset, and
+ * possibly a tool along with it. This class is used by the {@link AssetManager}
+ * and by the {@link ToolManager}. Because there is so much potential data, it
+ * has been consolidated into this class. It is in turn passed on to the
+ * {@link ProgramTool} to allow tool implementations to complete the request in
+ * both the ready() and open() methods.
+ *
+ * @see AssetManager
+ * @see ToolManager
+ */
 public class OpenAssetRequest {
-
-	private URI uri;
 
 	private AssetType type;
 
-	private Object model;
+	private URI uri;
 
 	private Codec codec;
 
+	private Object model;
+
 	private WorkpaneView view;
 
+	/**
+	 * Should a tool be opened for this request.
+	 */
 	private boolean openTool;
 
+	/**
+	 * Should the tool be set as the active tool if a tool is opened.
+	 */
 	private boolean setActive;
 
-	URI getUri() {
+	/**
+	 * The asset created from the asset type and URI
+	 */
+	private Asset asset;
+
+	/**
+	 * The tool id if restoring a tool.
+	 */
+	private String toolId;
+
+	/**
+	 * The resolved tool class if restoring a tool.
+	 */
+	private Class<? extends ProgramTool> toolClass;
+
+	public URI getUri() {
 		return uri;
 	}
 
@@ -92,4 +126,28 @@ public class OpenAssetRequest {
 		return this;
 	}
 
+	public Asset getAsset() {
+		return asset;
+	}
+
+	public OpenAssetRequest setAsset( Asset asset ) {
+		this.asset = asset;
+		return this;
+	}
+
+	public String getToolId() {
+		return toolId;
+	}
+
+	public void setToolId( String toolId ) {
+		this.toolId = toolId;
+	}
+
+	public Class<? extends ProgramTool> getToolClass() {
+		return toolClass;
+	}
+
+	public void setToolClass( Class<? extends ProgramTool> toolClass ) {
+		this.toolClass = toolClass;
+	}
 }

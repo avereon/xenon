@@ -4,7 +4,9 @@ import com.avereon.product.ProductCard;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.util.SizeUnitBase10;
-import com.avereon.xenon.workpane.*;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneEvent;
+import com.avereon.xenon.workpane.WorkpaneWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -15,7 +17,6 @@ import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -51,15 +52,11 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		// Intentionally do not call super.setup()
 
 		// Remove the existing program data folder
-		try {
-			String suffix = "-" + Profile.TEST;
-			ProductCard metadata = new ProductCard().init( Program.class );
-			Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
-			if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
-			if( Files.exists( programDataFolder ) ) Assertions.fail( "Program data folder still exists" );
-		} catch( IOException exception ) {
-			throw new RuntimeException( exception );
-		}
+		String suffix = "-" + Profile.TEST;
+		ProductCard metadata = new ProductCard().card( Program.class );
+		Path programDataFolder = OperatingSystem.getUserProgramDataFolder( metadata.getArtifact() + suffix, metadata.getName() + suffix );
+		if( Files.exists( programDataFolder ) ) FileUtil.delete( programDataFolder );
+		if( Files.exists( programDataFolder ) ) Assertions.fail( "Program data folder still exists" );
 
 		// For the parameters to be available using Java 9, the following needs to be added
 		// to the test JVM command line parameters because com.sun.javafx.application.ParametersImpl
@@ -67,7 +64,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		//
 		// --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 
-		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTest.getParameterValues() );
+		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
 		metadata = program.getCard();

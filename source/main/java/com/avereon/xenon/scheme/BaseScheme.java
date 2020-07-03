@@ -1,114 +1,68 @@
 package com.avereon.xenon.scheme;
 
+import com.avereon.util.LimitedInputStream;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.Program;
-import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.Codec;
-import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.Scheme;
 
-import java.net.URI;
-import java.net.URLConnection;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public abstract class BaseScheme implements Scheme {
 
-	protected Program program;
+	// Linux defines this limit in BINPRM_BUF_SIZE
+	private static final int FIRST_LINE_LIMIT = 128;
 
-	public BaseScheme( Program program ) {
+	protected final Program program;
+
+	private final String id;
+
+	public BaseScheme( Program program, String id ) {
 		this.program = program;
+		this.id = id;
+	}
+
+	public Program getProgram() {
+		return program;
 	}
 
 	@Override
-	public boolean canLoad( Asset asset ) throws AssetException {
-		return false;
+	public String getName() {
+		return id;
 	}
 
-	@Override
-	public boolean canSave( Asset asset ) throws AssetException {
-		return false;
-	}
+	protected String readFirstLine( InputStream input, String encoding ) throws IOException {
+		if( input == null ) return TextUtil.EMPTY;
 
-	@Override
-	public void init( Asset asset ) throws AssetException {}
+		// TODO Maybe implement a FirstLineInputStream and move this logic there
+		LimitedInputStream boundedInput = new LimitedInputStream( input, FIRST_LINE_LIMIT );
+		ByteArrayOutputStream output = new ByteArrayOutputStream( FIRST_LINE_LIMIT );
+		byte[] buffer = new byte[ FIRST_LINE_LIMIT ];
 
-	@Override
-	public void open( Asset asset ) throws AssetException {}
+		int read;
+		while( (read = boundedInput.read( buffer )) > -1 ) {
+			// Search for line termination
+			boolean eol = false;
+			for( int index = 0; index < read; index++ ) {
+				int data = buffer[ index ];
+				if( data == 10 || data == 13 ) {
+					read = index;
+					eol = true;
+					break;
+				}
+			}
 
-	@Override
-	public void load( Asset asset, Codec codec ) throws AssetException {}
+			// Write the buffer
+			output.write( buffer, 0, read );
 
-	@Override
-	public void save( Asset asset, Codec codec ) throws AssetException {}
+			// If a line break was encountered stop
+			if( eol ) break;
+		}
 
-	@Override
-	public void close( Asset asset ) throws AssetException {}
-
-	@Override
-	public boolean create( Asset asset ) throws AssetException {
-		return false;
-	}
-
-	/**
-	 * Does the asset exist according to the scheme. Must return true for a
-	 * asset to be loaded.
-	 */
-	@Override
-	public boolean exists( Asset asset ) throws AssetException {
-		return false;
-	}
-
-	@Override
-	public void saveAs( Asset asset, Asset aoDestination ) throws AssetException {}
-
-	@Override
-	public boolean rename( Asset asset, Asset aoDestination ) throws AssetException {
-		return false;
-	}
-
-	@Override
-	public boolean delete( Asset asset ) throws AssetException {
-		return false;
-	}
-
-	@Override
-	public boolean isFolder( Asset asset ) throws AssetException {
-		return false;
-	}
-
-	@Override
-	public boolean isHidden( Asset asset ) throws AssetException {
-		return false;
-	}
-
-	@Override
-	public List<Asset> getRoots() throws AssetException {
-		return null;
-	}
-
-	@Override
-	public List<Asset> listAssets( Asset asset ) throws AssetException {
-		return null;
-	}
-
-	@Override
-	public long getSize( Asset asset ) throws AssetException {
-		return -1;
-	}
-
-	@Override
-	public long getModifiedDate( Asset asset ) throws AssetException {
-		return -1;
-	}
-
-	// FIXME Should this be a URLConnection or a more general AssetConnection?
-	@Override
-	public URLConnection getConnection( Asset asset ) {
-		return null;
-	}
-
-	protected boolean isSupported( Asset asset ) {
-		URI uri = asset.getUri();
-		return uri == null || uri.getScheme().equals( getName() );
+		if( encoding == null ) encoding = StandardCharsets.UTF_8.name();
+		return TextUtil.cleanEmpty( new String( output.toByteArray(), encoding ) );
 	}
 
 }

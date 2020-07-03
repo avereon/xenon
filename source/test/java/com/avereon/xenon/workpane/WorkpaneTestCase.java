@@ -24,11 +24,8 @@ public class WorkpaneTestCase extends FxPlatformTestCase {
 	// TODO Rename to toolview when tests are complete
 	WorkpaneView toolview;
 
-	@Override
 	@BeforeEach
 	public void setup() throws Exception {
-		super.setup();
-
 		workpane = new Workpane();
 		toolview = workpane.getActiveView();
 

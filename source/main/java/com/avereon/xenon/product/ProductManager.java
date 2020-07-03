@@ -7,13 +7,11 @@ import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
-import com.avereon.xenon.Mod;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramFlag;
+import com.avereon.venza.event.FxEventHub;
+import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import com.avereon.venza.event.FxEventHub;
 import javafx.application.Platform;
 
 import java.io.IOException;
@@ -480,6 +478,19 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return getSettings().get( LAST_CHECK_TIME, Long.class, 0L );
 	}
 
+	public String getLastUpdateCheckText() {
+		long lastUpdateCheck = getLastUpdateCheck();
+		String unknown = getProgram().rb().text( BundleKey.UPDATE, "unknown" );
+		return (lastUpdateCheck == 0 ? unknown : DateUtil.format( new Date( lastUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+	}
+
+	public String getNextUpdateCheckText() {
+		long nextUpdateCheck = getNextUpdateCheck();
+		if( nextUpdateCheck < System.currentTimeMillis() ) nextUpdateCheck = 0;
+		String notScheduled = getProgram().rb().text( BundleKey.UPDATE, "not-scheduled" );
+		return (nextUpdateCheck == 0 ? notScheduled : DateUtil.format( new Date( nextUpdateCheck ), DateUtil.DEFAULT_DATE_FORMAT ));
+	}
+
 	public long getNextUpdateCheck() {
 		return getSettings().get( NEXT_CHECK_TIME, Long.class, 0L );
 	}
@@ -586,7 +597,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// If updates are staged, apply them.
 		int updateCount = getStagedUpdateCount();
 		if( updateCount > 0 ) {
-			log.log( Log.INFO, "Staged updates detected: {}", updateCount );
+			log.log( Log.INFO, "Staged updates detected: {0}", updateCount );
 			try {
 				applyStagedUpdatesAtStart();
 			} catch( Exception exception ) {
@@ -602,7 +613,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	 */
 	public void applyStagedUpdatesAtStart() {
 		int stagedUpdateCount = getStagedUpdateCount();
-		log.log( Log.INFO, "Staged update count: " + stagedUpdateCount );
+		log.log( Log.INFO, "Staged update count: {0}", stagedUpdateCount );
 		if( !isEnabled() || stagedUpdateCount == 0 ) return;
 
 		if( getProgram().isUpdateInProgress() ) {
@@ -610,6 +621,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			clearStagedUpdates();
 		} else {
 			new ProductManagerLogic( getProgram() ).notifyUpdatesReadyToApply( false );
+			getProgram().getUpdateManager().stageUpdater();
 		}
 	}
 
@@ -656,7 +668,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			}
 		}
 
-		// Remove updates that cannot be found.
+		// Remove updates that cannot be found
 		if( remove.size() > 0 ) {
 			for( ProductUpdate update : remove ) {
 				updates.remove( update.getCard().getProductKey(), update );
@@ -667,6 +679,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return staged;
 	}
 
+	/**
+	 * Called when product updates have been staged and the collection of staged
+	 * updates needs to be updated.
+	 *
+	 * @param updates The collection of product updates that were staged
+	 */
+	// THREAD TaskPool-worker
 	void setStagedUpdates( Collection<ProductUpdate> updates ) {
 		Map<String, ProductUpdate> updateMap = new ConcurrentHashMap<>();
 
@@ -674,13 +693,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			updateMap.put( update.getCard().getProductKey(), update );
 		}
 
-		this.updates.clear();
 		this.updates.putAll( updateMap );
 
 		saveUpdates( this.updates );
+		getProgram().getUpdateManager().stageUpdater();
 	}
 
-	int getStagedUpdateCount() {
+	private int getStagedUpdateCount() {
 		return getStagedUpdates().size();
 	}
 
@@ -711,7 +730,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> getProgram().requestUpdate() );
+		if( count > 0 ) Platform.runLater( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
 
 		return count;
 	}

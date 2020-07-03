@@ -1,7 +1,7 @@
 package com.avereon.xenon.asset;
 
 import com.avereon.xenon.ProgramTestCase;
-import com.avereon.xenon.scheme.AssetScheme;
+import com.avereon.xenon.scheme.NewScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,12 +19,12 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@BeforeEach
 	@Override
-	public void setup() throws Exception {
+	protected void setup() throws Exception {
 		super.setup();
 		manager = new AssetManager( program );
 		manager.addScheme( new MockScheme( program ) );
-		manager.addScheme( new AssetScheme( program ) );
-		manager.registerSchemeAssetType( MockScheme.ID, new MockAssetType( program ) );
+		manager.addScheme( new NewScheme( program ) );
+		manager.addAssetType( new MockAssetType( program ) );
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class AssetManagerTest extends ProgramTestCase {
 
 	@Test
 	void testAutoDetectCodecs() throws Exception {
-		AssetType type = manager.getAssetType( MockScheme.ID );
+		AssetType type = manager.getAssetType( new MockAssetType( program ).getKey() );
 		Asset asset = manager.createAsset( URI.create( "mock:test.mock" ) );
 		Set<Codec> codecs = manager.autoDetectCodecs( asset );
 		assertThat( codecs, equalTo( type.getCodecs() ) );

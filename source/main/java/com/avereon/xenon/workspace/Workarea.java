@@ -1,43 +1,43 @@
 package com.avereon.xenon.workspace;
 
-import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
+import com.avereon.skill.WritableIdentity;
+import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.venza.event.FxEventWrapper;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Workarea implements Configurable {
+public class Workarea implements WritableIdentity {
 
-	private StringProperty name = new SimpleStringProperty( this, "name", "" );
+	private final StringProperty name;
 
-	private BooleanProperty active = new SimpleBooleanProperty( this, "active", false );
+	private final BooleanProperty active;
 
-	private Workspace workspace;
+	private final ObjectProperty<Workspace> workspace;
 
-	private Workpane workpane;
+	private final Workpane workpane;
 
 	// private MenuBar extraMenuBarItems
 
 	// private ToolBar extraToolBarItems
 
-	private Settings settings;
+	private String id;
 
 	public Workarea() {
+		name = new SimpleStringProperty( this, "name", "" );
+		active = new SimpleBooleanProperty( this, "active", false );
+		workspace = new SimpleObjectProperty<>( this, "workspace" );
+
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
-		workpane.addEventHandler( ToolEvent.CONCEALED, e -> workspace.getProgram().getAssetManager().setCurrentAsset( null ) );
-		workpane.addEventHandler( ToolEvent.ANY, e -> workspace.getEventBus().dispatch( new FxEventWrapper( e ) ) );
+		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
+		workpane.addEventHandler( ToolEvent.CONCEALED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( null ) );
+		workpane.addEventHandler( ToolEvent.ANY, e -> getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) ) );
 	}
 
 	public final StringProperty nameProperty() {
@@ -50,7 +50,6 @@ public class Workarea implements Configurable {
 
 	public final void setName( String name ) {
 		this.name.set( name );
-		settings.set( "name", name );
 	}
 
 	public final BooleanProperty activeProperty() {
@@ -64,29 +63,30 @@ public class Workarea implements Configurable {
 	public final void setActive( boolean active ) {
 		workpane.setVisible( active );
 		this.active.set( active );
-		settings.set( "active", active );
+	}
+
+	public final ObjectProperty<Workspace> workspaceProperty() {
+		return workspace;
+	}
+
+	public Workspace getWorkspace() {
+		return workspace.get();
+	}
+
+	public void setWorkspace( Workspace workspace ) {
+		if( getWorkspace() != null ) {
+			// Disconnect the old workspace
+		}
+
+		this.workspace.set( workspace );
+
+		if( getWorkspace() != null ) {
+			// Connect the new workspace
+		}
 	}
 
 	public Workpane getWorkpane() {
 		return workpane;
-	}
-
-	public Workspace getWorkspace() {
-		return workspace;
-	}
-
-	public void setWorkspace( Workspace workspace ) {
-		if( this.workspace != null ) {
-			// Unhook the old workspace
-		}
-
-		this.workspace = workspace;
-
-		if( this.workspace != null ) {
-			settings.set( UiFactory.PARENT_WORKSPACE_ID, this.workspace.getSettings().getName() );
-		} else {
-			settings.set( UiFactory.PARENT_WORKSPACE_ID, null );
-		}
 	}
 
 	public Set<Asset> getAssets() {
@@ -98,18 +98,13 @@ public class Workarea implements Configurable {
 	}
 
 	@Override
-	public void setSettings( Settings settings ) {
-		if( this.settings != null ) return;
-
-		this.settings = settings;
-
-		setName( settings.get( "name" ) );
-		setActive( settings.get( "active", Boolean.class, false ) );
+	public String getUid() {
+		return workpane.getUid();
 	}
 
 	@Override
-	public Settings getSettings() {
-		return settings;
+	public void setUid( String id ) {
+		workpane.setUid( id );
 	}
 
 	@Override

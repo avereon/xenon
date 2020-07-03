@@ -6,10 +6,12 @@
 
 	-ex-workspace-tint-color: #c0c0c040;
 	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
+
+	-ex-background-error: CHART_COLOR_7_TRANS_20;
 }
 
 .debug {
-	-fx-backgroud-color: #80800080;
+	-fx-background-color: #80800080;
 }
 
 .prompt {
@@ -68,14 +70,12 @@
  * Icons
  ******************************************************************************/
 .xe-icon {
-	-xe-theme-color: #c0c0c0;
-	-xe-outline-width: 0.03125; /* 1/32 */
-	-xe-outline-paint: ladder(
-		-fx-text-background-color,
-		derive(-xe-theme-color, -50%) 50%,
-		derive(-xe-theme-color, 50%) 50%
-	);
+	-fx-stroke: -fx-text-base-color;
+	-fx-primary: -fx-accent;
+}
 
+.menu-item:hover .xe-icon, .menu-item:focused .xe-icon {
+	-fx-stroke: -fx-focused-text-base-color;
 }
 
 /*******************************************************************************
@@ -177,6 +177,33 @@
 	-fx-background-color: transparent;
 }
 
+/*******************************************************************************
+ * Workpane Table View
+ ******************************************************************************/
+.workpane .table-view {
+	-fx-background-color: transparent;
+}
+
+.workpane .table-row-cell {
+	/* This sets the variable -fx-background */
+	-fx-background: -ex-background-text;
+	-fx-background-color: -fx-background;
+	-fx-padding: 0;
+	-fx-text-fill: -fx-text-background-color;
+}
+.workpane .table-row-cell:odd {
+	-fx-background: -ex-background-tags;
+}
+
+.workpane .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:selected {
+	-fx-background: -fx-selection-bar;
+	-fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+}
+
+.workpane .table-row-cell:filled:selected {
+	-fx-background: -fx-selection-bar-non-focused;
+	-fx-table-cell-border-color: derive(-fx-selection-bar-non-focused, 20%);
+}
 /*******************************************************************************
  * Workpane
  ******************************************************************************/
@@ -397,7 +424,7 @@
 /*******************************************************************************
  * New Asset Tool
  ******************************************************************************/
-#tool-asset .asset-type-tile {
+#tool-asset-new .asset-type-tile {
 	-fx-min-width: 250px;
 	-fx-min-height: 200px;
 	-fx-max-width: 250px;
@@ -409,6 +436,10 @@
 	-fx-border-style: solid;
 	-fx-border-insets: 5px;
 	-fx-border-width: 5px;
+}
+
+#tool-asset #user-notice {
+	-fx-background-color: -ex-background-error;
 }
 
 /*******************************************************************************

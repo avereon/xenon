@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -58,11 +59,11 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	private final String key = getClass().getName();
 
-	private ProgramProduct product;
+	private final ProgramProduct product;
 
-	private String rbKey;
+	private final String rbKey;
 
-	private Set<Codec> codecs;
+	private final Set<Codec> codecs;
 
 	private Codec defaultCodec;
 
@@ -196,7 +197,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 
 	boolean callAssetUser( Program program, Asset asset ) throws AssetException {
 		Object lock = new Object();
-		AtomicBoolean result = new AtomicBoolean(  );
+		AtomicBoolean result = new AtomicBoolean();
 		AtomicReference<AssetException> resultException = new AtomicReference<>();
 
 		Platform.runLater( () -> {
@@ -233,44 +234,8 @@ public abstract class AssetType implements Comparable<AssetType> {
 		return getName().compareTo( type.getName() );
 	}
 
-	public Codec getCodecByMediaType( String type ) {
-		if( type == null ) return null;
-
-		for( Codec codec : codecs ) {
-			if( codec.isSupportedMediaType( type ) ) return codec;
-		}
-
-		return null;
-	}
-
-	public Codec getCodecByExtension( String name ) {
-		if( name == null ) return null;
-
-		for( Codec codec : codecs ) {
-			if( codec.isSupportedExtension( name ) ) return codec;
-		}
-
-		return null;
-	}
-
-	public Codec getCodecByFileName( String name ) {
-		if( name == null ) return null;
-
-		for( Codec codec : codecs ) {
-			if( codec.isSupportedFileName( name ) ) return codec;
-		}
-
-		return null;
-	}
-
-	public Codec getCodecByFirstLine( String line ) {
-		if( line == null ) return null;
-
-		for( Codec codec : codecs ) {
-			if( codec.isSupportedFirstLine( line ) ) return codec;
-		}
-
-		return null;
+	public Set<Codec> getSupportedCodecs( Codec.Pattern type, String value ) {
+		return codecs.stream().filter( c -> c.isSupported( type, value ) ).collect( Collectors.toSet() );
 	}
 
 }

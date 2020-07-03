@@ -132,9 +132,11 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 
 	public Workspace newWorkspace( String id ) {
 		Workspace workspace = new Workspace( program );
-		workspace.getEventBus().parent( program.getFxEventHub() );
-		workspace.setSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
+		workspace.setUid( id );
+		workspace.updateFromSettings( program.getSettingsManager().getSettings( ProgramSettings.WORKSPACE, id ) );
 		workspace.setTheme( getProgram().getThemeManager().getMetadata( currentThemeId ).getStylesheet() );
+		workspace.getEventBus().parent( program.getFxEventHub() );
+
 		return workspace;
 	}
 
@@ -220,7 +222,6 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	 * @return False if the user chooses to cancel the operation
 	 */
 	public boolean handleModifiedAssets( ProgramScope scope, Set<Asset> assets ) {
-		log.log( Log.WARN, "Modified asset count: " + assets.size() );
 		if( assets.isEmpty() ) return true;
 
 		boolean autoSave = getProgram().getProgramSettings().get( "shutdown-autosave", Boolean.class, false );
@@ -251,8 +252,9 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseWorkspace( Workspace workspace ) {
-		log.log( Log.WARN, "Number of workspaces: " + workspaces.size() );
-		boolean closeProgram = workspaces.size() == 1;
+		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
+		log.log( Log.WARN, "Number of visible workspaces: " + visibleWorkspaces );
+		boolean closeProgram = visibleWorkspaces == 1;
 		boolean shutdownVerify = getProgram().getProgramSettings().get( "shutdown-verify", Boolean.class, true );
 
 		if( closeProgram ) {
@@ -293,16 +295,11 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {
-		Platform.runLater( () -> {
-			Set<Tool> tools = getActiveWorkpaneTools( type );
-			tools.forEach( Tool::close );
-		} );
+		Platform.runLater( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
 	}
 
 	void hideWindows() {
-		for( Workspace workspace : getWorkspaces() ) {
-			workspace.getStage().hide();
-		}
+		getWorkspaces().forEach( workspace -> workspace.getStage().hide() );
 	}
 
 	private void closeWorkspace( Workspace workspace ) {

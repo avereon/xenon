@@ -2,14 +2,15 @@ package com.avereon.xenon.asset;
 
 import com.avereon.product.Product;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 
+/**
+ * A special codec that indicates the real codec should be autodetected.
+ */
 public class AutoDetectCodec extends Codec {
 
-	private Product product;
+	private final Product product;
 
 	public AutoDetectCodec( Product product ) {
 		this.product = product;
@@ -36,24 +37,9 @@ public class AutoDetectCodec extends Codec {
 	}
 
 	@Override
-	public void load( Asset asset, InputStream input ) throws IOException {}
+	public void load( Asset asset, InputStream input ) {}
 
 	@Override
-	public void save( Asset asset, OutputStream output ) throws IOException {}
-
-	@Override
-	public Set<String> getSupportedFileNames() {
-		return null;
-	}
-
-	@Override
-	public Set<String> getSupportedFirstLines() {
-		return null;
-	}
-
-	@Override
-	public Set<String> getSupportedMediaTypes() {
-		return null;
-	}
+	public void save( Asset asset, OutputStream output ) {}
 
 }

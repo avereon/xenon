@@ -1,11 +1,13 @@
 package com.avereon.xenon.tool;
 
+import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
+import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,15 +30,15 @@ public class TaskTool extends ProgramTool {
 
 	private final Set<Task<?>> tasks;
 
-	private VBox taskPanes;
+	private final VBox taskPanes;
+
+	private EventHandler<TaskEvent> taskManagerWatcher;
 
 	public TaskTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 		tasks = new CopyOnWriteArraySet<>();
 
 		setId( "tool-task" );
-		setGraphic( ((Program)product).getIconLibrary().getIcon( "task" ) );
-		setTitle( product.rb().text( "tool", "task-name" ) );
 
 		Button testTask = new Button( "Test Task" );
 		testTask.setOnAction( ( event ) -> startRandomTask( false ) );
@@ -58,10 +60,22 @@ public class TaskTool extends ProgramTool {
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
-		super.allocate();
-		getProgram().getTaskManager().getEventBus().register( TaskEvent.SUBMITTED, e -> Platform.runLater( () -> addTaskPane( e.getTask() ) ) );
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "task-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "task" ) );
+
+		taskManagerWatcher = e -> Platform.runLater( () -> addTaskPane( e.getTask() ) );
+		getProgram().getTaskManager().getEventBus().register( TaskEvent.SUBMITTED, taskManagerWatcher );
+	}
+
+	@Override
+	protected void allocate() {
 		getProgram().getTaskManager().getTasks().forEach( this::addTaskPane );
+	}
+
+	@Override
+	protected void deallocate() {
+		getProgram().getTaskManager().getEventBus().unregister( TaskEvent.SUBMITTED, taskManagerWatcher );
 	}
 
 	private void addTaskPane( Task<?> task ) {
@@ -88,9 +102,9 @@ public class TaskTool extends ProgramTool {
 
 	private class TaskPane extends MigPane {
 
-		private Task<?> task;
+		private final Task<?> task;
 
-		private ProgressBar progress;
+		private final ProgressBar progress;
 
 		private TaskPane( Task<?> task ) {
 			this.task = task;
@@ -121,7 +135,7 @@ public class TaskTool extends ProgramTool {
 		// The delay between progress checks ~ 1000ms / 120hz;
 		private static final long DELAY = 1000 / 120;
 
-		private boolean fail;
+		private final boolean fail;
 
 		private RandomTask( long duration, boolean fail ) {
 			super( "Random Task (" + duration + "ms)" );
@@ -134,11 +148,7 @@ public class TaskTool extends ProgramTool {
 			long time = 0;
 
 			while( time < getTotal() ) {
-				try {
-					Thread.sleep( DELAY );
-				} catch( InterruptedException exception ) {
-					break;
-				}
+				ThreadUtil.pause( DELAY );
 				time += DELAY;
 				setProgress( time );
 			}

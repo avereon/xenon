@@ -1,9 +1,14 @@
 package com.avereon.xenon.workpane;
 
-import com.avereon.settings.Settings;
-import com.avereon.util.Configurable;
+import com.avereon.skill.Identity;
+import com.avereon.skill.WritableIdentity;
+import com.avereon.util.IdGenerator;
 import com.avereon.util.Log;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
@@ -12,30 +17,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class WorkpaneView extends BorderPane implements Configurable {
+public class WorkpaneView extends BorderPane implements WritableIdentity {
 
+	@SuppressWarnings( "unused" )
 	private static final System.Logger log = Log.get();
 
-	private WorkpaneEdge topEdge;
+	private final ToolTabPane tools;
 
-	private WorkpaneEdge leftEdge;
+	private ObjectProperty<WorkpaneEdge> topEdge;
 
-	private WorkpaneEdge rightEdge;
+	private ObjectProperty<WorkpaneEdge> leftEdge;
 
-	private WorkpaneEdge bottomEdge;
+	private ObjectProperty<WorkpaneEdge> rightEdge;
 
-	private Workpane.Placement placement;
+	private ObjectProperty<WorkpaneEdge> bottomEdge;
 
-	private ToolTabPane tools;
+	private ObjectProperty<Workpane.Placement> placement;
 
 	private Workpane parent;
 
 	private Tool activeTool;
 
-	private Settings settings;
-
 	public WorkpaneView() {
 		getStyleClass().add( "workpane-view" );
+
+		setUid( IdGenerator.getId() );
 		setCenter( tools = new ToolTabPane() );
 		setSnapToPixel( true );
 
@@ -64,9 +70,66 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		} );
 	}
 
-	// FIXME Replace with Node.getId() when settings are removed
-	public String getViewId() {
-		return settings == null ? null : settings.getName();
+	@Override
+	public String getUid() {
+		return getProperties().get( Identity.KEY ).toString();
+	}
+
+	@Override
+	public void setUid( String id ) {
+		getProperties().put( Identity.KEY, id );
+	}
+
+	public WorkpaneEdge getTopEdge() {
+		return topEdge == null ? null : topEdgeProperty().get();
+	}
+
+	public void setTopEdge( WorkpaneEdge topEdge ) {
+		((ObjectProperty<WorkpaneEdge>)topEdgeProperty()).set( topEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> topEdgeProperty() {
+		if( topEdge == null ) topEdge = new SimpleObjectProperty<>();
+		return topEdge;
+	}
+
+	public WorkpaneEdge getLeftEdge() {
+		return leftEdge == null ? null : leftEdgeProperty().get();
+	}
+
+	public void setLeftEdge( WorkpaneEdge leftEdge ) {
+		((ObjectProperty<WorkpaneEdge>)leftEdgeProperty()).set( leftEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> leftEdgeProperty() {
+		if( leftEdge == null ) leftEdge = new SimpleObjectProperty<>();
+		return leftEdge;
+	}
+
+	public WorkpaneEdge getRightEdge() {
+		return rightEdge == null ? null : rightEdgeProperty().get();
+	}
+
+	public void setRightEdge( WorkpaneEdge rightEdge ) {
+		((ObjectProperty<WorkpaneEdge>)rightEdgeProperty()).set( rightEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> rightEdgeProperty() {
+		if( rightEdge == null ) rightEdge = new SimpleObjectProperty<>();
+		return rightEdge;
+	}
+
+	public WorkpaneEdge getBottomEdge() {
+		return bottomEdge == null ? null : bottomEdgeProperty().get();
+	}
+
+	public void setBottomEdge( WorkpaneEdge bottomEdge ) {
+		((ObjectProperty<WorkpaneEdge>)bottomEdgeProperty()).set( bottomEdge );
+	}
+
+	public ReadOnlyObjectProperty<WorkpaneEdge> bottomEdgeProperty() {
+		if( bottomEdge == null ) bottomEdge = new SimpleObjectProperty<>();
+		return bottomEdge;
 	}
 
 	/**
@@ -84,10 +147,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		return Collections.unmodifiableList( toolList );
 	}
 
-	Tool addTool( Tool tool ) {
-		return addTool( tool, tools.getTabs().size() );
-	}
-
+	@SuppressWarnings( "UnusedReturnValue" )
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
 		tool.setToolView( this );
@@ -100,6 +160,7 @@ public class WorkpaneView extends BorderPane implements Configurable {
 		return tool;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	Tool removeTool( Tool tool ) {
 		boolean isActiveTool = tool == activeTool;
 
@@ -184,16 +245,16 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 		switch( direction ) {
 			case TOP: {
-				return topEdge;
+				return getTopEdge();
 			}
 			case LEFT: {
-				return leftEdge;
+				return getLeftEdge();
 			}
 			case RIGHT: {
-				return rightEdge;
+				return getRightEdge();
 			}
 			case BOTTOM: {
-				return bottomEdge;
+				return getBottomEdge();
 			}
 		}
 
@@ -203,71 +264,58 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	public void setEdge( Side direction, WorkpaneEdge edge ) {
 		switch( direction ) {
 			case TOP: {
-				topEdge = edge;
+				setTopEdge( edge );
 				if( edge != null ) edge.bottomViews.add( this );
-				if( settings != null ) settings.set( "t", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case LEFT: {
-				leftEdge = edge;
+				setLeftEdge( edge );
 				if( edge != null ) edge.rightViews.add( this );
-				if( settings != null ) settings.set( "l", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case RIGHT: {
-				rightEdge = edge;
+				setRightEdge( edge );
 				if( edge != null ) edge.leftViews.add( this );
-				if( settings != null ) settings.set( "r", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 			case BOTTOM: {
-				bottomEdge = edge;
+				setBottomEdge( edge );
 				if( edge != null ) edge.topViews.add( this );
-				if( settings != null ) settings.set( "b", edge == null ? null : edge.getEdgeId() );
 				break;
 			}
 		}
 	}
 
 	public Workpane.Placement getPlacement() {
-		return placement;
+		return placement == null ? null : placementProperty().get();
 	}
 
 	public void setPlacement( Workpane.Placement placement ) {
-		this.placement = placement;
-		if( settings != null ) settings.set( "placement", placement == null ? null : placement.name().toLowerCase() );
+		((ObjectProperty<Workpane.Placement>)placementProperty()).set( placement );
+	}
+
+	public ReadOnlyObjectProperty<Workpane.Placement> placementProperty() {
+		if( placement == null ) placement = new SimpleObjectProperty<>();
+		return placement;
 	}
 
 	@Override
-	public void setSettings( Settings settings ) {
-		if( settings == null ) {
-			this.settings = null;
-			return;
-		} else if( this.settings != null ) {
-			return;
-		}
-
-		this.settings = settings;
-
-		// Restore state from settings
-		String placementValue = settings.get( "placement" );
-		if( placementValue != null ) setPlacement( Workpane.Placement.valueOf( placementValue.toUpperCase() ) );
-
-		// Persist state to settings
-		if( isActive() ) settings.set( "active", true );
-		if( isDefault() ) settings.set( "default", true );
-		if( isMaximized() ) settings.set( "maximized", true );
-		settings.set( "placement", getPlacement() == null ? null : getPlacement().name().toLowerCase() );
-	}
-
-	@Override
-	public Settings getSettings() {
-		return settings;
-	}
-
-	@Override
+	@SuppressWarnings( "StringBufferReplaceableByString" )
 	public String toString() {
-		return super.toString() + "(" + System.identityHashCode( this ) + ")";
+		Bounds bounds = getLayoutBounds();
+
+		StringBuilder builder = new StringBuilder();
+		builder.append( "<" );
+		builder.append( getClass().getSimpleName() );
+		builder.append( " id=" );
+		builder.append( getUid() );
+		builder.append( " bounds=" );
+		builder.append( bounds.getMinX() ).append( "," ).append( bounds.getMinX() );
+		builder.append( " " );
+		builder.append( bounds.getWidth() ).append( "x" ).append( bounds.getHeight() );
+		builder.append( ">" );
+
+		return builder.toString();
 	}
 
 	public Workpane getWorkpane() {
@@ -277,10 +325,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 	double getCenter( Orientation orientation ) {
 		switch( orientation ) {
 			case VERTICAL: {
-				return (topEdge.getPosition() + bottomEdge.getPosition()) / 2;
+				return (getTopEdge().getPosition() + getBottomEdge().getPosition()) / 2;
 			}
 			case HORIZONTAL: {
-				return (leftEdge.getPosition() + rightEdge.getPosition()) / 2;
+				return (getLeftEdge().getPosition() + getRightEdge().getPosition()) / 2;
 			}
 		}
 
@@ -289,14 +337,10 @@ public class WorkpaneView extends BorderPane implements Configurable {
 
 	void setWorkpane( Workpane parent ) {
 		this.parent = parent;
-		// TODO Should workpanes have icons? If so, update them.
-		//if( parent != null ) updateIcons();
 	}
 
 	void activateTool( Tool tool ) {
-		Workpane workpane = getWorkpane();
-		//if( workpane.getActiveTool() == tool ) return;
-		workpane.setActiveTool( tool );
+		getWorkpane().setActiveTool( tool );
 	}
 
 }

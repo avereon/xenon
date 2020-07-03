@@ -124,7 +124,7 @@ public class FolderSettingEditor extends SettingEditor implements EventHandler<K
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle( product.rb().text( "settings", "select-folder" ) );
 
-		if( fileName != null ) chooser.setInitialDirectory( FileUtil.findValidParent( new File( fileName ) ) );
+		if( fileName != null ) chooser.setInitialDirectory( FileUtil.findValidParent( fileName ).toFile() );
 		File selectedFile = chooser.showDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
 		if( selectedFile != null ) {
 			field.setText( selectedFile.toString() );

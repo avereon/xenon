@@ -4,24 +4,22 @@ import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import com.avereon.xenon.asset.OpenAssetRequest;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 
 import java.lang.System.Logger;
 
 /**
- * The Tool class is a control that "works on" a asset.
+ * The Tool class is a pane that "works on" an asset.
  */
-public abstract class Tool extends Control {
+public abstract class Tool extends StackPane {
 
 	private static final Logger log = Log.get();
 
@@ -56,18 +54,13 @@ public abstract class Tool extends Control {
 	private EventHandler<AssetEvent> closer;
 
 	public Tool( Asset asset ) {
-		this( asset, null );
-	}
+		this.asset = asset;
 
-	public Tool( Asset asset, String title ) {
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
 		getStyleClass().add( "tool" );
-
-		this.asset = asset;
-		setTitle( title );
 
 		// Tools are not allowed to paint outside their bounds
 		Rectangle clip = new Rectangle();
@@ -255,65 +248,54 @@ public abstract class Tool extends Control {
 		return builder.toString();
 	}
 
-	@Override
-	protected Skin<Tool> createDefaultSkin() {
-		return new ToolSkin( this );
-	}
-
 	/**
-	 * Allocate the tool.
+	 * Allocate the tool. Called just after the tool is added to the tool view
+	 * but before the {@link ToolEvent#ADDED} event is fired.
 	 */
 	protected void allocate() throws ToolException {}
 
 	/**
-	 * Display the tool.
+	 * Display the tool. Called just after the tool is displayed but before the
+	 * {@link ToolEvent#DISPLAYED} event is fired.
 	 */
 	protected void display() throws ToolException {}
 
 	/**
-	 * Activate the tool.
+	 * Activate the tool. Called just after the tool is activated but before the
+	 * {@link ToolEvent#ACTIVATED} event is fired.
 	 */
 	protected void activate() throws ToolException {}
 
 	/**
-	 * Deactivate the tool.
+	 * Deactivate the tool. Called just after the tool is deactivated but before
+	 * the {@link ToolEvent#DEACTIVATED} event is fired. The tool may be
+	 * deactivated either by the tool parent being deactivated or by a different
+	 * tool being activated.
 	 */
 	protected void deactivate() throws ToolException {}
 
 	/**
-	 * Conceal the tool.
+	 * Conceal the tool. Called just after the tool is concealed but before the
+	 * {@link ToolEvent#CONCEALED} event is fired. The tool may be concealed when
+	 * the tool was visible and then is hidden by another tool or removed from the
+	 * tool parent.
 	 */
 	protected void conceal() throws ToolException {}
 
 	/**
-	 * Deallocate the tool.
+	 * Deallocate the tool. Called just after the tool is removed from the tool
+	 * view but before the {@link ToolEvent#REMOVED} event is fired.
 	 */
 	protected void deallocate() throws ToolException {}
 
 	/**
-	 * Called when the asset is ready to be used by the tool. This method is
-	 * called each time the asset edited by this tool is opened. If it is
-	 * opened another time it may have different request parameters such as
-	 * a different query string or fragment.
-	 *
-	 * @param request The request used to open the asset
-	 */
-	protected void assetReady( OpenAssetRequest request ) {}
-
-	/**
-	 * Called when the asset data is refreshed.
-	 *
-	 * @deprecated Register an asset event handler instead
-	 */
-	protected void assetRefreshed() {}
-
-	/**
 	 * Allocate the tool.
+	 * @see #allocate
 	 */
 	final void callAllocate() {
 		Workpane pane = getWorkpane();
 		try {
-			getAsset().getEventBus().register( AssetEvent.CLOSED, closer = ( e ) -> Tool.this.doClose() );
+			getAsset().register( AssetEvent.CLOSED, closer = ( e ) -> this.doClose() );
 			allocate();
 			allocated = true;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.ADDED, pane, this ) ) );
@@ -324,6 +306,7 @@ public abstract class Tool extends Control {
 
 	/**
 	 * Display the tool.
+	 * @see #display
 	 */
 	final void callDisplay() {
 		Workpane pane = getWorkpane();
@@ -338,6 +321,7 @@ public abstract class Tool extends Control {
 
 	/**
 	 * Activate the tool.
+	 * @see #activate
 	 */
 	final void callActivate() {
 		Workpane pane = getWorkpane();
@@ -350,8 +334,8 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Deactivate the tool. Called when the tool is deactivated either by the tool
-	 * parent being deactivated or by a different tool being activated.
+	 * Deactivate the tool.
+	 * @see #deactivate
 	 */
 	final void callDeactivate() {
 		Workpane pane = getWorkpane();
@@ -364,8 +348,8 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Conceal the tool. Called when the tool is visible and then is hidden by
-	 * another tool or removed from the tool parent.
+	 * Conceal the tool.
+	 * @see #conceal
 	 */
 	final void callConceal() {
 		Workpane pane = getWorkpane();
@@ -379,7 +363,8 @@ public abstract class Tool extends Control {
 	}
 
 	/**
-	 * Deallocate the tool. Called when the tool is removed from the tool parent.
+	 * Deallocate the tool.
+	 * @see #deallocate
 	 */
 	final void callDeallocate() {
 		Workpane pane = getWorkpane();
@@ -387,26 +372,10 @@ public abstract class Tool extends Control {
 			deallocate();
 			allocated = false;
 			fireEvent( pane.queueEvent( new ToolEvent( null, ToolEvent.REMOVED, pane, this ) ) );
-			getAsset().getEventBus().unregister( AssetEvent.ANY, closer );
+			getAsset().getEventBus().unregister( AssetEvent.CLOSED, closer );
 		} catch( ToolException exception ) {
 			log.log( Log.ERROR, "Error deallocating tool", exception );
 		}
-	}
-
-	/**
-	 * Called when the asset is ready to be used by the tool.
-	 */
-	public final void callAssetReady( OpenAssetRequest request ) {
-		Platform.runLater( () -> assetReady( request ) );
-	}
-
-	/**
-	 * Called when the asset data is refreshed. This method calls
-	 * {@link #assetRefreshed()} on the FX platform thread.
-	 */
-	@Deprecated
-	protected final void callAssetRefreshed() {
-		Platform.runLater( this::assetRefreshed );
 	}
 
 }

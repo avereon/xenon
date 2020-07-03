@@ -12,12 +12,7 @@ public class ProgramScheme extends BaseScheme {
 	public static final String ID = "program";
 
 	public ProgramScheme( Program program ) {
-		super( program );
-	}
-
-	@Override
-	public String getName() {
-		return ID;
+		super( program, ID );
 	}
 
 	@Override

@@ -1,0 +1,4 @@
+--type dmg
+--icon "${basedir}/target/main/images/${project.artifactId}.png"
+--mac-package-name "${project.name}"
+--mac-package-identifier "com.avereon.xenon"

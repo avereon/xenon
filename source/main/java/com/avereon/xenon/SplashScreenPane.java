@@ -2,11 +2,10 @@ package com.avereon.xenon;
 
 import com.avereon.rossa.icon.XRingLargeIcon;
 import com.avereon.util.Log;
-import com.avereon.venza.image.ProgramImage;
+import com.avereon.venza.image.RenderedImage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -35,9 +34,9 @@ public class SplashScreenPane extends Pane {
 
 	private int progress;
 
-	private Rectangle progressTray;
+	private final Rectangle progressTray;
 
-	private Rectangle progressBar;
+	private final Rectangle progressBar;
 
 	public SplashScreenPane( String title ) {
 		this.title = title;
@@ -47,9 +46,7 @@ public class SplashScreenPane extends Pane {
 		//Rectangle background = new Rectangle( 0, 0, WIDTH, HEIGHT );
 		//background.setFill( Color.GRAY );
 
-		ProgramImage icon = new XRingLargeIcon().setSize( 192 );
-		// Remove the style class that changes the outline
-		icon.getStyleClass().remove( "xe-image" );
+		RenderedImage icon = new XRingLargeIcon().resize( 224 );
 		icon.setLayoutX( 0.5 * (WIDTH - icon.getWidth()) );
 		icon.setLayoutY( 0.5 * (HEIGHT - icon.getHeight() - BAR_PAD - BAR_SIZE) );
 
@@ -70,16 +67,8 @@ public class SplashScreenPane extends Pane {
 		progressBar = new Rectangle( BAR_PAD, HEIGHT - BAR_PAD - BAR_SIZE, 0, BAR_SIZE );
 		progressBar.getStyleClass().addAll( "progress", "progress-incomplete" );
 
-		double radius = 80;
-		double centerLine = 0.5 * (HEIGHT - BAR_PAD - BAR_SIZE);
-
-		Circle accentA = new Circle( -40, centerLine - 0.5 * radius, radius );
-		Circle accentB = new Circle( -40, centerLine - 0.0 * radius, radius );
-		accentA.getStyleClass().addAll( "accent" );
-		accentB.getStyleClass().addAll( "accent" );
-
-		getChildren().addAll(  icon, tint );
-		getChildren().addAll( accentA, accentB, titleText );
+		getChildren().addAll( icon, tint );
+		getChildren().addAll( titleText );
 		getChildren().addAll( progressTray, progressBar );
 
 		setWidth( WIDTH );

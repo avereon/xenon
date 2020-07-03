@@ -30,7 +30,7 @@ abstract class Screenshots {
 	private static final double WIDTH = 800;
 
 	private static final double HEIGHT = 500;
-
+	
 	private int scale;
 
 	private Path screenshots;
@@ -72,7 +72,7 @@ abstract class Screenshots {
 		//		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "welcome-tool" ) );
 		Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED, 1000 );
+		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotDefaultWorkarea() {
@@ -105,13 +105,13 @@ abstract class Screenshots {
 	}
 
 	private void setup() throws InterruptedException {
-		if( FxUtil.isFxRunning() ) FxUtil.fxWait( 2000 );
+		if( FxUtil.isFxRunning() ) FxUtil.fxWait( FxEventWatcher.DEFAULT_WAIT_TIMEOUT );
 		startup();
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpaneWatcher = new FxEventWatcher();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
-		FxUtil.fxWait( 2000 );
+		FxUtil.fxWait( FxEventWatcher.DEFAULT_WAIT_TIMEOUT );
 	}
 
 	private void startup() {
@@ -131,14 +131,14 @@ abstract class Screenshots {
 				}
 			} );
 			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
-			programWatcher.waitForEvent( ProgramEvent.STARTED, 2000 );
+			programWatcher.waitForEvent( ProgramEvent.STARTED );
 			Platform.runLater( () -> {
 				//program.getWorkspaceManager().getActiveStage().setX( 0 );
 				//program.getWorkspaceManager().getActiveStage().setY( 0 );
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
 			} );
-			FxUtil.fxWait( 2000 );
+			FxUtil.fxWait( FxEventWatcher.DEFAULT_WAIT_TIMEOUT );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}

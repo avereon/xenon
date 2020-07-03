@@ -6,10 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCombination;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -24,15 +21,15 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private String id;
 
-	private StringProperty icon;
+	private final StringProperty icon;
 
 	private String name;
 
 	private int mnemonic;
 
-	private StringProperty mnemonicName;
+	private final StringProperty mnemonicName;
 
-	private StringProperty description;
+	private final StringProperty description;
 
 	private String type;
 
@@ -40,15 +37,15 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private KeyCombination accelerator;
 
-	private List<String> states;
+	private final List<String> states;
 
-	private Map<String, ActionState> stateMap;
+	private final Map<String, ActionState> stateMap;
 
 	private String currentState;
 
-	private Stack<Action> actionStack;
+	private final Stack<Action> actionStack;
 
-	private BooleanProperty enabledProperty;
+	private final BooleanProperty enabledProperty;
 
 	public ActionProxy() {
 		mnemonic = NO_MNEMONIC;
@@ -113,6 +110,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		return mnemonicName;
 	}
 
+	@SuppressWarnings( "unused" )
 	public int getMnemonic() {
 		return mnemonic;
 	}
@@ -130,6 +128,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		}
 	}
 
+	@SuppressWarnings( "unused" )
 	public ReadOnlyStringProperty descriptionProperty() {
 		return description;
 	}
@@ -181,16 +180,18 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 		if( states.size() == 1 ) setState( id );
 	}
 
+	@SuppressWarnings( "unused" )
 	public List<String> getStates() {
 		return Collections.unmodifiableList( states );
 	}
 
+	@SuppressWarnings( "unused" )
 	public String getStateName( String id ) {
 		return stateMap.get( id ).getName();
 	}
 
 	public String getStateIcon( String id ) {
-		return stateMap.get( id ).getIcon();
+		return Optional.ofNullable( stateMap.get( id ) ).map( ActionState::getIcon ).orElse( null );
 	}
 
 	public String getStateAfter( String state ) {
@@ -251,11 +252,11 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private static class ActionState {
 
-		private String id;
+		private final String id;
 
-		private String name;
+		private final String name;
 
-		private String icon;
+		private final String icon;
 
 		private ActionState( String id, String name, String icon ) {
 			this.id = id;

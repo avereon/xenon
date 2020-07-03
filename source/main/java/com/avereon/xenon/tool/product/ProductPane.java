@@ -77,7 +77,7 @@ class ProductPane extends MigPane {
 
 		setId( "tool-product-artifact" );
 
-		Node productIcon = program.getIconLibrary().getIcon( source.getIcons(), "product", ProductTool.ICON_SIZE );
+		Node productIcon = program.getIconLibrary().getIcon( source.getIcons(), "module", ProductTool.ICON_SIZE );
 
 		iconLabel = new Label( null, productIcon );
 		iconLabel.setId( "tool-product-artifact-icon" );

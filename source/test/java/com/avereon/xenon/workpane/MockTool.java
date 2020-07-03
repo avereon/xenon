@@ -30,14 +30,15 @@ public class MockTool extends Tool {
 
 	private Workpane.Placement placement;
 
-	private List<MethodCall> events = new CopyOnWriteArrayList<>();
+	private final List<MethodCall> events = new CopyOnWriteArrayList<>();
 
 	private int eventIndex;
 
 	public MockTool( Asset asset ) {
-		super( asset, "MockTool-" + counter.getAndIncrement() );
-		setPlacement( super.getPlacement() );
+		super( asset );
+		setTitle( "MockTool-" + counter.getAndIncrement() );
 		setBackground( new Background( new BackgroundFill( new Color( 0, 0.5, 1, 0.25 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
+		setPlacement( super.getPlacement() );
 	}
 
 	@Override

@@ -1,0 +1,5 @@
+--type deb
+--icon "${basedir}/target/main/images/${project.artifactId}.png"
+--linux-shortcut
+# The Linux package name is required to be all lower case
+--linux-package-name "${project.artifactId}"

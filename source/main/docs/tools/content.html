@@ -1,0 +1,123 @@
+<!--
+This is the Xenon tool manual. It is formatted as a partial HTML document in
+order to be used with the DocViewer component on the Avereon website. The
+h1-h6 tags that are children of the root div element, and have an id, will be
+used as an outline when displayed. Note also that links are relative to the
+Avereon website or must be fully qualified.
+-->
+
+<div>
+
+	<h1>Tool Guide</h1>
+	<p>2020-05-15</p>
+	<p>
+		Tools are at the heart of functionality in Xenon. Without tools Xenon has no
+		functionality for users to do any specific work. Tools operate on assets
+		(files, connections, etc.) and provide the functionality users need to
+		create, view, edit and maintain those assets.
+	</p>
+
+	<h2 id="getting-started">Getting Started</h2>
+	<p>
+		All tools should start by inheriting from the ProgramTool or GuidedTool
+		class. ProgramTool provides the required functionality while GuidedTool
+		should be used for tools that work in conjunction with the guide tool.
+	</p>
+
+	<pre>
+public class MyTool extends ProgramTool {
+
+  public MyTool( Program program, Asset asset ) {
+    super( program, asset );
+  }
+
+}</pre>
+
+	<h2 id="registration">Registering a Tool</h2>
+	<p>
+		Tools are only useful on assets of certain types. In order to associate a
+		tool with the asset types that it can work with it must be registered with
+		the program tool manager. It is common for a mod to register both the asset
+		type and the tools for the asset type, but it is also possible to register
+		tools	for existing asset types.
+	</p>
+	<p>
+		Registering a tool is not trivial as it requires quite a bit of information.
+		Below is a code example how to register a tool. The asset type to register
+		the tool against can be retrieved from the program asset manager, usually
+		with the <a href="/product/xenon/docs/user-guide#terminology-asset-type">asset
+		type media type</a>. The tool name should be retrieved from a resource
+		bundle and the icon should be retrieved from the program icon library. A
+		ToolRegistration object is created to collect all the information and passed
+		to the program tool manager to complete the registration. When a mod is
+		disabled or uninstalled the tools should also be unregistered.
+	</p>
+	<pre>
+public class MyMod extends Mod {
+
+  public void startup() {
+    ...
+    registerAssetType( myAssetType = new MyAssetType( this ) );
+    ToolRegistration registration = new ToolRegistration( getProduct(), MyTool.class );
+    // Optionally set name, icon and instance mode
+    registration.setName( name ).setIcon( icon ).setInstanceMode( ToolInstanceMode.UNLIMITED );
+    registerTool( ptyAssetType, registration );
+    ...
+  }
+
+  public void shutdown() {
+    ...
+    unregisterTool( myAssetType, MylTool.class );
+    unregisterAssetType( myAssetType );
+    ...
+  }
+
+}</pre>
+
+	<h2 id="recommended-practices">Recommended Practices</h2>
+
+	<h3 id="logic-for-tool-methods">
+		What logic to put in what methods
+	</h3>
+	<h4 id="ready">ready()</h4>
+	<ul>
+		<li>Register asset model event handlers</li>
+		<li>Register/update asset guide</li>
+	</ul>
+	<h4 id="open">open()</h4>
+	<ul>
+		<li>Asset navigation (e.g. selecting a page based on the URI fragment)</li>
+	</ul>
+	<h4 id="activate">activate()</h4>
+	<ul>
+		<li>Register custom tool actions</li>
+		<li>Register tool action handlers</li>
+		<li>Register/update asset guide</li>
+		<li>Update action state</li>
+	</ul>
+	<h4 id="conceal">conceal()</h4>
+	<ul>
+		<li>Unregister custom tool actions</li>
+		<li>Unregister tool action handlers</li>
+		<li>Unregister asset guide</li>
+	</ul>
+	<h4 id="remove">deallocate()</h4>
+	<ul>
+		<li>Unregister asset model event handlers</li>
+	</ul>
+
+	<h3 id="update-tool-on-asset-model-changes">
+		Update tool on asset model changes
+	</h3>
+	<p>
+		The recommended way to update the tool state when the asset changes is to
+		register event handlers on the asset model for the changes the tool needs
+		in order to keep the state up-to-date. Registering event handlers directly
+		on the asset will provide high-level events, but usually does not provide
+		enough information for the tool to make efficient decisions. Event handlers
+		on the asset model should be registered as "deep" as reasonable so that the
+		handler only has to process as little as possible. <em>Important:</em> Be
+		sure to unregister the event handlers when the tool is deallocated.
+	</p>
+
+</div>

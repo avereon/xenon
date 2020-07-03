@@ -5,6 +5,8 @@ module com.avereon.xenon {
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
 	requires com.avereon.zenna;
+	//requires commons.vfs2;
+	requires java.net.http;
 	requires java.logging;
 	requires java.management;
 	requires java.sql;
@@ -29,6 +31,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon.scheme;
 	exports com.avereon.xenon.task;
 	exports com.avereon.xenon.task.chain;
+	exports com.avereon.xenon.throwable;
 	exports com.avereon.xenon.tool;
 	exports com.avereon.xenon.tool.guide;
 	exports com.avereon.xenon.tool.settings;

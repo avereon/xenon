@@ -6,6 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ThemeMetadata;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.css.*;
 import javafx.css.converter.DeriveColorConverter;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class ThemeTool extends GuidedTool {
 
 	private static final System.Logger log = Log.get();
@@ -34,8 +36,6 @@ public class ThemeTool extends GuidedTool {
 
 	public ThemeTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
-		setGraphic( product.getProgram().getIconLibrary().getIcon( "themes" ) );
-		setTitle( product.rb().text( "tool", "themes-name" ) );
 
 		chooser = new ComboBox<>();
 		sample = generateSamplePane();
@@ -61,6 +61,12 @@ public class ThemeTool extends GuidedTool {
 		sample.getStylesheets().addAll( Program.STYLESHEET, theme.getStylesheet() );
 
 		refreshThemeOptions( theme );
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		setTitle( getProduct().rb().text( "tool", "themes-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "themes" ) );
 	}
 
 	private Region generateSamplePane() {

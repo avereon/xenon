@@ -2,12 +2,14 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.util.Log;
 import com.avereon.venza.javafx.FxUtil;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
+
 import java.lang.System.Logger;
 
 import java.util.*;
@@ -19,7 +21,7 @@ public class Guide {
 
 	private static final Logger log = Log.get();
 
-	private TreeItem<GuideNode> root;
+	private final TreeItem<GuideNode> root;
 
 	private SelectionMode selectionMode;
 
@@ -30,7 +32,7 @@ public class Guide {
 	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
-		this.root = new TreeItem<>( new GuideNode() );
+		this.root = new TreeItem<>();
 		activeProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
@@ -39,8 +41,29 @@ public class Guide {
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
-	public TreeItem<GuideNode> getRoot() {
-		return root;
+	public final GuideNode getNode( String id ) {
+		TreeItem<GuideNode> item = findItem( id );
+		return item == null ? null : item.getValue();
+	}
+
+	public final GuideNode addNode( GuideNode node ) {
+		return addNode( null, node );
+	}
+
+	public final GuideNode addNode( GuideNode node, GuideNode child ) {
+		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
+		Platform.runLater( () -> item.getChildren().add( child.getTreeItem() ) );
+		return child;
+	}
+
+	public final Guide clear() {
+		return clear( null );
+	}
+
+	public final Guide clear( GuideNode node ) {
+		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
+		Platform.runLater( () -> item.getChildren().clear() );
+		return this;
 	}
 
 	public SelectionMode getSelectionMode() {
@@ -63,6 +86,11 @@ public class Guide {
 		return activeProperty;
 	}
 
+	/* Only intended to be used by the GuideTool */
+	final TreeItem<GuideNode> getRoot() {
+		return root;
+	}
+
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final Set<String> getExpandedIds() {
 		Set<String> idSet = new HashSet<>();
@@ -75,7 +103,7 @@ public class Guide {
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setExpandedIds( Set<String> ids ) {
-		FxUtil.checkFxUserThread();
+		FxUtil.assertFxThread();
 		for( TreeItem<GuideNode> item : FxUtil.flatTree( root ) ) {
 			if( item == root ) continue;
 			item.setExpanded( ids.contains( item.getValue().getId() ) );
@@ -89,7 +117,7 @@ public class Guide {
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setExpandedItems( Set<TreeItem<GuideNode>> items ) {
-		FxUtil.checkFxUserThread();
+		FxUtil.assertFxThread();
 		expandedItems.set( items );
 	}
 
@@ -107,7 +135,7 @@ public class Guide {
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setSelectedIds( Set<String> ids ) {
-		FxUtil.checkFxUserThread();
+		FxUtil.assertFxThread();
 		Map<String, TreeItem<GuideNode>> itemMap = getItemMap();
 
 		Set<TreeItem<GuideNode>> newItems = new HashSet<>( ids.size() );
@@ -126,13 +154,8 @@ public class Guide {
 
 	/* Only intended to be used by the GuideTool and GuidedTools */
 	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
-		FxUtil.checkFxUserThread();
+		FxUtil.assertFxThread();
 		selectedItems.set( items );
-	}
-
-	protected final GuideNode getNode( String id ) {
-		TreeItem item = findItem( id );
-		return item == null ? null : (GuideNode)item.getValue();
 	}
 
 	private void updateExpandedItems() {
@@ -143,8 +166,16 @@ public class Guide {
 		return FxUtil.flatTree( root ).stream().collect( Collectors.toMap( item -> item.getValue().getId(), item -> item ) );
 	}
 
+	private TreeItem<GuideNode> findItem( GuideNode node ) {
+		return findItem( node.getId() );
+	}
+
 	private TreeItem<GuideNode> findItem( String id ) {
 		return findItem( root, id );
+	}
+
+	private TreeItem<GuideNode> findItem( GuideNode parent, GuideNode node ) {
+		return findItem( node.getId() );
 	}
 
 	private TreeItem<GuideNode> findItem( TreeItem<GuideNode> node, String id ) {

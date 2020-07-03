@@ -13,7 +13,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	private static final ActionProxy NONE = new ActionProxy();
 
-	private Program program;
+	private final Program program;
 
 	private ActionProxy proxy = NONE;
 
@@ -37,6 +37,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 		return false;
 	}
 
+	@SuppressWarnings( "UnusedReturnValue" )
 	public Action updateEnabled() {
 		if( proxy != null ) proxy.setEnabled( isEnabled() );
 		return this;

@@ -15,7 +15,7 @@ public class WorkpaneWatcher implements EventHandler<WorkpaneEvent> {
 
 	private static final Logger log = Log.get();
 
-	private static final long DEFAULT_WAIT_TIMEOUT = 2000;
+	private static final long DEFAULT_WAIT_TIMEOUT = 2500;
 
 	private Queue<WorkpaneEvent> events = new ConcurrentLinkedQueue<>();
 

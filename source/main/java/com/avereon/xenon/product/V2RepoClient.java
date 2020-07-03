@@ -64,7 +64,7 @@ public class V2RepoClient implements RepoClient {
 			try {
 				Download download = future.get( 10, TimeUnit.SECONDS );
 				try( InputStream input = download.getInputStream() ) {
-					catalogCards.add( CatalogCard.load( matchingRepoCards.get( future ), input ) );
+					catalogCards.add( CatalogCard.fromJson( matchingRepoCards.get( future ), input ) );
 				} catch( Exception exception ) {
 					log.log( Log.WARN,  "Error downloading catalog card: " + download.getSource(), exception );
 				}
@@ -93,7 +93,7 @@ public class V2RepoClient implements RepoClient {
 			try {
 				Download download = future.get( 10, TimeUnit.SECONDS );
 				try( InputStream input = download.getInputStream() ) {
-					productCards.add( new ProductCard().load( input, download.getSource() ) );
+					productCards.add( new ProductCard().fromJson( input, download.getSource() ) );
 				} catch( Exception exception ) {
 					log.log( Log.WARN,  "Error downloading product card: " + download.getSource(), exception );
 				}

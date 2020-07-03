@@ -127,7 +127,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		if( fileName != null ) {
 			File file = new File( fileName );
 			boolean exists = file.exists();
-			fileChooser.setInitialDirectory( FileUtil.findValidParent( file ) );
+			fileChooser.setInitialDirectory( FileUtil.findValidParent( file ).toFile() );
 			fileChooser.setInitialFileName( exists ? file.getName() : "" );
 		}
 
