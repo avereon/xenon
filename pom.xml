@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.avereon.pom</groupId>
 		<artifactId>prg</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.0</version>
 		<relativePath/>
 	</parent>
 
@@ -17,7 +17,7 @@
 	<artifactId>xenon</artifactId>
 	<!-- To do a release, merge to the stage branch, update the version and then merge to the stable branch -->
 	<!-- Also update the version in the jpackage descriptors -->
-	<version>1.3-SNAPSHOT</version>
+	<version>1.3</version>
 	<packaging>jar</packaging>
 
 	<name>Xenon</name>
@@ -69,10 +69,10 @@
 
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
-		<zevra.version>0.4-SNAPSHOT</zevra.version>
-		<venza.version>0.3-SNAPSHOT</venza.version>
-		<rossa.version>0.3-SNAPSHOT</rossa.version>
-		<zenna.version>0.4-SNAPSHOT</zenna.version>
+		<zevra.version>0.4</zevra.version>
+		<venza.version>0.3</venza.version>
+		<rossa.version>0.3</rossa.version>
+		<zenna.version>0.4</zenna.version>
 		<openjfx.version>14.0.1</openjfx.version>
 		<controlsfx.version>11.0.1</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
@@ -82,8 +82,8 @@
 		<monocle.version>jdk-12.0.1+2</monocle.version>
 
 		<!-- Build dependencies -->
-		<cameo.version>2.6-SNAPSHOT</cameo.version>
-		<curex.version>1.1-SNAPSHOT</curex.version>
+		<cameo.version>2.6</cameo.version>
+		<curex.version>1.1</curex.version>
 		<izpack.version>5.1.3</izpack.version>
 	</properties>
 
