@@ -196,17 +196,14 @@ public class RestartHook extends Thread {
 		if( builder == null ) return;
 
 		try {
-			log.log( Log.TRACE, "Starting " + mode + " process..." );
-			//System.out.println( "Starting " + mode + " process..." );
+			System.out.println( "Starting " + mode + " process..." );
 			if( mode == Mode.UPDATE ) program.setUpdateInProgress( true );
 			builder.redirectOutput( ProcessBuilder.Redirect.DISCARD );
 			builder.redirectError( ProcessBuilder.Redirect.DISCARD );
 			builder.start();
-			log.log( Log.INFO, mode + " process started!" );
-			//System.out.println( mode + " process started!" );
+			System.out.println( mode + " process started!" );
 		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error restarting program", throwable );
-			//throwable.printStackTrace( System.err );
+			throwable.printStackTrace( System.err );
 		}
 	}
 

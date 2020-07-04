@@ -612,7 +612,9 @@ public class Program extends Application implements ProgramProduct {
 	// THREAD JavaFX Application Thread
 	// EXCEPTIONS Handled by the FX framework
 	public void requestRestart( RestartHook.Mode mode, String... commands ) {
-		if( requestExit( true ) ) new RestartHook( this, mode, commands ).start();
+		RestartHook hook = new RestartHook( this, mode, commands );
+		Runtime.getRuntime().addShutdownHook( hook );
+		if( !requestExit( true ) ) Runtime.getRuntime().removeShutdownHook( hook );
 	}
 
 	public boolean requestExit( boolean skipChecks ) {
