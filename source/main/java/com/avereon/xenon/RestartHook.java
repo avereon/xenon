@@ -91,6 +91,7 @@ public class RestartHook extends Thread {
 		Path updaterFolder = manager.getUpdaterFolder();
 		String updatingProgramText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", program.getCard().getName() );
 		String logFolder = PathUtil.getParent( Log.getLogFile() );
+		if( logFolder != null ) logFolder = logFolder.replace( "%h", System.getProperty( "user.home" ) );
 		String logFile = PathUtil.resolve( logFolder, "update.%u.log" );
 
 		if( mode == Mode.MOCK_UPDATE ) {
