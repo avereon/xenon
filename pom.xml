@@ -69,21 +69,9 @@
 
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
-		<zevra.version>0.5-SNAPSHOT</zevra.version>
-		<venza.version>0.4-SNAPSHOT</venza.version>
-		<rossa.version>0.4-SNAPSHOT</rossa.version>
-		<zenna.version>0.5-SNAPSHOT</zenna.version>
-		<openjfx.version>14.0.1</openjfx.version>
-		<controlsfx.version>11.0.1</controlsfx.version>
 		<miglayout.version>5.2</miglayout.version>
 
-		<!-- Test dependencies -->
-		<testfx.version>4.0.16-alpha</testfx.version>
-		<monocle.version>jdk-12.0.1+2</monocle.version>
-
 		<!-- Build dependencies -->
-		<cameo.version>2.7-SNAPSHOT</cameo.version>
-		<curex.version>1.2-SNAPSHOT</curex.version>
 		<izpack.version>5.1.3</izpack.version>
 	</properties>
 
