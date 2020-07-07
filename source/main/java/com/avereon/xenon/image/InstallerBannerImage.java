@@ -2,8 +2,9 @@ package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
 import com.avereon.rossa.icon.XRingLargeIcon;
+import com.avereon.venza.image.Proof;
 import com.avereon.venza.image.RenderedImage;
-import com.avereon.venza.image.Theme;
+import com.avereon.venza.style.Theme;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
@@ -52,7 +53,7 @@ public class InstallerBannerImage extends RenderedImage {
 		RenderedImage image = new InstallerBannerImage();
 		image.setTheme( Theme.LIGHT );
 		image.relocate( 50,50 );
-		proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.web( "#E0E0E0") );
+		Proof.proof( image, image.getWidth() + 100, image.getHeight() + 100, Color.web( "#E0E0E0") );
 	}
 
 }
