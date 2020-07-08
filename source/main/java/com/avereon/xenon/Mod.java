@@ -3,7 +3,7 @@ package com.avereon.xenon;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
-import com.avereon.venza.image.RenderedIcon;
+import com.avereon.venza.image.VectorImage;
 import com.avereon.xenon.asset.AssetType;
 
 import java.lang.System.Logger;
@@ -63,7 +63,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param icon The icon to register
 	 * @return the mod
 	 */
-	protected Mod registerIcon( String id, RenderedIcon icon ) {
+	protected Mod registerIcon( String id, VectorImage icon ) {
 		getProgram().getIconLibrary().register( id, icon );
 		return this;
 	}
@@ -75,7 +75,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * @param icon The icon to unregister
 	 * @return the mod
 	 */
-	protected Mod unregisterIcon( String id, RenderedIcon icon ) {
+	protected Mod unregisterIcon( String id, VectorImage icon ) {
 		getProgram().getIconLibrary().unregister( id, icon );
 		return this;
 	}

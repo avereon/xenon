@@ -3,10 +3,7 @@ package com.avereon.xenon;
 import com.avereon.rossa.icon.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.venza.image.BrokenIcon;
-import com.avereon.venza.image.ImageIcon;
-import com.avereon.venza.image.Images;
-import com.avereon.venza.image.RenderedIcon;
+import com.avereon.venza.image.*;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -26,7 +23,7 @@ public class IconLibrary {
 
 	private final Program program;
 
-	private final Map<String, RenderedIcon> icons;
+	private final Map<String, VectorImage> icons;
 
 	public IconLibrary( Program program ) {
 		this.program = program;
@@ -118,12 +115,12 @@ public class IconLibrary {
 		return program;
 	}
 
-	public void register( String id, RenderedIcon icon ) {
+	public void register( String id, VectorImage icon ) {
 		icon.getProperties().put( "stylesheet", Program.STYLESHEET );
 		icons.put( id, icon );
 	}
 
-	public void unregister( String id, RenderedIcon icon ) {
+	public void unregister( String id, VectorImage icon ) {
 		if( icons.get( id ).getClass() == icon.getClass() ) icons.remove( id );
 	}
 
@@ -152,7 +149,7 @@ public class IconLibrary {
 	}
 
 	public Node getIcon( List<String> ids, double size ) {
-		RenderedIcon icon = null;
+		VectorImage icon = null;
 		for( String id : ids ) {
 			icon = icons.get( id );
 			if( icon == null ) icon = getIconFromUrl( id, size );
@@ -170,10 +167,10 @@ public class IconLibrary {
 	}
 
 	public Image[] getStageIcons( String id ) {
-		return Images.getStageIcons( (RenderedIcon)getIcon( id ), 16, 24, 32, 48, 64, 128, 256 );
+		return Images.getStageIcons( (VectorImage)getIcon( id ), 16, 24, 32, 48, 64, 128, 256 );
 	}
 
-	private RenderedIcon getIconFromUrl( String url, double size ) {
+	private VectorImage getIconFromUrl( String url, double size ) {
 		if( TextUtil.isEmpty( url ) || !url.contains( "://" ) ) return null;
 		ImageIcon icon = new ImageIcon( url ).resize( size );
 		String taskName = getProgram().rb().text( BundleKey.PROMPT, "load-icon", url );
