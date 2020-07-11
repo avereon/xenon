@@ -912,11 +912,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Load the modules
 		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
+		// Disable mods specified on the command line
+		List<String> disableMods = getProgram().getProgramParameters().getValues( ProgramFlag.DISABLE_MOD );
+		modules.values().stream().filter( mod -> disableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, false ) );
+
 		// Enable mods specified on the command line
 		List<String> enableMods = getProgram().getProgramParameters().getValues( ProgramFlag.ENABLE_MOD );
-		modules.values().forEach( mod -> {
-			if( enableMods.contains( mod.getCard().getProductKey() ) ) setModEnabled( mod, true );
-		} );
+		modules.values().stream().filter( mod -> enableMods.contains( mod.getCard().getProductKey() ) ).forEach( mod -> setModEnabled( mod, true ) );
 
 		// Allow the mods to register resources
 		modules.values().forEach( this::callModRegister );
