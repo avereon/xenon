@@ -13,6 +13,11 @@ public interface ProgramFlag extends LogFlag {
 	String DAEMON = "--daemon";
 
 	/**
+	 * Enable a specific mod. May be specified more than once.
+	 */
+	String ENABLE_MOD = "--enable-mod";
+
+	/**
 	 * Send greeting to already running instance.
 	 */
 	String HELLO = "--hello";

@@ -912,6 +912,12 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Load the modules
 		loadModules( moduleFolders.toArray( new Path[ 0 ] ) );
 
+		// Enable mods specified on the command line
+		List<String> enableMods = getProgram().getProgramParameters().getValues( ProgramFlag.ENABLE_MOD );
+		modules.values().forEach( mod -> {
+			if( enableMods.contains( mod.getCard().getProductKey() ) ) setModEnabled( mod, true );
+		} );
+
 		// Allow the mods to register resources
 		modules.values().forEach( this::callModRegister );
 
