@@ -145,23 +145,17 @@ public class RestartHook extends Thread {
 			for( ProductUpdate update : program.getProductManager().getStagedUpdates() ) {
 				String key = update.getCard().getProductKey();
 				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
-				Path unpack = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-unpack" );
 				Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
 				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-delete" );
 
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
-				String unpackPath = unpack.toString().replace( File.separator, "/" );
 				String deletePath = delete.toString().replace( File.separator, "/" );
 				String backupPath = backup.toString().replace( File.separator, "/" );
 				String targetPath = update.getTarget().toString().replace( File.separator, "/" );
+				String launchPath = OperatingSystem.getJavaLauncherPath();
 				String updatingProductText = program.rb().textOr( BundleKey.UPDATE, "updating", "Updating {0}", update.getCard().getName() );
 
 				ucb.add( UpdateTask.HEADER + " \"" + updatingProductText + "\"" );
-
-				// Make sure the unpack path is clear
-				ucb.add( UpdateTask.DELETE, unpackPath );
-				// ...and unpack the update
-				ucb.add( UpdateTask.UNPACK, updatePath, unpackPath );
 
 				// Make sure the delete path is clear
 				ucb.add( UpdateTask.DELETE, deletePath );
@@ -170,10 +164,10 @@ public class RestartHook extends Thread {
 
 				// Move the current product to the backup path
 				ucb.add( UpdateTask.MOVE, targetPath, backupPath );
-				// ...and move the unpacked product to the target path
-				ucb.add( UpdateTask.MOVE, unpackPath, targetPath );
+				// ...and unpack the update
+				ucb.add( UpdateTask.UNPACK, updatePath, targetPath );
 				// ...and update the program launcher
-				if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", OperatingSystem.getJavaLauncherPath() );
+				if( update.getCard().equals( program.getCard() ) ) ucb.add( UpdateTask.PERMISSIONS, "755", launchPath );
 
 				// Cleanup
 				ucb.add( UpdateTask.DELETE, deletePath );
