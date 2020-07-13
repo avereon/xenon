@@ -149,16 +149,12 @@ public class AssetManager implements Controllable<AssetManager> {
 		program.getTaskManager().submit( new SetCurrentAssetTask( asset ) ).get();
 	}
 
-	public List<Asset> getOpenAssets() {
-		return new ArrayList<>( openAssets );
+	public Set<Asset> getOpenAssets() {
+		return new HashSet<>( openAssets );
 	}
 
-	public List<Asset> getModifiedAssets() {
-		List<Asset> modifiedAssets = new ArrayList<>();
-		for( Asset asset : getOpenAssets() ) {
-			if( asset.isModified() && canSaveAsset( asset ) ) modifiedAssets.add( asset );
-		}
-		return modifiedAssets;
+	public Set<Asset> getModifiedAssets() {
+		return getOpenAssets().stream().filter( Asset::isModified ).collect( Collectors.toSet());
 	}
 
 	Set<AssetType> getUserAssetTypes() {
@@ -171,11 +167,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The set of externally modified assets
 	 */
 	public Set<Asset> getExternallyModifiedAssets() {
-		Set<Asset> externallyModifiedAssets = new HashSet<>();
-		for( Asset asset : getOpenAssets() ) {
-			if( asset.isExternallyModified() ) externallyModifiedAssets.add( asset );
-		}
-		return Collections.unmodifiableSet( externallyModifiedAssets );
+		return getOpenAssets().stream().filter( Asset::isExternallyModified ).collect( Collectors.toSet());
 	}
 
 	/**
