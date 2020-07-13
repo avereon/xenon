@@ -6,9 +6,12 @@ import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.venza.image.VectorImage;
 import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.tool.settings.SettingsPage;
 
+import java.io.IOException;
 import java.lang.System.Logger;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * The Mod class provides the basic interface and implementation of a Mod. Mods
@@ -24,6 +27,10 @@ import java.nio.file.Path;
  */
 public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
+	private static final String DEFAULT_SETTINGS = "settings/default.properties";
+
+	private static final String SETTINGS_PAGES = "settings/pages.xml";
+
 	private static final Logger log = Log.get();
 
 	private Program program;
@@ -31,6 +38,8 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	private ProductCard card;
 
 	private ProductBundle resourceBundle;
+
+	private Map<String, SettingsPage> settingsPages;
 
 	public Mod() {
 		card = new ProductCard().jsonCard( this );
@@ -161,6 +170,17 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	protected Mod unregisterTool( AssetType assetType, Class<? extends ProgramTool> type ) {
 		getProgram().getToolManager().unregisterTool( assetType, type );
+		return this;
+	}
+
+	protected Mod registerSettingsPages() throws IOException {
+		getSettings().loadDefaultValues( this, DEFAULT_SETTINGS );
+		settingsPages = getProgram().getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
+		return this;
+	}
+
+	protected Mod unregisterSettingsPages() {
+		getProgram().getSettingsManager().removeSettingsPages( settingsPages );
 		return this;
 	}
 
