@@ -66,9 +66,9 @@ public class Program extends Application implements ProgramProduct {
 
 	private static final String PROGRAM_RELEASE_PRIOR = "product-release-prior";
 
-	private static final String SETTINGS_DEFAULT_PROPERTIES = Program.class.getPackageName().replace( ".", "/" ) + "/settings/default.properties";
+	private static final String DEFAULT_SETTINGS = "settings/default.properties";
 
-	private static final String SETTINGS_PAGES_XML = Program.class.getPackageName().replace( ".", "/" ) + "/settings/pages.xml";
+	private static final String SETTINGS_PAGES = "settings/pages.xml";
 
 	private static final boolean SHOW_TIMING = false;
 
@@ -236,7 +236,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Create the program settings, depends on settings manager and default settings values
 		programSettings = getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		programSettings.setDefaultValues( loadDefaultSettings() );
+		programSettings.loadDefaultValues( this, DEFAULT_SETTINGS );
 		time( "program-settings" );
 
 		// Run the peer check before processing actions in case there is a peer already
@@ -380,7 +380,7 @@ public class Program extends Application implements ProgramProduct {
 		log.log( DEBUG, "Asset manager started." );
 
 		// Load the settings pages
-		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES_XML );
+		getSettingsManager().addSettingsPages( this, programSettings, SETTINGS_PAGES );
 
 		// Start the tool manager
 		log.log( TRACE, "Starting tool manager..." );
@@ -747,7 +747,8 @@ public class Program extends Application implements ProgramProduct {
 		return settingsManager;
 	}
 
-	public final Settings getProgramSettings() {
+	@Override
+	public final Settings getSettings() {
 		return programSettings;
 	}
 
@@ -791,21 +792,6 @@ public class Program extends Application implements ProgramProduct {
 		if( !SHOW_TIMING ) return;
 		long delta = System.currentTimeMillis() - programStartTime;
 		System.err.println( "time=" + delta + " marker=" + markerName + " thread=" + Thread.currentThread().getName() );
-	}
-
-	/**
-	 * Load the default settings map from the classpath.
-	 *
-	 * @return The default settings map
-	 * @throws IOException If an IOException occurs
-	 */
-	private Map<String, Object> loadDefaultSettings() throws IOException {
-		Properties properties = new Properties();
-		Map<String, Object> defaultSettingsValues = new HashMap<>();
-		InputStream defaultSettingsInput = getClassLoader().getResourceAsStream( SETTINGS_DEFAULT_PROPERTIES );
-		if( defaultSettingsInput != null ) properties.load( new InputStreamReader( defaultSettingsInput, TextUtil.CHARSET ) );
-		properties.forEach( ( k, v ) -> defaultSettingsValues.put( (String)k, v ) );
-		return defaultSettingsValues;
 	}
 
 	/**

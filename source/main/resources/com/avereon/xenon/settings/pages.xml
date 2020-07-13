@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<settings version="1.0">
+<pages version="1.0">
 
 	<page id="general">
 
@@ -297,4 +297,4 @@
 		-->
 	</page>
 
-</settings>
+</pages>

@@ -40,7 +40,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		this.program = program;
 		workspaces = new CopyOnWriteArraySet<>();
 
-		program.getProgramSettings().register( SettingsEvent.CHANGED, e -> {
+		program.getSettings().register( SettingsEvent.CHANGED, e -> {
 			if( "workspace-theme-id".equals( e.getKey() ) ) setTheme( (String)e.getNewValue() );
 		} );
 	}
@@ -224,7 +224,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	public boolean handleModifiedAssets( ProgramScope scope, Set<Asset> assets ) {
 		if( assets.isEmpty() ) return true;
 
-		boolean autoSave = getProgram().getProgramSettings().get( "shutdown-autosave", Boolean.class, false );
+		boolean autoSave = getProgram().getSettings().get( "shutdown-autosave", Boolean.class, false );
 		if( autoSave ) {
 			getProgram().getAssetManager().saveAssets( assets );
 			return true;
@@ -255,7 +255,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		long visibleWorkspaces = workspaces.stream().filter( w -> w.getStage().isShowing() ).count();
 		log.log( Log.WARN, "Number of visible workspaces: " + visibleWorkspaces );
 		boolean closeProgram = visibleWorkspaces == 1;
-		boolean shutdownVerify = getProgram().getProgramSettings().get( "shutdown-verify", Boolean.class, true );
+		boolean shutdownVerify = getProgram().getSettings().get( "shutdown-verify", Boolean.class, true );
 
 		if( closeProgram ) {
 			program.requestExit( false, false );

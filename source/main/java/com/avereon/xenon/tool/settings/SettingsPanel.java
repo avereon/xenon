@@ -40,11 +40,10 @@ public class SettingsPanel extends VBox {
 	// TODO Add an undo button to set individual setting back to previous.
 
 	/**
-	 * @param product
 	 * @param page
 	 * @param optionProviders The map of available option providers
 	 */
-	public SettingsPanel( Product product, SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
+	public SettingsPanel( SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
 		this.optionProviders = optionProviders;
 
 		//		String fontPlain = product.getResourceBundle().getString( "settings", "font-plain" );
@@ -61,6 +60,7 @@ public class SettingsPanel extends VBox {
 
 		// Get the title
 		String title = page.getTitle();
+		Product product = page.getProduct();
 		if( title == null ) title = product.rb().text( "settings", page.getId() );
 
 		// Add the title label

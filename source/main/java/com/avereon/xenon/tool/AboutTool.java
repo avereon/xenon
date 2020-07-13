@@ -97,8 +97,8 @@ public class AboutTool extends GuidedTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "about" ) );
 
 		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
-		getProgram().getProgramSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
-		getProgram().getProgramSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
+		getProgram().getSettings().register( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getSettings().register( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 
 		modEnabledWatcher = e -> Platform.runLater( this::updatePages );
 		getProgram().register( ModEvent.ENABLED, modEnabledWatcher );
@@ -120,8 +120,8 @@ public class AboutTool extends GuidedTool {
 	protected void deallocate() throws ToolException {
 		getProgram().unregister( ModEvent.ENABLED, modEnabledWatcher );
 		getProgram().unregister( ModEvent.DISABLED, modEnabledWatcher );
-		getProgram().getProgramSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
-		getProgram().getProgramSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
+		getProgram().getSettings().unregister( ProductManager.LAST_CHECK_TIME, updateCheckWatcher );
+		getProgram().getSettings().unregister( ProductManager.NEXT_CHECK_TIME, updateCheckWatcher );
 		super.deallocate();
 	}
 

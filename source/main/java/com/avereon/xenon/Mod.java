@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
+import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.venza.image.VectorImage;
 import com.avereon.xenon.asset.AssetType;
@@ -193,7 +194,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * process after the {@link #register} method is called. This method is also
 	 * called when a mod is enabled from the product tool.
 	 */
-	public void startup() {}
+	public void startup() throws Exception {}
 
 	/**
 	 * Called by the program to shutdown a mod instance. This method is typically
@@ -203,7 +204,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 * {@link #unregister} method is called. This method is also called when a mod
 	 * is disabled from the product tool.
 	 */
-	public void shutdown() {}
+	public void shutdown() throws Exception {}
 
 	/**
 	 * Called by the program to unregister a mod instance. This method is
@@ -214,12 +215,17 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	public void unregister() {}
 
+	@Override
+	public Settings getSettings() {
+		return getProgram().getSettingsManager().getProductSettings( getCard() );
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Path getDataFolder() {
-		return program.getDataFolder().resolve( card.getProductKey() );
+		return getProgram().getDataFolder().resolve( getCard().getProductKey() );
 	}
 
 	/**
@@ -227,7 +233,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	@Override
 	public int compareTo( Mod that ) {
-		return this.card.getArtifact().compareTo( that.card.getArtifact() );
+		return this.getCard().getArtifact().compareTo( that.getCard().getArtifact() );
 	}
 
 	/**
@@ -235,7 +241,7 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	 */
 	@Override
 	public String toString() {
-		return card.getName();
+		return getCard().getName();
 	}
 
 }

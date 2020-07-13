@@ -65,7 +65,7 @@ public class SettingsTool extends GuidedTool {
 
 	private void setPage( SettingsPage page ) {
 		SettingsManager manager = getProgram().getSettingsManager();
-		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( getProduct(), page, manager.getOptionProviders() ) );
+		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( page, manager.getOptionProviders() ) );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
 		getChildren().clear();

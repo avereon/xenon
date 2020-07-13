@@ -177,7 +177,7 @@ public class AssetTool extends GuidedTool {
 		goButton.setGraphic( getProgram().getIconLibrary().getIcon( "asset-" + action ) );
 
 		// Select the current asset
-		String currentFolderString = getProgram().getProgramSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
+		String currentFolderString = getProgram().getSettings().get( AssetManager.CURRENT_FOLDER_SETTING_KEY, System.getProperty( "user.dir" ) );
 				log.log( Log.INFO, "Current folder string=" + currentFolderString );
 		URI uri = URI.create( currentFolderString );
 //		Path currentFolder = FileUtil.findValidFolder( currentFolderString );
@@ -292,7 +292,7 @@ public class AssetTool extends GuidedTool {
 
 	private void loadFolder( Asset asset ) {
 		if( "file".equals( asset.getUri().getScheme() ) ){
-			getProgram().getProgramSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
+			getProgram().getSettings().set( AssetManager.CURRENT_FOLDER_SETTING_KEY, asset.getFile().toString() );
 		}
 		currentAsset = asset;
 		updateActionState();

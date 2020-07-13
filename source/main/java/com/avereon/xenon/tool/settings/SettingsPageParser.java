@@ -18,7 +18,7 @@ public class SettingsPageParser {
 
 	private static final Logger log = Log.get();
 
-	private static final String SETTINGS = "settings";
+	private static final String PAGES = "pages";
 
 	private static final String PAGE = "page";
 
@@ -54,9 +54,9 @@ public class SettingsPageParser {
 
 	private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
-	private Product product;
+	private final Product product;
 
-	private Settings settings;
+	private final Settings settings;
 
 	public SettingsPageParser( Product product, Settings settings ) {
 		this.product = product;
@@ -64,8 +64,8 @@ public class SettingsPageParser {
 	}
 
 	public Map<String, SettingsPage> parse( String path ) throws IOException {
-		if( path.startsWith( "/" ) ) path = path.substring( 1 );
-		InputStream input = product.getClassLoader().getResourceAsStream( path );
+		//if( path.startsWith( "/" ) ) path = path.substring( 1 );
+		InputStream input = product.getClass().getResourceAsStream( path );
 		if( input == null ) log.log( Log.WARN,  "Settings page input stream is null: " + path );
 		return parse( input );
 	}
@@ -92,11 +92,11 @@ public class SettingsPageParser {
 		if( !reader.hasNext() ) return;
 
 		reader.next();
-		if( !reader.getLocalName().equals( SETTINGS ) ) return;
+		if( !reader.getLocalName().equals( PAGES ) ) return;
 
 		while( reader.hasNext() ) {
 			reader.next();
-			if( reader.isEndElement() && reader.getLocalName().equals( SETTINGS ) ) break;
+			if( reader.isEndElement() && reader.getLocalName().equals( PAGES ) ) break;
 
 			switch( reader.getEventType() ) {
 				case XMLStreamReader.START_ELEMENT: {
