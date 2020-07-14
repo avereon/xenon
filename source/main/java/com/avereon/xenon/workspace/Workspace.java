@@ -45,37 +45,37 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Workspace implements WritableIdentity {
 
+	public static final String WORKSPACE_PROPERTY_KEY = Workspace.class.getName();
+
 	private static final System.Logger log = Log.get();
 
-	private Program program;
+	private final Program program;
 
-	private Stage stage;
+	private final Stage stage;
 
 	private Scene scene;
 
 	private boolean active;
 
-	private FxEventHub eventBus;
+	private final FxEventHub eventBus;
 
-	private StackPane workspaceStack;
-
-	private BorderPane workareaLayout;
+	private final BorderPane workareaLayout;
 
 	private Pane menubarContainer;
 
 	private HBox toolbarContainer;
 
-	private MenuBar menubar;
+	private final MenuBar menubar;
 
-	private ToolBar toolbar;
+	private final ToolBar toolbar;
 
-	private Map<String, Button> toolbarToolButtons;
+	private final Map<String, Button> toolbarToolButtons;
 
-	private Separator toolbarToolButtonSeparator;
+	private final Separator toolbarToolButtonSeparator;
 
-	private Region toolbarToolSpring;
+	private final Region toolbarToolSpring;
 
-	private StatusBar statusBar;
+	private final StatusBar statusBar;
 
 	private Group memoryMonitorContainer;
 
@@ -85,7 +85,7 @@ public class Workspace implements WritableIdentity {
 
 	private TaskMonitor taskMonitor;
 
-	private WorkspaceBackground background;
+	private final WorkspaceBackground background;
 
 	private Pane dropHintLayer;
 
@@ -142,10 +142,11 @@ public class Workspace implements WritableIdentity {
 		workpaneContainer = new StackPane( background = new WorkspaceBackground() );
 		workpaneContainer.getStyleClass().add( "workspace" );
 
-		workspaceStack = new StackPane( workpaneContainer, noticeLayout );
+		StackPane workspaceStack = new StackPane( workpaneContainer, noticeLayout );
 		workspaceStack.setPickOnBounds( false );
 
 		workareaLayout = new BorderPane();
+		workareaLayout.getProperties().put( WORKSPACE_PROPERTY_KEY, this );
 		workareaLayout.setTop( new VBox( menubar, toolbar ) );
 		workareaLayout.setCenter( workspaceStack );
 		workareaLayout.setBottom( statusBar );

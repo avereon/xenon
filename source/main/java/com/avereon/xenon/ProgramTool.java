@@ -9,7 +9,9 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolException;
+import com.avereon.xenon.workspace.Workspace;
 import javafx.application.Platform;
+import javafx.scene.Node;
 
 import java.net.URI;
 import java.util.Collections;
@@ -185,6 +187,17 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	protected ProgramTool pullAction( String key, Action action ) {
 		getProgram().getActionLibrary().getAction( key ).pullAction( action );
 		return this;
+	}
+
+	protected Workspace getWorkspace() {
+		Node node = this;
+		Workspace workspace;
+		do {
+			workspace = (Workspace)node.getProperties().get( Workspace.WORKSPACE_PROPERTY_KEY);
+			node = node.getParent();
+		} while( workspace == null && node != null);
+
+		return workspace;
 	}
 
 }
