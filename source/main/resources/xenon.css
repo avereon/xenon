@@ -284,10 +284,15 @@
  ******************************************************************************/
 .status-bar {
 	-fx-padding: 1mm 1mm 1mm 1mm;
+	-fx-font-weight: normal;
 }
 
 .status-bar > .box {
 	-fx-spacing: 1mm;
+}
+
+.status-bar .label {
+	-fx-padding: 0.5mm 1mm 0.5mm 1mm;
 }
 
 /*******************************************************************************

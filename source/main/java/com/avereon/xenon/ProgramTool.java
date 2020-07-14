@@ -15,6 +15,7 @@ import javafx.scene.Node;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -198,6 +199,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		} while( workspace == null && node != null);
 
 		return workspace;
+	}
+
+	protected void addStylesheet( String stylesheet ) {
+		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( stylesheet ) ).toExternalForm() );
 	}
 
 }

@@ -11,6 +11,8 @@ public class StatusBar extends BorderPane {
 	private HBox rightStatusBarItems;
 
 	public StatusBar() {
+		getStyleClass().addAll( "status-bar" );
+
 		leftStatusBarItems = new HBox();
 		leftStatusBarItems.getStyleClass().addAll( "box" );
 
@@ -19,8 +21,6 @@ public class StatusBar extends BorderPane {
 
 		setLeft( leftStatusBarItems );
 		setRight( rightStatusBarItems );
-
-		getStyleClass().add( "status-bar" );
 	}
 
 	public void addLeft( Node node ) {
