@@ -25,12 +25,14 @@ import java.util.concurrent.TimeoutException;
 
 abstract class Screenshots {
 
-	private static String PROFILE = "screenshots";
+	protected static final int TIMEOUT = 2000;
 
 	private static final double WIDTH = 800;
 
+	private static final String PROFILE = "screenshots";
+
 	private static final double HEIGHT = 500;
-	
+
 	private int scale;
 
 	private Path screenshots;

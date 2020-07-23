@@ -22,7 +22,7 @@ import java.nio.file.Path;
 
 public abstract class FxProgramUIT extends ApplicationTest {
 
-	private final long max = Runtime.getRuntime().maxMemory();
+	protected static final int TIMEOUT = 2000;
 
 	protected Program program;
 
@@ -67,7 +67,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 		program = (Program)FxToolkit.setupApplication( Program.class, ProgramTestConfig.getParameterValues() );
 		program.register( ProgramEvent.ANY, programWatcher = new ProgramWatcher() );
 		programWatcher.waitForEvent( ProgramEvent.STARTED );
-		metadata = program.getCard();
 
 		workpane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher = new WorkpaneWatcher() );
