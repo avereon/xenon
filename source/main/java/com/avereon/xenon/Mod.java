@@ -173,8 +173,12 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 		return this;
 	}
 
-	protected Mod registerSettingsPages() throws IOException {
+	protected Mod loadDefaultSettings() throws IOException {
 		getSettings().loadDefaultValues( this, DEFAULT_SETTINGS );
+		return this;
+	}
+
+	protected Mod registerSettingsPages() {
 		settingsPages = getProgram().getSettingsManager().addSettingsPages( this, getSettings(), SETTINGS_PAGES );
 		return this;
 	}
