@@ -13,7 +13,7 @@ module com.avereon.xenon {
 	requires jdk.crypto.ec;
 	requires miglayout.javafx;
 	requires org.controlsfx.controls;
-	requires transitive com.avereon.rossa;
+	requires transitive com.avereon.zenna;
 	requires transitive com.avereon.zerra;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;

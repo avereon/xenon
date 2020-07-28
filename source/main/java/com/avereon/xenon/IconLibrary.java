@@ -3,6 +3,7 @@ package com.avereon.xenon;
 import com.avereon.rossa.icon.*;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import com.avereon.zenna.icon.*;
 import com.avereon.zerra.image.*;
 import com.avereon.xenon.task.Task;
 import javafx.scene.Node;

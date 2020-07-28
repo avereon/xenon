@@ -1,7 +1,7 @@
 package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
-import com.avereon.rossa.icon.XRingLargeIcon;
+import com.avereon.zenna.icon.XRingLargeIcon;
 import com.avereon.zerra.image.Proof;
 import com.avereon.zerra.image.RenderedImage;
 import com.avereon.zerra.style.Theme;

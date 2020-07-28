@@ -1,6 +1,6 @@
 package com.avereon.xenon;
 
-import com.avereon.rossa.icon.PowerIcon;
+import com.avereon.zenna.icon.PowerIcon;
 import com.avereon.zerra.image.BrokenIcon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

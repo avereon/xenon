@@ -295,12 +295,12 @@
 									<theme>light</theme>
 								</image>
 								<image>
-									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 									<target>${images-folder}/xenon.png</target>
 									<theme>dark</theme>
 								</image>
 								<image>
-									<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+									<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 									<target>${images-folder}/xenon-light.png</target>
 									<theme>light</theme>
 								</image>
@@ -310,31 +310,31 @@
 									<target>${images-folder}/xenon.ico</target>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>16</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>24</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>32</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>48</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>64</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>96</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>128</size>
 										</image>
 									</images>
@@ -344,31 +344,31 @@
 									<theme>light</theme>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>16</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>24</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>32</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>48</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>64</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>96</size>
 										</image>
 										<image>
-											<class>com.avereon.rossa.icon.XRingLargeIcon</class>
+											<class>com.avereon.zenna.icon.XRingLargeIcon</class>
 											<size>128</size>
 										</image>
 									</images>
