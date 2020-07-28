@@ -1,7 +1,7 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.venza.event.FxEventWrapper;
+import com.avereon.zerra.event.FxEventWrapper;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.Tool;

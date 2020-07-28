@@ -2,9 +2,9 @@ package com.avereon.xenon.image;
 
 import com.avereon.product.ProductCard;
 import com.avereon.rossa.icon.XRingLargeIcon;
-import com.avereon.venza.image.Proof;
-import com.avereon.venza.image.RenderedImage;
-import com.avereon.venza.style.Theme;
+import com.avereon.zerra.image.Proof;
+import com.avereon.zerra.image.RenderedImage;
+import com.avereon.zerra.style.Theme;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 

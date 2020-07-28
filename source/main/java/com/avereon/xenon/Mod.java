@@ -4,7 +4,7 @@ import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
-import com.avereon.venza.image.VectorImage;
+import com.avereon.zerra.image.VectorImage;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.settings.SettingsPage;
 

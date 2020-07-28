@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
-import com.avereon.venza.javafx.FxUtil;
+import com.avereon.zerra.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;

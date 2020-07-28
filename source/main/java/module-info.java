@@ -14,7 +14,7 @@ module com.avereon.xenon {
 	requires miglayout.javafx;
 	requires org.controlsfx.controls;
 	requires transitive com.avereon.rossa;
-	requires transitive com.avereon.venza;
+	requires transitive com.avereon.zerra;
 	requires transitive com.avereon.zevra;
 	requires transitive javafx.controls;
 	requires transitive javafx.graphics;

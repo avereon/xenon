@@ -7,7 +7,7 @@ import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
-import com.avereon.venza.event.FxEventHub;
+import com.avereon.zerra.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;

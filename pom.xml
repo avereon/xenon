@@ -85,8 +85,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>venza</artifactId>
-			<version>${venza.version}</version>
+			<artifactId>zerra</artifactId>
+			<version>${zerra.version}</version>
 		</dependency>
 
 		<dependency>
