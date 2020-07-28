@@ -2,9 +2,9 @@ package com.avereon.xenon;
 
 import com.avereon.util.*;
 import com.avereon.xenon.product.ProductUpdate;
-import com.avereon.zenna.UpdateCommandBuilder;
-import com.avereon.zenna.UpdateFlag;
-import com.avereon.zenna.UpdateTask;
+import com.avereon.weave.UpdateCommandBuilder;
+import com.avereon.weave.UpdateFlag;
+import com.avereon.weave.UpdateTask;
 
 import java.io.File;
 import java.lang.System.Logger;

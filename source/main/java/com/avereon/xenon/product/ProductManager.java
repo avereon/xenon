@@ -183,7 +183,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Register included products
 		includedProducts = new HashSet<>();
 		includedProducts.add( program.getCard() );
-		includedProducts.add( new com.avereon.zenna.Program().getCard() );
+		includedProducts.add( new com.avereon.weave.Program().getCard() );
 	}
 
 	private Program getProgram() {

@@ -97,8 +97,8 @@
 
 		<dependency>
 			<groupId>com.avereon</groupId>
-			<artifactId>zenna</artifactId>
-			<version>${zenna.version}</version>
+			<artifactId>weave</artifactId>
+			<version>${weave.version}</version>
 		</dependency>
 
 		<!--		<dependency>-->
@@ -270,7 +270,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<configuration>
 					<links>
-						<link>https://www.avereon.com/product/zenna/docs/api</link>
+						<link>https://www.avereon.com/product/weave/docs/api</link>
 						<link>https://www.avereon.com/product/zevra/docs/api</link>
 					</links>
 				</configuration>
