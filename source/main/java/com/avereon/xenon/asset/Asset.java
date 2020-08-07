@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public class Asset extends Node implements Configurable {
 
-	public static final Asset NONE = new Asset( URI.create( "program:none" ) );
+	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );
 
 	public static final String SETTINGS_URI_KEY = "uri";
 
@@ -33,34 +33,36 @@ public class Asset extends Node implements Configurable {
 	public static final String UNKNOWN_MEDIA_TYPE = "unknown";
 
 	// FIXME Is this the same value as SETTINGS_TYPE_KEY above?
-	private static final String TYPE_VALUE_KEY = "asset.type";
+	private static final String TYPE = "type";
 
-	private static final String URI_VALUE_KEY = "asset.uri";
+	private static final String URI = "uri";
 
-	public static final String ICON_VALUE_KEY = "asset.icon";
+	public static final String NAME = "name";
 
-	private static final String SCHEME_VALUE_KEY = "asset.scheme";
+	public static final String ICON = "icon";
 
-	private static final String CODEC_VALUE_KEY = "asset.codec";
+	private static final String SCHEME = "scheme";
 
-	private static final String ENCODING_VALUE_KEY = "asset.encoding";
+	private static final String CODEC = "codec";
 
-	private static final String MODEL_VALUE_KEY = "asset.model";
+	private static final String ENCODING = "encoding";
 
-	private static final String EXTERNALLY_MODIFIED = "asset.externally.modified";
+	private static final String MODEL = "model";
 
-	private static final String LAST_SAVED_KEY = "asset.last.saved";
+	private static final String EXTERNALLY_MODIFIED = "externally-modified";
 
-	private static final String FILE = "asset.file";
+	private static final String LAST_SAVED_KEY = "last-saved";
 
-	//	private static final String EDITABLE = "asset.editable";
+	private static final String FILE = "file";
 
-	//	private static final String UNDO_MANAGER = "asset.undo.manager";
+	//	private static final String EDITABLE = "editable";
+
+	//	private static final String UNDO_MANAGER = "undo-manager";
 
 	private static final Logger log = Log.get();
 
 	// Name is not stored in the node data, it is derived
-	private String name;
+	//private String name;
 
 	private UndoScope undoScope;
 
@@ -88,7 +90,7 @@ public class Asset extends Node implements Configurable {
 
 	// Testing only
 	public Asset( String uri ) {
-		this( URI.create( uri ), null );
+		this( java.net.URI.create( uri ), null );
 	}
 
 	public Asset( URI uri, AssetType type ) {
@@ -107,71 +109,13 @@ public class Asset extends Node implements Configurable {
 	 * @return The URI for the asset
 	 */
 	public URI getUri() {
-		return getValue( URI_VALUE_KEY );
+		return getValue( URI );
 	}
 
 	public void setUri( URI uri ) {
 		if( uri == null ) throw new NullPointerException( "The uri cannot be null." );
 		if( !uri.toString().equals( uri.normalize().toString() ) ) throw new IllegalArgumentException( "URI must be normalized" );
-		setValue( URI_VALUE_KEY, uri );
-		updateAssetName();
-	}
-
-	public String getIcon() {
-		return getValue( ICON_VALUE_KEY, "file" );
-	}
-
-	public Asset setIcon( String icon ) {
-		setValue( ICON_VALUE_KEY, icon );
-		return this;
-	}
-
-	public AssetType getType() {
-		return getValue( TYPE_VALUE_KEY );
-	}
-
-	public void setType( AssetType type ) {
-		setValue( TYPE_VALUE_KEY, type );
-		updateAssetName();
-	}
-
-	/**
-	 * The codec used to load/save the asset. The codec is usually null until
-	 * the asset is loaded or saved. Then the codec used for that operation is
-	 * stored for convenience to be used for later load or save operations.
-	 *
-	 * @return The codec used to load/save the asset.
-	 */
-	public Codec getCodec() {
-		return getValue( CODEC_VALUE_KEY );
-	}
-
-	public void setCodec( Codec codec ) {
-		setValue( CODEC_VALUE_KEY, codec );
-	}
-
-	public Scheme getScheme() {
-		return getValue( SCHEME_VALUE_KEY );
-	}
-
-	public void setScheme( Scheme scheme ) {
-		setValue( SCHEME_VALUE_KEY, scheme );
-	}
-
-	public String getEncoding() {
-		return getValue( ENCODING_VALUE_KEY, StandardCharsets.UTF_8.name() );
-	}
-
-	public void setEncoding( String encoding ) {
-		setValue( ENCODING_VALUE_KEY, encoding );
-	}
-
-	public String getMediaType() {
-		return getValue( MEDIA_TYPE_KEY, UNKNOWN_MEDIA_TYPE );
-	}
-
-	public void setMediaType( String mediaType ) {
-		setValue( MEDIA_TYPE_KEY, mediaType );
+		setValue( URI, uri );
 	}
 
 	/**
@@ -182,7 +126,68 @@ public class Asset extends Node implements Configurable {
 	 * @return The name of the asset.
 	 */
 	public String getName() {
-		return name;
+		return getValue( NAME, getDefaultName() );
+	}
+
+	public Asset setName( String name ) {
+		setValue( NAME, name );
+		return this;
+	}
+
+	public String getIcon() {
+		return getValue( ICON, "file" );
+	}
+
+	public Asset setIcon( String icon ) {
+		setValue( ICON, icon );
+		return this;
+	}
+
+	public AssetType getType() {
+		return getValue( TYPE );
+	}
+
+	public void setType( AssetType type ) {
+		setValue( TYPE, type );
+	}
+
+	/**
+	 * The codec used to load/save the asset. The codec is usually null until
+	 * the asset is loaded or saved. Then the codec used for that operation is
+	 * stored for convenience to be used for later load or save operations.
+	 *
+	 * @return The codec used to load/save the asset.
+	 */
+	public Codec getCodec() {
+		return getValue( CODEC );
+	}
+
+	public void setCodec( Codec codec ) {
+		setValue( CODEC, codec );
+	}
+
+	public Scheme getScheme() {
+		return getValue( SCHEME );
+	}
+
+	public void setScheme( Scheme scheme ) {
+		setValue( SCHEME, scheme );
+	}
+
+	public String getEncoding() {
+		return getValue( ENCODING, StandardCharsets.UTF_8.name() );
+	}
+
+	public void setEncoding( String encoding ) {
+		setValue( ENCODING, encoding );
+	}
+
+	public String getMediaType() {
+		return getValue( MEDIA_TYPE_KEY, UNKNOWN_MEDIA_TYPE );
+	}
+
+	public void setMediaType( String mediaType ) {
+		setValue( MEDIA_TYPE_KEY, mediaType );
 	}
 
 	/**
@@ -234,11 +239,11 @@ public class Asset extends Node implements Configurable {
 	}
 
 	public <M> M getModel() {
-		return getValue( MODEL_VALUE_KEY );
+		return getValue( MODEL );
 	}
 
 	public <M> void setModel( M model ) {
-		setValue( MODEL_VALUE_KEY, model );
+		setValue( MODEL, model );
 	}
 
 	/**
@@ -294,15 +299,6 @@ public class Asset extends Node implements Configurable {
 		loaded = true;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
-
-		// FIXME Because ready is triggered by event and refresh is called directly
-		// asset.refresh() is often called before tool.assetReady() causing a race
-		// condition because ready is expected to be called only once before refresh
-		// is ever called. Options:
-		//   1) Get rid of the tool.assetReady() method any only use refresh
-		//   2) Make tool.assetReady() more tightly integrated with asset
-		//   3) Make asset.refresh() less tightly integrated with tool
-		//setReady();
 		notifyAll();
 	}
 
@@ -320,8 +316,6 @@ public class Asset extends Node implements Configurable {
 		saved = true;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.SAVED, this ) );
-
-		updateAssetName();
 	}
 
 	public synchronized final boolean isClosed() {
@@ -450,7 +444,7 @@ public class Asset extends Node implements Configurable {
 		return string;
 	}
 
-	private void updateAssetName() {
+	private String getDefaultName() {
 		AssetType type = getType();
 		URI uri = getUri();
 		String path = uri.getPath();
@@ -473,7 +467,7 @@ public class Asset extends Node implements Configurable {
 		//			name = path.substring( path.lastIndexOf( '/' ) + 1 );
 		//		}
 
-		this.name = name;
+		return name;
 	}
 
 }

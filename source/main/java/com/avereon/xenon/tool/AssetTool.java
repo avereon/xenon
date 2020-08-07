@@ -360,7 +360,7 @@ public class AssetTool extends GuidedTool {
 	private GuideNode createGuideNode( String name, String icon, String path ) throws AssetException {
 		Asset asset = getProgram().getAssetManager().createAsset( path );
 		GuideNode node = new GuideNode( getProgram(), asset.getUri().toString(), name, icon );
-		asset.register( Asset.ICON_VALUE_KEY, e -> node.setIcon( e.getNewValue() ) );
+		asset.register( Asset.ICON, e -> node.setIcon( e.getNewValue() ) );
 		return node;
 	}
 
