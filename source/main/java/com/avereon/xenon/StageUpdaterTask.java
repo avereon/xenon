@@ -50,8 +50,11 @@ public class StageUpdaterTask extends Task<Void> {
 
 		// Fix the permissions on the executable
 		Path bin = updater.getUpdaterLauncher();
-		boolean result = !bin.toFile().setExecutable( true );
-		if( !result ) log.log( Log.WARN, "Unable to make updater executable: " + bin );
+		if( !Files.exists( bin ) ) log.log( Log.WARN, "Unable to find updater executable: " + bin );
+		if( !bin.toFile().canExecute() ) {
+			boolean result = !bin.toFile().setExecutable( true );
+			if( !result ) log.log( Log.WARN, "Unable to make updater executable: " + bin );
+		}
 
 		return null;
 	}

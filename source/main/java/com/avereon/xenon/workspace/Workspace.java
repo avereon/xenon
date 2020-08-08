@@ -161,6 +161,12 @@ public class Workspace implements WritableIdentity {
 		stage.focusedProperty().addListener( ( p, o, n ) -> {
 			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
+		stage.outputScaleXProperty().addListener( (p,o,n) -> {
+			log.log( Log.WARN, "The window output scale X changed to " + n );
+		} );
+		stage.outputScaleYProperty().addListener( (p,o,n) -> {
+			log.log( Log.WARN, "The window output scale Y changed to " + n );
+		} );
 	}
 
 	public void setTheme( String url ) {
