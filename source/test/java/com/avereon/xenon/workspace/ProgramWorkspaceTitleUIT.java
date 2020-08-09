@@ -13,7 +13,7 @@ class ProgramWorkspaceTitleUIT extends ProgramWorkspaceUIT {
 		Stage stage = program.getWorkspaceManager().getActiveStage();
 		String workareaName = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getName();
 		assertThat( stage.isShowing(), is( true ) );
-		assertThat( stage.getTitle(), is( workareaName + " - " + metadata.getName() ) );
+		assertThat( stage.getTitle(), is( workareaName + " - " + program.getCard().getName() ) );
 	}
 
 }

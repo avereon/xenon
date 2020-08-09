@@ -1,10 +1,10 @@
 import com.avereon.xenon.Mod;
 
 module com.avereon.xenon {
+	requires com.avereon.weave;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.annotation;
-	requires com.avereon.weave;
 	//requires commons.vfs2;
 	requires java.net.http;
 	requires java.logging;

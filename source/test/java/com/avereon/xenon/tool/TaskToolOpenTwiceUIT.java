@@ -14,15 +14,13 @@ class TaskToolOpenTwiceUIT extends TaskToolUIT {
 		Workpane pane = program.getWorkspaceManager().getActiveWorkspace().getActiveWorkarea().getWorkpane();
 		assertToolCount( pane, 0 );
 
-		clickOn( "#menu-help" );
-		clickOn( "#menuitem-task" );
+		openTaskMenu();
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );
 
 		// Try to open the tool again and make sure there is still only one
-		clickOn( "#menu-help" );
-		clickOn( "#menuitem-task" );
+		openTaskMenu();
 		workpaneWatcher.waitForEvent( ToolEvent.ACTIVATED );
 		assertThat( pane.getActiveTool(), instanceOf( TaskTool.class ) );
 		assertToolCount( pane, 1 );

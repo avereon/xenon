@@ -26,8 +26,6 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	protected Program program;
 
-	protected ProductCard metadata;
-
 	private ProgramWatcher programWatcher;
 
 	protected Workpane workpane;
@@ -112,12 +110,12 @@ public abstract class FxProgramUIT extends ApplicationTest {
 
 	private void assertSafeMemoryProfile() {
 		long increaseSize = finalMemoryUse - initialMemoryUse;
-		System.out.println( String.format(
-			"Memory use: %s - %s = %s",
+		System.out.printf(
+			"Memory use: %s - %s = %s%n",
 			FileUtil.getHumanSizeBase2( finalMemoryUse ),
 			FileUtil.getHumanSizeBase2( initialMemoryUse ),
 			FileUtil.getHumanSizeBase2( increaseSize )
-		) );
+		);
 
 		if( ((double)increaseSize / (double)SizeUnitBase10.MB.getSize()) > getAllowedMemoryGrowthSize() ) {
 			throw new AssertionFailedError( String.format(
