@@ -30,7 +30,7 @@ public class ProgramNoticeType extends AssetType {
 	}
 
 	@Override
-	public boolean assetInit( Program program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Program program, Asset asset ) throws AssetException {
 		asset.setModel( new NoticeModel() );
 		return true;
 	}

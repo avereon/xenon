@@ -1053,7 +1053,7 @@ public class AssetManager implements Controllable<AssetManager> {
 		log.log( Log.TRACE, "Asset settings: " + asset.getSettings().getPath() );
 
 		// Initialize the asset
-		if( !type.callAssetInit( program, asset ) ) return false;
+		if( !type.callAssetOpen( program, asset ) ) return false;
 		log.log( Log.TRACE, "Asset initialized with default values." );
 
 		// Open the asset
@@ -1200,7 +1200,7 @@ public class AssetManager implements Controllable<AssetManager> {
 			try {
 				// If the asset is new get user input from the asset type.
 				//if( asset.isNew() ) {
-				if( !asset.getType().callAssetUser( program, asset ) ) return null;
+				if( !asset.getType().callAssetNew( program, asset ) ) return null;
 				log.log( Log.TRACE, "Asset initialized with user values." );
 				//}
 
