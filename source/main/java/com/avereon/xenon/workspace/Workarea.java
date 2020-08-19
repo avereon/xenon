@@ -1,18 +1,21 @@
 package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
-import com.avereon.zerra.event.FxEventWrapper;
+import com.avereon.util.Log;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.workpane.Tool;
-import com.avereon.xenon.workpane.ToolEvent;
-import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.*;
+import com.avereon.zerra.event.FxEventWrapper;
 import javafx.beans.property.*;
+import javafx.geometry.Side;
+import javafx.scene.input.TransferMode;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Workarea implements WritableIdentity {
+
+	private static final System.Logger log = Log.get();
 
 	private final StringProperty name;
 
@@ -26,8 +29,6 @@ public class Workarea implements WritableIdentity {
 
 	// private ToolBar extraToolBarItems
 
-	private String id;
-
 	public Workarea() {
 		name = new SimpleStringProperty( this, "name", "" );
 		active = new SimpleBooleanProperty( this, "active", false );
@@ -38,6 +39,9 @@ public class Workarea implements WritableIdentity {
 		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
 		workpane.addEventHandler( ToolEvent.CONCEALED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( null ) );
 		workpane.addEventHandler( ToolEvent.ANY, e -> getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) ) );
+
+		// TODO Could be moved to UiFactory
+		//workpane.setOnToolDrop( new DropHandler() );
 	}
 
 	public final StringProperty nameProperty() {
@@ -110,6 +114,45 @@ public class Workarea implements WritableIdentity {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	private static class DropHandler implements DropListener {
+
+		@Override
+		public TransferMode[] getSupportedModes() {
+			return TransferMode.COPY_OR_MOVE;
+		}
+
+		@Override
+		public void handleDrop( DropEvent event ) throws Exception {
+			Tool sourceTool = event.getSource();
+			WorkpaneView targetView = event.getTarget();
+			Workpane targetPane = targetView.getWorkpane();
+			int index = event.getIndex();
+			Side side = event.getSide();
+			String url = event.getUrl();
+
+			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
+			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
+			if( side != null ) targetView = targetPane.split( targetView, side );
+			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
+
+			if( sourceTool == null ) {
+				// NOTE If the event source is null the drag came from outside the program
+				// TODO Create an OpenAssetRequest
+			} else if( event.getTransferMode() == TransferMode.MOVE ) {
+				Workpane sourcePane = sourceTool.getWorkpane();
+				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
+				sourcePane.removeTool( sourceTool );
+				int targetViewTabCount = targetView.getTools().size();
+				if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
+				targetPane.addTool( sourceTool, targetView, index, true );
+				//sourcePane.setDropHint( null );
+			} else if( event.getTransferMode() == TransferMode.COPY ) {
+				// TODO Create an OpenToolRequest with the existing asset
+			}
+		}
+
 	}
 
 }

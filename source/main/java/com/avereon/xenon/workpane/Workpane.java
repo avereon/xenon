@@ -3,7 +3,6 @@ package com.avereon.xenon.workpane;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
-import com.avereon.xenon.asset.Asset;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.*;
@@ -2150,12 +2149,9 @@ public class Workpane extends Control implements WritableIdentity {
 		}
 
 		public void handleDrop( DropEvent event ) throws Exception {
-			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
-
 			// NOTE If the event source is null the drag came from outside the program
-			if( event.getSource() == null ) return;
+			if( event.getSource() == null || event.getTransferMode() != TransferMode.MOVE ) return;
 
-			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 			Tool sourceTool = event.getSource();
 			Workpane sourcePane = sourceTool.getWorkpane();
 			WorkpaneView targetView = event.getTarget();
@@ -2163,30 +2159,17 @@ public class Workpane extends Control implements WritableIdentity {
 			int index = event.getIndex();
 			Side side = event.getSide();
 
+			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
 			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
+
+			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 			if( side != null ) targetView = targetPane.split( targetView, side );
 
-			// NOTE Moving a tool does not require external help
-			if( event.getTransferMode() == TransferMode.MOVE ) {
-				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-				sourcePane.removeTool( sourceTool );
-				int targetViewTabCount = targetView.getTools().size();
-				if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
-				targetPane.addTool( sourceTool, targetView, index, true );
-				//sourcePane.setDropHint( null );
-			} else if( event.getTransferMode() == TransferMode.COPY ) {
-				targetPane.addTool( cloneTool( sourceTool ), targetView, index, true );
-			}
-
-			//			if( sourcePane != null && sourceTool != null ) {
-			//				targetPane.addTool( sourceTool, targetView, index, true );
-			//				sourcePane.setDropHint( null );
-			//			}
-		}
-
-		@SuppressWarnings( "unchecked" )
-		private <T extends Tool> T cloneTool( T tool ) throws Exception {
-			return (T)tool.getClass().getDeclaredConstructor( Asset.class ).newInstance( tool.getAsset() );
+			if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
+			sourcePane.removeTool( sourceTool );
+			int targetViewTabCount = targetView.getTools().size();
+			if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
+			targetPane.addTool( sourceTool, targetView, index, true );
 		}
 
 	}
