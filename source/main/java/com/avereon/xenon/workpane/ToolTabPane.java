@@ -112,7 +112,18 @@ public class ToolTabPane extends Control {
 		try {
 			Object gestureSource = event.getGestureSource();
 			Tool sourceTool = gestureSource == null ? null : ((ToolTab)gestureSource).getTool();
-			getWorkpane().handleToolTabDrop( new DropEvent( event.getTransferMode(), sourceTool, getWorkpaneView(), area, index, side ) );
+			getWorkpane().handleDrop( new DropEvent(
+				this,
+				DropEvent.DROP,
+				getWorkpane(),
+				event.getTransferMode(),
+				sourceTool,
+				getWorkpaneView(),
+				area,
+				index,
+				side,
+				event.getDragboard().getUrl()
+			) );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error handling tool drop", exception );
 		} finally {

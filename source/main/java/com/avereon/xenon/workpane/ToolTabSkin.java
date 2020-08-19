@@ -82,24 +82,18 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 		} );
 
-		tab.setOnDragDone( ( event ) -> {
-			log.log( Log.DEBUG,  "Drag done: " + tool.getAsset().getUri() );
-			//if( !event.isDropCompleted() ) getSkinnable().getToolPane().getWorkpane().setDropHint( null );
-		} );
-
 		tab.setOnDragEntered( ( event ) -> {
 			log.log( Log.DEBUG,  "Drag enter tab: " + event.getDragboard().getUrl() );
-			Bounds bounds = FxUtil.localToParent( tab, getSkinnable().getToolTabPane().getWorkpane() );
-			getSkinnable().getToolTabPane().getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-		} );
-
-		tab.setOnDragOver( ( event ) -> {
+			Bounds bounds = FxUtil.localToParent( tab, tool.getWorkpane() );
+			tool.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
 			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
 		} );
 
+		tab.setOnDragOver( tab.getOnDragEntered() );
+
 		tab.setOnDragExited( ( event ) -> {
 			log.log( Log.DEBUG,  "Drag exit tab: " + event.getDragboard().getUrl() );
-			getSkinnable().getToolTabPane().getWorkpane().setDropHint( null );
+			tool.getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
@@ -108,8 +102,12 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 			tab.getToolTabPane().handleDrop( event, DropEvent.Area.TAB, index, null );
 		} );
 
-		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
+		tab.setOnDragDone( ( event ) -> {
+			log.log( Log.DEBUG,  "Drag done: " + tool.getAsset().getUri() );
+		} );
+
 		tab.setOnCloseRequest( event -> tool.close() );
+		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
 	}
 
 	@Override

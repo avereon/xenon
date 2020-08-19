@@ -25,9 +25,9 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 
 	private static final Logger log = Log.get();
 
-	private Pane header;
+	private final Pane header;
 
-	private Pane toolArea;
+	private final Pane toolArea;
 
 	public static final double SIDE_PERCENT = 0.3;
 
@@ -106,11 +106,10 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		headerDrop.setOnDragEntered( ( event ) -> {
 			Bounds bounds = FxUtil.localToParent( headerDrop, control.getWorkpane() );
 			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-		} );
-
-		headerDrop.setOnDragOver( ( event ) -> {
 			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
 		} );
+
+		headerDrop.setOnDragOver( headerDrop.getOnDragEntered() );
 
 		headerDrop.setOnDragExited( ( event ) -> {
 			control.getWorkpane().setDropHint( null );
@@ -121,15 +120,13 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		} );
 
 		toolArea.setOnDragEntered( ( event ) -> {
-		} );
-
-		toolArea.setOnDragOver( ( event ) -> {
-			event.acceptTransferModes( TransferMode.COPY_OR_MOVE );
-
 			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
-			Bounds dropHintBounds = FxUtil.localToParent( toolArea, control.getWorkpane(), dropBounds );
-			control.getWorkpane().setDropHint( new WorkpaneDropHint( dropHintBounds ) );
+			Bounds bounds = FxUtil.localToParent( toolArea, control.getWorkpane(), dropBounds );
+			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
 		} );
+
+		toolArea.setOnDragOver( toolArea.getOnDragEntered() );
 
 		toolArea.setOnDragExited( ( event ) -> {
 			control.getWorkpane().setDropHint( null );

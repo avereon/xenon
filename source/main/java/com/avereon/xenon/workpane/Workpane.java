@@ -85,6 +85,8 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private final Queue<WorkpaneEvent> events;
 
+	private final DropListener defaultDropHandler;
+
 	private DropListener dropHandler;
 
 	public Workpane() {
@@ -151,8 +153,8 @@ public class Workpane extends Control implements WritableIdentity {
 		setActiveView( view );
 		setDefaultView( view );
 
+		setOnToolDrop( defaultDropHandler = new DefaultDropHandler() );
 		setDockMode( DEFAULT_DOCK_MODE );
-		setOnToolDrop( new DefaultDropHandler() );
 
 		// TODO Set a better default background
 		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
@@ -412,7 +414,7 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public void setOnToolDrop( DropListener listener ) {
-		this.dropHandler = listener == null ? new DefaultDropHandler() : listener;
+		this.dropHandler = listener == null ? defaultDropHandler : listener;
 	}
 
 	DropListener getOnToolDrop() {
@@ -444,7 +446,7 @@ public class Workpane extends Control implements WritableIdentity {
 		if( hint != null ) getChildren().add( dragHint = hint );
 	}
 
-	void handleToolTabDrop( DropEvent event ) throws Exception {
+	void handleDrop( DropEvent event ) throws Exception {
 		dropHandler.handleDrop( event );
 	}
 
@@ -1060,7 +1062,7 @@ public class Workpane extends Control implements WritableIdentity {
 	/**
 	 * Add a tool to the workpane. The difference between this method and
 	 * {@link #openTool(Tool, WorkpaneView, int, boolean)} is that this method
-	 * does not fire  the tool open events.
+	 * does not fire the tool events.
 	 *
 	 * @param tool The tool to open
 	 * @param view The tool view to which to add the tool
@@ -1068,7 +1070,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @param activate If the tool should be activated when added
 	 * @return The tool that was opened
 	 */
-	Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
+	public Tool addTool( Tool tool, WorkpaneView view, int index, boolean activate ) {
 		if( tool.getToolView() != null || getViews().contains( tool.getToolView() ) ) return tool;
 
 		try {
@@ -2141,40 +2143,45 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private static class DefaultDropHandler implements DropListener {
 
+		private static final TransferMode[] MOVE_ONLY = { TransferMode.MOVE };
+
 		public TransferMode[] getSupportedModes() {
-			return new TransferMode[]{ TransferMode.MOVE };
+			return MOVE_ONLY;
 		}
 
 		public void handleDrop( DropEvent event ) throws Exception {
+			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
+
 			// NOTE If the event source is null the drag came from outside the program
 			if( event.getSource() == null ) return;
 
-			int index = event.getIndex();
-			Side side = event.getSide();
-
-			boolean droppedOnArea = index == -2;
+			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 			Tool sourceTool = event.getSource();
 			Workpane sourcePane = sourceTool.getWorkpane();
 			WorkpaneView targetView = event.getTarget();
 			Workpane targetPane = targetView.getWorkpane();
+			int index = event.getIndex();
+			Side side = event.getSide();
 
+			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
+			if( side != null ) targetView = targetPane.split( targetView, side );
+
+			// NOTE Moving a tool does not require external help
 			if( event.getTransferMode() == TransferMode.MOVE ) {
 				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
 				sourcePane.removeTool( sourceTool );
-			} else if( event.getTransferMode() == TransferMode.COPY ) {
-				sourceTool = cloneTool( sourceTool );
-			}
-
-			log.log( Log.WARN, "Dropped on side :" + side );
-			if( side != null ) targetView = targetPane.split( targetView, side );
-
-			int targetViewTabCount = targetView.getTools().size();
-			if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
-
-			if( sourcePane != null ) {
+				int targetViewTabCount = targetView.getTools().size();
+				if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
 				targetPane.addTool( sourceTool, targetView, index, true );
-				sourcePane.setDropHint( null );
+				//sourcePane.setDropHint( null );
+			} else if( event.getTransferMode() == TransferMode.COPY ) {
+				targetPane.addTool( cloneTool( sourceTool ), targetView, index, true );
 			}
+
+			//			if( sourcePane != null && sourceTool != null ) {
+			//				targetPane.addTool( sourceTool, targetView, index, true );
+			//				sourcePane.setDropHint( null );
+			//			}
 		}
 
 		@SuppressWarnings( "unchecked" )

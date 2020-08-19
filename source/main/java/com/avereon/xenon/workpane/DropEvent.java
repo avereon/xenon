@@ -1,19 +1,20 @@
 package com.avereon.xenon.workpane;
 
+import javafx.event.EventType;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
 
-public class DropEvent {
+public class DropEvent extends WorkpaneEvent {
 
-	static enum Area {
+	public static final EventType<ToolEvent> DROP = new EventType<>( WorkpaneEvent.ANY, "DROP" );
+
+	public static final EventType<ToolEvent> ANY = DROP;
+
+	public enum Area {
 		TAB,
 		HEADER,
 		TOOL_AREA
 	}
-
-	static final int HEADER = -1;
-
-	static final int TOOL_AREA = -2;
 
 	private TransferMode transferMode;
 
@@ -27,12 +28,28 @@ public class DropEvent {
 
 	private Side side;
 
-	public DropEvent( TransferMode transferMode, Tool source, WorkpaneView target, Area area, int index, Side side ) {
+	private String url;
+
+	public DropEvent(
+		Object eventSource,
+		EventType<? extends WorkpaneEvent> eventType,
+		Workpane workpane,
+		TransferMode transferMode,
+		Tool source,
+		WorkpaneView target,
+		Area area,
+		int index,
+		Side side,
+		String url
+	) {
+		super( eventSource, eventType, workpane );
 		this.transferMode = transferMode;
 		this.source = source;
 		this.target = target;
+		this.area = area;
 		this.index = index;
 		this.side = side;
+		this.url = url;
 	}
 
 	public TransferMode getTransferMode() {
@@ -57,6 +74,10 @@ public class DropEvent {
 
 	public Side getSide() {
 		return side;
+	}
+
+	public String getUrl() {
+		return url;
 	}
 
 }
