@@ -3,12 +3,14 @@ package com.avereon.xenon.workpane;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
+import com.avereon.xenon.asset.Asset;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -83,6 +85,8 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private final Queue<WorkpaneEvent> events;
 
+	private DropListener dropHandler;
+
 	public Workpane() {
 		layout = new WorkpaneLayout( this );
 
@@ -148,6 +152,7 @@ public class Workpane extends Control implements WritableIdentity {
 		setDefaultView( view );
 
 		setDockMode( DEFAULT_DOCK_MODE );
+		setOnToolDrop( new DefaultDropHandler() );
 
 		// TODO Set a better default background
 		setBackground( new Background( new BackgroundFill( new Color( 0.2, 0.2, 0.2, 1.0 ), CornerRadii.EMPTY, Insets.EMPTY ) ) );
@@ -406,6 +411,14 @@ public class Workpane extends Control implements WritableIdentity {
 		this.bottomDockSize.set( bottomDockSize );
 	}
 
+	public void setOnToolDrop( DropListener listener ) {
+		this.dropHandler = listener == null ? new DefaultDropHandler() : listener;
+	}
+
+	DropListener getOnToolDrop() {
+		return this.dropHandler;
+	}
+
 	@Override
 	protected double computeMinWidth( double height ) {
 		return getInsets().getLeft() + getInsets().getRight();
@@ -429,6 +442,10 @@ public class Workpane extends Control implements WritableIdentity {
 	void setDropHint( WorkpaneDropHint hint ) {
 		if( dragHint != null ) getChildren().remove( dragHint );
 		if( hint != null ) getChildren().add( dragHint = hint );
+	}
+
+	void handleToolTabDrop( DropEvent event ) throws Exception {
+		dropHandler.handleDrop( event );
 	}
 
 	@Override
@@ -2118,6 +2135,51 @@ public class Workpane extends Control implements WritableIdentity {
 			if( edge.isWall() ) result = Integer.MAX_VALUE;
 
 			return result;
+		}
+
+	}
+
+	private static class DefaultDropHandler implements DropListener {
+
+		public TransferMode[] getSupportedModes() {
+			return new TransferMode[]{ TransferMode.MOVE };
+		}
+
+		public void handleDrop( DropEvent event ) throws Exception {
+			// NOTE If the event source is null the drag came from outside the program
+			if( event.getSource() == null ) return;
+
+			int index = event.getIndex();
+			Side side = event.getSide();
+
+			boolean droppedOnArea = index == -2;
+			Tool sourceTool = event.getSource();
+			Workpane sourcePane = sourceTool.getWorkpane();
+			WorkpaneView targetView = event.getTarget();
+			Workpane targetPane = targetView.getWorkpane();
+
+			if( event.getTransferMode() == TransferMode.MOVE ) {
+				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
+				sourcePane.removeTool( sourceTool );
+			} else if( event.getTransferMode() == TransferMode.COPY ) {
+				sourceTool = cloneTool( sourceTool );
+			}
+
+			log.log( Log.WARN, "Dropped on side :" + side );
+			if( side != null ) targetView = targetPane.split( targetView, side );
+
+			int targetViewTabCount = targetView.getTools().size();
+			if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
+
+			if( sourcePane != null ) {
+				targetPane.addTool( sourceTool, targetView, index, true );
+				sourcePane.setDropHint( null );
+			}
+		}
+
+		@SuppressWarnings( "unchecked" )
+		private <T extends Tool> T cloneTool( T tool ) throws Exception {
+			return (T)tool.getClass().getDeclaredConstructor( Asset.class ).newInstance( tool.getAsset() );
 		}
 
 	}

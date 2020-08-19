@@ -14,6 +14,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
+
 import java.lang.System.Logger;
 
 import java.util.Objects;
@@ -116,7 +117,7 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		} );
 
 		headerDrop.setOnDragDropped( ( event ) -> {
-			control.handleDrop( event, -1, null );
+			control.handleDrop( event, DropEvent.Area.HEADER, 0, null );
 		} );
 
 		toolArea.setOnDragEntered( ( event ) -> {
@@ -135,7 +136,7 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		} );
 
 		toolArea.setOnDragDropped( ( event ) -> {
-			control.handleDrop( event, -2, getDropSide( event ) );
+			control.handleDrop( event, DropEvent.Area.TOOL_AREA, 0, getDropSide( event ) );
 		} );
 
 		ToolTab selectedTab = control.getSelectionModel().getSelectedItem();

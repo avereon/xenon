@@ -8,10 +8,12 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
+import javafx.scene.image.Image;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+
 import java.lang.System.Logger;
 
 public class ToolTabSkin extends SkinBase<ToolTab> {
@@ -66,19 +68,18 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragDetected( ( event ) -> {
-			// WORKAROUND Copy transfer mode not working correctly on Linux and MacOS
-			Dragboard board = tab.startDragAndDrop( TransferMode.MOVE );
+			log.log( Log.DEBUG,  "Drag start: " + tool.getAsset().getUri() );
+
+			TransferMode[] modes = tab.getToolTabPane().getWorkpane().getOnToolDrop().getSupportedModes();
+			Dragboard board = tab.startDragAndDrop( modes );
 
 			ClipboardContent content = new ClipboardContent();
 			content.putUrl( tool.getAsset().getUri().toString() );
 			content.putString( tool.getAsset().getUri().toString() );
 			board.setContent( content );
 
-			// WORKAROUND Setting a drag view causes DnD to break
-			//Image image = tab.snapshot( null, null );
-			//board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
-
-			log.log( Log.DEBUG,  "Drag start: " + tool.getAsset().getUri() );
+			Image image = tab.snapshot( null, null );
+			board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 		} );
 
 		tab.setOnDragDone( ( event ) -> {
@@ -104,7 +105,7 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		tab.setOnDragDropped( ( event ) -> {
 			log.log( Log.DEBUG,  "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
 			int index = tab.getToolTabPane().getTabs().indexOf( tab );
-			tab.getToolTabPane().handleDrop( event, index, null );
+			tab.getToolTabPane().handleDrop( event, DropEvent.Area.TAB, index, null );
 		} );
 
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
