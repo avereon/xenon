@@ -4,6 +4,8 @@ import javafx.event.EventType;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
 
+import java.net.URI;
+
 public class DropEvent extends WorkpaneEvent {
 
 	public static final EventType<ToolEvent> DROP = new EventType<>( WorkpaneEvent.ANY, "DROP" );
@@ -28,7 +30,7 @@ public class DropEvent extends WorkpaneEvent {
 
 	private Side side;
 
-	private String url;
+	private URI uri;
 
 	public DropEvent(
 		Object eventSource,
@@ -40,7 +42,7 @@ public class DropEvent extends WorkpaneEvent {
 		Area area,
 		int index,
 		Side side,
-		String url
+		URI uri
 	) {
 		super( eventSource, eventType, workpane );
 		this.transferMode = transferMode;
@@ -49,7 +51,7 @@ public class DropEvent extends WorkpaneEvent {
 		this.area = area;
 		this.index = index;
 		this.side = side;
-		this.url = url;
+		this.uri = uri;
 	}
 
 	public TransferMode getTransferMode() {
@@ -76,8 +78,8 @@ public class DropEvent extends WorkpaneEvent {
 		return side;
 	}
 
-	public String getUrl() {
-		return url;
+	public URI getUri() {
+		return uri;
 	}
 
 }

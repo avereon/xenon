@@ -10,6 +10,7 @@ import javafx.beans.property.*;
 import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
 
+import java.net.URI;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class Workarea implements WritableIdentity {
 		workpane.addEventHandler( ToolEvent.ANY, e -> getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) ) );
 
 		// TODO Could be moved to UiFactory
-		//workpane.setOnToolDrop( new DropHandler() );
+		workpane.setOnToolDrop( new DropHandler( this ) );
 	}
 
 	public final StringProperty nameProperty() {
@@ -118,6 +119,12 @@ public class Workarea implements WritableIdentity {
 
 	private static class DropHandler implements DropListener {
 
+		private Workarea workarea;
+
+		public DropHandler( Workarea workarea ) {
+			this.workarea = workarea;
+		}
+
 		@Override
 		public TransferMode[] getSupportedModes() {
 			return TransferMode.COPY_OR_MOVE;
@@ -125,31 +132,40 @@ public class Workarea implements WritableIdentity {
 
 		@Override
 		public void handleDrop( DropEvent event ) throws Exception {
+			TransferMode mode = event.getTransferMode();
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
 			Workpane targetPane = targetView.getWorkpane();
 			int index = event.getIndex();
 			Side side = event.getSide();
-			String url = event.getUrl();
+			URI uri = event.getUri();
+			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
-			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
+			log.log( Log.WARN, mode + " to " + event.getArea() );
 			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
 			if( side != null ) targetView = targetPane.split( targetView, side );
-			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
 			if( sourceTool == null ) {
 				// NOTE If the event source is null the drag came from outside the program
-				// TODO Create an OpenAssetRequest
-			} else if( event.getTransferMode() == TransferMode.MOVE ) {
-				Workpane sourcePane = sourceTool.getWorkpane();
-				if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-				sourcePane.removeTool( sourceTool );
-				int targetViewTabCount = targetView.getTools().size();
-				if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
-				targetPane.addTool( sourceTool, targetView, index, true );
-				//sourcePane.setDropHint( null );
-			} else if( event.getTransferMode() == TransferMode.COPY ) {
-				// TODO Create an OpenToolRequest with the existing asset
+				if( mode == TransferMode.MOVE ) {
+					workarea.getWorkspace().getProgram().getAssetManager().openAsset( uri );
+				} else if( mode == TransferMode.COPY ) {
+					workarea.getWorkspace().getProgram().getAssetManager().openAsset( uri );
+				}
+			} else {
+				if( mode == TransferMode.MOVE ) {
+					// Try to keep this logic aligned with Workpane.DefaultDropHandler
+					// Check if being dropped on self
+					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
+
+					Workpane sourcePane = sourceTool.getWorkpane();
+					sourcePane.removeTool( sourceTool );
+					int targetViewTabCount = targetView.getTools().size();
+					if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
+					targetPane.addTool( sourceTool, targetView, index, true );
+				} else if( mode == TransferMode.COPY ) {
+					workarea.getWorkspace().getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView );
+				}
 			}
 		}
 

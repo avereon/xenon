@@ -16,6 +16,7 @@ import javafx.scene.control.Skin;
 import javafx.scene.input.DragEvent;
 
 import java.lang.System.Logger;
+import java.net.URI;
 
 /**
  * The ToolPane class provides a custom tab pane component for the program
@@ -122,7 +123,7 @@ public class ToolTabPane extends Control {
 				area,
 				index,
 				side,
-				event.getDragboard().getUrl()
+				new URI( event.getDragboard().getUrl() )
 			) );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error handling tool drop", exception );

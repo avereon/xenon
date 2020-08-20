@@ -81,7 +81,7 @@ public class AssetTool extends GuidedTool {
 
 	private Asset currentAsset;
 
-	private LinkedList<String> history;
+	private final LinkedList<String> history;
 
 	private int currentIndex;
 
@@ -106,7 +106,6 @@ public class AssetTool extends GuidedTool {
 		userNotice.setId( "user-notice" );
 		userNotice.setAlignment( Pos.CENTER );
 		closeLabel.setOnMousePressed( e -> closeUserNotice() );
-		closeUserNotice();
 
 		// Asset table
 		table = new TableView<>( children = FXCollections.observableArrayList() );
@@ -124,7 +123,6 @@ public class AssetTool extends GuidedTool {
 		table.getColumns().add( assetLabel );
 		table.getColumns().add( assetUri );
 		table.getColumns().add( assetSize );
-
 		table.getSortOrder().add( assetLabel );
 
 		// Tool layout
@@ -158,6 +156,7 @@ public class AssetTool extends GuidedTool {
 		} );
 
 		guide = initializeGuide();
+		closeUserNotice();
 	}
 
 	@Override

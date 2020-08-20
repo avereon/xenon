@@ -358,47 +358,39 @@ public class AssetManager implements Controllable<AssetManager> {
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
 	public Future<ProgramTool> openAsset( URI uri ) {
 		return openAsset( uri, true, true );
 	}
 
 	public Future<ProgramTool> openAsset( URI uri, Object model ) {
+		return openAsset( uri, model, null, true, true );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
+		return openAsset( uri, null, null, openTool, setActive );
+	}
+
+	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view ) {
+		return openAsset( uri, null, view, true, true );
+	}
+
+	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
-		request.setView( null );
-		request.setOpenTool( true );
-		request.setSetActive( true );
+		request.setView( view );
+		request.setOpenTool( openTool );
+		request.setSetActive( setActive );
 		request.setModel( model );
 		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	public Future<ProgramTool> openAsset( URI uri, boolean openTool, boolean setActive ) {
-		return openAsset( Collections.singletonList( uri ), null, openTool, setActive ).get( 0 );
-	}
-
-	/**
-	 * @implNote This method makes calls to the FX platform.
-	 */
-	private List<Future<ProgramTool>> openAsset( List<URI> uris, WorkpaneView view, boolean openTool, boolean setActive ) {
-		List<Future<ProgramTool>> futures = new ArrayList<>( uris.size() );
-
-		for( URI uri : uris ) {
-			OpenAssetRequest request = new OpenAssetRequest();
-			request.setUri( uri );
-			request.setView( view );
-			request.setOpenTool( openTool );
-			request.setSetActive( setActive );
-			futures.add( program.getTaskManager().submit( new NewOrOpenAssetTask( request ) ) );
-			setActive = false;
-		}
-
-		return futures;
+	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
+		OpenAssetRequest request = new OpenAssetRequest();
+		request.setUri( asset.getUri() );
+		request.setView( view );
+		request.setOpenTool( true );
+		request.setSetActive( true );
+		return program.getTaskManager().submit( new NewOrOpenAssetTask( request ) );
 	}
 
 	/**

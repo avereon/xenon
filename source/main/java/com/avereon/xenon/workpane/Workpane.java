@@ -2153,19 +2153,20 @@ public class Workpane extends Control implements WritableIdentity {
 			if( event.getSource() == null || event.getTransferMode() != TransferMode.MOVE ) return;
 
 			Tool sourceTool = event.getSource();
-			Workpane sourcePane = sourceTool.getWorkpane();
 			WorkpaneView targetView = event.getTarget();
 			Workpane targetPane = targetView.getWorkpane();
 			int index = event.getIndex();
 			Side side = event.getSide();
+			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
 			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
 			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
-
-			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 			if( side != null ) targetView = targetPane.split( targetView, side );
 
+			// Check if being dropped on self
 			if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
+
+			Workpane sourcePane = sourceTool.getWorkpane();
 			sourcePane.removeTool( sourceTool );
 			int targetViewTabCount = targetView.getTools().size();
 			if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
