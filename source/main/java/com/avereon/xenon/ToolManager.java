@@ -140,8 +140,9 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
+		final WorkpaneView finalView = view;
 		scheduleAssetReady( request, finalTool );
-		Platform.runLater( () -> finalPane.openTool( finalTool, placementOverride, request.isSetActive() ) );
+		Platform.runLater( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 		return tool;
 	}

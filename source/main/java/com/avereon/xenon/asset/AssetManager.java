@@ -154,7 +154,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Set<Asset> getModifiedAssets() {
-		return getOpenAssets().stream().filter( Asset::isModified ).collect( Collectors.toSet());
+		return getOpenAssets().stream().filter( Asset::isModified ).collect( Collectors.toSet() );
 	}
 
 	Set<AssetType> getUserAssetTypes() {
@@ -167,7 +167,7 @@ public class AssetManager implements Controllable<AssetManager> {
 	 * @return The set of externally modified assets
 	 */
 	public Set<Asset> getExternallyModifiedAssets() {
-		return getOpenAssets().stream().filter( Asset::isExternallyModified ).collect( Collectors.toSet());
+		return getOpenAssets().stream().filter( Asset::isExternallyModified ).collect( Collectors.toSet() );
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class AssetManager implements Controllable<AssetManager> {
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
 		OpenAssetRequest request = new OpenAssetRequest();
-		request.setUri( asset.getUri() );
+		request.setAsset( asset );
 		request.setView( view );
 		request.setOpenTool( true );
 		request.setSetActive( true );
@@ -1176,8 +1176,8 @@ public class AssetManager implements Controllable<AssetManager> {
 		@Override
 		public ProgramTool call() throws Exception {
 			// Create and configure the asset
-			Asset asset = createAsset( request.getType(), request.getUri() );
-			request.setAsset( asset );
+			if( request.getAsset() == null ) request.setAsset( createAsset( request.getType(), request.getUri() ) );
+			Asset asset = request.getAsset();
 			Object model = request.getModel();
 			Codec codec = request.getCodec();
 			if( model != null ) asset.setModel( model );

@@ -1092,9 +1092,10 @@ public class Workpane extends Control implements WritableIdentity {
 		return openTool( tool, view, view == null ? 0 : view.getTools().size(), activate );
 	}
 
-	public Tool openTool( Tool tool, Placement placement, boolean activate ) {
+	public Tool openTool( Tool tool, WorkpaneView view, Placement placement, boolean activate ) {
 		if( placement == null ) placement = tool.getPlacement();
-		return openTool( tool, determineViewFromPlacement( placement ), activate );
+		if( view == null ) view = determineViewFromPlacement( placement );
+		return openTool( tool, view, activate );
 	}
 
 	/**
@@ -1203,6 +1204,22 @@ public class Workpane extends Control implements WritableIdentity {
 
 	final void layoutInArea( Node node, double areaX, double areaY, double areaWidth, double areaHeight ) {
 		super.layoutInArea( node, areaX, areaY, areaWidth, areaHeight, 0, HPos.CENTER, VPos.CENTER );
+	}
+
+	/**
+	 * This method moves a tool from where it is to a different view, including a
+	 * view that may belong to a different {@link Workpane} in the same JVM.
+	 *
+	 * @param sourceTool The tool to move
+	 * @param targetView The view to move the tool to
+	 * @param index The tab index in the target view
+	 */
+	public static void moveTool( Tool sourceTool, WorkpaneView targetView, int index ) {
+		Workpane sourcePane = sourceTool.getWorkpane();
+		sourcePane.removeTool( sourceTool );
+		int targetViewTabCount = targetView.getTools().size();
+		if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
+		targetView.getWorkpane().addTool( sourceTool, targetView, index, true );
 	}
 
 	/**
@@ -2165,12 +2182,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 			// Check if being dropped on self
 			if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-
-			Workpane sourcePane = sourceTool.getWorkpane();
-			sourcePane.removeTool( sourceTool );
-			int targetViewTabCount = targetView.getTools().size();
-			if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
-			targetPane.addTool( sourceTool, targetView, index, true );
+			moveTool( sourceTool, targetView, index );
 		}
 
 	}

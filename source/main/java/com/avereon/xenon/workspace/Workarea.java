@@ -154,15 +154,9 @@ public class Workarea implements WritableIdentity {
 				}
 			} else {
 				if( mode == TransferMode.MOVE ) {
-					// Try to keep this logic aligned with Workpane.DefaultDropHandler
 					// Check if being dropped on self
 					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-
-					Workpane sourcePane = sourceTool.getWorkpane();
-					sourcePane.removeTool( sourceTool );
-					int targetViewTabCount = targetView.getTools().size();
-					if( event.getArea() != DropEvent.Area.TAB || index > targetViewTabCount ) index = targetViewTabCount;
-					targetPane.addTool( sourceTool, targetView, index, true );
+					Workpane.moveTool( sourceTool, targetView, index );
 				} else if( mode == TransferMode.COPY ) {
 					workarea.getWorkspace().getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView );
 				}
