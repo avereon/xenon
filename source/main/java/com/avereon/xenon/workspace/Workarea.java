@@ -2,6 +2,9 @@ package com.avereon.xenon.workspace;
 
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
+import com.avereon.xenon.Program;
+import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.ToolInstanceMode;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.workpane.*;
@@ -119,15 +122,16 @@ public class Workarea implements WritableIdentity {
 
 	private static class DropHandler implements DropListener {
 
-		private Workarea workarea;
+		private final Workarea workarea;
 
 		public DropHandler( Workarea workarea ) {
 			this.workarea = workarea;
 		}
 
 		@Override
-		public TransferMode[] getSupportedModes() {
-			return TransferMode.COPY_OR_MOVE;
+		public TransferMode[] getSupportedModes( Tool tool ) {
+			ToolInstanceMode instanceMode = getProgram().getToolManager().getToolInstanceMode( ((ProgramTool)tool).getClass() );
+			return instanceMode == ToolInstanceMode.SINGLETON ? MOVE_ONLY : TransferMode.ANY;
 		}
 
 		@Override
@@ -141,26 +145,27 @@ public class Workarea implements WritableIdentity {
 			URI uri = event.getUri();
 			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
-			log.log( Log.WARN, mode + " to " + event.getArea() );
-			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
-			if( side != null ) targetView = targetPane.split( targetView, side );
-
 			if( sourceTool == null ) {
 				// NOTE If the event source is null the drag came from outside the program
 				if( mode == TransferMode.MOVE ) {
-					workarea.getWorkspace().getProgram().getAssetManager().openAsset( uri );
+					getProgram().getAssetManager().openAsset( uri );
 				} else if( mode == TransferMode.COPY ) {
-					workarea.getWorkspace().getProgram().getAssetManager().openAsset( uri );
+					getProgram().getAssetManager().openAsset( uri );
 				}
 			} else {
 				if( mode == TransferMode.MOVE ) {
 					// Check if being dropped on self
 					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-					Workpane.moveTool( sourceTool, targetView, index );
+					Workpane.moveTool( sourceTool, targetView, side, index );
 				} else if( mode == TransferMode.COPY ) {
-					workarea.getWorkspace().getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView );
+					if( side != null ) targetView = targetPane.split( targetView, side );
+					getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView );
 				}
 			}
+		}
+
+		private Program getProgram() {
+			return workarea.getWorkspace().getProgram();
 		}
 
 	}

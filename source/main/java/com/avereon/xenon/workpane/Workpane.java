@@ -46,6 +46,8 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private static final double DEFAULT_EDGE_SIZE = 5;
 
+	private static final boolean DEFAULT_AUTO_MERGE = true;
+
 	private static final Logger log = Log.get();
 
 	private final WorkpaneEdge topWall;
@@ -58,7 +60,9 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private WorkpaneDropHint dragHint;
 
-	private final DoubleProperty edgeSize;
+	private final DoubleProperty edgeSizeProperty;
+
+	private final BooleanProperty autoMergeProperty;
 
 	private final WorkpaneLayout layout;
 
@@ -93,7 +97,8 @@ public class Workpane extends Control implements WritableIdentity {
 
 		getStyleClass().add( "workpane" );
 
-		edgeSize = new SimpleDoubleProperty( DEFAULT_EDGE_SIZE );
+		edgeSizeProperty = new SimpleDoubleProperty( DEFAULT_EDGE_SIZE );
+		autoMergeProperty = new SimpleBooleanProperty( DEFAULT_AUTO_MERGE );
 		activeViewProperty = new SimpleObjectProperty<>();
 		defaultViewProperty = new SimpleObjectProperty<>();
 		maximizedViewProperty = new SimpleObjectProperty<>();
@@ -214,16 +219,28 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	public double getEdgeSize() {
-		return edgeSize.get();
+		return edgeSizeProperty.get();
 	}
 
 	public void setEdgeSize( double size ) {
-		edgeSize.set( size );
+		edgeSizeProperty.set( size );
 		updateComponentTree( true );
 	}
 
-	public DoubleProperty edgeSize() {
-		return edgeSize;
+	public DoubleProperty edgeSizeProperty() {
+		return edgeSizeProperty;
+	}
+
+	public boolean isAutoMerge() {
+		return autoMergeProperty == null ? DEFAULT_AUTO_MERGE : autoMergeProperty.get();
+	}
+
+	public void setAutoMerge( boolean autoMerge ) {
+		autoMergeProperty.set( autoMerge );
+	}
+
+	public BooleanProperty autoMergeProperty() {
+		return autoMergeProperty;
 	}
 
 	public Tool getActiveTool() {
@@ -446,7 +463,11 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	void handleDrop( DropEvent event ) throws Exception {
-		dropHandler.handleDrop( event );
+		try {
+			dropHandler.handleDrop( event );
+		} finally {
+			setDropHint( null );
+		}
 	}
 
 	@Override
@@ -936,7 +957,6 @@ public class Workpane extends Control implements WritableIdentity {
 	 */
 	@SuppressWarnings( "UnusedReturnValue" )
 	public boolean pushMerge( WorkpaneView source, Side side ) {
-		// Check the parameters.
 		if( source == null ) return false;
 
 		boolean result = false;
@@ -960,52 +980,35 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	/**
-	 * Returns whether views on the source (opposite of direction) side of the edge can be merged into the space occupied by the views on the target (towards
-	 * direction) side of the edge. The method returns false if any of the following
-	 * conditions exist: <ul> <li>If the edge is an end edge.</li> <li>If any of the target views is the default view.</li> <li>If the target views do not share a
-	 * common back edge.</li> <li>If the auto flag is set to true and any of the
-	 * target views have tools. </li> </ul>
+	 * Returns whether views on the source (opposite of direction) side of the
+	 * edge can be merged into the space occupied by the views on the target
+	 * (towards direction) side of the edge. The method returns false if any of
+	 * the following conditions exist:
+	 * <ul>
+	 *   <li>If the edge is a wall edge</li>
+	 *   <li>If any of the target views is the default view</li>
+	 *   <li>If the target views do not share a common back edge</li>
+	 *   <li>If the auto flag is set to true and any of the target views have tools</li>
+	 * </ul>
 	 *
 	 * @param edge The edge across which views are to be merged.
 	 * @param direction The direction of the merge.
 	 * @param auto Check if views can automatically be merged.
-	 * @return
+	 * @return True if the views can be merged, false otherwise
 	 */
 	private boolean canMerge( WorkpaneEdge edge, Side direction, boolean auto ) {
 		if( edge == null ) return false;
-
-		// Check for end edge.
 		if( edge.isWall() ) return false;
 
-		Set<WorkpaneView> targets = null;
-		switch( direction ) {
-			case TOP: {
-				targets = edge.topViews;
-				break;
-			}
-			case BOTTOM: {
-				targets = edge.bottomViews;
-				break;
-			}
-			case LEFT: {
-				targets = edge.leftViews;
-				break;
-			}
-			case RIGHT: {
-				targets = edge.rightViews;
-				break;
-			}
-		}
-
 		WorkpaneEdge commonBackEdge = null;
-		for( WorkpaneView target : targets ) {
+		for( WorkpaneView target : edge.getViews( direction ) ) {
 			// Check for the default view in targets.
 			if( target == getDefaultView() ) return false;
 
-			// If auto, check the tool counts.
+			// If auto, check the tool counts
 			if( auto && target.getTools().size() > 0 ) return false;
 
-			// Check targets for common back edge.
+			// Check targets for common back edge
 			if( commonBackEdge == null ) commonBackEdge = target.getEdge( direction );
 			if( target.getEdge( direction ) != commonBackEdge ) return false;
 		}
@@ -1061,7 +1064,7 @@ public class Workpane extends Control implements WritableIdentity {
 	/**
 	 * Add a tool to the workpane. The difference between this method and
 	 * {@link #openTool(Tool, WorkpaneView, int, boolean)} is that this method
-	 * does not fire the tool events.
+	 * does not fire the tool open events.
 	 *
 	 * @param tool The tool to open
 	 * @param view The tool view to which to add the tool
@@ -1100,8 +1103,8 @@ public class Workpane extends Control implements WritableIdentity {
 
 	/**
 	 * Open a tool in the workpane. The difference between this method and
-	 * {@link #addTool(Tool, WorkpaneView, int, boolean)} is that this method fires
-	 * the tool open events.
+	 * {@link #addTool(Tool, WorkpaneView, int, boolean)} is that this method
+	 * fires the tool open events.
 	 *
 	 * @param tool The tool to open
 	 * @param view The tool view to which to add the tool
@@ -1128,7 +1131,7 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @return The tool that was removed
 	 */
 	public Tool removeTool( Tool tool ) {
-		return removeTool( tool, true );
+		return removeTool( tool, isAutoMerge() );
 	}
 
 	/**
@@ -1207,19 +1210,48 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	/**
-	 * This method moves a tool from where it is to a different view, including a
-	 * view that may belong to a different {@link Workpane} in the same JVM.
+	 * This method moves a tool from where it is, to a different view. The source
+	 * view and target view do not have to be in the same workpane but must be in
+	 * the same JVM.
 	 *
 	 * @param sourceTool The tool to move
 	 * @param targetView The view to move the tool to
+	 * @param side The side the target view was split from
 	 * @param index The tab index in the target view
 	 */
-	public static void moveTool( Tool sourceTool, WorkpaneView targetView, int index ) {
+	public static void moveTool( Tool sourceTool, WorkpaneView targetView, Side side, int index ) {
+		// TODO Cleanup logs
+		if( side != null ) log.log( Log.WARN, "Dropped on side :" + side );
+
+
 		Workpane sourcePane = sourceTool.getWorkpane();
-		sourcePane.removeTool( sourceTool );
+		WorkpaneView sourceView = sourceTool.getToolView();
+		Workpane targetPane = targetView.getWorkpane();
+
+		// Dropped on the side of a view...split it
+		if( side != null ) targetView = targetPane.split( targetView, side );
+
+		// NOTE The next remove and add steps can get messy due to merging views
+		// It is possible that when addTool is called the target view no longer
+		// exists because it had been auto merged during removeTool. If the source
+		// and target views are the same then turn off auto merge because the tool
+		// is just going to go back where it came from.
+		boolean differentViews = sourceView != targetView;
+		boolean automerge = sourcePane.isAutoMerge() && differentViews;
+
+		// If the target view was split from the source view and they will just
+		// merge again then the target view can be set to the source view.
+		if( side != null && sourcePane == targetPane && sourcePane.isAutoMerge() ) {
+			if( sourcePane.canPushMerge( targetView, side, sourcePane.isAutoMerge() ) ) targetView = sourceView;
+		}
+
+		// FIXME It is possible for the source and target views to both be removed
+		// from the pane due to auto merge.
+		sourcePane.removeTool( sourceTool, automerge );
+
 		int targetViewTabCount = targetView.getTools().size();
 		if( index < 0 || index > targetViewTabCount ) index = targetViewTabCount;
-		targetView.getWorkpane().addTool( sourceTool, targetView, index, true );
+		targetPane.addTool( sourceTool, targetView, index, true );
 	}
 
 	/**
@@ -2159,9 +2191,7 @@ public class Workpane extends Control implements WritableIdentity {
 
 	private static class DefaultDropHandler implements DropListener {
 
-		private static final TransferMode[] MOVE_ONLY = { TransferMode.MOVE };
-
-		public TransferMode[] getSupportedModes() {
+		public TransferMode[] getSupportedModes( Tool tool ) {
 			return MOVE_ONLY;
 		}
 
@@ -2176,13 +2206,9 @@ public class Workpane extends Control implements WritableIdentity {
 			Side side = event.getSide();
 			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
-			log.log( Log.WARN, event.getTransferMode() + " to " + event.getArea() );
-			if( event.getSide() != null ) log.log( Log.WARN, "Dropped on side :" + side );
-			if( side != null ) targetView = targetPane.split( targetView, side );
-
 			// Check if being dropped on self
 			if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
-			moveTool( sourceTool, targetView, index );
+			moveTool( sourceTool, targetView, side, index );
 		}
 
 	}

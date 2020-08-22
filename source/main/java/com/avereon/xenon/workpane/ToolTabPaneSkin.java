@@ -9,14 +9,12 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.DragEvent;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
 import java.lang.System.Logger;
-
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -106,13 +104,13 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		headerDrop.setOnDragEntered( ( event ) -> {
 			Bounds bounds = FxUtil.localToParent( headerDrop, control.getWorkpane() );
 			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
+			FxUtil.setTransferMode( event );
 		} );
 
 		headerDrop.setOnDragOver( headerDrop.getOnDragEntered() );
 
 		headerDrop.setOnDragExited( ( event ) -> {
-			control.getWorkpane().setDropHint( null );
+			if( control.getWorkpane() != null ) control.getWorkpane().setDropHint( null );
 		} );
 
 		headerDrop.setOnDragDropped( ( event ) -> {
@@ -123,13 +121,13 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
 			Bounds bounds = FxUtil.localToParent( toolArea, control.getWorkpane(), dropBounds );
 			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
+			FxUtil.setTransferMode( event );
 		} );
 
 		toolArea.setOnDragOver( toolArea.getOnDragEntered() );
 
 		toolArea.setOnDragExited( ( event ) -> {
-			control.getWorkpane().setDropHint( null );
+			if( control.getWorkpane() != null ) control.getWorkpane().setDropHint( null );
 		} );
 
 		toolArea.setOnDragDropped( ( event ) -> {

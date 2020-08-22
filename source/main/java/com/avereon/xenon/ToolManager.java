@@ -186,7 +186,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 	}
 
-	private ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
+	public ToolInstanceMode getToolInstanceMode( Class<? extends ProgramTool> toolClass ) {
 		ToolInstanceMode instanceMode = toolClassMetadata.get( toolClass ).getInstanceMode();
 		if( instanceMode == null ) instanceMode = ToolInstanceMode.UNLIMITED;
 		return instanceMode;

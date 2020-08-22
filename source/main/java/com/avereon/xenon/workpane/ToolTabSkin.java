@@ -20,34 +20,19 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 	private static final Logger log = Log.get();
 
-	private BorderPane tabLayout;
-
-	private Label label;
-
-	private Button close;
+	private final BorderPane tabLayout;
 
 	ToolTabSkin( ToolTab tab ) {
 		super( tab );
 
 		Tool tool = tab.getTool();
 
-		label = new Label() {
-
-			@Override
-			protected double computeMinWidth( double height ) {
-				return computePrefWidth( height );
-			}
-
-			@Override
-			protected double computeMinHeight( double width ) {
-				return computePrefHeight( width );
-			}
-		};
+		Label label = new TabLabel();
 		label.getStyleClass().setAll( "tool-tab-label" );
 		label.graphicProperty().bind( tool.graphicProperty() );
 		label.textProperty().bind( tool.titleProperty() );
 
-		close = new Button();
+		Button close = new Button();
 		close.graphicProperty().bind( tool.closeGraphicProperty() );
 		close.getStyleClass().setAll( "tool-tab-close" );
 
@@ -68,9 +53,9 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragDetected( ( event ) -> {
-			log.log( Log.DEBUG,  "Drag start: " + tool.getAsset().getUri() );
+			log.log( Log.DEBUG, "Drag start: " + tool.getAsset().getUri() );
 
-			TransferMode[] modes = tab.getToolTabPane().getWorkpane().getOnToolDrop().getSupportedModes();
+			TransferMode[] modes = tab.getToolTabPane().getWorkpane().getOnToolDrop().getSupportedModes(tool);
 			Dragboard board = tab.startDragAndDrop( modes );
 
 			ClipboardContent content = new ClipboardContent();
@@ -83,27 +68,27 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		} );
 
 		tab.setOnDragEntered( ( event ) -> {
-			log.log( Log.DEBUG,  "Drag enter tab: " + event.getDragboard().getUrl() );
+			log.log( Log.DEBUG, "Drag enter tab: " + event.getDragboard().getUrl() );
 			Bounds bounds = FxUtil.localToParent( tab, tool.getWorkpane() );
 			tool.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			event.acceptTransferModes( TransferMode.MOVE, TransferMode.COPY );
+			FxUtil.setTransferMode( event );
 		} );
 
 		tab.setOnDragOver( tab.getOnDragEntered() );
 
 		tab.setOnDragExited( ( event ) -> {
-			log.log( Log.DEBUG,  "Drag exit tab: " + event.getDragboard().getUrl() );
-			tool.getWorkpane().setDropHint( null );
+			log.log( Log.DEBUG, "Drag exit tab: " + event.getDragboard().getUrl() );
+			if( tool.getWorkpane() != null ) tool.getWorkpane().setDropHint( null );
 		} );
 
 		tab.setOnDragDropped( ( event ) -> {
-			log.log( Log.DEBUG,  "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+			log.log( Log.DEBUG, "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
 			int index = tab.getToolTabPane().getTabs().indexOf( tab );
 			tab.getToolTabPane().handleDrop( event, DropEvent.Area.TAB, index, null );
 		} );
 
 		tab.setOnDragDone( ( event ) -> {
-			log.log( Log.DEBUG,  "Drag done: " + tool.getAsset().getUri() );
+			log.log( Log.DEBUG, "Drag done: " + tool.getAsset().getUri() );
 		} );
 
 		tab.setOnCloseRequest( event -> tool.close() );
@@ -114,6 +99,22 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
 		// This is a slight optimization over the default implementation
 		layoutInArea( tabLayout, contentX, contentY, contentWidth, contentHeight, -1, HPos.CENTER, VPos.CENTER );
+	}
+
+	private static class TabLabel extends Label {
+
+		// NOTE Just binding the preferred sizes to the min sizes does not work
+
+		@Override
+		protected double computeMinWidth( double height ) {
+			return computePrefWidth( height );
+		}
+
+		@Override
+		protected double computeMinHeight( double width ) {
+			return computePrefHeight( width );
+		}
+
 	}
 
 }
