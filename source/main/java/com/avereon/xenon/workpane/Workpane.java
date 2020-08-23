@@ -1220,33 +1220,21 @@ public class Workpane extends Control implements WritableIdentity {
 	 * @param index The tab index in the target view
 	 */
 	public static void moveTool( Tool sourceTool, WorkpaneView targetView, Side side, int index ) {
-		// TODO Cleanup logs
-		if( side != null ) log.log( Log.WARN, "Dropped on side :" + side );
-
-
 		Workpane sourcePane = sourceTool.getWorkpane();
 		WorkpaneView sourceView = sourceTool.getToolView();
 		Workpane targetPane = targetView.getWorkpane();
-
-		// Dropped on the side of a view...split it
-		if( side != null ) targetView = targetPane.split( targetView, side );
 
 		// NOTE The next remove and add steps can get messy due to merging views
 		// It is possible that when addTool is called the target view no longer
 		// exists because it had been auto merged during removeTool. If the source
 		// and target views are the same then turn off auto merge because the tool
-		// is just going to go back where it came from.
+		// would just go back where it came from otherwise.
 		boolean differentViews = sourceView != targetView;
 		boolean automerge = sourcePane.isAutoMerge() && differentViews;
 
-		// If the target view was split from the source view and they will just
-		// merge again then the target view can be set to the source view.
-		if( side != null && sourcePane == targetPane && sourcePane.isAutoMerge() ) {
-			if( sourcePane.canPushMerge( targetView, side, sourcePane.isAutoMerge() ) ) targetView = sourceView;
-		}
+		// Dropped on the side of a view...split it
+		if( side != null ) targetView = targetPane.split( targetView, side );
 
-		// FIXME It is possible for the source and target views to both be removed
-		// from the pane due to auto merge.
 		sourcePane.removeTool( sourceTool, automerge );
 
 		int targetViewTabCount = targetView.getTools().size();
