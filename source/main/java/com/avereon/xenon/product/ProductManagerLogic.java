@@ -333,7 +333,7 @@ public class ProductManagerLogic {
 	}
 
 	private Set<ProductResourceCollector> startResourceDownloads( Set<DownloadRequest> requests ) {
-		Path stageFolder = getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
+		Path stageFolder = program.getProductManager().getUpdatesFolder();
 
 		log.log( Log.DEBUG, "Number of packs to stage: " + requests.size() );
 		log.log( Log.TRACE, "Pack stage folder: " + stageFolder );

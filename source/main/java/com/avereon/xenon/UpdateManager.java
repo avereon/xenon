@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class UpdateManager {
 			this.updaterFolder = Paths.get( System.getProperty( "user.dir" ), updaterTarget );
 			this.updaterLauncher = Paths.get( OperatingSystem.getJavaLauncherPath() );
 		} else {
-			this.updaterFolder = FileUtil.createTempFolder( prefix );
+			this.updaterFolder = program.getProductManager().getUpdatesFolder().resolve( "updater" );
 			this.updaterLauncher = updaterFolder.resolve( program.getHomeFolder().relativize( Paths.get( OperatingSystem.getJavaLauncherPath() ) ) );
 		}
 	}

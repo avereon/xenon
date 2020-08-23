@@ -1136,6 +1136,10 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		return userModuleFolder;
 	}
 
+	public Path getUpdatesFolder() {
+		return getProgram().getDataFolder().resolve( ProductManager.UPDATE_FOLDER_NAME );
+	}
+
 	private void loadModulePathMods() {
 		log.log( Log.TRACE, "Loading standard mod from: module-path" );
 		try {
