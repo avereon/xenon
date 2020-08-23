@@ -17,6 +17,8 @@ import javafx.scene.input.DragEvent;
 
 import java.lang.System.Logger;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The ToolPane class provides a custom tab pane component for the program
@@ -113,8 +115,12 @@ public class ToolTabPane extends Control {
 		try {
 			Object gestureSource = event.getGestureSource();
 			Tool sourceTool = gestureSource == null ? null : ((ToolTab)gestureSource).getTool();
-			getWorkpane().handleDrop( new DropEvent(
-				this,
+
+			List<URI> uris = new ArrayList<>();
+			if( event.getDragboard().getUrl() != null ) uris.add( new URI( event.getDragboard().getUrl() ) );
+			event.getDragboard().getFiles().forEach( f -> uris.add( f.toURI() ) );
+
+			getWorkpane().handleDrop( new DropEvent( this,
 				DropEvent.DROP,
 				getWorkpane(),
 				event.getTransferMode(),
@@ -123,7 +129,7 @@ public class ToolTabPane extends Control {
 				area,
 				index,
 				side,
-				new URI( event.getDragboard().getUrl() )
+				uris
 			) );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error handling tool drop", exception );

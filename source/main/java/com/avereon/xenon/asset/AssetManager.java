@@ -3,7 +3,6 @@ package com.avereon.xenon.asset;
 import com.avereon.event.EventHandler;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
-import com.avereon.zerra.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
@@ -14,7 +13,9 @@ import com.avereon.xenon.throwable.NoToolRegisteredException;
 import com.avereon.xenon.throwable.SchemeNotRegisteredException;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.zerra.event.FxEventHub;
 import javafx.event.ActionEvent;
+import javafx.geometry.Side;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -374,6 +375,11 @@ public class AssetManager implements Controllable<AssetManager> {
 		return openAsset( uri, null, view, true, true );
 	}
 
+	public Future<ProgramTool> openAsset( URI uri, WorkpaneView view, Side side ) {
+		if( side != null ) view = view.getWorkpane().split( view, side );
+		return openAsset( uri, null, view, true, true );
+	}
+
 	private Future<ProgramTool> openAsset( URI uri, Object model, WorkpaneView view, boolean openTool, boolean setActive ) {
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setUri( uri );
@@ -385,6 +391,11 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view ) {
+		return openAsset( asset, view, null );
+	}
+
+	public Future<ProgramTool> openAsset( Asset asset, WorkpaneView view, Side side ) {
+		if( side != null ) view = view.getWorkpane().split( view, side );
 		OpenAssetRequest request = new OpenAssetRequest();
 		request.setAsset( asset );
 		request.setView( view );

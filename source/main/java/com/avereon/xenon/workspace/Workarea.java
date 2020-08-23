@@ -14,6 +14,7 @@ import javafx.geometry.Side;
 import javafx.scene.input.TransferMode;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -139,27 +140,21 @@ public class Workarea implements WritableIdentity {
 			TransferMode mode = event.getTransferMode();
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
-			Workpane targetPane = targetView.getWorkpane();
 			int index = event.getIndex();
 			Side side = event.getSide();
-			URI uri = event.getUri();
+			List<URI> uris = event.getUris();
 			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
 
 			if( sourceTool == null ) {
 				// NOTE If the event source is null the drag came from outside the program
-				if( mode == TransferMode.MOVE ) {
-					getProgram().getAssetManager().openAsset( uri );
-				} else if( mode == TransferMode.COPY ) {
-					getProgram().getAssetManager().openAsset( uri );
-				}
+				uris.forEach( u -> getProgram().getAssetManager().openAsset( u, targetView, side  ) );
 			} else {
 				if( mode == TransferMode.MOVE ) {
 					// Check if being dropped on self
 					if( droppedOnArea && side == null && sourceTool == targetView.getActiveTool() ) return;
 					Workpane.moveTool( sourceTool, targetView, side, index );
 				} else if( mode == TransferMode.COPY ) {
-					if( side != null ) targetView = targetPane.split( targetView, side );
-					getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView );
+					getProgram().getAssetManager().openAsset( sourceTool.getAsset(), targetView, side );
 				}
 			}
 		}

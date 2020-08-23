@@ -2189,7 +2189,6 @@ public class Workpane extends Control implements WritableIdentity {
 
 			Tool sourceTool = event.getSource();
 			WorkpaneView targetView = event.getTarget();
-			Workpane targetPane = targetView.getWorkpane();
 			int index = event.getIndex();
 			Side side = event.getSide();
 			boolean droppedOnArea = event.getArea() == DropEvent.Area.TOOL_AREA;
