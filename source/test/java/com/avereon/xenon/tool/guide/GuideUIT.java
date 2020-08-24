@@ -24,22 +24,22 @@ public class GuideUIT extends FxProgramUIT {
 	@Test
 	void testSetSelectedItems() throws Exception {
 		Platform.runLater( () -> guide.setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
 
 		Platform.runLater( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
 	@Test
 	void testSetExpandedItems() throws Exception {
 		Platform.runLater( () -> guide.setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
 
 		Platform.runLater( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 

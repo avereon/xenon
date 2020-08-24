@@ -57,7 +57,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
 
 		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 
 		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
 	}
@@ -67,11 +67,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// NOTE When testing expanded nodes the node to expand cannot be a leaf
 		// Assert initial state
 		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 
 		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 	}
 
@@ -81,7 +81,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
 		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getSelectedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
 	}
 
@@ -89,11 +89,11 @@ public class GuidedToolUIT extends BaseToolUIT {
 	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
 		// Assert initial state
 		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 
 		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWait( TIMEOUT );
+		FxUtil.fxWaitWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}
 

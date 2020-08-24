@@ -18,6 +18,7 @@ import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,6 +35,7 @@ import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -517,10 +519,12 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void snapshot( Path file ) {
-		ThreadUtil.pause( 200 );
+		FxUtil.fxWait( 1000 );
+		ThreadUtil.pause( 100 );
 		Platform.runLater( () -> {
 			WritableImage image = getStage().getScene().snapshot( null );
 			try {
+				Files.createDirectories( file.getParent() );
 				ImageIO.write( SwingFXUtils.fromFXImage( image, null ), "png", file.toFile() );
 			} catch( IOException exception ) {
 				exception.printStackTrace();

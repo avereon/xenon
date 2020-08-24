@@ -59,13 +59,16 @@ abstract class Screenshots {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
 			startup();
-			snapshotWelcomeTool();
-			reset();
 			snapshotDefaultWorkarea();
+			reset();
+			snapshotWelcomeTool();
 			reset();
 			snapshotAboutTool();
 			reset();
 			snapshotSettingsTool();
+			reset();
+			// TODO The product management tool
+			snapshotThemes();
 			reset();
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
@@ -82,16 +85,16 @@ abstract class Screenshots {
 		}
 	}
 
+	private void snapshotDefaultWorkarea() {
+		workspace.snapshot( getPath( "default-workarea" ) );
+	}
+
 	private void snapshotWelcomeTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( ProgramWelcomeType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "welcome-tool" ) );
 		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
 		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
-	}
-
-	private void snapshotDefaultWorkarea() {
-		workspace.snapshot( getPath( "default-workarea" ) );
 	}
 
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
@@ -108,6 +111,19 @@ abstract class Screenshots {
 		workspace.snapshot( getPath( "settings-tool" ) );
 		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
 		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+	}
+
+	private void snapshotThemes() throws InterruptedException, TimeoutException {
+		// Set an example tool
+		program.getAssetManager().openAsset( ProgramAboutType.URI );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+
+		program.getThemeManager().getThemes().forEach( t -> {
+			String id = t.getId();
+			Platform.runLater( () -> program.getWorkspaceManager().setTheme( id ) );
+
+			workspace.snapshot( getPath( "themes/" + id ) );
+		} );
 	}
 
 	private Path getPath( String name ) {
@@ -137,7 +153,7 @@ abstract class Screenshots {
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
 			} );
-			FxUtil.fxWait( programWatcher.getTimeout() );
+			FxUtil.fxWaitWithInterrupt( programWatcher.getTimeout() );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
@@ -145,7 +161,7 @@ abstract class Screenshots {
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
-		FxUtil.fxWait( workpaneWatcher.getTimeout() );
+		FxUtil.fxWaitWithInterrupt( workpaneWatcher.getTimeout() );
 		reset();
 	}
 
