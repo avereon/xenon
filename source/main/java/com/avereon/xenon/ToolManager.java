@@ -21,10 +21,7 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static java.lang.System.Logger.Level.*;
 
@@ -130,9 +127,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		}
 
 		// Now that we have a tool...open dependent assets and associated tools
-		for( URI dependency : tool.getAssetDependencies() ) {
-			program.getAssetManager().openAsset( dependency, true, false );
-		}
+		if( !openDependencies( request, tool ) ) return null;
 
 		// Determine the placement override
 		// A null value allows the tool to determine its placement
@@ -145,6 +140,19 @@ public class ToolManager implements Controllable<ToolManager> {
 		Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 		return tool;
+	}
+
+	private boolean openDependencies( OpenAssetRequest request, ProgramTool tool ) {
+		try {
+			for( URI dependency : tool.getAssetDependencies() ) {
+				program.getAssetManager().openAsset( dependency, true, false ).get();
+			}
+			return true;
+		} catch(InterruptedException ignored ) {
+		} catch( ExecutionException exception ) {
+			log.log( ERROR, "Error opening tool dependencies: " + request.getToolClass().getName(), exception );
+		}
+		return false;
 	}
 
 	/**
