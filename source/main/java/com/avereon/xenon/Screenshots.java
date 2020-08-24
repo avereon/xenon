@@ -73,7 +73,7 @@ abstract class Screenshots {
 		//		program.getAssetManager().openAsset( ProgramWelcomeType.URI );
 		//		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "welcome-tool" ) );
-		Platform.runLater( () -> workpane.closeTool( workpane.getTools( WelcomeTool.class ).iterator().next() ) );
+		Platform.runLater( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
@@ -90,7 +90,7 @@ abstract class Screenshots {
 		program.getAssetManager().openAsset( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
-		Platform.runLater( () -> workpane.closeTool( workpane.getTools( AboutTool.class ).iterator().next() ) );
+		Platform.runLater( () -> workpane.closeTools( workpane.getTools( AboutTool.class ) ) );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
@@ -98,7 +98,7 @@ abstract class Screenshots {
 		program.getAssetManager().openAsset( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
-		Platform.runLater( () -> workpane.closeTool( workpane.getTools( SettingsTool.class ).iterator().next() ) );
+		Platform.runLater( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
 		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
@@ -132,7 +132,7 @@ abstract class Screenshots {
 					exception.printStackTrace( System.err );
 				}
 			} );
-			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
+			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( 5000 ) );
 			programWatcher.waitForEvent( ProgramEvent.STARTED );
 			Platform.runLater( () -> {
 				//program.getWorkspaceManager().getActiveStage().setX( 0 );

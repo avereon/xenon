@@ -1171,6 +1171,15 @@ public class Workpane extends Control implements WritableIdentity {
 	}
 
 	/**
+	 * Close the tools and remove them from the workpane.
+	 *
+	 * @param tools The collection of tools to close
+	 */
+	public void closeTools( Collection<Tool> tools ) {
+		tools.forEach( t -> closeTool( t, true ) );
+	}
+
+	/**
 	 * Close the tool and remove it from the workpane. The difference between this
 	 * method and {@link #removeTool(Tool, boolean)} is that this method fires the
 	 * close events.
