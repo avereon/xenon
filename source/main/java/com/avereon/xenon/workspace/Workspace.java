@@ -516,7 +516,7 @@ public class Workspace implements WritableIdentity {
 		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 	}
 
-	public void snapshot( Path file ) {
+	public void screenshot( Path file ) {
 		Fx.waitFor( 5, 1000 );
 		Fx.run( () -> {
 			WritableImage image = getStage().getScene().snapshot( null );

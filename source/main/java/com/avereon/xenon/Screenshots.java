@@ -4,6 +4,7 @@ import com.avereon.event.EventWatcher;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
 import com.avereon.xenon.asset.type.ProgramAboutType;
+import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
 import com.avereon.xenon.asset.type.ProgramWelcomeType;
 import com.avereon.xenon.workpane.Tool;
@@ -16,6 +17,7 @@ import com.avereon.zerra.javafx.FxEventWatcher;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,11 +26,11 @@ import java.util.concurrent.TimeoutException;
 
 abstract class Screenshots {
 
-	protected static final int TIMEOUT = 2000;
+	private static final String PROFILE = "screenshots";
+
+	private static final int TIMEOUT = 5000;
 
 	private static final double WIDTH = 800;
-
-	private static final String PROFILE = "screenshots";
 
 	private static final double HEIGHT = 500;
 
@@ -47,8 +49,8 @@ abstract class Screenshots {
 	private final FxEventWatcher workpaneWatcher;
 
 	public Screenshots() {
-		programWatcher = new EventWatcher();
-		workpaneWatcher = new FxEventWatcher();
+		programWatcher = new EventWatcher( TIMEOUT );
+		workpaneWatcher = new FxEventWatcher( TIMEOUT );
 	}
 
 	public void generate( int scale ) {
@@ -59,16 +61,15 @@ abstract class Screenshots {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
 			startup();
-			snapshotDefaultWorkarea();
-			reset();
-			snapshotWelcomeTool();
-			reset();
-			snapshotAboutTool();
-			reset();
-			snapshotSettingsTool();
-			reset();
-			// TODO The product management tool
-			snapshotThemes();
+			screenshotDefaultWorkarea();
+			screenshot( ProgramWelcomeType.URI, "welcome-tool" );
+			screenshot( ProgramAboutType.URI, "about-tool" );
+			screenshot( ProgramSettingsType.URI, "settings-tool" );
+			screenshot( ProgramProductType.URI, "#installed", "product-tool-installed" );
+			//screenshot( ProgramProductType.URI, "#available", "product-tool-available" );
+			//screenshot( ProgramProductType.URI, "#updates", "product-tool-updates" );
+			screenshot( ProgramProductType.URI, "#sources", "product-tool-sources" );
+			screenshotThemes();
 			reset();
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
@@ -85,42 +86,30 @@ abstract class Screenshots {
 		}
 	}
 
-	private void snapshotDefaultWorkarea() {
-		workspace.snapshot( getPath( "default-workarea" ) );
+	private void screenshotDefaultWorkarea() throws InterruptedException, TimeoutException {
+		workspace.screenshot( getPath( "default-workarea" ) );
+		reset();
 	}
 
-	private void snapshotWelcomeTool() throws InterruptedException, TimeoutException {
-		program.getAssetManager().openAsset( ProgramWelcomeType.URI );
+	private void screenshot( URI uri, String path ) throws InterruptedException, TimeoutException {
+		program.getAssetManager().openAsset( uri );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workspace.snapshot( getPath( "welcome-tool" ) );
-		//Fx.run( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
-		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		workspace.screenshot( getPath( path ) );
+		reset();
 	}
 
-	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
-		program.getAssetManager().openAsset( ProgramAboutType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workspace.snapshot( getPath( "about-tool" ) );
-		//Fx.run( () -> workpane.closeTools( workpane.getTools( AboutTool.class ) ) );
-		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+	private void screenshot( URI uri, String extra, String path ) throws InterruptedException, TimeoutException {
+		screenshot( URI.create( uri.toString() + extra ), path );
 	}
 
-	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
-		program.getAssetManager().openAsset( ProgramSettingsType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workspace.snapshot( getPath( "settings-tool" ) );
-		//Fx.run( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
-		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
-	}
-
-	private void snapshotThemes() throws InterruptedException, TimeoutException {
+	private void screenshotThemes() throws InterruptedException, TimeoutException {
 		// Set an example tool
 		program.getAssetManager().openAsset( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
 		program.getThemeManager().getThemes().stream().map( ThemeMetadata::getId ).forEach( id -> {
 			Fx.run( () -> program.getWorkspaceManager().setTheme( id ) );
-			workspace.snapshot( getPath( "themes/" + id ) );
+			workspace.screenshot( getPath( "themes/" + id ) );
 		} );
 	}
 
