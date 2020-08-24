@@ -6,7 +6,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
-import com.avereon.zerra.event.FxEventHub;
+import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -17,6 +17,7 @@ import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
+import com.avereon.zerra.event.FxEventHub;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -516,6 +517,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void snapshot( Path file ) {
+		ThreadUtil.pause( 200 );
 		Platform.runLater( () -> {
 			WritableImage image = getStage().getScene().snapshot( null );
 			try {
