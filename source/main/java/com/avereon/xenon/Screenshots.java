@@ -3,24 +3,23 @@ package com.avereon.xenon;
 import com.avereon.event.EventWatcher;
 import com.avereon.util.FileUtil;
 import com.avereon.util.OperatingSystem;
-import com.avereon.zerra.javafx.FxEventWatcher;
-import com.avereon.zerra.javafx.FxUtil;
 import com.avereon.xenon.asset.type.ProgramAboutType;
-import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.asset.type.ProgramSettingsType;
-import com.avereon.xenon.tool.AboutTool;
-import com.avereon.xenon.tool.WelcomeTool;
-import com.avereon.xenon.tool.settings.SettingsTool;
+import com.avereon.xenon.asset.type.ProgramWelcomeType;
+import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
+import com.avereon.zerra.javafx.FxEventWatcher;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
 abstract class Screenshots {
@@ -43,9 +42,14 @@ abstract class Screenshots {
 
 	private Workpane workpane;
 
-	private EventWatcher programWatcher;
+	private final EventWatcher programWatcher;
 
-	private FxEventWatcher workpaneWatcher;
+	private final FxEventWatcher workpaneWatcher;
+
+	public Screenshots() {
+		programWatcher = new EventWatcher();
+		workpaneWatcher = new FxEventWatcher();
+	}
 
 	public void generate( int scale ) {
 		this.scale = scale;
@@ -54,14 +58,15 @@ abstract class Screenshots {
 		try {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
-
-			setup();
-
+			startup();
 			snapshotWelcomeTool();
+			reset();
 			snapshotDefaultWorkarea();
-			showGuide();
+			reset();
 			snapshotAboutTool();
+			reset();
 			snapshotSettingsTool();
+			reset();
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
 		} finally {
@@ -69,54 +74,47 @@ abstract class Screenshots {
 		}
 	}
 
+	private void reset() throws InterruptedException, TimeoutException {
+		Collection<Tool> tools = workpane.getTools();
+		Platform.runLater( () -> workpane.closeTools( tools ) );
+		for( int index = 0; index < tools.size(); index++ ) {
+			workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		}
+	}
+
 	private void snapshotWelcomeTool() throws InterruptedException, TimeoutException {
-		//		program.getAssetManager().openAsset( ProgramWelcomeType.URI );
-		//		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
+		program.getAssetManager().openAsset( ProgramWelcomeType.URI );
+		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "welcome-tool" ) );
-		Platform.runLater( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
+		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotDefaultWorkarea() {
 		workspace.snapshot( getPath( "default-workarea" ) );
 	}
 
-	private void showGuide() throws InterruptedException, TimeoutException {
-		program.getAssetManager().openAsset( ProgramGuideType.URI );
-		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-	}
-
 	private void snapshotAboutTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
-		Platform.runLater( () -> workpane.closeTools( workpane.getTools( AboutTool.class ) ) );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( AboutTool.class ) ) );
+		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private void snapshotSettingsTool() throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
-		Platform.runLater( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
-		workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
+		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
+		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
 	private Path getPath( String name ) {
 		return screenshots.resolve( name + (scale == 1 ? "" : "@" + scale + "x") + ".png" );
 	}
 
-	private void setup() throws InterruptedException {
-		if( FxUtil.isFxRunning() ) FxUtil.fxWait( FxEventWatcher.DEFAULT_WAIT_TIMEOUT );
-		startup();
-		workspace = program.getWorkspaceManager().getActiveWorkspace();
-		workpane = workspace.getActiveWorkarea().getWorkpane();
-		workpaneWatcher = new FxEventWatcher();
-		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
-		FxUtil.fxWait( FxEventWatcher.DEFAULT_WAIT_TIMEOUT );
-	}
-
-	private void startup() {
+	private void startup() throws InterruptedException, TimeoutException {
 		try {
 			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PROFILE, "Xenon-" + PROFILE );
 			FileUtil.delete( config );
@@ -132,17 +130,23 @@ abstract class Screenshots {
 					exception.printStackTrace( System.err );
 				}
 			} );
-			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
+			program.register( ProgramEvent.ANY, programWatcher );
 			// NOTE Startup can take a while so give it more time than usual
 			programWatcher.waitForEvent( ProgramEvent.STARTED, programWatcher.getTimeout() * 2 );
 			Platform.runLater( () -> {
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
 			} );
-			FxUtil.fxWait( FxEventWatcher.DEFAULT_WAIT_TIMEOUT );
+			FxUtil.fxWait( programWatcher.getTimeout() );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
+
+		workspace = program.getWorkspaceManager().getActiveWorkspace();
+		workpane = workspace.getActiveWorkarea().getWorkpane();
+		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
+		FxUtil.fxWait( workpaneWatcher.getTimeout() );
+		reset();
 	}
 
 	private void shutdown() {
