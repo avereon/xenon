@@ -132,11 +132,10 @@ abstract class Screenshots {
 					exception.printStackTrace( System.err );
 				}
 			} );
-			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher( 5000 ) );
-			programWatcher.waitForEvent( ProgramEvent.STARTED );
+			program.register( ProgramEvent.ANY, programWatcher = new EventWatcher() );
+			// NOTE Startup can take a while so give it more time than usual
+			programWatcher.waitForEvent( ProgramEvent.STARTED, programWatcher.getTimeout() * 2 );
 			Platform.runLater( () -> {
-				//program.getWorkspaceManager().getActiveStage().setX( 0 );
-				//program.getWorkspaceManager().getActiveStage().setY( 0 );
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
 			} );
