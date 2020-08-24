@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.data.Node;
 import com.avereon.xenon.Program;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.TreeItem;
 
 public class GuideNode extends Node {
@@ -49,7 +49,7 @@ public class GuideNode extends Node {
 
 	public GuideNode setIcon( String name ) {
 		setValue( ICON, name );
-		if( exists( TREE_ITEM ) ) Platform.runLater( () -> getTreeItem().setGraphic( program.getIconLibrary().getIcon( name ) ) );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().setGraphic( program.getIconLibrary().getIcon( name ) ) );
 		return this;
 	}
 
@@ -63,18 +63,18 @@ public class GuideNode extends Node {
 	}
 
 	public GuideNode reset() {
-		if( exists( TREE_ITEM ) ) Platform.runLater( () -> getTreeItem().getChildren().clear() );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().getChildren().clear() );
 		return this;
 	}
 
 	public GuideNode add( GuideNode child ) {
-		Platform.runLater( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
+		Fx.run( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
 		return this;
 	}
 
 	public GuideNode remove( GuideNode child ) {
 		if( !exists( TREE_ITEM ) ) return this;
-		Platform.runLater( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
+		Fx.run( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
 		return this;
 	}
 

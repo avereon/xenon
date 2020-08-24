@@ -7,12 +7,12 @@ import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.*;
-import com.avereon.zerra.event.FxEventHub;
 import com.avereon.xenon.*;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.util.Lambda;
-import javafx.application.Platform;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 
 import java.io.IOException;
 import java.lang.System.Logger;
@@ -730,7 +730,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		if( !isEnabled() ) return 0;
 
 		int count = getStagedUpdates().size();
-		if( count > 0 ) Platform.runLater( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
+		if( count > 0 ) Fx.run( () -> getProgram().requestRestart( RestartHook.Mode.UPDATE ) );
 
 		return count;
 	}

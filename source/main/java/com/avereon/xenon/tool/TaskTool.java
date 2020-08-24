@@ -3,12 +3,15 @@ package com.avereon.xenon.tool;
 import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.util.ThreadUtil;
-import com.avereon.xenon.*;
+import com.avereon.xenon.Profile;
+import com.avereon.xenon.ProgramProduct;
+import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -64,7 +67,7 @@ public class TaskTool extends ProgramTool {
 		setTitle( getProduct().rb().text( "tool", "task-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "task" ) );
 
-		taskManagerWatcher = e -> Platform.runLater( () -> addTaskPane( e.getTask() ) );
+		taskManagerWatcher = e -> Fx.run( () -> addTaskPane( e.getTask() ) );
 		getProgram().getTaskManager().getEventBus().register( TaskEvent.SUBMITTED, taskManagerWatcher );
 	}
 
@@ -83,8 +86,8 @@ public class TaskTool extends ProgramTool {
 			if( tasks.contains( task ) ) return;
 			tasks.add( task );
 			TaskPane pane = new TaskPane( task );
-			task.register( TaskEvent.PROGRESS, e -> Platform.runLater( () -> pane.setProgress( e.getTask().getPercent() ) ) );
-			task.register( TaskEvent.FINISH, e -> Platform.runLater( () -> removeTaskPane( pane ) ) );
+			task.register( TaskEvent.PROGRESS, e -> Fx.run( () -> pane.setProgress( e.getTask().getPercent() ) ) );
+			task.register( TaskEvent.FINISH, e -> Fx.run( () -> removeTaskPane( pane ) ) );
 			if( !task.isDone() ) taskPanes.getChildren().add( pane );
 		}
 	}

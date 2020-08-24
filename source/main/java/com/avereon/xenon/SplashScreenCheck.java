@@ -1,6 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.ThreadUtil;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -25,7 +26,7 @@ public class SplashScreenCheck extends Application {
 			double progress = 0;
 			while( progress < 1.0 ) {
 				double lambdaProgress = progress += 0.009;
-				Platform.runLater( () -> splash.setProgress( lambdaProgress ) );
+				Fx.run( () -> splash.setProgress( lambdaProgress ) );
 				ThreadUtil.pause( 10 );
 			}
 

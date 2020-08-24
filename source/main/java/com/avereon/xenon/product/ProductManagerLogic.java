@@ -15,7 +15,7 @@ import com.avereon.xenon.task.chain.TaskChain;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.Asynchronous;
 import com.avereon.xenon.util.DialogUtil;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -626,12 +626,12 @@ public class ProductManagerLogic {
 		String updatesNotAvailable = getProgram().rb().text( BundleKey.UPDATE, "updates-not-available" );
 		String updatesCannotConnect = getProgram().rb().text( BundleKey.UPDATE, "updates-source-cannot-connect" );
 		final String message = connectionErrors ? updatesCannotConnect : updatesNotAvailable;
-		Platform.runLater( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
+		Fx.run( () -> getProgram().getNoticeManager().addNotice( new Notice( title, message ).setRead( true ) ) );
 	}
 
 	private void openProductTool() {
 		URI uri = URI.create( ProgramProductType.URI + "#" + ProductTool.UPDATES );
-		Platform.runLater( () -> getProgram().getAssetManager().openAsset( uri ) );
+		Fx.run( () -> getProgram().getAssetManager().openAsset( uri ) );
 	}
 
 	private void notifyUserOfUpdates( Set<DownloadRequest> updates ) {
@@ -643,7 +643,7 @@ public class ProductManagerLogic {
 		Notice notice = new Notice( title, message, () -> getProgram().getAssetManager().openAsset( uri ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
-		Platform.runLater( () -> getProgram().getNoticeManager().addNotice( notice ) );
+		Fx.run( () -> getProgram().getNoticeManager().addNotice( notice ) );
 	}
 
 	private String getStagedUpdateFileName( ProductCard card ) {
@@ -656,9 +656,9 @@ public class ProductManagerLogic {
 
 	void notifyUpdatesReadyToApply( boolean interactive ) {
 		if( interactive ) {
-			Platform.runLater( this::showAlert );
+			Fx.run( this::showAlert );
 		} else {
-			Platform.runLater( this::showNotice );
+			Fx.run( this::showNotice );
 		}
 	}
 
@@ -666,7 +666,7 @@ public class ProductManagerLogic {
 		String header = getProgram().rb().text( BundleKey.UPDATE, "restart-required" );
 		String message = getProgram().rb().text( BundleKey.UPDATE, "restart-recommended-notice" );
 
-		Notice notice = new Notice( header, message, () -> Platform.runLater( this::showAlert ) )
+		Notice notice = new Notice( header, message, () -> Fx.run( this::showAlert ) )
 			.setBalloonStickiness( Notice.Balloon.ALWAYS )
 			.setType( Notice.Type.INFO );
 		getProgram().getNoticeManager().addNotice( notice );

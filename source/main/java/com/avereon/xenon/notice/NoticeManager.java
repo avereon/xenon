@@ -14,7 +14,7 @@ import com.avereon.xenon.scheme.FaultScheme;
 import com.avereon.xenon.task.TaskException;
 import com.avereon.xenon.tool.NoticeTool;
 import com.avereon.xenon.workpane.Tool;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -71,7 +71,7 @@ public class NoticeManager implements Controllable<NoticeManager> {
 			return;
 		}
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			getNoticeList().addNotice( notice );
 			Set<Tool> tools = getProgram().getWorkspaceManager().getActiveWorkpaneTools( NoticeTool.class );
 			if( tools.size() > 0 ) {

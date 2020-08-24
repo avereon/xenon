@@ -10,7 +10,7 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workspace.Workarea;
 import com.avereon.xenon.workspace.Workspace;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
@@ -164,7 +164,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void showActiveWorkspace() {
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			Workspace workspace = getActiveWorkspace();
 			if( workspace == null ) return;
 			Stage stage = workspace.getStage();
@@ -295,7 +295,7 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 	}
 
 	public void requestCloseTools( Class<? extends ProgramTool> type ) {
-		Platform.runLater( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
+		Fx.run( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
 	}
 
 	void hideWindows() {

@@ -6,7 +6,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
@@ -46,7 +46,7 @@ public abstract class GuidedTool extends ProgramTool {
 		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
 
 		// Set the expanded ids before setting the selected ids
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			getGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 			getGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
@@ -118,7 +118,7 @@ public abstract class GuidedTool extends ProgramTool {
 				guideNodesSelected( oldNodes, newNodes );
 
 				// Run this later to set the tool to be the active tool again
-				Platform.runLater( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
+				Fx.run( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
 			}
 		}
 

@@ -7,7 +7,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -72,7 +72,7 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	@Override
 	public void handle( SettingsEvent event ) {
-		Platform.runLater( this::updateLabels );
+		Fx.run( this::updateLabels );
 	}
 
 	private void updateLabels() {

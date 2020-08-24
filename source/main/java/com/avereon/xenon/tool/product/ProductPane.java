@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
 import com.avereon.util.Log;
-import com.avereon.zerra.javafx.FxUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.UiFactory;
@@ -10,7 +9,8 @@ import com.avereon.xenon.product.ProductManager;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.util.DialogUtil;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
@@ -268,7 +268,7 @@ class ProductPane extends MigPane {
 			} catch( Exception exception ) {
 				ProductTool.log.log( Log.WARN,  "Error uninstalling product", exception );
 			}
-			Platform.runLater( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
+			Fx.run( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );
 	}
 

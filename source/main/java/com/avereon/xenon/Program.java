@@ -9,7 +9,6 @@ import com.avereon.product.ProductCard;
 import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
-import com.avereon.zerra.event.FxEventHub;
 import com.avereon.xenon.action.*;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetManager;
@@ -29,6 +28,8 @@ import com.avereon.xenon.tool.guide.GuideTool;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -47,7 +48,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -316,14 +319,14 @@ public class Program extends Application implements ProgramProduct {
 
 		@Override
 		protected void cancelled() {
-			Platform.runLater( () -> splashScreen.hide() );
+			Fx.run( () -> splashScreen.hide() );
 			log.log( ERROR, "Startup task cancelled", getException() );
 			requestExit( true );
 		}
 
 		@Override
 		protected void failed() {
-			Platform.runLater( () -> splashScreen.hide() );
+			Fx.run( () -> splashScreen.hide() );
 			log.log( ERROR, "Startup task failed", getException() );
 			requestExit( true );
 		}
@@ -362,12 +365,12 @@ public class Program extends Application implements ProgramProduct {
 		// Set the number of startup steps
 		int managerCount = 6;
 		int steps = managerCount + uiRegenerator.getToolCount();
-		Platform.runLater( () -> splashScreen.setSteps( steps ) );
+		Fx.run( () -> splashScreen.setSteps( steps ) );
 
 		// Update the product card
 		this.card.jsonCard( this );
 
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 
 		// Start the asset manager
 		log.log( TRACE, "Starting asset manager..." );
@@ -376,7 +379,7 @@ public class Program extends Application implements ProgramProduct {
 		registerSchemes( assetManager );
 		registerAssetTypes( assetManager );
 		assetManager.start();
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Asset manager started." );
 
 		// Load the settings pages
@@ -386,28 +389,28 @@ public class Program extends Application implements ProgramProduct {
 		log.log( TRACE, "Starting tool manager..." );
 		toolManager = new ToolManager( this );
 		registerTools( toolManager );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Tool manager started." );
 
 		// Create the theme manager
 		log.log( TRACE, "Starting theme manager..." );
 		themeManager = new ThemeManager( Program.this ).start();
 		getSettingsManager().putOptionProvider( "workspace-theme-option-provider", new ThemeSettingOptionProvider( this ) );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Theme manager started." );
 
 		// Create the workspace manager
 		log.log( TRACE, "Starting workspace manager..." );
 		workspaceManager = new WorkspaceManager( Program.this ).start();
 		workspaceManager.setTheme( programSettings.get( "workspace-theme-id" ) );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Workspace manager started." );
 
 		// Create the notice manager, depends on workspace manager
 		log.log( TRACE, "Starting notice manager..." );
 		noticeManager = new NoticeManager( Program.this ).start();
 		Logger.getLogger( "" ).addHandler( new NoticeLogHandler( noticeManager ) );
-		Platform.runLater( () -> splashScreen.update() );
+		Fx.run( () -> splashScreen.update() );
 		log.log( DEBUG, "Notice manager started." );
 
 		// Start the product manager
@@ -419,7 +422,7 @@ public class Program extends Application implements ProgramProduct {
 
 		// Restore the user interface, depends on workspace manager
 		log.log( TRACE, "Restore the user interface..." );
-		Platform.runLater( () -> uiRegenerator.restore( splashScreen ) );
+		Fx.run( () -> uiRegenerator.restore( splashScreen ) );
 		uiRegenerator.awaitRestore( MANAGER_ACTION_SECONDS, TimeUnit.SECONDS );
 		log.log( DEBUG, "User interface restored." );
 
@@ -427,12 +430,12 @@ public class Program extends Application implements ProgramProduct {
 		int totalSteps = splashScreen.getSteps();
 		int completedSteps = splashScreen.getCompletedSteps();
 		if( completedSteps != totalSteps ) log.log( WARNING, "Startup step mismatch: " + completedSteps + " of " + totalSteps );
-		Platform.runLater( () -> splashScreen.done() );
+		Fx.run( () -> splashScreen.done() );
 
 		// Give the slash screen time to render and the user to see it
 		Thread.sleep( 500 );
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			if( !parameters.isSet( ProgramFlag.DAEMON ) ) {
 				getWorkspaceManager().getActiveStage().show();
 				getWorkspaceManager().getActiveStage().toFront();
@@ -450,7 +453,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "workarea-close" ).pushAction( new CloseWorkareaAction( Program.this ) );
 
 		// Check to see if the application was updated
-		if( isProgramUpdated() ) Platform.runLater( this::notifyProgramUpdated );
+		if( isProgramUpdated() ) Fx.run( this::notifyProgramUpdated );
 
 		// Open assets specified on the command line
 		processAssets( getProgramParameters() );
@@ -646,7 +649,7 @@ public class Program extends Application implements ProgramProduct {
 		}
 
 		// The workspaceManager can be null if the program is already running as a peer
-		if( workspaceManager != null ) Platform.runLater( () -> workspaceManager.hideWindows() );
+		if( workspaceManager != null ) Fx.run( () -> workspaceManager.hideWindows() );
 
 		boolean exiting = !TestUtil.isTest() && (skipKeepAliveCheck || !shutdownKeepAlive);
 
@@ -859,7 +862,7 @@ public class Program extends Application implements ProgramProduct {
 			if( startup ) {
 				if( isHost() ) log.log( WARNING, "Program is already stopped!" );
 			} else {
-				if( isHost() ) Platform.runLater( () -> requestExit( true ) );
+				if( isHost() ) Fx.run( () -> requestExit( true ) );
 			}
 			return false;
 		} else if( parameters.isSet( ProgramFlag.WATCH ) ) {

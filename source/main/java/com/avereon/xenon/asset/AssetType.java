@@ -4,7 +4,7 @@ import com.avereon.product.Product;
 import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 
 import java.lang.System.Logger;
 import java.util.Collections;
@@ -175,7 +175,7 @@ public abstract class AssetType implements Comparable<AssetType> {
 		AtomicBoolean result = new AtomicBoolean();
 		AtomicReference<AssetException> resultException = new AtomicReference<>();
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			synchronized( lock ) {
 				try {
 					result.set( assetNew( program, asset ) );

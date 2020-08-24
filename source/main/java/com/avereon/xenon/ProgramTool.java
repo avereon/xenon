@@ -10,7 +10,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workspace.Workspace;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.Node;
 
 import java.net.URI;
@@ -139,7 +139,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		Set<Tool> tools = getProgram().getWorkspaceManager().getAssetTools( getAsset() );
 		if( !tools.contains( this ) ) return;
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			if( getAsset().isNewOrModified() ) {
 				if( getProgram().getWorkspaceManager().handleModifiedAssets( ProgramScope.TOOL, Set.of( getAsset() ) ) ) super.close();
 			} else if( tools.size() == 1 ) {

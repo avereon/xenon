@@ -8,7 +8,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -289,11 +289,11 @@ public class SettingsPanel extends VBox {
 		private void handleNodeEvent( NodeEvent event ) {
 			switch( event.getKey() ) {
 				case Setting.DISABLE: {
-					Platform.runLater( () -> editor.setDisable( (Boolean)event.getNewValue() ) );
+					Fx.run( () -> editor.setDisable( (Boolean)event.getNewValue() ) );
 					break;
 				}
 				case Setting.VISIBLE: {
-					Platform.runLater( () -> editor.setVisible( (Boolean)event.getNewValue() ) );
+					Fx.run( () -> editor.setVisible( (Boolean)event.getNewValue() ) );
 					break;
 				}
 			}

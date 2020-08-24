@@ -1,6 +1,6 @@
 package com.avereon.xenon.workspace;
 
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.layout.StackPane;
 
 import java.text.DecimalFormat;
@@ -25,7 +25,7 @@ public abstract class AbstractMonitor extends StackPane {
 	 * on the FX Application thread.
 	 */
 	public void requestUpdate() {
-		Platform.runLater( AbstractMonitor.this::update );
+		Fx.run( AbstractMonitor.this::update );
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zerra.javafx.Fx;
 import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
@@ -56,8 +56,8 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		assertThat( mockGuidedTool.getExpandedNodes().size(), is( 0 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 
 		assertThat( mockGuidedTool.getExpandedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
 	}
@@ -66,12 +66,12 @@ public class GuidedToolUIT extends BaseToolUIT {
 	void testGuidedToolDoesNotReceivesGuideNodeExpandedChangeWhenExpandedDoesNotChange() throws Exception {
 		// NOTE When testing expanded nodes the node to expand cannot be a leaf
 		// Assert initial state
-		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> mockGuidedTool.getGuide().setExpandedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesExpandedEventCount(), is( 1 ) );
 	}
 
@@ -80,20 +80,20 @@ public class GuidedToolUIT extends BaseToolUIT {
 		// Assert initial state
 		assertThat( mockGuidedTool.getSelectedNodes().size(), is( 0 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getSelectedNodes(), containsInAnyOrder( mockGuidedTool.getGuide().getNode( "general" ) ) );
 	}
 
 	@Test
 	void testGuidedToolDoesNotReceivesGuideNodeSelectedChangeWhenSelectionDoesNotChange() throws Exception {
 		// Assert initial state
-		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 
-		Platform.runLater( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> mockGuidedTool.getGuide().setSelectedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( mockGuidedTool.getGuideNodesSelectedEventCount(), is( 1 ) );
 	}
 

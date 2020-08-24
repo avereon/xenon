@@ -12,7 +12,7 @@ import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticeModel;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.workpane.Workpane;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
@@ -89,7 +89,7 @@ public class NoticeTool extends ProgramTool {
 	private void updateNotices() {
 		List<Notice> notices = getProgram().getNoticeManager().getNotices();
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			noticeContainer.getChildren().clear();
 			for( Notice notice : notices ) {
 				NoticePane noticePane = new NoticePane( getProgram(), notice, false );

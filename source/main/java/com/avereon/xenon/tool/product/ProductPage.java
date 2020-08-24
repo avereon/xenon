@@ -6,7 +6,7 @@ import com.avereon.xenon.Program;
 import com.avereon.xenon.product.DownloadRequest;
 import com.avereon.xenon.product.ProductStatus;
 import com.avereon.xenon.task.TaskEvent;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -60,11 +60,11 @@ abstract class ProductPage extends ProductToolPage {
 		return panes.stream().filter( ProductPane::isSelected ).map( pane -> {
 			DownloadRequest request = new DownloadRequest( install ? pane.getSource() : pane.getUpdate() );
 			request
-				.register( TaskEvent.START, e -> Platform.runLater( () -> pane.setStatus( ProductStatus.DOWNLOADING ) ) )
-				.register( TaskEvent.PROGRESS, e -> Platform.runLater( () -> pane.setProgress( e.getTask().getPercent() ) ) )
-				.register( TaskEvent.CANCEL, e -> Platform.runLater( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
-				.register( TaskEvent.FAILURE, e -> Platform.runLater( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
-				.register( TaskEvent.SUCCESS, e -> Platform.runLater( () -> pane.setStatus( install ? ProductStatus.INSTALLED : ProductStatus.DOWNLOADED ) ) );
+				.register( TaskEvent.START, e -> Fx.run( () -> pane.setStatus( ProductStatus.DOWNLOADING ) ) )
+				.register( TaskEvent.PROGRESS, e -> Fx.run( () -> pane.setProgress( e.getTask().getPercent() ) ) )
+				.register( TaskEvent.CANCEL, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
+				.register( TaskEvent.FAILURE, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
+				.register( TaskEvent.SUCCESS, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.INSTALLED : ProductStatus.DOWNLOADED ) ) );
 			return request;
 		} ).collect( Collectors.toSet() );
 	}

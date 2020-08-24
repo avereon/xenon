@@ -6,7 +6,6 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
-import com.avereon.util.ThreadUtil;
 import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
@@ -18,8 +17,7 @@ import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.util.TimerUtil;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.zerra.event.FxEventHub;
-import com.avereon.zerra.javafx.FxUtil;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -284,7 +282,7 @@ public class Workspace implements WritableIdentity {
 		noticeButton.setText( "0" );
 		program.getNoticeManager().unreadCountProperty().addListener( ( event, oldValue, newValue ) -> {
 			int count = newValue.intValue();
-			Platform.runLater( () -> {
+			Fx.run( () -> {
 				program.getActionLibrary().getAction( "notice" ).setIcon( program.getNoticeManager().getUnreadNoticeType().getIcon() );
 				noticeButton.setText( String.valueOf( count ) );
 			} );
@@ -519,9 +517,8 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void snapshot( Path file ) {
-		FxUtil.fxWait( 1000 );
-		ThreadUtil.pause( 100 );
-		Platform.runLater( () -> {
+		Fx.waitFor( 5, 1000 );
+		Fx.run( () -> {
 			WritableImage image = getStage().getScene().snapshot( null );
 			try {
 				Files.createDirectories( file.getParent() );
@@ -530,6 +527,7 @@ public class Workspace implements WritableIdentity {
 				exception.printStackTrace();
 			}
 		} );
+		Fx.waitFor( 5, 1000 );
 	}
 
 	public void close() {
@@ -559,7 +557,7 @@ public class Workspace implements WritableIdentity {
 		Boolean showText = settings.get( "workspace-memory-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-memory-monitor-percent", Boolean.class, Boolean.TRUE );
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
 			updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
 			memoryMonitor.setTextVisible( showText );
@@ -572,7 +570,7 @@ public class Workspace implements WritableIdentity {
 		Boolean enabled = settings.get( "workspace-task-monitor-enabled", Boolean.class, Boolean.TRUE );
 		Boolean showText = settings.get( "workspace-task-monitor-text", Boolean.class, Boolean.TRUE );
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 			updateContainer( taskMonitorContainer, taskMonitor, enabled );
 			taskMonitor.setTextVisible( showText );

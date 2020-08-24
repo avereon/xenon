@@ -3,7 +3,6 @@ package com.avereon.xenon.tool;
 import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.util.UriUtil;
-import com.avereon.zerra.javafx.FxUtil;
 import com.avereon.xenon.Action;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
@@ -14,7 +13,8 @@ import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -301,7 +301,7 @@ public class AssetTool extends GuidedTool {
 			try {
 				parentAsset = getProgram().getAssetManager().getParent( asset );
 				List<Asset> assets = asset.getChildren();
-				Platform.runLater( () -> {
+				Fx.run( () -> {
 					children.clear();
 					children.addAll( assets );
 					table.sort();
@@ -314,7 +314,7 @@ public class AssetTool extends GuidedTool {
 	}
 
 	private void activateUriField() {
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			uriField.requestFocus();
 			uriField.positionCaret( uriField.getText().length() );
 		} );
@@ -323,7 +323,7 @@ public class AssetTool extends GuidedTool {
 	private void notifyUser( String messageKey, String... parameters ) {
 		@SuppressWarnings( "ConfusingArgumentToVarargsMethod" ) String message = getProduct().rb().text( "program", messageKey, parameters );
 
-		Platform.runLater( () -> {
+		Fx.run( () -> {
 			userMessage.setText( message );
 			userNotice.setManaged( true );
 			userNotice.setVisible( true );

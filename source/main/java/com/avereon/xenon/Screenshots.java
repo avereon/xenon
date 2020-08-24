@@ -11,8 +11,8 @@ import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workspace.Workspace;
+import com.avereon.zerra.javafx.Fx;
 import com.avereon.zerra.javafx.FxEventWatcher;
-import com.avereon.zerra.javafx.FxUtil;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -79,7 +79,7 @@ abstract class Screenshots {
 
 	private void reset() throws InterruptedException, TimeoutException {
 		Collection<Tool> tools = workpane.getTools();
-		Platform.runLater( () -> workpane.closeTools( tools ) );
+		Fx.run( () -> workpane.closeTools( tools ) );
 		for( int index = 0; index < tools.size(); index++ ) {
 			workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 		}
@@ -93,7 +93,7 @@ abstract class Screenshots {
 		program.getAssetManager().openAsset( ProgramWelcomeType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "welcome-tool" ) );
-		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
+		//Fx.run( () -> workpane.closeTools( workpane.getTools( WelcomeTool.class ) ) );
 		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
@@ -101,7 +101,7 @@ abstract class Screenshots {
 		program.getAssetManager().openAsset( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "about-tool" ) );
-		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( AboutTool.class ) ) );
+		//Fx.run( () -> workpane.closeTools( workpane.getTools( AboutTool.class ) ) );
 		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
@@ -109,7 +109,7 @@ abstract class Screenshots {
 		program.getAssetManager().openAsset( ProgramSettingsType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 		workspace.snapshot( getPath( "settings-tool" ) );
-		//Platform.runLater( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
+		//Fx.run( () -> workpane.closeTools( workpane.getTools( SettingsTool.class ) ) );
 		//workpaneWatcher.waitForEvent( ToolEvent.REMOVED );
 	}
 
@@ -118,10 +118,8 @@ abstract class Screenshots {
 		program.getAssetManager().openAsset( ProgramAboutType.URI );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
 
-		program.getThemeManager().getThemes().forEach( t -> {
-			String id = t.getId();
-			Platform.runLater( () -> program.getWorkspaceManager().setTheme( id ) );
-
+		program.getThemeManager().getThemes().stream().map( ThemeMetadata::getId ).forEach( id -> {
+			Fx.run( () -> program.getWorkspaceManager().setTheme( id ) );
 			workspace.snapshot( getPath( "themes/" + id ) );
 		} );
 	}
@@ -149,11 +147,11 @@ abstract class Screenshots {
 			program.register( ProgramEvent.ANY, programWatcher );
 			// NOTE Startup can take a while so give it more time than usual
 			programWatcher.waitForEvent( ProgramEvent.STARTED, programWatcher.getTimeout() * 2 );
-			Platform.runLater( () -> {
+			Fx.run( () -> {
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
 			} );
-			FxUtil.fxWaitWithInterrupt( programWatcher.getTimeout() );
+			Fx.waitForWithInterrupt( programWatcher.getTimeout() );
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
@@ -161,7 +159,7 @@ abstract class Screenshots {
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
-		FxUtil.fxWaitWithInterrupt( workpaneWatcher.getTimeout() );
+		Fx.waitForWithInterrupt( workpaneWatcher.getTimeout() );
 		reset();
 	}
 

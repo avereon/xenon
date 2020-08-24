@@ -118,7 +118,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		if( instanceMode == ToolInstanceMode.SINGLETON && tool != null ) {
 			final Workpane finalPane = pane;
 			final ProgramTool finalTool = tool;
-			if( request.isSetActive() ) Platform.runLater( () -> finalPane.setActiveTool( finalTool ) );
+			if( request.isSetActive() ) Fx.run( () -> finalPane.setActiveTool( finalTool ) );
 			return tool;
 		}
 
@@ -142,7 +142,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		final ProgramTool finalTool = tool;
 		final WorkpaneView finalView = view;
 		scheduleAssetReady( request, finalTool );
-		Platform.runLater( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
+		Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 		return tool;
 	}
@@ -307,7 +307,7 @@ public class ToolManager implements Controllable<ToolManager> {
 			try {
 				toolLatch.get();
 				assetLatch.get();
-				Platform.runLater( () -> {
+				Fx.run( () -> {
 					try {
 						tool.ready( request );
 						tool.open( request );

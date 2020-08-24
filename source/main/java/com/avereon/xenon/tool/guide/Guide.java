@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.util.Log;
+import com.avereon.zerra.javafx.Fx;
 import com.avereon.zerra.javafx.FxUtil;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -11,7 +11,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
 import java.lang.System.Logger;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class Guide {
 
 	public final GuideNode addNode( GuideNode node, GuideNode child ) {
 		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-		Platform.runLater( () -> item.getChildren().add( child.getTreeItem() ) );
+		Fx.run( () -> item.getChildren().add( child.getTreeItem() ) );
 		return child;
 	}
 
@@ -62,7 +61,7 @@ public class Guide {
 
 	public final Guide clear( GuideNode node ) {
 		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-		Platform.runLater( () -> item.getChildren().clear() );
+		Fx.run( () -> item.getChildren().clear() );
 		return this;
 	}
 

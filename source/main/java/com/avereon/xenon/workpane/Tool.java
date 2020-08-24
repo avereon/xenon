@@ -4,7 +4,7 @@ import com.avereon.event.EventHandler;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -68,7 +68,7 @@ public abstract class Tool extends StackPane {
 		clip.heightProperty().bind( heightProperty() );
 		setClip( clip );
 
-		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Platform.runLater( () -> getWorkpane().setActiveTool( this ) ) );
+		addEventFilter( MouseEvent.MOUSE_PRESSED, e -> Fx.run( () -> getWorkpane().setActiveTool( this ) ) );
 	}
 
 	public final Asset getAsset() {
@@ -217,7 +217,7 @@ public abstract class Tool extends StackPane {
 
 	private void doClose() {
 		Workpane workpane = getWorkpane();
-		if( workpane != null ) Platform.runLater( () -> workpane.closeTool( this, true ) );
+		if( workpane != null ) Fx.run( () -> workpane.closeTool( this, true ) );
 	}
 
 	@SuppressWarnings( { "MethodDoesntCallSuperMethod" } )

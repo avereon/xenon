@@ -1,7 +1,7 @@
 package com.avereon.xenon;
 
 import com.avereon.util.Log;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -58,7 +58,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 	 * @param id The state id
 	 */
 	public void setState( String id ) {
-		Platform.runLater( () ->  proxy.setState( id ) );
+		Fx.run( () ->  proxy.setState( id ) );
 	}
 
 	void setActionProxy( ActionProxy proxy ) {

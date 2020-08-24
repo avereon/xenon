@@ -1,6 +1,6 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.zerra.javafx.FxUtil;
+import com.avereon.zerra.javafx.Fx;
 import com.avereon.xenon.FxProgramUIT;
 import javafx.application.Platform;
 import org.hamcrest.CoreMatchers;
@@ -23,23 +23,23 @@ public class GuideUIT extends FxProgramUIT {
 
 	@Test
 	void testSetSelectedItems() throws Exception {
-		Platform.runLater( () -> guide.setSelectedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> guide.setSelectedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "general" ) );
 
-		Platform.runLater( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> guide.setSelectedIds( Set.of( "workspace", "tools" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getSelectedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 
 	@Test
 	void testSetExpandedItems() throws Exception {
-		Platform.runLater( () -> guide.setExpandedIds( Set.of( "general" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> guide.setExpandedIds( Set.of( "general" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "general" ) );
 
-		Platform.runLater( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
-		FxUtil.fxWaitWithInterrupt( TIMEOUT );
+		Fx.run( () -> guide.setExpandedIds( Set.of( "workspace", "tools" ) ) );
+		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getExpandedIds(), CoreMatchers.hasItems( "workspace", "tools" ) );
 	}
 

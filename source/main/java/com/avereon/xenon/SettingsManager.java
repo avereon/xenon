@@ -8,14 +8,14 @@ import com.avereon.settings.StoredSettings;
 import com.avereon.util.Controllable;
 import com.avereon.util.Log;
 import com.avereon.util.PathUtil;
-import com.avereon.zerra.event.FxEventHub;
 import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.settings.SettingOptionProvider;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPageParser;
 import com.avereon.xenon.tool.settings.SettingsTool;
-import javafx.application.Platform;
+import com.avereon.zerra.event.FxEventHub;
+import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.SelectionMode;
 
 import java.io.IOException;
@@ -111,7 +111,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 				rootSettingsPages.putIfAbsent( page.getId(), page );
 			}
 
-			Platform.runLater( this::updateSettingsGuide );
+			Fx.run( this::updateSettingsGuide );
 		}
 	}
 
@@ -123,7 +123,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 				rootSettingsPages.remove( page.getId() );
 			}
 
-			Platform.runLater( this::updateSettingsGuide );
+			Fx.run( this::updateSettingsGuide );
 		}
 	}
 
