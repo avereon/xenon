@@ -30,13 +30,13 @@ public class StageUpdaterTask extends Task<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		UpdateManager updater = getProgram().getUpdateManager();
+		UpdateManager manager = getProgram().getUpdateManager();
 
 		// Cleanup from prior updates
-		removePriorFolders( updater.getPrefix() );
+		removePriorFolders( manager );
 
 		// Determine where to put the updater
-		Path updaterHome = updater.getUpdaterFolder();
+		Path updaterHome = manager.getUpdaterFolder();
 
 		// Create the updater home folders
 		Files.createDirectories( updaterHome );
@@ -49,7 +49,7 @@ public class StageUpdaterTask extends Task<Void> {
 		// because they need to exist for the updater to start after the JVM exits
 
 		// Fix the permissions on the executable
-		Path bin = updater.getUpdaterLauncher();
+		Path bin = manager.getUpdaterLauncher();
 		if( !Files.exists( bin ) ) log.log( Log.WARN, "Unable to find updater executable: " + bin );
 		if( !bin.toFile().canExecute() ) {
 			boolean result = !bin.toFile().setExecutable( true );
@@ -62,11 +62,12 @@ public class StageUpdaterTask extends Task<Void> {
 	/**
 	 * This method cleans up prior invocations of the updater.
 	 *
-	 * @param prefix The temp folder prefix
+	 * @param manager The update manager
 	 * @throws IOException If an error occurs
 	 */
-	private void removePriorFolders( String prefix ) throws IOException {
-		Files.list( FileUtil.getTempFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
+	private void removePriorFolders( UpdateManager manager ) throws IOException {
+		String prefix = manager.getPrefix();
+		Files.list( manager.getUpdaterFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
 			log.log( Log.DEBUG, "Delete prior updater: " + p.getFileName() );
 			try {
 				FileUtil.delete( p );
