@@ -521,9 +521,22 @@
 	-fx-font-size: 5em;
 }
 
+#tool-welcome .buttons {
+	-fx-spacing: 2em;
+	-fx-fill-width: true;
+}
+
+#tool-welcome .button .title {
+	-fx-font-size: 2.5em;
+}
+
+#tool-welcome .button .description {
+	-fx-font-size: 1em;
+}
+
 /*******************************************************************************
- * Titled Pane
- ******************************************************************************/
+	 * Titled Pane
+	 ******************************************************************************/
 .titled-pane > *.content {
 	-fx-background-color: red;
 }

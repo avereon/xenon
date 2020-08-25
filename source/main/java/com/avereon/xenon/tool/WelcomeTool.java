@@ -1,18 +1,17 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
-import com.avereon.xenon.Program;
-import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.UiFactory;
+import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Ellipse;
-import org.tbee.javafx.scene.layout.MigPane;
 
 public class WelcomeTool extends ProgramTool {
 
@@ -20,7 +19,9 @@ public class WelcomeTool extends ProgramTool {
 
 	private static final double PAD = 2 * UiFactory.PAD;
 
-	private static final double ICON_SIZE = 96;
+	private static final double PRODUCT_ICON_SIZE = 96;
+
+	private static final double ICON_SIZE = 64;
 
 	private static final double SLOPE_RADIUS = 5000;
 
@@ -28,7 +29,16 @@ public class WelcomeTool extends ProgramTool {
 		super( product, asset );
 		setId( "tool-welcome" );
 
-		Node icon = ((Program)product).getIconLibrary().getIcon( "program", ICON_SIZE );
+		Node icon = ((Program)product).getIconLibrary().getIcon( "program", PRODUCT_ICON_SIZE );
+		Node docsIcon = ((Program)product).getIconLibrary().getIcon( "document", ICON_SIZE );
+		Node modsIcon = ((Program)product).getIconLibrary().getIcon( "product", ICON_SIZE );
+
+		String documentButtonTitle = product.rb().text( BundleKey.LABEL, "documentation" );
+		String documentButtonDescription = product.rb().text( BundleKey.LABEL, "documentation-desc" );
+		String documentButtonUrl = product.rb().text( BundleKey.LABEL, "documentation-url" );
+		String modsButtonTitle = product.rb().text( BundleKey.LABEL, "mods" );
+		String modsButtonDescription = product.rb().text( BundleKey.LABEL, "mods-desc" );
+		String modsButtonUrl = product.rb().text( BundleKey.LABEL, "mods-url" );
 
 		Label label = new Label( product.getCard().getName(), icon );
 		label.getStyleClass().add( "tool-welcome-title" );
@@ -39,14 +49,16 @@ public class WelcomeTool extends ProgramTool {
 		Pane accentPane = new Pane();
 		accentPane.getChildren().addAll( accent );
 
-		MigPane contentPane = new MigPane();
-		contentPane.add( icon, "spany, aligny top" );
-		contentPane.add( label );
+		Button docsButton = createButton( docsIcon, documentButtonTitle, documentButtonDescription, documentButtonUrl );
+		Button modsButton = createButton( modsIcon, modsButtonTitle, modsButtonDescription, modsButtonUrl );
+		VBox buttonBox = new VBox( docsButton, modsButton );
+		buttonBox.getStyleClass().addAll( "buttons" );
+		buttonBox.setPadding( new Insets( 3 * UiFactory.PAD ) );
 
-		StackPane stack = new StackPane();
-		stack.getChildren().addAll( accentPane, contentPane );
+		VBox contentPane = new VBox( UiFactory.PAD, label, buttonBox );
+		contentPane.setPadding( new Insets( UiFactory.PAD ) );
 
-		getChildren().addAll( stack );
+		getChildren().addAll( accentPane, contentPane );
 	}
 
 	@Override
@@ -65,4 +77,18 @@ public class WelcomeTool extends ProgramTool {
 		if( getToolView().isMaximized() ) getWorkpane().setMaximizedView( null );
 	}
 
+	private Button createButton( Node icon, String title, String description, String url ) {
+		Label titleLabel = new Label( title );
+		titleLabel.getStyleClass().addAll( "title" );
+		Label descriptionLabel = new Label( description );
+		descriptionLabel.getStyleClass().addAll( "description" );
+
+		VBox text = new VBox( titleLabel, descriptionLabel );
+		BorderPane content = new BorderPane( text, null, null, null, icon );
+		Button button = new Button( "", content );
+		button.setOnAction( e -> {
+			// Open the url
+		} );
+		return button;
+	}
 }
