@@ -29,13 +29,15 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	private static final String ROOT = "settings";
 
-	private Program program;
+	private static final String GENERAL = "general";
 
-	private Guide guide;
+	private final Program program;
 
-	private StoredSettings settings;
+	private final Guide guide;
 
-	private FxEventHub eventBus;
+	private final StoredSettings settings;
+
+	private final FxEventHub eventBus;
 
 	private final Map<String, SettingsPage> allSettingsPages;
 
@@ -67,9 +69,9 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		return getSettings( PathUtil.resolve( root, path ) );
 	}
 
-//	public Settings getProductSettings( Product product ) {
-//		return getSettings( getSettingsPath( product.getCard() ) );
-//	}
+	//	public Settings getProductSettings( Product product ) {
+	//		return getSettings( getSettingsPath( product.getCard() ) );
+	//	}
 
 	public Settings getProductSettings( ProductCard card ) {
 		return getSettings( getSettingsPath( card ) );
@@ -127,6 +129,21 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		}
 	}
 
+	public List<String> getPageIds() {
+		return getPageIds( rootSettingsPages );
+	}
+
+	private List<String> getPageIds( Map<String, SettingsPage> pages ) {
+		List<String> ids = new ArrayList<>();
+
+		for( SettingsPage page : pages.values() ) {
+			ids.add( page.getId() );
+			ids.addAll( getPageIds( page.getPages()));
+		}
+
+		return ids;
+	}
+
 	public SettingsPage getSettingsPage( String id ) {
 		return allSettingsPages.getOrDefault( id, allSettingsPages.get( SettingsTool.GENERAL ) );
 	}
@@ -143,7 +160,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		// Create a map of the title keys except the general key, it gets special handling
 		Map<String, String> titledKeys = new HashMap<>();
 		for( SettingsPage page : pages.values() ) {
-			if( "general".equals( page.getId() ) ) continue;
+			if( GENERAL.equals( page.getId() ) ) continue;
 			titledKeys.put( page.getTitle(), page.getId() );
 		}
 
@@ -155,7 +172,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		guide.clear( node );
 
 		// Add the general node to the guide
-		addGuideNode( null, pages.get( "general" ) );
+		addGuideNode( null, pages.get( GENERAL ) );
 
 		// Add the remaining nodes to the guide
 		for( String title : titles ) {
@@ -168,9 +185,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		allSettingsPages.put( page.getId(), page );
 
-		GuideNode guideNode = new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() );
-		guide.addNode( parent, guideNode );
-
+		GuideNode guideNode = guide.addNode( parent, new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() ) );
 		createGuide( guideNode, page.getPages() );
 	}
 
@@ -214,6 +229,17 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 	public FxEventHub getEventBus() {
 		return eventBus;
+	}
+
+	private static class SettingsTitleComparator implements Comparator<SettingsPage> {
+
+		@Override
+		public int compare( SettingsPage o1, SettingsPage o2 ) {
+			if( GENERAL.equals( o1.getId() ) ) return -1;
+			if( GENERAL.equals( o2.getId() ) ) return 1;
+			return o1.getTitle().compareTo( o2.getTitle() );
+		}
+
 	}
 
 }

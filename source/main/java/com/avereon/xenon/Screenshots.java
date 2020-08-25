@@ -64,11 +64,8 @@ abstract class Screenshots {
 			screenshotDefaultWorkarea();
 			screenshot( ProgramWelcomeType.URI, "welcome-tool" );
 			screenshot( ProgramAboutType.URI, "about-tool" );
-			screenshot( ProgramSettingsType.URI, "settings-tool" );
-			screenshot( ProgramProductType.URI, "#installed", "product-tool-installed" );
-			//screenshot( ProgramProductType.URI, "#available", "product-tool-available" );
-			//screenshot( ProgramProductType.URI, "#updates", "product-tool-updates" );
-			screenshot( ProgramProductType.URI, "#sources", "product-tool-sources" );
+			screenshotSettingsPages();
+			screenshotProductPages();
 			screenshotThemes();
 			reset();
 		} catch( Throwable throwable ) {
@@ -100,6 +97,19 @@ abstract class Screenshots {
 
 	private void screenshot( URI uri, String extra, String path ) throws InterruptedException, TimeoutException {
 		screenshot( URI.create( uri.toString() + extra ), path );
+	}
+
+	private void screenshotSettingsPages() throws InterruptedException, TimeoutException {
+		for( String id : program.getSettingsManager().getPageIds() ) {
+			screenshot( ProgramSettingsType.URI, "#" + id, "settings/settings-tool-" + id );
+		}
+	}
+
+	private void screenshotProductPages() throws InterruptedException, TimeoutException {
+		screenshot( ProgramProductType.URI, "#installed", "product-tool-installed" );
+		//screenshot( ProgramProductType.URI, "#available", "product-tool-available" );
+		//screenshot( ProgramProductType.URI, "#updates", "product-tool-updates" );
+		screenshot( ProgramProductType.URI, "#sources", "product-tool-sources" );
 	}
 
 	private void screenshotThemes() throws InterruptedException, TimeoutException {
