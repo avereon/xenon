@@ -77,7 +77,7 @@ public class WelcomeTool extends ProgramTool {
 		if( getToolView().isMaximized() ) getWorkpane().setMaximizedView( null );
 	}
 
-	private Button createButton( Node icon, String title, String description, String url ) {
+	private Button createButton( Node icon, String title, String description, String uri ) {
 		Label titleLabel = new Label( title );
 		titleLabel.getStyleClass().addAll( "title" );
 		Label descriptionLabel = new Label( description );
@@ -87,7 +87,12 @@ public class WelcomeTool extends ProgramTool {
 		BorderPane content = new BorderPane( text, null, null, null, icon );
 		Button button = new Button( "", content );
 		button.setOnAction( e -> {
-			// Open the url
+			// FIXME This hung the app...probably needs to be on a different thread
+//			try {
+//				Desktop.getDesktop().browse( new URI( uri ) );
+//			} catch( IOException | URISyntaxException ioException ) {
+//				log.log( Log.WARN, "Unable to open uri=" + uri );
+//			}
 		} );
 		return button;
 	}
