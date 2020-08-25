@@ -456,7 +456,7 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-Xmx64m</argument>
+										<argument>-Xmx128m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
@@ -474,7 +474,7 @@
 									<executable>java</executable>
 									<classpathScope>runtime</classpathScope>
 									<arguments>
-										<argument>-Xmx64m</argument>
+										<argument>-Xmx128m</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
