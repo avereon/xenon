@@ -67,6 +67,7 @@ public class StageUpdaterTask extends Task<Void> {
 	 */
 	private void removePriorFolders( UpdateManager manager ) throws IOException {
 		String prefix = manager.getPrefix();
+		if( !Files.exists( manager.getUpdaterFolder() ) ) return;
 		Files.list( manager.getUpdaterFolder() ).filter( ( p ) -> p.getFileName().toString().startsWith( prefix ) ).forEach( ( p ) -> {
 			log.log( Log.DEBUG, "Delete prior updater: " + p.getFileName() );
 			try {
