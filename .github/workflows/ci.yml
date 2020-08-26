@@ -96,7 +96,7 @@ jobs:
 
   screenshots1x:
     needs: build
-    name: Screenshots
+    name: Screenshots 1x
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
@@ -116,7 +116,7 @@ jobs:
         shell: bash
         run: |
           source .github/config.sh
-          gsettings set org.gnome.desktop.interface scaling-factor 1
+          source gsettings set org.gnome.desktop.interface scaling-factor 1
 
       - name: Set up Virtual Display
         run: |
@@ -147,7 +147,7 @@ jobs:
 
   screenshots2x:
     needs: build
-    name: Screenshots
+    name: Screenshots 2x
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
@@ -167,7 +167,7 @@ jobs:
         shell: bash
         run: |
           source .github/config.sh
-          gsettings set org.gnome.desktop.interface scaling-factor 2
+          source gsettings set org.gnome.desktop.interface scaling-factor 2
 
       - name: Set up Virtual Display
         run: |
