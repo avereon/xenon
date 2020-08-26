@@ -25,6 +25,7 @@ env:
   JAVA_VERSION: "14"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
+  XRANDR_OPTIONS: "--scale=2x2"
 
 jobs:
   build:
@@ -116,7 +117,6 @@ jobs:
         shell: bash
         run: |
           source .github/config.sh
-          source gsettings set org.gnome.desktop.interface scaling-factor 1
 
       - name: Set up Virtual Display
         run: |
@@ -167,7 +167,6 @@ jobs:
         shell: bash
         run: |
           source .github/config.sh
-          source gsettings set org.gnome.desktop.interface scaling-factor 2
 
       - name: Set up Virtual Display
         run: |
