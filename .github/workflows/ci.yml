@@ -25,7 +25,6 @@ env:
   JAVA_VERSION: "14"
   MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
   XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
-  XRANDR_OPTIONS: "--scale=2x2"
 
 jobs:
   build:
@@ -103,6 +102,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
+      XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
@@ -153,6 +153,7 @@ jobs:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
+      XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
