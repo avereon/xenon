@@ -438,7 +438,40 @@
 
 	<profiles>
 		<profile>
-			<id>screenshots</id>
+			<id>screenshots1x</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>${maven.exec.version}</version>
+						<executions>
+							<execution>
+								<id>screenshots1x</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>java</executable>
+									<classpathScope>runtime</classpathScope>
+									<arguments>
+										<argument>-Xmx128m</argument>
+										<argument>-p</argument>
+										<modulepath/>
+										<argument>-m</argument>
+										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>screenshots2x</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -461,24 +494,6 @@
 										<modulepath/>
 										<argument>-m</argument>
 										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
-									</arguments>
-								</configuration>
-							</execution>
-							<execution>
-								<id>screenshots1x</id>
-								<phase>package</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<classpathScope>runtime</classpathScope>
-									<arguments>
-										<argument>-Xmx128m</argument>
-										<argument>-p</argument>
-										<modulepath/>
-										<argument>-m</argument>
-										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots1x</argument>
 									</arguments>
 								</configuration>
 							</execution>
