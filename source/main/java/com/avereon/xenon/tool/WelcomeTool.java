@@ -4,6 +4,7 @@ import com.avereon.util.Log;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -12,6 +13,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Ellipse;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class WelcomeTool extends ProgramTool {
 
@@ -86,14 +92,13 @@ public class WelcomeTool extends ProgramTool {
 		VBox text = new VBox( titleLabel, descriptionLabel );
 		BorderPane content = new BorderPane( text, null, null, null, icon );
 		Button button = new Button( "", content );
-		button.setOnAction( e -> {
-			// FIXME This hung the app...probably needs to be on a different thread
-//			try {
-//				Desktop.getDesktop().browse( new URI( uri ) );
-//			} catch( IOException | URISyntaxException ioException ) {
-//				log.log( Log.WARN, "Unable to open uri=" + uri );
-//			}
-		} );
+		button.setOnAction( e -> getProgram().getTaskManager().submit( Task.of( "", () -> {
+			try {
+				Desktop.getDesktop().browse( new URI( uri ) );
+			} catch( IOException | URISyntaxException ioException ) {
+				log.log( Log.WARN, "Unable to open uri=" + uri );
+			}
+		}) ) );
 		return button;
 	}
 }
