@@ -522,8 +522,9 @@
 }
 
 #tool-welcome .buttons {
-	-fx-spacing: 2em;
-	-fx-fill-width: true;
+	-fx-padding: 3em;
+	-fx-hgap: 3em;
+	-fx-vgap: 3em;
 }
 
 #tool-welcome .button .title {

@@ -9,9 +9,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Ellipse;
 
 import java.awt.*;
@@ -56,12 +54,20 @@ public class WelcomeTool extends ProgramTool {
 		accentPane.getChildren().addAll( accent );
 
 		Button docsButton = createButton( docsIcon, documentButtonTitle, documentButtonDescription, documentButtonUrl );
+		GridPane.setConstraints( docsButton, 0, 0 );
 		Button modsButton = createButton( modsIcon, modsButtonTitle, modsButtonDescription, modsButtonUrl );
-		VBox buttonBox = new VBox( docsButton, modsButton );
-		buttonBox.getStyleClass().addAll( "buttons" );
-		buttonBox.setPadding( new Insets( 3 * UiFactory.PAD ) );
+		GridPane.setConstraints( modsButton, 1, 0 );
 
-		VBox contentPane = new VBox( UiFactory.PAD, label, buttonBox );
+		GridPane buttonGrid = new GridPane();
+		buttonGrid.getStyleClass().addAll( "buttons" );
+		ColumnConstraints column1 = new ColumnConstraints();
+		column1.setPercentWidth( 50 );
+		ColumnConstraints column2 = new ColumnConstraints();
+		column2.setPercentWidth( 50 );
+		buttonGrid.getColumnConstraints().addAll( column1, column2 );
+		buttonGrid.getChildren().addAll( docsButton, modsButton );
+
+		VBox contentPane = new VBox( UiFactory.PAD, label, buttonGrid );
 		contentPane.setPadding( new Insets( UiFactory.PAD ) );
 
 		getChildren().addAll( accentPane, contentPane );
@@ -92,13 +98,16 @@ public class WelcomeTool extends ProgramTool {
 		VBox text = new VBox( titleLabel, descriptionLabel );
 		BorderPane content = new BorderPane( text, null, null, null, icon );
 		Button button = new Button( "", content );
+		button.setMaxWidth( Double.MAX_VALUE );
+
 		button.setOnAction( e -> getProgram().getTaskManager().submit( Task.of( "", () -> {
 			try {
 				Desktop.getDesktop().browse( new URI( uri ) );
 			} catch( IOException | URISyntaxException ioException ) {
 				log.log( Log.WARN, "Unable to open uri=" + uri );
 			}
-		}) ) );
+		} ) ) );
+
 		return button;
 	}
 }
