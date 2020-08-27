@@ -60,7 +60,7 @@ abstract class Screenshots {
 		try {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
-			startup(scale);
+			startup( scale );
 			screenshotDefaultWorkarea();
 			screenshot( ProgramWelcomeType.URI, "welcome-tool" );
 			screenshot( ProgramAboutType.URI, "about-tool" );
@@ -127,7 +127,7 @@ abstract class Screenshots {
 		return screenshots.resolve( name + (scale == 1 ? "" : "@" + scale + "x") + ".png" );
 	}
 
-	private void startup(double scale) throws InterruptedException, TimeoutException {
+	private void startup( double scale ) throws InterruptedException, TimeoutException {
 		try {
 			Path config = OperatingSystem.getUserProgramDataFolder( "xenon-" + PROFILE, "Xenon-" + PROFILE );
 			FileUtil.delete( config );
@@ -139,8 +139,6 @@ abstract class Screenshots {
 			Platform.startup( () -> {
 				try {
 					Stage stage = new Stage();
-					stage.setRenderScaleX( scale );
-					stage.setRenderScaleY( scale );
 					program.start( stage );
 				} catch( Exception exception ) {
 					exception.printStackTrace( System.err );
