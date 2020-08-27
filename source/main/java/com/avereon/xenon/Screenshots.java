@@ -138,8 +138,7 @@ abstract class Screenshots {
 			program.init();
 			Platform.startup( () -> {
 				try {
-					Stage stage = new Stage();
-					program.start( stage );
+					program.start( new Stage() );
 				} catch( Exception exception ) {
 					exception.printStackTrace( System.err );
 				}
@@ -150,6 +149,7 @@ abstract class Screenshots {
 			Fx.run( () -> {
 				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
 				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
+				program.getWorkspaceManager().getActiveStage().centerOnScreen();
 			} );
 			Fx.waitForWithInterrupt( programWatcher.getTimeout() );
 		} catch( Exception exception ) {
