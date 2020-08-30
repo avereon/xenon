@@ -33,6 +33,8 @@ public class RestartHook extends Thread {
 
 	private static final Logger log = Log.get();
 
+	private static final String DELETE_SUFFIX = "delete";
+
 	private final Program program;
 
 	private final Mode mode;
@@ -146,7 +148,7 @@ public class RestartHook extends Thread {
 				String key = update.getCard().getProductKey();
 				String version = program.getProductManager().getProduct( key ).getCard().getVersion();
 				Path backup = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version );
-				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-delete" );
+				Path delete = program.getDataFolder().resolve( "backup" ).resolve( key + "-" + version + "-" + DELETE_SUFFIX );
 
 				String updatePath = update.getSource().toString().replace( File.separator, "/" );
 				String deletePath = delete.toString().replace( File.separator, "/" );
