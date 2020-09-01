@@ -1145,9 +1145,11 @@ public class Program extends Application implements ProgramProduct {
 		manager.addAssetType( new ProgramAssetChooserType( this ) );
 		manager.addAssetType( new ProgramThemesType( this ) );
 		manager.addAssetType( new ProgramFaultType( this ) );
+		manager.addAssetType( new PropertiesType( this ) );
 	}
 
 	private void unregisterAssetTypes( AssetManager manager ) {
+		manager.removeAssetType( new PropertiesType( this ) );
 		manager.removeAssetType( new ProgramFaultType( this ) );
 		manager.removeAssetType( new ProgramThemesType( this ) );
 		manager.removeAssetType( new ProgramAssetChooserType( this ) );
