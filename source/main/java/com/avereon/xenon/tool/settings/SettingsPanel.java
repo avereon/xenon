@@ -27,7 +27,9 @@ public class SettingsPanel extends VBox {
 
 	private static final Logger log = Log.get();
 
-	private Map<String, SettingOptionProvider> optionProviders;
+	private final SettingsPage page;
+
+	private final Map<String, SettingOptionProvider> optionProviders;
 
 	//	private String[] fontNames;
 	//
@@ -44,6 +46,7 @@ public class SettingsPanel extends VBox {
 	 * @param optionProviders The map of available option providers
 	 */
 	public SettingsPanel( SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
+		this.page = page;
 		this.optionProviders = optionProviders;
 
 		//		String fontPlain = product.getResourceBundle().getString( "settings", "font-plain" );
@@ -81,6 +84,10 @@ public class SettingsPanel extends VBox {
 			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
 			getChildren().add( pane );
 		}
+	}
+
+	public SettingsPage getPage() {
+		return this.page;
 	}
 
 	private void addBlankLine( Pane pane ) {

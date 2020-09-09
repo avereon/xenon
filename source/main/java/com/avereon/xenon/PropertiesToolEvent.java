@@ -2,6 +2,7 @@ package com.avereon.xenon;
 
 import com.avereon.event.Event;
 import com.avereon.event.EventType;
+import com.avereon.xenon.tool.settings.SettingsPage;
 
 public class PropertiesToolEvent extends Event {
 
@@ -13,9 +14,15 @@ public class PropertiesToolEvent extends Event {
 
 	public static final EventType<PropertiesToolEvent> HIDE = new EventType<>( PROPERTIES, "HIDE" );
 
-	public PropertiesToolEvent( Object source, EventType<? extends PropertiesToolEvent> type ) {
+	private final SettingsPage page;
+
+	public PropertiesToolEvent( Object source, EventType<? extends PropertiesToolEvent> type, SettingsPage page ) {
 		super( source, type );
-		// TODO Probably need a Settings object and a SettingsPage object
+		this.page = page;
+	}
+
+	public SettingsPage getPage() {
+		return page;
 	}
 
 }
