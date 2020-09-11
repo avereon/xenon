@@ -25,12 +25,14 @@ public abstract class GuidedTool extends ProgramTool {
 
 	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
 
-	private GuideExpandedNodesListener guideExpandedNodesListener = new GuideExpandedNodesListener();
+	private final GuideExpandedNodesListener guideExpandedNodesListener;
 
-	private GuideSelectedNodesListener guideSelectedNodesListener = new GuideSelectedNodesListener();
+	private final GuideSelectedNodesListener guideSelectedNodesListener;
 
 	public GuidedTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		guideExpandedNodesListener = new GuideExpandedNodesListener();
+		guideSelectedNodesListener = new GuideSelectedNodesListener();
 	}
 
 	@Override
