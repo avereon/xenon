@@ -25,6 +25,7 @@ module com.avereon.xenon {
 	exports com.avereon.xenon;
 	exports com.avereon.xenon.action.common;
 	exports com.avereon.xenon.asset;
+	exports com.avereon.xenon.asset.type;
 	exports com.avereon.xenon.demo;
 	exports com.avereon.xenon.notice;
 	exports com.avereon.xenon.product;

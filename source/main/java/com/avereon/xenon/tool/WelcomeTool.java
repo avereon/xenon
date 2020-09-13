@@ -75,7 +75,7 @@ public class WelcomeTool extends ProgramTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getProduct().rb().text( "tool", "welcome-name" ) );
+		setTitle( getProduct().rb().text( BundleKey.TOOL, "welcome-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "welcome" ) );
 	}
 

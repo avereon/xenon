@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool;
 
 import com.avereon.util.Log;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.PropertiesToolEvent;
@@ -9,6 +10,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.xenon.workpane.ToolException;
+import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.Fx;
 
 import java.util.Map;
@@ -30,10 +32,28 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	@Override
+	public Workpane.Placement getPlacement() {
+		return Workpane.Placement.DOCK_RIGHT;
+	}
+
+	@Override
 	protected void ready( OpenAssetRequest request ) throws ToolException {
-		// TODO Pattern after the guide tool
-		getWorkspace().getEventBus().register( PropertiesToolEvent.SHOW, e -> Fx.run( () -> showPage( e.getPage() ) ) );
-		getWorkspace().getEventBus().register( PropertiesToolEvent.HIDE, e -> Fx.run( () -> hidePage( e.getPage() ) ) );
+		setTitle( getProduct().rb().text( BundleKey.TOOL, "properties-name" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "properties" ) );
+	}
+
+	@Override
+	protected void display() throws ToolException {
+		// FIXME When restoring the UI the workspace is not available yet
+		// However, maybe it should be
+		try {
+			log.log( Log.WARN, "workspace=" + getWorkspace() );
+			getWorkspace().getEventBus().register( PropertiesToolEvent.SHOW, e -> Fx.run( () -> showPage( e.getPage() ) ) );
+			getWorkspace().getEventBus().register( PropertiesToolEvent.HIDE, e -> Fx.run( () -> hidePage( e.getPage() ) ) );
+			log.log( Log.WARN, "SUCCESS!" );
+		} catch( NullPointerException exception ) {
+			log.log( Log.ERROR, "OOPS", exception );
+		}
 	}
 
 	private void showPage( SettingsPage page ) {

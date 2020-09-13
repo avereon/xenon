@@ -110,8 +110,6 @@ public class Workspace implements WritableIdentity {
 
 	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
 
-	private static Timer timer = new Timer( true );
-
 	public Workspace( final Program program ) {
 		this.program = program;
 		this.eventBus = new FxEventHub();

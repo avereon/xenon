@@ -30,14 +30,16 @@ public class ToolTabPane extends Control {
 
 	private static final Logger log = Log.get();
 
-	private ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
+	private final ObservableList<ToolTab> tabs;
 
-	private ObservableList<ToolTab> tabs = FXCollections.observableArrayList();
+	private final ObjectProperty<SingleSelectionModel<ToolTab>> selectionModel;
 
 	private ReadOnlyBooleanWrapper active;
 
 	public ToolTabPane() {
 		getStyleClass().addAll( "tool-pane" );
+		tabs = FXCollections.observableArrayList();
+		selectionModel = new SimpleObjectProperty<>( this, "selectionModel" );
 		setSelectionModel( new ToolPaneSelectionModel( this ) );
 	}
 
@@ -141,7 +143,7 @@ public class ToolTabPane extends Control {
 
 	private static class ToolPaneSelectionModel extends SingleSelectionModel<ToolTab> {
 
-		private ToolTabPane pane;
+		private final ToolTabPane pane;
 
 		ToolPaneSelectionModel( ToolTabPane pane ) {
 			if( pane == null ) throw new NullPointerException( "ToolPane can not be null" );

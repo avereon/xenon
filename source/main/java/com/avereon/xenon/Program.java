@@ -135,6 +135,8 @@ public class Program extends Application implements ProgramProduct {
 
 	private SettingsAction settingsAction;
 
+	private PropertiesAction propertiesAction;
+
 	private ThemesAction themesAction;
 
 	private WelcomeAction welcomeAction;
@@ -1071,6 +1073,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
+		getActionLibrary().getAction( "properties" ).pushAction( propertiesAction= new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
@@ -1102,6 +1105,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pullAction( exitAction );
 		getActionLibrary().getAction( "about" ).pullAction( aboutAction );
 		getActionLibrary().getAction( "settings" ).pullAction( settingsAction );
+		getActionLibrary().getAction( "properties" ).pullAction( propertiesAction );
 		getActionLibrary().getAction( "themes" ).pullAction( themesAction );
 		getActionLibrary().getAction( "welcome" ).pullAction( welcomeAction );
 		getActionLibrary().getAction( "task" ).pullAction( taskAction );
@@ -1175,6 +1179,7 @@ public class Program extends Application implements ProgramProduct {
 		registerTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramAssetChooserType( this ), AssetTool.class, ToolInstanceMode.SINGLETON, "asset", "asset" );
 		registerTool( manager, new ProgramThemesType( this ), ThemeTool.class, ToolInstanceMode.SINGLETON, "themes", "themes" );
+		registerTool( manager, new PropertiesType( this ), PropertiesTool.class, ToolInstanceMode.SINGLETON, "properties", "properties" );
 
 		toolManager.addToolAlias( "com.avereon.xenon.tool.about.AboutTool", AboutTool.class );
 		toolManager.addToolAlias( "com.avereon.xenon.tool.notice.NoticeTool", NoticeTool.class );
@@ -1183,6 +1188,7 @@ public class Program extends Application implements ProgramProduct {
 	}
 
 	private void unregisterTools( ToolManager manager ) {
+		unregisterTool( manager, new PropertiesType( this ), PropertiesTool.class );
 		unregisterTool( manager, new ProgramAssetChooserType( this ), AssetTool.class );
 		unregisterTool( manager, new ProgramAssetNewType( this ), NewAssetTool.class );
 		unregisterTool( manager, new ProgramFaultType( this ), FaultTool.class );

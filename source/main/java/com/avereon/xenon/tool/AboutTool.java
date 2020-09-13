@@ -93,7 +93,7 @@ public class AboutTool extends GuidedTool {
 
 	@Override
 	protected void ready( OpenAssetRequest request ) {
-		setTitle( getAsset().getName() );
+		setTitle( getProduct().getCard().getName() );
 		setGraphic( getProgram().getIconLibrary().getIcon( "about" ) );
 
 		updateCheckWatcher = e -> Platform.runLater( summaryPane::updateUpdateCheckInfo );
@@ -127,7 +127,6 @@ public class AboutTool extends GuidedTool {
 
 	private void updatePages() {
 		ProductCard metadata = getProgram().getCard();
-		setTitle( metadata.getName() );
 		summaryPane.update( metadata );
 		modsText.setText( getModsText( (Program)getProduct() ) );
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );

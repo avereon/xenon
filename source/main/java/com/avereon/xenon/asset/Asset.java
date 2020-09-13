@@ -445,9 +445,9 @@ public class Asset extends Node implements Configurable {
 	}
 
 	private String getDefaultName() {
-		AssetType type = getType();
 		URI uri = getUri();
 		String path = uri.getPath();
+		AssetType type = getType();
 		String name = null;
 
 		// If the asset is new return the type name

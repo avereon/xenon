@@ -67,17 +67,14 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 				change.getRemoved().stream().filter( Objects::nonNull ).forEach( tab -> {
 					if( !control.getTabs().contains( tab ) ) tab.setToolPane( null );
 					toolArea.getChildren().remove( tab.getTool() );
-					// Tab is removed below
+					tabContainer.getChildren().remove( tab );
 				} );
 
 				change.getAddedSubList().stream().filter( Objects::nonNull ).forEach( tab -> {
 					tab.setToolPane( control );
-					// Tab is added below
 					toolArea.getChildren().add( tab.getTool() );
+					tabContainer.getChildren().add( tab );
 				} );
-
-				if( change.wasRemoved() ) tabContainer.getChildren().removeAll( change.getRemoved() );
-				if( change.wasAdded() ) tabContainer.getChildren().addAll( change.getFrom(), change.getAddedSubList() );
 			}
 
 			control.requestLayout();
