@@ -63,12 +63,13 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		} );
 
 		// Add a listener to the tab list to store the order when the tabs change
-		tools.getTabs().addListener( (ListChangeListener<? super ToolTab>)( change ) -> {
-			for( ToolTab tab : tools.getTabs() ) {
-				Tool tool = tab.getTool();
-				tool.fireEvent( new ToolEvent( null, ToolEvent.ORDERED, tool.getWorkpane(), tool ) );
-			}
-		} );
+		tools
+			.getTabs()
+			.addListener( (ListChangeListener<? super ToolTab>)( change ) -> tools
+				.getTabs()
+				.stream()
+				.map( ToolTab::getTool )
+				.forEach( t -> t.fireEvent( new ToolEvent( null, ToolEvent.ORDERED, t.getWorkpane(), t ) ) ) );
 	}
 
 	@Override
@@ -157,6 +158,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		tools.getTabs().add( index, new ToolTab( tool ) );
 
 		// FIXME The tool should have a parent by now
+		// Related to PropertiesTool:48
 		Node node = tool;
 		while( node != null ) {
 			log.log( Log.WARN, "node=" + node );
