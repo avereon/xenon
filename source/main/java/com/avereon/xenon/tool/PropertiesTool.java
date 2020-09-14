@@ -11,7 +11,6 @@ import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
-import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.javafx.Fx;
 
 import java.util.Map;
@@ -45,21 +44,8 @@ public class PropertiesTool extends ProgramTool {
 
 	@Override
 	protected void display() throws ToolException {
-		// FIXME The workspace should not be null
-		// Related to WorkpaneView:161
-		Workspace workspace = getWorkspace();
-		if( workspace != null ) {
-			try {
-				log.log( Log.WARN, "workspace=" + getWorkspace() );
-				getWorkspace().getEventBus().register( PropertiesToolEvent.SHOW, e -> Fx.run( () -> showPage( e.getPage() ) ) );
-				getWorkspace().getEventBus().register( PropertiesToolEvent.HIDE, e -> Fx.run( () -> hidePage( e.getPage() ) ) );
-				log.log( Log.WARN, "SUCCESS!" );
-			} catch( NullPointerException exception ) {
-				log.log( Log.ERROR, "OOPS", exception );
-			}
-		} else {
-			log.log( Log.WARN, "NO WORKSPACE" );
-		}
+		getWorkspace().getEventBus().register( PropertiesToolEvent.SHOW, e -> Fx.run( () -> showPage( e.getPage() ) ) );
+		getWorkspace().getEventBus().register( PropertiesToolEvent.HIDE, e -> Fx.run( () -> hidePage( e.getPage() ) ) );
 	}
 
 	private void showPage( SettingsPage page ) {

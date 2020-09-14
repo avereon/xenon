@@ -11,7 +11,6 @@ import javafx.collections.ListChangeListener;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
@@ -156,14 +155,7 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 		tool.callAllocate();
 
 		tools.getTabs().add( index, new ToolTab( tool ) );
-
-		// FIXME The tool should have a parent by now
-		// Related to PropertiesTool:48
-		Node node = tool;
-		while( node != null ) {
-			log.log( Log.WARN, "node=" + node );
-			node = node.getParent();
-		}
+		// NOTE the tool parent is not valid yet, but the tool view is
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );
 

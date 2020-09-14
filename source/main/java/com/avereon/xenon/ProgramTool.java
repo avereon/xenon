@@ -196,12 +196,15 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	protected Workspace getWorkspace() {
-		Node node = this;
+		// Don't start with the parent, start with the workpane
+		Node node = getWorkpane();
+
 		Workspace workspace = null;
 		while( node != null && workspace == null ) {
 			workspace = (Workspace)node.getProperties().get( Workspace.WORKSPACE_PROPERTY_KEY);
 			node = node.getParent();
 		}
+
 		return workspace;
 	}
 
