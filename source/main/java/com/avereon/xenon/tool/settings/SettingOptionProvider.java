@@ -8,6 +8,8 @@ public interface SettingOptionProvider {
 
 	String getName( String key );
 
-	String getValue( String key );
+	default String getValue( String key ) {
+		return key;
+	}
 
 }
