@@ -41,10 +41,13 @@ public class SettingsPanel extends VBox {
 	// TODO Add an undo button to set individual setting back to previous.
 
 	/**
-	 * @param page
-	 * @param optionProviders The map of available option providers
+	 * @param page The settings page for the panel
 	 */
-	public SettingsPanel( SettingsPage page, String bundleKey ) {
+	public SettingsPanel( SettingsPage page ) {
+		this( page, false );
+	}
+
+	public SettingsPanel( SettingsPage page, boolean showTitle ) {
 		this.page = page;
 		this.optionProviders = page.getOptionProviders();
 
@@ -60,21 +63,22 @@ public class SettingsPanel extends VBox {
 
 		//setBorder( new Border( new BorderStroke( Color.BLUE, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
-		// Get the title
-		String title = page.getTitle();
-		ProgramProduct product = (ProgramProduct)page.getProduct();
-		if( title == null ) title = product.rb().text( bundleKey, page.getId() );
+		if( showTitle ) {
+			// Add the title label
+			Label titleLabel = new Label( page.getTitle() );
+			titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
+			titleLabel.prefWidthProperty().bind( widthProperty() );
+			titleLabel.getStyleClass().add( "setting-title" );
+			titleLabel.setAlignment( Pos.CENTER );
+			//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
-		// Add the title label
-		Label titleLabel = new Label( title );
-		titleLabel.setFont( Font.font( titleLabel.getFont().getFamily(), 2 * titleLabel.getFont().getSize() ) );
-		titleLabel.prefWidthProperty().bind( widthProperty() );
-		titleLabel.getStyleClass().add( "setting-title" );
-		titleLabel.setAlignment( Pos.CENTER );
-		//titleLabel.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+			addBlankLine( this );
+			getChildren().add( titleLabel );
+			addBlankLine( this );
+		}
 
-		getChildren().add( titleLabel );
-		addBlankLine( this );
+		ProgramProduct product = page.getProduct();
+		String bundleKey = page.getBundleKey();
 
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {

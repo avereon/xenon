@@ -3,6 +3,7 @@ package com.avereon.xenon.tool.settings;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 
 import javax.xml.stream.XMLInputFactory;
@@ -72,20 +73,23 @@ public class SettingsPageParser {
 	}
 
 	public Map<String, SettingsPage> parse( String path ) throws IOException {
-		//if( path.startsWith( "/" ) ) path = path.substring( 1 );
-		InputStream input = product.getClass().getResourceAsStream( path );
-		if( input == null ) log.log( Log.WARN, "Settings page input stream is null: " + path );
-		return parse( input );
+		return parse( path, BundleKey.SETTINGS );
 	}
 
-	private Map<String, SettingsPage> parse( InputStream input ) throws IOException {
+	public Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
+		InputStream input = product.getClass().getResourceAsStream( path );
+		if( input == null ) log.log( Log.WARN, "Settings page input stream is null: " + path );
+		return parse( input, bundleKey );
+	}
+
+	private Map<String, SettingsPage> parse( InputStream input, String bundleKey ) throws IOException {
 		if( input == null ) return null;
 
 		Map<String, SettingsPage> pages = new HashMap<>();
 		XMLStreamReader reader;
 		try( input ) {
 			reader = xmlInputFactory.createXMLStreamReader( input );
-			parse( reader, pages );
+			parse( reader, bundleKey, pages );
 			reader.close();
 		} catch( XMLStreamException exception ) {
 			throw new IOException( exception );
@@ -94,7 +98,7 @@ public class SettingsPageParser {
 		return pages;
 	}
 
-	private void parse( XMLStreamReader reader, Map<String, SettingsPage> pages ) throws XMLStreamException {
+	private void parse( XMLStreamReader reader, String bundleKey, Map<String, SettingsPage> pages ) throws XMLStreamException {
 		if( !reader.hasNext() ) return;
 
 		reader.next();
@@ -107,14 +111,14 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					SettingsPage page = parsePage( reader );
+					SettingsPage page = parsePage( reader, bundleKey );
 					pages.put( page.getId(), page );
 				}
 			}
 		}
 	}
 
-	private SettingsPage parsePage( XMLStreamReader reader ) throws XMLStreamException {
+	private SettingsPage parsePage( XMLStreamReader reader, String bundleKey ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 		String id = attributes.get( ID );
@@ -130,7 +134,7 @@ public class SettingsPageParser {
 		}
 
 		// Special handling of empty titles
-		if( TextUtil.isEmpty( title ) ) title = product.rb().textOr( "settings", id, id );
+		if( TextUtil.isEmpty( title ) ) title = product.rb().textOr( bundleKey, id, id );
 
 		SettingsPage page = new SettingsPage();
 		page.setProduct( product );
@@ -138,6 +142,7 @@ public class SettingsPageParser {
 		page.setId( id );
 		page.setIcon( icon );
 		page.setTitle( title );
+		page.setBundleKey( bundleKey );
 
 		SettingGroup group = null;
 		while( reader.hasNext() ) {
@@ -147,16 +152,16 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					page.addPage( parsePage( reader ) );
+					page.addPage( parsePage( reader, bundleKey ) );
 				} else if( GROUP.equals( tagName ) ) {
 					if( group != null ) {
 						page.addGroup( group );
 						group = null;
 					}
-					page.addGroup( parseGroup( reader ) );
+					page.addGroup( parseGroup( reader, bundleKey ) );
 				} else if( SETTING.equals( tagName ) ) {
 					if( group == null ) group = new SettingGroup( settings );
-					group.addSetting( parseSetting( reader ) );
+					group.addSetting( parseSetting( reader, bundleKey ) );
 				}
 			}
 		}
@@ -166,7 +171,7 @@ public class SettingsPageParser {
 		return page;
 	}
 
-	private SettingGroup parseGroup( XMLStreamReader reader ) throws XMLStreamException {
+	private SettingGroup parseGroup( XMLStreamReader reader, String bundleKey ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -182,7 +187,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( SETTING.equals( tagName ) ) {
-					group.addSetting( parseSetting( reader ) );
+					group.addSetting( parseSetting( reader, bundleKey ) );
 				} else if( DEPENDENCY.equals( tagName ) ) {
 					group.addDependency( parseDependency( reader ) );
 				}
@@ -192,7 +197,7 @@ public class SettingsPageParser {
 		return group;
 	}
 
-	private Setting parseSetting( XMLStreamReader reader ) throws XMLStreamException {
+	private Setting parseSetting( XMLStreamReader reader, String bundleKey ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -221,7 +226,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( OPTION.equals( tagName ) ) {
-					setting.addOption( parseOption( reader, setting ) );
+					setting.addOption( parseOption( reader, bundleKey, setting ) );
 				} else if( DEPENDENCY.equals( tagName ) ) {
 					setting.addDependency( parseDependency( reader ) );
 				}
@@ -231,7 +236,7 @@ public class SettingsPageParser {
 		return setting;
 	}
 
-	private SettingOption parseOption( XMLStreamReader reader, Setting setting ) throws XMLStreamException {
+	private SettingOption parseOption( XMLStreamReader reader, String bundleKey, Setting setting ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -254,7 +259,7 @@ public class SettingsPageParser {
 		// Determine the option name
 		String optionName = text;
 		String nameRbKey = getBundleKey( setting.getKey() ) + "-" + key;
-		if( optionName == null ) optionName = product.rb().text( "settings", nameRbKey );
+		if( optionName == null ) optionName = product.rb().text( bundleKey, nameRbKey );
 
 		// Determine the option value
 		String optionValue = attributes.get( VALUE );

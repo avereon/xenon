@@ -173,10 +173,6 @@
 	-fx-background-color: transparent;
 }
 
-.workpane .scroll-pane .content {
-	-fx-background-color: transparent;
-}
-
 /*******************************************************************************
  * Workpane Table View
  ******************************************************************************/
@@ -226,6 +222,10 @@
 
 .workpane-edge:vertical {
 	-fx-cursor: h-resize;
+}
+
+.workpane .content {
+	-fx-background-color: transparent;
 }
 
 .workpane .tab-pane .tab-header-background {
@@ -533,13 +533,6 @@
 
 #tool-welcome .button .description {
 	-fx-font-size: 1em;
-}
-
-/*******************************************************************************
-	 * Titled Pane
-	 ******************************************************************************/
-.titled-pane > *.content {
-	-fx-background-color: red;
 }
 
 /*******************************************************************************

@@ -2,6 +2,7 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.Node;
 import com.avereon.settings.Settings;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
 
 import java.util.Collections;
@@ -26,6 +27,8 @@ public class SettingsPage extends Node {
 	private static final String PRODUCT = "product";
 
 	private static final String SETTINGS = "settings";
+
+	private String bundleKey = BundleKey.SETTINGS;
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
@@ -95,6 +98,14 @@ public class SettingsPage extends Node {
 
 	public void setSettings( Settings settings ) {
 		setValue( SETTINGS, settings );
+	}
+
+	public String getBundleKey() {
+		return bundleKey;
+	}
+
+	public void setBundleKey( String bundleKey ) {
+		this.bundleKey = bundleKey;
 	}
 
 	public Map<String, SettingOptionProvider> getOptionProviders() {

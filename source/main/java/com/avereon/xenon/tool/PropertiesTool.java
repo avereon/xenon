@@ -71,7 +71,7 @@ public class PropertiesTool extends ProgramTool {
 		log.log( Log.INFO, "Show properties..." );
 		if( this.panel != null && this.panel.getPage() == page ) return;
 		if( this.panel != null ) getChildren().remove( this.panel );
-		getChildren().addAll( this.panel = new SettingsPanel( page, "props" ) );
+		getChildren().addAll( this.panel = new SettingsPanel( page ) );
 	}
 
 	private void hidePage( SettingsPage page ) {
