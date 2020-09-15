@@ -7,7 +7,7 @@ import com.avereon.util.SizeUnitBase10;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.xenon.workpane.WorkpaneEvent;
 import com.avereon.xenon.workpane.WorkpaneWatcher;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -96,7 +96,7 @@ public abstract class FxProgramUIT extends ApplicationTest {
 	}
 
 	protected void closeProgram( boolean force ) {
-		Platform.runLater( () -> program.requestExit( force ) );
+		Fx.run( () -> program.requestExit( force ) );
 		WaitForAsyncUtils.waitForFxEvents();
 	}
 

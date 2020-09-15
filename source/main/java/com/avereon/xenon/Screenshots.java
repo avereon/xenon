@@ -165,9 +165,17 @@ abstract class Screenshots {
 
 	private void shutdown() {
 		try {
-			boolean stopping = program.requestExit( true );
-			System.out.println( "Screenshots stopping=" + stopping );
-			if( stopping ) program.stop();
+			Fx.run( () -> {
+				boolean stopping = program.requestExit( true );
+				System.out.println( "Screenshots stopping=" + stopping );
+				if( stopping ) {
+					try {
+						program.stop();
+					} catch( Exception exception ) {
+						exception.printStackTrace();
+					}
+				}
+			} );
 			programWatcher.waitForEvent( ProgramEvent.STOPPED, 1000 );
 		} catch( Exception exception ) {
 			exception.printStackTrace();

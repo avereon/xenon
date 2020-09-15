@@ -30,6 +30,7 @@ import com.avereon.xenon.tool.settings.SettingsTool;
 import com.avereon.xenon.util.DialogUtil;
 import com.avereon.zerra.event.FxEventHub;
 import com.avereon.zerra.javafx.Fx;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -628,6 +629,7 @@ public class Program extends Application implements ProgramProduct {
 
 	@SuppressWarnings( "ConstantConditions" )
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
+		FxUtil.assertFxThread();
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
 
 		boolean shutdownVerify = true;
