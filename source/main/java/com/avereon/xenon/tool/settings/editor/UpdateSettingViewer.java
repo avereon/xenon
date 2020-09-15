@@ -23,8 +23,8 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private Label nextUpdateCheckField;
 
-	public UpdateSettingViewer( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public UpdateSettingViewer( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override

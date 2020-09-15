@@ -1,6 +1,5 @@
 package com.avereon.xenon;
 
-import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
@@ -93,7 +92,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 		optionProviders.put( id, provider );
 	}
 
-	public Map<String, SettingsPage> addSettingsPages( Product product, Settings settings, String path ) {
+	public Map<String, SettingsPage> addSettingsPages( ProgramProduct product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
 			pages = new SettingsPageParser( product, settings ).parse( path );

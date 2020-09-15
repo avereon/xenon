@@ -17,6 +17,8 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 
 	protected Setting setting;
 
+	private String bundleKey;
+
 	protected String key;
 
 	static {
@@ -38,12 +40,17 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 		addType( "update-checks", UpdateSettingViewer.class );
 	}
 
-	public SettingEditor( ProgramProduct product, Setting setting ) {
+	public SettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;
 		this.setting = setting;
+		this.bundleKey = bundleKey;
 		this.key = setting.getKey();
+	}
+
+	public String getBundleKey() {
+		return bundleKey;
 	}
 
 	/**

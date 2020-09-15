@@ -2,7 +2,6 @@ package com.avereon.xenon.tool.settings;
 
 import com.avereon.data.NodeEvent;
 import com.avereon.event.EventHandler;
-import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
@@ -45,14 +44,14 @@ public class SettingsPanel extends VBox {
 	 * @param page
 	 * @param optionProviders The map of available option providers
 	 */
-	public SettingsPanel( SettingsPage page, Map<String, SettingOptionProvider> optionProviders ) {
+	public SettingsPanel( SettingsPage page, String bundleKey ) {
 		this.page = page;
-		this.optionProviders = optionProviders;
+		this.optionProviders = page.getOptionProviders();
 
-		//		String fontPlain = product.getResourceBundle().getString( "settings", "font-plain" );
-		//		String fontBold = product.getResourceBundle().getString( "settings", "font-bold" );
-		//		String fontItalic = product.getResourceBundle().getString( "settings", "font-italic" );
-		//		String fontBoldItalic = product.getResourceBundle().getString( "settings", "font-bold-italic" );
+		//		String fontPlain = product.getResourceBundle().getString( bundleKey, "font-plain" );
+		//		String fontBold = product.getResourceBundle().getString( bundleKey, "font-bold" );
+		//		String fontItalic = product.getResourceBundle().getString( bundleKey, "font-italic" );
+		//		String fontBoldItalic = product.getResourceBundle().getString( bundleKey, "font-bold-italic" );
 		//
 		//		List<String> fontFamilies = Font.getFamilies();
 		//		fontNames = fontFamilies.toArray( new String[ fontFamilies.size() ] );
@@ -63,8 +62,8 @@ public class SettingsPanel extends VBox {
 
 		// Get the title
 		String title = page.getTitle();
-		Product product = page.getProduct();
-		if( title == null ) title = product.rb().text( "settings", page.getId() );
+		ProgramProduct product = (ProgramProduct)page.getProduct();
+		if( title == null ) title = product.rb().text( bundleKey, page.getId() );
 
 		// Add the title label
 		Label titleLabel = new Label( title );
@@ -79,8 +78,8 @@ public class SettingsPanel extends VBox {
 
 		// Add the groups
 		for( SettingGroup group : page.getGroups() ) {
-			String name = product.rb().text( "settings", group.getId() );
-			Control pane = createGroupPane( product, page, name, group );
+			String name = product.rb().text( bundleKey, group.getId() );
+			Control pane = createGroupPane( product, bundleKey, page, name, group );
 			pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderStroke.THICK ) ) );
 			getChildren().add( pane );
 		}
@@ -98,8 +97,8 @@ public class SettingsPanel extends VBox {
 		pane.getChildren().add( blankLine );
 	}
 
-	private Control createGroupPane( Product product, SettingsPage page, String name, SettingGroup group ) {
-		Pane pane = createSettingsPane( product, page, group );
+	private Control createGroupPane( ProgramProduct product, String bundleKey, SettingsPage page, String name, SettingGroup group ) {
+		Pane pane = createSettingsPane( product, bundleKey, page, group );
 
 		group.register( NodeEvent.ANY, new GroupChangeHandler( group, pane ) );
 
@@ -119,7 +118,7 @@ public class SettingsPanel extends VBox {
 		return groupPane;
 	}
 
-	private Pane createSettingsPane( Product product, SettingsPage page, SettingGroup group ) {
+	private Pane createSettingsPane( ProgramProduct product, String bundleKey, SettingsPage page, SettingGroup group ) {
 		GridPane pane = new GridPane();
 		pane.setHgap( UiFactory.PAD );
 		pane.setVgap( UiFactory.PAD );
@@ -133,20 +132,19 @@ public class SettingsPanel extends VBox {
 
 			// Determine the editor class
 			Class<? extends SettingEditor> editorClass = SettingEditor.getType( editorType );
-			if( editorClass == null ) editorClass = SettingEditor.getType( "textline" );
+			if( editorClass == null ) {
+				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
+				editorClass = SettingEditor.getType( "textline" );
+			}
 
 			// Determine setting option provider, if any
 			String providerId = setting.getProvider();
 			setting.setOptionProvider( providerId == null ? null : optionProviders.get( providerId ) );
 
 			// Create the editor
-			if( editorClass == null ) {
-				log.log( Log.WARN, "Setting editor not registered: {0}", editorType );
-			} else {
-				SettingEditor editor = createSettingEditor( product, setting, editorClass );
-				if( editor != null ) editor.addComponents( pane, row++ );
-				if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
-			}
+			SettingEditor editor = createSettingEditor( product, bundleKey, setting, editorClass );
+			if( editor != null ) editor.addComponents( pane, row++ );
+			if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
 
 			// Add a watcher to each dependency
 			Settings pageSettings = page.getSettings();
@@ -163,13 +161,13 @@ public class SettingsPanel extends VBox {
 		return pane;
 	}
 
-	private SettingEditor createSettingEditor( Product product, Setting setting, Class<? extends SettingEditor> editorClass ) {
+	private SettingEditor createSettingEditor( ProgramProduct product, String bundleKey, Setting setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, Setting.class );
-			editor = constructor.newInstance( (ProgramProduct)product, setting );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, Setting.class );
+			editor = constructor.newInstance( product, bundleKey, setting );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error creating setting editor: " + editorClass.getName(), exception );
 		}

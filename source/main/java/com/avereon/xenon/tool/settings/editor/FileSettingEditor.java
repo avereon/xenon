@@ -27,8 +27,8 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 
 	private Button button;
 
-	public FileSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public FileSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override

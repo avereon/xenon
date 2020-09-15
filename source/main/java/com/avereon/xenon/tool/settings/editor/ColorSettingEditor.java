@@ -18,8 +18,8 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 
 	private ColorPicker colorPicker;
 
-	public ColorSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public ColorSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key, "#000000ff" );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 
 		colorPicker = new ColorPicker();
 		colorPicker.setValue( Colors.web( value ) );

@@ -13,8 +13,6 @@ import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.Fx;
 
-import java.util.Map;
-
 /**
  * This tool listens for "show properties" and "hide properties" events that
  * allow the user to edit the properties of an object using the settings API.
@@ -24,6 +22,8 @@ public class PropertiesTool extends ProgramTool {
 	private static final System.Logger log = Log.get();
 
 	//private SettingsPage page;
+
+	private String bundleKey;
 
 	private SettingsPanel panel;
 
@@ -52,7 +52,7 @@ public class PropertiesTool extends ProgramTool {
 		log.log( Log.INFO, "Show properties..." );
 		if( this.panel != null ) getChildren().remove( this.panel );
 		if( this.panel != null && this.panel.getPage() == page ) return;
-		getChildren().addAll( this.panel = new SettingsPanel( page, Map.of() ) );
+		getChildren().addAll( this.panel = new SettingsPanel( page, "props" ) );
 	}
 
 	private void hidePage( SettingsPage page ) {

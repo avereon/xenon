@@ -28,12 +28,12 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 
 	private TextInputControl text;
 
-	public TextLineSettingEditor( ProgramProduct product, Setting setting ) {
-		this( product, setting, Type.FIELD );
+	public TextLineSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		this( product, bundleKey, setting, Type.FIELD );
 	}
 
-	TextLineSettingEditor( ProgramProduct product, Setting setting, Type type ) {
-		super( product, setting );
+	TextLineSettingEditor( ProgramProduct product, String bundleKey, Setting setting, Type type ) {
+		super( product, bundleKey, setting );
 		this.type = type;
 	}
 
@@ -42,7 +42,7 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 
 		switch( type ) {
 			case AREA: {

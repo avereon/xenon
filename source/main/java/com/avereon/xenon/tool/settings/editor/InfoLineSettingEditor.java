@@ -25,12 +25,12 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 
 	private TextInputControl text;
 
-	public InfoLineSettingEditor( ProgramProduct product, Setting setting ) {
-		this( product, setting, Type.FIELD );
+	public InfoLineSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		this( product, bundleKey, setting, Type.FIELD );
 	}
 
-	public InfoLineSettingEditor( ProgramProduct product, Setting setting, Type type ) {
-		super( product, setting );
+	public InfoLineSettingEditor( ProgramProduct product, String bundleKey, Setting setting, Type type ) {
+		super( product, bundleKey, setting );
 		this.type = type;
 	}
 

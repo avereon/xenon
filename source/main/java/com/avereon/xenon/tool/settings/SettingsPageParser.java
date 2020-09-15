@@ -1,9 +1,9 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.product.Product;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
+import com.avereon.xenon.ProgramProduct;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -62,11 +62,11 @@ public class SettingsPageParser {
 
 	private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
-	private final Product product;
+	private final ProgramProduct product;
 
 	private final Settings settings;
 
-	public SettingsPageParser( Product product, Settings settings ) {
+	public SettingsPageParser( ProgramProduct product, Settings settings ) {
 		this.product = product;
 		this.settings = settings;
 	}

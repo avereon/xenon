@@ -5,8 +5,8 @@ import com.avereon.xenon.tool.settings.Setting;
 
 public class PasswordSettingEditor extends TextLineSettingEditor {
 
-	public PasswordSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting, Type.PASSWORD );
+	public PasswordSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting, Type.PASSWORD );
 	}
 
 }

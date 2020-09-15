@@ -13,8 +13,8 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	private CheckBox checkbox;
 
-	public CheckBoxSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public CheckBoxSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override

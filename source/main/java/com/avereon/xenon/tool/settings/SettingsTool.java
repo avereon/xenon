@@ -1,8 +1,8 @@
 package com.avereon.xenon.tool.settings;
 
 import com.avereon.util.Log;
+import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.SettingsManager;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.guide.Guide;
@@ -64,8 +64,8 @@ public class SettingsTool extends GuidedTool {
 	}
 
 	private void setPage( SettingsPage page ) {
-		SettingsManager manager = getProgram().getSettingsManager();
-		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( page, manager.getOptionProviders() ) );
+		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
+		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( page, BundleKey.SETTINGS ) );
 		ScrollPane scroller = new ScrollPane( panel );
 		scroller.setFitToWidth( true );
 		getChildren().clear();

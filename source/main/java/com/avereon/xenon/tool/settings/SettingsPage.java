@@ -1,12 +1,13 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.data.Node;
-import com.avereon.product.Product;
+import com.avereon.settings.Settings;
+import com.avereon.xenon.ProgramProduct;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -25,6 +26,8 @@ public class SettingsPage extends Node {
 	private static final String PRODUCT = "product";
 
 	private static final String SETTINGS = "settings";
+
+	private Map<String, SettingOptionProvider> optionProviders;
 
 	public SettingsPage() {
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
@@ -78,11 +81,11 @@ public class SettingsPage extends Node {
 		pages.put( page.getId(), page );
 	}
 
-	public Product getProduct() {
+	public ProgramProduct getProduct() {
 		return getValue( PRODUCT );
 	}
 
-	public void setProduct( Product product ) {
+	public void setProduct( ProgramProduct product ) {
 		setValue( PRODUCT, product );
 	}
 
@@ -92,6 +95,14 @@ public class SettingsPage extends Node {
 
 	public void setSettings( Settings settings ) {
 		setValue( SETTINGS, settings );
+	}
+
+	public Map<String, SettingOptionProvider> getOptionProviders() {
+		return Optional.ofNullable( optionProviders ).orElse( Map.of() );
+	}
+
+	public void setOptionProviders( Map<String, SettingOptionProvider> optionProviders ) {
+		this.optionProviders = optionProviders;
 	}
 
 }

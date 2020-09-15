@@ -20,8 +20,8 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 
 	private ComboBox<SettingOption> combobox;
 
-	public ComboBoxSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public ComboBoxSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		String rbKey = setting.getBundleKey();
 		String value = setting.getSettings().get( key );
 
-		label = new Label( product.rb().text( "settings", rbKey ) );
+		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 
 		List<SettingOption> options = setting.getOptions();
 		combobox = new ComboBox<>();

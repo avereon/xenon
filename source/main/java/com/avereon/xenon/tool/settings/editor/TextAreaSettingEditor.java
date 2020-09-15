@@ -5,8 +5,8 @@ import com.avereon.xenon.tool.settings.Setting;
 
 public class TextAreaSettingEditor extends TextLineSettingEditor {
 
-	public TextAreaSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting, Type.AREA );
+	public TextAreaSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting, Type.AREA );
 	}
 
 }

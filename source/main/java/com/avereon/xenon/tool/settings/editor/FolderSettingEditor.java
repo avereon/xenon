@@ -27,8 +27,8 @@ public class FolderSettingEditor extends SettingEditor implements EventHandler<K
 
 	private Button button;
 
-	public FolderSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public FolderSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override

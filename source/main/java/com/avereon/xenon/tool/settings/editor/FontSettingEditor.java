@@ -20,8 +20,8 @@ public class FontSettingEditor extends SettingEditor {
 
 	private Button button;
 
-	public FontSettingEditor( ProgramProduct product, Setting setting ) {
-		super( product, setting );
+	public FontSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+		super( product, bundleKey, setting );
 	}
 
 	@Override
