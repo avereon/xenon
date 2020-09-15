@@ -6,6 +6,7 @@ import com.avereon.util.Log;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -126,13 +127,7 @@ public class Setting extends Node {
 	}
 
 	public SettingOption getOption( String value ) {
-		for( SettingOption option : getOptions() ) {
-			if( option.getOptionValue().equals( value ) ) {
-				return option;
-			}
-		}
-
-		return null;
+		return getOptions().stream().filter( o -> Objects.equals( o.getOptionValue(), value ) ).findFirst().orElse( null );
 	}
 
 	public List<SettingOption> getOptions() {
