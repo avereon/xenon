@@ -180,69 +180,72 @@ public class Workspace implements WritableIdentity {
 
 	private MenuBar createMenuBar( Program program ) {
 		MenuBar menubar = new MenuBar();
+		Menu menu;
 
 		// FIXME This does not work if there are two menu bars (like this program uses)
 		// This generally affects MacOS users
 		menubar.setUseSystemMenuBar( true );
 
-		Menu file = ActionUtil.createMenu( program, "file" );
-		file.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
-		file.getItems().add( new SeparatorMenuItem() );
-		file.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
-		file.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
+		menu = ActionUtil.createMenu( program, "file" );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "new" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "open" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
+		menubar.getMenus().add( menu );
 
-		Menu edit = ActionUtil.createMenu( program, "edit" );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "redo" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "cut" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "copy" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "paste" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "delete" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
-		edit.getItems().add( new SeparatorMenuItem() );
-		edit.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		menu = ActionUtil.createMenu( program, "edit" );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "undo" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "redo" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "cut" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "copy" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "paste" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "delete" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "indent" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "unindent" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "properties" ) );
+		menubar.getMenus().add( menu );
 
-		Menu view = ActionUtil.createMenu( program, "view" );
-		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
-		view.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
-		view.getItems().add( new SeparatorMenuItem() );
-		view.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
+		menu = ActionUtil.createMenu( program, "view" );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "workspace-new" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "workspace-close" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "statusbar-show" ) );
+		menubar.getMenus().add( menu );
 
 		Menu tools = ActionUtil.createSubMenu( program, "tools" );
 		tools.getItems().add( ActionUtil.createMenuItem( program, "task" ) );
 		tools.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
 		tools.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
-		Menu help = ActionUtil.createMenu( program, "help" );
-		help.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
-		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( tools );
-		help.getItems().add( new SeparatorMenuItem() );
-		help.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
-		help.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
+		menu = ActionUtil.createMenu( program, "help" );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( tools );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
+		menubar.getMenus().add( menu );
 
-		Menu dev = ActionUtil.createMenu( program, "development" );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-1" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-2" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-3" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
-		dev.getItems().add( new SeparatorMenuItem() );
-		dev.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
-		//dev.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
-
-		menubar.getMenus().addAll( file, edit, view, help );
-		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( dev );
+		menu = ActionUtil.createMenu( program, "development" );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-1" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-2" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-3" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-4" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "test-action-5" ) );
+		menu.getItems().add( new SeparatorMenuItem() );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "mock-update" ) );
+		if( Profile.DEV.equals( program.getProfile() ) ) menubar.getMenus().add( menu );
 
 		return menubar;
 	}
