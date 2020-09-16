@@ -40,7 +40,7 @@ public class IconLibrary {
 		register( "asset-open", new FolderIcon() );
 		register( "asset-save", new SaveIcon() );
 		register( "asset-close", new CloseToolIcon() );
-		register( "properties", new BulletListIcon() );
+		register( "properties", new HamburgerIcon() );
 
 		register( "undo", new UndoIcon() );
 		register( "redo", new RedoIcon() );
@@ -54,7 +54,7 @@ public class IconLibrary {
 		register( "pause", new PauseIcon() );
 
 		register( "setting", new SettingIcon() );
-		register( "settings", new SettingsIcon() );
+		register( "settings", new PreferencesIcon() );
 		register( "themes", new ThemeIcon() );
 		register( "options", new PreferencesIcon() );
 
