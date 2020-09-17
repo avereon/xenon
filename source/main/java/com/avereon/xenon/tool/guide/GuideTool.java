@@ -57,6 +57,11 @@ public class GuideTool extends ProgramTool {
 	}
 
 	@Override
+	public boolean changeCurrentAsset() {
+		return false;
+	}
+
+	@Override
 	protected void ready( OpenAssetRequest request ) {
 		setTitle( getProduct().rb().text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );

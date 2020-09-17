@@ -44,6 +44,11 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	@Override
+	public boolean changeCurrentAsset() {
+		return false;
+	}
+
+	@Override
 	protected void ready( OpenAssetRequest request ) throws ToolException {
 		setTitle( getProduct().rb().text( BundleKey.TOOL, "properties-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "properties" ) );

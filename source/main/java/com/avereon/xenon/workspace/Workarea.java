@@ -41,9 +41,9 @@ public class Workarea implements WritableIdentity {
 
 		workpane = new Workpane();
 		workpane.setEdgeSize( UiFactory.PAD );
-		workpane.addEventHandler( ToolEvent.ACTIVATED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( e.getTool().getAsset() ) );
-		workpane.addEventHandler( ToolEvent.CONCEALED, e -> getWorkspace().getProgram().getAssetManager().setCurrentAsset( null ) );
-		workpane.addEventHandler( ToolEvent.ANY, e -> getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) ) );
+		workpane.addEventHandler( ToolEvent.ACTIVATED, this::doSetCurrentAsset );
+		workpane.addEventHandler( ToolEvent.CONCEALED, this::doClearCurrentAsset );
+		workpane.addEventHandler( ToolEvent.ANY, this::doDispatchToolEventToWorkspace );
 
 		// TODO Could be moved to UiFactory
 		workpane.setOnToolDrop( new DropHandler( this ) );
@@ -121,6 +121,20 @@ public class Workarea implements WritableIdentity {
 		return getName();
 	}
 
+	private void doSetCurrentAsset( ToolEvent e ) {
+		ProgramTool tool = (ProgramTool)e.getTool();
+		if( !tool.changeCurrentAsset() ) return;
+		getWorkspace().getProgram().getAssetManager().setCurrentAsset( tool.getAsset() );
+	}
+
+	private void doClearCurrentAsset( ToolEvent e ) {
+		getWorkspace().getProgram().getAssetManager().setCurrentAsset( null );
+	}
+
+	private void doDispatchToolEventToWorkspace( ToolEvent e ) {
+		getWorkspace().getEventBus().dispatch( new FxEventWrapper( e ) );
+	}
+
 	private static class DropHandler implements DropListener {
 
 		private final Workarea workarea;
@@ -147,7 +161,7 @@ public class Workarea implements WritableIdentity {
 
 			if( sourceTool == null ) {
 				// NOTE If the event source is null the drag came from outside the program
-				uris.forEach( u -> getProgram().getAssetManager().openAsset( u, targetView, side  ) );
+				uris.forEach( u -> getProgram().getAssetManager().openAsset( u, targetView, side ) );
 			} else {
 				if( mode == TransferMode.MOVE ) {
 					// Check if being dropped on self

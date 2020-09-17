@@ -124,6 +124,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
 	}
 
+	public boolean changeCurrentAsset() {
+		return true;
+	}
+
 	@Override
 	public String getUid() {
 		return getProperties().get( Identity.KEY ).toString();

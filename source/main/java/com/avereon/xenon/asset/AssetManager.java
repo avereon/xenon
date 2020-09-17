@@ -6,7 +6,6 @@ import com.avereon.util.*;
 import com.avereon.xenon.*;
 import com.avereon.xenon.asset.type.ProgramAssetChooserType;
 import com.avereon.xenon.asset.type.ProgramAssetNewType;
-import com.avereon.xenon.asset.type.ProgramGuideType;
 import com.avereon.xenon.scheme.NewScheme;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
@@ -142,7 +141,6 @@ public class AssetManager implements Controllable<AssetManager> {
 	}
 
 	public void setCurrentAsset( Asset asset ) {
-		if( asset != null && asset.getUri().equals( ProgramGuideType.URI ) ) return;
 		program.getTaskManager().submit( new SetCurrentAssetTask( asset ) );
 	}
 
