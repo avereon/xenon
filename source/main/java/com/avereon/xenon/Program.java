@@ -331,7 +331,7 @@ public class Program extends Application implements ProgramProduct {
 		protected void failed() {
 			Fx.run( () -> splashScreen.hide() );
 			log.log( ERROR, "Startup task failed", getException() );
-			requestExit( true );
+			Fx.run( () -> requestExit( true ) );
 		}
 
 	}
@@ -627,8 +627,12 @@ public class Program extends Application implements ProgramProduct {
 		return requestExit( skipChecks, skipChecks );
 	}
 
-	@SuppressWarnings( "ConstantConditions" )
 	public boolean requestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
+		return doRequestExit( skipVerifyCheck, skipKeepAliveCheck );
+	}
+
+	@SuppressWarnings( "ConstantConditions" )
+	private boolean doRequestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
 		FxUtil.assertFxThread();
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
 
@@ -1075,7 +1079,7 @@ public class Program extends Application implements ProgramProduct {
 		getActionLibrary().getAction( "exit" ).pushAction( exitAction = new ExitAction( this ) );
 		getActionLibrary().getAction( "about" ).pushAction( aboutAction = new AboutAction( this ) );
 		getActionLibrary().getAction( "settings" ).pushAction( settingsAction = new SettingsAction( this ) );
-		getActionLibrary().getAction( "properties" ).pushAction( propertiesAction= new PropertiesAction( this ) );
+		getActionLibrary().getAction( "properties" ).pushAction( propertiesAction = new PropertiesAction( this ) );
 		getActionLibrary().getAction( "themes" ).pushAction( themesAction = new ThemesAction( this ) );
 		getActionLibrary().getAction( "welcome" ).pushAction( welcomeAction = new WelcomeAction( this ) );
 		getActionLibrary().getAction( "task" ).pushAction( taskAction = new TaskAction( this ) );
