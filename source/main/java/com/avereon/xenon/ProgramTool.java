@@ -7,6 +7,7 @@ import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.Task;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workspace.Workspace;
@@ -180,6 +181,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	 */
 	@SuppressWarnings( "RedundantThrows" )
 	protected void open( OpenAssetRequest request ) throws ToolException {}
+
+	protected void runTask( Runnable runnable ) {
+		getProgram().getTaskManager().submit( Task.of( "", runnable ) );
+	}
 
 	protected void pushToolActions( String... actions ) {
 		getProgram().getWorkspaceManager().getActiveWorkspace().pushToolbarActions( actions );
