@@ -56,7 +56,8 @@ public class Guide {
 	}
 
 	public final GuideNode removeNode( GuideNode node ) {
-		return removeNode( null, node );
+		Fx.run( () -> node.getTreeItem().getParent().getChildren().remove( node.getTreeItem() ) );
+		return node;
 	}
 
 	public final GuideNode removeNode( GuideNode node, GuideNode child ) {
