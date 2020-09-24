@@ -60,12 +60,6 @@ public class Guide {
 		return node;
 	}
 
-	public final GuideNode removeNode( GuideNode node, GuideNode child ) {
-		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-		Fx.run( () -> item.getChildren().remove( child.getTreeItem() ) );
-		return child;
-	}
-
 	public final Guide clear() {
 		return clear( null );
 	}
