@@ -36,7 +36,7 @@ public class ToolTab extends Control {
 		getStyleClass().setAll( "tool-tab" );
 	}
 
-	public Tool getTool() {
+	public final Tool getTool() {
 		return tool;
 	}
 

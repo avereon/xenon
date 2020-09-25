@@ -12,9 +12,8 @@ import com.avereon.xenon.workpane.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+
 import java.lang.System.Logger;
 
 import java.util.*;
@@ -59,6 +58,19 @@ public class GuideTool extends ProgramTool {
 	@Override
 	public boolean changeCurrentAsset() {
 		return false;
+	}
+
+	@Override
+	public ContextMenu getContextMenu() {
+		// NEXT Generate a menu if there are two or more menus
+		// Otherwise, the menu is not needed
+		ContextMenu menu = new ContextMenu();
+
+		menu.getItems().add( new MenuItem( "Layers" ) );
+		menu.getItems().add( new MenuItem( "Views" ) );
+		menu.getItems().add( new MenuItem( "Pages" ) );
+
+		return menu;
 	}
 
 	@Override

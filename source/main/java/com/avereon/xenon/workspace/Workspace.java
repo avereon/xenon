@@ -179,6 +179,7 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private MenuBar createMenuBar( Program program ) {
+		// FIXME This probably should be a MenuButton
 		MenuBar menubar = new MenuBar();
 		Menu menu;
 

@@ -14,6 +14,7 @@ import javafx.scene.control.TreeItem;
 import java.lang.System.Logger;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,10 +76,21 @@ public abstract class GuidedTool extends ProgramTool {
 
 	/**
 	 * This method should be overridden by tool implementations to provide the
+	 * guides that are appropriate for the tool.
+	 *
+	 * @return The tool guides
+	 */
+	protected List<Guide> getGuides() {
+		return List.of( Guide.EMPTY );
+	}
+
+	/**
+	 * This method should be overridden by tool implementations to provide the
 	 * guide that is appropriate for the tool.
 	 *
 	 * @return The tool guide
 	 */
+	@Deprecated
 	protected Guide getGuide() {
 		return Guide.EMPTY;
 	}
