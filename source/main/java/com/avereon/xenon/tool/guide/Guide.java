@@ -63,8 +63,10 @@ public class Guide {
 	}
 
 	public final GuideNode addNode( GuideNode node, GuideNode child ) {
-		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-		Fx.run( () -> item.getChildren().add( child.getTreeItem() ) );
+		Fx.run( () -> {
+			TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
+			item.getChildren().add( child.getTreeItem() );
+		} );
 		return child;
 	}
 
@@ -78,8 +80,10 @@ public class Guide {
 	}
 
 	public final Guide clear( GuideNode node ) {
-		TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-		Fx.run( () -> item.getChildren().clear() );
+		Fx.run( () -> {
+			TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
+			item.getChildren().clear();
+		} );
 		return this;
 	}
 

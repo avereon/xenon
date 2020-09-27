@@ -244,17 +244,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
+      - name: UI Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
+
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui,packs verify
-
-      #- name: Build Assemblies - No UI Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      #- name: Build Assemblies - No Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Post Install Pack (jpackage)
         run: |
@@ -321,17 +317,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
+      - name: UI Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
+
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui,packs verify
-
-      #- name: Build Assemblies - No UI Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      #- name: Build Assemblies - No Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Post Install Pack (jpackage)
         run: |
@@ -399,17 +391,13 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
+      - name: UI Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} -P testui verify
+
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui,packs verify
-
-      #- name: Build Assemblies - No UI Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -P packs verify
-
-      #- name: Build Assemblies - No Tests
-      #  run: |
-      #    mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
 
       - name: Post Install Pack (jpackage)
         shell: bash
