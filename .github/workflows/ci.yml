@@ -244,9 +244,9 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      - name: UI Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui verify
+#      - name: UI Tests
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -317,9 +317,9 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      - name: UI Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui verify
+#      - name: UI Tests
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -391,9 +391,9 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-      - name: UI Tests
-        run: |
-          mvn ${{env.MAVEN_PARMS}} -P testui verify
+#      - name: UI Tests
+#        run: |
+#          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
