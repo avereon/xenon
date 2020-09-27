@@ -12,7 +12,6 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.javafx.Fx;
-import javafx.scene.Node;
 
 import java.net.URI;
 import java.util.Collections;
@@ -205,16 +204,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	protected Workspace getWorkspace() {
-		// Don't start with the parent, start with the workpane
-		Node node = getWorkpane();
-
-		Workspace workspace = null;
-		while( node != null && workspace == null ) {
-			workspace = (Workspace)node.getProperties().get( Workspace.WORKSPACE_PROPERTY_KEY);
-			node = node.getParent();
-		}
-
-		return workspace;
+		return getProgram().getWorkspaceManager().findWorkspace( this );
 	}
 
 	protected void addStylesheet( String stylesheet ) {

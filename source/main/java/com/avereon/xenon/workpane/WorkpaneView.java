@@ -13,9 +13,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.layout.BorderPane;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorkpaneView extends BorderPane implements WritableIdentity {
 
@@ -139,22 +138,16 @@ public class WorkpaneView extends BorderPane implements WritableIdentity {
 	 * @return A list of the tools in the view.
 	 */
 	public List<Tool> getTools() {
-		List<Tool> toolList = new ArrayList<>();
-
-		for( ToolTab tab : tools.getTabs() ) {
-			toolList.add( (Tool)tab.getContent() );
-		}
-
-		return Collections.unmodifiableList( toolList );
+		return tools.getTabs().parallelStream().map( b -> (Tool)b.getContent() ).collect( Collectors.toList() );
 	}
 
 	@SuppressWarnings( "UnusedReturnValue" )
 	Tool addTool( Tool tool, int index ) {
 		if( tool.getToolView() != null ) tool.getToolView().removeTool( tool );
+		tools.getTabs().add( index, new ToolTab( tool ) );
 		tool.setToolView( this );
 		tool.callAllocate();
 
-		tools.getTabs().add( index, new ToolTab( tool ) );
 		// NOTE the tool parent is not valid yet, but the tool view is
 
 		if( tools.getTabs().size() == 1 ) setActiveTool( tool );

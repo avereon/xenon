@@ -298,6 +298,17 @@ public class WorkspaceManager implements Controllable<WorkspaceManager> {
 		Fx.run( () -> getActiveWorkpaneTools( type ).forEach( Tool::close ) );
 	}
 
+	public Workspace findWorkspace( ProgramTool tool ) {
+		for( Workspace workspace : getWorkspaces() ) {
+			for( Workarea workarea : workspace.getWorkareas() ) {
+				for( Tool check : workarea.getWorkpane().getTools() ) {
+					if( check == tool ) return workspace;
+				}
+			}
+		}
+		return null;
+	}
+
 	void hideWindows() {
 		getWorkspaces().forEach( workspace -> workspace.getStage().hide() );
 	}
