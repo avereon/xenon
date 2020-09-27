@@ -49,7 +49,7 @@ public class GuideUIT extends FxProgramUIT {
 		Fx.waitForWithInterrupt( TIMEOUT );
 		assertThat( guide.getRoot().getChildren().get( 0 ), is( parent.getTreeItem() ) );
 		assertThat( guide.getRoot().getChildren().size(), is( 1 ) );
-		assertThat( parent.getTreeItem().getChildren().get(0), is( child.getTreeItem() ) );
+		assertThat( parent.getTreeItem().getChildren().get( 0 ), is( child.getTreeItem() ) );
 		assertThat( parent.getTreeItem().getChildren().size(), is( 1 ) );
 
 		guide.removeNode( child );

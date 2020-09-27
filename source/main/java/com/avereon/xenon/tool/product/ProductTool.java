@@ -47,8 +47,6 @@ public class ProductTool extends GuidedTool {
 
 	private RepoPage repoPage;
 
-	private Guide guide;
-
 	private String currentPageId;
 
 	public ProductTool( ProgramProduct product, Asset asset ) {
@@ -76,6 +74,8 @@ public class ProductTool extends GuidedTool {
 		layoutPane.setCenter( installedPage );
 		layoutPane.setBottom( checkInfo );
 		getChildren().add( layoutPane );
+
+		getGuideContext().getGuides().add( createGuide() );
 	}
 
 	@Override
@@ -130,10 +130,7 @@ public class ProductTool extends GuidedTool {
 		super.deallocate();
 	}
 
-	@Override
-	protected Guide getGuide() {
-		if( this.guide != null ) return this.guide;
-
+	private Guide createGuide() {
 		Guide guide = new Guide();
 		ProductBundle rb = getProduct().rb();
 
@@ -149,7 +146,7 @@ public class ProductTool extends GuidedTool {
 		GuideNode sources = new GuideNode( getProgram(), SOURCES, rb.text( "tool", "product-sources" ), "market" );
 		guide.addNode( sources );
 
-		return this.guide = guide;
+		return guide;
 	}
 
 	@Override

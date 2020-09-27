@@ -59,8 +59,6 @@ public class AboutTool extends GuidedTool {
 
 	private TextArea detailsText;
 
-	private Guide guide;
-
 	private String currentPageId;
 
 	private EventHandler<SettingsEvent> updateCheckWatcher;
@@ -89,6 +87,8 @@ public class AboutTool extends GuidedTool {
 		pages.put( SUMMARY, summaryPane );
 		pages.put( DETAILS, detailsPane );
 		pages.put( MODS, modsPane );
+
+		getGuideContext().getGuides().add( createGuide() );
 	}
 
 	@Override
@@ -132,10 +132,7 @@ public class AboutTool extends GuidedTool {
 		detailsText.setText( getDetailsText( (Program)getProduct() ) );
 	}
 
-	@Override
-	protected Guide getGuide() {
-		if( guide != null ) return guide;
-
+	private Guide createGuide() {
 		ProductBundle rb = getProduct().rb();
 		Guide guide = new Guide();
 
@@ -157,7 +154,7 @@ public class AboutTool extends GuidedTool {
 		productsNode.setIcon( "about" );
 		guide.addNode( productsNode );
 
-		return this.guide = guide;
+		return guide;
 	}
 
 	private class SummaryPane extends MigPane {

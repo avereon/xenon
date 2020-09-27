@@ -3,10 +3,7 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.util.Log;
 import com.avereon.zerra.javafx.Fx;
 import com.avereon.zerra.javafx.FxUtil;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 
@@ -24,20 +21,36 @@ public class Guide {
 
 	private SelectionMode selectionMode;
 
-	private BooleanProperty activeProperty;
+	private final StringProperty nameProperty;
 
-	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
+	private final BooleanProperty activeProperty;
 
-	private ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
+	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
+
+	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
 
 	public Guide() {
 		this.root = new TreeItem<>();
+		nameProperty = new SimpleStringProperty();
 		activeProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
 		root.addEventHandler( TreeItem.branchExpandedEvent(), ( event ) -> updateExpandedItems() );
 		root.addEventHandler( TreeItem.branchCollapsedEvent(), ( event ) -> updateExpandedItems() );
 		setSelectionMode( SelectionMode.SINGLE );
+	}
+
+	public String getName() {
+		return nameProperty.get();
+	}
+
+	public Guide setName( String name ) {
+		nameProperty.set( name );
+		return this;
+	}
+
+	public StringProperty nameProperty() {
+		return nameProperty;
 	}
 
 	public final GuideNode getNode( String id ) {

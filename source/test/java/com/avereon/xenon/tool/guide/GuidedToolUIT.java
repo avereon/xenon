@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.guide;
 
-import com.avereon.zerra.javafx.Fx;
 import com.avereon.xenon.BaseToolUIT;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ToolInstanceMode;
@@ -9,7 +8,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.MockAssetType;
 import com.avereon.xenon.asset.MockCodec;
 import com.avereon.xenon.workpane.ToolEvent;
-import javafx.application.Platform;
+import com.avereon.zerra.javafx.Fx;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +29,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 		super.setup();
 
 		assertToolCount( workpane, 0 );
-		assertThat( program.getAssetManager().getAssetTypes().size(), is( 11 ) );
+		assertThat( program.getAssetManager().getAssetTypes().size(), is( 12 ) );
 
 		assertNotNull( program.getAssetManager().getAssetType( "program:guide" ) );
 		MockAssetType assetType = new MockAssetType( program );
@@ -99,8 +98,6 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 	public static class MockGuidedTool extends GuidedTool {
 
-		private Guide guide;
-
 		private Set<GuideNode> expandedNodes = new HashSet<>();
 
 		private Set<GuideNode> selectedNodes = new HashSet<>();
@@ -111,6 +108,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 
 		public MockGuidedTool( ProgramProduct product, Asset asset ) {
 			super( product, asset );
+			getGuideContext().getGuides().add( createGuide() );
 		}
 
 		Set<GuideNode> getExpandedNodes() {
@@ -136,10 +134,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 			guideNodesSelectedEventCount = 0;
 		}
 
-		@Override
-		protected Guide getGuide() {
-			if( guide != null ) return guide;
-
+		private Guide createGuide() {
 			Guide guide = new Guide();
 			guide.clear();
 
@@ -158,7 +153,7 @@ public class GuidedToolUIT extends BaseToolUIT {
 			detailsNode.setName( "details" );
 			guide.addNode( generalNode, detailsNode );
 
-			return this.guide = guide;
+			return guide;
 		}
 
 		@Override

@@ -22,17 +22,21 @@ public class GuideTool extends ProgramTool {
 
 	private static final Logger log = Log.get();
 
+	private final TreeView<GuideNode> guideTree;
+
+	private final ToolActivatedWatcher toolActivatedWatcher;
+
+	private final ToolConcealedWatcher toolConcealedWatcher;
+
+	private final GuideTreeSelectedItemsListener selectedItemsListener;
+
+	private final GuideSelectedItemsListener guideSelectedItemsListener;
+
+	private GuideContext context;
+
+	private ContextMenu contextMenu;
+
 	private Guide guide;
-
-	private TreeView<GuideNode> guideTree;
-
-	private ToolActivatedWatcher toolActivatedWatcher;
-
-	private ToolConcealedWatcher toolConcealedWatcher;
-
-	private GuideTreeSelectedItemsListener selectedItemsListener;
-
-	private GuideSelectedItemsListener guideSelectedItemsListener;
 
 	@SuppressWarnings( "WeakerAccess" )
 	public GuideTool( ProgramProduct product, Asset asset ) {
@@ -62,15 +66,7 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	public ContextMenu getContextMenu() {
-		// NEXT Generate a menu if there are two or more menus
-		// Otherwise, the menu is not needed
-		ContextMenu menu = new ContextMenu();
-
-		menu.getItems().add( new MenuItem( "Layers" ) );
-		menu.getItems().add( new MenuItem( "Views" ) );
-		menu.getItems().add( new MenuItem( "Pages" ) );
-
-		return menu;
+		return contextMenu;
 	}
 
 	@Override
@@ -93,7 +89,26 @@ public class GuideTool extends ProgramTool {
 		getWorkpane().removeEventHandler( ToolEvent.ACTIVATED, toolActivatedWatcher );
 	}
 
+	private void setGuideContext( GuideContext context ) {
+		this.context = context;
+		contextMenu = context.getGuides().size() < 2 ? null : generateContextMenu( context );
+		setGuide( context.getCurrentGuide() );
+	}
+
+	private ContextMenu generateContextMenu( GuideContext context ) {
+		ContextMenu contextMenu = new ContextMenu();
+		context.getGuides().forEach( g -> {
+			MenuItem item = new MenuItem( g.getName() );
+			item.setOnAction( e -> setGuide( g ) );
+			contextMenu.getItems().add( item );
+		} );
+		return contextMenu;
+	}
+
 	private void setGuide( Guide guide ) {
+		Guide oldGuide = this.guide;
+		context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, guide ) );
+
 		// Disconnect the old guide
 		if( this.guide != null ) {
 			// Remove the guide selected item property listener
@@ -141,6 +156,7 @@ public class GuideTool extends ProgramTool {
 			}
 		}
 
+		context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, guide ) );
 	}
 
 	/**
@@ -216,8 +232,8 @@ public class GuideTool extends ProgramTool {
 			Tool tool = event.getTool();
 			if( tool instanceof GuideTool ) return;
 			if( tool instanceof GuidedTool ) {
-				log.log( Log.DEBUG,  "show guide: " + event.getTool().getClass().getName() );
-				setGuide( ((GuidedTool)tool).getGuide() );
+				log.log( Log.DEBUG, "show guide: " + event.getTool().getClass().getName() );
+				setGuideContext( ((GuidedTool)tool).getGuideContext() );
 			} else {
 				setGuide( null );
 			}
@@ -231,7 +247,7 @@ public class GuideTool extends ProgramTool {
 		public void handle( ToolEvent event ) {
 			Tool tool = event.getTool();
 			if( !(tool instanceof GuidedTool) ) return;
-			log.log( Log.DEBUG,  "hide guide: " + event.getTool().getClass().getName() );
+			log.log( Log.DEBUG, "hide guide: " + event.getTool().getClass().getName() );
 			setGuide( null );
 		}
 	}

@@ -51,8 +51,6 @@ public class AssetTool extends GuidedTool {
 
 	private Mode mode = Mode.OPEN;
 
-	private final Guide guide;
-
 	private final TextField uriField;
 
 	private final Button goButton;
@@ -155,7 +153,7 @@ public class AssetTool extends GuidedTool {
 			if( item != null && e.getClickCount() >= clickCount ) selectAsset( item.getUri().toString() );
 		} );
 
-		guide = initializeGuide();
+		getGuideContext().getGuides().add( createGuide() );
 		closeUserNotice();
 	}
 
@@ -199,11 +197,6 @@ public class AssetTool extends GuidedTool {
 		pullAction( "up", parentAction );
 		pullAction( "next", nextAction );
 		pullAction( "prior", priorAction );
-	}
-
-	@Override
-	protected Guide getGuide() {
-		return guide;
 	}
 
 	@Override
@@ -335,7 +328,7 @@ public class AssetTool extends GuidedTool {
 		userNotice.setManaged( false );
 	}
 
-	private Guide initializeGuide() {
+	private Guide createGuide() {
 		Guide guide = new Guide();
 
 		// TODO Load the asset roots

@@ -4,7 +4,6 @@ import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.tool.guide.Guide;
 import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import javafx.scene.control.ScrollPane;
@@ -29,6 +28,8 @@ public class SettingsTool extends GuidedTool {
 		setId( "tool-settings" );
 
 		panelCache = new ConcurrentHashMap<>();
+
+		getGuideContext().getGuides().add( product.getProgram().getSettingsManager().getSettingsGuide() );
 	}
 
 	@Override
@@ -44,11 +45,6 @@ public class SettingsTool extends GuidedTool {
 		if( pageId == null ) pageId = currentPageId;
 		if( pageId == null ) pageId = GENERAL;
 		selectPage( pageId );
-	}
-
-	@Override
-	protected Guide getGuide() {
-		return getProgram().getSettingsManager().getSettingsGuide();
 	}
 
 	@Override

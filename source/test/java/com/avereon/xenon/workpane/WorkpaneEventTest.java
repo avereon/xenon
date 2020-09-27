@@ -23,8 +23,6 @@ class WorkpaneEventTest extends WorkpaneTestCase {
 		workpane.addEventHandler( WorkpaneEvent.ANY, workpaneWatcher );
 		workpane.moveEdge( edge, 25 );
 
-		workpaneWatcher.getEvents().forEach( e -> System.out.println( e.getEventType() ) );
-
 		assertWorkpaneEdgeEvent( (EdgeEvent)workpaneWatcher.getEvents().get( 0 ), EdgeEvent.MOVED, workpane, edge );
 		assertWorkpaneEvent( workpaneWatcher.getEvents().get( 1 ), WorkpaneEvent.CHANGED, workpane );
 		assertThat( workpaneWatcher.getEvents().size(), is( 2 ) );

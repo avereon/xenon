@@ -14,7 +14,6 @@ import javafx.scene.control.TreeItem;
 import java.lang.System.Logger;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,12 +25,15 @@ public abstract class GuidedTool extends ProgramTool {
 
 	protected static final String GUIDE_EXPANDED_IDS = "guide-expanded-ids";
 
+	private final GuideContext guideContext;
+
 	private final GuideExpandedNodesListener guideExpandedNodesListener;
 
 	private final GuideSelectedNodesListener guideSelectedNodesListener;
 
 	public GuidedTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		guideContext = new GuideContext( this );
 		guideExpandedNodesListener = new GuideExpandedNodesListener();
 		guideSelectedNodesListener = new GuideSelectedNodesListener();
 	}
@@ -75,13 +77,14 @@ public abstract class GuidedTool extends ProgramTool {
 	}
 
 	/**
-	 * This method should be overridden by tool implementations to provide the
-	 * guides that are appropriate for the tool.
+	 * Get the guide context for the tool. The guide context is used to manage the
+	 * tool guides, pass events between this tool and the {@link GuideTool} and
+	 * pass events between the {@link GuideTool} and this tool.
 	 *
-	 * @return The tool guides
+	 * @return The guide context
 	 */
-	protected List<Guide> getGuides() {
-		return List.of( Guide.EMPTY );
+	protected GuideContext getGuideContext() {
+		return guideContext;
 	}
 
 	/**
@@ -91,8 +94,8 @@ public abstract class GuidedTool extends ProgramTool {
 	 * @return The tool guide
 	 */
 	@Deprecated
-	protected Guide getGuide() {
-		return Guide.EMPTY;
+	Guide getGuide() {
+		return guideContext.getCurrentGuide();
 	}
 
 	protected void guideNodesExpanded( Set<GuideNode> oldNodes, Set<GuideNode> newNodes ) {}
