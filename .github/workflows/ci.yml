@@ -397,7 +397,7 @@ jobs:
 
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -P packs verify
+          mvn ${{env.MAVEN_PARMS}} -P packs verify
 
       - name: Post Install Pack (jpackage)
         shell: bash
