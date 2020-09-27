@@ -107,7 +107,7 @@ public class GuideTool extends ProgramTool {
 
 	private void setGuide( Guide guide ) {
 		Guide oldGuide = this.guide;
-		context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, guide ) );
+		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, guide ) );
 
 		// Disconnect the old guide
 		if( this.guide != null ) {
@@ -156,7 +156,7 @@ public class GuideTool extends ProgramTool {
 			}
 		}
 
-		context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, guide ) );
+		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, guide ) );
 	}
 
 	/**
