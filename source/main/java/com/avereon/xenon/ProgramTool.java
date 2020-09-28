@@ -100,7 +100,7 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		super( asset );
 		this.product = product;
 		setTitle( asset.getName() );
-		setGraphic( product.getProgram().getIconLibrary().getIcon( asset.getIcon() ) );
+		setGraphic( product.getProgram().getIconLibrary().getIcon( asset.getIcon(), "broken" ) );
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
