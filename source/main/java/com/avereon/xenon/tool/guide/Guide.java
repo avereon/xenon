@@ -23,6 +23,8 @@ public class Guide {
 
 	private final StringProperty nameProperty;
 
+	private final StringProperty iconProperty;
+
 	private final BooleanProperty activeProperty;
 
 	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
@@ -32,6 +34,7 @@ public class Guide {
 	public Guide() {
 		this.root = new TreeItem<>();
 		nameProperty = new SimpleStringProperty();
+		iconProperty = new SimpleStringProperty();
 		activeProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
@@ -51,6 +54,19 @@ public class Guide {
 
 	public StringProperty nameProperty() {
 		return nameProperty;
+	}
+
+	public String getIcon() {
+		return iconProperty.get();
+	}
+
+	public Guide setIcon( String icon ) {
+		iconProperty.set( icon );
+		return this;
+	}
+
+	public StringProperty iconProperty() {
+		return iconProperty;
 	}
 
 	public final GuideNode getNode( String id ) {

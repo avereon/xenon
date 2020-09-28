@@ -97,12 +97,20 @@ public class GuideTool extends ProgramTool {
 
 	private ContextMenu generateContextMenu( GuideContext context ) {
 		ContextMenu contextMenu = new ContextMenu();
-		context.getGuides().forEach( g -> {
-			MenuItem item = new MenuItem( g.getName() );
-			item.setOnAction( e -> setGuide( g ) );
-			contextMenu.getItems().add( item );
-		} );
+		context.getGuides().forEach( g -> contextMenu.getItems().add( generateMenuItem( g ) ) );
 		return contextMenu;
+	}
+
+	private MenuItem generateMenuItem( Guide guide ) {
+		String name = guide.getName();
+		String icon = guide.getIcon();
+
+		MenuItem item = new MenuItem( name, getProgram().getIconLibrary().getIcon( icon ) );
+		item.setOnAction( e -> setGuide( guide ) );
+		guide.nameProperty().addListener( ( p, o, n ) -> item.setText( n ) );
+		guide.iconProperty().addListener( ( p, o, n ) -> item.setGraphic( getProgram().getIconLibrary().getIcon( n ) ) );
+
+		return item;
 	}
 
 	private void setGuide( Guide guide ) {
