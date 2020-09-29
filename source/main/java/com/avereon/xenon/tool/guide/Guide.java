@@ -78,12 +78,12 @@ public class Guide {
 		return addNode( null, node );
 	}
 
-	public final GuideNode addNode( GuideNode node, GuideNode child ) {
+	public final GuideNode addNode( GuideNode parent, GuideNode node ) {
 		Fx.run( () -> {
-			TreeItem<GuideNode> item = node == null ? root : node.getTreeItem();
-			item.getChildren().add( child.getTreeItem() );
+			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
+			item.getChildren().add( node.getTreeItem() );
 		} );
-		return child;
+		return node;
 	}
 
 	public final GuideNode removeNode( GuideNode node ) {

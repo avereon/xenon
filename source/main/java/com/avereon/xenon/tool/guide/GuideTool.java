@@ -3,20 +3,22 @@ package com.avereon.xenon.tool.guide;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
-import com.avereon.zerra.javafx.FxUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
-import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.workpane.*;
+import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolEvent;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
+import javafx.util.Callback;
 
 import java.lang.System.Logger;
-
 import java.util.*;
 
 public class GuideTool extends ProgramTool {
@@ -45,14 +47,13 @@ public class GuideTool extends ProgramTool {
 		setId( "tool-guide" );
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
+		//guideTree.setCellFactory( new GuideCellFactory() );
 		getChildren().add( guideTree );
 
-		//activeToolWatcher = new ActiveToolWatcher();
 		toolActivatedWatcher = new ToolActivatedWatcher();
 		toolConcealedWatcher = new ToolConcealedWatcher();
 		selectedItemsListener = new GuideTreeSelectedItemsListener();
 		guideSelectedItemsListener = new GuideSelectedItemsListener();
-		//guideActiveListener = new GuideActiveListener();
 	}
 
 	@Override
@@ -133,9 +134,6 @@ public class GuideTool extends ProgramTool {
 			// Remove the guide selected item property listener
 			this.guide.selectedItemsProperty().removeListener( guideSelectedItemsListener );
 
-			//			// Remove the guide active property listener
-			//			this.guide.activeProperty().removeListener( guideActiveListener );
-
 			// Remove the tree selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
 
@@ -158,9 +156,6 @@ public class GuideTool extends ProgramTool {
 
 			// Add the tree selected items listener
 			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
-
-			//			// Add the guide active property listener
-			//			this.guide.activeProperty().addListener( guideActiveListener );
 
 			// Add the guide selected item property listener
 			// This listens to the guide for changes to the selected items
@@ -309,6 +304,15 @@ public class GuideTool extends ProgramTool {
 
 			// Re-enable the guide view selection change listener
 			guideTree.getSelectionModel().getSelectedIndices().addListener( selectedItemsListener );
+		}
+
+	}
+
+	private class GuideCellFactory implements Callback<TreeView<GuideNode>, TreeCell<GuideNode>> {
+
+		@Override
+		public TreeCell<GuideNode> call( TreeView<GuideNode> param ) {
+			return null;
 		}
 
 	}
