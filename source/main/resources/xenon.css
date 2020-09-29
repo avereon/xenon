@@ -563,15 +563,23 @@
 	-fx-background-color: -ex-background-text;
 }
 
-.tool-pane .tool-tab .tool-tab-label {
-	-fx-text-fill: -fx-text-base-color;
-}
-
 .tool-pane .tool-tab:hover {
 	-fx-background-color: -ex-background-tags;
 }
 
-.tool-pane .tool-tab-close {
+.tool-pane .tool-tab .tool-tab-icon {
+	-fx-padding: 0 1mm 0 0;
+}
+
+.tool-pane .tool-tab .tool-tab-label {
+	-fx-text-fill: -fx-text-base-color;
+}
+
+.tool-pane .tool-tab .tool-tab-context-icon {
+	-fx-padding: 0 0 0 1mm;
+}
+
+.tool-pane .tool-tab .tool-tab-close {
 	-fx-background-color: transparent;
 	-fx-padding: 0 0 0 1mm;
 }

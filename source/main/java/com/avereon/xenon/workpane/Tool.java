@@ -42,6 +42,8 @@ public abstract class Tool extends StackPane {
 
 	private StringProperty titleProperty;
 
+	private ObjectProperty<Node> contextGraphicProperty;
+
 	private ObjectProperty<Node> closeGraphicProperty;
 
 	private ObjectProperty<CloseOperation> closeOperation;
@@ -61,6 +63,7 @@ public abstract class Tool extends StackPane {
 
 		this.graphicProperty = new SimpleObjectProperty<>();
 		this.titleProperty = new SimpleStringProperty();
+		this.contextGraphicProperty = new SimpleObjectProperty<>();
 		this.closeGraphicProperty = new SimpleObjectProperty<>();
 		this.closeOperation = new SimpleObjectProperty<>( CloseOperation.REMOVE );
 		getStyleClass().add( "tool" );
@@ -148,6 +151,19 @@ public abstract class Tool extends StackPane {
 
 	public StringProperty titleProperty() {
 		return titleProperty;
+	}
+
+	@SuppressWarnings( "unused" )
+	public Node getContextGraphic() {
+		return contextGraphicProperty.getValue();
+	}
+
+	public void setContextGraphic( Node graphic ) {
+		contextGraphicProperty.setValue( graphic );
+	}
+
+	public ObjectProperty<Node> contextGraphicProperty() {
+		return contextGraphicProperty;
 	}
 
 	@SuppressWarnings( "unused" )

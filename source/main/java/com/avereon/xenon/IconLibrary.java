@@ -31,6 +31,7 @@ public class IconLibrary {
 
 		register( "provider", new WingDiscLargeIcon() );
 		register( "program", new XRingLargeIcon() );
+		register( "context", new ContextIcon() );
 		register( "close", new CloseIcon() );
 		register( "exit", new PowerIcon() );
 

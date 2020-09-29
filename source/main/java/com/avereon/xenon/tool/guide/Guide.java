@@ -21,7 +21,7 @@ public class Guide {
 
 	private SelectionMode selectionMode;
 
-	private final StringProperty nameProperty;
+	private final StringProperty titleProperty;
 
 	private final StringProperty iconProperty;
 
@@ -33,7 +33,7 @@ public class Guide {
 
 	public Guide() {
 		this.root = new TreeItem<>();
-		nameProperty = new SimpleStringProperty();
+		titleProperty = new SimpleStringProperty();
 		iconProperty = new SimpleStringProperty();
 		activeProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
@@ -43,17 +43,17 @@ public class Guide {
 		setSelectionMode( SelectionMode.SINGLE );
 	}
 
-	public String getName() {
-		return nameProperty.get();
+	public String getTitle() {
+		return titleProperty.get();
 	}
 
-	public Guide setName( String name ) {
-		nameProperty.set( name );
+	public Guide setTitle( String name ) {
+		titleProperty.set( name );
 		return this;
 	}
 
-	public StringProperty nameProperty() {
-		return nameProperty;
+	public StringProperty titleProperty() {
+		return titleProperty;
 	}
 
 	public String getIcon() {

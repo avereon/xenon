@@ -2,10 +2,8 @@ package com.avereon.xenon.workpane;
 
 import com.avereon.util.Log;
 import com.avereon.zerra.javafx.FxUtil;
-import javafx.geometry.Bounds;
-import javafx.geometry.HPos;
-import javafx.geometry.Side;
-import javafx.geometry.VPos;
+import javafx.beans.binding.Bindings;
+import javafx.geometry.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SkinBase;
@@ -26,20 +24,29 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		Tool tool = tab.getTool();
 
-		Label label = new TabLabel();
-		label.getStyleClass().setAll( "tool-tab-label" );
-		label.graphicProperty().bind( tool.graphicProperty() );
-		label.textProperty().bind( tool.titleProperty() );
+		Label icon = new Label();
+		icon.getStyleClass().setAll( "tool-tab-icon" );
+		icon.graphicProperty().bind( tool.graphicProperty() );
+
+		Label title = new TabLabel();
+		title.getStyleClass().setAll( "tool-tab-label" );
+		title.textProperty().bind( tool.titleProperty() );
+
+		Label context = new Label();
+		context.getStyleClass().setAll( "tool-tab-context-icon" );
+		context.graphicProperty().bind( tool.contextGraphicProperty() );
+		context.visibleProperty().bind( Bindings.isNotNull( tool.contextGraphicProperty() ) );
 
 		Button close = new Button();
-		close.graphicProperty().bind( tool.closeGraphicProperty() );
 		close.getStyleClass().setAll( "tool-tab-close" );
+		close.graphicProperty().bind( tool.closeGraphicProperty() );
 
-		getChildren().setAll( tabLayout = new BorderPane( label, null, close, null, null ) );
+		BorderPane content = new BorderPane( title, null, context, null, icon );
+		getChildren().setAll( tabLayout = new BorderPane( content, null, close, null, null ) );
 
 		pseudoClassStateChanged( ToolTab.SELECTED_PSEUDOCLASS_STATE, tab.isSelected() );
 
-		label.setOnMousePressed( ( event ) -> doSetActiveTool( event, tab, tool ) );
+		content.setOnMousePressed( ( event ) -> doSetActiveTool( event, tab, tool ) );
 		tab.setOnDragDetected( ( event ) -> doStartDrag( event, tab, tool ) );
 		tab.setOnDragEntered( ( event ) -> doDragEntered( event, tab, tool ) );
 		tab.setOnDragOver( tab.getOnDragEntered() );

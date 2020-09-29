@@ -2,6 +2,7 @@ package com.avereon.xenon.tool.guide;
 
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
+import com.avereon.util.TextUtil;
 import com.avereon.zerra.javafx.FxUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramSettings;
@@ -91,23 +92,33 @@ public class GuideTool extends ProgramTool {
 
 	private void setGuideContext( GuideContext context ) {
 		this.context = context;
-		contextMenu = context.getGuides().size() < 2 ? null : generateContextMenu( context );
 		setGuide( context.getCurrentGuide() );
+		if( shouldEnableContextMenu( context ) ) {
+			setContextGraphic( getProgram().getIconLibrary().getIcon( "context" ) );
+			contextMenu = generateContextMenu( context );
+		} else {
+			setContextGraphic( null );
+			contextMenu = null;
+		}
+	}
+
+	private boolean shouldEnableContextMenu( GuideContext context ) {
+		return context.getGuides().size() > 1;
 	}
 
 	private ContextMenu generateContextMenu( GuideContext context ) {
 		ContextMenu contextMenu = new ContextMenu();
-		context.getGuides().forEach( g -> contextMenu.getItems().add( generateMenuItem( g ) ) );
+		context.getGuides().forEach( g -> contextMenu.getItems().add( generateContextMenuItem( g ) ) );
 		return contextMenu;
 	}
 
-	private MenuItem generateMenuItem( Guide guide ) {
-		String name = guide.getName();
+	private MenuItem generateContextMenuItem( Guide guide ) {
+		String name = guide.getTitle();
 		String icon = guide.getIcon();
 
 		MenuItem item = new MenuItem( name, getProgram().getIconLibrary().getIcon( icon ) );
 		item.setOnAction( e -> setGuide( guide ) );
-		guide.nameProperty().addListener( ( p, o, n ) -> item.setText( n ) );
+		guide.titleProperty().addListener( ( p, o, n ) -> item.setText( n ) );
 		guide.iconProperty().addListener( ( p, o, n ) -> item.setGraphic( getProgram().getIconLibrary().getIcon( n ) ) );
 
 		return item;
@@ -162,6 +173,14 @@ public class GuideTool extends ProgramTool {
 			} else {
 				setSelectedItems( items );
 			}
+
+			String title = guide.getTitle();
+			if( TextUtil.isEmpty( title ) ) title = getProduct().rb().text( "tool", "guide-name" );
+			setTitle( title );
+
+			String icon = guide.getIcon();
+			if( TextUtil.isEmpty( icon ) ) icon = "guide";
+			setGraphic( getProduct().getProgram().getIconLibrary().getIcon( icon ) );
 		}
 
 		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGED, oldGuide, guide ) );
