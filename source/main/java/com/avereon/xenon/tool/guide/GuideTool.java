@@ -66,7 +66,7 @@ public class GuideTool extends ProgramTool {
 
 	@Override
 	public ContextMenu getContextMenu() {
-		return contextMenu;
+		return contextMenu == null ? super.getContextMenu() : contextMenu;
 	}
 
 	@Override

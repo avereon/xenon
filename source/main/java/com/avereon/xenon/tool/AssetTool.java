@@ -230,7 +230,6 @@ public class AssetTool extends GuidedTool {
 		Objects.requireNonNull( text );
 
 		if( updateHistory ) {
-			log.log( Log.WARN, "History size=" + history.size() + " > " + currentIndex );
 			while( history.size() - 1 > currentIndex ) {
 				history.pop();
 			}
