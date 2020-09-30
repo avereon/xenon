@@ -12,6 +12,8 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.FxUtil;
+import javafx.beans.InvalidationListener;
+import javafx.beans.WeakInvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -19,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.util.Callback;
 
 import java.lang.System.Logger;
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class GuideTool extends ProgramTool {
@@ -47,7 +50,7 @@ public class GuideTool extends ProgramTool {
 		setId( "tool-guide" );
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
-		//guideTree.setCellFactory( new GuideCellFactory() );
+		guideTree.setCellFactory( new GuideCellFactory() );
 		getChildren().add( guideTree );
 
 		toolActivatedWatcher = new ToolActivatedWatcher();
@@ -312,7 +315,52 @@ public class GuideTool extends ProgramTool {
 
 		@Override
 		public TreeCell<GuideNode> call( TreeView<GuideNode> param ) {
-			return null;
+			return new GuideTreeCell();
+		}
+
+	}
+
+	private class GuideTreeCell extends TreeCell<GuideNode> {
+
+		private WeakReference<TreeItem<GuideNode>> treeItemRef;
+
+		private InvalidationListener treeItemGraphicListener = observable -> updateDisplay( getItem(), isEmpty() );
+
+		private WeakInvalidationListener weakTreeItemGraphicListener = new WeakInvalidationListener( treeItemGraphicListener );
+
+		private InvalidationListener treeItemListener = observable -> doInvalidated();
+
+		private WeakInvalidationListener weakTreeItemListener = new WeakInvalidationListener( treeItemListener );
+
+		GuideTreeCell() {
+			setDisclosureNode( null );
+			treeItemProperty().addListener( weakTreeItemListener );
+			if( getTreeItem() != null ) getTreeItem().graphicProperty().addListener( weakTreeItemGraphicListener );
+		}
+
+		@Override
+		public void updateItem( GuideNode item, boolean empty ) {
+			super.updateItem( item, empty );
+			updateDisplay( item, empty );
+		}
+
+		private void updateDisplay( GuideNode item, boolean empty ) {
+			setGraphic( empty ? null : getProgram().getIconLibrary().getIcon( item.getIcon() ) );
+			setText( empty ? null : item.getName() );
+
+			// FIXME This got rid of the triangle, but not the space it takes
+			setDisclosureNode( null );
+		}
+
+		private void doInvalidated() {
+			TreeItem<GuideNode> oldTreeItem = treeItemRef == null ? null : treeItemRef.get();
+			if( oldTreeItem != null ) oldTreeItem.graphicProperty().removeListener( weakTreeItemGraphicListener );
+
+			TreeItem<GuideNode> newTreeItem = getTreeItem();
+			if( newTreeItem != null ) {
+				newTreeItem.graphicProperty().addListener( weakTreeItemGraphicListener );
+				treeItemRef = new WeakReference<>( newTreeItem );
+			}
 		}
 
 	}
