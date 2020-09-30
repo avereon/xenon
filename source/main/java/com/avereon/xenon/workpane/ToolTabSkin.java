@@ -46,13 +46,13 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 
 		pseudoClassStateChanged( ToolTab.SELECTED_PSEUDOCLASS_STATE, tab.isSelected() );
 
-		content.setOnMousePressed( ( event ) -> doSetActiveTool( event, tab, tool ) );
-		tab.setOnDragDetected( ( event ) -> doStartDrag( event, tab, tool ) );
-		tab.setOnDragEntered( ( event ) -> doDragEntered( event, tab, tool ) );
-		tab.setOnDragOver( tab.getOnDragEntered() );
-		tab.setOnDragExited( ( event ) -> doDragExited( event, tool ) );
-		tab.setOnDragDropped( ( event ) -> doDragDropped( event, tab ) );
-		tab.setOnDragDone( ( event ) -> doDragDone( event, tool ) );
+		content.setOnMousePressed( this::doSetActiveTool );
+		tab.setOnDragDetected( this::doStartDrag );
+		tab.setOnDragEntered( this::doDragOver );
+		tab.setOnDragOver( this::doDragOver );
+		tab.setOnDragExited( this::doDragExited );
+		tab.setOnDragDropped( this::doDragDropped );
+		tab.setOnDragDone( this::doDragDone );
 		tab.setOnCloseRequest( event -> tool.close() );
 		close.setOnMouseClicked( ( event ) -> tab.getOnCloseRequest().handle( event ) );
 	}
@@ -63,29 +63,24 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		layoutInArea( tabLayout, contentX, contentY, contentWidth, contentHeight, -1, HPos.CENTER, VPos.CENTER );
 	}
 
-	private void doDragDone( javafx.scene.input.DragEvent event, Tool tool ) {
-		log.log( Log.DEBUG, "Drag done: " + tool.getAsset().getUri() );
+	static boolean canHandleDrop( DragEvent event ) {
+		if( event.getDragboard().hasUrl() ) return true;
+		if( event.getDragboard().hasFiles() ) return true;
+		return event.getGestureSource() instanceof ToolTab;
 	}
 
-	private void doDragDropped( DragEvent event, ToolTab tab ) {
-		log.log( Log.DEBUG, "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
-		int index = tab.getToolTabPane().getTabs().indexOf( tab );
-		tab.getToolTabPane().handleDrop( event, DropEvent.Area.TAB, index, null );
+	private void doSetActiveTool( MouseEvent event ) {
+		ToolTab tab = getSkinnable();
+		Tool tool = tab.getTool();
+		if( isShowContextMenu( tool ) ) tool.getContextMenu().show( tab, Side.BOTTOM, 0, 0 );
+		tab.getToolTabPane().getWorkpane().setActiveTool( tool );
+		if( event.getClickCount() == 2 ) doSetMaximizedView( tool );
 	}
 
-	private void doDragExited( DragEvent event, Tool tool ) {
-		log.log( Log.DEBUG, "Drag exit tab: " + event.getDragboard().getUrl() );
-		if( tool.getWorkpane() != null ) tool.getWorkpane().setDropHint( null );
-	}
+	private void doStartDrag( javafx.scene.input.MouseEvent event ) {
+		ToolTab tab = getSkinnable();
+		Tool tool = tab.getTool();
 
-	private void doDragEntered( DragEvent event, ToolTab tab, Tool tool ) {
-		log.log( Log.DEBUG, "Drag enter tab: " + event.getDragboard().getUrl() );
-		Bounds bounds = FxUtil.localToParent( tab, tool.getWorkpane() );
-		tool.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-		FxUtil.setTransferMode( event );
-	}
-
-	private void doStartDrag( javafx.scene.input.MouseEvent event, ToolTab tab, Tool tool ) {
 		log.log( Log.DEBUG, "Drag start: " + tool.getAsset().getUri() );
 
 		TransferMode[] modes = tab.getToolTabPane().getWorkpane().getOnToolDrop().getSupportedModes( tool );
@@ -100,10 +95,44 @@ public class ToolTabSkin extends SkinBase<ToolTab> {
 		board.setDragView( image, 0.5 * image.getWidth(), 0.5 * image.getHeight() );
 	}
 
-	private void doSetActiveTool( MouseEvent event, ToolTab tab, Tool tool ) {
-		if( isShowContextMenu( tool ) ) tool.getContextMenu().show( tab, Side.BOTTOM, 0, 0 );
-		tab.getToolTabPane().getWorkpane().setActiveTool( tool );
-		if( event.getClickCount() == 2 ) doSetMaximizedView( tool );
+	private void doDragOver( DragEvent event ) {
+		if( !canHandleDrop( event ) ) return;
+
+		ToolTab tab = getSkinnable();
+		Tool tool = tab.getTool();
+
+		log.log( Log.DEBUG, "Drag over tab: " + event.getDragboard().getUrl() );
+		Bounds bounds = FxUtil.localToParent( tab, tool.getWorkpane() );
+		tool.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
+		FxUtil.setTransferMode( event );
+	}
+
+	private void doDragExited( DragEvent event ) {
+		if( !canHandleDrop( event ) ) return;
+
+		ToolTab tab = getSkinnable();
+		Tool tool = tab.getTool();
+
+		log.log( Log.DEBUG, "Drag exit tab: " + event.getDragboard().getUrl() );
+		if( tool.getWorkpane() != null ) tool.getWorkpane().setDropHint( null );
+	}
+
+	private void doDragDropped( DragEvent event ) {
+		if( !canHandleDrop( event ) ) return;
+
+		ToolTab tab = getSkinnable();
+
+		log.log( Log.DEBUG, "Drag dropped on tab: " + event.getDragboard().getUrl() + ": " + event.getAcceptedTransferMode() );
+		int index = tab.getToolTabPane().getTabs().indexOf( tab );
+		tab.getToolTabPane().handleDrop( event, DropEvent.Area.TAB, index, null );
+	}
+
+	private void doDragDone( javafx.scene.input.DragEvent event ) {
+		if( !canHandleDrop( event ) ) return;
+
+		ToolTab tab = getSkinnable();
+		Tool tool = tab.getTool();
+		log.log( Log.DEBUG, "Drag done: " + tool.getAsset().getUri() );
 	}
 
 	private boolean isShowContextMenu( Tool tool ) {

@@ -27,6 +27,8 @@ public class Guide {
 
 	private final BooleanProperty activeProperty;
 
+	private final BooleanProperty dragAndDropEnabledProperty;
+
 	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> expandedItems;
 
 	private final ReadOnlyObjectWrapper<Set<TreeItem<GuideNode>>> selectedItems;
@@ -36,6 +38,7 @@ public class Guide {
 		titleProperty = new SimpleStringProperty();
 		iconProperty = new SimpleStringProperty();
 		activeProperty = new SimpleBooleanProperty( false );
+		dragAndDropEnabledProperty = new SimpleBooleanProperty( false );
 		expandedItems = new ReadOnlyObjectWrapper<>( this, "expandedItems", new HashSet<>() );
 		selectedItems = new ReadOnlyObjectWrapper<>( this, "selectedItems", new HashSet<>() );
 		root.addEventHandler( TreeItem.branchExpandedEvent(), ( event ) -> updateExpandedItems() );
@@ -123,6 +126,18 @@ public class Guide {
 		return activeProperty;
 	}
 
+	public boolean isDragAndDropEnabled() {
+		return dragAndDropEnabledProperty.get();
+	}
+
+	public void setDragAndDropEnabled( boolean enabled ) {
+		dragAndDropEnabledProperty.set( enabled );
+	}
+
+	public BooleanProperty dragAndDropEnabledProperty() {
+		return dragAndDropEnabledProperty;
+	}
+
 	/* Only intended to be used by the GuideTool */
 	final TreeItem<GuideNode> getRoot() {
 		return root;
@@ -193,6 +208,10 @@ public class Guide {
 	final void setSelectedItems( Set<TreeItem<GuideNode>> items ) {
 		FxUtil.assertFxThread();
 		selectedItems.set( items );
+	}
+
+	protected void moveNode( GuideNode item, GuideNode target, boolean below, boolean child ) {
+		//
 	}
 
 	private void updateExpandedItems() {

@@ -12,12 +12,12 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.FxUtil;
-import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.util.Callback;
 
 import java.lang.System.Logger;
@@ -27,6 +27,10 @@ import java.util.*;
 public class GuideTool extends ProgramTool {
 
 	private static final Logger log = Log.get();
+
+	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
+
+	private static final String DROP_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0 0 0.125em 0; -fx-padding: 0.25em 0.25em 0.125em 0.25em";
 
 	private final TreeView<GuideNode> guideTree;
 
@@ -43,6 +47,10 @@ public class GuideTool extends ProgramTool {
 	private ContextMenu contextMenu;
 
 	private Guide guide;
+
+	private TreeCell<GuideNode> dropZone;
+
+	private TreeItem<GuideNode> draggedItem;
 
 	@SuppressWarnings( "WeakerAccess" )
 	public GuideTool( ProgramProduct product, Asset asset ) {
@@ -250,6 +258,54 @@ public class GuideTool extends ProgramTool {
 		}
 	}
 
+	private void doDragDetected( MouseEvent event, TreeCell<GuideNode> treeCell ) {
+		if( !guide.isDragAndDropEnabled() ) return;
+		draggedItem = treeCell.getTreeItem();
+
+		// Root node cannot be moved
+		if( draggedItem.getParent() == null ) return;
+
+		ClipboardContent content = new ClipboardContent();
+		content.put( DATA_FORMAT, "" );
+		Dragboard db = treeCell.startDragAndDrop( TransferMode.MOVE );
+		db.setContent( content );
+		db.setDragView( treeCell.snapshot( null, null ) );
+		event.consume();
+	}
+
+	private void doDragOver( DragEvent event, TreeCell<GuideNode> treeCell ) {
+		if( !event.getDragboard().hasContent( DATA_FORMAT ) ) return;
+		TreeItem<GuideNode> thisItem = treeCell.getTreeItem();
+
+		// can't drop on itself
+		if( draggedItem == null || thisItem == null || thisItem == draggedItem ) return;
+		// ignore if this is the root
+		if( draggedItem.getParent() == null ) {
+			doClearDropLocation( event );
+			return;
+		}
+
+		event.acceptTransferModes( TransferMode.MOVE );
+		if( !Objects.equals( dropZone, treeCell ) ) {
+			doClearDropLocation( event );
+			this.dropZone = treeCell;
+			dropZone.setStyle( DROP_HINT_STYLE );
+		}
+	}
+
+	private void doDrop( DragEvent event, TreeCell<GuideNode> target ) {
+		Dragboard db = event.getDragboard();
+		if( !db.hasContent( DATA_FORMAT ) ) return;
+
+		guide.moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), true, false );
+
+		event.setDropCompleted( true );
+	}
+
+	private void doClearDropLocation( DragEvent event ) {
+		if( dropZone != null ) dropZone.setStyle( "" );
+	}
+
 	private class ToolActivatedWatcher implements javafx.event.EventHandler<ToolEvent> {
 
 		@Override
@@ -314,27 +370,26 @@ public class GuideTool extends ProgramTool {
 	private class GuideCellFactory implements Callback<TreeView<GuideNode>, TreeCell<GuideNode>> {
 
 		@Override
-		public TreeCell<GuideNode> call( TreeView<GuideNode> param ) {
-			return new GuideTreeCell();
+		public TreeCell<GuideNode> call( TreeView<GuideNode> treeView ) {
+			TreeCell<GuideNode> cell = new GuideTreeCell();
+			cell.setOnDragDetected( e -> doDragDetected( e, cell ) );
+			cell.setOnDragOver( e -> doDragOver( e, cell ) );
+			cell.setOnDragDropped( e -> doDrop( e, cell ) );
+			cell.setOnDragDone( GuideTool.this::doClearDropLocation );
+			return cell;
 		}
 
 	}
 
 	private class GuideTreeCell extends TreeCell<GuideNode> {
 
-		private WeakReference<TreeItem<GuideNode>> treeItemRef;
+		private WeakReference<TreeItem<GuideNode>> treeItemReference;
 
-		private InvalidationListener treeItemGraphicListener = observable -> updateDisplay( getItem(), isEmpty() );
-
-		private WeakInvalidationListener weakTreeItemGraphicListener = new WeakInvalidationListener( treeItemGraphicListener );
-
-		private InvalidationListener treeItemListener = observable -> doInvalidated();
-
-		private WeakInvalidationListener weakTreeItemListener = new WeakInvalidationListener( treeItemListener );
+		private final WeakInvalidationListener weakTreeItemGraphicListener;
 
 		GuideTreeCell() {
-			setDisclosureNode( null );
-			treeItemProperty().addListener( weakTreeItemListener );
+			treeItemProperty().addListener( new WeakInvalidationListener( observable -> doInvalidated() ) );
+			weakTreeItemGraphicListener = new WeakInvalidationListener( o -> updateDisplay( getItem(), isEmpty() ) );
 			if( getTreeItem() != null ) getTreeItem().graphicProperty().addListener( weakTreeItemGraphicListener );
 		}
 
@@ -347,19 +402,16 @@ public class GuideTool extends ProgramTool {
 		private void updateDisplay( GuideNode item, boolean empty ) {
 			setGraphic( empty ? null : getProgram().getIconLibrary().getIcon( item.getIcon() ) );
 			setText( empty ? null : item.getName() );
-
-			// FIXME This got rid of the triangle, but not the space it takes
-			setDisclosureNode( null );
 		}
 
 		private void doInvalidated() {
-			TreeItem<GuideNode> oldTreeItem = treeItemRef == null ? null : treeItemRef.get();
+			TreeItem<GuideNode> oldTreeItem = treeItemReference == null ? null : treeItemReference.get();
 			if( oldTreeItem != null ) oldTreeItem.graphicProperty().removeListener( weakTreeItemGraphicListener );
 
 			TreeItem<GuideNode> newTreeItem = getTreeItem();
 			if( newTreeItem != null ) {
 				newTreeItem.graphicProperty().addListener( weakTreeItemGraphicListener );
-				treeItemRef = new WeakReference<>( newTreeItem );
+				treeItemReference = new WeakReference<>( newTreeItem );
 			}
 		}
 

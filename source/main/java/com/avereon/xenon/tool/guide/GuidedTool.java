@@ -135,7 +135,7 @@ public abstract class GuidedTool extends ProgramTool {
 				guideNodesSelected( oldNodes, newNodes );
 
 				// Run this later to set the tool to be the active tool again
-				Fx.run( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
+				//Fx.run( () -> getWorkpane().setActiveTool( GuidedTool.this ) );
 			}
 		}
 

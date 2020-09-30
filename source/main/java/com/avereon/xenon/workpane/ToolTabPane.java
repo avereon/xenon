@@ -116,7 +116,7 @@ public class ToolTabPane extends Control {
 	void handleDrop( DragEvent event, DropEvent.Area area, int index, Side side ) {
 		try {
 			Object gestureSource = event.getGestureSource();
-			Tool sourceTool = gestureSource == null ? null : ((ToolTab)gestureSource).getTool();
+			Tool sourceTool = (gestureSource instanceof ToolTab) ? ((ToolTab)gestureSource).getTool() : null;
 
 			List<URI> uris = new ArrayList<>();
 			if( event.getDragboard().getUrl() != null ) uris.add( new URI( event.getDragboard().getUrl() ) );

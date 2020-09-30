@@ -25,6 +25,10 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 
 	private final Pane header;
 
+	private final HBox tabContainer;
+
+	private final Pane headerDrop;
+
 	private final Pane toolArea;
 
 	public static final double SIDE_PERCENT = 0.3;
@@ -42,12 +46,12 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		control.getTabs().forEach( tab -> tab.setToolPane( control ) );
 		Set<Tool> tools = control.getTabs().stream().map( ToolTab::getTool ).peek( tool -> tool.setVisible( false ) ).collect( Collectors.toSet() );
 
-		HBox tabContainer = new HBox();
+		tabContainer = new HBox();
 		tabContainer.getStyleClass().add( "box" );
 		tabContainer.getChildren().addAll( control.getTabs() );
 
 		// Create a separate pane to capture drop target events in the header space
-		Pane headerDrop = new Pane();
+		headerDrop = new Pane();
 		headerDrop.getStyleClass().addAll( "tool-tab-drop" );
 
 		// Create components
@@ -62,77 +66,107 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 
 		pseudoClassStateChanged( ToolTabPane.ACTIVE_PSEUDOCLASS_STATE, control.isActive() );
 
-		control.getTabs().addListener( (ListChangeListener<ToolTab>)change -> {
-			while( change.next() ) {
-				change.getRemoved().stream().filter( Objects::nonNull ).forEach( tab -> {
-					if( !control.getTabs().contains( tab ) ) tab.setToolPane( null );
-					toolArea.getChildren().remove( tab.getTool() );
-					tabContainer.getChildren().remove( tab );
-				} );
+		control.getTabs().addListener( this::doUpdateTabs );
+		control.getSelectionModel().selectedItemProperty().addListener( ( p, o, n ) -> doUpdateTabSelection() );
 
-				change.getAddedSubList().stream().filter( Objects::nonNull ).forEach( tab -> {
-					tab.setToolPane( control );
-					toolArea.getChildren().add( tab.getTool() );
-					tabContainer.getChildren().add( tab );
-				} );
-			}
+		headerDrop.setOnMouseClicked( this::doHeaderDropMouseClicked );
+		headerDrop.setOnDragEntered( this::doDragOver );
+		headerDrop.setOnDragOver( this::doDragOver );
+		headerDrop.setOnDragExited( this::doDragExited );
+		headerDrop.setOnDragDropped( this::doDragDropped );
 
-			control.requestLayout();
-		} );
-
-		control.getSelectionModel().selectedItemProperty().addListener( ( observable, oldValue, newValue ) -> {
-			// Hide all the tools
-			control.getTabs().stream().map( ToolTab::getTool ).forEach( tool -> tool.setVisible( false ) );
-
-			// Show the selected tool
-			ToolTab selectedTab = control.getSelectionModel().getSelectedItem();
-			if( selectedTab != null ) selectedTab.getTool().setVisible( true );
-
-			control.requestLayout();
-		} );
-
-		headerDrop.setOnMouseClicked( ( event ) -> {
-			if( event.getClickCount() == 2 ) {
-				WorkpaneView view = control.getWorkpaneView();
-				view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
-			}
-		} );
-
-		headerDrop.setOnDragEntered( ( event ) -> {
-			Bounds bounds = FxUtil.localToParent( headerDrop, control.getWorkpane() );
-			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			FxUtil.setTransferMode( event );
-		} );
-
-		headerDrop.setOnDragOver( headerDrop.getOnDragEntered() );
-
-		headerDrop.setOnDragExited( ( event ) -> {
-			if( control.getWorkpane() != null ) control.getWorkpane().setDropHint( null );
-		} );
-
-		headerDrop.setOnDragDropped( ( event ) -> {
-			control.handleDrop( event, DropEvent.Area.HEADER, 0, null );
-		} );
-
-		toolArea.setOnDragEntered( ( event ) -> {
-			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
-			Bounds bounds = FxUtil.localToParent( toolArea, control.getWorkpane(), dropBounds );
-			control.getWorkpane().setDropHint( new WorkpaneDropHint( bounds ) );
-			FxUtil.setTransferMode( event );
-		} );
-
-		toolArea.setOnDragOver( toolArea.getOnDragEntered() );
-
-		toolArea.setOnDragExited( ( event ) -> {
-			if( control.getWorkpane() != null ) control.getWorkpane().setDropHint( null );
-		} );
-
-		toolArea.setOnDragDropped( ( event ) -> {
-			control.handleDrop( event, DropEvent.Area.TOOL_AREA, 0, getDropSide( event ) );
-		} );
+		toolArea.setOnDragEntered( this::doDragOver );
+		toolArea.setOnDragOver( this::doDragOver );
+		toolArea.setOnDragExited( this::doDragExited );
+		toolArea.setOnDragDropped( this::doDragDropped );
 
 		ToolTab selectedTab = control.getSelectionModel().getSelectedItem();
 		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
+	}
+
+	@Override
+	protected double computeMinWidth( double height, double topInset, double rightInset, double bottomInset, double leftInset ) {
+		return 0;
+	}
+
+	@Override
+	protected double computeMinHeight( double width, double topInset, double rightInset, double bottomInset, double leftInset ) {
+		return 0;
+	}
+
+	@Override
+	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
+		double headerSize = snapSizeY( header.prefHeight( -1 ) );
+		header.resizeRelocate( contentX, contentY, contentWidth, headerSize );
+
+		double toolHeight = contentHeight - headerSize;
+		toolArea.resizeRelocate( contentX, headerSize, contentWidth, toolHeight );
+	}
+
+	private void doUpdateTabs( ListChangeListener.Change<? extends ToolTab> change ) {
+		 while( change.next() ) {
+			change.getRemoved().stream().filter( Objects::nonNull ).forEach( tab -> {
+				if( !getSkinnable().getTabs().contains( tab ) ) tab.setToolPane( null );
+				toolArea.getChildren().remove( tab.getTool() );
+				tabContainer.getChildren().remove( tab );
+			} );
+
+			change.getAddedSubList().stream().filter( Objects::nonNull ).forEach( tab -> {
+				tab.setToolPane( getSkinnable() );
+				toolArea.getChildren().add( tab.getTool() );
+				tabContainer.getChildren().add( tab );
+			} );
+		}
+
+		getSkinnable().requestLayout();
+	}
+
+	private void doUpdateTabSelection() {
+		// Hide all the tools
+		getSkinnable().getTabs().stream().map( ToolTab::getTool ).forEach( tool -> tool.setVisible( false ) );
+
+		// Show the selected tool
+		ToolTab selectedTab = getSkinnable().getSelectionModel().getSelectedItem();
+		if( selectedTab != null ) selectedTab.getTool().setVisible( true );
+
+		getSkinnable().requestLayout();
+	}
+
+	private void doHeaderDropMouseClicked( javafx.scene.input.MouseEvent event ) {
+		if( event.getClickCount() == 2 ) {
+			WorkpaneView view = getSkinnable().getWorkpaneView();
+			view.getWorkpane().setMaximizedView( view.isMaximized() ? null : view );
+		}
+	}
+
+	private void doDragOver( DragEvent event ) {
+		if( !ToolTabSkin.canHandleDrop( event ) ) return;
+
+		WorkpaneDropHint hint = null;
+		if( event.getSource() == headerDrop ) {
+			hint = new WorkpaneDropHint( FxUtil.localToParent( headerDrop, getSkinnable().getWorkpane() ) );
+		} else if( event.getSource() == toolArea ) {
+			Bounds dropBounds = getDropBounds( toolArea.getLayoutBounds(), getDropSide( event ) );
+			hint = new WorkpaneDropHint( FxUtil.localToParent( toolArea, getSkinnable().getWorkpane(), dropBounds ) );
+		}
+		getSkinnable().getWorkpane().setDropHint( hint );
+		FxUtil.setTransferMode( event );
+	}
+
+	private void doDragExited( DragEvent event ) {
+		if( !ToolTabSkin.canHandleDrop( event ) ) return;
+		if( getSkinnable().getWorkpane() != null ) getSkinnable().getWorkpane().setDropHint( null );
+	}
+
+	private void doDragDropped( DragEvent event ) {
+		if( !ToolTabSkin.canHandleDrop( event ) ) return;
+		DropEvent.Area area = null;
+		if( event.getSource() == headerDrop ) {
+			area = DropEvent.Area.HEADER;
+		} else if( event.getSource() == toolArea ) {
+			area = DropEvent.Area.TOOL_AREA;
+		}
+		getSkinnable().handleDrop( event, area, 0, getDropSide( event ) );
 	}
 
 	private double getDropHintWidth( Bounds bounds ) {
@@ -187,25 +221,6 @@ public class ToolTabPaneSkin extends SkinBase<ToolTabPane> {
 		}
 
 		return bounds;
-	}
-
-	@Override
-	protected double computeMinWidth( double height, double topInset, double rightInset, double bottomInset, double leftInset ) {
-		return 0;
-	}
-
-	@Override
-	protected double computeMinHeight( double width, double topInset, double rightInset, double bottomInset, double leftInset ) {
-		return 0;
-	}
-
-	@Override
-	protected void layoutChildren( double contentX, double contentY, double contentWidth, double contentHeight ) {
-		double headerSize = snapSizeY( header.prefHeight( -1 ) );
-		header.resizeRelocate( contentX, contentY, contentWidth, headerSize );
-
-		double toolHeight = contentHeight - headerSize;
-		toolArea.resizeRelocate( contentX, headerSize, contentWidth, toolHeight );
 	}
 
 	private class ToolContentArea extends Pane {
