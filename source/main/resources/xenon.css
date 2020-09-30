@@ -65,6 +65,11 @@
 	-fx-prompt-text-fill: transparent;
 }
 
+.tree-cell > .tree-disclosure-node > .arrow,
+.tree-table-row-cell > .tree-disclosure-node > .arrow {
+	-fx-padding: 0.3em 0.3em 0.3em 0.05em;
+	-fx-shape: "M -0.5 2.5 L 2 0 L -0.5 -2.5 L 0 -3 L 3 0 L 0 3 Z"
+}
 
 /*******************************************************************************
  * Icons
