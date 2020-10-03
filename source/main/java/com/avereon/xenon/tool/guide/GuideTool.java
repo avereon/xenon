@@ -16,6 +16,7 @@ import javafx.beans.WeakInvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.util.Callback;
@@ -30,7 +31,11 @@ public class GuideTool extends ProgramTool {
 
 	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
 
-	private static final String DROP_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0 0 0.125em 0; -fx-padding: 0.25em 0.25em 0.125em 0.25em";
+	private static final String DROP_ABOVE_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0.125em 0 0 0; -fx-padding: 0.125em 0.25em 0.25em 0.25em";
+
+	private static final String DROP_CHILD_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0.125em 0 0.125em 0; -fx-padding: 0.125em 0.25em 0.125em 0.25em";
+
+	private static final String DROP_BELOW_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0 0 0.125em 0; -fx-padding: 0.25em 0.25em 0.125em 0.25em";
 
 	private final TreeView<GuideNode> guideTree;
 
@@ -258,27 +263,34 @@ public class GuideTool extends ProgramTool {
 		}
 	}
 
-	private void doDragDetected( MouseEvent event, TreeCell<GuideNode> treeCell ) {
+	@SuppressWarnings( "unchecked" )
+	private void doDragDetected( MouseEvent event ) {
 		if( !guide.isDragAndDropEnabled() ) return;
-		draggedItem = treeCell.getTreeItem();
+
+		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
+		draggedItem = target.getTreeItem();
 
 		// Root node cannot be moved
 		if( draggedItem.getParent() == null ) return;
 
 		ClipboardContent content = new ClipboardContent();
 		content.put( DATA_FORMAT, "" );
-		Dragboard db = treeCell.startDragAndDrop( TransferMode.MOVE );
+		Dragboard db = target.startDragAndDrop( TransferMode.MOVE );
 		db.setContent( content );
-		db.setDragView( treeCell.snapshot( null, null ) );
+		db.setDragView( target.snapshot( null, null ) );
 		event.consume();
 	}
 
-	private void doDragOver( DragEvent event, TreeCell<GuideNode> treeCell ) {
+	@SuppressWarnings( "unchecked" )
+	private void doDragOver( DragEvent event ) {
 		if( !event.getDragboard().hasContent( DATA_FORMAT ) ) return;
-		TreeItem<GuideNode> thisItem = treeCell.getTreeItem();
+
+		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
+		TreeItem<GuideNode> thisItem = target.getTreeItem();
 
 		// can't drop on itself
 		if( draggedItem == null || thisItem == null || thisItem == draggedItem ) return;
+
 		// ignore if this is the root
 		if( draggedItem.getParent() == null ) {
 			doClearDropLocation( event );
@@ -286,24 +298,44 @@ public class GuideTool extends ProgramTool {
 		}
 
 		event.acceptTransferModes( TransferMode.MOVE );
-		if( !Objects.equals( dropZone, treeCell ) ) {
+		if( !Objects.equals( dropZone, target ) ) {
 			doClearDropLocation( event );
-			this.dropZone = treeCell;
-			dropZone.setStyle( DROP_HINT_STYLE );
+			this.dropZone = target;
+			//dropZone.setStyle( DROP_BELOW_HINT_STYLE );
+		}
+
+		Guide.Drop drop = determineDrop( target, event.getX(), event.getY() );
+		switch( drop ) {
+			case ABOVE -> dropZone.setStyle( DROP_ABOVE_HINT_STYLE );
+			case CHILD -> dropZone.setStyle( DROP_CHILD_HINT_STYLE );
+			case BELOW -> dropZone.setStyle( DROP_BELOW_HINT_STYLE );
+			case NONE -> doClearDropLocation( event );
 		}
 	}
 
-	private void doDrop( DragEvent event, TreeCell<GuideNode> target ) {
+	@SuppressWarnings( "unchecked" )
+	private void doDrop( DragEvent event ) {
 		Dragboard db = event.getDragboard();
 		if( !db.hasContent( DATA_FORMAT ) ) return;
 
-		guide.moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), true, false );
+		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
+		guide.moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), determineDrop( target, event.getX(), event.getY() ) );
 
 		event.setDropCompleted( true );
 	}
 
 	private void doClearDropLocation( DragEvent event ) {
 		if( dropZone != null ) dropZone.setStyle( "" );
+	}
+
+	private Guide.Drop determineDrop( Node node, double x, double y ) {
+		if( node == null || node == dropZone ) return Guide.Drop.NONE;
+		double h = node.getBoundsInLocal().getHeight();
+		if( y < 0 ) return Guide.Drop.NONE;
+		if( y < 0.25 * h ) return Guide.Drop.ABOVE;
+		if( y < 0.75 * h ) return Guide.Drop.CHILD;
+		if( y < h ) return Guide.Drop.BELOW;
+		return Guide.Drop.NONE;
 	}
 
 	private class ToolActivatedWatcher implements javafx.event.EventHandler<ToolEvent> {
@@ -372,9 +404,9 @@ public class GuideTool extends ProgramTool {
 		@Override
 		public TreeCell<GuideNode> call( TreeView<GuideNode> treeView ) {
 			TreeCell<GuideNode> cell = new GuideTreeCell();
-			cell.setOnDragDetected( e -> doDragDetected( e, cell ) );
-			cell.setOnDragOver( e -> doDragOver( e, cell ) );
-			cell.setOnDragDropped( e -> doDrop( e, cell ) );
+			cell.setOnDragDetected( GuideTool.this::doDragDetected );
+			cell.setOnDragOver( GuideTool.this::doDragOver );
+			cell.setOnDragDropped( GuideTool.this::doDrop );
 			cell.setOnDragDone( GuideTool.this::doClearDropLocation );
 			return cell;
 		}

@@ -13,6 +13,13 @@ import java.util.stream.Collectors;
 
 public class Guide {
 
+	public enum Drop {
+		ABOVE,
+		CHILD,
+		BELOW,
+		NONE
+	}
+
 	public static final Guide EMPTY = new Guide();
 
 	private static final Logger log = Log.get();
@@ -210,7 +217,7 @@ public class Guide {
 		selectedItems.set( items );
 	}
 
-	protected void moveNode( GuideNode item, GuideNode target, boolean below, boolean child ) {
+	protected void moveNode( GuideNode item, GuideNode target, Guide.Drop drop ) {
 		//
 	}
 
