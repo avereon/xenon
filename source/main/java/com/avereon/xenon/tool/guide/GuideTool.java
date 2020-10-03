@@ -31,11 +31,11 @@ public class GuideTool extends ProgramTool {
 
 	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
 
-	private static final String DROP_ABOVE_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0.125em 0 0 0; -fx-padding: 0.125em 0.25em 0.25em 0.25em";
+	private static final String DROP_ABOVE_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0.125em 0 0 0; -fx-padding: 0.125em 0.25em 0.25em 0.25em;";
 
-	private static final String DROP_CHILD_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0.125em 0 0.125em 0; -fx-padding: 0.125em 0.25em 0.125em 0.25em";
+	private static final String DROP_CHILD_HINT_STYLE = "-fx-background-color: -ex-workspace-drop-hint;";
 
-	private static final String DROP_BELOW_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0 0 0.125em 0; -fx-padding: 0.25em 0.25em 0.125em 0.25em";
+	private static final String DROP_BELOW_HINT_STYLE = "-fx-border-color: -fx-focus-color; -fx-border-width: 0 0 0.125em 0; -fx-padding: 0.25em 0.25em 0.125em 0.25em;";
 
 	private final TreeView<GuideNode> guideTree;
 
@@ -53,9 +53,7 @@ public class GuideTool extends ProgramTool {
 
 	private Guide guide;
 
-	private TreeCell<GuideNode> dropZone;
-
-	private TreeItem<GuideNode> draggedItem;
+	private TreeCell<GuideNode> draggedCell;
 
 	@SuppressWarnings( "WeakerAccess" )
 	public GuideTool( ProgramProduct product, Asset asset ) {
@@ -268,10 +266,10 @@ public class GuideTool extends ProgramTool {
 		if( !guide.isDragAndDropEnabled() ) return;
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
-		draggedItem = target.getTreeItem();
+		draggedCell = target;
 
 		// Root node cannot be moved
-		if( draggedItem.getParent() == null ) return;
+		if( target.getTreeItem().getParent() == null ) return;
 
 		ClipboardContent content = new ClipboardContent();
 		content.put( DATA_FORMAT, "" );
@@ -287,6 +285,7 @@ public class GuideTool extends ProgramTool {
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
 		TreeItem<GuideNode> thisItem = target.getTreeItem();
+		TreeItem<GuideNode> draggedItem = draggedCell.getTreeItem();
 
 		// can't drop on itself
 		if( draggedItem == null || thisItem == null || thisItem == draggedItem ) return;
@@ -298,38 +297,34 @@ public class GuideTool extends ProgramTool {
 		}
 
 		event.acceptTransferModes( TransferMode.MOVE );
-		if( !Objects.equals( dropZone, target ) ) {
-			doClearDropLocation( event );
-			this.dropZone = target;
-			//dropZone.setStyle( DROP_BELOW_HINT_STYLE );
-		}
 
 		Guide.Drop drop = determineDrop( target, event.getX(), event.getY() );
 		switch( drop ) {
-			case ABOVE -> dropZone.setStyle( DROP_ABOVE_HINT_STYLE );
-			case CHILD -> dropZone.setStyle( DROP_CHILD_HINT_STYLE );
-			case BELOW -> dropZone.setStyle( DROP_BELOW_HINT_STYLE );
+			case ABOVE -> target.setStyle( DROP_ABOVE_HINT_STYLE );
+			case CHILD -> target.setStyle( DROP_CHILD_HINT_STYLE );
+			case BELOW -> target.setStyle( DROP_BELOW_HINT_STYLE );
 			case NONE -> doClearDropLocation( event );
 		}
 	}
 
 	@SuppressWarnings( "unchecked" )
 	private void doDrop( DragEvent event ) {
-		Dragboard db = event.getDragboard();
-		if( !db.hasContent( DATA_FORMAT ) ) return;
+		if( !event.getDragboard().hasContent( DATA_FORMAT ) ) return;
 
 		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
+		TreeItem<GuideNode> draggedItem = draggedCell.getTreeItem();
 		guide.moveNode( draggedItem.getValue(), target.getTreeItem().getValue(), determineDrop( target, event.getX(), event.getY() ) );
 
 		event.setDropCompleted( true );
 	}
 
+	@SuppressWarnings( "unchecked" )
 	private void doClearDropLocation( DragEvent event ) {
-		if( dropZone != null ) dropZone.setStyle( "" );
+		TreeCell<GuideNode> target = (TreeCell<GuideNode>)event.getSource();
+		target.setStyle( "" );
 	}
 
 	private Guide.Drop determineDrop( Node node, double x, double y ) {
-		if( node == null || node == dropZone ) return Guide.Drop.NONE;
 		double h = node.getBoundsInLocal().getHeight();
 		if( y < 0 ) return Guide.Drop.NONE;
 		if( y < 0.25 * h ) return Guide.Drop.ABOVE;
@@ -406,6 +401,7 @@ public class GuideTool extends ProgramTool {
 			TreeCell<GuideNode> cell = new GuideTreeCell();
 			cell.setOnDragDetected( GuideTool.this::doDragDetected );
 			cell.setOnDragOver( GuideTool.this::doDragOver );
+			cell.setOnDragExited( GuideTool.this::doClearDropLocation );
 			cell.setOnDragDropped( GuideTool.this::doDrop );
 			cell.setOnDragDone( GuideTool.this::doClearDropLocation );
 			return cell;
