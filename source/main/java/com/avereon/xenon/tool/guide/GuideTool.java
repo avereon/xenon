@@ -12,7 +12,7 @@ import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.FxUtil;
-import javafx.beans.WeakInvalidationListener;
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -22,7 +22,6 @@ import javafx.scene.input.*;
 import javafx.util.Callback;
 
 import java.lang.System.Logger;
-import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class GuideTool extends ProgramTool {
@@ -62,7 +61,7 @@ public class GuideTool extends ProgramTool {
 		guideTree = new TreeView<>();
 		guideTree.setShowRoot( false );
 		guideTree.setCellFactory( new GuideCellFactory() );
-		getChildren().add( guideTree );
+		getChildren().add( new ScrollPane( guideTree ) );
 
 		toolActivatedWatcher = new ToolActivatedWatcher();
 		toolConcealedWatcher = new ToolConcealedWatcher();
@@ -411,36 +410,35 @@ public class GuideTool extends ProgramTool {
 
 	private class GuideTreeCell extends TreeCell<GuideNode> {
 
-		private WeakReference<TreeItem<GuideNode>> treeItemReference;
+		private final InvalidationListener iconListener;
 
-		private final WeakInvalidationListener weakTreeItemGraphicListener;
+		private TreeItem<GuideNode> treeItem;
 
 		GuideTreeCell() {
-			treeItemProperty().addListener( new WeakInvalidationListener( observable -> doInvalidated() ) );
-			weakTreeItemGraphicListener = new WeakInvalidationListener( o -> updateDisplay( getItem(), isEmpty() ) );
-			if( getTreeItem() != null ) getTreeItem().graphicProperty().addListener( weakTreeItemGraphicListener );
+			treeItemProperty().addListener( observable -> doInvalidated() );
+			iconListener = o -> doUpdateItem( getItem(), isEmpty() );
+			doInvalidated();
 		}
 
 		@Override
 		public void updateItem( GuideNode item, boolean empty ) {
 			super.updateItem( item, empty );
-			updateDisplay( item, empty );
+			doUpdateItem( item, empty );
 		}
 
-		private void updateDisplay( GuideNode item, boolean empty ) {
+		private void doUpdateItem( GuideNode item, boolean empty ) {
 			setGraphic( empty ? null : getProgram().getIconLibrary().getIcon( item.getIcon() ) );
 			setText( empty ? null : item.toString() );
 		}
 
 		private void doInvalidated() {
-			TreeItem<GuideNode> oldTreeItem = treeItemReference == null ? null : treeItemReference.get();
-			if( oldTreeItem != null ) oldTreeItem.graphicProperty().removeListener( weakTreeItemGraphicListener );
-
+			TreeItem<GuideNode> oldTreeItem = treeItem;
 			TreeItem<GuideNode> newTreeItem = getTreeItem();
-			if( newTreeItem != null ) {
-				newTreeItem.graphicProperty().addListener( weakTreeItemGraphicListener );
-				treeItemReference = new WeakReference<>( newTreeItem );
-			}
+			if( newTreeItem == oldTreeItem ) return;
+
+			if( oldTreeItem != null ) oldTreeItem.graphicProperty().removeListener( iconListener );
+			treeItem = newTreeItem;
+			if( newTreeItem != null ) newTreeItem.graphicProperty().addListener( iconListener );
 		}
 
 	}

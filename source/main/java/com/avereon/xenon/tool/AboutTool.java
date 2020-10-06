@@ -136,22 +136,12 @@ public class AboutTool extends GuidedTool {
 		ProductBundle rb = getProduct().rb();
 		Guide guide = new Guide();
 
-		GuideNode summaryNode = new GuideNode( getProgram() );
-		summaryNode.setId( AboutTool.SUMMARY );
-		summaryNode.setName( rb.text( "tool", "about-summary" ) );
-		summaryNode.setIcon( "about" );
+		GuideNode summaryNode = new GuideNode( getProgram(), AboutTool.SUMMARY, rb.text( "tool", "about-summary" ), "about" );
+		GuideNode detailsNode = new GuideNode( getProgram(), AboutTool.DETAILS, rb.text( "tool", "about-details" ), "about" );
+		GuideNode productsNode = new GuideNode( getProgram(), AboutTool.MODS, rb.text( "tool", "about-mods" ), "about" );
+
 		guide.addNode( summaryNode );
-
-		GuideNode detailsNode = new GuideNode( getProgram() );
-		detailsNode.setId( AboutTool.DETAILS );
-		detailsNode.setName( rb.text( "tool", "about-details" ) );
-		detailsNode.setIcon( "about" );
 		guide.addNode( detailsNode );
-
-		GuideNode productsNode = new GuideNode( getProgram() );
-		productsNode.setId( AboutTool.MODS );
-		productsNode.setName( rb.text( "tool", "about-mods" ) );
-		productsNode.setIcon( "about" );
 		guide.addNode( productsNode );
 
 		return guide;

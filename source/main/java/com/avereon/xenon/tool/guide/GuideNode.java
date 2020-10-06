@@ -22,22 +22,26 @@ public class GuideNode extends Node {
 
 	private final Program program;
 
-	public GuideNode( Program program ) {
+	GuideNode( Program program ) {
 		this( program, null, null, null );
 	}
 
-	public GuideNode( Program program, String id, String name ) {
+	GuideNode( Program program, String id, String name ) {
 		this( program, id, name, null );
 	}
 
 	public GuideNode( Program program, String id, String name, String icon ) {
+		this( program, id, name, icon, -1 );
+	}
+
+	public GuideNode( Program program, String id, String name, String icon, int order ) {
 		this.program = program;
 		definePrimaryKey( ID );
 		defineNaturalKey( NAME );
 		setId( id );
 		setName( name );
 		setIcon( icon );
-		setOrder( -1 );
+		setOrder( order );
 	}
 
 	public String getId() {
@@ -53,9 +57,9 @@ public class GuideNode extends Node {
 		return getValue( ICON );
 	}
 
-	public GuideNode setIcon( String name ) {
-		setValue( ICON, name );
-		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().setGraphic( program.getIconLibrary().getIcon( name ) ) );
+	public GuideNode setIcon( String icon ) {
+		setValue( ICON, icon );
+		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().setGraphic( program.getIconLibrary().getIcon( icon ) ) );
 		return this;
 	}
 
