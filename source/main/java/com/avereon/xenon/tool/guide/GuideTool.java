@@ -429,7 +429,7 @@ public class GuideTool extends ProgramTool {
 
 		private void updateDisplay( GuideNode item, boolean empty ) {
 			setGraphic( empty ? null : getProgram().getIconLibrary().getIcon( item.getIcon() ) );
-			setText( empty ? null : item.getName() );
+			setText( empty ? null : item.toString() );
 		}
 
 		private void doInvalidated() {

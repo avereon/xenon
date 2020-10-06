@@ -1,9 +1,12 @@
 package com.avereon.xenon.tool.guide;
 
 import com.avereon.data.Node;
+import com.avereon.data.NodeComparator;
 import com.avereon.xenon.Program;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.TreeItem;
+
+import java.util.Comparator;
 
 public class GuideNode extends Node {
 
@@ -12,6 +15,8 @@ public class GuideNode extends Node {
 	public static final String ICON = "icon";
 
 	public static final String NAME = "name";
+
+	public static final String ORDER = "order";
 
 	private static final String TREE_ITEM = "tree-item";
 
@@ -32,6 +37,7 @@ public class GuideNode extends Node {
 		setId( id );
 		setName( name );
 		setIcon( icon );
+		setOrder( -1 );
 	}
 
 	public String getId() {
@@ -62,30 +68,45 @@ public class GuideNode extends Node {
 		return this;
 	}
 
+	public int getOrder() {
+		return getValue( ORDER );
+	}
+
+	public GuideNode setOrder( int order ) {
+		setValue( ORDER, order );
+		return this;
+	}
+
 	public GuideNode reset() {
 		if( exists( TREE_ITEM ) ) Fx.run( () -> getTreeItem().getChildren().clear() );
 		return this;
 	}
 
-	public GuideNode add( GuideNode child ) {
-		Fx.run( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
-		return this;
+	//	public GuideNode add( GuideNode child ) {
+	//		Fx.run( () -> getTreeItem().getChildren().add( child.getTreeItem() ) );
+	//		return this;
+	//	}
+
+	//	public GuideNode remove( GuideNode child ) {
+	//		if( !exists( TREE_ITEM ) ) return this;
+	//		Fx.run( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
+	//		return this;
+	//	}
+
+	@Override
+	public <T extends Node> Comparator<T> getComparator() {
+		return new NodeComparator<>( ORDER, NAME );
 	}
 
-	public GuideNode remove( GuideNode child ) {
-		if( !exists( TREE_ITEM ) ) return this;
-		Fx.run( () -> getTreeItem().getChildren().remove( child.getTreeItem() ) );
-		return this;
+	@Override
+	public String toString() {
+		return getName();
 	}
 
 	TreeItem<GuideNode> getTreeItem() {
 		TreeItem<GuideNode> value = getValue( TREE_ITEM );
 		if( value == null ) value = setValue( TREE_ITEM, new TreeItem<>( this, program.getIconLibrary().getIcon( getIcon() ) ) );
 		return value;
-	}
-
-	public String toString() {
-		return getName();
 	}
 
 }

@@ -24,6 +24,8 @@ public class Guide {
 
 	private static final Logger log = Log.get();
 
+	private static final Comparator<TreeItem<GuideNode>> guideNodeComparator = new GuideNodeTreeItemComparator();
+
 	private final TreeItem<GuideNode> root;
 
 	private SelectionMode selectionMode;
@@ -92,9 +94,33 @@ public class Guide {
 		Fx.run( () -> {
 			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
 			item.getChildren().add( node.getTreeItem() );
+			item.getChildren().sort( guideNodeComparator );
 		} );
 		return node;
 	}
+
+	private static class GuideNodeTreeItemComparator implements Comparator <TreeItem<GuideNode>>  {
+
+		@Override
+		public int compare( TreeItem<GuideNode> o1, TreeItem<GuideNode> o2 ) {
+			GuideNode n1 = o1.getValue();
+			GuideNode n2 = o2.getValue();
+			return n1.getComparator().compare( n1, n2 );
+			//return n2.getOrder() - n1.getOrder();
+		}
+
+	}
+
+//	public final GuideNode addNode( GuideNode parent, GuideNode node, int index ) {
+//		Fx.run( () -> {
+//			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
+//			int treeIndex = index;
+//			int size = item.getChildren().size();
+//			if( treeIndex > size ) treeIndex = size;
+//			item.getChildren().add( treeIndex, node.getTreeItem() );
+//		} );
+//		return node;
+//	}
 
 	public final GuideNode removeNode( GuideNode node ) {
 		Fx.run( () -> node.getTreeItem().getParent().getChildren().remove( node.getTreeItem() ) );
