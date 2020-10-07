@@ -135,7 +135,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
+      - name: Generate Screenshots
         run: |
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots1x package
 
@@ -186,7 +186,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Compile
+      - name: Generate Screenshots
         run: |
           gsettings set org.gnome.desktop.interface scaling-factor 2
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
