@@ -478,13 +478,13 @@ public class AboutTool extends GuidedTool {
 	private String getScreenDetail( Screen primary, Screen screen ) {
 		boolean isPrimary = primary.hashCode() == screen.hashCode();
 		Rectangle2D size = screen.getBounds();
-		Rectangle2D screenScale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
+		Rectangle2D outputScale = new Rectangle2D( 0, 0, screen.getOutputScaleX(), screen.getOutputScaleY() );
 		Rectangle2D renderScale = new Rectangle2D( 0, 0, getScene().getWindow().getRenderScaleX(), getScene().getWindow().getRenderScaleY() );
 		Rectangle2D sceneScale = new Rectangle2D( 0, 0, getScene().getRoot().getScaleX(), getScene().getRoot().getScaleY() );
 		int dpi = (int)screen.getDpi();
 
 		String sizeText = TextUtil.justify( TextUtil.RIGHT, (int)size.getWidth() + "x" + (int)size.getHeight(), 10 );
-		String scaleText = screenScale.getWidth() + "x" + screenScale.getWidth();
+		String scaleText = outputScale.getWidth() + "x" + outputScale.getWidth();
 		String renderScaleText = renderScale.getWidth() + "x" + renderScale.getWidth();
 		String sceneScaleText = sceneScale.getWidth() + "x" + sceneScale.getWidth();
 
@@ -492,7 +492,7 @@ public class AboutTool extends GuidedTool {
 		//System.out.println( "Render scale: " + renderScaleText );
 		//System.out.println( "Scene scale: " + sceneScaleText );
 
-		return (isPrimary ? "p" : "s") + "-screen: " + scaleText + " [" + dpi + "dpi] " + sizeText + "\n";
+		return (isPrimary ? "p" : "s") + "-screen: " + renderScaleText + " [" + dpi + "dpi] " + sizeText + "\n";
 	}
 
 	private String getOperatingSystemDetail() {

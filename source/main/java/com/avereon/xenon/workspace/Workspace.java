@@ -160,12 +160,18 @@ public class Workspace implements WritableIdentity {
 		stage.focusedProperty().addListener( ( p, o, n ) -> {
 			if( n ) program.getWorkspaceManager().setActiveWorkspace( this );
 		} );
-		stage.outputScaleXProperty().addListener( (p,o,n) -> {
-			log.log( Log.WARN, "The window output scale X changed to " + n );
-		} );
-		stage.outputScaleYProperty().addListener( (p,o,n) -> {
-			log.log( Log.WARN, "The window output scale Y changed to " + n );
-		} );
+
+		//stage.outputScaleXProperty().addListener( (p,o,n) -> {
+		//	log.log( Log.WARN, "The window output scale X changed to " + n );
+		//} );
+		//stage.outputScaleYProperty().addListener( (p,o,n) -> {
+		//	log.log( Log.WARN, "The window output scale Y changed to " + n );
+		//} );
+
+		// This worked, just not the way I expected. The UI was rendered at a lower
+		// resolution, but then just scaled back up so it looked fuzzy.
+		//stage.renderScaleXProperty().bind( stage.outputScaleXProperty().multiply( 0.5 ) );
+		//stage.renderScaleYProperty().bind( stage.outputScaleYProperty().multiply( 0.5 ) );
 	}
 
 	public void setTheme( String url ) {

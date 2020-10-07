@@ -188,6 +188,7 @@ jobs:
 
       - name: Compile
         run: |
+          gsettings set org.gnome.desktop.interface scaling-factor 2
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
 
       - name: Post Screenshots
