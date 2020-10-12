@@ -2,11 +2,6 @@ package com.avereon.xenon;
 
 import com.avereon.product.ProductBundle;
 import com.avereon.util.Log;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 
 import java.lang.System.Logger;
 import java.util.Map;
@@ -18,11 +13,8 @@ public class ActionLibrary {
 
 	private final Map<String, ActionProxy> actions;
 
-	private final EventHandler<KeyEvent> shortcutHandler;
-
 	public ActionLibrary( Program program ) {
 		this.actions = new ConcurrentHashMap<>();
-		shortcutHandler = this::handleEvent;
 
 		ProductBundle bundle = program.rb();
 
@@ -143,25 +135,6 @@ public class ActionLibrary {
 		if( "multi-state".equals( type ) ) addStates( bundle, id, proxy );
 
 		actions.put( id, proxy );
-	}
-
-	private void handleEvent( KeyEvent event ) {
-		for( ActionProxy proxy : actions.values() ) {
-			KeyCombination accelerator = proxy.getAccelerator();
-			if( accelerator != null && accelerator.match( event ) ) {
-				proxy.handle( new ActionEvent() );
-				if( proxy.isEnabled() ) event.consume();
-				break;
-			}
-		}
-	}
-
-	public void registerScene( Scene scene ) {
-		scene.addEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
-	}
-
-	public void unregisterScene( Scene scene ) {
-		scene.removeEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
 	private void addStates( ProductBundle bundle, String id, ActionProxy proxy ) {

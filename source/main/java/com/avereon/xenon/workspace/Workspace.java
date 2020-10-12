@@ -479,7 +479,6 @@ public class Workspace implements WritableIdentity {
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
 		scene = new Scene( workareaLayout, w, h );
-		getProgram().getActionLibrary().registerScene( scene );
 
 		// Setup the stage
 		stage.setScene( scene );
@@ -539,7 +538,6 @@ public class Workspace implements WritableIdentity {
 	}
 
 	public void close() {
-		getProgram().getActionLibrary().unregisterScene( scene );
 		memoryMonitor.close();
 		taskMonitor.close();
 		getStage().close();
