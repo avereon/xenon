@@ -24,7 +24,7 @@ public class StatusBar extends BorderPane {
 	}
 
 	public void addLeft( Node node ) {
-		leftStatusBarItems.getChildren().add( node );
+		if( !leftStatusBarItems.getChildren().contains( node ) ) leftStatusBarItems.getChildren().add( node );
 	}
 
 	public void removeLeft( Node node ) {
@@ -32,7 +32,7 @@ public class StatusBar extends BorderPane {
 	}
 
 	public void addRight( Node node ) {
-		rightStatusBarItems.getChildren().add( 0, node );
+		if( !rightStatusBarItems.getChildren().contains( node ) ) rightStatusBarItems.getChildren().add( 0, node );
 	}
 
 	public void removeRight( Node node ) {

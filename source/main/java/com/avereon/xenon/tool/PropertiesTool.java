@@ -13,6 +13,7 @@ import com.avereon.xenon.tool.settings.SettingsPanel;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.Fx;
+import javafx.scene.control.ScrollPane;
 
 /**
  * This tool listens for "show properties" and "hide properties" events that
@@ -22,9 +23,7 @@ public class PropertiesTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
-	//private SettingsPage page;
-
-	private String bundleKey;
+	private final ScrollPane scroller;
 
 	private SettingsPanel panel;
 
@@ -34,6 +33,9 @@ public class PropertiesTool extends ProgramTool {
 
 	public PropertiesTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		scroller = new ScrollPane();
+		scroller.setFitToWidth( true );
+		getChildren().addAll( scroller );
 		this.showHandler = e -> Fx.run( () -> showPage( e.getPage() ) );
 		this.hideHandler = e -> Fx.run( () -> hidePage( e.getPage() ) );
 	}
@@ -73,16 +75,14 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	private void showPage( SettingsPage page ) {
-		log.log( Log.INFO, "Show properties..." );
 		if( this.panel != null && this.panel.getPage() == page ) return;
 		if( this.panel != null ) getChildren().remove( this.panel );
-		getChildren().addAll( this.panel = new SettingsPanel( page ) );
+		scroller.setContent( this.panel = new SettingsPanel( page ) );
 	}
 
 	private void hidePage( SettingsPage page ) {
-		log.log( Log.INFO, "Hide properties..." );
 		if( this.panel != null && this.panel.getPage() != page ) return;
-		if( this.panel != null ) getChildren().remove( this.panel );
+		if( this.panel != null ) scroller.setContent( null );
 		this.panel = null;
 	}
 
