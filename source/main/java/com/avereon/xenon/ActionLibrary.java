@@ -117,12 +117,12 @@ public class ActionLibrary {
 		ActionProxy proxy = new ActionProxy();
 
 		// Create action proxy from resource bundle data
-		String icon = bundle.textOr( BundleKey.ACTION, id + ".icon", "" );
-		String name = bundle.textOr( BundleKey.ACTION, id + ".name", id );
-		String type = bundle.textOr( BundleKey.ACTION, id + ".type", null );
-		String mnemonic = bundle.textOr( BundleKey.ACTION, id + ".mnemonic", null );
-		String shortcut = bundle.textOr( BundleKey.ACTION, id + ".shortcut", null );
-		String description = bundle.textOr( BundleKey.ACTION, id + ".description", null );
+		String icon = bundle.textOr( BundleKey.ACTION, id + Action.ICON_SUFFIX, "" );
+		String name = bundle.textOr( BundleKey.ACTION, id + Action.NAME_SUFFIX, id );
+		String type = bundle.textOr( BundleKey.ACTION, id + Action.TYPE_SUFFIX, null );
+		String mnemonic = bundle.textOr( BundleKey.ACTION, id + Action.MNEMONIC_SUFFIX, null );
+		String shortcut = bundle.textOr( BundleKey.ACTION, id + Action.SHORTCUT_SUFFIX, null );
+		String description = bundle.textOr( BundleKey.ACTION, id + Action.DESCRIPTION_SUFFIX, null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );

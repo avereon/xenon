@@ -8,6 +8,8 @@ import javafx.event.ActionEvent;
 
 public class RunPauseAction extends Action {
 
+	private static final System.Logger log = Log.get();
+
 	private RunPauseResettable target;
 
 	public RunPauseAction( Program program, RunPauseResettable target ) {

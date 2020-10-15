@@ -7,7 +7,9 @@ import javafx.event.ActionEvent;
 
 public class RunnableTestAction extends Action {
 
-	private Runnable runnable;
+	private static final System.Logger log = Log.get();
+
+	private final Runnable runnable;
 
 	public RunnableTestAction( Program program, Runnable runnable ) {
 		super( program );

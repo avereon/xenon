@@ -9,9 +9,21 @@ import java.lang.System.Logger;
 
 public abstract class Action implements EventHandler<ActionEvent> {
 
-	protected static final Logger log = Log.get();
+	public static final String NAME_SUFFIX = ".name";
+
+	public static final String ICON_SUFFIX = ".icon";
+
+	public static final String TYPE_SUFFIX = ".type";
+
+	public static final String MNEMONIC_SUFFIX = ".mnemonic";
+
+	public static final String SHORTCUT_SUFFIX = ".shortcut";
+
+	public static final String DESCRIPTION_SUFFIX = ".description";
 
 	private static final ActionProxy NONE = new ActionProxy();
+
+	private static final Logger log = Log.get();
 
 	private final Program program;
 
@@ -58,7 +70,7 @@ public abstract class Action implements EventHandler<ActionEvent> {
 	 * @param id The state id
 	 */
 	public void setState( String id ) {
-		Fx.run( () ->  proxy.setState( id ) );
+		Fx.run( () -> proxy.setState( id ) );
 	}
 
 	void setActionProxy( ActionProxy proxy ) {
