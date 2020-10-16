@@ -104,11 +104,11 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		setCloseGraphic( product.getProgram().getIconLibrary().getIcon( "workarea-close" ) );
 	}
 
-	public ProgramProduct getProduct() {
+	public final ProgramProduct getProduct() {
 		return product;
 	}
 
-	public Program getProgram() {
+	public final Program getProgram() {
 		return product.getProgram();
 	}
 
