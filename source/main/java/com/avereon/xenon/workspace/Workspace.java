@@ -317,8 +317,8 @@ public class Workspace implements WritableIdentity {
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		statusBar.addRight( memoryMonitorContainer );
-		statusBar.addRight( taskMonitorContainer );
+		statusBar.addRightItems( memoryMonitorContainer );
+		statusBar.addRightItems( taskMonitorContainer );
 
 		return statusBar;
 	}
