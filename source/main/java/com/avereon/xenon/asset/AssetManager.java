@@ -1200,10 +1200,10 @@ public class AssetManager implements Controllable<AssetManager> {
 			ProgramTool tool;
 			try {
 				// If the asset is new get user input from the asset type.
-				//if( asset.isNew() ) {
-				if( !asset.getType().callAssetNew( program, asset ) ) return null;
-				log.log( Log.TRACE, "Asset initialized with user values." );
-				//}
+				if( asset.isNew() ) {
+					if( !asset.getType().callAssetNew( program, asset ) ) return null;
+					log.log( Log.TRACE, "Asset initialized with user values." );
+				}
 
 				tool = request.isOpenTool() ? program.getToolManager().openTool( request ) : null;
 			} catch( NoToolRegisteredException exception ) {
