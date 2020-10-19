@@ -1,14 +1,17 @@
 package com.avereon.xenon;
 
+import com.avereon.event.EventHandler;
 import com.avereon.product.ProductBundle;
 import com.avereon.settings.Settings;
 import com.avereon.skill.Identity;
 import com.avereon.skill.WritableIdentity;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workspace.Workspace;
 import com.avereon.zerra.javafx.Fx;
@@ -17,6 +20,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The ProgramTool is a {@link Tool} with added functionality for use with the
@@ -92,9 +97,15 @@ import java.util.Set;
  */
 public abstract class ProgramTool extends Tool implements WritableIdentity {
 
+	public static final int ASSET_READY_TIMEOUT = 10;
+
+	public static final int TOOL_READY_TIMEOUT = 2;
+
 	private static final System.Logger log = Log.get();
 
 	private final ProgramProduct product;
+
+	private boolean isReady;
 
 	public ProgramTool( ProgramProduct product, Asset asset ) {
 		super( asset );
@@ -164,9 +175,18 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	/**
+	 * Check if the tool is ready for use. Ready for use means that both the tool
+	 * and it's associated asset are initialized and loaded.
+	 *
+	 * @return True if ready for use, false otherwise.
+	 */
+	protected boolean isReady() {
+		return isReady;
+	}
+
+	/**
 	 * The tool and asset are ready.
 	 */
-	@SuppressWarnings( "RedundantThrows" )
 	protected void ready( OpenAssetRequest request ) throws ToolException {}
 
 	/**
@@ -178,7 +198,6 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	 *
 	 * @param request The request used to open the asset
 	 */
-	@SuppressWarnings( "RedundantThrows" )
 	protected void open( OpenAssetRequest request ) throws ToolException {}
 
 	protected void runTask( Runnable runnable ) {
@@ -209,6 +228,81 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 	protected void addStylesheet( String stylesheet ) {
 		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( stylesheet ) ).toExternalForm() );
+	}
+
+	void waitForReady( OpenAssetRequest request ) {
+		Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( this ) );
+		Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( getAsset() ) );
+
+		try {
+			toolLatch.get();
+			assetLatch.get();
+			Fx.run( () -> {
+				try {
+					isReady = true;
+					ready( request );
+					open( request );
+				} catch( ToolException exception ) {
+					log.log( Log.ERROR, exception );
+				}
+			} );
+		} catch( Exception exception ) {
+			log.log( Log.ERROR, exception );
+		}
+	}
+
+	private static class ToolAddedLatch extends Task<Void> {
+
+		private final CountDownLatch latch = new CountDownLatch( 1 );
+
+		private final ProgramTool tool;
+
+		public ToolAddedLatch( ProgramTool tool ) {
+			this.tool = tool;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
+			tool.addEventFilter( ToolEvent.ADDED, h );
+			try {
+				if( tool.getToolView() == null ) {
+					latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + tool );
+				}
+			} finally {
+				tool.removeEventFilter( ToolEvent.ADDED, h );
+			}
+			return null;
+		}
+
+	}
+
+	private static class AssetLoadedLatch extends Task<Void> {
+
+		private final CountDownLatch latch = new CountDownLatch( 1 );
+
+		private final Asset asset;
+
+		public AssetLoadedLatch( Asset asset ) {
+			this.asset = asset;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			EventHandler<AssetEvent> h = e -> latch.countDown();
+			asset.register( AssetEvent.LOADED, h );
+			try {
+				if( !asset.isLoaded() ) {
+					latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
+					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
+				}
+			} finally {
+				asset.unregister( AssetEvent.LOADED, h );
+			}
+			return null;
+		}
+
 	}
 
 }

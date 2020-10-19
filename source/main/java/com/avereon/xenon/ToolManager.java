@@ -1,19 +1,19 @@
 package com.avereon.xenon;
 
-import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.util.Controllable;
 import com.avereon.util.IdGenerator;
-import com.avereon.util.Log;
-import com.avereon.zerra.javafx.Fx;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskManager;
 import com.avereon.xenon.throwable.NoToolRegisteredException;
-import com.avereon.xenon.workpane.*;
+import com.avereon.xenon.workpane.Tool;
+import com.avereon.xenon.workpane.ToolEvent;
+import com.avereon.xenon.workpane.Workpane;
+import com.avereon.xenon.workpane.WorkpaneView;
+import com.avereon.zerra.javafx.Fx;
 import javafx.application.Platform;
 
 import java.lang.invoke.MethodHandles;
@@ -21,15 +21,14 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.Logger.Level.*;
 
 public class ToolManager implements Controllable<ToolManager> {
-
-	public static final int ASSET_READY_TIMEOUT = 10;
-
-	public static final int TOOL_READY_TIMEOUT = 2;
 
 	private static final System.Logger log = System.getLogger( MethodHandles.lookup().lookupClass().getName() );
 
@@ -148,7 +147,7 @@ public class ToolManager implements Controllable<ToolManager> {
 				program.getAssetManager().openAsset( dependency, true, false ).get();
 			}
 			return true;
-		} catch(InterruptedException ignored ) {
+		} catch( InterruptedException ignored ) {
 		} catch( ExecutionException exception ) {
 			log.log( ERROR, "Error opening tool dependencies: " + request.getToolClass().getName(), exception );
 		}
@@ -308,79 +307,7 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
 	private void scheduleAssetReady( OpenAssetRequest request, ProgramTool tool ) {
-		getProgram().getTaskManager().submit( Task.of( "wait for ready", () -> {
-			Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( tool ) );
-			Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( tool.getAsset() ) );
-
-			try {
-				toolLatch.get();
-				assetLatch.get();
-				Fx.run( () -> {
-					try {
-						tool.ready( request );
-						tool.open( request );
-					} catch( ToolException exception ) {
-						log.log( Log.ERROR, exception );
-					}
-				} );
-			} catch( Exception exception ) {
-				log.log( Log.ERROR, exception );
-			}
-		} ) );
-	}
-
-	private static class ToolAddedLatch extends Task<Void> {
-
-		private final CountDownLatch latch = new CountDownLatch( 1 );
-
-		private final ProgramTool tool;
-
-		public ToolAddedLatch( ProgramTool tool ) {
-			this.tool = tool;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
-			tool.addEventFilter( ToolEvent.ADDED, h );
-			try {
-				if( tool.getToolView() == null ) {
-					latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + tool );
-				}
-			} finally {
-				tool.removeEventFilter( ToolEvent.ADDED, h );
-			}
-			return null;
-		}
-
-	}
-
-	private static class AssetLoadedLatch extends Task<Void> {
-
-		private final CountDownLatch latch = new CountDownLatch( 1 );
-
-		private final Asset asset;
-
-		public AssetLoadedLatch( Asset asset ) {
-			this.asset = asset;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			EventHandler<AssetEvent> h = e -> latch.countDown();
-			asset.register( AssetEvent.LOADED, h );
-			try {
-				if( !asset.isLoaded() ) {
-					latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
-				}
-			} finally {
-				asset.unregister( AssetEvent.LOADED, h );
-			}
-			return null;
-		}
-
+		getProgram().getTaskManager().submit( Task.of( "wait for ready", () -> tool.waitForReady( request ) ) );
 	}
 
 }
