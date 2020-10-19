@@ -313,6 +313,16 @@ public abstract class Tool extends StackPane {
 	protected void deallocate() throws ToolException {}
 
 	/**
+	 * Determine if this tool is the the last tool of its type for the tool asset.
+	 *
+	 * @return True if this is the last tool of its type, false otherwise.
+	 */
+	protected boolean isLastTool() {
+		Asset asset = getAsset();
+		return getWorkpane().getTools( getClass() ).stream().filter( t -> t.getAsset() == asset ).count() == 1;
+	}
+
+	/**
 	 * Allocate the tool.
 	 *
 	 * @see #allocate
