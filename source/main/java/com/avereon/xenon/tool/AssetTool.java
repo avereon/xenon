@@ -14,7 +14,6 @@ import com.avereon.xenon.tool.guide.GuideNode;
 import com.avereon.xenon.tool.guide.GuidedTool;
 import com.avereon.xenon.workpane.ToolException;
 import com.avereon.zerra.javafx.Fx;
-import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -238,7 +237,7 @@ public class AssetTool extends GuidedTool {
 			currentIndex++;
 		}
 
-		FxUtil.assertFxThread();
+		Fx.assertFxThread();
 		uriField.setText( text );
 
 		try {
