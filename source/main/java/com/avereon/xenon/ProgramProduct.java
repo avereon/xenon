@@ -9,8 +9,8 @@ public interface ProgramProduct extends Product {
 
 	Program getProgram();
 
-	default <T> void task( String name, Callable<T> runnable ) {
-		getProgram().getTaskManager().submit( Task.of( name, runnable ) );
+	default <T> void task( String name, Callable<T> callable ) {
+		getProgram().getTaskManager().submit( Task.of( name, callable ) );
 	}
 
 }
