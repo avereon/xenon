@@ -61,12 +61,9 @@ public class Asset extends Node implements Configurable {
 
 	private static final Logger log = Log.get();
 
-	// Name is not stored in the node data, it is derived
-	//private String name;
+	private final FxEventHub eventBus;
 
-	private UndoScope undoScope;
-
-	private FxEventHub eventBus;
+	private final UndoScope undoScope;
 
 	private Settings settings;
 
