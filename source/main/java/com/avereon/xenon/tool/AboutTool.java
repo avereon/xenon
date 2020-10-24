@@ -140,6 +140,10 @@ public class AboutTool extends GuidedTool {
 		GuideNode detailsNode = new GuideNode( getProgram(), AboutTool.DETAILS, rb.text( "tool", "about-details" ), "about" );
 		GuideNode productsNode = new GuideNode( getProgram(), AboutTool.MODS, rb.text( "tool", "about-mods" ), "about" );
 
+		summaryNode.setOrder( 0 );
+		detailsNode.setOrder( 1 );
+		productsNode.setOrder( 2 );
+
 		guide.addNode( summaryNode );
 		guide.addNode( detailsNode );
 		guide.addNode( productsNode );

@@ -137,7 +137,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 
 		for( SettingsPage page : pages.values() ) {
 			ids.add( page.getId() );
-			ids.addAll( getPageIds( page.getPages()));
+			ids.addAll( getPageIds( page.getPages() ) );
 		}
 
 		return ids;
@@ -156,36 +156,25 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	}
 
 	private void createGuide( GuideNode node, Map<String, SettingsPage> pages ) {
-		// Create a map of the title keys except the general key, it gets special handling
-		Map<String, String> titledKeys = new HashMap<>();
-		for( SettingsPage page : pages.values() ) {
-			if( GENERAL.equals( page.getId() ) ) continue;
-			titledKeys.put( page.getTitle(), page.getId() );
-		}
-
-		// Create a sorted list of the titles other than General
-		List<String> titles = new ArrayList<>( titledKeys.keySet() );
-		Collections.sort( titles );
-
 		// Clear the guide nodes
 		guide.clear( node );
 
-		// Add the general node to the guide
-		addGuideNode( null, pages.get( GENERAL ) );
-
-		// Add the remaining nodes to the guide
-		for( String title : titles ) {
-			addGuideNode( node, pages.get( titledKeys.get( title ) ) );
+		for( SettingsPage page : pages.values() ) {
+			GuideNode pageNode = addGuideNode( node, pages.get( page.getId() ) );
+			int order = GENERAL.equals( page.getId() ) ? 0 : 1;
+			pageNode.setOrder( order );
 		}
 	}
 
-	private void addGuideNode( GuideNode parent, SettingsPage page ) {
-		if( page == null ) return;
+	private GuideNode addGuideNode( GuideNode parent, SettingsPage page ) {
+		if( page == null ) return null;
 
 		allSettingsPages.put( page.getId(), page );
 
 		GuideNode guideNode = guide.addNode( parent, new GuideNode( program, page.getId(), page.getTitle(), page.getIcon() ) );
 		createGuide( guideNode, page.getPages() );
+
+		return guideNode;
 	}
 
 	@Override
