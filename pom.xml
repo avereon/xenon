@@ -67,6 +67,9 @@
 		<!-- The folder used to set up the installer files -->
 		<product-pack-folder>pack/program</product-pack-folder>
 
+		<reactfx.version>2.0-M5</reactfx.version>
+		<undofx.version>2.1.0</undofx.version>
+
 		<!-- Version numbers updated 02 Jul 2020 -->
 		<!-- Runtime dependencies -->
 		<miglayout.version>5.2</miglayout.version>
@@ -129,6 +132,18 @@
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-web</artifactId>
 			<version>${openjfx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.reactfx</groupId>
+			<artifactId>reactfx</artifactId>
+			<version>${reactfx.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.fxmisc.undo</groupId>
+			<artifactId>undofx</artifactId>
+			<version>${undofx.version}</version>
 		</dependency>
 
 		<dependency>
@@ -424,6 +439,20 @@
 										<module>javafx.graphics</module>
 										<module>javafx.controls</module>
 										<module>miglayout.core</module>
+									</modules>
+								</jar>
+								<jar>
+									<name>reactfx*.jar</name>
+									<modules>
+										<module>javafx.base</module>
+										<module>javafx.graphics</module>
+										<module>javafx.controls</module>
+									</modules>
+								</jar>
+								<jar>
+									<name>undofx*.jar</name>
+									<modules>
+										<module>reactfx</module>
 									</modules>
 								</jar>
 							</jars>

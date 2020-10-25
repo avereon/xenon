@@ -4,14 +4,16 @@ import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.undo.BasicUndoScope;
-import com.avereon.undo.UndoScope;
 import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
-import com.avereon.zerra.event.FxEventHub;
 import com.avereon.xenon.scheme.NewScheme;
+import com.avereon.zerra.event.FxEventHub;
+import org.fxmisc.undo.UndoManager;
+import org.fxmisc.undo.UndoManagerFactory;
+import org.reactfx.EventSource;
+import org.reactfx.EventStream;
 
 import java.io.File;
 import java.lang.System.Logger;
@@ -19,6 +21,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Asset extends Node implements Configurable {
 
@@ -63,7 +66,7 @@ public class Asset extends Node implements Configurable {
 
 	private final FxEventHub eventBus;
 
-	private final UndoScope undoScope;
+	private final UndoManager undoManager;
 
 	private Settings settings;
 
@@ -99,7 +102,17 @@ public class Asset extends Node implements Configurable {
 		eventBus = new FxEventHub().parent( super.getEventHub() );
 
 		// Create the undo manager
-		undoScope = new BasicUndoScope();
+		EventStream<NodeChange> changes = new EventSource<>();
+		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( changes, c -> c.invert(c), c -> c.apply(c), ( c1, c2 ) -> c1.merge( c2, c2 ) );
+	}
+
+	public interface NodeChange {
+
+		NodeChange invert(NodeChange change);
+
+		void apply(NodeChange change);
+
+		Optional<NodeChange> merge( NodeChange c1, NodeChange c2 );
 	}
 
 	/**
@@ -207,8 +220,8 @@ public class Asset extends Node implements Configurable {
 		}
 	}
 
-	public UndoScope getUndoScope() {
-		return undoScope;
+	public UndoManager getUndoManager() {
+		return undoManager;
 	}
 
 	public boolean isExternallyModified() {
