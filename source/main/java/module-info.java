@@ -45,6 +45,7 @@ module com.avereon.xenon {
 	opens com.avereon.xenon.bundles;
 	opens com.avereon.xenon.product;
 	opens com.avereon.xenon.settings;
+	opens com.avereon.xenon.undo;
 
 	uses Mod;
 }
