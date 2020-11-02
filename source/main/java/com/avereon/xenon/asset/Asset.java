@@ -4,7 +4,6 @@ import com.avereon.data.Node;
 import com.avereon.data.NodeEvent;
 import com.avereon.settings.Settings;
 import com.avereon.transaction.TxnEvent;
-import com.avereon.util.Configurable;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
@@ -21,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
-public class Asset extends Node implements Configurable {
+public class Asset extends Node {
 
 	public static final Asset NONE = new Asset( java.net.URI.create( "program:none" ) );
 
@@ -387,14 +386,20 @@ public class Asset extends Node implements Configurable {
 		return scheme.getSize( this );
 	}
 
-	@Override
-	public void setSettings( Settings settings ) {
-		this.settings = settings;
-	}
-
-	@Override
+	/**
+	 * These settings are set by the {@link AssetManager}.
+	 *
+	 * @return The asset settings
+	 */
 	public Settings getSettings() {
 		return settings;
+	}
+
+	/**
+	 * These settings are set by the {@link AssetManager}.
+	 */
+	public void setSettings( Settings settings ) {
+		this.settings = settings;
 	}
 
 	@Override

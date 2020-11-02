@@ -131,6 +131,10 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		return Collections.unmodifiableSet( Collections.emptySet() );
 	}
 
+	public Settings getAssetSettings() {
+		return getAsset().getSettings();
+	}
+
 	public Settings getSettings() {
 		return getProgram().getSettingsManager().getSettings( ProgramSettings.TOOL, getUid() );
 	}
