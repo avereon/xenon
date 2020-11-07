@@ -296,6 +296,8 @@ public class Asset extends Node {
 		loaded = true;
 
 		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
+		manager.getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, this ) );
+
 		notifyAll();
 	}
 

@@ -1083,7 +1083,6 @@ public class AssetManager implements Controllable<AssetManager> {
 		boolean previouslyLoaded = asset.isLoaded();
 		asset.load( this );
 
-		getEventBus().dispatch( new AssetEvent( this, AssetEvent.LOADED, asset ) );
 		log.log( Log.TRACE, "Asset loaded: " + asset );
 
 		updateActionState();

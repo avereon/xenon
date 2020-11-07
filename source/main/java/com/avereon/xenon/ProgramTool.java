@@ -235,15 +235,15 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	void waitForReady( OpenAssetRequest request ) {
-		Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( this ) );
 		Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( getAsset() ) );
+		Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( this ) );
 
 		try {
-			toolLatch.get();
 			assetLatch.get();
+			toolLatch.get();
+			isReady = true;
 			Fx.run( () -> {
 				try {
-					isReady = true;
 					ready( request );
 					open( request );
 				} catch( ToolException exception ) {
@@ -294,15 +294,15 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 
 		@Override
 		public Void call() throws Exception {
-			EventHandler<AssetEvent> h = e -> latch.countDown();
-			asset.register( AssetEvent.LOADED, h );
+			EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
+			asset.register( AssetEvent.LOADED, assetLoadedHandler );
 			try {
 				if( !asset.isLoaded() ) {
 					latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
 					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
 				}
 			} finally {
-				asset.unregister( AssetEvent.LOADED, h );
+				asset.unregister( AssetEvent.LOADED, assetLoadedHandler );
 			}
 			return null;
 		}
