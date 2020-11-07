@@ -55,7 +55,7 @@ public class IconLibrary {
 		register( "pause", new PauseIcon() );
 
 		register( "setting", new SettingIcon() );
-		register( "settings", new PreferencesIcon() );
+		register( "settings", new GearIcon() );
 		register( "themes", new ThemeIcon() );
 		register( "options", new PreferencesIcon() );
 
