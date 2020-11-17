@@ -28,7 +28,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Build, Test, Jar and Javadoc
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
