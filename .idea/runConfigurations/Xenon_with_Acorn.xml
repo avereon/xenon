@@ -2,8 +2,8 @@
   <configuration default="false" name="Xenon with Acorn" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
-    <module name="acorn" />
-    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --enable-mod com.avereon.carta" />
+    <module name="acornmod" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --enable-mod com.avereon.acornmod" />
     <option name="VM_PARAMETERS" value="-Duser.language=es" />
     <extension name="coverage">
       <pattern>
