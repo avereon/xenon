@@ -29,17 +29,12 @@ import java.util.stream.Collectors;
 /**
  * The update manager handles discovery, staging and applying product updates.
  * <p>
- * Discovery involves checking for updates over the network (usually over the
- * Internet) and comparing the release information of installed packs with the
- * release information of the discovered packs. If the discovered pack is
- * determined to be newer than the installed pack it is considered an update.
+ * Discovery involves checking for updates over the network (usually over the Internet) and comparing the release information of installed packs with the release information of the discovered packs. If the discovered pack is determined to
+ * be newer than the installed pack it is considered an update.
  * <p>
- * Staging involves downloading new pack data and preparing it to be applied by
- * the update application.
+ * Staging involves downloading new pack data and preparing it to be applied by the update application.
  * <p>
- * Applying involves configuring and executing a separate update process to
- * apply the staged updates. This requires the calling process to terminate to
- * allow the update process to change required files.
+ * Applying involves configuring and executing a separate update process to apply the staged updates. This requires the calling process to terminate to allow the update process to change required files.
  */
 public class ProductManager implements Controllable<ProductManager>, Configurable {
 
@@ -243,12 +238,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 			lastAvailableProductCheck = System.currentTimeMillis();
 
 			try {
-				availableProducts = new ProductManagerLogic( getProgram() )
-					.getAvailableProducts( force )
-					.get()
-					.stream()
-					.filter( ( card ) -> "mod".equals( card.getPackaging() ) )
-					.collect( Collectors.toSet() );
+				availableProducts = new ProductManagerLogic( getProgram() ).getAvailableProducts( force ).get().stream().filter( ( card ) -> "mod".equals( card.getPackaging() ) ).collect( Collectors.toSet() );
 				return new HashSet<>( availableProducts );
 			} catch( Exception exception ) {
 				log.log( Log.ERROR, "Error getting available products", exception );
@@ -271,8 +261,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Get the product cards for the currently installed products including the
-	 * program and all mods.
+	 * Get the product cards for the currently installed products including the program and all mods.
 	 *
 	 * @return A new set of currently installed product cards
 	 */
@@ -504,8 +493,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Schedule the update check task according to the settings. This method may safely be called as many times as
-	 * necessary from any thread.
+	 * Schedule the update check task according to the settings. This method may safely be called as many times as necessary from any thread.
 	 *
 	 * @param startup True if the method is called at program start
 	 */
@@ -626,8 +614,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Gets the set of available product updates. If there are no posted updates
-	 * found an empty set is returned.
+	 * Gets the set of available product updates. If there are no posted updates found an empty set is returned.
 	 *
 	 * @return The set of available updates.
 	 */
@@ -680,8 +667,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Called when product updates have been staged and the collection of staged
-	 * updates needs to be updated.
+	 * Called when product updates have been staged and the collection of staged updates needs to be updated.
 	 *
 	 * @param updates The collection of product updates that were staged
 	 */
@@ -719,8 +705,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 	}
 
 	/**
-	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and,
-	 * if the update program is successfully started, the program should be terminated to allow for the updates to be
+	 * Launch the update program to apply the staged updates. This method is generally called when the program starts and, if the update program is successfully started, the program should be terminated to allow for the updates to be
 	 * applied.
 	 *
 	 * @return The number of updates applied.
@@ -1161,12 +1146,19 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		// Create the mod module layer
 		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), ModuleFinder.of( source ), Set.of() );
 		ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
+		ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
 
 		// Load the mods
-		try {
-			ServiceLoader.load( modLayer, Mod.class ).forEach( ( mod ) -> loadMod( mod, source ) );
-		} catch( Throwable throwable ) {
-			log.log( Log.ERROR, "Error loading standard mods: " + source, throwable );
+		if( loader.stream().findFirst().isEmpty() ) {
+			log.log( Log.ERROR, "Mod expected but not found at: " + source );
+		} else {
+			loader.forEach( ( mod ) -> {
+				try {
+					loadMod( mod, source );
+				} catch( Throwable throwable ) {
+					log.log( Log.ERROR, "Error loading standard mods: " + source, throwable );
+				}
+			} );
 		}
 	}
 
