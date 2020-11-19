@@ -982,9 +982,9 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 
 		// Look for standard mods (most common)
-		Arrays.stream( folders ).filter( ( f ) -> Files.exists( f ) ).filter( ( f ) -> Files.isDirectory( f ) ).forEach( ( folder ) -> {
+		Arrays.stream( folders ).filter( Files::exists ).filter( Files::isDirectory ).forEach( ( folder ) -> {
 			try {
-				Files.list( folder ).filter( ( path ) -> Files.isDirectory( path ) ).forEach( this::loadStandardMods );
+				Files.list( folder ).filter( Files::isDirectory ).forEach( this::loadStandardMod );
 			} catch( IOException exception ) {
 				log.log( Log.ERROR, "Error loading modules from: " + folder, exception );
 			}
@@ -1134,31 +1134,40 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 		}
 	}
 
-	private void loadStandardMods( Path source ) {
+	private void loadStandardMod( Path folder ) {
 		// In this context module refers to Java modules and mod refers to program mods
+		// It is expected that each folder has only one mod
 
-		log.log( Log.TRACE, "Loading standard mod from: " + source );
+		log.log( Log.TRACE, "Loading standard mod from: " + folder );
+		try {
+			// Load the mod descriptor
+			ProductCard card = ProductCard.card( folder );
 
-		// Obtain the boot module layer
-		ModuleLayer bootLayer = ModuleLayer.boot();
-		Configuration bootConfiguration = bootLayer.configuration();
+			// Obtain the boot module layer
+			ModuleLayer bootLayer = ModuleLayer.boot();
+			Configuration bootConfiguration = bootLayer.configuration();
 
-		// Create the mod module layer
-		Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), ModuleFinder.of( source ), Set.of() );
-		ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
-		ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
+			String modVersion = card.getPackagingVersion();
+			log.log( Log.DEBUG, "Mod version: " + modVersion );
 
-		// Load the mods
-		if( loader.stream().findFirst().isEmpty() ) {
-			log.log( Log.ERROR, "Mod expected but not found at: " + source );
-		} else {
-			loader.forEach( ( mod ) -> {
-				try {
-					loadMod( mod, source );
-				} catch( Throwable throwable ) {
-					log.log( Log.ERROR, "Error loading standard mods: " + source, throwable );
-				}
+			ModuleFinder finder = ModuleFinder.of( folder );
+			if( "2".equals( modVersion ) ) {
+				finder = ModuleFinder.of( Files.list( folder ).filter( f -> f.getFileName().toString().endsWith( ".jar" ) ).distinct().toArray( Path[]::new ) );
+			}
+
+			// Create the mod module layer
+			Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), finder, Set.of() );
+			ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
+			ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
+
+			// Load the mod
+			loader.stream().findFirst().ifPresentOrElse( m -> {
+				loadMod( m.get(), folder );
+			}, () -> {
+				log.log( Log.ERROR, "Standard mod expected: " + folder );
 			} );
+		} catch( Throwable throwable ) {
+			log.log( Log.ERROR, "Error loading standard mods: " + folder, throwable );
 		}
 	}
 
