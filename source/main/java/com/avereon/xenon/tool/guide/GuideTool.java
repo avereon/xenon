@@ -341,7 +341,7 @@ public class GuideTool extends ProgramTool {
 			Tool tool = event.getTool();
 			if( tool instanceof GuideTool ) return;
 			if( tool instanceof GuidedTool ) {
-				log.log( Log.DEBUG, "show guide: " + event.getTool().getClass().getName() );
+				log.log( Log.TRACE, "show guide: " + event.getTool().getClass().getName() );
 				setGuideContext( ((GuidedTool)tool).getGuideContext() );
 			} else {
 				setGuide( null );
