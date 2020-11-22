@@ -207,7 +207,7 @@ public class Asset extends Node {
 		}
 	}
 
-	public UndoManager getUndoManager() {
+	public UndoManager<NodeChange> getUndoManager() {
 		return undoManager;
 	}
 
