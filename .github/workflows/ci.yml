@@ -6,7 +6,8 @@ on:
       - master
       - stable
   schedule:
-    - cron: '0 12 1 * *'
+    # Noon Saturday UTC
+    - cron: '0 12 * * 6'
 
 env:
   AVN_PRODUCT: "xenon"
@@ -245,9 +246,9 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-#      - name: UI Tests
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} -P testui verify
+      #      - name: UI Tests
+      #        run: |
+      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -258,9 +259,9 @@ jobs:
           scp -B target/jpackage/*.deb ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.deb 2>&1
       #    scp -B target/jpackage/*.rpm ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-#      - name: Post Install Pack (izpack)
-#        run: |
-#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      #      - name: Post Install Pack (izpack)
+      #        run: |
+      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
       - name: Post Product Pack
         run: |
@@ -318,9 +319,9 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-#      - name: UI Tests
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} -P testui verify
+      #      - name: UI Tests
+      #        run: |
+      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -331,9 +332,9 @@ jobs:
           scp -B target/jpackage/*.dmg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.dmg 2>&1
       #    scp -B target/jpackage/*.pkg ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-#      - name: Post Install Pack (izpack)
-#        run: |
-#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      #      - name: Post Install Pack (izpack)
+      #        run: |
+      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
       - name: Post Product Pack
         run: |
@@ -392,9 +393,9 @@ jobs:
         run: |
           mvn ${{env.MAVEN_PARMS}} test
 
-#      - name: UI Tests
-#        run: |
-#          mvn ${{env.MAVEN_PARMS}} -P testui verify
+      #      - name: UI Tests
+      #        run: |
+      #          mvn ${{env.MAVEN_PARMS}} -P testui verify
 
       - name: Build Assemblies
         run: |
@@ -406,10 +407,10 @@ jobs:
           scp -B target/jpackage/*.exe ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.exe 2>&1
       #    scp -B target/jpackage/*.msi ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM} 2>&1
 
-#      - name: Post Install Pack (izpack)
-#        shell: bash
-#        run: |
-#          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
+      #      - name: Post Install Pack (izpack)
+      #        shell: bash
+      #        run: |
+      #          scp -B target/*install.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH}/${AVN_PLATFORM}/install.jar 2>&1
 
       - name: Post Product Pack
         shell: bash
