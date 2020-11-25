@@ -298,6 +298,9 @@ public class TaskManager implements Controllable<TaskManager> {
 				Task<?> task = (Task<?>)runnable;
 				taskQueue.remove( task );
 				taskMap.remove( task );
+
+				// TODO submit the next task in the chain
+				//task.getChain();
 			}
 		}
 

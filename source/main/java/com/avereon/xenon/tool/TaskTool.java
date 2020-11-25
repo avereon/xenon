@@ -9,6 +9,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.NewTaskChain;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.zerra.javafx.Fx;
@@ -26,10 +27,14 @@ import org.tbee.javafx.scene.layout.MigPane;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
 
 public class TaskTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
+
+	// The delay between progress checks ~ 1000ms / 120hz;
+	private static final long DELAY = 1000 / 120;
 
 	private final Set<Task<?>> tasks;
 
@@ -49,10 +54,16 @@ public class TaskTool extends ProgramTool {
 		Button failTask = new Button( "Fail Task" );
 		failTask.setOnAction( ( event ) -> startRandomTask( true ) );
 
+		Button testChain = new Button( "Test Chain" );
+		testChain.setOnAction( ( event ) -> startTaskChain( false ) );
+
+		Button failChain = new Button( "Fail Chain" );
+		failChain.setOnAction( ( event ) -> startTaskChain( true ) );
+
 		ScrollPane scroller = new ScrollPane( taskPanes = new VBox() );
 		scroller.setFitToWidth( true );
 
-		HBox buttonBox = new HBox( UiFactory.PAD, testTask, failTask );
+		HBox buttonBox = new HBox( UiFactory.PAD, testTask, failTask, testChain, failChain );
 		buttonBox.setAlignment( Pos.CENTER );
 
 		BorderPane layoutPane = new BorderPane();
@@ -103,6 +114,48 @@ public class TaskTool extends ProgramTool {
 		getProgram().getTaskManager().submit( new RandomTask( duration, fail ) );
 	}
 
+	private void startTaskChain( boolean fail ) {
+		int index = 0;
+		Task<Integer> result = new NewTaskChain<Integer>()
+				.link("Task " + index++, (i) -> increment( i, false ) )
+				.link("Task " + index++, (i) -> increment( i, false ) )
+				.link("Task " + index++, (i) -> increment( i, false ) )
+				.link("Task " + index++, (i) -> increment( i, false ) )
+				.link("Task " + index++, (i) -> increment( i, false ) )
+				.run( getProgram() );
+
+		getProgram().getTaskManager().submit( Task.of( "Task Chain Result", () -> {
+			try {
+				System.out.println( "task result=" + result.get() );
+			} catch( InterruptedException e ) {
+				e.printStackTrace();
+			} catch( ExecutionException e ) {
+				e.printStackTrace();
+			}
+		} )  );
+	}
+
+	private int increment( Integer start, boolean fail ) {
+		if( start == null ) start = 0;
+
+		log.log( Log.WARN, "Task start value=" + start );
+
+		Random random = new Random();
+		long duration = 1000 + (long)(7000 * random.nextDouble());
+
+		long time = 0;
+		while( !Thread.currentThread().isInterrupted() && time < duration ) {
+			ThreadUtil.pause( DELAY );
+			time += DELAY;
+		}
+
+		log.log( Log.WARN, "Task complete " + duration );
+
+		if( fail ) throw new RuntimeException( "Random task failure" );
+
+		return ++start;
+	}
+
 	private class TaskPane extends MigPane {
 
 		private final Task<?> task;
@@ -135,9 +188,6 @@ public class TaskTool extends ProgramTool {
 
 	private static class RandomTask extends Task<Void> {
 
-		// The delay between progress checks ~ 1000ms / 120hz;
-		private static final long DELAY = 1000 / 120;
-
 		private final boolean fail;
 
 		private RandomTask( long duration, boolean fail ) {
@@ -150,7 +200,7 @@ public class TaskTool extends ProgramTool {
 		public Void call() {
 			long time = 0;
 
-			while( time < getTotal() ) {
+			while( !Thread.currentThread().isInterrupted() && time < getTotal() ) {
 				ThreadUtil.pause( DELAY );
 				time += DELAY;
 				setProgress( time );
