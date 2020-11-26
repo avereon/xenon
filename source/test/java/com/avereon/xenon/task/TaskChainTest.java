@@ -1,8 +1,6 @@
-package com.avereon.xenon.task.chain;
+package com.avereon.xenon.task;
 
 import com.avereon.xenon.ProgramTestCase;
-import com.avereon.xenon.task.Task;
-import com.avereon.xenon.task.TaskException;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -17,8 +15,8 @@ class TaskChainTest extends ProgramTestCase {
 	void testInitWithSupplier() throws Exception {
 		int value = 7;
 
-		TaskChain<Integer> chain = TaskChain.init( () -> value );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		NewTaskChain<Integer> chain = NewTaskChain.of( () -> value );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( value ) );
@@ -29,8 +27,8 @@ class TaskChainTest extends ProgramTestCase {
 	void testInitWithFunction() throws Exception {
 		int value = 8;
 
-		TaskChain<Integer> chain = TaskChain.init( ( v ) -> inc( value ) );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		NewTaskChain<Integer> chain = NewTaskChain.of( ( v ) -> inc( value ) );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( value + 1 ) );
@@ -39,7 +37,7 @@ class TaskChainTest extends ProgramTestCase {
 
 	@Test
 	void testInitWithTask() throws Exception {
-		TaskChain<Integer> chain = TaskChain.init( new Task<>() {
+		NewTaskChain<Integer> chain = NewTaskChain.of( new Task<>() {
 
 			@Override
 			public Integer call() {
@@ -47,7 +45,7 @@ class TaskChainTest extends ProgramTestCase {
 			}
 
 		} );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 1 ) );
@@ -56,8 +54,8 @@ class TaskChainTest extends ProgramTestCase {
 
 	@Test
 	void testLinkWithSupplier() throws Exception {
-		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( () -> 1 ).link( () -> 2 );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		NewTaskChain<Integer> chain = NewTaskChain.of( () -> 0 ).link( () -> 1 ).link( () -> 2 );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 2 ) );
@@ -66,14 +64,14 @@ class TaskChainTest extends ProgramTestCase {
 
 	@Test
 	void testLinkWithFunction() throws Exception {
-		TaskChain<Integer> chain = TaskChain
-			.init( () -> 0 )
+		NewTaskChain<Integer> chain = NewTaskChain
+			.of( () -> 0 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 5 ) );
@@ -82,7 +80,7 @@ class TaskChainTest extends ProgramTestCase {
 
 	@Test
 	void testLinkWithTask() throws Exception {
-		TaskChain<Integer> chain = TaskChain.init( () -> 0 ).link( new Task<>() {
+		NewTaskChain<Integer> chain = NewTaskChain.of( () -> 0 ).link( new Task<>() {
 
 			@Override
 			public Integer call() {
@@ -90,7 +88,7 @@ class TaskChainTest extends ProgramTestCase {
 			}
 
 		} );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 3 ) );
@@ -99,14 +97,14 @@ class TaskChainTest extends ProgramTestCase {
 
 	@Test
 	void testEncapsulatedChain() throws Exception {
-		TaskChain<Integer> chain = TaskChain
-			.init( this::count )
+		NewTaskChain<Integer> chain = NewTaskChain
+			.of( this::count )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 );
-		assertThat( chain.build().getState(), is( Task.State.READY ) );
+		assertThat( chain.getFinalTask().getState(), is( Task.State.READY ) );
 
 		Task<Integer> task = chain.run( program );
 		assertThat( task.get(), is( 10 ) );
@@ -116,7 +114,7 @@ class TaskChainTest extends ProgramTestCase {
 	@Test
 	void testExceptionCascade() throws Exception {
 		RuntimeException expected = new RuntimeException();
-		Task<Integer> task = TaskChain.init( () -> 0 ).link( this::inc ).link( this::inc ).link( ( i ) -> {
+		Task<Integer> task = NewTaskChain.of( () -> 0 ).link( this::inc ).link( this::inc ).link( ( i ) -> {
 			if( i != 0 ) throw expected;
 			return 0;
 		} ).link( this::inc ).link( this::inc ).run( program );
@@ -136,8 +134,8 @@ class TaskChainTest extends ProgramTestCase {
 	}
 
 	private Integer count() throws ExecutionException, InterruptedException {
-		return TaskChain
-			.init( () -> 0 )
+		return NewTaskChain
+			.of( () -> 0 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )
 			.link( ( i ) -> i + 1 )

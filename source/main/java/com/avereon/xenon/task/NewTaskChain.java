@@ -10,6 +10,26 @@ public class NewTaskChain<T> {
 
 	private TaskManager taskManager;
 
+	public static <R> NewTaskChain<R> of( Task<R> task ) {
+		return new NewTaskChain<R>().link( task );
+	}
+
+	public static <R> NewTaskChain<R> of( ThrowingSupplier<R> supplier ) {
+		return new NewTaskChain<R>().link( supplier );
+	}
+
+	public static <T, R> NewTaskChain<T> of( ThrowingFunction<T, R> function ) {
+		return new NewTaskChain<T>().link( function );
+	}
+
+	public static <R> NewTaskChain<R> of( String name, ThrowingSupplier<R> supplier ) {
+		return new NewTaskChain<R>().link( name, supplier );
+	}
+
+	public static <T, R> NewTaskChain<T> of( String name, ThrowingFunction<T, R> function ) {
+		return new NewTaskChain<T>().link( name, function );
+	}
+
 	public <R> NewTaskChain<T> link( Task<R> task ) {
 		return link( new LinkTask<Void, R>( task ) );
 	}
@@ -28,6 +48,11 @@ public class NewTaskChain<T> {
 
 	public <R> NewTaskChain<T> link( String name, ThrowingFunction<T, R> function ) {
 		return link( new LinkTask<T, R>( new FunctionTask<>( name, function ) ) );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public Task<T> getFinalTask() {
+		return (Task<T>)prior;
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -95,7 +120,7 @@ public class NewTaskChain<T> {
 			taskManager.submit( next );
 		}
 
-		private V failure() throws Exception {
+		private V failure( Exception priorException ) throws Exception {
 			if( next == null ) throw priorException;
 			next.setPriorException( priorException );
 			taskManager.submit( next );
@@ -110,7 +135,7 @@ public class NewTaskChain<T> {
 		@Override
 		public V call() throws Exception {
 			// If there was a prior exception cascade the exception down the chain
-			if( priorException != null ) return failure();
+			if( priorException != null ) return failure( priorException );
 
 			try {
 				if( task instanceof FunctionTask ) setParameter();
@@ -118,7 +143,7 @@ public class NewTaskChain<T> {
 				if( !isCancelled() ) proceed( result );
 				return result;
 			} catch( Exception throwable ) {
-				return failure();
+				return failure( throwable );
 			}
 
 		}

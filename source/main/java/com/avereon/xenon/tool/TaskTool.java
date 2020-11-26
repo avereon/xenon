@@ -116,13 +116,13 @@ public class TaskTool extends ProgramTool {
 
 	private void startTaskChain( boolean fail ) {
 		int index = 0;
-		Task<Integer> result = new NewTaskChain<Integer>()
-				.link("Task " + index++, (i) -> increment( i, false ) )
-				.link("Task " + index++, (i) -> increment( i, false ) )
-				.link("Task " + index++, (i) -> increment( i, false ) )
-				.link("Task " + index++, (i) -> increment( i, false ) )
-				.link("Task " + index++, (i) -> increment( i, false ) )
-				.run( getProgram() );
+		Task<Integer> result = NewTaskChain
+			.of( "Task " + index++, () -> 0 )
+			.link( "Task " + index++, ( i ) -> increment( i, false ) )
+			.link( "Task " + index++, ( i ) -> increment( i, false ) )
+			.link( "Task " + index++, ( i ) -> increment( i, false ) )
+			.link( "Task " + index++, ( i ) -> increment( i, false ) )
+			.run( getProgram() );
 
 		getProgram().getTaskManager().submit( Task.of( "Task Chain Result", () -> {
 			try {
@@ -132,7 +132,7 @@ public class TaskTool extends ProgramTool {
 			} catch( ExecutionException e ) {
 				e.printStackTrace();
 			}
-		} )  );
+		} ) );
 	}
 
 	private int increment( Integer start, boolean fail ) {
