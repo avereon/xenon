@@ -6,6 +6,7 @@ import com.avereon.xenon.task.ThrowingFunction;
 import com.avereon.xenon.task.ThrowingSupplier;
 import com.avereon.xenon.util.Asynchronous;
 
+@Deprecated
 public class TaskChain<RESULT> {
 
 	private TaskChain<?> first;

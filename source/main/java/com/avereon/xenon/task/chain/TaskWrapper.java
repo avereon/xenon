@@ -3,6 +3,7 @@ package com.avereon.xenon.task.chain;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.task.Task;
 
+@Deprecated
 class TaskWrapper<P, R> extends Task<R> {
 
 	private Program program;

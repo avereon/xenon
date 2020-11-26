@@ -2,6 +2,7 @@ package com.avereon.xenon.task.chain;
 
 import com.avereon.xenon.task.ThrowingSupplier;
 
+@Deprecated
 class SupplierTask<R> extends TaskChainTask<R> {
 
 	private ThrowingSupplier<R> supplier;

@@ -2,6 +2,7 @@ package com.avereon.xenon.task.chain;
 
 import com.avereon.xenon.task.ThrowingFunction;
 
+@Deprecated
 class FunctionTask<P, R> extends TaskChainTask<R> {
 
 	private P parameter;
