@@ -292,7 +292,7 @@ public abstract class Task<R> extends FutureTask<R> implements Callable<R> {
 		}
 	}
 
-	private TaskManager getTaskManager() {
+	protected TaskManager getTaskManager() {
 		return manager;
 	}
 

@@ -9,9 +9,9 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
-import com.avereon.xenon.task.NewTaskChain;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
+import com.avereon.xenon.task.TaskChain;
 import com.avereon.zerra.javafx.Fx;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,7 +27,6 @@ import org.tbee.javafx.scene.layout.MigPane;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
 
 public class TaskTool extends ProgramTool {
 
@@ -116,23 +115,27 @@ public class TaskTool extends ProgramTool {
 
 	private void startTaskChain( boolean fail ) {
 		int index = 0;
-		Task<Integer> result = NewTaskChain
+		Task<Integer> result = TaskChain
 			.of( "Task " + index++, () -> 0 )
 			.link( "Task " + index++, ( i ) -> increment( i, false ) )
 			.link( "Task " + index++, ( i ) -> increment( i, false ) )
 			.link( "Task " + index++, ( i ) -> increment( i, false ) )
 			.link( "Task " + index++, ( i ) -> increment( i, false ) )
+			.link( "Result", ( i ) -> {
+				System.out.println( "task result=" + i );
+				return i;
+			} )
 			.run( getProgram() );
 
-		getProgram().getTaskManager().submit( Task.of( "Task Chain Result", () -> {
-			try {
-				System.out.println( "task result=" + result.get() );
-			} catch( InterruptedException e ) {
-				e.printStackTrace();
-			} catch( ExecutionException e ) {
-				e.printStackTrace();
-			}
-		} ) );
+		//		getProgram().getTaskManager().submit( Task.of( "Task Chain Result", () -> {
+		//			try {
+		//				System.out.println( "task result=" + result.get() );
+		//			} catch( InterruptedException e ) {
+		//				e.printStackTrace();
+		//			} catch( ExecutionException e ) {
+		//				e.printStackTrace();
+		//			}
+		//		} ) );
 	}
 
 	private int increment( Integer start, boolean fail ) {

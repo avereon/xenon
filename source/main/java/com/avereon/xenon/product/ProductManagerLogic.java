@@ -11,7 +11,7 @@ import com.avereon.xenon.asset.type.ProgramProductType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.task.chain.TaskChain;
+import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.tool.product.ProductTool;
 import com.avereon.xenon.util.Asynchronous;
 import com.avereon.xenon.util.DialogUtil;
@@ -70,7 +70,7 @@ public class ProductManagerLogic {
 		// TODO The force parameter just means to refresh the cache
 
 		return TaskChain
-			.init( this::startEnabledCatalogCardDownloads )
+			.of( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
 			.link( this::startAllProductCardDownloadTasks )
 			.link( this::collectProductCardDownloads )
@@ -115,7 +115,7 @@ public class ProductManagerLogic {
 	@Asynchronous
 	Task<Collection<ProductUpdate>> stageAndApplyUpdates( Set<DownloadRequest> requests, boolean interactive ) {
 		return TaskChain
-			.init( () -> startResourceDownloads( requests ) )
+			.of( () -> startResourceDownloads( requests ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( this::stageProductUpdates )
@@ -128,7 +128,7 @@ public class ProductManagerLogic {
 		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-install-selected" );
 
 		return TaskChain
-			.init( () -> startResourceDownloads( requests ) )
+			.of( () -> startResourceDownloads( requests ) )
 			.link( this::startProductResourceCollectors )
 			.link( this::collectProductUpdates )
 			.link( name, this::installProductUpdates )
@@ -140,7 +140,7 @@ public class ProductManagerLogic {
 		String name = getProgram().rb().text( BundleKey.UPDATE, "task-products-uninstall-selected" );
 
 		return TaskChain
-			.init( () -> doUninstallProducts( products ) )
+			.of( () -> doUninstallProducts( products ) )
 			.link( name, ( removedProducts ) -> getProgram().getProductManager().saveRemovedProducts( removedProducts ) )
 			.run( getProgram() );
 	}
@@ -148,7 +148,7 @@ public class ProductManagerLogic {
 	private TaskChain<Set<ProductCard>> createFindPostedUpdatesChain( boolean force ) {
 		Map<String, ProductCard> installedProducts = getProgram().getProductManager().getInstalledProductCardsMap();
 		return TaskChain
-			.init( () -> initFindPostedUpdates( force ) )
+			.of( () -> initFindPostedUpdates( force ) )
 			.link( this::startEnabledCatalogCardDownloads )
 			.link( this::collectCatalogCardDownloads )
 			.link( ( catalogs ) -> startSelectedProductCardDownloadTasks( catalogs, installedProducts.values() ) )
@@ -322,7 +322,7 @@ public class ProductManagerLogic {
 	private void stageUpdates( Set<DownloadRequest> updates ) {
 		try {
 			TaskChain
-				.init( () -> startResourceDownloads( updates ) )
+				.of( () -> startResourceDownloads( updates ) )
 				.link( this::startProductResourceCollectors )
 				.link( this::collectProductUpdates )
 				.link( this::stageProductUpdates )
