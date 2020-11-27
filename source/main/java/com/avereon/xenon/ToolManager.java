@@ -135,7 +135,7 @@ public class ToolManager implements Controllable<ToolManager> {
 		final Workpane finalPane = pane;
 		final ProgramTool finalTool = tool;
 		final WorkpaneView finalView = view;
-		scheduleAssetReady( request, finalTool );
+		scheduleWaitForReady( request, finalTool );
 		Fx.run( () -> finalPane.openTool( finalTool, finalView, placementOverride, request.isSetActive() ) );
 
 		return tool;
@@ -185,7 +185,7 @@ public class ToolManager implements Controllable<ToolManager> {
 
 		try {
 			ProgramTool tool = getToolInstance( request );
-			scheduleAssetReady( request, tool );
+			scheduleWaitForReady( request, tool );
 			return tool;
 		} catch( Exception exception ) {
 			log.log( ERROR, "Error creating tool: " + request.getToolClass().getName(), exception );
@@ -306,8 +306,8 @@ public class ToolManager implements Controllable<ToolManager> {
 	 * @param request The open tool request object
 	 * @param tool The tool that should be notified when the asset is ready
 	 */
-	private void scheduleAssetReady( OpenAssetRequest request, ProgramTool tool ) {
-		getProgram().getTaskManager().submit( Task.of( "wait for ready", () -> tool.waitForReady( request ) ) );
+	private void scheduleWaitForReady( OpenAssetRequest request, ProgramTool tool ) {
+		tool.waitForReady( request );
 	}
 
 }

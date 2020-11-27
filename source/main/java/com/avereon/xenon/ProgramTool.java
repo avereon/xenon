@@ -10,6 +10,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetEvent;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskChain;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.ToolException;
@@ -235,78 +236,57 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	void waitForReady( OpenAssetRequest request ) {
-		Task<Void> assetLatch = getProgram().getTaskManager().submit( new AssetLoadedLatch( getAsset() ) );
-		Task<Void> toolLatch = getProgram().getTaskManager().submit( new ToolAddedLatch( this ) );
+		TaskChain.of( "wait for ready", () -> {
+			waitForTool();
+			return null;
+		}).link( () -> {
+			waitForAsset( getAsset() );
+			return null;
+		}).link( () -> {
+			callToolReady( request );
+			return null;
+		}).run( getProgram() );
+	}
+
+	private void waitForTool() throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch( 1 );
+		javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
 
 		try {
-			assetLatch.get();
-			toolLatch.get();
-			isReady = true;
-			Fx.run( () -> {
-				try {
-					ready( request );
-					open( request );
-				} catch( ToolException exception ) {
-					log.log( Log.ERROR, exception );
-				}
-			} );
-		} catch( Exception exception ) {
-			log.log( Log.ERROR, exception );
+			addEventFilter( ToolEvent.ADDED, h );
+			if( getToolView() == null ) {
+				latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
+				if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + this );
+			}
+		} finally {
+			removeEventFilter( ToolEvent.ADDED, h );
 		}
 	}
 
-	private static class ToolAddedLatch extends Task<Void> {
-
-		private final CountDownLatch latch = new CountDownLatch( 1 );
-
-		private final ProgramTool tool;
-
-		public ToolAddedLatch( ProgramTool tool ) {
-			this.tool = tool;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			javafx.event.EventHandler<ToolEvent> h = e -> latch.countDown();
-			tool.addEventFilter( ToolEvent.ADDED, h );
-			try {
-				if( tool.getToolView() == null ) {
-					latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + tool );
-				}
-			} finally {
-				tool.removeEventFilter( ToolEvent.ADDED, h );
+	private void waitForAsset( Asset asset ) throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch( 1 );
+		EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
+		asset.register( AssetEvent.LOADED, assetLoadedHandler );
+		try {
+			if( !asset.isLoaded() ) {
+				latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
+				if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
 			}
-			return null;
+		} finally {
+			asset.unregister( AssetEvent.LOADED, assetLoadedHandler );
 		}
-
 	}
 
-	private static class AssetLoadedLatch extends Task<Void> {
-
-		private final CountDownLatch latch = new CountDownLatch( 1 );
-
-		private final Asset asset;
-
-		public AssetLoadedLatch( Asset asset ) {
-			this.asset = asset;
-		}
-
-		@Override
-		public Void call() throws Exception {
-			EventHandler<AssetEvent> assetLoadedHandler = e -> latch.countDown();
-			asset.register( AssetEvent.LOADED, assetLoadedHandler );
+	private void callToolReady( OpenAssetRequest request ) {
+		isReady = true;
+		Fx.run( () -> {
 			try {
-				if( !asset.isLoaded() ) {
-					latch.await( ASSET_READY_TIMEOUT, TimeUnit.SECONDS );
-					if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for asset to load: " + asset );
-				}
-			} finally {
-				asset.unregister( AssetEvent.LOADED, assetLoadedHandler );
+				ready( request );
+				open( request );
+			} catch( ToolException exception ) {
+				log.log( Log.ERROR, exception );
 			}
-			return null;
-		}
-
+		} );
 	}
 
 }

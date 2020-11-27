@@ -14,6 +14,14 @@ public class TaskChain<RESULT> {
 		this.task = task;
 	}
 
+	public static <R> TaskChain<R> of( TaskChainRunnable runnable ) {
+		return of( new RunnableTask<>( runnable ) );
+	}
+
+	public static <R> TaskChain<R> of( String name, TaskChainRunnable runnable ) {
+		return of( new RunnableTask<>( name, runnable ) );
+	}
+
 	public static <R> TaskChain<R> of( TaskChainSupplier<R> supplier ) {
 		return of( new SupplierTask<>( supplier ) );
 	}
@@ -162,6 +170,27 @@ public class TaskChain<RESULT> {
 
 		private void setPriorException( Exception priorException ) {
 			this.priorException = priorException;
+		}
+
+	}
+
+	private static class RunnableTask<R> extends Task<R> {
+
+		private final TaskChainRunnable runnable;
+
+		public RunnableTask( TaskChainRunnable runnable ) {
+			this( null, runnable );
+		}
+
+		public RunnableTask( String name, TaskChainRunnable runnable ) {
+			super( name );
+			this.runnable = runnable;
+		}
+
+		@Override
+		public R call() throws Exception {
+			runnable.run();
+			return null;
 		}
 
 	}
