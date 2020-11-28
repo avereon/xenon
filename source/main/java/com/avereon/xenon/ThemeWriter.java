@@ -199,7 +199,7 @@ public class ThemeWriter {
 	 * @param printer The print writer
 	 */
 	private void printExWorkareaTintColor( PrintWriter printer ) {
-		printer.println( "  -ex-workspace-tint-color: " + format( base.deriveColor( 0, 1, 1, 0.4 ) ) + ";" );
+		printer.println( "  -ex-workspace-tint-color: " + format( base.deriveColor( 0, 1, 1, 0.9 ) ) + ";" );
 	}
 
 	private void printExWorkareaDropHintColor( PrintWriter printer ) {
