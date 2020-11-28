@@ -145,6 +145,7 @@ public class ActionLibrary {
 		actions.put( id, proxy );
 	}
 
+	// This handler is to capture key combinations for actions that are not in menus or toolbars
 	private void handleEvent( KeyEvent event ) {
 		for( ActionProxy proxy : actions.values() ) {
 			KeyCombination accelerator = proxy.getAccelerator();
