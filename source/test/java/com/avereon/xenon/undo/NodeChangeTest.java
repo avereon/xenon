@@ -27,6 +27,9 @@ public class NodeChangeTest {
 		this.child = new Node();
 		this.child.addModifyingKeys( "c" );
 		this.node.setValue( "child", child );
+
+		// Enable undo change capture
+		this.node.setValue( NodeChange.CAPTURE_UNDO_CHANGES, true );
 		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( node ), NodeChange::invert, NodeChange::apply );
 	}
 
