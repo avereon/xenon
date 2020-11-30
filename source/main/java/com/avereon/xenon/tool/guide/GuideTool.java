@@ -197,9 +197,7 @@ public class GuideTool extends ProgramTool {
 	}
 
 	/**
-	 * Called when the selected items change in the guide and the TreeView
-	 * needs to be updated. Per the TreeView documentation the last item in
-	 * the list becomes the "single" selected item.
+	 * Called when the selected items change in the guide and the TreeView needs to be updated. Per the TreeView documentation the last item in the list becomes the "single" selected item.
 	 *
 	 * @param selectedItems The selected items list.
 	 */
@@ -338,14 +336,20 @@ public class GuideTool extends ProgramTool {
 
 		@Override
 		public void handle( ToolEvent event ) {
+			// NOTE This logic has been reworked a couple of times to change the
+			// behavior. The next time this logic is reworked here are some things
+			// to keep in mind:
+			// - Only guided tools should show/hide guides
+			// - When a guided tool is closed it should also close it's own guide
+			// - There is an ongoing debate whether tools that don't have guides should hide existing guides
+			// - Some tools should definitely not hide a guide: GuideTool and PropertiesTool
+
 			Tool tool = event.getTool();
-			if( tool instanceof GuideTool ) return;
-			if( tool instanceof GuidedTool ) {
-				log.log( Log.TRACE, "show guide: " + event.getTool().getClass().getName() );
-				setGuideContext( ((GuidedTool)tool).getGuideContext() );
-			} else {
-				setGuide( null );
-			}
+
+			// Some tools should not cause the guide to change
+			//if( tool instanceof GuideTool ) return;
+
+			if( tool instanceof GuidedTool ) setGuideContext( ((GuidedTool)tool).getGuideContext() );
 		}
 
 	}
@@ -381,9 +385,7 @@ public class GuideTool extends ProgramTool {
 	private class GuideSelectedItemsListener implements ChangeListener<Set<TreeItem<GuideNode>>> {
 
 		@Override
-		public void changed(
-			ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue
-		) {
+		public void changed( ObservableValue<? extends Set<TreeItem<GuideNode>>> observable, Set<TreeItem<GuideNode>> oldValue, Set<TreeItem<GuideNode>> newValue ) {
 			// Disable the guide view selection change listener
 			guideTree.getSelectionModel().getSelectedIndices().removeListener( selectedItemsListener );
 
