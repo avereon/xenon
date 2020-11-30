@@ -11,6 +11,8 @@ public class NodeChange {
 
 	public static final String CAPTURE_UNDO_CHANGES = "capture-undo-changes";
 
+	public static final boolean DEFAULT_CAPTURE_UNDO_CHANGES = false;
+
 	private final Node node;
 
 	private final String key;
@@ -40,7 +42,7 @@ public class NodeChange {
 			Node eventNode = e.getNode();
 			String eventKey = e.getKey();
 			boolean isModifying = eventNode.isModifyingKey( eventKey );
-			boolean isCaptureUndoChanges = node.getValue( CAPTURE_UNDO_CHANGES, true );
+			boolean isCaptureUndoChanges = node.getValue( CAPTURE_UNDO_CHANGES, DEFAULT_CAPTURE_UNDO_CHANGES );
 			if( isModifying && isCaptureUndoChanges ) source.push( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
 		} );
 		return source;

@@ -102,7 +102,6 @@ public class Asset extends Node {
 
 		// Create the undo manager
 		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply );
-		setCaptureUndoChanges( true );
 	}
 
 	/**
@@ -215,7 +214,7 @@ public class Asset extends Node {
 	}
 
 	public boolean isCaptureUndoChanges() {
-		return getValue( NodeChange.CAPTURE_UNDO_CHANGES );
+		return getValue( NodeChange.CAPTURE_UNDO_CHANGES, NodeChange.DEFAULT_CAPTURE_UNDO_CHANGES );
 	}
 
 	public void setCaptureUndoChanges( boolean enabled ) {
