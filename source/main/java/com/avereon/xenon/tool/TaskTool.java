@@ -108,55 +108,22 @@ public class TaskTool extends ProgramTool {
 	}
 
 	private void startRandomTask( boolean fail ) {
-		Random random = new Random();
-		long duration = 1000 + (long)(7000 * random.nextDouble());
-		getProgram().getTaskManager().submit( new RandomTask( duration, fail ) );
+		getProgram().getTaskManager().submit( new RandomTask( fail ) );
 	}
 
 	private void startTaskChain( boolean fail ) {
 		int index = 0;
-		Task<Integer> result = TaskChain
-			.of( "Task " + index++, () -> 0 )
+		TaskChain
+			.of( "Task " + index++, () -> increment( 0, false ) )
 			.link( "Task " + index++, ( i ) -> increment( i, false ) )
+			.link( "Task " + index++, ( i ) -> increment( i, fail ) )
 			.link( "Task " + index++, ( i ) -> increment( i, false ) )
-			.link( "Task " + index++, ( i ) -> increment( i, false ) )
-			.link( "Task " + index++, ( i ) -> increment( i, false ) )
-			.link( "Result", ( i ) -> {
-				System.out.println( "task result=" + i );
-				return i;
-			} )
+			.link( "Task " + index, ( i ) -> increment( i, false ) )
 			.run( getProgram() );
-
-		//		getProgram().getTaskManager().submit( Task.of( "Task Chain Result", () -> {
-		//			try {
-		//				System.out.println( "task result=" + result.get() );
-		//			} catch( InterruptedException e ) {
-		//				e.printStackTrace();
-		//			} catch( ExecutionException e ) {
-		//				e.printStackTrace();
-		//			}
-		//		} ) );
 	}
 
-	private int increment( Integer start, boolean fail ) {
-		if( start == null ) start = 0;
-
-		log.log( Log.WARN, "Task start value=" + start );
-
-		Random random = new Random();
-		long duration = 1000 + (long)(7000 * random.nextDouble());
-
-		long time = 0;
-		while( !Thread.currentThread().isInterrupted() && time < duration ) {
-			ThreadUtil.pause( DELAY );
-			time += DELAY;
-		}
-
-		log.log( Log.WARN, "Task complete " + duration );
-
-		if( fail ) throw new RuntimeException( "Random task failure" );
-
-		return ++start;
+	private static Integer increment( Integer start, boolean fail ) {
+		return new RandomTask( start, fail ).call();
 	}
 
 	private class TaskPane extends MigPane {
@@ -189,29 +156,37 @@ public class TaskTool extends ProgramTool {
 
 	}
 
-	private static class RandomTask extends Task<Void> {
+	private static class RandomTask extends Task<Integer> {
+
+		private final Integer start;
 
 		private final boolean fail;
 
-		private RandomTask( long duration, boolean fail ) {
-			super( "Random Task (" + duration + "ms)" );
+		private RandomTask( boolean fail ) {
+			this( null, fail );
+		}
+
+		private RandomTask( Integer start, boolean fail ) {
+			Random random = new Random();
+			long duration = 1000 + (long)(4000 * random.nextDouble());
+
+			setName( "Random Task (" + duration + "ms)" );
 			setTotal( duration );
+			this.start = start;
 			this.fail = fail;
 		}
 
 		@Override
-		public Void call() {
+		public Integer call() {
 			long time = 0;
-
 			while( !Thread.currentThread().isInterrupted() && time < getTotal() ) {
 				ThreadUtil.pause( DELAY );
-				time += DELAY;
-				setProgress( time );
+				setProgress( time += DELAY );
 			}
 
 			if( fail ) throw new RuntimeException( "Random task failure" );
 
-			return null;
+			return start == null ? 1 : start + 1;
 		}
 
 	}
