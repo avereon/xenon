@@ -65,6 +65,8 @@ public class Asset extends Node {
 
 	private final UndoManager<NodeChange> undoManager;
 
+	private boolean captureUndoChanges;
+
 	private Settings settings;
 
 	private volatile boolean open;
@@ -100,6 +102,7 @@ public class Asset extends Node {
 
 		// Create the undo manager
 		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply );
+		setCaptureUndoChanges( true );
 	}
 
 	/**
@@ -209,6 +212,14 @@ public class Asset extends Node {
 
 	public UndoManager<NodeChange> getUndoManager() {
 		return undoManager;
+	}
+
+	public boolean isCaptureUndoChanges() {
+		return getValue( NodeChange.CAPTURE_UNDO_CHANGES );
+	}
+
+	public void setCaptureUndoChanges( boolean enabled ) {
+		setValue( NodeChange.CAPTURE_UNDO_CHANGES, enabled );
 	}
 
 	public boolean isExternallyModified() {

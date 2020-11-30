@@ -9,6 +9,8 @@ import java.util.Objects;
 
 public class NodeChange {
 
+	public static final String CAPTURE_UNDO_CHANGES = "capture-undo-changes";
+
 	private final Node node;
 
 	private final String key;
@@ -35,9 +37,11 @@ public class NodeChange {
 	public static EventStream<NodeChange> events( Node node ) {
 		EventSource<NodeChange> source = new EventSource<>();
 		node.register( NodeEvent.VALUE_CHANGED, e -> {
-			if( ((Node)e.getNode()).isModifyingKey( e.getKey() ) ) {
-				source.push( new NodeChange( e.getNode(), e.getKey(), e.getOldValue(), e.getNewValue() ) );
-			}
+			Node eventNode = e.getNode();
+			String eventKey = e.getKey();
+			boolean isModifying = eventNode.isModifyingKey( eventKey );
+			boolean isCaptureUndoChanges = node.getValue( CAPTURE_UNDO_CHANGES, true );
+			if( isModifying && isCaptureUndoChanges ) source.push( new NodeChange( eventNode, eventKey, e.getOldValue(), e.getNewValue() ) );
 		} );
 		return source;
 	}
