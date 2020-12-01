@@ -268,7 +268,7 @@ public class GuideTool extends ProgramTool {
 		draggedCell = target;
 
 		// Root node cannot be moved
-		if( target.getTreeItem().getParent() == null ) return;
+		if( target == null || target.getTreeItem().getParent() == null ) return;
 
 		ClipboardContent content = new ClipboardContent();
 		content.put( DATA_FORMAT, "" );
