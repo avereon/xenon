@@ -34,16 +34,20 @@ public class Setting extends Node {
 
 	private static final System.Logger log = Log.get();
 
-	private final Settings settings;
+	private final SettingGroup group;
 
 	private SettingOptionProvider optionProvider;
 
-	public Setting( Settings settings ) {
-		this.settings = settings;
+	public Setting( SettingGroup group ) {
+		this.group = group;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setModified( false );
 		addModifyingKeys( DISABLE, VISIBLE );
+	}
+
+	public SettingGroup getGroup() {
+		return group;
 	}
 
 	public String getKey() {
@@ -95,7 +99,7 @@ public class Setting extends Node {
 	//	}
 
 	public void updateState() {
-		setDisable( !SettingDependency.evaluate( getDependencies(), settings ) );
+		setDisable( !SettingDependency.evaluate( getDependencies(), getSettings() ) );
 	}
 
 	/**
@@ -157,7 +161,7 @@ public class Setting extends Node {
 	}
 
 	public Settings getSettings() {
-		return settings;
+		return getGroup().getSettings();
 	}
 
 	public String getBundleKey() {

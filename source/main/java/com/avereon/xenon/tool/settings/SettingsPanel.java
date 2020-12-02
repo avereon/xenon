@@ -129,7 +129,7 @@ public class SettingsPanel extends VBox {
 		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
 
 		int row = 0;
-		for( Setting setting : group.getSettings() ) {
+		for( Setting setting : group.getSettingsList() ) {
 			// Get the editor type
 			String editorType = setting.getEditor();
 			if( editorType == null ) editorType = "textline";

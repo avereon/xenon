@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<pages version="1.0">
+
+	<page id="general">
+
+		<group id="workspace">
+			<setting key="refresh-in-minutes" editor="combobox">
+				<option>0</option>
+				<option>10</option>
+				<option>20</option>
+				<option>30</option>
+				<option>40</option>
+				<option>50</option>
+				<option>60</option>
+			</setting>
+		</group>
+
+	</page>
+
+</pages>

@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.BundleKey;
@@ -65,18 +64,19 @@ public class SettingsPageParser {
 
 	private final ProgramProduct product;
 
-	private final Settings settings;
-
-	public SettingsPageParser( ProgramProduct product, Settings settings ) {
+	private SettingsPageParser( ProgramProduct product ) {
 		this.product = product;
-		this.settings = settings;
 	}
 
-	public Map<String, SettingsPage> parse( String path ) throws IOException {
-		return parse( path, BundleKey.SETTINGS );
+	public static Map<String, SettingsPage> parse( ProgramProduct product, String path ) throws IOException {
+		return parse( product, path, BundleKey.SETTINGS );
 	}
 
-	public Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
+	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String key ) throws IOException {
+		return new SettingsPageParser( product ).parse( path, key );
+	}
+
+	private Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
 		InputStream input = product.getClass().getResourceAsStream( path );
 		if( input == null ) log.log( Log.WARN, "Settings page input stream is null: " + path );
 		return parse( input, bundleKey );
@@ -138,7 +138,6 @@ public class SettingsPageParser {
 
 		SettingsPage page = new SettingsPage();
 		page.setProduct( product );
-		page.setSettings( settings );
 		page.setId( id );
 		page.setIcon( icon );
 		page.setTitle( title );
@@ -158,10 +157,10 @@ public class SettingsPageParser {
 						page.addGroup( group );
 						group = null;
 					}
-					page.addGroup( parseGroup( reader, bundleKey ) );
+					page.addGroup( parseGroup( reader, bundleKey, page ) );
 				} else if( SETTING.equals( tagName ) ) {
-					if( group == null ) group = new SettingGroup( settings );
-					group.addSetting( parseSetting( reader, bundleKey ) );
+					if( group == null ) group = new SettingGroup( page );
+					group.addSetting( parseSetting( reader, bundleKey, group ) );
 				}
 			}
 		}
@@ -171,13 +170,13 @@ public class SettingsPageParser {
 		return page;
 	}
 
-	private SettingGroup parseGroup( XMLStreamReader reader, String bundleKey ) throws XMLStreamException {
+	private SettingGroup parseGroup( XMLStreamReader reader, String bundleKey, SettingsPage page ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
 		String id = attributes.get( ID );
 
-		SettingGroup group = new SettingGroup( settings );
+		SettingGroup group = new SettingGroup( page );
 		group.setId( id );
 
 		while( reader.hasNext() ) {
@@ -187,7 +186,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( SETTING.equals( tagName ) ) {
-					group.addSetting( parseSetting( reader, bundleKey ) );
+					group.addSetting( parseSetting( reader, bundleKey, group ) );
 				} else if( DEPENDENCY.equals( tagName ) ) {
 					group.addDependency( parseDependency( reader ) );
 				}
@@ -197,7 +196,7 @@ public class SettingsPageParser {
 		return group;
 	}
 
-	private Setting parseSetting( XMLStreamReader reader, String bundleKey ) throws XMLStreamException {
+	private Setting parseSetting( XMLStreamReader reader, String bundleKey, SettingGroup group ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -211,7 +210,7 @@ public class SettingsPageParser {
 		//if( editable == null ) editable = String.valueOf( false );
 		String provider = attributes.get( PROVIDER );
 
-		Setting setting = new Setting( settings );
+		Setting setting = new Setting( group );
 		setting.setKey( key );
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );

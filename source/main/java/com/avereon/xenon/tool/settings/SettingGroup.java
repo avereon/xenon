@@ -19,13 +19,24 @@ public class SettingGroup extends Node {
 
 	private static final String DEPENDENCIES = "dependencies";
 
-	private Settings settings;
+	private final SettingsPage page;
 
-	public SettingGroup( Settings settings ) {
-		this.settings = settings;
+	public SettingGroup( SettingsPage page ) {
+		this.page = page;
 		definePrimaryKey( ID );
 		setValue( SETTINGS, new CopyOnWriteArrayList<Setting>() );
 		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
+	}
+
+	public Setting getSetting( String key ) {
+		for( Setting setting : getSettingsList() ) {
+			if( setting.getKey().equals( key ) ) return setting;
+		}
+		return null;
+	}
+
+	public SettingsPage getPage() {
+		return page;
 	}
 
 	public String getId() {
@@ -52,13 +63,17 @@ public class SettingGroup extends Node {
 		setValue( VISIBLE, visible );
 	}
 
-	public List<Setting> getSettings() {
+	public List<Setting> getSettingsList() {
 		return Collections.unmodifiableList( getValue( SETTINGS ) );
 	}
 
 	public void addSetting( Setting setting ) {
 		List<Setting> settings = getValue( SETTINGS );
 		settings.add( setting );
+	}
+
+	public Settings getSettings() {
+		return getPage().getSettings();
 	}
 
 	public List<SettingDependency> getDependencies() {
@@ -71,7 +86,7 @@ public class SettingGroup extends Node {
 	}
 
 	public void updateState() {
-		setVisible( SettingDependency.evaluate( getDependencies(), settings ) );
+		setVisible( SettingDependency.evaluate( getDependencies(), getSettings() ) );
 	}
 
 }
