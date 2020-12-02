@@ -95,20 +95,21 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	public Map<String, SettingsPage> addSettingsPages( ProgramProduct product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
-			pages = new SettingsPageParser( product, settings ).parse( path );
-			addSettingsPages( pages );
+			pages = new SettingsPageParser( product ).parse( path );
+			addSettingsPages( pages, settings );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Error loading settings page: " + path, exception );
 		}
 		return pages;
 	}
 
-	public void addSettingsPages( Map<String, SettingsPage> pages ) {
+	public void addSettingsPages( Map<String, SettingsPage> pages, Settings settings ) {
 		synchronized( rootSettingsPages ) {
 			log.log( Log.DEBUG, "Adding settings pages..." );
 
 			// Add pages to the map, don't allow overrides
 			for( SettingsPage page : pages.values() ) {
+				page.setSettings( settings );
 				rootSettingsPages.putIfAbsent( page.getId(), page );
 			}
 

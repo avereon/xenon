@@ -66,6 +66,13 @@ public class SettingsPage extends Node {
 		setValue( TITLE, title );
 	}
 
+	public SettingGroup getGroup( String id ) {
+		for( SettingGroup group : getGroups() ) {
+			if( group.getId().equals( id ) ) return group;
+		}
+		return null;
+	}
+
 	public List<SettingGroup> getGroups() {
 		return Collections.unmodifiableList( getValue( GROUPS ) );
 	}
