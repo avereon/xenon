@@ -13,14 +13,14 @@ public class SettingsPageParserTest extends ProgramTestCase {
 
 	@Test
 	void testParsePages() throws Exception {
-		Map<String, SettingsPage> pages = new SettingsPageParser( program ).parse( "/settings.pages.xml" );
+		Map<String, SettingsPage> pages = SettingsPageParser.parse( program, "/settings.pages.xml" );
 		assertNotNull( pages.get( "general" ) );
 		assertThat( pages.size(), is( 1 ) );
 	}
 
 	@Test
 	void testParseOptions() throws Exception {
-		Map<String, SettingsPage> pages = new SettingsPageParser( program ).parse( "/settings.pages.xml" );
+		Map<String, SettingsPage> pages = SettingsPageParser.parse( program, "/settings.pages.xml" );
 		assertThat( pages.get( "general" ).getGroup( "workspace" ).getSetting( "refresh-in-minutes" ).getOptions().size(), is( 7 ) );
 	}
 

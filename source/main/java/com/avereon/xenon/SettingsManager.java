@@ -95,7 +95,7 @@ public class SettingsManager implements Controllable<SettingsManager> {
 	public Map<String, SettingsPage> addSettingsPages( ProgramProduct product, Settings settings, String path ) {
 		Map<String, SettingsPage> pages = Collections.emptyMap();
 		try {
-			pages = new SettingsPageParser( product ).parse( path );
+			pages = SettingsPageParser.parse( product, path );
 			addSettingsPages( pages, settings );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Error loading settings page: " + path, exception );

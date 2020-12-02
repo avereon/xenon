@@ -64,15 +64,19 @@ public class SettingsPageParser {
 
 	private final ProgramProduct product;
 
-	public SettingsPageParser( ProgramProduct product ) {
+	private SettingsPageParser( ProgramProduct product ) {
 		this.product = product;
 	}
 
-	public Map<String, SettingsPage> parse( String path ) throws IOException {
-		return parse( path, BundleKey.SETTINGS );
+	public static Map<String, SettingsPage> parse( ProgramProduct product, String path ) throws IOException {
+		return parse( product, path, BundleKey.SETTINGS );
 	}
 
-	public Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
+	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String key ) throws IOException {
+		return new SettingsPageParser( product ).parse( path, key );
+	}
+
+	private Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
 		InputStream input = product.getClass().getResourceAsStream( path );
 		if( input == null ) log.log( Log.WARN, "Settings page input stream is null: " + path );
 		return parse( input, bundleKey );
