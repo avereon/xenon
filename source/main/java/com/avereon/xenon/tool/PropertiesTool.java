@@ -15,16 +15,13 @@ import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
 
 /**
- * This tool listens for "show properties" and "hide properties" events that
- * allow the user to edit the properties of an object using the settings API.
+ * This tool listens for "show properties" and "hide properties" events that allow the user to edit the properties of an object using the settings API.
  */
 public class PropertiesTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
 
 	private final ScrollPane scroller;
-
-	private SettingsPanel panel;
 
 	private final EventHandler<PropertiesToolEvent> showHandler;
 
@@ -36,9 +33,9 @@ public class PropertiesTool extends ProgramTool {
 
 		scroller = new ScrollPane();
 		scroller.setFitToWidth( true );
-		getChildren().addAll(scroller);
+		getChildren().addAll( scroller );
 		this.showHandler = e -> Fx.run( () -> showPage( e.getPage() ) );
-		this.hideHandler = e -> Fx.run( () -> hidePage( e.getPage() ) );
+		this.hideHandler = e -> Fx.run( this::hidePage );
 	}
 
 	@Override
@@ -66,7 +63,7 @@ public class PropertiesTool extends ProgramTool {
 	@Override
 	protected void activate() {
 		PropertiesToolEvent event = getWorkspace().getEventBus().getPriorEvent( PropertiesToolEvent.class );
-		if( event != null && event.getEventType() == PropertiesToolEvent.SHOW ) showPage( event.getPage() );
+		if( event != null && event.getEventType() == PropertiesToolEvent.SHOW && isEmpty() ) showPage( event.getPage() );
 	}
 
 	@Override
@@ -75,17 +72,17 @@ public class PropertiesTool extends ProgramTool {
 		getWorkspace().getEventBus().unregister( PropertiesToolEvent.SHOW, showHandler );
 	}
 
-	private void showPage( SettingsPage page ) {
-		// This protects against a race condition when the tool is activated
-		if( this.panel != null && this.panel.getPage().getSettings() == page.getSettings() ) return;
-
-		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
-		scroller.setContent( this.panel = new SettingsPanel( page ) );
+	private boolean isEmpty() {
+		return scroller.getContent() == null;
 	}
 
-	private void hidePage( SettingsPage page ) {
+	private void showPage( SettingsPage page ) {
+		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
+		scroller.setContent( new SettingsPanel( page ) );
+	}
+
+	private void hidePage() {
 		scroller.setContent( null );
-		this.panel = null;
 	}
 
 }
