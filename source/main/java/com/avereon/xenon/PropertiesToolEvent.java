@@ -18,6 +18,7 @@ public class PropertiesToolEvent extends Event {
 
 	public PropertiesToolEvent( Object source, EventType<? extends PropertiesToolEvent> type, SettingsPage page ) {
 		super( source, type );
+		if( type == SHOW && page == null ) throw new IllegalArgumentException( "Show page cannot be null" );
 		this.page = page;
 	}
 

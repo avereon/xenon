@@ -10,7 +10,6 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.tool.settings.SettingsPage;
 import com.avereon.xenon.tool.settings.SettingsPanel;
-import com.avereon.xenon.workpane.ToolException;
 import com.avereon.xenon.workpane.Workpane;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.control.ScrollPane;
@@ -51,25 +50,25 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	@Override
-	protected void ready( OpenAssetRequest request ) throws ToolException {
+	protected void ready( OpenAssetRequest request ) {
 		setTitle( getProduct().rb().text( BundleKey.TOOL, "properties-name" ) );
 		setGraphic( getProgram().getIconLibrary().getIcon( "properties" ) );
 	}
 
 	@Override
-	protected void allocate() throws ToolException {
+	protected void allocate() {
 		getWorkspace().getEventBus().register( PropertiesToolEvent.SHOW, showHandler );
 		getWorkspace().getEventBus().register( PropertiesToolEvent.HIDE, hideHandler );
 	}
 
 	@Override
-	protected void activate() throws ToolException {
+	protected void activate() {
 		PropertiesToolEvent event = getWorkspace().getEventBus().getPriorEvent( PropertiesToolEvent.class );
 		if( event != null && event.getEventType() == PropertiesToolEvent.SHOW ) showPage( event.getPage() );
 	}
 
 	@Override
-	protected void deallocate() throws ToolException {
+	protected void deallocate() {
 		getWorkspace().getEventBus().unregister( PropertiesToolEvent.HIDE, hideHandler );
 		getWorkspace().getEventBus().unregister( PropertiesToolEvent.SHOW, showHandler );
 	}
@@ -82,7 +81,7 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	private void hidePage( SettingsPage page ) {
-		if( this.panel != null && this.panel.getPage() != page ) return;
+		//if( this.panel != null && this.panel.getPage() != page ) return;
 		if( this.panel != null ) scroller.setContent( null );
 		this.panel = null;
 	}
