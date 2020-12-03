@@ -63,6 +63,7 @@ public class GuideTool extends ProgramTool {
 		guideTree.setCellFactory( new GuideCellFactory() );
 		ScrollPane scroller = new ScrollPane( guideTree );
 		scroller.setFitToWidth( true );
+		scroller.setFitToHeight( true );
 		getChildren().add( scroller );
 
 		toolActivatedWatcher = new ToolActivatedWatcher();

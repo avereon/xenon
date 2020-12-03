@@ -21,6 +21,8 @@ public class SettingsTool extends GuidedTool {
 
 	private final Map<String, SettingsPanel> panelCache;
 
+	private final ScrollPane scroller;
+
 	private String currentPageId;
 
 	public SettingsTool( ProgramProduct product, Asset asset ) {
@@ -28,6 +30,10 @@ public class SettingsTool extends GuidedTool {
 		setId( "tool-settings" );
 
 		panelCache = new ConcurrentHashMap<>();
+
+		scroller = new ScrollPane();
+		scroller.setFitToWidth( true );
+		getChildren().add( scroller );
 
 		getGuideContext().getGuides().add( product.getProgram().getSettingsManager().getSettingsGuide() );
 	}
@@ -61,10 +67,7 @@ public class SettingsTool extends GuidedTool {
 	private void setPage( SettingsPage page ) {
 		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
 		SettingsPanel panel = panelCache.computeIfAbsent( page.getId(), ( k ) -> new SettingsPanel( page, true ) );
-		ScrollPane scroller = new ScrollPane( panel );
-		scroller.setFitToWidth( true );
-		getChildren().clear();
-		getChildren().add( scroller );
+		scroller.setContent( panel );
 	}
 
 }
