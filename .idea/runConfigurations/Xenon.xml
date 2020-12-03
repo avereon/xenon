@@ -2,7 +2,7 @@
   <configuration default="false" name="Xenon" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
     <module name="xenon" />
-    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug" />
     <option name="VM_PARAMETERS" value="-Xmx256m -Duser.language=es" />
     <extension name="coverage">
       <pattern>

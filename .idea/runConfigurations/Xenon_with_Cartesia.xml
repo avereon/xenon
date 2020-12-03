@@ -3,7 +3,7 @@
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
     <module name="carta" />
-    <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --enable-mod com.avereon.carta" />
+    <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --enable-mod com.avereon.carta" />
     <option name="VM_PARAMETERS" value="-Duser.language=es" />
     <extension name="coverage">
       <pattern>
