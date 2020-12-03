@@ -6,6 +6,7 @@ import org.reactfx.EventSource;
 import org.reactfx.EventStream;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class NodeChange {
 
@@ -34,6 +35,10 @@ public class NodeChange {
 
 	public void apply() {
 		node.setValue( key, newValue );
+	}
+
+	public static Optional<NodeChange> merge( NodeChange a, NodeChange b ) {
+		return Optional.empty();
 	}
 
 	public static EventStream<NodeChange> events( Node node ) {

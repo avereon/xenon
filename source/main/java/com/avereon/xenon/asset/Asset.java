@@ -101,7 +101,14 @@ public class Asset extends Node {
 		eventBus = new FxEventHub().parent( super.getEventHub() );
 
 		// Create the undo manager
-		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply );
+		undoManager = UndoManagerFactory.unlimitedHistorySingleChangeUM( NodeChange.events( this ), NodeChange::invert, NodeChange::apply, NodeChange::merge );
+		// TODO These two listeners are part of a possible implementation to merge undo changes according to Txn boundaries
+		register( TxnEvent.COMMIT_BEGIN, e -> {
+			// start merging undo events
+		});
+		register( TxnEvent.COMMIT_END, e -> {
+			// stop merging undo events
+		});
 	}
 
 	/**
