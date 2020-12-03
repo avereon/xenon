@@ -36,7 +36,7 @@ public class PropertiesTool extends ProgramTool {
 
 		scroller = new ScrollPane();
 		scroller.setFitToWidth( true );
-		getChildren().addAll( scroller );
+		getChildren().addAll(scroller);
 		this.showHandler = e -> Fx.run( () -> showPage( e.getPage() ) );
 		this.hideHandler = e -> Fx.run( () -> hidePage( e.getPage() ) );
 	}
@@ -76,15 +76,15 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	private void showPage( SettingsPage page ) {
-		//if( this.panel != null && this.panel.getPage() == page ) return;
-		//if( this.panel != null ) scroller.setContent( null );
+		// This protects against a race condition when the tool is activated
+		if( this.panel != null && this.panel.getPage().getSettings() == page.getSettings() ) return;
+
 		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
 		scroller.setContent( this.panel = new SettingsPanel( page ) );
 	}
 
 	private void hidePage( SettingsPage page ) {
-		//if( this.panel != null && this.panel.getPage() != page ) return;
-		if( this.panel != null ) scroller.setContent( null );
+		scroller.setContent( null );
 		this.panel = null;
 	}
 
