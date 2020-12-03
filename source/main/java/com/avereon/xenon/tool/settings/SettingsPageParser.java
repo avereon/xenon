@@ -111,14 +111,14 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					SettingsPage page = parsePage( reader, bundleKey );
+					SettingsPage page = parsePage( reader, bundleKey, null );
 					pages.put( page.getId(), page );
 				}
 			}
 		}
 	}
 
-	private SettingsPage parsePage( XMLStreamReader reader, String bundleKey ) throws XMLStreamException {
+	private SettingsPage parsePage( XMLStreamReader reader, String bundleKey, SettingsPage parent ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 		String id = attributes.get( ID );
@@ -136,7 +136,7 @@ public class SettingsPageParser {
 		// Special handling of empty titles
 		if( TextUtil.isEmpty( title ) ) title = product.rb().textOr( bundleKey, id, id );
 
-		SettingsPage page = new SettingsPage();
+		SettingsPage page = new SettingsPage( parent );
 		page.setProduct( product );
 		page.setId( id );
 		page.setIcon( icon );
@@ -151,7 +151,7 @@ public class SettingsPageParser {
 			if( reader.getEventType() == XMLStreamReader.START_ELEMENT ) {
 				String tagName = reader.getLocalName();
 				if( PAGE.equals( tagName ) ) {
-					page.addPage( parsePage( reader, bundleKey ) );
+					page.addPage( parsePage( reader, bundleKey, page ) );
 				} else if( GROUP.equals( tagName ) ) {
 					if( group != null ) {
 						page.addGroup( group );

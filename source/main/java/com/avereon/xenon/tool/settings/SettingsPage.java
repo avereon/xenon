@@ -28,11 +28,15 @@ public class SettingsPage extends Node {
 
 	private static final String SETTINGS = "settings";
 
+	private final SettingsPage page;
+
 	private String bundleKey = BundleKey.SETTINGS;
 
 	private Map<String, SettingOptionProvider> optionProviders;
 
-	public SettingsPage() {
+	public SettingsPage( SettingsPage page ) {
+		this.page = page;
+
 		setValue( GROUPS, new CopyOnWriteArrayList<>() );
 		setValue( PAGES, new ConcurrentHashMap<>() );
 
@@ -100,6 +104,7 @@ public class SettingsPage extends Node {
 	}
 
 	public Settings getSettings() {
+		if( page != null ) return page.getSettings();
 		return getValue( SETTINGS );
 	}
 

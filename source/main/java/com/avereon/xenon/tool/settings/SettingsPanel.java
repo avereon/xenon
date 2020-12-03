@@ -207,9 +207,9 @@ public class SettingsPanel extends VBox {
 
 	private static final class GroupDependencyWatcher implements EventHandler<SettingsEvent> {
 
-		private SettingGroup group;
+		private final SettingGroup group;
 
-		private String key;
+		private final String key;
 
 		public GroupDependencyWatcher( SettingDependency dependency, SettingGroup setting ) {
 			this.group = setting;
@@ -245,9 +245,9 @@ public class SettingsPanel extends VBox {
 
 	private static class GroupChangeHandler implements EventHandler<NodeEvent> {
 
-		private SettingGroup group;
+		private final SettingGroup group;
 
-		private Pane pane;
+		private final Pane pane;
 
 		public GroupChangeHandler( SettingGroup group, Pane pane ) {
 			this.group = group;
@@ -259,14 +259,8 @@ public class SettingsPanel extends VBox {
 			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
-				case "disable": {
-					setDisable( (Boolean)event.getNewValue() );
-					break;
-				}
-				case "visible": {
-					setVisible( (Boolean)event.getNewValue() );
-					break;
-				}
+				case Setting.DISABLE -> setDisable( event.getNewValue() );
+				case Setting.VISIBLE -> setVisible( event.getNewValue() );
 			}
 		}
 
@@ -297,14 +291,8 @@ public class SettingsPanel extends VBox {
 
 		private void handleNodeEvent( NodeEvent event ) {
 			switch( event.getKey() ) {
-				case Setting.DISABLE: {
-					Fx.run( () -> editor.setDisable( (Boolean)event.getNewValue() ) );
-					break;
-				}
-				case Setting.VISIBLE: {
-					Fx.run( () -> editor.setVisible( (Boolean)event.getNewValue() ) );
-					break;
-				}
+				case Setting.DISABLE -> Fx.run( () -> editor.setDisable( event.getNewValue() ) );
+				case Setting.VISIBLE -> Fx.run( () -> editor.setVisible( event.getNewValue() ) );
 			}
 		}
 

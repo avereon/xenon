@@ -32,6 +32,8 @@ public class PropertiesTool extends ProgramTool {
 
 	public PropertiesTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		setId( "tool-properties" );
+
 		scroller = new ScrollPane();
 		scroller.setFitToWidth( true );
 		getChildren().addAll( scroller );
@@ -75,7 +77,7 @@ public class PropertiesTool extends ProgramTool {
 
 	private void showPage( SettingsPage page ) {
 		//if( this.panel != null && this.panel.getPage() == page ) return;
-		if( this.panel != null ) getChildren().remove( this.panel );
+		//if( this.panel != null ) scroller.setContent( null );
 		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
 		scroller.setContent( this.panel = new SettingsPanel( page ) );
 	}
