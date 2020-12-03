@@ -74,7 +74,7 @@ public class PropertiesTool extends ProgramTool {
 	}
 
 	private void showPage( SettingsPage page ) {
-		if( this.panel != null && this.panel.getPage() == page ) return;
+		//if( this.panel != null && this.panel.getPage() == page ) return;
 		if( this.panel != null ) getChildren().remove( this.panel );
 		page.setOptionProviders( getProgram().getSettingsManager().getOptionProviders() );
 		scroller.setContent( this.panel = new SettingsPanel( page ) );
