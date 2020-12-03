@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.settings.SettingsEvent;
+import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
@@ -22,7 +23,7 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		PASSWORD
 	}
 
-	private Type type;
+	private final Type type;
 
 	private Label label;
 
@@ -45,18 +46,9 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 
 		switch( type ) {
-			case AREA: {
-				text = new TextArea();
-				break;
-			}
-			case PASSWORD: {
-				text = new PasswordField();
-				break;
-			}
-			default: {
-				text = new TextField();
-				break;
-			}
+			case AREA -> text = new TextArea();
+			case PASSWORD -> text = new PasswordField();
+			default -> text = new TextField();
 		}
 		text.setText( value );
 		text.setId( rbKey );
@@ -88,29 +80,32 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 
 	@Override
 	public void handle( SettingsEvent event ) {
-		// If the values are the same, don't set the text because it moves the cursor
-		if( Objects.equals( event.getNewValue(), text.getText() ) ) return;
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) text.setText( event.getNewValue().toString() );
+		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) {
+			Object eventNewValue = event.getNewValue();
+			String newValue = eventNewValue == null ? null : String.valueOf( eventNewValue );
+
+			// If the values are the same, don't set the text because it moves the cursor
+			if( Objects.equals( text.getText(), newValue ) ) return;
+			text.setText( newValue );
+		}
 	}
 
 	@Override
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
-			case ESCAPE: {
-				text.setText( setting.getSettings().get( key ) );
-				break;
-			}
-			case ENTER: {
-				setting.getSettings().set( key, text.getText() );
-				break;
-			}
+			case ESCAPE -> text.setText( setting.getSettings().get( key ) );
+			case ENTER -> updateSetting( key, text.getText() );
 		}
 	}
 
 	/* Focus listener */
 	@Override
 	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		if( !newValue ) setting.getSettings().set( key, text.getText() );
+		if( !newValue ) updateSetting( key, text.getText() );
+	}
+
+	private void updateSetting( String key, String value ) {
+		setting.getSettings().set( key, TextUtil.isEmpty( value ) ? null : value.trim() );
 	}
 
 }

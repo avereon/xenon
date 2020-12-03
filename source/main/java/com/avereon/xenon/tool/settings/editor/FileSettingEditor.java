@@ -80,7 +80,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	/**
 	 * Setting listener
 	 *
-	 * @param event
+	 * @param event The setting event
 	 */
 	@Override
 	public void handle( SettingsEvent event ) {
@@ -90,28 +90,22 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	/**
 	 * Key listener
 	 *
-	 * @param event
+	 * @param event The key event
 	 */
 	@Override
 	public void handle( KeyEvent event ) {
 		switch( event.getCode() ) {
-			case ESCAPE: {
-				field.setText( setting.getSettings().get( key ) );
-				break;
-			}
-			case ENTER: {
-				setting.getSettings().set( key, field.getText() );
-				break;
-			}
+			case ESCAPE -> field.setText( setting.getSettings().get( key ) );
+			case ENTER -> setting.getSettings().set( key, field.getText() );
 		}
 	}
 
 	/**
 	 * Focus listener
 	 *
-	 * @param observable
-	 * @param oldValue
-	 * @param newValue
+	 * @param observable The observable value
+	 * @param oldValue The old value
+	 * @param newValue The new value
 	 */
 	@Override
 	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {

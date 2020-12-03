@@ -21,7 +21,7 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 		FIELD
 	}
 
-	private Type type;
+	private final Type type;
 
 	private TextInputControl text;
 
@@ -38,17 +38,12 @@ public class InfoLineSettingEditor extends SettingEditor implements EventHandler
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
 
-		switch( type ) {
-			case AREA: {
-				text = new TextArea();
-				text.getStyleClass().add( "settings-infoarea");
-				break;
-			}
-			default: {
-				text = new TextField();
-				text.getStyleClass().add( "settings-infoline");
-				break;
-			}
+		if( type == Type.AREA ) {
+			text = new TextArea();
+			text.getStyleClass().add( "settings-infoarea" );
+		} else {
+			text = new TextField();
+			text.getStyleClass().add( "settings-infoline" );
 		}
 		text.setText( product.rb().text( "settings", rbKey ) );
 		text.setEditable( false );
