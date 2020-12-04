@@ -6,6 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.font.FontUtil;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -13,6 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 
 import java.lang.System.Logger;
+import java.util.List;
 
 public class FontSettingEditor extends SettingEditor {
 
@@ -21,6 +23,8 @@ public class FontSettingEditor extends SettingEditor {
 	private Label label;
 
 	private Button button;
+
+	private List<Node> nodes;
 
 	public FontSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
 		super( product, bundleKey, setting );
@@ -38,6 +42,8 @@ public class FontSettingEditor extends SettingEditor {
 		button.setMaxWidth( Double.MAX_VALUE );
 		updateFont( value );
 
+		nodes = List.of( label, button );
+
 		// Set component state
 		setDisable( setting.isDisable() );
 		setVisible( setting.isVisible() );
@@ -47,15 +53,8 @@ public class FontSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		label.setDisable( disable );
-		button.setDisable( disable );
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		label.setVisible( visible );
-		button.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override

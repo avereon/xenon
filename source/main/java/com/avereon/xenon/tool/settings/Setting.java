@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.data.Node;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
 
@@ -10,7 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public class Setting extends Node {
+public class Setting extends SettingDependant {
 
 	public static final String KEY = "key";
 
@@ -18,19 +17,11 @@ public class Setting extends Node {
 
 	public static final String EDITOR = "editor";
 
-	public static final String DISABLE = "disable";
-
-	public static final String VISIBLE = "visible";
-
-	private static final String EDITABLE = "editable";
-
 	private static final String OPAQUE = "opaque";
 
 	private static final String OPTIONS = "options";
 
 	private static final String OPTION_PROVIDER = "option-provider";
-
-	private static final String DEPENDENCIES = "dependencies";
 
 	private static final System.Logger log = Log.get();
 
@@ -41,9 +32,7 @@ public class Setting extends Node {
 	public Setting( SettingGroup group ) {
 		this.group = group;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
-		setValue( DEPENDENCIES, new CopyOnWriteArrayList<SettingDependency>() );
 		setModified( false );
-		addModifyingKeys( DISABLE, VISIBLE );
 	}
 
 	public SettingGroup getGroup() {
@@ -72,34 +61,6 @@ public class Setting extends Node {
 
 	public void setEditor( String editor ) {
 		setValue( EDITOR, editor );
-	}
-
-	public boolean isDisable() {
-		return getValue( DISABLE, false );
-	}
-
-	public void setDisable( boolean disable ) {
-		setValue( DISABLE, disable );
-	}
-
-	public boolean isVisible() {
-		return getValue( VISIBLE, true );
-	}
-
-	public void setVisible( boolean visible ) {
-		setValue( VISIBLE, visible );
-	}
-
-	//	public boolean isEditable() {
-	//		return getValue( EDITABLE );
-	//	}
-	//
-	//	public void setEditable( boolean editable ) {
-	//		setValue( EDITABLE, editable );
-	//	}
-
-	public void updateState() {
-		setDisable( !SettingDependency.evaluate( getDependencies(), getSettings() ) );
 	}
 
 	/**
@@ -149,15 +110,6 @@ public class Setting extends Node {
 	public void addOption( SettingOption option ) {
 		List<SettingOption> options = getValue( OPTIONS );
 		options.add( option );
-	}
-
-	public List<SettingDependency> getDependencies() {
-		return Collections.unmodifiableList( getValue( DEPENDENCIES ) );
-	}
-
-	public void addDependency( SettingDependency dependency ) {
-		List<SettingDependency> dependencies = getValue( DEPENDENCIES );
-		dependencies.add( dependency );
 	}
 
 	public Settings getSettings() {

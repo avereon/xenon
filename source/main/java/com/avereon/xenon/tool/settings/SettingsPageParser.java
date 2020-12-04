@@ -34,6 +34,8 @@ public class SettingsPageParser {
 
 	private static final String DEPENDENCY = "dependency";
 
+	private static final String FAIL_DEPENDENCY_ACTION = "on-dependency-failure";
+
 	private static final String OPERATOR = "operator";
 
 	private static final String ID = "id";
@@ -175,9 +177,11 @@ public class SettingsPageParser {
 		Map<String, String> attributes = parseAttributes( reader );
 
 		String id = attributes.get( ID );
+		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		SettingGroup group = new SettingGroup( page );
 		group.setId( id );
+		group.setFailDependencyAction( failDependencyAction );
 
 		while( reader.hasNext() ) {
 			reader.next();
@@ -206,17 +210,16 @@ public class SettingsPageParser {
 		if( disable == null ) disable = String.valueOf( false );
 		String opaque = attributes.get( OPAQUE );
 		if( opaque == null ) opaque = String.valueOf( false );
-		//String editable = attributes.get( EDITABLE );
-		//if( editable == null ) editable = String.valueOf( false );
 		String provider = attributes.get( PROVIDER );
+		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		Setting setting = new Setting( group );
 		setting.setKey( key );
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
-		//setting.setEditable( Boolean.parseBoolean( editable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
 		setting.setProvider( provider );
+		setting.setFailDependencyAction( failDependencyAction );
 
 		while( reader.hasNext() ) {
 			reader.next();

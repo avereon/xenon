@@ -9,6 +9,7 @@ import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -19,6 +20,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
+import java.util.List;
 
 public class FolderSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
 
@@ -27,6 +29,8 @@ public class FolderSettingEditor extends SettingEditor implements EventHandler<K
 	private TextField field;
 
 	private Button button;
+
+	private List<Node> nodes;
 
 	public FolderSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
 		super( product, bundleKey, setting );
@@ -48,6 +52,8 @@ public class FolderSettingEditor extends SettingEditor implements EventHandler<K
 		button.setText( product.rb().text( "settings", "browse" ) );
 		button.setOnAction( ( event ) -> getFile() );
 
+		nodes = List.of( label, field, button );
+
 		// Add the change handlers
 		field.focusedProperty().addListener( this );
 		field.setOnKeyPressed( this );
@@ -66,17 +72,8 @@ public class FolderSettingEditor extends SettingEditor implements EventHandler<K
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		button.setDisable( disable );
-		label.setDisable( disable );
-		field.setDisable( disable );
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		button.setVisible( visible );
-		label.setVisible( visible );
-		field.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	/**

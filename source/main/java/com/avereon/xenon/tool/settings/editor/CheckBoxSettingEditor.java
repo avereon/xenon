@@ -6,12 +6,17 @@ import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
+
+import java.util.List;
 
 public class CheckBoxSettingEditor extends SettingEditor implements ChangeListener<Boolean> {
 
 	private CheckBox checkbox;
+
+	private List<Node> nodes;
 
 	public CheckBoxSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
 		super( product, bundleKey, setting );
@@ -29,6 +34,8 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 		checkbox.setText( label );
 		checkbox.setId( rbKey );
 
+		nodes = List.of( checkbox );
+
 		// Add the change handlers
 		checkbox.selectedProperty().addListener( this );
 
@@ -42,13 +49,8 @@ public class CheckBoxSettingEditor extends SettingEditor implements ChangeListen
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		checkbox.setDisable( disable );
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		checkbox.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	// Checkbox listener

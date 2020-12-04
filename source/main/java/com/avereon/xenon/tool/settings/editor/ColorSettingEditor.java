@@ -7,16 +7,21 @@ import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.color.Colors;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+
+import java.util.List;
 
 public class ColorSettingEditor extends SettingEditor implements EventHandler<ActionEvent> {
 
 	private Label label;
 
 	private ColorPicker colorPicker;
+
+	private List<Node> nodes;
 
 	public ColorSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
 		super( product, bundleKey, setting );
@@ -35,6 +40,8 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		colorPicker.setId( rbKey );
 		colorPicker.setMaxWidth( Double.MAX_VALUE );
 
+		nodes = List.of( label, colorPicker );
+
 		// Add the event handlers
 		colorPicker.setOnAction( this );
 
@@ -47,15 +54,8 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		label.setDisable( disable );
-		colorPicker.setDisable( disable );
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		label.setVisible( visible );
-		colorPicker.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override

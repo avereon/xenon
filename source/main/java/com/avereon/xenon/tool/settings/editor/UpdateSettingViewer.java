@@ -8,6 +8,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.javafx.Fx;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -15,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class UpdateSettingViewer extends SettingEditor {
@@ -22,6 +24,8 @@ public class UpdateSettingViewer extends SettingEditor {
 	private Label lastUpdateCheckField;
 
 	private Label nextUpdateCheckField;
+
+	private List<Node> nodes;
 
 	public UpdateSettingViewer( ProgramProduct product, String bundleKey, Setting setting ) {
 		super( product, bundleKey, setting );
@@ -46,6 +50,8 @@ public class UpdateSettingViewer extends SettingEditor {
 		lastUpdateCheckLabel.setLabelFor( lastUpdateCheckField );
 		nextUpdateCheckLabel.setLabelFor( nextUpdateCheckField );
 
+		nodes = List.of( lastUpdateCheckLabel, lastUpdateCheckField, nextUpdateCheckLabel, nextUpdateCheckField );
+
 		Pane spring = new Pane();
 		HBox.setHgrow( spring, Priority.ALWAYS );
 
@@ -60,14 +66,8 @@ public class UpdateSettingViewer extends SettingEditor {
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		//
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		lastUpdateCheckField.setVisible( visible );
-		nextUpdateCheckField.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	@Override

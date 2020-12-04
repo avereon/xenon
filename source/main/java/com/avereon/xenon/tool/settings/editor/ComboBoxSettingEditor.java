@@ -7,6 +7,7 @@ import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOption;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -19,6 +20,8 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 	private Label label;
 
 	private ComboBox<SettingOption> combobox;
+
+	private List<Node> nodes;
 
 	public ComboBoxSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
 		super( product, bundleKey, setting );
@@ -36,6 +39,8 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		combobox = new ComboBox<>();
 		combobox.getItems().addAll( options );
 		combobox.setMaxWidth( Double.MAX_VALUE );
+
+		nodes = List.of( label, combobox );
 
 		SettingOption selected = setting.getOption( value );
 		if( selected == null ) {
@@ -56,15 +61,8 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 	}
 
 	@Override
-	public void setDisable( boolean disable ) {
-		label.setDisable( disable );
-		combobox.setDisable( disable );
-	}
-
-	@Override
-	public void setVisible( boolean visible ) {
-		label.setVisible( visible );
-		combobox.setVisible( visible );
+	public List<Node> getComponents() {
+		return nodes;
 	}
 
 	// Selection change listener

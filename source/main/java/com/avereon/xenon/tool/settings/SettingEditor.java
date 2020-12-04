@@ -4,22 +4,24 @@ import com.avereon.event.EventHandler;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
+import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 
 	private static final Map<String, Class<? extends SettingEditor>> editors;
 
-	protected ProgramProduct product;
+	protected final ProgramProduct product;
 
-	protected Setting setting;
+	protected final Setting setting;
 
-	private String bundleKey;
+	protected final String bundleKey;
 
-	protected String key;
+	protected final String key;
 
 	static {
 		editors = new HashMap<>();
@@ -44,19 +46,31 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;
-		this.setting = setting;
 		this.bundleKey = bundleKey;
+		this.setting = setting;
 		this.key = setting.getKey();
+	}
+
+	protected ProgramProduct getProduct() {
+		return product;
 	}
 
 	public String getBundleKey() {
 		return bundleKey;
 	}
 
+	public Setting getSetting() {
+		return setting;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
 	/**
 	 * Register a new setting editor.
 	 *
-	 * @param key The editor key
+	 * @param key    The editor key
 	 * @param editor The setting editor
 	 */
 	public static void addType( String key, Class<? extends SettingEditor> editor ) {
@@ -67,18 +81,19 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 		return editors.get( key );
 	}
 
-	public Setting getSetting() {
-		return setting;
-	}
-
-	//	public Settings getSettings() {
-	//		return setting.getSettings();
-	//	}
-
 	public abstract void addComponents( GridPane pane, int row );
 
-	public abstract void setDisable( boolean disable );
+	public abstract List<Node> getComponents();
 
-	public abstract void setVisible( boolean visible );
+	public void setDisable( boolean disable ) {
+		getComponents().forEach( n -> n.setDisable( disable ) );
+	}
+
+	public void setVisible( boolean visible ) {
+		getComponents().forEach( n -> {
+			n.setVisible( visible );
+			n.setManaged( visible );
+		} );
+	}
 
 }
