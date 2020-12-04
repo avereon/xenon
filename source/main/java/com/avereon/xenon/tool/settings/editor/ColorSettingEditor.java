@@ -10,7 +10,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class ColorSettingEditor extends SettingEditor implements EventHandler<ActionEvent> {
 
@@ -28,6 +28,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		String value = setting.getSettings().get( key, "#000000ff" );
 
 		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		colorPicker = new ColorPicker();
 		colorPicker.setValue( Colors.web( value ) );
@@ -42,7 +43,6 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		setVisible( setting.isVisible() );
 
 		// Add the components
-		GridPane.setHgrow( colorPicker, Priority.ALWAYS );
 		pane.addRow( row, label, colorPicker );
 	}
 

@@ -11,7 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 import java.util.Objects;
 
@@ -44,6 +44,7 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		String value = setting.getSettings().get( key );
 
 		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		switch( type ) {
 			case AREA -> text = new TextArea();
@@ -62,7 +63,6 @@ public class TextLineSettingEditor extends SettingEditor implements EventHandler
 		setVisible( setting.isVisible() );
 
 		// Add the components
-		GridPane.setHgrow( text, Priority.ALWAYS );
 		pane.addRow( row, label, text );
 	}
 

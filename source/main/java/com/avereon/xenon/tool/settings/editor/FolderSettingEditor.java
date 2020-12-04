@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public class FolderSettingEditor extends SettingEditor implements EventHandler<K
 		String value = setting.getSettings().get( key );
 
 		label = new Label( product.rb().text( "settings", rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		field = new TextField();
 		field.setText( value );

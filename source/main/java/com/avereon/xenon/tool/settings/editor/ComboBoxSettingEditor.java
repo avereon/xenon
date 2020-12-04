@@ -10,7 +10,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 import java.util.List;
 
@@ -30,6 +30,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		String value = setting.getSettings().get( key );
 
 		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		List<SettingOption> options = setting.getOptions();
 		combobox = new ComboBox<>();
@@ -51,7 +52,6 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		setVisible( setting.isVisible() );
 
 		// Add the components
-		GridPane.setHgrow( combobox, Priority.ALWAYS );
 		pane.addRow( row, label, combobox );
 	}
 

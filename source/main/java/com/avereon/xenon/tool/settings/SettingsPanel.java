@@ -123,10 +123,16 @@ public class SettingsPanel extends VBox {
 	}
 
 	private Pane createSettingsPane( ProgramProduct product, String bundleKey, SettingsPage page, SettingGroup group ) {
-		GridPane pane = new GridPane();
-		pane.setHgap( UiFactory.PAD );
-		pane.setVgap( UiFactory.PAD );
+		GridPane grid = new GridPane();
+		grid.setHgap( UiFactory.PAD );
+		grid.setVgap( UiFactory.PAD );
 		//pane.setBorder( new Border( new BorderStroke( Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.MEDIUM ) ) );
+
+		ColumnConstraints labelColumnConstraints = new ColumnConstraints();
+		ColumnConstraints editorColumnConstraints = new ColumnConstraints();
+		labelColumnConstraints.setHgrow( Priority.SOMETIMES );
+		editorColumnConstraints.setHgrow( Priority.ALWAYS );
+		grid.getColumnConstraints().addAll( labelColumnConstraints, editorColumnConstraints );
 
 		int row = 0;
 		for( Setting setting : group.getSettingsList() ) {
@@ -147,7 +153,7 @@ public class SettingsPanel extends VBox {
 
 			// Create the editor
 			SettingEditor editor = createSettingEditor( product, bundleKey, setting, editorClass );
-			if( editor != null ) editor.addComponents( pane, row++ );
+			if( editor != null ) editor.addComponents( grid, row++ );
 			if( editor == null ) log.log( Log.DEBUG, "Editor not created: {0}", editorClass.getName() );
 
 			// Add a watcher to each dependency
@@ -162,7 +168,7 @@ public class SettingsPanel extends VBox {
 			setting.updateState();
 		}
 
-		return pane;
+		return grid;
 	}
 
 	private SettingEditor createSettingEditor( ProgramProduct product, String bundleKey, Setting setting, Class<? extends SettingEditor> editorClass ) {

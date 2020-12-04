@@ -9,7 +9,9 @@ import com.avereon.zerra.font.FontUtil;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
+
 import java.lang.System.Logger;
 
 public class FontSettingEditor extends SettingEditor {
@@ -30,6 +32,7 @@ public class FontSettingEditor extends SettingEditor {
 		String value = setting.getSettings().get( key, "SansSerif|12" );
 
 		label = new Label( product.rb().text( "settings", rbKey ) );
+		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		button = new Button();
 		button.setMaxWidth( Double.MAX_VALUE );
