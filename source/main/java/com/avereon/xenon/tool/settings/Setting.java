@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 public class Setting extends SettingDependant {
 
+	public static final String ID = "id";
+
 	public static final String KEY = "key";
 
 	public static final String VALUE = "value";
@@ -37,6 +39,14 @@ public class Setting extends SettingDependant {
 
 	public SettingGroup getGroup() {
 		return group;
+	}
+
+	public String getId() {
+		return getValue( ID );
+	}
+
+	public void setId( String id ) {
+		setValue( ID, id );
 	}
 
 	public String getKey() {
@@ -117,7 +127,7 @@ public class Setting extends SettingDependant {
 	}
 
 	public String getBundleKey() {
-		return getBundleKey( getKey() );
+		return getBundleKey( getId(), getKey() );
 	}
 
 	@Override
@@ -135,10 +145,12 @@ public class Setting extends SettingDependant {
 		return builder.toString();
 	}
 
-	private static String getBundleKey( String key ) {
-		if( key == null ) return null;
-		if( key.startsWith( "/" ) ) key = key.substring( 1 );
-		return key.replace( '/', '-' );
+	private static String getBundleKey( String id, String key ) {
+		String rbKey = id;
+		if( rbKey == null ) rbKey = key;
+		if( rbKey == null ) return null;
+		if( rbKey.startsWith( "/" ) ) rbKey = rbKey.substring( 1 );
+		return rbKey.replace( '/', '-' );
 	}
 
 }

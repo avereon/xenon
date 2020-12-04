@@ -204,6 +204,9 @@ public class SettingsPageParser {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
+		// The resource bundle key (if not specified the setting key is used)
+		String id = attributes.get( ID );
+		// The setting key
 		String key = attributes.get( KEY );
 		String editor = attributes.get( EDITOR );
 		String disable = attributes.get( DISABLE );
@@ -214,6 +217,7 @@ public class SettingsPageParser {
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
 		Setting setting = new Setting( group );
+		setting.setId( id );
 		setting.setKey( key );
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
