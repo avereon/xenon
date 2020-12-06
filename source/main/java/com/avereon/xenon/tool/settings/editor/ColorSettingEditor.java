@@ -12,6 +12,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 
@@ -65,7 +66,14 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 
 	@Override
 	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( Colors.web( event.getNewValue().toString() ) );
+		Object value = event.getNewValue();
+		Color color;
+		try {
+			color = Colors.web( String.valueOf( value ) );
+		} catch( Exception exception ) {
+			color = Color.BLACK;
+		}
+		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( color );
 	}
 
 }
