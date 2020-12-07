@@ -1,14 +1,15 @@
 package com.avereon.xenon.notice;
 
+import com.avereon.data.IdNode;
 import com.avereon.util.HashUtil;
 import com.avereon.util.Log;
-import com.avereon.data.Node;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+
 import java.lang.System.Logger;
 
-public class Notice extends Node {
+public class Notice extends IdNode {
 
 	public enum Balloon {
 
@@ -52,7 +53,7 @@ public class Notice extends Node {
 
 	private static final String READ = "read";
 
-	private Object[] parameters;
+	private final Object[] parameters;
 
 	public Notice( Object title, Object message, Object... parameters ) {
 		this( title, message, null, null, parameters );
@@ -86,16 +87,12 @@ public class Notice extends Node {
 		setValue( MESSAGE, message );
 		setValue( THROWABLE, throwable );
 		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
-		setValue( ID, HashUtil.hash( title + getMessageStringContent() ) );
+		setId( HashUtil.hash( title + getMessageStringContent() ) );
 
 		setType( Type.NORM );
 		setAction( action );
 
 		setModified( false );
-	}
-
-	public String getId() {
-		return getValue( ID );
 	}
 
 	public Long getTimestamp() {

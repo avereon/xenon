@@ -66,6 +66,8 @@ public class NoticeManager implements Controllable<NoticeManager> {
 	}
 
 	public void addNotice( Notice notice ) {
+		if( notice.getId() == null ) throw new NullPointerException( "Notice id cannot be null" );
+
 		if( !getProgram().getWorkspaceManager().isUiReady() ) {
 			startupNotices.add( notice );
 			return;
