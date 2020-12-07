@@ -37,7 +37,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		colorPicker = new ColorPicker();
-		colorPicker.setValue( Colors.web( value ) );
+		colorPicker.setValue( Colors.parse( value ) );
 		colorPicker.setId( rbKey );
 		colorPicker.setMaxWidth( Double.MAX_VALUE );
 
@@ -61,7 +61,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 
 	@Override
 	public void handle( ActionEvent event ) {
-		setting.getSettings().set( setting.getKey(), Colors.web( colorPicker.getValue() ) );
+		setting.getSettings().set( setting.getKey(), Colors.toString( colorPicker.getValue() ) );
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		Object value = event.getNewValue();
 		Color color;
 		try {
-			color = Colors.web( String.valueOf( value ) );
+			color = Colors.parse( String.valueOf( value ) );
 		} catch( Exception exception ) {
 			color = Color.BLACK;
 		}
