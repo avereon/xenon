@@ -223,6 +223,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public void pushAction( Action action ) {
+		if( action == null ) return;
 		pullAction( action );
 		actionStack.push( action );
 		action.setActionProxy( this );
@@ -230,6 +231,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	}
 
 	public void pullAction( Action action ) {
+		if( action == null ) return;
 		action.setActionProxy( null );
 		actionStack.remove( action );
 		updateEnabled();
