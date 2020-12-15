@@ -2,7 +2,7 @@
   <configuration default="false" name="Xenon with Mazer" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
-    <module name="mazer" />
+    <module name="mod.mazer" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug" />
     <option name="VM_PARAMETERS" value="-Xmx256m -Duser.language=es" />
     <extension name="coverage">
