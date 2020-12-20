@@ -3,7 +3,7 @@ name: Avereon Xenon Continuous
 on:
   push:
     branches:
-      - master
+      - main
       - stable
   schedule:
     # Noon Saturday UTC
@@ -32,7 +32,7 @@ jobs:
     name: Build, Test, Jar and Javadoc
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
@@ -100,7 +100,7 @@ jobs:
     name: Screenshots 1x
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
       XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
@@ -151,7 +151,7 @@ jobs:
     name: Screenshots 2x
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
       XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
@@ -203,7 +203,7 @@ jobs:
     name: Linux Binaries
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "linux"
     steps:
@@ -276,7 +276,7 @@ jobs:
     name: Mac OS Binaries
     runs-on: macos-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "macosx"
     steps:
@@ -349,7 +349,7 @@ jobs:
     name: Windows Binaries
     runs-on: windows-latest
     timeout-minutes: 30
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/master' || github.base_ref == 'refs/heads/stable'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable' || github.base_ref == 'refs/heads/main' || github.base_ref == 'refs/heads/stable'
     env:
       AVN_PLATFORM: "windows"
     steps:
