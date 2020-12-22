@@ -21,7 +21,8 @@ The framework provides the following basic features:
 #### Version 2.0
 | Release | Feature Goals | Status |
 |---|---|---:|
-|[1.4](https://github.com/avereon/xenon/milestone/6)|SVG Icons|In Progress|
+|[1.5](https://github.com/avereon/xenon/milestone/7)| | Planning |
+|[1.4](https://github.com/avereon/xenon/milestone/6)|SVG Icons, Cartesia Mod|In Progress|
 |[1.3](https://github.com/avereon/xenon/milestone/5)|Java 14, Java FX 14, flat icons, jpackage installers|03 Jul 2020|
 |[1.2](https://github.com/avereon/xenon/milestone/4)|Theme modification, more dark and light themes|03 May 2020|
 |[1.1](https://github.com/avereon/xenon/milestone/3)|Example Mod (Mazer)|22 Feb 2020|
