@@ -255,8 +255,8 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 		try {
 			addEventFilter( ToolEvent.ADDED, h );
 			if( getToolView() == null ) {
-				latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
-				if( latch.getCount() > 0 ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + this );
+				boolean timeout = !latch.await( TOOL_READY_TIMEOUT, TimeUnit.SECONDS );
+				if( timeout ) log.log( Log.WARN, "Timeout waiting for tool to be allocated: " + this );
 			}
 		} finally {
 			removeEventFilter( ToolEvent.ADDED, h );
