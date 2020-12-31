@@ -147,11 +147,11 @@ public class ActionLibrary {
 
 	// This handler is to capture key combinations for actions that are not in menus or toolbars
 	public void registerScene( Scene scene ) {
-		//scene.addEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
+		scene.addEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
 	public void unregisterScene( Scene scene ) {
-		//scene.removeEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
+		scene.removeEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
 	private void handleEvent( KeyEvent event ) {
