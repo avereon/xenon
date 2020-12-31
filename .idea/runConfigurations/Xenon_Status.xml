@@ -1,7 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Xenon Status" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="15" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
-    <module name="app.xenon" />
+    <module name="xenon" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --log-level debug --status" />
     <option name="VM_PARAMETERS" value="-Xmx256m " />
     <extension name="coverage">

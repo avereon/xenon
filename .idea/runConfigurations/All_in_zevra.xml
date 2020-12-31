@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="All in zevra" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
-    <module name="lib.zevra" />
+    <module name="zevra" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />

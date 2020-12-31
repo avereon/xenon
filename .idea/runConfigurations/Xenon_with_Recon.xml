@@ -2,15 +2,9 @@
   <configuration default="false" name="Xenon with Recon" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
-    <module name="mod.recon" />
+    <module name="recon" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug" />
     <option name="VM_PARAMETERS" value="-Duser.language=es" />
-    <extension name="coverage">
-      <pattern>
-        <option name="PATTERN" value="com.avereon.xenon.ProgramTestConfig" />
-        <option name="ENABLED" value="true" />
-      </pattern>
-    </extension>
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
