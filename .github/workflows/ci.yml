@@ -169,6 +169,7 @@ jobs:
         shell: bash
         run: |
           source .github/config.sh
+          gsettings set org.gnome.desktop.interface scaling-factor 2
 
       - name: Set up Virtual Display
         run: |
