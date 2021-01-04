@@ -530,6 +530,7 @@
 										<modulepath/>
 										<argument>-m</argument>
 										<argument>com.avereon.xenon/com.avereon.xenon.Screenshots2x</argument>
+										<argument>-Dglass.win.uiScale=2</argument>
 									</arguments>
 								</configuration>
 							</execution>

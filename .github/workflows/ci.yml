@@ -173,7 +173,6 @@ jobs:
       - name: Set up Virtual Display
         run: |
           Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
-          gsettings set org.gnome.desktop.interface scaling-factor 2
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -190,7 +189,6 @@ jobs:
 
       - name: Generate Screenshots
         run: |
-          gsettings set org.gnome.desktop.interface scaling-factor 2
           mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
 
       - name: Post Screenshots
