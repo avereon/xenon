@@ -55,7 +55,6 @@ abstract class Screenshots {
 
 	public void generate( int scale ) {
 		this.scale = scale;
-		System.out.println( "Screenshots scale=" + scale );
 
 		try {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
@@ -138,7 +137,12 @@ abstract class Screenshots {
 			program.init();
 			Platform.startup( () -> {
 				try {
-					program.start( new Stage() );
+					Stage stage = new Stage();
+
+					double actualScale = stage.getRenderScaleX();
+					System.out.println( "Screenshots requested-scale=" + scale + " actual-scale=" + actualScale );
+
+					program.start( stage );
 				} catch( Exception exception ) {
 					exception.printStackTrace( System.err );
 				}

@@ -155,6 +155,7 @@ jobs:
     env:
       AVN_PLATFORM: "linux"
       XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
+      "glass.gtk.uiScale": "2"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
