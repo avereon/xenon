@@ -139,8 +139,9 @@ abstract class Screenshots {
 				try {
 					Stage stage = new Stage();
 
+					String uiScale = System.getProperty( "glass.gtk.uiScale");
 					double actualScale = stage.getRenderScaleX();
-					System.out.println( "Screenshots requested-scale=" + scale + " actual-scale=" + actualScale );
+					System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 
 					program.start( stage );
 				} catch( Exception exception ) {
