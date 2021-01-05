@@ -155,7 +155,6 @@ jobs:
     env:
       AVN_PLATFORM: "linux"
       XVFB_PARMS: "-screen 0 3840x2160x24 -nolisten unix"
-      "glass.gtk.uiScale": "2"
     steps:
       - name: Fetch sources
         uses: actions/checkout@v2
@@ -190,7 +189,7 @@ jobs:
 
       - name: Generate Screenshots
         run: |
-          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
+          mvn ${{env.MAVEN_PARMS}} -Dglass.gtk.uiScale=2 -Dmaven.test.skip=true -Pscreenshots2x package
 
       - name: Post Screenshots
         run: |
