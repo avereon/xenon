@@ -141,18 +141,7 @@ abstract class Screenshots {
 			program.init();
 			Platform.startup( () -> {
 				try {
-					Stage stage = new Stage();
-					//stage.outputScaleXProperty().addListener( e -> stage.setRenderScaleX( scale ) );
-					//stage.outputScaleYProperty().addListener( e -> stage.setRenderScaleY( scale ) );
 					program.start( new Stage() );
-					//stage.outputScaleXProperty().addListener( e -> stage.setRenderScaleX( scale ) );
-					//stage.outputScaleYProperty().addListener( e -> stage.setRenderScaleY( scale ) );
-					//stage.setRenderScaleX( scale );
-					//stage.setRenderScaleY( scale );
-
-					double actualScale = program.getWorkspaceManager().getActiveStage().getRenderScaleX();
-					String uiScale = System.getProperty( "glass.gtk.uiScale");
-					System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 				} catch( Exception exception ) {
 					exception.printStackTrace( System.err );
 				}
@@ -169,6 +158,10 @@ abstract class Screenshots {
 		} catch( Exception exception ) {
 			exception.printStackTrace( System.err );
 		}
+
+		String uiScale = System.getProperty( "glass.gtk.uiScale");
+		double actualScale = program.getWorkspaceManager().getActiveStage().getRenderScaleX();
+		System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 
 		workspace = program.getWorkspaceManager().getActiveWorkspace();
 		workpane = workspace.getActiveWorkarea().getWorkpane();
