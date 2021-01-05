@@ -189,7 +189,7 @@ jobs:
 
       - name: Generate Screenshots
         run: |
-          mvn ${{env.MAVEN_PARMS}} -Dglass.gtk.uiScale=2 -Dmaven.test.skip=true -Pscreenshots2x package
+          mvn ${{env.MAVEN_PARMS}} -Dmaven.test.skip=true -Pscreenshots2x package
 
       - name: Post Screenshots
         run: |
