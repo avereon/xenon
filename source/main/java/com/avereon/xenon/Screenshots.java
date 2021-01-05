@@ -56,6 +56,8 @@ abstract class Screenshots {
 	public void generate( int scale ) {
 		this.scale = scale;
 
+		//System.setProperty( "glass.gtk.uiScale", String.valueOf( scale ) );
+
 		try {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
@@ -138,12 +140,11 @@ abstract class Screenshots {
 			Platform.startup( () -> {
 				try {
 					Stage stage = new Stage();
-
-					String uiScale = System.getProperty( "glass.gtk.uiScale");
-					double actualScale = stage.getRenderScaleX();
-					System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
-
 					program.start( stage );
+
+					double actualScale = stage.getRenderScaleX();
+					String uiScale = System.getProperty( "glass.gtk.uiScale");
+					System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 				} catch( Exception exception ) {
 					exception.printStackTrace( System.err );
 				}
@@ -152,8 +153,8 @@ abstract class Screenshots {
 			// NOTE Startup can take a while so give it more time than usual
 			programWatcher.waitForEvent( ProgramEvent.STARTED, programWatcher.getTimeout() * 2 );
 			Fx.run( () -> {
-				program.getWorkspaceManager().getActiveStage().setWidth( scale * WIDTH );
-				program.getWorkspaceManager().getActiveStage().setHeight( scale * HEIGHT );
+				program.getWorkspaceManager().getActiveStage().setWidth( WIDTH );
+				program.getWorkspaceManager().getActiveStage().setHeight( HEIGHT );
 				program.getWorkspaceManager().getActiveStage().centerOnScreen();
 			} );
 			Fx.waitForWithInterrupt( programWatcher.getTimeout() );
