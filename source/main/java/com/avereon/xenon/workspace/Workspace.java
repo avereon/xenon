@@ -23,19 +23,21 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 //import java.beans.PropertyChangeEvent;
@@ -527,7 +529,15 @@ public class Workspace implements WritableIdentity {
 	public void screenshot( Path file ) {
 		Fx.waitFor( 5, 1000 );
 		Fx.run( () -> {
-			WritableImage image = getStage().getScene().snapshot( null );
+			double renderScaleX = getStage().getRenderScaleX();
+			double renderScaleY = getStage().getRenderScaleY();
+
+			WritableImage buffer = new WritableImage( (int)Math.rint( renderScaleX * scene.getWidth() ), (int)Math.rint( renderScaleY * scene.getHeight() ) );
+			SnapshotParameters spa = new SnapshotParameters();
+			spa.setTransform( Transform.scale( renderScaleX, renderScaleY ) );
+
+			WritableImage image = scene.getRoot().snapshot( spa, buffer );
+
 			try {
 				Files.createDirectories( file.getParent() );
 				ImageIO.write( SwingFXUtils.fromFXImage( image, null ), "png", file.toFile() );

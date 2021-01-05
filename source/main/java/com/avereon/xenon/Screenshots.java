@@ -56,7 +56,9 @@ abstract class Screenshots {
 	public void generate( int scale ) {
 		this.scale = scale;
 
-		//System.setProperty( "glass.gtk.uiScale", String.valueOf( scale ) );
+		System.setProperty( "glass.gtk.uiScale", String.valueOf( scale ) );
+		//System.setProperty( "glass.gtk.forceIntegerRenderScale", "false" );
+		//System.setProperty( "glass.gtk.renderScale", String.valueOf( scale ) );
 
 		try {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
@@ -140,9 +142,15 @@ abstract class Screenshots {
 			Platform.startup( () -> {
 				try {
 					Stage stage = new Stage();
-					program.start( stage );
+					//stage.outputScaleXProperty().addListener( e -> stage.setRenderScaleX( scale ) );
+					//stage.outputScaleYProperty().addListener( e -> stage.setRenderScaleY( scale ) );
+					program.start( new Stage() );
+					//stage.outputScaleXProperty().addListener( e -> stage.setRenderScaleX( scale ) );
+					//stage.outputScaleYProperty().addListener( e -> stage.setRenderScaleY( scale ) );
+					//stage.setRenderScaleX( scale );
+					//stage.setRenderScaleY( scale );
 
-					double actualScale = stage.getRenderScaleX();
+					double actualScale = program.getWorkspaceManager().getActiveStage().getRenderScaleX();
 					String uiScale = System.getProperty( "glass.gtk.uiScale");
 					System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 				} catch( Exception exception ) {

@@ -526,7 +526,6 @@
 									<classpathScope>runtime</classpathScope>
 									<arguments>
 										<argument>-Xmx256m</argument>
-										<argument>-Dglass.gtk.uiScale=2</argument>
 										<argument>-p</argument>
 										<modulepath/>
 										<argument>-m</argument>
