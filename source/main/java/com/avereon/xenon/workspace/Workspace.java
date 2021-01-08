@@ -201,9 +201,8 @@ public class Workspace implements WritableIdentity {
 		menu.getItems().add( ActionUtil.createMenuItem( program, "save" ) );
 		menu.getItems().add( ActionUtil.createMenuItem( program, "save-as" ) );
 		menu.getItems().add( ActionUtil.createMenuItem( program, "copy-as" ) );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
 		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "close" ) );
 		menu.getItems().add( new SeparatorMenuItem() );
 		menu.getItems().add( ActionUtil.createMenuItem( program, "exit" ) );
 		menubar.getMenus().add( menu );
@@ -236,12 +235,13 @@ public class Workspace implements WritableIdentity {
 		tools.getItems().add( ActionUtil.createMenuItem( program, "restart" ) );
 
 		menu = ActionUtil.createMenu( program, "help" );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
 		menu.getItems().add( ActionUtil.createMenuItem( program, "welcome" ) );
+		//menu.getItems().add( ActionUtil.createMenuItem( program, "help-content" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "settings" ) );
+		menu.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
 		menu.getItems().add( new SeparatorMenuItem() );
 		menu.getItems().add( tools );
 		menu.getItems().add( new SeparatorMenuItem() );
-		menu.getItems().add( ActionUtil.createMenuItem( program, "product" ) );
 		menu.getItems().add( ActionUtil.createMenuItem( program, "update" ) );
 		menu.getItems().add( ActionUtil.createMenuItem( program, "about" ) );
 		menubar.getMenus().add( menu );
