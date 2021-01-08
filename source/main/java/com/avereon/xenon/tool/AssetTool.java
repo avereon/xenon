@@ -237,7 +237,6 @@ public class AssetTool extends GuidedTool {
 			currentIndex++;
 		}
 
-		Fx.assertFxThread();
 		uriField.setText( text );
 
 		try {

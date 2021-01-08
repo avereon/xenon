@@ -632,7 +632,6 @@ public class Program extends Application implements ProgramProduct {
 
 	@SuppressWarnings( "ConstantConditions" )
 	private boolean doRequestExit( boolean skipVerifyCheck, boolean skipKeepAliveCheck ) {
-		Fx.assertFxThread();
 		if( workspaceManager != null && !workspaceManager.handleModifiedAssets( ProgramScope.PROGRAM, workspaceManager.getModifiedAssets() ) ) return false;
 
 		boolean shutdownVerify = true;
