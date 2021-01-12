@@ -432,15 +432,15 @@ public class Workspace implements WritableIdentity {
 		noticeContainer.getChildren().add( 0, pane );
 
 		pane.setOnMouseClicked( ( event ) -> {
-			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
+			noticeContainer.getChildren().remove( pane );
 			pane.executeNoticeAction();
 			event.consume();
 		} );
 
 		pane.getCloseButton().setOnMouseClicked( ( event ) -> {
-			noticeContainer.getChildren().remove( pane );
 			getProgram().getNoticeManager().readNotice( notice );
+			noticeContainer.getChildren().remove( pane );
 			event.consume();
 		} );
 
