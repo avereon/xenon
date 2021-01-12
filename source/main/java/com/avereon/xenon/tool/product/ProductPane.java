@@ -1,6 +1,7 @@
 package com.avereon.xenon.tool.product;
 
 import com.avereon.product.ProductCard;
+import com.avereon.util.FileUtil;
 import com.avereon.util.Log;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
@@ -57,6 +58,8 @@ class ProductPane extends MigPane {
 
 	private Label stateLabel;
 
+	private final Label sizeLabel;
+
 	private ToggleSwitch enableSwitch;
 
 	private Button actionButton1;
@@ -97,6 +100,8 @@ class ProductPane extends MigPane {
 		stateLabel = new Label( "State" );
 		stateLabel.setId( "tool-product-artifact-state" );
 
+		sizeLabel = new Label( "" );
+		sizeLabel.setId( "tool-product-size" );
 		progress = new ProgressBar();
 		progress.setId( "tool-product-progress" );
 
@@ -112,11 +117,12 @@ class ProductPane extends MigPane {
 		add( nameLabel );
 		add( hyphenLabel );
 		add( providerLabel, "pushx" );
+		add( sizeLabel );
 		add( stateContainer, "tag right" );
 		add( enableSwitch, "w min" );
 		add( actionButton1 );
 
-		add( summaryLabel, "newline, spanx 3" );
+		add( summaryLabel, "newline, spanx 4" );
 		add( versionLabel, "tag right" );
 		add( actionButton2 );
 	}
@@ -139,6 +145,10 @@ class ProductPane extends MigPane {
 
 	public BooleanProperty selectedProperty() {
 		return selectedProperty;
+	}
+
+	void setSize( long size ) {
+		if( size >= 0 ) this.sizeLabel.setText( FileUtil.getHumanSizeBase2( size ) );
 	}
 
 	void setProgress( double progress ) {
@@ -266,7 +276,7 @@ class ProductPane extends MigPane {
 				manager.uninstallProducts( source ).get();
 				tool.getSelectedPage().updateState( false );
 			} catch( Exception exception ) {
-				ProductTool.log.log( Log.WARN,  "Error uninstalling product", exception );
+				ProductTool.log.log( Log.WARN, "Error uninstalling product", exception );
 			}
 			Fx.run( () -> setStatus( ProductStatus.NOT_INSTALLED ) );
 		} ) );

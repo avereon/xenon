@@ -59,8 +59,12 @@ abstract class ProductPage extends ProductToolPage {
 	private Set<DownloadRequest> getDownloads( List<ProductPane> panes, boolean install ) {
 		return panes.stream().filter( ProductPane::isSelected ).map( pane -> {
 			DownloadRequest request = new DownloadRequest( install ? pane.getSource() : pane.getUpdate() );
+			//pane.setProductSize( request.getCard().get)
 			request
-				.register( TaskEvent.START, e -> Fx.run( () -> pane.setStatus( ProductStatus.DOWNLOADING ) ) )
+				.register( TaskEvent.START, e -> Fx.run( () -> {
+					pane.setSize( e.getTask().getTotal() );
+					pane.setStatus( ProductStatus.DOWNLOADING );
+				} ) )
 				.register( TaskEvent.PROGRESS, e -> Fx.run( () -> pane.setProgress( e.getTask().getPercent() ) ) )
 				.register( TaskEvent.CANCEL, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
 				.register( TaskEvent.FAILURE, e -> Fx.run( () -> pane.setStatus( install ? ProductStatus.NOT_INSTALLED : ProductStatus.AVAILABLE ) ) )
