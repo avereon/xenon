@@ -8,6 +8,10 @@
 	-ex-workspace-drop-hint: rgba(32, 32, 32, 0.2);
 
 	-ex-background-error: CHART_COLOR_7_TRANS_20;
+
+	-status-monitor-background: ladder(-fx-color, derive(-fx-color, 10%) 50%, derive(-fx-color, -10%) 50%);
+	-status-monitor-primary: ladder(-fx-color,derive(-status-monitor-background, 20%) 50%,derive(-fx-color, -20%) 50%);
+	-status-monitor-secondary: ladder(#505050,-status-monitor-primary 0%,-fx-accent 100%);
 }
 
 .debug {
@@ -333,19 +337,11 @@
  * Memory Monitor
  ******************************************************************************/
 .memory-monitor {
-	-fx-background-color: ladder(
-		-fx-color,
-		derive(-fx-color, 10%) 50%,
-		derive(-fx-color, -10%) 50%
-	);
+	-fx-background-color: -status-monitor-background;
 }
 
 .memory-monitor-allocated {
-	-fx-fill: ladder(
-		-fx-color,
-		derive(-fx-color, 40%) 50%,
-		derive(-fx-color, -20%) 50%
-	);
+	-fx-fill: -status-monitor-primary;
 }
 
 .memory-monitor-used {
@@ -365,31 +361,19 @@
  * Task Monitor
  ******************************************************************************/
 .task-monitor {
-	-fx-background-color: ladder(
-		-fx-color,
-		derive(-fx-color, 15%) 50%,
-		derive(-fx-color, -15%) 50%
-	);
+	-fx-background-color: -status-monitor-background;
 }
 
 .task-monitor-threads {
-	-fx-fill: ladder(
-		-fx-color,
-		derive(-fx-color, 40%) 50%,
-		derive(-fx-color, -20%) 50%
-	);
+	-fx-fill: -status-monitor-primary;
 }
 
 .task-monitor-tasks {
-	-fx-fill: -fx-accent;
+	-fx-fill: -status-monitor-secondary;
 }
 
 .task-monitor-progress {
-	-fx-fill: ladder(
-		-fx-accent,
-		derive(-fx-accent, 30%) 50%,
-		derive(-fx-accent, 30%) 50%
-	);
+	-fx-fill: -fx-accent;
 }
 
 .task-monitor-label {
