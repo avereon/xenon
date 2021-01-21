@@ -68,7 +68,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 	// Selection change listener
 	@Override
 	public void changed( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
-		setting.getSettings().set( setting.getKey(), newValue.getOptionValue() );
+		setting.getSettings().set( setting.getRbKey(), newValue.getOptionValue() );
 	}
 
 	// Setting listener

@@ -22,7 +22,7 @@ public class SettingGroup extends SettingDependant {
 
 	public Setting getSetting( String key ) {
 		for( Setting setting : getSettingsList() ) {
-			if( setting.getKey().equals( key ) ) return setting;
+			if( setting.getRbKey().equals( key ) ) return setting;
 		}
 		return null;
 	}

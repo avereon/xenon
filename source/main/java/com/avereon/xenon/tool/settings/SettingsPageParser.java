@@ -42,6 +42,8 @@ public class SettingsPageParser {
 
 	private static final String KEY = "key";
 
+	private static final String RBKEY = "rbkey";
+
 	private static final String VALUE = "value";
 
 	private static final String ICON = "icon";
@@ -208,6 +210,9 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		// The setting key
 		String key = attributes.get( KEY );
+		String rbkey = attributes.get( RBKEY );
+		if( rbkey == null ) rbkey = key;
+		if( rbkey == null ) rbkey = id;
 		String editor = attributes.get( EDITOR );
 		String disable = attributes.get( DISABLE );
 		if( disable == null ) disable = String.valueOf( false );
@@ -218,7 +223,7 @@ public class SettingsPageParser {
 
 		Setting setting = new Setting( group );
 		setting.setId( id );
-		setting.setKey( key );
+		setting.setRbKey( rbkey );
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
@@ -264,7 +269,7 @@ public class SettingsPageParser {
 
 		// Determine the option name
 		String optionName = text;
-		String nameRbKey = getBundleKey( setting.getKey() ) + "-" + key;
+		String nameRbKey = getBundleKey( setting.getRbKey() ) + "-" + key;
 		if( optionName == null ) optionName = product.rb().text( bundleKey, nameRbKey );
 
 		// Determine the option value

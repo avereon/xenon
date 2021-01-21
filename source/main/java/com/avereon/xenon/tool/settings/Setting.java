@@ -15,6 +15,8 @@ public class Setting extends SettingDependant {
 
 	public static final String KEY = "key";
 
+	public static final String RBKEY = "rbkey";
+
 	public static final String VALUE = "value";
 
 	public static final String EDITOR = "editor";
@@ -55,6 +57,14 @@ public class Setting extends SettingDependant {
 
 	public void setKey( String key ) {
 		setValue( KEY, key );
+	}
+
+	public String getRbKey() {
+		return getValue( RBKEY );
+	}
+
+	public void setRbKey( String key ) {
+		setValue( RBKEY, key );
 	}
 
 	public String getSettingValue() {
@@ -127,14 +137,14 @@ public class Setting extends SettingDependant {
 	}
 
 	public String getBundleKey() {
-		return getBundleKey( getId(), getKey() );
+		return getBundleKey( getId(), getKey(), getRbKey() );
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		String key = getValue( KEY );
+		String key = getValue( RBKEY );
 		builder.append( key );
 		builder.append( ":" );
 
@@ -145,12 +155,13 @@ public class Setting extends SettingDependant {
 		return builder.toString();
 	}
 
-	private static String getBundleKey( String id, String key ) {
-		String rbKey = id;
-		if( rbKey == null ) rbKey = key;
-		if( rbKey == null ) return null;
-		if( rbKey.startsWith( "/" ) ) rbKey = rbKey.substring( 1 );
-		return rbKey.replace( '/', '-' );
+	private static String getBundleKey( String id, String key, String rbKey ) {
+		String localKey = rbKey;
+		if( localKey == null ) localKey = key;
+		if( localKey == null ) localKey = id;
+		if( localKey == null ) return null;
+		if( localKey.startsWith( "/" ) ) localKey = localKey.substring( 1 );
+		return localKey.replace( '/', '-' );
 	}
 
 }

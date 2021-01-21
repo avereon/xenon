@@ -237,7 +237,7 @@ public class SettingsPanel extends VBox {
 		private final Setting setting;
 
 		public SettingDependencyWatcher( SettingDependency dependency, Setting setting ) {
-			if( dependency.getKey() == null ) throw new NullPointerException( "Dependency key cannot be null for " + setting.getKey() );
+			if( dependency.getKey() == null ) throw new NullPointerException( "Dependency key cannot be null for " + setting.getRbKey() );
 			this.dependencyKey = dependency.getKey();
 			this.setting = setting;
 		}
