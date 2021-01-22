@@ -75,25 +75,13 @@ public class SettingDependency extends Node {
 		Operator operator = getOperator();
 		if( operator == null ) operator = Operator.AND;
 
-		boolean equal = TextUtil.areEqual( value, settings.get( key ) );
+		boolean match = TextUtil.areEqual( value, settings.get( key ) );
 
 		switch( operator ) {
-			case NOT: {
-				pass = pass & !equal;
-				break;
-			}
-			case AND: {
-				pass = pass & equal;
-				break;
-			}
-			case OR: {
-				pass = pass | equal;
-				break;
-			}
-			case XOR: {
-				pass = pass ^ equal;
-				break;
-			}
+			case NOT -> pass &= !match;
+			case AND -> pass &= match;
+			case OR -> pass |= match;
+			case XOR -> pass ^= match;
 		}
 
 		return pass;

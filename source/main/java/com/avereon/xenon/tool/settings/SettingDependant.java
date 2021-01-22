@@ -65,7 +65,6 @@ public abstract class SettingDependant extends Node {
 	}
 
 	public void updateState() {
-		log.log( Log.WARN, "Updating setting state..." );
 		if( SettingDependency.evaluate( getDependencies(), getSettings() ) ) {
 			setDisable( false );
 			setVisible( true );
