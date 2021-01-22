@@ -59,13 +59,13 @@ public class Setting extends SettingDependant {
 		setValue( KEY, key );
 	}
 
-	public String getRbKey() {
-		return getValue( RBKEY );
-	}
-
-	public void setRbKey( String key ) {
-		setValue( RBKEY, key );
-	}
+//	public String getRbKey() {
+//		return getValue( RBKEY );
+//	}
+//
+//	public void setRbKey( String key ) {
+//		setValue( RBKEY, key );
+//	}
 
 	public String getSettingValue() {
 		return getValue( VALUE );
@@ -137,7 +137,7 @@ public class Setting extends SettingDependant {
 	}
 
 	public String getBundleKey() {
-		return getBundleKey( getId(), getKey(), getRbKey() );
+		return getBundleKey( getId(), getKey() );
 	}
 
 	@Override
@@ -155,9 +155,8 @@ public class Setting extends SettingDependant {
 		return builder.toString();
 	}
 
-	private static String getBundleKey( String id, String key, String rbKey ) {
-		String localKey = rbKey;
-		if( localKey == null ) localKey = key;
+	private static String getBundleKey( String id, String key ) {
+		String localKey = key;
 		if( localKey == null ) localKey = id;
 		if( localKey == null ) return null;
 		if( localKey.startsWith( "/" ) ) localKey = localKey.substring( 1 );

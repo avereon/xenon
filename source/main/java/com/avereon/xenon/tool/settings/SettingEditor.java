@@ -48,7 +48,7 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 		this.product = product;
 		this.bundleKey = bundleKey;
 		this.setting = setting;
-		this.key = setting.getRbKey();
+		this.key = setting.getKey();
 	}
 
 	protected ProgramProduct getProduct() {

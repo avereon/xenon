@@ -61,7 +61,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 
 	@Override
 	public void handle( ActionEvent event ) {
-		setting.getSettings().set( setting.getRbKey(), Colors.toString( colorPicker.getValue() ) );
+		setting.getSettings().set( setting.getKey(), Colors.toString( colorPicker.getValue() ) );
 	}
 
 	@Override

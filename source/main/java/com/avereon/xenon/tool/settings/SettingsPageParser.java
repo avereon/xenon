@@ -210,9 +210,9 @@ public class SettingsPageParser {
 		String id = attributes.get( ID );
 		// The setting key
 		String key = attributes.get( KEY );
-		String rbkey = attributes.get( RBKEY );
-		if( rbkey == null ) rbkey = key;
-		if( rbkey == null ) rbkey = id;
+		//String rbkey = attributes.get( RBKEY );
+//		if( rbkey == null ) rbkey = key;
+//		if( rbkey == null ) rbkey = id;
 		String editor = attributes.get( EDITOR );
 		String disable = attributes.get( DISABLE );
 		if( disable == null ) disable = String.valueOf( false );
@@ -223,7 +223,7 @@ public class SettingsPageParser {
 
 		Setting setting = new Setting( group );
 		setting.setId( id );
-		setting.setRbKey( rbkey );
+		setting.setKey( key );
 		setting.setEditor( editor );
 		setting.setDisable( Boolean.parseBoolean( disable ) );
 		setting.setOpaque( Boolean.parseBoolean( opaque ) );
@@ -269,7 +269,7 @@ public class SettingsPageParser {
 
 		// Determine the option name
 		String optionName = text;
-		String nameRbKey = getBundleKey( setting.getRbKey() ) + "-" + key;
+		String nameRbKey = toBundleKey( setting.getKey() ) + "-" + key;
 		if( optionName == null ) optionName = product.rb().text( bundleKey, nameRbKey );
 
 		// Determine the option value
@@ -313,7 +313,7 @@ public class SettingsPageParser {
 		return dependency;
 	}
 
-	private static String getBundleKey( String key ) {
+	private static String toBundleKey( String key ) {
 		if( key == null ) return null;
 		if( key.startsWith( "/" ) ) key = key.substring( 1 );
 		return key.replace( '/', '-' );
