@@ -3,7 +3,7 @@ package com.avereon.xenon.tool.settings.editor;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.font.FontUtil;
 import javafx.scene.Node;
@@ -26,7 +26,7 @@ public class FontSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FontSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+	public FontSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
 		super( product, bundleKey, setting );
 	}
 

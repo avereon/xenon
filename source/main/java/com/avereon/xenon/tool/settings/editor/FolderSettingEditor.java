@@ -4,7 +4,7 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.util.FileUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
@@ -28,7 +28,7 @@ public class FolderSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public FolderSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+	public FolderSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
 		super( product, bundleKey, setting );
 	}
 

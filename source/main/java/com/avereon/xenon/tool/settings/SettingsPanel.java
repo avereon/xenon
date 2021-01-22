@@ -135,7 +135,7 @@ public class SettingsPanel extends VBox {
 		grid.getColumnConstraints().addAll( labelColumnConstraints, editorColumnConstraints );
 
 		int row = 0;
-		for( Setting setting : group.getSettingsList() ) {
+		for( SettingData setting : group.getSettingsList() ) {
 			// Get the editor type
 			String editorType = setting.getEditor();
 			if( editorType == null ) editorType = "textline";
@@ -171,12 +171,12 @@ public class SettingsPanel extends VBox {
 		return grid;
 	}
 
-	private SettingEditor createSettingEditor( ProgramProduct product, String bundleKey, Setting setting, Class<? extends SettingEditor> editorClass ) {
+	private SettingEditor createSettingEditor( ProgramProduct product, String bundleKey, SettingData setting, Class<? extends SettingEditor> editorClass ) {
 		// Try loading a class from the type
 		SettingEditor editor = null;
 
 		try {
-			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, Setting.class );
+			Constructor<? extends SettingEditor> constructor = editorClass.getConstructor( ProgramProduct.class, String.class, SettingData.class );
 			editor = constructor.newInstance( product, bundleKey, setting );
 		} catch( Exception exception ) {
 			log.log( Log.ERROR, "Error creating setting editor: " + editorClass.getName(), exception );
@@ -200,7 +200,7 @@ public class SettingsPanel extends VBox {
 		}
 	}
 
-	private void addSettingDependencyWatchers( Settings settings, Setting setting, SettingDependency dependency ) {
+	private void addSettingDependencyWatchers( Settings settings, SettingData setting, SettingDependency dependency ) {
 		settings.register( SettingsEvent.CHANGED, new SettingDependencyWatcher( dependency, setting ) );
 
 		List<SettingDependency> dependencies = setting.getDependencies();
@@ -234,9 +234,9 @@ public class SettingsPanel extends VBox {
 
 		private final String dependencyKey;
 
-		private final Setting setting;
+		private final SettingData setting;
 
-		public SettingDependencyWatcher( SettingDependency dependency, Setting setting ) {
+		public SettingDependencyWatcher( SettingDependency dependency, SettingData setting ) {
 			if( dependency.getKey() == null ) throw new NullPointerException( "Dependency key cannot be null for " + setting.getKey() );
 			this.dependencyKey = dependency.getKey();
 			this.setting = setting;
@@ -265,8 +265,8 @@ public class SettingsPanel extends VBox {
 			if( event.getSource() != group || event.getEventType() != NodeEvent.VALUE_CHANGED ) return;
 
 			switch( event.getKey() ) {
-				case Setting.DISABLE -> setDisable( event.getNewValue() );
-				case Setting.VISIBLE -> setVisible( event.getNewValue() );
+				case SettingData.DISABLE -> setDisable( event.getNewValue() );
+				case SettingData.VISIBLE -> setVisible( event.getNewValue() );
 			}
 		}
 
@@ -286,7 +286,7 @@ public class SettingsPanel extends VBox {
 
 		private EditorChangeHandler( SettingEditor editor ) {
 			this.editor = editor;
-			Setting setting = editor.getSetting();
+			SettingData setting = editor.getSetting();
 
 			// Register a handler when the setting value changes to update the editor
 			setting.getSettings().register( SettingsEvent.CHANGED, editor::doSettingValueChanged );
@@ -297,8 +297,8 @@ public class SettingsPanel extends VBox {
 
 		private void handleNodeEvent( NodeEvent event ) {
 			switch( event.getKey() ) {
-				case Setting.DISABLE -> Fx.run( () -> editor.setDisable( event.getNewValue() ) );
-				case Setting.VISIBLE -> Fx.run( () -> editor.setVisible( event.getNewValue() ) );
+				case SettingData.DISABLE -> Fx.run( () -> editor.setDisable( event.getNewValue() ) );
+				case SettingData.VISIBLE -> Fx.run( () -> editor.setVisible( event.getNewValue() ) );
 			}
 		}
 

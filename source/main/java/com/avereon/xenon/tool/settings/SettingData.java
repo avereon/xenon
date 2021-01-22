@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public class Setting extends SettingDependant {
+public class SettingData extends SettingDependant {
 
 	public static final String ID = "id";
 
@@ -33,7 +33,7 @@ public class Setting extends SettingDependant {
 
 	private SettingOptionProvider optionProvider;
 
-	public Setting( SettingGroup group ) {
+	public SettingData( SettingGroup group ) {
 		this.group = group;
 		setValue( OPTIONS, new CopyOnWriteArrayList<SettingOption>() );
 		setModified( false );
@@ -98,7 +98,7 @@ public class Setting extends SettingDependant {
 		return getValue( OPTION_PROVIDER );
 	}
 
-	public Setting setProvider( String provider ) {
+	public SettingData setProvider( String provider ) {
 		setValue( OPTION_PROVIDER, provider );
 		return this;
 	}

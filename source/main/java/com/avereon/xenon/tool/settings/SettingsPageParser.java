@@ -202,7 +202,7 @@ public class SettingsPageParser {
 		return group;
 	}
 
-	private Setting parseSetting( XMLStreamReader reader, String bundleKey, SettingGroup group ) throws XMLStreamException {
+	private SettingData parseSetting( XMLStreamReader reader, String bundleKey, SettingGroup group ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 
@@ -221,7 +221,7 @@ public class SettingsPageParser {
 		String provider = attributes.get( PROVIDER );
 		String failDependencyAction = attributes.get( FAIL_DEPENDENCY_ACTION );
 
-		Setting setting = new Setting( group );
+		SettingData setting = new SettingData( group );
 		setting.setId( id );
 		setting.setKey( key );
 		setting.setEditor( editor );
@@ -247,7 +247,7 @@ public class SettingsPageParser {
 		return setting;
 	}
 
-	private SettingOption parseOption( XMLStreamReader reader, String bundleKey, Setting setting ) throws XMLStreamException {
+	private SettingOption parseOption( XMLStreamReader reader, String bundleKey, SettingData setting ) throws XMLStreamException {
 		// Read the attributes.
 		Map<String, String> attributes = parseAttributes( reader );
 

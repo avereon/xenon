@@ -16,7 +16,7 @@ public abstract class SettingEditor {
 
 	protected final ProgramProduct product;
 
-	protected final Setting setting;
+	protected final SettingData setting;
 
 	protected final String bundleKey;
 
@@ -39,7 +39,7 @@ public abstract class SettingEditor {
 		addType( "update-checks", UpdateSettingViewer.class );
 	}
 
-	public SettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+	public SettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
 		if( product == null ) throw new NullPointerException( "Product cannot be null" );
 		if( setting == null ) throw new NullPointerException( "Setting cannot be null" );
 		this.product = product;
@@ -55,7 +55,7 @@ public abstract class SettingEditor {
 		return bundleKey;
 	}
 
-	public Setting getSetting() {
+	public SettingData getSetting() {
 		return setting;
 	}
 

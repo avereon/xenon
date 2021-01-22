@@ -17,11 +17,11 @@ public class SettingGroup extends SettingDependant {
 	public SettingGroup( SettingsPage page ) {
 		this.page = page;
 		definePrimaryKey( ID );
-		setValue( SETTINGS, new CopyOnWriteArrayList<Setting>() );
+		setValue( SETTINGS, new CopyOnWriteArrayList<SettingData>() );
 	}
 
-	public Setting getSetting( String key ) {
-		for( Setting setting : getSettingsList() ) {
+	public SettingData getSetting( String key ) {
+		for( SettingData setting : getSettingsList() ) {
 			if( setting.getKey().equals( key ) ) return setting;
 		}
 		return null;
@@ -39,12 +39,12 @@ public class SettingGroup extends SettingDependant {
 		setValue( ID, id );
 	}
 
-	public List<Setting> getSettingsList() {
+	public List<SettingData> getSettingsList() {
 		return Collections.unmodifiableList( getValue( SETTINGS ) );
 	}
 
-	public void addSetting( Setting setting ) {
-		List<Setting> settings = getValue( SETTINGS );
+	public void addSetting( SettingData setting ) {
+		List<SettingData> settings = getValue( SETTINGS );
 		settings.add( setting );
 	}
 

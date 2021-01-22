@@ -2,7 +2,7 @@ package com.avereon.xenon.tool.settings.editor;
 
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.color.Colors;
 import javafx.event.ActionEvent;
@@ -23,7 +23,7 @@ public class ColorSettingEditor extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public ColorSettingEditor( ProgramProduct product, String bundleKey, Setting setting ) {
+	public ColorSettingEditor( ProgramProduct product, String bundleKey, SettingData setting ) {
 		super( product, bundleKey, setting );
 	}
 

@@ -5,7 +5,7 @@ import com.avereon.util.DateUtil;
 import com.avereon.xenon.BundleKey;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
-import com.avereon.xenon.tool.settings.Setting;
+import com.avereon.xenon.tool.settings.SettingData;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.javafx.Fx;
 import javafx.scene.Node;
@@ -27,7 +27,7 @@ public class UpdateSettingViewer extends SettingEditor {
 
 	private List<Node> nodes;
 
-	public UpdateSettingViewer( ProgramProduct product, String bundleKey, Setting setting ) {
+	public UpdateSettingViewer( ProgramProduct product, String bundleKey, SettingData setting ) {
 		super( product, bundleKey, setting );
 	}
 
