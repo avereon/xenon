@@ -1,6 +1,5 @@
 package com.avereon.xenon.tool.settings;
 
-import com.avereon.event.EventHandler;
 import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.editor.*;
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class SettingEditor implements EventHandler<SettingsEvent> {
+public abstract class SettingEditor {
 
 	private static final Map<String, Class<? extends SettingEditor>> editors;
 
@@ -20,8 +19,6 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 	protected final Setting setting;
 
 	protected final String bundleKey;
-
-	protected final String key;
 
 	static {
 		editors = new HashMap<>();
@@ -48,7 +45,6 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 		this.product = product;
 		this.bundleKey = bundleKey;
 		this.setting = setting;
-		this.key = setting.getKey();
 	}
 
 	protected ProgramProduct getProduct() {
@@ -64,7 +60,7 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 	}
 
 	public String getKey() {
-		return key;
+		return setting.getKey();
 	}
 
 	/**
@@ -85,6 +81,8 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 
 	public abstract List<Node> getComponents();
 
+	protected abstract void doSettingValueChanged(SettingsEvent event);
+
 	public void setDisable( boolean disable ) {
 		getComponents().forEach( n -> n.setDisable( disable ) );
 	}
@@ -94,6 +92,11 @@ public abstract class SettingEditor implements EventHandler<SettingsEvent> {
 			n.setVisible( visible );
 			n.setManaged( visible );
 		} );
+	}
+	// Setting listener
+
+	public void handle( SettingsEvent event ) {
+		doSettingValueChanged(event);
 	}
 
 }

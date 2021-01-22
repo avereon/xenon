@@ -6,9 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,7 +20,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.List;
 
-public class FileSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+public class FileSettingEditor extends SettingEditor {
 
 	private Label label;
 
@@ -39,7 +37,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key );
+		String value = setting.getSettings().get( getKey() );
 
 		label = new Label( product.rb().text( "settings", rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
@@ -55,8 +53,8 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		nodes = List.of( label, field, button );
 
 		// Add the change handlers
-		field.focusedProperty().addListener( this );
-		field.setOnKeyPressed( this );
+		field.focusedProperty().addListener( this::doFocusChanged );
+		field.setOnKeyPressed( this::handleKeyEvent );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -82,8 +80,8 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	 * @param event The setting event
 	 */
 	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) field.setText( event.getNewValue().toString() );
 	}
 
 	/**
@@ -91,11 +89,10 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	 *
 	 * @param event The key event
 	 */
-	@Override
-	public void handle( KeyEvent event ) {
+	private void handleKeyEvent( KeyEvent event ) {
 		switch( event.getCode() ) {
-			case ESCAPE -> field.setText( setting.getSettings().get( key ) );
-			case ENTER -> setting.getSettings().set( key, field.getText() );
+			case ESCAPE -> field.setText( setting.getSettings().get( getKey() ) );
+			case ENTER -> setting.getSettings().set( getKey(), field.getText() );
 		}
 	}
 
@@ -106,9 +103,8 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 	 * @param oldValue The old value
 	 * @param newValue The new value
 	 */
-	@Override
-	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		if( !newValue ) setting.getSettings().set( key, field.getText() );
+	private void doFocusChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+		if( !newValue ) setting.getSettings().set( getKey(), field.getText() );
 	}
 
 	private void getFile() {
@@ -127,7 +123,7 @@ public class FileSettingEditor extends SettingEditor implements EventHandler<Key
 		File selectedFile = fileChooser.showOpenDialog( product.getProgram().getWorkspaceManager().getActiveStage() );
 		if( selectedFile != null ) {
 			field.setText( selectedFile.toString() );
-			setting.getSettings().set( key, field.getText() );
+			setting.getSettings().set( getKey(), field.getText() );
 		}
 	}
 

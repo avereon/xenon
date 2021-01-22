@@ -4,20 +4,16 @@ import com.avereon.settings.SettingsEvent;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import java.util.List;
 
-public abstract class InfoSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+public abstract class InfoSettingEditor extends SettingEditor {
 
 	protected enum Type {
 		AREA,
@@ -25,8 +21,6 @@ public abstract class InfoSettingEditor extends SettingEditor implements EventHa
 	}
 
 	private final Type type;
-
-	private TextInputControl text;
 
 	private List<Node> nodes;
 
@@ -39,6 +33,7 @@ public abstract class InfoSettingEditor extends SettingEditor implements EventHa
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
 
+		TextInputControl text;
 		if( type == Type.AREA ) {
 			text = new TextArea();
 			text.getStyleClass().add( "settings-infoarea" );
@@ -68,20 +63,7 @@ public abstract class InfoSettingEditor extends SettingEditor implements EventHa
 	}
 
 	@Override
-	public void handle( SettingsEvent event ) {
-		// No need to change the editor
-	}
-
-	@Override
-	public void handle( KeyEvent event ) {
-		// No need to change the editor
-	}
-
-	/**
-	 * Focus listener
-	 */
-	@Override
-	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+	protected void doSettingValueChanged( SettingsEvent event ) {
 		// No need to change the editor
 	}
 

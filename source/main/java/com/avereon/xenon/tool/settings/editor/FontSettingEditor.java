@@ -33,7 +33,7 @@ public class FontSettingEditor extends SettingEditor {
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, "SansSerif|12" );
+		String value = setting.getSettings().get( getKey(), "SansSerif|12" );
 
 		label = new Label( product.rb().text( "settings", rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
@@ -58,8 +58,8 @@ public class FontSettingEditor extends SettingEditor {
 	}
 
 	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) updateFont( event.getNewValue().toString() );
 	}
 
 	private void updateFont( String value ) {

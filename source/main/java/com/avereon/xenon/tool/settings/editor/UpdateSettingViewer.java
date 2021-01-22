@@ -71,7 +71,7 @@ public class UpdateSettingViewer extends SettingEditor {
 	}
 
 	@Override
-	public void handle( SettingsEvent event ) {
+	protected void doSettingValueChanged( SettingsEvent event ) {
 		Fx.run( this::updateLabels );
 	}
 

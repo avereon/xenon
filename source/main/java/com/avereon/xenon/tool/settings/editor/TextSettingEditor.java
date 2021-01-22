@@ -5,9 +5,7 @@ import com.avereon.util.TextUtil;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
@@ -17,7 +15,7 @@ import javafx.scene.layout.Region;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class TextSettingEditor extends SettingEditor implements EventHandler<KeyEvent>, ChangeListener<Boolean> {
+public abstract class TextSettingEditor extends SettingEditor {
 
 	protected enum Type {
 		AREA,
@@ -41,7 +39,7 @@ public abstract class TextSettingEditor extends SettingEditor implements EventHa
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key );
+		String value = setting.getSettings().get( getKey() );
 
 		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
@@ -57,8 +55,8 @@ public abstract class TextSettingEditor extends SettingEditor implements EventHa
 		nodes = List.of( label, text );
 
 		// Add the change handlers
-		text.focusedProperty().addListener( this );
-		text.setOnKeyPressed( this );
+		text.focusedProperty().addListener( this::doFocusChanged );
+		text.setOnKeyPressed( this::handleKeyEvent );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -73,8 +71,8 @@ public abstract class TextSettingEditor extends SettingEditor implements EventHa
 	}
 
 	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) {
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) {
 			Object eventNewValue = event.getNewValue();
 			String newValue = eventNewValue == null ? null : String.valueOf( eventNewValue );
 
@@ -84,18 +82,15 @@ public abstract class TextSettingEditor extends SettingEditor implements EventHa
 		}
 	}
 
-	@Override
-	public void handle( KeyEvent event ) {
+	private void handleKeyEvent( KeyEvent event ) {
 		switch( event.getCode() ) {
-			case ESCAPE -> text.setText( setting.getSettings().get( key ) );
-			case ENTER -> updateSetting( key, text.getText() );
+			case ESCAPE -> text.setText( setting.getSettings().get( getKey() ) );
+			case ENTER -> updateSetting( getKey(), text.getText() );
 		}
 	}
 
-	/* Focus listener */
-	@Override
-	public void changed( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
-		if( !newValue ) updateSetting( key, text.getText() );
+	private void doFocusChanged( ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue ) {
+		if( !newValue ) updateSetting( getKey(), text.getText() );
 	}
 
 	private void updateSetting( String key, String value ) {

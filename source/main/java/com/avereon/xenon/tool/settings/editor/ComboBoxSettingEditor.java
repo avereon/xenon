@@ -5,7 +5,6 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.xenon.tool.settings.SettingOption;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -15,9 +14,7 @@ import javafx.scene.layout.Region;
 
 import java.util.List;
 
-public class ComboBoxSettingEditor extends SettingEditor implements ChangeListener<SettingOption> {
-
-	private Label label;
+public class ComboBoxSettingEditor extends SettingEditor {
 
 	private ComboBox<SettingOption> combobox;
 
@@ -30,9 +27,9 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key );
+		String value = setting.getSettings().get( getKey() );
 
-		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
+		Label label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
 
 		List<SettingOption> options = setting.getOptions();
@@ -50,7 +47,7 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		}
 
 		// Add the change handlers
-		combobox.valueProperty().addListener( this );
+		combobox.valueProperty().addListener( this::doComboBoxValueChanged );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -65,20 +62,17 @@ public class ComboBoxSettingEditor extends SettingEditor implements ChangeListen
 		return nodes;
 	}
 
-	// Selection change listener
 	@Override
-	public void changed( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
-		setting.getSettings().set( setting.getKey(), newValue.getOptionValue() );
-	}
-
-	// Setting listener
-	@Override
-	public void handle( SettingsEvent event ) {
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) {
+	protected void doSettingValueChanged( SettingsEvent event ) {
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) {
 			Object newValue = event.getNewValue();
 			SettingOption option = setting.getOption( newValue == null ? null : newValue.toString() );
 			combobox.getSelectionModel().select( option );
 		}
+	}
+
+	private void doComboBoxValueChanged( ObservableValue<? extends SettingOption> observable, SettingOption oldValue, SettingOption newValue ) {
+		setting.getSettings().set( setting.getKey(), newValue == null ? null : newValue.getOptionValue() );
 	}
 
 }

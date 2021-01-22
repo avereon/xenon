@@ -289,7 +289,7 @@ public class SettingsPanel extends VBox {
 			Setting setting = editor.getSetting();
 
 			// Register a handler when the setting value changes to update the editor
-			setting.getSettings().register( SettingsEvent.CHANGED, editor );
+			setting.getSettings().register( SettingsEvent.CHANGED, editor::doSettingValueChanged );
 
 			// Register a handler on the setting node to update other setting nodes
 			setting.register( NodeEvent.VALUE_CHANGED, this::handleNodeEvent );

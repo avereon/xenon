@@ -6,7 +6,6 @@ import com.avereon.xenon.tool.settings.Setting;
 import com.avereon.xenon.tool.settings.SettingEditor;
 import com.avereon.zerra.color.Colors;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -16,7 +15,7 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 
-public class ColorSettingEditor extends SettingEditor implements EventHandler<ActionEvent> {
+public class ColorSettingEditor extends SettingEditor {
 
 	private Label label;
 
@@ -31,7 +30,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	@Override
 	public void addComponents( GridPane pane, int row ) {
 		String rbKey = setting.getBundleKey();
-		String value = setting.getSettings().get( key, "#000000ff" );
+		String value = setting.getSettings().get( getKey(), "#000000ff" );
 
 		label = new Label( product.rb().text( getBundleKey(), rbKey ) );
 		label.setMinWidth( Region.USE_PREF_SIZE );
@@ -44,7 +43,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		nodes = List.of( label, colorPicker );
 
 		// Add the event handlers
-		colorPicker.setOnAction( this );
+		colorPicker.setOnAction( this::doPickerValueChanged );
 
 		// Set component state
 		setDisable( setting.isDisable() );
@@ -60,12 +59,7 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 	}
 
 	@Override
-	public void handle( ActionEvent event ) {
-		setting.getSettings().set( setting.getKey(), Colors.toString( colorPicker.getValue() ) );
-	}
-
-	@Override
-	public void handle( SettingsEvent event ) {
+	protected void doSettingValueChanged( SettingsEvent event ) {
 		Object value = event.getNewValue();
 		Color color;
 		try {
@@ -73,7 +67,11 @@ public class ColorSettingEditor extends SettingEditor implements EventHandler<Ac
 		} catch( Exception exception ) {
 			color = Color.BLACK;
 		}
-		if( event.getEventType() == SettingsEvent.CHANGED && key.equals( event.getKey() ) ) colorPicker.setValue( color );
+		if( event.getEventType() == SettingsEvent.CHANGED && getKey().equals( event.getKey() ) ) colorPicker.setValue( color );
+	}
+
+	private void doPickerValueChanged( ActionEvent event ) {
+		setting.getSettings().set( setting.getKey(), Colors.toString( colorPicker.getValue() ) );
 	}
 
 }
