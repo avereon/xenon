@@ -1,6 +1,8 @@
 package com.avereon.xenon.notice;
 
 import com.avereon.data.IdNode;
+import com.avereon.transaction.Txn;
+import com.avereon.transaction.TxnException;
 import com.avereon.util.HashUtil;
 import com.avereon.util.Log;
 import javafx.scene.control.TextInputControl;
@@ -34,8 +36,6 @@ public class Notice extends IdNode {
 	}
 
 	private static final Logger log = Log.get();
-
-	private static final String ID = "id";
 
 	private static final String TIMESTAMP = "timestamp";
 
@@ -77,22 +77,25 @@ public class Notice extends IdNode {
 	 * @param parameters Parameters to be used in the message
 	 */
 	public Notice( Object title, Object message, Throwable throwable, Runnable action, Object... parameters ) {
-		definePrimaryKey( ID );
 		defineNaturalKey( TITLE );
 
 		this.parameters = parameters;
 
-		setValue( TIMESTAMP, System.currentTimeMillis() );
-		setValue( TITLE, title );
-		setValue( MESSAGE, message );
-		setValue( THROWABLE, throwable );
-		setValue( BALLOON_STICKINESS, Balloon.NORMAL );
-		setId( HashUtil.hash( title + getMessageStringContent() ) );
+		try( Txn ignored = Txn.create(true) ) {
+			setId( HashUtil.hash( title + getMessageStringContent() ) );
+			setValue( TIMESTAMP, System.currentTimeMillis() );
+			setValue( TITLE, title );
+			setValue( MESSAGE, message );
+			setValue( THROWABLE, throwable );
+			setValue( BALLOON_STICKINESS, Balloon.NORMAL );
 
-		setType( Type.NORM );
-		setAction( action );
+			setType( Type.NORM );
+			setAction( action );
 
-		setModified( false );
+			setModified( false );
+		} catch( TxnException exception ) {
+			exception.printStackTrace( System.err );
+		}
 	}
 
 	public Long getTimestamp() {

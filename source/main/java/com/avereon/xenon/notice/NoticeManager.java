@@ -59,14 +59,14 @@ public class NoticeManager implements Controllable<NoticeManager> {
 		if( type == Notice.Type.ERROR ) notice.setBalloonStickiness( Notice.Balloon.ALWAYS );
 		notice.setAction( () -> {
 			AssetManager manager = getProgram().getAssetManager();
-			URI uri = URI.create( FaultScheme.ID + ":" + System.identityHashCode( throwable ) );
+			URI uri = URI.create( String.format( "%s:%d", FaultScheme.ID, System.identityHashCode( throwable ) ) );
 			manager.openAsset( uri, throwable );
 		} );
 		addNotice( notice );
 	}
 
 	public void addNotice( Notice notice ) {
-		if( notice.getId() == null ) throw new NullPointerException( "Notice id cannot be null" );
+		if( notice.getId() == null ) throw new NullPointerException( "Notice id cannot be null: id=" + notice.getId() );
 
 		if( !getProgram().getWorkspaceManager().isUiReady() ) {
 			startupNotices.add( notice );
