@@ -238,6 +238,7 @@
 						--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
+						--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
 						--add-opens=com.avereon.xenon/com.avereon.xenon.tool.guide=ALL-UNNAMED
@@ -564,6 +565,7 @@
 										--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.asset=ALL-UNNAMED
+										--add-opens=com.avereon.xenon/com.avereon.xenon.notice=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.product=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.task=ALL-UNNAMED
 										--add-opens=com.avereon.xenon/com.avereon.xenon.task.chain=ALL-UNNAMED
