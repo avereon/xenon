@@ -77,12 +77,13 @@ public class Notice extends IdNode {
 	 * @param parameters Parameters to be used in the message
 	 */
 	public Notice( Object title, Object message, Throwable throwable, Runnable action, Object... parameters ) {
-		defineNaturalKey( TITLE );
+		defineNaturalKey( ID );
 
 		this.parameters = parameters;
 
 		try( Txn ignored = Txn.create(true) ) {
-			setId( HashUtil.hash( title + getMessageStringContent() ) );
+			setId( HashUtil.hash( title + getMessageStringContent( message ) ) );
+
 			setValue( TIMESTAMP, System.currentTimeMillis() );
 			setValue( TITLE, title );
 			setValue( MESSAGE, message );
@@ -157,15 +158,14 @@ public class Notice extends IdNode {
 	}
 
 	private String formatMessage( Object message, Throwable throwable ) {
-		String string = message == null ? null : getMessageStringContent();
+		String string = message == null ? null : getMessageStringContent( message );
 		if( string == null && throwable != null ) return throwable.getLocalizedMessage();
 		return string;
 	}
 
-	private String getMessageStringContent() {
+	private String getMessageStringContent( Object message ) {
 		StringBuilder builder = new StringBuilder();
 
-		Object message = getMessage();
 		if( message instanceof javafx.scene.Node ) {
 			if( message instanceof TextInputControl ) {
 				// Handle text input controls

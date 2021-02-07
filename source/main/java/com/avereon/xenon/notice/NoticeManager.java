@@ -29,17 +29,18 @@ public class NoticeManager implements Controllable<NoticeManager> {
 
 	private static final Logger log = Log.get();
 
-	private Program program;
+	private final Program program;
+
+	private final List<Notice> startupNotices;
+
+	private final IntegerProperty unreadCount;
 
 	private Asset asset;
-
-	private List<Notice> startupNotices;
-
-	private IntegerProperty unreadCount = new SimpleIntegerProperty();
 
 	public NoticeManager( Program program ) {
 		this.program = program;
 		this.startupNotices = new CopyOnWriteArrayList<>();
+		this.unreadCount = new SimpleIntegerProperty();
 	}
 
 	public List<Notice> getNotices() {
