@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Xenon with Acorn" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
-    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Program" />
+    <option name="MAIN_CLASS_NAME" value="com.avereon.xenon.Launcher" />
     <module name="acornmod" />
     <option name="PROGRAM_PARAMETERS" value="--profile dev --noupdate --log-level debug --enable-mod com.avereon.acornmod" />
     <option name="VM_PARAMETERS" value="-Duser.language=es" />
