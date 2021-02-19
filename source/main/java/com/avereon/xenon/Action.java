@@ -15,6 +15,8 @@ public abstract class Action implements EventHandler<ActionEvent> {
 
 	public static final String TYPE_SUFFIX = ".type";
 
+	public static final String COMMAND_SUFFIX = ".command";
+
 	public static final String MNEMONIC_SUFFIX = ".mnemonic";
 
 	public static final String SHORTCUT_SUFFIX = ".shortcut";

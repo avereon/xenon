@@ -5,6 +5,7 @@ import com.avereon.util.Log;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
@@ -16,13 +17,16 @@ public class ActionLibrary {
 
 	private static final Logger log = Log.get();
 
-	private final Map<String, ActionProxy> actions;
+	private final Map<String, ActionProxy> actionsById;
+
+	private final Map<KeyCombination, ActionProxy> actionsByAccelerator;
 
 	private final EventHandler<KeyEvent> shortcutHandler;
 
 	public ActionLibrary( Program program ) {
-		this.actions = new ConcurrentHashMap<>();
-		shortcutHandler = this::handleEvent;
+		this.actionsById = new ConcurrentHashMap<>();
+		this.actionsByAccelerator = new ConcurrentHashMap<>();
+		this.shortcutHandler = this::handleEvent;
 
 		ProductBundle bundle = program.rb();
 
@@ -116,7 +120,7 @@ public class ActionLibrary {
 	}
 
 	public ActionProxy getAction( String id ) {
-		ActionProxy proxy = actions.get( id );
+		ActionProxy proxy = actionsById.get( id );
 		if( proxy == null ) log.log( Log.WARN, "Action proxy not found: " + id );
 		return proxy;
 	}
@@ -130,19 +134,24 @@ public class ActionLibrary {
 		String type = bundle.textOr( BundleKey.ACTION, id + Action.TYPE_SUFFIX, null );
 		String mnemonic = bundle.textOr( BundleKey.ACTION, id + Action.MNEMONIC_SUFFIX, null );
 		String shortcut = bundle.textOr( BundleKey.ACTION, id + Action.SHORTCUT_SUFFIX, null );
+		String command = bundle.textOr( BundleKey.ACTION, id + Action.COMMAND_SUFFIX, null );
 		String description = bundle.textOr( BundleKey.ACTION, id + Action.DESCRIPTION_SUFFIX, null );
 
 		proxy.setId( id );
 		proxy.setIcon( icon );
 		proxy.setName( name );
 		proxy.setType( type );
-		proxy.setShortcut( shortcut );
 		proxy.setMnemonic( mnemonic );
+		proxy.setShortcut( shortcut );
+		proxy.setCommand( command );
+		if( command != null ) proxy.setName( name + " (" + command + ")" );
 		proxy.setDescription( description );
-
 		if( "multi-state".equals( type ) ) addStates( bundle, id, proxy );
 
-		actions.put( id, proxy );
+		KeyCombination accelerator = proxy.getAccelerator();
+
+		actionsById.put( id, proxy );
+		if( accelerator != null ) actionsByAccelerator.put( accelerator, proxy );
 	}
 
 	// This handler is to capture key combinations for actions that are not in menus or toolbars
@@ -154,14 +163,27 @@ public class ActionLibrary {
 		scene.removeEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
+	private KeyCombination.Modifier[] getModifiers( KeyEvent event ) {
+		KeyCombination.Modifier s = event.isShiftDown() ? KeyCombination.SHIFT_DOWN : KeyCombination.SHIFT_ANY;
+		KeyCombination.Modifier c = event.isControlDown() ? KeyCombination.CONTROL_DOWN : KeyCombination.CONTROL_ANY;
+		KeyCombination.Modifier a = event.isAltDown() ? KeyCombination.ALT_DOWN : KeyCombination.ALT_ANY;
+		KeyCombination.Modifier m = event.isMetaDown() ? KeyCombination.META_DOWN : KeyCombination.META_ANY;
+		KeyCombination.Modifier t = event.isShortcutDown() ? KeyCombination.SHORTCUT_DOWN : KeyCombination.SHORTCUT_ANY;
+		return new KeyCombination.Modifier[]{ s, c, a, m, t };
+	}
+
 	private void handleEvent( KeyEvent event ) {
-		for( ActionProxy proxy : actions.values() ) {
-			KeyCombination accelerator = proxy.getAccelerator();
-			if( accelerator != null && accelerator.match( event ) ) {
-				proxy.handle( new ActionEvent() );
-				if( proxy.isEnabled() ) event.consume();
-				break;
-			}
+		if( event.getCode().isModifierKey() ) return;
+
+		KeyCombination eventCombo = new KeyCodeCombination( event.getCode(), getModifiers( event ) );
+		ActionProxy proxy = actionsByAccelerator.get( eventCombo );
+		if( proxy == null ) return;
+		KeyCombination accelerator = proxy.getAccelerator();
+		if( accelerator == null ) return;
+
+		if( accelerator.match( event ) ) {
+			proxy.handle( new ActionEvent() );
+			if( proxy.isEnabled() ) event.consume();
 		}
 	}
 

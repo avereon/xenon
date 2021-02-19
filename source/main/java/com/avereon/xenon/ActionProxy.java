@@ -37,6 +37,8 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	private KeyCombination accelerator;
 
+	private String command;
+
 	private final List<String> states;
 
 	private final Map<String, ActionState> stateMap;
@@ -160,6 +162,14 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 
 	public KeyCombination getAccelerator() {
 		return accelerator;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand( String command ) {
+		this.command = command;
 	}
 
 	public boolean isEnabled() {
