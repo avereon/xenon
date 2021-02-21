@@ -23,10 +23,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
@@ -481,6 +485,7 @@ public class Workspace implements WritableIdentity {
 		Double w = settings.get( "w", Double.class, UiFactory.DEFAULT_WIDTH );
 		Double h = settings.get( "h", Double.class, UiFactory.DEFAULT_HEIGHT );
 		scene = new Scene( workareaLayout, w, h );
+		scene.setFill( Color.BLACK );
 		getProgram().getActionLibrary().registerScene( scene );
 
 		// Setup the stage
