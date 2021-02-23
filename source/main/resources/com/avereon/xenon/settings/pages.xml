@@ -219,6 +219,12 @@
 				-->
 			</group>
 		</page>
+
+		<page id="fps-monitor">
+			<group id="fps-monitor">
+			<setting key="workspace-fps-monitor-enabled" editor="checkbox"/>
+			</group>
+		</page>
 	</page>
 
 	<page id="network">
