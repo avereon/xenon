@@ -10,7 +10,6 @@ import com.avereon.xenon.Profile;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramSettings;
 import com.avereon.xenon.UiFactory;
-import com.avereon.xenon.asset.type.ProgramTaskType;
 import com.avereon.xenon.notice.Notice;
 import com.avereon.xenon.notice.NoticePane;
 import com.avereon.xenon.util.ActionUtil;
@@ -43,9 +42,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-//import java.beans.PropertyChangeEvent;
-//import java.beans.PropertyChangeListener;
 
 /**
  * The workspace manages the menu bar, tool bar and workareas.
@@ -84,37 +80,33 @@ public class Workspace implements WritableIdentity {
 
 	private final StatusBar statusBar;
 
-	private Group memoryMonitorContainer;
-
 	private MemoryMonitor memoryMonitor;
-
-	private Group taskMonitorContainer;
 
 	private TaskMonitor taskMonitor;
 
+	private FpsMonitor fpsMonitor;
+
 	private final WorkspaceBackground background;
 
-	private Pane dropHintLayer;
+	private final Pane workpaneContainer;
 
-	private Pane workpaneContainer;
-
-	private VBox noticeContainer;
-
-	private BorderPane noticeLayout;
+	private final VBox noticeContainer;
 
 	private ComboBox<Workarea> workareaSelector;
 
-	private ObservableList<Workarea> workareas;
+	private final ObservableList<Workarea> workareas;
+
+	private final WorkareaNameWatcher workareaNameWatcher;
+
+	private final BackgroundSettingsHandler backgroundSettingsHandler;
+
+	private final MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
+
+	private final TaskMonitorSettingsHandler taskMonitorSettingsHandler;
+
+	private final FpsMonitorSettingsHandler fpsMonitorSettingsHandler;
 
 	private Workarea activeWorkarea;
-
-	private WorkareaNameWatcher workareaNameWatcher;
-
-	private BackgroundSettingsHandler backgroundSettingsHandler;
-
-	private MemoryMonitorSettingsHandler memoryMonitorSettingsHandler;
-
-	private TaskMonitorSettingsHandler taskMonitorSettingsHandler;
 
 	public Workspace( final Program program ) {
 		this.program = program;
@@ -125,6 +117,7 @@ public class Workspace implements WritableIdentity {
 		backgroundSettingsHandler = new BackgroundSettingsHandler();
 		memoryMonitorSettingsHandler = new MemoryMonitorSettingsHandler();
 		taskMonitorSettingsHandler = new TaskMonitorSettingsHandler();
+		fpsMonitorSettingsHandler = new FpsMonitorSettingsHandler();
 
 		// FIXME Should this default setup be defined in config files or something else?
 		menubar = createMenuBar( program );
@@ -140,7 +133,7 @@ public class Workspace implements WritableIdentity {
 		noticeContainer.getStyleClass().add( "notice-container" );
 		noticeContainer.setPickOnBounds( false );
 
-		noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
+		BorderPane noticeLayout = new BorderPane( null, null, noticeContainer, null, null );
 		noticeLayout.setPickOnBounds( false );
 
 		// Workpane Container
@@ -178,6 +171,10 @@ public class Workspace implements WritableIdentity {
 		// resolution, but then just scaled back up so it looked fuzzy.
 		//stage.renderScaleXProperty().bind( stage.outputScaleXProperty().multiply( 0.5 ) );
 		//stage.renderScaleYProperty().bind( stage.outputScaleYProperty().multiply( 0.5 ) );
+
+		memoryMonitor.start();
+		taskMonitor.start();
+		fpsMonitor.start();
 	}
 
 	public void setTheme( String url ) {
@@ -191,7 +188,6 @@ public class Workspace implements WritableIdentity {
 	}
 
 	private MenuBar createMenuBar( Program program ) {
-		// FIXME This probably should be a MenuButton
 		MenuBar menubar = new MenuBar();
 		Menu menu;
 
@@ -310,21 +306,20 @@ public class Workspace implements WritableIdentity {
 		StatusBar statusBar = new StatusBar();
 
 		// Task Monitor
-		taskMonitor = new TaskMonitor( program.getTaskManager() );
-		taskMonitorContainer = new Group();
-
-		// If the task monitor is clicked then open the task tool
-		taskMonitor.setOnMouseClicked( ( event ) -> program.getAssetManager().openAsset( ProgramTaskType.URI ) );
+		taskMonitor = new TaskMonitor( program );
 
 		// Memory Monitor
 		memoryMonitor = new MemoryMonitor();
-		memoryMonitorContainer = new Group();
+
+		// FPS Monitor
+		fpsMonitor = new FpsMonitor();
 
 		// If the memory monitor is clicked then call the garbage collector
 		memoryMonitor.setOnMouseClicked( ( event ) -> Runtime.getRuntime().gc() );
 
-		statusBar.addRightItems( memoryMonitorContainer );
-		statusBar.addRightItems( taskMonitorContainer );
+		statusBar.addRightItems( memoryMonitor.getMonitorGroup() );
+		statusBar.addRightItems( taskMonitor.getMonitorGroup() );
+		statusBar.addRightItems( fpsMonitor.getMonitorGroup() );
 
 		return statusBar;
 	}
@@ -529,6 +524,7 @@ public class Workspace implements WritableIdentity {
 		updateBackgroundFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateMemoryMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 		updateTaskMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
+		updateFpsMonitorFromSettings( getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM ) );
 	}
 
 	public void screenshot( Path file ) {
@@ -557,6 +553,7 @@ public class Workspace implements WritableIdentity {
 		getProgram().getActionLibrary().unregisterScene( scene );
 		memoryMonitor.close();
 		taskMonitor.close();
+		fpsMonitor.close();
 		getStage().close();
 	}
 
@@ -582,7 +579,7 @@ public class Workspace implements WritableIdentity {
 
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
-			updateContainer( memoryMonitorContainer, memoryMonitor, enabled );
+			updateContainer( memoryMonitor, enabled );
 			memoryMonitor.setTextVisible( showText );
 			memoryMonitor.setShowPercent( showPercent );
 			settings.register( SettingsEvent.CHANGED, memoryMonitorSettingsHandler );
@@ -595,19 +592,26 @@ public class Workspace implements WritableIdentity {
 		Boolean showPercent = settings.get( "workspace-task-monitor-percent", Boolean.class, Boolean.TRUE );
 		Fx.run( () -> {
 			settings.unregister( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
-			updateContainer( taskMonitorContainer, taskMonitor, enabled );
+			updateContainer( taskMonitor, enabled );
 			taskMonitor.setTextVisible( showText );
 			taskMonitor.setShowPercent( showPercent );
 			settings.register( SettingsEvent.CHANGED, taskMonitorSettingsHandler );
 		} );
 	}
 
-	private void updateContainer( Group container, Node tool, boolean enabled ) {
-		if( enabled ) {
-			if( !container.getChildren().contains( tool ) ) container.getChildren().add( tool );
-		} else {
-			container.getChildren().remove( tool );
-		}
+	private void updateFpsMonitorFromSettings( Settings settings ) {
+		Boolean enabled = settings.get( "workspace-fps-monitor-enabled", Boolean.class, Boolean.TRUE );
+		Fx.run( () -> {
+			settings.unregister( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
+			updateContainer( fpsMonitor, enabled );
+			settings.register( SettingsEvent.CHANGED, fpsMonitorSettingsHandler );
+		} );
+	}
+
+	private void updateContainer( AbstractMonitor monitor, boolean enabled ) {
+		Group container = monitor.getMonitorGroup();
+		container.getChildren().clear();
+		if( enabled ) container.getChildren().add( monitor );
 	}
 
 	private class BackgroundSettingsHandler implements EventHandler<SettingsEvent> {
@@ -633,6 +637,15 @@ public class Workspace implements WritableIdentity {
 		@Override
 		public void handle( SettingsEvent event ) {
 			updateTaskMonitorFromSettings( event.getSettings() );
+		}
+
+	}
+
+	private class FpsMonitorSettingsHandler implements EventHandler<SettingsEvent> {
+
+		@Override
+		public void handle( SettingsEvent event ) {
+			updateFpsMonitorFromSettings( event.getSettings() );
 		}
 
 	}
