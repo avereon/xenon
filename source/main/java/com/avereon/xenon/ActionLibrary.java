@@ -149,11 +149,9 @@ public class ActionLibrary {
 		proxy.setDescription( description );
 		if( "multi-state".equals( type ) ) addStates( bundle, id, proxy );
 
-		KeyCombination accelerator = proxy.getAccelerator();
-
 		actionsById.put( id, proxy );
-		System.out.println( "accelerator=" + accelerator + " proxy=" + proxy.getId() );
 
+		KeyCombination accelerator = proxy.getAccelerator();
 		if( accelerator != null ) actionsByAccelerator.put( accelerator, proxy );
 	}
 
