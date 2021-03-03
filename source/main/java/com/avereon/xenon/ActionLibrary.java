@@ -5,7 +5,6 @@ import com.avereon.util.Log;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
@@ -16,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ActionLibrary {
 
 	private static final Logger log = Log.get();
+
+	private static final ActionProxy NOOP = new ActionProxy();
 
 	private final Map<String, ActionProxy> actionsById;
 
@@ -151,16 +152,18 @@ public class ActionLibrary {
 		KeyCombination accelerator = proxy.getAccelerator();
 
 		actionsById.put( id, proxy );
+		System.out.println( "accelerator=" + accelerator + " proxy=" + proxy.getId() );
+
 		if( accelerator != null ) actionsByAccelerator.put( accelerator, proxy );
 	}
 
 	// This handler is to capture key combinations for actions that are not in menus or toolbars
 	public void registerScene( Scene scene ) {
-		scene.addEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
+		scene.addEventHandler( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
 	public void unregisterScene( Scene scene ) {
-		scene.removeEventFilter( KeyEvent.KEY_PRESSED, shortcutHandler );
+		scene.removeEventHandler( KeyEvent.KEY_PRESSED, shortcutHandler );
 	}
 
 	private KeyCombination.Modifier[] getModifiers( KeyEvent event ) {
@@ -174,17 +177,7 @@ public class ActionLibrary {
 
 	private void handleEvent( KeyEvent event ) {
 		if( event.getCode().isModifierKey() ) return;
-
-		KeyCombination eventCombo = new KeyCodeCombination( event.getCode(), getModifiers( event ) );
-		ActionProxy proxy = actionsByAccelerator.get( eventCombo );
-		if( proxy == null ) return;
-		KeyCombination accelerator = proxy.getAccelerator();
-		if( accelerator == null ) return;
-
-		if( accelerator.match( event ) ) {
-			proxy.handle( new ActionEvent() );
-			if( proxy.isEnabled() ) event.consume();
-		}
+		actionsByAccelerator.keySet().stream().filter( k -> k.match( event ) ).findFirst().ifPresent( k -> actionsByAccelerator.getOrDefault( k, NOOP ).handle( new ActionEvent() ) );
 	}
 
 	private void addStates( ProductBundle bundle, String id, ActionProxy proxy ) {

@@ -229,6 +229,7 @@ public class ActionProxy implements EventHandler<ActionEvent> {
 	public void handle( ActionEvent event ) {
 		if( actionStack.size() == 0 ) return;
 		actionStack.peek().handle( event );
+		if( isEnabled() ) event.consume();
 		setState( getNextState() );
 	}
 
