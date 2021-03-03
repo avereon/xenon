@@ -99,7 +99,7 @@ public class Guide {
 		return node;
 	}
 
-	private static class GuideNodeTreeItemComparator implements Comparator <TreeItem<GuideNode>>  {
+	private static class GuideNodeTreeItemComparator implements Comparator<TreeItem<GuideNode>> {
 
 		@Override
 		public int compare( TreeItem<GuideNode> o1, TreeItem<GuideNode> o2 ) {
@@ -111,16 +111,16 @@ public class Guide {
 
 	}
 
-//	public final GuideNode addNode( GuideNode parent, GuideNode node, int index ) {
-//		Fx.run( () -> {
-//			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
-//			int treeIndex = index;
-//			int size = item.getChildren().size();
-//			if( treeIndex > size ) treeIndex = size;
-//			item.getChildren().add( treeIndex, node.getTreeItem() );
-//		} );
-//		return node;
-//	}
+	//	public final GuideNode addNode( GuideNode parent, GuideNode node, int index ) {
+	//		Fx.run( () -> {
+	//			TreeItem<GuideNode> item = parent == null ? root : parent.getTreeItem();
+	//			int treeIndex = index;
+	//			int size = item.getChildren().size();
+	//			if( treeIndex > size ) treeIndex = size;
+	//			item.getChildren().add( treeIndex, node.getTreeItem() );
+	//		} );
+	//		return node;
+	//	}
 
 	public final GuideNode removeNode( GuideNode node ) {
 		Fx.run( () -> node.getTreeItem().getParent().getChildren().remove( node.getTreeItem() ) );
@@ -170,6 +170,15 @@ public class Guide {
 	public BooleanProperty dragAndDropEnabledProperty() {
 		return dragAndDropEnabledProperty;
 	}
+
+	/**
+	 * This method can be overridden to capture when the nodes are moved in the guide
+	 *
+	 * @param item The guide node that was moved
+	 * @param target The guide node that the item was dropped on
+	 * @param drop The guide drop hint
+	 */
+	protected void moveNode( GuideNode item, GuideNode target, Guide.Drop drop ) {}
 
 	/* Only intended to be used by the GuideTool */
 	final TreeItem<GuideNode> getRoot() {
@@ -239,8 +248,11 @@ public class Guide {
 		selectedItems.set( items );
 	}
 
-	protected void moveNode( GuideNode item, GuideNode target, Guide.Drop drop ) {
-		//
+	/* Only intended to be used by the GuideTool to reselect the selected items */
+	final void reselectSelectedItems() {
+		Set<TreeItem<GuideNode>> items = new HashSet<>(selectedItems.get());
+		setSelectedItems( Set.of() );
+		setSelectedItems( items );
 	}
 
 	private void updateExpandedItems() {

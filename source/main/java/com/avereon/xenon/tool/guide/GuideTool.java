@@ -92,6 +92,8 @@ public class GuideTool extends ProgramTool {
 	protected void ready( OpenAssetRequest request ) {
 		setTitle( getProduct().rb().text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
+
+		guideTree.focusedProperty().addListener( (p,o,n)-> guide.reselectSelectedItems() );
 	}
 
 	@Override

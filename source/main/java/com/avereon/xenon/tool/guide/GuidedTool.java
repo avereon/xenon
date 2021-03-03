@@ -50,8 +50,8 @@ public abstract class GuidedTool extends ProgramTool {
 		getGuide().expandedItemsProperty().addListener( guideExpandedNodesListener );
 		getGuide().selectedItemsProperty().addListener( guideSelectedNodesListener );
 
-		// Set the expanded ids before setting the selected ids
 		Fx.run( () -> {
+			// Set the expanded ids before setting the selected ids
 			getGuide().setExpandedIds( Arrays.stream( getSettings().get( GUIDE_EXPANDED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 			getGuide().setSelectedIds( Arrays.stream( getSettings().get( GUIDE_SELECTED_IDS, "" ).split( "," ) ).collect( Collectors.toSet() ) );
 		} );
