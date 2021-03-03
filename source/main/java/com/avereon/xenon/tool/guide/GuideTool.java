@@ -11,6 +11,7 @@ import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.Tool;
 import com.avereon.xenon.workpane.ToolEvent;
 import com.avereon.xenon.workpane.Workpane;
+import com.avereon.zerra.javafx.Fx;
 import com.avereon.zerra.javafx.FxUtil;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
@@ -238,27 +239,29 @@ public class GuideTool extends ProgramTool {
 	}
 
 	private void expandAndCollapsePaths( TreeItem<GuideNode> selectedItem ) {
-		Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
-		boolean collapse = settings.get( "workspace-guide-auto-collapse", Boolean.class, false );
-		boolean expand = settings.get( "workspace-guide-auto-expand", Boolean.class, false );
+		Fx.run( ()  -> {
+			Settings settings = getProgram().getSettingsManager().getSettings( ProgramSettings.PROGRAM );
+			boolean collapse = settings.get( "workspace-guide-auto-collapse", Boolean.class, false );
+			boolean expand = settings.get( "workspace-guide-auto-expand", Boolean.class, false );
 
-		// Expand the selected item
-		if( expand && selectedItem != null ) selectedItem.setExpanded( true );
+			// Expand the selected item
+			if( expand && selectedItem != null ) selectedItem.setExpanded( true );
 
-		// Collapse items that are not parents of the selected item
-		if( expand && collapse ) {
-			int count = guideTree.getExpandedItemCount();
-			List<TreeItem<GuideNode>> collapseItems = new ArrayList<>();
+			// Collapse items that are not parents of the selected item
+			if( expand && collapse ) {
+				int count = guideTree.getExpandedItemCount();
+				List<TreeItem<GuideNode>> collapseItems = new ArrayList<>();
 
-			for( int index = 0; index < count; index++ ) {
-				TreeItem<GuideNode> item = guideTree.getTreeItem( index );
-				if( !FxUtil.isParentOf( item, selectedItem ) ) collapseItems.add( item );
+				for( int index = 0; index < count; index++ ) {
+					TreeItem<GuideNode> item = guideTree.getTreeItem( index );
+					if( !FxUtil.isParentOf( item, selectedItem ) ) collapseItems.add( item );
+				}
+
+				for( TreeItem<GuideNode> item : collapseItems ) {
+					item.setExpanded( false );
+				}
 			}
-
-			for( TreeItem<GuideNode> item : collapseItems ) {
-				item.setExpanded( false );
-			}
-		}
+		});
 	}
 
 	@SuppressWarnings( "unchecked" )
