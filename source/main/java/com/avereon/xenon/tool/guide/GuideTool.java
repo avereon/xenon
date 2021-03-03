@@ -27,6 +27,8 @@ import java.util.*;
 
 public class GuideTool extends ProgramTool {
 
+	public static final Guide NO_GUIDE = new Guide();
+
 	private static final Logger log = Log.get();
 
 	private static final DataFormat DATA_FORMAT = new DataFormat( "application/x-cartesia-layer" );
@@ -67,6 +69,8 @@ public class GuideTool extends ProgramTool {
 		scroller.setFitToHeight( true );
 		getChildren().add( scroller );
 
+		guide = NO_GUIDE;
+
 		toolActivatedWatcher = new ToolActivatedWatcher();
 		toolConcealedWatcher = new ToolConcealedWatcher();
 		selectedItemsListener = new GuideTreeSelectedItemsListener();
@@ -93,9 +97,7 @@ public class GuideTool extends ProgramTool {
 		setTitle( getProduct().rb().text( "tool", "guide-name" ) );
 		setGraphic( getProduct().getProgram().getIconLibrary().getIcon( "guide" ) );
 
-		guideTree.focusedProperty().addListener( (p,o,n)-> {
-			if( guide != null ) guide.reselectSelectedItems();
-		} );
+		guideTree.focusedProperty().addListener( (p,o,n)-> guide.reselectSelectedItems() );
 	}
 
 	@Override
@@ -148,7 +150,8 @@ public class GuideTool extends ProgramTool {
 
 	private void setGuide( Guide guide ) {
 		Guide oldGuide = this.guide;
-		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, guide ) );
+		Guide newGuide = guide == null ? NO_GUIDE : guide;
+		if( context != null ) context.dispatch( new GuideEvent( this, GuideEvent.GUIDE_CHANGING, oldGuide, newGuide ) );
 
 		// Disconnect the old guide
 		if( this.guide != null ) {
@@ -165,7 +168,7 @@ public class GuideTool extends ProgramTool {
 			guideTree.setRoot( null );
 		}
 
-		this.guide = guide;
+		this.guide = newGuide;
 
 		// Connect the new guide
 		if( this.guide != null ) {
@@ -190,11 +193,11 @@ public class GuideTool extends ProgramTool {
 				setSelectedItems( items );
 			}
 
-			String title = guide.getTitle();
+			String title = newGuide.getTitle();
 			if( TextUtil.isEmpty( title ) ) title = getProduct().rb().text( "tool", "guide-name" );
 			setTitle( title );
 
-			String icon = guide.getIcon();
+			String icon = newGuide.getIcon();
 			if( TextUtil.isEmpty( icon ) ) icon = "guide";
 			setGraphic( getProduct().getProgram().getIconLibrary().getIcon( icon ) );
 		}
