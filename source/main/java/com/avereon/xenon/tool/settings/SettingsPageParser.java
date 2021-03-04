@@ -76,8 +76,8 @@ public class SettingsPageParser {
 		return parse( product, path, BundleKey.SETTINGS );
 	}
 
-	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String key ) throws IOException {
-		return new SettingsPageParser( product ).parse( path, key );
+	public static Map<String, SettingsPage> parse( ProgramProduct product, String path, String bundleKey ) throws IOException {
+		return new SettingsPageParser( product ).parse( path, bundleKey );
 	}
 
 	private Map<String, SettingsPage> parse( String path, String bundleKey ) throws IOException {
