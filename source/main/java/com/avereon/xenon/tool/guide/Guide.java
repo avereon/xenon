@@ -250,9 +250,10 @@ public class Guide {
 
 	/* Only intended to be used by the GuideTool to reselect the selected items */
 	final void reselectSelectedItems() {
-		Set<TreeItem<GuideNode>> items = new HashSet<>(selectedItems.get());
-		setSelectedItems( Set.of() );
-		setSelectedItems( items );
+		// FIXME This is causing some odd side effects because it can cause the target to disappear and reappear
+//		Set<TreeItem<GuideNode>> items = new HashSet<>(selectedItems.get());
+//		setSelectedItems( Set.of() );
+//		setSelectedItems( items );
 	}
 
 	private void updateExpandedItems() {
