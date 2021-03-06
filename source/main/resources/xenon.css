@@ -334,6 +334,21 @@
 }
 
 /*******************************************************************************
+ * Paint Picker
+ ******************************************************************************/
+.paint-picker {
+	-fx-alignment: BASELINE_LEFT;
+}
+
+.paint-picker > .paint-swatch {
+	-fx-stroke: -fx-box-border;
+	-fx-pref-width: 1em;
+	-fx-pref-height: 1em;
+	-fx-border-color: -fx-box-border;
+	-fx-border-width: 1px;
+}
+
+/*******************************************************************************
  * Memory Monitor
  ******************************************************************************/
 .memory-monitor {
