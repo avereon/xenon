@@ -1,11 +1,10 @@
 package com.avereon.xenon.mod;
 
-import com.avereon.product.ProductBundle;
 import com.avereon.xenon.Mod;
 
 public class MockMod extends Mod {
 
-	public MockMod() throws Exception {
+	public MockMod() {
 		super();
 	}
 
@@ -20,15 +19,5 @@ public class MockMod extends Mod {
 
 	@Override
 	public void unregister() {}
-
-	@Override
-	public ClassLoader getClassLoader() {
-		return getClass().getClassLoader();
-	}
-
-	@Override
-	public ProductBundle rb() {
-		return null;
-	}
 
 }

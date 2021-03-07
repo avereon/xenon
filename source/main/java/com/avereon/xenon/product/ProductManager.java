@@ -3,6 +3,7 @@ package com.avereon.xenon.product;
 import com.avereon.event.EventHandler;
 import com.avereon.product.Product;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.product.RepoCard;
 import com.avereon.settings.Settings;
 import com.avereon.settings.SettingsEvent;
@@ -1157,7 +1158,7 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 
 			// Create the mod module layer
 			Configuration modConfiguration = bootConfiguration.resolveAndBind( ModuleFinder.of(), finder, Set.of() );
-			ModuleLayer modLayer = bootLayer.defineModulesWithOneLoader( modConfiguration, null );
+			ModuleLayer modLayer = bootLayer.defineModulesWithManyLoaders( modConfiguration, getProgram().getClass().getClassLoader() );
 			ServiceLoader<Mod> loader = ServiceLoader.load( modLayer, Mod.class );
 
 			// Load the mod
@@ -1185,6 +1186,13 @@ public class ProductManager implements Controllable<ProductManager>, Configurabl
 				log.log( Log.WARN, "Mod already loaded: " + card.getProductKey() );
 				return;
 			}
+
+			// This will need to change if nested mods are to be supported
+			// Set the parent product
+			mod.setParent( getProgram() );
+
+			// Init Rb
+			Rb.init( mod );
 
 			// Configure logging for the mod
 			Log.setPackageLogLevel( mod.getClass().getPackageName(), getProgram().getProgramParameters().get( LogFlag.LOG_LEVEL ) );

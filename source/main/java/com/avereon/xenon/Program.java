@@ -6,6 +6,7 @@ import com.avereon.event.EventHub;
 import com.avereon.event.EventType;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
+import com.avereon.product.Rb;
 import com.avereon.product.Release;
 import com.avereon.settings.Settings;
 import com.avereon.util.*;
@@ -206,6 +207,7 @@ public class Program extends Application implements ProgramProduct {
 		time( "configure-data-folder" );
 
 		// Create the product resource bundle
+		Rb.init( this );
 		programResourceBundle = new ProductBundle( this );
 		time( "resource-bundle" );
 
@@ -712,11 +714,6 @@ public class Program extends Application implements ProgramProduct {
 	@Override
 	public ProductCard getCard() {
 		return card;
-	}
-
-	@Override
-	public ClassLoader getClassLoader() {
-		return getClass().getClassLoader();
 	}
 
 	@Override

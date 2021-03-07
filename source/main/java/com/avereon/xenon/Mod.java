@@ -1,12 +1,13 @@
 package com.avereon.xenon;
 
+import com.avereon.product.Product;
 import com.avereon.product.ProductBundle;
 import com.avereon.product.ProductCard;
 import com.avereon.settings.Settings;
 import com.avereon.util.Log;
-import com.avereon.zerra.image.VectorImage;
 import com.avereon.xenon.asset.AssetType;
 import com.avereon.xenon.tool.settings.SettingsPage;
+import com.avereon.zerra.image.VectorImage;
 
 import java.io.IOException;
 import java.lang.System.Logger;
@@ -35,6 +36,8 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 
 	private Program program;
 
+	private Product parent;
+
 	private ProductCard card;
 
 	private ProductBundle resourceBundle;
@@ -56,8 +59,12 @@ public abstract class Mod implements ProgramProduct, Comparable<Mod> {
 	}
 
 	@Override
-	public ClassLoader getClassLoader() {
-		return getClass().getClassLoader();
+	public Product getParent() {
+		return parent;
+	}
+
+	public void setParent( Product parent ) {
+		this.parent = parent;
 	}
 
 	@Override

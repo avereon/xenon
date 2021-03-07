@@ -232,7 +232,8 @@ public abstract class ProgramTool extends Tool implements WritableIdentity {
 	}
 
 	protected void addStylesheet( String stylesheet ) {
-		getStylesheets().add( Objects.requireNonNull( product.getClassLoader().getResource( stylesheet ) ).toExternalForm() );
+		ClassLoader loader = product.getClass().getClassLoader();
+		getStylesheets().add( Objects.requireNonNull( loader.getResource( stylesheet ) ).toExternalForm() );
 	}
 
 	void waitForReady( OpenAssetRequest request ) {
