@@ -64,13 +64,13 @@ abstract class Screenshots {
 			this.screenshots = Paths.get( "target" ).resolve( PROFILE );
 			Files.createDirectories( screenshots );
 			startup( scale );
-			screenshotDefaultWorkarea();
+
+			doScreenshotAndReset( "default-workarea" );
 			screenshot( ProgramWelcomeType.URI, "welcome-tool" );
 			screenshot( ProgramAboutType.URI, "about-tool" );
 			screenshotSettingsPages();
 			screenshotProductPages();
 			screenshotThemes();
-			reset();
 		} catch( Throwable throwable ) {
 			throwable.printStackTrace( System.err );
 		} finally {
@@ -86,33 +86,34 @@ abstract class Screenshots {
 		}
 	}
 
-	private void screenshotDefaultWorkarea() throws InterruptedException, TimeoutException {
-		workspace.screenshot( getPath( "default-workarea" ) );
-		reset();
-	}
-
 	private void screenshot( URI uri, String path ) throws InterruptedException, TimeoutException {
 		program.getAssetManager().openAsset( uri );
 		workpaneWatcher.waitForEvent( ToolEvent.ADDED );
-		workspace.screenshot( getPath( path ) );
-		reset();
+		doScreenshotAndReset( path );
 	}
 
 	private void screenshot( URI uri, String extra, String path ) throws InterruptedException, TimeoutException {
-		screenshot( URI.create( uri.toString() + extra ), path );
+		screenshot( URI.create( uri.toString() + "#" + extra ), path );
+	}
+
+	private void screenshotNoReset( String path ) {
+		doScreenshotNoReset( path );
 	}
 
 	private void screenshotSettingsPages() throws InterruptedException, TimeoutException {
 		for( String id : program.getSettingsManager().getPageIds() ) {
-			screenshot( ProgramSettingsType.URI, "#" + id, "settings/settings-tool-" + id );
+			screenshot( ProgramSettingsType.URI, id, "settings/settings-tool-" + id );
 		}
 	}
 
 	private void screenshotProductPages() throws InterruptedException, TimeoutException {
-		screenshot( ProgramProductType.URI, "#installed", "product-tool-installed" );
-		//screenshot( ProgramProductType.URI, "#available", "product-tool-available" );
-		//screenshot( ProgramProductType.URI, "#updates", "product-tool-updates" );
-		screenshot( ProgramProductType.URI, "#sources", "product-tool-sources" );
+		screenshot( ProgramProductType.URI, "installed", "product-tool-installed" );
+		screenshot( ProgramProductType.URI, "sources", "product-tool-sources" );
+
+		// NOTE This one requires time to determine the available mods
+		//screenshot( ProgramProductType.URI, "available", "product-tool-available" );
+		// NOTE This one requires time to determine the available updates
+		//screenshot( ProgramProductType.URI, "updates", "product-tool-updates" );
 	}
 
 	private void screenshotThemes() throws InterruptedException, TimeoutException {
@@ -122,8 +123,19 @@ abstract class Screenshots {
 
 		program.getThemeManager().getThemes().stream().map( ThemeMetadata::getId ).forEach( id -> {
 			Fx.run( () -> program.getWorkspaceManager().setTheme( id ) );
-			workspace.screenshot( getPath( "themes/" + id ) );
+			screenshotNoReset( "themes/" + id );
 		} );
+
+		reset();
+	}
+
+	private void doScreenshotAndReset( String path ) throws InterruptedException, TimeoutException {
+		doScreenshotNoReset( path );
+		reset();
+	}
+
+	private void doScreenshotNoReset( String path ) {
+		workspace.screenshot( getPath( path ) );
 	}
 
 	private Path getPath( String name ) {
@@ -159,7 +171,7 @@ abstract class Screenshots {
 			exception.printStackTrace( System.err );
 		}
 
-		String uiScale = System.getProperty( "glass.gtk.uiScale");
+		String uiScale = System.getProperty( "glass.gtk.uiScale" );
 		double actualScale = program.getWorkspaceManager().getActiveStage().getRenderScaleX();
 		System.out.println( "Screenshots req-scale=" + scale + " uiScale=" + uiScale + " scale=" + actualScale );
 
